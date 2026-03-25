@@ -17,8 +17,8 @@ const handleSubmit = vi.fn();
 
 const defaultMockPermissionState = 'prompt';
 const status = new EventEmitterMock();
-(status as any).state = defaultMockPermissionState;
-(window.navigator as any).permissions = {
+status['state'] = defaultMockPermissionState;
+(navigator as any).permissions = {
   query: vi.fn().mockResolvedValue(status),
 };
 

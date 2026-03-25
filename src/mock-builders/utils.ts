@@ -42,7 +42,7 @@ export async function createClientWithChannel({
 
   const client = existingClient || (await getTestClientWithUser({ id: users[0].id }));
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channel('messaging', (mockedChannel as any).id);
+  const channel = client.channel('messaging', mockedChannel['id']);
   await channel.watch();
 
   return { channel, client, users };

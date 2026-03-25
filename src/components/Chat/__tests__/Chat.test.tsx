@@ -382,10 +382,10 @@ describe('Chat', () => {
         </Chat>,
       );
       await waitFor(() => {
-        expect(context.t).toBe((newI18nInstance as any).t);
-        expect(context.tDateTimeParser).toBe((newI18nInstance as any).tDateTimeParser);
-        expect(context.t).not.toBe((i18nInstance as any).t);
-        expect(context.tDateTimeParser).not.toBe((i18nInstance as any).tDateTimeParser);
+        expect(context.t).toBe(newI18nInstance['t']);
+        expect(context.tDateTimeParser).toBe(newI18nInstance['tDateTimeParser']);
+        expect(context.t).not.toBe(i18nInstance['t']);
+        expect(context.tDateTimeParser).not.toBe(i18nInstance['tDateTimeParser']);
       });
     });
   });

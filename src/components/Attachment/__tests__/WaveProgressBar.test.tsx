@@ -84,7 +84,7 @@ describe('WaveProgressBar', () => {
   it('recalculates the number of bars on root resize', async () => {
     render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(ResizeObserverMock.observers).toHaveLength(1);
-    const activeObserver = (ResizeObserver as any).observers[0];
+    const activeObserver = ResizeObserver['observers'][0];
     expect(activeObserver.active).toBeTruthy();
     await act(() => {
       activeObserver.cb([{ contentRect: { width: 21 } }]);

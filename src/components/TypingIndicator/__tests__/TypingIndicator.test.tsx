@@ -158,7 +158,7 @@ describe('TypingIndicator', () => {
     const client = await getTestClientWithUser();
     const ch = generateChannel({ config: { typing_events: false } } as any);
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', (ch as any).id);
+    const channel = client.channel('messaging', ch['id']);
     const channelConfig = { typing_events: false } as any;
     await channel.watch();
 

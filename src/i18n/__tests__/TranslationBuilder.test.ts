@@ -7,7 +7,7 @@ const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
 describe('TranslationBuilder and TranslationTopic', () => {
   it('gets initiated', () => {
     const manager = new TranslationBuilder(mockI18Next);
-    expect((manager as any).i18next).toEqual(mockI18Next);
+    expect(manager['i18next']).toEqual(mockI18Next);
   });
 
   it('registers and retrieves the builder', () => {
@@ -29,19 +29,17 @@ describe('TranslationBuilder and TranslationTopic', () => {
     manager.registerTopic('notification', NotificationTranslationTopic);
     manager.registerTranslators('notification', { test: translator });
     const notificationBuilder = manager.getTopic('notification');
-    expect((notificationBuilder as any).translators.get('test')).toEqual(translator);
+    expect(notificationBuilder['translators'].get('test')).toEqual(translator);
     manager.removeTranslators('notification', ['test']);
-    expect((notificationBuilder as any).translators.get('test')).toBeUndefined();
+    expect(notificationBuilder['translators'].get('test')).toBeUndefined();
   });
 
   it('stores translators for non-existent topic in a buffer', () => {
     const manager = new TranslationBuilder(mockI18Next);
     const translators = { custom1: vi.fn(), custom2: vi.fn() };
     manager.registerTranslators('notification', translators);
-    expect((manager as any).topics.size).toEqual(0);
-    expect((manager as any).translatorRegistrationsBuffer.notification).toEqual(
-      translators,
-    );
+    expect(manager['topics'].size).toEqual(0);
+    expect(manager['translatorRegistrationsBuffer'].notification).toEqual(translators);
   });
 
   it('removes translators from buffer on translation removal', () => {
@@ -50,11 +48,9 @@ describe('TranslationBuilder and TranslationTopic', () => {
     manager.registerTranslators('notification', translators);
     manager.removeTranslators('notification', ['custom1']);
     expect(
-      Object.keys((manager as any).translatorRegistrationsBuffer.notification).length,
+      Object.keys(manager['translatorRegistrationsBuffer'].notification).length,
     ).toBe(1);
-    expect(
-      (manager as any).translatorRegistrationsBuffer.notification.custom2,
-    ).toBeDefined();
+    expect(manager['translatorRegistrationsBuffer'].notification.custom2).toBeDefined();
   });
 
   it('flushes the buffered translators on topic registration', () => {
@@ -62,7 +58,7 @@ describe('TranslationBuilder and TranslationTopic', () => {
     const translators = { custom1: vi.fn(), custom2: vi.fn() };
     manager.registerTranslators('notification', translators);
     manager.registerTopic('notification', NotificationTranslationTopic);
-    expect((manager as any).translatorRegistrationsBuffer.notification).toBeUndefined();
+    expect(manager['translatorRegistrationsBuffer'].notification).toBeUndefined();
   });
 
   it("overrides the topic's translators with buffered translators", () => {

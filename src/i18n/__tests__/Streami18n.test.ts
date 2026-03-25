@@ -338,13 +338,13 @@ describe('Streami18n translationBuilder', () => {
   it('is created at construction time', () => {
     const streami18n = new Streami18n(streami18nOptions);
     expect(streami18n.translationBuilder).toBeDefined();
-    expect((streami18n.translationBuilder as any).topics.size).toBe(0);
+    expect(streami18n.translationBuilder['topics'].size).toBe(0);
   });
   it('registers topics on init', async () => {
     const streami18n = new Streami18n(streami18nOptions);
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
-    expect((streami18n.translationBuilder as any).topics.size).toBe(1);
+    expect(streami18n.translationBuilder['topics'].size).toBe(1);
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       NotificationTranslationTopic,
     );
@@ -362,7 +362,7 @@ describe('Streami18n translationBuilder', () => {
     });
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
-    expect((streami18n.translationBuilder as any).topics.size).toBe(2);
+    expect(streami18n.translationBuilder['topics'].size).toBe(2);
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       NotificationTranslationTopic,
     );
@@ -382,7 +382,7 @@ describe('Streami18n translationBuilder', () => {
     });
     await streami18n.init();
     expect(streami18n.translationBuilder).toBeDefined();
-    expect((streami18n.translationBuilder as any).topics.size).toBe(1);
+    expect(streami18n.translationBuilder['topics'].size).toBe(1);
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       CustomNotificationTranslationTopic,
     );

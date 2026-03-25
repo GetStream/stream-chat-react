@@ -774,7 +774,7 @@ describe('ChannelList', () => {
         client = await getTestClientWithUser({ id: user1.id });
 
         useMockedApis(client, [getOrCreateChannelApi(mockedChannels[0])]);
-        channel = client.channel('messaging', (mockedChannels[0] as any).id);
+        channel = client.channel('messaging', mockedChannels[0]['id']);
         await channel.watch();
         useMockedApis(client, [
           queryChannelsApi(mockedChannels), // first API call goes to /channels endpoint

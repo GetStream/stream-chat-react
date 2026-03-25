@@ -40,7 +40,7 @@ const originalConsoleError = console.error;
 vi.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg: any[]) => {
   const msg = Array.isArray(errorOrTextorArg)
     ? errorOrTextorArg[0]
-    : ((errorOrTextorArg as any).message ?? errorOrTextorArg);
+    : (errorOrTextorArg['message'] ?? errorOrTextorArg);
   if (msg.match('Not implemented')) return;
   originalConsoleError(...errorOrTextorArg);
 });

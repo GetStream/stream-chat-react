@@ -131,7 +131,7 @@ describe('NotificationList', () => {
     startTimeout.mockReset();
     mockedUseChatContext.mockReset();
     mockedUseNotifications.mockReset();
-    delete (window as any).IntersectionObserver;
+    delete window['IntersectionObserver'];
   });
 
   it('starts a timeout only when a notification first intersects the scroll container', () => {
@@ -160,7 +160,7 @@ describe('NotificationList', () => {
   });
 
   it('starts timeouts immediately when IntersectionObserver is not available', () => {
-    delete (window as any).IntersectionObserver;
+    delete window['IntersectionObserver'];
 
     render(<NotificationList />);
 

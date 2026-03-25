@@ -63,8 +63,8 @@ const dateSeparatorInsertedAt = (
   const midDateMsg = makeDateSeparator(messages[1]);
 
   if (unread) {
-    (startDateMsg as any).unread = unread;
-    (midDateMsg as any).unread = unread;
+    startDateMsg['unread'] = unread;
+    midDateMsg['unread'] = unread;
   }
 
   // beginning + mid

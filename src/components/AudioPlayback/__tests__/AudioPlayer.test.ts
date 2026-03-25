@@ -114,7 +114,7 @@ describe('AudioPlayer', () => {
   it('canPlayMimeType delegates to elementRef.canPlayType', () => {
     const player = makePlayer();
     // attach an element so canPlayMimeType uses elementRef
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const spy = vi.spyOn(player.elementRef, 'canPlayType').mockReturnValue('probably');
     expect(player.canPlayMimeType('audio/ogg')).toBe(true);
     expect(spy).toHaveBeenCalledWith('audio/ogg');
@@ -129,8 +129,8 @@ describe('AudioPlayer', () => {
     expect(player.isPlaying).toBe(true);
     expect(player.currentPlaybackRate).toBe(1.5);
     expect(player.elementRef.playbackRate).toBe(1.5);
-    // eslint-disable-next-line no-underscore-dangle
-    expect((player as any)._pool.setActiveAudioPlayer).toHaveBeenCalledWith(player);
+
+    expect(player['_pool'].setActiveAudioPlayer).toHaveBeenCalledWith(player);
   });
 
   it('play() early-return path when element is already playing', async () => {
@@ -140,7 +140,7 @@ describe('AudioPlayer', () => {
     vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
 
     // attach and spy on the concrete element
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const playSpy = vi.spyOn(player.elementRef, 'play');
 
     await player.play();
@@ -162,7 +162,7 @@ describe('AudioPlayer', () => {
   it('play() when element.play rejects triggers registerError(error) and isPlaying=false', async () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     vi.spyOn(player.elementRef, 'play').mockRejectedValueOnce(new Error('x'));
     await player.play();
     expect(onError).toHaveBeenCalledWith(
@@ -179,7 +179,7 @@ describe('AudioPlayer', () => {
 
     let resolve;
     // attach and stub play to a pending promise
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>
         new Promise((res) => {
@@ -206,7 +206,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer({ plugins: [plugin] });
 
     let resolve;
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>
         new Promise((res) => {
@@ -231,7 +231,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer();
     vi.spyOn(HTMLMediaElement.prototype, 'paused', 'get').mockReturnValue(false);
 
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const pauseSpy = vi.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).toHaveBeenCalled();
@@ -240,7 +240,7 @@ describe('AudioPlayer', () => {
 
   it('pause() when element is not playing does nothing', () => {
     const player = makePlayer();
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const pauseSpy = vi.spyOn(player.elementRef, 'pause');
     player.pause();
     expect(pauseSpy).not.toHaveBeenCalled();
@@ -258,7 +258,7 @@ describe('AudioPlayer', () => {
 
   it('stop() pauses, resets secondsElapsed and currentTime', () => {
     const player = makePlayer();
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const pauseSpy = vi.spyOn(player, 'pause');
     player.state.partialNext({ secondsElapsed: 50 });
     expect(player.secondsElapsed).toBe(50);
@@ -337,7 +337,7 @@ describe('AudioPlayer', () => {
   it('seek emits errCode seek-not-supported when not seekable', () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
 
     // not seekable
     vi.spyOn(player.elementRef, 'duration', 'get').mockReturnValue(NaN);
@@ -389,7 +389,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer({ plugins: [{ id: 'TestOnRemove', onRemove }] });
 
     // attach concrete element to spy on load()
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const el = createdAudios[1];
     const loadSpy = vi.spyOn(el, 'load');
 
@@ -407,7 +407,7 @@ describe('AudioPlayer', () => {
     const player = makePlayer();
 
     // ensure element exists before removal
-    (player as any).ensureElementRef();
+    player['ensureElementRef']();
     const firstEl = createdAudios[1];
     expect(player.elementRef).toBe(firstEl);
 

@@ -7,8 +7,8 @@ const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
 describe('NotificationTranslationTopic', () => {
   it('gets initiated with defaults', () => {
     const builder = new NotificationTranslationTopic({ i18next: mockI18Next });
-    expect((builder as any).i18next).toEqual(mockI18Next);
-    expect((builder as any).translators.size).toBe(
+    expect(builder['i18next']).toEqual(mockI18Next);
+    expect(builder['translators'].size).toBe(
       Object.keys(defaultNotificationTranslators).length,
     );
   });
@@ -22,13 +22,13 @@ describe('NotificationTranslationTopic', () => {
       i18next: mockI18Next,
       translators,
     });
-    expect((builder as any).translators.size).toBe(
+    expect(builder['translators'].size).toBe(
       Object.keys(defaultNotificationTranslators).length + 2,
     );
-    expect((builder as any).translators.get('test')).toEqual(translators.test);
-    expect(
-      (builder as any).translators.get('validation:attachment:upload:blocked'),
-    ).toEqual(translators['validation:attachment:upload:blocked']);
+    expect(builder['translators'].get('test')).toEqual(translators.test);
+    expect(builder['translators'].get('validation:attachment:upload:blocked')).toEqual(
+      translators['validation:attachment:upload:blocked'],
+    );
   });
   it('builds the translation', () => {
     const translators = {

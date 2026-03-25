@@ -94,7 +94,7 @@ describe('MessageList', () => {
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannelData)]);
-    channel = chatClient.channel('messaging', (mockedChannelData as any).id);
+    channel = chatClient.channel('messaging', mockedChannelData['id']);
     await channel.watch();
 
     markReadMock = vi.spyOn(channel, 'markRead').mockResolvedValue(markReadApi(channel));

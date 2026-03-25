@@ -139,7 +139,7 @@ describe('Thread', () => {
   it('should render the MessageList component with the correct props without date separators', () => {
     const additionalMessageListProps = {
       loadingMore: false,
-      loadMore: (channelActionContextMock as any).threadLoadingMore,
+      loadMore: channelActionContextMock['threadLoadingMore'],
       propName: 'value',
       read: {},
     };
@@ -158,8 +158,8 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        loadingMore: (channelActionContextMock as any).threadLoadingMore,
-        loadMore: (channelStateContextMock as any).loadMoreThread,
+        loadingMore: channelActionContextMock['threadLoadingMore'],
+        loadMore: channelStateContextMock['loadMoreThread'],
         Message: MessageMock,
         messages: channelStateContextMock.threadMessages,
         threadList: true,
@@ -172,7 +172,7 @@ describe('Thread', () => {
   it('should render the MessageList component with date separators if enabled', () => {
     const additionalMessageListProps = {
       loadingMore: false,
-      loadMore: (channelActionContextMock as any).threadLoadingMore,
+      loadMore: channelActionContextMock['threadLoadingMore'],
       propName: 'value',
       read: {},
     };
@@ -192,8 +192,8 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        loadingMore: (channelActionContextMock as any).threadLoadingMore,
-        loadMore: (channelStateContextMock as any).loadMoreThread,
+        loadingMore: channelActionContextMock['threadLoadingMore'],
+        loadMore: channelStateContextMock['loadMoreThread'],
         Message: MessageMock,
         messages: channelStateContextMock.threadMessages,
         threadList: true,
@@ -327,9 +327,9 @@ describe('Thread', () => {
   it('should render null if replies is disabled', async () => {
     const client = await getTestClientWithUser();
     const ch = generateChannel({ getConfig: () => ({ replies: false }) } as any);
-    const channelConfig = (ch as any).getConfig();
+    const channelConfig = ch['getConfig']();
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', (ch as any).id);
+    const channel = client.channel('messaging', ch['id']);
     await channel.watch();
 
     const { container } = render(

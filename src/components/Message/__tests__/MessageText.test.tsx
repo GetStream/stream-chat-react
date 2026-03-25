@@ -78,7 +78,7 @@ async function renderMessageText({
     state: { membership: {} },
   } as any);
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
-  const channelConfig = (channel as any).getConfig();
+  const channelConfig = channel['getConfig']();
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(

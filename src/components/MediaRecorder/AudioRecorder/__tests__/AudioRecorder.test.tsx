@@ -135,7 +135,7 @@ vi.spyOn(transcoder, 'transcode').mockImplementation((opts) =>
   Promise.resolve(new Blob([opts.blob], { type: 'audio/wav' })),
 );
 
-(window.navigator as any).permissions = {
+(navigator as any).permissions = {
   query: vi.fn(),
 };
 
@@ -153,7 +153,7 @@ window.URL.revokeObjectURL = vi.fn();
 
 describe('MessageInput', () => {
   beforeEach(() => {
-    (window.navigator as any).mediaDevices = {
+    (navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
   });
@@ -170,7 +170,7 @@ describe('MessageInput', () => {
   });
 
   it('does not render start recording button if navigator.mediaDevices is undefined', async () => {
-    (window.navigator as any).mediaDevices = undefined;
+    (navigator as any).mediaDevices = undefined;
     await renderComponent();
     expect(
       screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID),
@@ -285,7 +285,7 @@ describe('MessageInput', () => {
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
     const status = new EventEmitterMock() as any;
     status.state = 'denied';
-    (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
+    window.navigator.permissions.query['mockResolvedValueOnce'](status);
     await renderComponent();
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
     await act(() => {
@@ -298,7 +298,7 @@ describe('MessageInput', () => {
     const RecordingPermissionDeniedNotification = () => <div>custom notification</div>;
     const status = new EventEmitterMock() as any;
     status.state = 'denied';
-    (window.navigator.permissions.query as any).mockResolvedValueOnce(status);
+    window.navigator.permissions.query['mockResolvedValueOnce'](status);
     await renderComponent({ componentCtx: { RecordingPermissionDeniedNotification } });
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));

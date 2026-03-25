@@ -38,7 +38,7 @@ describe('DialogManager', () => {
 
   it('retrieves an existing dialog', () => {
     const dialogManager = new DialogManager();
-    (dialogManager.state as any).next((current: any) => ({
+    dialogManager.state['next']((current: any) => ({
       ...current,
       dialogsById: { ...current.dialogsById, [dialogId]: { id: dialogId, isOpen: true } },
     }));

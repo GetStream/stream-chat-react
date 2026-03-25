@@ -26,8 +26,8 @@ export const generateMessage = (options?: GenerateMessageOptions) => {
     user: null,
     ...options,
   } as MessageResponse;
-  if ((data as any).reminder) {
-    (data as any).reminder.message_id = data.id;
+  if (data['reminder']) {
+    data['reminder'].message_id = data.id;
   }
   return data;
 };

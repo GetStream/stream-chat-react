@@ -30,7 +30,7 @@ describe('AddCommentPrompt', () => {
     const addAnswerSpy = vi.spyOn(poll, 'addAnswer').mockResolvedValue(undefined!);
     const { container } = renderComponent({ poll });
     const input = container.querySelector('input');
-    expect(input).toHaveValue((poll.data.ownAnswer as any).text);
+    expect(input).toHaveValue(poll.data.ownAnswer['text']);
     const submitButton = container.querySelector('button[type="submit"]');
     expect(submitButton).toBeDisabled();
     expect(submitButton).toHaveTextContent('Update');

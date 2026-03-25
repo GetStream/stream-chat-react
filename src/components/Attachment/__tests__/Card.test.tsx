@@ -58,7 +58,7 @@ describe('Card', () => {
   beforeAll(async () => {
     chatClient = await getTestClientWithUser({ id: user.id });
     useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-    channel = chatClient.channel('messaging', (mockedChannel as any).id);
+    channel = chatClient.channel('messaging', mockedChannel['id']);
     channel.query();
   });
 

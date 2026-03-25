@@ -38,15 +38,15 @@ describe('SearchResultsHeader', () => {
       source.search.mockClear();
     });
 
-    (useSearchContext as any).mockReturnValue({
+    useSearchContext['mockReturnValue']({
       searchController: mockSearchController,
     });
 
-    (useTranslationContext as any).mockReturnValue({
+    useTranslationContext['mockReturnValue']({
       t: (key) => key,
     });
 
-    (useStateStore as any).mockReturnValue({ isActive: false });
+    useStateStore['mockReturnValue']({ isActive: false });
   });
 
   describe('rendering', () => {
@@ -90,7 +90,7 @@ describe('SearchResultsHeader', () => {
 
   describe('button states and styling', () => {
     it('applies active class to button when source is active', () => {
-      (useStateStore as any).mockReturnValue({ isActive: true });
+      useStateStore['mockReturnValue']({ isActive: true });
       render(<SearchResultsHeader />);
 
       const label = screen.getByText(
@@ -103,7 +103,7 @@ describe('SearchResultsHeader', () => {
     });
 
     it('does not apply active class when source is inactive', () => {
-      (useStateStore as any).mockReturnValue({ isActive: false });
+      useStateStore['mockReturnValue']({ isActive: false });
       render(<SearchResultsHeader />);
 
       const label = screen.getByText(
@@ -120,7 +120,7 @@ describe('SearchResultsHeader', () => {
     it('deactivates source when clicking active source button', () => {
       Object.values(mockSources).forEach((source) => {
         if (source.type !== 'messages') return;
-        (source as any).isActive = true;
+        source['isActive'] = true;
       });
       render(<SearchResultsHeader />);
 
@@ -132,7 +132,7 @@ describe('SearchResultsHeader', () => {
 
       Object.values(mockSources).forEach((source) => {
         if (source.type !== 'messages') return;
-        (source as any).isActive = undefined;
+        source['isActive'] = undefined;
       });
     });
 

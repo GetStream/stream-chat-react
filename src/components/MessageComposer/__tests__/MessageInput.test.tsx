@@ -461,7 +461,7 @@ describe(`MessageInputFlat`, () => {
         bubbles: true,
       });
       // set `clipboardData`. Mock DataTransfer object
-      (clipboardEvent as any).clipboardData = {
+      clipboardEvent['clipboardData'] = {
         items: [
           {
             getAsFile: () => file,
@@ -503,7 +503,7 @@ describe(`MessageInputFlat`, () => {
         bubbles: true,
       });
       // set `clipboardData`. Mock DataTransfer object
-      (clipboardEvent as any).clipboardData = {
+      clipboardEvent['clipboardData'] = {
         items: [
           {
             getAsFile: () => file,
@@ -783,7 +783,7 @@ describe(`MessageInputFlat`, () => {
 
       const clipboardEvent = new Event('paste', { bubbles: true });
       // set `clipboardData`. Mock DataTransfer object
-      (clipboardEvent as any).clipboardData = {
+      clipboardEvent['clipboardData'] = {
         items: [
           { getAsFile: () => file, kind: 'file' },
           { getAsFile: () => image, kind: 'file' },

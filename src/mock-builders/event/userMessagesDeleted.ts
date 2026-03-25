@@ -17,7 +17,7 @@ export default ({
     const [channel_id, channel_type] = data.cid.split(':');
     client.dispatchEvent({
       channel_custom: {
-        name: (data as any).name as string | undefined,
+        name: data['name'] as string | undefined,
       },
       channel_id,
       channel_member_count: 2,

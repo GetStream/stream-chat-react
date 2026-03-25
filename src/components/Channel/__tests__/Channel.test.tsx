@@ -189,11 +189,11 @@ describe('Channel', () => {
 
   beforeEach(async () => {
     // Re-establish ChatView mock implementations (may be cleared by vi.resetAllMocks in nested describe blocks)
-    (useChatViewContext as any).mockImplementation(() => ({
+    useChatViewContext['mockImplementation'](() => ({
       activeChatView: 'channels',
       setActiveChatView: vi.fn(),
     }));
-    (useThreadsViewContext as any).mockImplementation(() => ({
+    useThreadsViewContext['mockImplementation'](() => ({
       activeThread: undefined,
       setActiveThread: vi.fn(),
     }));

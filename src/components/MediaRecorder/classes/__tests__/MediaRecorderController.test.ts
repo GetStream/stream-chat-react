@@ -94,7 +94,7 @@ window.URL.revokeObjectURL = vi.fn();
 
 describe('MediaRecorderController', () => {
   beforeEach(() => {
-    (window.navigator as any).mediaDevices = {
+    (navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
   });
@@ -117,7 +117,7 @@ describe('MediaRecorderController', () => {
   });
 
   it('provides defaults on initiation (Safari)', () => {
-    (MediaRecorder.isTypeSupported as any).mockReturnValueOnce(false);
+    MediaRecorder.isTypeSupported['mockReturnValueOnce'](false);
     const controller = new MediaRecorderController();
     expect(controller.mediaRecorderConfig).toStrictEqual(
       expect.objectContaining({ mimeType: RECORDED_MIME_TYPE_BY_BROWSER.audio.safari }),
@@ -234,7 +234,7 @@ describe('MediaRecorderController', () => {
           'with permission "%s"',
           (permission) => {
             it('registers error on unavailable navigator.mediaDevices', async () => {
-              (window.navigator as any).mediaDevices = undefined;
+              (navigator as any).mediaDevices = undefined;
               const controller = new MediaRecorderController();
               controller.permission.state.next(permission as any);
               await expectRegistersError({
@@ -317,7 +317,7 @@ describe('MediaRecorderController', () => {
             it('handles runtime error', async () => {
               const controller = new MediaRecorderController();
               const errorMsg = 'User media error';
-              (window.navigator.mediaDevices.getUserMedia as any).mockRejectedValueOnce(
+              window.navigator.mediaDevices.getUserMedia['mockRejectedValueOnce'](
                 new Error(errorMsg),
               );
               await expectRegistersError({

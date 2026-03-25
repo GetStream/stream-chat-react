@@ -73,7 +73,7 @@ const renderComponent = async ({ channel, client, props }: Record<string, any> =
 const getCurrentPosition = vi.fn().mockImplementation(() => ({}));
 const watchPosition = vi.fn().mockImplementation(() => ({}));
 
-(window.navigator as any).geolocation = {
+(navigator as any).geolocation = {
   clearWatch: vi.fn().mockImplementation(() => ({})),
   getCurrentPosition,
   watchPosition,
@@ -84,7 +84,7 @@ describe('ShareLocationDialog', () => {
   it('renders dropdown with default durations', async () => {
     // The switch is disabled until a geolocation position is available
     const callbacks: Record<string, (...args: unknown[]) => void> = {};
-    (window.navigator.geolocation.watchPosition as any).mockImplementation(
+    window.navigator.geolocation.watchPosition['mockImplementation'](
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -116,7 +116,7 @@ describe('ShareLocationDialog', () => {
   it('renders dropdown with custom durations', async () => {
     // The switch is disabled until a geolocation position is available
     const callbacks: Record<string, (...args: unknown[]) => void> = {};
-    (window.navigator.geolocation.watchPosition as any).mockImplementation(
+    window.navigator.geolocation.watchPosition['mockImplementation'](
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -149,7 +149,7 @@ describe('ShareLocationDialog', () => {
 
   it('renders GeolocationMap component', async () => {
     const callbacks: Record<string, (...args: unknown[]) => void> = {};
-    (window.navigator.geolocation.watchPosition as any).mockImplementation(
+    window.navigator.geolocation.watchPosition['mockImplementation'](
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -204,7 +204,7 @@ describe('ShareLocationDialog', () => {
 
   it('attaches the position to message composition', async () => {
     const callbacks: Record<string, (...args: unknown[]) => void> = {};
-    (window.navigator.geolocation.watchPosition as any).mockImplementation(
+    window.navigator.geolocation.watchPosition['mockImplementation'](
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;
@@ -233,7 +233,7 @@ describe('ShareLocationDialog', () => {
 
   it('sends message with the position directly', async () => {
     const callbacks: Record<string, (...args: unknown[]) => void> = {};
-    (window.navigator.geolocation.watchPosition as any).mockImplementation(
+    window.navigator.geolocation.watchPosition['mockImplementation'](
       (onSuccess, onError) => {
         callbacks.onSuccess = onSuccess;
         callbacks.onError = onError;

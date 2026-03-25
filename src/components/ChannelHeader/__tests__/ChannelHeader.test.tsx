@@ -392,7 +392,7 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
+          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
         });
       });
 
@@ -405,7 +405,7 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
+          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
         });
       });
     });
@@ -427,7 +427,7 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
+          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
         });
       });
 
@@ -440,7 +440,7 @@ describe('ChannelHeader', () => {
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', (channelState.members[i] as any).userimage);
+          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
         });
       });
     });

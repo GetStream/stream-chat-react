@@ -172,7 +172,7 @@ describe('AudioPlayerPool', () => {
     const player = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
     pool.acquireElement({ ownerId: player.id, src: player.src });
     expect(pool.players).toHaveLength(1);
-    expect(Object.keys((pool as any).audios)).toHaveLength(0);
+    expect(Object.keys(pool['audios'])).toHaveLength(0);
     pool.remove(player.id);
     expect(pool.players).toHaveLength(0);
   });
@@ -182,10 +182,10 @@ describe('AudioPlayerPool', () => {
     const player = makePlayer(pool, { id: 'o1', src: 'https://example.com/a.mp3' });
     const element = pool.acquireElement({ ownerId: player.id, src: player.src });
     expect(pool.players).toHaveLength(1);
-    expect((pool as any).audios.get(player.id)).toBe(element);
+    expect(pool['audios'].get(player.id)).toBe(element);
     pool.remove(player.id);
     expect(pool.players).toHaveLength(0);
-    expect(Object.keys((pool as any).audios)).toHaveLength(0);
+    expect(Object.keys(pool['audios'])).toHaveLength(0);
   });
 
   it('sets active player only in single-playback mode', () => {
