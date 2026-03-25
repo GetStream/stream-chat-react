@@ -10,7 +10,8 @@ import { AudioContextMock } from '../../../../mock-builders/browser';
 window.AudioContext = AudioContextMock as any;
 
 const intervalID = 1;
-vi.spyOn(window, 'setInterval').mockReturnValue(intervalID as any);
+// @ts-expect-error - mock implementation has simplified signature
+vi.spyOn(window, 'setInterval').mockReturnValue(intervalID);
 
 describe('AmplitudeRecorder', () => {
   it('is initiated with defaults', () => {

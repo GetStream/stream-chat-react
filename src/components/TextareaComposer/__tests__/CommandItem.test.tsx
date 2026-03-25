@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { CommandItem } from '../SuggestionList';
 
@@ -8,7 +9,7 @@ afterEach(cleanup);
 
 describe('commandItem', () => {
   it('should render nothing with empty entity (no name)', () => {
-    const { container } = render(<CommandItem entity={{} as any} />);
+    const { container } = render(<CommandItem entity={fromPartial({})} />);
     // CommandItem returns null when entity.name is falsy
     expect(container).toBeEmptyDOMElement();
   });

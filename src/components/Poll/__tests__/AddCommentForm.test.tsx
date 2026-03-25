@@ -5,7 +5,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { AddCommentPrompt } from '../PollActions';
 import { PollProvider, TranslationProvider } from '../../../context';
-import { generatePoll } from '../../../mock-builders';
+import { generatePoll, mockTranslationContextValue } from '../../../mock-builders';
 
 const close = vi.fn();
 const messageId = 'messageId';
@@ -15,7 +15,7 @@ const t = ((v: string) => v) as any;
 
 const renderComponent = ({ poll, props }: any = {}) =>
   render(
-    <TranslationProvider value={{ t } as any}>
+    <TranslationProvider value={mockTranslationContextValue({ t })}>
       <PollProvider poll={poll}>
         <AddCommentPrompt close={close} messageId={messageId} {...props} />
       </PollProvider>

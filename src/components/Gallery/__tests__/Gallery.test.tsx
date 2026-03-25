@@ -7,6 +7,7 @@ import { ComponentProvider } from '../../../context';
 import {
   generateImageAttachment,
   generateLocalImageUploadAttachmentData,
+  mockComponentContext,
 } from '../../../mock-builders';
 
 const makeImageItem = (overrides?: any) =>
@@ -61,7 +62,7 @@ describe('Gallery', () => {
     const items = [makeImageItem()];
 
     render(
-      <ComponentProvider value={{ GalleryUI: ContextGalleryUI } as any}>
+      <ComponentProvider value={mockComponentContext({ GalleryUI: ContextGalleryUI })}>
         <Gallery items={items} />
       </ComponentProvider>,
     );

@@ -5,6 +5,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
+import { mockChannelStateContext } from '../../../mock-builders';
 import { ThreadHeader } from '../ThreadHeader';
 
 vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
@@ -90,7 +91,7 @@ const renderComponent = ({
         } as any
       }
     >
-      <ChannelStateProvider value={{ channel, thread } as any}>
+      <ChannelStateProvider value={mockChannelStateContext({ channel, thread })}>
         <TranslationProvider
           value={
             {

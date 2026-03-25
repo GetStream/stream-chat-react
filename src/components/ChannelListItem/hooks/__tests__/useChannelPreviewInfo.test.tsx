@@ -9,6 +9,7 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  mockTranslationContextValue,
   useMockedApis,
 } from '../../../../mock-builders';
 import { useChannelPreviewInfo } from '../useChannelPreviewInfo';
@@ -45,7 +46,7 @@ const createWrapper = (client) =>
           } as any
         }
       >
-        <TranslationProvider value={{ t: (key: string) => key } as any}>
+        <TranslationProvider value={mockTranslationContextValue()}>
           {children}
         </TranslationProvider>
       </ChatContext.Provider>

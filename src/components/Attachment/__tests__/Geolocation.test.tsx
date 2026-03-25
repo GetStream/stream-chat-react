@@ -30,7 +30,9 @@ const getGeolocationMap = () => screen.queryByTestId('geolocation-map');
 const ownUser = { id: 'user-id' };
 const otherUser = { id: 'other-user-id' };
 
-const renderComponent = async ({ channel, client, props } = {} as any) => {
+const renderComponent = async (
+  { channel, client, props } = {} as Record<string, any>,
+) => {
   const {
     channels: [defaultChannel],
     client: defaultClient,

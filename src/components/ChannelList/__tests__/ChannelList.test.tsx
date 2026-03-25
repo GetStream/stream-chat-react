@@ -24,7 +24,7 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   initClientWithChannels,
-  mockTranslationContext,
+  mockTranslationContextValue,
   queryChannelsApi,
   queryUsersApi,
   useMockedApis,
@@ -36,7 +36,7 @@ import { ChannelListItemUI } from '../../ChannelListItem';
 
 import {
   ChatContext,
-  TranslationContext,
+  TranslationProvider,
   useChannelListContext,
   useChatContext,
   WithComponents,
@@ -799,14 +799,14 @@ describe('ChannelList', () => {
                   } as any
                 }
               >
-                <TranslationContext.Provider value={mockTranslationContext as any}>
+                <TranslationProvider value={mockTranslationContextValue()}>
                   <ChannelList
                     filters={{}}
                     options={{ presence: true, state: true }}
                     showChannelSearch
                     {...channeListProps}
                   />
-                </TranslationContext.Provider>
+                </TranslationProvider>
               </ChatContext.Provider>,
             ),
         );

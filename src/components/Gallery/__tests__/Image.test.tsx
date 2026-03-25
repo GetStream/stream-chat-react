@@ -9,9 +9,11 @@ import { Channel } from '../../Channel';
 import { useChatContext, WithComponents } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
-import { mockTranslationContext } from '../../../mock-builders';
-
-import { initClientWithChannels } from '../../../mock-builders';
+import {
+  initClientWithChannels,
+  mockComponentContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 const mockImageUrl = 'https://placeimg.com/640/480/any';
 
@@ -20,8 +22,10 @@ const NoOpModal = ({ children }) => <div>{children}</div>;
 
 const renderWithProviders = (ui) =>
   render(
-    <TranslationProvider value={mockTranslationContext as any}>
-      <ComponentProvider value={{ Modal: NoOpModal as any }}>{ui}</ComponentProvider>
+    <TranslationProvider value={mockTranslationContextValue()}>
+      <ComponentProvider value={mockComponentContext({ Modal: NoOpModal })}>
+        {ui}
+      </ComponentProvider>
     </TranslationProvider>,
   );
 

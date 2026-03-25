@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import { UserItem } from '../SuggestionList';
@@ -9,7 +10,7 @@ afterEach(cleanup);
 
 describe('UserItem', () => {
   it('should render component with default props', () => {
-    const { container } = render(<UserItem entity={{} as any} />);
+    const { container } = render(<UserItem entity={fromPartial({})} />);
     expect(container).toBeEmptyDOMElement();
   });
 

@@ -8,7 +8,11 @@ import { ComponentProvider } from '../../../context/ComponentContext';
 import { MessageProvider } from '../../../context/MessageContext';
 import { DialogManagerProvider } from '../../../context';
 
-import { generateMessage, generateReaction } from '../../../mock-builders';
+import {
+  generateMessage,
+  generateReaction,
+  mockMessageContext,
+} from '../../../mock-builders';
 
 const handleReactionMock = vi.fn();
 
@@ -18,7 +22,7 @@ const renderComponent = ({ reactionOptions, ...props }: any = {}) =>
       <ComponentProvider
         value={{ reactionOptions: reactionOptions ?? defaultReactionOptions }}
       >
-        <MessageProvider value={{ message: generateMessage() } as any}>
+        <MessageProvider value={mockMessageContext({ message: generateMessage() })}>
           <ReactionSelector handleReaction={handleReactionMock} {...props} />
         </MessageProvider>
       </ComponentProvider>

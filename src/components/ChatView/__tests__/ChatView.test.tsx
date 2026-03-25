@@ -2,8 +2,12 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
 import { useEffect } from 'react';
 
+import { fromPartial } from '@total-typescript/shoehorn';
 import { ChatProvider, TranslationProvider } from '../../../context';
-import { getTestClientWithUser } from '../../../mock-builders';
+import {
+  getTestClientWithUser,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 import { ChatView, useChatViewContext } from '../ChatView';
 
 vi.mock('../../Threads', async () => {
@@ -42,26 +46,20 @@ const renderComponent = async (threadManagerState: any) => {
   return render(
     <ChatProvider
       value={{
-        channelsQueryState: {} as any,
+        channelsQueryState: fromPartial({}),
         client,
         closeMobileNav: vi.fn(),
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
         openMobileNav: vi.fn(),
-        searchController: {} as any,
+        searchController: fromPartial({}),
         setActiveChannel: vi.fn(),
         theme: 'messaging light',
         useImageFlagEmojisOnWindows: false,
       }}
     >
-      <TranslationProvider
-        value={{
-          t: ((key: string) => key) as any,
-          tDateTimeParser: vi.fn(),
-          userLanguage: 'en',
-        }}
-      >
+      <TranslationProvider value={mockTranslationContextValue()}>
         <ChatView>
           <ActivateThreadsView />
           <ChatView.Threads>
@@ -82,26 +80,20 @@ const renderSelector = async (selectorProps?: any) => {
   return render(
     <ChatProvider
       value={{
-        channelsQueryState: {} as any,
+        channelsQueryState: fromPartial({}),
         client,
         closeMobileNav: vi.fn(),
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
         openMobileNav: vi.fn(),
-        searchController: {} as any,
+        searchController: fromPartial({}),
         setActiveChannel: vi.fn(),
         theme: 'messaging light',
         useImageFlagEmojisOnWindows: false,
       }}
     >
-      <TranslationProvider
-        value={{
-          t: ((key: string) => key) as any,
-          tDateTimeParser: vi.fn(),
-          userLanguage: 'en',
-        }}
-      >
+      <TranslationProvider value={mockTranslationContextValue()}>
         <ChatView>
           <ChatView.Selector {...selectorProps} />
         </ChatView>

@@ -4,11 +4,11 @@ import { render } from '@testing-library/react';
 import { Window } from '../Window';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { generateMessage } from '../../../mock-builders';
+import { generateMessage, mockChannelStateContext } from '../../../mock-builders';
 
 const renderComponent = ({ channelStateContextMock, props }: any) =>
   render(
-    <ChannelStateProvider value={(channelStateContextMock ?? {}) as any}>
+    <ChannelStateProvider value={mockChannelStateContext(channelStateContextMock ?? {})}>
       <Window {...props} />
     </ChannelStateProvider>,
   );

@@ -26,7 +26,7 @@ async function renderUserRoleHook(
     disableQuotedMessages = undefined as any,
     message = generateMessage(),
     onlySenderCanEdit = false,
-  } = {} as any,
+  } = {} as Record<string, any>,
 ) {
   const client = await getTestClientWithUser(alice);
   const channel = generateChannel({

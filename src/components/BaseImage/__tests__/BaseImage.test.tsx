@@ -4,7 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { BaseImage } from '../BaseImage';
 import { TranslationProvider } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
-import { mockTranslationContext } from '../../../mock-builders';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 const props = {
   alt: 'alt',
@@ -16,7 +16,7 @@ const getImage = () => screen.queryByTestId(BASE_IMAGE_TEST_ID);
 
 const renderComponent = (props: any = {}) =>
   render(
-    <TranslationProvider value={mockTranslationContext as any}>
+    <TranslationProvider value={mockTranslationContextValue()}>
       <ComponentProvider value={{}}>
         <BaseImage {...props} />
       </ComponentProvider>
@@ -85,7 +85,7 @@ describe('BaseImage', () => {
     expect(screen.getByTestId(PLACEHOLDER_TEST_ID)).toBeInTheDocument();
 
     rerender(
-      <TranslationProvider value={mockTranslationContext as any}>
+      <TranslationProvider value={mockTranslationContextValue()}>
         <ComponentProvider value={{}}>
           <BaseImage src={'new-src'} />
         </ComponentProvider>

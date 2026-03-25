@@ -8,7 +8,7 @@ import {
   ModalContextProvider,
   TranslationProvider,
 } from '../../../context';
-import { mockTranslationContext } from '../../../mock-builders';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 import type { GalleryProps } from '../Gallery';
 import type { MessageContextValue, ModalContextValue } from '../../../context';
@@ -87,7 +87,7 @@ const renderGalleryUI = (
   }
 
   return render(
-    <TranslationProvider value={mockTranslationContext as any}>
+    <TranslationProvider value={mockTranslationContextValue()}>
       {children}
     </TranslationProvider>,
   );

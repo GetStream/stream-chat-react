@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { cleanup, render, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { EmoticonItem } from '../SuggestionList';
 
@@ -8,7 +9,7 @@ afterEach(cleanup);
 
 describe('EmoticonItem', () => {
   it('should not render component with empty entity', () => {
-    const { container } = render(<EmoticonItem entity={{} as any} />);
+    const { container } = render(<EmoticonItem entity={fromPartial({})} />);
     expect(container).toBeEmptyDOMElement();
   });
 

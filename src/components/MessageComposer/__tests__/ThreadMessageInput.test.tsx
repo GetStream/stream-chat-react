@@ -4,6 +4,7 @@ import {
   generateMessage,
   generateUser,
   initClientWithChannels,
+  mockChatContext,
 } from '../../../mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -122,7 +123,12 @@ const renderComponent = async ({
   await act(() => {
     renderResult = render(
       <ChatProvider
-        value={{ ...defaultChatContext, channel, client, ...chatContextOverrides } as any}
+        value={mockChatContext({
+          ...defaultChatContext,
+          channel,
+          client,
+          ...chatContextOverrides,
+        })}
       >
         <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
           {/* @ts-expect-error -- test-only component */}

@@ -3,11 +3,12 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 import { GlobalModal } from '../GlobalModal';
 import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
+import { mockChatContext } from '../../../mock-builders';
 
 const OVERLAY_SELECTOR = '.str-chat__modal';
 const renderComponent = ({ props }: any = {}) =>
   render(
-    <ChatProvider value={{ theme: 'messaging light' } as any}>
+    <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
       <ModalDialogManagerProvider>
         <GlobalModal {...props} />
       </ModalDialogManagerProvider>

@@ -29,7 +29,11 @@ import {
   queryChannelsApi,
   useMockedApis,
 } from 'mock-builders';
-import { initClientWithChannels } from '../../../mock-builders';
+import {
+  initClientWithChannels,
+  mockComponentContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 const EMPTY_CHANNEL_PREVIEW_TEXT = 'Empty channel';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -93,8 +97,8 @@ describe('ChannelPreview', () => {
           } as any
         }
       >
-        <TranslationProvider value={{ t: (key: any) => key, userLanguage: 'en' } as any}>
-          <ComponentProvider value={{ ChannelListItemUI } as any}>
+        <TranslationProvider value={mockTranslationContextValue()}>
+          <ComponentProvider value={mockComponentContext({ ChannelListItemUI })}>
             <ChannelListItem {...props} />
           </ComponentProvider>
         </TranslationProvider>

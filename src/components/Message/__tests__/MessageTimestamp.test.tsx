@@ -1,5 +1,7 @@
 import React from 'react';
 import { act, cleanup, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { LocalMessage } from 'stream-chat';
 import { generateMessage } from 'mock-builders';
 import { MessageTimestamp } from '../MessageTimestamp';
 import { ComponentProvider, MessageProvider, TranslationContext } from '../../../context';
@@ -108,7 +110,7 @@ describe('<MessageTimestamp />', () => {
   it('should not render if no message is available', () => {
     const { container } = render(
       <MessageProvider value={mockMessageContext()}>
-        <MessageTimestamp message={{} as any} />
+        <MessageTimestamp message={fromPartial<LocalMessage>({})} />
       </MessageProvider>,
     );
     expect(container.children).toHaveLength(0);

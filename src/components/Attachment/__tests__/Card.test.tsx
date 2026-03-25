@@ -3,11 +3,13 @@ import { cleanup, render, waitFor } from '@testing-library/react';
 
 import { Card } from '../LinkPreview/Card';
 
+import { fromPartial } from '@total-typescript/shoehorn';
 import { ChannelActionProvider, TranslationContext } from '../../../context';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
+import type { ChannelActionContextValue } from '../../../context';
 import type { Channel, StreamChat } from 'stream-chat';
 
 import {
@@ -18,6 +20,7 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   mockChannelStateContext,
+  mockChatContext,
   mockComponentContext,
   mockTranslationContextValue,
   useMockedApis,
@@ -31,7 +34,7 @@ const user = generateUser({ id: 'userId', name: 'username' });
 vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(async () => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
-const channelActionContext = {} as any;
+const channelActionContext = fromPartial<ChannelActionContextValue>({});
 
 const mockedChannel = generateChannel({
   members: [generateMember({ user })],
@@ -41,7 +44,7 @@ const mockedChannel = generateChannel({
 
 const renderCard = ({ cardProps, chatContext, theRenderer = render }: any) =>
   theRenderer(
-    <ChatProvider value={chatContext as any}>
+    <ChatProvider value={mockChatContext(chatContext)}>
       <TranslationContext.Provider value={mockTranslationContextValue()}>
         <ChannelActionProvider value={channelActionContext}>
           <ChannelStateProvider value={mockChannelStateContext()}>

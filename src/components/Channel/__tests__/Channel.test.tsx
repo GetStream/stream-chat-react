@@ -685,7 +685,7 @@ describe('Channel', () => {
   });
 
   it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
-    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}) as any);
+    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}));
     await renderComponent({
       channel,
       chatClient,
@@ -695,7 +695,7 @@ describe('Channel', () => {
   });
 
   it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
-    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}) as any);
+    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}));
     await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
@@ -1244,11 +1244,13 @@ describe('Channel', () => {
         });
         const loadMessageIntoState = vi
           .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation(() => ({}) as any);
+          // @ts-expect-error - mock implementation has simplified signature
+          .mockImplementation(() => ({}));
 
         const channelQuerySpy = vi
           .spyOn(channel, 'query')
-          .mockImplementation(() => ({}) as any);
+          // @ts-expect-error - mock implementation has simplified signature
+          .mockImplementation(() => ({}));
 
         let hasJumped;
         let highlightedMessageId;
@@ -1302,7 +1304,8 @@ describe('Channel', () => {
         if (['already loaded', 'query fails'].includes(loadScenario)) {
           channelQuerySpy = vi
             .spyOn(channel, 'query')
-            .mockImplementation(() => ({}) as any);
+            // @ts-expect-error - mock implementation has simplified signature
+            .mockImplementation(() => ({}));
         } else {
           // eslint-disable-next-line react-hooks/rules-of-hooks
           useMockedApis(chatClient, [
@@ -1312,7 +1315,8 @@ describe('Channel', () => {
         if (!loadScenario.startsWith('query by')) {
           loadMessageIntoState = vi
             .spyOn(channel.state, 'loadMessageIntoState')
-            .mockImplementation(() => ({}) as any);
+            // @ts-expect-error - mock implementation has simplified signature
+            .mockImplementation(() => ({}));
 
           if (loadScenario === 'query fails') {
             loadMessageIntoState.mockRejectedValue('Query failed');

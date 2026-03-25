@@ -80,7 +80,7 @@ const renderComponent = async ({
     channel = res.channels[0];
     client = res.client;
   }
-  vi.spyOn(channel, 'getDraft').mockImplementation((() => {}) as any);
+  vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
 
   const ThreadOrChannel = () =>
     channelStateContext?.thread ? (

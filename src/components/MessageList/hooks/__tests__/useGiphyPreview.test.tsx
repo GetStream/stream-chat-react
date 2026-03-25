@@ -6,6 +6,7 @@ import {
   generateMessage,
   generateUser,
   getTestClientWithUser,
+  mockChatContext,
 } from '../../../../mock-builders';
 
 import { useGiphyPreview } from '../VirtualizedMessageList';
@@ -21,7 +22,7 @@ const foreignNonGiphyMessage = generateMessage({ user: otherUser });
 
 const render = ({ client, separateGiphyPreview }) => {
   const wrapper = ({ children }: React.PropsWithChildren) => (
-    <ChatProvider value={{ client } as any}>{children}</ChatProvider>
+    <ChatProvider value={mockChatContext({ client })}>{children}</ChatProvider>
   );
   return renderHook(() => useGiphyPreview(separateGiphyPreview), { wrapper });
 };

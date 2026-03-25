@@ -1,3 +1,4 @@
+import { fromPartial } from '@total-typescript/shoehorn';
 import { audioPlayerNotificationsPluginFactory } from '../AudioPlayerNotificationsPlugin';
 
 describe('audioPlayerNotificationsPluginFactory', () => {
@@ -19,7 +20,7 @@ describe('audioPlayerNotificationsPluginFactory', () => {
     });
 
     // simulate failed-to-start
-    plugin.onError?.({ errCode: 'failed-to-start', player: {} as any });
+    plugin.onError?.({ errCode: 'failed-to-start', player: fromPartial({}) });
 
     expect(addError).toHaveBeenCalledTimes(1);
     let call = addError.mock.calls[0][0];
@@ -28,14 +29,14 @@ describe('audioPlayerNotificationsPluginFactory', () => {
     expect(call.origin.emitter).toBe('AudioPlayer');
 
     // simulate not-playable
-    plugin.onError?.({ errCode: 'not-playable', player: {} as any });
+    plugin.onError?.({ errCode: 'not-playable', player: fromPartial({}) });
     call = addError.mock.calls[1][0];
     expect(call.message).toBe(
       'Recording format is not supported and cannot be reproduced',
     );
 
     // simulate seek-not-supported
-    plugin.onError?.({ errCode: 'seek-not-supported', player: {} as any });
+    plugin.onError?.({ errCode: 'seek-not-supported', player: fromPartial({}) });
     call = addError.mock.calls[2][0];
     expect(call.message).toBe('Cannot seek in the recording');
   });
@@ -47,7 +48,7 @@ describe('audioPlayerNotificationsPluginFactory', () => {
       t: t as any,
     });
 
-    plugin.onError?.({ error: new Error('X-Error'), player: {} as any });
+    plugin.onError?.({ error: new Error('X-Error'), player: fromPartial({}) });
 
     const call = addError.mock.calls[0][0];
     expect(call.message).toBe('X-Error');
@@ -60,7 +61,7 @@ describe('audioPlayerNotificationsPluginFactory', () => {
       t: t as any,
     });
 
-    plugin.onError?.({ player: {} as any });
+    plugin.onError?.({ player: fromPartial({}) });
 
     const call = addError.mock.calls[0][0];
     expect(call.message).toBe('Error reproducing the recording');

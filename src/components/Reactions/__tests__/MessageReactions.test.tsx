@@ -6,7 +6,7 @@ import { axe } from '../../../../axe-helper';
 import { MessageReactions } from '../MessageReactions';
 import { MessageProvider } from '../../../context/MessageContext';
 
-import { generateReaction } from '../../../mock-builders';
+import { generateReaction, mockMessageContext } from '../../../mock-builders';
 import { ComponentProvider, DialogManagerProvider } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
 
@@ -23,7 +23,10 @@ const renderComponent = ({ reaction_groups = {}, ...props }: any = {}) => {
     <DialogManagerProvider>
       <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
         <MessageProvider
-          value={{ isMyMessage: () => false, message: { id: 'test-msg' } } as any}
+          value={mockMessageContext({
+            isMyMessage: () => false,
+            message: { id: 'test-msg' },
+          })}
         >
           <MessageReactions
             reaction_groups={reaction_groups}

@@ -39,7 +39,7 @@ const handleSubmit = vi.fn();
 const user = generateUser();
 
 const renderComponent = async (
-  { channel: customChannel, client: customClient } = {} as any,
+  { channel: customChannel, client: customClient } = {} as Record<string, any>,
 ) => {
   let channel = customChannel;
   let client = customClient;

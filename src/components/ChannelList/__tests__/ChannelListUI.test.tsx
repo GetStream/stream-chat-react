@@ -3,14 +3,14 @@ import { cleanup, render } from '@testing-library/react';
 
 import { ChannelListUI } from '../ChannelListUI';
 import { TranslationProvider } from '../../../context';
-import { mockTranslationContext } from '../../../mock-builders';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 // Weird hack to avoid big warnings
 // Maybe better to find a better solution for it.
 console.warn = () => null;
 
 const Component = ({ error = false, loading = false }: any) => (
-  <TranslationProvider value={mockTranslationContext as any}>
+  <TranslationProvider value={mockTranslationContextValue()}>
     <ChannelListUI
       {...({
         error,

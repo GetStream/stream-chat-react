@@ -5,7 +5,7 @@ import { PollProvider, TranslationProvider } from '../../../context';
 import { Poll } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { generatePoll } from '../../../mock-builders';
+import { generatePoll, mockTranslationContextValue } from '../../../mock-builders';
 
 const TITLE_SELECTOR = '.str-chat__poll-title';
 const SUBTITLE_SELECTOR = '.str-chat__poll-subtitle';
@@ -14,7 +14,7 @@ const t = ((v: string) => v) as any;
 
 const renderComponent = ({ poll }) =>
   render(
-    <TranslationProvider value={{ t } as any}>
+    <TranslationProvider value={mockTranslationContextValue({ t })}>
       <PollProvider poll={poll}>
         <PollHeader />
       </PollProvider>

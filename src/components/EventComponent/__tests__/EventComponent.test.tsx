@@ -1,6 +1,8 @@
 import React from 'react';
 
 import { act, cleanup, render, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { LocalMessage } from 'stream-chat';
 
 import { EventComponent } from '../EventComponent';
 import { Chat } from '../../Chat';
@@ -16,7 +18,7 @@ describe('EventComponent', () => {
     type: 'system',
   };
 
-  const renderComponent = async ({ chatProps, props } = {} as any) => {
+  const renderComponent = async ({ chatProps, props } = {} as Record<string, any>) => {
     let result;
     await act(() => {
       result = render(
@@ -29,7 +31,9 @@ describe('EventComponent', () => {
   };
 
   it('should render null for empty message', () => {
-    const { container } = render(<EventComponent message={{} as any} />);
+    const { container } = render(
+      <EventComponent message={fromPartial<LocalMessage>({})} />,
+    );
     expect(container).toBeEmptyDOMElement();
   });
 

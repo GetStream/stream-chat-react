@@ -4,7 +4,10 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { ModalGallery } from '../../Attachment/ModalGallery';
 import { TranslationProvider } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
-import { mockTranslationContext } from '../../../mock-builders';
+import {
+  mockComponentContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 const makeImageItem = (overrides = {}) => ({
   fallback: 'test.png',
@@ -16,13 +19,13 @@ const makeImageItem = (overrides = {}) => ({
 
 const renderComponent = (props = {}, componentOverrides = {}) =>
   render(
-    <TranslationProvider value={mockTranslationContext as any}>
+    <TranslationProvider value={mockTranslationContextValue()}>
       <ComponentProvider
-        value={{
-          Modal: (({ children, className, open }: any) =>
-            open ? <div className={className}>{children}</div> : null) as any,
+        value={mockComponentContext({
+          Modal: ({ children, className, open }: any) =>
+            open ? <div className={className}>{children}</div> : null,
           ...componentOverrides,
-        }}
+        })}
       >
         <ModalGallery items={[]} {...props} />
       </ComponentProvider>

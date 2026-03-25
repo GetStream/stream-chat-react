@@ -3,14 +3,14 @@ import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { LoadMoreButton } from '../LoadMoreButton';
 import { TranslationProvider } from '../../../context';
-import { mockTranslationContext } from '../../../mock-builders';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 describe('LoadMoreButton', () => {
   afterEach(cleanup);
 
   it('should render component with default props', () => {
     const { container, getByTestId } = render(
-      <TranslationProvider value={mockTranslationContext as any}>
+      <TranslationProvider value={mockTranslationContextValue()}>
         <LoadMoreButton isLoading={false} onClick={() => null} />
       </TranslationProvider>,
     );

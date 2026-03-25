@@ -501,7 +501,8 @@ describe('MessageList', () => {
         customUser: user,
       });
 
-      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false as any);
+      // @ts-expect-error - mock implementation has simplified signature
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
 
       await act(() => {
         renderComponent({
@@ -542,7 +543,8 @@ describe('MessageList', () => {
         customUser: user,
       });
 
-      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false as any);
+      // @ts-expect-error - mock implementation has simplified signature
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
 
       await act(() => {
         renderComponent({

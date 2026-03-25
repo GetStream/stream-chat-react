@@ -6,6 +6,7 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
+  mockChatContext,
   useMockedApis,
 } from 'mock-builders';
 
@@ -25,7 +26,7 @@ describe('ChannelPreviewMessenger', () => {
   let chatClient;
   let channel;
   const renderComponent = (props?: any, componentOverrides = {}) => (
-    <ChatProvider value={{ client: chatClient } as any}>
+    <ChatProvider value={mockChatContext({ client: chatClient })}>
       <DialogManagerProvider>
         <ComponentProvider
           value={{
