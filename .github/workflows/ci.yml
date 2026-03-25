@@ -2,6 +2,8 @@ name: CI
 
 on: [push]
 
+env:
+  BUILD_CACHE_KEY: ${{ github.sha }}-dist
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -28,6 +30,12 @@ jobs:
 
       - name: Validate translations
         run: yarn validate-translations
+
+      - name: Cache Build Output
+        uses: actions/cache@v5
+        with:
+          path: ./dist
+          key: '${{ env.BUILD_CACHE_KEY }}'
 
   test:
     runs-on: ubuntu-latest
@@ -62,9 +70,17 @@ jobs:
 
       - uses: ./.github/actions/setup-node
         env:
-          NODE_ENV: ""
+          NODE_ENV: ''
+
+      - name: Recover Build Output
+        id: build-cache
+        uses: actions/cache@v5
+        with:
+          path: ./dist
+          key: '${{ env.BUILD_CACHE_KEY }}'
 
       - name: Build SDK
+        if: steps.build-cache.outputs.cache-hit != 'true'
         run: yarn build
 
       - name: Install example dependencies
