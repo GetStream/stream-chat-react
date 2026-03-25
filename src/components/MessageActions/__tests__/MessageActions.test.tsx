@@ -587,7 +587,7 @@ describe('<MessageActions />', () => {
     const lastReceivedId = message.id;
     const read = [
       {
-        last_read: new Date(),
+        last_read: new Date().toISOString(),
         last_read_message_id: message.id,
         unread_messages: 0,
         user: me,

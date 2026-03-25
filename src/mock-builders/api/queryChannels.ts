@@ -1,5 +1,4 @@
 import type { ChannelAPIResponse } from 'stream-chat';
-import type { DeepPartial } from '../../types/types';
 
 import { mockedApiResponse } from './utils';
 
@@ -8,7 +7,7 @@ import { mockedApiResponse } from './utils';
  *
  * api - /channels
  */
-export const queryChannelsApi = (channels: DeepPartial<ChannelAPIResponse>[] = []) => {
+export const queryChannelsApi = (channels: ChannelAPIResponse[] = []) => {
   const result = {
     channels,
     duration: 0.01,

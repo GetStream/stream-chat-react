@@ -1,4 +1,11 @@
-import type { ChannelAPIResponse, StreamChat, UserResponse } from 'stream-chat';
+import type {
+  ChannelConfigWithInfo,
+  ChannelResponse,
+  GetDraftResponse,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
+import type { GenerateChannelOptions } from './generator/channel';
 import {
   generateChannel,
   generateMember,
@@ -7,10 +14,9 @@ import {
 } from './generator';
 import { getOrCreateChannelApi, getTestClientWithUser, useMockedApis } from './index';
 import { generateMessageDraft } from './generator/messageDraft';
-import type { DeepPartial } from '../types/types';
 
 interface CreateClientWithChannelOptions {
-  channelData?: Record<string, unknown>;
+  channelData?: Partial<ChannelResponse>;
   empty?: boolean;
   existingClient?: StreamChat | null;
   existingUsers?: UserResponse[] | null;
@@ -30,17 +36,15 @@ export async function createClientWithChannel({
     existingUsers || Array.from({ length: memberCount }, () => generateUser());
   const members = users.map((user) => generateMember({ user }));
   const mockedChannel = generateChannel({
-    data: channelData,
+    channel: channelData,
     members,
     messages: empty
       ? []
       : (' '
           .repeat(messageCount)
           .split(' ')
-          .map((_v, i) =>
-            generateMessage({ user: users[i % memberCount] as any }),
-          ) as any),
-  } as DeepPartial<ChannelAPIResponse>);
+          .map((_v, i) => generateMessage({ user: users[i % memberCount] })) as any),
+  });
 
   const client = existingClient || (await getTestClientWithUser({ id: users[0].id }));
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
@@ -55,9 +59,9 @@ export const initChannelFromData = async ({
   client,
   defaultGenerateChannelOptions,
 }: {
-  channelData: any;
+  channelData: GenerateChannelOptions;
   client: StreamChat;
-  defaultGenerateChannelOptions: any;
+  defaultGenerateChannelOptions: GenerateChannelOptions;
 }) => {
   const mockedChannelData = generateChannel({
     ...defaultGenerateChannelOptions,
@@ -71,12 +75,12 @@ export const initChannelFromData = async ({
     mockedChannelData.channel.id,
   );
   await channel.watch();
-  vi.spyOn(channel, 'getConfig').mockImplementation(
-    () => mockedChannelData.channel.config as any,
+  vi.spyOn(channel, 'getConfig').mockReturnValue(
+    mockedChannelData.channel.config as ChannelConfigWithInfo,
   );
-  vi.spyOn(channel, 'getDraft').mockImplementation(
-    () => generateMessageDraft({ channel_cid: channel.cid }) as any,
-  );
+  vi.spyOn(channel, 'getDraft').mockResolvedValue({
+    draft: generateMessageDraft({ channel_cid: channel.cid }),
+  } as GetDraftResponse);
   return channel;
 };
 
@@ -84,13 +88,13 @@ export const initClientWithChannels = async ({
   channelsData,
   customUser,
 }: {
-  channelsData?: any[];
+  channelsData?: GenerateChannelOptions[];
   customUser?: Partial<UserResponse>;
 } = {}) => {
   const user = customUser || generateUser();
   const client = await getTestClientWithUser(user);
   const defaultGenerateChannelOptions = {
-    members: [generateMember({ user } as any)],
+    members: [generateMember({ user: user as UserResponse })],
   };
   const channels = await Promise.all(
     (channelsData ?? [defaultGenerateChannelOptions]).map((channelData) =>

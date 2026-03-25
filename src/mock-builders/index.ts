@@ -1,5 +1,6 @@
+import { fromPartial } from '@total-typescript/shoehorn';
 import { StreamChat } from 'stream-chat';
-import type { UserResponse } from 'stream-chat';
+import type { TokenManager, UserResponse } from 'stream-chat';
 import { nanoid } from 'nanoid';
 
 const apiKey = 'API_KEY';
@@ -12,26 +13,36 @@ const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
     client['_user'] = { ...user } as UserResponse;
     client.userID = user.id;
     client['userToken'] = token;
-    client.wsPromise = Promise.resolve(true) as any;
+    client.wsPromise = Promise.resolve() as StreamChat['wsPromise'];
     resolve();
   });
 
-const noop = () => {};
+interface MockClientOverrides {
+  getAppSettings?: StreamChat['getAppSettings'];
+  queryReactions?: StreamChat['queryReactions'];
+}
 
-function mockClient(client: StreamChat, mocks: Record<string, any> = {}) {
-  vi.spyOn(client, '_setToken').mockImplementation(noop as any);
-  vi.spyOn(client, '_setupConnection').mockImplementation(noop as any);
-  vi.spyOn(client, 'getAppSettings').mockImplementation(mocks.getAppSettings ?? noop);
-  vi.spyOn(client, 'queryReactions').mockImplementation(mocks.queryReactions ?? noop);
-  client.tokenManager = {
+function mockClient(client: StreamChat, mocks: MockClientOverrides = {}) {
+  vi.spyOn(client, '_setToken').mockResolvedValue();
+  vi.spyOn(client, '_setupConnection').mockReturnValue(undefined);
+  vi.spyOn(client, 'getAppSettings').mockImplementation(
+    mocks.getAppSettings ?? ((() => Promise.resolve({})) as StreamChat['getAppSettings']),
+  );
+  vi.spyOn(client, 'queryReactions').mockImplementation(
+    mocks.queryReactions ??
+      ((() => Promise.resolve({})) as unknown as StreamChat['queryReactions']),
+  );
+  client.tokenManager = fromPartial<TokenManager>({
     getToken: vi.fn(() => token),
     tokenReady: vi.fn(() => true),
-  } as any;
-  client['connectUser'] = connectUser.bind(null, client) as any;
+  });
+  vi.spyOn(client, 'connectUser').mockImplementation(
+    (_user) => connectUser(client, _user) as any,
+  );
   return client;
 }
 
-export const getTestClient = (mocks?: Record<string, unknown>) =>
+export const getTestClient = (mocks?: MockClientOverrides) =>
   mockClient(new StreamChat(apiKey), mocks);
 
 export const getTestClientWithUser = async (

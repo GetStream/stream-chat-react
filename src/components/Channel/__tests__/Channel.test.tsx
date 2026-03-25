@@ -1236,7 +1236,7 @@ describe('Channel', () => {
                   last_read_message_id: 'X',
                   unread_messages: 0,
                   user,
-                },
+                } as any,
               ],
             },
           ],

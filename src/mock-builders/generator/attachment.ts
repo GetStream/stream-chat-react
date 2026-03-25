@@ -1,14 +1,16 @@
 import { nanoid } from 'nanoid';
-import type { Attachment } from 'stream-chat';
+import type { Action, Attachment } from 'stream-chat';
 
-export const generateAttachmentAction = (a: Record<string, unknown> = {}) => ({
+export const generateAttachmentAction = (a: Partial<Action> = {}): Action => ({
   name: nanoid(),
   text: nanoid(),
   value: nanoid(),
   ...a,
 });
 
-export const generateFile = (overrides: Record<string, unknown> = {}) => ({
+export const generateFile = (
+  overrides: Partial<File> & Record<string, unknown> = {},
+) => ({
   lastModified: 12345,
   lastModifiedDate: new Date(12345),
   name: 'file.pdf',
@@ -18,7 +20,9 @@ export const generateFile = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 
-export const generateImageFile = (overrides: Record<string, unknown> = {}) => ({
+export const generateImageFile = (
+  overrides: Partial<File> & Record<string, unknown> = {},
+) => ({
   ...generateFile(),
   name: 'image.png',
   type: 'image/png',
@@ -32,7 +36,7 @@ export const generateLocalAttachmentData = () => ({
 });
 
 export const generateLocalFileUploadAttachmentData = (
-  overrides?: any,
+  overrides?: Record<string, unknown> & { file?: Record<string, unknown> },
   attachmentData?: Record<string, unknown>,
 ) => ({
   localMetadata: {
@@ -45,7 +49,7 @@ export const generateLocalFileUploadAttachmentData = (
 });
 
 export const generateLocalImageUploadAttachmentData = (
-  overrides?: any,
+  overrides?: Record<string, unknown> & { file?: Record<string, unknown> },
   attachmentData?: Record<string, unknown>,
 ) => ({
   localMetadata: {

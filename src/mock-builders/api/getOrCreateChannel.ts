@@ -1,13 +1,6 @@
-import { mockedApiResponse } from './utils';
+import type { ChannelAPIResponse } from 'stream-chat';
 
-interface ChannelData {
-  channel: Record<string, unknown>;
-  draft?: any;
-  members: any[];
-  messages: any[];
-  pinnedMessages: any[];
-  read?: any[];
-}
+import { mockedApiResponse } from './utils';
 
 /**
  * Returns the api response for queryChannel api.
@@ -15,20 +8,19 @@ interface ChannelData {
  * api - /channels/{type}/{id}/query
  */
 export const getOrCreateChannelApi = (
-  channel: ChannelData = {
+  channel: ChannelAPIResponse = {
     channel: {},
     members: [],
     messages: [],
-    pinnedMessages: [],
-    read: [],
-  },
+    pinned_messages: [],
+  } as ChannelAPIResponse,
 ) => {
-  const result: Record<string, unknown> = {
+  const result: Partial<ChannelAPIResponse> & { duration: number } = {
     channel: channel.channel,
     duration: 0.01,
     members: channel.members,
     messages: channel.messages,
-    pinnedMessages: channel.pinnedMessages,
+    pinned_messages: channel.pinned_messages,
     read: channel.read,
   };
   if (channel.draft) {

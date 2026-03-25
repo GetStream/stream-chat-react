@@ -490,7 +490,7 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: messages[2].created_at,
+                last_read: new Date(messages[2].created_at).toISOString(),
                 last_read_message_id: messages[2].id,
                 unread_messages: 2,
                 user,
@@ -531,7 +531,7 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: lastMessage.created_at,
+                last_read: new Date(lastMessage.created_at).toISOString(),
                 last_read_message_id: lastMessage.id,
                 unread_messages: 0,
                 user,
@@ -582,7 +582,7 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: lastReadMessage.created_at,
+                last_read: new Date(lastReadMessage.created_at).toISOString(),
                 last_read_message_id: lastReadMessage.id,
                 unread_messages: 1,
                 user,

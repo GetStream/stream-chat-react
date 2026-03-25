@@ -1,6 +1,8 @@
-import type { ChannelMemberResponse } from 'stream-chat';
+import type { ChannelMemberResponse, UserResponse } from 'stream-chat';
 
-export const generateMember = (options: Partial<ChannelMemberResponse> & { user: any }) =>
+export const generateMember = (
+  options: Partial<ChannelMemberResponse> & { user: Partial<UserResponse> },
+) =>
   ({
     invited: false,
     is_moderator: false,
