@@ -1,4 +1,3 @@
-/* eslint-disable no-underscore-dangle */
 import { StreamChat } from 'stream-chat';
 import type { UserResponse } from 'stream-chat';
 import { nanoid } from 'nanoid';
@@ -6,31 +5,30 @@ import { nanoid } from 'nanoid';
 const apiKey = 'API_KEY';
 const token = 'dummy_token';
 
-const connectUser = (client: any, user: Partial<UserResponse>) =>
+const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
   new Promise<void>((resolve) => {
-    client.connectionId = 'dumm_connection_id';
-    client.user = user;
-    client.user.mutes = [];
-    client._user = { ...user };
+    client['connectionId'] = 'dumm_connection_id';
+    client.user = { ...user, mutes: [] } as UserResponse;
+    client['_user'] = { ...user } as UserResponse;
     client.userID = user.id;
-    client.userToken = token;
-    client.wsPromise = Promise.resolve(true);
+    client['userToken'] = token;
+    client.wsPromise = Promise.resolve(true) as any;
     resolve();
   });
 
 const noop = () => {};
 
-function mockClient(client: any, mocks: Record<string, any> = {}) {
-  vi.spyOn(client, '_setToken').mockImplementation(noop);
-  vi.spyOn(client, '_setupConnection').mockImplementation(noop);
+function mockClient(client: StreamChat, mocks: Record<string, any> = {}) {
+  vi.spyOn(client, '_setToken').mockImplementation(noop as any);
+  vi.spyOn(client, '_setupConnection').mockImplementation(noop as any);
   vi.spyOn(client, 'getAppSettings').mockImplementation(mocks.getAppSettings ?? noop);
   vi.spyOn(client, 'queryReactions').mockImplementation(mocks.queryReactions ?? noop);
   client.tokenManager = {
     getToken: vi.fn(() => token),
     tokenReady: vi.fn(() => true),
-  };
-  client.connectUser = connectUser.bind(null, client);
-  return client as StreamChat;
+  } as any;
+  client['connectUser'] = connectUser.bind(null, client) as any;
+  return client;
 }
 
 export const getTestClient = (mocks?: Record<string, unknown>) =>

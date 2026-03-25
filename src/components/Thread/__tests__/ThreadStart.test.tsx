@@ -9,6 +9,7 @@ import {
   TranslationProvider,
 } from '../../../context';
 
+import type { StreamChat } from 'stream-chat';
 import {
   generateMessage,
   getTestClientWithUser,
@@ -17,7 +18,7 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
-let client: any;
+let client: StreamChat;
 
 const mockedChannel = {
   off: vi.fn(),
