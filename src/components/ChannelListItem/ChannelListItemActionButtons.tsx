@@ -1,8 +1,5 @@
 import React, { type ComponentProps, type ComponentType, type ReactNode } from 'react';
 
-import { Button } from '../Button';
-import { IconDotGrid1x3Horizontal } from '../Icons';
-
 import clsx from 'clsx';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import {
@@ -16,7 +13,7 @@ export type ChannelListItemActionButtonsProps = ComponentProps<ComponentType>; /
 
 interface ChannelListItemActionButtonsInterface {
   (props: ChannelListItemActionButtonsProps): ReactNode;
-  getDialogId: (channelId: string) => string;
+  getDialogId: (_: { channelId: string }) => string;
   displayName: string;
 }
 
@@ -24,20 +21,18 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
   const { channel } = useChannelListItemContext();
   const [referenceElement, setReferenceElement] =
     React.useState<HTMLButtonElement | null>(null);
-  const dialogId = ChannelListItemActionButtons.getDialogId(
+  const dialogId = ChannelListItemActionButtons.getDialogId({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    channel.id!,
-  );
+    channelId: channel.id!,
+  });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
   const filteredActionSet = useBaseChannelActionSetFilter(defaultChannelActionSet);
-  const splitActionSet = useSplitActionSet(filteredActionSet);
+  const { dropdownActionSet, quickActionSet, quickDropdownToggleAction } =
+    useSplitActionSet(filteredActionSet);
 
-  if (
-    splitActionSet.quickActionSet.length + splitActionSet.dropdownActionSet.length ===
-    0
-  ) {
+  if (quickActionSet.length + dropdownActionSet.length === 0) {
     // no buttons to render, omit rendering wrapper
     return null;
   }
@@ -48,25 +43,10 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         'str-chat__channel-list-item__action-buttons--active': dialogIsOpen,
       })}
     >
-      {splitActionSet.dropdownActionSet.length > 0 && (
-        <Button
-          appearance='ghost'
-          aria-expanded={dialogIsOpen}
-          aria-pressed={dialogIsOpen}
-          circular
-          onClick={(e) => {
-            e.stopPropagation();
-
-            dialog.toggle();
-          }}
-          ref={setReferenceElement}
-          size='sm'
-          variant='secondary'
-        >
-          <IconDotGrid1x3Horizontal />
-        </Button>
+      {quickDropdownToggleAction && dropdownActionSet.length > 0 && (
+        <quickDropdownToggleAction.Component ref={setReferenceElement} />
       )}
-      {splitActionSet.quickActionSet.map(({ Component, type }) => (
+      {quickActionSet.map(({ Component, type }) => (
         <Component key={type} />
       ))}
       <ContextMenu
@@ -79,7 +59,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         tabIndex={-1}
         trapFocus
       >
-        {splitActionSet.dropdownActionSet.map(({ Component, type }) => (
+        {dropdownActionSet.map(({ Component, type }) => (
           <Component key={type} />
         ))}
       </ContextMenu>
@@ -87,7 +67,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
   );
 };
 
-ChannelListItemActionButtons.getDialogId = (channelId: string) =>
+ChannelListItemActionButtons.getDialogId = ({ channelId }) =>
   `channel-action-buttons-${channelId}`;
 
 ChannelListItemActionButtons.displayName = 'ChannelListItemActionButtons';

@@ -7,6 +7,7 @@ export const QuickMessageActionsButton = ({ className, ...props }: ButtonProps) 
     appearance='ghost'
     circular
     className={clsx('str-chat__message-actions-box-button', className)}
+    size='sm'
     variant='secondary'
     {...props}
   />

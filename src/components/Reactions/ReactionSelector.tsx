@@ -22,10 +22,7 @@ export type ReactionSelectorProps = {
 
 interface ReactionSelectorInterface {
   (props: ReactionSelectorProps): ReactNode;
-  getDialogId: (_: {
-    messageId: string;
-    threadList?: boolean;
-  }) => `reaction-selector${'-thread' | ''}--${string}`;
+  getDialogId: (_: { messageId: string; threadList?: boolean }) => string;
   displayName: string;
 }
 
@@ -149,9 +146,9 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   );
 };
 
-ReactionSelector.getDialogId = (({ messageId, threadList }) => {
+ReactionSelector.getDialogId = ({ messageId, threadList }) => {
   const dialogIdNamespace = threadList ? '-thread' : '';
-  return `reaction-selector${dialogIdNamespace}--${messageId}`;
-}) satisfies ReactionSelectorInterface['getDialogId'];
+  return `reaction-selector${dialogIdNamespace}-${messageId}`;
+};
 
 ReactionSelector.displayName = 'ReactionSelector';

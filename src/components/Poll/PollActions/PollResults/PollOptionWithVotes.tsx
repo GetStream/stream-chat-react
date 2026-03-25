@@ -46,6 +46,7 @@ export const PollOptionWithVotes = ({
       className={clsx('str-chat__poll-option', {
         'str-chat__poll-option--has-more-votes':
           isVotesPreview && voteCount > countVotesPreview,
+        'str-chat__poll-option--has-votes': voteCount,
       })}
     >
       <PollOptionWithVotesHeader option={option} optionOrderNumber={orderNumber} />

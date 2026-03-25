@@ -20,10 +20,11 @@ export default defineConfig({
     pool: 'forks',
     watch: false,
     testTimeout: 15000,
+    fileParallelism: true,
     css: false,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'lcov'],
+      reporter: ['json', 'text-summary'],
       include: ['src/**/*.{ts,tsx,js,jsx}'],
       exclude: [
         'src/**/__tests__/**',

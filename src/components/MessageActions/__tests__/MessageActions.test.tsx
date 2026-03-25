@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { axe } from '../../../../axe-helper';
 
 import { MessageActions } from '../MessageActions';
+import { defaultMessageActionSet } from '../MessageActions.defaults';
 
 import {
   ChannelActionProvider,
@@ -813,9 +814,13 @@ describe('<MessageActions />', () => {
   });
 
   describe('Custom message action sets', () => {
-    it('should render custom action components', async () => {
+    it('should render custom dropdown action components', async () => {
       const CustomAction = () => <button data-testid='custom-action'>Custom</button>;
       const customMessageActionSet = [
+        // include default toggle
+        defaultMessageActionSet.find(
+          ({ placement }) => placement === 'quick-dropdown-toggle',
+        ),
         {
           Component: CustomAction,
           placement: 'dropdown',
@@ -834,7 +839,7 @@ describe('<MessageActions />', () => {
       expect(screen.getByTestId('custom-action')).toBeInTheDocument();
     });
 
-    it('should support custom quick actions', async () => {
+    it('should render custom quick action components', async () => {
       const CustomQuickAction = () => (
         <button data-testid='custom-quick-action'>Quick</button>
       );
@@ -854,6 +859,31 @@ describe('<MessageActions />', () => {
       });
 
       expect(screen.getByTestId('custom-quick-action')).toBeInTheDocument();
+    });
+
+    it('should render custom quick-dropdown-toggle component', async () => {
+      const CustomQuickDropdownToggle = () => (
+        <button data-testid='custom-quick-dropdown-toggle'>Toggle</button>
+      );
+      const customMessageActionSet = [
+        {
+          Component: vi.fn(),
+          placement: 'dropdown',
+        },
+        {
+          Component: CustomQuickDropdownToggle,
+          placement: 'quick-dropdown-toggle',
+        },
+      ];
+
+      await renderMessageActions({
+        messageActionsProps: {
+          disableBaseMessageActionSetFilter: true,
+          messageActionSet: customMessageActionSet,
+        },
+      });
+
+      expect(screen.getByTestId('custom-quick-dropdown-toggle')).toBeInTheDocument();
     });
 
     it('should allow disabling base filter', async () => {

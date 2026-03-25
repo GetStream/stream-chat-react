@@ -1,5 +1,5 @@
 /* eslint-disable sort-keys */
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 
 import { GlobalModal } from '../Modal';
 import {
@@ -13,6 +13,7 @@ import {
   IconBubbleWideNotificationChatMessage,
   IconCircleBanSign,
   IconCloseQuote2,
+  IconDotGrid1x3Horizontal,
   IconEditBig,
   IconEmojiSmile,
   IconFlag2,
@@ -36,8 +37,13 @@ import {
   useTranslationContext,
 } from '../../context';
 import { RemindMeSubmenu, RemindMeSubmenuHeader } from './RemindMeSubmenu';
-import { ContextMenuButton, useContextMenuContext } from '../Dialog';
-import type { MessageActionSetItem } from './MessageActions';
+import {
+  ContextMenuButton,
+  useContextMenuContext,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+} from '../Dialog';
+import { MessageActions, type MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
@@ -374,6 +380,33 @@ const DefaultMessageActionComponents = {
     },
   },
   quick: {
+    // eslint-disable-next-line react/display-name
+    DropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
+      const { t } = useTranslationContext();
+      const { message } = useMessageContext();
+      const dropdownDialogIsOpen = useDialogIsOpen(
+        MessageActions.getDialogId({ messageId: message.id }),
+      );
+      const { dialog } = useDialogOnNearestManager({
+        id: MessageActions.getDialogId({ messageId: message.id }),
+      });
+
+      return (
+        <QuickMessageActionsButton
+          aria-expanded={dropdownDialogIsOpen}
+          aria-haspopup='true'
+          aria-label={t('aria/Open Message Actions Menu')}
+          className='str-chat__message-actions-box-button'
+          data-testid='message-actions-toggle-button'
+          onClick={() => {
+            dialog?.toggle();
+          }}
+          ref={ref}
+        >
+          <IconDotGrid1x3Horizontal className='str-chat__message-action-icon' />
+        </QuickMessageActionsButton>
+      );
+    }),
     React() {
       return <ReactionSelectorWithButton ReactionIcon={IconEmojiSmile} />;
     },
@@ -396,7 +429,10 @@ const DefaultMessageActionComponents = {
 };
 
 export const defaultMessageActionSet: MessageActionSetItem[] = [
-  // { placement: 'dropdown', type: 'block' },
+  {
+    Component: DefaultMessageActionComponents.quick.DropdownToggle,
+    placement: 'quick-dropdown-toggle',
+  },
   {
     Component: DefaultMessageActionComponents.quick.Reply,
     placement: 'quick',
