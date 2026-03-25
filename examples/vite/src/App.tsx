@@ -47,6 +47,7 @@ import {
   getSelectedChannelIdFromUrl,
   getSelectedChatViewFromUrl,
 } from './ChatLayout/Sync.tsx';
+import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import {
   CustomAttachmentActions,
@@ -182,6 +183,10 @@ const App = () => {
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
   const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
+  const initialThreadOpen = useMemo(
+    () => Boolean(new URLSearchParams(window.location.search).get('thread')),
+    [],
+  );
   const initialPanelLayout = useMemo(
     () => appSettingsStore.getLatestValue().panelLayout,
     [],
@@ -289,7 +294,15 @@ const App = () => {
     [initialPanelLayout.leftPanel.width, initialPanelLayout.threadPanel.width],
   );
 
-  if (!chatClient) return <>Loading...</>;
+  if (!chatClient) {
+    return (
+      <LoadingScreen
+        initialAppLayoutStyle={initialAppLayoutStyle}
+        initialNavOpen={initialNavOpen}
+        initialThreadOpen={initialThreadOpen}
+      />
+    );
+  }
 
   const messageUiOverrides: Record<string, unknown> = {};
   if (MessageUiOverride) {
