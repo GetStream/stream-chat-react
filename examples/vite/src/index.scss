@@ -256,7 +256,8 @@ body {
       display: none;
     }
 
-    .app-chat-view__channel-content > .app-chat-thread-panel:not(.app-chat-thread-panel--open) {
+    .app-chat-view__channel-content
+      > .app-chat-thread-panel:not(.app-chat-thread-panel--open) {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
@@ -310,12 +311,15 @@ body {
     body[data-app-sidebar-resize-state='expanded']
       .app-chat-view__channels-layout
       > .app-chat-sidebar-overlay,
-    .app-chat-view__channels-layout:not(.app-chat-view__channels-layout--sidebar-collapsed)
+    .app-chat-view__channels-layout:not(
+        .app-chat-view__channels-layout--sidebar-collapsed
+      )
       > .app-chat-sidebar-overlay {
-      flex: 0 0 calc(
-        var(--str-chat__chat-view-selector-mobile-width) +
-          var(--str-chat__channel-list-width)
-      );
+      flex: 0 0
+        calc(
+          var(--str-chat__chat-view-selector-mobile-width) +
+            var(--str-chat__channel-list-width)
+        );
       width: calc(
         var(--str-chat__chat-view-selector-mobile-width) +
           var(--str-chat__channel-list-width)
@@ -335,10 +339,11 @@ body {
       > .app-chat-sidebar-overlay,
     .app-chat-view__threads-layout:not(.app-chat-view__threads-layout--sidebar-collapsed)
       > .app-chat-sidebar-overlay {
-      flex: 0 0 calc(
-        var(--str-chat__chat-view-selector-mobile-width) +
-          var(--str-chat__thread-list-width)
-      );
+      flex: 0 0
+        calc(
+          var(--str-chat__chat-view-selector-mobile-width) +
+            var(--str-chat__thread-list-width)
+        );
       width: calc(
         var(--str-chat__chat-view-selector-mobile-width) +
           var(--str-chat__thread-list-width)
@@ -366,13 +371,15 @@ body {
         calc(0px - 100% - var(--str-chat__channel-list-transition-offset, 8px))
       );
       visibility: hidden;
-      transition-delay: 0s, 0s, 0s, 0s, 0s, 0s,
-        var(--str-chat__channel-list-transition-duration, 180ms);
+      transition-delay:
+        0s, 0s, 0s, 0s, 0s, 0s, var(--str-chat__channel-list-transition-duration, 180ms);
     }
 
     .app-chat-sidebar-overlay > .str-chat__chat-view__selector,
-    .app-chat-sidebar-overlay > .str-chat__chat-view__selector.str-chat__chat-view__selector--nav-closed,
-    .app-chat-sidebar-overlay > .str-chat__chat-view__selector.str-chat__chat-view__selector--nav-open {
+    .app-chat-sidebar-overlay
+      > .str-chat__chat-view__selector.str-chat__chat-view__selector--nav-closed,
+    .app-chat-sidebar-overlay
+      > .str-chat__chat-view__selector.str-chat__chat-view__selector--nav-open {
       position: static;
       inset: auto;
       width: var(--str-chat__chat-view-selector-mobile-width);
@@ -435,10 +442,7 @@ body {
       &.app-chat-view__channel-content--thread-open > .app-chat-view__channel-main {
         /* With thread open, give the thread its reserved width first,
            then let the main panel take whatever space is left. */
-        flex-basis: max(
-          0px,
-          calc(100% - max(var(--app-thread-panel-width), 360px))
-        );
+        flex-basis: max(0px, calc(100% - max(var(--app-thread-panel-width), 360px)));
         max-width: max(0px, calc(100% - max(var(--app-thread-panel-width), 360px)));
         min-width: 360px;
       }
@@ -503,7 +507,9 @@ body {
     /* If space gets tight while sidebar + thread are both open,
        prioritize the thread and collapse the main panel. */
     @container (max-width: 1148px) {
-      .app-chat-view__channels-layout:not(.app-chat-view__channels-layout--sidebar-collapsed)
+      .app-chat-view__channels-layout:not(
+          .app-chat-view__channels-layout--sidebar-collapsed
+        )
         .app-chat-view__channel-content--thread-open
         > .app-chat-view__channel-main {
         flex: 0 0 0;
@@ -517,7 +523,9 @@ body {
         );
       }
 
-      .app-chat-view__channels-layout:not(.app-chat-view__channels-layout--sidebar-collapsed)
+      .app-chat-view__channels-layout:not(
+          .app-chat-view__channels-layout--sidebar-collapsed
+        )
         .app-chat-view__channel-content--thread-open
         > .app-chat-resize-handle--thread {
         flex: 0 0 0;
@@ -528,7 +536,9 @@ body {
         pointer-events: none;
       }
 
-      .app-chat-view__channels-layout:not(.app-chat-view__channels-layout--sidebar-collapsed)
+      .app-chat-view__channels-layout:not(
+          .app-chat-view__channels-layout--sidebar-collapsed
+        )
         .app-chat-view__channel-content--thread-open
         > .app-chat-thread-panel.app-chat-thread-panel--open {
         flex: 1 1 auto;
@@ -584,11 +594,14 @@ body {
       transition:
         transform var(--str-chat__chat-view-selector-transition-duration, 180ms)
           var(--str-chat__chat-view-selector-transition-easing, ease),
-        visibility 0s linear var(--str-chat__chat-view-selector-transition-duration, 180ms);
+        visibility 0s linear
+          var(--str-chat__chat-view-selector-transition-duration, 180ms);
       z-index: 6;
     }
 
-    .app-chat-view__channels-layout:not(.app-chat-view__channels-layout--sidebar-collapsed)
+    .app-chat-view__channels-layout:not(
+        .app-chat-view__channels-layout--sidebar-collapsed
+      )
       > .app-chat-sidebar-overlay,
     .app-chat-view__threads-layout:not(.app-chat-view__threads-layout--sidebar-collapsed)
       > .app-chat-sidebar-overlay {
@@ -656,7 +669,9 @@ body {
       max-width: 0;
       opacity: 0;
       pointer-events: none;
-      transform: translateX(calc(0px - var(--str-chat__channel-list-transition-offset, 8px)));
+      transform: translateX(
+        calc(0px - var(--str-chat__channel-list-transition-offset, 8px))
+      );
     }
 
     .app-chat-view__channel-content--thread-open > .app-chat-resize-handle--thread {
