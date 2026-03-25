@@ -2,7 +2,7 @@ export const generateDataavailableEvent = (
   {
     dataOverrides,
     mediaRecorder,
-  }: { dataOverrides?: Record<string, any>; mediaRecorder?: any } = {
+  }: { dataOverrides?: Record<string, unknown>; mediaRecorder?: any } = {
     dataOverrides: {},
     mediaRecorder: new (window as any).MediaRecorder(),
   },

@@ -23,7 +23,7 @@ const makeImageItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
     ...overrides,
   }) as unknown as GalleryItem;
 
-const makeVideoItem = (overrides: Record<string, unknown> = {}): GalleryItem =>
+const makeVideoItem = (overrides: Record<string, any> = {}): GalleryItem =>
   ({
     localMetadata: { id: 'vid-1' },
     title: 'test-video.mp4',

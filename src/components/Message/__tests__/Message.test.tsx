@@ -24,7 +24,7 @@ import {
 import { ComponentProvider } from '../../../context/ComponentContext';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>();
+  const actual = await importOriginal<Record<string, any>>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -113,9 +113,9 @@ async function renderComponent({
 }
 
 function renderComponentWithMessage(
-  props: Record<string, unknown> = {},
-  channelStateOpts: Record<string, unknown> = {},
-  channelConfig: Record<string, unknown> = { replies: true },
+  props: Record<string, any> = {},
+  channelStateOpts: Record<string, any> = {},
+  channelConfig: Record<string, any> = { replies: true },
 ) {
   const message = generateMessage();
   return renderComponent({ channelConfig, channelStateOpts, message, props });

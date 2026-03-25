@@ -32,7 +32,7 @@ vi.mock('../../EmptyStateIndicator', () => ({
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>();
+  const actual = await importOriginal<Record<string, any>>();
 
   return {
     ...actual,
@@ -901,7 +901,7 @@ describe('MessageList', () => {
           generateMessage({ id: 'latest-2', text: 'latest-2', user: user2 }),
         ];
         const jumpDeferred = createDeferred();
-        const scrollToMock = vi.fn(function scrollTo(options) {
+        const scrollToMock = vi.fn(function scrollTo(this: HTMLElement, options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop = options.top;
           }
@@ -991,7 +991,7 @@ describe('MessageList', () => {
           generateMessage({ id: 'target-2', text: 'target-2', user: user2 }),
         ];
         const jumpDeferred = createDeferred();
-        const scrollToMock = vi.fn(function scrollTo(options) {
+        const scrollToMock = vi.fn(function scrollTo(this: HTMLElement, options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop = options.top;
           }
@@ -1116,7 +1116,7 @@ describe('MessageList', () => {
             }),
           ),
         ];
-        const scrollToMock = vi.fn(function scrollTo(options) {
+        const scrollToMock = vi.fn(function scrollTo(this: HTMLElement, options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop = options.top;
           }
@@ -1206,7 +1206,7 @@ describe('MessageList', () => {
           ),
           ...currentMessages,
         ];
-        const scrollByMock = vi.fn(function scrollBy(options) {
+        const scrollByMock = vi.fn(function scrollBy(this: HTMLElement, options) {
           if (typeof options === 'object' && typeof options.top === 'number') {
             this.scrollTop += options.top;
           }

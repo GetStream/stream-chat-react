@@ -54,7 +54,7 @@ const Wrapper = ({
   componentContext = {},
 }: {
   children?: React.ReactNode;
-  componentContext?: Record<string, unknown>;
+  componentContext?: Record<string, any>;
 }) => (
   <ChatViewContext.Provider value={chatViewContextValue}>
     <ChatProvider value={mockChatContext({ client })}>
@@ -73,7 +73,7 @@ const Wrapper = ({
 
 const renderElements = (
   children: React.ReactNode,
-  componentContext?: Record<string, unknown>,
+  componentContext?: Record<string, any>,
 ) => render(<Wrapper componentContext={componentContext}>{children}</Wrapper>);
 
 describe('VirtualizedMessageComponents', () => {
@@ -446,7 +446,7 @@ describe('VirtualizedMessageComponents', () => {
           virtuosoContext,
           virtuosoIndex,
         }: {
-          virtuosoContext?: Record<string, unknown>;
+          virtuosoContext?: Record<string, any>;
           virtuosoIndex?: number;
         } = {}) => {
           const {

@@ -666,7 +666,7 @@ describe('ChannelPreview', () => {
     }: {
       channel?: Channel;
       client?: StreamChat;
-      componentOverrides?: Record<string, unknown>;
+      componentOverrides?: Record<string, any>;
     } = {}) => {
       let result;
       await act(() => {
@@ -681,10 +681,7 @@ describe('ChannelPreview', () => {
 
       return result;
     };
-    const getChannelState = (
-      memberCount: number,
-      channelData?: Record<string, unknown>,
-    ) => {
+    const getChannelState = (memberCount: number, channelData?: Record<string, any>) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({

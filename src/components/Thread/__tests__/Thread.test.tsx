@@ -91,11 +91,11 @@ const renderComponent = ({
   componentOverrides = {},
   threadProps = {},
 }: {
-  channelActionOverrides?: Record<string, unknown>;
-  channelStateOverrides?: Record<string, unknown>;
+  channelActionOverrides?: Record<string, any>;
+  channelStateOverrides?: Record<string, any>;
   chatClient: StreamChat;
-  componentOverrides?: Record<string, unknown>;
-  threadProps?: Record<string, unknown>;
+  componentOverrides?: Record<string, any>;
+  threadProps?: Record<string, any>;
 }) =>
   render(
     <ChatProvider

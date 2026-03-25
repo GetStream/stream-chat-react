@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strictBindCallApply": true,
+    "noImplicitThis": true,
     "alwaysStrict": true,
     "useUnknownInCatchVariables": true,
     "jsx": "react-jsx",

@@ -33,7 +33,7 @@ function mockClient(client: any, mocks: Record<string, any> = {}) {
   return client as StreamChat;
 }
 
-export const getTestClient = (mocks?: Record<string, any>) =>
+export const getTestClient = (mocks?: Record<string, unknown>) =>
   mockClient(new StreamChat(apiKey), mocks);
 
 export const getTestClientWithUser = async (

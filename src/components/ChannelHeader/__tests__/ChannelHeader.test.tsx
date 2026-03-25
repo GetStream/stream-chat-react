@@ -63,7 +63,7 @@ async function renderComponent({
   channelType = 'messaging',
   props,
 }: {
-  channelData?: Record<string, unknown>;
+  channelData?: Record<string, any>;
   channelType?: string;
   props?: ChannelHeaderProps;
 } = {}) {
@@ -227,10 +227,7 @@ describe('ChannelHeader', () => {
       Avatar: ChannelAvatar,
     };
 
-    const getChannelState = (
-      memberCount: number,
-      channelData?: Record<string, unknown>,
-    ) => {
+    const getChannelState = (memberCount: number, channelData?: Record<string, any>) => {
       const users = Array.from({ length: memberCount }, generateUser);
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({

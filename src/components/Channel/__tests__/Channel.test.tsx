@@ -45,7 +45,7 @@ vi.mock('../../Loading', () => ({
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>();
+  const actual = await importOriginal<Record<string, any>>();
 
   return {
     ...actual,
@@ -1283,7 +1283,7 @@ describe('Channel', () => {
         channelQueryResolvedValue?: (MessageResponse | LocalMessage)[];
         currentMsgSet: (MessageResponse | LocalMessage)[];
         loadScenario: string;
-        ownReadState: Record<string, unknown>;
+        ownReadState: Record<string, any>;
       }) => {
         const {
           channels: [channel],

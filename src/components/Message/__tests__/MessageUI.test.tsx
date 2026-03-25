@@ -38,7 +38,7 @@ import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>();
+  const actual = await importOriginal<Record<string, any>>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -74,7 +74,7 @@ const retrySendMessageMock = vi.fn();
 const removeMessageMock = vi.fn();
 
 function generateAliceMessage(
-  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
+  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, any>,
 ) {
   return generateMessage({
     user: alice,
@@ -83,7 +83,7 @@ function generateAliceMessage(
 }
 
 function generateBobMessage(
-  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
+  messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, any>,
 ) {
   return generateMessage({
     user: bob,
@@ -97,10 +97,10 @@ describe('<MessageSimple />', () => {
 
   async function renderMessageSimple({
     channelCapabilities = { 'send-reaction': true, 'send-reply': true },
-    channelConfigOverrides = { replies: true } as Record<string, unknown>,
-    components = {} as Record<string, unknown>,
+    channelConfigOverrides = { replies: true } as Record<string, any>,
+    components = {} as Record<string, any>,
     message,
-    props = {} as Record<string, unknown>,
+    props = {} as Record<string, any>,
     renderer = render,
   }: Record<string, any>) {
     let result;
@@ -715,7 +715,7 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  describe.each<[string, Record<string, unknown>]>([
+  describe.each<[string, Record<string, any>]>([
     [
       'v1',
       {

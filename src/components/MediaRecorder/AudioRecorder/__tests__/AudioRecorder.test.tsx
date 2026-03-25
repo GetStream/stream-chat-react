@@ -120,7 +120,7 @@ vi.mock('nanoid', () => ({
 vi.mock('fix-webm-duration', () => ({ default: vi.fn((blob) => blob) }));
 
 vi.mock('../../../Notifications', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, unknown>>();
+  const actual = await importOriginal<Record<string, any>>();
   const notificationTarget = await import('../../../Notifications/notificationTarget');
   return {
     ...actual,

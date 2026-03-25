@@ -28,7 +28,7 @@ const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
 async function renderUseHandleMuteHook(
   message: LocalMessage | undefined = generateMessage() as MessageResponse & LocalMessage,
   notificationOpts?: MuteUserNotifications,
-  channelStateContextValue?: Record<string, unknown>,
+  channelStateContextValue?: Record<string, any>,
 ) {
   const client = await getTestClientWithUser(alice);
   client.muteUser = muteUser;

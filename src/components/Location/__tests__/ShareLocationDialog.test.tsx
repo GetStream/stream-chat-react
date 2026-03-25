@@ -27,7 +27,7 @@ const GEOLOCATION_MAP_TEST_ID = 'geolocation-map';
 
 const close = vi.fn().mockImplementation(() => {});
 const user = { id: 'user-id' };
-const GeolocationMapComponent = (props: Record<string, unknown>) => (
+const GeolocationMapComponent = (props: Record<string, any>) => (
   <div
     data-error={props.geolocationPositionError}
     data-latitude={props.latitude}

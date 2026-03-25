@@ -1,7 +1,7 @@
 import { mockedApiResponse } from './utils';
 
 interface ChannelData {
-  channel: Record<string, any>;
+  channel: Record<string, unknown>;
   draft?: any;
   members: any[];
   messages: any[];
