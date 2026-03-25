@@ -102,6 +102,7 @@
   "aria/Unblock User": "Unblock User",
   "aria/Unmute User": "Unmute User",
   "aria/Unpin Message": "Unpin Message",
+  "aria/Upload progress": "{{percent}} percent uploaded",
   "Ask a question": "Ask a Question",
   "Attach": "Attach",
   "Attach files": "Attach files",

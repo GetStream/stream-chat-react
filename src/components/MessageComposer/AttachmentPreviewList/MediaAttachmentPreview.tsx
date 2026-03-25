@@ -22,7 +22,9 @@ import {
 } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
+import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
+import { readUploadProgress } from './utils/uploadProgress';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -43,6 +45,7 @@ export const MediaAttachmentPreview = ({
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
   const { id, uploadPermissionCheck, uploadState } = attachment.localMetadata ?? {};
+  const uploadProgress = readUploadProgress(attachment.localMetadata);
 
   const isUploading = uploadState === 'uploading';
   const handleThumbnailLoadError = useCallback(() => setThumbnailPreviewError(true), []);
@@ -98,7 +101,13 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && <LoadingIndicator />}
+          {isUploading && (
+            <AttachmentUploadProgressIndicator
+              fallback={<LoadingIndicator />}
+              uploadProgress={uploadProgress}
+              variant='overlay'
+            />
+          )}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&

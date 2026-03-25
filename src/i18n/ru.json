@@ -119,6 +119,7 @@
   "aria/Unblock User": "Разблокировать пользователя",
   "aria/Unmute User": "Включить уведомления",
   "aria/Unpin Message": "Открепить сообщение",
+  "aria/Upload progress": "{{percent}} процентов загружено",
   "Ask a question": "Задать вопрос",
   "Attach": "Прикрепить",
   "Attach files": "Прикрепить файлы",

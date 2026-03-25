@@ -326,6 +326,59 @@ describe('AttachmentPreviewList', () => {
     },
   );
 
+  describe('upload progress UI', () => {
+    it('shows spinner while uploading when uploadProgress is omitted', async () => {
+      await renderComponent({
+        attachments: [
+          {
+            ...generateFileAttachment({ title: 'f.pdf' }),
+            localMetadata: { id: 'a1', uploadState: 'uploading' },
+          },
+        ],
+      });
+
+      expect(screen.getByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
+      expect(
+        screen.queryByTestId('attachment-upload-progress-ring'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows ring while uploading when uploadProgress is numeric', async () => {
+      await renderComponent({
+        attachments: [
+          {
+            ...generateImageAttachment({ fallback: 'img.png' }),
+            localMetadata: {
+              id: 'a1',
+              uploadProgress: 42,
+              uploadState: 'uploading',
+            },
+          },
+        ],
+      });
+
+      expect(screen.getByTestId('attachment-upload-progress-ring')).toBeInTheDocument();
+      expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('shows uploaded size fraction for file attachments when progress is tracked', async () => {
+      await renderComponent({
+        attachments: [
+          {
+            ...generateFileAttachment({ file_size: 1000, title: 'sized.pdf' }),
+            localMetadata: {
+              id: 'a1',
+              uploadProgress: 50,
+              uploadState: 'uploading',
+            },
+          },
+        ],
+      });
+
+      expect(screen.getByTestId('upload-size-fraction')).toHaveTextContent(/\s*\/\s*/);
+    });
+  });
+
   it('should render custom BaseImage component', async () => {
     const BaseImage = (props) => <img {...props} data-testid={'custom-base-image'} />;
     const { container } = await renderComponent({

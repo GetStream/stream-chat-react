@@ -7,7 +7,7 @@ import {
 import { useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { LoadingIndicatorIcon } from '../icons';
+import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { FileSizeIndicator } from '../../Attachment';
@@ -21,6 +21,11 @@ import {
 } from '../../AudioPlayback';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
+import {
+  formatUploadByteFraction,
+  readUploadProgress,
+  resolveAttachmentFullByteSize,
+} from './utils/uploadProgress';
 
 export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -44,6 +49,12 @@ export const AudioAttachmentPreview = ({
   const { t } = useTranslationContext();
   const { id, previewUri, uploadPermissionCheck, uploadState } =
     attachment.localMetadata ?? {};
+  const uploadProgress = readUploadProgress(attachment.localMetadata);
+  const fullBytes = resolveAttachmentFullByteSize(attachment);
+  const showUploadFraction =
+    uploadState === 'uploading' &&
+    uploadProgress !== undefined &&
+    fullBytes !== undefined;
   const url = attachment.asset_url || previewUri;
 
   const audioPlayer = useAudioPlayer({
@@ -93,11 +104,27 @@ export const AudioAttachmentPreview = ({
           {isVoiceRecordingAttachment(attachment) ? t('Voice message') : attachment.title}
         </div>
         <div className='str-chat__attachment-preview-file__data'>
-          {uploadState === 'uploading' && <LoadingIndicatorIcon />}
+          {uploadState === 'uploading' && (
+            <AttachmentUploadProgressIndicator
+              uploadProgress={uploadProgress}
+              variant='inline'
+            />
+          )}
           {showProgressControls ? (
             <>
               {!resolvedDuration && !progressPercent && !isPlaying && (
-                <FileSizeIndicator fileSize={attachment.file_size} />
+                <>
+                  {showUploadFraction ? (
+                    <span
+                      className='str-chat__attachment-preview-file__upload-size-fraction'
+                      data-testid='upload-size-fraction'
+                    >
+                      {formatUploadByteFraction(uploadProgress, fullBytes)}
+                    </span>
+                  ) : (
+                    <FileSizeIndicator fileSize={attachment.file_size} />
+                  )}
+                </>
               )}
               {hasWaveform ? (
                 <>

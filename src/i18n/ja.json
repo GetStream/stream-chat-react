@@ -101,6 +101,7 @@
   "aria/Unblock User": "ユーザーのブロックを解除",
   "aria/Unmute User": "無音を解除する",
   "aria/Unpin Message": "ピンを解除",
+  "aria/Upload progress": "{{percent}}パーセントアップロード済み",
   "Ask a question": "質問する",
   "Attach": "添付",
   "Attach files": "ファイルを添付する",
