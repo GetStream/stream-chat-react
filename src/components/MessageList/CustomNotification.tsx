@@ -1,9 +1,10 @@
 import type { PropsWithChildren } from 'react';
 import React from 'react';
 import clsx from 'clsx';
+import type { NotificationSeverity } from 'stream-chat';
 
 export type CustomNotificationProps = {
-  type: string;
+  type?: NotificationSeverity | string;
   active?: boolean;
   className?: string;
 };
@@ -19,9 +20,10 @@ const UnMemoizedCustomNotification = (
     <div
       aria-live='polite'
       className={clsx(
-        `str-chat__custom-notification notification-${type}`,
+        `str-chat__custom-notification`,
         `str-chat__notification`,
         `str-chat-react__notification`,
+        { [`notification-${type}`]: type },
         className,
       )}
       data-testid='custom-notification'
