@@ -1,46 +1,56 @@
-name: Test
+name: CI
 
 on: [push]
 
 jobs:
-  tsc:
+  lint:
     runs-on: ubuntu-latest
-    name: TypeScript
+    name: ESLint & Prettier
     steps:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node
 
-      - name: 🧪 tsc
-        run: yarn types
+      - run: yarn lint
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Validate
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-node
+
+      - run: yarn build
+
+      - name: Validate CJS bundle with Node ${{ env.NODE_VERSION }}
+        run: yarn validate-cjs
+
+      - name: Validate translations
+        run: yarn validate-translations
 
   test:
     runs-on: ubuntu-latest
-    name: Lint & test with Node
+    name: Test
     steps:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node
 
-      - name: Build SDK
-        run: yarn build
-
-      - name: 🧪 Lint and test with Node ${{ env.NODE_VERSION }}
-        run: |
-          yarn lint
-          yarn coverage
-          yarn validate-translations
+      - name: Test with Node ${{ env.NODE_VERSION }}
+        run: yarn coverage
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
+          verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: 🧪 Validate CommonJS bundle with Node ${{ env.NODE_VERSION }}
-        run: yarn validate-cjs
 
   deploy-vite-example:
     runs-on: ubuntu-latest
+    # skip if build fails
+    needs:
+      - build
     name: Deploy Vite Example to Vercel
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -52,7 +62,7 @@ jobs:
 
       - uses: ./.github/actions/setup-node
         env:
-          NODE_ENV: ''
+          NODE_ENV: ""
 
       - name: Build SDK
         run: yarn build
