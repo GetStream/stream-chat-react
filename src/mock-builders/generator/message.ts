@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import type { MessageResponse } from 'stream-chat';
+import type { LocalMessage, MessageResponse } from 'stream-chat';
 import type { DeepPartial } from '../../types/types';
 
 type GenerateMessageOptions = Omit<
@@ -10,7 +10,7 @@ type GenerateMessageOptions = Omit<
   updated_at?: Date | string;
 };
 
-export const generateMessage = (options?: GenerateMessageOptions) => {
+export const generateMessage = (options?: GenerateMessageOptions): LocalMessage => {
   const data = {
     __html: '<p>regular</p>',
     attachments: [],
@@ -25,9 +25,9 @@ export const generateMessage = (options?: GenerateMessageOptions) => {
     updated_at: new Date(),
     user: null,
     ...options,
-  } as MessageResponse;
+  } as unknown as LocalMessage;
   if (data['reminder']) {
-    data['reminder'].message_id = data.id;
+    (data['reminder'] as any).message_id = data.id;
   }
   return data;
 };

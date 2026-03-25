@@ -56,7 +56,7 @@ const reply1 = generateMessage({ parent_id: message1.id, text: 'reply1', user: u
 const reply2 = generateMessage({ parent_id: message1.id, text: 'reply2', user: user2 });
 const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-  messages: [message1],
+  messages: [message1] as any,
 });
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;

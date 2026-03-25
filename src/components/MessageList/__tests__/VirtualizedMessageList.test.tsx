@@ -63,12 +63,12 @@ async function createChannel(empty = false) {
   const user2 = generateUser();
   const mockedChannel = generateChannel({
     members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-    messages: empty
+    messages: (empty
       ? []
       : ' '
           .repeat(20)
           .split(' ')
-          .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
+          .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 }))) as any,
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks

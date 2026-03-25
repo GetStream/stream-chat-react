@@ -42,7 +42,7 @@ describe('ChannelPreview utils', () => {
   describe('getLatestMessagePreview', () => {
     const channelWithEmptyMessage = generateChannel();
     const channelWithDeletedMessage = generateChannel({
-      messages: [generateMessage({ deleted_at: new Date().toISOString() })],
+      messages: [generateMessage({ deleted_at: new Date().toISOString() })] as any,
     });
     const channelWithLocationMessage = generateChannel({
       messages: [
@@ -51,7 +51,7 @@ describe('ChannelPreview utils', () => {
           shared_location: generateStaticLocationResponse({}),
           text: '',
         }),
-      ],
+      ] as any,
     });
     const channelWithAttachmentMessage = generateChannel({
       messages: [
@@ -59,7 +59,7 @@ describe('ChannelPreview utils', () => {
           attachments: [generateImageAttachment({})],
           text: undefined,
         }),
-      ],
+      ] as any,
     });
     const channelWithHTMLInMessage = generateChannel({
       messages: [
@@ -70,7 +70,7 @@ describe('ChannelPreview utils', () => {
             '<p>This is my first web page.</p> \n' +
             '<p>It contains a <strong>main heading</strong> and <em> paragraph </em>.</p>',
         }),
-      ],
+      ] as any,
     });
 
     const expectedTextWithHTMLRendering =

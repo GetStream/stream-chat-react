@@ -764,7 +764,7 @@ describe('ChannelList', () => {
           messages: ' '
             .repeat(20)
             .split(' ')
-            .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
+            .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 })) as any,
         }),
       );
 

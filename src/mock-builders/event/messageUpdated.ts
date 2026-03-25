@@ -1,10 +1,16 @@
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Event, MessageResponse, StreamChat, UserResponse } from 'stream-chat';
+import type {
+  Event,
+  LocalMessage,
+  MessageResponse,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 import { type ChannelOrResponse, toChannelResponse } from './utils';
 
 export default (
   client: StreamChat,
-  newMessage: MessageResponse,
+  newMessage: MessageResponse | LocalMessage,
   channel: ChannelOrResponse = fromPartial({}),
   user?: UserResponse,
 ) => {
@@ -16,7 +22,7 @@ export default (
       channel_id,
       channel_type,
       cid: data.cid,
-      message: newMessage,
+      message: newMessage as MessageResponse,
       type: 'message.updated',
       user: user || newMessage.user,
     }),

@@ -64,7 +64,6 @@ describe('Message utils', () => {
 
     it('should return false if mutes is not defined', () => {
       const message = generateMessage();
-      // @ts-expect-error testing runtime guard with message that may lack required fields
       const result = isUserMuted(message, undefined);
       expect(result).toBe(false);
     });
@@ -78,7 +77,6 @@ describe('Message utils', () => {
         }),
       ];
       const message = generateMessage({ user: bob });
-      // @ts-expect-error MessageResponse is not exactly LocalMessage
       const result = isUserMuted(message, mutes);
       expect(result).toBe(true);
     });
@@ -344,7 +342,6 @@ describe('Message utils', () => {
       const message = generateMessage({
         latest_reactions: [],
       });
-      // @ts-expect-error MessageResponse is not exactly LocalMessage
       expect(messageHasReactions(message)).toBe(false);
     });
     it('should return true if message has reactions', () => {
@@ -354,7 +351,6 @@ describe('Message utils', () => {
         reaction_counts: countReactions(reactions),
         reaction_groups: groupReactions(reactions),
       });
-      // @ts-expect-error MessageResponse is not exactly LocalMessage
       expect(messageHasReactions(message)).toBe(true);
     });
   });
@@ -367,7 +363,6 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [],
       });
-      // @ts-expect-error MessageResponse is not exactly LocalMessage
       expect(messageHasAttachments(message)).toBe(false);
     });
     it('should return true if message has attachments', () => {
@@ -378,7 +373,6 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [attachment],
       });
-      // @ts-expect-error MessageResponse is not exactly LocalMessage
       expect(messageHasAttachments(message)).toBe(true);
     });
   });
@@ -395,7 +389,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf],
       });
-      expect(getImages(message)).toStrictEqual([]);
+      expect(getImages(message as any)).toStrictEqual([]);
     });
     it('should return just the image attachments when message has them', () => {
       const pdf = {
@@ -409,7 +403,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getImages(message)).toStrictEqual([img]);
+      expect(getImages(message as any)).toStrictEqual([img]);
     });
   });
 
@@ -426,7 +420,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [img],
       });
-      expect(getNonImageAttachments(message)).toStrictEqual([]);
+      expect(getNonImageAttachments(message as any)).toStrictEqual([]);
     });
 
     it('should return just the non-image attachments when message has them', () => {
@@ -441,7 +435,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getNonImageAttachments(message)).toStrictEqual([pdf]);
+      expect(getNonImageAttachments(message as any)).toStrictEqual([pdf]);
     });
   });
 

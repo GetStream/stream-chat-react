@@ -34,10 +34,12 @@ export async function createClientWithChannel({
     members,
     messages: empty
       ? []
-      : ' '
+      : (' '
           .repeat(messageCount)
           .split(' ')
-          .map((_v, i) => generateMessage({ user: users[i % memberCount] as any })),
+          .map((_v, i) =>
+            generateMessage({ user: users[i % memberCount] as any }),
+          ) as any),
   } as DeepPartial<ChannelAPIResponse>);
 
   const client = existingClient || (await getTestClientWithUser({ id: users[0].id }));

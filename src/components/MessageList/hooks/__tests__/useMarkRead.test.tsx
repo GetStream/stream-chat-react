@@ -620,7 +620,9 @@ describe('useMarkRead', () => {
           (cb) => (channelUnreadUiStateCb = cb),
         );
         const channelsData = [
-          generateChannel({ messages: Array.from({ length: 2 }, generateMessage) }),
+          generateChannel({
+            messages: Array.from({ length: 2 }, generateMessage) as any,
+          }),
         ];
         const {
           channels: [channel],
@@ -660,7 +662,7 @@ describe('useMarkRead', () => {
       it('should be performed when channel was marked unread and is scrolled to the bottom', async () => {
         let channelUnreadUiStateCb;
         setChannelUnreadUiState.mockImplementation((cb) => (channelUnreadUiStateCb = cb));
-        const channelsData = [generateChannel({ messages: [generateMessage()] })];
+        const channelsData = [generateChannel({ messages: [generateMessage()] as any })];
         const {
           channels: [channel],
           client,
@@ -699,7 +701,7 @@ describe('useMarkRead', () => {
       it('should be performed when document is hidden and is scrolled to the bottom', async () => {
         let channelUnreadUiStateCb;
         setChannelUnreadUiState.mockImplementation((cb) => (channelUnreadUiStateCb = cb));
-        const channelsData = [generateChannel({ messages: [generateMessage()] })];
+        const channelsData = [generateChannel({ messages: [generateMessage()] as any })];
         const {
           channels: [channel],
           client,

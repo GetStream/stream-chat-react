@@ -122,7 +122,7 @@ describe('SearchResultItem Components', () => {
     it('handles message selection', async () => {
       const searchController = new SearchController();
       const message = generateMessage();
-      const messageResponseData = generateChannel({ messages: [message] });
+      const messageResponseData = generateChannel({ messages: [message] as any });
       await renderComponent({
         chatContext: { searchController },
         messageResponseData,
@@ -146,7 +146,7 @@ describe('SearchResultItem Components', () => {
       const message = generateMessage();
       const messageResponseData = {
         text: message.text,
-        ...generateChannel({ messages: [message] }),
+        ...generateChannel({ messages: [message] as any }),
       };
       await renderComponent({
         messageResponseData,

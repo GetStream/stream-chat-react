@@ -1,7 +1,12 @@
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import { ErrorFromResponse, SearchController } from 'stream-chat';
-import type { Channel as ChannelType, MessageResponse, UserResponse } from 'stream-chat';
+import type {
+  Channel as ChannelType,
+  LocalMessage,
+  MessageResponse,
+  UserResponse,
+} from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { Channel } from '../Channel';
@@ -144,8 +149,8 @@ const initClient = async ({
 }: {
   channelId?: string;
   channelType?: string;
-  messages?: MessageResponse[];
-  pinnedMessages?: MessageResponse[];
+  messages?: (MessageResponse | LocalMessage)[];
+  pinnedMessages?: (MessageResponse | LocalMessage)[];
   user: UserResponse;
 }) => {
   const members = [generateMember({ user })];
@@ -155,8 +160,8 @@ const initClient = async ({
       type: channelType,
     },
     members,
-    messages,
-    pinned_messages: pinnedMessages,
+    messages: messages as any,
+    pinned_messages: pinnedMessages as any,
   });
   const chatClient = await getTestClientWithUser(user);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -1275,8 +1280,8 @@ describe('Channel', () => {
         loadScenario,
         ownReadState,
       }: {
-        channelQueryResolvedValue?: MessageResponse[];
-        currentMsgSet: MessageResponse[];
+        channelQueryResolvedValue?: (MessageResponse | LocalMessage)[];
+        currentMsgSet: (MessageResponse | LocalMessage)[];
         loadScenario: string;
         ownReadState: Record<string, unknown>;
       }) => {

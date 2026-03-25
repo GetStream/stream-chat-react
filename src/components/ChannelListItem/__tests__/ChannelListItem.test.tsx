@@ -107,11 +107,11 @@ describe('ChannelPreview', () => {
       queryChannelsApi([
         generateChannel({
           channel: { name: 'c0' },
-          messages: Array.from({ length: 5 }, generateMessage),
+          messages: Array.from({ length: 5 }, generateMessage) as any,
         }),
         generateChannel({
           channel: { name: 'c1' },
-          messages: Array.from({ length: 5 }, generateMessage),
+          messages: Array.from({ length: 5 }, generateMessage) as any,
         }),
       ]),
     ]);
@@ -405,7 +405,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
-            ],
+            ] as any,
           }),
           generateChannel({
             messages: [
@@ -414,7 +414,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
-            ],
+            ] as any,
           }),
         ],
         customUser: user,
@@ -458,7 +458,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
-            ],
+            ] as any,
           }),
           generateChannel({
             messages: [
@@ -467,7 +467,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
-            ],
+            ] as any,
           }),
         ],
         customUser: user,
@@ -689,7 +689,7 @@ describe('ChannelPreview', () => {
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
         members,
-        messages: users.map((user) => generateMessage({ user })),
+        messages: users.map((user) => generateMessage({ user })) as any,
         ...channelData,
       });
     };

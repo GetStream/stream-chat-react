@@ -21,7 +21,7 @@ import { act } from '@testing-library/react';
 let channel;
 let client;
 const testMessage = generateMessage();
-const deleteMessage = vi.fn(() => Promise.resolve(testMessage));
+const deleteMessage = vi.fn(() => Promise.resolve(testMessage)) as any;
 const removeMessage = vi.fn();
 const updateMessage = vi.fn();
 

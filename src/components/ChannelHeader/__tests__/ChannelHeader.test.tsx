@@ -235,7 +235,7 @@ describe('ChannelHeader', () => {
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
         members,
-        messages: users.map((user) => generateMessage({ user })),
+        messages: users.map((user) => generateMessage({ user })) as any,
         ...channelData,
       });
     };
