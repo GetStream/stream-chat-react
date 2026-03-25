@@ -29,13 +29,7 @@ describe('WaveProgressBar', () => {
 
   it('is not rendered if no space available', () => {
     getBoundingClientRect.mockReturnValue(fromPartial({ width: 0, x: 0 }));
-    render(
-      <WaveProgressBar
-        {...({ amplitudesCount: 5 } as any)}
-        seek={vi.fn()}
-        waveformData={originalSample}
-      />,
-    );
+    render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(screen.getByTestId(BAR_ROOT_TEST_ID)).toBeInTheDocument();
     expect(screen.queryAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(0);
   });
@@ -112,13 +106,7 @@ describe('WaveProgressBar', () => {
   });
 
   it('is rendered with zero progress by default if waveform data is available', () => {
-    render(
-      <WaveProgressBar
-        {...({ amplitudesCount: 5 } as any)}
-        seek={vi.fn()}
-        waveformData={originalSample}
-      />,
-    );
+    render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(40);
     expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toHaveStyle('left: 0px');
@@ -126,11 +114,7 @@ describe('WaveProgressBar', () => {
 
   it('is rendered with highlighted bars with non-zero progress', () => {
     const { container } = render(
-      <WaveProgressBar
-        {...({ amplitudesCount: 5, progress: 20 } as any)}
-        seek={vi.fn()}
-        waveformData={originalSample}
-      />,
+      <WaveProgressBar progress={20} seek={vi.fn()} waveformData={originalSample} />,
     );
     expect(
       container.querySelectorAll('.str-chat__wave-progress-bar__amplitude-bar--active'),
