@@ -1,5 +1,3 @@
-type ResizeObserverCallback = (...args: any[]) => void;
-
 export class ResizeObserverMock {
   static observers: ResizeObserverMock[] = [];
 

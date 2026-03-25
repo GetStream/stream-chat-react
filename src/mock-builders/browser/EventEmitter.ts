@@ -1,4 +1,4 @@
-type EventHandler = (data?: any) => void;
+type EventHandler = (data?: unknown) => void;
 
 export class EventEmitterMock {
   _listeners: Record<string, EventHandler[]> = {};
@@ -13,7 +13,7 @@ export class EventEmitterMock {
     this._listeners[event] = this._listeners[event].filter((h) => h !== handler);
   });
 
-  emit(event: string, data?: any) {
+  emit(event: string, data?: unknown) {
     const handlers = this._listeners[event];
     if (handlers) {
       handlers.forEach((h) => h(data));

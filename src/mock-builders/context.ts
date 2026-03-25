@@ -10,6 +10,12 @@ import type {
   TranslationContextValue,
   TypingContextValue,
 } from '../context';
+import type { TDateTimeParser } from '../i18n/types';
+
+// Note: overrides use Record<string, unknown> instead of Partial<ContextValue> because
+// mock `t` functions cannot satisfy i18next's TFunction.$TFunctionBrand symbol, and
+// mock components cannot satisfy React.ComponentType under strict function types.
+// fromPartial handles the runtime casting to the correct context type.
 
 export const mockChatContext = (overrides: Record<string, unknown> = {}) =>
   fromPartial<ChatContextValue>({
@@ -26,12 +32,12 @@ export const mockChannelActionContext = (overrides: Record<string, unknown> = {}
 export const mockTranslationContextValue = (overrides: Record<string, unknown> = {}) =>
   fromPartial<TranslationContextValue>({
     t: ((key: string) => key.split('/').pop()) as TranslationContextValue['t'],
-    tDateTimeParser: ((input: any) => ({
+    tDateTimeParser: ((input) => ({
       calendar: () => String(input),
       format: () => String(input),
       fromNow: () => String(input),
       isSame: () => false,
-    })) as any,
+    })) as TDateTimeParser,
     userLanguage: 'en',
     ...overrides,
   });
