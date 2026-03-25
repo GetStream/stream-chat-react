@@ -1,3 +1,9 @@
+## [13.14.3](https://github.com/GetStream/stream-chat-react/compare/v13.14.2...v13.14.3) (2026-03-25)
+
+### Bug Fixes
+
+* calculate message read status for the first message in a channel ([#3055](https://github.com/GetStream/stream-chat-react/issues/3055)) ([eda0844](https://github.com/GetStream/stream-chat-react/commit/eda084445e23e5c83cbf1bab54cc77581806ae20))
+
 ## [13.14.2](https://github.com/GetStream/stream-chat-react/compare/v13.14.1...v13.14.2) (2026-03-11)
 
 ### Bug Fixes
