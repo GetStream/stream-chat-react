@@ -81,22 +81,22 @@ export const ReactionsTab = () => {
         <div className='app__settings-modal__field-label'>Horizontal alignment</div>
         <div className='app__settings-modal__options-row'>
           <Button
-            aria-pressed={!reactions.flipHorizontalPosition}
+            aria-pressed={reactions.flipHorizontalPosition}
             className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
             onClick={() =>
               appSettingsStore.partialNext({
-                reactions: { ...reactions, flipHorizontalPosition: false },
+                reactions: { ...reactions, flipHorizontalPosition: true },
               })
             }
           >
             Align start
           </Button>
           <Button
-            aria-pressed={reactions.flipHorizontalPosition}
+            aria-pressed={!reactions.flipHorizontalPosition}
             className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
             onClick={() =>
               appSettingsStore.partialNext({
-                reactions: { ...reactions, flipHorizontalPosition: true },
+                reactions: { ...reactions, flipHorizontalPosition: false },
               })
             }
           >
