@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-23
+Last updated: 2026-03-25
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `d251338327cdfe72042894c62c523bd9164c104f` (`d2513383`, `2026-03-23`, `fix: rename ChannelListMessenger to ChannelListUI (#3036)`)
-- Future mining starting point: diff `d251338327cdfe72042894c62c523bd9164c104f..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `9877da511183c5149959583bc4f11d7aa616f87f` (`9877da51`, `2026-03-25`, `chore: migrate test suite from JavaScript to TypeScript (#3057)`)
+- Future mining starting point: diff `9877da511183c5149959583bc4f11d7aa616f87f..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -811,10 +811,12 @@ Only confirmed items should move from this file into the migration guide.
   - imports using the removed helper utilities or standalone status/input icons no longer compile
   - low-level customization patterns built on those exports need to move to the new `Icons` set, newer helper names, or higher-level components
 - Confirmed removed exports:
+  - `ActionsIcon`
   - `CloseIcon`
   - `showMessageActionsBox`
   - `shouldRenderMessageActions`
   - `isOnlyEmojis`
+  - `ReactionIcon`
   - `RetryIcon`
   - `DownloadIcon`
   - `LinkIcon`
@@ -822,14 +824,20 @@ Only confirmed items should move from this file into the migration guide.
   - `MicIcon`
   - `MessageSentIcon`
   - `MessageDeliveredIcon`
+  - `ThreadIcon`
+  - `MessageErrorIcon`
   - `attachmentTypeIconMap`
 - Old API evidence:
+  - `v13.14.2:src/components/Message/icons.tsx:7` exported `ActionsIcon`
   - `v13.14.2:src/components/MessageInput/icons.tsx:67` exported `CloseIcon`
   - `v13.14.2:src/components/Message/utils.tsx:241` exported `showMessageActionsBox`
   - `v13.14.2:src/components/Message/utils.tsx:246` exported `shouldRenderMessageActions`
   - `v13.14.2:src/components/Message/utils.tsx:483` exported `isOnlyEmojis`
+  - `v13.14.2:src/components/Message/icons.tsx:22` exported `ReactionIcon`
   - `v13.14.2:src/components/MessageInput/icons.tsx:83` through `:149` exported `RetryIcon`, `DownloadIcon`, `LinkIcon`, `SendIcon`, and `MicIcon`
+  - `v13.14.2:src/components/Message/icons.tsx:37` exported `ThreadIcon`
   - `v13.14.2:src/components/Message/icons.tsx:77` and `:92` exported `MessageSentIcon` and `MessageDeliveredIcon`
+  - `v13.14.2:src/components/Message/icons.tsx:108` exported `MessageErrorIcon`
   - `v13.14.2:src/components/Threads/ThreadList/ThreadListItemUI.tsx:25` exported `attachmentTypeIconMap`
 - New API evidence:
   - `src/components/Message/utils.tsx:431` exports `countEmojis`
@@ -840,7 +848,7 @@ Only confirmed items should move from this file into the migration guide.
 - Replacement:
   - move emoji-only checks to `countEmojis()` / `messageTextHasEmojisOnly()`
   - stop relying on `showMessageActionsBox()` / `shouldRenderMessageActions()` and instead customize the new `MessageActions` action-set flow
-  - replace direct icon imports with the public `Icons` components or with higher-level components like `MessageStatus`, `SendButton`, and thread preview components
+  - replace direct icon imports with the public `Icons` components or with higher-level components like `MessageStatus`, `SendButton`, `MessageActions`, and thread preview components
   - if you used `attachmentTypeIconMap`, inline your own map or switch to the new thread preview components
 - Evidence:
   - current `MessageComposer/index.ts` and `Message/index.ts` still re-export their `icons.tsx` files, but the removed icon symbols are no longer present there
@@ -1037,14 +1045,17 @@ Only confirmed items should move from this file into the migration guide.
   - `src/components/MessageComposer/SendToChannelCheckbox.tsx:25` through `:50` now use `str-chat__send-to-channel-checkbox__container--checked`, explicit input classes, and a custom visual/checkmark wrapper
   - `src/components/Loading/LoadingChannels.tsx:3` through `:25` now render loading placeholders with `str-chat__channel-preview-container` / `str-chat__channel-preview--loading`
   - `src/components/MessageComposer/WithDragAndDropUpload.tsx:134` through `:165` now add `str-chat__dropzone-root` and `str-chat__dropzone-container__content` around the default drag-and-drop overlay
+  - `src/components/Message/MessageUI.tsx:275` through `:277` now render `str-chat__message-error-indicator` with the shared `ErrorBadge` instead of the removed `str-chat__message-error-icon` wrapper
   - `src/styling/index.scss:1` now assembles a new styling entrypoint, and `src/styling/variables.css:5` introduces a tokenized variable layer under `.str-chat`
 - Replacement:
   - audit custom CSS selectors against current rendered markup before upgrading
   - prefer current component variables and current selectors over legacy internal wrappers
   - re-test any layout code that styled the old header, sidebar/list, or message-input internals directly
   - update selector-based tests that depended on `str-chat__channel-list-messenger-react__main`, old channel-preview DOM/action buttons, `aria-selected` sidebar items, or the older loading skeleton DOM
+  - update any selector-based styling or tests that relied on `str-chat__message-error-icon`; the default error badge now renders under `str-chat__message-error-indicator`
 - Evidence:
   - the class structure changed across header, composer, avatar, channel-preview, sidebar/list, and loading surfaces
+  - the message-send error badge also switched from the removed `MessageErrorIcon` wrapper class to the new `str-chat__message-error-indicator`
   - current docs still contain stale selectors like `.str-chat__header-hamburger`, `.str-chat__channel-list-messenger-react__main`, and `aria-selected` thread-item examples
   - v14 now ships a centralized styling/token layer alongside those markup changes
 - Docs impact:
@@ -1808,6 +1819,102 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/05-component_context.md`
 - Example needed: yes
 
+### BC-053: `MessageActions` and `ChannelListItemActionButtons` now require an explicit quick dropdown-toggle item
+
+- Status: confirmed
+- Area: action-set customization
+- User impact:
+  - custom `messageActionSet` arrays that do not include the new dropdown-toggle entry can silently lose the menu trigger even when dropdown actions are still present
+  - custom `channelActionSet` arrays that do not include the new dropdown-toggle entry can silently lose the channel-row action menu trigger
+  - TypeScript code that assumed action placements were only `'quick' | 'dropdown'` no longer type-checks against the current public union
+- Old API:
+  - `d2513383:src/components/MessageActions/MessageActions.tsx:23` through `:35` typed `MessageActionSetItem` as only `quick` or `dropdown`
+  - `d2513383:src/components/MessageActions/MessageActions.tsx:102` through `:135` rendered the message-actions toggle button internally whenever dropdown actions were present
+  - `d2513383:src/components/ChannelListItem/ChannelListItemActionButtons.tsx:51` through `:85` rendered the channel-row toggle button internally whenever dropdown actions were present
+- New API:
+  - `src/components/MessageActions/MessageActions.tsx:31` through `:39` add `QuickDropdownToggleActionSetItem` with `placement: 'quick-dropdown-toggle'`
+  - `src/components/MessageActions/MessageActions.tsx:71` through `:72` split the action set into `dropdownActionSet`, `quickActionSet`, and `quickDropdownToggleAction`
+  - `src/components/MessageActions/MessageActions.tsx:103` through `:125` render the message-actions menu only when a `quickDropdownToggleAction` is present
+  - `src/components/ChannelListItem/ChannelListItemActionButtons.tsx:30` through `:55` and `:85` through `:103` follow the same explicit-toggle model for `channelActionSet`
+  - `src/components/MessageActions/MessageActions.defaults.tsx` and `src/components/ChannelListItem/ChannelListItemActionButtons.defaults.tsx` now include a default `quick-dropdown-toggle` item
+- Replacement:
+  - when you customize `messageActionSet`, start from `defaultMessageActionSet` unless you are intentionally rebuilding the whole action surface
+  - if you build a fully custom message action set, include a `quick-dropdown-toggle` item whenever you still want dropdown actions to be reachable
+  - when you customize `channelActionSet`, preserve or replace the default `quick-dropdown-toggle` item explicitly instead of assuming the SDK will inject the toggle button for you
+- Evidence:
+  - commit `30ddab0f feat: quick dropdown toggle and cleanup (#3054)` added the new `quick-dropdown-toggle` placement, removed the hardcoded toggle buttons, and moved both `MessageActions` and `ChannelListItemActionButtons` to the explicit-toggle model
+  - current source no longer renders dropdown toggles unconditionally when dropdown actions exist
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/11-blocking-users.md`
+- Example needed: yes
+
+### BC-054: message-send error UI and delete handling changed
+
+- Status: confirmed
+- Area: failed-message handling
+- User impact:
+  - imports using `MessageErrorText` no longer compile
+  - imports using `MessageErrorIcon` no longer compile
+  - custom message UIs or AI-message examples that still render the removed error icon are stale
+  - `handleDelete()` now rethrows deletion failures after notifying, so custom delete buttons can no longer assume the handler always swallows errors
+  - deleting unsent or network-failed messages now removes them locally instead of routing through the server delete path
+- Old API:
+  - `d2513383:src/components/Message/MessageText.tsx:8` imported `MessageErrorText`
+  - `d2513383:src/components/Message/MessageText.tsx:72` rendered `<MessageErrorText message={message} />`
+  - `d2513383:src/components/Message/hooks/useDeleteHandler.ts:25` through `:39` only attempted a server delete and swallowed caught errors after notifying
+  - `v13.14.2:src/components/Message/icons.tsx:108` exported `MessageErrorIcon`
+- New API:
+  - current source has no `src/components/Message/MessageErrorText.tsx`
+  - `src/components/Message/MessageText.tsx:57` through `:78` render message text without a separate `MessageErrorText` child
+  - `src/components/Message/MessageUI.tsx:275` through `:277` render the default failed-send badge through `str-chat__message-error-indicator` and the shared `ErrorBadge`
+  - `src/components/Message/hooks/useDeleteHandler.ts:31` through `:34` remove unsent and network-failed messages locally
+  - `src/components/Message/hooks/useDeleteHandler.ts:43` through `:48` notify and then rethrow on delete failures
+- Replacement:
+  - stop importing `MessageErrorText` or `MessageErrorIcon`
+  - rebuild custom failed-send UI around the current error badge or explicit app-owned markup
+  - wrap custom `handleDelete()` calls in `try/catch` if your UI needs to recover from server-side delete failures
+  - expect `handleDelete()` to remove unsent and network-failed messages locally without issuing a delete request
+- Evidence:
+  - commit `e0207cd6 fix: adjust message UI for network error when sending a message (#3042)` removed `MessageErrorText`, changed failed-message deletion semantics, and rethrew delete failures
+  - commit `f4caa0eb feat: redesign message actions icons and message error badge (#3050)` removed `MessageErrorIcon` and switched the default failed-send badge to the new shared indicator
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/03-message_bounce_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/04-message_hooks.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/16-ai-integrations/02-chat-sdk-integration.md`
+- Example needed: yes
+
+### BC-055: your own messages can no longer be marked unread
+
+- Status: confirmed
+- Area: read-state and message actions
+- User impact:
+  - the default `markUnread` action is no longer available on your own messages, even when the channel has the required `read-events` capability
+  - custom docs/examples that present `markUnread` as a generic built-in message action are now incomplete
+  - custom action-set filters that only remove `markUnread` by type can miss that the SDK base filter already removes it for own messages
+- Old API:
+  - `d2513383:src/components/Message/hooks/useUserRole.ts:51` allowed `canMarkUnread` whenever `channelCapabilities['read-events']` was true
+- New API:
+  - `src/components/Message/hooks/useUserRole.ts:51` allows `canMarkUnread` only when the message is not your own and the channel has `read-events`
+- Replacement:
+  - do not assume `markUnread` will be available for your own messages in custom `MessageActions` UIs
+  - if you document or filter built-in actions, note that `markUnread` is limited to foreign messages and the required capability
+  - keep the SDK base action-set filter enabled unless you are intentionally re-implementing the same guardrails yourself
+- Evidence:
+  - commit `fe05b622 feat: do not allow to mark own messages unread (#3043)` changed `canMarkUnread` from a capability-only check to `!isMyMessage && channelCapabilities['read-events']`
+  - current `useUserRole()` and the default `MessageActions` filter no longer expose `markUnread` for own messages
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`
+- Example needed: yes
+
 ## Likely
 
 - None yet
@@ -1822,6 +1929,10 @@ Only confirmed items should move from this file into the migration guide.
 - `channelActionSet` introduction (`199797ed`): investigated; this adds a new customization surface for channel actions, but it does not remove or rename the earlier public v13 APIs. Track it as additive docs work, not a migration bucket.
 - poll UI polish after the initial poll redesign (`e0659f3f`, `33fed1e4`, `e75ca3ac`, `ca11f908`, `885b7a64`, `c364b0b9`): investigated; the follow-up commits moved buttons, removed a tooltip, and adjusted prompt composition, but they did not introduce a new public export/prop removal beyond the existing poll bucket.
 - smooth message-list scrolling (`cdf35d29`): investigated; this changes default behavior, but there is no new public prop, export, or override-key removal to track as a separate migration item.
+- `useNotificationTarget()` / `useChatViewContext()` softening (`38b278e0`): investigated; `useNotificationTarget()` can now return `undefined`, and `useChatViewContext()` warns instead of throwing outside the provider, but this is runtime hardening rather than a public v13-to-v14 migration item.
+- composer clear-on-unmount (`f2a79ab1`): investigated; `TextareaComposer` now clears composer state on unmount, but there is no removed export, renamed prop, or new override-key migration to track separately.
+- shared attachment preview gallery (`f05f47d7`): investigated; `AttachmentPreviewList` now shares gallery preview behavior across attachments, but this is current UI behavior rather than a removed or renamed public API.
+- voice-message deleted notification (`9982c45a`): investigated; this adds a new default notification string/behavior for deleted voice recordings, but it does not remove or rename the existing public attachment APIs.
 
 ## Notes For Migration Guide Drafting
 
