@@ -181,23 +181,49 @@ const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
-  const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
-  const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
-  const initialThreadOpen = useMemo(
-    () => Boolean(new URLSearchParams(window.location.search).get('thread')),
+  const initialSearchParams = useMemo(
+    () => new URLSearchParams(window.location.search),
     [],
   );
+  const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
+  const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
+  const initialThreadId = useMemo(
+    () => initialSearchParams.get('thread'),
+    [initialSearchParams],
+  );
+  const initialThreadOpen = useMemo(() => Boolean(initialThreadId), [initialThreadId]);
   const initialPanelLayout = useMemo(
     () => appSettingsStore.getLatestValue().panelLayout,
     [],
   );
-  const initialNavOpen = useMemo(
-    () =>
-      typeof window !== 'undefined' && window.innerWidth < DESKTOP_LAYOUT_BREAKPOINT
-        ? true
-        : !initialPanelLayout.leftPanel.collapsed,
-    [initialPanelLayout.leftPanel.collapsed],
-  );
+  const initialNavOpen = useMemo(() => {
+    if (typeof window === 'undefined') return !initialPanelLayout.leftPanel.collapsed;
+
+    const isMobile = window.innerWidth < DESKTOP_LAYOUT_BREAKPOINT;
+
+    if (!isMobile) return !initialPanelLayout.leftPanel.collapsed;
+
+    const hasSelectedChannel = Boolean(initialChannelId);
+    const hasSelectedThread = Boolean(initialThreadId);
+    const channelsView = initialChatView !== 'threads';
+
+    // Keep sidebar open on mobile when a channel is preselected via URL.
+    // It will auto-collapse later once the selected channel is actually resolved.
+    if (channelsView && hasSelectedChannel) {
+      return true;
+    }
+
+    if ((!channelsView && hasSelectedThread) || hasSelectedThread) {
+      return false;
+    }
+
+    return true;
+  }, [
+    initialChannelId,
+    initialChatView,
+    initialPanelLayout.leftPanel.collapsed,
+    initialThreadId,
+  ]);
   const appLayoutRef = useRef<HTMLDivElement | null>(null);
 
   const chatClient = useCreateChatClient({
@@ -298,8 +324,8 @@ const App = () => {
     return (
       <LoadingScreen
         initialAppLayoutStyle={initialAppLayoutStyle}
+        initialChannelSelected={Boolean(initialChannelId)}
         initialNavOpen={initialNavOpen}
-        initialThreadOpen={initialThreadOpen}
       />
     );
   }
@@ -358,17 +384,18 @@ const App = () => {
           <ChatView>
             <ChatStateSync initialChatView={initialChatView} />
             <SidebarLayoutSync />
-            <ChatView.Selector
-              itemSet={chatViewSelectorItemSet}
-              iconOnly={chatView.iconOnly}
-            />
             <ChannelsPanels
               filters={filters}
+              iconOnly={chatView.iconOnly}
               initialChannelId={initialChannelId ?? undefined}
+              itemSet={chatViewSelectorItemSet}
               options={options}
               sort={sort}
             />
-            <ThreadsPanels />
+            <ThreadsPanels
+              iconOnly={chatView.iconOnly}
+              itemSet={chatViewSelectorItemSet}
+            />
           </ChatView>
         </div>
       </Chat>
