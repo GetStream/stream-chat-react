@@ -32,7 +32,7 @@ import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({

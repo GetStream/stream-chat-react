@@ -15,7 +15,7 @@ import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({

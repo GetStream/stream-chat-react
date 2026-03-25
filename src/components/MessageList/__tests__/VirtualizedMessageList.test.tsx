@@ -35,12 +35,12 @@ vi.mock('react-virtuoso', async () => {
 });
 
 vi.mock('../../Loading', async (importOriginal) => ({
-  ...((await importOriginal()) as any),
+  ...(await importOriginal<typeof import('../../Loading')>()),
   LoadingIndicator: vi.fn(() => <div>LoadingIndicator</div>),
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+  const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({

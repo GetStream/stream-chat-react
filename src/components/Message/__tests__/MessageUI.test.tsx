@@ -38,7 +38,7 @@ import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, any>>();
+  const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({

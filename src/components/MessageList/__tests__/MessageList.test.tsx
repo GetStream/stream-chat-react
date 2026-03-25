@@ -32,7 +32,7 @@ vi.mock('../../EmptyStateIndicator', () => ({
 }));
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, any>>();
+  const actual = await importOriginal<typeof import('../../ChatView')>();
 
   return {
     ...actual,

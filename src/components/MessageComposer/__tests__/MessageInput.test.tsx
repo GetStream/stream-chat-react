@@ -25,7 +25,7 @@ import {
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 
 vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<Record<string, any>>();
+  const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
@@ -135,7 +135,7 @@ const sendMessageMock = vi.fn();
 const mockAddNotification = vi.fn();
 
 vi.mock('../../Channel/utils', async (importOriginal) => ({
-  ...(await importOriginal<Record<string, any>>()),
+  ...(await importOriginal<typeof import('../../Channel/utils')>()),
   makeAddNotifications: () => mockAddNotification,
 }));
 
