@@ -54,7 +54,11 @@ export const useBaseMessageActionSetFilter = (
     )
       return [];
 
-    return messageActionSet.filter(({ type }: MessageActionSetItem) => {
+    return messageActionSet.filter((action) => {
+      if (action.placement === 'quick-dropdown-toggle') return true;
+
+      const type = action.type;
+
       // filter out actions with types that do not work in thread
       if (ACTIONS_NOT_WORKING_IN_THREAD.includes(type) && isMessageThreadReply)
         return false;

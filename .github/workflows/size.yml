@@ -1,4 +1,4 @@
-name: Compressed Size
+name: Size
 
 on:
   pull_request:
@@ -11,14 +11,16 @@ env:
   NODE_OPTIONS: --max_old_space_size=4096
 
 jobs:
-  build:
+  compressed-size:
+    name: Compressed Size
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: preactjs/compressed-size-action@v2
         env:
           NODE_OPTIONS: --max_old_space_size=4096
-          YARN_IGNORE_ENGINES: 'true' # Skip validation for node20 requirement
+          YARN_IGNORE_ENGINES: 'true' # skip validation for node20 requirement
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
-          pattern: './dist/**/*.{js,cjs,css,json}'
+          pattern: './dist/**/*.{?(c|m)js,css,json}'
+          strip-hash: "\\b\\w{8}\\."

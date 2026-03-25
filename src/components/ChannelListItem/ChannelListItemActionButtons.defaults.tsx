@@ -1,5 +1,10 @@
-import { type ComponentPropsWithoutRef, useMemo, useState } from 'react';
-import { match, P } from 'ts-pattern';
+import {
+  type ComponentPropsWithoutRef,
+  type ComponentPropsWithRef,
+  forwardRef,
+  useMemo,
+  useState,
+} from 'react';
 
 import { useChatContext, useTranslationContext } from '../../context';
 import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
@@ -9,11 +14,12 @@ import {
   IconArchive,
   IconArrowBoxLeft,
   IconCircleBanSign,
+  IconDotGrid1x3Horizontal,
   IconMute,
   IconPin,
 } from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
-import { ContextMenuButton, useDialogOnNearestManager } from '../Dialog';
+import { ContextMenuButton, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import { ChannelListItemActionButtons } from './ChannelListItemActionButtons';
 
@@ -99,12 +105,50 @@ const useArchiveActionButtonBehavior = () => {
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
-type ChannelActionItem = ({ placement: 'quick' } | { placement: 'dropdown' }) & {
-  Component: React.ComponentType;
-  type: string;
-};
+type ChannelActionItem =
+  | (({ placement: 'quick' } | { placement: 'dropdown' }) & {
+      type: string;
+      Component: React.ComponentType;
+    })
+  | {
+      placement: 'quick-dropdown-toggle';
+      Component: React.ComponentType<ComponentPropsWithRef<'button'>>;
+    };
 
 export const defaultChannelActionSet: ChannelActionItem[] = [
+  {
+    // eslint-disable-next-line react/display-name
+    Component: forwardRef<HTMLButtonElement>((_, ref) => {
+      const { channel } = useChannelListItemContext();
+
+      const dialogId = ChannelListItemActionButtons.getDialogId({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        channelId: channel.id!,
+      });
+      const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+      const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
+      return (
+        <Button
+          appearance='ghost'
+          aria-expanded={dialogIsOpen}
+          aria-pressed={dialogIsOpen}
+          circular
+          onClick={(e) => {
+            e.stopPropagation();
+
+            dialog.toggle();
+          }}
+          ref={ref}
+          size='sm'
+          variant='secondary'
+        >
+          <IconDotGrid1x3Horizontal />
+        </Button>
+      );
+    }),
+    placement: 'quick-dropdown-toggle',
+  },
   {
     Component() {
       const behaviorProps = useArchiveActionButtonBehavior();
@@ -248,7 +292,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       const membership = useChannelMembershipState(channel);
       const dialogId = ChannelListItemActionButtons.getDialogId(
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        channel.id!,
+        { channelId: channel.id! },
       );
       const { dialog } = useDialogOnNearestManager({ id: dialogId });
       const [inProgress, setInProgress] = useState(false);
@@ -364,63 +408,36 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
   const ownCapabilities = channel.data?.own_capabilities;
 
   return useMemo(() => {
-    const filtered = channelActionSet.filter((action) =>
-      match({
-        action,
-        connectedUserIsMember,
-        isDirectMessageChannel,
-        memberCount,
-        ownCapabilities,
-      })
-        .returnType<boolean>()
-        // only allow defined actions if they match these pre-defined conditions
-        .with(
-          {
-            action: { connectedUserIsMember: true, placement: 'quick', type: 'archive' },
-            isDirectMessageChannel: true,
-          },
-          {
-            action: {
-              connectedUserIsMember: true,
-              placement: 'dropdown',
-              type: 'archive',
-            },
-            isDirectMessageChannel: false,
-          },
-          {
-            action: { placement: 'dropdown', type: 'mute' },
-            isDirectMessageChannel: true,
-            ownCapabilities: P.when((capabilities) =>
-              capabilities?.includes('mute-channel'),
-            ),
-          },
-          {
-            action: { placement: 'quick', type: 'mute' },
-            isDirectMessageChannel: false,
-            ownCapabilities: P.when((capabilities) =>
-              capabilities?.includes('mute-channel'),
-            ),
-          },
-          {
-            action: { type: 'ban' },
-            memberCount: P.number.gt(0).and(P.number.lte(2)),
-            ownCapabilities: P.when((capabilities) =>
-              capabilities?.includes('ban-channel-members'),
-            ),
-          },
-          {
-            action: { type: 'leave' },
-            ownCapabilities: P.when((capabilities) =>
-              capabilities?.includes('leave-channel'),
-            ),
-          },
-          {
-            action: { connectedUserIsMember: true, type: 'pin' },
-          },
-          () => true,
-        )
-        .otherwise(() => false),
-    );
+    const filtered = channelActionSet.filter((action) => {
+      if (action.placement === 'quick-dropdown-toggle') return true;
+
+      switch (action.type) {
+        case 'archive':
+          return (
+            connectedUserIsMember &&
+            ((action.placement === 'quick' && isDirectMessageChannel) ||
+              (action.placement === 'dropdown' && !isDirectMessageChannel))
+          );
+        case 'mute':
+          return (
+            ownCapabilities?.includes('mute-channel') &&
+            ((action.placement === 'dropdown' && isDirectMessageChannel) ||
+              (action.placement === 'quick' && !isDirectMessageChannel))
+          );
+        case 'ban':
+          return (
+            memberCount > 0 &&
+            memberCount <= 2 &&
+            ownCapabilities?.includes('ban-channel-members')
+          );
+        case 'leave':
+          return ownCapabilities?.includes('leave-channel');
+        case 'pin':
+          return connectedUserIsMember;
+        default:
+          return true;
+      }
+    });
 
     return filtered;
   }, [
