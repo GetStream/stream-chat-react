@@ -6,7 +6,7 @@ export default defineConfig({
     defaultNS: false,
     extractFromComments: false,
     functions: ['t', '*.t'],
-    input: ['./src/**/*.{tsx,ts}'],
+    input: ['./src/**/*.{tsx,ts}', '!./src/**/__tests__/**', '!./src/mock-builders/**'],
     keySeparator: false,
     nsSeparator: false,
     output: 'src/i18n/{{language}}.json',
