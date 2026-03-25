@@ -1,3 +1,32 @@
+## [14.0.0-beta.2](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.1...v14.0.0-beta.2) (2026-03-25)
+
+### ⚠ BREAKING CHANGES
+
+* remove components ActionsIcon, ReactionIcon,
+ThreadIcon, MessageErrorIcon
+* replace class str-chat__message-error-icon with str-chat__message-error-indicator
+* do not allow to mark own messages unread
+* remove MessageErrorText component
+* re-throw error from handleDelete in MessageContext
+
+### Bug Fixes
+
+* adjust message UI for network error when sending a message ([#3042](https://github.com/GetStream/stream-chat-react/issues/3042)) ([e0207cd](https://github.com/GetStream/stream-chat-react/commit/e0207cd66a30aa3225a026f757d7f5840d04e3f5))
+* align textarea placeholder and text with the surroundings ([#3052](https://github.com/GetStream/stream-chat-react/issues/3052)) ([da293f0](https://github.com/GetStream/stream-chat-react/commit/da293f09cdba3593552f8365ae01bd476b40f63f))
+* allow useNotificationTarget to return undefined ([#3046](https://github.com/GetStream/stream-chat-react/issues/3046)) ([38b278e](https://github.com/GetStream/stream-chat-react/commit/38b278e04b8136407bf0464d19563844d5418f71))
+* calculate message read status for the first message in a channel (ported from v13) ([#3056](https://github.com/GetStream/stream-chat-react/issues/3056)) ([b7c33c8](https://github.com/GetStream/stream-chat-react/commit/b7c33c804b8140bf1855494647aa9f08da59d096))
+* clear message composer on unmount ([#3053](https://github.com/GetStream/stream-chat-react/issues/3053)) ([f2a79ab](https://github.com/GetStream/stream-chat-react/commit/f2a79ab1a3f6305cbbcc2040586f87d7622dd76e))
+* keep the distance of command menus constant from the invoking button ([#3049](https://github.com/GetStream/stream-chat-react/issues/3049)) ([960c1f9](https://github.com/GetStream/stream-chat-react/commit/960c1f9aa25ddc8db51e3a38f28678adec5cdf4b))
+* prevent empty message composer textarea from growing ([#3051](https://github.com/GetStream/stream-chat-react/issues/3051)) ([880d12d](https://github.com/GetStream/stream-chat-react/commit/880d12d99ce565b23e3ce53415e86a3ea03ed2e1))
+* prevent poll options layout shifting upon voting ([#3048](https://github.com/GetStream/stream-chat-react/issues/3048)) ([cdaf480](https://github.com/GetStream/stream-chat-react/commit/cdaf4807ca96f7f5d5ced0bc1b6cf2a5a7885786))
+
+### Features
+
+* add "Voice message deleted" notification ([#3045](https://github.com/GetStream/stream-chat-react/issues/3045)) ([9982c45](https://github.com/GetStream/stream-chat-react/commit/9982c45a2964766e7050d5d24c2b2ad77b9bf1a1))
+* do not allow to mark own messages unread ([#3043](https://github.com/GetStream/stream-chat-react/issues/3043)) ([fe05b62](https://github.com/GetStream/stream-chat-react/commit/fe05b622751a5bac55dc927c0c39ef906b37c8db))
+* redesign message actions icons and message error badge ([#3050](https://github.com/GetStream/stream-chat-react/issues/3050)) ([f4caa0e](https://github.com/GetStream/stream-chat-react/commit/f4caa0eb95a986f7dd742e7fbfbf40b16bd2ecce))
+* shared gallery preview in AttachmentPreviewList ([#3044](https://github.com/GetStream/stream-chat-react/issues/3044)) ([f05f47d](https://github.com/GetStream/stream-chat-react/commit/f05f47d7b6a52653e0153e8c95c9401acfaf0682))
+
 ## [14.0.0-beta.1](https://github.com/GetStream/stream-chat-react/compare/v13.13.1...v14.0.0-beta.1) (2026-03-23)
 
 ### ⚠ BREAKING CHANGES

@@ -1,15 +1,15 @@
 import { useMessageComposerController } from './hooks';
-import { useStateStore } from '../../store';
 import type { TextComposerState } from 'stream-chat';
 import { IconCrossMedium, IconThunder } from '../Icons';
 import { useMessageComposerContext } from '../../context';
 
-const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
+export type CommandChipProps = {
+  command?: TextComposerState['command'];
+};
 
-export const CommandChip = () => {
+export const CommandChip = ({ command }: CommandChipProps) => {
   const { textComposer } = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
-  const { command } = useStateStore(textComposer.state, textComposerStateSelector);
   if (!command) return null;
 
   return (
