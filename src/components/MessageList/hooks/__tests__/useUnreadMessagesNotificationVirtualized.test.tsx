@@ -5,7 +5,7 @@ import { act } from '@testing-library/react';
 import { generateMessage } from '../../../../mock-builders';
 
 const render = (params: any) => {
-  const wrapper = ({ children }: any) => <>{children}</>;
+  const wrapper = ({ children }: React.PropsWithChildren) => <>{children}</>;
   return renderHook(() => useUnreadMessagesNotificationVirtualized(params), {
     wrapper,
   });

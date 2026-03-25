@@ -76,8 +76,8 @@ const otherUser = { id: 'other-user' };
 describe('ChannelPreview', () => {
   let client: StreamChat;
   // Channel instances have methods mocked with incompatible return types in tests
-  let c0: any;
-  let c1: any;
+  let c0: Channel;
+  let c1: Channel;
   const renderComponent = (
     props: ChannelListItemProps & Record<string, any>,
     renderer: (ui: React.ReactNode) => any,
@@ -151,7 +151,11 @@ describe('ChannelPreview', () => {
       .mockImplementation(() => 0)
       .mockImplementationOnce(() => originalUnreadCount)
       .mockImplementationOnce(() => newUnreadCount);
-    c0.muteStatus = () => false;
+    vi.spyOn(c0, 'muteStatus').mockReturnValue({
+      createdAt: new Date(),
+      expiresAt: new Date(),
+      muted: false,
+    });
 
     const { getByTestId, rerender } = renderComponent(
       {
@@ -308,7 +312,7 @@ describe('ChannelPreview', () => {
       it('should set unreadCount to 0, in case of muted channel', async () => {
         const channelMuteSpy = vi
           .spyOn(c0, 'muteStatus')
-          .mockImplementation(() => ({ muted: true }));
+          .mockReturnValue({ createdAt: new Date(), expiresAt: new Date(), muted: true });
 
         const { getByTestId } = renderComponent(
           {

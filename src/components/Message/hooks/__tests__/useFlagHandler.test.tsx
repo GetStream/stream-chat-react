@@ -28,7 +28,7 @@ async function renderUseHandleFlagHook(
   const client = await getTestClientWithUser(alice);
   client.flagMessage = flagMessage;
   const channel = generateChannel();
-  const wrapper = ({ children }: any) => (
+  const wrapper = ({ children }: React.PropsWithChildren) => (
     <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider
         value={mockChannelStateContext({

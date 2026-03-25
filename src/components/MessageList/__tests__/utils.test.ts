@@ -1,3 +1,5 @@
+import type { LocalMessage } from 'stream-chat';
+
 import {
   generateFileAttachment,
   generateMessage,
@@ -428,7 +430,7 @@ describe('processMessages', () => {
 
   it('executes reviewProcessedMessage function for each message', () => {
     const msgCount = 5;
-    const messages: any[] = Array.from({ length: msgCount }, generateMessage);
+    const messages: LocalMessage[] = Array.from({ length: msgCount }, generateMessage);
     const reviewProcessedMessage = vi.fn();
     processMessages({
       messages,
@@ -445,10 +447,10 @@ describe('processMessages', () => {
 
 describe('getGroupStyles', () => {
   const user = generateUser();
-  let message: any;
-  let previousMessage: any;
-  let nextMessage: any;
-  let noGroupByUser: any;
+  let message: LocalMessage;
+  let previousMessage: LocalMessage;
+  let nextMessage: LocalMessage;
+  let noGroupByUser: boolean;
   beforeEach(() => {
     message = generateMessage({ created_at: new Date(2), user });
     previousMessage = generateMessage({ created_at: new Date(1), user });
@@ -474,10 +476,16 @@ describe('getGroupStyles', () => {
 
     it('is intro message', () => {
       if (position === 'bottom') {
-        nextMessage = { ...nextMessage, customType: CUSTOM_MESSAGE_TYPE.intro };
+        nextMessage = {
+          ...nextMessage,
+          customType: CUSTOM_MESSAGE_TYPE.intro,
+        } as LocalMessage;
       }
       if (position === 'top') {
-        previousMessage = { ...previousMessage, customType: CUSTOM_MESSAGE_TYPE.intro };
+        previousMessage = {
+          ...previousMessage,
+          customType: CUSTOM_MESSAGE_TYPE.intro,
+        } as LocalMessage;
       }
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
         position,
@@ -490,14 +498,14 @@ describe('getGroupStyles', () => {
           ...nextMessage,
           customType: CUSTOM_MESSAGE_TYPE.date,
           date: new Date(),
-        };
+        } as LocalMessage;
       }
       if (position === 'top') {
         previousMessage = {
           ...previousMessage,
           customType: CUSTOM_MESSAGE_TYPE.date,
           date: new Date(),
-        };
+        } as LocalMessage;
       }
 
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
@@ -570,28 +578,31 @@ describe('getGroupStyles', () => {
   });
 
   it('marks a message as bottom when the message is edited', () => {
-    message = { ...message, message_text_updated_at: new Date() };
+    message = { ...message, message_text_updated_at: new Date().toISOString() };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',
     );
   });
 
   it('marks a message as top when the previous message is edited', () => {
-    previousMessage = { ...previousMessage, message_text_updated_at: new Date() };
+    previousMessage = {
+      ...previousMessage,
+      message_text_updated_at: new Date().toISOString(),
+    };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'top',
     );
   });
 
   it('marks a message a top if it has reactions', () => {
-    message = { ...message, reaction_groups: { X: 'Y' } };
+    message = { ...message, reaction_groups: { X: 'Y' } as any };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'top',
     );
   });
 
   it('marks a message a bottom if next message has reactions', () => {
-    nextMessage = { ...nextMessage, reaction_groups: { X: 'Y' } };
+    nextMessage = { ...nextMessage, reaction_groups: { X: 'Y' } as any };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',
     );

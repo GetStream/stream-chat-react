@@ -8,6 +8,8 @@ import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
+import type { Channel, StreamChat } from 'stream-chat';
+
 import {
   generateChannel,
   generateGiphyAttachment,
@@ -22,8 +24,8 @@ import {
 } from '../../../mock-builders';
 import { WithAudioPlayback } from '../../AudioPlayback';
 
-let chatClient: any;
-let channel: any;
+let chatClient: StreamChat;
+let channel: Channel;
 const user = generateUser({ id: 'userId', name: 'username' });
 
 vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(async () => {});

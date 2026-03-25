@@ -35,7 +35,7 @@ async function renderUserRoleHook(
     ...channelProps,
   } as any);
 
-  const wrapper = ({ children }: any) => (
+  const wrapper = ({ children }: React.PropsWithChildren) => (
     <ChatProvider value={mockChatContext({ client, ...clientContextValue })}>
       <ChannelStateProvider
         value={mockChannelStateContext({ channel, ...channelStateContextValue })}

@@ -20,7 +20,7 @@ const ownNonGiphyMessage = generateMessage({ user: me });
 const foreignNonGiphyMessage = generateMessage({ user: otherUser });
 
 const render = ({ client, separateGiphyPreview }) => {
-  const wrapper = ({ children }: any) => (
+  const wrapper = ({ children }: React.PropsWithChildren) => (
     <ChatProvider value={{ client } as any}>{children}</ChatProvider>
   );
   return renderHook(() => useGiphyPreview(separateGiphyPreview), { wrapper });
