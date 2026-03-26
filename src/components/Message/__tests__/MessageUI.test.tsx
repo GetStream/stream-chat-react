@@ -36,7 +36,7 @@ import {
 } from '../../../mock-builders';
 import { MessageBouncePrompt } from '../../MessageBounce';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
-import type { ChannelConfigWithInfo } from 'stream-chat';
+import type { Channel, ChannelConfigWithInfo, StreamChat } from 'stream-chat';
 import type { ComponentContextValue, MessageContextValue } from '../../../context';
 
 vi.mock('../../ChatView', async (importOriginal) => {
@@ -94,8 +94,8 @@ function generateBobMessage(
 }
 
 describe('<MessageSimple />', () => {
-  let channel;
-  let client;
+  let channel: Channel;
+  let client: StreamChat;
 
   async function renderMessageSimple({
     channelCapabilities = { 'send-reaction': true, 'send-reply': true },

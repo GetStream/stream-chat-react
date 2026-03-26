@@ -53,7 +53,7 @@ const defaultMessageContext = {
 };
 
 describe('PollOptionList', () => {
-  let chatClient;
+  let chatClient: StreamChat;
 
   beforeAll(async () => {
     chatClient = await getTestClientWithUser();

@@ -1,4 +1,5 @@
 import { getChannel } from '../getChannel';
+import type { StreamChat } from 'stream-chat';
 import {
   generateChannel,
   generateMember,
@@ -8,7 +9,7 @@ import {
   useMockedApis,
 } from '../../mock-builders';
 
-let client;
+let client: StreamChat;
 const channelData = generateChannel({
   channel: {
     members: [

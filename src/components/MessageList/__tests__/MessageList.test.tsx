@@ -96,7 +96,7 @@ const createDeferred = () => {
 };
 
 describe('MessageList', () => {
-  let chatClient;
+  let chatClient: StreamChat;
   let channel;
   let markReadMock;
 

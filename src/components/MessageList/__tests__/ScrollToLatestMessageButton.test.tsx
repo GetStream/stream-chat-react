@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { Channel, StreamChat, UserResponse } from 'stream-chat';
 
 import { ScrollToLatestMessageButton } from '../ScrollToLatestMessageButton';
 import { ChannelStateProvider, ChatProvider } from '../../../context';
@@ -17,10 +18,10 @@ const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
 const mainList = 'the main message list';
 const threadList = 'a thread';
 
-let client;
-let channel;
-let users;
-let containerIsThread;
+let client: StreamChat;
+let channel: Channel;
+let users: UserResponse[];
+let containerIsThread: boolean;
 let anotherUser;
 let channelStateContext;
 let parentMsg;

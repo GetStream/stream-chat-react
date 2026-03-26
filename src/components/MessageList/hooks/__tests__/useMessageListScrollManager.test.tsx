@@ -4,6 +4,7 @@ import { cleanup, render } from '@testing-library/react';
 import { useMessageListScrollManager } from '../';
 
 import { ChatProvider } from '../../../../context/ChatContext';
+import type { StreamChat } from 'stream-chat';
 import {
   generateUser,
   getTestClientWithUser,
@@ -28,7 +29,7 @@ const defaultInputs: any = {
 };
 
 const alice = generateUser({ id: myUserId });
-let client;
+let client: StreamChat;
 
 describe('useMessageListScrollManager', () => {
   beforeEach(async () => {

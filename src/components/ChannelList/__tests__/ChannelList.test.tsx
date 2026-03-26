@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import { SearchController } from 'stream-chat';
-import type { StreamChat } from 'stream-chat';
+import type { ChannelAPIResponse, StreamChat } from 'stream-chat';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 
@@ -84,10 +84,10 @@ const ChannelListComponent = (props) => {
 const ROLE_LIST_ITEM_SELECTOR = '[role="listitem"]';
 const SEARCH_RESULT_LIST_SELECTOR = '.str-chat__search-results';
 describe('ChannelList', () => {
-  let chatClient;
-  let testChannel1;
-  let testChannel2;
-  let testChannel3;
+  let chatClient: StreamChat;
+  let testChannel1: ChannelAPIResponse;
+  let testChannel2: ChannelAPIResponse;
+  let testChannel3: ChannelAPIResponse;
 
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'uthred' });
@@ -666,8 +666,8 @@ describe('ChannelList', () => {
     });
 
     it('should fall back to the first channel when `customActiveChannel` is not found', async () => {
-      chatClient.axiosInstance.post.mockReset();
-      chatClient.axiosInstance.post
+      vi.mocked(chatClient.axiosInstance.post).mockReset();
+      vi.mocked(chatClient.axiosInstance.post)
         .mockResolvedValueOnce(queryChannelsApi([testChannel1, testChannel2]).response)
         .mockResolvedValueOnce(queryChannelsApi([]).response);
 
@@ -1941,7 +1941,7 @@ describe('ChannelList', () => {
 
       await waitFor(() => {
         expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+        expect(vi.mocked(chatClient.queryChannels).mock.calls[1][2]).toStrictEqual(
           expect.objectContaining({ offset: 0 }),
         );
       });
@@ -1964,7 +1964,7 @@ describe('ChannelList', () => {
 
       await waitFor(() => {
         expect(chatClient.queryChannels).toHaveBeenCalledTimes(2);
-        expect(chatClient.queryChannels.mock.calls[1][2]).toStrictEqual(
+        expect(vi.mocked(chatClient.queryChannels).mock.calls[1][2]).toStrictEqual(
           expect.objectContaining({ offset: 0 }),
         );
       });
@@ -1977,7 +1977,7 @@ describe('ChannelList', () => {
 
       await waitFor(() => {
         expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
-        expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
+        expect(vi.mocked(chatClient.queryChannels).mock.calls[2][2]).toStrictEqual(
           expect.objectContaining({ offset: 0 }),
         );
       });
@@ -2014,7 +2014,7 @@ describe('ChannelList', () => {
 
       await waitFor(() => {
         expect(chatClient.queryChannels).toHaveBeenCalledTimes(3);
-        expect(chatClient.queryChannels.mock.calls[2][2]).toStrictEqual(
+        expect(vi.mocked(chatClient.queryChannels).mock.calls[2][2]).toStrictEqual(
           expect.objectContaining({ offset: 0 }),
         );
       });

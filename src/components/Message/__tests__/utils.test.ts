@@ -1,6 +1,7 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { ChannelConfigWithInfo, Mute } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
 import {
   countReactions,
   getTestClientWithUser,
@@ -442,7 +443,7 @@ describe('Message utils', () => {
   describe('getReadByTooltipText', () => {
     const tooltipUserNameMapper = mapToUserNameOrId;
 
-    let client;
+    let client: StreamChat;
 
     beforeAll(async () => {
       client = await getTestClientWithUser(alice);

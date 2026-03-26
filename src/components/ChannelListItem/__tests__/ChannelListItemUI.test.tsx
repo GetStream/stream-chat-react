@@ -10,6 +10,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
+import type { Channel, StreamChat } from 'stream-chat';
 import { ChannelListItemUI } from '../ChannelListItemUI';
 import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
 
@@ -23,8 +24,8 @@ NoopActionButtons.displayName = 'ChannelListItemActionButtons';
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
 
-  let chatClient;
-  let channel;
+  let chatClient: StreamChat;
+  let channel: Channel;
   const renderComponent = (props?: any, componentOverrides = {}) => (
     <ChatProvider value={mockChatContext({ client: chatClient })}>
       <DialogManagerProvider>

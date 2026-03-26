@@ -22,7 +22,12 @@ import {
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 import { ChannelAvatar } from '../../Avatar';
-import type { ChannelResponse, Channel as ChannelType, StreamChat } from 'stream-chat';
+import type {
+  ChannelAPIResponse,
+  ChannelResponse,
+  Channel as ChannelType,
+  StreamChat,
+} from 'stream-chat';
 import type { ChannelHeaderProps } from '../ChannelHeader';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
@@ -30,8 +35,8 @@ const AVATAR_IMG_TEST_ID = 'avatar-img';
 
 const user1 = generateUser();
 const user2 = generateUser({ image: null });
-let testChannel1;
-let client;
+let testChannel1: ChannelAPIResponse;
+let client: StreamChat;
 
 const CustomMenuIcon = () => <div id='custom-icon'>Custom Menu Icon</div>;
 const defaultChannelState = {
@@ -72,7 +77,7 @@ async function renderComponent({
   testChannel1 = generateChannel({ ...defaultChannelState, channel: channelData });
   /* eslint-disable-next-line react-hooks/rules-of-hooks */
   useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-  const channel = client.channel(channelType, testChannel1.id, channelData);
+  const channel = client.channel(channelType, testChannel1.channel.id, channelData);
   await channel.query();
 
   return renderComponentBase({ channel, client, props });

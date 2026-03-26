@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import type { StreamChat } from 'stream-chat';
 import { dispatchConnectionChangedEvent, getTestClient } from 'mock-builders';
 
 import { ConnectionStatus } from '../ConnectionStatus';
@@ -7,7 +8,7 @@ import { Chat } from '../../Chat';
 
 const customNotificationId = 'custom-notification';
 describe('<ChatContext /> component', () => {
-  let chatClient;
+  let chatClient: StreamChat;
   beforeEach(() => {
     chatClient = getTestClient();
   });

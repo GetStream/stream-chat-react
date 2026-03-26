@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 import { useDeleteHandler } from '../useDeleteHandler';
 import {
@@ -18,8 +19,8 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 import { act } from '@testing-library/react';
 
-let channel;
-let client;
+let channel: ChannelType;
+let client: StreamChat;
 const testMessage = generateMessage();
 const deleteMessage = vi.fn(() => Promise.resolve(testMessage)) as any;
 const removeMessage = vi.fn();

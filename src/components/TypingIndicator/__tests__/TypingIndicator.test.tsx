@@ -9,6 +9,7 @@ import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TypingProvider } from '../../../context/TypingContext';
 
+import type { ChannelAPIResponse, Channel as ChannelType, StreamChat } from 'stream-chat';
 import {
   generateChannel,
   generateUser,
@@ -178,9 +179,9 @@ describe('TypingIndicator', () => {
   });
 
   describe('TypingIndicator in thread', () => {
-    let client;
-    let ch;
-    let channel;
+    let client: StreamChat;
+    let ch: ChannelAPIResponse;
+    let channel: ChannelType;
     const parent_id = 'sample-thread';
     const otherUserId = 'test-user';
 
@@ -188,7 +189,7 @@ describe('TypingIndicator', () => {
       client = await getTestClientWithUser();
       ch = generateChannel({ config: { typing_events: true } } as any);
       useMockedApis(client, [getOrCreateChannelApi(ch)]);
-      channel = client.channel('messaging', ch.id);
+      channel = client.channel('messaging', ch.channel.id);
       await channel.watch();
     });
 

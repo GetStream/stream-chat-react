@@ -13,6 +13,7 @@ import {
   useMockedApis,
 } from 'mock-builders';
 
+import type { StreamChat } from 'stream-chat';
 import {
   getChannelDisplayImage,
   getGroupChannelDisplayInfo,
@@ -23,7 +24,7 @@ import { render } from '@testing-library/react';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
-  let chatClient;
+  let chatClient: StreamChat;
   const getQueriedChannelInstance = async (c) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useMockedApis(chatClient, [getOrCreateChannelApi(c)]);
