@@ -13,7 +13,7 @@
 .str-chat__message-list-main-panel {
   --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +
-      var(--str-chat__message-composer-padding)
+      (2 * var(--str-chat__message-composer-padding))
   );
 }
 
@@ -30,7 +30,6 @@
 
   .str-chat__message-list-scroll {
     @include utils.message-list-spacing;
-    /* Max container 800px, 16px padding → 768px readable content; matches composer width + padding */
     max-width: var(--str-chat__message-list-scroll-max-width);
     .str-chat__ul {
       list-style: none;
