@@ -9,42 +9,52 @@ import { LoadingChannel, LoadingChannels } from 'stream-chat-react';
 // Update this layout every time layout in App.tsx is updated.
 type LoadingScreenProps = {
   initialAppLayoutStyle: CSSProperties;
+  initialChannelSelected: boolean;
   initialNavOpen: boolean;
-  initialThreadOpen: boolean;
 };
 
 const selectorButtonCount = 4;
 
 export const LoadingScreen = ({
   initialAppLayoutStyle,
+  initialChannelSelected,
   initialNavOpen,
-  initialThreadOpen,
 }: LoadingScreenProps) => (
   <div className='app-chat-layout' style={initialAppLayoutStyle}>
     <div className='str-chat'>
       <div className='str-chat__chat-view'>
-        <div
-          className={clsx('str-chat__chat-view__selector', {
-            'str-chat__chat-view__selector--nav-closed': !initialNavOpen,
-            'str-chat__chat-view__selector--nav-open': initialNavOpen,
-          })}
-        >
-          {Array.from({ length: selectorButtonCount }).map((_, index) => (
-            <div className='str-chat__chat-view__selector-button-container' key={index}>
-              <div className='str-chat__chat-view__selector-button'>
-                <span className='str-chat__loading-channels-avatar' />
-              </div>
-            </div>
-          ))}
-        </div>
         <div className='str-chat__chat-view__channels'>
           <div
             className={clsx('app-chat-view__channels-layout', {
+              'app-chat-view__channels-layout--channel-selected': initialChannelSelected,
               'app-chat-view__channels-layout--sidebar-collapsed': !initialNavOpen,
             })}
           >
-            <div className='str-chat__channel-list'>
-              <LoadingChannels />
+            <div className='app-chat-sidebar-overlay'>
+              <div
+                className={clsx('str-chat__chat-view__selector', {
+                  'str-chat__chat-view__selector--nav-closed': !initialNavOpen,
+                  'str-chat__chat-view__selector--nav-open': initialNavOpen,
+                })}
+              >
+                {Array.from({ length: selectorButtonCount }).map((_, index) => (
+                  <div
+                    className='str-chat__chat-view__selector-button-container'
+                    key={index}
+                  >
+                    <div className='str-chat__chat-view__selector-button'>
+                      <span className='str-chat__loading-channels-avatar' />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div
+                className={clsx('str-chat__channel-list', {
+                  'str-chat__channel-list--open': initialNavOpen,
+                })}
+              >
+                <LoadingChannels />
+              </div>
             </div>
             <div
               aria-orientation='vertical'
@@ -56,37 +66,11 @@ export const LoadingScreen = ({
               </div>
             </div>
             <div className='str-chat__channel'>
-              <div className='str-chat__container'>
-                <div className='str-chat__main-panel'>
-                  <div className='str-chat__main-panel-inner'>
-                    <div className='str-chat__window'>
-                      <LoadingChannel />
-                    </div>
+              <div className='str-chat__main-panel'>
+                <div className='str-chat__main-panel-inner'>
+                  <div className='str-chat__window app-loading-screen__window'>
+                    <LoadingChannel />
                   </div>
-                </div>
-                <div
-                  aria-orientation='vertical'
-                  className={clsx(
-                    'app-chat-resize-handle app-chat-resize-handle--thread',
-                    {
-                      'app-chat-resize-handle--thread-hidden': !initialThreadOpen,
-                    },
-                  )}
-                  role='separator'
-                >
-                  <div className='app-chat-resize-handle__hitbox'>
-                    <div className='app-chat-resize-handle__line' />
-                  </div>
-                </div>
-                <div
-                  className={clsx(
-                    'str-chat__dropzone-root--thread app-chat-thread-panel',
-                    {
-                      'app-chat-thread-panel--open': initialThreadOpen,
-                    },
-                  )}
-                >
-                  <LoadingChannel />
                 </div>
               </div>
             </div>

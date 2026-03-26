@@ -18,6 +18,8 @@ import {
   WithDragAndDropUpload,
   useChannelStateContext,
   useChatContext,
+  type ChatViewSelectorEntry,
+  useThreadsViewContext,
 } from 'stream-chat-react';
 
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
@@ -41,59 +43,82 @@ const ChannelThreadPanel = () => {
   );
 };
 
+const ResponsiveChannelPanels = () => {
+  const { thread } = useChannelStateContext('ResponsiveChannelPanels');
+  const isThreadOpen = !!thread;
+
+  return (
+    <div
+      className={clsx('app-chat-view__channel-content', {
+        'app-chat-view__channel-content--thread-open': isThreadOpen,
+      })}
+    >
+      <WithDragAndDropUpload className='app-chat-view__channel-main'>
+        <Window>
+          <ChannelHeader Avatar={ChannelAvatar} />
+          <MessageList returnAllReadData />
+          <AIStateIndicator />
+          <MessageComposer
+            focus
+            audioRecordingEnabled
+            maxRows={10}
+            asyncMessagesMultiSendEnabled
+          />
+        </Window>
+      </WithDragAndDropUpload>
+      <ChannelThreadPanel />
+    </div>
+  );
+};
+
 export const ChannelsPanels = ({
   filters,
+  iconOnly,
   initialChannelId,
+  itemSet,
   options,
   sort,
 }: {
   filters: ChannelFilters;
+  iconOnly?: boolean;
   initialChannelId?: string;
+  itemSet?: ChatViewSelectorEntry[];
   options: ChannelOptions;
   sort: ChannelSort;
 }) => {
-  const { navOpen = true } = useChatContext('ChannelsPanels');
+  const { channel, navOpen = true } = useChatContext('ChannelsPanels');
   const channelsLayoutRef = useRef<HTMLDivElement | null>(null);
 
   return (
     <ChatView.Channels>
       <div
         className={clsx('app-chat-view__channels-layout', {
+          'app-chat-view__channels-layout--channel-selected': !!channel?.id,
           'app-chat-view__channels-layout--sidebar-collapsed': navOpen === false,
         })}
         ref={channelsLayoutRef}
       >
-        <WithComponents
-          overrides={{
-            // @ts-expect-error TODO: adjust the sizing
-            Avatar: ChannelAvatar,
-          }}
-        >
-          <ChannelList
-            customActiveChannel={initialChannelId}
-            filters={filters}
-            options={options}
-            sort={sort}
-            showChannelSearch
-          />
-        </WithComponents>
+        <div className='app-chat-sidebar-overlay'>
+          <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
+          <WithComponents
+            overrides={{
+              // @ts-expect-error TODO: adjust the sizing
+              Avatar: ChannelAvatar,
+            }}
+          >
+            <ChannelList
+              customActiveChannel={initialChannelId}
+              filters={filters}
+              options={options}
+              sort={sort}
+              showChannelSearch
+            />
+          </WithComponents>
+        </div>
         <SidebarResizeHandle layoutRef={channelsLayoutRef} />
         <WithComponents overrides={{ TypingIndicator }}>
           <Channel>
-            <WithDragAndDropUpload>
-              <Window>
-                <ChannelHeader Avatar={ChannelAvatar} />
-                <MessageList returnAllReadData />
-                <AIStateIndicator />
-                <MessageComposer
-                  focus
-                  audioRecordingEnabled
-                  maxRows={10}
-                  asyncMessagesMultiSendEnabled
-                />
-              </Window>
-            </WithDragAndDropUpload>
-            <ChannelThreadPanel />
+            <ResponsiveChannelPanels />
           </Channel>
         </WithComponents>
       </div>
@@ -101,8 +126,15 @@ export const ChannelsPanels = ({
   );
 };
 
-export const ThreadsPanels = () => {
+export const ThreadsPanels = ({
+  iconOnly,
+  itemSet,
+}: {
+  iconOnly?: boolean;
+  itemSet?: ChatViewSelectorEntry[];
+}) => {
   const { navOpen = true } = useChatContext('ThreadsPanels');
+  const { activeThread } = useThreadsViewContext();
   const threadsLayoutRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -110,11 +142,15 @@ export const ThreadsPanels = () => {
       <ThreadStateSync />
       <div
         className={clsx('app-chat-view__threads-layout', {
+          'app-chat-view__threads-layout--thread-selected': !!activeThread?.id,
           'app-chat-view__threads-layout--sidebar-collapsed': navOpen === false,
         })}
         ref={threadsLayoutRef}
       >
-        <ThreadList />
+        <div className='app-chat-sidebar-overlay'>
+          <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
+          <ThreadList />
+        </div>
         <SidebarResizeHandle layoutRef={threadsLayoutRef} />
         <div className='app-chat-view__threads-main'>
           <ChatView.ThreadAdapter>

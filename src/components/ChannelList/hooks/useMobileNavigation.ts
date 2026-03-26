@@ -8,6 +8,18 @@ export const useMobileNavigation = (
   closeMobileNav?: () => void,
 ) => {
   useEffect(() => {
+    const isClickInsideChannelList = (event: MouseEvent) => {
+      const channelListElement = channelListRef.current;
+
+      if (!channelListElement) return false;
+
+      const eventPath = event.composedPath();
+
+      // `event.target` may become detached before this document listener runs.
+      // Use composedPath to reliably detect whether the click originated inside.
+      return eventPath.includes(channelListElement);
+    };
+
     const handleClickOutside = (event: MouseEvent) => {
       if (typeof window !== 'undefined' && window.innerWidth >= MOBILE_NAV_BREAKPOINT) {
         return;
@@ -15,7 +27,7 @@ export const useMobileNavigation = (
       if (
         closeMobileNav &&
         channelListRef.current &&
-        !channelListRef.current.contains(event.target as Node) &&
+        !isClickInsideChannelList(event) &&
         navOpen
       ) {
         closeMobileNav();

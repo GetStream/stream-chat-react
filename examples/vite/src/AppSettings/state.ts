@@ -19,8 +19,8 @@ export type NotificationsSettingsState = {
   verticalAlignment: 'bottom' | 'top';
 };
 
-export const LEFT_PANEL_MIN_WIDTH = 360;
-export const THREAD_PANEL_MIN_WIDTH = 360;
+export const LEFT_PANEL_MIN_WIDTH = 260;
+export const THREAD_PANEL_MIN_WIDTH = 260;
 
 export type LeftPanelLayoutSettingsState = {
   collapsed: boolean;
