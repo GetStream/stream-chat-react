@@ -8,7 +8,7 @@ import {
   ModalContextProvider,
   TranslationProvider,
 } from '../../../context';
-import { mockTranslationContext } from '../../../mock-builders';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 import type { GalleryProps } from '../Gallery';
 import type { MessageContextValue, ModalContextValue } from '../../../context';
@@ -23,7 +23,7 @@ const makeImageItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
     ...overrides,
   }) as unknown as GalleryItem;
 
-const makeVideoItem = (overrides: Record<string, unknown> = {}): GalleryItem =>
+const makeVideoItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
   ({
     localMetadata: { id: 'vid-1' },
     title: 'test-video.mp4',
@@ -87,7 +87,9 @@ const renderGalleryUI = (
   }
 
   return render(
-    <TranslationProvider value={mockTranslationContext}>{children}</TranslationProvider>,
+    <TranslationProvider value={mockTranslationContextValue()}>
+      {children}
+    </TranslationProvider>,
   );
 };
 

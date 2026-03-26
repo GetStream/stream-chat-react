@@ -6,6 +6,7 @@ export default defineConfig({
     defaultNS: false,
     extractFromComments: false,
     functions: ['t', '*.t'],
+    ignore: ['./src/**/__tests__/**', './src/mock-builders/**'],
     input: ['./src/**/*.{tsx,ts}'],
     keySeparator: false,
     nsSeparator: false,

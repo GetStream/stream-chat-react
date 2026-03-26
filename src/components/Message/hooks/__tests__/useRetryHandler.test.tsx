@@ -1,0 +1,53 @@
+import React from 'react';
+import { renderHook } from '@testing-library/react';
+
+import { useRetryHandler } from '../useRetryHandler';
+
+import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
+import { generateMessage, mockChannelActionContext } from '../../../../mock-builders';
+
+const retrySendMessage = vi.fn();
+
+function renderUseRetryHandlerHook(customRetrySendMessage?: any) {
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
+    <ChannelActionProvider value={mockChannelActionContext({ retrySendMessage })}>
+      {children}
+    </ChannelActionProvider>
+  );
+
+  const { result } = renderHook(() => useRetryHandler(customRetrySendMessage), {
+    wrapper,
+  });
+
+  return result.current;
+}
+
+describe('useReactionHandler custom hook', () => {
+  afterEach(vi.clearAllMocks);
+  it('should generate a function that handles retrying a failed message', () => {
+    const handleRetry = renderUseRetryHandlerHook();
+    expect(typeof handleRetry).toBe('function');
+  });
+
+  it('should retry send message when called', () => {
+    const handleRetry = renderUseRetryHandlerHook();
+    const message = generateMessage();
+    handleRetry(message as any);
+    expect(retrySendMessage).toHaveBeenCalledWith(message);
+  });
+
+  it('should retry send message with custom retry send message handler when one is set', () => {
+    const customRetrySendMessage = vi.fn();
+    const handleRetry = renderUseRetryHandlerHook(customRetrySendMessage);
+    const message = generateMessage();
+    handleRetry(message as any);
+    expect(retrySendMessage).not.toHaveBeenCalled();
+    expect(customRetrySendMessage).toHaveBeenCalledWith(message);
+  });
+
+  it('should do nothing if message is not defined', () => {
+    const handleRetry = renderUseRetryHandlerHook();
+    handleRetry(undefined);
+    expect(retrySendMessage).not.toHaveBeenCalled();
+  });
+});
