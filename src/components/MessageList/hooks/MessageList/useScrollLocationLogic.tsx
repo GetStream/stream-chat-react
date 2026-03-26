@@ -295,21 +295,48 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
       return;
     }
 
-    scrollToBottom();
-    const settleTimeoutIdA = setTimeout(() => {
-      scrollToBottom();
-    }, 80);
-    const settleTimeoutIdB = messagesHydrated
-      ? setTimeout(() => {
-          scrollToBottom();
-        }, 260)
-      : undefined;
+    let keepPinnedToBottom = true;
+
+    const maybeScrollToBottom = () => {
+      if (keepPinnedToBottom) {
+        scrollToBottom();
+      }
+    };
+
+    maybeScrollToBottom();
+    const settleDelays = [80, messagesHydrated ? 260 : 420, 900, 1700];
+    const settleTimeoutIds = settleDelays.map((delay) =>
+      setTimeout(maybeScrollToBottom, delay),
+    );
+
+    const stopKeepingPinnedToBottom = () => {
+      keepPinnedToBottom = false;
+    };
+
+    // Any direct user interaction with the scroller disables the temporary
+    // initial-load pin, so manual scrolling is never force-overridden.
+    listElement.addEventListener('pointerdown', stopKeepingPinnedToBottom, {
+      passive: true,
+    });
+    listElement.addEventListener('touchstart', stopKeepingPinnedToBottom, {
+      passive: true,
+    });
+    listElement.addEventListener('wheel', stopKeepingPinnedToBottom, {
+      passive: true,
+    });
+    listElement.addEventListener('keydown', stopKeepingPinnedToBottom);
+
+    const pinWindowTimeoutId = setTimeout(() => {
+      stopKeepingPinnedToBottom();
+    }, 2200);
 
     return () => {
-      clearTimeout(settleTimeoutIdA);
-      if (settleTimeoutIdB) {
-        clearTimeout(settleTimeoutIdB);
-      }
+      settleTimeoutIds.forEach(clearTimeout);
+      clearTimeout(pinWindowTimeoutId);
+      listElement.removeEventListener('pointerdown', stopKeepingPinnedToBottom);
+      listElement.removeEventListener('touchstart', stopKeepingPinnedToBottom);
+      listElement.removeEventListener('wheel', stopKeepingPinnedToBottom);
+      listElement.removeEventListener('keydown', stopKeepingPinnedToBottom);
     };
   }, [
     disableAutoScrollToBottom,
