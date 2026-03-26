@@ -267,13 +267,6 @@ export const TextareaComposer = ({
     textareaRef.current.focus();
   }, [attachments, focus, quotedMessage, textareaRef]);
 
-  useEffect(
-    () => () => {
-      messageComposer.clear();
-    },
-    [messageComposer],
-  );
-
   useLayoutEffect(() => {
     /**
      * It is important to perform set text and after that the range

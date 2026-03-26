@@ -185,7 +185,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         expect(st.progressPercent).toBeCloseTo(25, 5);
       });
 
-      it('subscriptions: sets isPlaying=false and secondsElapsed to duration on Event "ended"', () => {
+      it('subscriptions: resets playback state on Event "ended"', () => {
         let player;
         renderWithProvider({
           allowConcurrentPlayback,
@@ -216,7 +216,8 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
 
         const st = player.state.getLatestValue();
         expect(st.isPlaying).toBe(false);
-        expect(st.secondsElapsed).toBe(200);
+        expect(st.secondsElapsed).toBe(0);
+        expect(st.progressPercent).toBe(0);
       });
 
       it('subscriptions: error with MediaError.code=4 logs and sets canPlayRecord=false', () => {

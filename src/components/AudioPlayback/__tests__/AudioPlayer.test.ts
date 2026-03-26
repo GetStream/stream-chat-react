@@ -269,6 +269,24 @@ describe('AudioPlayer', () => {
     expect(player.elementRef.currentTime).toBe(0);
   });
 
+  it('ended event resets playback state to initial position', () => {
+    const player = makePlayer();
+
+    player.play();
+    player.state.partialNext({ isPlaying: true });
+    player.setSecondsElapsed(50);
+
+    expect(player.state.getLatestValue().secondsElapsed).toBe(50);
+
+    player.elementRef.dispatchEvent(new Event('ended'));
+
+    const st = player.state.getLatestValue();
+    expect(st.isPlaying).toBe(false);
+    expect(st.secondsElapsed).toBe(0);
+    expect(st.progressPercent).toBe(0);
+    expect(player.elementRef.currentTime).toBe(0);
+  });
+
   it('togglePlay delegates to play() / pause()', async () => {
     const p = makePlayer();
 
