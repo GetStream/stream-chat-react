@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { nanoid } from 'nanoid';
+import { vi } from 'vitest';
 
 import {
   generateAttachmentAction,
@@ -18,10 +19,8 @@ import {
 
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
-import {
-  generateScrapedVideoAttachment,
-  mockChannelStateContext,
-} from '../../../mock-builders';
+import { generateScrapedVideoAttachment } from '../../../mock-builders';
+import type { ChannelStateContextValue } from '../../../context';
 import { ChannelStateProvider } from '../../../context';
 
 const UNSUPPORTED_ATTACHMENT_TEST_ID = 'attachment-unsupported';
@@ -58,16 +57,20 @@ const ATTACHMENTS = {
   },
 };
 
-const renderComponent = (props) =>
+const renderComponent = (
+  props,
+  channelStateValue = {},
+  { useDefaultGiphy = false } = {},
+) =>
   render(
-    <ChannelStateProvider value={mockChannelStateContext()}>
+    <ChannelStateProvider value={channelStateValue as ChannelStateContextValue}>
       <Attachment
         AttachmentActions={AttachmentActions}
         Audio={Audio}
         Card={Card}
         File={File}
         Geolocation={Geolocation}
-        Giphy={Giphy}
+        {...(!useDefaultGiphy ? { Giphy } : {})}
         Image={Image}
         Media={Media}
         ModalGallery={ModalGallery}
@@ -182,6 +185,25 @@ describe('attachment', () => {
       renderComponent({ attachments: [ATTACHMENTS.scraped.giphy] });
       await waitFor(() => {
         expect(screen.getByTestId('giphy-attachment')).toBeInTheDocument();
+      });
+    });
+
+    it('should apply imageAttachmentSizeHandler to giphy attachments', async () => {
+      const resizedGiphyUrl = 'https://example.com/resized.gif';
+      const imageAttachmentSizeHandler = vi.fn(() => ({ url: resizedGiphyUrl }));
+
+      renderComponent(
+        { attachments: [ATTACHMENTS.scraped.giphy] },
+        { giphyVersion: 'fixed_height', imageAttachmentSizeHandler },
+        { useDefaultGiphy: true },
+      );
+
+      await waitFor(() => {
+        expect(imageAttachmentSizeHandler).toHaveBeenCalled();
+        const imageElement = screen.getByTestId('str-chat__base-image');
+        expect(imageElement.getAttribute('src')).toBe(resizedGiphyUrl);
+        expect(imageElement.style.getPropertyValue('--original-height')).toBe('200');
+        expect(imageElement.style.getPropertyValue('--original-width')).toBe('200');
       });
     });
   });
