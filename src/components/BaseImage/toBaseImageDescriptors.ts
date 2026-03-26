@@ -34,7 +34,7 @@ export type BaseImageDescriptor = {
 export const toBaseImageDescriptors = (
   attachment: AttachmentPreviewableInGallery,
   options: { giphyVersionName?: string } = {},
-): BaseImageDescriptor | void => {
+): BaseImageDescriptor | undefined => {
   if (isGiphyAttachment(attachment)) {
     const giphyVersion =
       options?.giphyVersionName && attachment.giphy
@@ -98,4 +98,6 @@ export const toBaseImageDescriptors = (
       title: attachment.title,
     };
   }
+
+  return undefined;
 };

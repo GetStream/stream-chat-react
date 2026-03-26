@@ -17,10 +17,12 @@ export type GalleryItem = Omit<BaseImageProps, 'src'> & {
  */
 export const toGalleryItemDescriptors = (
   ...args: Parameters<typeof toBaseImageDescriptors>
-): Pick<
-  GalleryItem,
-  'alt' | 'dimensions' | 'imageUrl' | 'title' | 'videoThumbnailUrl' | 'videoUrl'
-> | void => toBaseImageDescriptors(...args);
+):
+  | Pick<
+      GalleryItem,
+      'alt' | 'dimensions' | 'imageUrl' | 'title' | 'videoThumbnailUrl' | 'videoUrl'
+    >
+  | undefined => toBaseImageDescriptors(...args);
 
 export type GalleryContextValue = {
   /** Whether clicking the empty gallery background should request close */

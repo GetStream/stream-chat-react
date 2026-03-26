@@ -5,17 +5,35 @@ import { useMessageListScrollManager } from './useMessageListScrollManager';
 import type { LocalMessage } from 'stream-chat';
 
 export type UseScrollLocationLogicParams = {
+  /** Disables automatic scroll-to-bottom updates after message changes. */
   disableAutoScrollToBottom?: boolean;
+  /** Disables scroll-management adjustments (anchor restore, append/prepend handling). */
   disableScrollManagement?: boolean;
+  /** True when there are newer messages to load beyond the currently rendered page. */
   hasMoreNewer: boolean;
+  /** Scrollable message-list container element. */
   listElement: HTMLDivElement | null;
+  /** Threshold used to detect older-page pagination proximity near the top. */
   loadMoreScrollThreshold: number;
+  /** Indicates whether older-page pagination is currently in progress. */
   loadingMore?: boolean;
+  /** Hard-disable all autoscroll behavior. */
   suppressAutoscroll: boolean;
+  /** Current rendered message set used for scroll reconciliation. */
   messages?: LocalMessage[];
+  /** Distance from bottom (px) considered as "near bottom". */
   scrolledUpThreshold?: number;
 };
 
+/**
+ * Centralized scroll-position logic for MessageList.
+ *
+ * Responsibilities:
+ * - Keep viewport stable during prepend/append pagination updates.
+ * - Track whether the list is near bottom and expose that state to UI.
+ * - Auto-scroll to bottom when appropriate while respecting suppression flags.
+ * - Perform a short hydration settle pass so freshly loaded lists land at bottom.
+ */
 export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => {
   const {
     disableAutoScrollToBottom = false,
@@ -41,6 +59,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const closeToBottom = useRef(false);
   const closeToTop = useRef(false);
   const previousScrollTopRef = useRef(0);
+  const previousMessagesLengthRef = useRef(messages.length);
   const anchorRestoreCleanupRef = useRef<(() => void) | null>(null);
 
   const captureAnchor = useCallback(() => {
@@ -225,6 +244,10 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     [hasMoreNewer, justReachedLatestMessageSet, listElement, suppressAutoscroll],
   );
 
+  /**
+   * Keeps wrapper geometry up to date and handles the "reached latest merged set"
+   * path where existing viewport position must be preserved.
+   */
   useLayoutEffect(() => {
     if (listElement) {
       setWrapperRect(listElement.getBoundingClientRect());
@@ -246,6 +269,85 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [disableAutoScrollToBottom, justReachedLatestMessageSet, listElement, hasMoreNewer]);
+
+  /**
+   * Short post-render bottom settle. This is intentionally small (immediate + 2 retries)
+   * to catch late layout updates without keeping the list in a prolonged lock loop.
+   */
+  useLayoutEffect(() => {
+    if (
+      !listElement ||
+      disableAutoScrollToBottom ||
+      hasMoreNewer ||
+      suppressAutoscroll ||
+      justReachedLatestMessageSet ||
+      isRestoringOlderAnchorRef.current
+    ) {
+      return;
+    }
+
+    const initialDistanceToBottom =
+      listElement.scrollHeight - (listElement.scrollTop + listElement.clientHeight);
+    const messagesHydrated =
+      previousMessagesLengthRef.current === 0 && messages.length > 0;
+
+    if (initialDistanceToBottom > scrolledUpThreshold && !messagesHydrated) {
+      return;
+    }
+
+    let keepPinnedToBottom = true;
+
+    const maybeScrollToBottom = () => {
+      if (keepPinnedToBottom) {
+        scrollToBottom();
+      }
+    };
+
+    maybeScrollToBottom();
+    const settleDelays = [80, messagesHydrated ? 260 : 420, 900, 1700];
+    const settleTimeoutIds = settleDelays.map((delay) =>
+      setTimeout(maybeScrollToBottom, delay),
+    );
+
+    const stopKeepingPinnedToBottom = () => {
+      keepPinnedToBottom = false;
+    };
+
+    // Any direct user interaction with the scroller disables the temporary
+    // initial-load pin, so manual scrolling is never force-overridden.
+    listElement.addEventListener('pointerdown', stopKeepingPinnedToBottom, {
+      passive: true,
+    });
+    listElement.addEventListener('touchstart', stopKeepingPinnedToBottom, {
+      passive: true,
+    });
+    listElement.addEventListener('wheel', stopKeepingPinnedToBottom, {
+      passive: true,
+    });
+    listElement.addEventListener('keydown', stopKeepingPinnedToBottom);
+
+    const pinWindowTimeoutId = setTimeout(() => {
+      stopKeepingPinnedToBottom();
+    }, 2200);
+
+    return () => {
+      settleTimeoutIds.forEach(clearTimeout);
+      clearTimeout(pinWindowTimeoutId);
+      listElement.removeEventListener('pointerdown', stopKeepingPinnedToBottom);
+      listElement.removeEventListener('touchstart', stopKeepingPinnedToBottom);
+      listElement.removeEventListener('wheel', stopKeepingPinnedToBottom);
+      listElement.removeEventListener('keydown', stopKeepingPinnedToBottom);
+    };
+  }, [
+    disableAutoScrollToBottom,
+    hasMoreNewer,
+    justReachedLatestMessageSet,
+    listElement,
+    messages.length,
+    scrollToBottom,
+    scrolledUpThreshold,
+    suppressAutoscroll,
+  ]);
 
   const updateScrollTop = useMessageListScrollManager({
     captureAnchor,
@@ -276,6 +378,14 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     previousHasMoreNewerRef.current = hasMoreNewer;
   }, [hasMoreNewer]);
 
+  useLayoutEffect(() => {
+    previousMessagesLengthRef.current = messages.length;
+  }, [messages.length]);
+
+  /**
+   * Updates cached scroll metrics and bottom/top proximity state used by
+   * notifications, autoscroll decisions, and paginator behavior.
+   */
   const onScroll = useCallback(
     (event: React.UIEvent<HTMLDivElement>) => {
       const element = event.target as HTMLDivElement;
@@ -286,10 +396,13 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
 
       const offsetHeight = element.offsetHeight;
       const scrollHeight = element.scrollHeight;
+      const distanceToBottom = scrollHeight - (scrollTop + offsetHeight);
+      const bottomEnterThreshold = Math.max(Math.floor(scrolledUpThreshold * 0.6), 24);
 
       const prevCloseToBottom = closeToBottom.current;
-      closeToBottom.current =
-        scrollHeight - (scrollTop + offsetHeight) < scrolledUpThreshold;
+      closeToBottom.current = prevCloseToBottom
+        ? distanceToBottom < scrolledUpThreshold
+        : distanceToBottom < bottomEnterThreshold;
       closeToTop.current = scrollTop < scrolledUpThreshold;
 
       if (closeToBottom.current) {
