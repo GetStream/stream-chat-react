@@ -95,7 +95,7 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 
   useEffect(
     () => () => {
-      messageComposer.createDraft();
+      messageComposer.createDraft().finally(() => messageComposer.clear());
     },
     [messageComposer],
   );

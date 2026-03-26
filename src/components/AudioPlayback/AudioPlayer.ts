@@ -526,6 +526,7 @@ export class AudioPlayer {
 
   stop = () => {
     this.pause();
+    this.state.partialNext({ isPlaying: false });
     this.setSecondsElapsed(0);
     if (this.elementRef) this.elementRef.currentTime = 0;
   };
@@ -628,10 +629,7 @@ export class AudioPlayer {
       if (audioElement) {
         this.updateDurationFromElement(audioElement);
       }
-      this.state.partialNext({
-        isPlaying: false,
-        secondsElapsed: audioElement?.duration ?? this.durationSeconds ?? 0,
-      });
+      this.stop();
     };
 
     const handleError = (e: HTMLMediaElementEventMap['error']) => {

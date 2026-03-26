@@ -41,14 +41,10 @@ export const ChannelListContextProvider = ({
   </ChannelListContext.Provider>
 );
 
-export const useChannelListContext = (componentName?: string) => {
+export const useChannelListContext = () => {
   const contextValue = useContext(ChannelListContext);
 
   if (!contextValue) {
-    console.warn(
-      `The useChannelListContext hook was called outside of the ChannelListContext provider. Make sure this hook is called within the ChannelList component. The errored call is located in the ${componentName} component.`,
-    );
-
     return {} as ChannelListContextValue;
   }
 

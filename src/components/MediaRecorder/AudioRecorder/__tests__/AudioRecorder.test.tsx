@@ -34,6 +34,10 @@ import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
 import { WithAudioPlayback } from '../../../AudioPlayback';
 import { ChatViewContext } from '../../../ChatView/ChatView';
+import type {
+  AppSettingsAPIResponse,
+  SendFileAPIResponse,
+} from '../../../../../../stream-chat-js/src';
 
 const chatViewContextValue = {
   activeChatView: 'channels',
@@ -375,6 +379,38 @@ describe('MessageInput', () => {
       expect(sendFileSpy).toHaveBeenCalledTimes(1);
     });
     expect(sendMessageSpy).not.toHaveBeenCalled();
+  });
+
+  it('renders voice preview slot after stopping recording when multiple async messages are enabled', async () => {
+    MediaRecorderMock.autoEmitDataOnStop = true;
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
+    });
+
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as AppSettingsAPIResponse);
+    vi.spyOn(channel, 'sendFile').mockResolvedValue({
+      file: fileObjectURL,
+    } as SendFileAPIResponse);
+
+    await renderComponent({
+      channelStateCtx: { channel },
+      chatCtx: { client },
+      props: { asyncMessagesMultiSendEnabled: true },
+    });
+
+    fireEvent.click(screen.getByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
+    await waitFor(() => {
+      expect(screen.getByTestId(AUDIO_RECORDER_TEST_ID)).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('voice-preview-slot')).toBeInTheDocument();
+    });
   });
 });
 

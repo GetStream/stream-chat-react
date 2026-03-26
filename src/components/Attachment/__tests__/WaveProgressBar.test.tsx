@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { WaveProgressBar } from '../../AudioPlayback';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
@@ -95,7 +95,9 @@ describe('WaveProgressBar', () => {
           '2px',
       ),
     ).toBeTruthy();
-    expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(7);
+    await waitFor(() => {
+      expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(7);
+    });
   });
 
   it('does not recalculate the number of bars on root resize if ResizeObserver is unsupported', () => {
