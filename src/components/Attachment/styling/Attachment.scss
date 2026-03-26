@@ -416,8 +416,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xs);
+    padding-block: var(--spacing-xs);
+    padding-inline-start: var(--spacing-xs);
+    padding-inline-end: var(--spacing-sm);
     min-height: 60px;
+
+    .str-chat__message-attachment__voice-recording-widget__play-button-container {
+      padding: var(--spacing-xxs);
+    }
 
     .str-chat__message-attachment__voice-recording-widget__metadata {
       min-width: 180px;
@@ -478,14 +484,17 @@
 
 .str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
   .str-chat__message-bubble {
-    padding: 0;
-    background-color: transparent;
     border: 1px solid var(--chat-border-incoming);
     box-shadow: var(--background-core-elevation-0);
   }
 
   .str-chat__message-attachment {
     background-color: var(--chat-bg-incoming);
+
+    .str-chat__message-attachment__voice-recording-widget {
+      padding: unset;
+      padding-inline-end: var(--spacing-xxs);
+    }
   }
 }
 
