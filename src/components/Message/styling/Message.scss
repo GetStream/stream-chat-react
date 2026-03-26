@@ -167,11 +167,6 @@
 }
 
 .str-chat__message.str-chat__message--has-single-attachment {
-  &.str-chat__message--has-no-text {
-    .str-chat__message-bubble {
-      padding: 0;
-    }
-  }
   &.str-chat__message--has-giphy-attachment {
     .str-chat__message-bubble {
       padding: 0;
@@ -180,16 +175,6 @@
     .str-chat__message-text {
       display: none;
     }
-  }
-}
-
-.str-chat__message.str-chat__message--has-single-attachment.str-chat__message--has-giphy-attachment {
-  .str-chat__message-bubble {
-    padding: 0;
-  }
-
-  .str-chat__message-text {
-    display: none;
   }
 }
 

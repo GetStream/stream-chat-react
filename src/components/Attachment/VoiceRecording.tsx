@@ -43,7 +43,9 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
 
   return (
     <div className={rootClassName} data-testid='voice-recording-widget'>
-      <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
+      <div className='str-chat__message-attachment__voice-recording-widget__play-button-container'>
+        <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
+      </div>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
