@@ -19,11 +19,19 @@ const dialogManagersRegistry: StateStore<DialogManagersState> = new StateStore({
 const getDialogManager = (id: string): DialogManager | undefined =>
   dialogManagersRegistry.getLatestValue()[id];
 
-const getOrCreateDialogManager = (id: string) => {
+const getOrCreateDialogManager = ({
+  closeOnClickOutside,
+  id,
+}: {
+  closeOnClickOutside?: boolean;
+  id: string;
+}) => {
   let manager = getDialogManager(id);
   if (!manager) {
-    manager = new DialogManager({ id });
+    manager = new DialogManager({ closeOnClickOutside, id });
     dialogManagersRegistry.partialNext({ [id]: manager });
+  } else if (typeof closeOnClickOutside === 'boolean') {
+    manager.closeOnClickOutside = closeOnClickOutside;
   }
   return manager;
 };
@@ -41,29 +49,37 @@ const DialogManagerProviderContext = React.createContext<
   DialogManagerProviderContextValue | undefined
 >(undefined);
 
+type DialogManagerProviderProps = PropsWithChildren<{
+  /**
+   * Manager-level outside click policy.
+   * When `true`, clicking overlay or outside overlay-covered area closes all dialogs
+   * in this manager. When `false`, outside clicks do not dismiss dialogs.
+   */
+  closeOnClickOutside?: boolean;
+  id?: string;
+}>;
+
 /**
- * Marks the portal location
- * @param children
- * @param id
- * @constructor
+ * Creates/provides a dialog manager and its portal destination.
  */
 export const DialogManagerProvider = ({
   children,
+  closeOnClickOutside,
   id,
-}: PropsWithChildren<{ id?: string }>) => {
+}: DialogManagerProviderProps) => {
   const [dialogManager, setDialogManager] = useState<DialogManager | null>(() => {
     if (id) return getDialogManager(id) ?? null;
-    return new DialogManager(); // will not be included in the registry
+    return new DialogManager({ closeOnClickOutside }); // will not be included in the registry
   });
 
   useEffect(() => {
     if (!id) return;
-    setDialogManager(getOrCreateDialogManager(id));
+    setDialogManager(getOrCreateDialogManager({ closeOnClickOutside, id }));
     return () => {
       removeDialogManager(id);
       setDialogManager(null);
     };
-  }, [id]);
+  }, [closeOnClickOutside, id]);
 
   // temporarily do not render until a new dialog manager is created
   if (!dialogManager) return null;

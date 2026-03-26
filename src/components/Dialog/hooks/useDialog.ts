@@ -15,7 +15,11 @@ export type UseDialogParams = GetOrCreateDialogParams & {
   dialogManagerId?: string;
 };
 
-export const useDialog = ({ dialogManagerId, id }: UseDialogParams) => {
+export const useDialog = ({
+  closeOnClickOutside,
+  dialogManagerId,
+  id,
+}: UseDialogParams) => {
   const { dialogManager } = useDialogManager({ dialogManagerId });
 
   useEffect(
@@ -29,7 +33,7 @@ export const useDialog = ({ dialogManagerId, id }: UseDialogParams) => {
     [dialogManager, id],
   );
 
-  return dialogManager.getOrCreate({ id });
+  return dialogManager.getOrCreate({ closeOnClickOutside, id });
 };
 
 export const useDialogOnNearestManager = ({ id }: Pick<UseDialogParams, 'id'>) => {

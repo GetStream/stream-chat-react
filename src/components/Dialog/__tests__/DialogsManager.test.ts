@@ -36,6 +36,16 @@ describe('DialogManager', () => {
     expect(dialogManager.openDialogCount).toBe(0);
   });
 
+  it('defaults manager closeOnClickOutside to true', () => {
+    const dialogManager = new DialogManager();
+    expect(dialogManager.closeOnClickOutside).toBe(true);
+  });
+
+  it('accepts manager closeOnClickOutside config', () => {
+    const dialogManager = new DialogManager({ closeOnClickOutside: false });
+    expect(dialogManager.closeOnClickOutside).toBe(false);
+  });
+
   it('retrieves an existing dialog', () => {
     const dialogManager = new DialogManager();
     dialogManager.state['next']((current: any) => ({

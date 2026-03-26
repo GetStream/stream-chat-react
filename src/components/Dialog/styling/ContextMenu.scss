@@ -1,5 +1,77 @@
 @use '../../../styling/utils';
 
+@keyframes str-chat-context-menu-roll-in-from-left {
+  from {
+    opacity: 0.12;
+    transform: translateX(16px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes str-chat-context-menu-roll-in-from-right {
+  from {
+    opacity: 0.12;
+    transform: translateX(-16px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes str-chat-context-menu-roll-in-from-top {
+  from {
+    opacity: 0.12;
+    transform: translateY(14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes str-chat-context-menu-roll-in-from-bottom {
+  from {
+    opacity: 0.12;
+    transform: translateY(-14px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes str-chat-context-menu-submenu-forward {
+  from {
+    opacity: 0.18;
+    transform: translateX(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes str-chat-context-menu-submenu-backward {
+  from {
+    opacity: 0.18;
+    transform: translateX(-32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .str-chat {
   /*
    * Dialog theme variables (ported from @stream-chat-css v2 Dialog theme),
@@ -38,6 +110,12 @@
   --str-chat__dialog-menu-button-border-inline-start: none;
   --str-chat__dialog-menu-button-border-inline-end: none;
   --str-chat__dialog-menu-button-box-shadow: none;
+  --str-chat__menu-roll-duration: 170ms;
+  --str-chat__menu-roll-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --str-chat__menu-submenu-forward-duration: 280ms;
+  --str-chat__menu-submenu-backward-duration: 400ms;
+  --str-chat__menu-submenu-forward-ease: cubic-bezier(0.2, 0.95, 0.25, 1);
+  --str-chat__menu-submenu-backward-ease: cubic-bezier(0.16, 0.92, 0.2, 1);
 
   .str-chat__context-menu {
     @include utils.component-layer-overrides('dialog-menu');
@@ -103,6 +181,39 @@
       display: flex;
       flex-direction: column;
       gap: var(--spacing-xxxs);
+      overflow-x: hidden;
+    }
+
+    .str-chat__context-menu__body.str-chat__context-menu__body--submenu-forward {
+      animation-duration: var(--str-chat__menu-submenu-forward-duration, 220ms);
+      animation-name: var(
+        --str-chat__context-menu-submenu-forward-animation,
+        str-chat-context-menu-submenu-forward
+      );
+      animation-timing-function: var(
+        --str-chat__menu-submenu-forward-ease,
+        cubic-bezier(0.25, 0.9, 0.35, 1)
+      );
+      transform-origin: var(
+        --str-chat__context-menu-submenu-forward-transform-origin,
+        left center
+      );
+    }
+
+    .str-chat__context-menu__body.str-chat__context-menu__body--submenu-backward {
+      animation-duration: var(--str-chat__menu-submenu-backward-duration, 320ms);
+      animation-name: var(
+        --str-chat__context-menu-submenu-backward-animation,
+        str-chat-context-menu-submenu-backward
+      );
+      animation-timing-function: var(
+        --str-chat__menu-submenu-backward-ease,
+        cubic-bezier(0.2, 0.75, 0.2, 1)
+      );
+      transform-origin: var(
+        --str-chat__context-menu-submenu-backward-transform-origin,
+        right center
+      );
     }
 
     .str-chat__context-menu__button {
@@ -167,6 +278,123 @@
     .str-chat__emoji-context-menu__button,
     .str-chat__user-context-menu__button {
       font-weight: var(--typography-font-weight-regular, 400);
+    }
+  }
+
+  [data-str-chat-placement^='right'] > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-left
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: left center;
+  }
+
+  [data-str-chat-placement^='left'] > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-right
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: right center;
+  }
+
+  [data-str-chat-placement^='bottom'] > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-bottom
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: center top;
+  }
+
+  [data-str-chat-placement^='top'] > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-top
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: center bottom;
+  }
+
+  [data-str-chat-dialog-state='closing'][data-str-chat-placement^='right']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-left
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease) reverse
+      forwards;
+    transform-origin: left center;
+  }
+
+  [data-str-chat-dialog-state='closing'][data-str-chat-placement^='left']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-right
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease) reverse
+      forwards;
+    transform-origin: right center;
+  }
+
+  [data-str-chat-dialog-state='closing'][data-str-chat-placement^='bottom']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-bottom
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease) reverse
+      forwards;
+    transform-origin: center top;
+  }
+
+  [data-str-chat-dialog-state='closing'][data-str-chat-placement^='top']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-top
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease) reverse
+      forwards;
+    transform-origin: center bottom;
+  }
+
+  // Submenu default: roll on X axis. Can be overridden via
+  // `data-str-chat-roll-from="left|right|top|bottom"` on submenu container.
+  .str-chat__context-menu__submenu-container:not(
+      [data-str-chat-roll-from]
+    )[data-str-chat-roll-axis='x'][data-str-chat-placement^='left']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-right
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: right center;
+  }
+
+  .str-chat__context-menu__submenu-container:not(
+      [data-str-chat-roll-from]
+    )[data-str-chat-roll-axis='x']:not([data-str-chat-placement^='left'])
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-left
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: left center;
+  }
+
+  .str-chat__context-menu__submenu-container[data-str-chat-roll-from='left']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-left
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: left center;
+  }
+
+  .str-chat__context-menu__submenu-container[data-str-chat-roll-from='right']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-right
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: right center;
+  }
+
+  .str-chat__context-menu__submenu-container[data-str-chat-roll-from='top']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-top
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: center top;
+  }
+
+  .str-chat__context-menu__submenu-container[data-str-chat-roll-from='bottom']
+    > .str-chat__context-menu {
+    animation: str-chat-context-menu-roll-in-from-bottom
+      var(--str-chat__menu-roll-duration, 130ms) var(--str-chat__menu-roll-ease);
+    transform-origin: center bottom;
+  }
+
+  .str-chat__context-menu[data-str-chat-enable-animations='false'],
+  .str-chat__context-menu[data-str-chat-enable-animations='false']
+    .str-chat__context-menu__body {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-str-chat-placement] > .str-chat__context-menu {
+      animation: none;
     }
   }
 }

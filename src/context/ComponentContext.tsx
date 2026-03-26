@@ -10,6 +10,8 @@ import {
   type CalloutDialogProps,
   type ChannelListItemUIProps,
   type ChannelListUIProps,
+  type ContextMenuContentProps,
+  type ContextMenuProps,
   type DateSeparatorProps,
   type EmojiSearchIndex,
   type EmptyStateIndicatorProps,
@@ -112,6 +114,10 @@ export type ComponentContextValue = {
   ChannelListItemUI?: React.ComponentType<ChannelListItemUIProps>;
   /** Custom UI component to display command chip, defaults to and accepts same props as: [CommandChip](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/CommandChip.tsx) */
   CommandChip?: React.ComponentType<CommandChipProps>;
+  /** Custom component for rendering context menus, defaults to and accepts same props as: [ContextMenu](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/components/ContextMenu.tsx). The default is behavior-aware (not purely presentational) and solves: stable anchoring/placement updates against the reference element, submenu stack navigation (open/return), coordinated dismissal (Escape, overlay click, controlled close), focus management for anchored menus, and transition state reset between openings so animations stay consistent. */
+  ContextMenu?: React.ComponentType<ContextMenuProps>;
+  /** Custom UI component for rendering context menu content (used by ContextMenu), defaults to and accepts same props as: [ContextMenuContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/components/ContextMenu.tsx). */
+  ContextMenuContent?: React.ComponentType<ContextMenuContentProps>;
   /** Custom UI component to display the slow mode cooldown timer, defaults to and accepts same props as: [CooldownTimer](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/CooldownTimer.tsx) */
   CooldownTimer?: React.ComponentType;
   /** Custom UI component for date separators, defaults to and accepts same props as: [DateSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/DateSeparator.tsx) */
