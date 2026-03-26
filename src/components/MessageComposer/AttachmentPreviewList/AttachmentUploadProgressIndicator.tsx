@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 import React, { type ReactNode } from 'react';
 
+import { ProgressIndicator as DefaultProgressIndicator } from '../../Loading';
 import { useComponentContext } from '../../../context';
-import { UploadProgress as DefaultUploadProgress, LoadingIndicatorIcon } from '../icons';
+import { LoadingIndicatorIcon } from '../icons';
 import { clampUploadPercent } from './utils/uploadProgress';
 
 export type AttachmentUploadProgressVariant = 'inline' | 'overlay';
@@ -21,7 +22,7 @@ export const AttachmentUploadProgressIndicator = ({
   uploadProgress,
   variant,
 }: AttachmentUploadProgressIndicatorProps) => {
-  const { UploadProgress = DefaultUploadProgress } = useComponentContext(
+  const { ProgressIndicator = DefaultProgressIndicator } = useComponentContext(
     'AttachmentUploadProgressIndicator',
   );
 
@@ -39,7 +40,7 @@ export const AttachmentUploadProgressIndicator = ({
         className,
       )}
     >
-      <UploadProgress percent={percent} />
+      <ProgressIndicator percent={percent} />
     </div>
   );
 };

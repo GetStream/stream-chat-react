@@ -3,59 +3,6 @@ import { nanoid } from 'nanoid';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-const UPLOAD_RING_RADIUS = 12;
-const UPLOAD_RING_CIRCUMFERENCE = 2 * Math.PI * UPLOAD_RING_RADIUS;
-
-export type UploadProgressProps = {
-  /** Clamped 0–100 upload completion. */
-  percent: number;
-};
-
-/** Determinate circular upload progress ring (not a spinner; uses `str-chat__upload-progress`, not the loading-indicator spinner). */
-export const UploadProgress = ({ percent }: UploadProgressProps) => {
-  const { t } = useTranslationContext('UploadProgress');
-  const dashOffset = UPLOAD_RING_CIRCUMFERENCE * (1 - percent / 100);
-
-  return (
-    <div className='str-chat__upload-progress'>
-      <svg
-        aria-label={t('aria/Upload progress', { percent })}
-        aria-valuemax={100}
-        aria-valuemin={0}
-        aria-valuenow={percent}
-        data-testid='attachment-upload-progress-ring'
-        height='100%'
-        role='progressbar'
-        viewBox='0 0 32 32'
-        width='100%'
-        xmlns='http://www.w3.org/2000/svg'
-      >
-        <circle
-          cx='16'
-          cy='16'
-          fill='none'
-          r={UPLOAD_RING_RADIUS}
-          stroke='currentColor'
-          strokeOpacity={0.35}
-          strokeWidth='2.5'
-        />
-        <circle
-          cx='16'
-          cy='16'
-          fill='none'
-          r={UPLOAD_RING_RADIUS}
-          stroke='currentColor'
-          strokeDasharray={UPLOAD_RING_CIRCUMFERENCE}
-          strokeDashoffset={dashOffset}
-          strokeLinecap='round'
-          strokeWidth='2.5'
-          transform='rotate(-90 16 16)'
-        />
-      </svg>
-    </div>
-  );
-};
-
 export const LoadingIndicatorIcon = () => {
   const id = useMemo(() => nanoid(), []);
 

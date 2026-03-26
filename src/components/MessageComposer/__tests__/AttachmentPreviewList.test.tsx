@@ -353,9 +353,7 @@ describe('AttachmentPreviewList', () => {
       });
 
       expect(screen.getByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
-      expect(
-        screen.queryByTestId('attachment-upload-progress-ring'),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId('progress-ring')).not.toBeInTheDocument();
     });
 
     it('shows ring while uploading when uploadProgress is numeric', async () => {
@@ -372,7 +370,7 @@ describe('AttachmentPreviewList', () => {
         ],
       });
 
-      expect(screen.getByTestId('attachment-upload-progress-ring')).toBeInTheDocument();
+      expect(screen.getByTestId('progress-ring')).toBeInTheDocument();
       expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).not.toBeInTheDocument();
     });
 

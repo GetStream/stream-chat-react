@@ -78,15 +78,6 @@
 
   .str-chat__attachment-upload-progress {
     color: var(--str-chat__primary-color);
-
-    .str-chat__upload-progress {
-      width: 100%;
-      height: 100%;
-    }
-
-    svg {
-      display: block;
-    }
   }
 
   .str-chat__message-composer-voice-preview-slot {
