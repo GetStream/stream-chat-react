@@ -2,6 +2,7 @@ import React, { type ComponentProps, type ComponentType, type ReactNode } from '
 
 import clsx from 'clsx';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
+import { useComponentContext } from '../../context';
 import {
   defaultChannelActionSet,
   useBaseChannelActionSetFilter,
@@ -18,6 +19,7 @@ interface ChannelListItemActionButtonsInterface {
 }
 
 export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface = () => {
+  const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const { channel } = useChannelListItemContext();
   const [referenceElement, setReferenceElement] =
     React.useState<HTMLButtonElement | null>(null);
@@ -49,7 +51,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
       {quickActionSet.map(({ Component, type }) => (
         <Component key={type} />
       ))}
-      <ContextMenu
+      <ContextMenuComponent
         className='str-chat__channel-list-item__action-buttons-context-menu'
         dialogManagerId={dialogManager?.id}
         id={dialog.id}
@@ -62,7 +64,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         {dropdownActionSet.map(({ Component, type }) => (
           <Component key={type} />
         ))}
-      </ContextMenu>
+      </ContextMenuComponent>
     </div>
   );
 };

@@ -173,8 +173,8 @@ describe('DialogManagerContext', () => {
 
     it('creates different managers for different IDs', () => {
       render(
-        <DialogManagerProvider id={MANAGER_1_ID}>
-          <DialogManagerProvider id={MANAGER_2_ID}>
+        <DialogManagerProvider closeOnClickOutside={false} id={MANAGER_1_ID}>
+          <DialogManagerProvider closeOnClickOutside={false} id={MANAGER_2_ID}>
             <DialogTestComponent dialogId='dialog-1' managerId={MANAGER_1_ID} />
             <DialogTestComponent dialogId='dialog-2' managerId={MANAGER_2_ID} />
             <TestComponent dialogManagerId={MANAGER_1_ID} />

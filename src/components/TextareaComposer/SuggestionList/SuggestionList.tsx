@@ -83,8 +83,10 @@ export const SuggestionList = ({
   setFocusedItemIndex,
   suggestionItemComponents = defaultComponents,
 }: SuggestionListProps) => {
-  const { AutocompleteSuggestionItem = DefaultSuggestionListItem } =
-    useComponentContext();
+  const {
+    AutocompleteSuggestionItem = DefaultSuggestionListItem,
+    ContextMenu: ContextMenuComponent = ContextMenu,
+  } = useComponentContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const { textComposer } = messageComposer;
@@ -217,7 +219,7 @@ export const SuggestionList = ({
         zIndex: 1000,
       }}
     >
-      <ContextMenu
+      <ContextMenuComponent
         className={clsx('str-chat__suggestion-list', className)}
         Header={
           suggestions.searchSource.type === 'commands' ? CommandsMenuHeader : undefined

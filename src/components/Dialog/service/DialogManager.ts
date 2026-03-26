@@ -4,12 +4,19 @@ import { StateStore } from 'stream-chat';
 export type GetDialogParams = {
   id: DialogId;
 };
-export type GetOrCreateDialogParams = GetDialogParams;
+export type GetOrCreateDialogParams = GetDialogParams & {
+  /**
+   * Optional per-dialog override.
+   * If undefined, manager-level `closeOnClickOutside` is used.
+   */
+  closeOnClickOutside?: boolean;
+};
 
 type DialogId = string;
 
 export type Dialog = {
   close: () => void;
+  closeOnClickOutside?: boolean;
   id: DialogId;
   isOpen: boolean | undefined;
   open: (zIndex?: number) => void;
@@ -19,6 +26,8 @@ export type Dialog = {
 };
 
 export type DialogManagerOptions = {
+  /** Enables closing all dialogs in this manager when clicking overlay/outside area. */
+  closeOnClickOutside?: boolean;
   id?: string;
 };
 
@@ -39,12 +48,15 @@ export type DialogManagerState = {
  * - `dialog.remove()` - removes the dialog object reference from the state (primarily for cleanup purposes)
  */
 export class DialogManager {
+  /** Manager-level outside click policy used by DialogPortal dismiss handlers. */
+  closeOnClickOutside: boolean;
   id: string;
   state = new StateStore<DialogManagerState>({
     dialogsById: {},
   });
 
-  constructor({ id }: DialogManagerOptions = {}) {
+  constructor({ closeOnClickOutside = true, id }: DialogManagerOptions = {}) {
+    this.closeOnClickOutside = closeOnClickOutside;
     this.id = id ?? nanoid();
   }
 
@@ -62,13 +74,14 @@ export class DialogManager {
     return this.state.getLatestValue().dialogsById[id];
   }
 
-  getOrCreate({ id }: GetOrCreateDialogParams) {
+  getOrCreate({ closeOnClickOutside, id }: GetOrCreateDialogParams) {
     let dialog = this.state.getLatestValue().dialogsById[id];
     if (!dialog) {
       dialog = {
         close: () => {
           this.close(id);
         },
+        closeOnClickOutside,
         id,
         isOpen: false,
         open: () => {
@@ -84,22 +97,25 @@ export class DialogManager {
       };
       this.state.next((current) => ({
         ...current,
-        ...{ dialogsById: { ...current.dialogsById, [id]: dialog } },
+        dialogsById: { ...current.dialogsById, [id]: dialog },
       }));
     }
 
-    if (dialog.removalTimeout) {
-      clearTimeout(dialog.removalTimeout);
+    const shouldUpdateDialogSettings =
+      dialog.closeOnClickOutside !== closeOnClickOutside || !!dialog.removalTimeout;
+
+    if (shouldUpdateDialogSettings) {
+      if (dialog.removalTimeout) clearTimeout(dialog.removalTimeout);
+      dialog = {
+        ...dialog,
+        closeOnClickOutside,
+        removalTimeout: undefined,
+      };
       this.state.next((current) => ({
         ...current,
-        ...{
-          dialogsById: {
-            ...current.dialogsById,
-            [id]: {
-              ...dialog,
-              removalTimeout: undefined,
-            },
-          },
+        dialogsById: {
+          ...current.dialogsById,
+          [id]: dialog,
         },
       }));
     }

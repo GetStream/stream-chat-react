@@ -1,7 +1,11 @@
 import clsx from 'clsx';
 import React, { type ComponentPropsWithRef, useState } from 'react';
 
-import { useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import {
   ContextMenu,
   type ContextMenuItemProps,
@@ -59,6 +63,7 @@ export const MessageActions: MessageActionsInterface = ({
   messageActionSet = defaultMessageActionSet,
 }) => {
   const { isMyMessage, message, threadList } = useMessageContext();
+  const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const { t } = useTranslationContext();
   const [actionsBoxButtonElement, setActionsBoxButtonElement] =
     useState<HTMLButtonElement | null>(null);
@@ -104,7 +109,7 @@ export const MessageActions: MessageActionsInterface = ({
         <>
           <quickDropdownToggleAction.Component ref={setActionsBoxButtonElement} />
 
-          <ContextMenu
+          <ContextMenuComponent
             backLabel={t('Back')}
             className={clsx('str-chat__message-actions-box', {
               'str-chat__message-actions-box--open': messageActionsDialogIsOpen,
@@ -120,7 +125,7 @@ export const MessageActions: MessageActionsInterface = ({
             {dropdownActionSet.map(({ Component, type }) => (
               <Component key={type} />
             ))}
-          </ContextMenu>
+          </ContextMenuComponent>
         </>
       )}
       {quickActionSet.map(({ Component: QuickActionComponent, type }) => (

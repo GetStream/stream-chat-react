@@ -1,27 +1,50 @@
 import type { PropsWithChildren } from 'react';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
 import { Portal } from '../../Portal/Portal';
 import { useDialogManager, useNearestDialogManagerContext } from '../../../context';
 
+const shouldCloseOnOutsideClick = ({
+  dialog,
+  managerCloseOnClickOutside,
+}: {
+  dialog: { closeOnClickOutside?: boolean };
+  managerCloseOnClickOutside: boolean;
+}) => dialog.closeOnClickOutside ?? managerCloseOnClickOutside;
+
 export const DialogPortalDestination = () => {
   const { dialogManager } = useNearestDialogManagerContext() ?? {};
   const openedDialogCount = useOpenedDialogCount({ dialogManagerId: dialogManager?.id });
-  // const [destinationRoot, setDestinationRoot] = useState<HTMLDivElement | null>(null);
+  const [destinationRoot, setDestinationRoot] = useState<HTMLDivElement | null>(null);
 
-  // todo: allow to configure and then enable
-  // useEffect(() => {
-  //   if (!destinationRoot) return;
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (!destinationRoot?.contains(event.target as Node)) {
-  //       dialogManager?.closeAll();
-  //     }
-  //   };
-  //   document.addEventListener('click', handleClickOutside, { capture: true });
-  //   return () => {
-  //     document.removeEventListener('click', handleClickOutside, { capture: true });
-  //   };
-  // }, [destinationRoot, dialogManager]);
+  // Handle clicks outside the overlay-covered area.
+  // Dismiss policy is manager-level (`dialogManager.closeOnClickOutside`).
+  useEffect(() => {
+    if (!destinationRoot || !dialogManager) return;
+
+    const handleDocumentClick = (event: MouseEvent) => {
+      if (destinationRoot.contains(event.target as Node)) return;
+      Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
+        (dialog) => {
+          if (!dialog.isOpen) return;
+          if (
+            !shouldCloseOnOutsideClick({
+              dialog,
+              managerCloseOnClickOutside: dialogManager.closeOnClickOutside,
+            })
+          )
+            return;
+          dialogManager.close(dialog.id);
+        },
+      );
+    };
+
+    document.addEventListener('click', handleDocumentClick, { capture: true });
+
+    return () => {
+      document.removeEventListener('click', handleDocumentClick, { capture: true });
+    };
+  }, [destinationRoot, dialogManager]);
 
   if (!openedDialogCount) return null;
 
@@ -30,8 +53,24 @@ export const DialogPortalDestination = () => {
       className='str-chat__dialog-overlay'
       data-str-chat__portal-id={dialogManager?.id}
       data-testid='str-chat__dialog-overlay'
-      onClick={() => dialogManager?.closeAll()}
-      // ref={setDestinationRoot}
+      onClick={(event) => {
+        if (!dialogManager) return;
+        if (event.target !== event.currentTarget) return;
+        Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
+          (dialog) => {
+            if (!dialog.isOpen) return;
+            if (
+              !shouldCloseOnOutsideClick({
+                dialog,
+                managerCloseOnClickOutside: dialogManager.closeOnClickOutside,
+              })
+            )
+              return;
+            dialogManager.close(dialog.id);
+          },
+        );
+      }}
+      ref={setDestinationRoot}
       style={
         {
           '--str-chat__dialog-overlay-height': openedDialogCount > 0 ? '100%' : '0',

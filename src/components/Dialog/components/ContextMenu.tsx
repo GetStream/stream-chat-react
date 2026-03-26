@@ -18,7 +18,67 @@ import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import type { DialogAnchorProps } from '../service/DialogAnchor';
 import { DialogAnchor, useDialogAnchor } from '../service/DialogAnchor';
+import { useComponentContext } from '../../../context';
 
+/**
+ * ContextMenu module
+ *
+ * What this file provides
+ * - Primitives for contextual action UIs:
+ *   `ContextMenu`, `ContextMenuContent`, `ContextMenuButton`, `ContextMenuHeader`,
+ *   `ContextMenuBody`, `ContextMenuBackButton`, and user/emoji button variants.
+ * - A small runtime context (`useContextMenuContext`) used by menu items to:
+ *   - close the current menu (`closeMenu`)
+ *   - open a submenu (`openSubmenu`)
+ *   - return to parent level (`returnToParentMenu`)
+ *
+ * Rendering modes
+ * - Anchored mode (most common): pass `id` and `referenceElement`.
+ *   The component renders inside `DialogAnchor` and uses dialog manager state.
+ * - Inline mode: omit anchor props and render as a plain contextual list.
+ * - Outside click dismissal can be overridden per menu via `closeOnClickOutside`;
+ *   otherwise manager default is used.
+ *
+ * Submenu model
+ * - Submenus are represented as a stack of menu levels.
+ * - Each level can define `Header`, `Submenu`, `items`, `ItemsWrapper`,
+ *   and `menuClassName`.
+ * - Opening submenu pushes a level to the stack; going back pops one level.
+ * - When anchored menu closes, stack resets to root to avoid stale submenu state
+ *   on next open.
+ *
+ * Animation model
+ * - Root menu open/close is handled by `DialogAnchor` transition timing.
+ * - `ContextMenu` defaults `closeTransitionMs` to `130` so close animations can be visible.
+ * - `DialogAnchor` marks rendered content with `data-str-chat-dialog-state`:
+ *   - `open` while visible
+ *   - `closing` during delayed unmount window (`closeTransitionMs`)
+ * - Context-menu closing keyframes in `ContextMenu.scss` target
+ *   `[data-str-chat-dialog-state='closing']` + placement selectors.
+ * - Level-to-level transitions are directional:
+ *   - forward: parent -> submenu
+ *   - backward: submenu -> parent
+ * - Direction is tracked in `ContextMenu` and passed to `ContextMenuContent`.
+ * - `ContextMenuContent` bumps an internal key for `ContextMenuBody` so React
+ *   remounts the body and CSS enter animation reliably restarts on each level change.
+ * - Initial/root menu render does not apply submenu forward/backward classes;
+ *   directional animation classes are used only for submenu transitions.
+ * - `enableAnimations` can disable content animations through data attributes/CSS.
+ * - `submenuTransitionDurationMs` controls how long directional transition state is kept.
+ *
+ * Submenu popover behavior (`ContextMenuButton` with `Submenu`)
+ * - Submenu can be rendered by passing `Submenu` (and optional placement/container props).
+ * - Default submenu roll axis is `x` (override with `submenuRollAxis`).
+ * - Hover/focus management uses a "keep open" ref flag plus lazy close timeout to avoid
+ *   accidental submenu dismissal when moving pointer/focus between parent and submenu.
+ *
+ * Customization via `ComponentContext`
+ * - `ComponentContext.ContextMenu` replaces the whole menu component at SDK call sites.
+ * - `ComponentContext.ContextMenuContent` replaces content-level behavior while preserving
+ *   default anchoring/dialog integration from `ContextMenu`.
+ * - Built-in call sites (message actions, channel list action buttons, attachment selector,
+ *   suggestion list) resolve `ContextMenu` from `ComponentContext` with fallback to default.
+ */
 export type BaseContextMenuButtonProps = {
   details?: ReactNode;
   hasSubMenu?: boolean;
@@ -121,6 +181,7 @@ type ButtonWithSubmenuProps = {
   Submenu: ComponentType;
   submenuContainerProps?: ComponentProps<'div'>;
   submenuPlacement?: PopperLikePlacement;
+  submenuRollAxis?: 'x' | 'y';
 };
 
 const ContextMenuButtonWithSubmenu = ({
@@ -129,16 +190,23 @@ const ContextMenuButtonWithSubmenu = ({
   Submenu,
   submenuContainerProps,
   submenuPlacement = 'right-start',
+  submenuRollAxis = 'x',
   ...buttonProps
 }: BaseContextMenuButtonProps & ButtonWithSubmenuProps) => {
+  const { className: submenuClassName, ...submenuContainerRestProps } =
+    submenuContainerProps ?? {};
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [dialogContainer, setDialogContainer] = useState<HTMLDivElement | null>(null);
-  const keepSubmenuOpen = useRef(false);
+  const keepSubmenuOpenFlag = useRef(false);
   const dialogCloseTimeout = useRef<NodeJS.Timeout | null>(null);
   const dialogId = useMemo(() => `submenu-${Math.random().toString(36).slice(2)}`, []);
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
-  const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
+  const {
+    placement: chosenPlacement,
+    setPopperElement,
+    styles,
+  } = useDialogAnchor<HTMLDivElement>({
     open: dialogIsOpen,
     placement: submenuPlacement,
     referenceElement: buttonRef.current,
@@ -147,10 +215,23 @@ const ContextMenuButtonWithSubmenu = ({
   const closeDialogLazily = useCallback(() => {
     if (dialogCloseTimeout.current) clearTimeout(dialogCloseTimeout.current);
     dialogCloseTimeout.current = setTimeout(() => {
-      if (keepSubmenuOpen.current) return;
+      if (keepSubmenuOpenFlag.current) return;
       dialog.close();
     }, 100);
   }, [dialog]);
+
+  const keepSubmenuOpen = useCallback(() => {
+    keepSubmenuOpenFlag.current = true;
+  }, []);
+
+  const allowToCloseSubmenu = useCallback(() => {
+    keepSubmenuOpenFlag.current = false;
+  }, []);
+
+  const closeSubmenu = useCallback(() => {
+    allowToCloseSubmenu();
+    closeDialogLazily();
+  }, [allowToCloseSubmenu, closeDialogLazily]);
 
   const handleClose = useCallback(
     (event: Event) => {
@@ -166,7 +247,7 @@ const ContextMenuButtonWithSubmenu = ({
   const handleFocusParentButton = () => {
     if (dialogIsOpen) return;
     dialog.open();
-    keepSubmenuOpen.current = true;
+    keepSubmenuOpen();
   };
 
   useEffect(() => {
@@ -175,7 +256,7 @@ const ContextMenuButtonWithSubmenu = ({
     const hideOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
       handleClose(event);
-      keepSubmenuOpen.current = false;
+      closeSubmenu();
     };
 
     document.addEventListener('keyup', hideOnEscape, { capture: true });
@@ -183,7 +264,7 @@ const ContextMenuButtonWithSubmenu = ({
     return () => {
       document.removeEventListener('keyup', hideOnEscape, { capture: true });
     };
-  }, [dialogIsOpen, handleClose]);
+  }, [dialogIsOpen, handleClose, closeSubmenu]);
 
   return (
     <>
@@ -193,20 +274,14 @@ const ContextMenuButtonWithSubmenu = ({
           'str_chat__button-with-submenu--submenu-open': dialogIsOpen,
         })}
         hasSubMenu
-        onBlur={() => {
-          keepSubmenuOpen.current = false;
-          closeDialogLazily();
-        }}
+        onBlur={closeSubmenu}
         onClick={(event) => {
           event.stopPropagation();
           dialog.toggle();
         }}
         onFocus={handleFocusParentButton}
         onMouseEnter={handleFocusParentButton}
-        onMouseLeave={() => {
-          keepSubmenuOpen.current = false;
-          closeDialogLazily();
-        }}
+        onMouseLeave={closeSubmenu}
         role='option'
         {...buttonProps}
         ref={buttonRef}
@@ -215,31 +290,26 @@ const ContextMenuButtonWithSubmenu = ({
       </BaseContextMenuButton>
       {dialogIsOpen && (
         <div
+          className={clsx('str-chat__context-menu__submenu-container', submenuClassName)}
+          data-str-chat-placement={chosenPlacement}
+          data-str-chat-roll-axis={submenuRollAxis}
           onBlur={(event) => {
             const isBlurredDescendant =
               event.relatedTarget instanceof Node &&
               dialogContainer?.contains(event.relatedTarget);
             if (isBlurredDescendant) return;
-            keepSubmenuOpen.current = false;
-            closeDialogLazily();
+            closeSubmenu();
           }}
-          onFocus={() => {
-            keepSubmenuOpen.current = true;
-          }}
-          onMouseEnter={() => {
-            keepSubmenuOpen.current = true;
-          }}
-          onMouseLeave={() => {
-            keepSubmenuOpen.current = false;
-            closeDialogLazily();
-          }}
+          onFocus={keepSubmenuOpen}
+          onMouseEnter={keepSubmenuOpen}
+          onMouseLeave={closeSubmenu}
           ref={(element) => {
             setPopperElement(element);
             setDialogContainer(element);
           }}
           style={styles}
           tabIndex={-1}
-          {...submenuContainerProps}
+          {...submenuContainerRestProps}
         >
           <Submenu />
         </div>
@@ -248,17 +318,35 @@ const ContextMenuButtonWithSubmenu = ({
   );
 };
 
-type ContextMenuButtonProps = BaseContextMenuButtonProps;
+type ContextMenuButtonProps = BaseContextMenuButtonProps &
+  Partial<ButtonWithSubmenuProps>;
 
-export const ContextMenuButton = ({
-  onBlur,
-  onFocus,
-  ...props
-}: ContextMenuButtonProps) => {
+export const ContextMenuButton = (props: ContextMenuButtonProps) => {
+  const {
+    Submenu,
+    submenuContainerProps,
+    submenuPlacement,
+    submenuRollAxis,
+    ...buttonProps
+  } = props;
   const [isFocused, setIsFocused] = useState(false);
+
+  if (Submenu) {
+    return (
+      <ContextMenuButtonWithSubmenu
+        {...buttonProps}
+        Submenu={Submenu}
+        submenuContainerProps={submenuContainerProps}
+        submenuPlacement={submenuPlacement}
+        submenuRollAxis={submenuRollAxis}
+      />
+    );
+  }
+
+  const { onBlur, onFocus, ...baseButtonProps } = buttonProps;
   return (
     <BaseContextMenuButton
-      {...props}
+      {...baseButtonProps}
       aria-selected={isFocused ? 'true' : 'false'}
       onBlur={(e) => {
         setIsFocused(false);
@@ -346,9 +434,12 @@ type ContextMenuLevel = {
 
 type ContextMenuBaseProps = ComponentPropsWithoutRef<'div'> & {
   backLabel?: ReactNode;
+  enableAnimations?: boolean;
   Header?: ContextMenuHeaderComponent;
   onClose?: () => void;
   onMenuLevelChange?: (level: number) => void;
+  /** Duration (ms) to keep submenu transition direction active for forward/backward animations. */
+  submenuTransitionDurationMs?: number;
 } & ContextMenuLevel;
 
 /** When provided, ContextMenu renders inside DialogAnchor and wires menu level for submenu alignment. */
@@ -362,24 +453,39 @@ type ContextMenuAnchorProps = Partial<
     | 'tabIndex'
     | 'trapFocus'
     | 'allowFlip'
+    | 'closeOnClickOutside'
     | 'focus'
+    | 'closeTransitionMs'
   >
 >;
 
 export type ContextMenuProps = ContextMenuBaseProps & ContextMenuAnchorProps;
 
-function ContextMenuContent({
+export type ContextMenuContentProps = ContextMenuBaseProps & {
+  transitionDirection?: 'forward' | 'backward';
+};
+
+/**
+ * Internal/default content renderer for {@link ContextMenu}.
+ *
+ * Override this through `ComponentContext.ContextMenuContent` when you need to
+ * customize submenu/back navigation behavior while keeping the same anchor/focus
+ * handling from `ContextMenu`.
+ */
+export function ContextMenuContent({
   backLabel = 'Back',
   children,
   className,
+  enableAnimations = true,
   Header,
   items,
   ItemsWrapper,
   menuClassName,
   onClose,
   onMenuLevelChange,
+  transitionDirection,
   ...props
-}: ContextMenuBaseProps) {
+}: ContextMenuContentProps) {
   const rootLevel = useMemo<ContextMenuLevel>(
     () => ({
       Header,
@@ -390,6 +496,7 @@ function ContextMenuContent({
     [Header, items, ItemsWrapper, menuClassName],
   );
   const [menuStack, setMenuStack] = useState<ContextMenuLevel[]>(() => [rootLevel]);
+  const [menuBodyAnimationKey, setMenuBodyAnimationKey] = useState(0);
   const activeMenu = menuStack[menuStack.length - 1];
 
   const ActiveMenuItemsWrapper = activeMenu.ItemsWrapper ?? React.Fragment;
@@ -417,10 +524,9 @@ function ContextMenuContent({
   );
 
   const returnToParentMenu = useCallback(() => {
-    setMenuStack((current) =>
-      current.length > 1 ? current.slice(0, current.length - 1) : current,
-    );
-  }, []);
+    if (menuStack.length <= 1) return;
+    setMenuStack((current) => current.slice(0, current.length - 1));
+  }, [menuStack.length]);
 
   useEffect(() => {
     setMenuStack((current) => {
@@ -433,9 +539,18 @@ function ContextMenuContent({
     onMenuLevelChange?.(menuStack.length);
   }, [menuStack.length, onMenuLevelChange]);
 
+  useEffect(() => {
+    if (!transitionDirection) return;
+    setMenuBodyAnimationKey((value) => value + 1);
+  }, [transitionDirection, menuStack.length]);
+
   return (
     <ContextMenuContext.Provider value={{ closeMenu, openSubmenu, returnToParentMenu }}>
-      <ContextMenuRoot className={clsx(className, activeMenu.menuClassName)} {...props}>
+      <ContextMenuRoot
+        className={clsx(className, activeMenu.menuClassName)}
+        data-str-chat-enable-animations={enableAnimations}
+        {...props}
+      >
         {activeMenu.Header ? (
           <activeMenu.Header />
         ) : menuStack.length > 1 ? (
@@ -446,7 +561,15 @@ function ContextMenuContent({
             </ContextMenuBackButton>
           </ContextMenuHeader>
         ) : null}
-        <ContextMenuBody>
+        <ContextMenuBody
+          className={clsx({
+            'str-chat__context-menu__body--submenu-backward':
+              transitionDirection === 'backward',
+            'str-chat__context-menu__body--submenu-forward':
+              transitionDirection === 'forward',
+          })}
+          key={`context-menu-body-${menuStack.length}-${menuBodyAnimationKey}`}
+        >
           {activeMenu.Submenu ? (
             <activeMenu.Submenu />
           ) : (
@@ -464,38 +587,132 @@ function ContextMenuContent({
   );
 }
 
+/**
+ * Contextual actions menu that can be used in two modes:
+ *
+ * - Anchored dialog mode: pass `id` + `referenceElement` (submenu-aware positioning).
+ * - Inline mode: omit `id` and render a plain contextual list.
+ *
+ * Customization via `ComponentContext`:
+ *
+ * - `ContextMenu`: replace the whole menu container/behavior.
+ * - `ContextMenuContent`: keep default container behavior but customize menu content
+ *   rendering (items, submenu transitions, back navigation UI).
+ * - To customize outside-click dismissal via `ComponentContext`, provide a custom
+ *   `ContextMenu` that sets `closeOnClickOutside`:
+ *
+ * ```tsx
+ * const CustomContextMenu = (props: ContextMenuProps) => (
+ *   <ContextMenu {...props} closeOnClickOutside={false} />
+ * );
+ *
+ * <ComponentProvider value={{ ContextMenu: CustomContextMenu }}>
+ *   <Chat client={client}>{children}</Chat>
+ * </ComponentProvider>
+ * ```
+ *
+ * Example:
+ * ```tsx
+ * <ComponentProvider
+ *   value={{
+ *     ContextMenu: MyContextMenu,
+ *     ContextMenuContent: MyContextMenuContent,
+ *   }}
+ * >
+ *   <Chat client={client}>{children}</Chat>
+ * </ComponentProvider>
+ * ```
+ */
 export const ContextMenu = (props: ContextMenuProps) => {
+  const { ContextMenuContent: ContextMenuContentComponent = ContextMenuContent } =
+    useComponentContext();
   const {
     allowFlip,
+    closeOnClickOutside,
+    closeTransitionMs = 130,
     dialogManagerId,
     focus,
     id,
     placement,
     referenceElement,
+    submenuTransitionDurationMs,
     tabIndex,
     trapFocus,
     ...menuProps
   } = props;
+  const resolvedSubmenuTransitionDurationMs = submenuTransitionDurationMs ?? 460;
 
   const isAnchored = id != null;
 
   const [menuLevel, setMenuLevel] = useState(1);
+  const [transitionDirection, setTransitionDirection] = useState<
+    'forward' | 'backward' | undefined
+  >(undefined);
+  const [contentResetToken, setContentResetToken] = useState(0);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const previousMenuLevelRef = useRef(1);
   const open = useDialogIsOpen(id ?? '', dialogManagerId);
+  const previousOpenRef = useRef(open);
 
   useEffect(() => {
-    if (isAnchored && !open) setMenuLevel(1);
+    if (!isAnchored) return;
+
+    if (previousOpenRef.current && !open) {
+      setMenuLevel(1);
+      setTransitionDirection(undefined);
+      setContentResetToken((value) => value + 1);
+      previousMenuLevelRef.current = 1;
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+        transitionTimeoutRef.current = null;
+      }
+    }
+    previousOpenRef.current = open;
   }, [isAnchored, open]);
 
+  useEffect(
+    () => () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    },
+    [],
+  );
+
+  const handleMenuLevelChange = useCallback(
+    (level: number) => {
+      if (isAnchored) {
+        const previousLevel = previousMenuLevelRef.current;
+        if (level !== previousLevel) {
+          setTransitionDirection(level > previousLevel ? 'forward' : 'backward');
+          if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+          transitionTimeoutRef.current = setTimeout(() => {
+            setTransitionDirection(undefined);
+            transitionTimeoutRef.current = null;
+          }, resolvedSubmenuTransitionDurationMs);
+        }
+        previousMenuLevelRef.current = level;
+        setMenuLevel(level);
+        return;
+      }
+      menuProps.onMenuLevelChange?.(level);
+    },
+    [isAnchored, menuProps, resolvedSubmenuTransitionDurationMs],
+  );
+
   const content = (
-    <ContextMenuContent
+    <ContextMenuContentComponent
       {...menuProps}
-      onMenuLevelChange={isAnchored ? setMenuLevel : menuProps.onMenuLevelChange}
+      key={`context-menu-content-${contentResetToken}`}
+      onMenuLevelChange={handleMenuLevelChange}
+      transitionDirection={transitionDirection}
     />
   );
 
   if (isAnchored) {
     const {
       backLabel: _b,
+      enableAnimations: _ea,
       Header: _h,
       items: _i,
       ItemsWrapper: _w,
@@ -507,6 +724,8 @@ export const ContextMenu = (props: ContextMenuProps) => {
     return (
       <DialogAnchor
         allowFlip={allowFlip}
+        closeOnClickOutside={closeOnClickOutside}
+        closeTransitionMs={closeTransitionMs}
         dialogManagerId={dialogManagerId}
         focus={focus}
         id={id}

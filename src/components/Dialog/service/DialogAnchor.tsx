@@ -97,6 +97,7 @@ export function useDialogAnchor<T extends HTMLElement>({
   }
 
   return {
+    placement: stabilisedChosenPlacement ?? chosenPlacement,
     setPopperElement,
     styles: {
       left: x ?? 0,
@@ -107,7 +108,18 @@ export function useDialogAnchor<T extends HTMLElement>({
 }
 
 export type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> & {
+  /**
+   * Optional per-dialog override for outside-click dismissal.
+   * If undefined, manager-level `DialogManager.closeOnClickOutside` is used.
+   */
+  closeOnClickOutside?: boolean;
   id: string;
+  /**
+   * Delay (ms) before unmounting after dialog closes.
+   * Use this to keep the dialog in DOM long enough for CSS exit animations.
+   * `0` means immediate unmount (no exit-animation window).
+   */
+  closeTransitionMs?: number;
   dialogManagerId?: string;
   focus?: boolean;
   trapFocus?: boolean;
@@ -117,6 +129,8 @@ export const DialogAnchor = ({
   allowFlip = true,
   children,
   className,
+  closeOnClickOutside,
+  closeTransitionMs = 0,
   dialogManagerId,
   focus = true,
   id,
@@ -129,13 +143,66 @@ export const DialogAnchor = ({
   updatePositionOnContentResize,
   ...restDivProps
 }: DialogAnchorProps) => {
-  const dialog = useDialog({ dialogManagerId, id });
+  /**
+   * Rendering lifecycle notes:
+   * - `open=true` renders dialog contents immediately.
+   * - `open=false` can keep contents mounted for `closeTransitionMs` to allow CSS exit
+   *   animations before unmount.
+   *
+   * State exposed to CSS:
+   * - `data-str-chat-dialog-state="open"` while actively open.
+   * - `data-str-chat-dialog-state="closing"` during delayed unmount window.
+   *
+   * Consumers like `ContextMenu` combine:
+   * - `data-str-chat-dialog-state` from this component, and
+   * - `data-str-chat-placement` (e.g. `top-start`, `right-end`)
+   * to select the correct closing keyframe in CSS (horizontal vs vertical roll direction).
+   * In practice, JS only toggles state and timing (`closeTransitionMs`); CSS owns the
+   * visual motion details (transform/easing), so animation behavior stays declarative.
+   */
+  const dialog = useDialog({ closeOnClickOutside, dialogManagerId, id });
   const open = useDialogIsOpen(id, dialogManagerId);
+  const [shouldRender, setShouldRender] = useState(open);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isClosing = !open && shouldRender;
 
-  const { setPopperElement, styles } = useDialogAnchor<HTMLDivElement>({
+  useEffect(() => {
+    if (open) {
+      setShouldRender(true);
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+      return;
+    }
+
+    if (!shouldRender) return;
+    if (!closeTransitionMs) {
+      setShouldRender(false);
+      return;
+    }
+
+    closeTimeoutRef.current = setTimeout(() => {
+      setShouldRender(false);
+      closeTimeoutRef.current = null;
+    }, closeTransitionMs);
+  }, [closeTransitionMs, open, shouldRender]);
+
+  useEffect(
+    () => () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    },
+    [],
+  );
+
+  const {
+    placement: chosenPlacement,
+    setPopperElement,
+    styles,
+  } = useDialogAnchor<HTMLDivElement>({
     allowFlip,
     offset,
-    open,
+    open: shouldRender,
     placement,
     referenceElement,
     updateKey,
@@ -157,7 +224,7 @@ export const DialogAnchor = ({
   }, [dialog, open]);
 
   // prevent rendering the dialog contents if the dialog should not be open / shown
-  if (!open) {
+  if (!shouldRender) {
     return null;
   }
 
@@ -167,6 +234,8 @@ export const DialogAnchor = ({
         <div
           {...restDivProps}
           className={clsx('str-chat__dialog-contents', className)}
+          data-str-chat-dialog-state={isClosing ? 'closing' : 'open'}
+          data-str-chat-placement={chosenPlacement}
           data-testid='str-chat__dialog-contents'
           ref={setPopperElement}
           style={styles}

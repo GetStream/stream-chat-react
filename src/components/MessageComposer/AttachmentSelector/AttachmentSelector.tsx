@@ -308,7 +308,8 @@ export const AttachmentSelector = ({
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
-  const { Modal = GlobalModal } = useComponentContext();
+  const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
+    useComponentContext();
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
@@ -376,7 +377,7 @@ export const AttachmentSelector = ({
           onClick={() => menuDialog?.toggle()}
           ref={menuButtonRef}
         />
-        <ContextMenu
+        <ContextMenuComponent
           allowFlip
           backLabel={t('Back')}
           className='str-chat__attachment-selector-actions-menu'
@@ -390,7 +391,7 @@ export const AttachmentSelector = ({
           trapFocus
         >
           {contextMenuItems}
-        </ContextMenu>
+        </ContextMenuComponent>
         <Portal
           getPortalDestination={getModalPortalDestination ?? getDefaultPortalDestination}
           isOpen={modalIsOpen}
