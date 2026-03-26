@@ -24,19 +24,22 @@ export const DialogPortalDestination = () => {
 
     const handleDocumentClick = (event: MouseEvent) => {
       if (destinationRoot.contains(event.target as Node)) return;
-      Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
-        (dialog) => {
-          if (!dialog.isOpen) return;
-          if (
-            !shouldCloseOnOutsideClick({
-              dialog,
-              managerCloseOnClickOutside: dialogManager.closeOnClickOutside,
-            })
-          )
-            return;
-          dialogManager.close(dialog.id);
-        },
-      );
+      // Defer so target onClick handlers (e.g. context-menu toggle buttons) can run first.
+      setTimeout(() => {
+        Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
+          (dialog) => {
+            if (!dialog.isOpen) return;
+            if (
+              !shouldCloseOnOutsideClick({
+                dialog,
+                managerCloseOnClickOutside: dialogManager.closeOnClickOutside,
+              })
+            )
+              return;
+            dialogManager.close(dialog.id);
+          },
+        );
+      }, 0);
     };
 
     document.addEventListener('click', handleDocumentClick, { capture: true });
