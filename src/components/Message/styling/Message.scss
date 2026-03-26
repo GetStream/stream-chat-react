@@ -296,10 +296,10 @@
 
     .str-chat__message-inner {
       .str-chat__message-reactions-host {
-        justify-self: flex-start;
+        justify-self: flex-end;
 
         &:has(.str-chat__message-reactions--flipped-horizontally) {
-          justify-self: flex-end;
+          justify-self: flex-start;
         }
 
         &:has(.str-chat__message-reactions--top) {
@@ -343,10 +343,10 @@
 
     .str-chat__message-inner {
       .str-chat__message-reactions-host {
-        justify-self: flex-end;
+        justify-self: flex-start;
 
         &:has(.str-chat__message-reactions--flipped-horizontally) {
-          justify-self: flex-start;
+          justify-self: flex-end;
         }
 
         &:has(.str-chat__message-reactions--top) {

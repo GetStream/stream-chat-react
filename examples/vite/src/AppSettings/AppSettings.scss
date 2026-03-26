@@ -379,18 +379,17 @@
     }
 
     .app__settings-modal__body {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
     }
 
     .app__settings-modal__tabs {
-      border-right: 0;
-      border-bottom: 1px solid var(--border-core-default);
-      display: flex;
-      gap: 8px;
-      padding: 10px 12px;
-      overflow-x: auto;
-      overscroll-behavior: contain;
-      overflow-y: hidden;
+      border-right: 1px solid var(--border-core-default);
+      border-bottom: 0;
+      display: block;
+      gap: 0;
+      padding: 10px;
+      overflow-y: auto;
+      overflow-x: hidden;
     }
   }
 }
