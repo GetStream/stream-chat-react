@@ -27,7 +27,7 @@ export function useFetchReactions(options: FetchReactionsOptions) {
   const [refetchNonce, setRefetchNonce] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!shouldFetch || !reactionType) {
+    if (!shouldFetch) {
       return;
     }
 
@@ -36,7 +36,7 @@ export function useFetchReactions(options: FetchReactionsOptions) {
     (async () => {
       try {
         setIsLoading(true);
-        const reactions = await handleFetchReactions(reactionType, sort);
+        const reactions = await handleFetchReactions(reactionType ?? undefined, sort);
 
         if (!cancel) {
           setReactions(reactions);

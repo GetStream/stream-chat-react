@@ -12,6 +12,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import type { ReactionSort } from 'stream-chat';
+import { defaultReactionOptions } from './reactionOptions';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -27,6 +28,21 @@ export type MessageReactionsDetailProps = Partial<
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
+export const MessageReactionsDetailLoadingIndicator = () => {
+  const elements = useMemo(
+    () =>
+      Array.from({ length: 3 }, (_, index) => (
+        <div className='str-chat__message-reactions-detail__skeleton-item' key={index}>
+          <div className='str-chat__message-reactions-detail__skeleton-avatar' />
+          <div className='str-chat__message-reactions-detail__skeleton-line' />
+        </div>
+      )),
+    [],
+  );
+
+  return <>{elements}</>;
+};
+
 export function MessageReactionsDetail({
   handleFetchReactions,
   onSelectedReactionTypeChange,
@@ -37,7 +53,11 @@ export function MessageReactionsDetail({
   totalReactionCount,
 }: MessageReactionsDetailProps) {
   const { client } = useChatContext();
-  const { Avatar = DefaultAvatar } = useComponentContext(MessageReactionsDetail.name);
+  const {
+    Avatar = DefaultAvatar,
+    LoadingIndicator = MessageReactionsDetailLoadingIndicator,
+    reactionOptions = defaultReactionOptions,
+  } = useComponentContext(MessageReactionsDetail.name);
   const { t } = useTranslationContext();
 
   const {
@@ -73,7 +93,7 @@ export function MessageReactionsDetail({
   return (
     <div
       className='str-chat__message-reactions-detail'
-      data-testid='reactions-list-modal'
+      data-testid='message-reactions-detail'
     >
       {typeof totalReactionCount === 'number' && (
         <div className='str-chat__message-reactions-detail__total-count'>
@@ -92,7 +112,11 @@ export function MessageReactionsDetail({
                   <button
                     aria-pressed={reactionType === selectedReactionType}
                     className='str-chat__message-reactions-detail__reaction-type-list-item-button'
-                    onClick={() => onSelectedReactionTypeChange?.(reactionType)}
+                    onClick={() =>
+                      onSelectedReactionTypeChange?.(
+                        selectedReactionType === reactionType ? null : reactionType,
+                      )
+                    }
                   >
                     <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
                       <EmojiComponent />
@@ -115,30 +139,20 @@ export function MessageReactionsDetail({
         className='str-chat__message-reactions-detail__user-list'
         data-testid='all-reacting-users'
       >
-        {areReactionsLoading && (
-          <>
-            <div className='str-chat__message-reactions-detail__skeleton-item'>
-              <div className='str-chat__message-reactions-detail__skeleton-avatar' />
-              <div className='str-chat__message-reactions-detail__skeleton-line' />
-            </div>
-            <div className='str-chat__message-reactions-detail__skeleton-item'>
-              <div className='str-chat__message-reactions-detail__skeleton-avatar' />
-              <div className='str-chat__message-reactions-detail__skeleton-line' />
-            </div>
-            <div className='str-chat__message-reactions-detail__skeleton-item'>
-              <div className='str-chat__message-reactions-detail__skeleton-avatar' />
-              <div className='str-chat__message-reactions-detail__skeleton-line' />
-            </div>
-          </>
-        )}
+        {areReactionsLoading && <LoadingIndicator />}
         {!areReactionsLoading && (
           <>
-            {reactionDetailsWithLegacyFallback.map(({ user }) => {
+            {reactionDetailsWithLegacyFallback.map(({ type, user }) => {
               const belongsToCurrentUser = client.user?.id === user?.id;
+              const EmojiComponent = Array.isArray(reactionOptions)
+                ? undefined
+                : (reactionOptions.quick[type]?.Component ??
+                  reactionOptions.extended?.[type]?.Component);
+
               return (
                 <div
                   className='str-chat__message-reactions-detail__user-list-item'
-                  key={user?.id}
+                  key={`${user?.id}-${type}`}
                 >
                   <Avatar
                     className='str-chat__avatar--with-border'
@@ -154,20 +168,22 @@ export function MessageReactionsDetail({
                     >
                       {belongsToCurrentUser ? t('You') : user?.name || user?.id}
                     </span>
-                    {belongsToCurrentUser && selectedReactionType && (
+                    {belongsToCurrentUser && (
                       <button
                         className='str-chat__message-reactions-detail__user-list-item-button'
                         data-testid='remove-reaction-button'
-                        onClick={(e) => {
-                          contextHandleReaction(selectedReactionType, e).then(() => {
-                            refetch();
-                          });
+                        onClick={async (e) => {
+                          await contextHandleReaction(type, e);
+                          refetch();
                         }}
                       >
                         {t('Tap to remove')}
                       </button>
                     )}
                   </div>
+                  <span className='str-chat__message-reactions-detail__user-list-item-icon'>
+                    {EmojiComponent && !selectedReactionType && <EmojiComponent />}
+                  </span>
                 </div>
               );
             })}

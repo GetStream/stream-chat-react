@@ -104,7 +104,7 @@ describe('MessageReactionsDetail', () => {
       reactions,
     });
 
-    expect(getByTestId('reactions-list-modal')).toBeInTheDocument();
+    expect(getByTestId('message-reactions-detail')).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

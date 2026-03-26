@@ -1,4 +1,4 @@
-import type { ElementRef } from 'react';
+import type { ComponentRef } from 'react';
 import React, { useRef } from 'react';
 import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector';
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
@@ -27,7 +27,7 @@ export const ReactionSelectorWithButton = ({
   const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
   const { ReactionSelector = DefaultReactionSelector } =
     useComponentContext('MessageOptions');
-  const buttonRef = useRef<ElementRef<'button'>>(null);
+  const buttonRef = useRef<ComponentRef<'button'>>(null);
   const dialogId = DefaultReactionSelector.getDialogId({
     messageId: message.id,
     threadList,
