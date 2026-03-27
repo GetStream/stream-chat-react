@@ -1,13 +1,12 @@
 import React from 'react';
 import { useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
-import { LoadingIndicatorIcon } from '../icons';
-
+import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { FileSizeIndicator } from '../../Attachment';
 import { IconExclamationCircle, IconExclamationTriangle } from '../../Icons';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
@@ -21,12 +20,12 @@ export const FileAttachmentPreview = ({
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
   const { t } = useTranslationContext('FilePreview');
-  const { id, uploadPermissionCheck, uploadState } = attachment.localMetadata ?? {};
+  const { id, uploadPermissionCheck, uploadProgress, uploadState } =
+    attachment.localMetadata ?? {};
 
   const hasSizeLimitError = uploadPermissionCheck?.reason === 'size_limit';
   const hasFatalError = uploadState === 'blocked' || hasSizeLimitError;
   const hasRetriableError = uploadState === 'failed' && !!handleRetry;
-  const hasError = hasRetriableError || hasFatalError;
 
   return (
     <AttachmentPreviewRoot
@@ -43,8 +42,13 @@ export const FileAttachmentPreview = ({
           {attachment.title}
         </div>
         <div className='str-chat__attachment-preview-file__data'>
-          {uploadState === 'uploading' && <LoadingIndicatorIcon />}
-          {!hasError && <FileSizeIndicator fileSize={attachment.file_size} />}
+          {uploadState === 'uploading' && (
+            <AttachmentUploadProgressIndicator
+              uploadProgress={uploadProgress}
+              variant='inline'
+            />
+          )}
+          <AttachmentUploadedSizeIndicator attachment={attachment} />
           {hasFatalError && (
             <div className='str-chat__attachment-preview-file__fatal-error'>
               <IconExclamationCircle />
