@@ -8,16 +8,6 @@
     var(--background-core-surface-subtle)
   );
   --str-chat__switch-field-border-radius: var(--radius-md);
-  --str-chat__switch-field-title-font-size: var(--typography-font-size-sm, 14px);
-  --str-chat__switch-field-title-font-weight: var(--typography-font-weight-medium, 500);
-  --str-chat__switch-field-title-line-height: var(--typography-line-height-tight, 16px);
-  --str-chat__switch-field-title-color: var(--text-primary, #1a1b25);
-  --str-chat__switch-field-description-font-size: var(--typography-font-size-xs, 12px);
-  --str-chat__switch-field-description-font-weight: var(
-    --typography-font-weight-regular,
-    400
-  );
-  --str-chat__switch-field-description-color: var(--text-tertiary, #687385);
   --str-chat__switch-field__track-off-bg: var(
     --control-toggle-switch-bg,
     var(--border-core-on-surface, #a3acba)
@@ -64,33 +54,6 @@
       flex: 1 1 auto;
       min-width: 0;
       cursor: pointer;
-    }
-
-    &__content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xxs, 4px);
-      min-width: 0;
-    }
-
-    &__title {
-      font-size: var(--str-chat__switch-field-title-font-size);
-      font-weight: var(--str-chat__switch-field-title-font-weight);
-      line-height: var(--str-chat__switch-field-title-line-height);
-      color: var(--str-chat__switch-field-title-color);
-    }
-
-    &__description {
-      font-size: var(--str-chat__switch-field-description-font-size);
-      font-weight: var(--str-chat__switch-field-description-font-weight);
-      line-height: var(--str-chat__switch-field-title-line-height);
-      color: var(--str-chat__switch-field-description-color);
-    }
-
-    &__expanded-content {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
     }
 
     &__switch {

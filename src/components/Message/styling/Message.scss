@@ -6,11 +6,8 @@
 
   --str-chat__message-border-radius: 0;
   --str-chat__message-color: var(--str-chat__text-color);
-  --str-chat__message-error-message-color: var(--str-chat__danger-color);
-  --str-chat__message-secondary-color: var(--str-chat__text-low-emphasis-color);
   --str-chat__message-link-color: var(--chat-text-link);
   --str-chat__message-mention-color: var(--str-chat__primary-color);
-  --str-chat__message-replies-count-color: var(--str-chat__primary-color);
   --str-chat__message-background-color: transparent;
   --str-chat__message-highlighted-background-color: var(
     --str-chat__message-highlight-color
@@ -49,11 +46,6 @@
   --str-chat__blocked-message-border-inline-end: none;
   --str-chat__blocked-message-box-shadow: none;
 
-  --str-chat__translation-notice-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__translation-notice-active-background-color: var(
-    --str-chat__tertiary-surface-color
-  );
-
   --str-chat__message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   /* Background color for pinned messages (Figma: background/core/highlight) */
@@ -88,12 +80,6 @@
 .str-chat__message {
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
   padding-inline: var(--str-chat__message-composer-padding);
-
-  &.str-chat__message-without-touch-support {
-    --str-chat-message-options-size: calc(
-      1 * var(--str-chat__message-options-button-size)
-    );
-  }
 
   .str-chat__message-bubble {
     max-width: var(--str-chat__message-max-width);
@@ -395,10 +381,6 @@
       }
     }
 
-    &:has(.str-chat__message-reactions--top) {
-      // maybe remove later
-    }
-
     &:has(.str-chat__message-reactions--bottom) {
       grid-template-areas:
         'message-bubble options'
@@ -452,32 +434,6 @@
     }
   }
 
-  .str-chat__translation-notice {
-    grid-area: translation-notice;
-
-    button {
-      cursor: pointer;
-      padding: 0.25rem 0;
-      margin: 0;
-      font: var(--str-chat__body2-text);
-      color: var(--str-chat__translation-notice-color);
-      border: none;
-      background: none;
-
-      &:active,
-      &:hover {
-        background: var(--str-chat__translation-notice-active-background-color);
-      }
-    }
-  }
-
-  .str-chat__custom-message-metadata {
-    grid-area: custom-metadata;
-    height: var(--size-24);
-    margin-block-start: var(--spacing-xxs);
-    color: var(--str-chat__message-secondary-color);
-  }
-
   .str-chat__message-metadata {
     grid-area: metadata;
     display: flex;
@@ -495,10 +451,6 @@
       margin-inline-end: var(--spacing-xxs);
     }
 
-    .str-chat__message-sender-name {
-      font: var(--str-chat__caption-medium-text);
-    }
-
     .str-chat__message-edited-indicator {
       margin-left: var(--spacing-xs);
     }
@@ -509,24 +461,12 @@
     text-align: right;
   }
 
-  .str-chat__message-is-thread-reply-button-wrapper {
-    grid-area: replies;
-
-    // TODO: "Thread reply" button styling
-  }
-
   .str-chat__message--blocked-inner {
     @include chat-bubble-spacing;
     @include utils.component-layer-overrides('blocked-message');
     // todo: once blocked message designs are ready remove this padding?
     padding-block: var(--spacing-xs);
     font: var(--str-chat__body2-text);
-  }
-
-  // Fixes emoji display in Chrome on non-retina display (only detected in Angular SDK) https://bugs.chromium.org/p/chromium/issues/detail?id=596223
-  .str-chat__emoji-display-fix {
-    display: inline-block;
-    width: 1.25em;
   }
 
   .str-chat__message-error-indicator {
@@ -584,14 +524,8 @@
 }
 
 // Message options display - default mode: they appear when .str-chat__li is hovered
-.str-chat__ul:not(
-    .str-chat__message-options-in-bubble,
-    .str-chat__message-with-touch-support
-  ),
-.str-chat__virtual-list:not(
-    .str-chat__message-options-in-bubble,
-    .str-chat__message-with-touch-support
-  ) {
+.str-chat__ul,
+.str-chat__virtual-list {
   /* This rule won't be applied in browsers that don't support :has() */
   .str-chat__li:hover:not(:has(.str-chat__modal--open)),
   .str-chat__li:focus-within:not(:has(.str-chat__modal--open)),
@@ -628,27 +562,7 @@
   }
 }
 
-// Message options display - second mode: they appear when .str-chat__message-inner is hovered
-.str-chat__ul.str-chat__message-options-in-bubble,
-.str-chat__virtual-list.str-chat__message-options-in-bubble {
-  .str-chat__message-inner {
-    &:hover {
-      .str-chat__message-options {
-        display: flex;
-      }
-    }
-  }
-
-  .str-chat__message--other .str-chat__message-inner:hover {
-    margin-inline-end: 0;
-  }
-
-  .str-chat__message--me .str-chat__message-inner:hover {
-    margin-inline-start: 0;
-  }
-}
-
-// Message options display - third mode: they appear, when explicitly marked as active
+// Message options display - second mode: they appear, when explicitly marked as active
 .str-chat__message-inner {
   .str-chat__message-options.str-chat__message-options--active {
     display: flex;
@@ -658,10 +572,6 @@
 .str-chat__message-inner {
   .str-chat__message-options {
     display: none;
-  }
-
-  .str-chat__message-actions-open.str-chat__message-options {
-    display: flex;
   }
 }
 
@@ -736,29 +646,5 @@
   .str-chat__message.str-chat__message--with-avatar > .str-chat__avatar {
     visibility: hidden;
     pointer-events: none;
-  }
-}
-
-// todo: not implemented in stream-chat-react
-.str-chat__message-with-touch-support {
-  .str-chat__message-bubble {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
-  &.str-chat__message-menu-opened {
-    .str-chat__attachments-container,
-    .str-chat__message-text-inner {
-      pointer-events: none;
-    }
-  }
-
-  .str-chat__message-inner {
-    margin-inline: 0;
-  }
-
-  .str-chat__message-options {
-    display: none;
   }
 }

@@ -74,16 +74,6 @@
   white-space: nowrap;
 }
 
-.str-chat__thread-list-item__message-preview {
-  font-size: var(--typography-font-size-md);
-  font-weight: var(--typography-font-weight-regular);
-  line-height: var(--typography-line-height-normal);
-  color: var(--text-primary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .str-chat__thread-list-item__content-trailing {
   display: flex;
   gap: var(--spacing-xs);

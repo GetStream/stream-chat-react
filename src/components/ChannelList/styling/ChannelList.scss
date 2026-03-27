@@ -158,10 +158,6 @@
     }
   }
 
-  .stream-chat__paginated-list {
-    gap: 0;
-  }
-
   .str-chat__load-more-button__button {
     @include utils.component-layer-overrides('channel-list-load-more');
     width: 80%;
