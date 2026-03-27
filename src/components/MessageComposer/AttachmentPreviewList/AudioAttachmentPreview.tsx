@@ -21,10 +21,7 @@ import {
 } from '../../AudioPlayback';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
-import {
-  formatUploadByteFraction,
-  resolveAttachmentFullByteSize,
-} from './utils/uploadProgress';
+import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 
 export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -48,11 +45,6 @@ export const AudioAttachmentPreview = ({
   const { t } = useTranslationContext();
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
-  const fullBytes = resolveAttachmentFullByteSize(attachment);
-  const showUploadFraction =
-    uploadState === 'uploading' &&
-    uploadProgress !== undefined &&
-    fullBytes !== undefined;
   const url = attachment.asset_url || previewUri;
 
   const audioPlayer = useAudioPlayer({
@@ -111,18 +103,7 @@ export const AudioAttachmentPreview = ({
           {showProgressControls ? (
             <>
               {!resolvedDuration && !progressPercent && !isPlaying && (
-                <>
-                  {showUploadFraction ? (
-                    <span
-                      className='str-chat__attachment-preview-file__upload-size-fraction'
-                      data-testid='upload-size-fraction'
-                    >
-                      {formatUploadByteFraction(uploadProgress, fullBytes)}
-                    </span>
-                  ) : (
-                    <FileSizeIndicator fileSize={attachment.file_size} />
-                  )}
-                </>
+                <AttachmentUploadedSizeIndicator attachment={attachment} />
               )}
               {hasWaveform ? (
                 <>

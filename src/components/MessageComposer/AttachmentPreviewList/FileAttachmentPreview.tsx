@@ -2,15 +2,11 @@ import React from 'react';
 import { useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
 import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import {
-  formatUploadByteFraction,
-  resolveAttachmentFullByteSize,
-} from './utils/uploadProgress';
-import { FileSizeIndicator } from '../../Attachment';
 import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
@@ -26,16 +22,10 @@ export const FileAttachmentPreview = ({
   const { t } = useTranslationContext('FilePreview');
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
-  const fullBytes = resolveAttachmentFullByteSize(attachment);
-  const showUploadFraction =
-    uploadState === 'uploading' &&
-    uploadProgress !== undefined &&
-    fullBytes !== undefined;
 
   const hasSizeLimitError = uploadPermissionCheck?.reason === 'size_limit';
   const hasFatalError = uploadState === 'blocked' || hasSizeLimitError;
   const hasRetriableError = uploadState === 'failed' && !!handleRetry;
-  const hasError = hasRetriableError || hasFatalError;
 
   return (
     <AttachmentPreviewRoot
@@ -58,17 +48,7 @@ export const FileAttachmentPreview = ({
               variant='inline'
             />
           )}
-          {!hasError && showUploadFraction && (
-            <span
-              className='str-chat__attachment-preview-file__upload-size-fraction'
-              data-testid='upload-size-fraction'
-            >
-              {formatUploadByteFraction(uploadProgress, fullBytes)}
-            </span>
-          )}
-          {!hasError && !showUploadFraction && (
-            <FileSizeIndicator fileSize={attachment.file_size} />
-          )}
+          <AttachmentUploadedSizeIndicator attachment={attachment} />
           {hasFatalError && (
             <div className='str-chat__attachment-preview-file__fatal-error'>
               <IconExclamationMark />
