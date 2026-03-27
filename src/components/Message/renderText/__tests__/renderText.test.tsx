@@ -320,7 +320,7 @@ const multilineWithStrongText = 'This is **the first** line\n\nThis is the secon
 
 describe('keepLineBreaksPlugin', () => {
   const doRenderText = (text, present) => {
-    const Markdown = renderText(text, [] as any, {
+    const Markdown = renderText(text, [], {
       getRemarkPlugins: () => (present ? [keepLineBreaksPlugin] : []),
     });
     return render(Markdown).container;
@@ -418,7 +418,7 @@ describe('htmlToTextPlugin', () => {
   <script>console.error('This error should not be logged from renderText.test.js!')</script>
 </div>
 `;
-    const Markdown = renderText(textWithHtml, [] as any, {
+    const Markdown = renderText(textWithHtml, [], {
       getRemarkPlugins: () => (withPlugin ? [htmlToTextPlugin] : []),
     });
     return render(Markdown).container;
@@ -437,7 +437,7 @@ describe('htmlToTextPlugin', () => {
 
 describe('plusPlusToEmphasis', () => {
   const renderTextPlusPlus = (text, withPlugin = true) => {
-    const Markdown = renderText(text, [] as any, {
+    const Markdown = renderText(text, [], {
       getRemarkPlugins: () => (withPlugin ? [plusPlusToEmphasis] : []),
     });
     return render(Markdown).container;
@@ -467,7 +467,7 @@ describe('plusPlusToEmphasis', () => {
 
 describe('imageToLink', () => {
   const renderImageToLink = (text, withPlugin = true) => {
-    const Markdown = renderText(text, [] as any, {
+    const Markdown = renderText(text, [], {
       getRemarkPlugins: () => (withPlugin ? [imageToLink] : []),
     });
     return render(Markdown).container;
@@ -508,7 +508,7 @@ describe('remarkIgnoreMarkdown', () => {
   ].join('\n');
 
   const renderWithPlugin = (plugins = []) => {
-    const Markdown = renderText(text, [] as any, {
+    const Markdown = renderText(text, [], {
       getRemarkPlugins: () => [...plugins, remarkIgnoreMarkdown],
     });
     return render(Markdown).container;

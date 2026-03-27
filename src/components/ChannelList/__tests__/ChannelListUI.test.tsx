@@ -1,7 +1,9 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelListUI } from '../ChannelListUI';
+import type { ChannelListUIProps } from '../ChannelListUI';
 import { TranslationProvider } from '../../../context';
 import { mockTranslationContextValue } from '../../../mock-builders';
 
@@ -12,12 +14,12 @@ console.warn = () => null;
 const Component = ({ error = false, loading = false }: any) => (
   <TranslationProvider value={mockTranslationContextValue()}>
     <ChannelListUI
-      {...({
+      {...fromPartial<ChannelListUIProps>({
         error,
         loading,
         LoadingErrorIndicator: () => <div>Loading Error Indicator</div>,
         LoadingIndicator: () => <div>Loading Indicator</div>,
-      } as any)}
+      })}
     >
       <div>children 1</div>
       <div>children 2</div>

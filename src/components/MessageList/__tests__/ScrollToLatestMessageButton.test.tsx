@@ -51,9 +51,9 @@ describe.each([
     users = result.users;
     containerIsThread = containerMsgList === threadList;
     anotherUser = Object.values(channel.state.members).find(
-      (u: any) => u.id !== client.user.id,
+      (u) => u.user_id !== client.user.id,
     );
-    parentMsg = { ...(Object.values(channel.state.messages)[0] as any), reply_count: 0 };
+    parentMsg = { ...channel.state.messages[0], reply_count: 0 };
     channelStateContext = {
       thread: containerIsThread ? parentMsg : null,
     };

@@ -1,6 +1,8 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel, StreamChat } from 'stream-chat';
+import type { ChannelUnreadUiState } from '../../../../types';
 import { useMarkRead } from '../useMarkRead';
 import {
   ChannelActionProvider,
@@ -359,7 +361,7 @@ describe('useMarkRead', () => {
         },
       });
 
-      let channelUnreadUiStateCb;
+      let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
       setChannelUnreadUiState.mockImplementationOnce(
         (cb) => (channelUnreadUiStateCb = cb),
       );
@@ -391,7 +393,7 @@ describe('useMarkRead', () => {
         },
       });
 
-      let channelUnreadUiStateCb;
+      let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
       setChannelUnreadUiState.mockImplementationOnce(
         (cb) => (channelUnreadUiStateCb = cb),
       );
@@ -475,7 +477,7 @@ describe('useMarkRead', () => {
       });
 
       await act(() => {
-        dispatchMessageNewEvent(client, generateMessage(), otherChannel as any);
+        dispatchMessageNewEvent(client, generateMessage(), otherChannel);
       });
 
       expect(markRead).not.toHaveBeenCalled();
@@ -528,7 +530,7 @@ describe('useMarkRead', () => {
 
     describe('update unread UI state unread_messages', () => {
       it('should be performed when message list is not scrolled to bottom', async () => {
-        let channelUnreadUiStateCb;
+        let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
         setChannelUnreadUiState.mockImplementationOnce(
           (cb) => (channelUnreadUiStateCb = cb),
         );
@@ -556,7 +558,7 @@ describe('useMarkRead', () => {
       });
 
       it('should be performed when channel was marked unread and is scrolled to the bottom', async () => {
-        let channelUnreadUiStateCb;
+        let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
         setChannelUnreadUiState.mockImplementationOnce(
           (cb) => (channelUnreadUiStateCb = cb),
         );
@@ -584,7 +586,7 @@ describe('useMarkRead', () => {
       });
 
       it('should be performed when document is hidden and is scrolled to the bottom', async () => {
-        let channelUnreadUiStateCb;
+        let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
         setChannelUnreadUiState.mockImplementationOnce(
           (cb) => (channelUnreadUiStateCb = cb),
         );
@@ -615,13 +617,13 @@ describe('useMarkRead', () => {
 
     describe('update unread UI state last_read', () => {
       it('should be performed when message list is not scrolled to bottom', async () => {
-        let channelUnreadUiStateCb;
+        let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
         setChannelUnreadUiState.mockImplementationOnce(
           (cb) => (channelUnreadUiStateCb = cb),
         );
         const channelsData = [
           generateChannel({
-            messages: Array.from({ length: 2 }, generateMessage) as any,
+            messages: Array.from({ length: 2 }, generateMessage),
           }),
         ];
         const {
@@ -647,7 +649,9 @@ describe('useMarkRead', () => {
         const prevLastRead = 'X';
         let channelUnreadUiState = channelUnreadUiStateCb({ last_read: prevLastRead });
         expect(channelUnreadUiState.last_read).toBe(prevLastRead);
-        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
+        channelUnreadUiState = channelUnreadUiStateCb(
+          fromPartial({ unread_messages: 0 }),
+        );
         expect(channelUnreadUiState.last_read.getTime()).toBe(
           (channelsData[0].messages[1].created_at as unknown as Date).getTime(),
         );
@@ -655,14 +659,16 @@ describe('useMarkRead', () => {
         expect(channelUnreadUiState.last_read.getTime()).toBe(
           (channelsData[0].messages[1].created_at as unknown as Date).getTime(),
         );
-        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
+        channelUnreadUiState = channelUnreadUiStateCb(
+          fromPartial({ unread_messages: 1 }),
+        );
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);
       });
 
       it('should be performed when channel was marked unread and is scrolled to the bottom', async () => {
-        let channelUnreadUiStateCb;
+        let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
         setChannelUnreadUiState.mockImplementation((cb) => (channelUnreadUiStateCb = cb));
-        const channelsData = [generateChannel({ messages: [generateMessage()] as any })];
+        const channelsData = [generateChannel({ messages: [generateMessage()] })];
         const {
           channels: [channel],
           client,
@@ -686,7 +692,9 @@ describe('useMarkRead', () => {
         const prevLastRead = 'X';
         let channelUnreadUiState = channelUnreadUiStateCb({ last_read: prevLastRead });
         expect(channelUnreadUiState.last_read).toBe(prevLastRead);
-        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
+        channelUnreadUiState = channelUnreadUiStateCb(
+          fromPartial({ unread_messages: 0 }),
+        );
         expect(channelUnreadUiState.last_read.getTime()).toBe(
           (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
@@ -694,14 +702,16 @@ describe('useMarkRead', () => {
         expect(channelUnreadUiState.last_read.getTime()).toBe(
           (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
-        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
+        channelUnreadUiState = channelUnreadUiStateCb(
+          fromPartial({ unread_messages: 1 }),
+        );
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);
       });
 
       it('should be performed when document is hidden and is scrolled to the bottom', async () => {
-        let channelUnreadUiStateCb;
+        let channelUnreadUiStateCb: (prev?: ChannelUnreadUiState) => ChannelUnreadUiState;
         setChannelUnreadUiState.mockImplementation((cb) => (channelUnreadUiStateCb = cb));
-        const channelsData = [generateChannel({ messages: [generateMessage()] as any })];
+        const channelsData = [generateChannel({ messages: [generateMessage()] })];
         const {
           channels: [channel],
           client,
@@ -725,7 +735,9 @@ describe('useMarkRead', () => {
         const prevLastRead = 'X';
         let channelUnreadUiState = channelUnreadUiStateCb({ last_read: prevLastRead });
         expect(channelUnreadUiState.last_read).toBe(prevLastRead);
-        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 0 });
+        channelUnreadUiState = channelUnreadUiStateCb(
+          fromPartial({ unread_messages: 0 }),
+        );
         expect(channelUnreadUiState.last_read.getTime()).toBe(
           (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
@@ -733,7 +745,9 @@ describe('useMarkRead', () => {
         expect(channelUnreadUiState.last_read.getTime()).toBe(
           (channelsData[0].messages[0].created_at as unknown as Date).getTime(),
         );
-        channelUnreadUiState = channelUnreadUiStateCb({ unread_messages: 1 });
+        channelUnreadUiState = channelUnreadUiStateCb(
+          fromPartial({ unread_messages: 1 }),
+        );
         expect(channelUnreadUiState.last_read.getTime()).toBe(0);
         docHiddenSpy.mockRestore();
       });

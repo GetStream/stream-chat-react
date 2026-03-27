@@ -1,5 +1,6 @@
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import {
@@ -30,6 +31,9 @@ import { defaultReactionOptions } from '../../Reactions';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
+import type { MessageProps, MessageUIComponentProps } from '../types';
+import type { MessageTextProps } from '../MessageText';
+import type { TranslationContextValue } from '../../../context';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -73,10 +77,12 @@ async function renderMessageText({
   customProps = {},
 } = {}) {
   const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({
-    getConfig: () => channelConfigOverrides,
-    state: { membership: {} },
-  } as any);
+  const channel = generateChannel(
+    fromPartial<Parameters<typeof generateChannel>[0]>({
+      getConfig: () => channelConfigOverrides,
+      state: { membership: {} },
+    }),
+  );
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
   const channelConfig = channel['getConfig']();
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
@@ -94,8 +100,9 @@ async function renderMessageText({
         >
           <TranslationProvider
             value={mockTranslationContextValue({
-              t: ((key: string) => key) as any,
-              tDateTimeParser: customDateTimeParser as any,
+              t: ((key: string) => key) as TranslationContextValue['t'],
+              tDateTimeParser:
+                customDateTimeParser as TranslationContextValue['tDateTimeParser'],
               userLanguage: 'en',
             })}
           >
@@ -103,13 +110,17 @@ async function renderMessageText({
               value={mockComponentContext({
                 Attachment,
 
-                Message: () => <MessageUI {...({ channelConfig } as any)} />,
+                Message: () => (
+                  <MessageUI
+                    {...fromPartial<MessageUIComponentProps>({ channelConfig })}
+                  />
+                ),
                 reactionOptions: defaultReactionOptions,
               })}
             >
               <DialogManagerProvider id='message-dialog-manager-provider'>
-                <Message {...(defaultProps as any)} {...customProps}>
-                  <MessageText {...(defaultProps as any)} {...customProps} />
+                <Message {...(defaultProps as MessageProps)} {...customProps}>
+                  <MessageText {...(defaultProps as MessageTextProps)} {...customProps} />
                 </Message>
               </DialogManagerProvider>
             </ComponentProvider>
@@ -280,7 +291,7 @@ describe('<MessageText />', () => {
       reaction_groups: groupReactions(reactions),
     });
 
-    let container;
+    let container: HTMLElement;
     await act(async () => {
       const result = await renderMessageText({ customProps: { message } });
       container = result.container;

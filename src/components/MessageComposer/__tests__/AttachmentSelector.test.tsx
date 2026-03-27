@@ -1,5 +1,13 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
 import {
@@ -10,6 +18,7 @@ import {
   TranslationProvider,
   TypingProvider,
 } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import {
   generateMessage,
   initClientWithChannels,
@@ -34,10 +43,10 @@ const SHARE_LOCATION_BUTTON_CLASS =
 const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
-const translationContext = {
+const translationContext = fromPartial<TranslationContextValue>({
   t: (v: any) => v,
   tDateTimeParser: (v: any) => v.toString(),
-} as any;
+});
 
 const defaultChannelData = {
   own_capabilities: ['upload-file'],
@@ -95,7 +104,7 @@ const renderComponent = async ({
       <MessageComposer {...messageInputProps} />
     );
 
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <ChatViewContext.Provider

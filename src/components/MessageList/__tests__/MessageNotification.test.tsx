@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, type RenderResult, screen } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 
 import { NewMessageNotification } from '../NewMessageNotification';
@@ -9,7 +9,7 @@ import { getTestClient } from '../../../mock-builders';
 afterEach(cleanup);
 
 const renderComponent = async (props = {}) => {
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={getTestClient()}>

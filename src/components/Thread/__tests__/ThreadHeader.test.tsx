@@ -1,10 +1,13 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel, LocalMessage, Thread } from 'stream-chat';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import type { ChatContextValue } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
 import { mockChannelStateContext } from '../../../mock-builders';
 import { ThreadHeader } from '../ThreadHeader';
 
@@ -69,44 +72,51 @@ const renderComponent = ({
   props = {},
   threadContext = undefined,
 } = {}) => {
-  const client = { off: vi.fn(), on: vi.fn(), user: alice, userID: alice.id } as any;
+  const client = fromPartial<ChatContextValue['client']>({
+    off: vi.fn(),
+    on: vi.fn(),
+    user: alice,
+    userID: alice.id,
+  });
   const thread = createThread(alice);
-  const channel = createChannel(channelOverrides) as any;
+  const channel = createChannel(channelOverrides) as unknown as Channel;
 
-  vi.mocked(useChatViewContext).mockReturnValue({
-    activeChatView,
-    setActiveChatView: vi.fn(),
-  } as any);
-  vi.mocked(useThreadContext).mockReturnValue(threadContext as any);
+  vi.mocked(useChatViewContext).mockReturnValue(
+    fromPartial<ReturnType<typeof useChatViewContext>>({
+      activeChatView,
+      setActiveChatView: vi.fn(),
+    }),
+  );
+  vi.mocked(useThreadContext).mockReturnValue(threadContext as Thread | undefined);
 
   return render(
     <ChatProvider
-      value={
-        {
-          client,
-          closeMobileNav: vi.fn(),
-          latestMessageDatesByChannels: {},
-          navOpen: false,
-          openMobileNav: vi.fn(),
-        } as any
-      }
+      value={fromPartial<ChatContextValue>({
+        client,
+        closeMobileNav: vi.fn(),
+        latestMessageDatesByChannels: {},
+        navOpen: false,
+        openMobileNav: vi.fn(),
+      })}
     >
       <ChannelStateProvider value={mockChannelStateContext({ channel, thread })}>
         <TranslationProvider
-          value={
-            {
-              t: ((key: string, options?: Record<string, unknown>) => {
-                if (key === 'Thread') return 'Thread';
-                if (key === 'replyCount')
-                  return `${(options as Record<string, number>)?.count} replies`;
-                if (key === 'aria/Close thread') return 'Close thread';
+          value={fromPartial<TranslationContextValue>({
+            t: ((key: string, options?: Record<string, unknown>) => {
+              if (key === 'Thread') return 'Thread';
+              if (key === 'replyCount')
+                return `${(options as Record<string, number>)?.count} replies`;
+              if (key === 'aria/Close thread') return 'Close thread';
 
-                return key;
-              }) as any,
-            } as any
-          }
+              return key;
+            }) as TranslationContextValue['t'],
+          })}
         >
-          <ThreadHeader closeThread={vi.fn()} thread={thread as any} {...props} />
+          <ThreadHeader
+            closeThread={vi.fn()}
+            thread={thread as unknown as LocalMessage}
+            {...props}
+          />
         </TranslationProvider>
       </ChannelStateProvider>
     </ChatProvider>,

@@ -2,6 +2,7 @@ import { NotificationTranslationTopic } from '../TranslationBuilder';
 import { defaultNotificationTranslators } from '../TranslationBuilder/notifications/NotificationTranslationTopic';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { i18n } from 'i18next';
+import type { Notification } from 'stream-chat';
 
 const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
 describe('NotificationTranslationTopic', () => {
@@ -55,23 +56,23 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('falls back to translating notification.message when type has no translator', () => {
-    const i18next = {
+    const i18next = fromPartial<i18n>({
       ...mockI18Next,
       t: vi.fn((key) =>
         key === 'File is required for upload attachment'
           ? 'translated/file-required'
           : key,
       ),
-    } as any;
+    });
     const builder = new NotificationTranslationTopic({
       i18next,
     });
 
     const output = builder.translate('XXX', '', {
-      notification: {
+      notification: fromPartial<Notification>({
         message: 'File is required for upload attachment',
         type: 'unknown:type',
-      } as any,
+      }),
     });
 
     expect(output).toBe('translated/file-required');
@@ -81,24 +82,24 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('passes notification metadata to i18next for message interpolation fallback', () => {
-    const i18next = {
+    const i18next = fromPartial<i18n>({
       ...mockI18Next,
       t: vi.fn((key, options) =>
         key === 'Attachment upload failed due to {{reason}}'
           ? `translated/reason:${options.reason}`
           : key,
       ),
-    } as any;
+    });
     const builder = new NotificationTranslationTopic({
       i18next,
     });
 
     const output = builder.translate('XXX', '', {
-      notification: {
+      notification: fromPartial<Notification>({
         message: 'Attachment upload failed due to {{reason}}',
         metadata: { reason: 'network error' },
         type: 'unknown:type',
-      } as any,
+      }),
     });
 
     expect(output).toBe('translated/reason:network error');
@@ -126,16 +127,16 @@ describe('NotificationTranslationTopic', () => {
       'Reached the vote limit. Remove an existing vote first.',
     ],
   ])('translates known notification type %s', (type, translationKey) => {
-    const i18next = {
+    const i18next = fromPartial<i18n>({
       ...mockI18Next,
       t: vi.fn((key) => `translated:${key}`),
-    } as any;
+    });
     const builder = new NotificationTranslationTopic({ i18next });
 
     const output = builder.translate('XXX', '', {
-      notification: {
+      notification: fromPartial<Notification>({
         type,
-      } as any,
+      }),
     });
 
     expect(output).toBe(`translated:${translationKey}`);
@@ -143,21 +144,21 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('normalizes reason metadata in poll creation failure translation', () => {
-    const i18next = {
+    const i18next = fromPartial<i18n>({
       ...mockI18Next,
       t: vi.fn((key, options) =>
         key === 'Failed to create the poll due to {{reason}}'
           ? `translated/reason:${options.reason}`
           : key,
       ),
-    } as any;
+    });
     const builder = new NotificationTranslationTopic({ i18next });
 
     const output = builder.translate('XXX', '', {
-      notification: {
+      notification: fromPartial<Notification>({
         metadata: { reason: 'NETWORK' },
         type: 'api:poll:create:failed',
-      } as any,
+      }),
     });
 
     expect(output).toBe('translated/reason:network');
@@ -171,9 +172,9 @@ describe('NotificationTranslationTopic', () => {
     });
 
     const output = builder.translate('XXX', '', {
-      notification: {
+      notification: fromPartial<Notification>({
         type: 'api:location:create:failed',
-      } as any,
+      }),
     });
 
     expect(output).toBe('custom/location-failed');

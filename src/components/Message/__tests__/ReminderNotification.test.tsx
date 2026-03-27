@@ -1,6 +1,6 @@
 import React from 'react';
 import { Reminder } from 'stream-chat';
-import { act, render } from '@testing-library/react';
+import { act, render, type RenderResult } from '@testing-library/react';
 import { Chat } from '../../Chat';
 import { ReminderNotification } from '../ReminderNotification';
 import { generateUser, getTestClientWithUser } from '../../../mock-builders';
@@ -9,7 +9,7 @@ import { generateReminderResponse } from '../../../mock-builders/generator/remin
 const user = generateUser();
 const renderComponent = async ({ reminder }) => {
   const client = await getTestClientWithUser(user);
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={client}>

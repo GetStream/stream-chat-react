@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { PollHeader } from '../PollHeader';
 import { PollProvider, TranslationProvider } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { Poll } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -10,7 +11,7 @@ import { generatePoll, mockTranslationContextValue } from '../../../mock-builder
 const TITLE_SELECTOR = '.str-chat__poll-title';
 const SUBTITLE_SELECTOR = '.str-chat__poll-subtitle';
 
-const t = ((v: string) => v) as any;
+const t = ((v: string) => v) as TranslationContextValue['t'];
 
 const renderComponent = ({ poll }) =>
   render(

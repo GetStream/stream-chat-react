@@ -1,9 +1,12 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { SearchResults } from '../SearchResults';
 import { useSearchContext } from '../SearchContext';
+import type { SearchContextValue } from '../SearchContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { useStateStore } from '../../../store';
 
 vi.mock('../SearchContext');
@@ -58,9 +61,11 @@ describe('SearchResults', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockedUseSearchContext.mockReturnValue({
-      searchController: mockSearchController,
-    } as any);
+    mockedUseSearchContext.mockReturnValue(
+      fromPartial<SearchContextValue>({
+        searchController: mockSearchController,
+      }),
+    );
 
     mockedUseComponentContext.mockReturnValue({
       SearchResultsHeader: DefaultSearchResultsHeader,
@@ -68,9 +73,11 @@ describe('SearchResults', () => {
       SearchSourceResults: DefaultSearchSourceResults,
     });
 
-    mockedUseTranslationContext.mockReturnValue({
-      t: (key) => key,
-    } as any);
+    mockedUseTranslationContext.mockReturnValue(
+      fromPartial<TranslationContextValue>({
+        t: (key) => key,
+      }),
+    );
 
     mockedUseStateStore.mockReturnValue({
       activeSources: [mockSearchSource],

@@ -6,13 +6,13 @@ import type { Channel } from 'stream-chat';
  * api - /read
  */
 export const markReadApi = (channel: Channel) => ({
-  duration: 0.01,
+  duration: '0.01s',
   event: {
     channel_id: channel.id,
     channel_type: channel.type,
     cid: channel.cid,
     created_at: new Date().toISOString(),
-    last_read_message_id: channel.state.messages.slice(-1)[0],
+    last_read_message_id: channel.state.messages.slice(-1)[0]?.id,
     type: 'message.read' as const,
     user: channel.getClient().user,
   },

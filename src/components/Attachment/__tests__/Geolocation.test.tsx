@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, type RenderResult, screen } from '@testing-library/react';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { Geolocation } from '../Geolocation';
@@ -43,7 +43,7 @@ const renderComponent = async (
     channels: [defaultChannel],
     client: defaultClient,
   } = await initClientWithChannels({ customUser: ownUser });
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={client ?? defaultClient}>

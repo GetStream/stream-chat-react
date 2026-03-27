@@ -4,6 +4,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import { SearchSourceResultListFooter } from '../SearchResults';
 import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
+import type { ComponentContextValue, TranslationContextValue } from '../../../context';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
@@ -31,13 +32,17 @@ describe('SearchSourceResultListFooter', () => {
       }),
     );
 
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchSourceResultsLoadingIndicator: DefaultLoadingIndicator,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchSourceResultsLoadingIndicator: DefaultLoadingIndicator,
+      }),
+    );
 
-    vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: any) => key,
-    } as any);
+    vi.mocked(useTranslationContext).mockReturnValue(
+      fromPartial<TranslationContextValue>({
+        t: (key: any) => key,
+      }),
+    );
 
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
@@ -87,9 +92,11 @@ describe('SearchSourceResultListFooter', () => {
       <div data-testid='custom-loading-indicator'>Custom Loading...</div>
     );
 
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchSourceResultsLoadingIndicator: CustomLoadingIndicator,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchSourceResultsLoadingIndicator: CustomLoadingIndicator,
+      }),
+    );
 
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: true,
@@ -104,7 +111,9 @@ describe('SearchSourceResultListFooter', () => {
 
   it('translates "All results loaded" message', () => {
     const mockTranslate = vi.fn((key: any) => `Translated ${key}`);
-    vi.mocked(useTranslationContext).mockReturnValue({ t: mockTranslate } as any);
+    vi.mocked(useTranslationContext).mockReturnValue(
+      fromPartial<TranslationContextValue>({ t: mockTranslate }),
+    );
 
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,

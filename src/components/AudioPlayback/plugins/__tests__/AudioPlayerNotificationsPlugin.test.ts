@@ -1,8 +1,10 @@
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { StreamChat } from 'stream-chat';
+import type { TFunction } from 'i18next';
 import { audioPlayerNotificationsPluginFactory } from '../AudioPlayerNotificationsPlugin';
 
 describe('audioPlayerNotificationsPluginFactory', () => {
-  const t = (s: any) => s;
+  const t: TFunction = ((s: string) => s) as TFunction;
 
   const makeClient = () => {
     const addError = vi.fn();
@@ -15,8 +17,8 @@ describe('audioPlayerNotificationsPluginFactory', () => {
   it('reports mapped error messages for known errCodes', () => {
     const { addError, client } = makeClient();
     const plugin = audioPlayerNotificationsPluginFactory({
-      client: client as any,
-      t: t as any,
+      client: fromPartial<StreamChat>(client),
+      t,
     });
 
     // simulate failed-to-start
@@ -44,8 +46,8 @@ describe('audioPlayerNotificationsPluginFactory', () => {
   it('falls back to provided Error if no errCode', () => {
     const { addError, client } = makeClient();
     const plugin = audioPlayerNotificationsPluginFactory({
-      client: client as any,
-      t: t as any,
+      client: fromPartial<StreamChat>(client),
+      t,
     });
 
     plugin.onError?.({ error: new Error('X-Error'), player: fromPartial({}) });
@@ -57,8 +59,8 @@ describe('audioPlayerNotificationsPluginFactory', () => {
   it('falls back to generic message if no errCode and no Error', () => {
     const { addError, client } = makeClient();
     const plugin = audioPlayerNotificationsPluginFactory({
-      client: client as any,
-      t: t as any,
+      client: fromPartial<StreamChat>(client),
+      t,
     });
 
     plugin.onError?.({ player: fromPartial({}) });

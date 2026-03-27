@@ -1,5 +1,12 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import * as transcoder from '../../transcode';
 
@@ -36,13 +43,18 @@ import { WithAudioPlayback } from '../../../AudioPlayback';
 import { ChatViewContext } from '../../../ChatView/ChatView';
 import type {
   AppSettingsAPIResponse,
+  Attachment,
+  LocalAttachment,
   SendFileAPIResponse,
 } from '../../../../../../stream-chat-js/src';
+import type { MessageComposerContextValue } from '../../../../context';
 
-const chatViewContextValue = {
+const chatViewContextValue = fromPartial<
+  NonNullable<React.ContextType<typeof ChatViewContext>>
+>({
   activeChatView: 'channels',
   setActiveChatView: () => {},
-} as any;
+});
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';
@@ -64,7 +76,7 @@ const DEFAULT_RENDER_PARAMS = {
   componentCtx: {},
 };
 
-window.ResizeObserver = ResizeObserverMock as any;
+window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
 vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
   fromPartial<DOMRect>({ width: 120 }),
@@ -81,7 +93,7 @@ const renderComponent = async ({
     channels: [channel],
     client,
   } = await initClientWithChannels();
-  let result;
+  let result: RenderResult;
   await act(async () => {
     result = await render(
       <ChatViewContext.Provider value={chatViewContextValue}>
@@ -143,11 +155,11 @@ vi.spyOn(transcoder, 'transcode').mockImplementation((opts) =>
   query: vi.fn(),
 };
 
-window.MediaRecorder = MediaRecorderMock as any;
+window.MediaRecorder = MediaRecorderMock as unknown as typeof MediaRecorder;
 
-window.AudioContext = AudioContextMock as any;
+window.AudioContext = AudioContextMock as unknown as typeof AudioContext;
 
-window.AnalyserNode = AnalyserNodeMock as any;
+window.AnalyserNode = AnalyserNodeMock as unknown as typeof AnalyserNode;
 
 const fileObjectURL = 'fileObjectURL';
 // eslint-disable-next-line
@@ -207,10 +219,22 @@ describe('MessageInput', () => {
       client,
     } = await initClientWithChannels();
     channel.messageComposer.attachmentManager.upsertAttachments([
-      { ...generateLocalAttachmentData(), ...generateFileAttachment() } as any,
-      { ...generateLocalAttachmentData(), ...generateImageAttachment() } as any,
-      { ...generateLocalAttachmentData(), ...generateAudioAttachment() } as any,
-      { ...generateLocalAttachmentData(), ...generateVideoAttachment() } as any,
+      fromPartial<LocalAttachment>({
+        ...generateLocalAttachmentData(),
+        ...generateFileAttachment(),
+      }),
+      fromPartial<LocalAttachment>({
+        ...generateLocalAttachmentData(),
+        ...generateImageAttachment(),
+      }),
+      fromPartial<LocalAttachment>({
+        ...generateLocalAttachmentData(),
+        ...generateAudioAttachment(),
+      }),
+      fromPartial<LocalAttachment>({
+        ...generateLocalAttachmentData(),
+        ...generateVideoAttachment(),
+      }),
     ]);
     await renderComponent({
       channelStateCtx: { channel },
@@ -227,7 +251,10 @@ describe('MessageInput', () => {
       client,
     } = await initClientWithChannels();
     channel.messageComposer.attachmentManager.upsertAttachments([
-      { ...generateLocalAttachmentData(), ...generateVoiceRecordingAttachment() } as any,
+      fromPartial<LocalAttachment>({
+        ...generateLocalAttachmentData(),
+        ...generateVoiceRecordingAttachment(),
+      }),
     ]);
     await renderComponent({
       channelStateCtx: { channel },
@@ -287,7 +314,7 @@ describe('MessageInput', () => {
 
   it('does not show RecordingPermissionDeniedNotification until start recording button clicked if microphone permission is denied', async () => {
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
-    const status = new EventEmitterMock() as any;
+    const status: EventEmitterMock & { state?: PermissionState } = new EventEmitterMock();
     status.state = 'denied';
     window.navigator.permissions.query['mockResolvedValueOnce'](status);
     await renderComponent();
@@ -300,7 +327,7 @@ describe('MessageInput', () => {
 
   it('renders custom RecordingPermissionDeniedNotification', async () => {
     const RecordingPermissionDeniedNotification = () => <div>custom notification</div>;
-    const status = new EventEmitterMock() as any;
+    const status: EventEmitterMock & { state?: PermissionState } = new EventEmitterMock();
     status.state = 'denied';
     window.navigator.permissions.query['mockResolvedValueOnce'](status);
     await renderComponent({ componentCtx: { RecordingPermissionDeniedNotification } });
@@ -428,11 +455,9 @@ const renderAudioRecorder = (controller = {}) =>
     <ChannelActionProvider value={fromPartial<ChannelActionContextValue>({})}>
       <WithAudioPlayback>
         <MessageComposerContextProvider
-          value={
-            {
-              recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-            } as any
-          }
+          value={fromPartial<MessageComposerContextValue>({
+            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+          })}
         >
           <AudioRecorder />
         </MessageComposerContextProvider>
@@ -487,9 +512,11 @@ describe('AudioRecorder', () => {
 
   it('renders loading indicators while recording being uploaded', async () => {
     await renderAudioRecorder({
-      recording: generateVoiceRecordingAttachment({
-        localMetadata: { uploadState: 'uploading' },
-      } as any),
+      recording: generateVoiceRecordingAttachment(
+        fromPartial<Partial<Attachment>>({
+          localMetadata: { uploadState: 'uploading' },
+        }),
+      ),
       recordingState: MediaRecordingState.STOPPED,
     });
     expect(screen.queryByTestId('loading-indicator')).toBeInTheDocument();

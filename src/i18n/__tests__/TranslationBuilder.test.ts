@@ -68,8 +68,8 @@ describe('TranslationBuilder and TranslationTopic', () => {
     const translators = { [translatorName]: translator };
     manager.registerTranslators('notification', translators);
     manager.registerTopic('notification', NotificationTranslationTopic);
-    (manager as any)
-      .getTopic('notification')
+    manager
+      .getTopic('notification')!
       .translate('key', 'value', { notification: { type: translatorName } });
 
     expect(translator).toHaveBeenCalledTimes(1);
@@ -84,9 +84,9 @@ describe('TranslationBuilder and TranslationTopic', () => {
       }
     }
     manager.registerTopic('custom', Topic as unknown as TranslationTopicConstructor);
-    const firstRegistrationId = (manager.getTopic('custom') as any).id;
+    const firstRegistrationId = (manager.getTopic('custom') as unknown as Topic).id;
     manager.registerTopic('custom', Topic as unknown as TranslationTopicConstructor);
-    const secondRegistrationId = (manager.getTopic('custom') as any).id;
+    const secondRegistrationId = (manager.getTopic('custom') as unknown as Topic).id;
     expect(firstRegistrationId).toBe(secondRegistrationId);
   });
 });

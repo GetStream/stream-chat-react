@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import type { LocalMessage } from 'stream-chat';
 
 import { reactionHandlerWarning, useReactionHandler } from '../useReactionHandler';
 
@@ -25,7 +26,13 @@ const updateMessage = vi.fn();
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUseReactionHandlerHook(params: any = {}) {
+async function renderUseReactionHandlerHook(
+  params: {
+    channelContextProps?: Record<string, unknown>;
+    channelStateContextOverrides?: Record<string, unknown>;
+    message?: LocalMessage | null;
+  } = {},
+) {
   const {
     channelContextProps = {},
     channelStateContextOverrides = {},
@@ -57,7 +64,9 @@ async function renderUseReactionHandlerHook(params: any = {}) {
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useReactionHandler(message), { wrapper });
+  const { result } = renderHook(() => useReactionHandler(message ?? undefined), {
+    wrapper,
+  });
   return result.current;
 }
 
@@ -71,7 +80,7 @@ describe('useReactionHandler custom hook', () => {
   it('should warn user if the hooks was not initialized with a defined message', async () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleReaction = await renderUseReactionHandlerHook({ message: null });
-    await (handleReaction as any)();
+    await (handleReaction as () => Promise<void>)();
     expect(console.warn).toHaveBeenCalledWith(reactionHandlerWarning);
   });
 
@@ -80,7 +89,7 @@ describe('useReactionHandler custom hook', () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [reaction] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
-    await (handleReaction as any)();
+    await (handleReaction as () => Promise<void>)();
     expect(console.warn).toHaveBeenCalledWith(
       `message.own_reactions contained reactions from a different user, this indicates a bug`,
     );

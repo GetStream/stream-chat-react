@@ -9,7 +9,14 @@ import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TypingProvider } from '../../../context/TypingContext';
 
-import type { ChannelAPIResponse, Channel as ChannelType, StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type {
+  ChannelAPIResponse,
+  ChannelConfigWithInfo,
+  Channel as ChannelType,
+  StreamChat,
+} from 'stream-chat';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 import {
   generateChannel,
   generateUser,
@@ -157,10 +164,12 @@ describe('TypingIndicator', () => {
 
   it('should render null if typing_events is disabled', async () => {
     const client = await getTestClientWithUser();
-    const ch = generateChannel({ config: { typing_events: false } } as any);
+    const ch = generateChannel(
+      fromPartial<GenerateChannelOptions>({ config: { typing_events: false } }),
+    );
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
     const channel = client.channel('messaging', ch['id']);
-    const channelConfig = { typing_events: false } as any;
+    const channelConfig = fromPartial<ChannelConfigWithInfo>({ typing_events: false });
     await channel.watch();
 
     const { container } = render(
@@ -187,7 +196,9 @@ describe('TypingIndicator', () => {
 
     beforeEach(async () => {
       client = await getTestClientWithUser();
-      ch = generateChannel({ config: { typing_events: true } } as any);
+      ch = generateChannel(
+        fromPartial<GenerateChannelOptions>({ config: { typing_events: true } }),
+      );
       useMockedApis(client, [getOrCreateChannelApi(ch)]);
       channel = client.channel('messaging', ch.channel.id);
       await channel.watch();

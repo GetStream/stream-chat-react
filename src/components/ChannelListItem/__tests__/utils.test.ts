@@ -14,6 +14,7 @@ import {
 } from 'mock-builders';
 
 import type { StreamChat } from 'stream-chat';
+import type { TranslationContextValue } from '../../../context';
 import {
   getChannelDisplayImage,
   getGroupChannelDisplayInfo,
@@ -43,7 +44,7 @@ describe('ChannelPreview utils', () => {
   describe('getLatestMessagePreview', () => {
     const channelWithEmptyMessage = generateChannel();
     const channelWithDeletedMessage = generateChannel({
-      messages: [generateMessage({ deleted_at: new Date().toISOString() })] as any,
+      messages: [generateMessage({ deleted_at: new Date().toISOString() })],
     });
     const channelWithLocationMessage = generateChannel({
       messages: [
@@ -52,7 +53,7 @@ describe('ChannelPreview utils', () => {
           shared_location: generateStaticLocationResponse({}),
           text: '',
         }),
-      ] as any,
+      ],
     });
     const channelWithAttachmentMessage = generateChannel({
       messages: [
@@ -60,7 +61,7 @@ describe('ChannelPreview utils', () => {
           attachments: [generateImageAttachment({})],
           text: undefined,
         }),
-      ] as any,
+      ],
     });
     const channelWithHTMLInMessage = generateChannel({
       messages: [
@@ -71,7 +72,7 @@ describe('ChannelPreview utils', () => {
             '<p>This is my first web page.</p> \n' +
             '<p>It contains a <strong>main heading</strong> and <em> paragraph </em>.</p>',
         }),
-      ] as any,
+      ],
     });
 
     const expectedTextWithHTMLRendering =
@@ -92,14 +93,14 @@ describe('ChannelPreview utils', () => {
         channelWithHTMLInMessage,
       ],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
-      const t = ((text: string) => text) as any;
+      const t = ((text: string) => text) as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(c);
       const preview = getLatestMessagePreview(channel, t);
       if (isReactMarkdownElement(preview)) {
         const { container } = render(preview);
         expect(container).toHaveTextContent(expectedValue);
       } else {
-        expect(getLatestMessagePreview(channel, t as any)).toBe(expectedValue);
+        expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
       }
     });
   });

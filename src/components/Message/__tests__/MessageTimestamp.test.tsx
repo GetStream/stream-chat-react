@@ -1,10 +1,11 @@
 import React from 'react';
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, render, type RenderResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage } from 'stream-chat';
 import { generateMessage } from 'mock-builders';
 import { MessageTimestamp } from '../MessageTimestamp';
 import { ComponentProvider, MessageProvider, TranslationContext } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
 
@@ -42,7 +43,7 @@ const renderComponent = async ({
   messageCtx,
   props,
 }: any = {}) => {
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={getTestClient()} {...chatProps}>
@@ -120,7 +121,7 @@ describe('<MessageTimestamp />', () => {
     const message = generateMessage({ created_at: 'I am not a date' });
     const { container } = render(
       <MessageProvider value={mockMessageContext()}>
-        <MessageTimestamp message={message as any} />
+        <MessageTimestamp message={message} />
       </MessageProvider>,
     );
     expect(container.children).toHaveLength(0);
@@ -221,14 +222,12 @@ describe('<MessageTimestamp />', () => {
   it('should not render if called in calendar mode but no calendar function is available from the datetime parser', () => {
     const { container } = render(
       <TranslationContext.Provider
-        value={
-          {
-            tDateTimeParser: () => ({ calendar: undefined }),
-          } as any
-        }
+        value={fromPartial<TranslationContextValue>({
+          tDateTimeParser: () => ({ calendar: undefined }),
+        })}
       >
         <MessageProvider value={mockMessageContext()}>
-          <MessageTimestamp calendar message={messageMock as any} />
+          <MessageTimestamp calendar message={messageMock} />
         </MessageProvider>
       </TranslationContext.Provider>,
     );

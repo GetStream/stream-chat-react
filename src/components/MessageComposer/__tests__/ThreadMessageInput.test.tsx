@@ -7,11 +7,20 @@ import {
   mockChatContext,
 } from '../../../mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
+import {
+  act,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { ChatProvider, useChannelActionContext } from '../../../context';
 import { Channel } from '../../Channel';
 import React, { useEffect, useRef } from 'react';
 import { SearchController } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
@@ -45,16 +54,18 @@ const threadMessage = generateMessage({
   user,
 });
 
-const mockedChannelData = generateChannel({
-  channel: {
-    id: 'general',
-    own_capabilities: ['send-poll', 'upload-file'],
-    type: 'messaging',
-  },
-  members: [generateMember({ user }), generateMember({ user: mentionUser })],
-  messages: [mainListMessage],
-  threads: [threadMessage],
-} as any);
+const mockedChannelData = generateChannel(
+  fromPartial<GenerateChannelOptions>({
+    channel: {
+      id: 'general',
+      own_capabilities: ['send-poll', 'upload-file'],
+      type: 'messaging',
+    },
+    members: [generateMember({ user }), generateMember({ user: mentionUser })],
+    messages: [mainListMessage],
+    threads: [threadMessage],
+  }),
+);
 
 const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
@@ -93,7 +104,7 @@ const ThreadSetter = () => {
   useEffect(() => {
     if (isOpenThread.current) return;
     isOpenThread.current = true;
-    openThread(mainListMessage as any);
+    openThread(mainListMessage);
   }, [openThread]);
 };
 
@@ -118,7 +129,7 @@ const renderComponent = async ({
     client = result.client;
     vi.spyOn(channel, 'deleteDraft').mockResolvedValue({});
   }
-  let renderResult;
+  let renderResult: RenderResult;
 
   await act(() => {
     renderResult = render(
@@ -134,7 +145,9 @@ const renderComponent = async ({
           {/* @ts-expect-error -- test-only component */}
           <ThreadSetter />
           <LegacyThreadContext.Provider
-            value={{ legacyThread: thread ?? mainListMessage } as any}
+            value={fromPartial<{ legacyThread: LocalMessage | undefined }>({
+              legacyThread: thread ?? mainListMessage,
+            })}
           >
             <MessageComposer {...messageInputProps} />
           </LegacyThreadContext.Provider>
@@ -239,22 +252,24 @@ describe('MessageInput in Thread', () => {
       user,
     });
 
-    const channelData = generateChannel({
-      channel: {
-        id: 'general',
-        own_capabilities: ['send-poll', 'upload-file'],
-        type: 'messaging',
-      },
-      members: [
-        generateMember({ user }),
-        generateMember({ user: mentionUser }),
-        generateMember({ user: generateUser() }),
-      ],
-      // new parent message id has to be provided otherwise the cachedParentMessage in useMessageComposer
-      // will retrieve the composer from the previous test
-      messages: [{ ...mainListMessage, id: 'x' }],
-      threads: [{ ...threadMessage, parent_id: 'x' }],
-    } as any);
+    const channelData = generateChannel(
+      fromPartial<GenerateChannelOptions>({
+        channel: {
+          id: 'general',
+          own_capabilities: ['send-poll', 'upload-file'],
+          type: 'messaging',
+        },
+        members: [
+          generateMember({ user }),
+          generateMember({ user: mentionUser }),
+          generateMember({ user: generateUser() }),
+        ],
+        // new parent message id has to be provided otherwise the cachedParentMessage in useMessageComposer
+        // will retrieve the composer from the previous test
+        messages: [{ ...mainListMessage, id: 'x' }],
+        threads: [{ ...threadMessage, parent_id: 'x' }],
+      }),
+    );
     const { customChannel, customClient } = await setup({ channelData });
     await renderComponent({
       customChannel,

@@ -9,7 +9,7 @@ afterEach(cleanup);
 describe('CustomNotification', () => {
   it('should render nothing if active is false', () => {
     const { container } = render(
-      <CustomNotification active={false} type={undefined as any}>
+      <CustomNotification active={false} type={undefined!}>
         test
       </CustomNotification>,
     );
@@ -18,7 +18,7 @@ describe('CustomNotification', () => {
 
   it('should render children when active', () => {
     const { container } = render(
-      <CustomNotification active={true} type={undefined as any}>
+      <CustomNotification active={true} type={undefined!}>
         children
       </CustomNotification>,
     );
@@ -51,7 +51,7 @@ describe('CustomNotification', () => {
     const className = 'custom-classname-xxx';
 
     const { getByTestId } = render(
-      <CustomNotification active={true} className={className} type={undefined as any}>
+      <CustomNotification active={true} className={className} type={undefined!}>
         x
       </CustomNotification>,
     );

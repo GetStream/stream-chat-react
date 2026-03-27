@@ -45,7 +45,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {
@@ -58,7 +58,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {
@@ -71,7 +71,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {
@@ -84,7 +84,7 @@ describe('useGiphyPreview', () => {
     const client = await getTestClientWithUser(me);
     const { result } = render({ client, separateGiphyPreview: true });
     await act(() => {
-      result.current.setGiphyPreviewMessage(ownGiphyMessage as any);
+      result.current.setGiphyPreviewMessage(ownGiphyMessage);
     });
     expect(result.current.giphyPreviewMessage.id).toBe(ownGiphyMessage.id);
     await act(() => {

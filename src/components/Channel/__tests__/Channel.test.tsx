@@ -1,13 +1,18 @@
+import { fromPartial } from '@total-typescript/shoehorn';
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import { ErrorFromResponse, SearchController } from 'stream-chat';
 import type {
   Channel as ChannelType,
   LocalMessage,
+  Message,
   MessageResponse,
+  ReadResponse,
+  StreamChat,
   UserResponse,
 } from 'stream-chat';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { RenderResult } from '@testing-library/react';
 
 import { Channel } from '../Channel';
 import { Chat } from '../../Chat';
@@ -38,11 +43,13 @@ import { WithComponents } from '../../../context';
 import type {
   ChannelActionContextValue,
   ChannelStateContextValue,
+  ChatContextValue,
   ComponentContextValue,
 } from '../../../context';
 import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 import type { ChannelProps } from '../Channel';
+import type { ChannelUnreadUiState } from '../../../types/types';
 
 vi.mock('../../Loading', () => ({
   LoadingChannel: vi.fn(() => <div>Loading channel</div>),
@@ -136,7 +143,7 @@ const renderComponent = async (
     components,
     ...channelProps
   } = props;
-  let result;
+  let result: RenderResult | undefined;
   await act(() => {
     result = render(
       <WithComponents overrides={components}>
@@ -173,8 +180,8 @@ const initClient = async ({
       type: channelType,
     },
     members,
-    messages: messages as any,
-    pinned_messages: pinnedMessages as any,
+    messages,
+    pinned_messages: fromPartial(pinnedMessages ?? []),
   });
   const chatClient = await getTestClientWithUser(user);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -198,12 +205,14 @@ const getMessageIds = (renderedMessages: { id: string }[] = []) =>
   renderedMessages.map(({ id }) => id);
 
 describe('Channel', () => {
-  const user = generateUser({ custom: 'custom-value', id: 'id', name: 'name' } as any);
+  const user = generateUser(
+    fromPartial<UserResponse>({ custom: 'custom-value', id: 'id', name: 'name' }),
+  );
   const channelType = 'messaging';
-  let channelId;
-  let channel;
-  let chatClient;
-  let messages;
+  let channelId: string;
+  let channel: ChannelType;
+  let chatClient: StreamChat;
+  let messages: LocalMessage[];
 
   beforeEach(async () => {
     // Re-establish ChatView mock implementations (may be cleared by vi.resetAllMocks in nested describe blocks)
@@ -242,9 +251,11 @@ describe('Channel', () => {
       pinnedMessages,
       user,
     }));
-    vi.spyOn(channel, 'getDraft').mockResolvedValue({
-      draft: generateMessageDraft({ channel, channel_cid: channel.cid }),
-    });
+    vi.spyOn(channel, 'getDraft').mockResolvedValue(
+      fromPartial({
+        draft: generateMessageDraft({ channel, channel_cid: channel.cid }),
+      }),
+    );
   });
 
   afterEach(() => {
@@ -259,16 +270,14 @@ describe('Channel', () => {
     render(
       <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
         <ChatProvider
-          value={
-            {
-              channelsQueryState: {
-                error: null,
-                queryInProgress: null,
-                setError: vi.fn(),
-                setQueryInProgress: vi.fn(),
-              },
-            } as any
-          }
+          value={fromPartial<ChatContextValue>({
+            channelsQueryState: {
+              error: null,
+              queryInProgress: null,
+              setError: vi.fn(),
+              setQueryInProgress: vi.fn(),
+            },
+          })}
         >
           <Channel EmptyPlaceholder={<div>empty</div>} />
         </ChatProvider>
@@ -289,16 +298,14 @@ describe('Channel', () => {
     render(
       <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
         <ChatProvider
-          value={
-            {
-              channelsQueryState: {
-                error: null,
-                queryInProgress: null,
-                setError: vi.fn(),
-                setQueryInProgress: vi.fn(),
-              },
-            } as any
-          }
+          value={fromPartial<ChatContextValue>({
+            channelsQueryState: {
+              error: null,
+              queryInProgress: null,
+              setError: vi.fn(),
+              setQueryInProgress: vi.fn(),
+            },
+          })}
         >
           <Channel />
         </ChatProvider>
@@ -315,18 +322,16 @@ describe('Channel', () => {
     await channel.watch();
     render(
       <ChatProvider
-        value={
-          {
-            channelsQueryState: {
-              error: null,
-              queryInProgress: 'load-more',
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-            client: chatClient,
-            searchController: new SearchController(),
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'load-more',
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+          client: chatClient,
+          searchController: new SearchController(),
+        })}
       >
         <Channel channel={channel}>{childrenContent}</Channel>
       </ChatProvider>,
@@ -338,16 +343,14 @@ describe('Channel', () => {
     const childrenContent = 'Channel children';
     const { asFragment } = render(
       <ChatProvider
-        value={
-          {
-            channelsQueryState: {
-              error: null,
-              queryInProgress: 'reload',
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+        })}
       >
         <Channel>{childrenContent}</Channel>
       </ChatProvider>,
@@ -361,17 +364,15 @@ describe('Channel', () => {
     const { cid, ...channelWithoutCID } = channel;
     const { asFragment } = render(
       <ChatProvider
-        value={
-          {
-            channel: channelWithoutCID,
-            channelsQueryState: {
-              error: null,
-              queryInProgress: null,
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channel: channelWithoutCID,
+          channelsQueryState: {
+            error: null,
+            queryInProgress: null,
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+        })}
       >
         <Channel EmptyPlaceholder={null}>{childrenContent}</Channel>
       </ChatProvider>,
@@ -383,16 +384,14 @@ describe('Channel', () => {
     const childrenContent = 'Channel children';
     const { asFragment } = render(
       <ChatProvider
-        value={
-          {
-            channelsQueryState: {
-              error: new Error() as any,
-              queryInProgress: null,
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: new Error(),
+            queryInProgress: null,
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+        })}
       >
         <Channel>{childrenContent}</Channel>
       </ChatProvider>,
@@ -405,16 +404,14 @@ describe('Channel', () => {
     const loadingText = 'Loading channels';
     render(
       <ChatProvider
-        value={
-          {
-            channelsQueryState: {
-              error: null,
-              queryInProgress: 'reload',
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: null,
+            queryInProgress: 'reload',
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+        })}
       >
         <WithComponents
           overrides={{
@@ -433,16 +430,14 @@ describe('Channel', () => {
     const errMsg = 'Channels query failed';
     render(
       <ChatProvider
-        value={
-          {
-            channelsQueryState: {
-              error: new Error(errMsg) as any,
-              queryInProgress: null,
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: new Error(errMsg),
+            queryInProgress: null,
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+        })}
       >
         <WithComponents
           overrides={{
@@ -488,7 +483,7 @@ describe('Channel', () => {
     useMockedApis(chatClient, [
       queryChannelWithNewMessages([generateMessage()], channel),
     ]);
-    let hasMore;
+    let hasMore: boolean;
     await renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
       hasMore = contextHasMore;
     });
@@ -507,7 +502,7 @@ describe('Channel', () => {
     useMockedApis(chatClient, [
       queryChannelWithNewMessages(Array.from({ length: 26 }, generateMessage), channel),
     ]);
-    let hasMore;
+    let hasMore: boolean;
     await act(() => {
       renderComponent(
         { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
@@ -526,7 +521,7 @@ describe('Channel', () => {
     useMockedApis(chatClient, [
       queryChannelWithNewMessages(Array.from({ length: 25 }, generateMessage), channel),
     ]);
-    let hasMore;
+    let hasMore: boolean;
     await renderComponent(
       { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
       ({ hasMore: contextHasMore }) => {
@@ -543,7 +538,7 @@ describe('Channel', () => {
     useMockedApis(chatClient, [
       queryChannelWithNewMessages([generateMessage()], channel),
     ]);
-    let hasMore;
+    let hasMore: boolean;
     const channelQueryOptions = {
       messages: { limit: 10 },
     };
@@ -567,7 +562,7 @@ describe('Channel', () => {
         channel,
       ),
     ]);
-    let hasMore;
+    let hasMore: boolean;
     const channelQueryOptions = {
       messages: { limit: equalCount },
     };
@@ -625,7 +620,7 @@ describe('Channel', () => {
   });
 
   it('should store pinned messages as an array in the channel context', async () => {
-    let ctxPins;
+    let ctxPins: LocalMessage[] | undefined;
 
     const { getByText } = await renderComponent(
       {
@@ -724,7 +719,7 @@ describe('Channel', () => {
       };
       const getThreadSpy = vi
         .spyOn(chatClient, 'getThread')
-        .mockResolvedValueOnce(mockThreadInstance);
+        .mockResolvedValueOnce(fromPartial(mockThreadInstance));
 
       // this renders Channel, calls openThread from a child context consumer with a message,
       // and then calls hasThread with the thread id if it was set.
@@ -732,7 +727,10 @@ describe('Channel', () => {
         { channel, chatClient },
         ({ openThread, thread, threadInstance }: any) => {
           if (!thread) {
-            openThread(threadMessage, { preventDefault: () => null } as any);
+            openThread(
+              threadMessage,
+              fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
+            );
           } else {
             hasThread(thread.id);
             hasThreadInstance(threadInstance);
@@ -827,7 +825,10 @@ describe('Channel', () => {
             // if there is no open thread
             if (!threadHasAlreadyBeenOpened) {
               // and we haven't opened one before, open a thread
-              openThread(threadMessage, { preventDefault: () => null } as any);
+              openThread(
+                threadMessage,
+                fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
+              );
               threadHasAlreadyBeenOpened = true;
             } else {
               // if we opened it ourselves before, it means the thread was successfully closed
@@ -835,7 +836,9 @@ describe('Channel', () => {
             }
           } else {
             // if a thread is open, close it.
-            closeThread({ preventDefault: () => null } as any);
+            closeThread(
+              fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
+            );
           }
         },
       );
@@ -847,9 +850,9 @@ describe('Channel', () => {
       const onMentionsHoverMock = vi.fn();
       const onMentionsClickMock = vi.fn();
       const username = 'Mentioned User';
-      const mentionedUserMock = {
+      const mentionedUserMock = fromPartial<UserResponse>({
         name: username,
-      } as any;
+      });
 
       const MentionedUserComponent = () => {
         const { onMentionsHover } = useChannelActionContext();
@@ -895,7 +898,7 @@ describe('Channel', () => {
     describe('loading more messages', () => {
       const limit = 10;
       it("should initiate the hasMore flag with the current message set's pagination hasPrev value", async () => {
-        let hasMore;
+        let hasMore: boolean;
         await renderComponent(
           { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ hasMore: hasMoreCtx }) => {
@@ -1017,8 +1020,8 @@ describe('Channel', () => {
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageOfMessages, channel),
         ]);
-        let queryNextPageSpy;
-        let contextMessageCount;
+        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
+        let contextMessageCount: number;
         await renderComponent(
           { channel, chatClient },
           ({ loadMore, messages: contextMessages }) => {
@@ -1053,9 +1056,9 @@ describe('Channel', () => {
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageMessages, channel),
         ]);
-        let queryNextPageSpy;
+        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
         let loadMoreCalled = false;
-        let contextMessageCount;
+        let contextMessageCount: number;
         await renderComponent(
           { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
           ({ loadMore, messages: contextMessages }) => {
@@ -1096,8 +1099,8 @@ describe('Channel', () => {
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageOfMessages, channel),
         ]);
-        let queryNextPageSpy;
-        let contextMessageCount;
+        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
+        let contextMessageCount: number;
         await renderComponent(
           { channel, channelQueryOptions, chatClient },
           ({ loadMore, messages: contextMessages }) => {
@@ -1136,9 +1139,9 @@ describe('Channel', () => {
         useMockedApis(chatClient, [
           queryChannelWithNewMessages(firstPageMessages, channel),
         ]);
-        let queryNextPageSpy;
+        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
         let loadMoreCalled = false;
-        let contextMessageCount;
+        let contextMessageCount: number;
 
         await renderComponent(
           { channel, channelQueryOptions, chatClient },
@@ -1243,13 +1246,13 @@ describe('Channel', () => {
             {
               messages: [generateMessage()],
               read: [
-                {
+                fromPartial<ReadResponse>({
                   first_unread_message_id: 'Y',
                   last_read: new Date().toISOString(),
                   last_read_message_id: 'X',
                   unread_messages: 0,
                   user,
-                } as any,
+                }),
               ],
             },
           ],
@@ -1265,8 +1268,8 @@ describe('Channel', () => {
           // @ts-expect-error - mock implementation has simplified signature
           .mockImplementation(() => ({}));
 
-        let hasJumped;
-        let highlightedMessageId;
+        let hasJumped: boolean;
+        let highlightedMessageId: string;
         await renderComponent(
           { channel, chatClient },
           ({
@@ -1312,8 +1315,8 @@ describe('Channel', () => {
           ],
           customUser: user,
         });
-        let loadMessageIntoState;
-        let channelQuerySpy;
+        let loadMessageIntoState: ReturnType<typeof vi.spyOn>;
+        let channelQuerySpy: ReturnType<typeof vi.spyOn>;
         if (['already loaded', 'query fails'].includes(loadScenario)) {
           channelQuerySpy = vi
             .spyOn(channel, 'query')
@@ -1337,9 +1340,9 @@ describe('Channel', () => {
         }
 
         const addErrorSpy = vi.spyOn(chatClient.notifications, 'addError');
-        let hasJumped;
-        let highlightedMessageId;
-        let channelUnreadUiStateAfterJump;
+        let hasJumped: boolean;
+        let highlightedMessageId: string;
+        let channelUnreadUiStateAfterJump: ChannelUnreadUiState | undefined;
         await act(async () => {
           await renderComponent(
             { channel, chatClient },
@@ -1354,7 +1357,7 @@ describe('Channel', () => {
                 ownReadState.first_unread_message_id &&
                 !channelUnreadUiState.first_unread_message_id
               ) {
-                setChannelUnreadUiState(ownReadState as any); // needed as the first_unread_message_id is not available on channels load
+                setChannelUnreadUiState(fromPartial<ChannelUnreadUiState>(ownReadState)); // needed as the first_unread_message_id is not available on channels load
                 return;
               }
               if (hasJumped) {
@@ -1556,9 +1559,9 @@ describe('Channel', () => {
             customUser: user,
           });
           const addErrorSpy = vi.spyOn(chatClient.notifications, 'addError');
-          let hasJumped;
-          let hasMoreMessages;
-          let highlightedMessageId;
+          let hasJumped: boolean;
+          let hasMoreMessages: boolean;
+          let highlightedMessageId: string;
           await renderComponent(
             { channel, chatClient },
             ({
@@ -1606,7 +1609,7 @@ describe('Channel', () => {
           generateMessage({ id: 'latest-2', text: 'latest-2', user }),
         ];
 
-        let resolveLatestLoad;
+        let resolveLatestLoad: (() => void) | undefined;
         const loadMessageIntoState = vi
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation(
@@ -1694,7 +1697,7 @@ describe('Channel', () => {
           generateMessage({ id: 'target-2', text: 'target-2', user }),
         ];
 
-        let resolveTargetLoad;
+        let resolveTargetLoad: (() => void) | undefined;
         vi.spyOn(channel.state, 'loadMessageIntoState').mockImplementation(
           () =>
             new Promise<void>((resolve) => {
@@ -1708,7 +1711,7 @@ describe('Channel', () => {
         );
 
         const loadingSnapshots = [];
-        let jumpToMessageRef;
+        let jumpToMessageRef: ChannelActionContextValue['jumpToMessage'];
         let hasStartedJump = false;
 
         await renderComponent(
@@ -1760,7 +1763,7 @@ describe('Channel', () => {
           generateMessage({ id: 'target-2', text: 'target-2', user }),
         ];
 
-        let resolveTargetLoad;
+        let resolveTargetLoad: (() => void) | undefined;
         const loadMessageIntoState = vi
           .spyOn(channel.state, 'loadMessageIntoState')
           .mockImplementation(
@@ -1849,7 +1852,10 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
           if (!hasSent) {
             const m = generateMessage();
-            sendMessage({ localMessage: { ...m, status: 'sending' }, message: m as any });
+            sendMessage({
+              localMessage: { ...m, status: 'sending' },
+              message: fromPartial<Message>(m),
+            });
             hasSent = true;
           }
         });
@@ -1876,7 +1882,7 @@ describe('Channel', () => {
               const m = generateMessage({ text: messageText });
               sendMessage({
                 localMessage: { ...m, status: 'sending' },
-                message: m as any,
+                message: fromPartial<Message>(m),
               });
               hasSent = true;
             }
@@ -1919,7 +1925,7 @@ describe('Channel', () => {
               });
               sendMessage({
                 localMessage: { ...m, status: 'sending' },
-                message: m as any,
+                message: fromPartial<Message>(m),
               });
               hasSent = true;
             }
@@ -1937,13 +1943,14 @@ describe('Channel', () => {
       it('should convert axios network errors to ErrorFromResponse when sending fails', async () => {
         const messageText = nanoid();
         const messageId = nanoid();
-        const axiosNetworkError = new Error('Network Error') as any;
-        axiosNetworkError.name = 'AxiosError';
-        axiosNetworkError.code = 'ERR_NETWORK';
+        const axiosNetworkError = Object.assign(new Error('Network Error'), {
+          code: 'ERR_NETWORK',
+          name: 'AxiosError',
+        });
 
         vi.spyOn(channel, 'sendMessage').mockRejectedValueOnce(axiosNetworkError);
 
-        let sendMessage;
+        let sendMessage: ChannelActionContextValue['sendMessage'];
         await renderComponent({ channel, chatClient }, ({ sendMessage: sm }) => {
           sendMessage = sm;
         });
@@ -1977,7 +1984,7 @@ describe('Channel', () => {
         const doSendMessageRequest = vi.fn();
         const message = generateMessage();
 
-        let sendMessage;
+        let sendMessage: ChannelActionContextValue['sendMessage'];
         await renderComponent(
           {
             channel,
@@ -2003,11 +2010,13 @@ describe('Channel', () => {
       it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
         const responseText = nanoid();
 
-        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((sm: any) => ({
-          message: { ...sm, text: responseText },
-        }));
+        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((sm: any) =>
+          fromPartial({
+            message: { ...sm, text: responseText },
+          }),
+        );
 
-        let sendMessage;
+        let sendMessage: ChannelActionContextValue['sendMessage'];
         const { findByText } = await renderComponent(
           {
             channel,
@@ -2036,12 +2045,12 @@ describe('Channel', () => {
           const { id, ...message } = generateMessage();
 
           const clientDeleteMessageSpy = vi.spyOn(chatClient, 'deleteMessage');
-          let deleteMessageHandler;
+          let deleteMessageHandler: ChannelActionContextValue['deleteMessage'];
           await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
             deleteMessageHandler = deleteMessage;
           });
 
-          await expect(() => deleteMessageHandler(message)).rejects.toThrow(
+          await expect(() => deleteMessageHandler(fromPartial(message))).rejects.toThrow(
             'Cannot delete a message - missing message ID.',
           );
           expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
@@ -2072,7 +2081,7 @@ describe('Channel', () => {
             .spyOn(chatClient, 'deleteMessage')
             .mockImplementationOnce(() => Promise.resolve({ message }));
           const doDeleteMessageRequest = vi.fn();
-          let deleteMessageHandler;
+          let deleteMessageHandler: ChannelActionContextValue['deleteMessage'];
           await renderComponent(
             { channel, chatClient, doDeleteMessageRequest },
             ({ deleteMessage }) => {
@@ -2080,7 +2089,7 @@ describe('Channel', () => {
             },
           );
 
-          await expect(() => deleteMessageHandler(message)).rejects.toThrow(
+          await expect(() => deleteMessageHandler(fromPartial(message))).rejects.toThrow(
             'Cannot delete a message - missing message ID.',
           );
           expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
@@ -2155,7 +2164,7 @@ describe('Channel', () => {
         const { findByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ updateMessage }) => {
-            if (!hasUpdated) updateMessage(updatedMessage);
+            if (!hasUpdated) updateMessage(fromPartial(updatedMessage));
             hasUpdated = true;
           },
         );
@@ -2170,9 +2179,9 @@ describe('Channel', () => {
           text: nanoid(),
         });
 
-        let retrySendMessage;
-        let sendMessage;
-        let contextMessages;
+        let retrySendMessage: ChannelActionContextValue['retrySendMessage'];
+        let sendMessage: ChannelActionContextValue['sendMessage'];
+        let contextMessages: ChannelStateContextValue['messages'];
         await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ messages: cm, retrySendMessage: rsm, sendMessage: sm }) => {
@@ -2188,11 +2197,11 @@ describe('Channel', () => {
             const creationDate = new Date();
             const created_at = creationDate.toISOString();
             const updated_at = new Date(creationDate.getTime() + 1).toISOString();
-            return {
+            return fromPartial({
               ...messageObject,
               created_at,
               updated_at,
-            };
+            });
           });
 
         await act(() =>
@@ -2226,10 +2235,10 @@ describe('Channel', () => {
           ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
             if (!hasSent) {
               sendMessage({
-                localMessage: {
+                localMessage: fromPartial<LocalMessage>({
                   ...messageObject,
                   status: 'sending',
-                } as any,
+                }),
                 message: messageObject,
               });
               hasSent = true;
@@ -2239,7 +2248,7 @@ describe('Channel', () => {
             ) {
               // retry
               useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
-              retrySendMessage(messageObject as any);
+              retrySendMessage(fromPartial<LocalMessage>(messageObject));
               hasRetried = true;
             }
           },
@@ -2330,7 +2339,7 @@ describe('Channel', () => {
       });
 
       it('should not overwrite the message with send response, if already updated by WS events', async () => {
-        let oldText;
+        let oldText: string;
         const newText = 'new text';
 
         vi.spyOn(channel, 'sendMessage').mockImplementationOnce((message: any) => {
@@ -2367,10 +2376,10 @@ describe('Channel', () => {
             chatClient,
             channel,
           )();
-          return { message };
+          return fromPartial({ message });
         });
 
-        let sendMessage;
+        let sendMessage: ChannelActionContextValue['sendMessage'];
         const { findByText, queryByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ sendMessage: sm }) => {
@@ -2393,7 +2402,7 @@ describe('Channel', () => {
       });
 
       it('should overwrite the message of status "sending" regardless of updated_at timestamp', async () => {
-        let oldText;
+        let oldText: string;
         const newText = 'new text';
 
         vi.spyOn(channel, 'sendMessage').mockImplementationOnce((message: any) => {
@@ -2401,10 +2410,12 @@ describe('Channel', () => {
           const created_at = creationDate.toISOString();
           const updated_at = new Date(creationDate.getTime() - 1).toISOString();
           oldText = message.text;
-          return { message: { ...message, created_at, text: newText, updated_at } };
+          return fromPartial({
+            message: { ...message, created_at, text: newText, updated_at },
+          });
         });
 
-        let sendMessage;
+        let sendMessage: ChannelActionContextValue['sendMessage'];
         const { findByText, queryByText } = await renderComponent(
           { channel, chatClient, children: <MockMessageList /> },
           ({ sendMessage: sm }) => {
@@ -2495,7 +2506,10 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
           if (!thread) {
             // first, open thread
-            openThread(threadMessage, { preventDefault: () => null } as any);
+            openThread(
+              threadMessage,
+              fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
+            );
           } else if (thread.text !== newText) {
             // then, update the thread message
             // FIXME: dispatch event needs to be queued on event loop now
@@ -2526,7 +2540,10 @@ describe('Channel', () => {
           ({ openThread, thread, threadMessages }) => {
             if (!thread) {
               // first, open thread
-              openThread(threadMessage, { preventDefault: () => null } as any);
+              openThread(
+                threadMessage,
+                fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
+              );
             } else if (!threadMessages.some(({ id }) => id === newThreadMessage.id)) {
               // then, add new thread message
               // FIXME: dispatch event needs to be queued on event loop now
@@ -2553,7 +2570,11 @@ describe('Channel', () => {
           callback:
             (message) =>
             ({ openThread, thread }) => {
-              if (!thread) openThread(message, { preventDefault: () => null } as any);
+              if (!thread)
+                openThread(
+                  message,
+                  fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
+                );
             },
           component: Thread,
           getFirstMessageAvatar: () => {
@@ -2589,7 +2610,7 @@ describe('Channel', () => {
                 Avatar: MockAvatar,
               },
             },
-            callback?.(threadMessage) as any,
+            callback?.(threadMessage) ?? (() => {}),
           );
 
           await waitFor(() => {
@@ -2626,7 +2647,7 @@ describe('Channel', () => {
                 Avatar: MockAvatar,
               },
             },
-            callback?.(threadMessage) as any,
+            callback?.(threadMessage) ?? (() => {}),
           );
 
           await waitFor(() => {
@@ -2703,7 +2724,7 @@ describe('Channel', () => {
           act(() => {
             dispatchChannelTruncatedEvent(
               chatClient,
-              (forChannel === 'active' ? activeChannel : anotherChannel) as any,
+              forChannel === 'active' ? activeChannel : anotherChannel,
             );
           });
 

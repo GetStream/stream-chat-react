@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { act, cleanup, render } from '@testing-library/react';
 
 import { useAudioPlayer, WithAudioPlayback } from '../WithAudioPlayback';
+import type { AudioPlayer } from '../AudioPlayer';
 
 // mock context used by WithAudioPlayback
 vi.mock('../../../context', () => {
@@ -96,7 +97,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     'allowConcurrentPlayback is %s',
     (allowConcurrentPlayback) => {
       it('useAudioPlayer returns undefined when src is missing', () => {
-        let seen;
+        let seen: AudioPlayer | undefined;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: <RegisterPlayer onReady={(p) => (seen = p)} params={{}} />,
@@ -105,7 +106,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('creates an AudioPlayer when src is provided and does not associate audio element until played', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -159,7 +160,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('subscriptions: sets secondsElapsed and progress in state on timeupdate Event ', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -186,7 +187,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('subscriptions: resets playback state on Event "ended"', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -221,7 +222,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('subscriptions: error with MediaError.code=4 logs and sets canPlayRecord=false', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -261,7 +262,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('registerError mapping: failed-to-start -> translated message and notification', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -284,7 +285,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('registerError mapping: not-playable / seek-not-supported', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -311,7 +312,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('registerError uses raw Error message if provided', () => {
-        let player;
+        let player: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -331,7 +332,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('unmounting WithAudioPlayback clears pool: element src is cleared and load() called', () => {
-        let player;
+        let player: AudioPlayer;
         const { unmount } = renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -354,7 +355,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       });
 
       it('unmounting WithAudioPlayback unsubscribes audio element listeners and pauses', () => {
-        let player;
+        let player: AudioPlayer;
         const { unmount } = renderWithProvider({
           allowConcurrentPlayback,
           ui: (
@@ -384,7 +385,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
       it('re-mounting provider with same props creates a fresh player and cleans previous element', () => {
         const params = { mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' };
 
-        let firstPlayer;
+        let firstPlayer: AudioPlayer;
         const { unmount } = renderWithProvider({
           allowConcurrentPlayback,
           ui: <RegisterPlayer onReady={(p) => (firstPlayer = p)} params={params} />,
@@ -402,7 +403,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         expect(firstPlayer.elementRef).toBeNull();
 
         // New provider -> new pool -> new player + new <audio>
-        let secondPlayer;
+        let secondPlayer: AudioPlayer;
         renderWithProvider({
           allowConcurrentPlayback,
           ui: <RegisterPlayer onReady={(p) => (secondPlayer = p)} params={params} />,

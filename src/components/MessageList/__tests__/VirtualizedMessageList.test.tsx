@@ -1,5 +1,5 @@
 import React, { act } from 'react';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render, type RenderResult } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 
 import {
@@ -63,12 +63,12 @@ async function createChannel(empty = false) {
   const user2 = generateUser();
   const mockedChannel = generateChannel({
     members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-    messages: (empty
+    messages: empty
       ? []
       : ' '
           .repeat(20)
           .split(' ')
-          .map((v, i) => generateMessage({ user: i % 3 ? user1 : user2 }))) as any,
+          .map((_v, i) => generateMessage({ user: i % 3 ? user1 : user2 })),
   });
   const client = await getTestClientWithUser({ id: 'id' });
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
@@ -87,7 +87,7 @@ describe('VirtualizedMessageList', () => {
     const { channel, client } = await createChannel(true);
     vi.mocked(nanoid).mockReturnValue('mockedId');
 
-    let result;
+    let result: RenderResult;
     await act(() => {
       result = render(
         <Chat client={client}>

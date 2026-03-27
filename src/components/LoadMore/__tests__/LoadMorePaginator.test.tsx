@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { cleanup, render, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { LoadMorePaginator } from '../LoadMorePaginator';
+import type { LoadMorePaginatorProps } from '../LoadMorePaginator';
 
 vi.mock('../LoadMoreButton', () => ({
   __esModule: true,
@@ -103,7 +105,10 @@ describe('LoadMorePaginator', () => {
   it('should pass undefined props to LoadMoreButton if missing', async () => {
     const LoadMoreButton = vi.fn(() => <div />);
 
-    const props = { hasNextPage: true, LoadMoreButton } as any;
+    const props = fromPartial<LoadMorePaginatorProps>({
+      hasNextPage: true,
+      LoadMoreButton,
+    });
     render(<LoadMorePaginator {...props}>children</LoadMorePaginator>);
 
     await waitFor(() => {

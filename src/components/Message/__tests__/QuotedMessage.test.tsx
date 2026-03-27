@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import React from 'react';
 import { nanoid } from 'nanoid';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import {
@@ -24,6 +25,7 @@ import {
 
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
+import type { MessageUIComponentProps } from '../types';
 import { QuotedMessage } from '../QuotedMessage';
 
 vi.mock('../../ChatView', async (importOriginal) => {
@@ -81,7 +83,11 @@ async function renderQuotedMessage({
             <ComponentProvider
               value={mockComponentContext({
                 Message() {
-                  return <MessageUI {...({ channelConfig } as any)} />;
+                  return (
+                    <MessageUI
+                      {...fromPartial<MessageUIComponentProps>({ channelConfig })}
+                    />
+                  );
                 },
                 ...componentContext,
               })}

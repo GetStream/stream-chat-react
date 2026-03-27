@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Search } from '../Search';
 // import { useSearchContext } from '../SearchContext';
@@ -8,7 +9,13 @@ import {
   useComponentContext,
   useTranslationContext,
 } from '../../../context';
+import type {
+  ChatContextValue,
+  ComponentContextValue,
+  TranslationContextValue,
+} from '../../../context';
 import { useStateStore } from '../../../store';
+import type { SearchContextValue } from '../SearchContext';
 
 // vi.mock('../SearchContext');
 vi.mock('../../../context');
@@ -40,17 +47,23 @@ describe('Search', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchResultsHeader: vi.fn(),
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchResultsHeader: vi.fn(),
+      }),
+    );
 
-    vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key) => key,
-    } as any);
+    vi.mocked(useTranslationContext).mockReturnValue(
+      fromPartial<TranslationContextValue>({
+        t: (key) => key,
+      }),
+    );
 
-    vi.mocked(useChatContext).mockReturnValue({
-      searchController: mockSearchController,
-    } as any);
+    vi.mocked(useChatContext).mockReturnValue(
+      fromPartial<ChatContextValue>({
+        searchController: mockSearchController,
+      }),
+    );
 
     vi.mocked(useStateStore).mockReturnValue({
       activeSources: [],
@@ -69,10 +82,12 @@ describe('Search', () => {
   });
 
   it('uses components from context when provided', () => {
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchBar: CustomSearchBar,
-      SearchResults: CustomSearchResults,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchBar: CustomSearchBar,
+        SearchResults: CustomSearchResults,
+      }),
+    );
 
     render(<Search {...defaultProps} />);
 
@@ -84,7 +99,7 @@ describe('Search', () => {
 
   it('applies active class when search is active', () => {
     vi.mocked(useStateStore).mockReturnValue({
-      ...vi.mocked(useStateStore)(null as any, null as any),
+      ...vi.mocked(useStateStore)(undefined!, undefined!),
       isActive: true,
     });
 
@@ -95,7 +110,7 @@ describe('Search', () => {
 
   it('does not apply active class when search is inactive', () => {
     vi.mocked(useStateStore).mockReturnValue({
-      ...vi.mocked(useStateStore)(null as any, null as any),
+      ...vi.mocked(useStateStore)(undefined!, undefined!),
       isActive: false,
     });
 
@@ -109,8 +124,10 @@ describe('Search', () => {
   it('provides search context to children', async () => {
     const { SearchContext } = await vi.importActual('../SearchContext');
     const ContextConsumer = () => {
-      const context = React.useContext(SearchContext as any);
-      return <div data-testid='context-consumer'>{(context as any)?.placeholder}</div>;
+      const context = React.useContext(
+        SearchContext as React.Context<SearchContextValue | undefined>,
+      );
+      return <div data-testid='context-consumer'>{context?.placeholder}</div>;
     };
 
     const CustomSearchBar = () => (
@@ -119,10 +136,12 @@ describe('Search', () => {
       </div>
     );
 
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchBar: CustomSearchBar,
-      SearchResults: CustomSearchResults,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchBar: CustomSearchBar,
+        SearchResults: CustomSearchResults,
+      }),
+    );
 
     render(<Search {...defaultProps} />);
 
@@ -139,7 +158,9 @@ describe('Search', () => {
 
     const { SearchContext } = await vi.importActual('../SearchContext');
     const ContextConsumer = () => {
-      const context = React.useContext(SearchContext as any) as any;
+      const context = React.useContext(
+        SearchContext as React.Context<SearchContextValue | undefined>,
+      );
       return (
         <div data-testid='context-consumer'>
           <div data-testid='disabled'>{String(context?.disabled)}</div>
@@ -155,10 +176,12 @@ describe('Search', () => {
       </div>
     );
 
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchBar: CustomSearchBar,
-      SearchResults: CustomSearchResults,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchBar: CustomSearchBar,
+        SearchResults: CustomSearchResults,
+      }),
+    );
 
     render(<Search {...customProps} />);
 
@@ -168,10 +191,12 @@ describe('Search', () => {
   });
 
   it('handles state updates correctly', () => {
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchBar: CustomSearchBar,
-      SearchResults: CustomSearchResults,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchBar: CustomSearchBar,
+        SearchResults: CustomSearchResults,
+      }),
+    );
     vi.mocked(useStateStore).mockReturnValue({
       isActive: false,
     });
@@ -197,14 +222,18 @@ describe('Search', () => {
 
     const { SearchContext } = await vi.importActual('../SearchContext');
     const ContextConsumer = () => {
-      const context = React.useContext(SearchContext as any) as any;
+      const context = React.useContext(
+        SearchContext as React.Context<SearchContextValue | undefined>,
+      );
       return <div data-testid='channel-type'>{context?.directMessagingChannelType}</div>;
     };
     const SearchBar = () => <ContextConsumer />;
-    vi.mocked(useComponentContext).mockReturnValue({
-      SearchBar,
-      SearchResults: CustomSearchResults,
-    } as any);
+    vi.mocked(useComponentContext).mockReturnValue(
+      fromPartial<ComponentContextValue>({
+        SearchBar,
+        SearchResults: CustomSearchResults,
+      }),
+    );
 
     render(<Search {...propsWithoutChannelType} />);
 

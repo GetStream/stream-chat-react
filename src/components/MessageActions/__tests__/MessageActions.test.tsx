@@ -29,7 +29,7 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
-import { ChatViewContext } from '../../ChatView/ChatView';
+import { type ChatView, ChatViewContext } from '../../ChatView/ChatView';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
@@ -37,7 +37,10 @@ import { Chat } from '../../Chat';
 
 (window as any).ResizeObserver = ResizeObserverMock;
 
-const chatViewContextValue = { activeChatView: 'channels', setActiveChatView: () => {} };
+const chatViewContextValue = {
+  activeChatView: 'channels' as ChatView,
+  setActiveChatView: () => {},
+};
 
 const alice = generateUser({ name: 'alice' });
 const TOGGLE_ACTIONS_BUTTON_TEST_ID = 'message-actions-toggle-button';
@@ -92,7 +95,7 @@ async function renderMessageActions({
   });
 
   return render(
-    <ChatViewContext.Provider value={chatViewContextValue as any}>
+    <ChatViewContext.Provider value={chatViewContextValue}>
       <ChatProvider value={mockChatContext({ client, ...customChatContext })}>
         <DialogManagerProvider id='message-actions-dialog-provider'>
           <ChannelStateProvider
@@ -614,7 +617,7 @@ describe('<MessageActions />', () => {
     const renderMarkUnreadUI = async ({ channelProps, chatProps, messageProps }: any) =>
       await act(async () => {
         await render(
-          <ChatViewContext.Provider value={chatViewContextValue as any}>
+          <ChatViewContext.Provider value={chatViewContextValue}>
             <Chat {...chatProps}>
               <Channel {...channelProps}>
                 <DialogManagerProvider id='message-actions-dialog-provider'>

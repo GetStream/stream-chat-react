@@ -1,11 +1,20 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { PollCreationDialog } from '../PollCreationDialog';
 import { MessageComposerContextProvider } from '../../../context';
 import { generateUser, initClientWithChannels } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import type { MessageComposerContextValue } from '../../../context';
 
 const NAME_FIELD_PLACEHOLDER = 'Ask a Question';
 const OPTION_FIELD_PLACEHOLDER = 'Add an Option';
@@ -25,7 +34,8 @@ const getVoteLimitSwitch = () => {
   return el;
 };
 
-const getMaxVoteCountInput = () => document.getElementById('max_votes_allowed');
+const getMaxVoteCountInput = () =>
+  document.getElementById('max_votes_allowed') as HTMLInputElement | null;
 const NAME_INPUT_FIELD_ERROR_TEST_ID = 'poll-name-input-field-error';
 const OPTION_INPUT_FIELD_ERROR_TEST_ID = 'poll-option-input-field-error';
 const DUPLICATE_OPTION_FIELD_ERROR_TEXT = 'Option already exists';
@@ -52,12 +62,14 @@ const renderComponent = async (
     channel = initiated.channels[0];
     client = initiated.client;
   }
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={client}>
         <Channel channel={channel}>
-          <MessageComposerContextProvider value={{ handleSubmit } as any}>
+          <MessageComposerContextProvider
+            value={fromPartial<MessageComposerContextValue>({ handleSubmit })}
+          >
             <PollCreationDialog close={close} />
           </MessageComposerContextProvider>
         </Channel>
@@ -257,7 +269,7 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.click(getVoteLimitSwitch());
     });
-    expect((getMaxVoteCountInput() as any)?.value).toBe('2');
+    expect(getMaxVoteCountInput()?.value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeDisabled();
   });
@@ -284,7 +296,7 @@ describe('PollCreationDialog', () => {
     await act(async () => {
       await fireEvent.change(maxVoteCountInput, { target: { value: '2' } });
     });
-    expect((getMaxVoteCountInput() as any).value).toBe('2');
+    expect(getMaxVoteCountInput()?.value).toBe('2');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeEnabled();
   });
@@ -316,7 +328,7 @@ describe('PollCreationDialog', () => {
     });
 
     // SDK clamps max_votes_allowed to valid range [2, 10]
-    expect((getMaxVoteCountInput() as any).value).toBe('10');
+    expect(getMaxVoteCountInput()?.value).toBe('10');
     expect(screen.queryByText(MAX_VOTE_COUNT_FIELD_ERROR_TEXT)).not.toBeInTheDocument();
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeEnabled();
@@ -377,7 +389,7 @@ describe('PollCreationDialog', () => {
     await renderComponent({ channel, client });
     const createPollSpy = vi
       .spyOn(client, 'createPoll')
-      .mockImplementationOnce(() => Promise.resolve({ poll }) as any);
+      .mockImplementationOnce(() => Promise.resolve(fromPartial({ poll })));
     const initPollStateSpy = vi
       .spyOn(channel.messageComposer.pollComposer, 'initState')
       .mockImplementation(() => {});

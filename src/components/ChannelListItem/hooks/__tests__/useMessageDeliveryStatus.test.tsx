@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
-import type { Channel, StreamChat } from 'stream-chat';
+import type { Channel, LocalMessage, MessageResponse, StreamChat } from 'stream-chat';
 import {
   MessageDeliveryStatus,
   useMessageDeliveryStatus,
@@ -169,7 +169,7 @@ const renderComponent = ({
   );
 
   return renderHook(
-    () => useMessageDeliveryStatus({ channel, lastMessage: lastMessage as any }),
+    () => useMessageDeliveryStatus({ channel, lastMessage: lastMessage as LocalMessage }),
     {
       wrapper,
     },
@@ -426,7 +426,7 @@ describe('Message delivery status', () => {
       };
 
       await act(() => {
-        dispatchMessageUpdatedEvent(client, updatedMessage as any, channel);
+        dispatchMessageUpdatedEvent(client, updatedMessage as MessageResponse, channel);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
@@ -444,7 +444,7 @@ describe('Message delivery status', () => {
       };
 
       await act(() => {
-        dispatchMessageUpdatedEvent(client, updatedMessage as any, channel);
+        dispatchMessageUpdatedEvent(client, updatedMessage as MessageResponse, channel);
       });
       rerender();
       expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.READ);

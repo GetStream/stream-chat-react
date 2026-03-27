@@ -2,6 +2,7 @@ import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
 import { ChannelStateProvider, TranslationProvider } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { mockTranslationContextValue } from '../../../mock-builders';
 
 const onClickMock = vi.fn();
@@ -9,7 +10,7 @@ const defaultSingularText = '1 reply';
 const defaultPluralText = '2 replies';
 
 const i18nMock = ((key: string, { count }: { count: number }) =>
-  count > 1 ? defaultPluralText : defaultSingularText) as any;
+  count > 1 ? defaultPluralText : defaultSingularText) as TranslationContextValue['t'];
 
 const renderComponent = (props: any, channelStateCtx?: any) =>
   render(

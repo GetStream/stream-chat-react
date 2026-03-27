@@ -3,18 +3,20 @@ import { act, render, screen } from '@testing-library/react';
 
 import { Gallery } from '../Gallery';
 import { useGalleryContext } from '../GalleryContext';
+import type { GalleryItem } from '../GalleryContext';
 import { ComponentProvider } from '../../../context';
 import {
   generateImageAttachment,
   generateLocalImageUploadAttachmentData,
   mockComponentContext,
 } from '../../../mock-builders';
+import type { Attachment } from 'stream-chat';
 
-const makeImageItem = (overrides?: any) =>
+const makeImageItem = (overrides?: Partial<Attachment>) =>
   generateLocalImageUploadAttachmentData(
     undefined,
-    generateImageAttachment(overrides) as any,
-  ) as any;
+    generateImageAttachment(overrides) as Record<string, unknown>,
+  ) as unknown as GalleryItem;
 
 const ContextReader = () => {
   const ctx = useGalleryContext();
@@ -25,7 +27,7 @@ const ContextReader = () => {
       <span data-testid='has-next'>{String(ctx.hasNext)}</span>
       <span data-testid='has-previous'>{String(ctx.hasPrevious)}</span>
       <span data-testid='current-item-url'>
-        {(ctx.currentItem as any)?.image_url ?? ''}
+        {(ctx.currentItem as GalleryItem & Record<string, unknown>)?.image_url ?? ''}
       </span>
       <button data-testid='go-next' onClick={ctx.goToNext} type='button'>
         Next

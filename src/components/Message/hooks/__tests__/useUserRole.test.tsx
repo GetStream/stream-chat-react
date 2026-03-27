@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useUserRole } from '../useUserRole';
 
@@ -39,11 +40,13 @@ async function renderUserRoleHook(
   },
 ) {
   const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({
-    getConfig,
-    state: { membership: {} },
-    ...channelProps,
-  } as any);
+  const channel = generateChannel(
+    fromPartial<GenerateChannelOptions>({
+      getConfig,
+      state: { membership: {} },
+      ...channelProps,
+    }),
+  );
 
   const wrapper = ({ children }: React.PropsWithChildren) => (
     <ChatProvider value={mockChatContext({ client, ...clientContextValue })}>

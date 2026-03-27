@@ -1,6 +1,7 @@
 import React from 'react';
-import type { Channel, StreamChat } from 'stream-chat';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel, LocalMessage, StreamChat, UserResponse } from 'stream-chat';
+import { act, render, type RenderResult, screen, waitFor } from '@testing-library/react';
 
 import { ChannelAvatar } from '../../Avatar';
 import { ChannelListItem } from '../ChannelListItem';
@@ -8,6 +9,7 @@ import type { ChannelListItemProps, ChannelListItemUIProps } from '../ChannelLis
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
+import type { ChatContextValue } from '../../../context/ChatContext';
 import { ComponentProvider, WithComponents } from '../../../context';
 import type { ComponentContextValue } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
@@ -86,18 +88,18 @@ describe('ChannelPreview', () => {
   let c1: Channel;
   const renderComponent = (
     props: ChannelListItemProps,
-    renderer: (ui: React.ReactNode) => any,
-    { ChannelListItemUI = PreviewUIComponent as any } = {},
+    renderer: (ui: React.ReactNode) => ReturnType<typeof render>,
+    {
+      ChannelListItemUI = PreviewUIComponent as React.ComponentType<ChannelListItemUIProps>,
+    } = {},
   ) =>
     renderer(
       <ChatContext.Provider
-        value={
-          {
-            channel: props.activeChannel,
-            client,
-            setActiveChannel: () => vi.fn(),
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          channel: props.activeChannel,
+          client,
+          setActiveChannel: () => vi.fn(),
+        })}
       >
         <TranslationProvider value={mockTranslationContextValue()}>
           <ComponentProvider value={mockComponentContext({ ChannelListItemUI })}>
@@ -113,11 +115,11 @@ describe('ChannelPreview', () => {
       queryChannelsApi([
         generateChannel({
           channel: { name: 'c0' },
-          messages: Array.from({ length: 5 }, generateMessage) as any,
+          messages: Array.from({ length: 5 }, generateMessage),
         }),
         generateChannel({
           channel: { name: 'c1' },
-          messages: Array.from({ length: 5 }, generateMessage) as any,
+          messages: Array.from({ length: 5 }, generateMessage),
         }),
       ]),
     ]);
@@ -415,7 +417,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
-            ] as any,
+            ] as LocalMessage[],
           }),
           generateChannel({
             messages: [
@@ -424,7 +426,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
-            ] as any,
+            ] as LocalMessage[],
           }),
         ],
         customUser: user,
@@ -438,10 +440,12 @@ describe('ChannelPreview', () => {
       );
 
       await act(() => {
-        dispatchUserMessagesDeletedEvent({
-          client,
-          user,
-        } as any);
+        dispatchUserMessagesDeletedEvent(
+          fromPartial<Parameters<typeof dispatchUserMessagesDeletedEvent>[0]>({
+            client,
+            user,
+          }),
+        );
       });
 
       await waitFor(() => {
@@ -468,7 +472,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
-            ] as any,
+            ] as LocalMessage[],
           }),
           generateChannel({
             messages: [
@@ -477,7 +481,7 @@ describe('ChannelPreview', () => {
                 user: { id: 'other-user' },
               }),
               generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
-            ] as any,
+            ] as LocalMessage[],
           }),
         ],
         customUser: user,
@@ -491,11 +495,13 @@ describe('ChannelPreview', () => {
       );
 
       await act(() => {
-        dispatchUserMessagesDeletedEvent({
-          channel: c0, // target
-          client,
-          user,
-        } as any);
+        dispatchUserMessagesDeletedEvent(
+          fromPartial<Parameters<typeof dispatchUserMessagesDeletedEvent>[0]>({
+            channel: c0, // target
+            client,
+            user,
+          }),
+        );
       });
 
       await waitFor(() => {
@@ -678,7 +684,7 @@ describe('ChannelPreview', () => {
       client?: StreamChat;
       componentOverrides?: Partial<ComponentContextValue>;
     } = {}) => {
-      let result;
+      let result: RenderResult;
       await act(() => {
         result = render(
           <Chat client={client}>
@@ -699,7 +705,7 @@ describe('ChannelPreview', () => {
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
         members,
-        messages: users.map((user) => generateMessage({ user })) as any,
+        messages: users.map((user) => generateMessage({ user })),
         ...channelData,
       });
     };
@@ -790,7 +796,10 @@ describe('ChannelPreview', () => {
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
       );
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
+        dispatchUserUpdatedEvent(
+          client,
+          fromPartial<UserResponse>({ ...otherUser, ...updatedAttribute }),
+        );
       });
       await waitFor(() =>
         expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument(),
@@ -959,7 +968,10 @@ describe('ChannelPreview', () => {
         });
 
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
+          dispatchUserUpdatedEvent(
+            client,
+            fromPartial<UserResponse>({ ...otherUser, ...updatedAttribute }),
+          );
         });
 
         await waitFor(() => {
@@ -994,7 +1006,10 @@ describe('ChannelPreview', () => {
         });
 
         act(() => {
-          dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
+          dispatchUserUpdatedEvent(
+            client,
+            fromPartial<UserResponse>({ ...ownUser, ...updatedAttribute }),
+          );
         });
 
         await waitFor(() => {

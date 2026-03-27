@@ -1,10 +1,14 @@
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel, OwnUserResponse } from 'stream-chat';
 
 import { Chat } from '..';
 
 import { ChatContext, TranslationContext } from '../../../context';
+import type { ChatContextValue } from '../../../context';
 import { Streami18n } from '../../../i18n';
+import type { Mute } from 'stream-chat';
 import {
   dispatchNotificationMutesUpdated,
   getTestClient,
@@ -39,7 +43,7 @@ describe('Chat', () => {
   });
 
   it('should expose the context', async () => {
-    let context;
+    let context: ChatContextValue;
     await act(() => {
       render(
         <Chat client={chatClient}>
@@ -72,7 +76,7 @@ describe('Chat', () => {
 
   it('props change should update the context', async () => {
     const theme = 'str-chat__theme-dark';
-    let context;
+    let context: ChatContextValue;
     const { rerender } = render(
       <Chat client={chatClient} theme={theme}>
         <ChatContextConsumer
@@ -106,7 +110,7 @@ describe('Chat', () => {
 
   describe('mobile nav', () => {
     it('initialNavOpen prop should set navOpen', async () => {
-      let context;
+      let context: ChatContextValue;
       await act(() => {
         render(
           <Chat client={chatClient} initialNavOpen={false}>
@@ -123,7 +127,7 @@ describe('Chat', () => {
     });
 
     it('initialNavOpen prop update should be ignored', async () => {
-      let context;
+      let context: ChatContextValue;
       const { rerender } = render(
         <Chat client={chatClient} initialNavOpen={false}>
           <ChatContextConsumer
@@ -148,7 +152,7 @@ describe('Chat', () => {
     });
 
     it('open/close fn updates the nav state', async () => {
-      let context;
+      let context: ChatContextValue;
       render(
         <Chat client={chatClient}>
           <ChatContextConsumer
@@ -177,7 +181,7 @@ describe('Chat', () => {
         writable: true,
       });
 
-      let context;
+      let context: ChatContextValue;
       render(
         <Chat client={chatClient}>
           <ChatContextConsumer
@@ -204,8 +208,8 @@ describe('Chat', () => {
     it('init the mute state with client data', async () => {
       const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
       // First load, mutes are initialized empty
-      (chatClientWithUser as any).user.mutes = [];
-      let context;
+      (chatClientWithUser.user as OwnUserResponse).mutes = [];
+      let context: ChatContextValue;
       const { rerender } = render(
         <Chat client={chatClientWithUser}>
           <ChatContextConsumer
@@ -217,7 +221,7 @@ describe('Chat', () => {
       );
       // Chat client loads mutes information
       const mutes = ['user_y', 'user_z'];
-      (chatClientWithUser as any).user.mutes = mutes;
+      (chatClientWithUser.user as OwnUserResponse).mutes = mutes;
       await act(() => {
         rerender(
           <Chat client={chatClientWithUser}>
@@ -235,7 +239,7 @@ describe('Chat', () => {
     it('chat client listens and updates the state on mute event', async () => {
       const chatClientWithUser = await getTestClientWithUser({ id: 'user_x' });
 
-      let context;
+      let context: ChatContextValue;
       render(
         <Chat client={chatClientWithUser}>
           <ChatContextConsumer
@@ -248,7 +252,9 @@ describe('Chat', () => {
       await waitFor(() => expect(context.mutes).toStrictEqual([]));
 
       const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
-      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, mutes as any));
+      act(() =>
+        dispatchNotificationMutesUpdated(chatClientWithUser, fromPartial<Mute[]>(mutes)),
+      );
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
 
       act(() => dispatchNotificationMutesUpdated(chatClientWithUser, null));
@@ -258,7 +264,7 @@ describe('Chat', () => {
 
   describe('active channel', () => {
     it('setActiveChannel query if there is a watcher', async () => {
-      let context;
+      let context: ChatContextValue;
       render(
         <Chat client={chatClient}>
           <ChatContextConsumer
@@ -269,7 +275,7 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      const channel = { cid: 'cid', query: vi.fn() };
+      const channel = fromPartial<Channel>({ cid: 'cid', query: vi.fn() });
       const watchers = { user_y: {} };
       await waitFor(() => expect(context.channel).toBeUndefined());
       await act(() => context.setActiveChannel(channel, watchers));
@@ -281,7 +287,7 @@ describe('Chat', () => {
     });
 
     it('setActiveChannel prevent event default', async () => {
-      let context;
+      let context: ChatContextValue;
       render(
         <Chat client={chatClient}>
           <ChatContextConsumer
@@ -294,7 +300,7 @@ describe('Chat', () => {
 
       await waitFor(() => expect(context.setActiveChannel).not.toBeUndefined());
 
-      const e = { preventDefault: vi.fn() };
+      const e = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
       await act(() => context.setActiveChannel(undefined, {}, e));
       await waitFor(() => expect(e.preventDefault).toHaveBeenCalledTimes(1));
     });
@@ -302,7 +308,7 @@ describe('Chat', () => {
 
   describe('translation context', () => {
     it('should expose the context', async () => {
-      let context;
+      let context: ChatContextValue;
       await act(() => {
         render(
           <Chat client={chatClient}>
@@ -328,7 +334,7 @@ describe('Chat', () => {
       (i18nInstance as any).t = 't';
       (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
 
-      let context;
+      let context: ChatContextValue;
       render(
         <Chat client={chatClient} i18nInstance={i18nInstance}>
           <TranslationContextConsumer
@@ -340,8 +346,8 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe((i18nInstance as any).t);
-        expect(context.tDateTimeParser).toBe((i18nInstance as any).tDateTimeParser);
+        expect(context.t).toBe(i18nInstance.t);
+        expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
       });
     });
 
@@ -351,7 +357,7 @@ describe('Chat', () => {
       (i18nInstance as any).t = 't';
       (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
 
-      let context;
+      let context: ChatContextValue;
       const { rerender } = render(
         <Chat client={chatClient} i18nInstance={i18nInstance}>
           <TranslationContextConsumer
@@ -363,8 +369,8 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe((i18nInstance as any).t);
-        expect(context.tDateTimeParser).toBe((i18nInstance as any).tDateTimeParser);
+        expect(context.t).toBe(i18nInstance.t);
+        expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
       });
 
       const newI18nInstance = new Streami18n();
