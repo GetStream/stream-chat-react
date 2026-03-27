@@ -84,7 +84,7 @@
   "aria/Open Reaction Selector": "Reaktionsauswahl öffnen",
   "aria/Open Thread": "Thread öffnen",
   "aria/Pin Message": "Nachricht anheften",
-  "aria/Progress": "{{percent}} Prozent abgeschlossen",
+  "aria/Percent complete": "{{percent}} Prozent abgeschlossen",
   "aria/Quote Message": "Nachricht zitieren",
   "aria/Reaction list": "Reaktionsliste",
   "aria/Remind Me Message": "Erinnern",
