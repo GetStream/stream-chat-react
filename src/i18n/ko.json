@@ -83,7 +83,7 @@
   "aria/Open Reaction Selector": "반응 선택기 열기",
   "aria/Open Thread": "스레드 열기",
   "aria/Pin Message": "메시지 고정",
-  "aria/Progress": "{{percent}}퍼센트 완료",
+  "aria/Percent complete": "{{percent}}퍼센트 완료",
   "aria/Quote Message": "메시지 인용",
   "aria/Reaction list": "반응 목록",
   "aria/Remind Me Message": "알림 설정",

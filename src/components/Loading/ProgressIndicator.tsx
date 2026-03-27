@@ -18,7 +18,7 @@ export const ProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
   return (
     <div className='str-chat__progress-indicator'>
       <svg
-        aria-label={t('aria/Progress', { percent })}
+        aria-label={t('aria/Percent complete', { percent })}
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={percent}

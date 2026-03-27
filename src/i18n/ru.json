@@ -101,7 +101,7 @@
   "aria/Open Reaction Selector": "Открыть селектор реакций",
   "aria/Open Thread": "Открыть тему",
   "aria/Pin Message": "Закрепить сообщение",
-  "aria/Progress": "{{percent}} процентов завершено",
+  "aria/Percent complete": "{{percent}} процентов завершено",
   "aria/Quote Message": "Цитировать сообщение",
   "aria/Reaction list": "Список реакций",
   "aria/Remind Me Message": "Напомнить мне",
