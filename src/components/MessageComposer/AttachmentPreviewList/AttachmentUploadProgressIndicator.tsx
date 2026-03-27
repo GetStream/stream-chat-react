@@ -4,7 +4,6 @@ import React, { type ReactNode } from 'react';
 import { ProgressIndicator as DefaultProgressIndicator } from '../../Loading';
 import { useComponentContext } from '../../../context';
 import { LoadingIndicatorIcon } from '../icons';
-import { clampUploadPercent } from './utils/uploadProgress';
 
 export type AttachmentUploadProgressVariant = 'inline' | 'overlay';
 
@@ -30,8 +29,6 @@ export const AttachmentUploadProgressIndicator = ({
     return <>{fallback ?? <LoadingIndicatorIcon />}</>;
   }
 
-  const percent = Math.round(clampUploadPercent(uploadProgress));
-
   return (
     <div
       className={clsx(
@@ -40,7 +37,7 @@ export const AttachmentUploadProgressIndicator = ({
         className,
       )}
     >
-      <ProgressIndicator percent={percent} />
+      <ProgressIndicator percent={uploadProgress} />
     </div>
   );
 };

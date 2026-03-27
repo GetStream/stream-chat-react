@@ -23,7 +23,6 @@ import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
 import {
   formatUploadByteFraction,
-  readUploadProgress,
   resolveAttachmentFullByteSize,
 } from './utils/uploadProgress';
 
@@ -47,9 +46,8 @@ export const AudioAttachmentPreview = ({
   removeAttachments,
 }: AudioAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
-  const { id, previewUri, uploadPermissionCheck, uploadState } =
+  const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
-  const uploadProgress = readUploadProgress(attachment.localMetadata);
   const fullBytes = resolveAttachmentFullByteSize(attachment);
   const showUploadFraction =
     uploadState === 'uploading' &&

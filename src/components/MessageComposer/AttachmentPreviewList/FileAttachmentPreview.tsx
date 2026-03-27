@@ -8,7 +8,6 @@ import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton'
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import {
   formatUploadByteFraction,
-  readUploadProgress,
   resolveAttachmentFullByteSize,
 } from './utils/uploadProgress';
 import { FileSizeIndicator } from '../../Attachment';
@@ -25,8 +24,8 @@ export const FileAttachmentPreview = ({
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
   const { t } = useTranslationContext('FilePreview');
-  const { id, uploadPermissionCheck, uploadState } = attachment.localMetadata ?? {};
-  const uploadProgress = readUploadProgress(attachment.localMetadata);
+  const { id, uploadPermissionCheck, uploadProgress, uploadState } =
+    attachment.localMetadata ?? {};
   const fullBytes = resolveAttachmentFullByteSize(attachment);
   const showUploadFraction =
     uploadState === 'uploading' &&

@@ -20,7 +20,6 @@ import { Button } from '../../Button';
 import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
-import { readUploadProgress } from './utils/uploadProgress';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -40,8 +39,8 @@ export const MediaAttachmentPreview = ({
     useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
-  const { id, uploadPermissionCheck, uploadState } = attachment.localMetadata ?? {};
-  const uploadProgress = readUploadProgress(attachment.localMetadata);
+  const { id, uploadPermissionCheck, uploadProgress, uploadState } =
+    attachment.localMetadata ?? {};
 
   const isUploading = uploadState === 'uploading';
   const handleThumbnailLoadError = useCallback(() => setThumbnailPreviewError(true), []);
