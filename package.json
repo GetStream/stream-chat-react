@@ -141,7 +141,6 @@
     "@eslint/js": "^9.39.4",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@stream-io/stream-chat-css": "^5.16.1",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -186,8 +185,8 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "yarn clean && concurrently './scripts/copy-css.sh' 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
-    "build-styling": "sass src/styling/index.scss dist/css/index.css",
+    "build": "yarn clean && concurrently 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
+    "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css; cp -r src/styling/assets dist/css/assets",
     "build-translations": "i18next-cli extract",
     "coverage": "vitest run --coverage",
     "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",
