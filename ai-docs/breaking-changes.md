@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-25
+Last updated: 2026-03-27
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `9877da511183c5149959583bc4f11d7aa616f87f` (`9877da51`, `2026-03-25`, `chore: migrate test suite from JavaScript to TypeScript (#3057)`)
-- Future mining starting point: diff `9877da511183c5149959583bc4f11d7aa616f87f..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `55b1dd6c43f006ac8e7e2ceba1a58d8838bef149` (`55b1dd6c`, `2026-03-27`, `chore(release): 14.0.0-beta.3 [skip ci]`)
+- Future mining starting point: diff `55b1dd6c43f006ac8e7e2ceba1a58d8838bef149..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -1915,6 +1915,32 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/04-guides/05-channel_read_state.md`
 - Example needed: yes
 
+### BC-056: `useChannelListContext()` no longer accepts a diagnostic component name
+
+- Status: confirmed
+- Area: channel-list hooks
+- User impact:
+  - TypeScript code calling `useChannelListContext('MyComponent')` no longer type-checks
+  - integrations that relied on the SDK's outside-provider console warning no longer get that diagnostic side effect
+  - custom docs/snippets that still describe `componentName` as part of the hook signature are stale
+- Old API:
+  - `v13.14.2:src/context/ChannelListContext.tsx:41` exported `useChannelListContext(componentName?: string)`
+  - `9877da51:src/context/ChannelListContext.tsx:41` still logged the missing-provider warning and interpolated `componentName`
+- New API:
+  - `src/context/ChannelListContext.tsx:44` exports `useChannelListContext()` with no parameters
+  - `src/context/ChannelListContext.tsx:47` through `:49` now return an empty context object outside the provider without logging
+- Replacement:
+  - call `useChannelListContext()` without arguments
+  - do not rely on SDK warnings for provider misuse; add app-owned assertions or logging if you still need that diagnostic signal
+- Evidence:
+  - commit `7914e516 feat: reset audio player progress when the track is fully played (#3066)` removed the optional `componentName` parameter and the warning branch from `useChannelListContext()`
+  - current source keeps the hook public, but its signature and missing-provider behavior no longer match v13 or the previously audited v14 snapshots
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/02-channel_list_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/07-sdk-state-management.md`
+- Example needed: no
+
 ## Likely
 
 - None yet
@@ -1933,6 +1959,9 @@ Only confirmed items should move from this file into the migration guide.
 - composer clear-on-unmount (`f2a79ab1`): investigated; `TextareaComposer` now clears composer state on unmount, but there is no removed export, renamed prop, or new override-key migration to track separately.
 - shared attachment preview gallery (`f05f47d7`): investigated; `AttachmentPreviewList` now shares gallery preview behavior across attachments, but this is current UI behavior rather than a removed or renamed public API.
 - voice-message deleted notification (`9982c45a`): investigated; this adds a new default notification string/behavior for deleted voice recordings, but it does not remove or rename the existing public attachment APIs.
+- context-menu animations and global outside-click dismissal controls (`630e5c72`): investigated; current source adds `ContextMenu`, `ContextMenuContent`, `DialogManagerProvider.closeOnClickOutside`, and `DialogAnchor` transition controls, but this is additive customization and behavior polish rather than a removed or renamed v13 public API.
+- `MessageReactionsDetail` loading/toggle refinements (`cab3ffd3`): investigated; current source adds `MessageReactionsDetailLoadingIndicator`, allows toggling the selected reaction type back to `null`, and improves the unfiltered reactions view, but these are additive/current-behavior changes rather than a distinct migration bucket.
+- audio/player, scrolling, and layout polish (`7914e516`, `91eba1b4`, `8d25ead3`, `55dd2e81`, `fdf0e155`, `221aa0d4`): investigated; these commits refine playback reset behavior, initial bottom-pinning, mobile-nav click detection, message-list width, reactions alignment, and voice-recording attachment layout, but they do not remove or rename a documented public API beyond the separately tracked `useChannelListContext()` signature cleanup.
 
 ## Notes For Migration Guide Drafting
 
