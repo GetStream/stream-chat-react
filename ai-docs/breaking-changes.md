@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-27
+Last updated: 2026-03-28
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `55b1dd6c43f006ac8e7e2ceba1a58d8838bef149` (`55b1dd6c`, `2026-03-27`, `chore(release): 14.0.0-beta.3 [skip ci]`)
-- Future mining starting point: diff `55b1dd6c43f006ac8e7e2ceba1a58d8838bef149..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `f06846da4d492c0fb9ca375ee049682e6f9e48ba` (`f06846da`, `2026-03-27`, `fix: clean up CSS build output (#3072)`)
+- Future mining starting point: diff `f06846da4d492c0fb9ca375ee049682e6f9e48ba..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -1941,6 +1941,33 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/04-guides/07-sdk-state-management.md`
 - Example needed: no
 
+### BC-057: legacy `dist/css/v2/*` stylesheet import paths no longer resolve
+
+- Status: confirmed
+- Area: styling imports
+- User impact:
+  - apps importing default styles from `stream-chat-react/dist/css/v2/*` stop resolving those assets after the CSS build-output cleanup
+  - installation guides, starter snippets, or internal app templates that still use the old `v2` CSS path are now stale
+- Old API:
+  - `stream-chat-react/dist/css/v2/index.css`
+  - `stream-chat-react/dist/css/v2/index.layout.css`
+- New API:
+  - `stream-chat-react/dist/css/index.css`
+  - `stream-chat-react/dist/css/index.layout.css`
+- Replacement:
+  - remove the `/v2` segment from CSS import paths
+  - if you import SCSS entrypoints, use the root `dist/scss/*` paths as well so examples stay aligned with the package exports
+- Evidence:
+  - commit `f06846da fix: clean up CSS build output (#3072)` explicitly marks `stream-chat-react/dist/css/v2/*` imports as a breaking change
+  - current `package.json` exports `./dist/css/*`, `./dist/scss/*`, `./css/*`, and `./scss/*`, with no `v2` subpath exports
+  - current build scripts output styles directly under `dist/css/*`
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/01-basics/02-installation.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/02-theming/01-themingv2.md`
+- Example needed: no
+
 ## Likely
 
 - None yet
@@ -1962,6 +1989,7 @@ Only confirmed items should move from this file into the migration guide.
 - context-menu animations and global outside-click dismissal controls (`630e5c72`): investigated; current source adds `ContextMenu`, `ContextMenuContent`, `DialogManagerProvider.closeOnClickOutside`, and `DialogAnchor` transition controls, but this is additive customization and behavior polish rather than a removed or renamed v13 public API.
 - `MessageReactionsDetail` loading/toggle refinements (`cab3ffd3`): investigated; current source adds `MessageReactionsDetailLoadingIndicator`, allows toggling the selected reaction type back to `null`, and improves the unfiltered reactions view, but these are additive/current-behavior changes rather than a distinct migration bucket.
 - audio/player, scrolling, and layout polish (`7914e516`, `91eba1b4`, `8d25ead3`, `55dd2e81`, `fdf0e155`, `221aa0d4`): investigated; these commits refine playback reset behavior, initial bottom-pinning, mobile-nav click detection, message-list width, reactions alignment, and voice-recording attachment layout, but they do not remove or rename a documented public API beyond the separately tracked `useChannelListContext()` signature cleanup.
+- type-safety and stale-prop cleanup in tests (`277bc417`): investigated; this commit removes stale props from test fixtures and tightens mock typing, but it does not change the current public runtime API beyond what was already documented in earlier migration buckets.
 
 ## Notes For Migration Guide Drafting
 
