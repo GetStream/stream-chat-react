@@ -39,10 +39,6 @@
     /* Vertical padding so focus rings (e.g. TextInput wrapper box-shadow) are not clipped by scrollable-y */
     padding: var(--spacing-xxs) var(--spacing-xl);
     @include utils.scrollable-y;
-
-    .str-chat__prompt__title {
-      margin-bottom: 1rem;
-    }
   }
 
   .str-chat__prompt__footer {
