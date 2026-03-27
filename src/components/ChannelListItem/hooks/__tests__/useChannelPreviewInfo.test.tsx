@@ -1,6 +1,7 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { Event } from 'stream-chat';
 
 import { ChatContext } from '../../../../context/ChatContext';
 import type { ChatContextValue } from '../../../../context/ChatContext';
@@ -179,7 +180,7 @@ describe('useChannelPreviewInfo', () => {
       expect(updateInfo).toBeDefined();
 
       act(() => {
-        (updateInfo as () => void)();
+        updateInfo(fromPartial<Event>({}));
       });
 
       expect(result.current.displayImage).toBe(imageUrl);

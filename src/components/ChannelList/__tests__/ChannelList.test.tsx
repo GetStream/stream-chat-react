@@ -656,7 +656,7 @@ describe('ChannelList', () => {
             customActiveChannel={testChannel2.channel.id}
             filters={{}}
             options={{ presence: true, state: true, watch: true }}
-            {...fromPartial<ChannelListProps>({ setActiveChannel })}
+            // setActiveChannel is provided via ChatContext, not as a direct prop
             setActiveChannelOnMount
             watchers={watchersConfig}
           />
@@ -690,7 +690,7 @@ describe('ChannelList', () => {
             customActiveChannel='missing-channel-id'
             filters={{}}
             options={{ presence: true, state: true, watch: true }}
-            {...fromPartial<ChannelListProps>({ setActiveChannel })}
+            // setActiveChannel is provided via ChatContext, not as a direct prop
             setActiveChannelOnMount
             watchers={watchersConfig}
           />
@@ -731,7 +731,7 @@ describe('ChannelList', () => {
                 state: true,
                 watch: true,
               }}
-              {...fromPartial<ChannelListProps>({ setActiveChannel })}
+              // setActiveChannel is provided via ChatContext, not as a direct prop
               setActiveChannelOnMount
               watchers={watchersConfig}
             />
@@ -957,9 +957,7 @@ describe('ChannelList', () => {
           await render(
             <Chat client={client}>
               <ChannelList
-                {...fromPartial<ChannelListProps>({
-                  additionalChannelSearchProps: { searchForChannels: true },
-                })}
+                // additionalChannelSearchProps was removed from ChannelList props
                 filters={{}}
                 options={{ presence: true, state: true }}
                 showChannelSearch
