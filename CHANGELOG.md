@@ -1,3 +1,20 @@
+## [14.0.0-beta.3](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.2...v14.0.0-beta.3) (2026-03-27)
+
+### Bug Fixes
+
+* align message reactions vertically to the center of the message list ([#3064](https://github.com/GetStream/stream-chat-react/issues/3064)) ([55dd2e8](https://github.com/GetStream/stream-chat-react/commit/55dd2e81ace4f3f8d08fe0d2eb5a2726f1cd2bd1))
+* increase message list width ([f81cae4](https://github.com/GetStream/stream-chat-react/commit/f81cae475ea6ed7a7b416b42a63536c73e6852bf))
+* increase message list width ([#3062](https://github.com/GetStream/stream-chat-react/issues/3062)) ([fdf0e15](https://github.com/GetStream/stream-chat-react/commit/fdf0e155b074f75920871185ff789e08d1abbc39))
+* keep MessageList scrolled to the bottom ([#3068](https://github.com/GetStream/stream-chat-react/issues/3068)) ([91eba1b](https://github.com/GetStream/stream-chat-react/commit/91eba1b4d8853f9e19614a5522b375cde8a7b4dd))
+* reliably detect whether the click originated inside before closing mobile nav ([#3061](https://github.com/GetStream/stream-chat-react/issues/3061)) ([8d25ead](https://github.com/GetStream/stream-chat-react/commit/8d25ead3a52aa91b27e186c2e41fe890b74cc3c7))
+* remove bottom padding from poll option with votes in poll results ([#3059](https://github.com/GetStream/stream-chat-react/issues/3059)) ([a55774d](https://github.com/GetStream/stream-chat-react/commit/a55774d69b1777be7d7d43eaf6460335d61c9399))
+
+### Features
+
+* add ContextMenu animations API and global close-on-click-outside configuration mechanism ([#3067](https://github.com/GetStream/stream-chat-react/issues/3067)) ([630e5c7](https://github.com/GetStream/stream-chat-react/commit/630e5c723815405d78ba977b996775745982fddb))
+* quick dropdown toggle and cleanup ([#3054](https://github.com/GetStream/stream-chat-react/issues/3054)) ([30ddab0](https://github.com/GetStream/stream-chat-react/commit/30ddab0f33696d61f22ad045aeaad36f15d285c1))
+* reset audio player progress when the track is fully played ([#3066](https://github.com/GetStream/stream-chat-react/issues/3066)) ([7914e51](https://github.com/GetStream/stream-chat-react/commit/7914e516c42481aaca5b608e29c127eb7ec731bb))
+
 ## [14.0.0-beta.2](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.1...v14.0.0-beta.2) (2026-03-25)
 
 ### ⚠ BREAKING CHANGES
