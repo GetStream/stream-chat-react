@@ -10,17 +10,17 @@
   "dependencies": {
     "@stream-io/chat-react-ai": "workspace:^",
     "clsx": "^2.1.1",
-    "material-symbols": "^0.40.0",
-    "nanoid": "^5.1.6",
-    "next": "^16.0.10",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3",
-    "stream-chat": "^9.27.1",
-    "stream-chat-react": "^13.13.0"
+    "material-symbols": "^0.43.0",
+    "nanoid": "^5.1.7",
+    "next": "^16.2.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "stream-chat": "^9.38.0",
+    "stream-chat-react": "^13.14.3"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "@types/react": "^19.2.7",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"
   }

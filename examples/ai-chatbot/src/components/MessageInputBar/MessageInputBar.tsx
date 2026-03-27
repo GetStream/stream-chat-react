@@ -30,9 +30,13 @@ const isWatchedByAI = (channel: Channel) => {
 };
 
 const availableModels = [
-  { platform: 'openai', value: 'gpt-4o-mini', label: 'GPT-4o mini' },
-  { platform: 'openai', value: 'gpt-4o', label: 'GPT-4o' },
-  { platform: 'gemini', value: 'gemini-2.5-flash', label: 'Gemini 2.5 Flash' },
+  { platform: 'openai', value: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
+  { platform: 'openai', value: 'gpt-5.4-nano', label: 'GPT-5.4 nano' },
+  {
+    platform: 'gemini',
+    value: 'gemini-flash-latest',
+    label: 'Gemini Flash (latest)',
+  },
 ] as const;
 
 export const MessageInputBar = () => {
