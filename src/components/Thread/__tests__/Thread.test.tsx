@@ -148,8 +148,6 @@ describe('Thread', () => {
     const additionalMessageListProps = {
       loadingMore: false,
       loadMore: channelActionContextMock['threadLoadingMore'],
-      propName: 'value',
-      read: {},
     };
     renderComponent({
       chatClient,
@@ -181,8 +179,6 @@ describe('Thread', () => {
     const additionalMessageListProps = {
       loadingMore: false,
       loadMore: channelActionContextMock['threadLoadingMore'],
-      propName: 'value',
-      read: {},
     };
     renderComponent({
       chatClient,

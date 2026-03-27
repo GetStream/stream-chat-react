@@ -31,7 +31,7 @@ import { defaultReactionOptions } from '../../Reactions';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { MessageText } from '../MessageText';
-import type { MessageProps, MessageUIComponentProps } from '../types';
+import type { MessageProps } from '../types';
 import type { MessageTextProps } from '../MessageText';
 import type { TranslationContextValue } from '../../../context';
 
@@ -110,11 +110,7 @@ async function renderMessageText({
               value={mockComponentContext({
                 Attachment,
 
-                Message: () => (
-                  <MessageUI
-                    {...fromPartial<MessageUIComponentProps>({ channelConfig })}
-                  />
-                ),
+                Message: () => <MessageUI />,
                 reactionOptions: defaultReactionOptions,
               })}
             >

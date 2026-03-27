@@ -20,10 +20,13 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 import {
+  ChannelStateProvider,
   useChannelActionContext,
+  useChannelStateContext,
   useMessageContext,
   WithComponents,
 } from '../../../context';
+import type { ChannelStateContextValue } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
@@ -66,6 +69,21 @@ const mockedChannelData = generateChannel({
 });
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
+
+const ChannelStateOverride = ({
+  children,
+  overrides,
+}: {
+  children: React.ReactNode;
+  overrides: Partial<ChannelStateContextValue>;
+}) => {
+  const currentContext = useChannelStateContext();
+  return (
+    <ChannelStateProvider value={{ ...currentContext, ...overrides }}>
+      {children}
+    </ChannelStateProvider>
+  );
+};
 
 const renderComponent = ({
   channelProps,
@@ -950,13 +968,12 @@ describe('MessageList', () => {
           return (
             <Chat client={chatClient}>
               <Channel channel={channel}>
-                <MessageList
-                  {...fromPartial<MessageListProps>({
-                    hasMoreNewer: canLoadNewer,
-                    jumpToLatestMessage,
-                  })}
-                  messages={renderedMessages}
-                />
+                <ChannelStateOverride overrides={{ hasMoreNewer: canLoadNewer }}>
+                  <MessageList
+                    jumpToLatestMessage={jumpToLatestMessage}
+                    messages={renderedMessages}
+                  />
+                </ChannelStateOverride>
               </Channel>
             </Chat>
           );
@@ -1059,12 +1076,11 @@ describe('MessageList', () => {
               </button>
               <Chat client={chatClient}>
                 <Channel channel={channel}>
-                  <MessageList
-                    {...fromPartial<MessageListProps>({
-                      highlightedMessageId: highlightedId,
-                    })}
-                    messages={renderedMessages}
-                  />
+                  <ChannelStateOverride
+                    overrides={{ highlightedMessageId: highlightedId }}
+                  >
+                    <MessageList messages={renderedMessages} />
+                  </ChannelStateOverride>
                 </Channel>
               </Chat>
             </>
@@ -1171,10 +1187,9 @@ describe('MessageList', () => {
               </button>
               <Chat client={chatClient}>
                 <Channel channel={channel}>
-                  <MessageList
-                    {...fromPartial<MessageListProps>({ hasMoreNewer: canLoadNewer })}
-                    messages={renderedMessages}
-                  />
+                  <ChannelStateOverride overrides={{ hasMoreNewer: canLoadNewer }}>
+                    <MessageList messages={renderedMessages} />
+                  </ChannelStateOverride>
                 </Channel>
               </Chat>
             </>

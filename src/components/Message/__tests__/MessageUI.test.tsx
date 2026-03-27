@@ -15,7 +15,6 @@ import { axe } from '../../../../axe-helper';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { MessageText as MessageTextMock } from '../MessageText';
-import { MESSAGE_ACTIONS } from '../utils';
 import type { MessageProps } from '../types';
 
 import { Chat } from '../../Chat';
@@ -151,8 +150,6 @@ describe('<MessageSimple />', () => {
               >
                 <Message
                   {...fromPartial<MessageProps>({
-                    getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
-                    isMyMessage: () => true,
                     message,
                     threadList: false,
                     ...props,

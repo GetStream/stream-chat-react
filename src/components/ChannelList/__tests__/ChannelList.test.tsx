@@ -1583,6 +1583,7 @@ describe('ChannelList', () => {
         const { container, getByRole } = await render(
           <ChatContext.Provider
             value={fromPartial<ChatContextValue>({
+              channel: fromPartial({ cid: testChannel1.channel.cid }),
               channelsQueryState: channelsQueryStateMock,
               client: chatClient,
               searchController: new SearchController(),
@@ -1595,13 +1596,7 @@ describe('ChannelList', () => {
                 ChannelListUI: ChannelListComponent,
               }}
             >
-              <ChannelList
-                {...channelListProps}
-                {...fromPartial<ChannelListProps>({
-                  channel: { cid: testChannel1.channel.cid },
-                  setActiveChannel,
-                })}
-              />
+              <ChannelList {...channelListProps} />
             </WithComponents>
           </ChatContext.Provider>,
         );
@@ -1611,10 +1606,13 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
+        setActiveChannel.mockClear();
+
         act(() => dispatchChannelDeletedEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
+          expect(setActiveChannel).toHaveBeenCalledWith();
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
@@ -1666,6 +1664,7 @@ describe('ChannelList', () => {
         const { container, getByRole } = await render(
           <ChatContext.Provider
             value={fromPartial<ChatContextValue>({
+              channel: fromPartial({ cid: testChannel1.channel.cid }),
               channelsQueryState: channelsQueryStateMock,
               client: chatClient,
               searchController: new SearchController(),
@@ -1678,13 +1677,7 @@ describe('ChannelList', () => {
                 ChannelListUI: ChannelListComponent,
               }}
             >
-              <ChannelList
-                {...channelListProps}
-                {...fromPartial<ChannelListProps>({
-                  channel: { cid: testChannel1.channel.cid },
-                  setActiveChannel,
-                })}
-              />
+              <ChannelList {...channelListProps} />
             </WithComponents>
           </ChatContext.Provider>,
         );
@@ -1694,10 +1687,13 @@ describe('ChannelList', () => {
           expect(getByRole('list')).toBeInTheDocument();
         });
 
+        setActiveChannel.mockClear();
+
         act(() => dispatchChannelHiddenEvent(chatClient, testChannel1.channel));
 
         await waitFor(() => {
           expect(setActiveChannel).toHaveBeenCalledTimes(1);
+          expect(setActiveChannel).toHaveBeenCalledWith();
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
