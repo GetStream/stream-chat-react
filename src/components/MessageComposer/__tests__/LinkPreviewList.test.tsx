@@ -6,14 +6,23 @@ import {
   generateUser,
   initClientWithChannels,
 } from '../../../mock-builders';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+} from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import type { ChannelProps } from '../../Channel';
 
-import type { StreamChat } from 'stream-chat';
+import type { Attachment, StreamChat } from 'stream-chat';
 import { LinkPreviewStatus } from 'stream-chat';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 import { LinkPreviewCard, LinkPreviewList } from '../LinkPreviewList';
 import type { LinkPreviewListProps } from '../LinkPreviewList';
 
@@ -33,11 +42,13 @@ const threadMessage = generateMessage({
   type: 'reply',
   user: user1,
 });
-const mockedChannelData = generateChannel({
-  members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
-  messages: [mainListMessage],
-  threads: [threadMessage],
-} as any);
+const mockedChannelData = generateChannel(
+  fromPartial<GenerateChannelOptions>({
+    members: [generateMember({ user: user1 }), generateMember({ user: mentionUser })],
+    messages: [mainListMessage],
+    threads: [threadMessage],
+  }),
+);
 
 const renderComponent = async ({
   channelProps = {},
@@ -48,7 +59,7 @@ const renderComponent = async ({
   client?: StreamChat;
   linkPreviewListProps?: Partial<LinkPreviewListProps>;
 } = {}) => {
-  let renderResult;
+  let renderResult: RenderResult;
   await act(() => {
     renderResult = render(
       <Chat client={client}>
@@ -80,7 +91,9 @@ describe('LinkPreviewList', () => {
 
   const previews = Array.from({ length: 4 })
     .map(() =>
-      generateScrapedImageAttachment({ status: LinkPreviewStatus.LOADED } as any),
+      generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({ status: LinkPreviewStatus.LOADED }),
+      ),
     )
     .reduce((acc, p) => {
       acc.set(p.og_scrape_url, p);
@@ -125,7 +138,7 @@ describe('LinkPreviewList', () => {
     });
     await act(() => {
       channel.messageComposer.linkPreviewsManager.state.next({ previews });
-      (channel.messageComposer.state as any).next({ quotedMessage: generateMessage() });
+      channel.messageComposer.state.partialNext({ quotedMessage: generateMessage() });
     });
     const linkPreviewCards = screen.queryAllByTestId(LINK_PREVIEW_TEST_ID);
     expect(linkPreviewCards).toHaveLength(1);
@@ -133,7 +146,7 @@ describe('LinkPreviewList', () => {
 });
 
 const renderLinkPreviewCard = async ({ channel, client, linkPreview }) => {
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={client}>
@@ -151,12 +164,14 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({
-        og_scrape_url: 'og_scrape_url',
-        status: LinkPreviewStatus.LOADED,
-        text: 'text',
-        title: 'title',
-      } as any),
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          og_scrape_url: 'og_scrape_url',
+          status: LinkPreviewStatus.LOADED,
+          text: 'text',
+          title: 'title',
+        }),
+      ),
     });
     expect(screen.getByTestId(LINK_PREVIEW_TEST_ID)).toBeInTheDocument();
     expect(screen.getByText('title')).toBeInTheDocument();
@@ -168,12 +183,14 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({
-        og_scrape_url: 'og_scrape_url',
-        status: LinkPreviewStatus.LOADING,
-        text: 'text',
-        title: 'title',
-      } as any),
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          og_scrape_url: 'og_scrape_url',
+          status: LinkPreviewStatus.LOADING,
+          text: 'text',
+          title: 'title',
+        }),
+      ),
     });
     const card = screen.getByTestId(LINK_PREVIEW_TEST_ID);
     expect(card).toBeInTheDocument();
@@ -184,12 +201,14 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({
-        og_scrape_url: 'og_scrape_url',
-        status: LinkPreviewStatus.DISMISSED,
-        text: 'text',
-        title: 'title',
-      } as any),
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          og_scrape_url: 'og_scrape_url',
+          status: LinkPreviewStatus.DISMISSED,
+          text: 'text',
+          title: 'title',
+        }),
+      ),
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
@@ -198,12 +217,14 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({
-        og_scrape_url: 'og_scrape_url',
-        status: LinkPreviewStatus.FAILED,
-        text: 'text',
-        title: 'title',
-      } as any),
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          og_scrape_url: 'og_scrape_url',
+          status: LinkPreviewStatus.FAILED,
+          text: 'text',
+          title: 'title',
+        }),
+      ),
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
@@ -212,12 +233,14 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({
-        og_scrape_url: 'og_scrape_url',
-        status: LinkPreviewStatus.PENDING,
-        text: 'text',
-        title: 'title',
-      } as any),
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          og_scrape_url: 'og_scrape_url',
+          status: LinkPreviewStatus.PENDING,
+          text: 'text',
+          title: 'title',
+        }),
+      ),
     });
     expect(screen.queryByTestId(LINK_PREVIEW_TEST_ID)).not.toBeInTheDocument();
   });
@@ -230,9 +253,11 @@ describe('LinPreviewCard', () => {
     await renderLinkPreviewCard({
       channel,
       client,
-      linkPreview: generateScrapedImageAttachment({
-        status: LinkPreviewStatus.LOADED,
-      } as any),
+      linkPreview: generateScrapedImageAttachment(
+        fromPartial<Partial<Attachment>>({
+          status: LinkPreviewStatus.LOADED,
+        }),
+      ),
     });
 
     fireEvent.click(screen.getByTestId('link-preview-card-dismiss-btn'));

@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import type { StreamChat } from 'stream-chat';
 
 import {
@@ -23,6 +24,7 @@ import {
   mockTranslationContextValue,
   useMockedApis,
 } from '../../../mock-builders';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 import { Message as MessageMock } from '../../Message/Message';
 import { MessageComposer as MessageInputMock } from '../../MessageComposer/MessageComposer';
@@ -146,14 +148,12 @@ describe('Thread', () => {
     const additionalMessageListProps = {
       loadingMore: false,
       loadMore: channelActionContextMock['threadLoadingMore'],
-      propName: 'value',
-      read: {},
     };
     renderComponent({
       chatClient,
       threadProps: {
         additionalMessageListProps,
-        Message: MessageMock as any,
+        Message: MessageMock as ThreadProps['Message'],
       },
     });
 
@@ -179,15 +179,13 @@ describe('Thread', () => {
     const additionalMessageListProps = {
       loadingMore: false,
       loadMore: channelActionContextMock['threadLoadingMore'],
-      propName: 'value',
-      read: {},
     };
     renderComponent({
       chatClient,
       threadProps: {
         additionalMessageListProps,
         enableDateSeparator: true,
-        Message: MessageMock as any,
+        Message: MessageMock as ThreadProps['Message'],
       },
     });
 
@@ -210,13 +208,13 @@ describe('Thread', () => {
   });
 
   it('should render the MessageComposer with correct default props', () => {
-    const props = {
-      additionalMessageComposerProps: { propName: 'value' },
+    const props: Partial<ThreadProps> & Record<string, unknown> = {
+      additionalMessageComposerProps: fromPartial({ propName: 'value' }),
       autoFocus: true,
     };
     renderComponent({
       chatClient,
-      threadProps: props as any,
+      threadProps: props,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
@@ -230,16 +228,16 @@ describe('Thread', () => {
   });
 
   it('should pass additionalMessageComposerProps to MessageComposer', () => {
-    const props = {
-      additionalMessageComposerProps: {
+    const props: Partial<ThreadProps> & Record<string, unknown> = {
+      additionalMessageComposerProps: fromPartial({
         propName: 'value',
-      },
+      }),
       autoFocus: true,
     };
 
     renderComponent({
       chatClient,
-      threadProps: props as any,
+      threadProps: props,
     });
 
     expect(MessageInputMock).toHaveBeenCalledWith(
@@ -332,7 +330,9 @@ describe('Thread', () => {
 
   it('should render null if replies is disabled', async () => {
     const client = await getTestClientWithUser();
-    const ch = generateChannel({ getConfig: () => ({ replies: false }) } as any);
+    const ch = generateChannel(
+      fromPartial<GenerateChannelOptions>({ getConfig: () => ({ replies: false }) }),
+    );
     const channelConfig = ch['getConfig']();
     useMockedApis(client, [getOrCreateChannelApi(ch)]);
     const channel = client.channel('messaging', ch['id']);

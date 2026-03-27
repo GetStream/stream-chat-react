@@ -2,6 +2,7 @@ import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { CommandResponse } from 'stream-chat';
 
 import { CommandItem } from '../SuggestionList';
 
@@ -15,7 +16,11 @@ describe('commandItem', () => {
   });
 
   it('should render component with custom entity prop', () => {
-    const entity = { args: 'args', description: 'description', name: 'name' } as any;
+    const entity = fromPartial<CommandResponse>({
+      args: 'args',
+      description: 'description',
+      name: 'name',
+    });
     const Component = <CommandItem entity={entity} />;
 
     const { getByText } = render(Component);

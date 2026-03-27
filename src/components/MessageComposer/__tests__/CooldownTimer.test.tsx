@@ -1,5 +1,6 @@
 import React from 'react';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, type RenderResult, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { CooldownTimer } from '../CooldownTimer';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
@@ -14,7 +15,7 @@ const renderComponent = async ({ channelData = {} } = {}) => {
   } = await initClientWithChannels({
     channelsData: [{ channel: channelData }],
   });
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={client}>
@@ -36,7 +37,7 @@ describe('CooldownTimer', () => {
   it('renders the cooldown remaining value from channel state', async () => {
     const { channel } = await renderComponent();
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 10 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 10 }));
     });
     expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('10');
   });
@@ -44,17 +45,17 @@ describe('CooldownTimer', () => {
   it('updates when cooldown remaining changes', async () => {
     const { channel } = await renderComponent();
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 5 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 5 }));
     });
     expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('5');
 
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 3 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 3 }));
     });
     expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('3');
 
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 0 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 0 }));
     });
     expect(screen.getByTestId(TIMER_TEST_ID)).toHaveTextContent('0');
   });

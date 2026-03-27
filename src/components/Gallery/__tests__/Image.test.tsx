@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { act, cleanup, render } from '@testing-library/react';
+import { act, cleanup, render, type RenderResult } from '@testing-library/react';
 
 import { ImageComponent } from '../../Attachment/Image';
 import { Chat } from '../../Chat';
@@ -68,7 +68,7 @@ describe('Image', () => {
     const CustomBaseImage = (props) => (
       <img {...props} data-testid={'custom-base-image'} />
     );
-    let result;
+    let result: RenderResult;
     await act(() => {
       result = render(
         <WithComponents overrides={{ BaseImage: CustomBaseImage }}>

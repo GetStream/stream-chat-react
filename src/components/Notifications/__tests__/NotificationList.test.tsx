@@ -1,7 +1,9 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useChatContext } from '../../../context';
+import type { ChatContextValue } from '../../../context';
 import { NotificationList } from '../NotificationList';
 import { useNotifications } from '../hooks/useNotifications';
 
@@ -112,9 +114,11 @@ describe('NotificationList', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     observerEntries.splice(0, observerEntries.length);
     currentNotifications = [...notifications];
-    mockedUseChatContext.mockReturnValue({
-      client: { notifications: { clearTimeout, remove, startTimeout } },
-    } as any);
+    mockedUseChatContext.mockReturnValue(
+      fromPartial<ChatContextValue>({
+        client: { notifications: { clearTimeout, remove, startTimeout } },
+      }),
+    );
     remove.mockImplementation((id: string) => {
       currentNotifications = currentNotifications.filter(
         (notification) => notification.id !== id,

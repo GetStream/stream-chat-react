@@ -1,7 +1,10 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Event } from 'stream-chat';
 
 import { ChatContext } from '../../../../context/ChatContext';
+import type { ChatContextValue } from '../../../../context/ChatContext';
 import { TranslationProvider } from '../../../../context/TranslationContext';
 import {
   generateChannel,
@@ -39,12 +42,10 @@ const createWrapper = (client) =>
   function Wrapper({ children }) {
     return (
       <ChatContext.Provider
-        value={
-          {
-            client,
-            theme: 'messaging light',
-          } as any
-        }
+        value={fromPartial<ChatContextValue>({
+          client,
+          theme: 'messaging light',
+        })}
       >
         <TranslationProvider value={mockTranslationContextValue()}>
           {children}
@@ -179,7 +180,7 @@ describe('useChannelPreviewInfo', () => {
       expect(updateInfo).toBeDefined();
 
       act(() => {
-        (updateInfo as any)();
+        updateInfo(fromPartial<Event>({}));
       });
 
       expect(result.current.displayImage).toBe(imageUrl);

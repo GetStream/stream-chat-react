@@ -1,10 +1,12 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useMessageListScrollManager } from '../';
+import type { UseMessageListScrollManagerParams } from '../MessageList/useMessageListScrollManager';
 
 import { ChatProvider } from '../../../../context/ChatContext';
-import type { StreamChat } from 'stream-chat';
+import type { LocalMessage, StreamChat } from 'stream-chat';
 import {
   generateUser,
   getTestClientWithUser,
@@ -65,15 +67,17 @@ describe('useMessageListScrollManager', () => {
   it('emits scrollTop delta when messages are prepended', () => {
     const onScrollBy = vi.fn();
     const Comp = (props: any) => {
-      useMessageListScrollManager({
-        ...defaultInputs,
-        messages: props.messages,
-        onScrollBy,
-        scrollContainerMeasures: () => ({
-          scrollHeight: props.scrollHeight,
+      useMessageListScrollManager(
+        fromPartial<UseMessageListScrollManagerParams>({
+          ...defaultInputs,
+          messages: props.messages,
+          onScrollBy,
+          scrollContainerMeasures: () => ({
+            scrollHeight: props.scrollHeight,
+          }),
+          scrollToBottom: () => {},
         }),
-        scrollToBottom: () => {},
-      } as any);
+      );
 
       return <div />;
     };
@@ -131,14 +135,16 @@ describe('useMessageListScrollManager', () => {
   it('does not emit scroll to bottom when new messages arrive and user has scrolled up', () => {
     const showNewMessages = vi.fn();
     const Comp = (props: any) => {
-      const updateScrollTop = useMessageListScrollManager({
-        ...defaultInputs,
-        messages: props.messages,
-        scrollContainerMeasures: () => ({
-          scrollHeight: props.scrollHeight,
+      const updateScrollTop = useMessageListScrollManager(
+        fromPartial<UseMessageListScrollManagerParams>({
+          ...defaultInputs,
+          messages: props.messages,
+          scrollContainerMeasures: () => ({
+            scrollHeight: props.scrollHeight,
+          }),
+          showNewMessages,
         }),
-        showNewMessages,
-      } as any);
+      );
 
       updateScrollTop(props.scrollTop);
 
@@ -177,14 +183,16 @@ describe('useMessageListScrollManager', () => {
   it('emits scroll to bottom when new own message is posted, regardless of scroll position', () => {
     const scrollToBottom = vi.fn();
     const Comp = (props: any) => {
-      const updateScrollTop = useMessageListScrollManager({
-        ...defaultInputs,
-        messages: props.messages,
-        scrollContainerMeasures: () => ({
-          scrollHeight: props.scrollHeight,
+      const updateScrollTop = useMessageListScrollManager(
+        fromPartial<UseMessageListScrollManagerParams>({
+          ...defaultInputs,
+          messages: props.messages,
+          scrollContainerMeasures: () => ({
+            scrollHeight: props.scrollHeight,
+          }),
+          scrollToBottom,
         }),
-        scrollToBottom,
-      } as any);
+      );
 
       updateScrollTop(props.scrollTop);
 
@@ -210,7 +218,9 @@ describe('useMessageListScrollManager', () => {
     rerender(
       <ChatProvider value={mockChatContext({ client })}>
         <Comp
-          messages={messages.concat([{ id: 100, user: { id: client.userID } }] as any)}
+          messages={messages.concat(
+            fromPartial<LocalMessage[]>([{ id: 100, user: { id: client.userID } }]),
+          )}
           offsetHeight={100}
           scrollHeight={600}
           scrollTop={200}

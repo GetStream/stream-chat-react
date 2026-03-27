@@ -1,5 +1,6 @@
 import React from 'react';
 import { cleanup, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Message } from '../Message';
 import { MESSAGE_ACTIONS } from '../utils';
@@ -8,6 +9,7 @@ import { ChannelActionProvider } from '../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { useMessageContext } from '../../../context/MessageContext';
+import type { MessageContextValue } from '../../../context/MessageContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   generateChannel,
@@ -22,7 +24,7 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 import { ComponentProvider } from '../../../context/ComponentContext';
-import type { ChannelConfigWithInfo, LocalMessage } from 'stream-chat';
+import type { ChannelConfigWithInfo, LocalMessage, Mute } from 'stream-chat';
 import type {
   ChannelActionContextValue,
   ChannelStateContextValue,
@@ -30,6 +32,7 @@ import type {
   ComponentContextValue,
 } from '../../../context';
 import type { MessageProps } from '../types';
+import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -52,9 +55,9 @@ const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const sendAction = vi.fn();
 const sendReaction = vi.fn();
 const deleteReaction = vi.fn();
-const mouseEventMock = {
+const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
-};
+});
 
 const CustomMessageUIComponent = vi.fn(({ contextCallback }) => {
   const messageContext = useMessageContext();
@@ -84,14 +87,16 @@ async function renderComponent({
   renderer?: typeof render;
   [key: string]: unknown;
 }) {
-  const channel = generateChannel({
-    deleteReaction,
-    getConfig: () => channelConfig,
-    sendAction,
-    sendReaction,
-    state: { membership: {} },
-    ...channelStateOpts,
-  } as any);
+  const channel = generateChannel(
+    fromPartial<GenerateChannelOptions>({
+      deleteReaction,
+      getConfig: () => channelConfig,
+      sendAction,
+      sendReaction,
+      state: { membership: {} },
+      ...channelStateOpts,
+    }),
+  );
   const client = await getTestClientWithUser(alice);
 
   return renderer(
@@ -159,7 +164,7 @@ describe('<Message /> component', () => {
 
   it('should enable actions if message is of type regular and status received', async () => {
     const message = generateMessage({ status: 'received', type: 'regular' });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -174,7 +179,7 @@ describe('<Message /> component', () => {
   it("should warn if message's own reactions contain a reaction from a different user then the currently active one", async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [reaction] });
-    let context;
+    let context: MessageContextValue;
 
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 
@@ -196,7 +201,7 @@ describe('<Message /> component', () => {
   it('should delete own reaction from channel if it was already there', async () => {
     const reaction = generateReaction({ user: alice });
     const message = generateMessage({ own_reactions: [reaction] });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -212,7 +217,7 @@ describe('<Message /> component', () => {
   it('should send reaction', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -228,7 +233,7 @@ describe('<Message /> component', () => {
   it('should not send reaction without permission', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { channelCapabilities: { 'send-reaction': false } },
@@ -246,7 +251,7 @@ describe('<Message /> component', () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
     const updateMessage = vi.fn();
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelActionOpts: { updateMessage },
@@ -267,7 +272,7 @@ describe('<Message /> component', () => {
     const currentMessage = generateMessage();
     const updatedMessage = generateMessage();
     const action = { name: 'action', value: 'value' };
-    let context;
+    let context: MessageContextValue;
 
     sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
 
@@ -291,7 +296,7 @@ describe('<Message /> component', () => {
     const removeMessage = vi.fn();
     const currentMessage = generateMessage({ user: bob });
     const action = { name: 'action', value: 'value' };
-    let context;
+    let context: MessageContextValue;
 
     sendAction.mockImplementationOnce(() => Promise.resolve(undefined));
 
@@ -314,7 +319,7 @@ describe('<Message /> component', () => {
   it('should handle retry', async () => {
     const message = generateMessage();
     const retrySendMessage = vi.fn(() => Promise.resolve());
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelActionOpts: { retrySendMessage },
@@ -331,7 +336,7 @@ describe('<Message /> component', () => {
   it('should trigger channel mentions handler when there is one set and user clicks on a mention', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
     const onMentionsClick = vi.fn(() => {});
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelActionOpts: { onMentionsClick },
@@ -348,7 +353,7 @@ describe('<Message /> component', () => {
   it('should trigger channel mentions hover on mentions hover', async () => {
     const message = generateMessage({ mentioned_users: [bob] });
     const onMentionsHover = vi.fn(() => {});
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelActionOpts: { onMentionsHover },
@@ -365,7 +370,7 @@ describe('<Message /> component', () => {
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
     const message = generateMessage({ user: bob });
     const onUserClickMock = vi.fn(() => {});
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -382,7 +387,7 @@ describe('<Message /> component', () => {
   it('should trigger channel onUserHover handler when a user element is hovered', async () => {
     const message = generateMessage({ user: bob });
     const onUserHoverMock = vi.fn(() => {});
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -405,7 +410,7 @@ describe('<Message /> component', () => {
     const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { mutes: [] },
@@ -434,7 +439,7 @@ describe('<Message /> component', () => {
     const muteUser = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { mutes: [] },
@@ -463,7 +468,7 @@ describe('<Message /> component', () => {
     const userMutedFailNotification = 'User mute failed!';
     const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { mutes: [] },
@@ -492,7 +497,7 @@ describe('<Message /> component', () => {
     const muteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { mutes: [] },
@@ -522,10 +527,10 @@ describe('<Message /> component', () => {
     const getMuteUserSuccessNotification = vi.fn(() => userUnmutedNotification);
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
+      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -552,10 +557,10 @@ describe('<Message /> component', () => {
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
+      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -581,10 +586,10 @@ describe('<Message /> component', () => {
     const userMutedFailNotification = 'User muted failed!';
     const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
+      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -610,10 +615,10 @@ describe('<Message /> component', () => {
     const unmuteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [{ target: { id: bob.id } }] as any },
+      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -639,7 +644,7 @@ describe('<Message /> component', () => {
     async (_, actionsValue) => {
       const message = generateMessage({ user: bob });
       const messageActions = actionsValue;
-      let context;
+      let context: MessageContextValue;
 
       await renderComponent({
         contextCallback: (ctx) => {
@@ -655,7 +660,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to edit and delete message when message is from the user', async () => {
     const message = generateMessage({ user: alice });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -676,7 +681,7 @@ describe('<Message /> component', () => {
     ['channel moderator', 'channel_moderator'],
   ])('should allow user to edit and delete message when user is %s', async (_, role) => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -695,7 +700,7 @@ describe('<Message /> component', () => {
 
   it('should not allow user to edit and delete messages when user is the channel owner', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -715,7 +720,7 @@ describe('<Message /> component', () => {
     const amin = generateUser({ name: 'amin', role: 'channel_moderator' });
     const client = await getTestClientWithUser(amin);
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -734,7 +739,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to edit and delete message when user is admin', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -753,7 +758,7 @@ describe('<Message /> component', () => {
 
   it('should not allow user to edit or delete message when user message is not from user and user has no special role', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       contextCallback: (ctx) => {
@@ -768,7 +773,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to flag others messages', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { channelCapabilities: { 'flag-message': true } },
@@ -783,7 +788,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to mute others messages', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { channelCapabilities: { 'mute-channel': true } },
@@ -805,7 +810,7 @@ describe('<Message /> component', () => {
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
     const messageFlaggedNotification = 'Message flagged!';
     const getFlagMessageSuccessNotification = vi.fn(() => messageFlaggedNotification);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       clientOpts: { client },
@@ -834,7 +839,7 @@ describe('<Message /> component', () => {
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
     const defaultSuccessNotification = 'Message has been successfully flagged';
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       clientOpts: { client },
@@ -862,7 +867,7 @@ describe('<Message /> component', () => {
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
     const messageFlagFailedNotification = 'Message flagged failed!';
     const getFlagMessageErrorNotification = vi.fn(() => messageFlagFailedNotification);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       clientOpts: { client },
@@ -890,7 +895,7 @@ describe('<Message /> component', () => {
     const flagMessage = vi.fn(() => Promise.reject());
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
     const defaultFlagMessageFailedNotification = 'Error adding flag';
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       clientOpts: { client },
@@ -912,7 +917,7 @@ describe('<Message /> component', () => {
 
   it('should allow user to pin messages when permissions allow', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -931,7 +936,7 @@ describe('<Message /> component', () => {
 
   it('should not allow user to pin messages when permissions do not allow', async () => {
     const message = generateMessage({ user: bob });
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: {
@@ -951,7 +956,7 @@ describe('<Message /> component', () => {
   it('should allow user to retry sending a message', async () => {
     const message = generateMessage();
     const retrySendMessage = vi.fn(() => Promise.resolve());
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelActionOpts: { retrySendMessage },
@@ -968,7 +973,7 @@ describe('<Message /> component', () => {
   it('should allow user to open a thread', async () => {
     const message = generateMessage();
     const openThread = vi.fn();
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelActionOpts: { openThread },
@@ -985,7 +990,7 @@ describe('<Message /> component', () => {
   it('should correctly tell if message belongs to currently set user', async () => {
     const message = generateMessage({ user: alice });
     const client = await getTestClientWithUser(alice);
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       clientOpts: { client },
@@ -1001,7 +1006,7 @@ describe('<Message /> component', () => {
   it('should pass channel configuration to UI rendered UI component', async () => {
     const message = generateMessage({ user: alice });
     const channelConfigMock = { mutes: false, replies: false } as ChannelConfigWithInfo;
-    let context;
+    let context: MessageContextValue;
 
     await renderComponent({
       channelStateOpts: { channelConfig: channelConfigMock },
@@ -1113,12 +1118,12 @@ describe('<Message /> component', () => {
       components: { Message: UIMock },
       message,
       props: {
-        messageListRect: {
+        messageListRect: fromPartial<DOMRect>({
           height: 100,
           width: 100,
           x: 10,
           y: 10,
-        } as any,
+        }),
       },
     });
 
@@ -1129,12 +1134,12 @@ describe('<Message /> component', () => {
       components: { Message: UIMock },
       message,
       props: {
-        messageListRect: {
+        messageListRect: fromPartial<DOMRect>({
           height: 200,
           width: 200,
           x: 20,
           y: 20,
-        } as any,
+        }),
       },
       render: rerender,
     });

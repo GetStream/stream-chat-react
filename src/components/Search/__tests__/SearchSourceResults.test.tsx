@@ -130,11 +130,11 @@ describe('SearchSourceResults', () => {
   });
 
   it('provides searchSource context to children', async () => {
-    const { SearchSourceResultsContext } = await vi.importActual(
-      '../SearchSourceResultsContext',
-    );
+    const { SearchSourceResultsContext } = await vi.importActual<
+      typeof import('../SearchSourceResultsContext')
+    >('../SearchSourceResultsContext');
     const ContextConsumer = () => {
-      const context = React.useContext(SearchSourceResultsContext as any) as any;
+      const context = React.useContext(SearchSourceResultsContext);
       return <div data-testid='context-consumer'>{context?.searchSource.type}</div>;
     };
 

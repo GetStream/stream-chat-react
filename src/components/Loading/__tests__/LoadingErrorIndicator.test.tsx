@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { cleanup, render, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { LoadingErrorIndicator } from '../LoadingErrorIndicator';
 
@@ -18,7 +19,9 @@ describe('LoadingErrorIndicator', () => {
 
   it('should render when an error is passed', () => {
     const { container } = render(
-      <LoadingErrorIndicator error={{ message: 'this is an error' } as any} />,
+      <LoadingErrorIndicator
+        error={fromPartial<Error>({ message: 'this is an error' })}
+      />,
     );
     expect(container).toMatchInlineSnapshot(`
       <div>
@@ -32,7 +35,10 @@ describe('LoadingErrorIndicator', () => {
     const chatClient = await getTestClientWithUser({ id: 'test' });
     const { getByText } = render(
       <Chat client={chatClient}>
-        <LoadingErrorIndicator error={{ message: 'test error message' } as any} />,
+        <LoadingErrorIndicator
+          error={fromPartial<Error>({ message: 'test error message' })}
+        />
+        ,
       </Chat>,
     );
     waitFor(() => {

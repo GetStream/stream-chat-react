@@ -1,9 +1,12 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { SearchBar } from '../SearchBar';
 import { useSearchContext } from '../SearchContext';
+import type { SearchContextValue } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
+import type { TranslationContextValue } from '../../../context';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
@@ -36,8 +39,12 @@ describe('SearchBar', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useSearchContext).mockReturnValue(defaultProps as any);
-    vi.mocked(useTranslationContext).mockReturnValue({ t: (key: any) => key } as any);
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>(defaultProps),
+    );
+    vi.mocked(useTranslationContext).mockReturnValue(
+      fromPartial<TranslationContextValue>({ t: (key: any) => key }),
+    );
     vi.mocked(useStateStore).mockReturnValue({
       isActive: false,
       searchQuery: '',
@@ -59,10 +66,12 @@ describe('SearchBar', () => {
   });
 
   it('shows default placeholder when none provided', () => {
-    vi.mocked(useSearchContext).mockReturnValue({
-      ...defaultProps,
-      placeholder: undefined,
-    } as any);
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        placeholder: undefined,
+      }),
+    );
 
     render(<SearchBar />);
 
@@ -156,10 +165,12 @@ describe('SearchBar', () => {
   });
 
   it('handles blur when exitSearchOnInputBlur is true', () => {
-    vi.mocked(useSearchContext).mockReturnValue({
-      ...defaultProps,
-      exitSearchOnInputBlur: true,
-    } as any);
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        exitSearchOnInputBlur: true,
+      }),
+    );
 
     render(<SearchBar />);
 
@@ -171,10 +182,12 @@ describe('SearchBar', () => {
   });
 
   it('disables input when disabled prop is true', () => {
-    vi.mocked(useSearchContext).mockReturnValue({
-      ...defaultProps,
-      disabled: true,
-    } as any);
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        disabled: true,
+      }),
+    );
 
     render(<SearchBar />);
 

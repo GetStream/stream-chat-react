@@ -20,7 +20,7 @@ describe('BehaviorSubject', () => {
   });
 
   it('emits value to all observers', () => {
-    const subject = new BehaviorSubject(undefined as any);
+    const subject = new BehaviorSubject<string | undefined>(undefined);
     const observers = Array.from({ length: 5 }, () => vi.fn());
     observers.forEach((observer) => subject.subscribe(observer));
     emittedValues.forEach((emitted) => {
@@ -32,7 +32,7 @@ describe('BehaviorSubject', () => {
   });
 
   it('emits error to all observers', () => {
-    const subject = new BehaviorSubject(undefined as any);
+    const subject = new BehaviorSubject<string | undefined>(undefined);
     const observers = Array.from({ length: 5 }, () => ({
       error: vi.fn(),
       next: vi.fn(),
@@ -52,7 +52,7 @@ describe('BehaviorSubject', () => {
   });
 
   it('completes all subscriptions', () => {
-    const subject = new BehaviorSubject(undefined as any);
+    const subject = new BehaviorSubject<string | undefined>(undefined);
     const observers = Array.from({ length: 5 }, () => ({
       complete: vi.fn(),
       next: vi.fn(),

@@ -25,6 +25,7 @@ import {
   mockTranslationContextValue,
   useMockedApis,
 } from '../../../mock-builders';
+import type { GenerateChannelOptions } from '../../../mock-builders';
 import { WithAudioPlayback } from '../../AudioPlayback';
 
 let chatClient: StreamChat;
@@ -36,11 +37,13 @@ vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {}
 vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
 const channelActionContext = fromPartial<ChannelActionContextValue>({});
 
-const mockedChannel = generateChannel({
-  members: [generateMember({ user })],
-  messages: [],
-  threads: [],
-} as any);
+const mockedChannel = generateChannel(
+  fromPartial<GenerateChannelOptions>({
+    members: [generateMember({ user })],
+    messages: [],
+    threads: [],
+  }),
+);
 
 const renderCard = ({ cardProps, chatContext, theRenderer = render }: any) =>
   theRenderer(

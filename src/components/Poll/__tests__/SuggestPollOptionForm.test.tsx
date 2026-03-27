@@ -1,8 +1,11 @@
 import React from 'react';
 import { Poll } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { SuggestPollOptionPrompt } from '../PollActions';
 import { ChatProvider, PollProvider, TranslationProvider } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import {
   generatePoll,
   mockChatContext,
@@ -13,7 +16,7 @@ const SUBMIT_BUTTON_TEXT = 'Send';
 
 const newlyTypedValue = 'XX';
 
-const t = ((v: any) => v) as any;
+const t = ((v: string) => v) as TranslationContextValue['t'];
 
 const renderComponent = ({ client, poll, props }: any) =>
   render(
@@ -33,9 +36,9 @@ describe('SuggestPollOptionPrompt', () => {
     const createPollOptionSpy = vi
       .fn()
       .mockResolvedValue({ poll_option: { id: 'new-poll-option-id' } });
-    const client = { createPollOption: createPollOptionSpy };
+    const client = fromPartial<StreamChat>({ createPollOption: createPollOptionSpy });
     const poll = new Poll({
-      client: client as any,
+      client,
       poll: generatePoll(),
     });
     const { container } = renderComponent({ client, poll });

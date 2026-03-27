@@ -80,9 +80,7 @@ async function renderQuotedMessage({
           >
             <ComponentProvider
               value={mockComponentContext({
-                Message() {
-                  return <MessageUI {...({ channelConfig } as any)} />;
-                },
+                Message: () => <MessageUI />,
                 ...componentContext,
               })}
             >

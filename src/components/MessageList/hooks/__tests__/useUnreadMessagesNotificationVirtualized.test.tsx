@@ -1,10 +1,12 @@
 import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { useUnreadMessagesNotificationVirtualized } from '../VirtualizedMessageList';
+import type { UseUnreadMessagesNotificationParams } from '../VirtualizedMessageList/useUnreadMessagesNotificationVirtualized';
 import { act } from '@testing-library/react';
 import { generateMessage } from '../../../../mock-builders';
+import type { RenderedMessage } from '../../utils';
 
-const render = (params: any) => {
+const render = (params: UseUnreadMessagesNotificationParams) => {
   const wrapper = ({ children }: React.PropsWithChildren) => <>{children}</>;
   return renderHook(() => useUnreadMessagesNotificationVirtualized(params), {
     wrapper,
@@ -40,7 +42,9 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
       ];
       const { result } = render({ lastRead, showAlways: false, unreadCount: 0 });
       await act(() => {
-        result.current.toggleShowUnreadMessagesNotification(messages as any);
+        result.current.toggleShowUnreadMessagesNotification(
+          messages as RenderedMessage[],
+        );
       });
       expect(result.current.show).toBe(false);
     });
@@ -61,7 +65,9 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           unreadCount: 1,
         });
         await act(() => {
-          result.current.toggleShowUnreadMessagesNotification(messages as any);
+          result.current.toggleShowUnreadMessagesNotification(
+            messages as RenderedMessage[],
+          );
         });
         expect(result.current.show).toBe(true);
       },
@@ -87,7 +93,9 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           unreadCount: 1,
         });
         await act(() => {
-          result.current.toggleShowUnreadMessagesNotification(messages as any);
+          result.current.toggleShowUnreadMessagesNotification(
+            messages as RenderedMessage[],
+          );
         });
         expect(result.current.show).toBe(showUnreadNotificationAlways);
       },
@@ -109,7 +117,9 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           unreadCount: 1,
         });
         await act(() => {
-          result.current.toggleShowUnreadMessagesNotification(messages as any);
+          result.current.toggleShowUnreadMessagesNotification(
+            messages as RenderedMessage[],
+          );
         });
         expect(result.current.show).toBe(false);
       },
@@ -131,7 +141,9 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           unreadCount: 1,
         });
         await act(() => {
-          result.current.toggleShowUnreadMessagesNotification(messages as any);
+          result.current.toggleShowUnreadMessagesNotification(
+            messages as RenderedMessage[],
+          );
         });
         expect(result.current.show).toBe(false);
       },

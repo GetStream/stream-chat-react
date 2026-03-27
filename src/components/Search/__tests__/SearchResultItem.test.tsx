@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { SearchController } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   ChannelSearchResultItem,
@@ -8,6 +9,7 @@ import {
   UserSearchResultItem,
 } from '../SearchResults';
 import { SearchContextProvider } from '../SearchContext';
+import type { SearchContextValue } from '../SearchContext';
 import {
   ChannelListContextProvider,
   ChatProvider,
@@ -43,16 +45,20 @@ const renderComponent = async ({
   } = await initClientWithChannels();
   let item: any;
   if (channelSearchData) {
-    item = await initChannelFromData({
-      channelData: channelSearchData,
-      client,
-    } as any);
+    item = await initChannelFromData(
+      fromPartial<Parameters<typeof initChannelFromData>[0]>({
+        channelData: channelSearchData,
+        client,
+      }),
+    );
   } else if (messageResponseData) {
     item = messageResponseData;
-    await initChannelFromData({
-      channelData: messageResponseData,
-      client,
-    } as any);
+    await initChannelFromData(
+      fromPartial<Parameters<typeof initChannelFromData>[0]>({
+        channelData: messageResponseData,
+        client,
+      }),
+    );
   } else if (userData) {
     item = userData;
   }
@@ -70,7 +76,9 @@ const renderComponent = async ({
         <ChannelListContextProvider
           value={mockChannelListContext({ setChannels: mockSetChannels })}
         >
-          <SearchContextProvider value={{ directMessagingChannelType } as any}>
+          <SearchContextProvider
+            value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
+          >
             <SearchResultItemComponent item={item} />
           </SearchContextProvider>
         </ChannelListContextProvider>
@@ -122,7 +130,7 @@ describe('SearchResultItem Components', () => {
     it('handles message selection', async () => {
       const searchController = new SearchController();
       const message = generateMessage();
-      const messageResponseData = generateChannel({ messages: [message] as any });
+      const messageResponseData = generateChannel({ messages: [message] });
       await renderComponent({
         chatContext: { searchController },
         messageResponseData,
@@ -146,7 +154,7 @@ describe('SearchResultItem Components', () => {
       const message = generateMessage();
       const messageResponseData = {
         text: message.text,
-        ...generateChannel({ messages: [message] as any }),
+        ...generateChannel({ messages: [message] }),
       };
       await renderComponent({
         messageResponseData,

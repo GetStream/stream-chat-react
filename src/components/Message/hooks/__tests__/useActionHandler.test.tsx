@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { handleActionWarning, useActionHandler } from '../useActionHandler';
 
@@ -15,20 +16,23 @@ import {
   mockChannelStateContext,
   mockChatContext,
 } from '../../../../mock-builders';
+import type { GenerateChannelOptions } from '../../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const sendAction = vi.fn();
 const removeMessage = vi.fn();
 const updateMessage = vi.fn();
-const mouseEventMock = {
+const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
-};
+});
 
 async function renderUseHandleActionHook(message: any = generateMessage()) {
   const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({
-    sendAction,
-  } as any);
+  const channel = generateChannel(
+    fromPartial<GenerateChannelOptions>({
+      sendAction,
+    }),
+  );
   const wrapper = ({ children }: { children: React.ReactNode }) => (
     <ChatProvider value={mockChatContext({ client })}>
       <ChannelStateProvider value={mockChannelStateContext({ channel })}>
@@ -54,7 +58,7 @@ describe('useHandleAction custom hook', () => {
   it('should warn user if the hooks was not initialized with a defined message', async () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleAction = await renderUseHandleActionHook(null);
-    await handleAction('action', 'value', mouseEventMock as any);
+    await handleAction('action', 'value', mouseEventMock);
     expect(console.warn).toHaveBeenCalledWith(handleActionWarning);
   });
 
@@ -67,7 +71,7 @@ describe('useHandleAction custom hook', () => {
     };
     sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
     const handleAction = await renderUseHandleActionHook(currentMessage);
-    await handleAction(action.name, action.value, mouseEventMock as any);
+    await handleAction(action.name, action.value, mouseEventMock);
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
@@ -82,7 +86,7 @@ describe('useHandleAction custom hook', () => {
     };
     sendAction.mockImplementationOnce(() => Promise.resolve(undefined));
     const handleAction = await renderUseHandleActionHook(currentMessage);
-    await handleAction(action.name, action.value, mouseEventMock as any);
+    await handleAction(action.name, action.value, mouseEventMock);
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });

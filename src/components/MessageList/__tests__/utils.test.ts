@@ -1,3 +1,4 @@
+import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage } from 'stream-chat';
 
 import {
@@ -129,7 +130,7 @@ describe('processMessages', () => {
   describe('date separator', () => {
     it('is disabled by default', () => {
       const { messages, newMessageList } = runMessageProcessing(msgCreationDatesSameDay);
-      dateSeparatorInsertedAt([] as any, messages, newMessageList);
+      dateSeparatorInsertedAt([], messages, newMessageList);
     });
 
     describe('inserted at the beginning only', () => {
@@ -595,14 +596,20 @@ describe('getGroupStyles', () => {
   });
 
   it('marks a message a top if it has reactions', () => {
-    message = { ...message, reaction_groups: { X: 'Y' } as any };
+    message = {
+      ...message,
+      reaction_groups: fromPartial<LocalMessage['reaction_groups']>({ X: 'Y' }),
+    };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'top',
     );
   });
 
   it('marks a message a bottom if next message has reactions', () => {
-    nextMessage = { ...nextMessage, reaction_groups: { X: 'Y' } as any };
+    nextMessage = {
+      ...nextMessage,
+      reaction_groups: fromPartial<LocalMessage['reaction_groups']>({ X: 'Y' }),
+    };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',
     );

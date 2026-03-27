@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, type RenderResult, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage } from 'stream-chat';
 
@@ -15,10 +15,10 @@ const SYSTEM_MSG_TEST_ID = 'message-system';
 describe('EventComponent', () => {
   afterEach(cleanup);
 
-  const message = {
+  const message = fromPartial<LocalMessage>({
     created_at: new Date('2020-03-13T10:18:38.148025Z'),
     type: 'system',
-  } as any;
+  });
 
   const renderComponent = async (
     { chatProps, props } = {} as {
@@ -26,7 +26,7 @@ describe('EventComponent', () => {
       props?: Partial<EventComponentProps>;
     },
   ) => {
-    let result;
+    let result: RenderResult;
     await act(() => {
       result = render(
         <Chat client={getTestClient()} {...chatProps}>
@@ -46,7 +46,7 @@ describe('EventComponent', () => {
 
   it('should render null for non-system message types', () => {
     const { container } = render(
-      <EventComponent message={{ type: 'channel.event' } as any} />,
+      <EventComponent message={fromPartial<LocalMessage>({ type: 'channel.event' })} />,
     );
     expect(container).toBeEmptyDOMElement();
   });
@@ -106,30 +106,30 @@ describe('EventComponent', () => {
 
   describe('Channel events', () => {
     it('should render null for member add event (channel events no longer rendered)', () => {
-      const msg = {
+      const msg = fromPartial<LocalMessage>({
         created_at: '2020-01-13T18:18:38.148025Z',
         event: {
           type: 'member.added',
           user: { id: 'user_id', image: 'image_url', username: 'username' },
         },
         type: 'channel.event',
-      };
+      });
 
-      const { container } = render(<EventComponent message={msg as any} />);
+      const { container } = render(<EventComponent message={msg} />);
       expect(container).toBeEmptyDOMElement();
     });
 
     it('should render null for member remove event (channel events no longer rendered)', () => {
-      const msg = {
+      const msg = fromPartial<LocalMessage>({
         created_at: '2020-01-13T18:18:38.148025Z',
         event: {
           type: 'member.removed',
           user: { id: 'user_id', image: 'image_url', username: 'username' },
         },
         type: 'channel.event',
-      };
+      });
 
-      const { container } = render(<EventComponent message={msg as any} />);
+      const { container } = render(<EventComponent message={msg} />);
       expect(container).toBeEmptyDOMElement();
     });
   });

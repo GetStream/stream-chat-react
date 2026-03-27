@@ -1,6 +1,7 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react';
-import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import { renderHook, type RenderHookResult } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel as ChannelType, MessageResponse, StreamChat } from 'stream-chat';
 
 import { useDeleteHandler } from '../useDeleteHandler';
 import {
@@ -22,7 +23,9 @@ import { act } from '@testing-library/react';
 let channel: ChannelType;
 let client: StreamChat;
 const testMessage = generateMessage();
-const deleteMessage = vi.fn(() => Promise.resolve(testMessage)) as any;
+const deleteMessage = vi.fn(() =>
+  Promise.resolve(testMessage as unknown as MessageResponse),
+);
 const removeMessage = vi.fn();
 const updateMessage = vi.fn();
 
@@ -45,9 +48,9 @@ async function renderUseDeleteHandler(message = testMessage) {
       </Channel>
     </Chat>
   );
-  let rendered;
+  let rendered: RenderHookResult<ReturnType<typeof useDeleteHandler>, unknown>;
   await act(async () => {
-    rendered = await renderHook(() => useDeleteHandler(message as any), { wrapper });
+    rendered = await renderHook(() => useDeleteHandler(message), { wrapper });
   });
 
   return rendered.result.current;
@@ -93,10 +96,12 @@ describe('useDeleteHandler custom hook', () => {
   });
 
   it('should remove local network-failed message without server delete call', async () => {
-    const networkFailedMessage = generateMessage({
-      error: { status: 0 },
-      status: 'failed',
-    } as any);
+    const networkFailedMessage = generateMessage(
+      fromPartial<MessageResponse>({
+        error: { status: 0 },
+        status: 'failed',
+      }),
+    );
 
     const handleDelete = await renderUseDeleteHandler(networkFailedMessage);
 
@@ -121,12 +126,9 @@ describe('useDeleteHandler custom hook', () => {
       </Chat>
     );
 
-    const { result } = renderHook(
-      () => useDeleteHandler(testMessage as any, { notify }),
-      {
-        wrapper,
-      },
-    );
+    const { result } = renderHook(() => useDeleteHandler(testMessage, { notify }), {
+      wrapper,
+    });
 
     await expect(result.current()).rejects.toThrow('delete failed');
     expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');

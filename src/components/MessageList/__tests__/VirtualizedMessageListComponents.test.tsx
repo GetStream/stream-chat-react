@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import {
   EmptyPlaceholder,
   Header,
@@ -33,6 +34,7 @@ import { ChatViewContext } from '../../ChatView/ChatView';
 import type { ChatView } from '../../ChatView/ChatView';
 import { MessageUI } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
+import type { GroupStyle, RenderedMessage } from '../utils';
 import type { Channel, StreamChat } from 'stream-chat';
 
 const prependOffset = 0;
@@ -301,7 +303,7 @@ describe('VirtualizedMessageComponents', () => {
     describe('default item rendering logic', () => {
       it('should forward message group styles', () => {
         const virtuosoRef = { current: {} };
-        let groupStylesMessageContext;
+        let groupStylesMessageContext: GroupStyle[];
         const Message = () => {
           const { groupStyles } = useMessageContext();
           groupStylesMessageContext = groupStyles;
@@ -377,7 +379,10 @@ describe('VirtualizedMessageComponents', () => {
         const virtuosoContext = {
           numItemsPrepended,
           processedMessages: [
-            generateMessage({ customType: 'message.date', date: new Date() } as any),
+            fromPartial<RenderedMessage>({
+              customType: 'message.date',
+              date: new Date(),
+            }),
           ],
         };
         const { container } = render(
@@ -397,7 +402,10 @@ describe('VirtualizedMessageComponents', () => {
           DateSeparator,
           numItemsPrepended,
           processedMessages: [
-            generateMessage({ customType: 'message.date', date: new Date() } as any),
+            fromPartial<RenderedMessage>({
+              customType: 'message.date',
+              date: new Date(),
+            }),
           ],
         };
         render(
@@ -437,8 +445,8 @@ describe('VirtualizedMessageComponents', () => {
         const messages = Array.from({ length: 2 }, (_, i) =>
           generateMessage({
             created_at: new Date(i + 2).toISOString(),
-            id: i + 1,
-          } as any),
+            id: String(i + 1),
+          }),
         );
 
         const Message = () => <div className='message-component' />;
@@ -489,7 +497,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 1,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} } as any,
+              virtuosoRef: fromPartial<VirtuosoContext['virtuosoRef']>({ current: {} }),
             },
           });
           expect(
@@ -515,7 +523,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 1,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} } as any,
+              virtuosoRef: fromPartial<VirtuosoContext['virtuosoRef']>({ current: {} }),
             },
           });
           expect(container).toMatchInlineSnapshot(`
@@ -541,7 +549,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 0,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} } as any,
+              virtuosoRef: fromPartial<VirtuosoContext['virtuosoRef']>({ current: {} }),
             },
           });
           expect(
@@ -566,7 +574,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 0,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} } as any,
+              virtuosoRef: fromPartial<VirtuosoContext['virtuosoRef']>({ current: {} }),
             },
           });
           expect(container).toMatchInlineSnapshot(`
@@ -591,7 +599,7 @@ describe('VirtualizedMessageComponents', () => {
               processedMessages: messages,
               unreadMessageCount: 1,
               UnreadMessagesSeparator,
-              virtuosoRef: { current: {} } as any,
+              virtuosoRef: fromPartial<VirtuosoContext['virtuosoRef']>({ current: {} }),
             },
           });
           expect(container).toMatchInlineSnapshot(`

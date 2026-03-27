@@ -1,12 +1,21 @@
 import React from 'react';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { MessageText as MessageTextMock } from '../MessageText';
-import { MESSAGE_ACTIONS } from '../utils';
+import type { MessageProps } from '../types';
 
 import { Chat } from '../../Chat';
 import { Attachment as AttachmentMock } from '../../Attachment';
@@ -113,7 +122,7 @@ describe('<MessageSimple />', () => {
     props?: Partial<MessageContextValue>;
     renderer?: typeof render;
   }) {
-    let result;
+    let result: RenderResult;
     await act(() => {
       result = renderer(
         <Chat client={client}>
@@ -140,13 +149,11 @@ describe('<MessageSimple />', () => {
                 }}
               >
                 <Message
-                  {...({
-                    getMessageActions: () => Object.keys(MESSAGE_ACTIONS),
-                    isMyMessage: () => true,
+                  {...fromPartial<MessageProps>({
                     message,
                     threadList: false,
                     ...props,
-                  } as any)}
+                  })}
                 />
               </WithComponents>
             </ChannelActionProvider>
@@ -163,9 +170,11 @@ describe('<MessageSimple />', () => {
   });
 
   beforeEach(async () => {
-    const mockedChannel = generateChannel({
-      state: { membership: {} },
-    } as any);
+    const mockedChannel = generateChannel(
+      fromPartial<Parameters<typeof generateChannel>[0]>({
+        state: { membership: {} },
+      }),
+    );
 
     client = await getTestClientWithUser(alice);
     useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);

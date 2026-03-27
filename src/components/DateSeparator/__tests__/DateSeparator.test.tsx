@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, type RenderResult, screen } from '@testing-library/react';
 
 import { Chat } from '../../Chat';
 import { DateSeparator } from '../DateSeparator';
@@ -15,7 +15,7 @@ const date = new Date('2020-03-30T22:57:47.173Z');
 const formatDate = () => dateMock;
 
 const renderComponent = async ({ chatProps, props }: any) => {
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={getTestClient()} {...chatProps}>

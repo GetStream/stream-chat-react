@@ -1,11 +1,13 @@
 import { getDateString, predefinedFormatters } from '../utils';
 import { Streami18n } from '../Streami18n';
 import Dayjs from 'dayjs';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { TFunction } from 'i18next';
 import type { TDateTimeParser } from '../types';
 
 vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 const messageCreatedAt = '1970-01-01T01:01:01.001Z';
-const t = vi.fn() as any;
+const t = vi.fn() as unknown as TFunction & ReturnType<typeof vi.fn>;
 const timestampTranslationKey = 'timestampTranslationKey';
 
 const FIXED_NOW = new Date('2025-02-19T12:00:00.000Z');
@@ -109,11 +111,11 @@ describe('getDateString', () => {
   ])(
     'invokes calendar method on dayOrMoment object with calendar formats %s',
     (_, calendarFormats) => {
-      const dayOrMoment = {
+      const dayOrMoment = fromPartial<Dayjs.Dayjs>({
         calendar: vi.fn(),
         format: vi.fn(),
         isSame: true,
-      } as any;
+      });
       getDateString({
         calendar: true,
         calendarFormats,
@@ -133,11 +135,11 @@ describe('getDateString', () => {
   ])(
     'invokes format method on dayOrMoment object with calendar formats %s',
     (_, calendarFormats) => {
-      const dayOrMoment = {
+      const dayOrMoment = fromPartial<Dayjs.Dayjs>({
         calendar: vi.fn(),
         format: vi.fn(),
         isSame: true,
-      } as any;
+      });
       const format = 'XY';
       getDateString({
         calendar: false,
@@ -293,7 +295,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: FIXED_NOW.toISOString(),
         relativeCompact: true,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Today');
@@ -310,7 +312,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: yesterday.toISOString(),
         relativeCompact: true,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Yesterday');
@@ -328,7 +330,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: threeDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('3d ago');
@@ -346,7 +348,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('1w ago');
@@ -360,7 +362,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: twentyEightDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -374,7 +376,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: tomorrow.toISOString(),
         relativeCompact: true,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -389,7 +391,7 @@ describe('getDateString', () => {
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
         relativeCompactMaxWeeks: 0,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -409,7 +411,7 @@ describe('getDateString', () => {
         relativeCompact: true,
         relativeCompactMaxDays: 2,
         relativeCompactMaxWeeks: 0,
-        t: mockT as any,
+        t: mockT as unknown as TFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -417,11 +419,11 @@ describe('getDateString', () => {
     });
 
     it('does not use relativeCompact when t or tDateTimeParser is missing', () => {
-      const dayOrMoment = {
+      const dayOrMoment = fromPartial<Dayjs.Dayjs>({
         calendar: vi.fn(),
         format: vi.fn().mockReturnValue('formatted'),
         isSame: true,
-      } as any;
+      });
       getDateString({
         messageCreatedAt: FIXED_NOW.toISOString(),
         relativeCompact: true,

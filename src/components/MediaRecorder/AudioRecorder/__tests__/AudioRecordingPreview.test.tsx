@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { AudioRecordingPlayback } from '../AudioRecordingPlayback';
 import { useAudioPlayer, WithAudioPlayback } from '../../../AudioPlayback';
+import type { AudioPlayer } from '../../../AudioPlayback';
 import { generateAudioAttachment } from '../../../../mock-builders';
 
 const TOGGLE_PLAY_BTN_TEST_ID = 'audio-recording-preview-toggle-play-btn';
@@ -50,12 +52,14 @@ vi.spyOn(window, 'Audio').mockImplementation(function AudioMock(...args) {
 });
 
 vi.spyOn(console, 'warn').mockImplementation(() => {});
-vi.spyOn(window.HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
-  width: defaultProps.waveformData.length,
-  x: 0,
-} as any);
-vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(
-  () => undefined as any,
+vi.spyOn(window.HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
+  fromPartial<DOMRect>({
+    width: defaultProps.waveformData.length,
+    x: 0,
+  }),
+);
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+  Promise.resolve(),
 );
 vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
@@ -73,7 +77,7 @@ class PointerEventMock extends Event {
   }
 }
 
-(window as any).PointerEvent = PointerEventMock;
+window.PointerEvent = PointerEventMock as unknown as typeof PointerEvent;
 
 const renderComponent = ({ getPlayer = () => null, ...props }: any = {}) => {
   const finalProps = { ...defaultProps, ...props };
@@ -126,7 +130,7 @@ describe('AudioRecordingPlayback', () => {
   });
 
   it('seeks in the playback by dragging the slider', async () => {
-    let player;
+    let player: AudioPlayer;
     const { container } = renderComponent({
       getPlayer: (p) => {
         player = p;
@@ -161,7 +165,7 @@ describe('AudioRecordingPlayback', () => {
   });
 
   it('seeks in the playback by clicking on waveform', async () => {
-    let player;
+    let player: AudioPlayer;
     const { container } = renderComponent({
       getPlayer: (p) => {
         player = p;

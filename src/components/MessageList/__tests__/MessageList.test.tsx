@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 import {
   dispatchMessageNewEvent,
@@ -19,15 +20,19 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
 import {
+  ChannelStateProvider,
   useChannelActionContext,
+  useChannelStateContext,
   useMessageContext,
   WithComponents,
 } from '../../../context';
+import type { ChannelStateContextValue } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
-import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import type { Channel as ChannelType, Event, StreamChat } from 'stream-chat';
 import type { ComponentContextValue } from '../../../context';
+import type { MockInstance } from 'vitest';
 import type { ChannelProps } from '../../Channel';
 import type { MessageListProps } from '../MessageList';
 
@@ -60,10 +65,25 @@ const reply1 = generateMessage({ parent_id: message1.id, text: 'reply1', user: u
 const reply2 = generateMessage({ parent_id: message1.id, text: 'reply2', user: user2 });
 const mockedChannelData = generateChannel({
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
-  messages: [message1] as any,
+  messages: [message1],
 });
 
 const Avatar = () => <div data-testid='custom-avatar'>Avatar</div>;
+
+const ChannelStateOverride = ({
+  children,
+  overrides,
+}: {
+  children: React.ReactNode;
+  overrides: Partial<ChannelStateContextValue>;
+}) => {
+  const currentContext = useChannelStateContext();
+  return (
+    <ChannelStateProvider value={{ ...currentContext, ...overrides }}>
+      {children}
+    </ChannelStateProvider>
+  );
+};
 
 const renderComponent = ({
   channelProps,
@@ -87,7 +107,7 @@ const renderComponent = ({
   );
 
 const createDeferred = () => {
-  let resolve;
+  let resolve: (value: unknown) => void;
   const promise = new Promise((promiseResolve) => {
     resolve = promiseResolve;
   });
@@ -97,8 +117,8 @@ const createDeferred = () => {
 
 describe('MessageList', () => {
   let chatClient: StreamChat;
-  let channel;
-  let markReadMock;
+  let channel: ChannelType;
+  let markReadMock: MockInstance;
 
   beforeEach(async () => {
     chatClient = await getTestClientWithUser({ id: 'vishal' });
@@ -106,7 +126,9 @@ describe('MessageList', () => {
     channel = chatClient.channel('messaging', mockedChannelData['id']);
     await channel.watch();
 
-    markReadMock = vi.spyOn(channel, 'markRead').mockResolvedValue(markReadApi(channel));
+    markReadMock = vi
+      .spyOn(channel, 'markRead')
+      .mockResolvedValue(fromPartial(markReadApi(channel)));
   });
 
   afterEach(() => {
@@ -124,9 +146,7 @@ describe('MessageList', () => {
     expect(await findByTestId('reverse-infinite-scroll')).toBeInTheDocument();
 
     const newMessage = generateMessage({ user: user2 });
-    act(() =>
-      dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel as any),
-    );
+    act(() => dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel));
 
     await waitFor(() => {
       expect(getByText(newMessage.text)).toBeInTheDocument();
@@ -231,7 +251,7 @@ describe('MessageList', () => {
         channel,
       },
       chatClient,
-      msgListProps: { groupStyles: (() => classNameSuffix) as any },
+      msgListProps: fromPartial<MessageListProps>({ groupStyles: () => classNameSuffix }),
     });
 
     await waitFor(() => {
@@ -241,7 +261,7 @@ describe('MessageList', () => {
     for (let i = 0; i < 3; i++) {
       const newMessage = generateMessage({ text: `text-${i}`, user: user2 });
       act(() =>
-        dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel as any),
+        dispatchMessageNewEvent(chatClient, newMessage, mockedChannelData.channel),
       );
     }
 
@@ -285,7 +305,9 @@ describe('MessageList', () => {
   });
 
   it('should render intro messages', async () => {
-    const intro = generateMessage({ customType: 'message.intro' } as any);
+    const intro = generateMessage(
+      fromPartial<Parameters<typeof generateMessage>[0]>({ customType: 'message.intro' }),
+    );
     const headerText = 'header is rendered';
     const Header = () => <div>{headerText}</div>;
 
@@ -332,7 +354,9 @@ describe('MessageList', () => {
     renderComponent({
       channelProps: { channel },
       chatClient,
-      msgListProps: { renderMessages: customRenderMessages as any },
+      msgListProps: fromPartial<MessageListProps>({
+        renderMessages: customRenderMessages,
+      }),
     });
 
     await waitFor(() => {
@@ -385,18 +409,18 @@ describe('MessageList', () => {
       dispatchNotificationMarkUnread({
         channel,
         client,
-        payload: {
+        payload: fromPartial<Event>({
           first_unread_message_id: messages[unread_messages + 1].id,
           last_read_at: lastReadMessage.created_at,
           last_read_message_id: lastReadMessage.id,
           unread_messages,
           user: client.user,
           ...payload,
-        } as any,
+        }),
       });
     };
 
-    let invokeIntersectionCb;
+    let invokeIntersectionCb: IntersectionObserverCallback;
 
     beforeEach(() => {
       class IntersectionObserverMock {
@@ -411,7 +435,8 @@ describe('MessageList', () => {
         }
       }
 
-      window.IntersectionObserver = IntersectionObserverMock as any;
+      window.IntersectionObserver =
+        IntersectionObserverMock as unknown as typeof IntersectionObserver;
     });
     afterEach(vi.clearAllMocks);
     afterAll(vi.restoreAllMocks);
@@ -421,7 +446,7 @@ describe('MessageList', () => {
       const MarkReadButton = () => {
         const { markRead } = useChannelActionContext();
         return (
-          <button data-testid={markReadBtnTestId} onClick={markRead as any}>
+          <button data-testid={markReadBtnTestId} onClick={() => markRead()}>
             MarkRead
           </button>
         );
@@ -436,7 +461,7 @@ describe('MessageList', () => {
           <Chat client={client}>
             <Channel channel={channel}>
               <MarkReadButton />
-              <MessageList messages={messages as any} />
+              <MessageList messages={messages} />
             </Channel>
           </Chat>,
         );
@@ -943,10 +968,12 @@ describe('MessageList', () => {
           return (
             <Chat client={chatClient}>
               <Channel channel={channel}>
-                <MessageList
-                  {...({ hasMoreNewer: canLoadNewer, jumpToLatestMessage } as any)}
-                  messages={renderedMessages as any}
-                />
+                <ChannelStateOverride overrides={{ hasMoreNewer: canLoadNewer }}>
+                  <MessageList
+                    jumpToLatestMessage={jumpToLatestMessage}
+                    messages={renderedMessages}
+                  />
+                </ChannelStateOverride>
               </Channel>
             </Chat>
           );
@@ -1049,10 +1076,11 @@ describe('MessageList', () => {
               </button>
               <Chat client={chatClient}>
                 <Channel channel={channel}>
-                  <MessageList
-                    {...({ highlightedMessageId: highlightedId } as any)}
-                    messages={renderedMessages as any}
-                  />
+                  <ChannelStateOverride
+                    overrides={{ highlightedMessageId: highlightedId }}
+                  >
+                    <MessageList messages={renderedMessages} />
+                  </ChannelStateOverride>
                 </Channel>
               </Chat>
             </>
@@ -1159,10 +1187,9 @@ describe('MessageList', () => {
               </button>
               <Chat client={chatClient}>
                 <Channel channel={channel}>
-                  <MessageList
-                    {...({ hasMoreNewer: canLoadNewer } as any)}
-                    messages={renderedMessages as any}
-                  />
+                  <ChannelStateOverride overrides={{ hasMoreNewer: canLoadNewer }}>
+                    <MessageList messages={renderedMessages} />
+                  </ChannelStateOverride>
                 </Channel>
               </Chat>
             </>
@@ -1308,7 +1335,7 @@ describe('MessageList', () => {
                 <Channel channel={channel}>
                   <MessageList
                     loadingMore={loadingMore}
-                    messages={renderedMessages as any}
+                    messages={renderedMessages}
                     scrolledUpThreshold={200}
                   />
                 </Channel>
@@ -1380,8 +1407,10 @@ describe('MessageList', () => {
       const Message = () => {
         const { handleMarkUnread } = useMessageContext();
         useEffect(() => {
-          const event = { preventDefault: () => null };
-          handleMarkUnread(event as any);
+          const event = fromPartial<React.BaseSyntheticEvent>({
+            preventDefault: () => null,
+          });
+          handleMarkUnread(event);
         }, [handleMarkUnread]);
         return null;
       };

@@ -5,13 +5,14 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { AddCommentPrompt } from '../PollActions';
 import { PollProvider, TranslationProvider } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { generatePoll, mockTranslationContextValue } from '../../../mock-builders';
 
 const close = vi.fn();
 const messageId = 'messageId';
 const newlyTypedValue = 'XX';
 
-const t = ((v: string) => v) as any;
+const t = ((v: string) => v) as TranslationContextValue['t'];
 
 const renderComponent = ({ poll, props }: any = {}) =>
   render(

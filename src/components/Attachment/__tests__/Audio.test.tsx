@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Audio } from '../Audio';
 import {
@@ -126,7 +127,7 @@ describe('Audio', () => {
     const { getByTestId } = renderComponent({ og: audioAttachment });
     await clickToPlay();
     vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockImplementationOnce(
-      () => ({ width: 120, x: 0 }) as any,
+      () => fromPartial<DOMRect>({ width: 120, x: 0 }),
     );
 
     vi.spyOn(HTMLAudioElement.prototype, 'currentTime', 'set').mockImplementationOnce(

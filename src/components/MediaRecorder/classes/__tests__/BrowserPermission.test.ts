@@ -1,4 +1,5 @@
 import { BrowserPermission } from '../BrowserPermission';
+import type { RecordedMediaType } from '../../../ReactFileUtilities';
 import { EventEmitterMock } from '../../../../mock-builders/browser';
 
 const defaultMockState = 'prompt';
@@ -27,8 +28,8 @@ describe('BrowserPermission', () => {
 
   describe('check', () => {
     it('registers error and returns on checking unsupported permission', async () => {
-      const permission = new BrowserPermission({ mediaType: 'X' as any });
-      let error;
+      const permission = new BrowserPermission({ mediaType: 'X' as RecordedMediaType });
+      let error: Error | undefined;
       const errorSubscription = permission.error.subscribe((e) => {
         error = e;
       });
@@ -61,8 +62,8 @@ describe('BrowserPermission', () => {
 
   describe('listening to permission status change', () => {
     it('is prevented for unsupported permission', async () => {
-      const permission = new BrowserPermission({ mediaType: 'X' as any });
-      let error;
+      const permission = new BrowserPermission({ mediaType: 'X' as RecordedMediaType });
+      let error: Error | undefined;
       const errorSubscription = permission.error.subscribe((e) => {
         error = e;
       });
@@ -76,7 +77,7 @@ describe('BrowserPermission', () => {
 
     it('subscribes to permission status change event', async () => {
       const permission = new BrowserPermission({ mediaType: 'audio' });
-      let error;
+      let error: Error | undefined;
       const errorSubscription = permission.error.subscribe((e) => {
         error = e;
       });
@@ -90,7 +91,7 @@ describe('BrowserPermission', () => {
       expect(error).toBeUndefined();
       errorSubscription.unsubscribe();
 
-      const registeredHandler = (permission.status.value['addEventListener'] as any).mock
+      const registeredHandler = vi.mocked(permission.status.value!.addEventListener).mock
         .calls[0][1];
       registeredHandler({ target: { state: 'granted' } });
       expect(permission.state.value).toBe('granted');

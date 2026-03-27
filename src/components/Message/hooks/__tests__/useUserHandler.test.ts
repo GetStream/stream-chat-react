@@ -1,12 +1,22 @@
+import type React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { generateMessage, generateUser } from 'mock-builders';
+import type { LocalMessage } from 'stream-chat';
 import { useUserHandler } from '../useUserHandler';
+import type { UserEventHandler } from '../useUserHandler';
 
-const mouseEventMock = {
+const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
-};
+});
 
-function renderUseUserHandlerHook(message: any = generateMessage(), eventHandlers?: any) {
+function renderUseUserHandlerHook(
+  message: LocalMessage | undefined = generateMessage(),
+  eventHandlers?: {
+    onUserClickHandler?: UserEventHandler;
+    onUserHoverHandler?: UserEventHandler;
+  },
+) {
   const { result } = renderHook(() => useUserHandler(message, eventHandlers));
   return result.current;
 }
@@ -28,7 +38,7 @@ describe('useUserHandler custom hook', () => {
     const { onUserClick } = renderUseUserHandlerHook(message, {
       onUserClickHandler: customUserClickHandler,
     });
-    onUserClick(mouseEventMock as any);
+    onUserClick(mouseEventMock);
     expect(customUserClickHandler).toHaveBeenCalledWith(mouseEventMock, user);
   });
 
@@ -39,7 +49,7 @@ describe('useUserHandler custom hook', () => {
     const { onUserHover } = renderUseUserHandlerHook(message, {
       onUserHoverHandler: customUserHoverHandler,
     });
-    onUserHover(mouseEventMock as any);
+    onUserHover(mouseEventMock);
     expect(customUserHoverHandler).toHaveBeenCalledWith(mouseEventMock, user);
   });
 
@@ -47,7 +57,7 @@ describe('useUserHandler custom hook', () => {
     const user = generateUser();
     const message = generateMessage({ user });
     const { onUserClick, onUserHover } = renderUseUserHandlerHook(message);
-    expect(() => onUserClick(mouseEventMock as any)).not.toThrow();
-    expect(() => onUserHover(mouseEventMock as any)).not.toThrow();
+    expect(() => onUserClick(mouseEventMock)).not.toThrow();
+    expect(() => onUserHover(mouseEventMock)).not.toThrow();
   });
 });

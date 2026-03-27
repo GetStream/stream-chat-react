@@ -1,5 +1,12 @@
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { initClientWithChannels } from '../../../mock-builders';
@@ -56,7 +63,7 @@ const renderComponent = async ({
     channels: [defaultChannel],
     client: defaultClient,
   } = await initClientWithChannels({ customUser: user });
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <Chat client={client ?? defaultClient}>

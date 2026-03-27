@@ -1,5 +1,5 @@
 import React, { act } from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, type RenderResult, screen } from '@testing-library/react';
 import {
   AttachmentPreviewList,
   VoiceRecordingPreviewSlot,
@@ -7,6 +7,9 @@ import {
 import { GeolocationPreview } from '../AttachmentPreviewList/GeolocationPreview';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Attachment } from 'stream-chat';
 
 import {
   generateAudioAttachment,
@@ -81,7 +84,7 @@ const renderComponent = async ({
   channel.messageComposer.initState({ composition: composerMessage });
   channel.messageComposer.attachmentManager.upsertAttachments(attachments ?? []);
   if (coords) channel.messageComposer.locationComposer.setData(coords);
-  let result;
+  let result: RenderResult;
   await act(() => {
     result = render(
       <WithComponents overrides={components}>
@@ -114,26 +117,36 @@ describe('AttachmentPreviewList', () => {
     async (state) => {
       await renderComponent({
         attachments: [
-          generateAudioAttachment({
-            localMetadata: { id: 'audio-attachment-id', uploadState: state },
-            title: `audio-attachment-${state}`,
-          } as any),
-          generateVoiceRecordingAttachment({
-            localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
-            title: `voice-recording-attachment-${state}`,
-          } as any),
-          generateVideoAttachment({
-            localMetadata: { id: 'video-attachment-id', uploadState: state },
-            title: `video-attachment-${state}`,
-          } as any),
-          generateFileAttachment({
-            localMetadata: { id: 'file-attachment-id', uploadState: state },
-            title: `file-upload-${state}`,
-          } as any),
-          generateImageAttachment({
-            fallback: `image-upload-${state}`,
-            localMetadata: { id: 'image-attachment-id', uploadState: state },
-          } as any),
+          generateAudioAttachment(
+            fromPartial<Partial<Attachment>>({
+              localMetadata: { id: 'audio-attachment-id', uploadState: state },
+              title: `audio-attachment-${state}`,
+            }),
+          ),
+          generateVoiceRecordingAttachment(
+            fromPartial<Partial<Attachment>>({
+              localMetadata: { id: 'voice-recording-attachment-id', uploadState: state },
+              title: `voice-recording-attachment-${state}`,
+            }),
+          ),
+          generateVideoAttachment(
+            fromPartial<Partial<Attachment>>({
+              localMetadata: { id: 'video-attachment-id', uploadState: state },
+              title: `video-attachment-${state}`,
+            }),
+          ),
+          generateFileAttachment(
+            fromPartial<Partial<Attachment>>({
+              localMetadata: { id: 'file-attachment-id', uploadState: state },
+              title: `file-upload-${state}`,
+            }),
+          ),
+          generateImageAttachment(
+            fromPartial<Partial<Attachment>>({
+              fallback: `image-upload-${state}`,
+              localMetadata: { id: 'image-attachment-id', uploadState: state },
+            }),
+          ),
         ],
       });
 
@@ -152,13 +165,15 @@ describe('AttachmentPreviewList', () => {
 
     await renderComponent({
       attachments: [
-        generateVoiceRecordingAttachment({
-          localMetadata: {
-            id: 'voice-recording-attachment-id',
-            uploadState: 'finished',
-          },
-          title: 'voice-recording-finished',
-        } as any),
+        generateVoiceRecordingAttachment(
+          fromPartial<Partial<Attachment>>({
+            localMetadata: {
+              id: 'voice-recording-attachment-id',
+              uploadState: 'finished',
+            },
+            title: 'voice-recording-finished',
+          }),
+        ),
       ],
       component: VoiceRecordingPreviewSlot,
       props: {
@@ -370,7 +385,7 @@ describe('AttachmentPreviewList', () => {
         client,
       } = await initClientWithChannels();
       const PreviewComponent = customPreview || GeolocationPreview;
-      let result;
+      let result: RenderResult;
       await act(() => {
         result = render(
           <Chat client={client}>

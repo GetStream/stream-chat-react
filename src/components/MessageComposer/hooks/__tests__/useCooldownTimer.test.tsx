@@ -1,5 +1,6 @@
 import React from 'react';
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, type RenderHookResult } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useCooldownRemaining } from '../useCooldownRemaining';
 
@@ -22,7 +23,7 @@ describe('useCooldownRemaining', () => {
       </Chat>
     );
 
-    let result;
+    let result: RenderHookResult<number, unknown>;
     await act(() => {
       result = renderHook(() => useCooldownRemaining(), { wrapper });
     });
@@ -37,7 +38,7 @@ describe('useCooldownRemaining', () => {
   it('should return the cooldown remaining value from channel state', async () => {
     const { channel, result } = await setup();
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 25 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 25 }));
     });
     expect(result.current).toBe(25);
   });
@@ -46,17 +47,17 @@ describe('useCooldownRemaining', () => {
     const { channel, result } = await setup();
 
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 30 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 30 }));
     });
     expect(result.current).toBe(30);
 
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 15 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 15 }));
     });
     expect(result.current).toBe(15);
 
     await act(() => {
-      channel.cooldownTimer.state.next({ cooldownRemaining: 0 });
+      channel.cooldownTimer.state.next(fromPartial({ cooldownRemaining: 0 }));
     });
     expect(result.current).toBe(0);
   });

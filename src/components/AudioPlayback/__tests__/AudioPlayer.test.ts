@@ -177,7 +177,7 @@ describe('AudioPlayer', () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
 
-    let resolve;
+    let resolve: (value: void | PromiseLike<void>) => void;
     // attach and stub play to a pending promise
     player['ensureElementRef']();
     vi.spyOn(player.elementRef, 'play').mockImplementation(
@@ -205,7 +205,7 @@ describe('AudioPlayer', () => {
     const { onError, plugin } = makeErrorPlugin();
     const player = makePlayer({ plugins: [plugin] });
 
-    let resolve;
+    let resolve: (value: void | PromiseLike<void>) => void;
     player['ensureElementRef']();
     vi.spyOn(player.elementRef, 'play').mockImplementation(
       () =>

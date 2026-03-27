@@ -1,6 +1,8 @@
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { usePrependedMessagesCount } from '../VirtualizedMessageList';
 import { generateMessage } from '../../../../mock-builders';
+import type { RenderedMessage } from '../../utils';
 
 const defaultMsgStatus = 'received';
 const getMessages = (length, statuses = []) =>
@@ -11,7 +13,9 @@ const getMessages = (length, statuses = []) =>
   );
 
 const messagesWithDateSeparator = ({ length, messages }: any = {}) => [
-  generateMessage({ customType: 'message.date' } as any),
+  generateMessage(
+    fromPartial<Parameters<typeof generateMessage>[0]>({ customType: 'message.date' }),
+  ),
   ...(messages || getMessages(length)),
 ];
 
@@ -25,7 +29,10 @@ const render = ({ hasDateSeparator, messages }: any = {}) =>
   renderHook(
     (props: any) => usePrependedMessagesCount(props.messages, props.hasDateSeparator),
     {
-      initialProps: { hasDateSeparator, messages } as any,
+      initialProps: fromPartial<{
+        hasDateSeparator: boolean;
+        messages: RenderedMessage[];
+      }>({ hasDateSeparator, messages }),
     },
   );
 describe('usePrependMessagesCount', function () {

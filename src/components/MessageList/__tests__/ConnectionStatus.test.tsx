@@ -16,7 +16,7 @@ describe('<ChatContext /> component', () => {
   afterEach(cleanup);
 
   it('should render nothing by default', async () => {
-    let container;
+    let container: HTMLElement;
     await act(() => {
       const result = render(
         <Chat client={chatClient}>

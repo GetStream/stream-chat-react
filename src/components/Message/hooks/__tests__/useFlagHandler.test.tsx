@@ -1,6 +1,8 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
+import type { FlagMessageNotifications } from '../useFlagHandler';
 import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
 
 import { ChatProvider } from '../../../../context/ChatContext';
@@ -13,17 +15,18 @@ import {
   mockChannelStateContext,
   mockChatContext,
 } from '../../../../mock-builders';
+import type { LocalMessage } from 'stream-chat';
 
 const alice = generateUser({ name: 'alice' });
 const flagMessage = vi.fn();
-const mouseEventMock = {
+const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
-};
+});
 
 async function renderUseHandleFlagHook(
-  message: any = generateMessage(),
-  notificationOpts?: any,
-  channelStateContextValue?: any,
+  message?: LocalMessage,
+  notificationOpts?: FlagMessageNotifications,
+  channelStateContextValue?: Record<string, unknown>,
 ) {
   const client = await getTestClientWithUser(alice);
   client.flagMessage = flagMessage;
@@ -55,7 +58,7 @@ describe('useHandleFlag custom hook', () => {
   it('should throw a warning when there are missing parameters and the handler is called', async () => {
     const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleFlag = await renderUseHandleFlagHook(undefined);
-    await handleFlag(mouseEventMock as any);
+    await handleFlag(mouseEventMock);
     expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseFlagHandlerParameterWarning);
   });
 
@@ -69,7 +72,7 @@ describe('useHandleFlag custom hook', () => {
       getSuccessNotification,
       notify,
     });
-    await handleFlag(mouseEventMock as any);
+    await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
     expect(notify).toHaveBeenCalledWith(messageFlaggedNotification, 'success');
   });
@@ -82,7 +85,7 @@ describe('useHandleFlag custom hook', () => {
     const handleFlag = await renderUseHandleFlagHook(message, {
       notify,
     });
-    await handleFlag(mouseEventMock as any);
+    await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
     expect(notify).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
   });
@@ -97,7 +100,7 @@ describe('useHandleFlag custom hook', () => {
       getErrorNotification,
       notify,
     });
-    await handleFlag(mouseEventMock as any);
+    await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
     expect(notify).toHaveBeenCalledWith(messageFlagFailedNotification, 'error');
   });
@@ -110,7 +113,7 @@ describe('useHandleFlag custom hook', () => {
     const handleFlag = await renderUseHandleFlagHook(message, {
       notify,
     });
-    await handleFlag(mouseEventMock as any);
+    await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
     expect(notify).toHaveBeenCalledWith(defaultFlagMessageFailedNotification, 'error');
   });

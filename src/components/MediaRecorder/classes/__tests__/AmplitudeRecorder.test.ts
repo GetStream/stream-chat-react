@@ -7,7 +7,7 @@ import {
 } from '../AmplitudeRecorder';
 import { AudioContextMock } from '../../../../mock-builders/browser';
 
-window.AudioContext = AudioContextMock as any;
+window.AudioContext = AudioContextMock as unknown as typeof AudioContext;
 
 const intervalID = 1;
 // @ts-expect-error - mock implementation has simplified signature

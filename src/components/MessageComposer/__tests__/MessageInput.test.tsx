@@ -1,6 +1,14 @@
 import React from 'react';
 import { SearchController } from 'stream-chat';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  cleanup,
+  fireEvent,
+  render,
+  type RenderResult,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 import { nanoid } from 'nanoid';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -28,7 +36,17 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
-import type { Channel as ChannelType, StreamChat, UserResponse } from 'stream-chat';
+import type {
+  Attachment,
+  Channel as ChannelType,
+  CooldownTimerState,
+  LinkPreviewsManagerState,
+  LocalAttachment,
+  LocalMessage,
+  SendFileAPIResponse,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 import type { ChannelProps } from '../../Channel';
 import type { MessageComposerProps } from '../MessageComposer';
 import type { MessageActionsProps } from '../../MessageActions';
@@ -74,16 +92,18 @@ const threadMessage = generateMessage({
   type: 'reply',
   user,
 });
-const mockedChannelData = generateChannel({
-  channel: {
-    id: 'general',
-    own_capabilities: ['send-poll', 'upload-file'],
-    type: 'messaging',
-  },
-  members: [generateMember({ user }), generateMember({ user: mentionUser })],
-  messages: [mainListMessage],
-  threads: [threadMessage],
-} as any);
+const mockedChannelData = generateChannel(
+  fromPartial<GenerateChannelOptions>({
+    channel: {
+      id: 'general',
+      own_capabilities: ['send-poll', 'upload-file'],
+      type: 'messaging',
+    },
+    members: [generateMember({ user }), generateMember({ user: mentionUser })],
+    messages: [mainListMessage],
+    threads: [threadMessage],
+  }),
+);
 
 const defaultChatContext = {
   channelsQueryState: { queryInProgress: 'uninitialized' },
@@ -102,7 +122,8 @@ const getFile = (name = filename) => new File(['content'], name, { type: 'text/p
 
 // Polyfill DOMRect for jsdom
 if (typeof globalThis.DOMRect === 'undefined') {
-  (globalThis as any).DOMRect = class DOMRect {
+  // @ts-expect-error -- partial DOMRect polyfill for jsdom
+  globalThis.DOMRect = class DOMRect {
     x: number;
     y: number;
     width: number;
@@ -233,22 +254,26 @@ const renderComponent = async ({
     channel = result.channels[0];
     client = result.client;
   }
-  let renderResult;
+  let renderResult: RenderResult;
 
   await act(() => {
     renderResult = render(
       <WithComponents overrides={components}>
         <ChatProvider
-          value={
-            { ...defaultChatContext, channel, client, ...chatContextOverrides } as any
-          }
+          value={fromPartial<ChatContextValue>({
+            ...defaultChatContext,
+            channel,
+            client,
+            ...chatContextOverrides,
+          })}
         >
           <DialogManagerProvider id='message-input-test-dialog-manager'>
             <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
               <MessageProvider
-                value={
-                  { ...defaultMessageContextValue, ...messageContextOverrides } as any
-                }
+                value={fromPartial<MessageContextValue>({
+                  ...defaultMessageContextValue,
+                  ...messageContextOverrides,
+                })}
               >
                 <MessageActions
                   disableBaseMessageActionSetFilter
@@ -291,12 +316,16 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce({
-    file: fileUploadUrl,
-  } as any);
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce({
-    file: fileUploadUrl,
-  } as any);
+  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce(
+    fromPartial<SendFileAPIResponse>({
+      file: fileUploadUrl,
+    }),
+  );
+  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce(
+    fromPartial<SendFileAPIResponse>({
+      file: fileUploadUrl,
+    }),
+  );
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, sendFileSpy, sendImageSpy };
@@ -326,7 +355,9 @@ const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
   });
 
   // Set cooldown active via the channel's cooldownTimer state
-  channel.cooldownTimer.state.next({ cooldownRemaining: cooldown } as any);
+  channel.cooldownTimer.state.next(
+    fromPartial<CooldownTimerState>({ cooldownRemaining: cooldown }),
+  );
 
   await renderComponent({
     customChannel: channel,
@@ -484,14 +515,18 @@ describe(`MessageInputFlat`, () => {
     });
     // Manually trigger link preview state so the previews section renders
     await act(() => {
-      const scrapedData = generateScrapedDataAttachment({
-        og_scrape_url: 'http://getstream.io',
-        status: 'loaded',
-        title: 'http://getstream.io',
-      } as any);
-      customChannel.messageComposer.linkPreviewsManager.state.next({
-        previews: new Map([[scrapedData.og_scrape_url, scrapedData]]) as any,
-      });
+      const scrapedData = generateScrapedDataAttachment(
+        fromPartial<Attachment>({
+          og_scrape_url: 'http://getstream.io',
+          status: 'loaded',
+          title: 'http://getstream.io',
+        }),
+      );
+      customChannel.messageComposer.linkPreviewsManager.state.next(
+        fromPartial<LinkPreviewsManagerState>({
+          previews: new Map([[scrapedData.og_scrape_url, scrapedData]]),
+        }),
+      );
     });
 
     expect(screen.queryByTestId(customTestId)).toBeInTheDocument();
@@ -713,7 +748,9 @@ describe(`MessageInputFlat`, () => {
     it('should show attachment previews if at least one non-scraped attachments available', async () => {
       const { customChannel, customClient } = await setup();
       customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [{ ...generateLocalAttachmentData(), type: 'xxx' } as any],
+        attachments: [
+          fromPartial<LocalAttachment>({ ...generateLocalAttachmentData(), type: 'xxx' }),
+        ],
       });
       await renderComponent({
         customChannel,
@@ -730,13 +767,16 @@ describe(`MessageInputFlat`, () => {
 
     it('should not show scraped content in attachment previews', async () => {
       const { customChannel, customClient } = await setup();
-      const scrapedAttachment = {
+      const scrapedAttachment = fromPartial<LocalAttachment>({
         ...generateLocalAttachmentData(),
         ...generateScrapedDataAttachment(),
-      };
-      const unknownAttachment = { ...generateLocalAttachmentData(), type: 'xxx' } as any;
+      });
+      const unknownAttachment = fromPartial<LocalAttachment>({
+        ...generateLocalAttachmentData(),
+        type: 'xxx',
+      });
       customChannel.messageComposer.attachmentManager.state.next({
-        attachments: [scrapedAttachment as any, unknownAttachment],
+        attachments: [scrapedAttachment, unknownAttachment],
       });
       await renderComponent({
         customChannel,
@@ -771,9 +811,11 @@ describe(`MessageInputFlat`, () => {
         attachments: [],
       });
       const linkPreviewData = generateScrapedDataAttachment();
-      customChannel.messageComposer.linkPreviewsManager.state.next({
-        previews: new Map([[linkPreviewData.og_scrape_url, linkPreviewData]]) as any,
-      });
+      customChannel.messageComposer.linkPreviewsManager.state.next(
+        fromPartial<LinkPreviewsManagerState>({
+          previews: new Map([[linkPreviewData.og_scrape_url, linkPreviewData]]),
+        }),
+      );
       await renderComponent({
         customChannel,
         customClient,
@@ -978,11 +1020,11 @@ describe(`MessageInputFlat`, () => {
         customChannel,
         customClient,
         messageContextOverrides: {
-          message: {
+          message: fromPartial<LocalMessage>({
             cid: customChannel.cid,
             created_at: new Date(),
             updated_at: new Date(),
-          } as any,
+          }),
         },
       });
 
@@ -1408,7 +1450,9 @@ describe(`MessageInputFlat`, () => {
         cooldown.toString(),
       );
       await act(() => {
-        channel.cooldownTimer.state.next({ cooldownRemaining: 0 } as any);
+        channel.cooldownTimer.state.next(
+          fromPartial<CooldownTimerState>({ cooldownRemaining: 0 }),
+        );
       });
       expect(screen.queryByTestId(COOLDOWN_TIMER_TEST_ID)).not.toBeInTheDocument();
     });

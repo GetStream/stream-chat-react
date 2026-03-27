@@ -1,7 +1,9 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { InfiniteScroll } from '../';
+import type { InfiniteScrollProps } from '../InfiniteScroll';
 
 const loadPreviousPage = vi.fn().mockImplementation(() => Promise.resolve());
 
@@ -123,11 +125,11 @@ describe('InfiniteScroll', () => {
 
   describe('Rendering loader', () => {
     const getRenderResult = () => {
-      const props = {
+      const props = fromPartial<InfiniteScrollProps>({
         isLoading: true,
         loader: <div key='loader'>loader</div>,
         loadPreviousPage,
-      } as any;
+      });
       return render(<InfiniteScroll {...props}>Content</InfiniteScroll>);
     };
     it('should render the loader in the right place if queryInProgress is true', () => {

@@ -1,6 +1,7 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { ChannelConfigWithInfo, Mute } from 'stream-chat';
+import type { TFunction } from 'i18next';
+import type { ChannelConfigWithInfo, MessageResponse, Mute } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import {
   countReactions,
@@ -23,6 +24,7 @@ import {
   validateAndGetMessage,
 } from '../utils';
 import type { MessageProps } from '../types';
+import type { GroupStyle } from '../../MessageList/utils';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -54,7 +56,7 @@ describe('Message utils', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
         fromPartial<Mute>({
-          created_at: new Date('2019-03-30T13:24:10') as any,
+          created_at: new Date('2019-03-30T13:24:10').toISOString(),
           target: bob,
           user: alice,
         }),
@@ -72,7 +74,7 @@ describe('Message utils', () => {
     it('should return true if user was muted', () => {
       const mutes = [
         fromPartial<Mute>({
-          created_at: new Date('2019-03-30T13:24:10') as any,
+          created_at: new Date('2019-03-30T13:24:10').toISOString(),
           target: bob,
           user: alice,
         }),
@@ -260,12 +262,12 @@ describe('Message utils', () => {
 
     it('should update if rendered with different groupStyles', () => {
       const message = generateMessage();
-      const currentGroupStyles = ['top'] as any;
+      const currentGroupStyles: GroupStyle[] = ['top'];
       const currentProps = fromPartial<MessageProps>({
         groupStyles: currentGroupStyles,
         message,
       });
-      const nextGroupStyles = ['bottom', 'right'] as any;
+      const nextGroupStyles: GroupStyle[] = ['bottom', 'single'];
       const nextProps = fromPartial<MessageProps>({
         groupStyles: nextGroupStyles,
         message,
@@ -390,7 +392,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf],
       });
-      expect(getImages(message as any)).toStrictEqual([]);
+      expect(getImages(message as unknown as MessageResponse)).toStrictEqual([]);
     });
     it('should return just the image attachments when message has them', () => {
       const pdf = {
@@ -404,7 +406,7 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getImages(message as any)).toStrictEqual([img]);
+      expect(getImages(message as unknown as MessageResponse)).toStrictEqual([img]);
     });
   });
 
@@ -421,7 +423,9 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [img],
       });
-      expect(getNonImageAttachments(message as any)).toStrictEqual([]);
+      expect(getNonImageAttachments(message as unknown as MessageResponse)).toStrictEqual(
+        [],
+      );
     });
 
     it('should return just the non-image attachments when message has them', () => {
@@ -436,7 +440,9 @@ describe('Message utils', () => {
       const message = generateMessage({
         attachments: [pdf, img],
       });
-      expect(getNonImageAttachments(message as any)).toStrictEqual([pdf]);
+      expect(getNonImageAttachments(message as unknown as MessageResponse)).toStrictEqual(
+        [pdf],
+      );
     });
   });
 
@@ -451,7 +457,7 @@ describe('Message utils', () => {
     it('ignores the client user', () => {
       const result = getReadByTooltipText(
         [client.user],
-        mockTranslatorFunction as any,
+        mockTranslatorFunction as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -460,7 +466,7 @@ describe('Message utils', () => {
     it('returns a single user if only one user in array', () => {
       const result = getReadByTooltipText(
         [bob],
-        mockTranslatorFunction as any,
+        mockTranslatorFunction as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -470,7 +476,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as any,
+        mockTranslatorFunction as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -484,7 +490,7 @@ describe('Message utils', () => {
       ];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as any,
+        mockTranslatorFunction as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -496,7 +502,7 @@ describe('Message utils', () => {
       );
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as any,
+        mockTranslatorFunction as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -506,7 +512,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as any,
+        mockTranslatorFunction as unknown as TFunction,
         client,
         (user) => `Dr. ${user.name}`,
       );
@@ -514,14 +520,24 @@ describe('Message utils', () => {
     });
     it('throws error if no translator function provided', () => {
       expect(() =>
-        getReadByTooltipText([], null as any, client, tooltipUserNameMapper),
+        getReadByTooltipText(
+          [],
+          null as unknown as TFunction,
+          client,
+          tooltipUserNameMapper,
+        ),
       ).toThrow(
         'getReadByTooltipText was called, but translation function is not available',
       );
     });
     it('throws error if no tooltipUserNameMapper function provided', () => {
       expect(() =>
-        getReadByTooltipText([], mockTranslatorFunction as any, client, undefined as any),
+        getReadByTooltipText(
+          [],
+          mockTranslatorFunction as unknown as TFunction,
+          client,
+          undefined as unknown as typeof tooltipUserNameMapper,
+        ),
       ).toThrow(
         'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
       );

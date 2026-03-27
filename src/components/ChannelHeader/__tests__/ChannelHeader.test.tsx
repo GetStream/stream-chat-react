@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader } from '../ChannelHeader';
 
@@ -27,6 +28,7 @@ import type {
   ChannelResponse,
   Channel as ChannelType,
   StreamChat,
+  UserResponse,
 } from 'stream-chat';
 import type { ChannelHeaderProps } from '../ChannelHeader';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
@@ -241,7 +243,7 @@ describe('ChannelHeader', () => {
       const members = users.map((user) => generateMember({ user }));
       return generateChannel({
         members,
-        messages: users.map((user) => generateMessage({ user })) as any,
+        messages: users.map((user) => generateMessage({ user })),
         ...channelData,
       });
     };
@@ -403,7 +405,10 @@ describe('ChannelHeader', () => {
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...otherUser, ...updatedAttribute } as any);
+        dispatchUserUpdatedEvent(
+          client,
+          fromPartial<UserResponse>({ ...otherUser, ...updatedAttribute }),
+        );
       });
 
       await waitFor(() => {
@@ -438,7 +443,10 @@ describe('ChannelHeader', () => {
       });
 
       act(() => {
-        dispatchUserUpdatedEvent(client, { ...ownUser, ...updatedAttribute } as any);
+        dispatchUserUpdatedEvent(
+          client,
+          fromPartial<UserResponse>({ ...ownUser, ...updatedAttribute }),
+        );
       });
 
       await waitFor(() => {

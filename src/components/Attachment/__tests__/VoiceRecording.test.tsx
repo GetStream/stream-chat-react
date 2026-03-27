@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   generateMessage,
@@ -23,9 +24,11 @@ const attachment = generateVoiceRecordingAttachment();
 
 (window as any).ResizeObserver = ResizeObserverMock;
 
-vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue({
-  width: 120,
-} as any);
+vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
+  fromPartial<DOMRect>({
+    width: 120,
+  }),
+);
 
 const clickPlay = async () => {
   await act(async () => {
@@ -33,8 +36,8 @@ const clickPlay = async () => {
   });
 };
 
-vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(
-  () => undefined as any,
+vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+  Promise.resolve(),
 );
 vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 
@@ -111,8 +114,8 @@ describe('VoiceRecording', () => {
 describe('VoiceRecordingPlayer', () => {
   beforeAll(() => {
     vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
-    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(
-      () => undefined as any,
+    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() =>
+      Promise.resolve(),
     );
     vi.spyOn(window.HTMLMediaElement.prototype, 'canPlayType').mockReturnValue('maybe');
   });

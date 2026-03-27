@@ -1,5 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, type RenderHookResult } from '@testing-library/react';
 import React from 'react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { useMediaRecorder } from '../useMediaRecorder';
 import { EventEmitterMock, MediaRecorderMock } from '../../../../mock-builders/browser';
 import { DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../../classes/AmplitudeRecorder';
@@ -11,7 +12,7 @@ import {
 import { Chat } from '../../../Chat';
 import { Channel } from '../../../Channel';
 
-window.MediaRecorder = MediaRecorderMock as any;
+window.MediaRecorder = MediaRecorderMock as unknown as typeof MediaRecorder;
 
 const handleSubmit = vi.fn();
 
@@ -32,10 +33,16 @@ const render = async (params = {}) => {
       <Channel channel={channel}>{children}</Channel>
     </Chat>
   );
-  let result;
+  let result: RenderHookResult<ReturnType<typeof useMediaRecorder>, unknown>;
   await act(async () => {
     result = await renderHook(
-      () => useMediaRecorder({ enabled: true, ...params } as any),
+      () =>
+        useMediaRecorder(
+          fromPartial<Parameters<typeof useMediaRecorder>[0]>({
+            enabled: true,
+            ...params,
+          }),
+        ),
       {
         wrapper,
       },
