@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTimeElapsed } from './hooks/useTimeElapsed';
 import { useMessageComposerContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
-import { IconMicrophone } from '../../Icons';
+import { IconVoice } from '../../Icons';
 
 type WaveformProps = {
   maxDataPointsDrawn?: number;
@@ -79,7 +79,7 @@ export const AudioRecordingPreview = () => {
 
   return (
     <div className='str-chat__audio-recorder__recording-preview'>
-      <IconMicrophone />
+      <IconVoice />
       <RecordingTimer durationSeconds={secondsElapsed} />
       <AudioRecordingWaveform />
     </div>

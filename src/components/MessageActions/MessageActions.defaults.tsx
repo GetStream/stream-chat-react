@@ -3,27 +3,27 @@ import React, { forwardRef, useState } from 'react';
 
 import { GlobalModal } from '../Modal';
 import {
-  IconArrowRotateClockwise,
-  IconArrowShareLeft,
-  IconBellNotification,
+  IconAudio,
+  IconBell,
   IconBellOff,
-  IconBookmark,
-  IconBookmarkRemove,
-  IconBubbleText6ChatMessage,
-  IconBubbleWideNotificationChatMessage,
-  IconCircleBanSign,
-  IconCloseQuote2,
-  IconDotGrid1x3Horizontal,
-  IconEditBig,
-  IconEmojiSmile,
-  IconFlag2,
+  IconCopy,
+  IconDelete,
+  IconEdit,
+  IconEmoji,
+  IconFlag,
+  IconMore,
   IconMute,
-  IconPeopleAdded,
+  IconNoSign,
+  IconNotification,
   IconPin,
-  IconSquareBehindSquare2_Copy,
-  IconTrashBin,
+  IconQuote,
+  IconReply,
+  IconRetry,
+  IconSave,
+  IconThread,
   IconUnpin,
-  IconVolumeFull,
+  IconUnsave,
+  IconUserCheck,
 } from '../Icons';
 import { isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
@@ -63,7 +63,7 @@ const DefaultMessageActionComponents = {
           aria-label={t('aria/Open Thread')}
           className={msgActionsBoxButtonClassName}
           data-testid='thread-action'
-          Icon={IconBubbleText6ChatMessage}
+          Icon={IconThread}
           onClick={(e) => {
             handleOpenThread(e);
             closeMenu();
@@ -96,7 +96,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Quote Message')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconCloseQuote2}
+          Icon={IconQuote}
           onClick={() => {
             handleQuote();
             closeMenu();
@@ -134,7 +134,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Copy Message Text')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconSquareBehindSquare2_Copy}
+          Icon={IconCopy}
           onClick={() => {
             if (message.text) navigator.clipboard.writeText(message.text);
             closeMenu();
@@ -153,7 +153,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Resend Message')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconArrowRotateClockwise}
+          Icon={IconRetry}
           onClick={() => {
             handleRetry(message);
             closeMenu();
@@ -173,7 +173,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Edit Message')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconEditBig}
+          Icon={IconEdit}
           onClick={() => {
             messageComposer.initState({ composition: message });
             closeMenu();
@@ -192,7 +192,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Mark Message Unread')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconBubbleWideNotificationChatMessage}
+          Icon={IconNotification}
           onClick={(event) => {
             handleMarkUnread(event);
             closeMenu();
@@ -217,7 +217,7 @@ const DefaultMessageActionComponents = {
           aria-label={reminder ? t('aria/Remind Me Message') : t('aria/Remove Reminder')}
           className={msgActionsBoxButtonClassName}
           hasSubMenu={!reminder}
-          Icon={reminder ? IconBellOff : IconBellNotification}
+          Icon={reminder ? IconBellOff : IconBell}
           onClick={() => {
             if (reminder) {
               client.reminders.deleteReminder(reminder.id);
@@ -250,7 +250,7 @@ const DefaultMessageActionComponents = {
             reminder ? t('aria/Remove Save For Later') : t('aria/Bookmark Message')
           }
           className={msgActionsBoxButtonClassName}
-          Icon={reminder ? IconBookmarkRemove : IconBookmark}
+          Icon={reminder ? IconUnsave : IconSave}
           onClick={() => {
             if (reminder) client.reminders.deleteReminder(reminder.id);
             else client.reminders.createReminder({ messageId: message.id });
@@ -270,7 +270,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={t('aria/Flag Message')}
           className={msgActionsBoxButtonClassName}
-          Icon={IconFlag2}
+          Icon={IconFlag}
           onClick={(event) => {
             handleFlag(event);
             closeMenu();
@@ -291,7 +291,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
           className={msgActionsBoxButtonClassName}
-          Icon={isMuted ? IconVolumeFull : IconMute}
+          Icon={isMuted ? IconAudio : IconMute}
           onClick={(event) => {
             handleMute(event);
             closeMenu();
@@ -315,7 +315,7 @@ const DefaultMessageActionComponents = {
           <ContextMenuButton
             aria-label={t('aria/Delete Message')}
             className={msgActionsBoxButtonClassName}
-            Icon={IconTrashBin}
+            Icon={IconDelete}
             onClick={() => {
               setOpenModal(true);
             }}
@@ -364,7 +364,7 @@ const DefaultMessageActionComponents = {
         <ContextMenuButton
           aria-label={isBlocked ? t('aria/Unblock User') : t('aria/Block User')}
           className={clsx(msgActionsBoxButtonClassName)}
-          Icon={isBlocked ? IconPeopleAdded : IconCircleBanSign}
+          Icon={isBlocked ? IconUserCheck : IconNoSign}
           onClick={() => {
             const targetId = message.user?.id;
             if (targetId) {
@@ -403,12 +403,12 @@ const DefaultMessageActionComponents = {
           }}
           ref={ref}
         >
-          <IconDotGrid1x3Horizontal className='str-chat__message-action-icon' />
+          <IconMore className='str-chat__message-action-icon' />
         </QuickMessageActionsButton>
       );
     }),
     React() {
-      return <ReactionSelectorWithButton ReactionIcon={IconEmojiSmile} />;
+      return <ReactionSelectorWithButton ReactionIcon={IconEmoji} />;
     },
     Reply() {
       const { handleOpenThread } = useMessageContext();
@@ -421,7 +421,7 @@ const DefaultMessageActionComponents = {
           data-testid='thread-action'
           onClick={handleOpenThread}
         >
-          <IconArrowShareLeft className='str-chat__message-action-icon' />
+          <IconReply className='str-chat__message-action-icon' />
         </QuickMessageActionsButton>
       );
     },

@@ -41,20 +41,16 @@ exports[`<MessageText /> > should render with a custom inner class when one is s
           class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
           <svg
-            class="str-chat__icon str-chat__icon--exclamation"
+            class="str-chat__icon str-chat__icon--exclamation-mark-fill"
             viewBox="0 0 16 16"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <g
-              transform="translate(6.2222 0) scale(1.7778)"
-            >
-              <path
-                d="M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z"
-              />
-              <path
-                d="M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z"
-              />
-            </g>
+            <path
+              d="M8 13.5C8.55228 13.5 9 13.0523 9 12.5C9 11.9477 8.55228 11.5 8 11.5C7.44772 11.5 7 11.9477 7 12.5C7 13.0523 7.44772 13.5 8 13.5Z"
+            />
+            <path
+              d="M7.25 9.5V3C7.25 2.58579 7.58579 2.25 8 2.25C8.41421 2.25 8.75 2.58579 8.75 3V9.5C8.75 9.91421 8.41421 10.25 8 10.25C7.58579 10.25 7.25 9.91421 7.25 9.5Z"
+            />
           </svg>
         </div>
       </div>
@@ -107,20 +103,16 @@ exports[`<MessageText /> > should render with a custom wrapper class when one is
           class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
           <svg
-            class="str-chat__icon str-chat__icon--exclamation"
+            class="str-chat__icon str-chat__icon--exclamation-mark-fill"
             viewBox="0 0 16 16"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <g
-              transform="translate(6.2222 0) scale(1.7778)"
-            >
-              <path
-                d="M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z"
-              />
-              <path
-                d="M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z"
-              />
-            </g>
+            <path
+              d="M8 13.5C8.55228 13.5 9 13.0523 9 12.5C9 11.9477 8.55228 11.5 8 11.5C7.44772 11.5 7 11.9477 7 12.5C7 13.0523 7.44772 13.5 8 13.5Z"
+            />
+            <path
+              d="M7.25 9.5V3C7.25 2.58579 7.58579 2.25 8 2.25C8.41421 2.25 8.75 2.58579 8.75 3V9.5C8.75 9.91421 8.41421 10.25 8 10.25C7.58579 10.25 7.25 9.91421 7.25 9.5Z"
+            />
           </svg>
         </div>
       </div>
@@ -173,20 +165,16 @@ exports[`<MessageText /> > should render with custom theme identifier in generat
           class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
           <svg
-            class="str-chat__icon str-chat__icon--exclamation"
+            class="str-chat__icon str-chat__icon--exclamation-mark-fill"
             viewBox="0 0 16 16"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <g
-              transform="translate(6.2222 0) scale(1.7778)"
-            >
-              <path
-                d="M0 7.5C0 6.9477 0.4477 6.5 1 6.5C1.5523 6.5 2 6.9477 2 7.5C1.99989 8.05211 1.55223 8.5 1 8.5C0.447768 8.5 0.000110293 8.05211 0 7.5Z"
-              />
-              <path
-                d="M0.25 0.75C0.25 0.33578 0.5858 0 1 0C1.4142 0 1.75 0.33578 1.75 0.75V4.75C1.74989 5.16411 1.41413 5.5 1 5.5C0.585868 5.5 0.25011 5.16411 0.25 4.75V0.75Z"
-              />
-            </g>
+            <path
+              d="M8 13.5C8.55228 13.5 9 13.0523 9 12.5C9 11.9477 8.55228 11.5 8 11.5C7.44772 11.5 7 11.9477 7 12.5C7 13.0523 7.44772 13.5 8 13.5Z"
+            />
+            <path
+              d="M7.25 9.5V3C7.25 2.58579 7.58579 2.25 8 2.25C8.41421 2.25 8.75 2.58579 8.75 3V9.5C8.75 9.91421 8.41421 10.25 8 10.25C7.58579 10.25 7.25 9.91421 7.25 9.5Z"
+            />
           </svg>
         </div>
       </div>

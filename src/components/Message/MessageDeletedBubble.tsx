@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IconCircleBanSign } from '../Icons';
+import { IconNoSign } from '../Icons';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { LocalMessage } from 'stream-chat';
@@ -16,7 +16,7 @@ export const MessageDeletedBubble = () => {
   return (
     <MessageBubble data-testid={'message-deleted-bubble'}>
       <div className='str-chat__message-text'>
-        <IconCircleBanSign />
+        <IconNoSign />
         <span>{t('Message deleted')}</span>
       </div>
     </MessageBubble>

@@ -6,7 +6,7 @@ import { defaultReactionOptions } from './reactionOptions';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { Button } from '../Button';
-import { IconPlusLarge } from '../Icons';
+import { IconPlus } from '../Icons';
 
 import type { ReactionResponse } from 'stream-chat';
 
@@ -110,7 +110,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
             size='sm'
             variant='secondary'
           >
-            <IconPlusLarge />
+            <IconPlus />
           </Button>
         </>
       )}

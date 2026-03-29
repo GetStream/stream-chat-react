@@ -15,11 +15,7 @@ import React, {
 } from 'react';
 import clsx from 'clsx';
 import { LoadingIndicatorIcon } from '../icons';
-import {
-  IconArrowRotateClockwise,
-  IconExclamationCircle,
-  IconVideoSolid,
-} from '../../Icons';
+import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
@@ -104,12 +100,12 @@ export const MediaAttachmentPreview = ({
             !hasUploadError &&
             uploadState !== 'uploading' && (
               <div className='str-chat__attachment-preview-media__video-indicator'>
-                <IconVideoSolid />
+                <IconVideoFill />
                 {attachment.duration && <div>{attachment.duration}</div>}
               </div>
             )}
 
-          {hasFatalError && <IconExclamationCircle />}
+          {hasFatalError && <IconExclamationMark />}
 
           {hasRetriableError && (
             <Button
@@ -122,7 +118,7 @@ export const MediaAttachmentPreview = ({
               size='sm'
               variant='danger'
             >
-              <IconArrowRotateClockwise />
+              <IconRetry />
             </Button>
           )}
         </div>

@@ -36,11 +36,11 @@ import { useStableId } from '../../UtilityComponents/useStableId';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import {
-  IconChart5,
-  IconMapPin,
-  IconPaperclip,
-  IconPlusLarge,
-  IconRunShortcut,
+  IconAttachment,
+  IconCommand,
+  IconLocation,
+  IconPlus,
+  IconPoll,
 } from '../../Icons';
 import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
 import {
@@ -61,7 +61,7 @@ const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: strin
   }
 
   return (
-    <IconPlusLarge
+    <IconPlus
       className={clsx('str-chat__attachment-selector__menu-button__icon', className)}
     />
   );
@@ -149,7 +149,7 @@ export const DefaultAttachmentSelectorComponents = {
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
         hasSubMenu={hasSubmenu}
-        Icon={IconRunShortcut}
+        Icon={IconCommand}
         onClick={() => {
           if (!hasSubmenu) return;
           openSubmenu({
@@ -171,7 +171,7 @@ export const DefaultAttachmentSelectorComponents = {
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__upload-file-button'
-        Icon={IconPaperclip}
+        Icon={IconAttachment}
         onClick={() => {
           fileInput?.click();
           closeMenu();
@@ -187,7 +187,7 @@ export const DefaultAttachmentSelectorComponents = {
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__add-location-button'
-        Icon={IconMapPin}
+        Icon={IconLocation}
         onClick={() => {
           openModalForAction('addLocation');
           closeMenu();
@@ -203,7 +203,7 @@ export const DefaultAttachmentSelectorComponents = {
     return (
       <ContextMenuButton
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
-        Icon={IconChart5}
+        Icon={IconPoll}
         onClick={() => {
           openModalForAction('createPoll');
           closeMenu();

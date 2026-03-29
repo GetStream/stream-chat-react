@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChannelActionContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
-import { IconCrossMedium } from '../Icons';
+import { IconXmark } from '../Icons';
 
 export const UNREAD_MESSAGE_SEPARATOR_CLASS = 'str-chat__unread-messages-separator';
 
@@ -39,7 +39,7 @@ export const UnreadMessagesSeparator = ({
         size='sm'
         variant='secondary'
       >
-        <IconCrossMedium />
+        <IconXmark />
       </Button>
     </div>
   );

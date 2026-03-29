@@ -5,7 +5,7 @@ import React from 'react';
 import type { Coords, SharedLocationResponse } from 'stream-chat';
 import { useChatContext, useTranslationContext } from '../../context';
 import { ExternalLinkIcon } from './icons';
-import { IconMapPin } from '../Icons';
+import { IconLocation } from '../Icons';
 import { Button } from '../Button';
 
 export type GeolocationMapProps = Coords;
@@ -105,7 +105,7 @@ const DefaultGeolocationAttachmentMapPlaceholder = ({
     className='str-chat__message-attachment-geolocation__placeholder'
     data-testid='geolocation-attachment-map-placeholder'
   >
-    <IconMapPin />
+    <IconLocation />
     <a
       className='str-chat__message-attachment-geolocation__placeholder-link'
       href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}

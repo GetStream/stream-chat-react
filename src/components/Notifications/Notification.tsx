@@ -4,11 +4,11 @@ import type { NotificationSeverity } from 'stream-chat';
 import { type Notification as NotificationType } from 'stream-chat';
 
 import {
-  IconArrowRotateRightLeftRepeatRefresh,
-  IconCheckmark2,
-  IconCrossMedium,
-  IconExclamationCircle,
+  IconCheckmark,
+  IconExclamationMark,
   IconExclamationTriangle,
+  IconRefresh,
+  IconXmark,
 } from '../../components/Icons';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -22,10 +22,10 @@ export type NotificationIconProps = {
 };
 
 const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
-  error: IconExclamationCircle,
-  info: null, // IconCircleInfoTooltip,
-  loading: IconArrowRotateRightLeftRepeatRefresh,
-  success: IconCheckmark2,
+  error: IconExclamationMark,
+  info: null, // IconInfo,
+  loading: IconRefresh,
+  success: IconCheckmark,
   warning: IconExclamationTriangle,
 };
 
@@ -142,7 +142,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
             size='sm'
             variant='secondary'
           >
-            <IconCrossMedium />
+            <IconXmark />
           </Button>
         )}
       </div>

@@ -1,5 +1,5 @@
 import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageComposer/icons';
-import { IconMicrophone, IconPause, IconTrashBin } from '../../Icons';
+import { IconDelete, IconPauseFill, IconVoice } from '../../Icons';
 import React from 'react';
 import {
   useChatContext,
@@ -26,7 +26,7 @@ const ToggleRecordingButton = () => {
       size='sm'
       variant='secondary'
     >
-      {isRecording(recordingState) ? <IconPause /> : <IconMicrophone />}
+      {isRecording(recordingState) ? <IconPauseFill /> : <IconVoice />}
     </Button>
   );
 };
@@ -66,7 +66,7 @@ export const AudioRecorderRecordingControls = () => {
           size='sm'
           variant='secondary'
         >
-          <IconTrashBin />
+          <IconDelete />
         </Button>
       )}
       <ToggleRecordingButton />

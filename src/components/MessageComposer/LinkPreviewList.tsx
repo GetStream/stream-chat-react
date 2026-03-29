@@ -8,7 +8,7 @@ import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposerController } from './hooks';
 import { BaseImage } from '../BaseImage';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import { IconChainLink } from '../Icons';
+import { IconLink } from '../Icons';
 
 export type LinkPreviewListProps = {
   displayLinkCount?: number;
@@ -94,7 +94,7 @@ export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
           {linkPreview.text}
         </div>
         <div className='str-chat__link-preview-card__content__url'>
-          <IconChainLink />
+          <IconLink />
           <span>{linkPreview.og_scrape_url}</span>
         </div>
       </div>

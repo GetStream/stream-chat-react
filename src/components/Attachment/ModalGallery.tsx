@@ -8,7 +8,7 @@ import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
 import { GlobalModal } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
-import { IconArrowRotateClockwise } from '../Icons';
+import { IconRetry } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
 const MAX_VISIBLE_THUMBNAILS = 4;
@@ -216,7 +216,7 @@ const ThumbnailButton = ({
           data-testid='str-chat__modal-gallery__image-load-failed-overlay'
         >
           <div className='str-chat__modal-gallery__image-retry-indicator'>
-            <IconArrowRotateClockwise />
+            <IconRetry />
           </div>
         </div>
       )}

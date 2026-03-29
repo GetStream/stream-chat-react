@@ -3,7 +3,7 @@ import { DurationDisplay, WaveProgressBar } from '../../AudioPlayback';
 import type { AudioPlayerState } from '../../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
-import { IconPause, IconPlaySolid } from '../../Icons';
+import { IconPauseFill, IconPlayFill } from '../../Icons';
 import { Button } from '../../Button';
 import clsx from 'clsx';
 
@@ -62,7 +62,7 @@ export const AudioRecordingPlayback = ({
         size='sm'
         variant='secondary'
       >
-        {isPlaying ? <IconPause /> : <IconPlaySolid />}
+        {isPlaying ? <IconPauseFill /> : <IconPlayFill />}
       </Button>
       <DurationDisplay
         className={clsx('str-chat__recording-timer', {

@@ -1,8 +1,8 @@
 import React, { type ComponentProps } from 'react';
-import { IconLoadingCircle } from '../Icons';
+import { IconLoading } from '../Icons';
 
-export type LoadingIndicatorProps = ComponentProps<typeof IconLoadingCircle>;
+export type LoadingIndicatorProps = ComponentProps<typeof IconLoading>;
 
 export const LoadingIndicator = (props: LoadingIndicatorProps) => (
-  <IconLoadingCircle {...props} className='str-chat__loading-indicator' />
+  <IconLoading {...props} className='str-chat__loading-indicator' />
 );

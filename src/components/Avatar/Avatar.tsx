@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { IconPeople } from '../Icons';
+import { IconUser } from '../Icons';
 
 export type AvatarProps = {
   /** URL of the avatar image */
@@ -104,7 +104,7 @@ export const Avatar = ({
               {sizeAwareInitials}
             </div>
           )}
-          {!sizeAwareInitials.length && <IconPeople />}
+          {!sizeAwareInitials.length && <IconUser />}
         </>
       )}
     </div>

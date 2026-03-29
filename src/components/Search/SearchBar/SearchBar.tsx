@@ -5,7 +5,7 @@ import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { Button, IconCircleX, IconMagnifyingGlassSearch } from '../../../components';
+import { Button, IconSearch, IconXCircle } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -54,7 +54,7 @@ export const SearchBar = () => {
           'str-chat__search-bar__input-wrapper--active': isActive,
         })}
       >
-        <IconMagnifyingGlassSearch />
+        <IconSearch />
         <input
           className='str-chat__search-bar__input'
           data-testid='search-input'
@@ -100,7 +100,7 @@ export const SearchBar = () => {
             size='xs'
             variant='secondary'
           >
-            <IconCircleX />
+            <IconXCircle />
           </Button>
         )}
       </div>

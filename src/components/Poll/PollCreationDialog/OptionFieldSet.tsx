@@ -5,7 +5,7 @@ import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
-import { IconCircleMinus, IconDotGrid2x3 } from '../../Icons';
+import { IconMinusCircle, IconReorder } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
 
@@ -70,9 +70,7 @@ export const OptionFieldSet = () => {
               error={!!error}
               id={option.id}
               leading={
-                draggable ? (
-                  <IconDotGrid2x3 className='str-chat__drag-handle' />
-                ) : undefined
+                draggable ? <IconReorder className='str-chat__drag-handle' /> : undefined
               }
               message={
                 error ? (
@@ -121,6 +119,6 @@ const RemoveOptionButton = ({ className, ...props }: ButtonProps) => (
     variant='secondary'
     {...props}
   >
-    <IconCircleMinus />
+    <IconMinusCircle />
   </Button>
 );

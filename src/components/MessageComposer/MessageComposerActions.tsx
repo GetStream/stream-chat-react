@@ -13,7 +13,7 @@ import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioReco
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import type { MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
-import { IconCheckmark2, IconPaperPlane } from '../Icons';
+import { IconCheckmark, IconSend } from '../Icons';
 
 const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
@@ -71,7 +71,7 @@ export const MessageComposerActions = () => {
     <SendButton sendMessage={handleSubmit} />
   ) : (
     <DefaultSendButton sendMessage={handleSubmit}>
-      {editedMessage || command ? <IconCheckmark2 /> : <IconPaperPlane />}
+      {editedMessage || command ? <IconCheckmark /> : <IconSend />}
     </DefaultSendButton>
   );
 

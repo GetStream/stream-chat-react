@@ -12,10 +12,10 @@ import { useChannelListItemContext } from './ChannelListItem';
 import { Button } from '../Button';
 import {
   IconArchive,
-  IconArrowBoxLeft,
-  IconCircleBanSign,
-  IconDotGrid1x3Horizontal,
+  IconLeave,
+  IconMore,
   IconMute,
+  IconNoSign,
   IconPin,
 } from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
@@ -143,7 +143,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
           size='sm'
           variant='secondary'
         >
-          <IconDotGrid1x3Horizontal />
+          <IconMore />
         </Button>
       );
     }),
@@ -241,7 +241,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         <ContextMenuButton
           aria-label={title}
           disabled={inProgress}
-          Icon={IconCircleBanSign}
+          Icon={IconNoSign}
           onClick={async () => {
             try {
               setInProgress(true);
@@ -356,7 +356,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         <ContextMenuButton
           aria-label={title}
           disabled={inProgress}
-          Icon={IconArrowBoxLeft}
+          Icon={IconLeave}
           onClick={async (e) => {
             e.stopPropagation();
             try {

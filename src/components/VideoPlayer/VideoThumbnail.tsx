@@ -1,7 +1,7 @@
 import { BaseImage, type BaseImageProps } from '../BaseImage';
 import { Button } from '../Button';
 import clsx from 'clsx';
-import { IconPlaySolid } from '../Icons';
+import { IconPlayFill } from '../Icons';
 import React from 'react';
 import { useTranslationContext } from '../../context';
 
@@ -34,11 +34,11 @@ export const VideoThumbnail = ({
           size='lg'
           variant='secondary'
         >
-          <IconPlaySolid />
+          <IconPlayFill />
         </Button>
       ) : (
         <div className='str-chat__message-attachment__video-thumbnail__play-indicator'>
-          <IconPlaySolid />
+          <IconPlayFill />
         </div>
       )}
     </div>

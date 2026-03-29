@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import { IconCrossMedium } from '../../Icons';
+import { IconXmark } from '../../Icons';
 
 const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__prompt', className)}>
@@ -33,7 +33,7 @@ const PromptHeader = ({ className, close, description, title }: PromptHeaderProp
         size='sm'
         variant='secondary'
       >
-        <IconCrossMedium />
+        <IconXmark />
       </Button>
     )}
   </div>

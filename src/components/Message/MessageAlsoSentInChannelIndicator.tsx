@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-import { IconArrowRightUp } from '../Icons';
+import { IconArrowUpRight } from '../Icons';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import {
   useChannelActionContext,
@@ -92,7 +92,7 @@ export const MessageAlsoSentInChannelIndicator = () => {
 
   return (
     <div className='str-chat__message-also-sent-in-channel' role='status'>
-      <IconArrowRightUp />
+      <IconArrowUpRight />
       <span>{threadList ? t('Also sent in channel') : t('Replied to a thread')}</span>
       <span> · </span>
       <button

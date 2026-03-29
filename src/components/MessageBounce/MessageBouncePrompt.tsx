@@ -6,7 +6,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
-import { IconExclamationCircle } from '../Icons';
+import { IconExclamationMark } from '../Icons';
 import { Alert } from '../Dialog';
 import type { PropsWithChildrenOnly } from '../../types/types';
 
@@ -34,7 +34,7 @@ export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
     >
       <Alert.Header
         className='str-chat__message-bounce-alert-header'
-        Icon={IconExclamationCircle}
+        Icon={IconExclamationMark}
         title={
           !children ? t('This message did not meet our content guidelines') : undefined
         }

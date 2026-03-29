@@ -1,7 +1,7 @@
 import React from 'react';
 import { useChannelActionContext, useTranslationContext } from '../../context';
 import { Button } from '../Button';
-import { IconArrowUp, IconCrossMedium } from '../Icons';
+import { IconArrowUp, IconXmark } from '../Icons';
 import clsx from 'clsx';
 
 export type UnreadMessagesNotificationProps = {
@@ -45,7 +45,7 @@ export const UnreadMessagesNotification = ({
           : t('Unread messages')}
       </Button>
       <Button appearance='outline' onClick={() => markRead()} variant='secondary'>
-        <IconCrossMedium />
+        <IconXmark />
       </Button>
     </div>
   );
