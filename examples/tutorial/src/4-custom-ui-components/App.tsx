@@ -23,11 +23,7 @@ import {
 } from 'stream-chat-react';
 
 import './layout.css';
-
-const apiKey = 'REPLACE_WITH_API_KEY';
-const userId = 'REPLACE_WITH_USER_ID';
-const userName = 'REPLACE_WITH_USER_NAME';
-const userToken = 'REPLACE_WITH_USER_TOKEN';
+import { apiKey, userId, userName, userToken } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,
