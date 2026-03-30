@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "dev:client-setup": "vite --mode 1-client-setup",
     "dev:core-component-setup": "vite --mode 2-core-component-setup",
     "dev:channel-list": "vite --mode 3-channel-list",
@@ -11,6 +12,7 @@
     "dev:custom-attachment-type": "vite --mode 5-custom-attachment-type",
     "dev:emoji-picker": "vite --mode 6-emoji-picker",
     "dev:livestream": "vite --mode 7-livestream",
+    "build": "vite build",
     "build:client-setup": "vite build --mode 1-client-setup",
     "build:core-component-setup": "vite build --mode 2-core-component-setup",
     "build:channel-list": "vite build --mode 3-channel-list",
@@ -19,26 +21,29 @@
     "build:emoji-picker": "vite build --mode 6-emoji-picker",
     "build:livestream": "vite build --mode 7-livestream",
     "build:all": "concurrently \"npm run build:client-setup\" \"npm run build:core-component-setup\" \"npm run build:channel-list\" \"npm run build:custom-ui-components\" \"npm run build:custom-attachment-type\" \"npm run build:emoji-picker\" \"npm run build:livestream\"",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "stream-chat": "^9.0.0",
-    "stream-chat-react": "^13.0.0"
+    "@emoji-mart/data": "link:../../node_modules/@emoji-mart/data",
+    "emoji-mart": "link:../../node_modules/emoji-mart",
+    "react": "link:../../node_modules/react",
+    "react-dom": "link:../../node_modules/react-dom",
+    "stream-chat": "link:../../node_modules/stream-chat",
+    "stream-chat-react": "link:../../"
   },
   "devDependencies": {
-    "@eslint/js": "^9.25.0",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
-    "concurrently": "^9.1.2",
-    "eslint": "^9.25.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
-    "globals": "^16.0.0",
-    "typescript": "~5.8.3",
-    "typescript-eslint": "^8.30.1",
-    "vite": "^6.4.1"
+    "@eslint/js": "^9.39.4",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.5.2",
+    "globals": "^17.4.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.2",
+    "vite": "^8.0.3"
   }
 }

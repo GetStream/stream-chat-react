@@ -5,13 +5,13 @@ import {
   Chat,
   Channel,
   ChannelHeader,
-  MessageInput,
+  MessageComposer,
   MessageList,
   Thread,
   Window,
 } from 'stream-chat-react';
 
-import 'stream-chat-react/dist/css/v2/index.css';
+import 'stream-chat-react/dist/css/index.css';
 // additionally
 import './layout.css';
 
@@ -37,16 +37,24 @@ const App = () => {
   useEffect(() => {
     if (!client) return;
 
-    const channel = client.channel('messaging', 'custom_channel_id', {
-      image: 'https://getstream.io/random_png/?name=react',
-      name: 'Talk about React',
-      members: [userId],
-    });
+    const initChannel = async () => {
+      const nextChannel = client.channel('messaging', 'react-tutorial', {
+        image: 'https://getstream.io/random_png/?name=react-v14',
+        name: 'Talk about React',
+        members: [userId],
+      });
 
-    setChannel(channel);
+      await nextChannel.watch();
+      setChannel(nextChannel);
+    };
+
+    initChannel().catch((error) => {
+      console.error('Failed to initialize tutorial channel', error);
+    });
   }, [client]);
 
   if (!client) return <div>Setting up client & connection...</div>;
+  if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
     <Chat client={client} theme='str-chat__theme-custom'>
@@ -54,7 +62,7 @@ const App = () => {
         <Window>
           <ChannelHeader />
           <MessageList />
-          <MessageInput />
+          <MessageComposer />
         </Window>
         <Thread />
       </Channel>

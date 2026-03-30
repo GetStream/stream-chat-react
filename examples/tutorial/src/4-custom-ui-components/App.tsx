@@ -1,18 +1,26 @@
-import type { ComponentType } from 'react';
-import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
+import { useEffect, useState } from 'react';
+import type {
+  Channel as StreamChannel,
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  User,
+} from 'stream-chat';
 import {
   Chat,
   Channel,
+  ChannelAvatar,
   ChannelHeader,
   ChannelList,
-  MessageInput,
+  MessageComposer,
   MessageList,
   Thread,
+  WithComponents,
   Window,
   useMessageContext,
   useCreateChatClient,
+  type ChannelListItemUIProps,
 } from 'stream-chat-react';
-import type { ChannelPreviewUIComponentProps } from 'stream-chat-react';
 
 import './layout.css';
 
@@ -36,63 +44,129 @@ const options: ChannelOptions = {
   limit: 10,
 };
 
-const CustomChannelPreview = (props: ChannelPreviewUIComponentProps) => {
-  const { channel, setActiveChannel } = props;
+const CustomChannelListItem = ({
+  active,
+  channel,
+  displayImage,
+  displayTitle,
+  latestMessagePreview,
+  onSelect,
+  setActiveChannel,
+}: ChannelListItemUIProps) => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (onSelect) {
+      onSelect(event);
+      return;
+    }
 
-  const { messages } = channel.state;
-  const messagePreview = messages[messages.length - 1]?.text?.slice(0, 30);
+    setActiveChannel?.(channel, undefined, event);
+  };
 
   return (
-    <div
-      onClick={() => setActiveChannel?.(channel)}
-      style={{ margin: '12px', display: 'flex', gap: '5px' }}
+    <button
+      aria-pressed={active}
+      className='tutorial-channel-list-item'
+      onClick={handleClick}
+      type='button'
     >
-      <div>
-        <img src={channel.data?.image} alt='channel-image' style={{ height: '36px' }} />
+      <ChannelAvatar
+        imageUrl={displayImage ?? channel.data?.image}
+        size='xl'
+        userName={displayTitle ?? channel.data?.name ?? 'Channel'}
+      />
+      <div className='tutorial-channel-list-item__content'>
+        <div className='tutorial-channel-list-item__title'>
+          {displayTitle ?? channel.data?.name ?? 'Unnamed Channel'}
+        </div>
+        {latestMessagePreview && (
+          <div className='tutorial-channel-list-item__preview'>
+            {latestMessagePreview}
+          </div>
+        )}
       </div>
-      <div style={{ flex: 1 }}>
-        <div>{channel.data?.name || 'Unnamed Channel'}</div>
-        {messagePreview && <div style={{ fontSize: '14px' }}>{messagePreview}</div>}
-      </div>
-    </div>
+    </button>
   );
 };
 
 const CustomMessage = () => {
   const { message } = useMessageContext();
+  const isOwnMessage = message.user?.id === userId;
+
   return (
-    <div>
-      <b style={{ marginRight: '4px' }}>{message.user?.name}</b> {message.text}
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
+        padding: '4px 8px',
+      }}
+    >
+      <div
+        style={{
+          background: isOwnMessage ? '#d3f2ef' : '#ffffff',
+          borderRadius: '20px',
+          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
+          maxWidth: 'min(80%, 640px)',
+          padding: '12px 16px',
+        }}
+      >
+        <div style={{ color: '#0f172a', fontSize: '13px', fontWeight: 700 }}>
+          {message.user?.name}
+        </div>
+        <div style={{ color: '#334155' }}>{message.text}</div>
+      </div>
     </div>
   );
 };
 
 const App = () => {
+  const [channel, setChannel] = useState<StreamChannel>();
   const client = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
     userData: user,
   });
 
+  useEffect(() => {
+    if (!client) return;
+
+    const initChannel = async () => {
+      const nextChannel = client.channel('messaging', 'react-tutorial', {
+        image: 'https://getstream.io/random_png/?name=react-v14',
+        name: 'Talk about React',
+        members: [userId],
+      });
+
+      await nextChannel.watch();
+      setChannel(nextChannel);
+    };
+
+    initChannel().catch((error) => {
+      console.error('Failed to initialize tutorial channel', error);
+    });
+  }, [client]);
+
   if (!client) return <div>Setting up client & connection...</div>;
+  if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
-    <Chat client={client}>
-      <ChannelList
-        Preview={CustomChannelPreview as ComponentType<ChannelPreviewUIComponentProps>}
-        filters={filters}
-        sort={sort}
-        options={options}
-      />
-      <Channel Message={CustomMessage}>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
+    <WithComponents
+      overrides={{
+        ChannelListItemUI: CustomChannelListItem,
+        Message: CustomMessage,
+      }}
+    >
+      <Chat client={client} theme='str-chat__theme-custom'>
+        <ChannelList filters={filters} sort={sort} options={options} />
+        <Channel channel={channel}>
+          <Window>
+            <ChannelHeader />
+            <MessageList />
+            <MessageComposer />
+          </Window>
+          <Thread />
+        </Channel>
+      </Chat>
+    </WithComponents>
   );
 };
 

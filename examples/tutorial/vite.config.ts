@@ -1,6 +1,7 @@
 // vite.config.ts
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import { existsSync } from 'fs';
 import { resolve } from 'path';
 
 function createEnvReplacerPlugin(env: Record<string, string>): Plugin {
@@ -41,11 +42,17 @@ export default defineConfig(({ mode }) => {
   // Load shared .env file
   const env = loadEnv('', rootDir, ''); // loads .env
   const appName = mode;
+  const modeRoot = resolve(rootDir, 'src', appName);
+  const useModeRoot = existsSync(modeRoot);
+  const appRoot = useModeRoot ? `src/${appName}` : '.';
+
   return {
-    root: `src/${appName}`,
+    root: appRoot,
     plugins: [react(), createEnvReplacerPlugin(env)],
     build: {
-      outDir: resolve(__dirname, 'dist', appName),
+      outDir: useModeRoot
+        ? resolve(__dirname, 'dist', appName)
+        : resolve(__dirname, 'dist', 'browser'),
     },
     define: {
       'process.env': env, // optional if you need `process.env`

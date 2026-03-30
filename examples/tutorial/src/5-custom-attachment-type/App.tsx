@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import type {
   Attachment as AttachmentType,
+  Channel as StreamChannel,
   ChannelFilters,
   ChannelSort,
   User,
@@ -11,9 +12,10 @@ import {
   Channel,
   ChannelHeader,
   ChannelList,
-  MessageInput,
+  MessageComposer,
   MessageList,
   Thread,
+  WithComponents,
   Window,
   useCreateChatClient,
   type AttachmentProps,
@@ -47,17 +49,34 @@ const attachments: AttachmentType[] = [
   },
 ];
 
+const isProductAttachment = (
+  attachment: AttachmentProps['attachments'] extends Array<infer T> ? T : never,
+): attachment is AttachmentType => 'type' in attachment && attachment.type === 'product';
+
 const CustomAttachment = (props: AttachmentProps) => {
   const { attachments } = props;
   const [attachment] = attachments || [];
-  if (attachment?.type === 'product') {
+  if (attachment && isProductAttachment(attachment)) {
     return (
-      <div>
-        Product:
-        <a href={attachment.url} rel='noreferrer'>
-          <img alt='custom-attachment' height='100px' src={attachment.image} />
-          <br />
-          {attachment.name}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '24px',
+          boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
+          padding: '12px',
+        }}
+      >
+        <div style={{ color: '#0f172a', fontSize: '12px', fontWeight: 700 }}>
+          Product recommendation
+        </div>
+        <a href={attachment.url} rel='noreferrer' target='_blank'>
+          <img
+            alt='custom-attachment'
+            height='120'
+            src={attachment.image}
+            style={{ borderRadius: '18px', marginTop: '8px', objectFit: 'cover' }}
+          />
+          <div style={{ color: '#334155', marginTop: '8px' }}>{attachment.name}</div>
         </a>
       </div>
     );
@@ -67,6 +86,7 @@ const CustomAttachment = (props: AttachmentProps) => {
 };
 
 const App = () => {
+  const [channel, setChannel] = useState<StreamChannel>();
   const client = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
@@ -76,34 +96,53 @@ const App = () => {
   useEffect(() => {
     if (!client) return;
 
-    const initAttachmentMessage = async () => {
-      const [channel] = await client.queryChannels(filters, sort);
-
-      await channel.sendMessage({
-        text: 'Your selected product is out of stock, would you like to select one of these alternatives?',
-        attachments,
+    const initChannel = async () => {
+      const nextChannel = client.channel('messaging', 'react-tutorial-products', {
+        image: 'https://getstream.io/random_png/?name=products',
+        name: 'Product recommendations',
+        members: [userId],
       });
+
+      await nextChannel.watch();
+
+      const hasProductMessage = nextChannel.state.messages.some((message) =>
+        message.attachments?.some(
+          (attachment) => 'type' in attachment && attachment.type === 'product',
+        ),
+      );
+
+      if (!hasProductMessage) {
+        await nextChannel.sendMessage({
+          text: 'Your selected product is out of stock, would you like to select one of these alternatives?',
+          attachments,
+        });
+      }
+
+      setChannel(nextChannel);
     };
 
-    initAttachmentMessage().catch((error) => {
-      console.error(`Failed to initialize attachments`, error);
+    initChannel().catch((error) => {
+      console.error('Failed to initialize attachments', error);
     });
   }, [client]);
 
   if (!client) return <div>Setting up client & connection...</div>;
+  if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
-    <Chat client={client}>
-      <ChannelList filters={filters} sort={sort} />
-      <Channel Attachment={CustomAttachment}>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageInput />
-        </Window>
-        <Thread />
-      </Channel>
-    </Chat>
+    <WithComponents overrides={{ Attachment: CustomAttachment }}>
+      <Chat client={client} theme='str-chat__theme-custom'>
+        <ChannelList filters={filters} sort={sort} />
+        <Channel channel={channel}>
+          <Window>
+            <ChannelHeader />
+            <MessageList />
+            <MessageComposer />
+          </Window>
+          <Thread />
+        </Channel>
+      </Chat>
+    </WithComponents>
   );
 };
 

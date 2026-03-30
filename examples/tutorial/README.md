@@ -1,5 +1,7 @@
 This folder contains the source code for [Chat React tutorial](https://github.com/GetStream/getstream.io-tutorials/blob/main/chat/tutorials/react-tutorial.mdx). It contains multiple versions of apps representing the tutorial steps.
 
+The tutorial app is wired against the local `stream-chat-react` checkout so each step stays aligned with the current SDK implementation.
+
 ## Setup
 
 1. Copy create a `.env` file next to the `.env.example` file.
@@ -8,7 +10,7 @@ This folder contains the source code for [Chat React tutorial](https://github.co
 ## Run individual app examples
 
 ```shell
-yarn dev:client-setup
+yarn dev
 yarn dev:client-setup
 yarn dev:core-component-setup
 yarn dev:channel-list
@@ -17,3 +19,5 @@ yarn dev:custom-attachment-type
 yarn dev:emoji-picker
 yarn dev:livestream
 ```
+
+`yarn dev` starts a simple tutorial browser that lets you switch between all steps from one sidebar.

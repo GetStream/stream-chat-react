@@ -1,0 +1,184 @@
+.tutorial-browser {
+  min-height: 100vh;
+  display: flex;
+  background: linear-gradient(180deg, #eff5ff 0%, #f7fafc 32%, #eef7f6 100%);
+}
+
+.tutorial-browser__sidebar {
+  flex: 0 0 320px;
+  border-right: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  padding: 24px 20px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.tutorial-browser__sidebar-copy {
+  margin-bottom: 20px;
+}
+
+.tutorial-browser__title {
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.tutorial-browser__subtitle {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.tutorial-browser__nav {
+  display: grid;
+  gap: 10px;
+}
+
+.tutorial-browser__step-button {
+  width: 100%;
+  border: 0;
+  border-radius: 18px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.72);
+  color: #0f172a;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.tutorial-browser__step-button--active {
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.22);
+}
+
+.tutorial-browser__step-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tutorial-browser__step-description {
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 6px;
+  opacity: 0.72;
+}
+
+.tutorial-browser__step-button--active .tutorial-browser__step-description {
+  opacity: 0.88;
+}
+
+.tutorial-browser__main {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 16px;
+  min-height: 100vh;
+}
+
+.tutorial-browser__header {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+  padding: 18px 20px;
+  backdrop-filter: blur(14px);
+}
+
+.tutorial-browser__eyebrow {
+  color: #0f172a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tutorial-browser__header-title {
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-top: 6px;
+}
+
+.tutorial-browser__header-description {
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 8px;
+  max-width: 72ch;
+}
+
+.tutorial-browser__preview-card {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  border-radius: 28px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.tutorial-browser__step-shell {
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: hidden;
+}
+
+.tutorial-browser__step-shell > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tutorial-browser__step-shell .str-chat {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tutorial-browser__step-shell .str-chat__channel-list {
+  flex: 0 0 min(360px, 32%);
+  width: min(360px, 32%);
+  max-width: min(360px, 32%);
+}
+
+.tutorial-browser__step-shell .str-chat__channel {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.tutorial-browser__step-shell .str-chat__window {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+}
+
+.tutorial-browser__step-shell .str-chat__thread {
+  flex: 0 0 min(420px, 45%);
+  min-width: 320px;
+  width: min(420px, 45%);
+}
+
+@media (max-width: 1100px) {
+  .tutorial-browser__step-shell .str-chat__thread {
+    min-width: 280px;
+    width: min(360px, 42%);
+  }
+}

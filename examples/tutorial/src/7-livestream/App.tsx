@@ -4,7 +4,7 @@ import {
   Channel,
   ChannelHeader,
   Chat,
-  MessageInput,
+  MessageComposer,
   VirtualizedMessageList,
   Window,
   useCreateChatClient,
@@ -34,23 +34,31 @@ const App = () => {
   useEffect(() => {
     if (!chatClient) return;
 
-    const spaceChannel = chatClient.channel('livestream', 'spacex', {
-      image: 'https://goo.gl/Zefkbx',
-      name: 'SpaceX launch discussion',
-    });
+    const initChannel = async () => {
+      const spaceChannel = chatClient.channel('livestream', 'spacex', {
+        image: 'https://goo.gl/Zefkbx',
+        name: 'SpaceX launch discussion',
+      });
 
-    setChannel(spaceChannel);
+      await spaceChannel.watch();
+      setChannel(spaceChannel);
+    };
+
+    initChannel().catch((error) => {
+      console.error('Failed to initialize livestream channel', error);
+    });
   }, [chatClient]);
 
   if (!chatClient) return <div>Setting up client & connection...</div>;
+  if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
-    <Chat client={chatClient} theme='str-chat__theme-dark'>
+    <Chat client={chatClient} theme='str-chat__theme-dark tutorial-livestream'>
       <Channel channel={channel}>
         <Window>
-          <ChannelHeader live />
+          <ChannelHeader />
           <VirtualizedMessageList />
-          <MessageInput focus />
+          <MessageComposer focus />
         </Window>
       </Channel>
     </Chat>
