@@ -30,6 +30,7 @@
 
   .str-chat__message-list-scroll {
     @include utils.message-list-spacing;
+    width: 100%;
     max-width: var(--str-chat__message-list-scroll-max-width);
     .str-chat__ul {
       list-style: none;
