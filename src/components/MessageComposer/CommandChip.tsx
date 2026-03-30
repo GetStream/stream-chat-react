@@ -1,6 +1,6 @@
 import { useMessageComposerController } from './hooks';
 import type { TextComposerState } from 'stream-chat';
-import { IconCrossMedium, IconThunder } from '../Icons';
+import { IconThunder, IconXmark } from '../Icons';
 import { useMessageComposerContext } from '../../context';
 
 export type CommandChipProps = {
@@ -23,7 +23,7 @@ export const CommandChip = ({ command }: CommandChipProps) => {
           textareaRef.current?.focus();
         }}
       >
-        <IconCrossMedium />
+        <IconXmark />
       </button>
     </div>
   );

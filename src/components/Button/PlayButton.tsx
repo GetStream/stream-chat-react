@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from './Button';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
-import { IconPause, IconPlaySolid } from '../Icons';
+import { IconPauseFill, IconPlayFill } from '../Icons';
 
 export type PlayButtonProps = ComponentProps<'button'> & {
   isPlaying: boolean;
@@ -18,6 +18,6 @@ export const PlayButton = ({ className, isPlaying, ...props }: PlayButtonProps) 
     variant='secondary'
     {...props}
   >
-    {isPlaying ? <IconPause /> : <IconPlaySolid />}
+    {isPlaying ? <IconPauseFill /> : <IconPlayFill />}
   </Button>
 );

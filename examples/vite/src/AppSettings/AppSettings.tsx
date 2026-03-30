@@ -3,8 +3,8 @@ import {
   ChatViewSelectorButton,
   GlobalModal,
   IconBubble3ChatMessage,
-  IconBellNotification,
-  IconEmojiSmile,
+  IconBell,
+  IconEmoji,
   IconLightBulbSimple,
   IconSettingsGear2,
 } from 'stream-chat-react';
@@ -18,9 +18,9 @@ import { appSettingsStore, useAppSettingsState } from './state';
 type TabId = 'notifications' | 'reactions' | 'sidebar';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
-  { Icon: IconBellNotification, id: 'notifications', title: 'Notifications' },
+  { Icon: IconBell, id: 'notifications', title: 'Notifications' },
   { Icon: IconBubble3ChatMessage, id: 'sidebar', title: 'Sidebar' },
-  { Icon: IconEmojiSmile, id: 'reactions', title: 'Reactions' },
+  { Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
 ];
 
 const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {

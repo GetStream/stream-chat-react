@@ -4,7 +4,7 @@ import { useStateStore } from '../../../store';
 import { PlayButton } from '../../Button';
 import type { AudioProps } from '../Audio';
 import React from 'react';
-import { IconChainLink } from '../../Icons';
+import { IconLink } from '../../Icons';
 import { SafeAnchor } from '../../SafeAnchor';
 import type { CardProps } from './Card';
 
@@ -26,7 +26,7 @@ const SourceLink = ({
     className='str-chat__message-attachment-card--source-link'
     data-testid='card-source-link'
   >
-    <IconChainLink />
+    <IconLink />
     <SafeAnchor
       className='str-chat__message-attachment-card--url'
       href={url}

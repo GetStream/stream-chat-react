@@ -2,7 +2,7 @@ import type { LiveLocationPreview, StaticLocationPreview } from 'stream-chat';
 import type { ComponentType } from 'react';
 import React from 'react';
 import { useTranslationContext } from '../../../context';
-import { IconMapPin } from '../../Icons';
+import { IconLocation } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 
 type GeolocationPreviewImageProps = {
@@ -11,7 +11,7 @@ type GeolocationPreviewImageProps = {
 
 const GeolocationPreviewImage = () => (
   <div className='str-chat__location-preview-image'>
-    <IconMapPin />
+    <IconLocation />
   </div>
 );
 

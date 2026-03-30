@@ -34,14 +34,14 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
-  IconChainLink,
-  IconChart5,
-  IconFileBend,
-  IconMapPin,
-  IconMicrophone,
-  IconPlaySolid,
+  IconFile,
+  IconLink,
+  IconLocation,
+  IconPlayFill,
+  IconPoll,
   IconVideo,
-  IconVideoSolid,
+  IconVideoFill,
+  IconVoice,
 } from '../Icons';
 import clsx from 'clsx';
 import { BaseImage } from '../BaseImage';
@@ -184,10 +184,10 @@ const getAttachmentIconWithType = (
   };
   if (!groupedAttachments.total) return result;
   if (groupedAttachments.polls.length > 0)
-    return { ...result, Icon: IconChart5, previewType: 'poll' };
+    return { ...result, Icon: IconPoll, previewType: 'poll' };
   if (groupedAttachments.locations.length > 0)
     // todo: we do not generate the location preview image
-    return { ...result, Icon: IconMapPin, previewType: 'location' };
+    return { ...result, Icon: IconLocation, previewType: 'location' };
   if (
     groupedAttachments.giphies.length > 0 &&
     groupedAttachments.giphies.length === groupedAttachments.total
@@ -201,7 +201,7 @@ const getAttachmentIconWithType = (
       giphyVersion?.url || giphyAttachment.thumb_url || giphyAttachment.image_url || '';
     return {
       ...result,
-      Icon: IconFileBend,
+      Icon: IconFile,
       PreviewImage: (
         <BaseImage
           alt={QUOTED_GIPHY_PREVIEW_LABEL}
@@ -220,7 +220,7 @@ const getAttachmentIconWithType = (
     const fileAttachment = groupedAttachments.documents[0] as Attachment;
     return {
       ...result,
-      Icon: IconFileBend,
+      Icon: IconFile,
       PreviewImage: (
         <FileIcon fileName={fileAttachment.title} mimeType={fileAttachment.mime_type} />
       ),
@@ -231,7 +231,7 @@ const getAttachmentIconWithType = (
     const linkAttachment = groupedAttachments.links[0];
     return {
       ...result,
-      Icon: IconChainLink,
+      Icon: IconLink,
       PreviewImage: (
         <BaseImage
           alt={linkAttachment.title}
@@ -257,7 +257,7 @@ const getAttachmentIconWithType = (
             title={videoAttachment.title}
           />
           <div className='str-chat__attachment-preview__thumbnail__play-indicator'>
-            <IconPlaySolid />
+            <IconPlayFill />
           </div>
         </>
       ),
@@ -268,7 +268,7 @@ const getAttachmentIconWithType = (
     const imageAttachment = groupedAttachments.images[0];
     return {
       ...result,
-      Icon: IconVideoSolid,
+      Icon: IconVideoFill,
       PreviewImage: (
         <BaseImage
           alt={imageAttachment.fallback}
@@ -281,9 +281,9 @@ const getAttachmentIconWithType = (
     };
   }
   if (groupedAttachments.voiceRecordings.length === groupedAttachments.total)
-    return { ...result, Icon: IconMicrophone, previewType: 'voice' };
+    return { ...result, Icon: IconVoice, previewType: 'voice' };
 
-  return { ...result, Icon: IconFileBend, previewType: 'mixed' };
+  return { ...result, Icon: IconFile, previewType: 'mixed' };
 };
 
 export const QuotedMessagePreview = ({

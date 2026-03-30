@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 import type { ThreadManagerState } from 'stream-chat';
 
-import { IconArrowRotateRightLeftRepeatRefresh } from '../../Icons';
+import { IconRefresh } from '../../Icons';
 import { useChatContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { LoadingIndicator } from '../../Loading';
@@ -30,7 +30,7 @@ export const ThreadListUnseenThreadsBanner = () => {
     >
       {!isLoading && (
         <>
-          <IconArrowRotateRightLeftRepeatRefresh />
+          <IconRefresh />
           <span>
             {t('ThreadListUnseenThreadsBanner/unreadThreads', {
               count: unseenThreadIds.length,

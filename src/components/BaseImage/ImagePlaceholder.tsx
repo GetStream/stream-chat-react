@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconImages1Alt } from '../Icons';
+import { IconImage } from '../Icons';
 
 export type ImagePlaceholderProps = {
   className?: string;
@@ -16,7 +16,7 @@ export const ImagePlaceholder = ({ className }: ImagePlaceholderProps) => {
       data-testid='str-chat__base-image-placeholder'
       role='img'
     >
-      <IconImages1Alt />
+      <IconImage />
     </div>
   );
 };

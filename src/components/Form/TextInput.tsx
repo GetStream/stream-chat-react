@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 import { useStableId } from '../UtilityComponents/useStableId';
-import { IconCheckmark2, IconExclamationCircle } from '../Icons';
+import { IconCheckmark, IconExclamationMark } from '../Icons';
 
 export type TextInputVariant = 'outline' | 'ghost';
 
@@ -19,11 +19,11 @@ export type TextInputProps = Omit<ComponentProps<'input'>, 'className'> & {
   message?: ReactNode;
   /** Error message below the input; shown when error is true, with errorMessageIcon */
   errorMessage?: ReactNode;
-  /** Icon shown before error message (default: IconExclamationCircle) */
+  /** Icon shown before error message (default: IconExclamationMark) */
   errorMessageIcon?: ReactNode;
   /** Success message below the input; shown when provided, with successMessageIcon */
   successMessage?: ReactNode;
-  /** Icon shown before success message (default: IconCheckmark2) */
+  /** Icon shown before success message (default: IconCheckmark) */
   successMessageIcon?: ReactNode;
   /** When true, shows error border and error message styling */
   error?: boolean;
@@ -66,14 +66,14 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
   const messageContent = displayError ? (
     <>
       <span aria-hidden className='str-chat__form-text-input__message-icon'>
-        {errorMessageIcon ?? <IconExclamationCircle />}
+        {errorMessageIcon ?? <IconExclamationMark />}
       </span>
       {errorMessage ?? message}
     </>
   ) : displaySuccess ? (
     <>
       <span aria-hidden className='str-chat__form-text-input__message-icon'>
-        {successMessageIcon ?? <IconCheckmark2 />}
+        {successMessageIcon ?? <IconCheckmark />}
       </span>
       {successMessage}
     </>

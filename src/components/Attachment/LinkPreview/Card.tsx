@@ -6,7 +6,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from '../utils';
 import type { Dimensions } from '../../../types/types';
-import { IconChainLink } from '../../Icons';
+import { IconLink } from '../../Icons';
 import { UnableToRenderCard } from './UnableToRenderCard';
 import clsx from 'clsx';
 
@@ -74,7 +74,7 @@ const CardContent = (props: CardContentProps) => {
           className='str-chat__message-attachment-card--source-link'
           data-testid='card-source-link'
         >
-          <IconChainLink />
+          <IconLink />
           <div className='str-chat__message-attachment-card--url'>{url}</div>
         </div>
       )}

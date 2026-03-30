@@ -3,7 +3,7 @@ import { DialogAnchor, type DialogAnchorProps } from '../service';
 import { useDialogIsOpen } from '../hooks';
 import { Button } from '../../Button';
 import clsx from 'clsx';
-import { IconCrossMedium } from '../../Icons';
+import { IconXmark } from '../../Icons';
 import { useComponentContext } from '../../../context';
 
 export type CalloutProps = PropsWithChildren<
@@ -61,7 +61,7 @@ const DefaultCalloutDialog = ({ children, className, onClose }: CalloutDialogPro
       size='sm'
       variant='secondary'
     >
-      <IconCrossMedium />
+      <IconXmark />
     </Button>
   </div>
 );

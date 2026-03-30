@@ -3,7 +3,7 @@ import { useCanCreatePoll } from '../../MessageComposer/hooks/useCanCreatePoll';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useMessageComposerContext, useTranslationContext } from '../../../context';
 import clsx from 'clsx';
-import { IconPaperPlane } from '../../Icons';
+import { IconSend } from '../../Icons';
 import { Prompt } from '../../Dialog';
 
 export type PollCreationDialogControlsProps = {
@@ -46,7 +46,7 @@ export const PollCreationDialogControls = ({
           }}
           type='submit'
         >
-          <IconPaperPlane />
+          <IconSend />
           {t('Send poll')}
         </Prompt.FooterControlsButtonPrimary>
       </Prompt.FooterControls>

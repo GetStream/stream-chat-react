@@ -3,7 +3,7 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { type GalleryItem } from './GalleryContext';
 import { Button } from '../Button';
-import { IconArrowDownCircle, IconCrossMedium } from '../Icons';
+import { IconArrowDownCircle, IconXmark } from '../Icons';
 import { MessageTimestamp as DefaultMessageTimestamp } from '../Message/MessageTimestamp';
 import {
   ModalContext,
@@ -69,7 +69,7 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
             onClick={modalContext.close}
             title={t('Close')}
           >
-            <IconCrossMedium />
+            <IconXmark />
           </Button>
         ) : null}
       </div>

@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import { IconArrowLeft, IconCrossMedium } from '../../Icons';
+import { IconArrowLeft, IconXmark } from '../../Icons';
 
 const ViewerRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__viewer', className)}>
@@ -52,7 +52,7 @@ const ViewerHeader = ({
         size='sm'
         variant='secondary'
       >
-        <IconCrossMedium />
+        <IconXmark />
       </Button>
     )}
   </div>

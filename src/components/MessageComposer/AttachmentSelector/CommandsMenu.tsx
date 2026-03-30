@@ -9,23 +9,23 @@ import {
   useContextMenuContext,
 } from '../../Dialog';
 import {
+  IconAudio,
   IconChevronLeft,
-  IconFlag2,
+  IconFlag,
   IconGiphy,
   IconMute,
-  IconPeopleAdd,
-  IconPeopleRemove,
-  IconVolumeFull,
+  IconUserAdd,
+  IconUserRemove,
 } from '../../Icons';
 import clsx from 'clsx';
 
 const icons: Record<string, ComponentType> = {
-  ban: IconPeopleRemove,
-  flag: IconFlag2,
+  ban: IconUserRemove,
+  flag: IconFlag,
   giphy: IconGiphy,
   mute: IconMute,
-  unban: IconPeopleAdd,
-  unmute: IconVolumeFull,
+  unban: IconUserAdd,
+  unmute: IconAudio,
 };
 
 export const CommandsMenuClassName = 'str-chat__context-menu--commands';

@@ -8,7 +8,7 @@ import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { FileSizeIndicator } from '../../Attachment';
-import { IconExclamationCircle, IconExclamationTriangle } from '../../Icons';
+import { IconExclamationMark, IconExclamationTriangle } from '../../Icons';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
   UploadAttachmentPreviewProps<
@@ -47,7 +47,7 @@ export const FileAttachmentPreview = ({
           {!hasError && <FileSizeIndicator fileSize={attachment.file_size} />}
           {hasFatalError && (
             <div className='str-chat__attachment-preview-file__fatal-error'>
-              <IconExclamationCircle />
+              <IconExclamationMark />
               <span>
                 {hasSizeLimitError
                   ? t('File too large')

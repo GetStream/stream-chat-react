@@ -8,7 +8,7 @@ import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useChatContext } from '../../context/ChatContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconCheckmark1Small, IconClock, IconDoubleCheckmark1Small } from '../Icons';
+import { IconCheckmark1Small, IconChecks, IconClock } from '../Icons';
 
 export type MessageStatusProps = {
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
@@ -135,7 +135,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
             >
               {t('Delivered')}
             </PopperTooltip>
-            <IconDoubleCheckmark1Small className='str-chat__message-status-delivered' />
+            <IconChecks className='str-chat__message-status-delivered' />
           </>
         ))}
 
@@ -152,7 +152,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               {getReadByTooltipText(readBy, t, client, tooltipUserNameMapper)}
             </PopperTooltip>
 
-            <IconDoubleCheckmark1Small className='str-chat__message-status-read' />
+            <IconChecks className='str-chat__message-status-read' />
 
             {readersWithoutOwnUser.length > 1 && (
               <span

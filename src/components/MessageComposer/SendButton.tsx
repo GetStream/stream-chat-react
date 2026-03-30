@@ -1,7 +1,7 @@
 import React from 'react';
 import { useMessageComposerHasSendableData } from './hooks';
 import { useTranslationContext } from '../../context';
-import { IconPaperPlane } from '../Icons';
+import { IconSend } from '../Icons';
 import { Button } from '../Button';
 
 export type SendButtonProps = {
@@ -24,7 +24,7 @@ export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) 
       variant='primary'
       {...rest}
     >
-      {children ?? <IconPaperPlane />}
+      {children ?? <IconSend />}
     </Button>
   );
 };

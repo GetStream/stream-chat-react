@@ -12,7 +12,7 @@ import { useTypingContext } from '../../context/TypingContext';
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconCrossMedium, IconLayoutAlignLeft } from '../Icons';
+import { IconLayoutAlignLeft, IconXmark } from '../Icons';
 import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
 import { useChatViewContext } from '../ChatView';
 
@@ -124,7 +124,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
           size='md'
           variant='secondary'
         >
-          <IconCrossMedium />
+          <IconXmark />
         </Button>
       )}
     </div>

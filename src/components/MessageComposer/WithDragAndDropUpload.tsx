@@ -8,7 +8,7 @@ import { useMessageComposerContext, useTranslationContext } from '../../context'
 import { useAttachmentManagerState, useMessageComposerController } from './hooks';
 import { useStateStore } from '../../store';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
-import { IconFileArrowLeftIn } from '../Icons';
+import { IconUpload } from '../Icons';
 
 const DragAndDropUploadContext = React.createContext<{
   subscribeToDrop: ((fn: (files: File[]) => void) => () => void) | null;
@@ -166,7 +166,7 @@ export const FileDragAndDropContent = ({
         <p>{t('Some of the files will not be accepted')}</p>
       ) : (
         <>
-          <IconFileArrowLeftIn />
+          <IconUpload />
           <p>{t('Drag your files here')}</p>
         </>
       )}

@@ -11,7 +11,7 @@ import { LoadingIndicatorIcon } from '../icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { FileSizeIndicator } from '../../Attachment';
-import { IconExclamationCircle, IconExclamationTriangle } from '../../Icons';
+import { IconExclamationMark, IconExclamationTriangle } from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
   type AudioPlayerState,
@@ -125,7 +125,7 @@ export const AudioAttachmentPreview = ({
             </>
           ) : hasFatalError ? (
             <div className='str-chat__attachment-preview-file__fatal-error'>
-              <IconExclamationCircle />
+              <IconExclamationMark />
               <span>
                 {hasSizeLimitError
                   ? t('File too large')

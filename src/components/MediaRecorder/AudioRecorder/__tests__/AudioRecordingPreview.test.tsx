@@ -7,8 +7,8 @@ import type { AudioPlayer } from '../../../AudioPlayback';
 import { generateAudioAttachment } from '../../../../mock-builders';
 
 const TOGGLE_PLAY_BTN_TEST_ID = 'audio-recording-preview-toggle-play-btn';
-const PLAY_ICON_CLASS = 'str-chat__icon--play-solid';
-const PAUSE_ICON_CLASS = 'str-chat__icon--pause';
+const PLAY_ICON_CLASS = 'str-chat__icon--play-fill';
+const PAUSE_ICON_CLASS = 'str-chat__icon--pause-fill';
 const WAVE_PROGRESS_BAR_TEST_ID = 'wave-progress-bar-track';
 const TIMER_CLASS_SELECTOR = '.str-chat__recording-timer';
 const WAVE_PROGRESS_BAR_INDICATOR_SELECTOR =

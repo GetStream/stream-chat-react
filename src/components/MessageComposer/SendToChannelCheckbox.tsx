@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React from 'react';
 import { useMessageComposerController } from './hooks';
-import { IconCheckmark2 } from '../Icons';
+import { IconCheckmark } from '../Icons';
 import type { MessageComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useTranslationContext } from '../../context';
@@ -43,7 +43,7 @@ export const SendToChannelCheckbox = () => {
         />
         <span aria-hidden className='str-chat__send-to-channel-checkbox__visual'>
           <span className='str-chat__send-to-channel-checkbox__checkmark'>
-            <IconCheckmark2 />
+            <IconCheckmark />
           </span>
         </span>
         <span className='str-chat__send-to-channel-checkbox__label'>{labelText}</span>

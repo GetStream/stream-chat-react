@@ -7,22 +7,22 @@ import {
   type UseLatestMessagePreviewParams,
 } from './hooks/useLatestMessagePreview';
 import {
-  IconCamera1,
-  IconChainLink,
+  IconCamera,
   IconCheckmark1Small,
-  IconCircleBanSign,
+  IconChecks,
   IconClock,
-  IconDoubleCheckmark1Small,
-  IconExclamationCircle1,
-  IconFileBend,
-  IconMapPin,
-  IconMicrophone,
+  IconExclamationCircleFill,
+  IconFile,
+  IconLink,
+  IconLocation,
+  IconNoSign,
   IconVideo,
+  IconVoice,
 } from '../Icons';
 
 const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> = {
-  delivered: IconDoubleCheckmark1Small,
-  read: IconDoubleCheckmark1Small,
+  delivered: IconChecks,
+  read: IconChecks,
   sending: IconClock,
   sent: IconCheckmark1Small,
 };
@@ -30,15 +30,15 @@ const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.Componen
 const contentTypeIconMap: Partial<
   Record<ChannelPreviewMessageType, React.ComponentType>
 > = {
-  deleted: IconCircleBanSign,
-  error: IconExclamationCircle1,
-  file: IconFileBend,
-  giphy: IconFileBend,
-  image: IconCamera1,
-  link: IconChainLink,
-  location: IconMapPin,
+  deleted: IconNoSign,
+  error: IconExclamationCircleFill,
+  file: IconFile,
+  giphy: IconFile,
+  image: IconCamera,
+  link: IconLink,
+  location: IconLocation,
   video: IconVideo,
-  voice: IconMicrophone,
+  voice: IconVoice,
 };
 
 export const SummarizedMessagePreview = ({

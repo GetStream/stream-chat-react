@@ -45,7 +45,7 @@
           width: var(--typography-font-size-xs);
         }
 
-        .str-chat__icon--microphone path {
+        .str-chat__icon--voice path {
           stroke-width: 2;
         }
 
@@ -84,7 +84,7 @@
         border-radius: var(--radius-max);
         background-color: var(--control-play-control-bg);
 
-        .str-chat__icon--play-solid {
+        .str-chat__icon--play-fill {
           height: 12px;
           width: 12px;
 

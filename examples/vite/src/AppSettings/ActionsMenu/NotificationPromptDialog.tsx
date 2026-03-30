@@ -8,13 +8,13 @@ import {
   IconArrowRight,
   Button,
   DialogAnchor,
-  IconArrowRotateRightLeftRepeatRefresh,
+  IconRefresh,
   IconArrowUp,
-  IconCheckmark2,
-  IconCircleInfoTooltip,
+  IconCheckmark,
+  IconInfo,
   IconClock,
-  IconCrossMedium,
-  IconExclamationCircle,
+  IconXmark,
+  IconExclamationMark,
   IconExclamationTriangle,
   IconPlusSmall,
   NumericInput,
@@ -50,10 +50,10 @@ const clamp = (value: number, min: number, max: number) => {
 const severityIcons: Partial<
   Record<NotificationSeverity, React.ComponentType<{ className?: string }>>
 > = {
-  error: IconExclamationCircle,
-  info: IconCircleInfoTooltip,
-  loading: IconArrowRotateRightLeftRepeatRefresh,
-  success: IconCheckmark2,
+  error: IconExclamationMark,
+  info: IconInfo,
+  loading: IconRefresh,
+  success: IconCheckmark,
   warning: IconExclamationTriangle,
 };
 
@@ -148,7 +148,7 @@ const NotificationChipList = ({
             size='xs'
             variant='secondary'
           >
-            <IconCrossMedium />
+            <IconXmark />
           </Button>
         </div>
       );

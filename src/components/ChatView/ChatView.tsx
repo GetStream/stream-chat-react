@@ -11,10 +11,10 @@ import React, {
 import { Button, type ButtonProps } from '../Button';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import {
-  IconBubble2ChatMessage,
-  IconBubble2Solid,
-  IconBubbleText6ChatMessage,
   IconBubbleText6SolidChatMessage,
+  IconMessageBubble,
+  IconMessageBubbleFill,
+  IconThread,
 } from '../Icons';
 import { ThreadProvider } from '../Threads';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
@@ -243,9 +243,9 @@ export const ChatViewChannelsSelectorButton = ({
   const isActive = activeChatView === 'channels';
   return (
     <ChatViewSelectorButton
-      ActiveIcon={IconBubble2Solid}
+      ActiveIcon={IconMessageBubbleFill}
       aria-selected={isActive}
-      Icon={IconBubble2ChatMessage}
+      Icon={IconMessageBubble}
       iconOnly={iconOnly}
       isActive={isActive}
       onPointerDown={() => {
@@ -275,7 +275,7 @@ export const ChatViewThreadsSelectorButton = ({
     <ChatViewSelectorButton
       ActiveIcon={IconBubbleText6SolidChatMessage}
       aria-selected={isActive}
-      Icon={IconBubbleText6ChatMessage}
+      Icon={IconThread}
       iconOnly={iconOnly}
       isActive={isActive}
       onPointerDown={() => {
@@ -285,7 +285,7 @@ export const ChatViewThreadsSelectorButton = ({
       text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
-        {isActive ? <IconBubbleText6SolidChatMessage /> : <IconBubbleText6ChatMessage />}
+        {isActive ? <IconBubbleText6SolidChatMessage /> : <IconThread />}
       </UnreadCountBadge>
     </ChatViewSelectorButton>
   );

@@ -5,7 +5,7 @@ import { useAttachmentManagerState } from '../../MessageComposer/hooks/useAttach
 import { useComponentContext, useMessageComposerContext } from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';
-import { IconMicrophone } from '../../Icons';
+import { IconVoice } from '../../Icons';
 
 const dialogId = 'recording-permission-denied-notification';
 
@@ -76,7 +76,7 @@ export const DefaultStartRecordingAudioButton = forwardRef<
       {...props}
       ref={ref}
     >
-      <IconMicrophone />
+      <IconVoice />
     </Button>
   );
 });
