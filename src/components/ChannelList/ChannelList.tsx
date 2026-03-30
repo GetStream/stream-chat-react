@@ -341,11 +341,11 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
 
   const showChannelList = !searchIsActive;
   return (
-    <DialogManagerProvider id={`channel-list-dialog-manager-${stableId}`}>
-      <ChannelListContextProvider
-        value={{ channels, hasNextPage, loadNextPage, setChannels }}
-      >
-        <div className={className} ref={channelListRef}>
+    <ChannelListContextProvider
+      value={{ channels, hasNextPage, loadNextPage, setChannels }}
+    >
+      <div className={className} ref={channelListRef}>
+        <DialogManagerProvider id={`channel-list-dialog-manager-${stableId}`}>
           <ChannelListHeader />
           {showChannelSearch && <Search />}
           {showChannelList && (
@@ -374,9 +374,9 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
             </ChannelListUI>
           )}
           <NotificationList panel='channel-list' />
-        </div>
-      </ChannelListContextProvider>
-    </DialogManagerProvider>
+        </DialogManagerProvider>
+      </div>
+    </ChannelListContextProvider>
   );
 };
 
