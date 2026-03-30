@@ -1,15 +1,22 @@
 @layer base, theme;
-@import 'stream-chat-react/dist/css/v2/index.css' layer(base);
+@import 'stream-chat-react/dist/css/index.css' layer(base);
 
 @layer theme {
     .str-chat__theme-custom {
-        --str-chat__primary-color: #009688;
-        --str-chat__active-primary-color: #004d40;
-        --str-chat__surface-color: #f5f5f5;
-        --str-chat__secondary-surface-color: #fafafa;
-        --str-chat__primary-surface-color: #e0f2f1;
-        --str-chat__primary-surface-color-low-emphasis: #edf7f7;
-        --str-chat__border-radius-circle: 6px;
+        --brand-50: #edf7f7;
+        --brand-100: #e0f2f1;
+        --brand-150: #b2dfdb;
+        --brand-200: #80cbc4;
+        --brand-300: #4db6ac;
+        --brand-400: #26a69a;
+        --brand-500: #009688;
+        --brand-600: #00897b;
+        --brand-700: #00796b;
+        --brand-800: #00695c;
+        --brand-900: #004d40;
+        --accent-primary: var(--brand-500);
+        --radius-full: 18px;
+        --str-chat__channel-list-width: min(360px, 32%);
     }
 }
 
@@ -20,17 +27,62 @@ body,
 }
 body {
     margin: 0;
+    background: linear-gradient(180deg, #f4f7ff 0%, #e8f4f3 100%);
 }
 #root {
     display: flex;
+    min-height: 100%;
+}
+
+.str-chat {
+    flex: 1;
 }
 
 .str-chat__channel-list {
-    width: 30%;
+    width: min(360px, 32%);
 }
-.str-chat__channel {
+
+.str-chat__channel,
+.str-chat__thread {
     width: 100%;
 }
+
 .str-chat__thread {
-    width: 45%;
+    width: min(420px, 45%);
+}
+
+.tutorial-channel-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: calc(100% - 16px);
+    margin: 8px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    text-align: left;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.tutorial-channel-list-item[aria-pressed='true'] {
+    background: #d3f2ef;
+}
+
+.tutorial-channel-list-item__content {
+    min-width: 0;
+}
+
+.tutorial-channel-list-item__title {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.tutorial-channel-list-item__preview {
+    color: #475569;
+    font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
