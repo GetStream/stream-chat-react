@@ -23,7 +23,7 @@
       grid-template-rows: 50% 50%;
       overflow: hidden;
       border-radius: var(--radius-lg);
-      gap: var(--str-chat__spacing-0_5);
+      gap: var(--space-2);
       width: $max-width;
       max-width: $max-width;
       // CDN resize requires height/max-height to be present on the img element, this rule ensures that

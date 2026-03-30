@@ -31,11 +31,11 @@
   @include utils.component-layer-overrides('thread-header');
 
   .str-chat__thread-header-title {
-    font: var(--str-chat__subtitle-medium-text);
+    font: var(--str-chat__heading-sm-text);
   }
 
   .str-chat__thread-header-subtitle {
-    font: var(--str-chat__body-text);
+    font: var(--str-chat__caption-default-text);
     color: var(--str-chat__thread-header-info-color);
   }
 
