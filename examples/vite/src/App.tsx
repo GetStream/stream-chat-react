@@ -34,7 +34,7 @@ import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
-import { appSettingsStore, useAppSettingsSelector } from './AppSettings/state.ts';
+import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import {
@@ -60,7 +60,7 @@ import {
   getMessageUiVariant,
   getReactionsVariant,
   getSystemMessageVariant,
-} from './CustomMessageUi/index.tsx';
+} from './CustomMessageUi';
 
 init({ data });
 
@@ -191,7 +191,6 @@ const App = () => {
     () => initialSearchParams.get('thread'),
     [initialSearchParams],
   );
-  const initialThreadOpen = useMemo(() => Boolean(initialThreadId), [initialThreadId]);
   const initialPanelLayout = useMemo(
     () => appSettingsStore.getLatestValue().panelLayout,
     [],

@@ -23,7 +23,7 @@ export type NotificationIconProps = {
 
 const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
   error: IconExclamationMark,
-  info: null, // IconInfo,
+  info: null,
   loading: IconRefresh,
   success: IconCheckmark,
   warning: IconExclamationTriangle,

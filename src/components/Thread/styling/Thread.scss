@@ -38,15 +38,3 @@
   flex-direction: column;
   width: 100%;
 }
-
-.str-chat__thread {
-  .str-chat__main-panel-inner {
-    height: auto;
-  }
-}
-
-.str-chat__thread--virtualized {
-  .str-chat__main-panel-inner {
-    height: 100%;
-  }
-}

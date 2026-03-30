@@ -5,16 +5,15 @@ import {
   addNotificationTargetTag,
   IconArrowDown,
   IconArrowLeft,
-  IconArrowRight,
+  IconChevronRight,
   Button,
   DialogAnchor,
   IconRefresh,
   IconArrowUp,
   IconCheckmark,
-  IconInfo,
+  IconExclamationMark,
   IconClock,
   IconXmark,
-  IconExclamationMark,
   IconExclamationTriangle,
   IconPlusSmall,
   NumericInput,
@@ -51,7 +50,7 @@ const severityIcons: Partial<
   Record<NotificationSeverity, React.ComponentType<{ className?: string }>>
 > = {
   error: IconExclamationMark,
-  info: IconInfo,
+  info: IconExclamationMark,
   loading: IconRefresh,
   success: IconCheckmark,
   warning: IconExclamationTriangle,
@@ -62,7 +61,7 @@ const directionIcons: Record<
   React.ComponentType<{ className?: string }>
 > = {
   bottom: IconArrowUp,
-  left: IconArrowRight,
+  left: IconChevronRight,
   right: IconArrowLeft,
   top: IconArrowDown,
 };

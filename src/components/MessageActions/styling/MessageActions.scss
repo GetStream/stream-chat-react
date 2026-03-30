@@ -23,12 +23,6 @@
     height: var(--str-chat__message-options-button-size);
     border-radius: var(--str-chat__message-options-border-radius);
     color: var(--str-chat__message-options-color);
-
-    .str-chat__message-action-icon path {
-      fill: var(--str-chat__message-options-color);
-      stroke: var(--str-chat__message-options-color);
-      stroke-width: 0.25;
-    }
   }
 
   .str-chat__message-actions-box-button:hover,
@@ -40,9 +34,7 @@
   .str-chat__message-actions-box-button:active,
   .str-chat__message-reply-in-thread-button:active,
   .str-chat__message-reactions-button:active {
-    .str-chat__message-action-icon path {
-      fill: var(--str-chat__message-options-active-color);
-    }
+    color: var(--str-chat__message-options-active-color);
   }
 
   .str-chat__message-actions-box-button,
