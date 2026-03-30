@@ -1,3 +1,19 @@
+## [14.0.0-beta.4](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.3...v14.0.0-beta.4) (2026-03-30)
+
+### ⚠ BREAKING CHANGES
+
+* Importing styles from `stream-chat-react/dist/css/v2/*`
+would no longer work, import from `stream-chat-react/dist/css/*`
+instead.
+
+### Bug Fixes
+
+* clean up CSS build output ([#3072](https://github.com/GetStream/stream-chat-react/issues/3072)) ([f06846d](https://github.com/GetStream/stream-chat-react/commit/f06846da4d492c0fb9ca375ee049682e6f9e48ba))
+
+### Features
+
+* **Icons:** migrate SDK icons to Phosphor icon set ([#3075](https://github.com/GetStream/stream-chat-react/issues/3075)) ([30c1bee](https://github.com/GetStream/stream-chat-react/commit/30c1beeae8651855fc30654de5903a970ca9f367))
+
 ## [14.0.0-beta.3](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.2...v14.0.0-beta.3) (2026-03-27)
 
 ### Bug Fixes
