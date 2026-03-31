@@ -3,6 +3,7 @@ import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { useMessageContext } from './MessageContext';
 import { useChannelActionContext } from './ChannelActionContext';
 import { isMessageBounced, useMessageComposerController } from '../components';
+import { savePreEditSnapshot } from '../components/MessageComposer/preEditSnapshot';
 import type { LocalMessage } from 'stream-chat';
 import type { PropsWithChildrenOnly } from '../types/types';
 
@@ -52,6 +53,7 @@ export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   const handleEdit: ReactEventHandler = useCallback(
     (e) => {
       e.preventDefault();
+      savePreEditSnapshot(messageComposer);
       messageComposer.initState({ composition: message });
     },
     [message, messageComposer],

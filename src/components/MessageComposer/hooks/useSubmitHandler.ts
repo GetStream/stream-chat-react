@@ -5,6 +5,7 @@ import { useMessageComposerController } from './useMessageComposerController';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
+import { discardPreEditSnapshot } from '../preEditSnapshot';
 
 import type { MessageComposerProps } from '../MessageComposer';
 
@@ -47,6 +48,7 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
       if (messageComposer.editedMessage && localMessage.type !== 'error') {
         try {
           await editMessage(localMessage, sendOptions);
+          discardPreEditSnapshot(messageComposer);
           messageComposer.clear();
         } catch (err) {
           client.notifications.addError({

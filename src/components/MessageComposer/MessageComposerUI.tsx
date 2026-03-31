@@ -18,6 +18,7 @@ import { TextareaComposer as DefaultTextareaComposer } from '../TextareaComposer
 import { useMessageComposerContext as useMessageComposerContext } from '../../context/MessageComposerContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context';
+import { restorePreEditSnapshot } from './preEditSnapshot';
 import { WithDragAndDropUpload } from './WithDragAndDropUpload';
 import {
   AdditionalMessageComposerActions as DefaultAdditionalMessageComposerActions,
@@ -110,7 +111,7 @@ const MessageComposerPreviews = () => {
           <EditedMessagePreview
             message={editedMessage}
             onCancel={() => {
-              messageComposer.clear();
+              restorePreEditSnapshot(messageComposer);
             }}
           />
         </div>
