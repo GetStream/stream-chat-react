@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import type { ReactionDetailsComparator, ReactionSummary, ReactionType } from './types';
+import type { ReactionSummary, ReactionType } from './types';
 
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { Avatar as DefaultAvatar } from '../Avatar';
@@ -13,6 +13,7 @@ import {
 } from '../../context';
 import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions } from './reactionOptions';
+import type { useProcessReactions } from './hooks/useProcessReactions';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -21,9 +22,8 @@ export type MessageReactionsDetailProps = Partial<
   selectedReactionType: ReactionType | null;
   onSelectedReactionTypeChange?: (reactionType: ReactionType | null) => void;
   sort?: ReactionSort;
-  /** @deprecated use `sort` instead */
-  sortReactionDetails?: ReactionDetailsComparator;
   totalReactionCount?: number;
+  reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
 };
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
@@ -47,9 +47,9 @@ export function MessageReactionsDetail({
   handleFetchReactions,
   onSelectedReactionTypeChange,
   reactionDetailsSort: propReactionDetailsSort,
+  reactionGroups,
   reactions,
   selectedReactionType,
-  sortReactionDetails: propSortReactionDetails,
   totalReactionCount,
 }: MessageReactionsDetailProps) {
   const { client } = useChatContext();
@@ -63,10 +63,7 @@ export function MessageReactionsDetail({
   const {
     handleReaction: contextHandleReaction,
     reactionDetailsSort: contextReactionDetailsSort,
-    sortReactionDetails: contextSortReactionDetails,
   } = useMessageContext(MessageReactionsDetail.name);
-
-  const legacySortReactionDetails = propSortReactionDetails ?? contextSortReactionDetails;
 
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
@@ -81,14 +78,6 @@ export function MessageReactionsDetail({
     shouldFetch: true,
     sort: reactionDetailsSort,
   });
-
-  const reactionDetailsWithLegacyFallback = useMemo(
-    () =>
-      legacySortReactionDetails
-        ? [...reactionDetails].sort(legacySortReactionDetails)
-        : reactionDetails,
-    [legacySortReactionDetails, reactionDetails],
-  );
 
   return (
     <div
@@ -142,7 +131,7 @@ export function MessageReactionsDetail({
         {areReactionsLoading && <LoadingIndicator />}
         {!areReactionsLoading && (
           <>
-            {reactionDetailsWithLegacyFallback.map(({ type, user }) => {
+            {reactionDetails.map(({ type, user }) => {
               const belongsToCurrentUser = client.user?.id === user?.id;
               const EmojiComponent = Array.isArray(reactionOptions)
                 ? undefined
@@ -173,8 +162,17 @@ export function MessageReactionsDetail({
                         className='str-chat__message-reactions-detail__user-list-item-button'
                         data-testid='remove-reaction-button'
                         onClick={async (e) => {
+                          const reactionCountBeforeRemoval =
+                            reactionGroups?.[type]?.count ?? 0;
+
                           await contextHandleReaction(type, e);
-                          refetch();
+
+                          // was 1, should be 0 after removal, display all reactions
+                          if (reactionCountBeforeRemoval <= 1) {
+                            onSelectedReactionTypeChange?.(null);
+                          } else {
+                            refetch();
+                          }
                         }}
                       >
                         {t('Tap to remove')}

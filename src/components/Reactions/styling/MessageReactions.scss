@@ -14,12 +14,11 @@
 
     .str-chat__message-reactions__list-item {
       display: flex;
-    }
-  }
 
-  .str-chat__message-reactions__list-item-button {
-    // temporary hacky fix
-    min-height: 26px;
+      &--more {
+        height: 100%;
+      }
+    }
   }
 
   .str-chat__message-reactions__list-button,
@@ -27,13 +26,10 @@
     @include common.reaction-button;
 
     .str-chat__message-reactions__list-item-icon {
-      // FIXME: ridiculous hack so that the emoji block is in a square container (1/1 ratio)
-      font-size: 13px;
-      line-height: 16px;
       font-family: system-ui;
+      font-size: var(--font-size-size-17);
       font-style: normal;
-      letter-spacing: 0;
-      display: flex;
+      line-height: var(--typography-line-height-normal);
     }
 
     .str-chat__message-reactions__total-count,
@@ -41,10 +37,7 @@
     .str-chat__message-reactions__list-item-count {
       display: flex;
       align-items: center;
-      color: var(--reaction-text);
-      font-size: var(--typography-font-size-xxs);
-      font-weight: var(--typography-font-weight-bold);
-      line-height: 1;
+      font: var(--str-chat__numeric-md-text);
     }
   }
 

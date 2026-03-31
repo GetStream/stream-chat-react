@@ -7,7 +7,8 @@
   position: relative;
   display: flex;
   gap: var(--spacing-xxs);
-  padding: var(--spacing-xxs) var(--spacing-xs);
+  padding-inline: var(--spacing-xs);
+  padding-block: var(--spacing-xxxs);
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-max);

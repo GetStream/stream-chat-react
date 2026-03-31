@@ -52,8 +52,7 @@ type MessageContextPropsToPick =
   | 'onMentionsClickMessage'
   | 'onMentionsHoverMessage'
   | 'reactionDetailsSort'
-  | 'sortReactions'
-  | 'sortReactionDetails';
+  | 'sortReactions';
 
 type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
   Pick<MessageContextValue, MessageContextPropsToPick> & {
@@ -211,7 +210,6 @@ export const Message = (props: MessageProps) => {
     pinPermissions,
     reactionDetailsSort,
     retrySendMessage: propRetrySendMessage,
-    sortReactionDetails,
     sortReactions,
   } = props;
 
@@ -316,7 +314,6 @@ export const Message = (props: MessageProps) => {
       readBy={props.readBy}
       renderText={props.renderText}
       returnAllReadData={props.returnAllReadData}
-      sortReactionDetails={sortReactionDetails}
       sortReactions={sortReactions}
       threadList={props.threadList}
       unsafeHTML={props.unsafeHTML}

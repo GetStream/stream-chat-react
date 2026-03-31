@@ -6,13 +6,9 @@ import { defaultReactionOptions } from '../reactionOptions';
 import type { MessageReactionsProps } from '../MessageReactions';
 import type { ReactionsComparator, ReactionSummary } from '../types';
 
-type UseProcessReactionsParams = Pick<
+export type UseProcessReactionsParams = Pick<
   MessageReactionsProps,
-  | 'own_reactions'
-  | 'reaction_counts'
-  | 'reaction_groups'
-  | 'reactionOptions'
-  | 'reactions'
+  'own_reactions' | 'reaction_groups' | 'reactions'
 > & {
   sortReactions?: ReactionsComparator;
 };
@@ -29,20 +25,18 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
   const {
     own_reactions: propOwnReactions,
     reaction_groups: propReactionGroups,
-    reactionOptions: propReactionOptions,
     reactions: propReactions,
     sortReactions: propSortReactions,
   } = params;
   const { message, sortReactions: contextSortReactions } =
     useMessageContext('useProcessReactions');
-  const { reactionOptions: contextReactionOptions = defaultReactionOptions } =
+  const { reactionOptions = defaultReactionOptions } =
     useComponentContext('useProcessReactions');
 
-  const reactionOptions = propReactionOptions ?? contextReactionOptions;
   const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;
-  const latestReactions = propReactions || message.latest_reactions;
-  const ownReactions = propOwnReactions || message?.own_reactions;
-  const reactionGroups = propReactionGroups || message?.reaction_groups;
+  const latestReactions = propReactions ?? message.latest_reactions;
+  const ownReactions = propOwnReactions ?? message?.own_reactions;
+  const reactionGroups = propReactionGroups ?? message?.reaction_groups ?? undefined;
 
   const isOwnReaction = useCallback(
     (reactionType: string) =>
@@ -158,6 +152,7 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
   return {
     existingReactions,
     hasReactions,
+    reactionGroups,
     totalReactionCount,
     uniqueReactionTypeCount,
   } as const;
