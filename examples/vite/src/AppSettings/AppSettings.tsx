@@ -24,15 +24,23 @@ const IconLightBulb = createIcon(
   </>,
   { viewBox: '0 0 16 16' },
 );
+const IconTextDirection = createIcon(
+  'IconTextDirection',
+  <path d='M9.5 2H12.5C12.7761 2 13 2.22386 13 2.5C13 2.77614 12.7761 3 12.5 3H11V12.5C11 12.7761 10.7761 13 10.5 13C10.2239 13 10 12.7761 10 12.5V3H9V12.5C9 12.7761 8.77614 13 8.5 13C8.22386 13 8 12.7761 8 12.5V8H7.5C5.567 8 4 6.433 4 4.5C4 2.567 5.567 1 7.5 1H9.5V2ZM8 3H7.5C6.11929 3 5 4.11929 5 4.5C5 5.88071 6.11929 7 7.5 7H8V3ZM3.85355 13.8536C3.65829 14.0488 3.34171 14.0488 3.14645 13.8536L1.14645 11.8536C0.951184 11.6583 0.951184 11.3417 1.14645 11.1464C1.34171 10.9512 1.65829 10.9512 1.85355 11.1464L3 12.2929V9.5C3 9.22386 3.22386 9 3.5 9C3.77614 9 4 9.22386 4 9.5V12.2929L5.14645 11.1464C5.34171 10.9512 5.65829 10.9512 5.85355 11.1464C6.04882 11.3417 6.04882 11.6583 5.85355 11.8536L3.85355 13.8536Z' />,
+  { viewBox: '0 0 16 16' },
+);
+
 import { ActionsMenu } from './ActionsMenu';
+import { GeneralTab } from './tabs/General';
 import { NotificationsTab } from './tabs/Notifications';
 import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
 import { appSettingsStore, useAppSettingsState } from './state';
 
-type TabId = 'notifications' | 'reactions' | 'sidebar';
+type TabId = 'general' | 'notifications' | 'reactions' | 'sidebar';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
+  { Icon: IconGear, id: 'general', title: 'General' },
   { Icon: IconBell, id: 'notifications', title: 'Notifications' },
   { Icon: IconMessageBubble, id: 'sidebar', title: 'Sidebar' },
   { Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
@@ -40,6 +48,7 @@ const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
 
 const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const {
+    theme,
     theme: { mode },
   } = useAppSettingsState();
   const nextMode = mode === 'dark' ? 'light' : 'dark';
@@ -55,7 +64,7 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       isActive={mode === 'dark'}
       onClick={() =>
         appSettingsStore.partialNext({
-          theme: { mode: nextMode },
+          theme: { ...theme, mode: nextMode },
         })
       }
       role='switch'
@@ -65,14 +74,42 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   );
 };
 
+const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  const {
+    theme,
+    theme: { direction },
+  } = useAppSettingsState();
+  const isRtl = direction === 'rtl';
+
+  return (
+    <ChatViewSelectorButton
+      aria-checked={isRtl}
+      aria-label={`Switch to ${isRtl ? 'LTR' : 'RTL'} direction`}
+      aria-selected={isRtl}
+      className='app__settings-group_button'
+      iconOnly={iconOnly}
+      Icon={IconTextDirection}
+      isActive={isRtl}
+      onClick={() =>
+        appSettingsStore.partialNext({
+          theme: { ...theme, direction: isRtl ? 'ltr' : 'rtl' },
+        })
+      }
+      role='switch'
+      text={isRtl ? 'RTL' : 'LTR'}
+    />
+  );
+};
+
 export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
-  const [activeTab, setActiveTab] = useState<TabId>('sidebar');
+  const [activeTab, setActiveTab] = useState<TabId>('general');
   const [open, setOpen] = useState(false);
 
   return (
     <div className='app__settings-group'>
       <ActionsMenu iconOnly={iconOnly} />
       <SidebarThemeToggle iconOnly={iconOnly} />
+      <SidebarRtlToggle iconOnly={iconOnly} />
       <ChatViewSelectorButton
         className='app__settings-group_button'
         iconOnly={iconOnly}
@@ -113,6 +150,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
               id={`${activeTab}-content`}
               role='tabpanel'
             >
+              {activeTab === 'general' && <GeneralTab />}
               {activeTab === 'notifications' && <NotificationsTab />}
               {activeTab === 'sidebar' && <SidebarTab />}
               {activeTab === 'reactions' && <ReactionsTab />}
