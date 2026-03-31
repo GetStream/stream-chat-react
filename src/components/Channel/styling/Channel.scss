@@ -204,9 +204,6 @@
   /* Right (left in RTL layout) border of the component */
   --str-chat__channel-border-inline-end: none;
 
-  /* The icon color used when no channel is selected */
-  --str-chat__channel-empty-indicator-color: var(--str-chat__disabled-color);
-
   /* The base surface color behind the loading shimmer */
   --str-chat__channel-loading-state-color: var(--background-core-surface);
 }

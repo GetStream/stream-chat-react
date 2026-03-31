@@ -27,7 +27,8 @@
     height: 100%;
   }
 
-  .str-chat__icon--person {
+  // people icon for avatars without images and initials
+  .str-chat__icon {
     width: var(--avatar-icon-size);
     height: var(--avatar-icon-size);
     stroke-width: var(--avatar-icon-stroke-width);

@@ -30,14 +30,12 @@
   @include utils.header-layout;
   @include utils.component-layer-overrides('thread-header');
 
-  .str-chat__thread-header-name,
   .str-chat__thread-header-title {
-    font: var(--str-chat__subtitle-medium-text);
+    font: var(--str-chat__heading-sm-text);
   }
 
-  .str-chat__thread-header-channel-name,
   .str-chat__thread-header-subtitle {
-    font: var(--str-chat__body-text);
+    font: var(--str-chat__caption-default-text);
     color: var(--str-chat__thread-header-info-color);
   }
 
@@ -45,9 +43,6 @@
     @include utils.header-text-layout;
     align-items: start;
 
-    .str-chat__thread-header-name,
-    .str-chat__thread-header-reply-count,
-    .str-chat__thread-header-channel-name,
     .str-chat__thread-header-subtitle,
     .str-chat__thread-header-title {
       @include utils.ellipsis-text;

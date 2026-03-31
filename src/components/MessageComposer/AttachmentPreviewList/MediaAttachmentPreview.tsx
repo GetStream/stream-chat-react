@@ -14,11 +14,11 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { LoadingIndicatorIcon } from '../icons';
 import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -34,7 +34,7 @@ export const MediaAttachmentPreview = ({
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
-  const { BaseImage = DefaultBaseImage, LoadingIndicator = LoadingIndicatorIcon } =
+  const { BaseImage = DefaultBaseImage, LoadingIndicator = DefaultLoadingIndicator } =
     useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
@@ -94,7 +94,7 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && <LoadingIndicator />}
+          {isUploading && <LoadingIndicator data-testid='loading-indicator' />}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&

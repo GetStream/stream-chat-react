@@ -2,10 +2,9 @@
 
 .str-chat {
   /* The margin applied to every attachment in the attachment list */
-  --str-chat__attachment-margin: var(--str-chat__spacing-0_5);
-
-  /* The border radius used for the borders of the component */
-  --str-chat__attachment-list-border-radius: 0;
+  --str-chat__attachment-margin: var(--space-2)
+    /* The border radius used for the borders of the component */
+    --str-chat__attachment-list-border-radius: 0;
 
   /* The text/icon color of the component */
   --str-chat__attachment-list-color: var(--str-chat__text-color);
@@ -328,7 +327,7 @@
 
   .str-chat__gallery .str-chat__message-attachment--svg-image,
   .str-chat__message-attachment--image.str-chat__message-attachment--svg-image {
-    $padding: var(--str-chat__spacing-6);
+    $padding: var(--space-24);
     padding: $padding;
 
     img {
@@ -344,8 +343,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--str-chat__spacing-2);
-    column-gap: var(--str-chat__spacing-4);
+    padding: var(--space-8);
+    column-gap: var(--space-16);
     //margin: var(--str-chat__attachment-margin);
 
     .str-chat__file-icon {
@@ -380,7 +379,7 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: center;
-      row-gap: var(--str-chat__spacing-0_5);
+      row-gap: var(--space-2);
       min-width: 0;
       line-height: var(--typography-line-height-tight);
 
@@ -390,7 +389,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        column-gap: var(--str-chat__spacing-2);
+        column-gap: var(--space-8);
         font-weight: var(--typography-font-weight-semi-bold);
         font-size: var(--typography-font-size-sm);
 
@@ -435,28 +434,11 @@
         color: var(--str-chat__voice-recording-attachment-widget-color);
       }
 
-      .str-chat__message-attachment-voice-recording-widget--first-row {
-        @include utils.ellipsis-text-parent;
-
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: var(--str-chat__spacing-1);
-      }
-
       .str-chat__message-attachment-download-icon {
         svg {
           width: calc(var(--str-chat__spacing-px) * 24);
           height: calc(var(--str-chat__spacing-px) * 16);
         }
-      }
-
-      .str-chat__message-attachment__voice-recording-widget__error-message {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        gap: var(--str-chat__spacing-1);
       }
     }
 
@@ -475,10 +457,6 @@
 
   .str-chat__message-attachment-download-icon {
     --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 16);
-  }
-
-  .str-chat__attachment-type-icon {
-    --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 37);
   }
 }
 

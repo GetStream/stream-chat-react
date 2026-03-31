@@ -127,7 +127,7 @@
   .str-chat__channel-list-inner {
     height: 100%;
     overflow: hidden;
-    padding-bottom: var(--str-chat__spacing-2_5);
+    padding-bottom: calc(var(--space-8) + var(--space-2));
 
     .str-chat__channel-list-inner__main {
       height: 100%;
@@ -139,7 +139,7 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: var(--str-chat__spacing-3);
+        padding: calc(var(--space-8) + var(--space-4));
 
         p {
           color: var(--text-secondary);
@@ -152,15 +152,11 @@
   .str-chat__load-more-button {
     display: flex;
     justify-content: center;
-    margin: var(--str-chat__spacing-2) 0;
+    margin: var(--space-8) 0;
 
     .str-chat__load-more-button__button {
       @include utils.flex-row-center;
     }
-  }
-
-  .stream-chat__paginated-list {
-    gap: 0;
   }
 
   .str-chat__load-more-button__button {
