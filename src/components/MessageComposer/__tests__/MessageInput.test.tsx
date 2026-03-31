@@ -1468,4 +1468,72 @@ describe(`MessageInputFlat`, () => {
       expect(screen.queryByTestId('send-to-channel-checkbox')).not.toBeInTheDocument();
     });
   });
+
+  describe('Edit mode', () => {
+    const enterEditMode = async () => {
+      const actionsButton = await screen.findByTestId('message-actions-toggle-button');
+      await act(() => {
+        fireEvent.click(actionsButton);
+      });
+      const editButton = await screen.findByText(/^Edit Message$/i);
+      await act(() => {
+        fireEvent.click(editButton);
+      });
+    };
+
+    it('should restore composer text when cancelling edit mode', async () => {
+      await renderComponent();
+      const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+      // Type some text before editing
+      await act(() => {
+        fireEvent.change(textarea, { target: { value: 'my draft message' } });
+      });
+      expect(textarea).toHaveValue('my draft message');
+
+      // Enter edit mode on the rendered message
+      await enterEditMode();
+
+      // Textarea should now show the edited message's text
+      await waitFor(() => {
+        expect(textarea).toHaveValue(mainListMessage.text);
+      });
+
+      // Cancel edit via the dismiss button
+      const cancelButton = await screen.findByTestId(
+        'quoted-message-preview-dismiss-btn',
+      );
+      await act(() => {
+        fireEvent.click(cancelButton);
+      });
+
+      // Original draft text should be restored
+      await waitFor(() => {
+        expect(textarea).toHaveValue('my draft message');
+      });
+    });
+
+    it('should return to empty composer when cancelling edit if composer was empty', async () => {
+      await renderComponent();
+      const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+      expect(textarea).toHaveValue('');
+
+      await enterEditMode();
+
+      await waitFor(() => {
+        expect(textarea).toHaveValue(mainListMessage.text);
+      });
+
+      const cancelButton = await screen.findByTestId(
+        'quoted-message-preview-dismiss-btn',
+      );
+      await act(() => {
+        fireEvent.click(cancelButton);
+      });
+
+      await waitFor(() => {
+        expect(textarea).toHaveValue('');
+      });
+    });
+  });
 });

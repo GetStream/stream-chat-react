@@ -100,11 +100,13 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   return (
     <div className='str-chat__thread-header'>
-      {activeChatView === 'threads' && (
-        <ToggleSidebarButton canCollapse={!!threadInstance} mode='expand'>
-          <MenuIcon />
-        </ToggleSidebarButton>
-      )}
+      <div className='str-chat__thread-header__start'>
+        {activeChatView === 'threads' && (
+          <ToggleSidebarButton canCollapse={!!threadInstance} mode='expand'>
+            <MenuIcon />
+          </ToggleSidebarButton>
+        )}
+      </div>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
         <ThreadHeaderSubtitle
@@ -113,20 +115,22 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
           threadList
         />
       </div>
-      {!threadInstance && (
-        <Button
-          appearance='ghost'
-          aria-label={t('aria/Close thread')}
-          circular
-          className='str-chat__close-thread-button'
-          data-testid='close-thread-button'
-          onClick={closeThread}
-          size='md'
-          variant='secondary'
-        >
-          <IconXmark />
-        </Button>
-      )}
+      <div className='str-chat__thread-header__end'>
+        {!threadInstance && (
+          <Button
+            appearance='ghost'
+            aria-label={t('aria/Close thread')}
+            circular
+            className='str-chat__close-thread-button'
+            data-testid='close-thread-button'
+            onClick={closeThread}
+            size='md'
+            variant='secondary'
+          >
+            <IconXmark />
+          </Button>
+        )}
+      </div>
     </div>
   );
 };

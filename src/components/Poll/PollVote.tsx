@@ -44,7 +44,7 @@ const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
   const displayName =
     client.user?.id && client.user.id === vote.user?.id
       ? t('You')
-      : vote.user?.name || t('Anonymous');
+      : vote.user?.name || vote.user?.id || t('Anonymous');
 
   return (
     <div className='str-chat__poll-vote__author'>

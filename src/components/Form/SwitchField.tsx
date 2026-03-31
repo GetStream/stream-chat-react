@@ -55,12 +55,7 @@ export const SwitchField = ({
         ref={inputRef}
       />
       {title ? (
-        <SwitchFieldLabel
-          description={description}
-          htmlFor={id}
-          onClick={() => inputRef.current?.click()}
-          title={title}
-        ></SwitchFieldLabel>
+        <SwitchFieldLabel description={description} htmlFor={id} title={title} />
       ) : (
         children
       )}

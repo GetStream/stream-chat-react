@@ -27,6 +27,7 @@ import {
 } from '../Icons';
 import { isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { savePreEditSnapshot } from '../MessageComposer/preEditSnapshot';
 import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
 import { useMessageReminder } from '../Message/hooks/useMessageReminder';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
@@ -175,6 +176,7 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           Icon={IconEdit}
           onClick={() => {
+            savePreEditSnapshot(messageComposer);
             messageComposer.initState({ composition: message });
             closeMenu();
           }}

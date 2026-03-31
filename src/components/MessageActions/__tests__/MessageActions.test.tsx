@@ -232,7 +232,9 @@ describe('<MessageActions />', () => {
         await fireEvent.click(dialogOverlay);
       });
 
-      expect(screen.queryByTestId(dialogOverlayTestId)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId(dialogOverlayTestId)).not.toBeInTheDocument();
+      });
     });
 
     it('should close dropdown when Escape key is pressed', async () => {
@@ -542,7 +544,9 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByTestId(dialogOverlayTestId));
       });
 
-      expect(screen.queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
+      });
     });
 
     it('should close ReactionSelector when Escape key is pressed', async () => {
