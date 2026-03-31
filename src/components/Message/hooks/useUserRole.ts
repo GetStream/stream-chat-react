@@ -38,6 +38,7 @@ export const useUserRole = (
 
   const canEdit =
     !message.poll &&
+    message.command !== 'giphy' &&
     ((!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
       (isMyMessage && channelCapabilities['update-own-message']));
 
