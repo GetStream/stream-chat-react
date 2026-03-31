@@ -17,13 +17,15 @@ export const DialogPortalDestination = () => {
   const openedDialogCount = useOpenedDialogCount({ dialogManagerId: dialogManager?.id });
   const [destinationRoot, setDestinationRoot] = useState<HTMLDivElement | null>(null);
 
-  // Handle clicks outside the overlay-covered area.
-  // Dismiss policy is manager-level (`dialogManager.closeOnClickOutside`).
+  // Handle clicks outside dialog contents.
+  // Clicks on the overlay itself or outside it close open dialogs;
+  // only clicks on dialog contents (descendants) are ignored.
   useEffect(() => {
     if (!destinationRoot || !dialogManager) return;
 
     const handleDocumentClick = (event: MouseEvent) => {
-      if (destinationRoot.contains(event.target as Node)) return;
+      const target = event.target as Node;
+      if (target !== destinationRoot && destinationRoot.contains(target)) return;
       // Defer so target onClick handlers (e.g. context-menu toggle buttons) can run first.
       setTimeout(() => {
         Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
@@ -56,23 +58,6 @@ export const DialogPortalDestination = () => {
       className='str-chat__dialog-overlay'
       data-str-chat__portal-id={dialogManager?.id}
       data-testid='str-chat__dialog-overlay'
-      onClick={(event) => {
-        if (!dialogManager) return;
-        if (event.target !== event.currentTarget) return;
-        Object.values(dialogManager.state.getLatestValue().dialogsById).forEach(
-          (dialog) => {
-            if (!dialog.isOpen) return;
-            if (
-              !shouldCloseOnOutsideClick({
-                dialog,
-                managerCloseOnClickOutside: dialogManager.closeOnClickOutside,
-              })
-            )
-              return;
-            dialogManager.close(dialog.id);
-          },
-        );
-      }}
       ref={setDestinationRoot}
       style={
         {

@@ -4,4 +4,9 @@
   height: var(--str-chat__dialog-overlay-height);
   width: 100%;
   z-index: 2;
+  pointer-events: none;
+
+  .str-chat__dialog-contents {
+    pointer-events: auto;
+  }
 }
