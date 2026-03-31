@@ -12,7 +12,7 @@ import { useTypingContext } from '../../context/TypingContext';
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconLayoutAlignLeft, IconXmark } from '../Icons';
+import { IconSidebar, IconXmark } from '../Icons';
 import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
 import { useChatViewContext } from '../ChatView';
 
@@ -67,14 +67,14 @@ export type ThreadHeaderProps = {
   closeThread: (event?: React.BaseSyntheticEvent) => void;
   /** The thread parent message */
   thread: LocalMessage;
-  /** UI component to display menu icon, defaults to IconLayoutAlignLeft*/
+  /** UI component to display menu icon, defaults to IconSidebar*/
   MenuIcon?: React.ComponentType;
   /** Override the thread display title */
   overrideTitle?: string;
 };
 
 export const ThreadHeader = (props: ThreadHeaderProps) => {
-  const { closeThread, MenuIcon = IconLayoutAlignLeft, overrideTitle, thread } = props;
+  const { closeThread, MenuIcon = IconSidebar, overrideTitle, thread } = props;
 
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();

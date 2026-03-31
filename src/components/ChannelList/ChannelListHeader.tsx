@@ -1,7 +1,7 @@
 import React, { type ComponentType } from 'react';
 import clsx from 'clsx';
 import { useChatContext, useTranslationContext } from '../../context';
-import { IconLayoutAlignLeft } from '../Icons';
+import { IconSidebar } from '../Icons';
 import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
 
 export type ChannelListHeaderProps = {
@@ -9,7 +9,7 @@ export type ChannelListHeaderProps = {
 };
 
 export const ChannelListHeader = ({
-  ToggleButtonIcon = IconLayoutAlignLeft,
+  ToggleButtonIcon = IconSidebar,
 }: ChannelListHeaderProps) => {
   const { t } = useTranslationContext();
   const { channel, navOpen } = useChatContext();

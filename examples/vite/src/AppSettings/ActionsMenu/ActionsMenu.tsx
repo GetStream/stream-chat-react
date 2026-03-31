@@ -5,7 +5,7 @@ import {
   ContextMenu,
   ContextMenuButton,
   DialogManagerProvider,
-  IconThunder,
+  IconBolt,
   useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
@@ -40,7 +40,7 @@ const ActionsMenuButton = ({
       ref={refCallback}
       variant='secondary'
     >
-      <IconThunder />
+      <IconBolt />
       {!iconOnly && (
         <div className='str-chat__chat-view__selector-button-text'>Actions</div>
       )}
