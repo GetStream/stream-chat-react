@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { IconLayoutAlignLeft } from '../Icons/icons';
+import { IconSidebar } from '../Icons/icons';
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
@@ -40,7 +40,7 @@ export type ChannelHeaderProps = {
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
-  /** UI component to display menu icon, defaults to IconLayoutAlignLeft*/
+  /** UI component to display menu icon, defaults to IconSidebar*/
   MenuIcon?: React.ComponentType;
   /** Set title manually */
   title?: string;
@@ -53,7 +53,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   const {
     Avatar = DefaultAvatar,
     image: overrideImage,
-    MenuIcon = IconLayoutAlignLeft,
+    MenuIcon = IconSidebar,
     title: overrideTitle,
   } = props;
 

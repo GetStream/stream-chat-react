@@ -1,6 +1,6 @@
 import { useMessageComposerController } from './hooks';
 import type { TextComposerState } from 'stream-chat';
-import { IconThunder, IconXmark } from '../Icons';
+import { IconBolt, IconXmark } from '../Icons';
 import { useMessageComposerContext } from '../../context';
 
 export type CommandChipProps = {
@@ -14,7 +14,7 @@ export const CommandChip = ({ command }: CommandChipProps) => {
 
   return (
     <div className='str-chat__command-chip'>
-      <IconThunder />
+      <IconBolt />
       <span>{command.name}</span>
       <button
         className={'str-chat__command-chip__close-button'}
