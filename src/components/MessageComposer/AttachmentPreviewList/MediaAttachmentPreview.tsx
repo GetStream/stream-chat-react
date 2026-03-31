@@ -94,7 +94,7 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && <LoadingIndicator />}
+          {isUploading && <LoadingIndicator data-testid='loading-indicator' />}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&
