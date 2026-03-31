@@ -86,8 +86,7 @@ type PropsDrilledToMessage =
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
-  | 'sortReactions'
-  | 'sortReactionDetails';
+  | 'sortReactions';
 
 type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
@@ -230,7 +229,6 @@ const VirtualizedMessageListWithContext = (
     shouldGroupByUser = false,
     showAvatar,
     showUnreadNotificationAlways,
-    sortReactionDetails,
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
@@ -558,7 +556,6 @@ const VirtualizedMessageListWithContext = (
                   returnAllReadData,
                   shouldGroupByUser,
                   showAvatar,
-                  sortReactionDetails,
                   sortReactions,
                   threadList,
                   unreadMessageCount: channelUnreadUiState?.unread_messages,

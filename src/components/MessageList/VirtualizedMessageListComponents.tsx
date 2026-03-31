@@ -130,7 +130,6 @@ export const messageRenderer = (
     renderText,
     returnAllReadData,
     showAvatar,
-    sortReactionDetails,
     sortReactions,
     threadList,
     unreadMessageCount = 0,
@@ -193,7 +192,6 @@ export const messageRenderer = (
         renderText={renderText}
         returnAllReadData={returnAllReadData}
         showAvatar={showAvatar}
-        sortReactionDetails={sortReactionDetails}
         sortReactions={sortReactions}
         threadList={threadList}
       />

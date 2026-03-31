@@ -19,12 +19,7 @@ import {
 import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
-import type { ReactionOptions } from './reactionOptions';
-import type {
-  ReactionDetailsComparator,
-  ReactionsComparator,
-  ReactionType,
-} from './types';
+import type { ReactionsComparator, ReactionType } from './types';
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 
 export type MessageReactionsProps = Partial<
@@ -32,35 +27,23 @@ export type MessageReactionsProps = Partial<
 > & {
   /** An array of the own reaction objects to distinguish own reactions visually */
   own_reactions?: ReactionResponse[];
-  /**
-   * An object that keeps track of the count of each type of reaction on a message
-   * @deprecated This override value is no longer taken into account. Use `reaction_groups` to override reaction counts instead.
-   * */
-  reaction_counts?: Record<string, number>;
   /** An object containing summary for each reaction type on a message */
   reaction_groups?: Record<string, ReactionGroupResponse>;
-  /**
-   * @deprecated
-   * A list of the currently supported reactions on a message
-   * */
-  reactionOptions?: ReactionOptions;
   /** An array of the reaction objects to display in the list */
   reactions?: ReactionResponse[];
   /** Display the reactions in the list in reverse order, defaults to false */
   reverse?: boolean;
-  /** Comparator function to sort the list of reacted users
-   * @deprecated use `reactionDetailsSort` instead
-   */
-  sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
-
   /**
    * Positioning of the reactions list relative to the message. Position is flipped by default for the messages of other users.
    */
   flipHorizontalPosition?: boolean;
   verticalPosition?: 'top' | 'bottom' | null;
   visualStyle?: 'clustered' | 'segmented' | null;
+  capLimit?: {
+    [key in Extract<MessageReactionsProps['visualStyle'], string>]?: number;
+  };
 };
 
 /**
@@ -80,18 +63,23 @@ const FragmentOrButton = ({
 
 const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   const {
+    capLimit: { clustered: capLimitClustered = 5, segmented: capLimitSegmented = 4 } = {},
     flipHorizontalPosition = false,
     handleFetchReactions,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reactionDetailsSort,
-    sortReactionDetails,
     verticalPosition = 'top',
     visualStyle = 'clustered',
     ...rest
   } = props;
 
-  const { existingReactions, hasReactions, totalReactionCount, uniqueReactionTypeCount } =
-    useProcessReactions(rest);
+  const {
+    existingReactions,
+    hasReactions,
+    reactionGroups,
+    totalReactionCount,
+    uniqueReactionTypeCount,
+  } = useProcessReactions(rest);
   const [selectedReactionType, setSelectedReactionType] = useState<ReactionType | null>(
     null,
   );
@@ -118,20 +106,36 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   /**
    * In segmented style with top position we show max 4 reactions and a
    * count of the rest, so we need to cap the existing reactions to display
-   * at 4 and calculate the count of the rest.
+   * at 4 and calculate the count of the rest. For clustered(top/bottom) we cap
+   * the existing reactions to 5 but we don't calculate the count of the rest
+   * because we show the total count instead. For segmented style with bottom
+   * position we don't cap the existing reactions and we show all of them.
    */
   const cappedExistingReactions = useMemo(() => {
-    if (visualStyle !== 'segmented' || verticalPosition !== 'top') return null;
+    if (visualStyle === 'segmented' && verticalPosition !== 'top') return null;
 
-    const sliced = existingReactions.slice(0, 4);
+    const capLimit = visualStyle === 'segmented' ? capLimitSegmented : capLimitClustered;
+
+    const sliced = existingReactions.slice(0, capLimit);
+
     return {
+      /**
+       * Accumulated reaction count of capped reaction types, first four in case of
+       * segmented(top) and first five in case of clustered(top/bottom) variations.
+       */
       reactionCountToDisplay: sliced.reduce(
         (accumulatedCount, { reactionCount }) => accumulatedCount + reactionCount,
         0,
       ),
       reactionsToDisplay: sliced,
-    };
-  }, [existingReactions, verticalPosition, visualStyle]);
+    } as const;
+  }, [
+    capLimitClustered,
+    capLimitSegmented,
+    existingReactions,
+    verticalPosition,
+    visualStyle,
+  ]);
 
   if (!hasReactions) return null;
 
@@ -154,9 +158,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
           aria-pressed={isDialogOpen}
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
-          onClick={() =>
-            handleReactionButtonClick(existingReactions[0]?.reactionType ?? null)
-          }
+          onClick={() => handleReactionButtonClick(null)}
         >
           <ul className='str-chat__message-reactions__list'>
             {(cappedExistingReactions?.reactionsToDisplay ?? existingReactions).map(
@@ -186,18 +188,22 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                   </li>
                 ),
             )}
-            {uniqueReactionTypeCount > 4 && cappedExistingReactions && (
-              <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
-                <button
-                  className='str-chat__message-reactions__list-item-button'
-                  onClick={() => handleReactionButtonClick(null)}
-                >
-                  <span className='str-chat__message-reactions__overflow-count'>
-                    +{totalReactionCount - cappedExistingReactions.reactionCountToDisplay}
-                  </span>
-                </button>
-              </li>
-            )}
+            {uniqueReactionTypeCount > 4 &&
+              cappedExistingReactions &&
+              visualStyle === 'segmented' && (
+                <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
+                  <button
+                    className='str-chat__message-reactions__list-item-button'
+                    onClick={() => handleReactionButtonClick(null)}
+                  >
+                    <span className='str-chat__message-reactions__overflow-count'>
+                      +
+                      {totalReactionCount -
+                        cappedExistingReactions.reactionCountToDisplay}
+                    </span>
+                  </button>
+                </li>
+              )}
           </ul>
           {visualStyle === 'clustered' && (
             <span className='str-chat__message-reactions__total-count'>
@@ -219,9 +225,9 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
         <MessageReactionsDetail
           handleFetchReactions={handleFetchReactions}
           onSelectedReactionTypeChange={setSelectedReactionType}
+          reactionGroups={reactionGroups}
           reactions={existingReactions}
           selectedReactionType={selectedReactionType}
-          sortReactionDetails={sortReactionDetails}
           totalReactionCount={totalReactionCount}
         />
       </DialogAnchor>

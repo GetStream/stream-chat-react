@@ -92,7 +92,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     returnAllReadData = false,
     reviewProcessedMessage,
     showUnreadNotificationAlways,
-    sortReactionDetails,
     sortReactions,
     suppressAutoscroll,
     threadList = false,
@@ -232,7 +231,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       renderText: props.renderText,
       retrySendMessage: props.retrySendMessage,
       showAvatar: props.showAvatar,
-      sortReactionDetails,
       sortReactions,
       unsafeHTML,
     },
@@ -500,7 +498,6 @@ type PropsDrilledToMessage =
   | 'retrySendMessage'
   | 'showAvatar'
   | 'sortReactions'
-  | 'sortReactionDetails'
   | 'unsafeHTML';
 
 export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {

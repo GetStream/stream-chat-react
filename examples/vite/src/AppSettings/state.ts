@@ -12,6 +12,7 @@ export type ChatViewSettingsState = {
 };
 
 export type ThemeSettingsState = {
+  direction: 'ltr' | 'rtl';
   mode: 'dark' | 'light';
 };
 
@@ -47,6 +48,7 @@ export type AppSettingsState = {
 
 const panelLayoutStorageKey = 'stream-chat-react:example-panel-layout';
 const themeStorageKey = 'stream-chat-react:example-theme-mode';
+const directionStorageKey = 'stream-chat-react:example-direction';
 const themeUrlParam = 'theme';
 
 const clamp = (value: number, min: number, max?: number) => {
@@ -83,8 +85,23 @@ const defaultAppSettingsState: AppSettingsState = {
     visualStyle: 'clustered',
   },
   theme: {
+    direction: 'ltr',
     mode: 'light',
   },
+};
+
+const getStoredDirection = (): ThemeSettingsState['direction'] | undefined => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    const stored = window.localStorage.getItem(directionStorageKey);
+
+    if (stored === 'ltr' || stored === 'rtl') {
+      return stored;
+    }
+  } catch {
+    return;
+  }
 };
 
 const getStoredThemeMode = (): ThemeSettingsState['mode'] | undefined => {
@@ -166,6 +183,21 @@ const getThemeModeFromUrl = (): ThemeSettingsState['mode'] | undefined => {
   }
 };
 
+const persistDirection = (direction: ThemeSettingsState['direction']) => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    window.localStorage.setItem(directionStorageKey, direction);
+  } catch {
+    // ignore persistence failures in environments where localStorage is unavailable
+  }
+};
+
+const applyDirection = (direction: ThemeSettingsState['direction']) => {
+  if (typeof document === 'undefined') return;
+  document.documentElement.setAttribute('dir', direction);
+};
+
 const persistThemeMode = (themeMode: ThemeSettingsState['mode']) => {
   if (typeof window === 'undefined') return;
 
@@ -207,6 +239,7 @@ const initialAppSettingsState: AppSettingsState = {
   panelLayout: getStoredPanelLayoutSettings() ?? defaultAppSettingsState.panelLayout,
   theme: {
     ...defaultAppSettingsState.theme,
+    direction: getStoredDirection() ?? defaultAppSettingsState.theme.direction,
     mode:
       getThemeModeFromUrl() ?? getStoredThemeMode() ?? defaultAppSettingsState.theme.mode,
   },
@@ -221,6 +254,17 @@ appSettingsStore.subscribeWithSelector(
     persistThemeModeInUrl(mode);
   },
 );
+
+appSettingsStore.subscribeWithSelector(
+  ({ theme }) => ({ direction: theme.direction }),
+  ({ direction }) => {
+    persistDirection(direction);
+    applyDirection(direction);
+  },
+);
+
+// Apply initial direction on load
+applyDirection(initialAppSettingsState.theme.direction);
 
 appSettingsStore.subscribeWithSelector(
   ({ panelLayout }) => panelLayout,

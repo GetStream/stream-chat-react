@@ -7,12 +7,16 @@ import { MessageReactions } from '../MessageReactions';
 import { MessageProvider } from '../../../context/MessageContext';
 
 import { generateReaction, mockMessageContext } from '../../../mock-builders';
-import { ComponentProvider, DialogManagerProvider } from '../../../context';
+import { DialogManagerProvider, WithComponents } from '../../../context';
 import { defaultReactionOptions } from '../reactionOptions';
 
 const USER_ID = 'mark';
 
-const renderComponent = ({ reaction_groups = {}, ...props }: any = {}) => {
+const renderComponent = ({
+  reaction_groups = {},
+  reactionOptions = defaultReactionOptions,
+  ...props
+}: any = {}) => {
   const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]: any) =>
     Array.from({ length: count }, (_, i) =>
       generateReaction({ type, user: { id: `${USER_ID}-${i}` } }),
@@ -21,7 +25,7 @@ const renderComponent = ({ reaction_groups = {}, ...props }: any = {}) => {
 
   return render(
     <DialogManagerProvider>
-      <ComponentProvider value={{ reactionOptions: defaultReactionOptions }}>
+      <WithComponents overrides={{ reactionOptions }}>
         <MessageProvider
           value={mockMessageContext({
             isMyMessage: () => false,
@@ -34,7 +38,7 @@ const renderComponent = ({ reaction_groups = {}, ...props }: any = {}) => {
             {...props}
           />
         </MessageProvider>
-      </ComponentProvider>
+      </WithComponents>
     </DialogManagerProvider>,
   );
 };

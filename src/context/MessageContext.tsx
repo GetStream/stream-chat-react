@@ -17,11 +17,7 @@ import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
 import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { GroupStyle } from '../components/MessageList/utils';
-import type {
-  ReactionDetailsComparator,
-  ReactionsComparator,
-  ReactionType,
-} from '../components/Reactions/types';
+import type { ReactionsComparator, ReactionType } from '../components/Reactions/types';
 
 import type { RenderTextOptions } from '../components/Message/renderText';
 
@@ -121,10 +117,6 @@ export type MessageContextValue = {
   ) => ReactNode;
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;
-  /** Comparator function to sort the list of reacted users
-   * @deprecated use `reactionDetailsSort` instead
-   */
-  sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
   /** Whether or not the Message is in a Thread */
