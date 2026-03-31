@@ -14,11 +14,15 @@
   justify-content: center;
   overflow: hidden;
 
-  img {
+  img.str-chat__base-image {
+    @include utils.clamped-height-from-original-image-dimensions(
+      '--str-chat__attachment-max-width',
+      '--str-chat__attachment-max-width'
+    );
+
     object-fit: contain;
-    max-height: 100%;
-    max-width: 100%;
-    height: 100%;
+    max-height: var(--str-chat__attachment-max-width);
+    max-width: var(--str-chat__attachment-max-width);
     width: 100%;
     cursor: default;
   }
