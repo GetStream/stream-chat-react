@@ -1,3 +1,19 @@
+## [14.0.0-beta.5](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.4...v14.0.0-beta.5) (2026-03-31)
+
+### Bug Fixes
+
+* assorted UI/UX fixes (Giphy, polls, dialogs, composer, headers) ([#3081](https://github.com/GetStream/stream-chat-react/issues/3081)) ([6c06e04](https://github.com/GetStream/stream-chat-react/commit/6c06e0439db044f7a9b99bb0913fc819fb9c66b3))
+* close CSS gaps, fix ChannelList dialog portal, and clean up icons ([#3079](https://github.com/GetStream/stream-chat-react/issues/3079)) ([a47981f](https://github.com/GetStream/stream-chat-react/commit/a47981ff3f70bd2fb3b1e1ca6d46682adbe65df8))
+* **Icons:** sync icon catalog with refreshed Line SVGs ([#3080](https://github.com/GetStream/stream-chat-react/issues/3080)) ([9472f7b](https://github.com/GetStream/stream-chat-react/commit/9472f7b35bb28ec00a477c1436e928f27a5f670b))
+* **MessageList:** set width on message list scroll container ([#3077](https://github.com/GetStream/stream-chat-react/issues/3077)) ([3f09362](https://github.com/GetStream/stream-chat-react/commit/3f093622835dab275dcc89d2195b11c2d833c2da))
+* post-review `MessageReactionsDetail` adjustments ([#3082](https://github.com/GetStream/stream-chat-react/issues/3082)) ([a82bdcb](https://github.com/GetStream/stream-chat-react/commit/a82bdcb20a3249cd84bb379b4d56cb18319a332b))
+* use link icon for link-type attachments ([#3083](https://github.com/GetStream/stream-chat-react/issues/3083)) ([241209e](https://github.com/GetStream/stream-chat-react/commit/241209e8059ce767fe5bc3500466aa73f53618e3))
+
+### Features
+
+* **examples:** add RTL direction toggle to vite example app ([#3084](https://github.com/GetStream/stream-chat-react/issues/3084)) ([887a326](https://github.com/GetStream/stream-chat-react/commit/887a326ab81199ab72a8ea92c2b3bc6cfce7458a))
+* **examples:** refresh react tutorial app for v14 ([#3078](https://github.com/GetStream/stream-chat-react/issues/3078)) ([86ada37](https://github.com/GetStream/stream-chat-react/commit/86ada37eaac8d97e7634d2af9dc9e251a2e4e5f5))
+
 ## [14.0.0-beta.4](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.3...v14.0.0-beta.4) (2026-03-30)
 
 ### ⚠ BREAKING CHANGES
