@@ -963,3 +963,31 @@ export const IconLoading = createIcon(
     />
   </>,
 );
+
+export const IconGiphy = createIcon(
+  'IconGiphy',
+  <>
+    <rect fill='black' height='20' rx='10' width='20' />
+    <path
+      clipRule='evenodd'
+      d='M6.5997 5.50012H13.4008V14.4998H6.59912L6.5997 5.50012Z'
+      fill='black'
+      fillRule='evenodd'
+    />
+    <path d='M5.24023 5.1665H6.59998V14.8335H5.24023V5.1665Z' fill='#04FF8E' />
+    <path d='M13.4004 7.8335H14.7601V14.8335H13.4004V7.8335Z' fill='#8E2EFF' />
+    <path d='M5.24023 14.4999H14.7602V15.8334H5.24023V14.4999Z' fill='#00C5FF' />
+    <path d='M5.24023 4.16663H10.6804V5.50013H5.24023V4.16663Z' fill='#FFF152' />
+    <path
+      d='M13.4003 6.83304V5.50013H12.0399V4.16663H10.6802V8.16654H14.76V6.83304'
+      fill='#FF5B5B'
+    />
+    <path d='M13.4004 9.50013V8.16663H14.7601' fill='#551C99' />
+    <path
+      clipRule='evenodd'
+      d='M10.6802 4.16663V5.50013H9.31982'
+      fill='#999131'
+      fillRule='evenodd'
+    />
+  </>,
+);
