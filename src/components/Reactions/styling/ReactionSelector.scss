@@ -42,10 +42,11 @@
 
     .str-chat__reaction-selector-extended-list__button {
       .str-chat__reaction-icon {
-        height: 24px;
-        width: 24px;
-        font-size: 24px;
-        letter-spacing: 0;
+        height: var(--emoji-md);
+        width: var(--emoji-md);
+        font-size: var(--emoji-md);
+        letter-spacing: var(--typography-letter-spacing-default);
+        font-style: normal;
         line-height: 0;
         font-family: system-ui;
         display: flex;

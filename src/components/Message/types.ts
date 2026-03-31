@@ -5,7 +5,7 @@ import type { PinPermissions, UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageComposerProps } from '../MessageComposer';
-import type { ReactionDetailsComparator, ReactionsComparator } from '../Reactions/types';
+import type { ReactionsComparator } from '../Reactions/types';
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
@@ -101,10 +101,6 @@ export type MessageProps = {
   retrySendMessage?: ChannelActionContextValue['retrySendMessage'];
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;
-  /** Comparator function to sort the list of reacted users
-   * @deprecated use `reactionDetailsSort` instead
-   */
-  sortReactionDetails?: ReactionDetailsComparator;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
   /** Whether the Message is in a Thread */

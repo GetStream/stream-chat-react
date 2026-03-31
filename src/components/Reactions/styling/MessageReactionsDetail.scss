@@ -70,19 +70,15 @@
         box-shadow: unset;
 
         .str-chat__message-reactions-detail__reaction-type-list-item-icon {
-          // FIXME: ridiculous hack so that the emoji block is in a square container (1/1 ratio)
-          font-size: 13px;
-          line-height: 16px;
           font-family: system-ui;
+          font-size: var(--font-size-size-17);
           font-style: normal;
-          letter-spacing: 0;
-          display: flex;
+          line-height: var(--typography-line-height-normal);
         }
 
         .str-chat__message-reactions-detail__reaction-type-list-item-count {
           color: var(--reaction-text);
-          font-size: var(--typography-font-size-xxs);
-          font-weight: var(--typography-font-weight-bold);
+          font: var(--str-chat__metadata-emphasis-text);
         }
       }
     }
@@ -133,12 +129,10 @@
       padding-inline: calc(var(--spacing-sm) + var(--spacing-xxs));
 
       .str-chat__message-reactions-detail__user-list-item-icon {
-        font-size: 14px;
-        line-height: 20px;
         font-family: system-ui;
+        font-size: var(--font-size-size-17);
         font-style: normal;
-        letter-spacing: 0;
-        display: flex;
+        line-height: var(--typography-line-height-normal);
       }
 
       .str-chat__message-reactions-detail__user-list-item-info {
