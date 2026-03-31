@@ -58,6 +58,17 @@
     }
   }
 
+  .str-chat__thread-header__start {
+    flex: 1;
+    display: flex;
+  }
+
+  .str-chat__thread-header__end {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .str-chat__close-thread-button {
     $icon-size: calc(var(--str-chat__spacing-px) * 21);
     display: flex;

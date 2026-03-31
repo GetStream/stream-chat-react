@@ -71,21 +71,25 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
         'str-chat__channel-header--sidebar-collapsed': !navOpen,
       })}
     >
-      <ToggleSidebarButton mode='expand'>
-        <MenuIcon />
-      </ToggleSidebarButton>
+      <div className='str-chat__channel-header__start'>
+        <ToggleSidebarButton mode='expand'>
+          <MenuIcon />
+        </ToggleSidebarButton>
+      </div>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
         <ChannelHeaderSubtitle />
       </div>
-      <Avatar
-        className='str-chat__avatar--channel-header'
-        displayMembers={groupChannelDisplayInfo?.members}
-        imageUrl={displayImage}
-        overflowCount={groupChannelDisplayInfo?.overflowCount}
-        size='lg'
-        userName={displayTitle}
-      />
+      <div className='str-chat__channel-header__end'>
+        <Avatar
+          className='str-chat__avatar--channel-header'
+          displayMembers={groupChannelDisplayInfo?.members}
+          imageUrl={displayImage}
+          overflowCount={groupChannelDisplayInfo?.overflowCount}
+          size='lg'
+          userName={displayTitle}
+        />
+      </div>
     </div>
   );
 };

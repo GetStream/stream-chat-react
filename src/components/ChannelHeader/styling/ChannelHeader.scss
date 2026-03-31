@@ -34,10 +34,20 @@
 .str-chat__channel-header {
   @include utils.component-layer-overrides('channel-header');
   @include utils.header-layout;
-  flex: 1;
+
+  .str-chat__channel-header__start {
+    flex: 1;
+    display: flex;
+  }
 
   .str-chat__channel-header__data {
     @include utils.header-text-layout;
+  }
+
+  .str-chat__channel-header__end {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .str-chat__channel-header__data__title,

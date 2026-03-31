@@ -118,7 +118,7 @@
   align-items: center;
   overflow-y: hidden; // for Edge
   overflow-x: hidden; // for ellipsis text
-  flex: 1;
+  max-width: 100%;
   row-gap: var(--spacing-xxs);
 }
 
