@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-28
+Last updated: 2026-03-31
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `f06846da4d492c0fb9ca375ee049682e6f9e48ba` (`f06846da`, `2026-03-27`, `fix: clean up CSS build output (#3072)`)
-- Future mining starting point: diff `f06846da4d492c0fb9ca375ee049682e6f9e48ba..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `241209e8059ce767fe5bc3500466aa73f53618e3` (`241209e8`, `2026-03-31`, `fix: use link icon for link-type attachments (#3083)`)
+- Future mining starting point: diff `241209e8059ce767fe5bc3500466aa73f53618e3..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -810,6 +810,8 @@ Only confirmed items should move from this file into the migration guide.
 - User impact:
   - imports using the removed helper utilities or standalone status/input icons no longer compile
   - low-level customization patterns built on those exports need to move to the new `Icons` set, newer helper names, or higher-level components
+  - imports using the older pre-Phosphor icon constant names no longer compile
+  - custom CSS and snapshots that targeted icon-specific auto classes can break after the icon-catalog refresh
 - Confirmed removed exports:
   - `ActionsIcon`
   - `CloseIcon`
@@ -827,6 +829,20 @@ Only confirmed items should move from this file into the migration guide.
   - `ThreadIcon`
   - `MessageErrorIcon`
   - `attachmentTypeIconMap`
+- Confirmed renamed exports:
+  - `IconTrashBin` -> `IconDelete`
+  - `IconPaperPlane` -> `IconSend`
+  - `IconCrossMedium` -> `IconXmark`
+  - `IconMicrophone` -> `IconVoice`
+  - `IconBookmark` -> `IconSave`
+  - `IconBubbles` -> `IconMessageBubbles`
+  - `IconBubble2ChatMessage` -> `IconMessageBubble`
+  - `IconBubbleText6ChatMessage` -> `IconThread`
+  - `IconLoadingCircle` -> `IconLoading`
+  - `IconPlaySolid` -> `IconPlayFill`
+  - `IconPause` -> `IconPauseFill`
+  - `IconLayoutAlignLeft` -> `IconSidebar`
+  - `IconThunder` -> `IconBolt`
 - Old API evidence:
   - `v13.14.2:src/components/Message/icons.tsx:7` exported `ActionsIcon`
   - `v13.14.2:src/components/MessageInput/icons.tsx:67` exported `CloseIcon`
@@ -839,23 +855,29 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/components/Message/icons.tsx:77` and `:92` exported `MessageSentIcon` and `MessageDeliveredIcon`
   - `v13.14.2:src/components/Message/icons.tsx:108` exported `MessageErrorIcon`
   - `v13.14.2:src/components/Threads/ThreadList/ThreadListItemUI.tsx:25` exported `attachmentTypeIconMap`
+  - `f06846da:src/components/Icons/icons.tsx` still exported the older icon constant names such as `IconCrossMedium`, `IconPaperPlane`, `IconLayoutAlignLeft`, and `IconThunder`
 - New API evidence:
   - `src/components/Message/utils.tsx:431` exports `countEmojis`
   - `src/components/Message/utils.tsx:436` exports `messageTextHasEmojisOnly`
   - `src/components/index.ts:21` exports the shared `Icons` set
+  - `src/components/Icons/icons.tsx:408`, `:577`, `:626`, `:651`, `:831`, and `:849` now export `IconXmark`, `IconSidebar`, `IconVoice`, `IconSend`, `IconBolt`, and `IconDelete`
   - `src/components/Message/MessageStatus.tsx:122` and `:138` render `IconCheckmark1Small` and `IconDoubleCheckmark1Small`
   - `src/components/Threads/ThreadList/ThreadListItemUI.tsx:14` now builds thread previews around `SummarizedMessagePreview`
 - Replacement:
   - move emoji-only checks to `countEmojis()` / `messageTextHasEmojisOnly()`
   - stop relying on `showMessageActionsBox()` / `shouldRenderMessageActions()` and instead customize the new `MessageActions` action-set flow
   - replace direct icon imports with the public `Icons` components or with higher-level components like `MessageStatus`, `SendButton`, `MessageActions`, and thread preview components
+  - rename direct imports that still use the pre-Phosphor icon names
   - if you used `attachmentTypeIconMap`, inline your own map or switch to the new thread preview components
 - Evidence:
   - current `MessageComposer/index.ts` and `Message/index.ts` still re-export their `icons.tsx` files, but the removed icon symbols are no longer present there
   - current `MessageStatus` and thread-list UIs rely on the shared icon library and new summary components instead of the old standalone exports
+  - commit `30c1beeae feat(Icons): migrate SDK icons to Phosphor icon set (#3075)` renamed the remaining public icon constants and removed the unused icon catalog entries
+  - commit `9472f7b35 fix(Icons): sync icon catalog with refreshed Line SVGs (#3080)` completed the `IconLayoutAlignLeft` -> `IconSidebar` and `IconThunder` -> `IconBolt` rename sweep
 - Docs impact:
   - migration guide
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md`
 - Example needed: yes
 
 ### BC-024: `MessageInput` attachment preview customization changed, and voice recordings moved into a dedicated slot
@@ -1022,6 +1044,7 @@ Only confirmed items should move from this file into the migration guide.
   - apps with custom CSS targeting old channel-list, channel-preview, thread-list, send-to-channel, or loading-placeholder DOM can lose styling after upgrading
   - tests and accessibility hooks that relied on the old sidebar/list selection semantics (`aria-selected`) or `*-react` classnames can break
   - snapshot and interaction tests that expected the old channel-preview action buttons or preview content layout can break
+  - custom icon sizing and selector-based theming that assumed the old `16x16` `BaseIcon` default or older `str-chat__icon--*` auto classes can break
   - selector-based theming against internal wrappers needs an audit before release adoption
   - teams should expect to rebalance custom theme work around the new tokenized styling layer
 - Old API:
@@ -1046,6 +1069,7 @@ Only confirmed items should move from this file into the migration guide.
   - `src/components/Loading/LoadingChannels.tsx:3` through `:25` now render loading placeholders with `str-chat__channel-preview-container` / `str-chat__channel-preview--loading`
   - `src/components/MessageComposer/WithDragAndDropUpload.tsx:134` through `:165` now add `str-chat__dropzone-root` and `str-chat__dropzone-container__content` around the default drag-and-drop overlay
   - `src/components/Message/MessageUI.tsx:275` through `:277` now render `str-chat__message-error-indicator` with the shared `ErrorBadge` instead of the removed `str-chat__message-error-icon` wrapper
+  - `src/components/Icons/BaseIcon.tsx:6` now defaults to `viewBox='0 0 20 20'` instead of `0 0 16 16`
   - `src/styling/index.scss:1` now assembles a new styling entrypoint, and `src/styling/variables.css:5` introduces a tokenized variable layer under `.str-chat`
 - Replacement:
   - audit custom CSS selectors against current rendered markup before upgrading
@@ -1053,9 +1077,11 @@ Only confirmed items should move from this file into the migration guide.
   - re-test any layout code that styled the old header, sidebar/list, or message-input internals directly
   - update selector-based tests that depended on `str-chat__channel-list-messenger-react__main`, old channel-preview DOM/action buttons, `aria-selected` sidebar items, or the older loading skeleton DOM
   - update any selector-based styling or tests that relied on `str-chat__message-error-icon`; the default error badge now renders under `str-chat__message-error-indicator`
+  - re-baseline custom icon CSS against the renamed `str-chat__icon--*` classes and the new default `20x20` icon box
 - Evidence:
   - the class structure changed across header, composer, avatar, channel-preview, sidebar/list, and loading surfaces
   - the message-send error badge also switched from the removed `MessageErrorIcon` wrapper class to the new `str-chat__message-error-indicator`
+  - the icon catalog refresh renamed several icon constants, which also changed their generated CSS class names
   - current docs still contain stale selectors like `.str-chat__header-hamburger`, `.str-chat__channel-list-messenger-react__main`, and `aria-selected` thread-item examples
   - v14 now ships a centralized styling/token layer alongside those markup changes
 - Docs impact:
@@ -1956,10 +1982,9 @@ Only confirmed items should move from this file into the migration guide.
   - `stream-chat-react/dist/css/index.layout.css`
 - Replacement:
   - remove the `/v2` segment from CSS import paths
-  - if you import SCSS entrypoints, use the root `dist/scss/*` paths as well so examples stay aligned with the package exports
 - Evidence:
   - commit `f06846da fix: clean up CSS build output (#3072)` explicitly marks `stream-chat-react/dist/css/v2/*` imports as a breaking change
-  - current `package.json` exports `./dist/css/*`, `./dist/scss/*`, `./css/*`, and `./scss/*`, with no `v2` subpath exports
+  - current package exports styles from the root `dist/css/*` paths, with no `v2` subpath exports
   - current build scripts output styles directly under `dist/css/*`
 - Docs impact:
   - migration guide
@@ -1967,6 +1992,49 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/01-getting_started.md`
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/02-theming/01-themingv2.md`
 - Example needed: no
+
+### BC-058: deprecated reaction-detail comparator props were removed from message, list, and reactions surfaces
+
+- Status: confirmed
+- Area: reactions and message-list props
+- User impact:
+  - TypeScript code passing `sortReactionDetails` no longer type-checks on `Message`, `MessageContext`, `MessageList`, `VirtualizedMessageList`, `MessageReactions`, or `MessageReactionsDetail`
+  - imports of `ReactionDetailsComparator` no longer compile
+  - `MessageReactions` no longer accepts the deprecated `reaction_counts` or direct `reactionOptions` props
+  - custom reaction UIs that still pass `reactionOptions` straight into `MessageReactions` must move that configuration to `WithComponents` / `ComponentContext`
+- Old API:
+  - `f06846da:src/components/Message/types.ts:107` exposed `sortReactionDetails?: ReactionDetailsComparator`
+  - `f06846da:src/context/MessageContext.tsx:127` exposed `sortReactionDetails?: ReactionDetailsComparator`
+  - `f06846da:src/components/MessageList/MessageList.tsx:503` and `src/components/MessageList/VirtualizedMessageList.tsx:90` still forwarded `sortReactionDetails`
+  - `f06846da:src/components/Reactions/MessageReactions.tsx:39`, `:46`, and `:54` still accepted `reaction_counts`, `reactionOptions`, and `sortReactionDetails`
+  - `f06846da:src/components/Reactions/MessageReactionsDetail.tsx:25` still accepted `sortReactionDetails?: ReactionDetailsComparator`
+  - `f06846da:src/components/Reactions/hooks/useProcessReactions.tsx:12` through `:14` still accepted `reaction_counts` and `reactionOptions`
+  - `f06846da:src/components/Reactions/types.ts:14` still exported `ReactionDetailsComparator`
+- New API:
+  - `src/components/Message/types.ts:83` and `src/context/MessageContext.tsx:107` now expose `reactionDetailsSort?: ReactionSort`
+  - `src/components/MessageList/MessageList.tsx:496` and `src/components/MessageList/VirtualizedMessageList.tsx:86` now forward `reactionDetailsSort`
+  - `src/components/Reactions/MessageReactions.tsx:26` through `:40` accept `reaction_groups`, `reactionDetailsSort`, and the narrowed current props only
+  - `src/components/Reactions/MessageReactionsDetail.tsx:19` through `:26` accept `reactionDetailsSort` and `reactionGroups`, with no `sort` / `sortReactionDetails` migration path
+  - `src/components/Reactions/hooks/useProcessReactions.tsx:10` through `:13` now accept only `own_reactions`, `reaction_groups`, `reactions`, and `sortReactions`
+  - `src/components/Reactions/types.ts` no longer exports `ReactionDetailsComparator`
+- Replacement:
+  - replace `sortReactionDetails` with `reactionDetailsSort` and pass a server-side `ReactionSort` object instead of a client comparator
+  - replace `reaction_counts` with `reaction_groups`
+  - move `reactionOptions` configuration to `<WithComponents overrides={{ reactionOptions }}>`
+  - update any custom `useProcessReactions` wrappers to the narrower parameter type
+- Evidence:
+  - commit `a82bdcb20 fix: post-review MessageReactionsDetail adjustments (#3082)` explicitly removed the deprecated props and type export
+  - current source keeps `reactionDetailsSort` as the supported sort customization path across message, list, and reactions surfaces
+  - current `MessageReactions` reads `reactionOptions` from `ComponentContext`, not from its own props
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/02-virtualized_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/01-message.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/12-reactions.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`
+- Example needed: yes
 
 ## Likely
 
@@ -1990,6 +2058,9 @@ Only confirmed items should move from this file into the migration guide.
 - `MessageReactionsDetail` loading/toggle refinements (`cab3ffd3`): investigated; current source adds `MessageReactionsDetailLoadingIndicator`, allows toggling the selected reaction type back to `null`, and improves the unfiltered reactions view, but these are additive/current-behavior changes rather than a distinct migration bucket.
 - audio/player, scrolling, and layout polish (`7914e516`, `91eba1b4`, `8d25ead3`, `55dd2e81`, `fdf0e155`, `221aa0d4`): investigated; these commits refine playback reset behavior, initial bottom-pinning, mobile-nav click detection, message-list width, reactions alignment, and voice-recording attachment layout, but they do not remove or rename a documented public API beyond the separately tracked `useChannelListContext()` signature cleanup.
 - type-safety and stale-prop cleanup in tests (`277bc417`): investigated; this commit removes stale props from test fixtures and tightens mock typing, but it does not change the current public runtime API beyond what was already documented in earlier migration buckets.
+- link-type attachment preview icon swap (`241209e8`): investigated; current summarized-preview and latest-message preview UIs now use the shared link icon for link attachments, but this is a visual/current-behavior adjustment rather than a removed or renamed public API.
+- assorted UI/UX fixes (`6c06e043`, `a47981ff`, `3f093622`): investigated; Giphy editability, dialog layering, composer state restoration, centered headers, message-list width, and channel-list dialog-portal cleanup changed runtime behavior, but they did not introduce new removed exports or renamed public override surfaces beyond the separately tracked reactions and icon buckets.
+- example-app refreshes (`86ada37e`, `887a326a`): investigated; these only update example apps and do not change the public SDK surface.
 
 ## Notes For Migration Guide Drafting
 
