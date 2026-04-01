@@ -71,7 +71,6 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         <Avatar
           displayMembers={groupChannelDisplayInfo?.members}
           imageUrl={displayImage}
-          overflowCount={groupChannelDisplayInfo?.overflowCount}
           size='xl'
           userName={avatarName}
         />

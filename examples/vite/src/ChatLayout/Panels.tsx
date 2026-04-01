@@ -102,7 +102,6 @@ export const ChannelsPanels = ({
           <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
           <WithComponents
             overrides={{
-              // @ts-expect-error TODO: adjust the sizing
               Avatar: ChannelAvatar,
             }}
           >
