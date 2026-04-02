@@ -1,6 +1,10 @@
 import React from 'react';
 import { useIsMobileViewport } from '../ChannelHeader/hooks/useIsMobileViewport';
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChannelListContext,
+  useChatContext,
+  useTranslationContext,
+} from '../../context';
 import { Button, type ButtonProps } from './Button';
 
 type ToggleSidebarButtonProps = ButtonProps & {
@@ -19,7 +23,12 @@ export const ToggleSidebarButton = ({
   const { t } = useTranslationContext('ChannelHeader');
   const toggleNav = navOpen ? closeMobileNav : openMobileNav;
   const isMobileViewport = useIsMobileViewport();
-  const showButton = mode === 'expand' ? isMobileViewport || !navOpen : canCollapse;
+
+  const { channels } = useChannelListContext();
+  const hasChannelList = !!channels;
+
+  const sidebarCanExpand = hasChannelList && (isMobileViewport || !navOpen);
+  const showButton = mode === 'expand' ? sidebarCanExpand : !!canCollapse;
 
   return showButton ? (
     <Button
