@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import uniqBy from 'lodash.uniqby';
 
-import { moveChannelUp } from '../utils';
-
 import { useChatContext } from '../../../context/ChatContext';
 
 import type { Channel, Event } from 'stream-chat';
@@ -36,7 +34,14 @@ export const useMessageNewListener = (
             return uniqBy([channel, ...channels], 'cid');
           }
 
-          if (!lockChannelOrder) return moveChannelUp({ channels, cid: event.cid || '' });
+          if (!lockChannelOrder) {
+            const channelIndex = channels.findIndex(
+              (channel) => channel.cid === event.cid,
+            );
+            if (channelIndex <= 0) return channels;
+            const channel = channels[channelIndex];
+            return uniqBy([channel, ...channels], 'cid');
+          }
 
           return channels;
         });

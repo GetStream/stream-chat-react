@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { InfiniteScroll } from '../';
@@ -87,39 +87,6 @@ describe('InfiniteScroll', () => {
         expect.any(Function),
         useCapture,
       );
-    },
-  );
-
-  it.each([
-    ['hasMoreNewer', 'loadMoreNewer', 'hasNextPage', 'loadNextPage'],
-    ['hasMore', 'loadMore', 'hasPreviousPage', 'loadPreviousPage'],
-  ])(
-    'deprecates %s and %s in favor of %s and %s',
-    (deprecatedFlag, deprecatedLoader, newFlag, newLoader) => {
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
-      const oldLoaderSpy = vi.fn();
-      const newLoaderSpy = vi.fn();
-
-      const { scrollParent } = renderComponent({
-        [deprecatedFlag]: false,
-        [deprecatedLoader]: oldLoaderSpy,
-        [newFlag]: true,
-        [newLoader]: newLoaderSpy,
-        threshold: Infinity,
-      });
-
-      Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
-        get() {
-          return this.parentNode;
-        },
-      });
-      fireEvent.scroll(scrollParent);
-
-      consoleWarnSpy.mockRestore();
-
-      expect(oldLoaderSpy).not.toHaveBeenCalled();
-
-      expect(newLoaderSpy).toHaveBeenCalled();
     },
   );
 

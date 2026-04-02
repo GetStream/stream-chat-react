@@ -42,5 +42,5 @@ export * from './Tooltip';
 export * from './TypingIndicator';
 export * from './Window';
 
-export { UploadButton } from './ReactFileUtilities';
-export type { UploadButtonProps } from './ReactFileUtilities';
+export { FileInput } from './ReactFileUtilities';
+export type { FileInputProps } from './ReactFileUtilities';
