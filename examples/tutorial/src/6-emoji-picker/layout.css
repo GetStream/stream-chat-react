@@ -1,52 +1,42 @@
-@layer base, theme;
-@import 'stream-chat-react/dist/css/index.css' layer(base);
+@layer stream, stream-overrides;
+@import 'stream-chat-react/dist/css/index.css' layer(stream);
 
-@layer theme {
-    .str-chat__theme-custom {
-        --brand-50: #edf7f7;
-        --brand-100: #e0f2f1;
-        --brand-150: #b2dfdb;
-        --brand-200: #80cbc4;
-        --brand-300: #4db6ac;
-        --brand-400: #26a69a;
-        --brand-500: #009688;
-        --brand-600: #00897b;
-        --brand-700: #00796b;
-        --brand-800: #00695c;
-        --brand-900: #004d40;
-        --accent-primary: var(--brand-500);
-        --radius-full: 18px;
-        --str-chat__channel-list-width: min(360px, 32%);
-    }
+@layer stream-overrides {
+  .str-chat__theme-custom {
+    --brand-50: #edf7f7;
+    --brand-100: #e0f2f1;
+    --brand-150: #b2dfdb;
+    --brand-200: #80cbc4;
+    --brand-300: #4db6ac;
+    --brand-400: #26a69a;
+    --brand-500: #009688;
+    --brand-600: #00897b;
+    --brand-700: #00796b;
+    --brand-800: #00695c;
+    --brand-900: #004d40;
+    --accent-primary: var(--brand-500);
+    --radius-full: 6px;
+  }
 }
 
 html,
 body,
 #root {
-    height: 100%;
+  height: 100%;
 }
 body {
-    margin: 0;
-    background: linear-gradient(180deg, #f4f7ff 0%, #e8f4f3 100%);
+  margin: 0;
 }
 #root {
-    display: flex;
-    min-height: 100%;
-}
-
-.str-chat {
-    flex: 1;
+  display: flex;
 }
 
 .str-chat__channel-list {
-    width: min(360px, 32%);
+  width: 30%;
 }
-
-.str-chat__channel,
-.str-chat__thread {
-    width: 100%;
+.str-chat__channel {
+  width: 100%;
 }
-
 .str-chat__thread {
-    width: min(420px, 45%);
+  width: 45%;
 }
