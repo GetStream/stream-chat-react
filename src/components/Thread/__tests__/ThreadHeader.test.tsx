@@ -27,12 +27,6 @@ vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
   TypingIndicatorHeader: () => <div>Typing...</div>,
 }));
 
-vi.mock('../../Button/ToggleSidebarButton', () => ({
-  ToggleSidebarButton: ({ children }) => (
-    <div data-testid='toggle-sidebar-button'>{children}</div>
-  ),
-}));
-
 vi.mock('../../Threads', () => ({
   useThreadContext: vi.fn(() => undefined),
 }));
@@ -180,31 +174,5 @@ describe('ThreadHeader', () => {
 
     expect(screen.getByText('2 replies')).toBeInTheDocument();
     expect(screen.queryByText(/^undefined ·/)).not.toBeInTheDocument();
-  });
-
-  it('does not render the sidebar toggle in the channels view', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue(
-      fromPartial({ displayTitle: 'Bob' }),
-    );
-
-    renderComponent({
-      activeChatView: 'channels',
-      threadContext: { id: 'thread-1' },
-    });
-
-    expect(screen.queryByTestId('toggle-sidebar-button')).not.toBeInTheDocument();
-  });
-
-  it('renders the sidebar toggle in the threads view', () => {
-    vi.mocked(useChannelPreviewInfo).mockReturnValue(
-      fromPartial({ displayTitle: 'Bob' }),
-    );
-
-    renderComponent({
-      activeChatView: 'threads',
-      threadContext: { id: 'thread-1' },
-    });
-
-    expect(screen.getByTestId('toggle-sidebar-button')).toBeInTheDocument();
   });
 });

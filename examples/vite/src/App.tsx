@@ -16,8 +16,10 @@ import {
 import {
   Attachment,
   type AttachmentProps,
+  Button,
   Chat,
   ChatView,
+  createIcon,
   MessageReactions,
   type NotificationListProps,
   NotificationList,
@@ -26,7 +28,9 @@ import {
   defaultReactionOptions,
   type ReactionOptions,
   mapEmojiMartData,
+  useChatContext,
   useCreateChatClient,
+  useTranslationContext,
   Search,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
@@ -160,6 +164,36 @@ const ConfigurableNotificationList = (props: NotificationListProps) => {
   const { verticalAlignment } = useAppSettingsSelector((state) => state.notifications);
 
   return <NotificationList {...props} verticalAlignment={verticalAlignment} />;
+};
+
+const IconSidebar = createIcon(
+  'IconSidebar',
+  <path
+    d='M6.875 3.75V16.25M3.125 3.75H16.875C17.2202 3.75 17.5 4.02982 17.5 4.375V15.625C17.5 15.9702 17.2202 16.25 16.875 16.25H3.125C2.77982 16.25 2.5 15.9702 2.5 15.625V4.375C2.5 4.02982 2.77982 3.75 3.125 3.75Z'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);
+
+const SidebarToggle = () => {
+  const { closeMobileNav, navOpen, openMobileNav } = useChatContext();
+  const { t } = useTranslationContext();
+  return (
+    <Button
+      appearance='ghost'
+      aria-label={navOpen ? t('aria/Collapse sidebar') : t('aria/Expand sidebar')}
+      circular
+      className='str-chat__header-sidebar-toggle'
+      onClick={navOpen ? closeMobileNav : openMobileNav}
+      size='md'
+      variant='secondary'
+    >
+      <IconSidebar />
+    </Button>
+  );
 };
 
 const language = new URLSearchParams(window.location.search).get('language');
@@ -358,6 +392,7 @@ const App = () => {
         MessageReactions: CustomMessageReactions,
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,
+        SidebarToggle,
         ...messageUiOverrides,
       }}
     >

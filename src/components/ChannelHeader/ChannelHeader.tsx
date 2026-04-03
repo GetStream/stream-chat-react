@@ -1,15 +1,14 @@
 import React from 'react';
 
-import { IconSidebar } from '../Icons/icons';
 import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avatar';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
 import clsx from 'clsx';
-import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
 
 const ChannelHeaderSubtitle = () => {
   const { channelConfig } = useChannelStateContext('ChannelHeaderSubtitle');
@@ -40,8 +39,6 @@ export type ChannelHeaderProps = {
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
-  /** UI component to display menu icon, defaults to IconSidebar*/
-  MenuIcon?: React.ComponentType;
   /** Set title manually */
   title?: string;
 };
@@ -50,15 +47,11 @@ export type ChannelHeaderProps = {
  * The ChannelHeader component renders some basic information about a Channel.
  */
 export const ChannelHeader = (props: ChannelHeaderProps) => {
-  const {
-    Avatar = DefaultAvatar,
-    image: overrideImage,
-    MenuIcon = IconSidebar,
-    title: overrideTitle,
-  } = props;
+  const { Avatar = DefaultAvatar, image: overrideImage, title: overrideTitle } = props;
 
   const { channel } = useChannelStateContext();
   const { navOpen } = useChatContext();
+  const { SidebarToggle } = useComponentContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -72,9 +65,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
       })}
     >
       <div className='str-chat__channel-header__start'>
-        <ToggleSidebarButton mode='expand'>
-          <MenuIcon />
-        </ToggleSidebarButton>
+        {!navOpen && SidebarToggle && <SidebarToggle />}
       </div>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>

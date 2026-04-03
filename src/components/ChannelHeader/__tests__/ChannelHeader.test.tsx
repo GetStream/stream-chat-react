@@ -6,6 +6,7 @@ import { ChannelHeader } from '../ChannelHeader';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { WithComponents } from '../../../context/WithComponents';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   dispatchUserUpdatedEvent,
@@ -16,7 +17,6 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   initClientWithChannels,
-  mockChannelListContext,
   mockChannelStateContext,
   mockChatContext,
   mockTranslationContextValue,
@@ -31,7 +31,6 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import { ChannelListContextProvider } from '../../../context/ChannelListContext';
 import type { ChannelHeaderProps } from '../ChannelHeader';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
@@ -42,7 +41,6 @@ const user2 = generateUser({ image: null });
 let testChannel1: ChannelAPIResponse;
 let client: StreamChat;
 
-const CustomMenuIcon = () => <div id='custom-icon'>Custom Menu Icon</div>;
 const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
@@ -182,59 +180,57 @@ describe('ChannelHeader', () => {
     });
   });
 
-  it('should not render the sidebar toggle button when no ChannelList is rendered', async () => {
-    const { container } = await renderComponent();
-    const toggleButton = container.querySelector('.str-chat__header-sidebar-toggle');
-    expect(toggleButton).not.toBeInTheDocument();
-  });
+  describe('SidebarToggle slot', () => {
+    const SidebarToggle = () => <div data-testid='sidebar-toggle' />;
 
-  it('should render the sidebar toggle button when ChannelList is rendered and sidebar is collapsed', async () => {
-    client = await getTestClientWithUser(user1);
-    testChannel1 = generateChannel({ ...defaultChannelState });
-    useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-    const channel = client.channel('messaging', testChannel1.channel.id);
-    await channel.query();
+    it('should not render SidebarToggle when not provided via ComponentContext', async () => {
+      await renderComponent();
+      expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
+    });
 
-    const { container } = render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelListContextProvider
-          value={mockChannelListContext({ channels: [channel] })}
-        >
-          <ChannelStateProvider value={mockChannelStateContext({ channel })}>
-            <TranslationProvider value={mockTranslationContextValue({ t })}>
-              <ChannelHeader />
-            </TranslationProvider>
-          </ChannelStateProvider>
-        </ChannelListContextProvider>
-      </ChatProvider>,
-    );
+    it('should render SidebarToggle when navOpen is false', async () => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({ ...defaultChannelState });
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
 
-    const toggleButton = container.querySelector('.str-chat__header-sidebar-toggle');
-    expect(toggleButton).toBeInTheDocument();
-  });
+      render(
+        <WithComponents overrides={{ SidebarToggle }}>
+          <ChatProvider value={mockChatContext({ channel, client, navOpen: false })}>
+            <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+              <TranslationProvider value={mockTranslationContextValue({ t })}>
+                <ChannelHeader />
+              </TranslationProvider>
+            </ChannelStateProvider>
+          </ChatProvider>
+        </WithComponents>,
+      );
 
-  it('should display custom menu icon', async () => {
-    client = await getTestClientWithUser(user1);
-    testChannel1 = generateChannel({ ...defaultChannelState });
-    useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-    const channel = client.channel('messaging', testChannel1.channel.id);
-    await channel.query();
+      expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
+    });
 
-    const { container } = render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelListContextProvider
-          value={mockChannelListContext({ channels: [channel] })}
-        >
-          <ChannelStateProvider value={mockChannelStateContext({ channel })}>
-            <TranslationProvider value={mockTranslationContextValue({ t })}>
-              <ChannelHeader MenuIcon={CustomMenuIcon} />
-            </TranslationProvider>
-          </ChannelStateProvider>
-        </ChannelListContextProvider>
-      </ChatProvider>,
-    );
+    it('should not render SidebarToggle when navOpen is true', async () => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({ ...defaultChannelState });
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
 
-    expect(container.querySelector('div#custom-icon')).toBeInTheDocument();
+      render(
+        <WithComponents overrides={{ SidebarToggle }}>
+          <ChatProvider value={mockChatContext({ channel, client, navOpen: true })}>
+            <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+              <TranslationProvider value={mockTranslationContextValue({ t })}>
+                <ChannelHeader />
+              </TranslationProvider>
+            </ChannelStateProvider>
+          </ChatProvider>
+        </WithComponents>,
+      );
+
+      expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
+    });
   });
 
   it("DM channel should reflect change of other user's name", async () => {

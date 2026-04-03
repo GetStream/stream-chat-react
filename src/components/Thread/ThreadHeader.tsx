@@ -7,13 +7,13 @@ import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPrevie
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
 
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconSidebar, IconXmark } from '../Icons';
-import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
+import { IconXmark } from '../Icons';
 import { useChatViewContext } from '../ChatView';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
@@ -67,17 +67,17 @@ export type ThreadHeaderProps = {
   closeThread: (event?: React.BaseSyntheticEvent) => void;
   /** The thread parent message */
   thread: LocalMessage;
-  /** UI component to display menu icon, defaults to IconSidebar*/
-  MenuIcon?: React.ComponentType;
   /** Override the thread display title */
   overrideTitle?: string;
 };
 
 export const ThreadHeader = (props: ThreadHeaderProps) => {
-  const { closeThread, MenuIcon = IconSidebar, overrideTitle, thread } = props;
+  const { closeThread, overrideTitle, thread } = props;
 
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();
+  const { navOpen } = useChatContext('ThreadHeader');
+  const { SidebarToggle } = useComponentContext();
   const { activeChatView } = useChatViewContext();
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
@@ -101,11 +101,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header__start'>
-        {activeChatView === 'threads' && (
-          <ToggleSidebarButton canCollapse={!!threadInstance} mode='expand'>
-            <MenuIcon />
-          </ToggleSidebarButton>
-        )}
+        {activeChatView === 'threads' && !navOpen && SidebarToggle && <SidebarToggle />}
       </div>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>

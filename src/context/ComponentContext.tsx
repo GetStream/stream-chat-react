@@ -261,6 +261,8 @@ export type ComponentContextValue = {
   TypingIndicator?: React.ComponentType<TypingIndicatorProps>;
   /** Custom UI component that indicates a user is viewing unread messages. It disappears once the user scrolls to UnreadMessagesSeparator. Defaults to and accepts same props as: [UnreadMessagesNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesNotification.tsx) */
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
+  /** Custom UI component rendered in header slots to toggle sidebar visibility. The SDK does not provide a default — if omitted, no toggle button is rendered. Use `useChatContext()` to access `navOpen`, `openMobileNav`, and `closeMobileNav`. */
+  SidebarToggle?: React.ComponentType;
   /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   /** Component used to play video. If not provided, ReactPlayer is used as a default video player. */
