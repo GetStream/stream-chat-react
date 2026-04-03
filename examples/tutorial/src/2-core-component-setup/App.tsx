@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import type { User, Channel as StreamChannel } from 'stream-chat';
+import { type User, Channel as StreamChannel } from 'stream-chat';
 import {
   useCreateChatClient,
   Chat,
@@ -12,7 +12,6 @@ import {
 } from 'stream-chat-react';
 
 import 'stream-chat-react/dist/css/index.css';
-// additionally
 import './layout.css';
 import { apiKey, userId, userName, userToken } from '../1-client-setup/credentials';
 
@@ -33,27 +32,19 @@ const App = () => {
   useEffect(() => {
     if (!client) return;
 
-    const initChannel = async () => {
-      const nextChannel = client.channel('messaging', 'react-tutorial', {
-        image: 'https://getstream.io/random_png/?name=react-v14',
-        name: 'Talk about React',
-        members: [userId],
-      });
-
-      await nextChannel.watch();
-      setChannel(nextChannel);
-    };
-
-    initChannel().catch((error) => {
-      console.error('Failed to initialize tutorial channel', error);
+    const channel = client.channel('messaging', 'custom_channel_id', {
+      image: 'https://getstream.io/random_png/?name=react',
+      name: 'Talk about React',
+      members: [userId],
     });
+
+    setChannel(channel);
   }, [client]);
 
   if (!client) return <div>Setting up client & connection...</div>;
-  if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
-    <Chat client={client} theme='str-chat__theme-custom'>
+    <Chat client={client}>
       <Channel channel={channel}>
         <Window>
           <ChannelHeader />
