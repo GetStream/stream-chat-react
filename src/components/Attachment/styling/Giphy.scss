@@ -36,7 +36,7 @@
   align-items: center;
   gap: var(--spacing-xxs, 4px);
   position: absolute;
-  left: 8px;
+  inset-inline-start: 8px;
   bottom: 8px;
 
   border-radius: var(--radius-lg, 12px);

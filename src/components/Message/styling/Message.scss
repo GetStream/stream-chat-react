@@ -279,7 +279,7 @@
           );
 
           &:has(.str-chat__message-reactions--flipped-horizontally) {
-            margin-right: var(--str-chat__message-reactions-host-offset-x);
+            margin-inline-end: var(--str-chat__message-reactions-host-offset-x);
           }
         }
 
@@ -324,7 +324,7 @@
           padding-inline-end: calc(var(--str-chat__message-reactions-host-offset-x) * -1);
 
           &:has(.str-chat__message-reactions--flipped-horizontally) {
-            margin-left: var(--str-chat__message-reactions-host-offset-x);
+            margin-inline-start: var(--str-chat__message-reactions-host-offset-x);
           }
         }
 
