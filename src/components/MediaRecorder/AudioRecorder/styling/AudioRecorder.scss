@@ -110,12 +110,6 @@
     //overflow-x: hidden;
   }
 
-  .str-chat__wave-progress-bar__track-container {
-    max-width: 500px;
-  }
-  .str-chat__waveform-box-container {
-    max-width: 520px;
-  }
 
   .str-chat__wave-progress-bar__track {
     display: flex;
@@ -127,7 +121,6 @@
   }
 
   .str-chat__waveform-box-container {
-    //justify-content: flex-end;
     overflow: hidden;
 
     .str-chat__wave-progress-bar__track {
