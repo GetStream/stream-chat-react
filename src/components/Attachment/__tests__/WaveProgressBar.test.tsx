@@ -111,7 +111,9 @@ describe('WaveProgressBar', () => {
     render(<WaveProgressBar seek={vi.fn()} waveformData={originalSample} />);
     expect(screen.getAllByTestId(AMPLITUDE_BAR_TEST_ID)).toHaveLength(40);
     expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
-    expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toHaveStyle('left: 0px');
+    expect(screen.getByTestId(PROGRESS_INDICATOR_TEST_ID)).toHaveStyle(
+      'inset-inline-start: 0px',
+    );
   });
 
   it('is rendered with highlighted bars with non-zero progress', () => {

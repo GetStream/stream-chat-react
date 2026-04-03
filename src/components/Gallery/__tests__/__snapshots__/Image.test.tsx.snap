@@ -107,6 +107,7 @@ exports[`Image > should render component with default props 1`] = `
           >
             <svg
               class="str-chat__icon str-chat__icon--chevron-left"
+              data-rtl-mirror=""
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -149,6 +150,7 @@ exports[`Image > should render component with default props 1`] = `
           >
             <svg
               class="str-chat__icon str-chat__icon--chevron-right"
+              data-rtl-mirror=""
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
