@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-31
+Last updated: 2026-04-03
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `241209e8059ce767fe5bc3500466aa73f53618e3` (`241209e8`, `2026-03-31`, `fix: use link icon for link-type attachments (#3083)`)
-- Future mining starting point: diff `241209e8059ce767fe5bc3500466aa73f53618e3..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee` (`6c7cd42a`, `2026-04-03`, `fix(examples): enable async voice recording preview in thread composer (#3092)`)
+- Future mining starting point: diff `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -636,6 +636,8 @@ Only confirmed items should move from this file into the migration guide.
   - code using `useChannelPreviewInfo()` can no longer treat `groupChannelDisplayInfo == null` as the signal for a non-group channel
   - code using `useChannelPreviewInfo().displayTitle` can now receive synthesized group/direct-message titles where v13 helper code often returned `undefined`
   - if you switched to the current `stream-chat` core helper `channel.getDisplayImage()`, note that it no longer falls back to the other DM member's image the way the old React helper path effectively did
+  - custom `GroupAvatar`, `ChannelAvatar`, and `AvatarStack` wrappers can no longer control overflow badges with an `overflowCount` prop; overflow is now calculated internally from the provided members/items
+  - custom tests or wrappers that depended on `ChannelAvatar` conditionally rendering a plain `Avatar` instead of `GroupAvatar` need to be re-baselined against the current always-`GroupAvatar` component tree
 - Old API:
   - `v13.14.2:src/components/Avatar/Avatar.tsx:8` `AvatarProps` exposed `image`, `name`, `onClick`, `onMouseOver`, and `user`
   - `v13.14.2:src/components/Avatar/ChannelAvatar.tsx:6` `ChannelAvatarProps = Partial<GroupAvatarProps> & AvatarProps`
@@ -647,9 +649,10 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/components/ChannelPreview/hooks/useChannelPreviewInfo.ts:46` returned `groupChannelDisplayInfo` as the nullable result of `getGroupChannelDisplayInfo(channel)`
 - New API:
   - `src/components/Avatar/Avatar.tsx:10` `AvatarProps` now expose `imageUrl`, `userName`, `isOnline`, and required `size`
-  - `src/components/Avatar/ChannelAvatar.tsx:7` `ChannelAvatarProps` now expose `displayMembers`, `overflowCount`, and required `size`
-  - `src/components/Avatar/GroupAvatar.tsx:10` `GroupAvatarProps` now expose `displayMembers`, `overflowCount`, `size`, and `isOnline`
-  - `src/components/ChannelListItem/utils.tsx:116` types `GroupChannelDisplayInfo` as `{ members, overflowCount }`
+  - `src/components/Avatar/ChannelAvatar.tsx:6` `ChannelAvatarProps` are now `Partial<Omit<GroupAvatarProps & AvatarProps, 'size'>> & { size: GroupAvatarProps['size'] | AvatarProps['size'] }`
+  - `src/components/Avatar/GroupAvatar.tsx:12` `GroupAvatarProps` now expose `displayMembers`, `size`, and `isOnline`, with no public `overflowCount`
+  - `src/components/Avatar/AvatarStack.tsx:9` through `:18` now expose `capLimit?: number` and calculate overflow internally instead of accepting a caller-provided `overflowCount`
+  - `src/components/ChannelListItem/utils.tsx:139` through `:149` now return `{ members }` from `getGroupChannelDisplayInfo(channel)`, with no computed `overflowCount`
   - `src/components/ChannelListItem/utils.tsx:125` exports `getChannelDisplayImage`
   - `src/components/ChannelListItem/hooks/index.ts:1` exports `useChannelDisplayName`
   - `src/components/ChannelListItem/hooks/useChannelDisplayName.ts:8` through `:10` synthesize DM labels and group titles from up to two member names
@@ -658,23 +661,26 @@ Only confirmed items should move from this file into the migration guide.
 - Replacement:
   - rename avatar props from `image` / `name` to `imageUrl` / `userName`
   - supply the new required `size` prop when rendering SDK avatars directly
-  - migrate group avatar data from `groupChannelDisplayInfo` to `displayMembers` plus optional `overflowCount`
+  - migrate group avatar data from `groupChannelDisplayInfo` to `displayMembers`; let `GroupAvatar`, `ChannelAvatar`, and `AvatarStack` compute overflow badges automatically
   - replace `getDisplayImage` with `getChannelDisplayImage`
   - replace `getDisplayTitle` with `useChannelDisplayName()` or `useChannelPreviewInfo()`, depending on whether the caller is already inside React
   - update any `useChannelPreviewInfo()` checks that previously depended on `groupChannelDisplayInfo` being `null` or `undefined`
   - if you need the old DM-image fallback in custom preview code, prefer `getChannelDisplayImage(channel)` over `channel.getDisplayImage()`
 - Evidence:
-  - current `ChannelHeader` passes `displayMembers`, `imageUrl`, `overflowCount`, `size`, and `userName` into `ChannelAvatar`
-  - current `GroupAvatar` renders a `+N` badge from `overflowCount` instead of the old three-part/four-part array-only logic
+  - current `ChannelAvatar` always renders through `GroupAvatar`, even for one-member/empty cases
+  - current `GroupAvatar` renders a `+N` badge by slicing `displayMembers` internally, not from a caller-provided prop
+  - current `AvatarStack` renders a `+N` badge from `capLimit` and `displayInfo.length`, not from a caller-provided prop
   - current package exports no `getDisplayTitle` or `getDisplayImage`
   - current `useChannelPreviewInfo()` normalizes empty/non-group state to `{ members: [], overflowCount: undefined }`
   - current `useChannelDisplayName()` adds synthesized DM/group title behavior that did not exist in the old helper pair
   - current `ChannelListItem` tests assert that `channel.getDisplayImage()` no longer falls back to member images, while `getChannelDisplayImage()` preserves the UI-oriented fallback
+  - commit `49d576e4 chore: adjustmens to Avatar, GroupAvatar and ChannelAvatar (#3087)` removed manual `overflowCount` props and moved overflow handling fully into the current avatar components
 - Docs impact:
   - migration guide
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md`
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/06-suggestion_list.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/06-system_message.md`
@@ -2059,6 +2065,10 @@ Only confirmed items should move from this file into the migration guide.
 - audio/player, scrolling, and layout polish (`7914e516`, `91eba1b4`, `8d25ead3`, `55dd2e81`, `fdf0e155`, `221aa0d4`): investigated; these commits refine playback reset behavior, initial bottom-pinning, mobile-nav click detection, message-list width, reactions alignment, and voice-recording attachment layout, but they do not remove or rename a documented public API beyond the separately tracked `useChannelListContext()` signature cleanup.
 - type-safety and stale-prop cleanup in tests (`277bc417`): investigated; this commit removes stale props from test fixtures and tightens mock typing, but it does not change the current public runtime API beyond what was already documented in earlier migration buckets.
 - link-type attachment preview icon swap (`241209e8`): investigated; current summarized-preview and latest-message preview UIs now use the shared link icon for link attachments, but this is a visual/current-behavior adjustment rather than a removed or renamed public API.
+- avatar overflow/internalization follow-up (`49d576e4`): tracked under `BC-018`, not as a separate bucket; current `GroupAvatar`, `ChannelAvatar`, and `AvatarStack` removed caller-controlled `overflowCount` handling and now calculate overflow internally from members/items.
+- icon catalog, RTL, dark-mode, and thread-voice-recording follow-up (`a4b1c2662`): investigated; current icon renames such as `IconCrossSmall -> IconXmarkSmall`, `IconExclamationTriangle -> IconExclamationTriangleFill`, and `IconEyeOpen -> IconEyeFill` are not part of the v13 public surface, and the RTL/dark-mode/thread voice-recording changes are current-behavior polish rather than a new migration bucket.
+- styling cleanup (`3bbf121ff`): investigated; broad CSS cleanup and internal selector polish, but no new removed or renamed public API beyond the avatar/channel-list/theming buckets already tracked.
+- example-only follow-ups (`623989574`, `2f060ae89`, `6c7cd42af`): investigated; these only update examples and docs scaffolding and do not add a new v13-to-v14 migration item.
 - assorted UI/UX fixes (`6c06e043`, `a47981ff`, `3f093622`): investigated; Giphy editability, dialog layering, composer state restoration, centered headers, message-list width, and channel-list dialog-portal cleanup changed runtime behavior, but they did not introduce new removed exports or renamed public override surfaces beyond the separately tracked reactions and icon buckets.
 - example-app refreshes (`86ada37e`, `887a326a`): investigated; these only update example apps and do not change the public SDK surface.
 
