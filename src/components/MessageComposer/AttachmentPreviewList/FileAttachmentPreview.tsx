@@ -8,7 +8,7 @@ import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { FileSizeIndicator } from '../../Attachment';
-import { IconExclamationMark, IconExclamationTriangle } from '../../Icons';
+import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
   UploadAttachmentPreviewProps<
@@ -59,7 +59,7 @@ export const FileAttachmentPreview = ({
           )}
           {hasRetriableError && (
             <div className='str-chat__attachment-preview-file__retriable-error'>
-              <IconExclamationTriangle />
+              <IconExclamationTriangleFill />
               <span>{t('Upload error')}</span>
               <button
                 aria-label={t('aria/Retry upload')}

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { IconCrossSmall } from '../Icons';
+import { IconXmarkSmall } from '../Icons';
 import { Button } from '../Button';
 import React, { type ComponentProps } from 'react';
 import { useTranslationContext } from '../../context';
@@ -22,7 +22,7 @@ export const RemoveAttachmentPreviewButton = ({
       disabled={uploadState === 'uploading'}
       {...props}
     >
-      <IconCrossSmall />
+      <IconXmarkSmall />
     </Button>
   );
 };
