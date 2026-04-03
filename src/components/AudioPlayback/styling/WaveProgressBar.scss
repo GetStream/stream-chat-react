@@ -33,7 +33,7 @@
 
     .str-chat__wave-progress-bar__progress-indicator {
       position: absolute;
-      left: 0;
+      inset-inline-start: 0;
       // todo: CSS use semantic variable instead of --base-white
       border: 2px solid var(--base-white);
       box-shadow: var(--light-elevation-3);

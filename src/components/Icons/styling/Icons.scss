@@ -3,6 +3,10 @@
   width: 1em;
   height: 1em;
   fill: currentColor;
+
+  [dir='rtl'] &[data-rtl-mirror] {
+    transform: scaleX(-1);
+  }
 }
 
 .str-chat__icon--exclamation-mark {

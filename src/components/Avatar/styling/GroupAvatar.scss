@@ -50,7 +50,7 @@
     width: var(--avatar-group-online-badge-size);
     height: var(--avatar-group-online-badge-size);
 
-    right: -2px;
+    inset-inline-end: -2px;
     top: -2px;
 
     border-radius: var(--radius-max, 9999px);
@@ -102,19 +102,19 @@
   &:has(> :last-child:nth-child(4)) {
     & > :nth-child(1) {
       top: 0;
-      left: 0;
+      inset-inline-start: 0;
     }
     & > :nth-child(2) {
       top: 0;
-      right: 0;
+      inset-inline-end: 0;
     }
     & > :nth-child(3) {
       bottom: 0;
-      left: 0;
+      inset-inline-start: 0;
     }
     & > :last-child {
       bottom: 0;
-      right: 0;
+      inset-inline-end: 0;
     }
   }
 
@@ -122,11 +122,11 @@
     &:has(> .str-chat__avatar-group__count-badge) {
       & > :nth-child(1) {
         top: 0;
-        left: 0;
+        inset-inline-start: 0;
       }
       & > :nth-child(2) {
         top: 0;
-        right: 0;
+        inset-inline-end: 0;
       }
       & > :last-child {
         bottom: 0;
@@ -139,11 +139,11 @@
       }
       & > :nth-child(2) {
         bottom: 0;
-        left: 0;
+        inset-inline-start: 0;
       }
       & > :last-child {
         bottom: 0;
-        right: 0;
+        inset-inline-end: 0;
       }
     }
   }
@@ -151,11 +151,11 @@
   &:has(> :last-child:nth-child(2)) {
     & > :nth-child(1) {
       top: 0;
-      left: 0;
+      inset-inline-start: 0;
     }
     & > :last-child {
       bottom: 0;
-      right: 0;
+      inset-inline-end: 0;
     }
   }
 }

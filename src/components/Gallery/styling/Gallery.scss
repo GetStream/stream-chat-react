@@ -259,11 +259,11 @@
   }
 
   .str-chat__gallery__nav-button--prev {
-    left: var(--spacing-sm);
+    inset-inline-start: var(--spacing-sm);
   }
 
   .str-chat__gallery__nav-button--next {
-    right: var(--spacing-sm);
+    inset-inline-end: var(--spacing-sm);
   }
 
   .str-chat__gallery__position-indicator {

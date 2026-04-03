@@ -6,12 +6,16 @@
     min-width: 0;
     cursor: pointer;
     background: linear-gradient(
-      to right,
+      to var(--str-chat__progress-direction, right),
       var(--str-chat__primary-color)
         var(--str-chat__message-attachment-audio-widget-progress),
       var(--str-chat__disabled-color)
         var(--str-chat__message-attachment-audio-widget-progress)
     );
+
+    [dir='rtl'] & {
+      --str-chat__progress-direction: left;
+    }
     border-radius: calc(var(--str-chat__spacing-px) * 5);
 
     .str-chat__message-attachment-audio-widget--progress-indicator {

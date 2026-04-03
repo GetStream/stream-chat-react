@@ -156,7 +156,7 @@ export const WaveProgressBar = ({
         data-testid='wave-progress-bar-progress-indicator'
         ref={setProgressIndicator}
         style={{
-          left: `${indicatorLeft}px`,
+          insetInlineStart: `${indicatorLeft}px`,
         }}
       />
     </div>

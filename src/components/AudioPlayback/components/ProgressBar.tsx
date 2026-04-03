@@ -44,7 +44,7 @@ export const ProgressBar = ({ className, progress, seek }: ProgressBarProps) => 
       <div
         className='str-chat__message-attachment-audio-widget--progress-indicator'
         ref={setProgressIndicator}
-        style={{ left: `${indicatorLeft}px` }}
+        style={{ insetInlineStart: `${indicatorLeft}px` }}
       />
     </div>
   );

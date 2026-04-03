@@ -19,10 +19,10 @@
     position: absolute;
     width: 100%;
     bottom: 0;
-    left: 0;
+    inset-inline-start: 0;
     height: var(--size-12);
-    border-bottom-right-radius: inherit;
-    border-bottom-left-radius: inherit;
+    border-end-end-radius: inherit;
+    border-end-start-radius: inherit;
     background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0.1) 130%);
   }
 
