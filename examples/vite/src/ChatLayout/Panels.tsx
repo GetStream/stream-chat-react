@@ -38,7 +38,10 @@ const ChannelThreadPanel = () => {
         })}
       >
         <Thread
-          additionalMessageComposerProps={{ audioRecordingEnabled: true }}
+          additionalMessageComposerProps={{
+            audioRecordingEnabled: true,
+            asyncMessagesMultiSendEnabled: true,
+          }}
           virtualized
         />
       </WithDragAndDropUpload>
@@ -159,7 +162,10 @@ export const ThreadsPanels = ({
             <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
               <WithComponents overrides={{ TypingIndicator }}>
                 <Thread
-                  additionalMessageComposerProps={{ audioRecordingEnabled: true }}
+                  additionalMessageComposerProps={{
+                    audioRecordingEnabled: true,
+                    asyncMessagesMultiSendEnabled: true,
+                  }}
                   virtualized
                 />
               </WithComponents>
