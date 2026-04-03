@@ -19,7 +19,7 @@
     align-items: center;
     gap: var(--spacing-md);
     padding: var(--spacing-xs);
-    padding-left: var(--spacing-sm);
+    padding-inline-start: var(--spacing-sm);
 
     .str-chat__recording-timer {
       display: flex;
