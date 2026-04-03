@@ -37,7 +37,10 @@ const ChannelThreadPanel = () => {
           'app-chat-thread-panel--open': isOpen,
         })}
       >
-        <Thread virtualized />
+        <Thread
+          additionalMessageComposerProps={{ audioRecordingEnabled: true }}
+          virtualized
+        />
       </WithDragAndDropUpload>
     </>
   );
@@ -155,7 +158,10 @@ export const ThreadsPanels = ({
           <ChatView.ThreadAdapter>
             <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
               <WithComponents overrides={{ TypingIndicator }}>
-                <Thread virtualized />
+                <Thread
+                  additionalMessageComposerProps={{ audioRecordingEnabled: true }}
+                  virtualized
+                />
               </WithComponents>
             </WithDragAndDropUpload>
           </ChatView.ThreadAdapter>
