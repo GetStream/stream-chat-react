@@ -49,6 +49,7 @@ export const IconArrowLeft = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconArrowRightUp
@@ -62,6 +63,7 @@ export const IconArrowUpRight = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconArrowRotateClockwise
@@ -101,6 +103,7 @@ export const IconReply = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 export const IconArrowUp = createIcon(
@@ -326,6 +329,7 @@ export const IconChevronLeft = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 export const IconChevronRight = createIcon(
@@ -338,6 +342,7 @@ export const IconChevronRight = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconCircleBanSign
@@ -583,6 +588,7 @@ export const IconSidebar = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconMagnifyingGlassSearch
@@ -596,6 +602,7 @@ export const IconSearch = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconMapPin
@@ -644,6 +651,7 @@ export const IconMute = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconPaperPlane
@@ -657,6 +665,7 @@ export const IconSend = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconPaperclip
@@ -900,6 +909,7 @@ export const IconVideo = createIcon(
       </clipPath>
     </defs>
   </>,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconVideoSolid
@@ -915,6 +925,7 @@ export const IconVideoFill = createIcon(
       </clipPath>
     </defs>
   </>,
+  { 'data-rtl-mirror': '' },
 );
 
 // was: IconVolumeFull
@@ -928,6 +939,7 @@ export const IconAudio = createIcon(
     strokeLinejoin='round'
     strokeWidth='1.5'
   />,
+  { 'data-rtl-mirror': '' },
 );
 
 export const IconArchive = createIcon(
