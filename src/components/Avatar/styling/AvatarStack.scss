@@ -8,21 +8,21 @@
   &.str-chat__avatar-stack--size-xs {
     & > .str-chat__avatar:not(:first-child),
     .str-chat__avatar-stack__count-badge {
-      margin-left: calc(var(--spacing-xs) * -1);
+      margin-inline-start: calc(var(--spacing-xs) * -1);
     }
   }
 
   &.str-chat__avatar-stack--size-sm {
     & > .str-chat__avatar:not(:first-child),
     .str-chat__avatar-stack__count-badge {
-      margin-left: calc(var(--spacing-sm) * -1);
+      margin-inline-start: calc(var(--spacing-sm) * -1);
     }
   }
 
   &.str-chat__avatar-stack--size-md {
     & > .str-chat__avatar:not(:first-child),
     .str-chat__avatar-stack__count-badge {
-      margin-left: calc(var(--spacing-sm) * -1);
+      margin-inline-start: calc(var(--spacing-sm) * -1);
     }
   }
 }

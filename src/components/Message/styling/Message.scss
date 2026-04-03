@@ -452,13 +452,13 @@
     }
 
     .str-chat__message-edited-indicator {
-      margin-left: var(--spacing-xs);
+      margin-inline-start: var(--spacing-xs);
     }
   }
 
   &.str-chat__message--me .str-chat__message-metadata {
     justify-content: flex-end;
-    text-align: right;
+    text-align: end;
   }
 
   .str-chat__message--blocked-inner {
