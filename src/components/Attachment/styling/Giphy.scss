@@ -24,6 +24,11 @@
     width: 100%;
     cursor: default;
   }
+
+  .str-chat__image-placeholder {
+    height: var(--str-chat__gif-height);
+    width: var(--str-chat__attachment-max-width);
+  }
 }
 
 .str-chat__giphy-badge {
@@ -52,7 +57,7 @@
     height: var(--str-chat__gif-height);
 
     img.str-chat__base-image {
-      height: 100%;
+      height: var(--str-chat__gif-height);
     }
   }
 
