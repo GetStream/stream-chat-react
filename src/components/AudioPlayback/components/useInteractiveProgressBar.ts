@@ -51,6 +51,7 @@ export const useInteractiveProgressBar = ({
 
     isDragging.current = true;
     progressIndicator.style.cursor = 'grabbing';
+    root?.classList.add('str-chat__wave-progress-bar__track--dragging');
   };
 
   const handleDrag: PointerEventHandler<HTMLDivElement> = (e) => {
@@ -64,7 +65,8 @@ export const useInteractiveProgressBar = ({
 
     isDragging.current = false;
     progressIndicator.style.removeProperty('cursor');
-  }, [progressIndicator]);
+    root?.classList.remove('str-chat__wave-progress-bar__track--dragging');
+  }, [progressIndicator, root]);
 
   useEffect(() => {
     document.addEventListener('pointerup', handleDragStop);
