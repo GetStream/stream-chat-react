@@ -52,9 +52,13 @@ export type AddNotificationParams = {
 };
 
 export type AddNotification = (params: AddNotificationParams) => void;
+export type RemoveNotification = (id: string) => void;
+export type StartNotificationTimeout = (id: string) => void;
 
 export type NotificationApi = {
   addNotification: AddNotification;
+  removeNotification: RemoveNotification;
+  startNotificationTimeout: StartNotificationTimeout;
 };
 
 const getTargetTags = (
@@ -128,5 +132,19 @@ export const useNotificationApi = (): NotificationApi => {
     [client, inferredPanel],
   );
 
-  return { addNotification };
+  const removeNotification: RemoveNotification = useCallback(
+    (id) => {
+      client.notifications.remove(id);
+    },
+    [client],
+  );
+
+  const startNotificationTimeout: StartNotificationTimeout = useCallback(
+    (id) => {
+      client.notifications.startTimeout(id);
+    },
+    [client],
+  );
+
+  return { addNotification, removeNotification, startNotificationTimeout };
 };

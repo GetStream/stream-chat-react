@@ -14,6 +14,8 @@ vi.mock('../useNotificationTarget', () => ({
 }));
 
 const add = vi.fn();
+const remove = vi.fn();
+const startTimeout = vi.fn();
 
 const mockedUseChatContext = vi.mocked(useChatContext);
 const mockedUseNotificationTarget = vi.mocked(useNotificationTarget);
@@ -26,6 +28,8 @@ describe('useNotificationApi', () => {
         client: {
           notifications: {
             add,
+            remove,
+            startTimeout,
           },
         },
       }),
@@ -34,6 +38,22 @@ describe('useNotificationApi', () => {
 
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('removes notification by id', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.removeNotification('notification-id');
+
+    expect(remove).toHaveBeenCalledWith('notification-id');
+  });
+
+  it('starts notification timeout by id', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.startNotificationTimeout('notification-id');
+
+    expect(startTimeout).toHaveBeenCalledWith('notification-id');
   });
 
   it('adds inferred target panel tag when targetPanels is not provided', () => {

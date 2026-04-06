@@ -1,20 +1,18 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { fromPartial } from '@total-typescript/shoehorn';
 
-import { useChatContext } from '../../../context';
-import type { ChatContextValue } from '../../../context';
 import { NotificationList } from '../NotificationList';
+import { useNotificationApi } from '../hooks/useNotificationApi';
 import { useNotifications } from '../hooks/useNotifications';
 
 import type { Notification } from 'stream-chat';
 
-vi.mock('../../../context', () => ({
-  useChatContext: vi.fn(),
-}));
-
 vi.mock('../hooks/useNotifications', () => ({
   useNotifications: vi.fn(),
+}));
+
+vi.mock('../hooks/useNotificationApi', () => ({
+  useNotificationApi: vi.fn(),
 }));
 
 vi.mock('../Notification', () => {
@@ -50,10 +48,9 @@ vi.mock('../Notification', () => {
   return { Notification: MockNotification };
 });
 
-const mockedUseChatContext = vi.mocked(useChatContext);
+const mockedUseNotificationApi = vi.mocked(useNotificationApi);
 const mockedUseNotifications = vi.mocked(useNotifications);
 
-const clearTimeout = vi.fn();
 const remove = vi.fn();
 const startTimeout = vi.fn();
 
@@ -114,11 +111,11 @@ describe('NotificationList', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     observerEntries.splice(0, observerEntries.length);
     currentNotifications = [...notifications];
-    mockedUseChatContext.mockReturnValue(
-      fromPartial<ChatContextValue>({
-        client: { notifications: { clearTimeout, remove, startTimeout } },
-      }),
-    );
+    mockedUseNotificationApi.mockReturnValue({
+      addNotification: vi.fn(),
+      removeNotification: remove,
+      startNotificationTimeout: startTimeout,
+    });
     remove.mockImplementation((id: string) => {
       currentNotifications = currentNotifications.filter(
         (notification) => notification.id !== id,
@@ -130,10 +127,9 @@ describe('NotificationList', () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    clearTimeout.mockReset();
     remove.mockReset();
     startTimeout.mockReset();
-    mockedUseChatContext.mockReset();
+    mockedUseNotificationApi.mockReset();
     mockedUseNotifications.mockReset();
     delete window['IntersectionObserver'];
   });

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { Notification } from 'stream-chat';
 
-import { useChatContext } from '../../context';
+import { useNotificationApi } from './hooks/useNotificationApi';
 import { useNotifications } from './hooks/useNotifications';
 import { Notification as NotificationComponent } from './Notification';
 
@@ -71,7 +71,7 @@ export const NotificationList = ({
   panel,
   verticalAlignment = 'bottom',
 }: NotificationListProps) => {
-  const { client } = useChatContext();
+  const { removeNotification, startNotificationTimeout } = useNotificationApi();
   const exitTimeoutRef = useRef<number | null>(null);
   const latestNotificationRef = useRef<Notification | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
@@ -92,9 +92,9 @@ export const NotificationList = ({
   const dismiss = useCallback(
     (id: string) => {
       startedTimeoutIdsRef.current?.delete(id);
-      client.notifications.remove(id);
+      removeNotification(id);
     },
-    [client],
+    [removeNotification],
   );
 
   useEffect(() => {
@@ -155,7 +155,7 @@ export const NotificationList = ({
         return;
 
       startedTimeoutIdsRef.current.add(notification.id);
-      client.notifications.startTimeout(notification.id);
+      startNotificationTimeout(notification.id);
     };
 
     if (typeof IntersectionObserver === 'undefined') {
@@ -182,7 +182,7 @@ export const NotificationList = ({
     return () => {
       observer.disconnect();
     };
-  }, [client, notification, transitionState]);
+  }, [notification, startNotificationTimeout, transitionState]);
 
   if (!notification) return null;
 
