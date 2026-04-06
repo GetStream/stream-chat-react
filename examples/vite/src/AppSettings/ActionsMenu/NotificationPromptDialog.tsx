@@ -196,16 +196,17 @@ const NotificationDraftForm = ({
               options={severityOptions}
               value={draft.severity}
             />
-            <label className='app__notification-dialog__field'>
+            <div className='app__notification-dialog__field'>
               <span className='app__notification-dialog__field-label'>Duration (ms)</span>
               <NumericInput
+                aria-label='Duration (ms)'
                 min={0}
                 onChange={(event) =>
                   setDraft((current) => ({ ...current, duration: event.target.value }))
                 }
                 value={draft.duration}
               />
-            </label>
+            </div>
             <NotificationEntrySelect
               label='Entry Direction'
               onChange={(value) =>

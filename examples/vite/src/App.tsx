@@ -18,6 +18,7 @@ import {
   type AttachmentProps,
   Chat,
   ChatView,
+  DialogManagerProvider,
   MessageReactions,
   type NotificationListProps,
   NotificationList,
@@ -172,6 +173,7 @@ const MessageUiOverride = messageUiVariant
 const systemMessageVariant = getSystemMessageVariant();
 const reactionsVariant = getReactionsVariant();
 const attachmentActionsVariant = getAttachmentActionsVariant();
+const globalDialogManager = 'globalDialogManager';
 
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
@@ -381,20 +383,22 @@ const App = () => {
             layoutRef={appLayoutRef}
           />
           <ChatView>
-            <ChatStateSync initialChatView={initialChatView} />
-            <SidebarLayoutSync />
-            <ChannelsPanels
-              filters={filters}
-              iconOnly={chatView.iconOnly}
-              initialChannelId={initialChannelId ?? undefined}
-              itemSet={chatViewSelectorItemSet}
-              options={options}
-              sort={sort}
-            />
-            <ThreadsPanels
-              iconOnly={chatView.iconOnly}
-              itemSet={chatViewSelectorItemSet}
-            />
+            <DialogManagerProvider id={globalDialogManager}>
+              <ChatStateSync initialChatView={initialChatView} />
+              <SidebarLayoutSync />
+              <ChannelsPanels
+                filters={filters}
+                iconOnly={chatView.iconOnly}
+                initialChannelId={initialChannelId ?? undefined}
+                itemSet={chatViewSelectorItemSet}
+                options={options}
+                sort={sort}
+              />
+              <ThreadsPanels
+                iconOnly={chatView.iconOnly}
+                itemSet={chatViewSelectorItemSet}
+              />
+            </DialogManagerProvider>
           </ChatView>
         </div>
       </Chat>
