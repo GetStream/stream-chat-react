@@ -896,24 +896,23 @@ Post-snapshot maintenance currently in scope:
 
 - Status: resolved
 - Evidence:
-  - current icon exports use names like `IconXmark`, `IconSend`, `IconDelete`, `IconSidebar`, and `IconBolt`
-  - current `BaseIcon` defaults to a `20x20` viewBox and the renamed icon constants generate different `str-chat__icon--*` classes
-  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md` still documents `MenuIcon` as defaulting to `IconLayoutAlignLeft`
-  - `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` still uses removed icon names like `IconCrossMedium` in the low-level icon migration example
-- the migration guide did not yet call out the public icon rename sweep or the selector drift caused by the renamed icon constants
-- Expected fix: completed; the header docs, migration guide, and icon examples now use the current icon names and call out the selector drift caused by the renamed icon constants
+  - names like `IconLayoutAlignLeft` and `IconCrossMedium` did not exist in `v13.14.2`, so they should not appear in v13-to-v14 migration guidance
+  - `data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md` still documented `MenuIcon` as defaulting to `IconLayoutAlignLeft`
+  - `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` still used removed icon names like `IconCrossMedium` in the low-level icon migration example
+- Expected fix: completed; the header docs and icon examples now use current icon names, and the migration guide no longer treats the later icon-catalog rename sweep as v13-to-v14 migration content
 
 ### 68. v14 avatar docs still imply caller-controlled overflow on `ChannelAvatar` and `GroupAvatar`
 
 - Status: resolved
 - Evidence:
+  - `overflowCount` was not part of the `v13.14.2` public avatar surface, so it should not be presented as a v13-to-v14 migration target
   - current `GroupAvatar`, `ChannelAvatar`, and `AvatarStack` no longer expose caller-controlled `overflowCount`; overflow is calculated internally from `displayMembers` or `displayInfo`
   - current `getGroupChannelDisplayInfo(channel)` now returns `{ members }` with no computed `overflowCount`
   - before this follow-up pass, `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` still said `groupChannelDisplayInfo -> displayMembers, overflowCount, required size`
   - before this follow-up pass, `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md` still showed `<ChannelAvatar displayMembers={members} overflowCount={rest} size={40} />`
   - before this follow-up pass, `data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md` still passed `overflowCount={groupChannelDisplayInfo?.overflowCount}`
   - `data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md` still explains `ChannelAvatar` in terms of a one-avatar vs group-avatar split, but does not yet call out the current automatic overflow behavior
-- Expected fix: completed; the migration guide, avatar reference page, and channel-header cookbook now describe the current `displayMembers` plus automatic-overflow model and no longer pass caller-supplied `overflowCount`
+- Expected fix: completed; the migration guide, avatar reference page, and channel-header cookbook now describe the current `displayMembers` plus automatic-overflow model and no longer present `overflowCount` as a v13-to-v14 migration concern
 
 ## Docs Update Checklist
 
