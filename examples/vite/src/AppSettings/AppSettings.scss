@@ -20,7 +20,8 @@
     }
   }
 
-  .app__actions-menu {
+  .str-chat__dialog-contents.app__actions-menu,
+  .str-chat__context-menu.app__actions-menu {
     min-width: min(320px, calc(100vw - 32px));
     max-width: min(320px, calc(100vw - 32px));
   }
@@ -249,8 +250,7 @@
     display: flex;
     flex-direction: column;
     width: min(920px, 90vw);
-    max-height: min(80vh, 760px);
-    min-height: min(520px, 72vh);
+    height: min(80vh, 760px);
     background: var(--background-core-elevation-2);
     color: var(--text-primary);
     border: 1px solid var(--border-core-default);
@@ -282,7 +282,7 @@
   .app__settings-modal__tabs {
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-right: 1px solid var(--border-core-default);
+    border-inline-end: 1px solid var(--border-core-default);
     padding: 10px;
   }
 
@@ -383,7 +383,7 @@
     }
 
     .app__settings-modal__tabs {
-      border-right: 1px solid var(--border-core-default);
+      border-inline-end: 1px solid var(--border-core-default);
       border-bottom: 0;
       display: block;
       gap: 0;
