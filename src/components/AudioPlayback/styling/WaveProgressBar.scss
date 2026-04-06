@@ -42,16 +42,28 @@
       width: 14px;
       border-radius: var(--radius-max);
       cursor: grab;
+      transition: inset-inline-start 250ms linear;
     }
   }
 
   .str-chat__wave-progress-bar__amplitude-bar {
     background: var(--chat-waveform-bar);
     border-radius: var(--radius-max);
+    transition: background 250ms linear;
   }
 
   .str-chat__wave-progress-bar__amplitude-bar--active {
     background: var(--chat-waveform-bar-playing);
+  }
+
+  .str-chat__wave-progress-bar__track--dragging {
+    .str-chat__wave-progress-bar__progress-indicator {
+      transition: none;
+    }
+
+    .str-chat__wave-progress-bar__amplitude-bar {
+      transition: none;
+    }
   }
 
   .str-chat__wave-progress-bar__track--playback-initiated {
