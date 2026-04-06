@@ -26,6 +26,7 @@ export default ({
       // creation date of a message with last_read_message_id
       last_read_at: '2023-12-15T11:49:21.667730943Z',
       last_read_message_id: 'SmithAnne-jeIYWT39L56bs79f10Hao',
+      total_unread_count: 19,
       type: 'notification.mark_unread',
       // number of all my channels with at least one unread message including the channel in this event
       unread_channels: 1,
