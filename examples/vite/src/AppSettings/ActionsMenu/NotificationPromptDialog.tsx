@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, PointerEvent as ReactPointerEvent, SetStateAction } from 'react';
 import type { NotificationSeverity } from 'stream-chat';
 import {
-  addNotificationTargetTag,
   IconArrowDown,
   IconArrowLeft,
   IconChevronRight,
@@ -19,7 +18,7 @@ import {
   NumericInput,
   Prompt,
   TextInput,
-  useChatContext,
+  useNotificationApi,
   useDialogIsOpen,
   useDialogOnNearestManager,
   type NotificationListEnterFrom,
@@ -307,7 +306,7 @@ export const NotificationPromptDialog = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const chipIdRef = useRef(0);
   const shellRef = useRef<HTMLDivElement | null>(null);
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const { dialog, dialogManager } = useDialogOnNearestManager({
     id: notificationPromptDialogId,
   });
@@ -362,26 +361,22 @@ export const NotificationPromptDialog = ({
     dialog.close();
   }, [dialog]);
 
-  const addNotification = useCallback(
+  const publishNotification = useCallback(
     (notification: QueuedNotification) => {
-      client.notifications.add({
+      addNotification({
+        actions: buildNotificationActions(notification),
+        context: {
+          entryDirection: notification.entryDirection,
+          panel: notification.targetPanel,
+        },
+        duration: notification.duration,
+        emitter: 'vite-preview/ActionsMenu',
         message: notification.message,
-        origin: {
-          context: {
-            entryDirection: notification.entryDirection,
-            panel: notification.targetPanel,
-          },
-          emitter: 'vite-preview/ActionsMenu',
-        },
-        options: {
-          actions: buildNotificationActions(notification),
-          duration: notification.duration,
-          severity: notification.severity,
-          tags: addNotificationTargetTag(notification.targetPanel),
-        },
+        severity: notification.severity,
+        targetPanels: [notification.targetPanel],
       });
     },
-    [client],
+    [addNotification],
   );
 
   const queueCurrentDraft = useCallback(() => {
@@ -406,9 +401,9 @@ export const NotificationPromptDialog = ({
   }, [draft]);
 
   const registerQueuedNotifications = useCallback(() => {
-    queuedNotifications.forEach(addNotification);
+    queuedNotifications.forEach(publishNotification);
     closeDialog();
-  }, [addNotification, closeDialog, queuedNotifications]);
+  }, [closeDialog, publishNotification, queuedNotifications]);
 
   const removeQueuedNotification = useCallback((id: string) => {
     setQueuedNotifications((current) => current.filter((item) => item.id !== id));

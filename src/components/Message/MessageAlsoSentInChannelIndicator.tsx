@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 
 import { IconArrowUpRight } from '../Icons';
-import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useNotificationApi } from '../Notifications';
 import {
   useChannelActionContext,
   useChannelStateContext,
-  useChatContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -15,12 +14,11 @@ import { formatMessage, type LocalMessage } from 'stream-chat';
  * Indicator shown when the message was also sent to the main channel (show_in_channel === true).
  */
 export const MessageAlsoSentInChannelIndicator = () => {
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();
   const { jumpToMessage, openThread } = useChannelActionContext();
   const { message, threadList } = useMessageContext('MessageAlsoSentInChannelIndicator');
-  const panel = useNotificationTarget();
   const targetMessageRef = useRef<LocalMessage | null | undefined>(undefined);
 
   const queryParent = () =>
@@ -34,17 +32,13 @@ export const MessageAlsoSentInChannelIndicator = () => {
         targetMessageRef.current = formatMessage(results[0].message);
       })
       .catch((error: Error) => {
-        client.notifications.addError({
+        addNotification({
+          context: { threadReply: message },
+          emitter: 'MessageIsThreadReplyInChannelButtonIndicator',
+          error,
           message: t('Thread has not been found'),
-          options: {
-            originalError: error,
-            tags: addNotificationTargetTag(panel),
-            type: 'api:reply:search:failed',
-          },
-          origin: {
-            context: { threadReply: message },
-            emitter: 'MessageIsThreadReplyInChannelButtonIndicator',
-          },
+          severity: 'error',
+          type: 'api:reply:search:failed',
         });
       });
 

@@ -25,7 +25,7 @@ import {
   useComponentContext,
   useMessageTranslationViewContext,
 } from '../../context';
-import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useNotificationApi } from '../Notifications';
 
 import { MessageUI as DefaultMessageUI } from './MessageUI';
 
@@ -213,21 +213,18 @@ export const Message = (props: MessageProps) => {
     sortReactions,
   } = props;
 
-  const { client } = useChatContext('Message');
+  const { addNotification } = useNotificationApi();
   const { highlightedMessageId, mutes } = useChannelStateContext('Message');
-  const panel = useNotificationTarget();
 
   const notify = useCallback(
     (text: string, type: 'success' | 'error') => {
-      const origin = { emitter: 'Message' };
-      const options = { tags: addNotificationTargetTag(panel) };
-      if (type === 'error') {
-        client.notifications.addError({ message: text, options, origin });
-      } else {
-        client.notifications.addSuccess({ message: text, options, origin });
-      }
+      addNotification({
+        emitter: 'Message',
+        message: text,
+        severity: type,
+      });
     },
-    [client, panel],
+    [addNotification],
   );
 
   const handleAction = useActionHandler(message);

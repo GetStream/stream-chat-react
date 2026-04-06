@@ -4,8 +4,8 @@ import type { AudioPlayerOptions } from './AudioPlayer';
 import type { AudioPlayerPoolState } from './AudioPlayerPool';
 import { AudioPlayerPool } from './AudioPlayerPool';
 import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNotificationsPlugin';
-import { useNotificationTarget } from '../Notifications';
-import { useChatContext, useTranslationContext } from '../../context';
+import { useNotificationApi, useNotificationTarget } from '../Notifications';
+import { useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 
 export type WithAudioPlaybackProps = {
@@ -67,7 +67,7 @@ export const useAudioPlayer = ({
   title,
   waveformData,
 }: UseAudioPlayerProps) => {
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const panel = useNotificationTarget();
   const { t } = useTranslationContext();
   const { audioPlayers } = useContext(AudioPlayerContext);
@@ -94,7 +94,7 @@ export const useAudioPlayer = ({
      * and instead provide plugin that takes care of translated notifications.
      */
     const notificationsPlugin = audioPlayerNotificationsPluginFactory({
-      client,
+      addNotification,
       panel,
       t,
     });
@@ -102,7 +102,7 @@ export const useAudioPlayer = ({
       ...currentPlugins.filter((plugin) => plugin.id !== notificationsPlugin.id),
       notificationsPlugin,
     ]);
-  }, [audioPlayer, client, panel, t]);
+  }, [addNotification, audioPlayer, panel, t]);
 
   return audioPlayer;
 };

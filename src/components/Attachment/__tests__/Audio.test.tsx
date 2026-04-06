@@ -12,6 +12,10 @@ import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
 
+const { addNotificationSpy } = vi.hoisted(() => ({
+  addNotificationSpy: vi.fn(),
+}));
+
 vi.mock('../../../context/ChatContext', () => ({
   useChatContext: () => ({ client: mockClient }),
 }));
@@ -19,12 +23,12 @@ vi.mock('../../../context/TranslationContext', () => ({
   useTranslationContext: () => ({ t: (s) => tSpy(s) }),
 }));
 vi.mock('../../Notifications', () => ({
+  useNotificationApi: () => ({ addNotification: addNotificationSpy }),
   useNotificationTarget: () => 'channel',
 }));
 
-const addErrorSpy = vi.fn();
 const mockClient = {
-  notifications: { addError: addErrorSpy },
+  notifications: { add: addNotificationSpy },
 };
 const tSpy = (s) => s;
 
@@ -75,8 +79,8 @@ const clickToPause = async () => {
 };
 
 const expectAddErrorMessage = (message) => {
-  expect(addErrorSpy).toHaveBeenCalled();
-  const hit = addErrorSpy.mock.calls.find((c) => c?.[0]?.message === message);
+  expect(addNotificationSpy).toHaveBeenCalled();
+  const hit = addNotificationSpy.mock.calls.find((c) => c?.[0]?.message === message);
   expect(hit).toBeTruthy();
 };
 
@@ -161,7 +165,7 @@ describe('Audio', () => {
     await clickToPause();
     expect(playButton()).toBeInTheDocument();
 
-    expect(addErrorSpy).not.toHaveBeenCalled();
+    expect(addNotificationSpy).not.toHaveBeenCalled();
     audioPausedMock.mockRestore();
   });
 
@@ -188,7 +192,7 @@ describe('Audio', () => {
       expect(pauseButton()).not.toBeInTheDocument();
     });
 
-    expect(addErrorSpy).not.toHaveBeenCalled();
+    expect(addNotificationSpy).not.toHaveBeenCalled();
 
     vi.useRealTimers();
   });

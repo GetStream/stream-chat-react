@@ -1,10 +1,9 @@
 import { useCallback } from 'react';
 import { MessageComposer } from 'stream-chat';
-import { useChatContext } from '../../../context/ChatContext';
 import { useMessageComposerController } from './useMessageComposerController';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
-import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
+import { useNotificationApi } from '../../Notifications';
 import { discardPreEditSnapshot } from '../preEditSnapshot';
 
 import type { MessageComposerProps } from '../MessageComposer';
@@ -31,10 +30,9 @@ const takeStateSnapshot = (messageComposer: MessageComposer) => {
 export const useSubmitHandler = (props: MessageComposerProps) => {
   const { overrideSubmitHandler } = props;
 
-  const { client } = useChatContext('useSubmitHandler');
+  const { addNotification } = useNotificationApi();
   const { editMessage, sendMessage } = useChannelActionContext('useSubmitHandler');
   const { t } = useTranslationContext('useSubmitHandler');
-  const panel = useNotificationTarget();
   const messageComposer = useMessageComposerController();
 
   const handleSubmit = useCallback(
@@ -51,10 +49,15 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
           discardPreEditSnapshot(messageComposer);
           messageComposer.clear();
         } catch (err) {
-          client.notifications.addError({
+          addNotification({
+            emitter: 'MessageComposer',
+            incident: {
+              domain: 'api',
+              entity: 'message',
+              operation: 'edit',
+            },
             message: t('Edit message request failed'),
-            options: { tags: addNotificationTargetTag(panel) },
-            origin: { emitter: 'MessageComposer' },
+            severity: 'error',
           });
         }
       } else {
@@ -86,15 +89,27 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
             await messageComposer.channel.stopTyping();
         } catch (err) {
           restoreComposerStateSnapshot();
-          client.notifications.addError({
+          addNotification({
+            emitter: 'MessageComposer',
+            incident: {
+              domain: 'api',
+              entity: 'message',
+              operation: 'send',
+            },
             message: t('Send message request failed'),
-            options: { tags: addNotificationTargetTag(panel) },
-            origin: { emitter: 'MessageComposer' },
+            severity: 'error',
           });
         }
       }
     },
-    [client, editMessage, messageComposer, overrideSubmitHandler, panel, sendMessage, t],
+    [
+      addNotification,
+      editMessage,
+      messageComposer,
+      overrideSubmitHandler,
+      sendMessage,
+      t,
+    ],
   );
 
   return { handleSubmit };

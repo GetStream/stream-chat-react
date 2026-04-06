@@ -20,16 +20,15 @@ import {
 } from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { ContextMenuButton, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
-import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useNotificationApi } from '../Notifications';
 import { ChannelListItemActionButtons } from './ChannelListItemActionButtons';
 
 const useMuteActionButtonBehavior = () => {
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const { channel } = useChannelListItemContext();
   const { t } = useTranslationContext();
   const { muted: isMuted } = useIsChannelMuted(channel);
   const [inProgress, setInProgress] = useState(false);
-  const panel = useNotificationTarget();
 
   return {
     'aria-pressed': isMuted,
@@ -44,17 +43,12 @@ const useMuteActionButtonBehavior = () => {
           await channel.mute();
         }
       } catch (error) {
-        client.notifications.addError({
+        addNotification({
+          emitter: ChannelListItemActionButtons.name,
+          error: error instanceof Error ? error : new Error('An unknown error occurred'),
           message: t('Failed to update channel mute status'),
-          options: {
-            originalError:
-              error instanceof Error ? error : new Error('An unknown error occurred'),
-            tags: addNotificationTargetTag(panel),
-            type: 'channelListItem:mute:failed',
-          },
-          origin: {
-            emitter: ChannelListItemActionButtons.name,
-          },
+          severity: 'error',
+          type: 'channelListItem:mute:failed',
         });
       } finally {
         setInProgress(false);
@@ -66,11 +60,10 @@ const useMuteActionButtonBehavior = () => {
 
 const useArchiveActionButtonBehavior = () => {
   const { channel } = useChannelListItemContext();
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
   const [inProgress, setInProgress] = useState(false);
-  const panel = useNotificationTarget();
 
   return {
     'aria-pressed': typeof membership.archived_at === 'string',
@@ -85,17 +78,12 @@ const useArchiveActionButtonBehavior = () => {
           await channel.archive();
         }
       } catch (error) {
-        client.notifications.addError({
+        addNotification({
+          emitter: ChannelListItemActionButtons.name,
+          error: error instanceof Error ? error : new Error('An unknown error occurred'),
           message: t('Failed to update channel archive status'),
-          options: {
-            originalError:
-              error instanceof Error ? error : new Error('An unknown error occurred'),
-            tags: addNotificationTargetTag(panel),
-            type: 'channelListItem:archive:failed',
-          },
-          origin: {
-            emitter: ChannelListItemActionButtons.name,
-          },
+          severity: 'error',
+          type: 'channelListItem:archive:failed',
         });
       } finally {
         setInProgress(false);
@@ -226,11 +214,11 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
   {
     Component() {
       const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
       const { channel } = useChannelListItemContext();
       const [inProgress, setInProgress] = useState(false);
       const members = useChannelMembersState(channel);
-      const panel = useNotificationTarget();
       const isUserBanned = Object.values(members || {}).some(
         (member) => member.user?.id !== client.userID && member.banned,
       );
@@ -258,19 +246,13 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
                 await channel.banUser(otherUserId, {});
               }
             } catch (error) {
-              client.notifications.addError({
+              addNotification({
+                emitter: ChannelListItemActionButtons.name,
+                error:
+                  error instanceof Error ? error : new Error('An unknown error occurred'),
                 message: t('Failed to block user'),
-                options: {
-                  originalError:
-                    error instanceof Error
-                      ? error
-                      : new Error('An unknown error occurred'),
-                  tags: addNotificationTargetTag(panel),
-                  type: 'channelListItem:ban:failed',
-                },
-                origin: {
-                  emitter: ChannelListItemActionButtons.name,
-                },
+                severity: 'error',
+                type: 'channelListItem:ban:failed',
               });
             } finally {
               setInProgress(false);
@@ -287,7 +269,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
   {
     Component() {
       const { t } = useTranslationContext();
-      const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
       const { channel } = useChannelListItemContext();
       const membership = useChannelMembershipState(channel);
       const dialogId = ChannelListItemActionButtons.getDialogId(
@@ -296,7 +278,6 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       );
       const { dialog } = useDialogOnNearestManager({ id: dialogId });
       const [inProgress, setInProgress] = useState(false);
-      const panel = useNotificationTarget();
 
       const title = membership.pinned_at ? t('Unpin') : t('Pin');
 
@@ -317,16 +298,12 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               }
             } catch (e) {
               error = e instanceof Error ? e : new Error('An unknown error occurred');
-              client.notifications.addError({
+              addNotification({
+                emitter: ChannelListItemActionButtons.name,
+                error,
                 message: t('Failed to update channel pinned status'),
-                options: {
-                  originalError: error,
-                  tags: addNotificationTargetTag(panel),
-                  type: 'channelListItem:pin:failed',
-                },
-                origin: {
-                  emitter: ChannelListItemActionButtons.name,
-                },
+                severity: 'error',
+                type: 'channelListItem:pin:failed',
               });
             } finally {
               if (!error) dialog?.close();
@@ -347,8 +324,8 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
       const { t } = useTranslationContext();
       const { channel } = useChannelListItemContext();
       const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
       const [inProgress, setInProgress] = useState(false);
-      const panel = useNotificationTarget();
 
       const title = t('Leave Channel');
 
@@ -364,19 +341,13 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               await channel.removeMembers([client.userID!]);
             } catch (error) {
-              client.notifications.addError({
+              addNotification({
+                emitter: ChannelListItemActionButtons.name,
+                error:
+                  error instanceof Error ? error : new Error('An unknown error occurred'),
                 message: t('Failed to leave channel'),
-                options: {
-                  originalError:
-                    error instanceof Error
-                      ? error
-                      : new Error('An unknown error occurred'),
-                  tags: addNotificationTargetTag(panel),
-                  type: 'channelListItem:leave:failed',
-                },
-                origin: {
-                  emitter: ChannelListItemActionButtons.name,
-                },
+                severity: 'error',
+                type: 'channelListItem:leave:failed',
               });
             } finally {
               setInProgress(false);

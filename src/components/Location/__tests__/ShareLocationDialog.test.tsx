@@ -28,8 +28,9 @@ vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
   }),
 }));
 
-vi.mock('../../Notifications', () => ({
-  addNotificationTargetTag: vi.fn((panel) => ({ panel })),
+vi.mock('../../Notifications', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
+  useNotificationApi: vi.fn().mockReturnValue({ addNotification: vi.fn() }),
   useNotificationTarget: vi.fn().mockReturnValue('channel'),
 }));
 

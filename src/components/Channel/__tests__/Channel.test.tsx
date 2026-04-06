@@ -1339,7 +1339,7 @@ describe('Channel', () => {
           }
         }
 
-        const addErrorSpy = vi.spyOn(chatClient.notifications, 'addError');
+        const addErrorSpy = vi.spyOn(chatClient.notifications, 'add');
         let hasJumped: boolean;
         let highlightedMessageId: string;
         let channelUnreadUiStateAfterJump: ChannelUnreadUiState | undefined;
@@ -1558,7 +1558,7 @@ describe('Channel', () => {
             ],
             customUser: user,
           });
-          const addErrorSpy = vi.spyOn(chatClient.notifications, 'addError');
+          const addErrorSpy = vi.spyOn(chatClient.notifications, 'add');
           let hasJumped: boolean;
           let hasMoreMessages: boolean;
           let highlightedMessageId: string;

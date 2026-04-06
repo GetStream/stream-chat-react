@@ -1,18 +1,15 @@
 import type { AudioPlayerPlugin } from './AudioPlayerPlugin';
 import { type AudioPlayerErrorCode } from '../AudioPlayer';
-import type { StreamChat } from 'stream-chat';
 import type { TFunction } from 'i18next';
-import {
-  addNotificationTargetTag,
-  type NotificationTargetPanel,
-} from '../../Notifications/notificationTarget';
+import type { AddNotification } from '../../Notifications/hooks/useNotificationApi';
+import type { NotificationTargetPanel } from '../../Notifications/notificationTarget';
 
 export const audioPlayerNotificationsPluginFactory = ({
-  client,
+  addNotification,
   panel = 'channel',
   t,
 }: {
-  client: StreamChat;
+  addNotification: AddNotification;
   panel?: NotificationTargetPanel;
   t: TFunction;
 }): AudioPlayerPlugin => {
@@ -32,16 +29,13 @@ export const audioPlayerNotificationsPluginFactory = ({
         e ??
         new Error(t('Error reproducing the recording'));
 
-      client?.notifications.addError({
+      addNotification({
+        emitter: 'AudioPlayer',
+        error,
         message: error.message,
-        options: {
-          originalError: error,
-          tags: addNotificationTargetTag(panel),
-          type: 'browser:audio:playback:error',
-        },
-        origin: {
-          emitter: 'AudioPlayer',
-        },
+        severity: 'error',
+        targetPanels: [panel],
+        type: 'browser:audio:playback:error',
       });
     },
   };

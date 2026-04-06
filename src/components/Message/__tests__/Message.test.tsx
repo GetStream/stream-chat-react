@@ -404,7 +404,7 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const muteUser = vi.fn(() => Promise.resolve());
     const userMutedNotification = 'User muted!';
     const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
@@ -435,7 +435,7 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: bob });
     const defaultSuccessMessage = '{{ user }} has been muted';
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const muteUser = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
@@ -463,7 +463,7 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const addErrorSpy = vi.spyOn(client.notifications, 'add');
     const muteUser = vi.fn(() => Promise.reject());
     const userMutedFailNotification = 'User mute failed!';
     const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
@@ -493,7 +493,7 @@ describe('<Message /> component', () => {
   it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const addErrorSpy = vi.spyOn(client.notifications, 'add');
     const muteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error muting a user ...';
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
@@ -521,7 +521,7 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const unmuteUser = vi.fn(() => Promise.resolve());
     const userUnmutedNotification = 'User unmuted!';
     const getMuteUserSuccessNotification = vi.fn(() => userUnmutedNotification);
@@ -552,7 +552,7 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const unmuteUser = vi.fn(() => Promise.resolve());
     const defaultSuccessNotification = '{{ user }} has been unmuted';
     // @ts-expect-error - mock implementation has simplified signature
@@ -581,7 +581,7 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with custom error message when it fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const addErrorSpy = vi.spyOn(client.notifications, 'add');
     const unmuteUser = vi.fn(() => Promise.reject());
     const userMutedFailNotification = 'User muted failed!';
     const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
@@ -611,7 +611,7 @@ describe('<Message /> component', () => {
   it('should allow to unmute a user and notify with default error message when it fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const addErrorSpy = vi.spyOn(client.notifications, 'add');
     const unmuteUser = vi.fn(() => Promise.reject());
     const defaultFailNotification = 'Error unmuting a user ...';
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
@@ -804,7 +804,7 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const flagMessage = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
@@ -834,7 +834,7 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with default success notification when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'addSuccess');
+    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const flagMessage = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
@@ -862,7 +862,7 @@ describe('<Message /> component', () => {
   it('should allow to flag a message and notify with custom error message when it fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const addErrorSpy = vi.spyOn(client.notifications, 'add');
     const flagMessage = vi.fn(() => Promise.reject());
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
     const messageFlagFailedNotification = 'Message flagged failed!';
@@ -891,7 +891,7 @@ describe('<Message /> component', () => {
   it('should allow to flag a user and notify with default error message when it fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'addError');
+    const addErrorSpy = vi.spyOn(client.notifications, 'add');
     const flagMessage = vi.fn(() => Promise.reject());
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
     const defaultFlagMessageFailedNotification = 'Error adding flag';

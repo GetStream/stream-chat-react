@@ -51,6 +51,12 @@ export type AddNotificationParams = {
   type?: string;
 };
 
+export type AddNotification = (params: AddNotificationParams) => void;
+
+export type NotificationApi = {
+  addNotification: AddNotification;
+};
+
 const getTargetTags = (
   targetPanels: NotificationTargetPanel[] | undefined,
   inferredPanel: NotificationTargetPanel | undefined,
@@ -82,11 +88,11 @@ const getTypeFromIncident = ({
     .join(':');
 };
 
-export const useNotificationApi = () => {
+export const useNotificationApi = (): NotificationApi => {
   const { client } = useChatContext();
   const inferredPanel = useNotificationTarget();
 
-  const addNotification = useCallback(
+  const addNotification: AddNotification = useCallback(
     ({
       actions,
       context,

@@ -28,7 +28,7 @@ import {
 import { isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { savePreEditSnapshot } from '../MessageComposer/preEditSnapshot';
-import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useNotificationApi } from '../Notifications';
 import { useMessageReminder } from '../Message/hooks/useMessageReminder';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
@@ -305,10 +305,9 @@ const DefaultMessageActionComponents = {
     },
     Delete() {
       const { closeMenu } = useContextMenuContext();
-      const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
       const { Modal = GlobalModal } = useComponentContext();
       const { handleDelete } = useMessageContext();
-      const panel = useNotificationTarget();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
 
@@ -334,12 +333,15 @@ const DefaultMessageActionComponents = {
               onDelete={async () => {
                 try {
                   await handleDelete();
-                  client.notifications.addSuccess({
-                    message: t('Message deleted'),
-                    options: {
-                      tags: addNotificationTargetTag(panel),
+                  addNotification({
+                    emitter: 'MessageActions',
+                    incident: {
+                      domain: 'message',
+                      entity: 'delete',
+                      operation: 'delete',
                     },
-                    origin: { emitter: 'MessageActions' },
+                    message: t('Message deleted'),
+                    severity: 'success',
                   });
                 } catch {
                   // Error notification is handled by useDeleteHandler.
