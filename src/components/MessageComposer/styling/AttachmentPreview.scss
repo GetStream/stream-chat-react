@@ -76,10 +76,6 @@
 
   --str-chat__attachment-preview-file-fatal-error-color: var(--color-accent-error);
 
-  .str-chat__attachment-upload-progress {
-    color: var(--str-chat__primary-color);
-  }
-
   .str-chat__message-composer-voice-preview-slot {
     display: flex;
     align-items: center;
@@ -222,7 +218,6 @@
       inset-inline-start: var(--spacing-xxs);
       bottom: var(--spacing-xxs);
       border-radius: var(--radius-max);
-      border-radius: var(--radius-max);
       background: var(--background-core-elevation-0);
       color: var(--accent-primary);
     }
@@ -238,12 +233,6 @@
       border-radius: var(--radius-max);
       background: var(--badge-bg-error);
       color: var(--badge-text-on-accent);
-    }
-
-    .str-chat__attachment-upload-progress {
-      border: none;
-      border-radius: 0;
-      background: transparent;
     }
   }
 
@@ -298,6 +287,7 @@
       .str-chat__attachment-upload-progress {
         width: var(--icon-size-sm);
         height: var(--icon-size-sm);
+        color: var(--accent-primary);
       }
 
       .str-chat__attachment-preview-file__upload-size-fraction {
