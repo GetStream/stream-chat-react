@@ -84,7 +84,7 @@ describe('useNotificationApi', () => {
       severity: 'error',
       tags: ['custom-tag'],
       targetPanels: ['thread', 'channel-list'],
-      type: 'channelListItem:mute:failed',
+      type: 'api:channel:mute:failed',
     });
 
     expect(add).toHaveBeenCalledWith({
@@ -92,7 +92,7 @@ describe('useNotificationApi', () => {
       options: {
         severity: 'error',
         tags: ['target:thread', 'target:channel-list', 'custom-tag'],
-        type: 'channelListItem:mute:failed',
+        type: 'api:channel:mute:failed',
       },
       origin: { emitter: 'ChannelListItemActionButtons' },
     });

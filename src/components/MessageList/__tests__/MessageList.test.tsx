@@ -1394,37 +1394,37 @@ describe('MessageList', () => {
   });
 
   describe('props forwarded to Message', () => {
-    it.each([
-      ['getMarkMessageUnreadErrorNotification'],
-      ['getMarkMessageUnreadSuccessNotification'],
-    ])('calls %s', async (funcName) => {
-      const markUnreadSpy = vi.spyOn(channel, 'markUnread');
-      if (funcName === 'getMarkMessageUnreadErrorNotification')
-        markUnreadSpy.mockRejectedValueOnce(undefined!);
+    it.each([[true], [false]])(
+      'invokes handleMarkUnread from Message context (shouldFail: %s)',
+      async (shouldFail) => {
+        const markUnreadSpy = vi.spyOn(channel, 'markUnread');
+        if (shouldFail) markUnreadSpy.mockRejectedValueOnce(undefined!);
 
-      const message = generateMessage();
-      const notificationFunc = vi.fn();
-      const Message = () => {
-        const { handleMarkUnread } = useMessageContext();
-        useEffect(() => {
-          const event = fromPartial<React.BaseSyntheticEvent>({
-            preventDefault: () => null,
+        const message = generateMessage();
+        const Message = () => {
+          const { handleMarkUnread } = useMessageContext();
+          useEffect(() => {
+            const event = fromPartial<React.BaseSyntheticEvent>({
+              preventDefault: () => null,
+            });
+            void handleMarkUnread(event).catch(() => undefined);
+          }, [handleMarkUnread]);
+          return null;
+        };
+
+        await act(() => {
+          renderComponent({
+            channelProps: { channel },
+            chatClient,
+            msgListProps: { Message, messages: [message] },
           });
-          handleMarkUnread(event);
-        }, [handleMarkUnread]);
-        return null;
-      };
-
-      await act(() => {
-        renderComponent({
-          channelProps: { channel },
-          chatClient,
-          msgListProps: { [funcName]: notificationFunc, Message, messages: [message] },
         });
-      });
 
-      expect(notificationFunc).toHaveBeenCalledWith(expect.objectContaining(message));
-    });
+        expect(markUnreadSpy).toHaveBeenCalledWith(
+          expect.objectContaining({ message_id: message.id }),
+        );
+      },
+    );
   });
 
   describe('list wrapper and list item overrides', () => {

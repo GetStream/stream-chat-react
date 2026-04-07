@@ -401,41 +401,9 @@ describe('<Message /> component', () => {
     expect(onUserHoverMock).toHaveBeenCalledWith(mouseEventMock, message.user);
   });
 
-  it('should allow to mute a user and notify with custom success notification when it is successful', async () => {
+  it('should allow to mute a user when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
-    const muteUser = vi.fn(() => Promise.resolve());
-    const userMutedNotification = 'User muted!';
-    const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
-    // @ts-expect-error - mock implementation has simplified signature
-    vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { mutes: [] },
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-      props: { getMuteUserSuccessNotification },
-    });
-
-    await context.handleMute(mouseEventMock);
-
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addSuccessSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: userMutedNotification }),
-    );
-    addSuccessSpy.mockRestore();
-  });
-
-  it('should allow to mute a user and notify with default success notification when it is successful', async () => {
-    const message = generateMessage({ user: bob });
-    const defaultSuccessMessage = '{{ user }} has been muted';
-    const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const muteUser = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
@@ -448,54 +416,17 @@ describe('<Message /> component', () => {
         context = ctx;
       },
       message,
-      render,
     });
 
     await context.handleMute(mouseEventMock);
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addSuccessSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: defaultSuccessMessage }),
-    );
-    addSuccessSpy.mockRestore();
   });
 
-  it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
+  it('should throw when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'add');
-    const muteUser = vi.fn(() => Promise.reject());
-    const userMutedFailNotification = 'User mute failed!';
-    const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
-    vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { mutes: [] },
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-      props: { getMuteUserErrorNotification },
-      render,
-    });
-
-    await context.handleMute(mouseEventMock);
-
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: userMutedFailNotification }),
-    );
-    addErrorSpy.mockRestore();
-  });
-
-  it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
-    const message = generateMessage({ user: bob });
-    const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'add');
-    const muteUser = vi.fn(() => Promise.reject());
-    const defaultFailNotification = 'Error muting a user ...';
+    const muteUser = vi.fn(() => Promise.reject(new Error('mute failed')));
     vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
     let context: MessageContextValue;
 
@@ -509,52 +440,15 @@ describe('<Message /> component', () => {
       render,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('mute failed');
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(addErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: defaultFailNotification }),
-    );
-    addErrorSpy.mockRestore();
   });
 
-  it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
+  it('should allow to unmute a user when it is successful', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const unmuteUser = vi.fn(() => Promise.resolve());
-    const userUnmutedNotification = 'User unmuted!';
-    const getMuteUserSuccessNotification = vi.fn(() => userUnmutedNotification);
-    // @ts-expect-error - mock implementation has simplified signature
-    vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-      props: { getMuteUserSuccessNotification },
-      render,
-    });
-
-    await context.handleMute(mouseEventMock);
-
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addSuccessSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: userUnmutedNotification }),
-    );
-    addSuccessSpy.mockRestore();
-  });
-
-  it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
-    const message = generateMessage({ user: bob });
-    const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
-    const unmuteUser = vi.fn(() => Promise.resolve());
-    const defaultSuccessNotification = '{{ user }} has been unmuted';
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
     let context: MessageContextValue;
@@ -572,48 +466,12 @@ describe('<Message /> component', () => {
     await context.handleMute(mouseEventMock);
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addSuccessSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: defaultSuccessNotification }),
-    );
-    addSuccessSpy.mockRestore();
   });
 
-  it('should allow to unmute a user and notify with custom error message when it fails', async () => {
+  it('should throw when unmuting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'add');
-    const unmuteUser = vi.fn(() => Promise.reject());
-    const userMutedFailNotification = 'User muted failed!';
-    const getMuteUserErrorNotification = vi.fn(() => userMutedFailNotification);
-    vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-      props: { getMuteUserErrorNotification },
-      render,
-    });
-
-    await context.handleMute(mouseEventMock);
-
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: userMutedFailNotification }),
-    );
-    addErrorSpy.mockRestore();
-  });
-
-  it('should allow to unmute a user and notify with default error message when it fails', async () => {
-    const message = generateMessage({ user: bob });
-    const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'add');
-    const unmuteUser = vi.fn(() => Promise.reject());
-    const defaultFailNotification = 'Error unmuting a user ...';
+    const unmuteUser = vi.fn(() => Promise.reject(new Error('unmute failed')));
     vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
     let context: MessageContextValue;
 
@@ -627,13 +485,9 @@ describe('<Message /> component', () => {
       render,
     });
 
-    await context.handleMute(mouseEventMock);
+    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(addErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: defaultFailNotification }),
-    );
-    addErrorSpy.mockRestore();
   });
 
   it.each([
@@ -801,15 +655,12 @@ describe('<Message /> component', () => {
     expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.mute);
   });
 
-  it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
+  it('should allow to flag a message when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
     const flagMessage = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
-    const messageFlaggedNotification = 'Message flagged!';
-    const getFlagMessageSuccessNotification = vi.fn(() => messageFlaggedNotification);
     let context: MessageContextValue;
 
     await renderComponent({
@@ -818,27 +669,19 @@ describe('<Message /> component', () => {
         context = ctx;
       },
       message,
-      props: { getFlagMessageSuccessNotification },
       render,
     });
 
     await context.handleFlag(mouseEventMock);
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addSuccessSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: messageFlaggedNotification }),
-    );
-    addSuccessSpy.mockRestore();
   });
 
-  it('should allow to flag a message and notify with default success notification when it is successful', async () => {
+  it('should throw when flagging a message fails', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
-    const addSuccessSpy = vi.spyOn(client.notifications, 'add');
-    const flagMessage = vi.fn(() => Promise.resolve());
-    // @ts-expect-error - mock implementation has simplified signature
+    const flagMessage = vi.fn(() => Promise.reject(new Error('flag failed')));
     vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
-    const defaultSuccessNotification = 'Message has been successfully flagged';
     let context: MessageContextValue;
 
     await renderComponent({
@@ -850,69 +693,9 @@ describe('<Message /> component', () => {
       render,
     });
 
-    await context.handleFlag(mouseEventMock);
+    await expect(context.handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addSuccessSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: defaultSuccessNotification }),
-    );
-    addSuccessSpy.mockRestore();
-  });
-
-  it('should allow to flag a message and notify with custom error message when it fails', async () => {
-    const message = generateMessage();
-    const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'add');
-    const flagMessage = vi.fn(() => Promise.reject());
-    vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
-    const messageFlagFailedNotification = 'Message flagged failed!';
-    const getFlagMessageErrorNotification = vi.fn(() => messageFlagFailedNotification);
-    let context: MessageContextValue;
-
-    await renderComponent({
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-      props: { getFlagMessageErrorNotification },
-      render,
-    });
-
-    await context.handleFlag(mouseEventMock);
-
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: messageFlagFailedNotification }),
-    );
-    addErrorSpy.mockRestore();
-  });
-
-  it('should allow to flag a user and notify with default error message when it fails', async () => {
-    const message = generateMessage();
-    const client = await getTestClientWithUser(alice);
-    const addErrorSpy = vi.spyOn(client.notifications, 'add');
-    const flagMessage = vi.fn(() => Promise.reject());
-    vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
-    const defaultFlagMessageFailedNotification = 'Error adding flag';
-    let context: MessageContextValue;
-
-    await renderComponent({
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-      render,
-    });
-
-    await context.handleFlag(mouseEventMock);
-
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(addErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: defaultFlagMessageFailedNotification }),
-    );
-    addErrorSpy.mockRestore();
   });
 
   it('should allow user to pin messages when permissions allow', async () => {

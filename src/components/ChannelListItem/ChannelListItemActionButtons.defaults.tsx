@@ -39,16 +39,37 @@ const useMuteActionButtonBehavior = () => {
         setInProgress(true);
         if (isMuted) {
           await channel.unmute();
+          addNotification({
+            context: {
+              channel,
+            },
+            emitter: ChannelListItemActionButtons.name,
+            message: t('Channel unmuted'),
+            severity: 'success',
+            type: 'api:channel:unmute:success',
+          });
         } else {
           await channel.mute();
+          addNotification({
+            context: {
+              channel,
+            },
+            emitter: ChannelListItemActionButtons.name,
+            message: t('Channel muted'),
+            severity: 'success',
+            type: 'api:channel:mute:success',
+          });
         }
       } catch (error) {
         addNotification({
+          context: {
+            channel,
+          },
           emitter: ChannelListItemActionButtons.name,
           error: error instanceof Error ? error : new Error('An unknown error occurred'),
           message: t('Failed to update channel mute status'),
           severity: 'error',
-          type: 'channelListItem:mute:failed',
+          type: 'api:channel:mute:failed',
         });
       } finally {
         setInProgress(false);
@@ -74,16 +95,37 @@ const useArchiveActionButtonBehavior = () => {
         setInProgress(true);
         if (membership.archived_at) {
           await channel.unarchive();
+          addNotification({
+            context: {
+              channel,
+            },
+            emitter: ChannelListItemActionButtons.name,
+            message: t('Channel unarchived'),
+            severity: 'success',
+            type: 'api:channel:unarchive:success',
+          });
         } else {
           await channel.archive();
+          addNotification({
+            context: {
+              channel,
+            },
+            emitter: ChannelListItemActionButtons.name,
+            message: t('Channel archived'),
+            severity: 'success',
+            type: 'api:channel:archive:success',
+          });
         }
       } catch (error) {
         addNotification({
+          context: {
+            channel,
+          },
           emitter: ChannelListItemActionButtons.name,
           error: error instanceof Error ? error : new Error('An unknown error occurred'),
           message: t('Failed to update channel archive status'),
           severity: 'error',
-          type: 'channelListItem:archive:failed',
+          type: 'api:channel:archive:failed',
         });
       } finally {
         setInProgress(false);
@@ -242,17 +284,38 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
 
               if (isUserBanned) {
                 await channel.unbanUser(otherUserId);
+                addNotification({
+                  context: {
+                    channel,
+                  },
+                  emitter: ChannelListItemActionButtons.name,
+                  message: t('User unblocked'),
+                  severity: 'success',
+                  type: 'api:user:unban:success',
+                });
               } else {
                 await channel.banUser(otherUserId, {});
+                addNotification({
+                  context: {
+                    channel,
+                  },
+                  emitter: ChannelListItemActionButtons.name,
+                  message: t('User blocked'),
+                  severity: 'success',
+                  type: 'api:user:ban:success',
+                });
               }
             } catch (error) {
               addNotification({
+                context: {
+                  channel,
+                },
                 emitter: ChannelListItemActionButtons.name,
                 error:
                   error instanceof Error ? error : new Error('An unknown error occurred'),
                 message: t('Failed to block user'),
                 severity: 'error',
-                type: 'channelListItem:ban:failed',
+                type: 'api:user:ban:failed',
               });
             } finally {
               setInProgress(false);
@@ -293,17 +356,38 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               setInProgress(true);
               if (membership.pinned_at) {
                 await channel.unpin();
+                addNotification({
+                  context: {
+                    channel,
+                  },
+                  emitter: ChannelListItemActionButtons.name,
+                  message: t('Channel unpinned'),
+                  severity: 'success',
+                  type: 'api:channel:unpin:success',
+                });
               } else {
                 await channel.pin();
+                addNotification({
+                  context: {
+                    channel,
+                  },
+                  emitter: ChannelListItemActionButtons.name,
+                  message: t('Channel pinned'),
+                  severity: 'success',
+                  type: 'api:channel:pin:success',
+                });
               }
             } catch (e) {
               error = e instanceof Error ? e : new Error('An unknown error occurred');
               addNotification({
+                context: {
+                  channel,
+                },
                 emitter: ChannelListItemActionButtons.name,
                 error,
                 message: t('Failed to update channel pinned status'),
                 severity: 'error',
-                type: 'channelListItem:pin:failed',
+                type: 'api:channel:pin:failed',
               });
             } finally {
               if (!error) dialog?.close();
@@ -340,14 +424,26 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
               setInProgress(true);
               // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               await channel.removeMembers([client.userID!]);
+              addNotification({
+                context: {
+                  channel,
+                },
+                emitter: ChannelListItemActionButtons.name,
+                message: t('Left channel'),
+                severity: 'success',
+                type: 'api:channel:leave:success',
+              });
             } catch (error) {
               addNotification({
+                context: {
+                  channel,
+                },
                 emitter: ChannelListItemActionButtons.name,
                 error:
                   error instanceof Error ? error : new Error('An unknown error occurred'),
                 message: t('Failed to leave channel'),
                 severity: 'error',
-                type: 'channelListItem:leave:failed',
+                type: 'api:channel:leave:failed',
               });
             } finally {
               setInProgress(false);

@@ -52,6 +52,19 @@ import { DeleteMessageAlert } from './DeleteMessageAlert';
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error && error.message ? error.message : fallback;
+
+const getNotificationError = (error: unknown): Error | undefined => {
+  if (error instanceof Error) return error;
+  if (typeof error === 'string') return new Error(error);
+  if (error && typeof error === 'object' && 'message' in error) {
+    const message = error.message;
+    if (typeof message === 'string') return new Error(message);
+  }
+  return undefined;
+};
+
 const DefaultMessageActionComponents = {
   dropdown: {
     ThreadReply() {
@@ -110,6 +123,7 @@ const DefaultMessageActionComponents = {
     Pin() {
       const { closeMenu } = useContextMenuContext();
       const { handlePin, message } = useMessageContext();
+      const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
       const isPinned = !!message.pinned;
       return (
@@ -117,8 +131,33 @@ const DefaultMessageActionComponents = {
           aria-label={isPinned ? t('aria/Unpin Message') : t('aria/Pin Message')}
           className={msgActionsBoxButtonClassName}
           Icon={isPinned ? IconUnpin : IconPin}
-          onClick={(event) => {
-            handlePin(event);
+          onClick={async (event) => {
+            try {
+              await handlePin(event);
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                message: isPinned ? t('Message unpinned') : t('Message pinned'),
+                severity: 'success',
+                type: isPinned ? 'api:message:unpin:success' : 'api:message:pin:success',
+              });
+            } catch (error) {
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                error: getNotificationError(error),
+                message: getErrorMessage(
+                  error,
+                  isPinned ? t('Error removing message pin') : t('Error pinning message'),
+                ),
+                severity: 'error',
+                type: isPinned ? 'api:message:unpin:failed' : 'api:message:pin:failed',
+              });
+            }
             closeMenu();
           }}
         >
@@ -187,7 +226,8 @@ const DefaultMessageActionComponents = {
     },
     MarkUnread() {
       const { closeMenu } = useContextMenuContext();
-      const { handleMarkUnread } = useMessageContext();
+      const { handleMarkUnread, message } = useMessageContext();
+      const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
 
       return (
@@ -195,8 +235,35 @@ const DefaultMessageActionComponents = {
           aria-label={t('aria/Mark Message Unread')}
           className={msgActionsBoxButtonClassName}
           Icon={IconNotification}
-          onClick={(event) => {
-            handleMarkUnread(event);
+          onClick={async (event) => {
+            try {
+              await handleMarkUnread(event);
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                message: t('Message marked as unread'),
+                severity: 'success',
+                type: 'api:message:markUnread:success',
+              });
+            } catch (error) {
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                error: getNotificationError(error),
+                message: getErrorMessage(
+                  error,
+                  t(
+                    'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
+                  ),
+                ),
+                severity: 'error',
+                type: 'api:message:markUnread:failed',
+              });
+            }
             closeMenu();
           }}
         >
@@ -207,6 +274,7 @@ const DefaultMessageActionComponents = {
     RemindMe() {
       const { closeMenu, openSubmenu } = useContextMenuContext();
       const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
       const { message } = useMessageContext();
       const reminder = useMessageReminder(message.id);
@@ -220,10 +288,33 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           hasSubMenu={!reminder}
           Icon={reminder ? IconBellOff : IconBell}
-          onClick={() => {
+          onClick={async () => {
             if (reminder) {
-              client.reminders.deleteReminder(reminder.id);
-              closeMenu();
+              try {
+                await client.reminders.deleteReminder(reminder.id);
+                addNotification({
+                  context: {
+                    message,
+                  },
+                  emitter: 'MessageActions',
+                  message: t('Remove reminder'),
+                  severity: 'success',
+                  type: 'api:message:reminder:delete:success',
+                });
+              } catch (error) {
+                addNotification({
+                  context: {
+                    message,
+                  },
+                  emitter: 'MessageActions',
+                  error: getNotificationError(error),
+                  message: getErrorMessage(error, 'Error removing reminder'),
+                  severity: 'error',
+                  type: 'api:message:reminder:delete:failed',
+                });
+              } finally {
+                closeMenu();
+              }
             } else {
               openSubmenu({
                 Header: RemindMeSubmenuHeader,
@@ -239,6 +330,7 @@ const DefaultMessageActionComponents = {
     SaveForLater() {
       const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const reminder = useMessageReminder(message.id);
@@ -253,10 +345,52 @@ const DefaultMessageActionComponents = {
           }
           className={msgActionsBoxButtonClassName}
           Icon={reminder ? IconUnsave : IconSave}
-          onClick={() => {
-            if (reminder) client.reminders.deleteReminder(reminder.id);
-            else client.reminders.createReminder({ messageId: message.id });
-            closeMenu();
+          onClick={async () => {
+            try {
+              if (reminder) {
+                await client.reminders.deleteReminder(reminder.id);
+                addNotification({
+                  context: {
+                    message,
+                  },
+                  emitter: 'MessageActions',
+                  message: t('Remove save for later'),
+                  severity: 'success',
+                  type: 'api:message:saveForLater:delete:success',
+                });
+              } else {
+                await client.reminders.createReminder({ messageId: message.id });
+                addNotification({
+                  context: {
+                    message,
+                  },
+                  emitter: 'MessageActions',
+                  message: t('Saved for later'),
+                  severity: 'success',
+                  type: 'api:message:saveForLater:create:success',
+                });
+              }
+            } catch (error) {
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                error: getNotificationError(error),
+                message: getErrorMessage(
+                  error,
+                  reminder
+                    ? 'Error removing message from saved for later'
+                    : 'Error saving message for later',
+                ),
+                severity: 'error',
+                type: reminder
+                  ? 'api:message:saveForLater:delete:failed'
+                  : 'api:message:saveForLater:create:failed',
+              });
+            } finally {
+              closeMenu();
+            }
           }}
         >
           {reminder ? t('Remove save for later') : t('Save for later')}
@@ -265,7 +399,8 @@ const DefaultMessageActionComponents = {
     },
     Flag() {
       const { closeMenu } = useContextMenuContext();
-      const { handleFlag } = useMessageContext();
+      const { handleFlag, message } = useMessageContext();
+      const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
 
       return (
@@ -273,8 +408,30 @@ const DefaultMessageActionComponents = {
           aria-label={t('aria/Flag Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconFlag}
-          onClick={(event) => {
-            handleFlag(event);
+          onClick={async (event) => {
+            try {
+              await handleFlag(event);
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                message: t('Message has been successfully flagged'),
+                severity: 'success',
+                type: 'api:message:flag:success',
+              });
+            } catch (error) {
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                error: getNotificationError(error),
+                message: getErrorMessage(error, t('Error adding flag')),
+                severity: 'error',
+                type: 'api:message:flag:failed',
+              });
+            }
             closeMenu();
           }}
         >
@@ -285,6 +442,7 @@ const DefaultMessageActionComponents = {
     Mute() {
       const { closeMenu } = useContextMenuContext();
       const { handleMute, message } = useMessageContext();
+      const { addNotification } = useNotificationApi();
       const { mutes } = useChatContext();
       const { t } = useTranslationContext();
 
@@ -294,8 +452,39 @@ const DefaultMessageActionComponents = {
           aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
           className={msgActionsBoxButtonClassName}
           Icon={isMuted ? IconAudio : IconMute}
-          onClick={(event) => {
-            handleMute(event);
+          onClick={async (event) => {
+            try {
+              await handleMute(event);
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                message: isMuted
+                  ? t('{{ user }} has been unmuted', {
+                      user: message.user?.name || message.user?.id,
+                    })
+                  : t('{{ user }} has been muted', {
+                      user: message.user?.name || message.user?.id,
+                    }),
+                severity: 'success',
+                type: isMuted ? 'api:user:unmute:success' : 'api:user:mute:success',
+              });
+            } catch (error) {
+              addNotification({
+                context: {
+                  message,
+                },
+                emitter: 'MessageActions',
+                error: getNotificationError(error),
+                message: getErrorMessage(
+                  error,
+                  isMuted ? t('Error unmuting a user ...') : t('Error muting a user ...'),
+                ),
+                severity: 'error',
+                type: isMuted ? 'api:user:unmute:failed' : 'api:user:mute:failed',
+              });
+            }
             closeMenu();
           }}
         >
@@ -307,7 +496,7 @@ const DefaultMessageActionComponents = {
       const { closeMenu } = useContextMenuContext();
       const { addNotification } = useNotificationApi();
       const { Modal = GlobalModal } = useComponentContext();
-      const { handleDelete } = useMessageContext();
+      const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
 
@@ -334,17 +523,25 @@ const DefaultMessageActionComponents = {
                 try {
                   await handleDelete();
                   addNotification({
-                    emitter: 'MessageActions',
-                    incident: {
-                      domain: 'message',
-                      entity: 'delete',
-                      operation: 'delete',
+                    context: {
+                      message,
                     },
+                    emitter: 'MessageActions',
                     message: t('Message deleted'),
                     severity: 'success',
+                    type: 'api:message:delete:success',
                   });
-                } catch {
-                  // Error notification is handled by useDeleteHandler.
+                } catch (error) {
+                  addNotification({
+                    context: {
+                      message,
+                    },
+                    emitter: 'MessageActions',
+                    error: getNotificationError(error),
+                    message: getErrorMessage(error, t('Error deleting message')),
+                    severity: 'error',
+                    type: 'api:message:delete:failed',
+                  });
                 } finally {
                   setOpenModal(false);
                   closeMenu();

@@ -25,7 +25,6 @@ import {
   useComponentContext,
   useMessageTranslationViewContext,
 } from '../../context';
-import { useNotificationApi } from '../Notifications';
 
 import { MessageUI as DefaultMessageUI } from './MessageUI';
 
@@ -193,15 +192,6 @@ export const Message = (props: MessageProps) => {
   const {
     closeReactionSelectorOnClick,
     disableQuotedMessages,
-    getDeleteMessageErrorNotification,
-    getFetchReactionsErrorNotification,
-    getFlagMessageErrorNotification,
-    getFlagMessageSuccessNotification,
-    getMarkMessageUnreadErrorNotification,
-    getMarkMessageUnreadSuccessNotification,
-    getMuteUserErrorNotification,
-    getMuteUserSuccessNotification,
-    getPinMessageErrorNotification,
     message,
     onlySenderCanEdit = false,
     onMentionsClick: propOnMentionsClick,
@@ -213,19 +203,7 @@ export const Message = (props: MessageProps) => {
     sortReactions,
   } = props;
 
-  const { addNotification } = useNotificationApi();
   const { highlightedMessageId, mutes } = useChannelStateContext('Message');
-
-  const notify = useCallback(
-    (text: string, type: 'success' | 'error') => {
-      addNotification({
-        emitter: 'Message',
-        message: text,
-        severity: type,
-      });
-    },
-    [addNotification],
-  );
 
   const handleAction = useActionHandler(message);
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
@@ -233,43 +211,22 @@ export const Message = (props: MessageProps) => {
   const handleRetry = useRetryHandler(propRetrySendMessage);
   const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
 
-  const handleFetchReactions = useReactionsFetcher(message, {
-    getErrorNotification: getFetchReactionsErrorNotification,
-    notify,
-  });
+  const handleFetchReactions = useReactionsFetcher(message);
 
-  const handleDelete = useDeleteHandler(message, {
-    getErrorNotification: getDeleteMessageErrorNotification,
-    notify,
-  });
+  const handleDelete = useDeleteHandler(message);
 
-  const handleFlag = useFlagHandler(message, {
-    getErrorNotification: getFlagMessageErrorNotification,
-    getSuccessNotification: getFlagMessageSuccessNotification,
-    notify,
-  });
+  const handleFlag = useFlagHandler(message);
 
-  const handleMarkUnread = useMarkUnreadHandler(message, {
-    getErrorNotification: getMarkMessageUnreadErrorNotification,
-    getSuccessNotification: getMarkMessageUnreadSuccessNotification,
-    notify,
-  });
+  const handleMarkUnread = useMarkUnreadHandler(message);
 
-  const handleMute = useMuteHandler(message, {
-    getErrorNotification: getMuteUserErrorNotification,
-    getSuccessNotification: getMuteUserSuccessNotification,
-    notify,
-  });
+  const handleMute = useMuteHandler(message);
 
   const { onMentionsClick, onMentionsHover } = useMentionsHandler(message, {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
   });
 
-  const { canPin, handlePin } = usePinHandler(message, pinPermissions, {
-    getErrorNotification: getPinMessageErrorNotification,
-    notify,
-  });
+  const { canPin, handlePin } = usePinHandler(message, pinPermissions);
 
   const highlighted = highlightedMessageId === message.id;
 

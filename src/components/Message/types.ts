@@ -29,24 +29,6 @@ export type MessageProps = {
   // todo: remove
   /** Override the default formatting of the date. This is a function that has access to the original date object, returns a string  */
   formatDate?: (date: Date) => string;
-  /** Function that returns the notification text to be displayed when a delete message request fails */
-  getDeleteMessageErrorNotification?: (message: LocalMessage) => string;
-  /** Function that returns the notification text to be displayed when loading message reactions fails */
-  getFetchReactionsErrorNotification?: (message: LocalMessage) => string;
-  /** Function that returns the notification text to be displayed when a flag message request fails */
-  getFlagMessageErrorNotification?: (message: LocalMessage) => string;
-  /** Function that returns the notification text to be displayed when a flag message request succeeds */
-  getFlagMessageSuccessNotification?: (message: LocalMessage) => string;
-  /** Function that returns the notification text to be displayed when mark channel messages unread request fails */
-  getMarkMessageUnreadErrorNotification?: (message: LocalMessage) => string;
-  /** Function that returns the notification text to be displayed when mark channel messages unread request succeeds */
-  getMarkMessageUnreadSuccessNotification?: (message: LocalMessage) => string;
-  /** Function that returns the notification text to be displayed when a mute user request fails */
-  getMuteUserErrorNotification?: (user: UserResponse) => string;
-  /** Function that returns the notification text to be displayed when a mute user request succeeds */
-  getMuteUserSuccessNotification?: (user: UserResponse) => string;
-  /** Function that returns the notification text to be displayed when a pin message request fails */
-  getPinMessageErrorNotification?: (message: LocalMessage) => string;
   /** A list of styles to apply to this message, i.e. top, bottom, single */
   groupStyles?: GroupStyle[];
   /** Whether to highlight and focus the message on load */
