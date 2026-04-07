@@ -20,7 +20,7 @@ export const AttachmentUploadProgressIndicator = ({
   const { ProgressIndicator = DefaultProgressIndicator } = useComponentContext();
 
   if (uploadProgress === undefined) {
-    return <>{fallback ?? <LoadingIndicatorIcon />}</>;
+    return <>{fallback ?? <LoadingIndicatorIcon data-testid='loading-indicator' />}</>;
   }
 
   return (
