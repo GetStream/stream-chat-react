@@ -5,24 +5,26 @@ import { useTranslationContext } from '../../context/TranslationContext';
 const RING_RADIUS = 12;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-export type ProgressIndicatorProps = {
+export type CircularProgressIndicatorProps = {
   /** Clamped 0–100 completion. */
   percent: number;
 };
 
 /** Circular progress indicator with input from 0 to 100. */
-export const ProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
-  const { t } = useTranslationContext('ProgressIndicator');
+export const CircularProgressIndicator = ({
+  percent,
+}: CircularProgressIndicatorProps) => {
+  const { t } = useTranslationContext('CircularProgressIndicator');
   const dashOffset = RING_CIRCUMFERENCE * (1 - percent / 100);
 
   return (
-    <div className='str-chat__progress-indicator'>
+    <div className='str-chat__circular-progress-indicator'>
       <svg
         aria-label={t('aria/Percent complete', { percent })}
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={percent}
-        data-testid='progress-ring'
+        data-testid='circular-progress-ring'
         height='100%'
         role='progressbar'
         viewBox='0 0 32 32'

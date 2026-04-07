@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React, { type ReactNode } from 'react';
 
-import { ProgressIndicator as DefaultProgressIndicator } from '../../Loading';
+import { CircularProgressIndicator as DefaultCircularProgressIndicator } from '../../Loading';
 import { useComponentContext } from '../../../context';
 import { LoadingIndicatorIcon } from '../icons';
 
@@ -17,7 +17,8 @@ export const AttachmentUploadProgressIndicator = ({
   fallback,
   uploadProgress,
 }: AttachmentUploadProgressIndicatorProps) => {
-  const { ProgressIndicator = DefaultProgressIndicator } = useComponentContext();
+  const { CircularProgressIndicator = DefaultCircularProgressIndicator } =
+    useComponentContext();
 
   if (uploadProgress === undefined) {
     return <>{fallback ?? <LoadingIndicatorIcon data-testid='loading-indicator' />}</>;
@@ -25,7 +26,7 @@ export const AttachmentUploadProgressIndicator = ({
 
   return (
     <div className={clsx('str-chat__attachment-upload-progress', className)}>
-      <ProgressIndicator percent={uploadProgress} />
+      <CircularProgressIndicator percent={uploadProgress} />
     </div>
   );
 };
