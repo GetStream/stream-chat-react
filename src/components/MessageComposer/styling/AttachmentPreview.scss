@@ -215,7 +215,7 @@
     }
 
     .str-chat__loading-indicator,
-    .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--overlay,
+    .str-chat__attachment-upload-progress,
     .str-chat__icon--exclamation-circle {
       width: var(--icon-size-sm);
       height: var(--icon-size-sm);
@@ -241,9 +241,10 @@
       color: var(--badge-text-on-accent);
     }
 
-    .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--overlay {
+    .str-chat__attachment-upload-progress {
       border: none;
       border-radius: 0;
+      background: transparent;
     }
   }
 
@@ -295,13 +296,9 @@
       line-height: var(--typography-line-height-tight);
 
       .str-chat__loading-indicator,
-      .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--inline {
+      .str-chat__attachment-upload-progress {
         width: var(--icon-size-sm);
         height: var(--icon-size-sm);
-      }
-
-      .str-chat__attachment-upload-progress.str-chat__attachment-upload-progress--inline {
-        flex-shrink: 0;
       }
 
       .str-chat__attachment-preview-file__upload-size-fraction {

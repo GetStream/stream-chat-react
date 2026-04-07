@@ -43,10 +43,7 @@ export const FileAttachmentPreview = ({
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
-            <AttachmentUploadProgressIndicator
-              uploadProgress={uploadProgress}
-              variant='inline'
-            />
+            <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
           )}
           <AttachmentUploadedSizeIndicator attachment={attachment} />
           {hasFatalError && (

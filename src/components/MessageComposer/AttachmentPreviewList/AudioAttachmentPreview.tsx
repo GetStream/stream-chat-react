@@ -10,7 +10,6 @@ import clsx from 'clsx';
 import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { FileSizeIndicator } from '../../Attachment';
 import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
@@ -95,10 +94,7 @@ export const AudioAttachmentPreview = ({
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
-            <AttachmentUploadProgressIndicator
-              uploadProgress={uploadProgress}
-              variant='inline'
-            />
+            <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
           )}
           {showProgressControls ? (
             <>

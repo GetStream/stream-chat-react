@@ -100,7 +100,6 @@ export const MediaAttachmentPreview = ({
             <AttachmentUploadProgressIndicator
               fallback={<LoadingIndicator />}
               uploadProgress={uploadProgress}
-              variant='overlay'
             />
           )}
 
