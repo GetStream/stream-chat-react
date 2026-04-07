@@ -194,7 +194,6 @@
       inset-inline-start: var(--str-chat__chat-view-selector-mobile-width, 0px);
       width: calc(100% - var(--str-chat__chat-view-selector-mobile-width, 0px));
     }
-
   }
 
   @media (prefers-reduced-motion: reduce) {
