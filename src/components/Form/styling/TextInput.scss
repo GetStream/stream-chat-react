@@ -131,7 +131,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    margin-right: calc(-1 * var(--space-4));
+    margin-inline-end: calc(-1 * var(--space-4));
     color: var(--input-text-icon);
 
     .str-chat__form-text-input--error & {

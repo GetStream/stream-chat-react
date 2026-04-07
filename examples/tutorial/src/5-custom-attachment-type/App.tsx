@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import type {
   Attachment as AttachmentType,
   Channel as StreamChannel,
-  ChannelFilters,
-  ChannelSort,
   User,
 } from 'stream-chat';
 import {
@@ -11,12 +9,11 @@ import {
   Chat,
   Channel,
   ChannelHeader,
-  ChannelList,
   MessageComposer,
   MessageList,
   Thread,
-  WithComponents,
   Window,
+  WithComponents,
   useCreateChatClient,
   type AttachmentProps,
 } from 'stream-chat-react';
@@ -28,12 +25,6 @@ const user: User = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
-};
-
-const sort: ChannelSort = { last_message_at: -1 };
-const filters: ChannelFilters = {
-  type: 'messaging',
-  members: { $in: [userId] },
 };
 
 const attachments: AttachmentType[] = [
@@ -93,28 +84,28 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const nextChannel = client.channel('messaging', 'react-tutorial-products', {
+      const channel = client.channel('messaging', 'react-tutorial-products', {
         image: 'https://getstream.io/random_png/?name=products',
         name: 'Product recommendations',
         members: [userId],
       });
 
-      await nextChannel.watch();
+      await channel.watch();
 
-      const hasProductMessage = nextChannel.state.messages.some((message) =>
+      const hasProductMessage = channel.state.messages.some((message) =>
         message.attachments?.some(
           (attachment) => 'type' in attachment && attachment.type === 'product',
         ),
       );
 
       if (!hasProductMessage) {
-        await nextChannel.sendMessage({
+        await channel.sendMessage({
           text: 'Your selected product is out of stock, would you like to select one of these alternatives?',
           attachments,
         });
       }
 
-      setChannel(nextChannel);
+      setChannel(channel);
     };
 
     initChannel().catch((error) => {
@@ -128,7 +119,6 @@ const App = () => {
   return (
     <WithComponents overrides={{ Attachment: CustomAttachment }}>
       <Chat client={client} theme='str-chat__theme-custom'>
-        <ChannelList filters={filters} sort={sort} />
         <Channel channel={channel}>
           <Window>
             <ChannelHeader />

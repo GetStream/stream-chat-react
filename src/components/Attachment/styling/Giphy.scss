@@ -6,8 +6,6 @@
 }
 
 .str-chat__message-attachment-giphy {
-  // todo: maybe we do not want to restrict the height
-  //height: var(--str-chat__gif-height);
   position: relative;
   display: flex;
   align-items: center;
@@ -26,6 +24,11 @@
     width: 100%;
     cursor: default;
   }
+
+  .str-chat__image-placeholder {
+    height: var(--str-chat__gif-height);
+    width: var(--str-chat__attachment-max-width);
+  }
 }
 
 .str-chat__giphy-badge {
@@ -36,7 +39,7 @@
   align-items: center;
   gap: var(--spacing-xxs, 4px);
   position: absolute;
-  left: 8px;
+  inset-inline-start: 8px;
   bottom: 8px;
 
   border-radius: var(--radius-lg, 12px);
@@ -50,6 +53,14 @@
 }
 
 .str-chat__message-attachment--giphy--actions {
+  .str-chat__message-attachment-giphy {
+    height: var(--str-chat__gif-height);
+
+    img.str-chat__base-image {
+      height: var(--str-chat__gif-height);
+    }
+  }
+
   .str-chat__visibility-disclaimer {
     display: flex;
     padding: var(--spacing-sm, 12px);

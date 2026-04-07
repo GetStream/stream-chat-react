@@ -49,7 +49,7 @@ const App = () => {
   if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
-    <Chat client={chatClient} theme='str-chat__theme-dark tutorial-livestream'>
+    <Chat client={chatClient} theme='str-chat__theme-dark'>
       <Channel channel={channel}>
         <Window>
           <ChannelHeader />

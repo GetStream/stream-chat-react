@@ -26,7 +26,7 @@
     flex-direction: column;
     padding: var(--spacing-md);
     gap: var(--spacing-xs);
-    border-right: 1px solid var(--str-chat-selector-border-color);
+    border-inline-end: 1px solid var(--str-chat-selector-border-color);
     background-color: var(--str-chat-selector-background-color);
 
     .str-chat__chat-view__selector-button-container {
@@ -76,7 +76,7 @@
     }
 
     .str-chat__chat-view__selector-button-tooltip {
-      left: calc(100% + 8px);
+      inset-inline-start: calc(100% + 8px);
       opacity: 0;
       pointer-events: none;
       position: absolute;

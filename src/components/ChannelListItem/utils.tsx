@@ -150,6 +150,5 @@ export const getGroupChannelDisplayInfo = (
   }
   return {
     members: memberList,
-    overflowCount: memberList.length > 4 ? memberList.length - 2 : undefined,
   };
 };

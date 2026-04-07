@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-03-31
+Last updated: 2026-04-03
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `241209e8059ce767fe5bc3500466aa73f53618e3` (`241209e8`, `2026-03-31`, `fix: use link icon for link-type attachments (#3083)`)
-- Future mining starting point: diff `241209e8059ce767fe5bc3500466aa73f53618e3..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee` (`6c7cd42a`, `2026-04-03`, `fix(examples): enable async voice recording preview in thread composer (#3092)`)
+- Future mining starting point: diff `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -647,9 +647,9 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/components/ChannelPreview/hooks/useChannelPreviewInfo.ts:46` returned `groupChannelDisplayInfo` as the nullable result of `getGroupChannelDisplayInfo(channel)`
 - New API:
   - `src/components/Avatar/Avatar.tsx:10` `AvatarProps` now expose `imageUrl`, `userName`, `isOnline`, and required `size`
-  - `src/components/Avatar/ChannelAvatar.tsx:7` `ChannelAvatarProps` now expose `displayMembers`, `overflowCount`, and required `size`
-  - `src/components/Avatar/GroupAvatar.tsx:10` `GroupAvatarProps` now expose `displayMembers`, `overflowCount`, `size`, and `isOnline`
-  - `src/components/ChannelListItem/utils.tsx:116` types `GroupChannelDisplayInfo` as `{ members, overflowCount }`
+  - `src/components/Avatar/ChannelAvatar.tsx:6` `ChannelAvatarProps` are now `Partial<Omit<GroupAvatarProps & AvatarProps, 'size'>> & { size: GroupAvatarProps['size'] | AvatarProps['size'] }`
+  - `src/components/Avatar/GroupAvatar.tsx:12` `GroupAvatarProps` now expose `displayMembers`, `size`, and `isOnline`
+  - `src/components/ChannelListItem/utils.tsx:139` through `:149` now return `{ members }` from `getGroupChannelDisplayInfo(channel)`
   - `src/components/ChannelListItem/utils.tsx:125` exports `getChannelDisplayImage`
   - `src/components/ChannelListItem/hooks/index.ts:1` exports `useChannelDisplayName`
   - `src/components/ChannelListItem/hooks/useChannelDisplayName.ts:8` through `:10` synthesize DM labels and group titles from up to two member names
@@ -658,14 +658,12 @@ Only confirmed items should move from this file into the migration guide.
 - Replacement:
   - rename avatar props from `image` / `name` to `imageUrl` / `userName`
   - supply the new required `size` prop when rendering SDK avatars directly
-  - migrate group avatar data from `groupChannelDisplayInfo` to `displayMembers` plus optional `overflowCount`
+  - migrate group avatar data from `groupChannelDisplayInfo` to `displayMembers`
   - replace `getDisplayImage` with `getChannelDisplayImage`
   - replace `getDisplayTitle` with `useChannelDisplayName()` or `useChannelPreviewInfo()`, depending on whether the caller is already inside React
   - update any `useChannelPreviewInfo()` checks that previously depended on `groupChannelDisplayInfo` being `null` or `undefined`
   - if you need the old DM-image fallback in custom preview code, prefer `getChannelDisplayImage(channel)` over `channel.getDisplayImage()`
 - Evidence:
-  - current `ChannelHeader` passes `displayMembers`, `imageUrl`, `overflowCount`, `size`, and `userName` into `ChannelAvatar`
-  - current `GroupAvatar` renders a `+N` badge from `overflowCount` instead of the old three-part/four-part array-only logic
   - current package exports no `getDisplayTitle` or `getDisplayImage`
   - current `useChannelPreviewInfo()` normalizes empty/non-group state to `{ members: [], overflowCount: undefined }`
   - current `useChannelDisplayName()` adds synthesized DM/group title behavior that did not exist in the old helper pair
@@ -675,6 +673,7 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/08-avatar.md`
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/02-channel-list/01-channel_list_preview.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/09-channel_header.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/10-thread_header.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/05-message-input/06-suggestion_list.md`
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/06-system_message.md`
@@ -810,8 +809,6 @@ Only confirmed items should move from this file into the migration guide.
 - User impact:
   - imports using the removed helper utilities or standalone status/input icons no longer compile
   - low-level customization patterns built on those exports need to move to the new `Icons` set, newer helper names, or higher-level components
-  - imports using the older pre-Phosphor icon constant names no longer compile
-  - custom CSS and snapshots that targeted icon-specific auto classes can break after the icon-catalog refresh
 - Confirmed removed exports:
   - `ActionsIcon`
   - `CloseIcon`
@@ -829,20 +826,6 @@ Only confirmed items should move from this file into the migration guide.
   - `ThreadIcon`
   - `MessageErrorIcon`
   - `attachmentTypeIconMap`
-- Confirmed renamed exports:
-  - `IconTrashBin` -> `IconDelete`
-  - `IconPaperPlane` -> `IconSend`
-  - `IconCrossMedium` -> `IconXmark`
-  - `IconMicrophone` -> `IconVoice`
-  - `IconBookmark` -> `IconSave`
-  - `IconBubbles` -> `IconMessageBubbles`
-  - `IconBubble2ChatMessage` -> `IconMessageBubble`
-  - `IconBubbleText6ChatMessage` -> `IconThread`
-  - `IconLoadingCircle` -> `IconLoading`
-  - `IconPlaySolid` -> `IconPlayFill`
-  - `IconPause` -> `IconPauseFill`
-  - `IconLayoutAlignLeft` -> `IconSidebar`
-  - `IconThunder` -> `IconBolt`
 - Old API evidence:
   - `v13.14.2:src/components/Message/icons.tsx:7` exported `ActionsIcon`
   - `v13.14.2:src/components/MessageInput/icons.tsx:67` exported `CloseIcon`
@@ -855,25 +838,21 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/components/Message/icons.tsx:77` and `:92` exported `MessageSentIcon` and `MessageDeliveredIcon`
   - `v13.14.2:src/components/Message/icons.tsx:108` exported `MessageErrorIcon`
   - `v13.14.2:src/components/Threads/ThreadList/ThreadListItemUI.tsx:25` exported `attachmentTypeIconMap`
-  - `f06846da:src/components/Icons/icons.tsx` still exported the older icon constant names such as `IconCrossMedium`, `IconPaperPlane`, `IconLayoutAlignLeft`, and `IconThunder`
 - New API evidence:
   - `src/components/Message/utils.tsx:431` exports `countEmojis`
   - `src/components/Message/utils.tsx:436` exports `messageTextHasEmojisOnly`
   - `src/components/index.ts:21` exports the shared `Icons` set
-  - `src/components/Icons/icons.tsx:408`, `:577`, `:626`, `:651`, `:831`, and `:849` now export `IconXmark`, `IconSidebar`, `IconVoice`, `IconSend`, `IconBolt`, and `IconDelete`
   - `src/components/Message/MessageStatus.tsx:122` and `:138` render `IconCheckmark1Small` and `IconDoubleCheckmark1Small`
   - `src/components/Threads/ThreadList/ThreadListItemUI.tsx:14` now builds thread previews around `SummarizedMessagePreview`
 - Replacement:
   - move emoji-only checks to `countEmojis()` / `messageTextHasEmojisOnly()`
   - stop relying on `showMessageActionsBox()` / `shouldRenderMessageActions()` and instead customize the new `MessageActions` action-set flow
   - replace direct icon imports with the public `Icons` components or with higher-level components like `MessageStatus`, `SendButton`, `MessageActions`, and thread preview components
-  - rename direct imports that still use the pre-Phosphor icon names
   - if you used `attachmentTypeIconMap`, inline your own map or switch to the new thread preview components
 - Evidence:
   - current `MessageComposer/index.ts` and `Message/index.ts` still re-export their `icons.tsx` files, but the removed icon symbols are no longer present there
   - current `MessageStatus` and thread-list UIs rely on the shared icon library and new summary components instead of the old standalone exports
-  - commit `30c1beeae feat(Icons): migrate SDK icons to Phosphor icon set (#3075)` renamed the remaining public icon constants and removed the unused icon catalog entries
-  - commit `9472f7b35 fix(Icons): sync icon catalog with refreshed Line SVGs (#3080)` completed the `IconLayoutAlignLeft` -> `IconSidebar` and `IconThunder` -> `IconBolt` rename sweep
+  - later icon-catalog renames such as `IconCrossMedium -> IconXmark` and `IconLayoutAlignLeft -> IconSidebar` are excluded from this bucket because they were not part of the `v13.14.2` public surface
 - Docs impact:
   - migration guide
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/07-ui-components.md`
@@ -2059,6 +2038,10 @@ Only confirmed items should move from this file into the migration guide.
 - audio/player, scrolling, and layout polish (`7914e516`, `91eba1b4`, `8d25ead3`, `55dd2e81`, `fdf0e155`, `221aa0d4`): investigated; these commits refine playback reset behavior, initial bottom-pinning, mobile-nav click detection, message-list width, reactions alignment, and voice-recording attachment layout, but they do not remove or rename a documented public API beyond the separately tracked `useChannelListContext()` signature cleanup.
 - type-safety and stale-prop cleanup in tests (`277bc417`): investigated; this commit removes stale props from test fixtures and tightens mock typing, but it does not change the current public runtime API beyond what was already documented in earlier migration buckets.
 - link-type attachment preview icon swap (`241209e8`): investigated; current summarized-preview and latest-message preview UIs now use the shared link icon for link attachments, but this is a visual/current-behavior adjustment rather than a removed or renamed public API.
+- avatar overflow/internalization follow-up (`49d576e4`): investigated; `overflowCount` was introduced during the v14 redesign cycle and was not part of the v13 public surface, so it should not appear in v13-to-v14 migration guidance. Keep it as current-v14 docs maintenance only.
+- icon catalog, RTL, dark-mode, and thread-voice-recording follow-up (`a4b1c2662`): investigated; current icon renames such as `IconCrossSmall -> IconXmarkSmall`, `IconExclamationTriangle -> IconExclamationTriangleFill`, and `IconEyeOpen -> IconEyeFill` are not part of the v13 public surface, and the RTL/dark-mode/thread voice-recording changes are current-behavior polish rather than a new migration bucket.
+- styling cleanup (`3bbf121ff`): investigated; broad CSS cleanup and internal selector polish, but no new removed or renamed public API beyond the avatar/channel-list/theming buckets already tracked.
+- example-only follow-ups (`623989574`, `2f060ae89`, `6c7cd42af`): investigated; these only update examples and docs scaffolding and do not add a new v13-to-v14 migration item.
 - assorted UI/UX fixes (`6c06e043`, `a47981ff`, `3f093622`): investigated; Giphy editability, dialog layering, composer state restoration, centered headers, message-list width, and channel-list dialog-portal cleanup changed runtime behavior, but they did not introduce new removed exports or renamed public override surfaces beyond the separately tracked reactions and icon buckets.
 - example-app refreshes (`86ada37e`, `887a326a`): investigated; these only update example apps and do not change the public SDK surface.
 

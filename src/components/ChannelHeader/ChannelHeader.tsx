@@ -70,7 +70,6 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
           className='str-chat__avatar--channel-header'
           displayMembers={groupChannelDisplayInfo?.members}
           imageUrl={displayImage}
-          overflowCount={groupChannelDisplayInfo?.overflowCount}
           size='lg'
           userName={displayTitle}
         />

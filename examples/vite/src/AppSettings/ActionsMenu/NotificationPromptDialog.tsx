@@ -14,7 +14,7 @@ import {
   IconExclamationMark,
   IconClock,
   IconXmark,
-  IconExclamationTriangle,
+  IconExclamationTriangleFill,
   IconPlusSmall,
   NumericInput,
   Prompt,
@@ -53,7 +53,7 @@ const severityIcons: Partial<
   info: IconExclamationMark,
   loading: IconRefresh,
   success: IconCheckmark,
-  warning: IconExclamationTriangle,
+  warning: IconExclamationTriangleFill,
 };
 
 const directionIcons: Record<

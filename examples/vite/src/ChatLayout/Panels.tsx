@@ -38,7 +38,13 @@ const ChannelThreadPanel = () => {
           'app-chat-thread-panel--open': isOpen,
         })}
       >
-        <Thread virtualized />
+        <Thread
+          additionalMessageComposerProps={{
+            audioRecordingEnabled: true,
+            asyncMessagesMultiSendEnabled: true,
+          }}
+          virtualized
+        />
       </WithDragAndDropUpload>
     </>
   );
@@ -104,7 +110,6 @@ export const ChannelsPanels = ({
           <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
           <WithComponents
             overrides={{
-              // @ts-expect-error TODO: adjust the sizing
               Avatar: ChannelAvatar,
             }}
           >
@@ -158,7 +163,13 @@ export const ThreadsPanels = ({
           <ChatView.ThreadAdapter>
             <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
               <WithComponents overrides={{ TypingIndicator }}>
-                <Thread virtualized />
+                <Thread
+                  additionalMessageComposerProps={{
+                    audioRecordingEnabled: true,
+                    asyncMessagesMultiSendEnabled: true,
+                  }}
+                  virtualized
+                />
               </WithComponents>
             </WithDragAndDropUpload>
           </ChatView.ThreadAdapter>

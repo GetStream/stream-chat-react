@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-import type {
-  Channel as StreamChannel,
-  ChannelFilters,
-  ChannelSort,
-  User,
-} from 'stream-chat';
+import type { ChannelFilters, ChannelSort, User } from 'stream-chat';
 import {
   Chat,
   Channel,
@@ -13,8 +8,8 @@ import {
   MessageComposer,
   MessageList,
   Thread,
-  WithComponents,
   Window,
+  WithComponents,
   useCreateChatClient,
 } from 'stream-chat-react';
 import { EmojiPicker } from 'stream-chat-react/emojis';
@@ -40,7 +35,7 @@ const filters: ChannelFilters = {
 init({ data });
 
 const App = () => {
-  const [channel, setChannel] = useState<StreamChannel>();
+  const [isReady, setIsReady] = useState(false);
   const client = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
@@ -51,14 +46,14 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const nextChannel = client.channel('messaging', 'react-tutorial', {
+      const channel = client.channel('messaging', 'react-tutorial', {
         image: 'https://getstream.io/random_png/?name=react-v14',
         name: 'Talk about React',
         members: [userId],
       });
 
-      await nextChannel.watch();
-      setChannel(nextChannel);
+      await channel.watch();
+      setIsReady(true);
     };
 
     initChannel().catch((error) => {
@@ -67,13 +62,13 @@ const App = () => {
   }, [client]);
 
   if (!client) return <div>Setting up client & connection...</div>;
-  if (!channel) return <div>Loading tutorial channel...</div>;
+  if (!isReady) return <div>Loading tutorial channel...</div>;
 
   return (
-    <WithComponents overrides={{ EmojiPicker }}>
-      <Chat client={client} theme='str-chat__theme-custom'>
+    <Chat client={client}>
+      <WithComponents overrides={{ EmojiPicker }}>
         <ChannelList filters={filters} sort={sort} />
-        <Channel channel={channel}>
+        <Channel>
           <Window>
             <ChannelHeader />
             <MessageList />
@@ -81,8 +76,8 @@ const App = () => {
           </Window>
           <Thread />
         </Channel>
-      </Chat>
-    </WithComponents>
+      </WithComponents>
+    </Chat>
   );
 };
 

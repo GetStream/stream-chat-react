@@ -14,8 +14,7 @@ export type AvatarProps = {
   userName?: string;
   /** Online status indicator, not rendered if not of type boolean */
   isOnline?: boolean;
-
-  size: '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs' | null;
+  size: '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs' | (string & {}) | null;
 } & ComponentPropsWithoutRef<'div'>;
 
 const getInitials = (name?: string) => {

@@ -249,7 +249,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
           <div
             class="str-chat__wave-progress-bar__progress-indicator"
             data-testid="wave-progress-bar-progress-indicator"
-            style="left: 0px;"
+            style="inset-inline-start: 0px;"
           />
         </div>
       </div>
@@ -899,7 +899,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
           <div
             class="str-chat__wave-progress-bar__progress-indicator"
             data-testid="wave-progress-bar-progress-indicator"
-            style="left: 0px;"
+            style="inset-inline-start: 0px;"
           />
         </div>
       </div>

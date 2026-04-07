@@ -259,11 +259,15 @@ export const SidebarResizeHandle = ({
         ? 'collapsed'
         : 'expanded';
 
+      const isRtl = getComputedStyle(appLayoutElement).direction === 'rtl';
+
       beginHorizontalResize({
         bodyClassName: 'app-chat-resizing-sidebar',
         handle: event.currentTarget,
         onMove: (pointerEvent) => {
-          const nextWidth = pointerEvent.clientX - layoutBounds.left;
+          const nextWidth = isRtl
+            ? layoutBounds.right - pointerEvent.clientX
+            : pointerEvent.clientX - layoutBounds.left;
           const maxWidth = layoutBounds.width - MESSAGE_VIEW_MIN_WIDTH;
           const shouldCollapse = nextWidth < LEFT_PANEL_MIN_WIDTH;
 
@@ -361,12 +365,15 @@ export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
       const dragState = {
         width: threadPanelWidthRef.current,
       };
+      const isRtl = getComputedStyle(appLayoutElement).direction === 'rtl';
 
       beginHorizontalResize({
         bodyClassName: 'app-chat-resizing-thread',
         handle: event.currentTarget,
         onMove: (pointerEvent) => {
-          const nextWidth = containerBounds.right - pointerEvent.clientX;
+          const nextWidth = isRtl
+            ? pointerEvent.clientX - containerBounds.left
+            : containerBounds.right - pointerEvent.clientX;
           const maxWidth = containerBounds.width - MESSAGE_VIEW_MIN_WIDTH;
           const width = clamp(nextWidth, THREAD_PANEL_MIN_WIDTH, maxWidth);
 

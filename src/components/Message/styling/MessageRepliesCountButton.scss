@@ -52,13 +52,13 @@
     padding-inline-end: var(--spacing-xl);
 
     &::after {
-      border-bottom-right-radius: var(--radius-max);
-      border-right: var(--replies-button-connector-stroke-width) solid
+      border-end-end-radius: var(--radius-max);
+      border-inline-end: var(--replies-button-connector-stroke-width) solid
         var(--chat-thread-connector-outgoing);
-      border-bottom: var(--replies-button-connector-stroke-width) solid
+      border-block-end: var(--replies-button-connector-stroke-width) solid
         var(--chat-thread-connector-outgoing);
 
-      right: 0;
+      inset-inline-end: 0;
     }
   }
 }
@@ -74,13 +74,13 @@
     padding-inline-start: var(--spacing-xl);
 
     &::after {
-      border-bottom-left-radius: var(--radius-max);
-      border-left: var(--replies-button-connector-stroke-width) solid
+      border-end-start-radius: var(--radius-max);
+      border-inline-start: var(--replies-button-connector-stroke-width) solid
         var(--chat-thread-connector-incoming);
-      border-bottom: var(--replies-button-connector-stroke-width) solid
+      border-block-end: var(--replies-button-connector-stroke-width) solid
         var(--chat-thread-connector-incoming);
 
-      left: 0;
+      inset-inline-start: 0;
     }
   }
 }

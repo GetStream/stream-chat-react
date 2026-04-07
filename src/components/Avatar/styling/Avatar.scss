@@ -60,7 +60,7 @@
     height: var(--avatar-status-badge-size);
     z-index: 1;
 
-    left: calc(
+    inset-inline-start: calc(
       var(--avatar-size) / 2 + var(--avatar-size) / 2 *
         cos(var(--avatar-status-badge-angle)) - var(--avatar-status-badge-size) / 2
     );

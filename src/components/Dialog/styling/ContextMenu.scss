@@ -262,7 +262,7 @@
       .str-chat__context-menu__button__label {
         @include utils.ellipsis-text;
         flex: auto;
-        text-align: left;
+        text-align: start;
         color: var(--text-primary);
         white-space: nowrap;
       }

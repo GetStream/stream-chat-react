@@ -1,12 +1,12 @@
 import React from 'react';
-import { IconEyeOpen } from '../Icons';
+import { IconEyeFill } from '../Icons';
 import { useTranslationContext } from '../../context';
 
 export const VisibilityDisclaimer = () => {
   const { t } = useTranslationContext();
   return (
     <div className='str-chat__visibility-disclaimer'>
-      <IconEyeOpen />
+      <IconEyeFill />
       {t('Only visible to you')}
     </div>
   );

@@ -11,7 +11,7 @@ import { LoadingIndicatorIcon } from '../icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { FileSizeIndicator } from '../../Attachment';
-import { IconExclamationMark, IconExclamationTriangle } from '../../Icons';
+import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
   type AudioPlayerState,
@@ -136,7 +136,7 @@ export const AudioAttachmentPreview = ({
             </div>
           ) : (
             <div className='str-chat__attachment-preview-file__retriable-error'>
-              <IconExclamationTriangle />
+              <IconExclamationTriangleFill />
               <span>{t('Upload error')}</span>
               <button
                 aria-label={t('aria/Retry upload')}

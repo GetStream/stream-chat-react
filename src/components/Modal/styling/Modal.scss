@@ -48,7 +48,7 @@
 
   .str-chat__modal__overlay__close-button {
     position: absolute;
-    right: 10px;
+    inset-inline-end: 10px;
     top: 10px;
     padding: var(--spacing-xs);
     color: var(--text-on-accent);
