@@ -22,7 +22,7 @@ export const SidebarProvider = ({
   const [sidebarOpen, setSidebarOpen] = useState(initialOpen);
 
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
-  const openSidebar = useCallback(() => setTimeout(() => setSidebarOpen(true), 100), []);
+  const openSidebar = useCallback(() => setSidebarOpen(true), []);
 
   return (
     <SidebarContext.Provider value={{ closeSidebar, openSidebar, sidebarOpen }}>
