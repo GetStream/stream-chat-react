@@ -98,7 +98,7 @@ export const MediaAttachmentPreview = ({
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
           {isUploading && (
             <AttachmentUploadProgressIndicator
-              fallback={<LoadingIndicator />}
+              fallback={<LoadingIndicator data-testid='loading-indicator' />}
               uploadProgress={uploadProgress}
             />
           )}
