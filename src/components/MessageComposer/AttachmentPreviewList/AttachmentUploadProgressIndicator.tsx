@@ -21,9 +21,7 @@ export const AttachmentUploadProgressIndicator = ({
   uploadProgress,
   variant,
 }: AttachmentUploadProgressIndicatorProps) => {
-  const { ProgressIndicator = DefaultProgressIndicator } = useComponentContext(
-    'AttachmentUploadProgressIndicator',
-  );
+  const { ProgressIndicator = DefaultProgressIndicator } = useComponentContext();
 
   if (uploadProgress === undefined) {
     return <>{fallback ?? <LoadingIndicatorIcon />}</>;
