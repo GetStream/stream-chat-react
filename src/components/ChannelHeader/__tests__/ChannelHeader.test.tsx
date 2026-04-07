@@ -180,15 +180,15 @@ describe('ChannelHeader', () => {
     });
   });
 
-  describe('SidebarToggle slot', () => {
-    const SidebarToggle = () => <div data-testid='sidebar-toggle' />;
+  describe('HeaderStartContent slot', () => {
+    const HeaderStartContent = () => <div data-testid='sidebar-toggle' />;
 
-    it('should not render SidebarToggle when not provided via ComponentContext', async () => {
+    it('should not render HeaderStartContent when not provided via ComponentContext', async () => {
       await renderComponent();
       expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
     });
 
-    it('should render SidebarToggle when provided via ComponentContext', async () => {
+    it('should render HeaderStartContent when provided via ComponentContext', async () => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({ ...defaultChannelState });
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
@@ -196,7 +196,7 @@ describe('ChannelHeader', () => {
       await channel.query();
 
       render(
-        <WithComponents overrides={{ SidebarToggle }}>
+        <WithComponents overrides={{ HeaderStartContent }}>
           <ChatProvider value={mockChatContext({ channel, client })}>
             <ChannelStateProvider value={mockChannelStateContext({ channel })}>
               <TranslationProvider value={mockTranslationContextValue({ t })}>

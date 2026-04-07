@@ -8,11 +8,11 @@ import {
 export const ChannelListHeader = () => {
   const { t } = useTranslationContext();
   const { channel } = useChatContext();
-  const { SidebarToggle } = useComponentContext();
+  const { HeaderEndContent } = useComponentContext();
   return (
     <div className='str-chat__channel-list__header'>
       <div className='str-chat__channel-list__header__title'>{t('Chats')}</div>
-      {channel && SidebarToggle && <SidebarToggle />}
+      {channel && HeaderEndContent && <HeaderEndContent />}
     </div>
   );
 };

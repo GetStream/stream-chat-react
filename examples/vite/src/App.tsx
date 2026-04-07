@@ -392,7 +392,8 @@ const App = () => {
         MessageReactions: CustomMessageReactions,
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,
-        SidebarToggle,
+        HeaderEndContent: SidebarToggle,
+        HeaderStartContent: SidebarToggle,
         ...messageUiOverrides,
       }}
     >

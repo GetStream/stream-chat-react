@@ -4,12 +4,12 @@ import { useThreadsViewContext } from '../../ChatView';
 
 export const ThreadListHeader = () => {
   const { t } = useTranslationContext();
-  const { SidebarToggle } = useComponentContext();
+  const { HeaderEndContent } = useComponentContext();
   const { activeThread } = useThreadsViewContext();
   return (
     <div className='str-chat__thread-list__header'>
       <div className='str-chat__thread-list__header__title'>{t('Threads')}</div>
-      {activeThread && SidebarToggle && <SidebarToggle />}
+      {activeThread && HeaderEndContent && <HeaderEndContent />}
     </div>
   );
 };

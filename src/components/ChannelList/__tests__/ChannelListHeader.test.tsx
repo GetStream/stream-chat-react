@@ -6,12 +6,12 @@ import { mockChatContext, mockTranslationContextValue } from '../../../mock-buil
 import { ChannelListHeader } from '../ChannelListHeader';
 
 const t = vi.fn((key: string) => key);
-const SidebarToggle = () => <div data-testid='sidebar-toggle' />;
+const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
 
 afterEach(cleanup);
 
 describe('ChannelListHeader', () => {
-  it('should not render SidebarToggle when not provided via ComponentContext', () => {
+  it('should not render HeaderEndContent when not provided via ComponentContext', () => {
     render(
       <ChatProvider value={mockChatContext()}>
         <TranslationProvider value={mockTranslationContextValue({ t })}>
@@ -23,9 +23,9 @@ describe('ChannelListHeader', () => {
     expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
   });
 
-  it('should render SidebarToggle when a channel is active', () => {
+  it('should render HeaderEndContent when a channel is active', () => {
     render(
-      <WithComponents overrides={{ SidebarToggle }}>
+      <WithComponents overrides={{ HeaderEndContent }}>
         <ChatProvider value={mockChatContext({ channel: {} })}>
           <TranslationProvider value={mockTranslationContextValue({ t })}>
             <ChannelListHeader />
@@ -37,9 +37,9 @@ describe('ChannelListHeader', () => {
     expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
   });
 
-  it('should not render SidebarToggle when no channel is active', () => {
+  it('should not render HeaderEndContent when no channel is active', () => {
     render(
-      <WithComponents overrides={{ SidebarToggle }}>
+      <WithComponents overrides={{ HeaderEndContent }}>
         <ChatProvider value={mockChatContext({ channel: undefined })}>
           <TranslationProvider value={mockTranslationContextValue({ t })}>
             <ChannelListHeader />

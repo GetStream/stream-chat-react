@@ -14,12 +14,12 @@ vi.mock('../../../ChatView', () => ({
 import { useThreadsViewContext } from '../../../ChatView';
 
 const t = vi.fn((key: string) => key);
-const SidebarToggle = () => <div data-testid='sidebar-toggle' />;
+const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
 
 afterEach(cleanup);
 
 describe('ThreadListHeader', () => {
-  it('should not render SidebarToggle when not provided via ComponentContext', () => {
+  it('should not render HeaderEndContent when not provided via ComponentContext', () => {
     render(
       <ChatProvider value={mockChatContext()}>
         <TranslationProvider value={mockTranslationContextValue({ t })}>
@@ -31,14 +31,14 @@ describe('ThreadListHeader', () => {
     expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
   });
 
-  it('should render SidebarToggle when a thread is active', () => {
+  it('should render HeaderEndContent when a thread is active', () => {
     vi.mocked(useThreadsViewContext).mockReturnValue({
       activeThread: fromPartial<Thread>({}),
       setActiveThread: vi.fn(),
     });
 
     render(
-      <WithComponents overrides={{ SidebarToggle }}>
+      <WithComponents overrides={{ HeaderEndContent }}>
         <ChatProvider value={mockChatContext()}>
           <TranslationProvider value={mockTranslationContextValue({ t })}>
             <ThreadListHeader />
@@ -50,14 +50,14 @@ describe('ThreadListHeader', () => {
     expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
   });
 
-  it('should not render SidebarToggle when no thread is active', () => {
+  it('should not render HeaderEndContent when no thread is active', () => {
     vi.mocked(useThreadsViewContext).mockReturnValue({
       activeThread: undefined,
       setActiveThread: vi.fn(),
     });
 
     render(
-      <WithComponents overrides={{ SidebarToggle }}>
+      <WithComponents overrides={{ HeaderEndContent }}>
         <ChatProvider value={mockChatContext()}>
           <TranslationProvider value={mockTranslationContextValue({ t })}>
             <ThreadListHeader />

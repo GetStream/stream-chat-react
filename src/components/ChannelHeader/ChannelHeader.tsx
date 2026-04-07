@@ -49,7 +49,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   const { Avatar = DefaultAvatar, image: overrideImage, title: overrideTitle } = props;
 
   const { channel } = useChannelStateContext();
-  const { SidebarToggle } = useComponentContext();
+  const { HeaderStartContent } = useComponentContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -59,7 +59,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   return (
     <div className='str-chat__channel-header'>
       <div className='str-chat__channel-header__start'>
-        {SidebarToggle && <SidebarToggle />}
+        {HeaderStartContent && <HeaderStartContent />}
       </div>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>

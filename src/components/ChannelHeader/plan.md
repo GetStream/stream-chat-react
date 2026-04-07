@@ -31,7 +31,7 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 **Key design elements (channel header section):**
 
 - Layout: `[sidebar toggle slot] | [channelName + Online stacked] | [avatar right]`
-- Sidebar toggle is provided externally via `SidebarToggle` in `ComponentContext`
+- Sidebar toggle is provided externally via `HeaderStartContent` in `ComponentContext`
 - Avatar on the right (current impl has it between toggle and title)
 
 ---
@@ -78,7 +78,7 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 - Add `@use '../components/ChannelHeader/styling' as ChannelHeader` to `src/styling/index.scss` in the appropriate group (alphabetical, chat components)
 - Update `ChannelHeader.tsx`:
   - Reorder layout: sidebar toggle slot | text block (title + Online) | avatar (right)
-  - The sidebar toggle is provided externally via the `SidebarToggle` slot in `ComponentContext` (no built-in toggle or `MenuIcon` prop)
+  - The sidebar toggle is provided externally via the `HeaderStartContent` slot in `ComponentContext` (no built-in toggle or `MenuIcon` prop)
   - Simplify info line to "Online" (or keep watcher_count: "X online") per design
 - Preserve: `live`, `subtitle`, `member_count`, `Avatar`, `title`, `image` — ensure backward compatibility
 - Note: sidebar collapsed/expanded state is NOT managed by the SDK; the app owns sidebar visibility
@@ -87,7 +87,7 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 - [ ] ChannelHeader styles imported in `src/styling/index.scss`
 - [ ] Component layout matches Figma: avatar on right, text in middle
-- [ ] `SidebarToggle` slot renders when provided via `ComponentContext`
+- [ ] `HeaderStartContent` slot renders when provided via `ComponentContext`
 - [ ] Existing tests pass; update tests if needed for new structure
 
 ---
@@ -105,7 +105,7 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 **Scope:**
 
 - Run existing tests; fix any failures from layout/class changes
-- Add tests for `SidebarToggle` slot rendering when applicable
+- Add tests for `HeaderStartContent` slot rendering when applicable
 - Ensure `yarn test`, `yarn types`, `yarn lint-fix` pass
 
 **Acceptance Criteria:**
@@ -140,5 +140,5 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 - ChannelHeader currently has no dedicated styling folder; styles may come from stream-chat-css. This plan introduces ChannelHeader/styling per dev-patterns.
 - Loading channel header in `Channel/styling/Channel.scss` uses `--str-chat__channel-header-background-color`; keep variable usage consistent.
-- Sidebar toggle is externally provided via `SidebarToggle` slot in `ComponentContext`. The SDK does not own sidebar state — apps provide their own toggle via `WithComponents`.
+- Sidebar toggle is externally provided via `HeaderStartContent` slot in `ComponentContext`. The SDK does not own sidebar state — apps provide their own toggle via `WithComponents`.
 - No `sidebarCollapsed` prop or `MenuIcon` prop — these were removed as part of the navOpen removal.
