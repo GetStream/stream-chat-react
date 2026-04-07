@@ -4,7 +4,8 @@ import type { Notification } from 'stream-chat';
 
 import { useNotificationApi } from './hooks/useNotificationApi';
 import { useNotifications } from './hooks/useNotifications';
-import { Notification as NotificationComponent } from './Notification';
+import { Notification as DefaultNotification } from './Notification';
+import { useComponentContext } from '../../context';
 
 import type { NotificationTargetPanel } from './notificationTarget';
 
@@ -71,6 +72,8 @@ export const NotificationList = ({
   panel,
   verticalAlignment = 'bottom',
 }: NotificationListProps) => {
+  const { Notification: NotificationComponent = DefaultNotification } =
+    useComponentContext();
   const { removeNotification, startNotificationTimeout } = useNotificationApi();
   const exitTimeoutRef = useRef<number | null>(null);
   const latestNotificationRef = useRef<Notification | null>(null);

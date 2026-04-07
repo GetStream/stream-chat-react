@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { NotificationList } from '../NotificationList';
 import { useNotificationApi } from '../hooks/useNotificationApi';
 import { useNotifications } from '../hooks/useNotifications';
+import { ComponentProvider } from '../../../context/ComponentContext';
 
 import type { Notification } from 'stream-chat';
 
@@ -211,5 +212,27 @@ describe('NotificationList', () => {
       'data-entry-direction',
       'left',
     );
+  });
+
+  it('uses custom Notification component from ComponentContext', () => {
+    const CustomNotification = React.forwardRef<
+      HTMLDivElement,
+      {
+        notification: { id: string; message: string };
+      }
+    >(({ notification }, ref) => (
+      <div data-testid={`custom-notification-${notification.id}`} ref={ref}>
+        {notification.message}
+      </div>
+    ));
+    CustomNotification.displayName = 'CustomNotification';
+
+    render(
+      <ComponentProvider value={{ Notification: CustomNotification }}>
+        <NotificationList />
+      </ComponentProvider>,
+    );
+
+    expect(screen.getByTestId('custom-notification-n-1')).toBeInTheDocument();
   });
 });
