@@ -4,10 +4,10 @@ import {
   type LocalAudioAttachment,
   type LocalVoiceRecordingAttachment,
 } from 'stream-chat';
-import { useTranslationContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
@@ -20,7 +20,7 @@ import {
 } from '../../AudioPlayback';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
-import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
+import { AttachmentUploadedSizeIndicator as DefaultAttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 
 export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -42,6 +42,10 @@ export const AudioAttachmentPreview = ({
   removeAttachments,
 }: AudioAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
+  const {
+    AttachmentUploadedSizeIndicator = DefaultAttachmentUploadedSizeIndicator,
+    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+  } = useComponentContext();
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
   const url = attachment.asset_url || previewUri;

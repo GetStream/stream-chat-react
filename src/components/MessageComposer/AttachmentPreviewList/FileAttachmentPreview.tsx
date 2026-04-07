@@ -1,8 +1,8 @@
 import React from 'react';
-import { useTranslationContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
-import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
-import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
+import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { AttachmentUploadedSizeIndicator as DefaultAttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
@@ -20,6 +20,10 @@ export const FileAttachmentPreview = ({
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
   const { t } = useTranslationContext('FilePreview');
+  const {
+    AttachmentUploadedSizeIndicator = DefaultAttachmentUploadedSizeIndicator,
+    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+  } = useComponentContext();
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
 

@@ -17,7 +17,7 @@ import clsx from 'clsx';
 import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
-import { AttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 
@@ -35,8 +35,11 @@ export const MediaAttachmentPreview = ({
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
-  const { BaseImage = DefaultBaseImage, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext();
+  const {
+    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+    BaseImage = DefaultBaseImage,
+    LoadingIndicator = DefaultLoadingIndicator,
+  } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =

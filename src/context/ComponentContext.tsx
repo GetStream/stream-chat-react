@@ -75,6 +75,8 @@ import type { EditedMessagePreviewProps } from '../components/MessageComposer/Ed
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { CircularProgressIndicatorProps } from '../components/Loading/CircularProgressIndicator';
+import type { AttachmentUploadProgressIndicatorProps } from '../components/MessageComposer/AttachmentPreviewList/AttachmentUploadProgressIndicator';
+import type { AttachmentUploadedSizeIndicatorProps } from '../components/MessageComposer/AttachmentPreviewList/AttachmentUploadedSizeIndicator';
 
 export type ComponentContextValue = {
   /** Custom UI component to display additional message composer action buttons left to the textarea, defaults to and accepts same props as: [AdditionalMessageComposerActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerActions.tsx) */
@@ -87,6 +89,10 @@ export type ComponentContextValue = {
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   /** Custom UI component to control adding attachments to MessageComposer, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentSelector.tsx) */
   AttachmentSelector?: React.ComponentType;
+  /** Custom UI component for upload progress on attachment previews in MessageComposer, defaults to and accepts same props as: [AttachmentUploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/AttachmentUploadProgressIndicator.tsx) */
+  AttachmentUploadProgressIndicator?: React.ComponentType<AttachmentUploadProgressIndicatorProps>;
+  /** Custom UI component for uploaded/total size on attachment previews in MessageComposer, defaults to and accepts same props as: [AttachmentUploadedSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/AttachmentUploadedSizeIndicator.tsx) */
+  AttachmentUploadedSizeIndicator?: React.ComponentType<AttachmentUploadedSizeIndicatorProps>;
   /** Custom UI component for the dedicated voice recording preview slot above composer attachments (REACT-794), defaults to and accepts same props as: [VoiceRecordingPreviewSlot](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx) */
   VoiceRecordingPreviewSlot?: React.ComponentType<VoiceRecordingPreviewSlotProps>;
   /** Custom UI component for contents of attachment selector initiation button */
