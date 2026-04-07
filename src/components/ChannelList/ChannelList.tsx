@@ -11,7 +11,6 @@ import type {
 } from 'stream-chat';
 
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
-import { useMobileNavigation } from './hooks/useMobileNavigation';
 import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
 import {
@@ -185,9 +184,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     channel,
     channelsQueryState,
     client,
-    closeMobileNav,
     customClasses,
-    navOpen = true,
     searchController,
     setActiveChannel,
     theme,
@@ -270,8 +267,6 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     ? channelRenderFilterFn(channels)
     : channels;
 
-  useMobileNavigation(channelListRef, navOpen, closeMobileNav);
-
   const { customHandler, defaultHandler } = usePrepareShapeHandlers({
     allowNewMessagesFromUnfilteredChannels,
     filters,
@@ -335,7 +330,6 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     {
       'str-chat--windows-flags':
         useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/),
-      [`${baseClass}--open`]: navOpen,
     },
   );
 

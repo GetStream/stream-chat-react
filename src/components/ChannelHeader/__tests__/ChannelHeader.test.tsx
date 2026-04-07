@@ -188,7 +188,7 @@ describe('ChannelHeader', () => {
       expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
     });
 
-    it('should render SidebarToggle when navOpen is false', async () => {
+    it('should render SidebarToggle when provided via ComponentContext', async () => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({ ...defaultChannelState });
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
@@ -197,7 +197,7 @@ describe('ChannelHeader', () => {
 
       render(
         <WithComponents overrides={{ SidebarToggle }}>
-          <ChatProvider value={mockChatContext({ channel, client, navOpen: false })}>
+          <ChatProvider value={mockChatContext({ channel, client })}>
             <ChannelStateProvider value={mockChannelStateContext({ channel })}>
               <TranslationProvider value={mockTranslationContextValue({ t })}>
                 <ChannelHeader />
@@ -208,28 +208,6 @@ describe('ChannelHeader', () => {
       );
 
       expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
-    });
-
-    it('should not render SidebarToggle when navOpen is true', async () => {
-      client = await getTestClientWithUser(user1);
-      testChannel1 = generateChannel({ ...defaultChannelState });
-      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
-      const channel = client.channel('messaging', testChannel1.channel.id);
-      await channel.query();
-
-      render(
-        <WithComponents overrides={{ SidebarToggle }}>
-          <ChatProvider value={mockChatContext({ channel, client, navOpen: true })}>
-            <ChannelStateProvider value={mockChannelStateContext({ channel })}>
-              <TranslationProvider value={mockTranslationContextValue({ t })}>
-                <ChannelHeader />
-              </TranslationProvider>
-            </ChannelStateProvider>
-          </ChatProvider>
-        </WithComponents>,
-      );
-
-      expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
     });
   });
 

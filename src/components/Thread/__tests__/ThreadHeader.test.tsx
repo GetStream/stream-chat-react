@@ -87,10 +87,7 @@ const renderComponent = ({
     <ChatProvider
       value={fromPartial<ChatContextValue>({
         client,
-        closeMobileNav: vi.fn(),
         latestMessageDatesByChannels: {},
-        navOpen: false,
-        openMobileNav: vi.fn(),
       })}
     >
       <ChannelStateProvider value={mockChannelStateContext({ channel, thread })}>

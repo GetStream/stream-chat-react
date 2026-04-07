@@ -23,6 +23,7 @@ import {
 } from 'stream-chat-react';
 
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
+import { useSidebar } from './SidebarContext.tsx';
 import { ThreadStateSync } from './Sync.tsx';
 
 const ChannelThreadPanel = () => {
@@ -86,7 +87,8 @@ export const ChannelsPanels = ({
   options: ChannelOptions;
   sort: ChannelSort;
 }) => {
-  const { channel, navOpen = true } = useChatContext('ChannelsPanels');
+  const { channel } = useChatContext('ChannelsPanels');
+  const { sidebarOpen } = useSidebar();
   const channelsLayoutRef = useRef<HTMLDivElement | null>(null);
 
   return (
@@ -94,7 +96,7 @@ export const ChannelsPanels = ({
       <div
         className={clsx('app-chat-view__channels-layout', {
           'app-chat-view__channels-layout--channel-selected': !!channel?.id,
-          'app-chat-view__channels-layout--sidebar-collapsed': navOpen === false,
+          'app-chat-view__channels-layout--sidebar-collapsed': !sidebarOpen,
         })}
         ref={channelsLayoutRef}
       >
@@ -133,7 +135,7 @@ export const ThreadsPanels = ({
   iconOnly?: boolean;
   itemSet?: ChatViewSelectorEntry[];
 }) => {
-  const { navOpen = true } = useChatContext('ThreadsPanels');
+  const { sidebarOpen } = useSidebar();
   const { activeThread } = useThreadsViewContext();
   const threadsLayoutRef = useRef<HTMLDivElement | null>(null);
 
@@ -143,7 +145,7 @@ export const ThreadsPanels = ({
       <div
         className={clsx('app-chat-view__threads-layout', {
           'app-chat-view__threads-layout--thread-selected': !!activeThread?.id,
-          'app-chat-view__threads-layout--sidebar-collapsed': navOpen === false,
+          'app-chat-view__threads-layout--sidebar-collapsed': !sidebarOpen,
         })}
         ref={threadsLayoutRef}
       >

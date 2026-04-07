@@ -6,7 +6,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { useChatContext } from 'stream-chat-react';
+import { useSidebar } from './SidebarContext.tsx';
 
 import {
   type LeftPanelLayoutSettingsState,
@@ -197,7 +197,7 @@ const PanelResizeHandle = ({
 );
 
 export const SidebarLayoutSync = () => {
-  const { navOpen = true } = useChatContext();
+  const { sidebarOpen } = useSidebar();
   const { collapsed: leftPanelCollapsed } = useAppSettingsSelector(
     (state) => state.panelLayout.leftPanel,
   );
@@ -209,7 +209,7 @@ export const SidebarLayoutSync = () => {
 
     if (document.body.classList.contains('app-chat-resizing-sidebar')) return;
 
-    const shouldBeCollapsed = !navOpen;
+    const shouldBeCollapsed = !sidebarOpen;
 
     if (shouldBeCollapsed === leftPanelCollapsed) return;
 
@@ -220,7 +220,7 @@ export const SidebarLayoutSync = () => {
         collapsed: shouldBeCollapsed,
       },
     }));
-  }, [leftPanelCollapsed, navOpen]);
+  }, [leftPanelCollapsed, sidebarOpen]);
 
   return null;
 };
@@ -230,7 +230,7 @@ export const SidebarResizeHandle = ({
 }: {
   layoutRef: RefObject<HTMLDivElement | null>;
 }) => {
-  const { closeMobileNav, openMobileNav } = useChatContext('SidebarResizeHandle');
+  const { closeSidebar, openSidebar } = useSidebar();
   const leftPanel = useAppSettingsSelector((state) => state.panelLayout.leftPanel);
   const isSidebarCollapsedRef = useRef(leftPanel.collapsed);
   const leftPanelStateRef = useRef(leftPanel);
@@ -297,9 +297,9 @@ export const SidebarResizeHandle = ({
             isSidebarCollapsedRef.current = shouldCollapse;
 
             if (shouldCollapse) {
-              closeMobileNav();
+              closeSidebar();
             } else {
-              openMobileNav();
+              openSidebar();
             }
           }
         },
@@ -326,7 +326,7 @@ export const SidebarResizeHandle = ({
         pointerId: event.pointerId,
       });
     },
-    [closeMobileNav, layoutRef, openMobileNav],
+    [closeSidebar, layoutRef, openSidebar],
   );
 
   return (

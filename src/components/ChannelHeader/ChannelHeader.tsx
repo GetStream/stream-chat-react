@@ -8,7 +8,6 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useTypingContext } from '../../context/TypingContext';
-import clsx from 'clsx';
 
 const ChannelHeaderSubtitle = () => {
   const { channelConfig } = useChannelStateContext('ChannelHeaderSubtitle');
@@ -50,7 +49,6 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   const { Avatar = DefaultAvatar, image: overrideImage, title: overrideTitle } = props;
 
   const { channel } = useChannelStateContext();
-  const { navOpen } = useChatContext();
   const { SidebarToggle } = useComponentContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -59,13 +57,9 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   });
 
   return (
-    <div
-      className={clsx('str-chat__channel-header', {
-        'str-chat__channel-header--sidebar-collapsed': !navOpen,
-      })}
-    >
+    <div className='str-chat__channel-header'>
       <div className='str-chat__channel-header__start'>
-        {!navOpen && SidebarToggle && <SidebarToggle />}
+        {SidebarToggle && <SidebarToggle />}
       </div>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>

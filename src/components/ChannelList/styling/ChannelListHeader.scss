@@ -1,40 +1,12 @@
 .str-chat__channel-list__header {
   display: flex;
   align-items: center;
-  opacity: 1;
   padding: var(--spacing-md);
-  transform: translateX(0);
-  transition:
-    opacity var(--str-chat__channel-list-transition-duration, 180ms)
-      var(--str-chat__channel-list-transition-easing, ease),
-    transform var(--str-chat__channel-list-transition-duration, 180ms)
-      var(--str-chat__channel-list-transition-easing, ease);
   width: 100%;
 
   .str-chat__channel-list__header__title {
     flex: 1;
     font: var(--str-chat__heading-lg-text);
     color: var(--text-primary);
-  }
-
-  &.str-chat__channel-list__header--sidebar-collapsed {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(
-      calc(0px - var(--str-chat__channel-list-transition-offset, 8px))
-    );
-  }
-
-  @media (max-width: 767px) {
-    transition: none;
-
-    &.str-chat__channel-list__header--sidebar-collapsed {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    transition: none;
   }
 }

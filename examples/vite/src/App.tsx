@@ -28,7 +28,6 @@ import {
   defaultReactionOptions,
   type ReactionOptions,
   mapEmojiMartData,
-  useChatContext,
   useCreateChatClient,
   useTranslationContext,
   Search,
@@ -41,6 +40,7 @@ import { humanId } from 'human-id';
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
+import { SidebarProvider, useSidebar } from './ChatLayout/SidebarContext.tsx';
 import {
   ChatViewSelectorWidthSync,
   PanelLayoutStyleSync,
@@ -179,15 +179,15 @@ const IconSidebar = createIcon(
 );
 
 const SidebarToggle = () => {
-  const { closeMobileNav, navOpen, openMobileNav } = useChatContext();
+  const { closeSidebar, openSidebar, sidebarOpen } = useSidebar();
   const { t } = useTranslationContext();
   return (
     <Button
       appearance='ghost'
-      aria-label={navOpen ? t('aria/Collapse sidebar') : t('aria/Expand sidebar')}
+      aria-label={sidebarOpen ? t('aria/Collapse sidebar') : t('aria/Expand sidebar')}
       circular
       className='str-chat__header-sidebar-toggle'
-      onClick={navOpen ? closeMobileNav : openMobileNav}
+      onClick={sidebarOpen ? closeSidebar : openSidebar}
       size='md'
       variant='secondary'
     >
@@ -229,7 +229,7 @@ const App = () => {
     () => appSettingsStore.getLatestValue().panelLayout,
     [],
   );
-  const initialNavOpen = useMemo(() => {
+  const initialSidebarOpen = useMemo(() => {
     if (typeof window === 'undefined') return !initialPanelLayout.leftPanel.collapsed;
 
     const isMobile = window.innerWidth < DESKTOP_LAYOUT_BREAKPOINT;
@@ -358,7 +358,7 @@ const App = () => {
       <LoadingScreen
         initialAppLayoutStyle={initialAppLayoutStyle}
         initialChannelSelected={Boolean(initialChannelId)}
-        initialNavOpen={initialNavOpen}
+        initialSidebarOpen={initialSidebarOpen}
       />
     );
   }
@@ -396,43 +396,44 @@ const App = () => {
         ...messageUiOverrides,
       }}
     >
-      <Chat
-        searchController={searchController}
-        client={chatClient}
-        i18nInstance={i18nInstance}
-        initialNavOpen={initialNavOpen}
-        isMessageAIGenerated={isMessageAIGenerated}
-        theme={chatTheme}
-      >
-        <div
-          className='app-chat-layout'
-          ref={appLayoutRef}
-          style={initialAppLayoutStyle}
-          data-variant={messageUiVariant ?? undefined}
+      <SidebarProvider initialOpen={initialSidebarOpen}>
+        <Chat
+          searchController={searchController}
+          client={chatClient}
+          i18nInstance={i18nInstance}
+          isMessageAIGenerated={isMessageAIGenerated}
+          theme={chatTheme}
         >
-          <PanelLayoutStyleSync layoutRef={appLayoutRef} />
-          <ChatViewSelectorWidthSync
-            iconOnly={chatView.iconOnly}
-            layoutRef={appLayoutRef}
-          />
-          <ChatView>
-            <ChatStateSync initialChatView={initialChatView} />
-            <SidebarLayoutSync />
-            <ChannelsPanels
-              filters={filters}
+          <div
+            className='app-chat-layout'
+            ref={appLayoutRef}
+            style={initialAppLayoutStyle}
+            data-variant={messageUiVariant ?? undefined}
+          >
+            <PanelLayoutStyleSync layoutRef={appLayoutRef} />
+            <ChatViewSelectorWidthSync
               iconOnly={chatView.iconOnly}
-              initialChannelId={initialChannelId ?? undefined}
-              itemSet={chatViewSelectorItemSet}
-              options={options}
-              sort={sort}
+              layoutRef={appLayoutRef}
             />
-            <ThreadsPanels
-              iconOnly={chatView.iconOnly}
-              itemSet={chatViewSelectorItemSet}
-            />
-          </ChatView>
-        </div>
-      </Chat>
+            <ChatView>
+              <ChatStateSync initialChatView={initialChatView} />
+              <SidebarLayoutSync />
+              <ChannelsPanels
+                filters={filters}
+                iconOnly={chatView.iconOnly}
+                initialChannelId={initialChannelId ?? undefined}
+                itemSet={chatViewSelectorItemSet}
+                options={options}
+                sort={sort}
+              />
+              <ThreadsPanels
+                iconOnly={chatView.iconOnly}
+                itemSet={chatViewSelectorItemSet}
+              />
+            </ChatView>
+          </div>
+        </Chat>
+      </SidebarProvider>
     </WithComponents>
   );
 };

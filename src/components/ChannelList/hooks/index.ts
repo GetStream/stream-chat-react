@@ -5,7 +5,6 @@ export * from './useChannelUpdatedListener';
 export * from './useChannelVisibleListener';
 export * from './useConnectionRecoveredListener';
 export * from './useMessageNewListener';
-export * from './useMobileNavigation';
 export * from './useNotificationAddedToChannelListener';
 export * from './useNotificationMessageNewListener';
 export * from './useNotificationRemovedFromChannelListener';

@@ -76,7 +76,6 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();
-  const { navOpen } = useChatContext('ThreadHeader');
   const { SidebarToggle } = useComponentContext();
   const { activeChatView } = useChatViewContext();
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
@@ -101,7 +100,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header__start'>
-        {activeChatView === 'threads' && !navOpen && SidebarToggle && <SidebarToggle />}
+        {activeChatView === 'threads' && SidebarToggle && <SidebarToggle />}
       </div>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>

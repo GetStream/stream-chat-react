@@ -71,42 +71,6 @@
     width: var(--str-chat__thread-list-mobile-width);
     z-index: 1;
 
-    &.str-chat__thread-list-container--open {
-      box-shadow: var(--str-chat__thread-list-box-shadow);
-      pointer-events: auto;
-      transform: translateX(0);
-      transition-delay: 0s, 0s;
-      visibility: visible;
-
-      .str-chat__chat-view & {
-        inset-inline-start: var(--str-chat__chat-view-selector-mobile-width, 0px);
-        width: calc(100% - var(--str-chat__chat-view-selector-mobile-width, 0px));
-      }
-    }
-  }
-
-  /* Desktop (≥768px): collapse when nav closed so main content uses space. */
-  @media (min-width: 768px) {
-    &.str-chat__thread-list-container--open {
-      flex-basis: var(--str-chat__thread-list-width);
-      max-width: 100%;
-      min-width: var(--str-chat__thread-list-min-width);
-      opacity: 1;
-      pointer-events: auto;
-      transform: translateX(0);
-      width: var(--str-chat__thread-list-width);
-    }
-
-    &:not(.str-chat__thread-list-container--open) {
-      flex: 0 0 0;
-      width: 0;
-      min-width: 0;
-      max-width: 0;
-      opacity: 0;
-      overflow: hidden;
-      pointer-events: none;
-      transform: translateX(calc(0px - var(--str-chat__thread-list-transition-offset)));
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
