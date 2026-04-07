@@ -6,7 +6,7 @@ import { type Notification as NotificationType } from 'stream-chat';
 import {
   IconCheckmark,
   IconExclamationMark,
-  IconExclamationTriangle,
+  IconExclamationTriangleFill,
   IconRefresh,
   IconXmark,
 } from '../../components/Icons';
@@ -26,7 +26,7 @@ const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
   info: null,
   loading: IconRefresh,
   success: IconCheckmark,
-  warning: IconExclamationTriangle,
+  warning: IconExclamationTriangleFill,
 };
 
 const DefaultNotificationIcon = ({ notification }: NotificationIconProps) => {

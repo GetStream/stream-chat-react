@@ -4,10 +4,10 @@ import React, { useContext } from 'react';
 import {
   type AttachmentPreviewListProps,
   type AttachmentProps,
-  type AvatarProps,
   type AvatarStackProps,
   type BaseImageProps,
   type CalloutDialogProps,
+  type ChannelAvatarProps,
   type ChannelListItemUIProps,
   type ChannelListUIProps,
   type ContextMenuContentProps,
@@ -97,7 +97,7 @@ export type ComponentContextValue = {
   /** Optional UI component to override the default List component that displays suggestions, defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) */
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps>;
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
-  Avatar?: React.ComponentType<AvatarProps>;
+  Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** UI component to display a list of avatars stacked in a row, defaults to and accepts same props as: [AvatarStack](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/AvatarStack.tsx) */
   AvatarStack?: React.ComponentType<AvatarStackProps>;
   /** Custom UI component to display <img/> elements resp. a fallback in case of load error, defaults to and accepts same props as: [BaseImage](https://github.com/GetStream/stream-chat-react/blob/master/src/components/BaseImage/BaseImage.tsx) */

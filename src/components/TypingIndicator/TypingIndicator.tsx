@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
 import { AvatarStack } from '../Avatar';
@@ -9,8 +9,6 @@ import { useTypingContext } from '../../context/TypingContext';
 import { useThreadContext } from '../Threads';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
-
-const MAX_AVATARS = 3;
 
 export type TypingIndicatorProps = {
   /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
@@ -49,11 +47,19 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const typingUsers = threadList ? typingInThread : typingInChannel;
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const showIndicator = displayUsers.length > 0;
-  const displayInfo = displayUsers.slice(0, MAX_AVATARS).map(({ user }) => ({
-    id: user?.id,
-    imageUrl: user?.image,
-    userName: user?.name ?? '',
-  }));
+
+  const displayInfo = useMemo(
+    () =>
+      displayUsers.map(
+        ({ user }) =>
+          ({
+            id: user?.id,
+            imageUrl: user?.image,
+            userName: user?.name,
+          }) as const,
+      ),
+    [displayUsers],
+  );
 
   useEffect(() => {
     if (showIndicator && isMessageListScrolledToBottom) scrollToBottom();
@@ -67,9 +73,6 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     return null;
   }
 
-  const overflowCount =
-    displayUsers.length > MAX_AVATARS ? displayUsers.length - MAX_AVATARS : 0;
-
   return (
     <div
       className={clsx(
@@ -82,12 +85,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
       data-testid='typing-indicator'
     >
       {displayInfo.length > 0 && (
-        <AvatarStack
-          badgeSize='md'
-          displayInfo={displayInfo}
-          overflowCount={overflowCount > 0 ? overflowCount : undefined}
-          size='md'
-        />
+        <AvatarStack badgeSize='md' displayInfo={displayInfo} size='md' />
       )}
       <div className='str-chat__typing-indicator__bubble'>
         <div className='str-chat__typing-indicator__dots'>

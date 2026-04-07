@@ -138,7 +138,7 @@ describe('AudioRecordingPlayback', () => {
     });
     const slider = container.querySelector(WAVE_PROGRESS_BAR_INDICATOR_SELECTOR);
     // Initial position is 0px (pixel-based positioning in v14)
-    expect(slider).toHaveStyle({ left: '0px' });
+    expect(slider).toHaveStyle({ 'inset-inline-start': '0px' });
     await act(() => {
       fireEvent.pointerDown(screen.getByTestId(WAVE_PROGRESS_BAR_TEST_ID));
     });
@@ -160,7 +160,7 @@ describe('AudioRecordingPlayback', () => {
     });
     // With container width=5 and clientX=3, progress=60%, so indicatorLeft = 3px
     // But actual value depends on internal calculations including indicator width
-    const leftValue = parseInt((slider as HTMLElement).style.left, 10);
+    const leftValue = parseInt((slider as HTMLElement).style.insetInlineStart, 10);
     expect(leftValue).toBeGreaterThan(0);
   });
 
@@ -174,7 +174,7 @@ describe('AudioRecordingPlayback', () => {
 
     const clientX = 3;
     const slider = container.querySelector(WAVE_PROGRESS_BAR_INDICATOR_SELECTOR);
-    expect(slider).toHaveStyle({ left: '0px' });
+    expect(slider).toHaveStyle({ 'inset-inline-start': '0px' });
     await act(() => {
       fireEvent.click(screen.getByTestId(WAVE_PROGRESS_BAR_TEST_ID), {
         clientX,
@@ -185,7 +185,7 @@ describe('AudioRecordingPlayback', () => {
     await act(() => {
       player.elementRef.dispatchEvent(new Event('loadedmetadata'));
     });
-    const leftValue = parseInt((slider as HTMLElement).style.left, 10);
+    const leftValue = parseInt((slider as HTMLElement).style.insetInlineStart, 10);
     expect(leftValue).toBeGreaterThan(0);
   });
 });

@@ -7,7 +7,7 @@
 
   .str-chat__callout__close-button {
     position: absolute;
-    right: var(--spacing-xs);
+    inset-inline-end: var(--spacing-xs);
     top: var(--spacing-xs);
   }
 }

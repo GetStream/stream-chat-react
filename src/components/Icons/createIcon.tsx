@@ -18,7 +18,7 @@ function toIconClass(name: string) {
 export function createIcon(
   name: string,
   content: ReactNode,
-  defaultProps?: ComponentProps<'svg'>,
+  defaultProps?: ComponentProps<'svg'> & Record<`data-${string}`, string>,
 ) {
   const iconClass = toIconClass(name);
   const Icon = ({ className, ...props }: ComponentProps<'svg'>) => (

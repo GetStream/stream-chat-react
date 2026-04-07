@@ -79,7 +79,7 @@
         height: 20px;
         width: 20px;
         position: absolute;
-        left: 10px;
+        inset-inline-start: 10px;
         top: 10px;
         border-radius: var(--radius-max);
         background-color: var(--control-play-control-bg);

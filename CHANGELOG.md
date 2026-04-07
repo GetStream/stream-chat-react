@@ -1,3 +1,88 @@
+## [14.0.0-beta.6](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.5...v14.0.0-beta.6) (2026-04-03)
+
+### ⚠ BREAKING CHANGES
+
+* for existing code but changes the accepted values.
+
+### `getGroupChannelDisplayInfo` return value changed
+
+The utility function `getGroupChannelDisplayInfo` (from
+`src/components/ChannelListItem/utils.tsx`) no longer returns
+`overflowCount` in its result object.
+
+### `AvatarProps.size` type widened to accept arbitrary strings
+
+The `size` prop on `AvatarProps` changed from the union `'2xl' | 'xl' |
+'lg' | 'md' | 'sm' | 'xs' | null` to `'2xl' | 'xl' | 'lg' | 'md' | 'sm'
+| 'xs' | (string & {}) | null`. This allows passing custom size strings
+while preserving autocomplete for the known values.
+
+### `GroupAvatarProps.size` type widened to accept arbitrary strings
+
+The `size` prop on `GroupAvatarProps` changed from `'2xl' | 'xl' | 'lg'
+| null` to `'2xl' | 'xl' | 'lg' | (string & {}) | null`. This allows
+passing custom size strings while preserving autocomplete for the known
+values.
+
+### New `capLimit` prop on `AvatarStack`
+
+A new optional `capLimit` prop (type `number`, default `3`) controls the
+maximum number of avatars rendered before overflow. When `displayInfo`
+has more entries than `capLimit`, only the first `capLimit` items are
+shown and a "+N" badge displays the remainder.
+
+### `GroupAvatarMember` type gains optional `id` field
+
+The `GroupAvatarMember` type now includes an optional `id?: string`
+field. When present, it is used as the React `key` for rendered avatars
+instead of the fallback `${userName}-${imageUrl}-${index}` pattern.
+
+## Behavioral Changes
+
+### `ChannelAvatar` always renders via `GroupAvatar` internally
+
+Previously, `ChannelAvatar` conditionally chose between `<Avatar>` (for
+0–1 members) and `<GroupAvatar>` (for 2+ members). It now always
+delegates to `<GroupAvatar>`, which itself renders a single `<Avatar>`
+when fewer than 2 members are present. The visual output is unchanged,
+but the component tree structure differs.
+
+### `GroupAvatar` auto-caps displayed members at 4 (or 2 with overflow)
+
+Previously, callers controlled how many members to display and the
+overflow count. Now `GroupAvatar` internally slices `displayMembers`:
+- **4 or fewer members:** all are rendered, no badge.
+- **More than 4 members:** only the first 2 are rendered, with a "+N"
+badge showing the count of remaining members.
+
+### `AvatarStack` auto-caps displayed items (default: 3, configurable
+via `capLimit`)
+
+Previously, callers controlled how many items to display and the
+overflow count. Now `AvatarStack` internally slices `displayInfo` based
+on the `capLimit` prop (default `3`):
+- **`capLimit` or fewer items:** all are rendered, no badge.
+- **More than `capLimit` items:** only the first `capLimit` are
+rendered, with a "+N" badge showing the count of remaining items.
+
+### `TypingIndicator` no longer manually slices typing users
+
+The `TypingIndicator` component previously sliced the list of typing
+users to a maximum of 3 before passing to `AvatarStack`. It now passes
+all typing users, relying on `AvatarStack`'s internal capping (also at
+3). The net visual result is unchanged.
+
+### chore
+
+* adjustmens to Avatar, GroupAvatar and ChannelAvatar ([#3087](https://github.com/GetStream/stream-chat-react/issues/3087)) ([49d576e](https://github.com/GetStream/stream-chat-react/commit/49d576e4a710472f797cd11feb3c562ebd36651b))
+
+### Bug Fixes
+
+* **examples:** clean up tutorial examples for v14 ([#3089](https://github.com/GetStream/stream-chat-react/issues/3089)) ([6239895](https://github.com/GetStream/stream-chat-react/commit/623989574afdaf250225f62e0627478ebb48e473))
+* **examples:** enable async voice recording preview in thread composer ([#3092](https://github.com/GetStream/stream-chat-react/issues/3092)) ([6c7cd42](https://github.com/GetStream/stream-chat-react/commit/6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee))
+* **examples:** fix resize handle alignment and thread border gap in RTL ([#3091](https://github.com/GetStream/stream-chat-react/issues/3091)) ([2f060ae](https://github.com/GetStream/stream-chat-react/commit/2f060ae8979de5df77148c591785db730c6f533c))
+* **Icons, RTL:** update icon catalog, RTL layout fixes, dark mode & thread voice recording ([#3090](https://github.com/GetStream/stream-chat-react/issues/3090)) ([a4b1c26](https://github.com/GetStream/stream-chat-react/commit/a4b1c2662400f084c3d97f07457012928edf6885)), closes [#3080](https://github.com/GetStream/stream-chat-react/issues/3080)
+
 ## [14.0.0-beta.5](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.4...v14.0.0-beta.5) (2026-03-31)
 
 ### Bug Fixes

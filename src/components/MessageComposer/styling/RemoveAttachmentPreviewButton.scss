@@ -2,7 +2,7 @@
   position: absolute;
   z-index: 1;
   top: -6px;
-  right: -6px;
+  inset-inline-end: -6px;
   background-color: var(--str-chat__attachment-preview-close-icon-background);
   border: 3px solid var(--str-chat__attachment-preview-close-icon-border-color);
   color: var(--str-chat__attachment-preview-close-icon-color);

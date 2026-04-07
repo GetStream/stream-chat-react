@@ -1,11 +1,5 @@
-import { useEffect, useState } from 'react';
-import type {
-  Channel as StreamChannel,
-  ChannelFilters,
-  ChannelOptions,
-  ChannelSort,
-  User,
-} from 'stream-chat';
+import React, { useEffect, useState } from 'react';
+import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
 import {
   Chat,
   Channel,
@@ -15,10 +9,10 @@ import {
   MessageComposer,
   MessageList,
   Thread,
-  WithComponents,
   Window,
-  useMessageContext,
+  WithComponents,
   useCreateChatClient,
+  useMessageContext,
   type ChannelListItemUIProps,
 } from 'stream-chat-react';
 
@@ -61,8 +55,18 @@ const CustomChannelListItem = ({
   return (
     <button
       aria-pressed={active}
-      className='tutorial-channel-list-item'
       onClick={handleClick}
+      style={{
+        width: '100%',
+        padding: '12px',
+        display: 'flex',
+        gap: '12px',
+        border: 'none',
+        background: active ? '#d3f2ef' : 'transparent',
+        textAlign: 'left',
+        cursor: 'pointer',
+        borderRadius: '20px',
+      }}
       type='button'
     >
       <ChannelAvatar
@@ -70,15 +74,11 @@ const CustomChannelListItem = ({
         size='xl'
         userName={displayTitle ?? channel.data?.name ?? 'Channel'}
       />
-      <div className='tutorial-channel-list-item__content'>
-        <div className='tutorial-channel-list-item__title'>
-          {displayTitle ?? channel.data?.name ?? 'Unnamed Channel'}
-        </div>
-        {latestMessagePreview && (
-          <div className='tutorial-channel-list-item__preview'>
-            {latestMessagePreview}
-          </div>
-        )}
+      <div style={{ flex: 1 }}>
+        <div>{displayTitle ?? channel.data?.name ?? 'Unnamed Channel'}</div>
+        {latestMessagePreview ? (
+          <div style={{ fontSize: '14px', opacity: 0.75 }}>{latestMessagePreview}</div>
+        ) : null}
       </div>
     </button>
   );
@@ -115,7 +115,7 @@ const CustomMessage = () => {
 };
 
 const App = () => {
-  const [channel, setChannel] = useState<StreamChannel>();
+  const [isReady, setIsReady] = useState(false);
   const client = useCreateChatClient({
     apiKey,
     tokenOrProvider: userToken,
@@ -126,14 +126,14 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const nextChannel = client.channel('messaging', 'react-tutorial', {
+      const channel = client.channel('messaging', 'react-tutorial', {
         image: 'https://getstream.io/random_png/?name=react-v14',
         name: 'Talk about React',
         members: [userId],
       });
 
-      await nextChannel.watch();
-      setChannel(nextChannel);
+      await channel.watch();
+      setIsReady(true);
     };
 
     initChannel().catch((error) => {
@@ -142,7 +142,7 @@ const App = () => {
   }, [client]);
 
   if (!client) return <div>Setting up client & connection...</div>;
-  if (!channel) return <div>Loading tutorial channel...</div>;
+  if (!isReady) return <div>Loading tutorial channel...</div>;
 
   return (
     <WithComponents
@@ -153,7 +153,7 @@ const App = () => {
     >
       <Chat client={client} theme='str-chat__theme-custom'>
         <ChannelList filters={filters} sort={sort} options={options} />
-        <Channel channel={channel}>
+        <Channel>
           <Window>
             <ChannelHeader />
             <MessageList />

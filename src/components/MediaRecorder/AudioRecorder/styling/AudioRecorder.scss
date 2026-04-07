@@ -19,7 +19,7 @@
     align-items: center;
     gap: var(--spacing-md);
     padding: var(--spacing-xs);
-    padding-left: var(--spacing-sm);
+    padding-inline-start: var(--spacing-sm);
 
     .str-chat__recording-timer {
       display: flex;
@@ -110,13 +110,6 @@
     //overflow-x: hidden;
   }
 
-  .str-chat__wave-progress-bar__track-container {
-    max-width: 500px;
-  }
-  .str-chat__waveform-box-container {
-    max-width: 520px;
-  }
-
   .str-chat__wave-progress-bar__track {
     display: flex;
     min-width: 0;
@@ -127,7 +120,6 @@
   }
 
   .str-chat__waveform-box-container {
-    //justify-content: flex-end;
     overflow: hidden;
 
     .str-chat__wave-progress-bar__track {

@@ -26,7 +26,7 @@
     position: absolute;
     inset-block-end: 100%;
     margin-block-end: var(--space-4);
-    right: -15%;
+    inset-inline-end: -15%;
     top: -15%;
   }
 }
