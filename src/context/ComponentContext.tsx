@@ -75,6 +75,7 @@ import type { EditedMessagePreviewProps } from '../components/MessageComposer/Ed
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { CircularProgressIndicatorProps } from '../components/Loading/CircularProgressIndicator';
+import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedSizeIndicator';
 import type { UploadProgressIndicatorProps } from '../components/Loading/UploadProgressIndicator';
 import type { AttachmentUploadedSizeIndicatorProps } from '../components/MessageComposer/AttachmentPreviewList/AttachmentUploadedSizeIndicator';
 
@@ -272,6 +273,8 @@ export type ComponentContextValue = {
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   /** Custom UI component for upload progress (e.g. attachment previews, audio recording), defaults to and accepts same props as: [UploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/UploadProgressIndicator.tsx) */
   UploadProgressIndicator?: React.ComponentType<UploadProgressIndicatorProps>;
+  /** Custom UI component for uploaded vs total byte size during attachment upload (MessageComposer previews), defaults to and accepts same props as: [UploadedSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/UploadedSizeIndicator.tsx) */
+  UploadedSizeIndicator?: React.ComponentType<UploadedSizeIndicatorProps>;
   /** Component used to play video. If not provided, ReactPlayer is used as a default video player. */
   VideoPlayer?: React.ComponentType<VideoPlayerProps>;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */

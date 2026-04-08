@@ -1,5 +1,8 @@
 import React from 'react';
+
+import { useComponentContext } from '../../../context';
 import { FileSizeIndicator } from '../../Attachment';
+import { UploadedSizeIndicator as DefaultUploadedSizeIndicator } from '../../Loading/UploadedSizeIndicator';
 
 function resolveAttachmentFullByteSize(attachment: {
   file_size?: number | string;
@@ -32,6 +35,7 @@ export type AttachmentUploadedSizeIndicatorProps = {
 export const AttachmentUploadedSizeIndicator = ({
   attachment,
 }: AttachmentUploadedSizeIndicatorProps) => {
+  const { UploadedSizeIndicator = DefaultUploadedSizeIndicator } = useComponentContext();
   const { uploadProgress, uploadState } = attachment.localMetadata ?? {};
   const fullBytes = resolveAttachmentFullByteSize(attachment);
   const uploaded =
@@ -39,16 +43,8 @@ export const AttachmentUploadedSizeIndicator = ({
       ? Math.round((uploadProgress / 100) * fullBytes)
       : undefined;
 
-  if (uploadState === 'uploading' && uploaded) {
-    return (
-      <div
-        className='str-chat__attachment-preview-file__upload-size-fraction'
-        data-testid='upload-size-fraction'
-      >
-        <FileSizeIndicator fileSize={uploaded} /> {` / `}
-        <FileSizeIndicator fileSize={fullBytes} />
-      </div>
-    );
+  if (uploadState === 'uploading' && uploaded !== undefined && fullBytes !== undefined) {
+    return <UploadedSizeIndicator fullBytes={fullBytes} uploadedBytes={uploaded} />;
   }
 
   if (uploadState === 'finished') {
