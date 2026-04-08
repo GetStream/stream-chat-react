@@ -1,0 +1,249 @@
+// HEADING
+// ================================================================================= //
+@mixin text-heading-xs {
+  font: var(--str-chat__font-body-default);
+  color: var(--text-primary);
+}
+
+@mixin text-heading-sm {
+  font: var(--str-chat__font-body-emphasis);
+  color: var(--text-primary);
+}
+
+@mixin text-heading-md {
+  font: var(--str-chat__font-body-link);
+  color: var(--text-link);
+}
+
+@mixin text-heading-lg {
+  font: var(--str-chat__font-body-link-emphasis);
+  color: var(--text-link);
+}
+
+// BODY
+// ================================================================================= //
+@mixin text-body-default {
+  font: var(--str-chat__font-body-default);
+  color: var(--text-primary);
+}
+
+@mixin text-body-emphasis {
+  font: var(--str-chat__font-body-emphasis);
+  color: var(--text-primary);
+}
+
+@mixin text-body-link {
+  font: var(--str-chat__font-body-link);
+  color: var(--text-link);
+}
+
+@mixin text-body-link-emphasis {
+  font: var(--str-chat__font-body-link-emphasis);
+  color: var(--text-link);
+}
+
+// CAPTION
+// ================================================================================= //
+@mixin text-caption-default {
+  font: var(--str-chat__font-caption-default);
+  color: var(--text-primary);
+}
+
+@mixin text-caption-emphasis {
+  font: var(--str-chat__font-caption-emphasis);
+  color: var(--text-primary);
+}
+
+@mixin text-caption-link {
+  font: var(--str-chat__font-caption-link);
+  color: var(--text-link);
+}
+
+@mixin text-caption-link-emphasis {
+  font: var(--str-chat__font-caption-link-emphasis);
+  color: var(--text-link);
+}
+
+// METADATA
+// ================================================================================= //
+@mixin text-metadata-default {
+  font: var(--str-chat__font-metadata-default);
+  color: var(--text-primary);
+}
+
+@mixin text-metadata-emphasis {
+  font: var(--str-chat__font-metadata-emphasis);
+  color: var(--text-primary);
+}
+
+@mixin text-metadata-link {
+  font: var(--str-chat__font-metadata-link);
+  color: var(--text-link);
+}
+
+@mixin text-metadata-link-emphasis {
+  font: var(--str-chat__font-metadata-link-emphasis);
+  color: var(--text-link);
+}
+
+// NUMERIC
+/* Numeric styles are used for compact, layout-critical UI elements such as:
+    - badge counts,
+    - avatar initials,
+    - keyboard key labels, and
+    - numeric labels inside pills.
+    Numeric tokens are classified as layout-stable UI indicators, not content text. */
+// ================================================================================= //
+@mixin text-numeric-sm {
+  font: var(--str-chat__font-numeric-sm);
+  color: var(--text-primary);
+}
+
+@mixin text-numeric-md {
+  font: var(--str-chat__font-numeric-md);
+  color: var(--text-primary);
+}
+
+@mixin text-numeric-lg {
+  font: var(--str-chat__font-numeric-lg);
+  color: var(--text-primary);
+}
+
+@mixin text-numeric-xl {
+  font: var(--str-chat__font-numeric-xl);
+  color: var(--text-primary);
+}
+
+.str-chat {
+  /* The font used in the chat, by default, we use [preinstalled OS fonts](https://systemfontstack.com/) */
+  --str-chat__font-family:
+    var(--typography-font-family-sans), system-ui, -apple-system, BlinkMacSystemFont,
+    Segoe UI, Roboto, Oxygen-Sans, Ubuntu, Cantarell, Helvetica Neue, sans-serif;
+
+  // HEADING
+  // ================================================================================= //
+  --str-chat__font-heading-xs: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-sm) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-heading-sm: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-heading-md: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-lg) / var(--typography-line-height-relaxed)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-heading-lg: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-xl) / var(--typography-line-height-relaxed)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  // BODY
+  // ================================================================================= //
+  --str-chat__font-body-default: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-body-emphasis: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-body-link: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-body-link-emphasis: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-md) / var(--typography-line-height-normal)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  // CAPTION
+  // ================================================================================= //
+  --str-chat__font-caption-default: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-caption-emphasis: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-caption-link: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-caption-link-emphasis: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  // METADATA
+  // ================================================================================= //
+  --str-chat__font-metadata-default: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-metadata-emphasis: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-metadata-link: normal var(--typography-font-weight-regular)
+    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-metadata-link-emphasis: normal var(--typography-font-weight-semi-bold)
+    var(--typography-font-size-xs) / var(--typography-line-height-tight)
+    var(--str-chat__font-family);
+
+  // --------------------
+
+  // NUMERIC
+  // ================================================================================= //
+  --str-chat__font-numeric-sm: normal var(--typography-font-weight-bold)
+    var(--typography-font-size-micro) / 100% var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-numeric-md: normal var(--typography-font-weight-bold)
+    var(--typography-font-size-xxs) / 100% var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-numeric-lg: normal var(--typography-font-weight-bold)
+    var(--typography-font-size-xs) / 100% var(--str-chat__font-family);
+
+  // --------------------
+
+  --str-chat__font-numeric-xl: normal var(--typography-font-weight-bold)
+    var(--typography-font-size-sm) / var(--line-height-line-height-14)
+    var(--str-chat__font-family);
+
+  // --------------------
+}

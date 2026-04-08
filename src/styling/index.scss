@@ -4,7 +4,8 @@
 @use 'global-layout-variables';
 @use 'global-theme-variables';
 @use 'palette-variables';
-@use './variables.css';
+@use './variables-tokens.css';
+@use 'variables/font';
 @use 'base';
 @use 'fonts';
 

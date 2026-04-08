@@ -330,7 +330,7 @@ export const UnsupportedAttachmentContainer = ({
   attachment,
   UnsupportedAttachment = DefaultUnsupportedAttachment,
 }: RenderAttachmentProps) => (
-  <>
+  <AttachmentWithinContainer attachment={attachment} componentType='unsupported'>
     <UnsupportedAttachment attachment={attachment} />
-  </>
+  </AttachmentWithinContainer>
 );

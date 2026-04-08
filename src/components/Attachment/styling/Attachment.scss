@@ -338,34 +338,6 @@
     }
   }
 
-  .str-chat__message-attachment-unsupported {
-    @include utils.component-layer-overrides('file-attachment');
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-8);
-    column-gap: var(--space-16);
-    //margin: var(--str-chat__attachment-margin);
-
-    .str-chat__file-icon {
-      width: calc(var(--str-chat__spacing-px) * 30);
-    }
-
-    .str-chat__message-attachment-unsupported__metadata {
-      min-width: 0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      justify-content: center;
-    }
-
-    .str-chat__message-attachment-unsupported__title {
-      @include utils.ellipsis-text;
-      max-width: 100%;
-    }
-  }
-
   .str-chat__message-attachment-file--item,
   .str-chat__message-attachment-audio-widget {
     @include utils.flex-row-center;
