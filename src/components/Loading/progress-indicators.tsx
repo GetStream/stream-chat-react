@@ -5,15 +5,13 @@ import { useTranslationContext } from '../../context/TranslationContext';
 const RING_RADIUS = 12;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
-export type CircularProgressIndicatorProps = {
+export type ProgressIndicatorProps = {
   /** Clamped 0–100 completion. */
   percent: number;
 };
 
 /** Circular progress indicator with input from 0 to 100. */
-export const CircularProgressIndicator = ({
-  percent,
-}: CircularProgressIndicatorProps) => {
+export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
   const { t } = useTranslationContext('CircularProgressIndicator');
   const dashOffset = RING_CIRCUMFERENCE * (1 - percent / 100);
 

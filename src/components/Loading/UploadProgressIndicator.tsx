@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 import { useComponentContext } from '../../context';
-import { CircularProgressIndicator as DefaultCircularProgressIndicator } from './CircularProgressIndicator';
+import { CircularProgressIndicator as DefaultProgressIndicator } from './progress-indicators';
 import { LoadingIndicator as DefaultLoadingIndicator } from './LoadingIndicator';
 
 export type UploadProgressIndicatorProps = {
@@ -15,8 +15,8 @@ export const UploadProgressIndicator = ({
   uploadProgress,
 }: UploadProgressIndicatorProps) => {
   const {
-    CircularProgressIndicator = DefaultCircularProgressIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
+    ProgressIndicator = DefaultProgressIndicator,
   } = useComponentContext();
 
   if (uploadProgress === undefined) {
@@ -25,7 +25,7 @@ export const UploadProgressIndicator = ({
 
   return (
     <div className={clsx('str-chat__attachment-upload-progress', className)}>
-      <CircularProgressIndicator percent={uploadProgress} />
+      <ProgressIndicator percent={uploadProgress} />
     </div>
   );
 };
