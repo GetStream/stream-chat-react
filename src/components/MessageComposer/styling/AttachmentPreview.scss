@@ -210,13 +210,13 @@
       );
     }
 
-    .str-chat__icon.str-chat__loading-indicator {
+    .str-chat__loading-indicator,
+    .str-chat__progress-indicator {
       width: var(--icon-size-sm);
       height: var(--icon-size-sm);
       position: absolute;
       inset-inline-start: var(--spacing-xxs);
       bottom: var(--spacing-xxs);
-      border-radius: var(--radius-max);
       border-radius: var(--radius-max);
       background: var(--background-core-elevation-0);
       color: var(--accent-primary);
@@ -283,9 +283,11 @@
       font-size: var(--typography-font-size-xs);
       line-height: var(--typography-line-height-tight);
 
-      .str-chat__icon.str-chat__loading-indicator {
+      .str-chat__loading-indicator,
+      .str-chat__progress-indicator {
         width: var(--icon-size-sm);
         height: var(--icon-size-sm);
+        color: var(--accent-primary);
       }
 
       .str-chat__attachment-preview-file__fatal-error {

@@ -83,6 +83,7 @@
   "aria/Open Message Actions Menu": "Open Message Actions Menu",
   "aria/Open Reaction Selector": "Open Reaction Selector",
   "aria/Open Thread": "Open Thread",
+  "aria/Percent complete": "{{percent}} percent complete",
   "aria/Pin Message": "Pin Message",
   "aria/Quote Message": "Quote Message",
   "aria/Reaction list": "Reaction list",

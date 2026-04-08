@@ -73,7 +73,10 @@ import type { StopAIGenerationButtonProps } from '../components/MessageComposer/
 import type { VideoPlayerProps } from '../components/VideoPlayer';
 import type { EditedMessagePreviewProps } from '../components/MessageComposer/EditedMessagePreview';
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
+import type { FileSizeIndicatorProps } from '../components/Attachment/components/FileSizeIndicator';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
+import type { ProgressIndicatorProps } from '../components/Loading/progress-indicators';
+import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedSizeIndicator';
 
 export type ComponentContextValue = {
   /** Custom UI component to display additional message composer action buttons left to the textarea, defaults to and accepts same props as: [AdditionalMessageComposerActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerActions.tsx) */
@@ -124,6 +127,8 @@ export type ComponentContextValue = {
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Custom UI component to display the contents on file drag-and-drop overlay, defaults to and accepts same props as: [FileDragAndDropContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/WithDragAndDropUpload.tsx) */
   FileDragAndDropContent?: React.ComponentType<FileDragAndDropContentProps>;
+  /** Custom UI component to display a formatted file byte size (message attachments, upload previews), defaults to and accepts same props as: [FileSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/components/FileSizeIndicator.tsx) */
+  FileSizeIndicator?: React.ComponentType<FileSizeIndicatorProps>;
   /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/EditedMessagePreview.tsx) */
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageComposer */
@@ -148,6 +153,8 @@ export type ComponentContextValue = {
   LoadingErrorIndicator?: React.ComponentType<LoadingErrorIndicatorProps>;
   /** Custom UI component to render while the `MessageList` is loading new messages, defaults to and accepts same props as: [LoadingIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/LoadingIndicator.tsx) */
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
+  /** Custom UI component for determinate progress (0–100), defaults to and accepts same props as: [ProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/progress-indicators.tsx) */
+  ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** Custom UI component for message actions popup, accepts no props, all the defaults are set within [MessageActions (unstable)](https://github.com/GetStream/stream-chat-react/blob/master/src/experimental/MessageActions/MessageActions.tsx) */
@@ -267,6 +274,8 @@ export type ComponentContextValue = {
   HeaderStartContent?: React.ComponentType;
   /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
+  /** Custom UI component for uploaded vs total byte size during attachment upload (MessageComposer previews), defaults to and accepts same props as: [UploadedSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/UploadedSizeIndicator.tsx) */
+  UploadedSizeIndicator?: React.ComponentType<UploadedSizeIndicatorProps>;
   /** Component used to play video. If not provided, ReactPlayer is used as a default video player. */
   VideoPlayer?: React.ComponentType<VideoPlayerProps>;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
