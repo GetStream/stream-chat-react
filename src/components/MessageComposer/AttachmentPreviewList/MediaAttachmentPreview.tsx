@@ -19,7 +19,6 @@ import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton'
 import { Button } from '../../Button';
 import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -38,7 +37,6 @@ export const MediaAttachmentPreview = ({
   const {
     AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
     BaseImage = DefaultBaseImage,
-    LoadingIndicator = DefaultLoadingIndicator,
   } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
@@ -100,10 +98,7 @@ export const MediaAttachmentPreview = ({
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
           {isUploading && (
-            <AttachmentUploadProgressIndicator
-              fallback={<LoadingIndicator data-testid='loading-indicator' />}
-              uploadProgress={uploadProgress}
-            />
+            <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
           )}
 
           {isVideoAttachment(attachment) &&
