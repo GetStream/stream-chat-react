@@ -18,7 +18,9 @@ body {
 
 #root {
   display: flex;
+  flex-direction: column;
   height: 100vh;
+  min-height: 0;
 }
 
 @layer stream-overrides {
@@ -26,8 +28,27 @@ body {
     --app-left-panel-width: 360px;
     --app-thread-panel-width: 360px;
 
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
     height: 100%;
     width: 100%;
+  }
+
+  /* Fills viewport minus in-flow `.str-chat__system-notification` when present */
+  .app-chat-layout__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  /* ChatView root is the only in-DOM child of __body (sync components return null) */
+  .app-chat-layout__body > .str-chat__chat-view {
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .app-chat-layout .str-chat {

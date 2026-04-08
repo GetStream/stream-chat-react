@@ -1,9 +1,6 @@
-.str-chat__system-notification-anchor {
-  position: relative;
-}
-
 .str-chat__system-notification {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs, 8px);
@@ -20,9 +17,7 @@
   line-height: var(--typography-line-height-tight, 16px);
   animation: str-chat__system-notification-slide-in 300ms ease-out both;
   overflow: hidden;
-  position: fixed;
-  inset-block-start: 0;
-  inset-inline: 0;
+  width: 100%;
   z-index: 2;
 }
 

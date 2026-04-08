@@ -415,29 +415,31 @@ const App = () => {
             data-variant={messageUiVariant ?? undefined}
           >
             <SystemNotification />
-            <PanelLayoutStyleSync layoutRef={appLayoutRef} />
-            <ChatViewSelectorWidthSync
-              iconOnly={chatView.iconOnly}
-              layoutRef={appLayoutRef}
-            />
-            <ChatView>
-              <DialogManagerProvider id={globalDialogManager}>
-                <ChatStateSync initialChatView={initialChatView} />
-                <SidebarLayoutSync />
-                <ChannelsPanels
-                  filters={filters}
-                  iconOnly={chatView.iconOnly}
-                  initialChannelId={initialChannelId ?? undefined}
-                  itemSet={chatViewSelectorItemSet}
-                  options={options}
-                  sort={sort}
-                />
-                <ThreadsPanels
-                  iconOnly={chatView.iconOnly}
-                  itemSet={chatViewSelectorItemSet}
-                />
-              </DialogManagerProvider>
-            </ChatView>
+            <div className='app-chat-layout__body'>
+              <PanelLayoutStyleSync layoutRef={appLayoutRef} />
+              <ChatViewSelectorWidthSync
+                iconOnly={chatView.iconOnly}
+                layoutRef={appLayoutRef}
+              />
+              <ChatView>
+                <DialogManagerProvider id={globalDialogManager}>
+                  <ChatStateSync initialChatView={initialChatView} />
+                  <SidebarLayoutSync />
+                  <ChannelsPanels
+                    filters={filters}
+                    iconOnly={chatView.iconOnly}
+                    initialChannelId={initialChannelId ?? undefined}
+                    itemSet={chatViewSelectorItemSet}
+                    options={options}
+                    sort={sort}
+                  />
+                  <ThreadsPanels
+                    iconOnly={chatView.iconOnly}
+                    itemSet={chatViewSelectorItemSet}
+                  />
+                </DialogManagerProvider>
+              </ChatView>
+            </div>
           </div>
         </Chat>
       </SidebarProvider>
