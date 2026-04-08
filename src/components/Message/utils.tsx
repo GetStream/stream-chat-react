@@ -11,7 +11,6 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import type { PinPermissions } from './hooks';
 import type { MessageProps } from './types';
 import type { MessageContextValue } from '../../context';
 
@@ -69,65 +68,6 @@ export const MESSAGE_ACTIONS = {
 export type MessageActionsArray<T extends string = string> = Array<
   keyof typeof MESSAGE_ACTIONS | keyof typeof OPTIONAL_MESSAGE_ACTIONS | T
 >;
-
-// @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
-export const defaultPinPermissions: PinPermissions = {
-  commerce: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  gaming: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: false,
-    user: false,
-  },
-  livestream: {
-    admin: true,
-    anonymous: false,
-    channel_member: false,
-    channel_moderator: true,
-    guest: false,
-    member: false,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  messaging: {
-    admin: true,
-    anonymous: false,
-    channel_member: true,
-    channel_moderator: true,
-    guest: false,
-    member: true,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-  team: {
-    admin: true,
-    anonymous: false,
-    channel_member: true,
-    channel_moderator: true,
-    guest: false,
-    member: true,
-    moderator: true,
-    owner: true,
-    user: false,
-  },
-};
 
 export type Capabilities = {
   canDelete?: boolean;

@@ -1,10 +1,9 @@
 import type { PropsWithChildren } from 'react';
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import type { LoadMoreButtonProps } from './LoadMoreButton';
 import { LoadMoreButton as DefaultLoadMoreButton } from './LoadMoreButton';
 import type { PaginatorProps } from '../../types/types';
-import { deprecationAndReplacementWarning } from '../../utils/deprecationWarning';
 
 export type LoadMorePaginatorProps = PaginatorProps & {
   /** A UI button component that handles pagination logic */
@@ -22,23 +21,13 @@ export const UnMemoizedLoadMorePaginator = (
     isLoading,
     LoadMoreButton = DefaultLoadMoreButton,
     loadNextPage,
-    refreshing,
     reverse,
   } = props;
-  const loadingState = typeof isLoading !== 'undefined' ? isLoading : refreshing;
-
-  useEffect(() => {
-    deprecationAndReplacementWarning(
-      [[{ refreshing }, { isLoading }]],
-      'LoadMorePaginator',
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>
       {!reverse && children}
-      {hasNextPage && <LoadMoreButton isLoading={loadingState} onClick={loadNextPage} />}
+      {hasNextPage && <LoadMoreButton isLoading={isLoading} onClick={loadNextPage} />}
       {reverse && children}
     </>
   );

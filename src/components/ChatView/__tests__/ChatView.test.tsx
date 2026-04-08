@@ -48,11 +48,9 @@ const renderComponent = async (threadManagerState: any) => {
       value={{
         channelsQueryState: fromPartial({}),
         client,
-        closeMobileNav: vi.fn(),
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
-        openMobileNav: vi.fn(),
         searchController: fromPartial({}),
         setActiveChannel: vi.fn(),
         theme: 'messaging light',
@@ -82,11 +80,9 @@ const renderSelector = async (selectorProps?: any) => {
       value={{
         channelsQueryState: fromPartial({}),
         client,
-        closeMobileNav: vi.fn(),
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
         mutes: [],
-        openMobileNav: vi.fn(),
         searchController: fromPartial({}),
         setActiveChannel: vi.fn(),
         theme: 'messaging light',

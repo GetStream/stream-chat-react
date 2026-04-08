@@ -18,27 +18,16 @@ import type {
   StreamChat,
 } from 'stream-chat';
 
-/** Viewport width (px) above which the sidebar is open by default when using responsive initial nav state. */
-export const NAV_SIDEBAR_DESKTOP_BREAKPOINT = 768;
-
-/** With responsive nav: sidebar is open on load (so ChannelList/ThreadList + selector visible); close on channel/thread selection. */
-const getDefaultNavOpenFromViewport = (): boolean => true;
-
 export type UseChatParams = {
   client: StreamChat;
   defaultLanguage?: SupportedTranslations;
   i18nInstance?: Streami18n;
-  /**
-   * Initial open state of the sidebar. Omit for responsive (viewport-derived); set to true/false for an explicit initial state.
-   */
-  initialNavOpen?: boolean;
 };
 
 export const useChat = ({
   client,
   defaultLanguage = 'en',
   i18nInstance,
-  initialNavOpen,
 }: UseChatParams) => {
   const [translators, setTranslators] = useState<TranslationContextValue>({
     t: defaultTranslatorFunction,
@@ -48,16 +37,9 @@ export const useChat = ({
 
   const [channel, setChannel] = useState<Channel>();
   const [mutes, setMutes] = useState<Array<Mute>>([]);
-  const [navOpen, setNavOpen] = useState(() => {
-    if (initialNavOpen === undefined) return getDefaultNavOpenFromViewport() ?? true;
-    return initialNavOpen;
-  });
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
   const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
-
-  const closeMobileNav = () => setNavOpen(false);
-  const openMobileNav = () => setTimeout(() => setNavOpen(true), 100);
 
   const appSettings = useRef<Promise<AppSettingsAPIResponse> | null>(null);
 
@@ -144,10 +126,6 @@ export const useChat = ({
       }
 
       setChannel(activeChannel);
-      const isMobileViewport =
-        typeof window !== 'undefined' &&
-        window.innerWidth < NAV_SIDEBAR_DESKTOP_BREAKPOINT;
-      if (isMobileViewport) closeMobileNav();
     },
     [],
   );
@@ -158,12 +136,9 @@ export const useChat = ({
 
   return {
     channel,
-    closeMobileNav,
     getAppSettings,
     latestMessageDatesByChannels,
     mutes,
-    navOpen,
-    openMobileNav,
     setActiveChannel,
     translators,
   };

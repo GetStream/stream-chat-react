@@ -13,7 +13,6 @@ import type {
 import type { ChannelActionContextValue } from './ChannelActionContext';
 
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
-import type { PinPermissions } from '../components/Message/hooks/usePinHandler';
 import type { ReactEventHandler } from '../components/Message/types';
 import type { MessageActionsArray } from '../components/Message/utils';
 import type { GroupStyle } from '../components/MessageList/utils';
@@ -101,8 +100,6 @@ export type MessageContextValue = {
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
   mutes?: Mute[];
-  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin Messages in various channel types */
-  pinPermissions?: PinPermissions;
   /** Sort options to provide to a reactions query */
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */

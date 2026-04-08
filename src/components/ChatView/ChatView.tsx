@@ -237,7 +237,6 @@ export const ChatViewChannelsSelectorButton = ({
   iconOnly = true,
 }: ChatViewSelectorItemProps) => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
-  const { openMobileNav } = useChatContext('ChatViewChannelsSelectorButton');
   const { t } = useTranslationContext();
 
   const isActive = activeChatView === 'channels';
@@ -248,10 +247,7 @@ export const ChatViewChannelsSelectorButton = ({
       Icon={IconMessageBubble}
       iconOnly={iconOnly}
       isActive={isActive}
-      onPointerDown={() => {
-        openMobileNav();
-        setActiveChatView('channels');
-      }}
+      onPointerDown={() => setActiveChatView('channels')}
       text={t('Channels')}
     />
   );
@@ -260,7 +256,7 @@ export const ChatViewChannelsSelectorButton = ({
 export const ChatViewThreadsSelectorButton = ({
   iconOnly = true,
 }: ChatViewSelectorItemProps) => {
-  const { client, openMobileNav } = useChatContext();
+  const { client } = useChatContext();
   const { unreadThreadCount } = useStateStore(
     client.threads.state,
     unreadThreadCountSelector,
@@ -278,10 +274,7 @@ export const ChatViewThreadsSelectorButton = ({
       Icon={IconThread}
       iconOnly={iconOnly}
       isActive={isActive}
-      onPointerDown={() => {
-        openMobileNav();
-        setActiveChatView('threads');
-      }}
+      onPointerDown={() => setActiveChatView('threads')}
       text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
@@ -317,21 +310,13 @@ export const defaultChatViewSelectorItemSet: ChatViewSelectorEntry[] = [
 const ChatViewSelector = ({
   iconOnly = true,
   itemSet = defaultChatViewSelectorItemSet,
-}: ChatViewSelectorProps) => {
-  const { navOpen } = useChatContext('ChatView.Selector');
-  return (
-    <div
-      className={clsx('str-chat__chat-view__selector', {
-        'str-chat__chat-view__selector--nav-closed': navOpen === false,
-        'str-chat__chat-view__selector--nav-open': navOpen === true,
-      })}
-    >
-      {itemSet.map(({ Component, type }) => (
-        <Component iconOnly={iconOnly} key={type} />
-      ))}
-    </div>
-  );
-};
+}: ChatViewSelectorProps) => (
+  <div className='str-chat__chat-view__selector'>
+    {itemSet.map(({ Component, type }) => (
+      <Component iconOnly={iconOnly} key={type} />
+    ))}
+  </div>
+);
 
 ChatView.Channels = ChannelsView;
 ChatView.Threads = ThreadsView;
