@@ -2,19 +2,13 @@ import React from 'react';
 import { FileSizeIndicator } from '../../Attachment';
 import { prettifyFileSize } from '../hooks/utils';
 
-function safePrettifyFileSize(bytes: number, maximumFractionDigits?: number): string {
-  if (!Number.isFinite(bytes) || bytes < 0) return '';
-  if (bytes === 0) return '0 B';
-  return prettifyFileSize(bytes, maximumFractionDigits);
-}
-
 function formatUploadByteFraction(
   uploadPercent: number,
   fullBytes: number,
   maximumFractionDigits?: number,
 ): string {
   const uploaded = Math.round((uploadPercent / 100) * fullBytes);
-  return `${safePrettifyFileSize(uploaded, maximumFractionDigits)} / ${safePrettifyFileSize(fullBytes, maximumFractionDigits)}`;
+  return `${prettifyFileSize(uploaded, maximumFractionDigits)} / ${prettifyFileSize(fullBytes, maximumFractionDigits)}`;
 }
 
 function resolveAttachmentFullByteSize(attachment: {
