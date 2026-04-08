@@ -1,28 +1,18 @@
-import React, { type ComponentType } from 'react';
-import clsx from 'clsx';
-import { useChatContext, useTranslationContext } from '../../context';
-import { IconSidebar } from '../Icons';
-import { ToggleSidebarButton } from '../Button/ToggleSidebarButton';
+import React from 'react';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 
-export type ChannelListHeaderProps = {
-  ToggleButtonIcon?: ComponentType;
-};
-
-export const ChannelListHeader = ({
-  ToggleButtonIcon = IconSidebar,
-}: ChannelListHeaderProps) => {
+export const ChannelListHeader = () => {
   const { t } = useTranslationContext();
-  const { channel, navOpen } = useChatContext();
+  const { channel } = useChatContext();
+  const { HeaderEndContent } = useComponentContext();
   return (
-    <div
-      className={clsx('str-chat__channel-list__header', {
-        'str-chat__channel-list__header--sidebar-collapsed': !navOpen,
-      })}
-    >
+    <div className='str-chat__channel-list__header'>
       <div className='str-chat__channel-list__header__title'>{t('Chats')}</div>
-      <ToggleSidebarButton canCollapse={!!channel} mode={'collapse'}>
-        <ToggleButtonIcon />
-      </ToggleSidebarButton>
+      {channel && HeaderEndContent && <HeaderEndContent />}
     </div>
   );
 };

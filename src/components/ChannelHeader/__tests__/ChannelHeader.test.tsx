@@ -6,6 +6,7 @@ import { ChannelHeader } from '../ChannelHeader';
 
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
+import { WithComponents } from '../../../context/WithComponents';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
   dispatchUserUpdatedEvent,
@@ -40,7 +41,6 @@ const user2 = generateUser({ image: null });
 let testChannel1: ChannelAPIResponse;
 let client: StreamChat;
 
-const CustomMenuIcon = () => <div id='custom-icon'>Custom Menu Icon</div>;
 const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
@@ -180,21 +180,35 @@ describe('ChannelHeader', () => {
     });
   });
 
-  it('should render the sidebar toggle button when sidebar is collapsed', async () => {
-    const { container } = await renderComponent();
-    // The ToggleSidebarButton renders when navOpen is falsy (not provided in mock context)
-    // or when on mobile viewport. In jsdom it sees !navOpen so the button shows.
-    const toggleButton = container.querySelector('.str-chat__header-sidebar-toggle');
-    expect(toggleButton).toBeInTheDocument();
-  });
+  describe('HeaderStartContent slot', () => {
+    const HeaderStartContent = () => <div data-testid='sidebar-toggle' />;
 
-  it('should display custom menu icon', async () => {
-    const { container } = await renderComponent({
-      props: {
-        MenuIcon: CustomMenuIcon,
-      },
+    it('should not render HeaderStartContent when not provided via ComponentContext', async () => {
+      await renderComponent();
+      expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
     });
-    expect(container.querySelector('div#custom-icon')).toBeInTheDocument();
+
+    it('should render HeaderStartContent when provided via ComponentContext', async () => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({ ...defaultChannelState });
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
+
+      render(
+        <WithComponents overrides={{ HeaderStartContent }}>
+          <ChatProvider value={mockChatContext({ channel, client })}>
+            <ChannelStateProvider value={mockChannelStateContext({ channel })}>
+              <TranslationProvider value={mockTranslationContextValue({ t })}>
+                <ChannelHeader />
+              </TranslationProvider>
+            </ChannelStateProvider>
+          </ChatProvider>
+        </WithComponents>,
+      );
+
+      expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
+    });
   });
 
   it("DM channel should reflect change of other user's name", async () => {

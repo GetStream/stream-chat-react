@@ -63,10 +63,4 @@
     font: var(--str-chat__caption-default-text);
     color: var(--str-chat__channel-header__data__subtitle-color);
   }
-
-  &.str-chat__channel-header--sidebar-collapsed {
-    .str-chat__header-sidebar-toggle {
-      // Compact styling when sidebar collapsed
-    }
-  }
 }

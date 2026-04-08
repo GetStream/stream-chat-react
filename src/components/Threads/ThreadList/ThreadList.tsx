@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
-import clsx from 'clsx';
-
 import type { Thread, ThreadManager, ThreadManagerState } from 'stream-chat';
 
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
@@ -85,7 +83,7 @@ const useThreadHighlighting = (threadManager: ThreadManager) => {
 };
 
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
-  const { client, navOpen = true } = useChatContext();
+  const { client } = useChatContext();
   const {
     NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
@@ -101,11 +99,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   if (isLoading && !threads.length) {
     return (
-      <div
-        className={clsx('str-chat__thread-list-container', {
-          'str-chat__thread-list-container--open': navOpen,
-        })}
-      >
+      <div className='str-chat__thread-list-container'>
         <ThreadListHeader />
         <div className='str-chat__thread-list str-chat__thread-list--loading'>
           <LoadingChannels />
@@ -115,11 +109,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   }
 
   return (
-    <div
-      className={clsx('str-chat__thread-list-container', {
-        'str-chat__thread-list-container--open': navOpen,
-      })}
-    >
+    <div className='str-chat__thread-list-container'>
       <ThreadListHeader />
       {/* TODO: allow re-load on stale ThreadManager state */}
       <ThreadListUnseenThreadsBanner />
