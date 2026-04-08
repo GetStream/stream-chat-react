@@ -16,7 +16,7 @@ export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) =
   const dashOffset = RING_CIRCUMFERENCE * (1 - percent / 100);
 
   return (
-    <div className='str-chat__circular-progress-indicator'>
+    <div className='str-chat__circular-progress-indicator str-chat__progress-indicator'>
       <svg
         aria-label={t('aria/Percent complete', { percent })}
         aria-valuemax={100}

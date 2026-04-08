@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import React from 'react';
 
 import { useComponentContext } from '../../context';
@@ -21,9 +20,5 @@ export const UploadProgressIndicator = ({
     return <LoadingIndicator data-testid='loading-indicator' />;
   }
 
-  return (
-    <div className={clsx('str-chat__attachment-upload-progress')}>
-      <ProgressIndicator percent={uploadProgress} />
-    </div>
-  );
+  return <ProgressIndicator percent={uploadProgress} />;
 };

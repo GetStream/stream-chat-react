@@ -211,7 +211,7 @@
     }
 
     .str-chat__loading-indicator,
-    .str-chat__attachment-upload-progress {
+    .str-chat__progress-indicator {
       width: var(--icon-size-sm);
       height: var(--icon-size-sm);
       position: absolute;
@@ -284,7 +284,7 @@
       line-height: var(--typography-line-height-tight);
 
       .str-chat__loading-indicator,
-      .str-chat__attachment-upload-progress {
+      .str-chat__progress-indicator {
         width: var(--icon-size-sm);
         height: var(--icon-size-sm);
         color: var(--accent-primary);
