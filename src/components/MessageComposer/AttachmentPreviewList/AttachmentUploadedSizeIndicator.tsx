@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useComponentContext } from '../../../context';
-import { FileSizeIndicator } from '../../Attachment';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from '../../Attachment/components/FileSizeIndicator';
 import { UploadedSizeIndicator as DefaultUploadedSizeIndicator } from '../../Loading/UploadedSizeIndicator';
 
 function resolveAttachmentFullByteSize(attachment: {
@@ -35,7 +35,10 @@ export type AttachmentUploadedSizeIndicatorProps = {
 export const AttachmentUploadedSizeIndicator = ({
   attachment,
 }: AttachmentUploadedSizeIndicatorProps) => {
-  const { UploadedSizeIndicator = DefaultUploadedSizeIndicator } = useComponentContext();
+  const {
+    FileSizeIndicator = DefaultFileSizeIndicator,
+    UploadedSizeIndicator = DefaultUploadedSizeIndicator,
+  } = useComponentContext();
   const { uploadProgress, uploadState } = attachment.localMetadata ?? {};
   const fullBytes = resolveAttachmentFullByteSize(attachment);
   const uploaded =

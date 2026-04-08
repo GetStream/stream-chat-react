@@ -1,9 +1,13 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator } from './components';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
 import { FileIcon } from '../FileIcon';
-import { useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import {
   type AudioPlayer,
   type AudioPlayerState,
@@ -32,6 +36,7 @@ type VoiceRecordingPlayerUIProps = {
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
 const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) => {
+  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
   const {
     canPlayRecord,
     durationSeconds,
@@ -130,31 +135,32 @@ export const VoiceRecordingPlayer = ({
 
 export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
-export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => (
-  // const { t } = useTranslationContext();
-  // const title = attachment.title || t('Voice message');
-  <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
-    <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
-      <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
-        <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-          {attachment.duration ? (
-            <DurationDisplay
-              duration={attachment.duration}
-              isPlaying={false}
-              secondsElapsed={undefined}
-            />
-          ) : (
-            <FileSizeIndicator
-              fileSize={attachment.file_size}
-              maximumFractionDigits={0}
-            />
-          )}
+export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
+  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
+  return (
+    <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
+      <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
+        <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
+          <div className='str-chat__message-attachment__voice-recording-widget__timer'>
+            {attachment.duration ? (
+              <DurationDisplay
+                duration={attachment.duration}
+                isPlaying={false}
+                secondsElapsed={undefined}
+              />
+            ) : (
+              <FileSizeIndicator
+                fileSize={attachment.file_size}
+                maximumFractionDigits={0}
+              />
+            )}
+          </div>
         </div>
       </div>
+      <FileIcon mimeType={attachment.mime_type} />
     </div>
-    <FileIcon mimeType={attachment.mime_type} />
-  </div>
-);
+  );
+};
 
 export type VoiceRecordingProps = {
   /** The attachment object from the message's attachment list. */

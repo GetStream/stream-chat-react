@@ -73,6 +73,7 @@ import type { StopAIGenerationButtonProps } from '../components/MessageComposer/
 import type { VideoPlayerProps } from '../components/VideoPlayer';
 import type { EditedMessagePreviewProps } from '../components/MessageComposer/EditedMessagePreview';
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
+import type { FileSizeIndicatorProps } from '../components/Attachment/components/FileSizeIndicator';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { ProgressIndicatorProps } from '../components/Loading/progress-indicators';
 import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedSizeIndicator';
@@ -126,6 +127,8 @@ export type ComponentContextValue = {
   DateSeparator?: React.ComponentType<DateSeparatorProps>;
   /** Custom UI component to display the contents on file drag-and-drop overlay, defaults to and accepts same props as: [FileDragAndDropContent](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/WithDragAndDropUpload.tsx) */
   FileDragAndDropContent?: React.ComponentType<FileDragAndDropContentProps>;
+  /** Custom UI component to display a formatted file byte size (message attachments, upload previews), defaults to and accepts same props as: [FileSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/components/FileSizeIndicator.tsx) */
+  FileSizeIndicator?: React.ComponentType<FileSizeIndicatorProps>;
   /** Custom UI component to override default preview of edited message, defaults to and accepts same props as: [EditedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/EditedMessagePreview.tsx) */
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageComposer */
