@@ -6,12 +6,10 @@ import { CircularProgressIndicator as DefaultProgressIndicator } from './progres
 import { LoadingIndicator as DefaultLoadingIndicator } from './LoadingIndicator';
 
 export type UploadProgressIndicatorProps = {
-  className?: string;
   uploadProgress?: number;
 };
 
 export const UploadProgressIndicator = ({
-  className,
   uploadProgress,
 }: UploadProgressIndicatorProps) => {
   const {
@@ -24,7 +22,7 @@ export const UploadProgressIndicator = ({
   }
 
   return (
-    <div className={clsx('str-chat__attachment-upload-progress', className)}>
+    <div className={clsx('str-chat__attachment-upload-progress')}>
       <ProgressIndicator percent={uploadProgress} />
     </div>
   );
