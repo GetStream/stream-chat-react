@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import type { NotificationAction, NotificationSeverity } from 'stream-chat';
+import type { Notification, NotificationAction, NotificationSeverity } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import {
@@ -9,6 +9,12 @@ import {
   type NotificationTargetPanel,
 } from '../notificationTarget';
 import { useNotificationTarget } from './useNotificationTarget';
+
+/** Tag used for full-width system banners (e.g. connection status). Excluded from `NotificationList` by default. */
+export const SYSTEM_NOTIFICATION_TAG = 'system' as const;
+
+export const hasSystemNotificationTag = (notification: Notification) =>
+  notification.tags?.includes(SYSTEM_NOTIFICATION_TAG) ?? false;
 
 export type NotificationIncidentDescriptor = {
   /** Where the incident happened (e.g. api, browser, validation, permission). */
@@ -51,12 +57,22 @@ export type AddNotificationParams = {
   type?: string;
 };
 
+/**
+ * Same shape as {@link AddNotificationParams} except `targetPanels` is omitted — system
+ * banners are global and do not receive `target:*` panel tags (they are filtered by the
+ * `system` tag for `NotificationList` vs banner UIs).
+ */
+export type AddSystemNotificationParams = Omit<AddNotificationParams, 'targetPanels'>;
+
 export type AddNotification = (params: AddNotificationParams) => void;
+/** Returns the notification id (for removal / timeouts). */
+export type AddSystemNotification = (params: AddSystemNotificationParams) => string;
 export type RemoveNotification = (id: string) => void;
 export type StartNotificationTimeout = (id: string) => void;
 
 export type NotificationApi = {
   addNotification: AddNotification;
+  addSystemNotification: AddSystemNotification;
   removeNotification: RemoveNotification;
   startNotificationTimeout: StartNotificationTimeout;
 };
@@ -132,6 +148,43 @@ export const useNotificationApi = (): NotificationApi => {
     [client, inferredPanel],
   );
 
+  const addSystemNotification: AddSystemNotification = useCallback(
+    ({
+      actions,
+      context,
+      duration,
+      emitter,
+      error,
+      incident,
+      message,
+      severity,
+      tags,
+      type,
+    }: AddSystemNotificationParams) => {
+      const notificationTags = Array.from(
+        new Set([SYSTEM_NOTIFICATION_TAG, ...(tags ?? [])]),
+      );
+      const resolvedType = getTypeFromIncident({ incident, severity, type });
+      const origin = context ? { context, emitter } : { emitter };
+
+      const options = {
+        ...(actions ? { actions } : {}),
+        ...(typeof duration === 'number' ? { duration } : {}),
+        ...(error ? { originalError: error } : {}),
+        ...(notificationTags.length > 0 ? { tags: notificationTags } : {}),
+        ...(severity ? { severity } : {}),
+        ...(resolvedType ? { type: resolvedType } : {}),
+      };
+
+      return client.notifications.add({
+        message,
+        options,
+        origin,
+      });
+    },
+    [client],
+  );
+
   const removeNotification: RemoveNotification = useCallback(
     (id) => {
       client.notifications.remove(id);
@@ -146,5 +199,10 @@ export const useNotificationApi = (): NotificationApi => {
     [client],
   );
 
-  return { addNotification, removeNotification, startNotificationTimeout };
+  return {
+    addNotification,
+    addSystemNotification,
+    removeNotification,
+    startNotificationTimeout,
+  };
 };

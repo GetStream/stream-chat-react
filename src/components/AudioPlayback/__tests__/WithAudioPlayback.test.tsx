@@ -23,6 +23,7 @@ vi.mock('../../Notifications', async (importOriginal: any) => ({
   ...(await importOriginal()),
   useNotificationApi: () => ({
     addNotification: mockAddNotification,
+    addSystemNotification: vi.fn(),
   }),
   useNotificationTarget: () => 'channel',
 }));

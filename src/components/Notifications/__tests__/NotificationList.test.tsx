@@ -114,6 +114,7 @@ describe('NotificationList', () => {
     currentNotifications = [...notifications];
     mockedUseNotificationApi.mockReturnValue({
       addNotification: vi.fn(),
+      addSystemNotification: vi.fn(),
       removeNotification: remove,
       startNotificationTimeout: startTimeout,
     });

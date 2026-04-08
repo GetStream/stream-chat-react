@@ -23,7 +23,10 @@ vi.mock('../../../context/TranslationContext', () => ({
   useTranslationContext: () => ({ t: (s) => tSpy(s) }),
 }));
 vi.mock('../../Notifications', () => ({
-  useNotificationApi: () => ({ addNotification: addNotificationSpy }),
+  useNotificationApi: () => ({
+    addNotification: addNotificationSpy,
+    addSystemNotification: vi.fn(),
+  }),
   useNotificationTarget: () => 'channel',
 }));
 

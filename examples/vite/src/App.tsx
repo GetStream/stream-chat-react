@@ -49,6 +49,7 @@ import {
   getSelectedChatViewFromUrl,
 } from './ChatLayout/Sync.tsx';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
+import { SystemNotification } from './SystemNotification/SystemNotification.tsx';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import {
   CustomAttachmentActions,
@@ -377,6 +378,7 @@ const App = () => {
           style={initialAppLayoutStyle}
           data-variant={messageUiVariant ?? undefined}
         >
+          <SystemNotification />
           <PanelLayoutStyleSync layoutRef={appLayoutRef} />
           <ChatViewSelectorWidthSync
             iconOnly={chatView.iconOnly}

@@ -14,7 +14,10 @@ import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayback';
 
 vi.mock('../../Notifications', () => ({
-  useNotificationApi: () => ({ addNotification: vi.fn() }),
+  useNotificationApi: () => ({
+    addNotification: vi.fn(),
+    addSystemNotification: vi.fn(),
+  }),
   useNotificationTarget: () => 'channel',
 }));
 

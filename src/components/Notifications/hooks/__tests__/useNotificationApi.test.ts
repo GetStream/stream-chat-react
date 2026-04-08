@@ -3,7 +3,13 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useChatContext } from '../../../../context';
 import { useNotificationTarget } from '../useNotificationTarget';
-import { useNotificationApi } from '../useNotificationApi';
+import type { Notification } from 'stream-chat';
+
+import {
+  hasSystemNotificationTag,
+  SYSTEM_NOTIFICATION_TAG,
+  useNotificationApi,
+} from '../useNotificationApi';
 
 vi.mock('../../../../context', () => ({
   useChatContext: vi.fn(),
@@ -253,5 +259,74 @@ describe('useNotificationApi', () => {
       },
       origin: { emitter: 'Uploader' },
     });
+  });
+
+  it('addSystemNotification applies system tag and skips panel target tags', () => {
+    mockedUseNotificationTarget.mockReturnValue('thread');
+
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addSystemNotification({
+      duration: 0,
+      emitter: 'Chat',
+      message: 'Waiting for network…',
+      severity: 'loading',
+      type: 'system:network:connection:lost',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Waiting for network…',
+      options: {
+        duration: 0,
+        severity: 'loading',
+        tags: ['system'],
+        type: 'system:network:connection:lost',
+      },
+      origin: { emitter: 'Chat' },
+    });
+  });
+
+  it('addSystemNotification merges extra tags with system tag', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addSystemNotification({
+      emitter: 'App',
+      message: 'Maintenance',
+      severity: 'warning',
+      tags: ['custom'],
+      type: 'app:maintenance:upcoming',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Maintenance',
+      options: {
+        severity: 'warning',
+        tags: ['system', 'custom'],
+        type: 'app:maintenance:upcoming',
+      },
+      origin: { emitter: 'App' },
+    });
+  });
+});
+
+describe('system notification tag helpers', () => {
+  const base: Notification = {
+    createdAt: 1,
+    id: 'n1',
+    message: 'x',
+    origin: { emitter: 't' },
+  };
+
+  it('SYSTEM_NOTIFICATION_TAG is system', () => {
+    expect(SYSTEM_NOTIFICATION_TAG).toBe('system');
+  });
+
+  it('hasSystemNotificationTag returns true when system tag is present', () => {
+    expect(hasSystemNotificationTag({ ...base, tags: ['system'] })).toBe(true);
+  });
+
+  it('hasSystemNotificationTag returns false when tag is missing or different', () => {
+    expect(hasSystemNotificationTag(base)).toBe(false);
+    expect(hasSystemNotificationTag({ ...base, tags: ['channel'] })).toBe(false);
   });
 });

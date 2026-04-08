@@ -1,0 +1,89 @@
+.str-chat__system-notification-anchor {
+  position: relative;
+}
+
+.str-chat__system-notification {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs, 8px);
+  padding-block: var(--spacing-xs, 8px);
+  padding-inline: var(--spacing-sm, 12px);
+  background: var(--background-core-surface-default, #ebeef1);
+  color: var(--chat-text-system, #414552);
+  font-feature-settings:
+    'liga' off,
+    'clig' off;
+  font-size: var(--typography-font-size-xs, 12px);
+  font-style: normal;
+  font-weight: var(--typography-font-weight-semi-bold, 600);
+  line-height: var(--typography-line-height-tight, 16px);
+  animation: str-chat__system-notification-slide-in 300ms ease-out both;
+  overflow: hidden;
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline: 0;
+  z-index: 2;
+}
+
+.str-chat__system-notification--exiting {
+  animation: str-chat__system-notification-slide-out 300ms ease-in both;
+}
+
+.str-chat__system-notification--interactive {
+  cursor: pointer;
+}
+
+.str-chat__system-notification-icon {
+  align-items: center;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.str-chat__system-notification-message {
+  white-space: nowrap;
+  overflow-y: visible;
+  overflow-x: hidden;
+  overflow-x: clip;
+  text-overflow: ellipsis;
+}
+
+.str-chat__system-notification--loading .str-chat__system-notification-icon {
+  animation: str-chat__system-notification-spin 1.5s linear infinite;
+}
+
+@keyframes str-chat__system-notification-slide-in {
+  from {
+    max-height: 0;
+    opacity: 0;
+    padding-block: 0;
+  }
+
+  to {
+    max-height: 4rem;
+    opacity: 1;
+  }
+}
+
+@keyframes str-chat__system-notification-slide-out {
+  from {
+    max-height: 4rem;
+    opacity: 1;
+  }
+
+  to {
+    max-height: 0;
+    opacity: 0;
+    padding-block: 0;
+  }
+}
+
+@keyframes str-chat__system-notification-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

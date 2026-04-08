@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type { Notification } from 'stream-chat';
 
-import { useNotificationApi } from './hooks/useNotificationApi';
+import { hasSystemNotificationTag, useNotificationApi } from './hooks/useNotificationApi';
 import { useNotifications } from './hooks/useNotifications';
 import { Notification as DefaultNotification } from './Notification';
 import { useComponentContext } from '../../context';
@@ -89,7 +89,18 @@ export const NotificationList = ({
     null,
   );
   const [transitionState, setTransitionState] = useState<'enter' | 'exit'>('enter');
-  const notifications = useNotifications({ fallbackPanel, filter, panel });
+  const combinedFilter = useCallback(
+    (notification: Notification) => {
+      if (hasSystemNotificationTag(notification)) return false;
+      return filter ? filter(notification) : true;
+    },
+    [filter],
+  );
+  const notifications = useNotifications({
+    fallbackPanel,
+    filter: combinedFilter,
+    panel,
+  });
   const nextNotification = notifications[0] ?? null;
 
   const dismiss = useCallback(
