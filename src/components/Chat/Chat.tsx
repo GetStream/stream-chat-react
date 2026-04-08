@@ -1,22 +1,28 @@
+import type { PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
+import type { StreamChat } from 'stream-chat';
 import {
   ChannelSearchSource,
   MessageSearchSource,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
-import type { PropsWithChildren } from 'react';
-import type { StreamChat } from 'stream-chat';
 
 import { useChat } from './hooks/useChat';
+import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
+import type { CustomClasses } from '../../context/ChatContext';
 import { ChatProvider } from '../../context/ChatContext';
 import { TranslationProvider } from '../../context/TranslationContext';
-import type { CustomClasses } from '../../context/ChatContext';
 import { type MessageContextValue, ModalDialogManagerProvider } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
+
+const NetworkConnectionNotificationReporter = () => {
+  useReportLostConnectionSystemNotification();
+  return null;
+};
 
 export type ChatProps = {
   /** The StreamChat client object */
@@ -71,6 +77,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     i18nInstance,
   });
 
+  useReportLostConnectionSystemNotification();
   const channelsQueryState = useChannelsQueryState();
 
   const searchController = useMemo(
@@ -106,7 +113,10 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
   return (
     <ChatProvider value={chatContextValue}>
       <TranslationProvider value={translators}>
-        <ModalDialogManagerProvider>{children}</ModalDialogManagerProvider>
+        <ModalDialogManagerProvider>
+          <NetworkConnectionNotificationReporter />
+          {children}
+        </ModalDialogManagerProvider>
       </TranslationProvider>
     </ChatProvider>
   );

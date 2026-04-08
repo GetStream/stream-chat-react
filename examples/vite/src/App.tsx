@@ -20,6 +20,7 @@ import {
   Chat,
   ChatView,
   createIcon,
+  DialogManagerProvider,
   MessageReactions,
   type NotificationListProps,
   NotificationList,
@@ -52,6 +53,7 @@ import {
   getSelectedChatViewFromUrl,
 } from './ChatLayout/Sync.tsx';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
+import { SystemNotification } from './SystemNotification/SystemNotification.tsx';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import {
   CustomAttachmentActions,
@@ -206,6 +208,7 @@ const MessageUiOverride = messageUiVariant
 const systemMessageVariant = getSystemMessageVariant();
 const reactionsVariant = getReactionsVariant();
 const attachmentActionsVariant = getAttachmentActionsVariant();
+const globalDialogManager = 'globalDialogManager';
 
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
@@ -411,27 +414,32 @@ const App = () => {
             style={initialAppLayoutStyle}
             data-variant={messageUiVariant ?? undefined}
           >
-            <PanelLayoutStyleSync layoutRef={appLayoutRef} />
-            <ChatViewSelectorWidthSync
-              iconOnly={chatView.iconOnly}
-              layoutRef={appLayoutRef}
-            />
-            <ChatView>
-              <ChatStateSync initialChatView={initialChatView} />
-              <SidebarLayoutSync />
-              <ChannelsPanels
-                filters={filters}
+            <SystemNotification />
+            <div className='app-chat-layout__body'>
+              <PanelLayoutStyleSync layoutRef={appLayoutRef} />
+              <ChatViewSelectorWidthSync
                 iconOnly={chatView.iconOnly}
-                initialChannelId={initialChannelId ?? undefined}
-                itemSet={chatViewSelectorItemSet}
-                options={options}
-                sort={sort}
+                layoutRef={appLayoutRef}
               />
-              <ThreadsPanels
-                iconOnly={chatView.iconOnly}
-                itemSet={chatViewSelectorItemSet}
-              />
-            </ChatView>
+              <ChatView>
+                <DialogManagerProvider id={globalDialogManager}>
+                  <ChatStateSync initialChatView={initialChatView} />
+                  <SidebarLayoutSync />
+                  <ChannelsPanels
+                    filters={filters}
+                    iconOnly={chatView.iconOnly}
+                    initialChannelId={initialChannelId ?? undefined}
+                    itemSet={chatViewSelectorItemSet}
+                    options={options}
+                    sort={sort}
+                  />
+                  <ThreadsPanels
+                    iconOnly={chatView.iconOnly}
+                    itemSet={chatViewSelectorItemSet}
+                  />
+                </DialogManagerProvider>
+              </ChatView>
+            </div>
           </div>
         </Chat>
       </SidebarProvider>

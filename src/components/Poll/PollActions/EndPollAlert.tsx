@@ -1,20 +1,14 @@
 import React from 'react';
 import { Alert } from '../../Dialog';
-import {
-  useChatContext,
-  useModalContext,
-  usePollContext,
-  useTranslationContext,
-} from '../../../context';
+import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
 import { Button } from '../../Button';
-import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
+import { useNotificationApi } from '../../Notifications';
 
 export const EndPollAlert = () => {
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { close } = useModalContext();
-  const panel = useNotificationTarget();
 
   return (
     <Alert.Root className={'str-chat__end-poll-alert'}>
@@ -33,23 +27,19 @@ export const EndPollAlert = () => {
             try {
               await poll.close();
               close();
-              client.notifications.addSuccess({
+              addNotification({
+                emitter: 'EndPollAlert',
                 message: t('Poll ended'),
-                options: {
-                  tags: addNotificationTargetTag(panel),
-                  type: 'api:poll:end:success',
-                },
-                origin: { emitter: 'EndPollAlert' },
+                severity: 'success',
+                type: 'api:poll:end:success',
               });
             } catch (e) {
-              client.notifications.addError({
+              addNotification({
+                emitter: 'EndPollAlert',
+                error: e instanceof Error ? e : undefined,
                 message: t('Failed to end the poll'),
-                options: {
-                  originalError: e instanceof Error ? e : undefined,
-                  tags: addNotificationTargetTag(panel),
-                  type: 'api:poll:end:failed',
-                },
-                origin: { emitter: 'EndPollAlert' },
+                severity: 'error',
+                type: 'api:poll:end:failed',
               });
             }
           }}

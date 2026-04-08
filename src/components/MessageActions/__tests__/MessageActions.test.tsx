@@ -18,6 +18,7 @@ import {
 import {
   generateChannel,
   generateMessage,
+  generateReminderResponse,
   generateUser,
   getTestClientWithUser,
   initClientWithChannels,
@@ -766,8 +767,7 @@ describe('<MessageActions />', () => {
       );
     });
 
-    it('should call custom success notification on successful mark unread', async () => {
-      const getMarkMessageUnreadSuccessNotification = vi.fn();
+    it('should emit success notification on successful mark unread', async () => {
       const {
         channels: [channel],
         client,
@@ -775,11 +775,12 @@ describe('<MessageActions />', () => {
         channelsData: [{ channel: { own_capabilities }, messages: [message], read }],
         customUser: me,
       });
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
 
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { getMarkMessageUnreadSuccessNotification, message },
+        messageProps: { message },
       });
       await toggleOpenMessageActions();
 
@@ -787,13 +788,15 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
 
-      expect(getMarkMessageUnreadSuccessNotification).toHaveBeenCalledWith(
-        expect.objectContaining(message),
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Message marked as unread',
+          options: expect.objectContaining({ severity: 'success' }),
+        }),
       );
     });
 
-    it('should call custom error notification on failed mark unread', async () => {
-      const getMarkMessageUnreadErrorNotification = vi.fn();
+    it('should emit error notification on failed mark unread', async () => {
       const {
         channels: [channel],
         client,
@@ -802,11 +805,12 @@ describe('<MessageActions />', () => {
         customUser: me,
       });
       vi.spyOn(channel, 'markUnread').mockRejectedValueOnce(undefined!);
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
 
       await renderMarkUnreadUI({
         channelProps: { channel },
         chatProps: { client },
-        messageProps: { getMarkMessageUnreadErrorNotification, message },
+        messageProps: { message },
       });
       await toggleOpenMessageActions();
 
@@ -814,8 +818,263 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText(ACTION_TEXT));
       });
 
-      expect(getMarkMessageUnreadErrorNotification).toHaveBeenCalledWith(
-        expect.objectContaining(message),
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message:
+            'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
+          options: expect.objectContaining({ severity: 'error' }),
+        }),
+      );
+    });
+  });
+
+  describe('Remind me action', () => {
+    const ACTION_TEXT = 'Remind me';
+
+    const getMessageActionsWithReminders = () => [
+      'delete',
+      'edit',
+      'flag',
+      'mute',
+      'pin',
+      'quote',
+      'react',
+      'remindMe',
+      'reply',
+      'saveForLater',
+    ];
+
+    it('should emit success notification on successful remind me set', async () => {
+      const client = await getTestClientWithUser(alice);
+      vi.spyOn(client.reminders, 'upsertReminder').mockResolvedValueOnce(undefined!);
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(ACTION_TEXT));
+      });
+
+      const remindMeOption = document.querySelector(
+        '.str-chat__message-actions-box__submenu .str-chat__message-actions-list-item-button',
+      ) as HTMLButtonElement;
+
+      await act(async () => {
+        await fireEvent.click(remindMeOption);
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Reminder set',
+          options: expect.objectContaining({
+            severity: 'success',
+            type: 'api:message:reminder:set:success',
+          }),
+        }),
+      );
+    });
+
+    it('should emit error notification on failed remind me set', async () => {
+      const client = await getTestClientWithUser(alice);
+      vi.spyOn(client.reminders, 'upsertReminder').mockRejectedValueOnce(
+        new Error('Boom'),
+      );
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(ACTION_TEXT));
+      });
+
+      const remindMeOption = document.querySelector(
+        '.str-chat__message-actions-box__submenu .str-chat__message-actions-list-item-button',
+      ) as HTMLButtonElement;
+
+      await act(async () => {
+        await fireEvent.click(remindMeOption);
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Boom',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:reminder:set:failed',
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('Save for later action', () => {
+    const SAVE_ACTION_TEXT = 'Save for later';
+    const REMOVE_ACTION_TEXT = 'Remove save for later';
+
+    const getMessageActionsWithReminders = () => [
+      'delete',
+      'edit',
+      'flag',
+      'mute',
+      'pin',
+      'quote',
+      'react',
+      'remindMe',
+      'reply',
+      'saveForLater',
+    ];
+
+    it('should emit success notification on successful save for later', async () => {
+      const client = await getTestClientWithUser(alice);
+      vi.spyOn(client.reminders, 'createReminder').mockResolvedValueOnce(undefined!);
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(SAVE_ACTION_TEXT));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Saved for later',
+          options: expect.objectContaining({
+            severity: 'success',
+            type: 'api:message:saveForLater:create:success',
+          }),
+        }),
+      );
+    });
+
+    it('should emit error notification on failed save for later', async () => {
+      const client = await getTestClientWithUser(alice);
+      vi.spyOn(client.reminders, 'createReminder').mockRejectedValueOnce(
+        new Error('Save failed'),
+      );
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(SAVE_ACTION_TEXT));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Save failed',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:saveForLater:create:failed',
+          }),
+        }),
+      );
+    });
+
+    it('should emit success notification on successful remove save for later', async () => {
+      const client = await getTestClientWithUser(alice);
+      const message = generateMessage();
+      client.reminders.hydrateState([
+        generateMessage({
+          ...message,
+          reminder: generateReminderResponse({
+            data: { message_id: message.id },
+          }),
+        }),
+      ]);
+      vi.spyOn(client.reminders, 'deleteReminder').mockResolvedValueOnce(undefined!);
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+          message,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(REMOVE_ACTION_TEXT));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Remove save for later',
+          options: expect.objectContaining({
+            severity: 'success',
+            type: 'api:message:saveForLater:delete:success',
+          }),
+        }),
+      );
+    });
+
+    it('should emit error notification on failed remove save for later', async () => {
+      const client = await getTestClientWithUser(alice);
+      const message = generateMessage();
+      client.reminders.hydrateState([
+        generateMessage({
+          ...message,
+          reminder: generateReminderResponse({
+            data: { message_id: message.id },
+          }),
+        }),
+      ]);
+      vi.spyOn(client.reminders, 'deleteReminder').mockRejectedValueOnce(
+        new Error('Remove failed'),
+      );
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: getMessageActionsWithReminders,
+          message,
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText(REMOVE_ACTION_TEXT));
+      });
+
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Remove failed',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:saveForLater:delete:failed',
+          }),
+        }),
       );
     });
   });

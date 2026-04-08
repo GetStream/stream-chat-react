@@ -3,7 +3,6 @@ import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { missingUseMuteHandlerParamsWarning, useMuteHandler } from '../useMuteHandler';
-import type { MuteUserNotifications } from '../useMuteHandler';
 
 import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../../context/ChatContext';
@@ -28,7 +27,6 @@ const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
 
 async function renderUseHandleMuteHook(
   message: LocalMessage | undefined = generateMessage() as MessageResponse & LocalMessage,
-  notificationOpts?: MuteUserNotifications,
   channelStateContextValue?: Partial<ChannelStateContextValue> & Record<string, unknown>,
 ) {
   const client = await getTestClientWithUser(alice);
@@ -49,7 +47,7 @@ async function renderUseHandleMuteHook(
     </ChatProvider>
   );
 
-  const { result } = renderHook(() => useMuteHandler(message, notificationOpts), {
+  const { result } = renderHook(() => useMuteHandler(message), {
     wrapper,
   });
   return result.current;
@@ -69,134 +67,38 @@ describe('useHandleMute custom hook', () => {
     expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseMuteHandlerParamsWarning);
   });
 
-  it('should allow to mute a user and notify with custom success notification when it is successful', async () => {
+  it('should allow to mute a user when it is successful', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
-    const userMutedNotification = 'User muted!';
-    const getMuteUserSuccessNotification = vi.fn(() => userMutedNotification);
-    const handleMute = await renderUseHandleMuteHook(message, {
-      getSuccessNotification: getMuteUserSuccessNotification,
-      notify,
-    });
+    const handleMute = await renderUseHandleMuteHook(message);
     await handleMute(mouseEventMock);
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(userMutedNotification, 'success');
   });
 
-  it('should allow to mute a user and notify with default success notification when it is successful', async () => {
+  it('should throw when muting a user fails', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    // The key for the default success message, defined in the implementation
-    const defaultSuccessMessage = '{{ user }} has been muted';
-    const notify = vi.fn();
-    const handleMute = await renderUseHandleMuteHook(message, { notify });
-    await handleMute(mouseEventMock);
+    muteUser.mockImplementationOnce(() => Promise.reject(new Error('mute failed')));
+    const handleMute = await renderUseHandleMuteHook(message);
+    await expect(handleMute(mouseEventMock)).rejects.toThrow('mute failed');
     expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(defaultSuccessMessage, 'success');
   });
 
-  it('should allow to mute a user and notify with custom error message when muting a user fails', async () => {
+  it('should allow to unmute a user when it is successful', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
-    muteUser.mockImplementationOnce(() => Promise.reject());
-    const userMutedFailNotification = 'User mute failed!';
-    const getErrorNotification = vi.fn(() => userMutedFailNotification);
-    const handleMute = await renderUseHandleMuteHook(message, {
-      getErrorNotification,
-      notify,
-    });
-    await handleMute(mouseEventMock);
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(userMutedFailNotification, 'error');
-  });
-
-  it('should allow to mute a user and notify with default error message when muting a user fails', async () => {
-    const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
-    muteUser.mockImplementationOnce(() => Promise.reject());
-    // Defined in the implementation
-    const defaultFailNotification = 'Error muting a user ...';
-    const handleMute = await renderUseHandleMuteHook(message, {
-      notify,
-    });
-    await handleMute(mouseEventMock);
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(defaultFailNotification, 'error');
-  });
-
-  it('should allow to unmute a user and notify with custom success notification when it is successful', async () => {
-    const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
     unmuteUser.mockImplementationOnce(() => Promise.resolve());
-    const userUnmutedNotification = 'User unmuted!';
-    const getSuccessNotification = vi.fn(() => userUnmutedNotification);
-    const handleMute = await renderUseHandleMuteHook(
-      message,
-      {
-        getSuccessNotification,
-        notify,
-      },
-      { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
-    );
+    const handleMute = await renderUseHandleMuteHook(message, {
+      mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
+    });
     await handleMute(mouseEventMock);
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(userUnmutedNotification, 'success');
   });
 
-  it('should allow to unmute a user and notify with default success notification when it is successful', async () => {
+  it('should throw when unmuting a user fails', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
-    unmuteUser.mockImplementationOnce(() => Promise.resolve());
-    // Defined in the implementation
-    const defaultSuccessNotification = '{{ user }} has been unmuted';
-    const handleMute = await renderUseHandleMuteHook(
-      message,
-      {
-        notify,
-      },
-      { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
-    );
-    await handleMute(mouseEventMock);
+    unmuteUser.mockImplementationOnce(() => Promise.reject(new Error('unmute failed')));
+    const handleMute = await renderUseHandleMuteHook(message, {
+      mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
+    });
+    await expect(handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
-  });
-
-  it('should allow to unmute a user and notify with custom error message when it fails', async () => {
-    const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
-    unmuteUser.mockImplementationOnce(() => Promise.reject());
-    const userMutedFailNotification = 'User muted failed!';
-    const getErrorNotification = vi.fn(() => userMutedFailNotification);
-    const handleMute = await renderUseHandleMuteHook(
-      message,
-      {
-        getErrorNotification,
-        notify,
-      },
-      { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
-    );
-
-    await handleMute(mouseEventMock);
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(userMutedFailNotification, 'error');
-  });
-
-  it('should allow to unmute a user and notify with default error message when it fails', async () => {
-    const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    const notify = vi.fn();
-    unmuteUser.mockImplementationOnce(() => Promise.reject());
-    // Defined in the implementation
-    const defaultFailNotification = 'Error unmuting a user ...';
-    const handleMute = await renderUseHandleMuteHook(
-      message,
-      {
-        notify,
-      },
-      {
-        mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
-      },
-    );
-    await handleMute(mouseEventMock);
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
-    expect(notify).toHaveBeenCalledWith(defaultFailNotification, 'error');
   });
 });

@@ -238,4 +238,35 @@ describe('MessageReactionsDetail', () => {
       ).toStrictEqual(Node.DOCUMENT_POSITION_FOLLOWING);
     });
   });
+
+  it('emits typed notification when fetching reactions fails', async () => {
+    const reactionGroups = {
+      haha: { count: 1 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchError = new Error('reactions failed');
+    const fetchReactions = vi.fn(() => Promise.reject(fetchError));
+    const addNotificationSpy = vi.spyOn(chatClient.notifications, 'add');
+
+    renderComponent({
+      handleFetchReactions: fetchReactions,
+      reaction_groups: reactionGroups,
+      reactions,
+      selectedReactionType: 'haha',
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error fetching reactions',
+          options: expect.objectContaining({
+            originalError: fetchError,
+            severity: 'error',
+            type: 'api:message:reactions:fetch:failed',
+          }),
+          origin: expect.objectContaining({ emitter: 'Reactions' }),
+        }),
+      );
+    });
+  });
 });

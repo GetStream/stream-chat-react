@@ -207,15 +207,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
-      getDeleteMessageErrorNotification: props.getDeleteMessageErrorNotification,
-      getFlagMessageErrorNotification: props.getFlagMessageErrorNotification,
-      getFlagMessageSuccessNotification: props.getFlagMessageSuccessNotification,
-      getMarkMessageUnreadErrorNotification: props.getMarkMessageUnreadErrorNotification,
-      getMarkMessageUnreadSuccessNotification:
-        props.getMarkMessageUnreadSuccessNotification,
-      getMuteUserErrorNotification: props.getMuteUserErrorNotification,
-      getMuteUserSuccessNotification: props.getMuteUserSuccessNotification,
-      getPinMessageErrorNotification: props.getPinMessageErrorNotification,
       Message: props.Message,
       messageActions,
       messageListRect: wrapperRect,
@@ -474,14 +465,6 @@ type PropsDrilledToMessage =
   | 'closeReactionSelectorOnClick'
   | 'disableQuotedMessages'
   | 'formatDate'
-  | 'getDeleteMessageErrorNotification'
-  | 'getFlagMessageErrorNotification'
-  | 'getFlagMessageSuccessNotification'
-  | 'getMarkMessageUnreadErrorNotification'
-  | 'getMarkMessageUnreadSuccessNotification'
-  | 'getMuteUserErrorNotification'
-  | 'getMuteUserSuccessNotification'
-  | 'getPinMessageErrorNotification'
   | 'Message'
   | 'messageActions'
   | 'onlySenderCanEdit'

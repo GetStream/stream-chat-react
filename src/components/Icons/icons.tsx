@@ -358,7 +358,6 @@ export const IconNoSign = createIcon(
   />,
 );
 
-// was: IconCircleMinus
 export const IconMinusCircle = createIcon(
   'IconMinusCircle',
   <path
@@ -368,6 +367,14 @@ export const IconMinusCircle = createIcon(
     strokeLinecap='round'
     strokeMiterlimit='10'
     strokeWidth='1.5'
+  />,
+);
+
+export const IconMinus = createIcon(
+  'IconMinus',
+  <path
+    d='M16.875 9.40039C17.2064 9.40039 17.4746 9.66863 17.4746 10C17.4746 10.3314 17.2064 10.5996 16.875 10.5996H3.125C2.79363 10.5996 2.52539 10.3314 2.52539 10C2.52539 9.66863 2.79363 9.40039 3.125 9.40039H16.875Z'
+    fill='currentColor'
   />,
 );
 
@@ -564,7 +571,6 @@ export const IconFlag = createIcon(
   />,
 );
 
-// was: IconImages1Alt
 export const IconImage = createIcon(
   'IconImage',
   <path

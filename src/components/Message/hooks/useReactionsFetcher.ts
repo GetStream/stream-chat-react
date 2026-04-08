@@ -1,4 +1,4 @@
-import { useChatContext, useTranslationContext } from '../../../context';
+import { useChatContext } from '../../../context';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import type {
   LocalMessage,
@@ -10,28 +10,12 @@ import type { ReactionType } from '../../Reactions/types';
 
 export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 
-type FetchMessageReactionsNotifications = {
-  getErrorNotification?: (message: LocalMessage) => string;
-  notify?: (notificationText: string, type: 'success' | 'error') => void;
-};
-
-export function useReactionsFetcher(
-  message: LocalMessage,
-  notifications: FetchMessageReactionsNotifications = {},
-) {
+export function useReactionsFetcher(message: LocalMessage) {
   const { client } = useChatContext('useRectionsFetcher');
-  const { t } = useTranslationContext('useReactionFetcher');
-  const { getErrorNotification, notify } = notifications;
 
-  return useStableCallback(async (reactionType?: ReactionType, sort?: ReactionSort) => {
-    try {
-      return await fetchMessageReactions(client, message.id, reactionType, sort);
-    } catch (e) {
-      const errorMessage = getErrorNotification?.(message);
-      notify?.(errorMessage || t('Error fetching reactions'), 'error');
-      throw e;
-    }
-  });
+  return useStableCallback((reactionType?: ReactionType, sort?: ReactionSort) =>
+    fetchMessageReactions(client, message.id, reactionType, sort),
+  );
 }
 
 async function fetchMessageReactions(

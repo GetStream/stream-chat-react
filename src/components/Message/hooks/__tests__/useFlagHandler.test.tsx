@@ -2,7 +2,6 @@ import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-import type { FlagMessageNotifications } from '../useFlagHandler';
 import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
 
 import { ChatProvider } from '../../../../context/ChatContext';
@@ -25,7 +24,6 @@ const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
 
 async function renderUseHandleFlagHook(
   message?: LocalMessage,
-  notificationOpts?: FlagMessageNotifications,
   channelStateContextValue?: Record<string, unknown>,
 ) {
   const client = await getTestClientWithUser(alice);
@@ -43,7 +41,7 @@ async function renderUseHandleFlagHook(
       </ChannelStateProvider>
     </ChatProvider>
   );
-  const { result } = renderHook(() => useFlagHandler(message, notificationOpts), {
+  const { result } = renderHook(() => useFlagHandler(message), {
     wrapper,
   });
   return result.current;
@@ -62,59 +60,19 @@ describe('useHandleFlag custom hook', () => {
     expect(consoleWarnSpy).toHaveBeenCalledWith(missingUseFlagHandlerParameterWarning);
   });
 
-  it('should allow to flag a message and notify with custom success notification when it is successful', async () => {
+  it('should allow to flag a message when it is successful', async () => {
     const message = generateMessage();
-    const notify = vi.fn();
     flagMessage.mockImplementationOnce(() => Promise.resolve());
-    const messageFlaggedNotification = 'Message flagged!';
-    const getSuccessNotification = vi.fn(() => messageFlaggedNotification);
-    const handleFlag = await renderUseHandleFlagHook(message, {
-      getSuccessNotification,
-      notify,
-    });
+    const handleFlag = await renderUseHandleFlagHook(message);
     await handleFlag(mouseEventMock);
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(notify).toHaveBeenCalledWith(messageFlaggedNotification, 'success');
   });
 
-  it('should allow to flag a message and notify with default success notification when it is successful', async () => {
+  it('should throw when flagging fails', async () => {
     const message = generateMessage();
-    const notify = vi.fn();
-    flagMessage.mockImplementationOnce(() => Promise.resolve());
-    const defaultSuccessNotification = 'Message has been successfully flagged';
-    const handleFlag = await renderUseHandleFlagHook(message, {
-      notify,
-    });
-    await handleFlag(mouseEventMock);
+    flagMessage.mockImplementationOnce(() => Promise.reject(new Error('flag failed')));
+    const handleFlag = await renderUseHandleFlagHook(message);
+    await expect(handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(notify).toHaveBeenCalledWith(defaultSuccessNotification, 'success');
-  });
-
-  it('should allow to flag a message and notify with custom error message when it fails', async () => {
-    const message = generateMessage();
-    const notify = vi.fn();
-    flagMessage.mockImplementationOnce(() => Promise.reject());
-    const messageFlagFailedNotification = 'Message flagged failed!';
-    const getErrorNotification = vi.fn(() => messageFlagFailedNotification);
-    const handleFlag = await renderUseHandleFlagHook(message, {
-      getErrorNotification,
-      notify,
-    });
-    await handleFlag(mouseEventMock);
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(notify).toHaveBeenCalledWith(messageFlagFailedNotification, 'error');
-  });
-
-  it('should allow to flag a user and notify with default error message when it fails', async () => {
-    const message = generateMessage();
-    const notify = vi.fn();
-    flagMessage.mockImplementationOnce(() => Promise.reject());
-    const defaultFlagMessageFailedNotification = 'Error adding flag';
-    const handleFlag = await renderUseHandleFlagHook(message, {
-      notify,
-    });
-    await handleFlag(mouseEventMock);
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
-    expect(notify).toHaveBeenCalledWith(defaultFlagMessageFailedNotification, 'error');
   });
 });

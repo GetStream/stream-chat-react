@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useChatContext, useTranslationContext } from '../../context';
+import { useTranslationContext } from '../../context';
 import { ContextMenuBody, ContextMenuButton, ContextMenuRoot, Prompt } from '../Dialog';
 import {
   Dropdown,
@@ -15,7 +15,7 @@ import {
 import { IconChevronDown } from '../Icons';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { SwitchField } from '../Form/SwitchField';
-import { addNotificationTargetTag, useNotificationTarget } from '../Notifications';
+import { useNotificationApi } from '../Notifications';
 import type { Coords } from 'stream-chat';
 import { Button } from '../Button';
 import clsx from 'clsx';
@@ -65,9 +65,8 @@ export const ShareLocationDialog = ({
   GeolocationMap = DefaultGeolocationMap,
   shareDurations = DEFAULT_SHARE_LOCATION_DURATIONS,
 }: ShareLocationDialogProps) => {
-  const { client } = useChatContext();
+  const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
-  const panel = useNotificationTarget();
   const messageComposer = useMessageComposerController();
   const [durations, setDurations] = useState<number[]>([]);
   const [selectedDuration, setSelectedDuration] = useState<number | undefined>(undefined);
@@ -243,14 +242,12 @@ export const ShareLocationDialog = ({
                 try {
                   coords = (await getPosition()).coords;
                 } catch (e) {
-                  client.notifications.addError({
+                  addNotification({
+                    emitter: 'ShareLocationDialog',
+                    error: e instanceof Error ? e : undefined,
                     message: t('Failed to retrieve location'),
-                    options: {
-                      originalError: e instanceof Error ? e : undefined,
-                      tags: addNotificationTargetTag(panel),
-                      type: 'browser:location:get:failed',
-                    },
-                    origin: { emitter: 'ShareLocationDialog' },
+                    severity: 'error',
+                    type: 'browser:location:get:failed',
                   });
                   return;
                 }
@@ -263,14 +260,12 @@ export const ShareLocationDialog = ({
               try {
                 await messageComposer.sendLocation();
               } catch (err) {
-                client.notifications.addError({
+                addNotification({
+                  emitter: 'ShareLocationDialog',
+                  error: err instanceof Error ? err : undefined,
                   message: t('Failed to share location'),
-                  options: {
-                    originalError: err instanceof Error ? err : undefined,
-                    tags: addNotificationTargetTag(panel),
-                    type: 'api:location:share:failed',
-                  },
-                  origin: { emitter: 'ShareLocationDialog' },
+                  severity: 'error',
+                  type: 'api:location:share:failed',
                 });
                 return;
               }

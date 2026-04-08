@@ -10,9 +10,9 @@ import {
   IconRefresh,
   IconXmark,
 } from '../../components/Icons';
-import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { Button } from '../Button';
+import { useNotificationApi } from './hooks/useNotificationApi';
 
 type NotificationEntryDirection = 'bottom' | 'left' | 'right' | 'top';
 type NotificationTransitionState = 'enter' | 'exit';
@@ -72,7 +72,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
     }: NotificationProps,
     ref,
   ) => {
-    const { client } = useChatContext();
+    const { removeNotification } = useNotificationApi();
     const { t } = useTranslationContext();
 
     const displayMessage = t('translationBuilderTopic/notification', {
@@ -86,7 +86,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         return;
       }
 
-      client.notifications.remove(notification.id);
+      removeNotification(notification.id);
     };
 
     const isPersistent = !notification.duration;

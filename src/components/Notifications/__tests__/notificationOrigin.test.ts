@@ -1,5 +1,6 @@
 import {
   getNotificationTargetPanel,
+  getNotificationTargetPanels,
   isNotificationForPanel,
   isNotificationTargetPanel,
 } from '../notificationTarget';
@@ -31,6 +32,19 @@ const taggedNotification = (tag: string) =>
     tags: [tag],
   }) as Notification;
 
+const multiTaggedNotification = (tags: string[]) =>
+  ({
+    createdAt: Date.now(),
+    id: 'n3',
+    message: 'test',
+    origin: {
+      context: {},
+      emitter: 'test',
+    },
+    severity: 'info',
+    tags,
+  }) as Notification;
+
 describe('notificationOrigin helpers', () => {
   it('recognizes supported panel values', () => {
     expect(isNotificationTargetPanel('channel')).toBe(true);
@@ -51,6 +65,14 @@ describe('notificationOrigin helpers', () => {
     );
   });
 
+  it('extracts all supported target panels from tags when present', () => {
+    expect(
+      getNotificationTargetPanels(
+        multiTaggedNotification(['target:thread', 'target:channel-list', 'ignored']),
+      ),
+    ).toEqual(['thread', 'channel-list']);
+  });
+
   it('falls back to channel panel when panel is missing', () => {
     expect(isNotificationForPanel(notification(), 'channel')).toBe(true);
     expect(isNotificationForPanel(notification(), 'thread')).toBe(false);
@@ -59,5 +81,20 @@ describe('notificationOrigin helpers', () => {
   it('matches explicit target panel when present', () => {
     expect(isNotificationForPanel(notification('thread'), 'thread')).toBe(true);
     expect(isNotificationForPanel(notification('thread'), 'channel')).toBe(false);
+  });
+
+  it('matches notification for any explicitly tagged target panel', () => {
+    const notificationWithMultipleTargets = multiTaggedNotification([
+      'target:thread',
+      'target:channel-list',
+    ]);
+
+    expect(isNotificationForPanel(notificationWithMultipleTargets, 'thread')).toBe(true);
+    expect(isNotificationForPanel(notificationWithMultipleTargets, 'channel-list')).toBe(
+      true,
+    );
+    expect(isNotificationForPanel(notificationWithMultipleTargets, 'channel')).toBe(
+      false,
+    );
   });
 });

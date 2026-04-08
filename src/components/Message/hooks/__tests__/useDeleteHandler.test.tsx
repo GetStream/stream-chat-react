@@ -114,7 +114,6 @@ describe('useDeleteHandler custom hook', () => {
   });
 
   it('should reject after notifying when server delete fails', async () => {
-    const notify = vi.fn();
     const error = new Error('delete failed');
     deleteMessage.mockRejectedValueOnce(error);
 
@@ -126,11 +125,10 @@ describe('useDeleteHandler custom hook', () => {
       </Chat>
     );
 
-    const { result } = renderHook(() => useDeleteHandler(testMessage, { notify }), {
+    const { result } = renderHook(() => useDeleteHandler(testMessage), {
       wrapper,
     });
 
     await expect(result.current()).rejects.toThrow('delete failed');
-    expect(notify).toHaveBeenCalledWith('Error deleting message', 'error');
   });
 });

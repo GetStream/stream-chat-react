@@ -1,28 +1,14 @@
-import { validateAndGetMessage } from '../utils';
-
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
-import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
-export type PinMessageNotifications = {
-  getErrorNotification?: (message: LocalMessage) => string;
-  notify?: (notificationText: string, type: 'success' | 'error') => void;
-};
-
-export const usePinHandler = (
-  message: LocalMessage,
-  notifications: PinMessageNotifications = {},
-) => {
-  const { getErrorNotification, notify } = notifications;
-
+export const usePinHandler = (message: LocalMessage) => {
   const { updateMessage } = useChannelActionContext('usePinHandler');
   const { channelCapabilities = {} } = useChannelStateContext('usePinHandler');
   const { client } = useChatContext('usePinHandler');
-  const { t } = useTranslationContext('usePinHandler');
 
   const canPin = !!channelCapabilities['pin-message'];
 
@@ -44,10 +30,6 @@ export const usePinHandler = (
 
         await client.pinMessage(message);
       } catch (e) {
-        const errorMessage =
-          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
-
-        if (notify) notify(errorMessage || t('Error pinning message'), 'error');
         updateMessage(message);
       }
     } else {
@@ -64,10 +46,6 @@ export const usePinHandler = (
 
         await client.unpinMessage(message);
       } catch (e) {
-        const errorMessage =
-          getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
-
-        if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
         updateMessage(message);
       }
     }

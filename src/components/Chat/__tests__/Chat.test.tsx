@@ -10,6 +10,7 @@ import type { ChatContextValue } from '../../../context';
 import { Streami18n } from '../../../i18n';
 import type { Mute } from 'stream-chat';
 import {
+  dispatchConnectionChangedEvent,
   dispatchNotificationMutesUpdated,
   getTestClient,
   getTestClientWithUser,
@@ -204,6 +205,41 @@ describe('Chat', () => {
       const e = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
       await act(() => context.setActiveChannel(undefined, {}, e));
       await waitFor(() => expect(e.preventDefault).toHaveBeenCalledTimes(1));
+    });
+  });
+
+  describe('connection notifications', () => {
+    it('publishes and removes system connection-lost notification on connection changes', async () => {
+      const client = getTestClient();
+      let connectionLostNotification;
+
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      expect(client.notifications.notifications).toHaveLength(0);
+
+      act(() => dispatchConnectionChangedEvent(client, false));
+      await waitFor(() => {
+        connectionLostNotification = client.notifications.notifications.find(
+          (notification) => notification.origin.emitter === 'Chat',
+        );
+        expect(connectionLostNotification).toBeDefined();
+      });
+
+      expect(connectionLostNotification.message).toBe('Waiting for network…');
+      expect(connectionLostNotification.tags).toEqual(['system']);
+
+      act(() => dispatchConnectionChangedEvent(client, true));
+      await waitFor(() => {
+        expect(
+          client.notifications.notifications.find(
+            (notification) => notification.origin.emitter === 'Chat',
+          ),
+        ).toBeUndefined();
+      });
     });
   });
 

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactionResponse, ReactionSort } from 'stream-chat';
 import type { MessageContextValue } from '../../../context';
-import { useMessageContext } from '../../../context';
+import { useMessageContext, useTranslationContext } from '../../../context';
+import { useNotificationApi } from '../../Notifications';
 
 import type { ReactionType } from '../types';
 
@@ -13,8 +14,10 @@ export interface FetchReactionsOptions {
 }
 
 export function useFetchReactions(options: FetchReactionsOptions) {
+  const { addNotification } = useNotificationApi();
   const { handleFetchReactions: contextHandleFetchReactions } =
     useMessageContext('useFetchReactions');
+  const { t } = useTranslationContext('useFetchReactions');
   const [reactions, setReactions] = useState<ReactionResponse[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,
@@ -44,6 +47,13 @@ export function useFetchReactions(options: FetchReactionsOptions) {
       } catch (e) {
         if (!cancel) {
           setReactions([]);
+          addNotification({
+            emitter: 'Reactions',
+            error: e instanceof Error ? e : undefined,
+            message: t('Error fetching reactions'),
+            severity: 'error',
+            type: 'api:message:reactions:fetch:failed',
+          });
         }
       } finally {
         if (!cancel) {
@@ -55,7 +65,15 @@ export function useFetchReactions(options: FetchReactionsOptions) {
     return () => {
       cancel = true;
     };
-  }, [handleFetchReactions, reactionType, shouldFetch, sort, refetchNonce]);
+  }, [
+    addNotification,
+    handleFetchReactions,
+    reactionType,
+    refetchNonce,
+    shouldFetch,
+    sort,
+    t,
+  ]);
 
   const refetch = useCallback(() => {
     setRefetchNonce(Math.random());

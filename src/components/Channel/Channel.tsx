@@ -44,7 +44,7 @@ import {
   LoadingChannel as DefaultLoadingIndicator,
 } from '../Loading';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import { addNotificationTargetTag } from '../Notifications';
+import { useNotificationApi } from '../Notifications';
 
 import type { ChannelActionContextValue, MarkReadWrapperOptions } from '../../context';
 import {
@@ -242,6 +242,7 @@ const ChannelInner = (
 
   const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
     useChatContext('Channel');
+  const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
@@ -568,18 +569,15 @@ const ChannelInner = (
 
   /** MESSAGE */
   const notifyJumpToFirstUnreadError = useCallback(() => {
-    client.notifications.addError({
+    addNotification({
+      context: { feature: 'jumpToFirstUnread' },
+      emitter: 'Channel',
       message: t('Failed to jump to the first unread message'),
-      options: {
-        tags: addNotificationTargetTag('channel'),
-        type: 'channel:jumpToFirstUnread:failed',
-      },
-      origin: {
-        context: { feature: 'jumpToFirstUnread' },
-        emitter: 'Channel',
-      },
+      severity: 'error',
+      targetPanels: ['channel'],
+      type: 'channel:jumpToFirstUnread:failed',
     });
-  }, [client, t]);
+  }, [addNotification, t]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const loadMoreFinished = useCallback(

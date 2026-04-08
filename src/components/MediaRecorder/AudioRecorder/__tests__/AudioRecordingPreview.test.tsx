@@ -28,8 +28,8 @@ const defaultProps = {
   waveformData: [0.1, 0.2, 0.3, 0.4, 0.5],
 };
 
-const addErrorSpy = vi.fn();
-const mockClient = { notifications: { addError: addErrorSpy } };
+const addNotificationSpy = vi.fn();
+const mockClient = { notifications: { addError: addNotificationSpy } };
 const tSpy = (s) => s;
 
 vi.mock('../../../../context', () => ({
@@ -39,6 +39,10 @@ vi.mock('../../../../context', () => ({
 
 vi.mock('../../../Notifications', async (importOriginal) => ({
   ...(await importOriginal()),
+  useNotificationApi: () => ({
+    addNotification: addNotificationSpy,
+    addSystemNotification: vi.fn(),
+  }),
   useNotificationTarget: () => 'channel',
 }));
 

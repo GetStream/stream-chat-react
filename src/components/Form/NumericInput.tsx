@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { forwardRef, useCallback } from 'react';
 import type { ChangeEvent, ComponentProps, KeyboardEvent } from 'react';
 import { useStableId } from '../UtilityComponents/useStableId';
-import { IconPlusSmall } from '../Icons';
+import { IconMinus, IconPlusSmall } from '../Icons';
 import { Button } from '../Button';
 
 export type NumericInputProps = Omit<
@@ -127,7 +127,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             variant='secondary'
           >
             <span aria-hidden className='str-chat__form-numeric-input__stepper-icon'>
-              −
+              <IconMinus />
             </span>
           </Button>
           <input

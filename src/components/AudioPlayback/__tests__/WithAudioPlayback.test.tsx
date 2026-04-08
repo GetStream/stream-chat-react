@@ -5,33 +5,31 @@ import { act, cleanup, render } from '@testing-library/react';
 import { useAudioPlayer, WithAudioPlayback } from '../WithAudioPlayback';
 import type { AudioPlayer } from '../AudioPlayer';
 
+const { mockAddNotification } = vi.hoisted(() => ({
+  mockAddNotification: vi.fn(),
+}));
+
 // mock context used by WithAudioPlayback
 vi.mock('../../../context', () => {
-  const mockAddError = vi.fn();
-  const mockClient = { notifications: { addError: mockAddError } };
   const t = (s: string) => s;
   return {
     __esModule: true,
-    mockAddError,
-    useChatContext: () => ({ client: mockClient }),
     useTranslationContext: () => ({ t }),
-    // export spy so tests can assert on it
   };
 });
 
 // mock useNotificationTarget (called by useAudioPlayer)
 vi.mock('../../Notifications', async (importOriginal: any) => ({
   ...(await importOriginal()),
+  useNotificationApi: () => ({
+    addNotification: mockAddNotification,
+    addSystemNotification: vi.fn(),
+  }),
   useNotificationTarget: () => 'channel',
 }));
 
 // make throttle a no-op (so seek/time-related stuff runs synchronously)
 vi.mock('lodash.throttle', () => ({ default: (fn: any) => fn }));
-
-// ------------------ imports FROM mocks ------------------
-
-// @ts-expect-error mockAddError is a custom export from the vi.mock factory above
-import { mockAddError as addErrorSpy } from '../../../context';
 
 // silence console.error in tests but capture calls for assertions
 const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -67,7 +65,7 @@ afterEach(() => {
   cleanup();
   vi.resetAllMocks();
   createdAudios.length = 0;
-  // addErrorSpy.mockReset();
+  // mockAddNotification.mockReset();
   // defaultRegisterSpy.mockClear();
 });
 
@@ -277,11 +275,11 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
           player.registerError({ errCode: 'failed-to-start' });
         });
 
-        expect(addErrorSpy).toHaveBeenCalled();
-        const call = addErrorSpy.mock.calls[0][0];
+        expect(mockAddNotification).toHaveBeenCalled();
+        const call = mockAddNotification.mock.calls[0][0];
         expect(call.message).toBe('Failed to play the recording');
-        expect(call.options.type).toBe('browser:audio:playback:error');
-        expect(call.origin.emitter).toBe('AudioPlayer');
+        expect(call.type).toBe('browser:audio:playback:error');
+        expect(call.emitter).toBe('AudioPlayer');
       });
 
       it('registerError mapping: not-playable / seek-not-supported', () => {
@@ -299,7 +297,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         act(() => {
           player.registerError({ errCode: 'not-playable' });
         });
-        let call = addErrorSpy.mock.calls.pop()[0];
+        let call = mockAddNotification.mock.calls.pop()[0];
         expect(call.message).toBe(
           'Recording format is not supported and cannot be reproduced',
         );
@@ -307,7 +305,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
         act(() => {
           player.registerError({ errCode: 'seek-not-supported' });
         });
-        call = addErrorSpy.mock.calls.pop()[0];
+        call = mockAddNotification.mock.calls.pop()[0];
         expect(call.message).toBe('Cannot seek in the recording');
       });
 
@@ -327,7 +325,7 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
           player.registerError({ error: new Error('Boom!') });
         });
 
-        const call = addErrorSpy.mock.calls[0][0];
+        const call = mockAddNotification.mock.calls[0][0];
         expect(call.message).toBe('Boom!');
       });
 

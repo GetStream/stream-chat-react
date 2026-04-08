@@ -31,6 +31,24 @@ export const getNotificationTargetPanel = (
   return isNotificationTargetPanel(panel) ? panel : undefined;
 };
 
+export const getNotificationTargetPanels = (
+  notification: Notification,
+): NotificationTargetPanel[] => {
+  const targetPanels = (notification.tags ?? [])
+    .filter((tag) => tag.startsWith('target:'))
+    .map((tag) => tag.slice('target:'.length))
+    .filter((value): value is NotificationTargetPanel =>
+      isNotificationTargetPanel(value),
+    );
+
+  if (targetPanels.length > 0) {
+    return Array.from(new Set(targetPanels));
+  }
+
+  const panel = notification.origin.context?.panel;
+  return isNotificationTargetPanel(panel) ? [panel] : [];
+};
+
 export const getNotificationTargetTag = (panel: NotificationTargetPanel) =>
   `target:${panel}` as const;
 
@@ -47,7 +65,11 @@ export const isNotificationForPanel = (
   panel: NotificationTargetPanel,
   options?: { fallbackPanel?: NotificationTargetPanel },
 ) => {
-  const fallbackPanel = options?.fallbackPanel ?? 'channel';
-  const resolvedPanel = getNotificationTargetPanel(notification) ?? fallbackPanel;
+  const explicitTargetPanels = getNotificationTargetPanels(notification);
+  if (explicitTargetPanels.length > 0) {
+    return explicitTargetPanels.includes(panel);
+  }
+
+  const resolvedPanel = options?.fallbackPanel ?? 'channel';
   return resolvedPanel === panel;
 };

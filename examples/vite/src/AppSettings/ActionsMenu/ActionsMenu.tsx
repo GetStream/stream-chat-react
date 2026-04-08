@@ -1,15 +1,13 @@
-import { useMemo, useState } from 'react';
 import type { ComponentProps } from 'react';
+import { useState } from 'react';
 import {
   Button,
   ContextMenu,
   ContextMenuButton,
-  DialogManagerProvider,
   IconBolt,
   useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
-  type ContextMenuItemComponent,
 } from 'stream-chat-react';
 import {
   NotificationPromptDialog,
@@ -57,23 +55,18 @@ const ActionsMenuButton = ({
 );
 
 export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => (
-  <DialogManagerProvider id='app-actions-menu-dialog-manager'>
-    <ActionsMenuInner iconOnly={iconOnly} />
-  </DialogManagerProvider>
+  <ActionsMenuInner iconOnly={iconOnly} />
 );
 
-function TriggerNotification() {
+function TriggerNotificationAction({ onTrigger }: { onTrigger: () => void }) {
   const { closeMenu } = useContextMenuContext();
-  const { dialog: notificationDialog } = useDialogOnNearestManager({
-    id: notificationPromptDialogId,
-  });
 
   return (
     <ContextMenuButton
       label='Trigger Notification'
       onClick={() => {
         closeMenu();
-        notificationDialog.open();
+        onTrigger();
       }}
     />
   );
@@ -85,6 +78,9 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   );
   const { dialog: actionsMenuDialog, dialogManager } = useDialogOnNearestManager({
     id: actionsMenuDialogId,
+  });
+  const { dialog: notificationDialog } = useDialogOnNearestManager({
+    id: notificationPromptDialogId,
   });
 
   const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
@@ -108,7 +104,7 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
         tabIndex={-1}
         trapFocus
       >
-        <TriggerNotification />
+        <TriggerNotificationAction onTrigger={notificationDialog.open} />
       </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
     </div>
