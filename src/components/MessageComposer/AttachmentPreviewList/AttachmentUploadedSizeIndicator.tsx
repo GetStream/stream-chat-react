@@ -1,15 +1,5 @@
 import React from 'react';
 import { FileSizeIndicator } from '../../Attachment';
-import { prettifyFileSize } from '../hooks/utils';
-
-function formatUploadByteFraction(
-  uploadPercent: number,
-  fullBytes: number,
-  maximumFractionDigits?: number,
-): string {
-  const uploaded = Math.round((uploadPercent / 100) * fullBytes);
-  return `${prettifyFileSize(uploaded, maximumFractionDigits)} / ${prettifyFileSize(fullBytes, maximumFractionDigits)}`;
-}
 
 function resolveAttachmentFullByteSize(attachment: {
   file_size?: number | string;
@@ -44,19 +34,20 @@ export const AttachmentUploadedSizeIndicator = ({
 }: AttachmentUploadedSizeIndicatorProps) => {
   const { uploadProgress, uploadState } = attachment.localMetadata ?? {};
   const fullBytes = resolveAttachmentFullByteSize(attachment);
+  const uploaded =
+    uploadProgress !== undefined && fullBytes !== undefined
+      ? Math.round((uploadProgress / 100) * fullBytes)
+      : undefined;
 
-  if (
-    uploadState === 'uploading' &&
-    uploadProgress !== undefined &&
-    fullBytes !== undefined
-  ) {
+  if (uploadState === 'uploading' && uploaded) {
     return (
-      <span
+      <div
         className='str-chat__attachment-preview-file__upload-size-fraction'
         data-testid='upload-size-fraction'
       >
-        {formatUploadByteFraction(uploadProgress, fullBytes)}
-      </span>
+        <FileSizeIndicator fileSize={uploaded} /> {` / `}
+        <FileSizeIndicator fileSize={fullBytes} />
+      </div>
     );
   }
 
