@@ -1,7 +1,7 @@
 import React, { type ReactNode, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
-import { useDialog } from '../Dialog';
+import { useDialogOnNearestManager } from '../Dialog';
 import { defaultReactionOptions } from './reactionOptions';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
@@ -24,6 +24,7 @@ interface ReactionSelectorInterface {
   (props: ReactionSelectorProps): ReactNode;
   getDialogId: (_: { messageId: string; threadList?: boolean }) => string;
   displayName: string;
+  ExtendedList: React.ComponentType<ReactionSelectorProps & { dialogId?: string }>;
 }
 
 const stableOwnReactions: ReactionResponse[] = [];
@@ -45,7 +46,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     messageId: message.id,
     threadList,
   });
-  const dialog = useDialog({ id: dialogId });
+  const { dialog } = useDialogOnNearestManager({ id: dialogId });
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
   const ownReactions = propOwnReactions ?? message?.own_reactions ?? stableOwnReactions;
@@ -114,34 +115,9 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
           </Button>
         </>
       )}
-      {extendedListOpen &&
-        !Array.isArray(reactionOptions) &&
-        reactionOptions.extended && (
-          <div className='str-chat__reaction-selector-extended-list'>
-            {Object.entries(reactionOptions.extended).map(
-              ([reactionType, { Component, name: reactionName }]) => (
-                <button
-                  aria-label={`Select Reaction: ${reactionName || reactionType}`}
-                  aria-pressed={typeof ownReactionByType[reactionType] !== 'undefined'}
-                  className='str-chat__reaction-selector-extended-list__button str-chat__button str-chat__button--ghost str-chat__button--size-sm str-chat__button--circular'
-                  data-testid='select-reaction-button'
-                  data-text={reactionType}
-                  key={reactionType}
-                  onClick={(event) => {
-                    handleReaction(reactionType, event);
-                    if (closeReactionSelectorOnClick) {
-                      dialog.close();
-                    }
-                  }}
-                >
-                  <span className='str-chat__reaction-icon'>
-                    <Component />
-                  </span>
-                </button>
-              ),
-            )}
-          </div>
-        )}
+      {extendedListOpen && (
+        <ReactionSelector.ExtendedList {...props} dialogId={dialogId} />
+      )}
     </div>
   );
 };
@@ -152,3 +128,64 @@ ReactionSelector.getDialogId = ({ messageId, threadList }) => {
 };
 
 ReactionSelector.displayName = 'ReactionSelector';
+
+ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
+  dialogId,
+  handleReaction: propHandleReaction,
+  own_reactions: propOwnReactions,
+}) {
+  const { reactionOptions = defaultReactionOptions } = useComponentContext(
+    'ReactionSelector.ExtendedList',
+  );
+  const {
+    closeReactionSelectorOnClick,
+    handleReaction: contextHandleReaction,
+    message,
+  } = useMessageContext('ReactionSelector');
+
+  const handleReaction = propHandleReaction ?? contextHandleReaction;
+  const ownReactions = propOwnReactions ?? message?.own_reactions ?? stableOwnReactions;
+
+  const { dialog } = useDialogOnNearestManager({ id: dialogId || '' });
+
+  const ownReactionByType = useMemo(() => {
+    const map: { [key: string]: ReactionResponse } = {};
+
+    for (const reaction of ownReactions) {
+      map[reaction.type] ??= reaction;
+    }
+
+    return map;
+  }, [ownReactions]);
+
+  if (Array.isArray(reactionOptions) || !reactionOptions.extended) {
+    return null;
+  }
+
+  return (
+    <div className='str-chat__reaction-selector-extended-list'>
+      {Object.entries(reactionOptions.extended).map(
+        ([reactionType, { Component, name: reactionName }]) => (
+          <button
+            aria-label={`Select Reaction: ${reactionName || reactionType}`}
+            aria-pressed={typeof ownReactionByType[reactionType] !== 'undefined'}
+            className='str-chat__reaction-selector-extended-list__button str-chat__button str-chat__button--ghost str-chat__button--size-sm str-chat__button--circular'
+            data-testid='select-reaction-button'
+            data-text={reactionType}
+            key={reactionType}
+            onClick={(event) => {
+              handleReaction(reactionType, event);
+              if (closeReactionSelectorOnClick) {
+                dialog.close();
+              }
+            }}
+          >
+            <span className='str-chat__reaction-icon'>
+              <Component />
+            </span>
+          </button>
+        ),
+      )}
+    </div>
+  );
+};

@@ -11,8 +11,17 @@
 .str-chat__message-reactions-detail {
   border-radius: var(--radius-lg);
   background: var(--background-core-elevation-2);
-  max-width: 256px;
-  min-width: min(90vw, 256px);
+  max-width: 278px;
+  min-width: min(90vw, 278px);
+
+  &:has(.str-chat__reaction-selector-extended-list) {
+    padding: 0;
+    display: block;
+    @include utils.scrollable-y;
+    scrollbar-width: none;
+    border-radius: var(--radius-lg);
+    max-height: 250px;
+  }
 
   &::after {
     content: '';
@@ -68,12 +77,24 @@
       .str-chat__message-reactions-detail__reaction-type-list-item-button {
         @include common.reaction-button;
         box-shadow: unset;
+        min-width: var(--size-48);
 
         .str-chat__message-reactions-detail__reaction-type-list-item-icon {
           font-family: system-ui;
           font-size: var(--font-size-size-17);
           font-style: normal;
           line-height: var(--typography-line-height-normal);
+
+          .str-chat__icon {
+            width: var(--icon-size-sm);
+            height: var(--icon-size-sm);
+          }
+
+          &:has(.str-chat__icon) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
         }
 
         .str-chat__message-reactions-detail__reaction-type-list-item-count {

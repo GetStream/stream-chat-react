@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import type { ReactionSummary, ReactionType } from './types';
 
@@ -14,6 +14,8 @@ import {
 import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
+import { IconEmojiAdd } from '../Icons';
+import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -24,7 +26,7 @@ export type MessageReactionsDetailProps = Partial<
   sort?: ReactionSort;
   totalReactionCount?: number;
   reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
-};
+} & ReactionSelectorProps;
 
 const defaultReactionDetailsSort = { created_at: -1 } as const;
 
@@ -45,13 +47,16 @@ export const MessageReactionsDetailLoadingIndicator = () => {
 
 export function MessageReactionsDetail({
   handleFetchReactions,
+  handleReaction,
   onSelectedReactionTypeChange,
+  own_reactions,
   reactionDetailsSort: propReactionDetailsSort,
   reactionGroups,
   reactions,
   selectedReactionType,
   totalReactionCount,
 }: MessageReactionsDetailProps) {
+  const [extendedReactionListOpen, setExtendedReactionListOpen] = useState(false);
   const { client } = useChatContext();
   const {
     Avatar = DefaultAvatar,
@@ -62,6 +67,7 @@ export function MessageReactionsDetail({
 
   const {
     handleReaction: contextHandleReaction,
+    message,
     reactionDetailsSort: contextReactionDetailsSort,
   } = useMessageContext(MessageReactionsDetail.name);
 
@@ -79,6 +85,21 @@ export function MessageReactionsDetail({
     sort: reactionDetailsSort,
   });
 
+  if (extendedReactionListOpen) {
+    return (
+      <div
+        className='str-chat__message-reactions-detail'
+        data-testid='message-reactions-detail'
+      >
+        <ReactionSelector.ExtendedList
+          dialogId={`message-reactions-detail-${message.id}`}
+          handleReaction={handleReaction}
+          own_reactions={own_reactions}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       className='str-chat__message-reactions-detail'
@@ -91,6 +112,17 @@ export function MessageReactionsDetail({
       )}
       <div className='str-chat__message-reactions-detail__reaction-type-list-container'>
         <ul className='str-chat__message-reactions-detail__reaction-type-list'>
+          <li className='str-chat__message-reactions-detail__reaction-type-list-item'>
+            <button
+              className='str-chat__message-reactions-detail__reaction-type-list-item-button'
+              onClick={() => setExtendedReactionListOpen(true)}
+            >
+              <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
+                <IconEmojiAdd />
+              </span>
+            </button>
+          </li>
+
           {reactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
               EmojiComponent && (
@@ -110,14 +142,12 @@ export function MessageReactionsDetail({
                     <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
                       <EmojiComponent />
                     </span>
-                    {reactionCount > 1 && (
-                      <span
-                        className='str-chat__message-reactions-detail__reaction-type-list-item-count'
-                        data-testclass='message-reactions-item-count'
-                      >
-                        {reactionCount}
-                      </span>
-                    )}
+                    <span
+                      className='str-chat__message-reactions-detail__reaction-type-list-item-count'
+                      data-testclass='message-reactions-item-count'
+                    >
+                      {reactionCount}
+                    </span>
                   </button>
                 </li>
               ),
