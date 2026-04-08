@@ -20,11 +20,6 @@ export type PaginatorProps = {
   LoadingIndicator?: React.ComponentType<LoadingIndicatorProps>;
   /** callback to load the previous page */
   loadPreviousPage?: () => void;
-  /**
-   * @desc indicates if there's currently any refreshing taking place
-   * @deprecated Use loading prop instead of refreshing. Planned for removal: https://github.com/GetStream/stream-chat-react/issues/1804
-   */
-  refreshing?: boolean;
   /** display the items in opposite order */
   reverse?: boolean;
   /** Offset from when to start the loadNextPage call */

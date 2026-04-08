@@ -28,10 +28,6 @@ export type EmojiPickerProps = {
    * Floating UI placement (default: 'top-end') for the picker popover
    */
   placement?: PopperLikePlacement;
-  /**
-   * Deprecated: Popper options, use `placement` instead.
-   */
-  popperOptions?: Partial<{ placement: PopperLikePlacement }>;
 };
 
 const defaultButtonClassName = 'str-chat__emoji-picker-button';

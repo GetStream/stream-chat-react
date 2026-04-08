@@ -24,7 +24,7 @@ import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyState
 import type { InfiniteScrollProps } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { InfiniteScroll } from '../InfiniteScrollPaginator/InfiniteScroll';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { defaultPinPermissions, MESSAGE_ACTIONS } from '../Message/utils';
+import { MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
@@ -80,13 +80,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     } = {},
     jumpToLatestMessage = () => Promise.resolve(),
     loadMore: loadMoreCallback,
-    loadMoreNewer: loadMoreNewerCallback, // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
+    loadMoreNewer: loadMoreNewerCallback,
     maxTimeBetweenGroupedMessages,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     messages = [],
     noGroupByUser = false,
-    pinPermissions = defaultPinPermissions,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -226,7 +225,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       onUserClick: props.onUserClick,
       onUserHover: props.onUserHover,
       openThread: props.openThread,
-      pinPermissions,
       reactionDetailsSort,
       renderText: props.renderText,
       retrySendMessage: props.retrySendMessage,
@@ -492,7 +490,6 @@ type PropsDrilledToMessage =
   | 'onUserClick'
   | 'onUserHover'
   | 'openThread'
-  | 'pinPermissions' // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
   | 'reactionDetailsSort'
   | 'renderText'
   | 'retrySendMessage'
