@@ -17,7 +17,7 @@ import clsx from 'clsx';
 import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
-import { UploadProgressIndicator as DefaultUploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
+import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
@@ -34,10 +34,7 @@ export const MediaAttachmentPreview = ({
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
-  const {
-    BaseImage = DefaultBaseImage,
-    UploadProgressIndicator = DefaultUploadProgressIndicator,
-  } = useComponentContext();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
