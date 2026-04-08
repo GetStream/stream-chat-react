@@ -83,6 +83,7 @@
   "aria/Open Message Actions Menu": "Mesaj İşlemleri Menüsünü Aç",
   "aria/Open Reaction Selector": "Tepki Seçiciyi Aç",
   "aria/Open Thread": "Konuyu Aç",
+  "aria/Percent complete": "Yüzde {{percent}} tamamlandı",
   "aria/Pin Message": "Mesajı sabitle",
   "aria/Quote Message": "Mesajı alıntıla",
   "aria/Reaction list": "Tepki listesi",

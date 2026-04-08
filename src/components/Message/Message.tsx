@@ -197,7 +197,6 @@ export const Message = (props: MessageProps) => {
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
-    pinPermissions,
     reactionDetailsSort,
     retrySendMessage: propRetrySendMessage,
     sortReactions,
@@ -226,7 +225,7 @@ export const Message = (props: MessageProps) => {
     onMentionsHover: propOnMentionsHover,
   });
 
-  const { canPin, handlePin } = usePinHandler(message, pinPermissions);
+  const { canPin, handlePin } = usePinHandler(message);
 
   const highlighted = highlightedMessageId === message.id;
 
@@ -263,7 +262,6 @@ export const Message = (props: MessageProps) => {
       onMentionsHoverMessage={onMentionsHover}
       onUserClick={props.onUserClick}
       onUserHover={props.onUserHover}
-      pinPermissions={props.pinPermissions}
       reactionDetailsSort={reactionDetailsSort}
       readBy={props.readBy}
       renderText={props.renderText}

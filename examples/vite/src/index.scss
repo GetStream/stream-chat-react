@@ -310,11 +310,22 @@ body {
         0s, 0s, 0s, 0s, 0s, 0s, var(--str-chat__channel-list-transition-duration, 180ms);
     }
 
-    .app-chat-sidebar-overlay > .str-chat__chat-view__selector,
-    .app-chat-sidebar-overlay
-      > .str-chat__chat-view__selector.str-chat__chat-view__selector--nav-closed,
-    .app-chat-sidebar-overlay
-      > .str-chat__chat-view__selector.str-chat__chat-view__selector--nav-open {
+    /* Hide expand toggle in content headers when sidebar is visible */
+    .app-chat-view__channels-layout:not(
+        .app-chat-view__channels-layout--sidebar-collapsed
+      )
+      .str-chat__channel-header
+      .str-chat__header-sidebar-toggle {
+      display: none;
+    }
+
+    .app-chat-view__threads-layout:not(.app-chat-view__threads-layout--sidebar-collapsed)
+      .str-chat__thread-header
+      .str-chat__header-sidebar-toggle {
+      display: none;
+    }
+
+    .app-chat-sidebar-overlay > .str-chat__chat-view__selector {
       position: static;
       inset: auto;
       width: var(--str-chat__chat-view-selector-mobile-width);

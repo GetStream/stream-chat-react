@@ -7,10 +7,9 @@ import {
 import { useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { LoadingIndicatorIcon } from '../icons';
+import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { FileSizeIndicator } from '../../Attachment';
 import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
@@ -21,6 +20,7 @@ import {
 } from '../../AudioPlayback';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
+import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 
 export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -42,7 +42,7 @@ export const AudioAttachmentPreview = ({
   removeAttachments,
 }: AudioAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
-  const { id, previewUri, uploadPermissionCheck, uploadState } =
+  const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
   const url = attachment.asset_url || previewUri;
 
@@ -93,11 +93,13 @@ export const AudioAttachmentPreview = ({
           {isVoiceRecordingAttachment(attachment) ? t('Voice message') : attachment.title}
         </div>
         <div className='str-chat__attachment-preview-file__data'>
-          {uploadState === 'uploading' && <LoadingIndicatorIcon />}
+          {uploadState === 'uploading' && (
+            <UploadProgressIndicator uploadProgress={uploadProgress} />
+          )}
           {showProgressControls ? (
             <>
               {!resolvedDuration && !progressPercent && !isPlaying && (
-                <FileSizeIndicator fileSize={attachment.file_size} />
+                <AttachmentUploadedSizeIndicator attachment={attachment} />
               )}
               {hasWaveform ? (
                 <>

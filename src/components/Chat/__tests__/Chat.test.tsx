@@ -62,11 +62,8 @@ describe('Chat', () => {
       expect(context.client).toBe(chatClient);
       expect(context.channel).toBeUndefined();
       expect(context.mutes).toStrictEqual([]);
-      expect(context.navOpen).toBe(true);
       expect(context.theme).toBe('messaging light');
       expect(context.setActiveChannel).toBeInstanceOf(Function);
-      expect(context.openMobileNav).toBeInstanceOf(Function);
-      expect(context.closeMobileNav).toBeInstanceOf(Function);
       expect(context.client.getUserAgent()).toMatch(
         new RegExp(
           `^stream-chat-react-.+-${originalUserAgent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
@@ -106,102 +103,6 @@ describe('Chat', () => {
     await waitFor(() => {
       expect(context.client).toBe(newClient);
       expect(context.theme).toBe(newTheme);
-    });
-  });
-
-  describe('mobile nav', () => {
-    it('initialNavOpen prop should set navOpen', async () => {
-      let context: ChatContextValue;
-      await act(() => {
-        render(
-          <Chat client={chatClient} initialNavOpen={false}>
-            <ChatContextConsumer
-              fn={(ctx) => {
-                context = ctx;
-              }}
-            />
-          </Chat>,
-        );
-      });
-
-      await waitFor(() => expect(context.navOpen).toBe(false));
-    });
-
-    it('initialNavOpen prop update should be ignored', async () => {
-      let context: ChatContextValue;
-      const { rerender } = render(
-        <Chat client={chatClient} initialNavOpen={false}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-      await waitFor(() => expect(context.navOpen).toBe(false));
-
-      rerender(
-        <Chat client={chatClient} initialNavOpen={true}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-      await waitFor(() => expect(context.navOpen).toBe(false));
-    });
-
-    it('open/close fn updates the nav state', async () => {
-      let context: ChatContextValue;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      await waitFor(() => expect(context.navOpen).toBe(true));
-      act(() => context.closeMobileNav());
-      await waitFor(() => expect(context.navOpen).toBe(false));
-      act(() => {
-        context.openMobileNav();
-      });
-
-      await waitFor(() => expect(context.navOpen).toBe(true));
-    });
-
-    it('setActiveChannel closes the nav', async () => {
-      const originalInnerWidth = window.innerWidth;
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        value: 500,
-        writable: true,
-      });
-
-      let context: ChatContextValue;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      await waitFor(() => expect(context.navOpen).toBe(true));
-      await act(() => context.setActiveChannel());
-      await waitFor(() => expect(context.navOpen).toBe(false));
-
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        value: originalInnerWidth,
-        writable: true,
-      });
     });
   });
 

@@ -1,28 +1,6 @@
-import uniqBy from 'lodash.uniqby';
 import type { Channel, ChannelSort, ChannelSortBase } from 'stream-chat';
 
 import type { ChannelListProps } from './ChannelList';
-
-type MoveChannelUpParams = {
-  channels: Array<Channel>;
-  cid: string;
-  activeChannel?: Channel;
-};
-
-/**
- * @deprecated
- */
-export const moveChannelUp = ({ activeChannel, channels, cid }: MoveChannelUpParams) => {
-  // get index of channel to move up
-  const channelIndex = channels.findIndex((channel) => channel.cid === cid);
-
-  if (!activeChannel && channelIndex <= 0) return channels;
-
-  // get channel to move up
-  const channel = activeChannel || channels[channelIndex];
-
-  return uniqBy([channel, ...channels], 'cid');
-};
 
 /**
  * Expects channel array sorted by `{ pinned_at: -1 }`.

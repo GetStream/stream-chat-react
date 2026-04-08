@@ -1,10 +1,11 @@
-import { CheckSignIcon, LoadingIndicatorIcon } from '../../MessageComposer/icons';
+import { CheckSignIcon } from '../../MessageComposer/icons';
 import { IconDelete, IconPauseFill, IconVoice } from '../../Icons';
 import React from 'react';
 import { useMessageComposerContext, useTranslationContext } from '../../../context';
 import { isRecording } from './recordingStateIdentity';
 import { Button } from '../../Button';
 import { useNotificationApi } from '../../Notifications';
+import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 
 const ToggleRecordingButton = () => {
   const {
@@ -34,6 +35,7 @@ export const AudioRecorderRecordingControls = () => {
     recordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageComposerContext();
   const isUploadingFile = recording?.localMetadata?.uploadState === 'uploading';
+  const uploadProgress = recording?.localMetadata?.uploadProgress;
 
   if (!recorder) return null;
 
@@ -71,7 +73,11 @@ export const AudioRecorderRecordingControls = () => {
         size='sm'
         variant='primary'
       >
-        {isUploadingFile ? <LoadingIndicatorIcon /> : <CheckSignIcon />}
+        {isUploadingFile ? (
+          <UploadProgressIndicator uploadProgress={uploadProgress} />
+        ) : (
+          <CheckSignIcon />
+        )}
       </Button>
     </div>
   );

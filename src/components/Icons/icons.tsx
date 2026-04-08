@@ -583,31 +583,6 @@ export const IconImage = createIcon(
   />,
 );
 
-export const IconInfoCircle = createIcon(
-  'IconInfoCircle',
-  <path
-    d='M4.42891 16.875L12.9953 8.30781C13.0534 8.2497 13.1223 8.2036 13.1982 8.17215C13.274 8.1407 13.3554 8.12451 13.4375 8.12451C13.5196 8.12451 13.601 8.1407 13.6768 8.17215C13.7527 8.2036 13.8216 8.2497 13.8797 8.30781L16.875 11.3039M3.75 3.125H16.25C16.5952 3.125 16.875 3.40482 16.875 3.75V16.25C16.875 16.5952 16.5952 16.875 16.25 16.875H3.75C3.40482 16.875 3.125 16.5952 3.125 16.25V3.75C3.125 3.40482 3.40482 3.125 3.75 3.125ZM8.75 7.5C8.75 8.19036 8.19036 8.75 7.5 8.75C6.80964 8.75 6.25 8.19036 6.25 7.5C6.25 6.80964 6.80964 6.25 7.5 6.25C8.19036 6.25 8.75 6.80964 8.75 7.5Z'
-    fill='none'
-    stroke='currentColor'
-    strokeLinecap='round'
-    strokeLinejoin='round'
-    strokeWidth='1.5'
-  />,
-);
-
-export const IconSidebar = createIcon(
-  'IconSidebar',
-  <path
-    d='M6.875 3.75V16.25M3.125 3.75H16.875C17.2202 3.75 17.5 4.02982 17.5 4.375V15.625C17.5 15.9702 17.2202 16.25 16.875 16.25H3.125C2.77982 16.25 2.5 15.9702 2.5 15.625V4.375C2.5 4.02982 2.77982 3.75 3.125 3.75Z'
-    fill='none'
-    stroke='currentColor'
-    strokeLinecap='round'
-    strokeLinejoin='round'
-    strokeWidth='1.5'
-  />,
-  { 'data-rtl-mirror': '' },
-);
-
 // was: IconMagnifyingGlassSearch
 export const IconSearch = createIcon(
   'IconSearch',

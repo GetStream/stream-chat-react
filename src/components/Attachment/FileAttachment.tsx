@@ -3,14 +3,15 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { FileIcon } from '../FileIcon';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator } from './components';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
 
 export type FileAttachmentProps = {
   attachment: Attachment;
 };
 
 export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
-  const { AttachmentFileIcon } = useComponentContext();
+  const { AttachmentFileIcon, FileSizeIndicator = DefaultFileSizeIndicator } =
+    useComponentContext();
   const FileIconComponent = AttachmentFileIcon ?? FileIcon;
   return (
     <div

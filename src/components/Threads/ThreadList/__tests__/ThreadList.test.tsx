@@ -60,7 +60,7 @@ describe('ThreadList', () => {
   };
 
   beforeEach(() => {
-    mockUseChatContext.mockReturnValue({ client: mockClient, navOpen: true });
+    mockUseChatContext.mockReturnValue({ client: mockClient });
     mockUseComponentContext.mockReturnValue({});
     mockUseStateStore.mockReturnValue({ isLoading: false, threads: [] });
   });

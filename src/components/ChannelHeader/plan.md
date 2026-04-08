@@ -30,9 +30,9 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 **Key design elements (channel header section):**
 
-- Layout: `[hamburger or sidebar icon] | [channelName + Online stacked] | [avatar right]`
-- Variant: Sidebar collapsed (shows `IconLayoutAlignLeft`) vs expanded (hamburger / MenuIcon)
-- Avatar on the right (current impl has it between hamburger and title)
+- Layout: `[sidebar toggle slot] | [channelName + Online stacked] | [avatar right]`
+- Sidebar toggle is provided externally via `HeaderStartContent` in `ComponentContext`
+- Avatar on the right (current impl has it between toggle and title)
 
 ---
 
@@ -63,9 +63,9 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 ---
 
-## Task 2: Add Sidebar-Collapsed Variant Styles
+## Task 2: Register ChannelHeader Styles and Update Component
 
-**File(s) to create/modify:** `src/components/ChannelHeader/styling/ChannelHeader.scss`
+**File(s) to create/modify:** `src/styling/index.scss`, `src/components/ChannelHeader/ChannelHeader.tsx`
 
 **Dependencies:** Task 1
 
@@ -75,51 +75,28 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 **Scope:**
 
-- Add modifier: `.str-chat__channel-header--sidebar-collapsed` (compact left icon area if needed)
-- Use existing `--str-chat__*` vars from design-system-tokens
-- Hamburger (MenuIcon) and sidebar toggle (`IconLayoutAlignLeft`) button styling
-
-**Acceptance Criteria:**
-
-- [ ] Sidebar-collapsed modifier applies correctly when class is present
-
----
-
-## Task 3: Register ChannelHeader Styles and Update Component
-
-**File(s) to create/modify:** `src/styling/index.scss`, `src/components/ChannelHeader/ChannelHeader.tsx`
-
-**Dependencies:** Task 1, Task 2
-
-**Status:** pending
-
-**Owner:** unassigned
-
-**Scope:**
-
 - Add `@use '../components/ChannelHeader/styling' as ChannelHeader` to `src/styling/index.scss` in the appropriate group (alphabetical, chat components)
 - Update `ChannelHeader.tsx`:
-  - Reorder layout: hamburger/sidebar icon | text block (title + Online) | avatar (right)
-  - Add optional prop: `sidebarCollapsed?: boolean`
-  - Render `MenuIcon` (hamburger) when expanded, `IconLayoutAlignLeft` when `sidebarCollapsed` — import from `src/components/Icons/icons.tsx`
+  - Reorder layout: sidebar toggle slot | text block (title + Online) | avatar (right)
+  - The sidebar toggle is provided externally via the `HeaderStartContent` slot in `ComponentContext` (no built-in toggle or `MenuIcon` prop)
   - Simplify info line to "Online" (or keep watcher_count: "X online") per design
-  - Apply modifier class: `str-chat__channel-header--sidebar-collapsed` when `sidebarCollapsed`
-- Preserve: `live`, `subtitle`, `member_count`, `Avatar`, `MenuIcon`, `title`, `image` — ensure backward compatibility
+- Preserve: `live`, `subtitle`, `member_count`, `Avatar`, `title`, `image` — ensure backward compatibility
+- Note: sidebar collapsed/expanded state is NOT managed by the SDK; the app owns sidebar visibility
 
 **Acceptance Criteria:**
 
 - [ ] ChannelHeader styles imported in `src/styling/index.scss`
 - [ ] Component layout matches Figma: avatar on right, text in middle
-- [ ] New prop `sidebarCollapsed` works and applies modifier
+- [ ] `HeaderStartContent` slot renders when provided via `ComponentContext`
 - [ ] Existing tests pass; update tests if needed for new structure
 
 ---
 
-## Task 4: Integration and Tests
+## Task 3: Integration and Tests
 
 **File(s) to create/modify:** `src/components/ChannelHeader/__tests__/ChannelHeader.test.js`
 
-**Dependencies:** Task 3
+**Dependencies:** Task 2
 
 **Status:** pending
 
@@ -128,7 +105,7 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 **Scope:**
 
 - Run existing tests; fix any failures from layout/class changes
-- Add tests for `sidebarCollapsed` when applicable
+- Add tests for `HeaderStartContent` slot rendering when applicable
 - Ensure `yarn test`, `yarn types`, `yarn lint-fix` pass
 
 **Acceptance Criteria:**
@@ -141,12 +118,11 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 ## Execution Order
 
-| Phase | Tasks  | Can run in parallel?      |
-| ----- | ------ | ------------------------- |
-| 1     | Task 1 | —                         |
-| 2     | Task 2 | No (depends on Task 1)    |
-| 3     | Task 3 | No (depends on Task 1, 2) |
-| 4     | Task 4 | No (depends on Task 3)    |
+| Phase | Tasks  | Can run in parallel?   |
+| ----- | ------ | ---------------------- |
+| 1     | Task 1 | —                      |
+| 2     | Task 2 | No (depends on Task 1) |
+| 3     | Task 3 | No (depends on Task 2) |
 
 ---
 
@@ -155,9 +131,8 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 | Task | Creates                                                                        | Modifies                                                    |
 | ---- | ------------------------------------------------------------------------------ | ----------------------------------------------------------- |
 | 1    | `ChannelHeader/styling/ChannelHeader.scss`, `ChannelHeader/styling/index.scss` | —                                                           |
-| 2    | —                                                                              | `ChannelHeader/styling/ChannelHeader.scss`                  |
-| 3    | —                                                                              | `src/styling/index.scss`, `ChannelHeader/ChannelHeader.tsx` |
-| 4    | —                                                                              | `ChannelHeader/__tests__/ChannelHeader.test.js`             |
+| 2    | —                                                                              | `src/styling/index.scss`, `ChannelHeader/ChannelHeader.tsx` |
+| 3    | —                                                                              | `ChannelHeader/__tests__/ChannelHeader.test.js`             |
 
 ---
 
@@ -165,5 +140,5 @@ Tasks are self-contained; styling and component tasks have a dependency order. A
 
 - ChannelHeader currently has no dedicated styling folder; styles may come from stream-chat-css. This plan introduces ChannelHeader/styling per dev-patterns.
 - Loading channel header in `Channel/styling/Channel.scss` uses `--str-chat__channel-header-background-color`; keep variable usage consistent.
-- Backward compatibility: `sidebarCollapsed` defaults to `false`; existing usage unchanged.
-- Sidebar expansion toggle icon: use `IconLayoutAlignLeft` from `src/components/Icons/icons.tsx` when `sidebarCollapsed=true`.
+- Sidebar toggle is externally provided via `HeaderStartContent` slot in `ComponentContext`. The SDK does not own sidebar state — apps provide their own toggle via `WithComponents`.
+- No `sidebarCollapsed` prop or `MenuIcon` prop — these were removed as part of the navOpen removal.

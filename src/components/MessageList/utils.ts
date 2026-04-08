@@ -318,10 +318,6 @@ export const getGroupStyles = (
 export const hasMoreMessagesProbably = (returnedCountMessages: number, limit: number) =>
   returnedCountMessages >= limit;
 
-// @deprecated
-export const hasNotMoreMessages = (returnedCountMessages: number, limit: number) =>
-  returnedCountMessages < limit;
-
 export function isIntroMessage(message: unknown): message is IntroMessage {
   return (message as IntroMessage).customType === CUSTOM_MESSAGE_TYPE.intro;
 }

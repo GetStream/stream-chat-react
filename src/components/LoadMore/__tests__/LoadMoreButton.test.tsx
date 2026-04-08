@@ -48,23 +48,6 @@ describe('LoadMoreButton', () => {
     expect(loadingIndicator).toBeInTheDocument();
   });
 
-  it('deprecates prop refreshing in favor of isLoading', () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
-    const onClickMock = vi.fn();
-
-    const { getByTestId } = render(
-      <LoadMoreButton isLoading={false} onClick={onClickMock} refreshing={true} />,
-    );
-
-    fireEvent.click(getByTestId('load-more-button'));
-    const loadingIndicator = getByTestId('load-more-button').querySelector(
-      '.str-chat__loading-indicator',
-    );
-
-    consoleWarnSpy.mockRestore();
-    expect(loadingIndicator).not.toBeInTheDocument();
-  });
-
   it('should display children', () => {
     const { getByText } = render(
       <LoadMoreButton isLoading={true} onClick={() => null}>

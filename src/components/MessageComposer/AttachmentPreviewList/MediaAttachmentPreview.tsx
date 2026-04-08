@@ -17,8 +17,8 @@ import clsx from 'clsx';
 import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
+import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { LoadingIndicator as DefaultLoadingIndicator } from '../../Loading';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -34,11 +34,11 @@ export const MediaAttachmentPreview = ({
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
-  const { BaseImage = DefaultBaseImage, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext();
+  const { BaseImage = DefaultBaseImage } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
-  const { id, uploadPermissionCheck, uploadState } = attachment.localMetadata ?? {};
+  const { id, uploadPermissionCheck, uploadProgress, uploadState } =
+    attachment.localMetadata ?? {};
 
   const isUploading = uploadState === 'uploading';
   const handleThumbnailLoadError = useCallback(() => setThumbnailPreviewError(true), []);
@@ -94,7 +94,7 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && <LoadingIndicator data-testid='loading-indicator' />}
+          {isUploading && <UploadProgressIndicator uploadProgress={uploadProgress} />}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&

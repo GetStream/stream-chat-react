@@ -113,14 +113,13 @@ describe('LoadMorePaginator', () => {
 
     await waitFor(() => {
       expect(LoadMoreButton).toHaveBeenCalledWith(
-        { isLoading: undefined, onClick: undefined, refreshing: undefined },
+        { isLoading: undefined, onClick: undefined },
         undefined,
       );
     });
   });
 
   it('should pass proper props to LoadMoreButton', async () => {
-    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
     const LoadMoreButton = vi.fn(() => <div />);
     const loadNextPage = vi.fn();
 
@@ -130,11 +129,9 @@ describe('LoadMorePaginator', () => {
         isLoading={false}
         LoadMoreButton={LoadMoreButton}
         loadNextPage={loadNextPage}
-        refreshing={true}
       />,
     );
 
-    consoleWarnSpy.mockRestore();
     await waitFor(() => {
       expect(LoadMoreButton).toHaveBeenCalledWith(
         { isLoading: false, onClick: loadNextPage },

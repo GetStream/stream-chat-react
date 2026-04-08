@@ -29,47 +29,6 @@
     border-inline-end: 1px solid var(--str-chat-selector-border-color);
     background-color: var(--str-chat-selector-background-color);
 
-    /* Mobile: hide when nav closed, show when nav open. */
-    @media (max-width: 767px) {
-      &.str-chat__chat-view__selector--nav-closed {
-        pointer-events: none;
-        transform: translateX(
-          calc(0px - var(--str-chat__chat-view-selector-transition-offset))
-        );
-        visibility: hidden;
-      }
-
-      inset-block: 0;
-      inset-inline-start: 0;
-      position: absolute;
-      transition:
-        transform var(--str-chat__chat-view-selector-transition-duration)
-          var(--str-chat__chat-view-selector-transition-easing),
-        visibility 0s linear var(--str-chat__chat-view-selector-transition-duration);
-      width: var(--str-chat__chat-view-selector-mobile-width);
-      z-index: 2;
-
-      &.str-chat__chat-view__selector--nav-open {
-        pointer-events: auto;
-        transform: translateX(0);
-        transition-delay: 0s, 0s;
-        visibility: visible;
-      }
-    }
-
-    /* Desktop (≥768px): collapse when nav closed so main content uses space. */
-    @media (min-width: 768px) {
-      &.str-chat__chat-view__selector--nav-closed {
-        width: 0;
-        min-width: 0;
-        overflow: hidden;
-        padding-inline: 0;
-        padding-block: 0;
-        gap: 0;
-        border-inline-end: none;
-      }
-    }
-
     .str-chat__chat-view__selector-button-container {
       display: flex;
       position: relative;

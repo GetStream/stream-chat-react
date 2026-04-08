@@ -27,8 +27,6 @@ export type ChannelListItemUIProps = ChannelListItemProps & {
   groupChannelDisplayInfo?: GroupChannelDisplayInfo;
   /** The last message received in a channel */
   lastMessage?: LocalMessage;
-  /** @deprecated Use latestMessagePreview prop instead. */
-  latestMessage?: ReactNode;
   /** Latest message preview to display, will be a string or JSX element supporting markdown. */
   latestMessagePreview?: ReactNode;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
@@ -202,7 +200,6 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
         displayTitle={displayTitle}
         groupChannelDisplayInfo={groupChannelDisplayInfo}
         lastMessage={lastMessage}
-        latestMessage={latestMessagePreview}
         latestMessagePreview={latestMessagePreview}
         messageDeliveryStatus={messageDeliveryStatus}
         muted={muted}

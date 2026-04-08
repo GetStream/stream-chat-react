@@ -10,7 +10,7 @@ import { LoadingChannel, LoadingChannels } from 'stream-chat-react';
 type LoadingScreenProps = {
   initialAppLayoutStyle: CSSProperties;
   initialChannelSelected: boolean;
-  initialNavOpen: boolean;
+  initialSidebarOpen: boolean;
 };
 
 const selectorButtonCount = 4;
@@ -18,7 +18,7 @@ const selectorButtonCount = 4;
 export const LoadingScreen = ({
   initialAppLayoutStyle,
   initialChannelSelected,
-  initialNavOpen,
+  initialSidebarOpen,
 }: LoadingScreenProps) => (
   <div className='app-chat-layout' style={initialAppLayoutStyle}>
     <div className='str-chat'>
@@ -27,16 +27,11 @@ export const LoadingScreen = ({
           <div
             className={clsx('app-chat-view__channels-layout', {
               'app-chat-view__channels-layout--channel-selected': initialChannelSelected,
-              'app-chat-view__channels-layout--sidebar-collapsed': !initialNavOpen,
+              'app-chat-view__channels-layout--sidebar-collapsed': !initialSidebarOpen,
             })}
           >
             <div className='app-chat-sidebar-overlay'>
-              <div
-                className={clsx('str-chat__chat-view__selector', {
-                  'str-chat__chat-view__selector--nav-closed': !initialNavOpen,
-                  'str-chat__chat-view__selector--nav-open': initialNavOpen,
-                })}
-              >
+              <div className='str-chat__chat-view__selector'>
                 {Array.from({ length: selectorButtonCount }).map((_, index) => (
                   <div
                     className='str-chat__chat-view__selector-button-container'
@@ -48,11 +43,7 @@ export const LoadingScreen = ({
                   </div>
                 ))}
               </div>
-              <div
-                className={clsx('str-chat__channel-list', {
-                  'str-chat__channel-list--open': initialNavOpen,
-                })}
-              >
+              <div className='str-chat__channel-list'>
                 <LoadingChannels />
               </div>
             </div>

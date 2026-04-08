@@ -1,11 +1,11 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator } from './components';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
 import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
-import { useMessageContext } from '../../context';
+import { useComponentContext, useMessageContext } from '../../context';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button/PlayButton';
 import { FileIcon } from '../FileIcon';
@@ -17,6 +17,7 @@ type AudioAttachmentUIProps = {
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
 const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
+  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
   const dataTestId = 'audio-widget';
   const rootClassName = 'str-chat__message-attachment-audio-widget';
 

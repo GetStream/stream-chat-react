@@ -1,30 +1,15 @@
-import React, { type ComponentType } from 'react';
-import clsx from 'clsx';
-import { useChatContext, useTranslationContext } from '../../../context';
-import { IconSidebar } from '../../Icons';
+import React from 'react';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
-import { ToggleSidebarButton } from '../../Button/ToggleSidebarButton';
 
-export type ChannelListHeaderProps = {
-  ToggleButtonIcon?: ComponentType;
-};
-
-export const ThreadListHeader = ({
-  ToggleButtonIcon = IconSidebar,
-}: ChannelListHeaderProps) => {
+export const ThreadListHeader = () => {
   const { t } = useTranslationContext();
-  const { navOpen } = useChatContext();
+  const { HeaderEndContent } = useComponentContext();
   const { activeThread } = useThreadsViewContext();
   return (
-    <div
-      className={clsx('str-chat__thread-list__header', {
-        'str-chat__thread-list__header--sidebar-collapsed': !navOpen,
-      })}
-    >
+    <div className='str-chat__thread-list__header'>
       <div className='str-chat__thread-list__header__title'>{t('Threads')}</div>
-      <ToggleSidebarButton canCollapse={!!activeThread} mode={'collapse'}>
-        <ToggleButtonIcon />
-      </ToggleSidebarButton>
+      {activeThread && HeaderEndContent && <HeaderEndContent />}
     </div>
   );
 };

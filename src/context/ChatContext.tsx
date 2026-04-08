@@ -31,11 +31,9 @@ export type ChatContextValue = {
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
    */
   channelsQueryState: ChannelsQueryState;
-  closeMobileNav: () => void;
   getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
   mutes: Array<Mute>;
-  openMobileNav: () => void;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;
   /**
@@ -58,7 +56,6 @@ export type ChatContextValue = {
    * Object through which custom classes can be set for main container components of the SDK.
    */
   customClasses?: CustomClasses;
-  navOpen?: boolean;
 } & Partial<Pick<ChatProps, 'isMessageAIGenerated'>> &
   Required<Pick<ChatProps, 'theme' | 'client'>>;
 

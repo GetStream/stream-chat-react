@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 
-import type { PinPermissions, UserEventHandler } from './hooks';
+import type { UserEventHandler } from './hooks';
 import type { MessageActionsArray } from './utils';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageComposerProps } from '../MessageComposer';
@@ -59,8 +59,6 @@ export type MessageProps = {
   onUserHover?: UserEventHandler;
   /** Custom open thread handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   openThread?: ChannelActionContextValue['openThread'];
-  /** @deprecated in favor of `channelCapabilities - The user roles allowed to pin messages in various channel types */
-  pinPermissions?: PinPermissions;
   /** Sort options to provide to a reactions query */
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message if the message is the last one and was posted by my user */

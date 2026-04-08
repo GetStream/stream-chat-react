@@ -1,7 +1,7 @@
 import React from 'react';
 import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 
-type FileSizeIndicatorProps = {
+export type FileSizeIndicatorProps = {
   /** file size in byte */
   fileSize?: number | string;
   /**
