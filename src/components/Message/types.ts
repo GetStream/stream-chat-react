@@ -47,8 +47,6 @@ export type MessageProps = {
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** If true, only the sender of the message has editing privileges */
-  onlySenderCanEdit?: boolean;
   /** Custom mention click handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   onMentionsClick?: ChannelActionContextValue['onMentionsClick'];
   /** Custom mention hover handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */

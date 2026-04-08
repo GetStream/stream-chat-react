@@ -152,7 +152,6 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const {
     canPin: canPinPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
-    onlySenderCanEdit: onlySenderCanEditPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -193,7 +192,6 @@ export const Message = (props: MessageProps) => {
     closeReactionSelectorOnClick,
     disableQuotedMessages,
     message,
-    onlySenderCanEdit = false,
     onMentionsClick: propOnMentionsClick,
     onMentionsHover: propOnMentionsHover,
     openThread: propOpenThread,
@@ -208,7 +206,7 @@ export const Message = (props: MessageProps) => {
   const handleOpenThread = useOpenThreadHandler(message, propOpenThread);
   const handleReaction = useReactionHandler(message);
   const handleRetry = useRetryHandler(propRetrySendMessage);
-  const userRoles = useUserRole(message, onlySenderCanEdit, disableQuotedMessages);
+  const userRoles = useUserRole(message, disableQuotedMessages);
 
   const handleFetchReactions = useReactionsFetcher(message);
 
