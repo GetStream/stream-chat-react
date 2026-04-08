@@ -1,7 +1,7 @@
 import React from 'react';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
-import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { UploadProgressIndicator as DefaultUploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { AttachmentUploadedSizeIndicator as DefaultAttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
 import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
@@ -22,7 +22,7 @@ export const FileAttachmentPreview = ({
   const { t } = useTranslationContext('FilePreview');
   const {
     AttachmentUploadedSizeIndicator = DefaultAttachmentUploadedSizeIndicator,
-    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+    UploadProgressIndicator = DefaultUploadProgressIndicator,
   } = useComponentContext();
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
@@ -47,7 +47,7 @@ export const FileAttachmentPreview = ({
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
-            <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
+            <UploadProgressIndicator uploadProgress={uploadProgress} />
           )}
           <AttachmentUploadedSizeIndicator attachment={attachment} />
           {hasFatalError && (

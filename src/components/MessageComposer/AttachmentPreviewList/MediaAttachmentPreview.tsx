@@ -17,7 +17,7 @@ import clsx from 'clsx';
 import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
-import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { UploadProgressIndicator as DefaultUploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
@@ -35,8 +35,8 @@ export const MediaAttachmentPreview = ({
 }: MediaAttachmentPreviewProps) => {
   const { t } = useTranslationContext();
   const {
-    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
     BaseImage = DefaultBaseImage,
+    UploadProgressIndicator = DefaultUploadProgressIndicator,
   } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
 
@@ -97,9 +97,7 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && (
-            <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
-          )}
+          {isUploading && <UploadProgressIndicator uploadProgress={uploadProgress} />}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&

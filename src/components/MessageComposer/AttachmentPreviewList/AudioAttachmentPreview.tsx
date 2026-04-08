@@ -7,7 +7,7 @@ import {
 import { useComponentContext, useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
-import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './AttachmentUploadProgressIndicator';
+import { UploadProgressIndicator as DefaultUploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
@@ -44,7 +44,7 @@ export const AudioAttachmentPreview = ({
   const { t } = useTranslationContext();
   const {
     AttachmentUploadedSizeIndicator = DefaultAttachmentUploadedSizeIndicator,
-    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+    UploadProgressIndicator = DefaultUploadProgressIndicator,
   } = useComponentContext();
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
@@ -98,7 +98,7 @@ export const AudioAttachmentPreview = ({
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
-            <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
+            <UploadProgressIndicator uploadProgress={uploadProgress} />
           )}
           {showProgressControls ? (
             <>

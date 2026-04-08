@@ -3,13 +3,14 @@ import { IconDelete, IconPauseFill, IconVoice } from '../../Icons';
 import React from 'react';
 import {
   useChatContext,
+  useComponentContext,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../../context';
 import { isRecording } from './recordingStateIdentity';
 import { Button } from '../../Button';
 import { addNotificationTargetTag, useNotificationTarget } from '../../Notifications';
-import { AttachmentUploadProgressIndicator } from '../../MessageComposer/AttachmentPreviewList/AttachmentUploadProgressIndicator';
+import { UploadProgressIndicator as DefaultUploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 
 const ToggleRecordingButton = () => {
   const {
@@ -35,6 +36,8 @@ const ToggleRecordingButton = () => {
 export const AudioRecorderRecordingControls = () => {
   const { client } = useChatContext();
   const { t } = useTranslationContext();
+  const { UploadProgressIndicator = DefaultUploadProgressIndicator } =
+    useComponentContext();
   const {
     recordingController: { completeRecording, recorder, recording, recordingState },
   } = useMessageComposerContext();
@@ -82,7 +85,7 @@ export const AudioRecorderRecordingControls = () => {
         variant='primary'
       >
         {isUploadingFile ? (
-          <AttachmentUploadProgressIndicator uploadProgress={uploadProgress} />
+          <UploadProgressIndicator uploadProgress={uploadProgress} />
         ) : (
           <CheckSignIcon />
         )}

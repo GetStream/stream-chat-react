@@ -1,21 +1,19 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import {
-  CircularProgressIndicator as DefaultCircularProgressIndicator,
-  LoadingIndicator as DefaultLoadingIndicator,
-} from '../../Loading';
-import { useComponentContext } from '../../../context';
+import { useComponentContext } from '../../context';
+import { CircularProgressIndicator as DefaultCircularProgressIndicator } from './CircularProgressIndicator';
+import { LoadingIndicator as DefaultLoadingIndicator } from './LoadingIndicator';
 
-export type AttachmentUploadProgressIndicatorProps = {
+export type UploadProgressIndicatorProps = {
   className?: string;
   uploadProgress?: number;
 };
 
-export const AttachmentUploadProgressIndicator = ({
+export const UploadProgressIndicator = ({
   className,
   uploadProgress,
-}: AttachmentUploadProgressIndicatorProps) => {
+}: UploadProgressIndicatorProps) => {
   const {
     CircularProgressIndicator = DefaultCircularProgressIndicator,
     LoadingIndicator = DefaultLoadingIndicator,

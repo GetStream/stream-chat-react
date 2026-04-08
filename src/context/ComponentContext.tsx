@@ -75,7 +75,7 @@ import type { EditedMessagePreviewProps } from '../components/MessageComposer/Ed
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { CircularProgressIndicatorProps } from '../components/Loading/CircularProgressIndicator';
-import type { AttachmentUploadProgressIndicatorProps } from '../components/MessageComposer/AttachmentPreviewList/AttachmentUploadProgressIndicator';
+import type { UploadProgressIndicatorProps } from '../components/Loading/UploadProgressIndicator';
 import type { AttachmentUploadedSizeIndicatorProps } from '../components/MessageComposer/AttachmentPreviewList/AttachmentUploadedSizeIndicator';
 
 export type ComponentContextValue = {
@@ -89,8 +89,6 @@ export type ComponentContextValue = {
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   /** Custom UI component to control adding attachments to MessageComposer, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentSelector.tsx) */
   AttachmentSelector?: React.ComponentType;
-  /** Custom UI component for upload progress on attachment previews in MessageComposer, defaults to and accepts same props as: [AttachmentUploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/AttachmentUploadProgressIndicator.tsx) */
-  AttachmentUploadProgressIndicator?: React.ComponentType<AttachmentUploadProgressIndicatorProps>;
   /** Custom UI component for uploaded/total size on attachment previews in MessageComposer, defaults to and accepts same props as: [AttachmentUploadedSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/AttachmentUploadedSizeIndicator.tsx) */
   AttachmentUploadedSizeIndicator?: React.ComponentType<AttachmentUploadedSizeIndicatorProps>;
   /** Custom UI component for the dedicated voice recording preview slot above composer attachments (REACT-794), defaults to and accepts same props as: [VoiceRecordingPreviewSlot](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList/VoiceRecordingPreviewSlot.tsx) */
@@ -272,6 +270,8 @@ export type ComponentContextValue = {
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
+  /** Custom UI component for upload progress (e.g. attachment previews, audio recording), defaults to and accepts same props as: [UploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/UploadProgressIndicator.tsx) */
+  UploadProgressIndicator?: React.ComponentType<UploadProgressIndicatorProps>;
   /** Component used to play video. If not provided, ReactPlayer is used as a default video player. */
   VideoPlayer?: React.ComponentType<VideoPlayerProps>;
   /** Custom UI component to display a message in the `VirtualizedMessageList`, does not have a default implementation */
