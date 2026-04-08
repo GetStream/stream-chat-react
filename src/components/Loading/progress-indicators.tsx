@@ -2,13 +2,13 @@ import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 
-const RING_RADIUS = 12;
-const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
-
 export type ProgressIndicatorProps = {
   /** Clamped 0–100 completion. */
   percent: number;
 };
+
+const RING_RADIUS = 12;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 /** Circular progress indicator with input from 0 to 100. */
 export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
