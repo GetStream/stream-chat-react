@@ -1,6 +1,5 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import {
   DialogManagerProvider,
   useDialogManager,
@@ -12,6 +11,8 @@ import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
 jest.mock('../../../components/Dialog/DialogPortal', () => ({
   DialogPortalDestination: () => null,
 }));
+
+const { renderToStaticMarkup } = require('react-dom/server.node');
 
 const TEST_IDS = {
   CLOSE_DIALOG: 'close-dialog',
