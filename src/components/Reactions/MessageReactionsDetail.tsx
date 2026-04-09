@@ -166,72 +166,74 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
           )}
         </ul>
       </div>
-      <div
-        className='str-chat__message-reactions-detail__user-list'
-        data-testid='all-reacting-users'
-      >
-        {areReactionsLoading && <LoadingIndicator />}
-        {!areReactionsLoading && (
-          <>
-            {reactionDetails.map(({ type, user }) => {
-              const belongsToCurrentUser = client.user?.id === user?.id;
-              const EmojiComponent = Array.isArray(reactionOptions)
-                ? undefined
-                : (reactionOptions.quick[type]?.Component ??
-                  reactionOptions.extended?.[type]?.Component);
+      <div className='str-chat__message-reactions-detail__user-list-container'>
+        <div
+          className='str-chat__message-reactions-detail__user-list'
+          data-testid='all-reacting-users'
+        >
+          {areReactionsLoading && <LoadingIndicator />}
+          {!areReactionsLoading && (
+            <>
+              {reactionDetails.map(({ type, user }) => {
+                const belongsToCurrentUser = client.user?.id === user?.id;
+                const EmojiComponent = Array.isArray(reactionOptions)
+                  ? undefined
+                  : (reactionOptions.quick[type]?.Component ??
+                    reactionOptions.extended?.[type]?.Component);
 
-              return (
-                <div
-                  className='str-chat__message-reactions-detail__user-list-item'
-                  key={`${user?.id}-${type}`}
-                >
-                  <Avatar
-                    className='str-chat__avatar--with-border'
-                    data-testid='avatar'
-                    imageUrl={user?.image as string | undefined}
-                    size='md'
-                    userName={user?.name || user?.id}
-                  />
-                  <div className='str-chat__message-reactions-detail__user-list-item-info'>
-                    <span
-                      className='str-chat__message-reactions-detail__user-list-item-username'
-                      data-testid='reaction-user-username'
-                    >
-                      {belongsToCurrentUser ? t('You') : user?.name || user?.id}
-                    </span>
-                    {belongsToCurrentUser && (
-                      <button
-                        className='str-chat__message-reactions-detail__user-list-item-button'
-                        data-testid='remove-reaction-button'
-                        onClick={async (e) => {
-                          const reactionCountBeforeRemoval =
-                            reactionGroups?.[type]?.count ?? 0;
-
-                          await contextHandleReaction(type, e);
-
-                          // was 1, should be 0 after removal, display all reactions
-                          if (
-                            selectedReactionType !== null &&
-                            reactionCountBeforeRemoval <= 1
-                          ) {
-                            onSelectedReactionTypeChange?.(null);
-                          } else {
-                            refetch();
-                          }
-                        }}
+                return (
+                  <div
+                    className='str-chat__message-reactions-detail__user-list-item'
+                    key={`${user?.id}-${type}`}
+                  >
+                    <Avatar
+                      className='str-chat__avatar--with-border'
+                      data-testid='avatar'
+                      imageUrl={user?.image as string | undefined}
+                      size='md'
+                      userName={user?.name || user?.id}
+                    />
+                    <div className='str-chat__message-reactions-detail__user-list-item-info'>
+                      <span
+                        className='str-chat__message-reactions-detail__user-list-item-username'
+                        data-testid='reaction-user-username'
                       >
-                        {t('Tap to remove')}
-                      </button>
-                    )}
+                        {belongsToCurrentUser ? t('You') : user?.name || user?.id}
+                      </span>
+                      {belongsToCurrentUser && (
+                        <button
+                          className='str-chat__message-reactions-detail__user-list-item-button'
+                          data-testid='remove-reaction-button'
+                          onClick={async (e) => {
+                            const reactionCountBeforeRemoval =
+                              reactionGroups?.[type]?.count ?? 0;
+
+                            await contextHandleReaction(type, e);
+
+                            // was 1, should be 0 after removal, display all reactions
+                            if (
+                              selectedReactionType !== null &&
+                              reactionCountBeforeRemoval <= 1
+                            ) {
+                              onSelectedReactionTypeChange?.(null);
+                            } else {
+                              refetch();
+                            }
+                          }}
+                        >
+                          {t('Tap to remove')}
+                        </button>
+                      )}
+                    </div>
+                    <span className='str-chat__message-reactions-detail__user-list-item-icon'>
+                      {!selectedReactionType && EmojiComponent && <EmojiComponent />}
+                    </span>
                   </div>
-                  <span className='str-chat__message-reactions-detail__user-list-item-icon'>
-                    {!selectedReactionType && EmojiComponent && <EmojiComponent />}
-                  </span>
-                </div>
-              );
-            })}
-          </>
-        )}
+                );
+              })}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

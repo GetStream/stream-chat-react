@@ -46,3 +46,38 @@
     }
   }
 }
+
+@mixin clipping-fade() {
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    inset-inline-start: 0;
+    height: var(--size-16);
+  }
+
+  &::after {
+    bottom: 0;
+    border-end-end-radius: inherit;
+    border-end-start-radius: inherit;
+    background: linear-gradient(
+      to bottom,
+      transparent 5%,
+      var(--background-core-elevation-0) 95%
+    );
+  }
+
+  &::before {
+    // TODO: figure out a better way (z-index isn't optimal)
+    z-index: 1;
+    top: 0;
+    border-start-end-radius: inherit;
+    border-start-start-radius: inherit;
+    background: linear-gradient(
+      to top,
+      transparent 5%,
+      var(--background-core-elevation-0) 95%
+    );
+  }
+}
