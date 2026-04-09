@@ -15,18 +15,11 @@ type DialogManagerId = string;
 
 type DialogManagersState = Record<DialogManagerId, DialogManager | undefined>;
 const dialogManagersRegistry: StateStore<DialogManagersState> = new StateStore({});
+const pendingDialogManagersById: Partial<Record<DialogManagerId, DialogManager>> = {};
+const dialogManagerMountCountsById: Partial<Record<DialogManagerId, number>> = {};
 
 const getDialogManager = (id: string): DialogManager | undefined =>
   dialogManagersRegistry.getLatestValue()[id];
-
-const getOrCreateDialogManager = (id: string) => {
-  let manager = getDialogManager(id);
-  if (!manager) {
-    manager = new DialogManager({ id });
-    dialogManagersRegistry.partialNext({ [id]: manager });
-  }
-  return manager;
-};
 
 const removeDialogManager = (id: string) => {
   if (!getDialogManager(id)) return;
@@ -51,22 +44,43 @@ export const DialogManagerProvider = ({
   children,
   id,
 }: PropsWithChildren<{ id?: string }>) => {
-  const [dialogManager, setDialogManager] = useState<DialogManager | null>(() => {
-    if (id) return getDialogManager(id) ?? null;
+  const [dialogManager, setDialogManager] = useState<DialogManager>(() => {
+    if (id) {
+      const manager =
+        getDialogManager(id) ??
+        pendingDialogManagersById[id] ??
+        new DialogManager({ id });
+      pendingDialogManagersById[id] = manager;
+      return manager;
+    }
+
     return new DialogManager(); // will not be included in the registry
   });
 
   useEffect(() => {
     if (!id) return;
-    setDialogManager(getOrCreateDialogManager(id));
+    const manager =
+      getDialogManager(id) ?? pendingDialogManagersById[id] ?? new DialogManager({ id });
+
+    if (!getDialogManager(id)) {
+      dialogManagersRegistry.partialNext({ [id]: manager });
+    }
+    delete pendingDialogManagersById[id];
+
+    setDialogManager((prev) => (prev === manager ? prev : manager));
+    dialogManagerMountCountsById[id] = (dialogManagerMountCountsById[id] ?? 0) + 1;
+
     return () => {
+      const nextMountCount = (dialogManagerMountCountsById[id] ?? 1) - 1;
+      if (nextMountCount > 0) {
+        dialogManagerMountCountsById[id] = nextMountCount;
+        return;
+      }
+
+      delete dialogManagerMountCountsById[id];
       removeDialogManager(id);
-      setDialogManager(null);
     };
   }, [id]);
-
-  // temporarily do not render until a new dialog manager is created
-  if (!dialogManager) return null;
 
   return (
     <DialogManagerProviderContext.Provider value={{ dialogManager }}>
@@ -156,7 +170,7 @@ export const useDialogManager = ({
 
         if (!managerInPrevState || managerInNewState?.id !== managerInPrevState.id) {
           setDialogManagerContext((prevState) => {
-            if (prevState?.dialogManager.id === managerInNewState?.id) return prevState;
+            if (prevState?.dialogManager === managerInNewState) return prevState;
             // fixme: need to handle the possibility that the dialogManager is undefined
             return {
               dialogManager:
