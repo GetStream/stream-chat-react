@@ -1,0 +1,74 @@
+@use '../../../styling/utils';
+
+.str-chat {
+  /* Border radius applied to audio recording widget */
+  --str-chat__voice-recording-attachment-widget-border-radius: calc(
+    var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
+  );
+
+  /* Text color used in audio recording widget */
+  --str-chat__voice-recording-attachment-widget-color: var(--str-chat__text-color);
+
+  /* Border radius applied to audio recording widget */
+  --str-chat__voice-recording-attachment-widget-secondary-color: var(
+    --str-chat__text-low-emphasis-color
+  );
+
+  /* The text/icon color for low emphasis texts (for example file size) in audio recording widget */
+  --str-chat__voice-recording-attachment-widget-background-color: transparent;
+
+  /* Top border of audio recording widget */
+  --str-chat__voice-recording-attachment-widget-border-block-start: none;
+
+  /* Bottom border of audio recording widget */
+  --str-chat__voice-recording-attachment-widget-border-block-end: none;
+
+  /* Left (right in RTL layout) border of audio recording widget */
+  --str-chat__voice-recording-attachment-widget-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of audio recording widget */
+  --str-chat__voice-recording-attachment-widget-border-inline-end: none;
+
+  /* Box shadow applied to audio recording widget */
+  --str-chat__voice-recording-attachment-widget-box-shadow: none;
+}
+
+.str-chat__message-attachment__voice-recording-widget {
+  @include utils.component-layer-overrides('voice-recording-attachment-widget');
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  padding: var(--spacing-xs);
+
+  .str-chat__message-attachment__voice-recording-widget__play-button-container {
+    padding: var(--spacing-xxs);
+  }
+
+  .str-chat__message-attachment__voice-recording-widget__metadata {
+    flex: 1;
+    min-width: 180px;
+
+    a {
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--str-chat__voice-recording-attachment-widget-color);
+    }
+
+    .str-chat__message-attachment-download-icon {
+      svg {
+        width: calc(var(--str-chat__spacing-px) * 24);
+        height: calc(var(--str-chat__spacing-px) * 16);
+      }
+    }
+  }
+
+  .str-chat__message-attachment__voice-recording-widget__right-section {
+  }
+
+  .str-chat__message-attachment__voice-recording-widget__timer {
+    min-width: calc(var(--str-chat__spacing-px) * 40);
+    width: calc(var(--str-chat__spacing-px) * 40);
+    font: var(--str-chat__metadata-emphasis-text);
+  }
+}
