@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-04-03
+Last updated: 2026-04-08
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee` (`6c7cd42a`, `2026-04-03`, `fix(examples): enable async voice recording preview in thread composer (#3092)`)
-- Future mining starting point: diff `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `dc16bb584675f48d5f67cf5d5d355ba012cf81d2` (`dc16bb584`, `2026-04-08`, `feat!: externalize sidebar toggle and remove navOpen state from the SDK (#3088)`)
+- Future mining starting point: diff `dc16bb584675f48d5f67cf5d5d355ba012cf81d2..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -2015,6 +2015,99 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/02-reactions.md`
 - Example needed: yes
 
+### BC-059: the final deprecated API purge removed old pinning, pagination, upload, preview, emoji-picker, and hook aliases
+
+- Status: confirmed
+- Area: deprecated API cleanup
+- User impact:
+  - imports or props using `pinPermissions`, `PinPermissions`, `PinEnabledUserRoles`, or `defaultPinPermissions` no longer compile
+  - custom `usePinHandler(message, pinPermissions, notifications)` calls must be rewritten to the new two-argument signature
+  - wrappers around `InfiniteScroll`, `LoadMoreButton`, and `LoadMorePaginator` can no longer use the deprecated alias props `hasMore`, `hasMoreNewer`, `loadMore`, `loadMoreNewer`, or `refreshing`
+  - top-level imports using `UploadButton` / `UploadButtonProps` no longer resolve; use `FileInput` / `FileInputProps` instead
+  - `ChannelListItemUI` no longer accepts the deprecated `latestMessage` alias; use `latestMessagePreview`
+  - `EmojiPicker` no longer accepts `popperOptions`; use the current placement-based positioning surface instead
+  - low-level imports using `StreamEmoji`, `moveChannelUp`, `hasNotMoreMessages`, or the old standalone channel-list listener hooks no longer resolve
+- Old API:
+  - `v13.14.2:src/components/Message/types.ts:91` exposed `pinPermissions?: PinPermissions`
+  - `v13.14.2:src/context/MessageContext.tsx:133` exposed `pinPermissions?: PinPermissions`
+  - `v13.14.2:src/components/Message/hooks/usePinHandler.ts:43` through `:46` accepted `_permissions: PinPermissions = defaultPinPermissions`
+  - `v13.14.2:src/components/InfiniteScrollPaginator/InfiniteScroll.tsx:17` through `:45` exposed deprecated `hasMore`, `hasMoreNewer`, `loadMore`, and `loadMoreNewer`
+  - `v13.14.2:src/types/types.ts:32` through `:36` exposed deprecated `refreshing?: boolean` on `PaginatorProps`
+  - `v13.14.2:src/components/index.ts:39` and `:40` re-exported `UploadButton` and `UploadButtonProps` from the package root
+  - `v13.14.2:src/components/ChannelPreview/ChannelPreview.tsx:28` and `:29` still exposed the deprecated `latestMessage?: ReactNode` alias
+  - `v13.14.2:src/plugins/Emojis/EmojiPicker.tsx:30` exposed `popperOptions?: Partial<{ placement: PopperLikePlacement }>`
+  - `git grep` on `v13.14.2` finds public exports for `StreamEmoji`, `moveChannelUp`, `hasNotMoreMessages`, `useChannelDeletedListener`, `useNotificationMessageNewListener`, and the rest of the old standalone channel-list listener hooks
+- New API:
+  - `src/components/Message/hooks/usePinHandler.ts:16` through `:19` now accept only `(message, notifications?)`
+  - current source has no `PinPermissions`, `PinEnabledUserRoles`, or `defaultPinPermissions`
+  - `src/components/InfiniteScrollPaginator/InfiniteScroll.tsx:16` through `:23` now expose only `hasNextPage`, `hasPreviousPage`, `loadNextPage`, and `loadPreviousPage` through `PaginatorProps`
+  - `src/types/types.ts:14` through `:18` expose `hasNextPage`, `hasPreviousPage`, and `isLoading`, with no `refreshing`
+  - `src/components/index.ts:45` and `:46` export `FileInput` and `FileInputProps`
+  - `src/components/ReactFileUtilities/UploadButton.tsx:20` through `:33` keep `FileInput` as the public file-input primitive
+  - `src/components/ChannelListItem/ChannelListItem.tsx:31` exposes `latestMessagePreview?: ReactNode`, with no deprecated `latestMessage` alias
+  - current `src/plugins/Emojis/EmojiPicker.tsx` exposes `placement?: PopperLikePlacement`, with no `popperOptions`
+  - current `rg` over `src` returns no `StreamEmoji`, `moveChannelUp`, `hasNotMoreMessages`, `useChannelDeletedListener`, `useNotificationMessageNewListener`, or sibling standalone listener-hook exports
+- Replacement:
+  - remove `pinPermissions` customization and rely on `channelCapabilities['pin-message']`
+  - rewrite `usePinHandler(message, notifications?)` callers to the new signature
+  - update paginator wrappers to `hasNextPage`, `hasPreviousPage`, `loadNextPage`, `loadPreviousPage`, and `isLoading`
+  - replace top-level `UploadButton` imports with `FileInput`
+  - replace `latestMessage` with `latestMessagePreview`
+  - replace `EmojiPicker.popperOptions` with the current `placement` prop
+  - remove imports of the old standalone channel-list listener hooks and other deprecated utilities instead of expecting package-level shims
+- Evidence:
+  - commit `8317b73a2 refactor!: remove deprecated APIs ahead of v14 stable (#3086)` explicitly removed these deprecated props, aliases, and exports
+  - current source still keeps the modern equivalents (`FileInput`, `latestMessagePreview`, `placement`, `isLoading`, `hasNextPage` / `loadNextPage`) while dropping the v13 compatibility layer
+  - current `MessageList` and `VirtualizedMessageList` still expose `hasMoreNewer` / `loadMoreNewer`; the removal in this bucket is limited to the deprecated `InfiniteScroll` alias props and should not be generalized beyond that
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/03-channel_list_hooks.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/05-channel-list/04-channel_preview_ui.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/02-virtualized_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/02-message_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/09-message-composer/06-emoji-picker.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/12-indicators.md`
+- Example needed: yes
+
+### BC-060: sidebar toggle and mobile-nav state were externalized from the SDK
+
+- Status: confirmed
+- Area: chat layout and sidebar state
+- User impact:
+  - `Chat` no longer owns sidebar state, so `initialNavOpen` no longer exists
+  - `useChatContext()` no longer provides `navOpen`, `openMobileNav`, or `closeMobileNav`
+  - `ChannelHeader` no longer provides a built-in sidebar toggle or accepts a `MenuIcon` prop
+  - imports using `ToggleSidebarButton`, `ToggleButtonIcon`, `MenuIcon`, `NAV_SIDEBAR_DESKTOP_BREAKPOINT`, or `useMobileNavigation` no longer compile
+  - custom CSS or tests targeting SDK-owned nav-open classes or built-in toggle behavior need to be rewritten around app-owned state
+- Old API:
+  - `v13.14.2:src/components/Chat/Chat.tsx:31` and `:57` exposed `initialNavOpen?: boolean` and defaulted it in `Chat`
+  - `v13.14.2:src/context/ChatContext.tsx:36`, `:40`, and `:63` exposed `closeMobileNav`, `openMobileNav`, and `navOpen`
+  - `v13.14.2:src/components/ChannelHeader/ChannelHeader.tsx:18`, `:19`, and `:32` exposed `MenuIcon` and used it for the built-in sidebar toggle
+  - `v13.14.2:src/components/ChannelList/hooks/index.ts:8` re-exported `useMobileNavigation`
+  - `git grep` on `v13.14.2` finds public references to `ToggleSidebarButton`, `ToggleButtonIcon`, and `NAV_SIDEBAR_DESKTOP_BREAKPOINT`
+- New API:
+  - `src/context/ChatContext.tsx:24` through `:53` define `ChatContextValue` without `navOpen`, `openMobileNav`, or `closeMobileNav`
+  - `src/components/Chat/Chat.tsx:18` through `:33` define `ChatProps` without `initialNavOpen`
+  - `src/components/ChannelHeader/ChannelHeader.tsx:33` through `:38` define `ChannelHeaderProps` without `MenuIcon`
+  - `src/components/ChannelHeader/ChannelHeader.tsx:52` through `:63` render `HeaderStartContent` from `ComponentContext` instead of a built-in toggle button
+  - `src/context/ComponentContext.tsx:265` and `:267` expose `HeaderEndContent` and `HeaderStartContent` as the replacement slots for app-owned sidebar controls
+  - current `rg` over `src` returns no `initialNavOpen`, `navOpen`, `openMobileNav`, `closeMobileNav`, `ToggleSidebarButton`, `ToggleButtonIcon`, `MenuIcon`, `NAV_SIDEBAR_DESKTOP_BREAKPOINT`, or `useMobileNavigation`
+- Replacement:
+  - manage sidebar open/closed state in app code instead of expecting `Chat` to own it
+  - inject app-owned toggle UI through `WithComponents` / `ComponentContext` using `HeaderStartContent` and `HeaderEndContent`
+  - remove any code that reads mobile-nav state from `useChatContext()`
+  - update CSS and tests to target app-owned toggle/layout behavior instead of the removed SDK nav-state classes
+- Evidence:
+  - commit `dc16bb584 feat!: externalize sidebar toggle and remove navOpen state from the SDK (#3088)` removed SDK-owned sidebar state and the built-in toggle path
+  - current source keeps the replacement slots in `ComponentContext`, but the old stateful sidebar APIs are gone
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/03-chat/02-chat_context.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md`
+- Example needed: yes
+
 ## Likely
 
 - None yet
@@ -2044,6 +2137,10 @@ Only confirmed items should move from this file into the migration guide.
 - example-only follow-ups (`623989574`, `2f060ae89`, `6c7cd42af`): investigated; these only update examples and docs scaffolding and do not add a new v13-to-v14 migration item.
 - assorted UI/UX fixes (`6c06e043`, `a47981ff`, `3f093622`): investigated; Giphy editability, dialog layering, composer state restoration, centered headers, message-list width, and channel-list dialog-portal cleanup changed runtime behavior, but they did not introduce new removed exports or renamed public override surfaces beyond the separately tracked reactions and icon buckets.
 - example-app refreshes (`86ada37e`, `887a326a`): investigated; these only update example apps and do not change the public SDK surface.
+- Giphy fixed-height preview cleanup (`30e45faf7`): investigated; switching Giphy previews to fixed-height is a layout-stability improvement, not a removed or renamed v13 public API.
+- audio playback wave/progress refinements (`982cf2a17`): investigated; smoother progress rendering and sizing updates do not remove or rename a documented public API.
+- tracker/docs maintenance commit (`b5cb01f53`): investigated; this only updates the internal audit trackers and does not change the SDK surface.
+- beta release commit (`d313317b0`): investigated; release tagging alone does not add a new migration item.
 
 ## Notes For Migration Guide Drafting
 
