@@ -568,6 +568,8 @@
   --badge-text: var(--text-primary);
   --badge-bg-default: #ffffff;
   --badge-text-on-accent: #ffffff;
+  --badge-text-on-inverse: #ffffff;
+  --badge-bg-inverse: var(--chrome-1000);
 
   /* ─── Control (remove, progress bar, toggle, playback, checkbox, play button, thumb, radio) ─── */
   --control-remove-control-bg: #1a1b25;
