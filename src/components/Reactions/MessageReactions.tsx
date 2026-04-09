@@ -21,6 +21,7 @@ import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 import type { ReactionsComparator, ReactionType } from './types';
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
+import { ReactionSelector } from './ReactionSelector';
 
 export type MessageReactionsProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -66,7 +67,6 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
     capLimit: { clustered: capLimitClustered = 5, segmented: capLimitSegmented = 4 } = {},
     flipHorizontalPosition = false,
     handleFetchReactions,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reactionDetailsSort,
     verticalPosition = 'top',
     visualStyle = 'clustered',
@@ -89,7 +89,9 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   const { isMyMessage, message } = useMessageContext('MessageReactions');
 
   const divRef = useRef<ComponentRef<'div'>>(null);
-  const dialogId = `message-reactions-detail-${message.id}`;
+  const dialogId = DefaultMessageReactionsDetail.getDialogId({
+    messageId: message.id,
+  });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const isDialogOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
@@ -225,6 +227,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
         <MessageReactionsDetail
           handleFetchReactions={handleFetchReactions}
           onSelectedReactionTypeChange={setSelectedReactionType}
+          reactionDetailsSort={reactionDetailsSort}
           reactionGroups={reactionGroups}
           reactions={existingReactions}
           selectedReactionType={selectedReactionType}

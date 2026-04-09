@@ -45,7 +45,13 @@ export const MessageReactionsDetailLoadingIndicator = () => {
   return <>{elements}</>;
 };
 
-export function MessageReactionsDetail({
+interface MessageReactionsDetailInterface {
+  (props: MessageReactionsDetailProps): React.ReactNode;
+  displayName: string;
+  getDialogId: (_: { messageId: string }) => string;
+}
+
+export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   handleFetchReactions,
   handleReaction,
   onSelectedReactionTypeChange,
@@ -55,13 +61,14 @@ export function MessageReactionsDetail({
   reactions,
   selectedReactionType,
   totalReactionCount,
-}: MessageReactionsDetailProps) {
+}) => {
   const [extendedReactionListOpen, setExtendedReactionListOpen] = useState(false);
   const { client } = useChatContext();
   const {
     Avatar = DefaultAvatar,
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
     reactionOptions = defaultReactionOptions,
+    ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
   } = useComponentContext(MessageReactionsDetail.name);
   const { t } = useTranslationContext();
 
@@ -91,8 +98,8 @@ export function MessageReactionsDetail({
         className='str-chat__message-reactions-detail'
         data-testid='message-reactions-detail'
       >
-        <ReactionSelector.ExtendedList
-          dialogId={`message-reactions-detail-${message.id}`}
+        <ReactionSelectorExtendedList
+          dialogId={MessageReactionsDetail.getDialogId({ messageId: message.id })}
           handleReaction={handleReaction}
           own_reactions={own_reactions}
         />
@@ -220,4 +227,9 @@ export function MessageReactionsDetail({
       </div>
     </div>
   );
-}
+};
+
+MessageReactionsDetail.displayName = 'MessageReactionsDetail';
+
+MessageReactionsDetail.getDialogId = ({ messageId }) =>
+  `message-reactions-detail-${messageId}`;

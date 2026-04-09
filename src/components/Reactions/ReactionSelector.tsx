@@ -33,8 +33,10 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   const { handleReaction: propHandleReaction, own_reactions: propOwnReactions } = props;
   const [extendedListOpen, setExtendedListOpen] = useState(false);
 
-  const { reactionOptions = defaultReactionOptions } =
-    useComponentContext('ReactionSelector');
+  const {
+    reactionOptions = defaultReactionOptions,
+    ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
+  } = useComponentContext('ReactionSelector');
 
   const {
     closeReactionSelectorOnClick,
@@ -116,7 +118,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
         </>
       )}
       {extendedListOpen && (
-        <ReactionSelector.ExtendedList {...props} dialogId={dialogId} />
+        <ReactionSelectorExtendedList {...props} dialogId={dialogId} />
       )}
     </div>
   );

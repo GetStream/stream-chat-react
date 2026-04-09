@@ -1,5 +1,6 @@
-import type { PropsWithChildren } from 'react';
+import type { ComponentProps, PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
+
 
 import {
   type AttachmentPreviewListProps,
@@ -43,6 +44,7 @@ import {
   type PollOptionSelectorProps,
   type QuotedMessagePreviewProps,
   type ReactionOptions,
+  type ReactionSelector,
   type ReactionSelectorProps,
   type RecordingPermissionDeniedNotificationProps,
   type ReminderNotificationProps,
@@ -211,6 +213,9 @@ export type ComponentContextValue = {
   reactionOptions?: ReactionOptions;
   /** Custom UI component to display the reaction selector, defaults to and accepts same props as: [ReactionSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/ReactionSelector.tsx) */
   ReactionSelector?: React.ForwardRefExoticComponent<ReactionSelectorProps>;
+  ReactionSelectorExtendedList?: React.ComponentType<
+    ComponentProps<(typeof ReactionSelector)['ExtendedList']>
+  >;
   /** Custom UI component to display the list of reactions on a message, defaults to and accepts same props as: [MessageReactions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/MessageReactions.tsx) */
   MessageReactions?: React.ComponentType<MessageReactionsProps>;
   /** Custom UI component to display the reactions modal, defaults to and accepts same props as: [MessageReactionsDetail](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Reactions/MessageReactionsDetail.tsx) */
