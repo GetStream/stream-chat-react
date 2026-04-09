@@ -24,6 +24,7 @@ import {
   isMessageErrorRetryable,
   messageHasAttachments,
   messageHasGiphyAttachment,
+  messageHasQuotedMessage,
   messageHasReactions,
   messageHasSingleAttachment,
   messageTextHasEmojisOnly,
@@ -125,6 +126,7 @@ const MessageUIWithContext = ({
   const hasSingleAttachment = !isDeleted && messageHasSingleAttachment(message);
   const hasGiphyAttachment = !isDeleted && messageHasGiphyAttachment(message);
   const hasReactions = !isDeleted && messageHasReactions(message);
+  const hasQuotedMessage = !isDeleted && messageHasQuotedMessage(message);
   const textHasEmojisOnly = !isDeleted && messageTextHasEmojisOnly(message);
 
   const allowRetry = isMessageErrorRetryable(message);
@@ -142,9 +144,9 @@ const MessageUIWithContext = ({
       'str-chat__message--has-attachment': hasAttachment,
       'str-chat__message--has-giphy-attachment': hasGiphyAttachment,
       'str-chat__message--has-no-text': !message.text,
-      'str-chat__message--has-text': !!message.text,
-      // eslint-disable-next-line sort-keys
+      'str-chat__message--has-quoted-message': hasQuotedMessage,
       'str-chat__message--has-single-attachment': hasSingleAttachment,
+      'str-chat__message--has-text': !!message.text,
       'str-chat__message--highlighted': highlighted,
       'str-chat__message--is-emoji-only': textHasEmojisOnly,
       [`str-chat__message--is-emoji-only-count-${countEmojis(message.text)}`]:

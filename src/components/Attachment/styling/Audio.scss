@@ -89,6 +89,7 @@
 
     .str-chat__message-attachment-file--item-size {
       line-height: calc(var(--str-chat__spacing-px) * 14);
+      font: var(--str-chat__font-metadata-default);
     }
   }
 }

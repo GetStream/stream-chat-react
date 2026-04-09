@@ -277,6 +277,9 @@ export const areMessageUIPropsEqual = (
 export const messageHasReactions = (message?: LocalMessage) =>
   Object.values(message?.reaction_groups ?? {}).some(({ count }) => count > 0);
 
+export const messageHasQuotedMessage = (message?: LocalMessage) =>
+  !!message?.quoted_message;
+
 export const messageHasAttachments = (message?: LocalMessage) =>
   !!message?.attachments && !!message.attachments.length;
 
