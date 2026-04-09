@@ -210,7 +210,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       Message: props.Message,
       messageActions,
       messageListRect: wrapperRect,
-      onlySenderCanEdit: props.onlySenderCanEdit,
       onMentionsClick: props.onMentionsClick,
       onMentionsHover: props.onMentionsHover,
       onUserClick: props.onUserClick,
@@ -467,7 +466,6 @@ type PropsDrilledToMessage =
   | 'formatDate'
   | 'Message'
   | 'messageActions'
-  | 'onlySenderCanEdit'
   | 'onMentionsClick'
   | 'onMentionsHover'
   | 'onUserClick'

@@ -29,14 +29,12 @@ async function renderUserRoleHook(
     clientContextValue = {},
     disableQuotedMessages = undefined as any,
     message = generateMessage(),
-    onlySenderCanEdit = false,
   } = {} as {
     channelProps?: GenerateChannelOptions & Record<string, unknown>;
     channelStateContextValue?: Partial<ChannelStateContextValue>;
     clientContextValue?: Partial<ChatContextValue>;
     disableQuotedMessages?: boolean;
     message?: LocalMessage;
-    onlySenderCanEdit?: boolean;
   },
 ) {
   const client = await getTestClientWithUser(alice);
@@ -59,7 +57,7 @@ async function renderUserRoleHook(
   );
 
   const { result } = renderHook(
-    () => useUserRole(message as any, onlySenderCanEdit, disableQuotedMessages),
+    () => useUserRole(message as any, disableQuotedMessages),
     { wrapper },
   );
   return result.current;
@@ -231,31 +229,17 @@ describe('useUserRole custom hook', () => {
 
   describe('canDo flags', () => {
     it.each([
-      [true, true, true, alice, true],
-      [true, true, true, bob, false],
-      [false, true, true, alice, true],
-      [false, true, true, bob, true],
-      [true, false, true, alice, true],
-      [true, false, true, bob, false],
-      [true, true, false, alice, false],
-      [true, true, false, bob, false],
-      [false, false, true, alice, true],
-      [false, false, true, bob, false],
-      [false, true, false, alice, true],
-      [false, true, false, bob, true],
-      [true, false, false, alice, false],
-      [true, false, false, bob, false],
-      [false, false, false, alice, false],
-      [false, false, false, bob, false],
+      [true, true, alice, true],
+      [true, true, bob, true],
+      [false, true, alice, true],
+      [false, true, bob, false],
+      [true, false, alice, true],
+      [true, false, bob, true],
+      [false, false, alice, false],
+      [false, false, bob, false],
     ])(
       'determine message edit permission',
-      async (
-        onlySenderCanEdit,
-        updateAnyPermission,
-        updateOwnPermission,
-        messageAuthor,
-        expected,
-      ) => {
+      async (updateAnyPermission, updateOwnPermission, messageAuthor, expected) => {
         const message = generateMessage({ user: messageAuthor });
         const { canEdit } = await renderUserRoleHook({
           channelStateContextValue: {
@@ -265,7 +249,6 @@ describe('useUserRole custom hook', () => {
             },
           },
           message,
-          onlySenderCanEdit,
         });
         expect(canEdit).toBe(expected);
       },

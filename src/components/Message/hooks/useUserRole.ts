@@ -2,11 +2,7 @@ import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 import type { LocalMessage } from 'stream-chat';
 
-export const useUserRole = (
-  message: LocalMessage,
-  onlySenderCanEdit?: boolean,
-  disableQuotedMessages?: boolean,
-) => {
+export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boolean) => {
   const { channel, channelCapabilities = {} } = useChannelStateContext('useUserRole');
   const { client } = useChatContext('useUserRole');
 
@@ -39,7 +35,7 @@ export const useUserRole = (
   const canEdit =
     !message.poll &&
     message.command !== 'giphy' &&
-    ((!onlySenderCanEdit && channelCapabilities['update-any-message']) ||
+    (channelCapabilities['update-any-message'] ||
       (isMyMessage && channelCapabilities['update-own-message']));
 
   const canDelete =
