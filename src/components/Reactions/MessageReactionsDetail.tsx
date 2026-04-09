@@ -210,7 +210,10 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                           await contextHandleReaction(type, e);
 
                           // was 1, should be 0 after removal, display all reactions
-                          if (reactionCountBeforeRemoval <= 1) {
+                          if (
+                            selectedReactionType !== null &&
+                            reactionCountBeforeRemoval <= 1
+                          ) {
                             onSelectedReactionTypeChange?.(null);
                           } else {
                             refetch();
@@ -222,7 +225,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                     )}
                   </div>
                   <span className='str-chat__message-reactions-detail__user-list-item-icon'>
-                    {EmojiComponent && !selectedReactionType && <EmojiComponent />}
+                    {!selectedReactionType && EmojiComponent && <EmojiComponent />}
                   </span>
                 </div>
               );
