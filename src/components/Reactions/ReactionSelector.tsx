@@ -80,7 +80,10 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
       {!extendedListOpen && (
         <>
-          <ul className='str-chat__reaction-selector-list'>
+          <ul
+            className='str-chat__reaction-selector-list'
+            data-testid='reaction-selector-list'
+          >
             {adjustedQuickReactionOptions.map(
               ({ Component, name: reactionName, type: reactionType }) => (
                 <li className='str-chat__reaction-list-selector__item' key={reactionType}>
@@ -109,6 +112,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
             appearance='outline'
             circular
             className='str-chat__reaction-selector__add-button'
+            data-testid='reaction-selector-add-button'
             onClick={() => setExtendedListOpen(true)}
             size='sm'
             variant='secondary'
@@ -165,7 +169,10 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
   }
 
   return (
-    <div className='str-chat__reaction-selector-extended-list'>
+    <div
+      className='str-chat__reaction-selector-extended-list'
+      data-testid='reaction-selector-extended-list'
+    >
       {Object.entries(reactionOptions.extended).map(
         ([reactionType, { Component, name: reactionName }]) => (
           <button

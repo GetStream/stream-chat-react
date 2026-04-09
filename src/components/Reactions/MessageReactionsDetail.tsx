@@ -118,10 +118,15 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
         </div>
       )}
       <div className='str-chat__message-reactions-detail__reaction-type-list-container'>
-        <ul className='str-chat__message-reactions-detail__reaction-type-list'>
+        <ul
+          className='str-chat__message-reactions-detail__reaction-type-list'
+          data-testid='reaction-type-list'
+        >
           <li className='str-chat__message-reactions-detail__reaction-type-list-item'>
             <button
+              aria-label={t('Add reaction')}
               className='str-chat__message-reactions-detail__reaction-type-list-item-button'
+              data-testid='add-reaction-button'
               onClick={() => setExtendedReactionListOpen(true)}
             >
               <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
@@ -151,7 +156,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                     </span>
                     <span
                       className='str-chat__message-reactions-detail__reaction-type-list-item-count'
-                      data-testclass='message-reactions-item-count'
+                      data-testid='reaction-type-count'
                     >
                       {reactionCount}
                     </span>

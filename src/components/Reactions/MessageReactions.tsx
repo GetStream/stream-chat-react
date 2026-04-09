@@ -21,7 +21,6 @@ import { MAX_MESSAGE_REACTIONS_TO_FETCH } from '../Message/hooks';
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 import type { ReactionsComparator, ReactionType } from './types';
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
-import { ReactionSelector } from './ReactionSelector';
 
 export type MessageReactionsProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -160,6 +159,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
           aria-pressed={isDialogOpen}
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
+          data-testid='message-reactions-list-button'
           onClick={() => handleReactionButtonClick(null)}
         >
           <ul className='str-chat__message-reactions__list'>
@@ -168,6 +168,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                 EmojiComponent && (
                   <li
                     className='str-chat__message-reactions__list-item'
+                    data-testid='message-reactions-list-item'
                     key={reactionType}
                   >
                     <FragmentOrButton
@@ -175,7 +176,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                       className='str-chat__message-reactions__list-item-button'
                       onClick={() => handleReactionButtonClick(reactionType)}
                     >
-                      <span className='str-chat__message-reactions__list-item-icon'>
+                      <span
+                        className='str-chat__message-reactions__list-item-icon'
+                        data-testid='message-reactions-list-item-icon'
+                      >
                         <EmojiComponent />
                       </span>
                       {visualStyle === 'segmented' && reactionCount > 1 && (
@@ -208,7 +212,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
               )}
           </ul>
           {visualStyle === 'clustered' && (
-            <span className='str-chat__message-reactions__total-count'>
+            <span
+              className='str-chat__message-reactions__total-count'
+              data-testid='message-reactions-total-count'
+            >
               {totalReactionCount}
             </span>
           )}

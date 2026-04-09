@@ -1,7 +1,6 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 
-
 import {
   type AttachmentPreviewListProps,
   type AttachmentProps,
