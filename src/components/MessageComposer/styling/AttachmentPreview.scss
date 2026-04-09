@@ -160,28 +160,6 @@
         object-fit: cover;
       }
     }
-
-    .str-chat__attachment-preview-media__video-indicator {
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-xxs);
-      position: absolute;
-      bottom: var(--spacing-xs);
-      inset-inline-start: var(--spacing-xs);
-      padding: var(--spacing-xxs) var(--spacing-xs);
-      border-radius: var(--radius-max);
-      background: var(--badge-bg-inverse);
-      color: var(--badge-text-on-inverse);
-      font: var(--str-chat__numeric-md-text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-
-      .str-chat__icon {
-        width: var(--icon-size-xs);
-        height: var(--icon-size-xs);
-        fill: currentColor;
-      }
-    }
   }
 
   .str-chat__attachment-preview-media__overlay {

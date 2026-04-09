@@ -14,11 +14,12 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { IconExclamationMark, IconRetry, IconVideoFill } from '../../Icons';
+import { IconExclamationMark, IconRetry } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
+import { MediaBadge } from '../../Badge/MediaBadge';
 
 export type MediaAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -99,10 +100,7 @@ export const MediaAttachmentPreview = ({
           {isVideoAttachment(attachment) &&
             !hasUploadError &&
             uploadState !== 'uploading' && (
-              <div className='str-chat__attachment-preview-media__video-indicator'>
-                <IconVideoFill />
-                {attachment.duration && <div>{attachment.duration}</div>}
-              </div>
+              <MediaBadge attachment={attachment} variant='video' />
             )}
 
           {hasFatalError && <IconExclamationMark />}
