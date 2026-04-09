@@ -1,0 +1,66 @@
+@use '../../../styling/utils';
+@use '../../../styling/variables/font' as font;
+
+.str-chat {
+  /* The border radius used for the borders of file attachments */
+  --str-chat__unsupported-attachment-border-radius: calc(
+    var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
+  );
+
+  /* The text/icon color of file attachments */
+  --str-chat__unsupported-attachment-color: var(--str-chat__text-color);
+
+  /* The text/icon color of file attachments for low emphasis texts (for example file size) */
+  --str-chat__unsupported-attachment-secondary-color: var(
+    --str-chat__text-low-emphasis-color
+  );
+
+  /* The background color of file attachments */
+  --str-chat__unsupported-attachment-background-color: transparent;
+
+  /* Top border of file attachments */
+  --str-chat__unsupported-attachment-border-block-start: none;
+
+  /* Bottom border of file attachments */
+  --str-chat__unsupported-attachment-border-block-end: none;
+
+  /* Left (right in RTL layout) border of file attachments */
+  --str-chat__unsupported-attachment-border-inline-start: none;
+
+  /* Right (left in RTL layout) border of file attachments */
+  --str-chat__unsupported-attachment-border-inline-end: none;
+
+  /* Box shadow applied to file attachments */
+  --str-chat__unsupported-attachment-box-shadow: none;
+}
+
+.str-chat__message-attachment-unsupported {
+  @include utils.component-layer-overrides('unsupported-attachment');
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  column-gap: var(--spacing-sm);
+  // todo: keep a single variable for attachment min width
+  min-width: 300px;
+
+  .str-chat__file-icon {
+    width: calc(var(--str-chat__spacing-px) * 30);
+  }
+
+  .str-chat__message-attachment-unsupported__metadata {
+    min-width: 0;
+    flex: 1;
+    height: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .str-chat__message-attachment-unsupported__title {
+    @include utils.ellipsis-text;
+    @include font.text-caption-emphasis;
+    max-width: 100%;
+  }
+}
