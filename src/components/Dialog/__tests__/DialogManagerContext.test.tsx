@@ -1,11 +1,17 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { vi } from 'vitest';
 import {
   DialogManagerProvider,
   useDialogManager,
 } from '../../../context/DialogManagerContext';
 
 import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
+
+vi.mock('../../../components/Dialog/service/DialogPortal', () => ({
+  DialogPortalDestination: () => null,
+}));
 
 const TEST_IDS = {
   CLOSE_DIALOG: 'close-dialog',
@@ -87,6 +93,16 @@ describe('DialogManagerContext', () => {
         TEST_MANAGER_ID,
       );
       expect(screen.getByTestId(TEST_IDS.DIALOG_COUNT).textContent).toBe('0');
+    });
+
+    it('renders children during SSR when id is provided', () => {
+      const html = renderToStaticMarkup(
+        <DialogManagerProvider id={TEST_MANAGER_ID}>
+          <div>server-rendered-child</div>
+        </DialogManagerProvider>,
+      );
+
+      expect(html).toContain('server-rendered-child');
     });
 
     it('provides dialog manager to non-child components', () => {
