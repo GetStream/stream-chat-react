@@ -45,5 +45,5 @@ export function useSelectedChannelState<O>({
     return selector(channel);
   }, [channel, selector]);
 
-  return useSyncExternalStore(subscribe, getSnapshot);
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
