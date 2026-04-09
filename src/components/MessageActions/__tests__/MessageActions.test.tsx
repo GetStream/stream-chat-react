@@ -1206,4 +1206,248 @@ describe('<MessageActions />', () => {
       expect(contextMenu).toBeInTheDocument();
     });
   });
+
+  describe('Default message actions edge coverage', () => {
+    it('should copy message text to clipboard when Copy is used', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      Object.assign(navigator, { clipboard: { writeText } });
+      const message = generateMessage({ text: 'hello copy', user: alice });
+      await renderMessageActions({
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Copy Message'));
+      });
+      expect(writeText).toHaveBeenCalledWith('hello copy');
+    });
+
+    it('should call handleRetry when Resend is used on a failed message', async () => {
+      const handleRetry = vi.fn();
+      const message = generateMessage({
+        error: { status: 400 },
+        status: 'failed',
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'send-message': true },
+        },
+        customMessageContext: { handleRetry, message },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Resend'));
+      });
+      expect(handleRetry).toHaveBeenCalledWith(message);
+    });
+
+    it('should call client.blockUser when Block User is used', async () => {
+      const otherUser = generateUser();
+      const message = generateMessage({ user: otherUser });
+      const chatClient = await getTestClientWithUser(alice);
+      const blockUserSpy = vi.spyOn(chatClient, 'blockUser').mockImplementation(() => {});
+      await renderMessageActions({
+        chatClient,
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Block User'));
+      });
+      expect(blockUserSpy).toHaveBeenCalledWith(otherUser.id);
+    });
+
+    it('should notify on delete failure from the confirmation modal', async () => {
+      const handleDelete = vi.fn().mockRejectedValueOnce(new Error('delete failed'));
+      const message = generateMessage({ user: alice });
+      const chatClient = await getTestClientWithUser(alice);
+      const addSpy = vi.spyOn(chatClient.notifications, 'add');
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'delete-own-message': true },
+        },
+        chatClient,
+        customMessageContext: { handleDelete, message },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Delete message'));
+      });
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId('delete-message-alert-delete-button'));
+      });
+      expect(addSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'delete failed',
+          options: expect.objectContaining({ severity: 'error' }),
+        }),
+      );
+    });
+
+    it('should pass through non-Error pin failures for notifications', async () => {
+      const handlePin = vi.fn().mockRejectedValueOnce({ message: 'pin rejected' });
+      const message = generateMessage({ pinned: false, user: alice });
+      const chatClient = await getTestClientWithUser(alice);
+      const addSpy = vi.spyOn(chatClient.notifications, 'add');
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'pin-message': true },
+        },
+        chatClient,
+        customMessageContext: { handlePin, message },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Pin'));
+      });
+      expect(addSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error pinning message',
+          options: expect.objectContaining({
+            originalError: expect.objectContaining({ message: 'pin rejected' }),
+            severity: 'error',
+          }),
+        }),
+      );
+    });
+
+    it('should return to parent menu from Remind me submenu header', async () => {
+      const client = await getTestClientWithUser(alice);
+      await renderMessageActions({
+        channelConfig: { replies: true, user_message_reminders: true },
+        channelStateOpts: {
+          channelCapabilities: { 'send-reply': true },
+        },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: () => [
+            'delete',
+            'edit',
+            'flag',
+            'mute',
+            'pin',
+            'quote',
+            'react',
+            'remindMe',
+            'reply',
+            'saveForLater',
+          ],
+        },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Remind me'));
+      });
+      await act(async () => {
+        await fireEvent.click(
+          document.querySelector(
+            '.str-chat__context-menu__back-button',
+          ) as HTMLButtonElement,
+        );
+      });
+      expect(screen.getByText('Thread Reply')).toBeInTheDocument();
+    });
+
+    it('should surface string rejection from reminder upsert as notification message', async () => {
+      const client = await getTestClientWithUser(alice);
+      vi.spyOn(client.reminders, 'upsertReminder').mockRejectedValueOnce('string-fail');
+      const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+      await renderMessageActions({
+        channelConfig: { user_message_reminders: true },
+        chatClient: client,
+        customMessageContext: {
+          getMessageActions: () => [
+            'delete',
+            'edit',
+            'flag',
+            'mute',
+            'pin',
+            'quote',
+            'react',
+            'remindMe',
+            'reply',
+            'saveForLater',
+          ],
+        },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Remind me'));
+      });
+      const remindMeOption = document.querySelector(
+        '.str-chat__message-actions-box__submenu .str-chat__message-actions-list-item-button',
+      ) as HTMLButtonElement;
+      await act(async () => {
+        await fireEvent.click(remindMeOption);
+      });
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Error setting reminder',
+          options: expect.objectContaining({
+            originalError: expect.objectContaining({ message: 'string-fail' }),
+            severity: 'error',
+          }),
+        }),
+      );
+    });
+
+    it('should focus thread textarea when quoting from a thread message', async () => {
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels();
+      const message = generateMessage({ parent_id: 'parent-1', user: client.user });
+      const textarea = document.createElement('textarea');
+      textarea.className = 'str-chat__textarea__textarea';
+      const threadRoot = document.createElement('div');
+      threadRoot.className = 'str-chat__thread';
+      threadRoot.appendChild(textarea);
+      document.body.appendChild(threadRoot);
+      const focusSpy = vi.spyOn(textarea, 'focus');
+
+      await act(async () => {
+        await render(
+          <ChatProvider value={mockChatContext({ client })}>
+            <DialogManagerProvider id='message-actions-dialog-provider'>
+              <ChannelStateProvider
+                value={mockChannelStateContext({
+                  channel,
+                  channelCapabilities: { 'quote-message': true },
+                })}
+              >
+                <ChannelActionProvider
+                  value={mockChannelActionContext({
+                    openThread: vi.fn(),
+                    removeMessage: vi.fn(),
+                    updateMessage: vi.fn(),
+                  })}
+                >
+                  <TranslationProvider value={mockTranslationContextValue()}>
+                    <ComponentProvider value={mockComponentContext()}>
+                      <MessageProvider
+                        value={mockMessageContext({
+                          ...defaultMessageContextValue,
+                          message,
+                        })}
+                      >
+                        <MessageActions />
+                      </MessageProvider>
+                    </ComponentProvider>
+                  </TranslationProvider>
+                </ChannelActionProvider>
+              </ChannelStateProvider>
+            </DialogManagerProvider>
+          </ChatProvider>,
+        );
+      });
+
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Quote Reply'));
+      });
+      expect(focusSpy).toHaveBeenCalled();
+      document.body.removeChild(threadRoot);
+    });
+  });
 });

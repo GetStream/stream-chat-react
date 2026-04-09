@@ -215,6 +215,36 @@ describe('NotificationList', () => {
     );
   });
 
+  it('uses origin.context.entryDirection when metadata is absent', () => {
+    currentNotifications = [
+      {
+        ...notifications[0],
+        origin: {
+          context: { entryDirection: 'right' },
+          emitter: 'test',
+        },
+      },
+    ];
+
+    render(<NotificationList enterFrom='bottom' />);
+
+    expect(screen.getByTestId('notification-list')).toHaveClass(
+      'str-chat__notification-list--enter-from-right',
+    );
+    expect(screen.getByTestId('notification-n-1')).toHaveAttribute(
+      'data-entry-direction',
+      'right',
+    );
+  });
+
+  it('supports top vertical alignment', () => {
+    render(<NotificationList verticalAlignment='top' />);
+
+    expect(screen.getByTestId('notification-list')).toHaveClass(
+      'str-chat__notification-list--position-top',
+    );
+  });
+
   it('uses custom Notification component from ComponentContext', () => {
     const CustomNotification = React.forwardRef<
       HTMLDivElement,
