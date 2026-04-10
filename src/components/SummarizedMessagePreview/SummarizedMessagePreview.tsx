@@ -17,6 +17,7 @@ import {
   IconLink,
   IconLocation,
   IconNoSign,
+  IconUnsupportedAttachment,
   IconVideo,
   IconVoice,
 } from '../Icons';
@@ -38,6 +39,7 @@ const contentTypeIconMap: Partial<
   image: IconCamera,
   link: IconLink,
   location: IconLocation,
+  unsupported: IconUnsupportedAttachment,
   video: IconVideo,
   voice: IconVoice,
 };

@@ -31,12 +31,139 @@
     max-width: min(420px, calc(100vw - 32px));
   }
 
+  .app__attachment-dialog {
+    min-width: min(480px, calc(100vw - 32px));
+    max-width: min(480px, calc(100vw - 32px));
+  }
+
   .app__notification-dialog__prompt {
     display: flex;
     flex-direction: column;
     width: min(420px, calc(100vw - 32px));
     max-height: min(500px, calc(100vh - 32px));
     overflow: hidden;
+  }
+
+  .app__attachment-dialog__prompt {
+    display: flex;
+    flex-direction: column;
+    width: min(480px, calc(100vw - 32px));
+    max-height: min(560px, calc(100vh - 32px));
+    overflow: hidden;
+  }
+
+  .app__attachment-dialog__drag-handle {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .app__attachment-dialog__drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .app__attachment-dialog__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding-top: 4px;
+  }
+
+  .app__attachment-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .app__attachment-dialog__field-label {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .app__attachment-dialog__subsection {
+    border-top: 1px solid var(--border-core-default);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 8px;
+    padding-top: 12px;
+  }
+
+  .app__attachment-dialog__subsection-title {
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .app__attachment-dialog__tabs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .app__attachment-dialog__tab {
+    border: 1px solid var(--border-core-default);
+    border-radius: 999px;
+    background: var(--background-core-elevation-2);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 8px 12px;
+  }
+
+  .app__attachment-dialog__tab[aria-selected='true'] {
+    background: var(--background-utility-selected);
+    border-color: var(--border-utility-selected);
+    color: var(--text-primary);
+  }
+
+  .app__attachment-dialog__textarea {
+    width: 100%;
+    min-height: 200px;
+    resize: vertical;
+    border: 1px solid var(--border-core-default);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--background-core-elevation-2);
+    color: var(--text-primary);
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      SF Mono,
+      Menlo,
+      monospace;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__attachment-dialog__textarea:focus-visible {
+    outline: 2px solid var(--border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__attachment-dialog__error {
+    color: var(--text-error);
+    font-size: 13px;
+  }
+
+  .app__attachment-dialog__subsection-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .app__attachment-dialog__footer {
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+  }
+
+  .app__attachment-dialog__footer-controls {
+    margin-inline-start: 0;
   }
 
   .app__notification-dialog__drag-handle {
@@ -365,12 +492,14 @@
 
   @media (max-width: 760px) {
     .app__actions-menu,
-    .app__notification-dialog {
+    .app__notification-dialog,
+    .app__attachment-dialog {
       min-width: min(360px, calc(100vw - 24px));
       max-width: min(360px, calc(100vw - 24px));
     }
 
-    .app__notification-dialog__prompt {
+    .app__notification-dialog__prompt,
+    .app__attachment-dialog__prompt {
       width: min(360px, calc(100vw - 24px));
     }
 
