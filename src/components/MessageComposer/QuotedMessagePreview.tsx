@@ -34,13 +34,13 @@ import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
+  IconCamera,
   IconFile,
   IconLink,
   IconLocation,
   IconPlayFill,
   IconPoll,
   IconVideo,
-  IconVideoFill,
   IconVoice,
 } from '../Icons';
 import clsx from 'clsx';
@@ -268,7 +268,7 @@ const getAttachmentIconWithType = (
     const imageAttachment = groupedAttachments.images[0];
     return {
       ...result,
-      Icon: IconVideoFill,
+      Icon: IconCamera,
       PreviewImage: (
         <BaseImage
           alt={imageAttachment.fallback}

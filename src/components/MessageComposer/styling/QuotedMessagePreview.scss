@@ -72,6 +72,10 @@
       min-width: 40px;
       overflow: hidden;
 
+      img {
+        object-fit: cover;
+      }
+
       .str-chat__attachment-preview__thumbnail__play-indicator {
         display: flex;
         align-items: center;
