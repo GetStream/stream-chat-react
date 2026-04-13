@@ -110,6 +110,13 @@
         overflow: visible;
       }
     }
+
+    // remove paddings for large-emoji-only messages
+    .str-chat__message-bubble,
+    .str-chat__message-inner .str-chat__message-bubble .str-chat__message-text,
+    .str-chat__message-inner .str-chat__message-replies-count-button-wrapper {
+      padding-inline: 0;
+    }
   }
 
   &.str-chat__message--is-emoji-only-count-1 {
@@ -131,13 +138,6 @@
       font-size: 32px;
       line-height: 32px;
     }
-  }
-
-  // remove paddings for certain elements in emoji-only messages
-  .str-chat__message-bubble,
-  .str-chat__message-inner .str-chat__message-bubble .str-chat__message-text,
-  .str-chat__message-inner .str-chat__message-replies-count-button-wrapper {
-    padding-inline: 0;
   }
 
   .str-chat__message-replies-count-button-wrapper::after {
