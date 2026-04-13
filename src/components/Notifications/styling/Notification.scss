@@ -3,7 +3,6 @@
   align-items: center;
   gap: var(--spacing-xs);
   min-height: 48px;
-  min-width: 200px;
   max-width: 100%;
   padding: var(--spacing-xs);
   position: relative;
@@ -21,6 +20,7 @@
     display: flex;
     flex: 1 1 auto;
     gap: var(--spacing-xs);
+    padding-inline: var(--spacing-xxs) var(--spacing-xs);
 
     .str-chat__notification-icon {
       display: flex;
