@@ -6,6 +6,8 @@ import {
   IconAudio,
   IconBell,
   IconBellOff,
+  IconBookmark,
+  IconBookmarkRemove,
   IconCopy,
   IconDelete,
   IconEdit,
@@ -19,10 +21,8 @@ import {
   IconQuote,
   IconReply,
   IconRetry,
-  IconSave,
   IconThread,
   IconUnpin,
-  IconUnsave,
   IconUserCheck,
 } from '../Icons';
 import { isUserMuted } from '../Message/utils';
@@ -344,7 +344,7 @@ const DefaultMessageActionComponents = {
             reminder ? t('aria/Remove Save For Later') : t('aria/Bookmark Message')
           }
           className={msgActionsBoxButtonClassName}
-          Icon={reminder ? IconUnsave : IconSave}
+          Icon={reminder ? IconBookmarkRemove : IconBookmark}
           onClick={async () => {
             try {
               if (reminder) {

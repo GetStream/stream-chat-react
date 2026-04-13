@@ -240,7 +240,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xxs);
-      font: var(--str-chat__metadata-default-text);
+      font: var(--str-chat__metadata-emphasis-text);
       color: var(--text-primary-text);
 
       .str-chat__message-pin-indicator__icon {
@@ -250,6 +250,10 @@
         .str-chat__icon {
           width: var(--icon-size-xs);
           height: var(--icon-size-xs);
+
+          path {
+            stroke-width: 2px;
+          }
         }
       }
     }
