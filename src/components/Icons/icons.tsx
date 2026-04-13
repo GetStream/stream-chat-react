@@ -425,7 +425,7 @@ export const IconXmark = createIcon(
     stroke='currentColor'
     strokeLinecap='round'
     strokeLinejoin='round'
-    strokeWidth='1.5'
+    strokeWidth='2'
   />,
 );
 

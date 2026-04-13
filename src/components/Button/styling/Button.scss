@@ -160,6 +160,11 @@
       align-items: center;
       justify-content: center;
       border-radius: var(--button-radius-full);
+
+      .str-chat__icon {
+        height: var(--icon-size-sm);
+        width: var(--icon-size-sm);
+      }
     }
 
     .str-chat__button__content {

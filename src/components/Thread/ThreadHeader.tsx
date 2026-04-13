@@ -99,9 +99,11 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   return (
     <div className='str-chat__thread-header'>
-      <div className='str-chat__thread-header__start'>
-        {activeChatView === 'threads' && HeaderStartContent && <HeaderStartContent />}
-      </div>
+      {activeChatView === 'threads' && HeaderStartContent && (
+        <div className='str-chat__thread-header__start'>
+          <HeaderStartContent />
+        </div>
+      )}
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
         <ThreadHeaderSubtitle
@@ -110,8 +112,8 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
           threadList
         />
       </div>
-      <div className='str-chat__thread-header__end'>
-        {!threadInstance && (
+      {!threadInstance && (
+        <div className='str-chat__thread-header__end'>
           <Button
             appearance='ghost'
             aria-label={t('aria/Close thread')}
@@ -124,8 +126,8 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
           >
             <IconXmark />
           </Button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
