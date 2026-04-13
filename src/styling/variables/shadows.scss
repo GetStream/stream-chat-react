@@ -20,7 +20,9 @@ to create clearer separation from the base surface.
 }
 
 .str-chat__theme-dark,
-.str-chat:not(.str-chat__theme-dark) *:not(.str-chat__theme-dark) .str-chat__theme-inverse {
+.str-chat:not(.str-chat__theme-dark)
+  *:not(.str-chat__theme-dark)
+  .str-chat__theme-inverse {
   --str-chat__box-shadow-1: var(--dark-elevation-1);
   --str-chat__box-shadow-2: var(--dark-elevation-2);
   --str-chat__box-shadow-3: var(--dark-elevation-3);
