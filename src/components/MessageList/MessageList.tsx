@@ -140,6 +140,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     [messages],
   );
   const isJumpingToLatest = jumpToLatestPhase !== 'idle';
+  const isHighlightedJumpRequested = !!highlightedMessageId;
   // Highlighted jumps temporarily disable prepend pagination so a target
   // message rendered near the top does not immediately load the previous page.
   const isJumpingToHighlightedMessage = highlightedJumpPhase !== 'idle';
@@ -152,7 +153,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     scrollToBottom,
     wrapperRect,
   } = useScrollLocationLogic({
-    disableAutoScrollToBottom: isJumpingToLatest || justReachedLatestMergedSet,
+    disableAutoScrollToBottom:
+      isJumpingToLatest || isHighlightedJumpRequested || justReachedLatestMergedSet,
     disableScrollManagement: isJumpingToLatest || isJumpingToHighlightedMessage,
     hasMoreNewer,
     listElement,
