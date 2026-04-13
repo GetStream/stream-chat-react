@@ -226,6 +226,7 @@
   .str-chat__message-attachment--audio,
   .str-chat__message-attachment--file,
   .str-chat__message-attachment--unsupported,
+  .str-chat__message-attachment--geolocation,
   .str-chat__message-attachment--voiceRecording,
   .str-chat__message-attachment--card {
     width: var(--str-chat__attachment-max-width);
