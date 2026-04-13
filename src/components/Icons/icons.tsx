@@ -801,7 +801,7 @@ export const IconPlus = createIcon(
     stroke='currentColor'
     strokeLinecap='round'
     strokeLinejoin='round'
-    strokeWidth='1.5'
+    strokeWidth='2'
   />,
 );
 
