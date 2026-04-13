@@ -207,6 +207,7 @@ const ContextMenuButtonWithSubmenu = ({
     setPopperElement,
     styles,
   } = useDialogAnchor<HTMLDivElement>({
+    offset: 8,
     open: dialogIsOpen,
     placement: submenuPlacement,
     referenceElement: buttonRef.current,
@@ -456,6 +457,7 @@ type ContextMenuAnchorProps = Partial<
     | 'closeOnClickOutside'
     | 'focus'
     | 'closeTransitionMs'
+    | 'offset'
   >
 >;
 
@@ -633,6 +635,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
     dialogManagerId,
     focus,
     id,
+    offset = 8,
     placement,
     referenceElement,
     submenuTransitionDurationMs,
@@ -729,6 +732,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
         dialogManagerId={dialogManagerId}
         focus={focus}
         id={id}
+        offset={offset}
         placement={placement}
         referenceElement={referenceElement}
         tabIndex={tabIndex}

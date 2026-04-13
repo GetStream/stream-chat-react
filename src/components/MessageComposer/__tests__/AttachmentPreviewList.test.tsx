@@ -55,6 +55,7 @@ const PREVIEW_COMPONENT_PROP_NAMES = {
   unsupported: 'UnsupportedAttachmentPreview',
   video: 'VideoAttachmentPreview',
 };
+const ATTACHMENT_TYPES_WITH_ACTION_CONTROLS = ['audio', 'file', 'image', 'video'];
 
 const renderComponent = async ({
   attachments,
@@ -209,6 +210,8 @@ describe('AttachmentPreviewList', () => {
       };
 
       it('retries upload on upload button click', async () => {
+        if (!ATTACHMENT_TYPES_WITH_ACTION_CONTROLS.includes(type)) return;
+
         const state = 'failed';
         const title = `${type}-attachment-${state}`;
         const uploadedAttachmentData = generate[type]({
@@ -244,6 +247,8 @@ describe('AttachmentPreviewList', () => {
       });
 
       it('renders loading indicator in preview', async () => {
+        if (!ATTACHMENT_TYPES_WITH_ACTION_CONTROLS.includes(type)) return;
+
         const state = 'uploading';
         const title = `${type}-attachment-${state}`;
         const uploadedAttachmentData = generate[type]({
@@ -282,9 +287,17 @@ describe('AttachmentPreviewList', () => {
         expect(
           screen.queryByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].retry),
         ).not.toBeInTheDocument();
+
+        if (type === 'unsupported') {
+          expect(
+            screen.queryByTestId('unsupported-attachment-preview-title'),
+          ).toHaveTextContent('Unsupported attachment');
+        }
       });
 
       it('removes the preview', async () => {
+        if (!ATTACHMENT_TYPES_WITH_ACTION_CONTROLS.includes(type)) return;
+
         const state = 'finished';
         const title = `${type}-attachment-${state}`;
         const id = `${type}-id`;

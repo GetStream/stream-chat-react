@@ -6,8 +6,11 @@
     flex-direction: column;
     gap: var(--spacing-xl);
     padding: var(--spacing-xs);
+    width: calc(
+      var(--str-chat__message-with-attachment-max-width) - calc(2 * var(--spacing-xs))
+    );
+    max-width: 100%;
     min-width: 260px;
-    max-width: 400px;
     font-size: var(--typography-font-size-sm);
     font-weight: var(--typography-font-weight-regular);
     line-height: var(--typography-line-height-tight);

@@ -13,6 +13,10 @@ import {
   NotificationPromptDialog,
   notificationPromptDialogId,
 } from './NotificationPromptDialog';
+import {
+  AttachmentPromptDialog,
+  attachmentPromptDialogId,
+} from './AttachmentPromptDialog';
 
 const actionsMenuDialogId = 'app-actions-menu';
 
@@ -72,6 +76,20 @@ function TriggerNotificationAction({ onTrigger }: { onTrigger: () => void }) {
   );
 }
 
+function TriggerAttachmentAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Message Composer'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
 const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
@@ -82,7 +100,9 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   const { dialog: notificationDialog } = useDialogOnNearestManager({
     id: notificationPromptDialogId,
   });
-
+  const { dialog: attachmentDialog } = useDialogOnNearestManager({
+    id: attachmentPromptDialogId,
+  });
   const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
   return (
@@ -105,8 +125,10 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
         trapFocus
       >
         <TriggerNotificationAction onTrigger={notificationDialog.open} />
+        <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
       </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
+      <AttachmentPromptDialog referenceElement={menuButtonElement} />
     </div>
   );
 };

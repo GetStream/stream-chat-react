@@ -147,11 +147,10 @@ describe('useLatestMessagePreview', () => {
       expect(result.current.senderName).toBeUndefined();
     });
 
-    it('does not set senderName for other user when participantCount defaults to Infinity', () => {
-      // default participantCount is Infinity, which is > 2, so senderName should be set
+    it('does not set senderName for other user when participantCount is not provided', () => {
       const message = generateMessage({ user: otherUser });
       const { result } = renderPreviewHook({ latestMessage: message });
-      expect(result.current.senderName).toBe('Other User');
+      expect(result.current.senderName).toBeUndefined();
     });
   });
 
@@ -264,6 +263,28 @@ describe('useLatestMessagePreview', () => {
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('file');
       expect(result.current.text).toBe('report.pdf');
+    });
+
+    it('returns unsupported type for unsupported attachment', () => {
+      const message = generateMessage({
+        attachments: [{ fallback: 'custom.bin', type: 'custom' }],
+        text: '',
+        user: ownUser,
+      });
+      const { result } = renderPreviewHook({ latestMessage: message });
+      expect(result.current.type).toBe('unsupported');
+      expect(result.current.text).toBe('Unsupported attachment');
+    });
+
+    it('prioritizes message text content over unsupported attachment fallback', () => {
+      const message = generateMessage({
+        attachments: [{ fallback: 'custom.bin', type: 'custom' }],
+        text: 'See this',
+        user: ownUser,
+      });
+      const { result } = renderPreviewHook({ latestMessage: message });
+      expect(result.current.type).toBe('unsupported');
+      expect(result.current.text).toBe('See this');
     });
 
     it('returns link type for scraped image attachment', () => {

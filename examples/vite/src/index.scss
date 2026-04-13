@@ -599,6 +599,8 @@ body {
       position: static;
       inset: auto;
       flex: 0 0 auto;
+      pointer-events: auto;
+      visibility: visible;
       width: min(
         var(--str-chat__channel-list-width),
         calc(100vw - var(--str-chat__chat-view-selector-mobile-width))
@@ -616,6 +618,8 @@ body {
       position: static;
       inset: auto;
       flex: 0 0 auto;
+      pointer-events: auto;
+      visibility: visible;
       width: min(
         var(--str-chat__thread-list-width),
         calc(100vw - var(--str-chat__chat-view-selector-mobile-width))

@@ -1,5 +1,13 @@
 import { useMemo } from 'react';
 import type { Attachment, LocalMessage } from 'stream-chat';
+import {
+  isAudioAttachment,
+  isFileAttachment,
+  isImageAttachment,
+  isScrapedContent,
+  isVideoAttachment,
+  isVoiceRecordingAttachment,
+} from 'stream-chat';
 
 import {
   getTranslatedMessageText,
@@ -20,9 +28,17 @@ export type ChannelPreviewMessageType =
   | 'video'
   | 'voice'
   | 'file'
+  | 'unsupported'
   | 'link'
   | 'location'
   | 'poll';
+
+const SUPPORTED_VIDEO_FORMATS: string[] = [
+  'video/mp4',
+  'video/ogg',
+  'video/webm',
+  'video/quicktime',
+];
 
 /**
  * Delivery status of the last own message.
@@ -63,17 +79,19 @@ export type LatestMessagePreviewData = {
 function getAttachmentContentType(attachment: Attachment): ChannelPreviewMessageType {
   if (!attachment) return 'text';
 
-  // TODO: add audio (non-voice) content type when supported by the design
   if (attachment.type === 'giphy') return 'giphy';
-  if (attachment.type === 'image') {
-    if (attachment.og_scrape_url || attachment.title_link) return 'link';
-    return 'image';
+  if (isScrapedContent(attachment)) return 'link';
+  if (isImageAttachment(attachment)) return 'image';
+  if (isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) return 'video';
+  if (isVoiceRecordingAttachment(attachment)) return 'voice';
+  if (
+    isAudioAttachment(attachment) ||
+    isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)
+  ) {
+    return 'file';
   }
-  if (attachment.type === 'video') return 'video';
-  if (attachment.type === 'voiceRecording') return 'voice';
-  if (attachment.type === 'file') return 'file';
 
-  return 'file';
+  return 'unsupported';
 }
 
 function getAttachmentFallbackText(
@@ -91,6 +109,9 @@ function getAttachmentFallbackText(
     case 'link':
       return t('linkCount', { count });
     case 'file':
+      return t('fileCount', { count });
+    case 'unsupported':
+      return t('Unsupported attachment');
     default:
       return t('fileCount', { count });
   }
@@ -112,7 +133,7 @@ export type UseLatestMessagePreviewParams = {
 export const useLatestMessagePreview = ({
   latestMessage,
   messageDeliveryStatus,
-  participantCount = Infinity,
+  participantCount,
 }: UseLatestMessagePreviewParams): LatestMessagePreviewData => {
   const { client } = useChatContext('useLatestMessagePreview');
   const { t, userLanguage } = useTranslationContext('useLatestMessagePreview');
@@ -136,7 +157,7 @@ export const useLatestMessagePreview = ({
     let senderName: string | undefined;
     if (isOwnMessage) {
       senderName = t('You');
-    } else if (!isOwnMessage && participantCount > 2) {
+    } else if (!isOwnMessage && participantCount !== undefined && participantCount > 2) {
       senderName = latestMessage.user?.name || latestMessage.user?.id;
     }
 
@@ -195,7 +216,9 @@ export const useLatestMessagePreview = ({
           : // prioritize message text content if available
             textContent ||
             // then fallback text of the single attachment if only one attachment is present and it's not a voice recording (fallback text is generic for voice recordings, so not useful in the preview)
-            (attachments.length === 1 && contentType !== 'voice'
+            (attachments.length === 1 &&
+            contentType !== 'voice' &&
+            contentType !== 'unsupported'
               ? firstAttachment.fallback || firstAttachment.title
               : '') ||
             // then generic fallback text based on attachment type and count

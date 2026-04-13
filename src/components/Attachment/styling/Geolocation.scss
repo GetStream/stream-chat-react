@@ -40,7 +40,8 @@
   display: flex;
   flex-direction: column;
   height: 200px;
-  width: 200px;
+  width: 100%;
+  max-width: var(--str-chat__attachment-max-width);
 
   .str-chat__message-attachment-geolocation__location-preview {
     flex: 1;
