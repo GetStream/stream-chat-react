@@ -2,11 +2,11 @@
 
 exports[`ReminderNotification > displays text for bookmark notifications (saved for later) 1`] = `
 <div>
-  <p
+  <div
     class="str-chat__message-saved-for-later"
   >
     <svg
-      class="str-chat__icon str-chat__icon--save"
+      class="str-chat__icon str-chat__icon--bookmark"
       viewBox="0 0 20 20"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -22,7 +22,7 @@ exports[`ReminderNotification > displays text for bookmark notifications (saved 
     <span>
       Saved for later
     </span>
-  </p>
+  </div>
 </div>
 `;
 
