@@ -175,7 +175,7 @@
   @include utils.component-layer-overrides('message');
 
   @mixin chat-bubble-spacing {
-    padding-inline: var(--spacing-sm);
+    padding-inline: var(--spacing-xxs);
 
     p {
       white-space: pre-line;
