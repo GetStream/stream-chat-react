@@ -440,6 +440,7 @@
     grid-area: metadata;
     display: flex;
     flex-wrap: wrap;
+    gap: var(--spacing-xxs);
     align-items: center;
     height: var(--size-24);
     color: var(--chat-text-timestamp);
