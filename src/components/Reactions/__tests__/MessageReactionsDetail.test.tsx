@@ -1,9 +1,11 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
-
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 
-import { MessageReactionsDetail } from '../MessageReactionsDetail';
+import {
+  MessageReactionsDetail,
+  type MessageReactionsDetailProps,
+} from '../MessageReactionsDetail';
 import { MessageProvider } from '../../../context/MessageContext';
 
 import {
@@ -11,15 +13,20 @@ import {
   generateUser,
   getTestClient,
   mockChatContext,
-  mockComponentContext,
   mockMessageContext,
 } from '../../../mock-builders';
-import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
-import { defaultReactionOptions } from '../reactionOptions';
+import { ChatProvider, DialogManagerProvider, WithComponents } from '../../../context';
+import type { ComponentContextValue } from '../../../context/ComponentContext';
+import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 import { useProcessReactions } from '../hooks/useProcessReactions';
 
-const generateReactionsFromReactionGroups = (reactionGroups: any) =>
-  Object.entries(reactionGroups).flatMap(([type, { count }]: any) =>
+import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
+import type { ReactionsComparator } from '../types';
+
+const generateReactionsFromReactionGroups = (
+  reactionGroups: Record<string, Pick<ReactionGroupResponse, 'count'>>,
+) =>
+  Object.entries(reactionGroups).flatMap(([type, { count }]) =>
     generateReactions(count, (i) => ({
       type,
       user: generateUser({ id: `mark-${i}`, name: `Mark Number ${i}` }),
@@ -34,12 +41,21 @@ const MessageReactionsDetailWrapper = ({
   handleFetchReactions,
   reaction_groups,
   reactions,
-  sortReactionDetails,
   sortReactions,
   ...rest
-}: any) => {
+}: {
+  handleFetchReactions?: MessageReactionsDetailProps['handleFetchReactions'];
+  reaction_groups?: Record<string, Pick<ReactionGroupResponse, 'count'>>;
+  reactions?: ReactionResponse[];
+  sortReactions?: ReactionsComparator;
+} & Partial<
+  Omit<
+    MessageReactionsDetailProps,
+    'handleFetchReactions' | 'reactions' | 'totalReactionCount'
+  >
+>) => {
   const { existingReactions, totalReactionCount } = useProcessReactions({
-    reaction_groups,
+    reaction_groups: reaction_groups as Record<string, ReactionGroupResponse>,
     reactions,
     sortReactions,
   });
@@ -51,7 +67,6 @@ const MessageReactionsDetailWrapper = ({
       selectedReactionType={
         rest.selectedReactionType ?? existingReactions[0]?.reactionType ?? null
       }
-      sortReactionDetails={sortReactionDetails}
       totalReactionCount={totalReactionCount}
       {...rest}
     />
@@ -60,20 +75,23 @@ const MessageReactionsDetailWrapper = ({
 
 const chatClient = getTestClient();
 
-const renderComponent = ({ handleFetchReactions, ...props }: any) =>
+const renderComponent = ({
+  handleFetchReactions,
+  ...props
+}: {
+  handleFetchReactions?: MessageReactionsDetailProps['handleFetchReactions'];
+} & Record<string, unknown>) =>
   render(
     <ChatProvider value={mockChatContext({ client: chatClient })}>
       <DialogManagerProvider>
-        <ComponentProvider
-          value={mockComponentContext({ reactionOptions: defaultReactionOptions })}
-        >
+        <WithComponents overrides={{ reactionOptions: defaultReactionOptions }}>
           <MessageProvider value={mockMessageContext()}>
             <MessageReactionsDetailWrapper
               handleFetchReactions={handleFetchReactions}
               {...props}
             />
           </MessageProvider>
-        </ComponentProvider>
+        </WithComponents>
       </DialogManagerProvider>
     </ChatProvider>,
   );
@@ -94,7 +112,7 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = vi.fn((type) =>
+    const fetchReactions = vi.fn((type: string) =>
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
@@ -115,7 +133,7 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = vi.fn((type) =>
+    const fetchReactions = vi.fn((type: string) =>
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
@@ -137,16 +155,14 @@ describe('MessageReactionsDetail', () => {
       love: { count: 5 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
-    const fetchReactions = vi.fn((type) =>
+    const fetchReactions = vi.fn((type: string) =>
       Promise.resolve(reactions.filter((r) => r.type === type)),
     );
 
     const { getAllByTestId, rerender } = render(
       <ChatProvider value={mockChatContext({ client: chatClient })}>
         <DialogManagerProvider>
-          <ComponentProvider
-            value={mockComponentContext({ reactionOptions: defaultReactionOptions })}
-          >
+          <WithComponents overrides={{ reactionOptions: defaultReactionOptions }}>
             <MessageProvider value={mockMessageContext()}>
               <MessageReactionsDetailWrapper
                 handleFetchReactions={fetchReactions}
@@ -155,7 +171,7 @@ describe('MessageReactionsDetail', () => {
                 selectedReactionType='haha'
               />
             </MessageProvider>
-          </ComponentProvider>
+          </WithComponents>
         </DialogManagerProvider>
       </ChatProvider>,
     );
@@ -167,9 +183,7 @@ describe('MessageReactionsDetail', () => {
     rerender(
       <ChatProvider value={mockChatContext({ client: chatClient })}>
         <DialogManagerProvider>
-          <ComponentProvider
-            value={mockComponentContext({ reactionOptions: defaultReactionOptions })}
-          >
+          <WithComponents overrides={{ reactionOptions: defaultReactionOptions }}>
             <MessageProvider value={mockMessageContext()}>
               <MessageReactionsDetailWrapper
                 handleFetchReactions={fetchReactions}
@@ -178,7 +192,7 @@ describe('MessageReactionsDetail', () => {
                 selectedReactionType='love'
               />
             </MessageProvider>
-          </ComponentProvider>
+          </WithComponents>
         </DialogManagerProvider>
       </ChatProvider>,
     );
@@ -218,7 +232,6 @@ describe('MessageReactionsDetail', () => {
       reaction_groups: reactionGroups,
       reactions,
       selectedReactionType: 'haha',
-      sortReactionDetails: (a, b) => -a.user.name.localeCompare(b.user.name),
     });
 
     await waitFor(() => {
@@ -268,5 +281,135 @@ describe('MessageReactionsDetail', () => {
         }),
       );
     });
+  });
+
+  it('should always display reaction count for each reaction type', () => {
+    const reactionGroups = {
+      haha: { count: 1 },
+      love: { count: 3 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = vi.fn(() => Promise.resolve([]));
+
+    const { getAllByTestId } = renderComponent({
+      handleFetchReactions: fetchReactions,
+      reaction_groups: reactionGroups,
+      reactions,
+    });
+
+    const counts = getAllByTestId('reaction-type-count');
+    expect(counts).toHaveLength(2);
+    expect(counts[0]).toHaveTextContent('1');
+    expect(counts[1]).toHaveTextContent('3');
+  });
+
+  it('should render add emoji button in the reaction type list', () => {
+    const reactionGroups = {
+      love: { count: 2 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = vi.fn(() => Promise.resolve([]));
+
+    const { getByTestId } = renderComponent({
+      handleFetchReactions: fetchReactions,
+      reaction_groups: reactionGroups,
+      reactions,
+    });
+
+    expect(getByTestId('add-reaction-button')).toBeInTheDocument();
+  });
+
+  it('should show extended reaction list when add emoji button is clicked', () => {
+    const reactionGroups = {
+      love: { count: 2 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = vi.fn(() => Promise.resolve([]));
+
+    const extendedReactionOptions: ReactionOptions = {
+      extended: {
+        rocket: { Component: () => <>🚀</>, name: 'Rocket' },
+        star: { Component: () => <>⭐</>, name: 'Star' },
+      },
+      quick: {
+        love: { Component: () => <>❤️</>, name: 'Heart' },
+      },
+    };
+
+    const { getByTestId, queryByTestId } = render(
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        <DialogManagerProvider>
+          <WithComponents overrides={{ reactionOptions: extendedReactionOptions }}>
+            <MessageProvider
+              value={mockMessageContext({ message: { id: 'test-detail-msg' } })}
+            >
+              <MessageReactionsDetailWrapper
+                handleFetchReactions={fetchReactions}
+                reaction_groups={reactionGroups}
+                reactions={reactions}
+              />
+            </MessageProvider>
+          </WithComponents>
+        </DialogManagerProvider>
+      </ChatProvider>,
+    );
+
+    fireEvent.click(getByTestId('add-reaction-button'));
+
+    // Extended list should be visible
+    expect(getByTestId('reaction-selector-extended-list')).toBeInTheDocument();
+
+    // The detail panel should still be present
+    expect(getByTestId('message-reactions-detail')).toBeInTheDocument();
+
+    // The reaction type list should NOT be visible
+    expect(queryByTestId('reaction-type-list')).not.toBeInTheDocument();
+  });
+
+  it('should use custom ReactionSelectorExtendedList from ComponentContext', () => {
+    const reactionGroups = {
+      love: { count: 2 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = vi.fn(() => Promise.resolve([]));
+
+    const CustomExtendedList = vi.fn(() => (
+      <div data-testid='custom-extended-list'>Custom</div>
+    ));
+
+    const overrides: Partial<ComponentContextValue> = {
+      reactionOptions: {
+        extended: {
+          rocket: { Component: () => <>🚀</>, name: 'Rocket' },
+        },
+        quick: {
+          love: { Component: () => <>❤️</>, name: 'Heart' },
+        },
+      },
+      ReactionSelectorExtendedList: CustomExtendedList,
+    };
+
+    const { getByTestId } = render(
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        <DialogManagerProvider>
+          <WithComponents overrides={overrides}>
+            <MessageProvider
+              value={mockMessageContext({ message: { id: 'test-detail-msg' } })}
+            >
+              <MessageReactionsDetailWrapper
+                handleFetchReactions={fetchReactions}
+                reaction_groups={reactionGroups}
+                reactions={reactions}
+              />
+            </MessageProvider>
+          </WithComponents>
+        </DialogManagerProvider>
+      </ChatProvider>,
+    );
+
+    fireEvent.click(getByTestId('add-reaction-button'));
+
+    expect(getByTestId('custom-extended-list')).toBeInTheDocument();
+    expect(CustomExtendedList).toHaveBeenCalled();
   });
 });

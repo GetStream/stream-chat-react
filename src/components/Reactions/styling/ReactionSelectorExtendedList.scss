@@ -1,0 +1,22 @@
+.str-chat__reaction-selector-extended-list {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  height: 100%;
+  padding-block: var(--spacing-md);
+  padding-inline: var(--spacing-sm);
+
+  .str-chat__reaction-selector-extended-list__button {
+    .str-chat__reaction-icon {
+      height: var(--emoji-md);
+      width: var(--emoji-md);
+      font-size: var(--emoji-md);
+      letter-spacing: var(--typography-letter-spacing-default);
+      font-style: normal;
+      line-height: 0;
+      font-family: system-ui;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}

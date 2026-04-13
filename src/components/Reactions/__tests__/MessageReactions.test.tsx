@@ -1,14 +1,18 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { axe } from '../../../../axe-helper';
 
-import { MessageReactions } from '../MessageReactions';
+import { MessageReactions, type MessageReactionsProps } from '../MessageReactions';
 import { MessageProvider } from '../../../context/MessageContext';
 
 import { generateReaction, mockMessageContext } from '../../../mock-builders';
 import { DialogManagerProvider, WithComponents } from '../../../context';
-import { defaultReactionOptions } from '../reactionOptions';
+import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
+
+import type { ReactionGroupResponse } from 'stream-chat';
+import type { ReactionsComparator } from '../types';
 
 const USER_ID = 'mark';
 
@@ -16,8 +20,12 @@ const renderComponent = ({
   reaction_groups = {},
   reactionOptions = defaultReactionOptions,
   ...props
-}: any = {}) => {
-  const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]: any) =>
+}: {
+  reaction_groups?: Record<string, ReactionGroupResponse>;
+  reactionOptions?: ReactionOptions;
+  sortReactions?: ReactionsComparator;
+} & Partial<Omit<MessageReactionsProps, 'reaction_groups' | 'reactions'>> = {}) => {
+  const reactions = Object.entries(reaction_groups).flatMap(([type, { count }]) =>
     Array.from({ length: count }, (_, i) =>
       generateReaction({ type, user: { id: `${USER_ID}-${i}` } }),
     ),
@@ -50,13 +58,13 @@ describe('MessageReactions', () => {
   vi.spyOn(console, 'warn').mockImplementation(null);
 
   it('should render the total reaction count in clustered mode', async () => {
-    const { container } = renderComponent({
+    const { container, getByTestId } = renderComponent({
       reaction_groups: {
-        haha: { count: 2 },
-        love: { count: 5 },
+        haha: fromPartial<ReactionGroupResponse>({ count: 2 }),
+        love: fromPartial<ReactionGroupResponse>({ count: 5 }),
       },
     });
-    const countEl = container.querySelector('.str-chat__message-reactions__total-count');
+    const countEl = getByTestId('message-reactions-total-count');
     expect(countEl).toBeInTheDocument();
     expect(countEl).toHaveTextContent('7');
 
@@ -73,16 +81,14 @@ describe('MessageReactions', () => {
   });
 
   it('should render an emoji for each type of reaction', async () => {
-    const reaction_groups = {
-      haha: { count: 2 },
-      love: { count: 5 },
-    };
+    const { container, getAllByTestId } = renderComponent({
+      reaction_groups: {
+        haha: fromPartial<ReactionGroupResponse>({ count: 2 }),
+        love: fromPartial<ReactionGroupResponse>({ count: 5 }),
+      },
+    });
 
-    const { container } = renderComponent({ reaction_groups });
-
-    const listItems = container.querySelectorAll(
-      '.str-chat__message-reactions__list-item',
-    );
+    const listItems = getAllByTestId('message-reactions-list-item');
     expect(listItems).toHaveLength(2);
 
     const results = await axe(container);
@@ -90,22 +96,18 @@ describe('MessageReactions', () => {
   });
 
   it('should handle custom reaction options', async () => {
-    const reaction_groups = {
-      banana: { count: 1 },
-      cowboy: { count: 2 },
-    };
-
-    const { container } = renderComponent({
-      reaction_groups,
+    const { container, getAllByTestId } = renderComponent({
+      reaction_groups: {
+        banana: fromPartial<ReactionGroupResponse>({ count: 1 }),
+        cowboy: fromPartial<ReactionGroupResponse>({ count: 2 }),
+      },
       reactionOptions: [
         { Component: () => <>🍌</>, type: 'banana' },
         { Component: () => <>🤠</>, type: 'cowboy' },
       ],
     });
 
-    const listItems = container.querySelectorAll(
-      '.str-chat__message-reactions__list-item',
-    );
+    const listItems = getAllByTestId('message-reactions-list-item');
     expect(listItems).toHaveLength(2);
 
     const results = await axe(container);
@@ -113,26 +115,25 @@ describe('MessageReactions', () => {
   });
 
   it('should order reactions by first reaction timestamp by default', () => {
-    const { container } = renderComponent({
+    const { getAllByTestId } = renderComponent({
       reaction_groups: {
-        haha: { count: 2, first_reaction_at: new Date().toISOString() },
-        like: {
+        haha: fromPartial<ReactionGroupResponse>({
+          count: 2,
+          first_reaction_at: new Date().toISOString(),
+        }),
+        like: fromPartial<ReactionGroupResponse>({
           count: 8,
           first_reaction_at: new Date(Date.now() + 60_000).toISOString(),
-        },
-        love: {
+        }),
+        love: fromPartial<ReactionGroupResponse>({
           count: 5,
           first_reaction_at: new Date(Date.now() + 120_000).toISOString(),
-        },
+        }),
       },
     });
 
-    const listItems = container.querySelectorAll(
-      '.str-chat__message-reactions__list-item',
-    );
-    const icons = Array.from(listItems).map(
-      (item) =>
-        item.querySelector('.str-chat__message-reactions__list-item-icon')?.textContent,
+    const icons = getAllByTestId('message-reactions-list-item-icon').map(
+      (el) => el.textContent,
     );
 
     // haha (😂) should come first, then like (👍), then love (❤️)
@@ -142,21 +143,17 @@ describe('MessageReactions', () => {
   });
 
   it('should use custom comparator if provided', () => {
-    const { container } = renderComponent({
+    const { getAllByTestId } = renderComponent({
       reaction_groups: {
-        haha: { count: 2 },
-        like: { count: 8 },
-        love: { count: 5 },
+        haha: fromPartial<ReactionGroupResponse>({ count: 2 }),
+        like: fromPartial<ReactionGroupResponse>({ count: 8 }),
+        love: fromPartial<ReactionGroupResponse>({ count: 5 }),
       },
       sortReactions: (a, b) => b.reactionCount - a.reactionCount,
     });
 
-    const listItems = container.querySelectorAll(
-      '.str-chat__message-reactions__list-item',
-    );
-    const icons = Array.from(listItems).map(
-      (item) =>
-        item.querySelector('.str-chat__message-reactions__list-item-icon')?.textContent,
+    const icons = getAllByTestId('message-reactions-list-item-icon').map(
+      (el) => el.textContent,
     );
 
     // like (8) > love (5) > haha (2)

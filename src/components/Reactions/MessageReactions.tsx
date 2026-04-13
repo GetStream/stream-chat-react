@@ -66,7 +66,6 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
     capLimit: { clustered: capLimitClustered = 5, segmented: capLimitSegmented = 4 } = {},
     flipHorizontalPosition = false,
     handleFetchReactions,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     reactionDetailsSort,
     verticalPosition = 'top',
     visualStyle = 'clustered',
@@ -89,7 +88,9 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   const { isMyMessage, message } = useMessageContext('MessageReactions');
 
   const divRef = useRef<ComponentRef<'div'>>(null);
-  const dialogId = `message-reactions-detail-${message.id}`;
+  const dialogId = DefaultMessageReactionsDetail.getDialogId({
+    messageId: message.id,
+  });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const isDialogOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
@@ -158,6 +159,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
           aria-pressed={isDialogOpen}
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
+          data-testid='message-reactions-list-button'
           onClick={() => handleReactionButtonClick(null)}
         >
           <ul className='str-chat__message-reactions__list'>
@@ -166,6 +168,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                 EmojiComponent && (
                   <li
                     className='str-chat__message-reactions__list-item'
+                    data-testid='message-reactions-list-item'
                     key={reactionType}
                   >
                     <FragmentOrButton
@@ -173,7 +176,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                       className='str-chat__message-reactions__list-item-button'
                       onClick={() => handleReactionButtonClick(reactionType)}
                     >
-                      <span className='str-chat__message-reactions__list-item-icon'>
+                      <span
+                        className='str-chat__message-reactions__list-item-icon'
+                        data-testid='message-reactions-list-item-icon'
+                      >
                         <EmojiComponent />
                       </span>
                       {visualStyle === 'segmented' && reactionCount > 1 && (
@@ -206,7 +212,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
               )}
           </ul>
           {visualStyle === 'clustered' && (
-            <span className='str-chat__message-reactions__total-count'>
+            <span
+              className='str-chat__message-reactions__total-count'
+              data-testid='message-reactions-total-count'
+            >
               {totalReactionCount}
             </span>
           )}
@@ -225,6 +234,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
         <MessageReactionsDetail
           handleFetchReactions={handleFetchReactions}
           onSelectedReactionTypeChange={setSelectedReactionType}
+          reactionDetailsSort={reactionDetailsSort}
           reactionGroups={reactionGroups}
           reactions={existingReactions}
           selectedReactionType={selectedReactionType}

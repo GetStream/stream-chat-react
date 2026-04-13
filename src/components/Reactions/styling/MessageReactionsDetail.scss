@@ -14,24 +14,21 @@
   max-width: 256px;
   min-width: min(90vw, 256px);
 
-  &::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    bottom: 0;
-    inset-inline-start: 0;
-    height: var(--size-12);
-    border-end-end-radius: inherit;
-    border-end-start-radius: inherit;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 5%, rgba(0, 0, 0, 0.1) 130%);
+  &:has(.str-chat__reaction-selector-extended-list) {
+    @include common.clipping-fade;
+    @include utils.scrollable-y;
+
+    padding: 0;
+    display: block;
+    scrollbar-width: none;
+    max-height: 320px;
+    max-width: unset;
+    min-width: unset;
   }
 
   font-family: var(--typography-font-family-sans);
 
-  box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.05),
-    0 4px 8px 0 rgba(0, 0, 0, 0.14),
-    0 12px 24px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: var(--light-elevation-3);
 
   padding-block-start: var(--spacing-xxs);
 
@@ -56,7 +53,7 @@
   .str-chat__message-reactions-detail__reaction-type-list {
     list-style: none;
     margin: 0;
-    padding-inline: var(--spacing-xs);
+    padding-inline: var(--spacing-md);
     padding-block: var(--spacing-xs);
     display: flex;
     flex-wrap: wrap;
@@ -68,12 +65,24 @@
       .str-chat__message-reactions-detail__reaction-type-list-item-button {
         @include common.reaction-button;
         box-shadow: unset;
+        min-width: var(--size-48);
 
         .str-chat__message-reactions-detail__reaction-type-list-item-icon {
           font-family: system-ui;
           font-size: var(--font-size-size-17);
           font-style: normal;
           line-height: var(--typography-line-height-normal);
+
+          .str-chat__icon {
+            width: var(--icon-size-sm);
+            height: var(--icon-size-sm);
+          }
+
+          &:has(.str-chat__icon) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
         }
 
         .str-chat__message-reactions-detail__reaction-type-list-item-count {
@@ -84,19 +93,21 @@
     }
   }
 
+  .str-chat__message-reactions-detail__user-list-container {
+    position: relative;
+    border-radius: inherit;
+    @include common.clipping-fade;
+    &::before {
+      display: none;
+    }
+  }
+
   .str-chat__message-reactions-detail__user-list {
     @include utils.scrollable-y;
     scrollbar-width: none;
     position: relative;
     padding-block-end: var(--spacing-xxs);
-    max-height: 100px;
-
-    &:has(
-        .str-chat__message-reactions-detail__user-list-item
-          .str-chat__message-reactions-detail__user-list-item-button:nth-child(-n + 3)
-      ) {
-      max-height: 106px;
-    }
+    max-height: 180px;
 
     .str-chat__message-reactions-detail__skeleton-item {
       padding-block: var(--spacing-xxs);
@@ -127,6 +138,7 @@
       align-items: center;
       gap: var(--spacing-xs);
       padding-inline: calc(var(--spacing-sm) + var(--spacing-xxs));
+      max-height: var(--size-40);
 
       .str-chat__message-reactions-detail__user-list-item-icon {
         font-family: system-ui;
@@ -138,7 +150,6 @@
       .str-chat__message-reactions-detail__user-list-item-info {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-xxxs);
         flex-grow: 1;
         min-width: 0;
 

@@ -1,12 +1,11 @@
 import React from 'react';
 import { fireEvent, render } from '@testing-library/react';
+import { ReactionSelector, type ReactionSelectorProps } from '../ReactionSelector';
+import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 
-import { ReactionSelector } from '../ReactionSelector';
-import { defaultReactionOptions } from '../reactionOptions';
-
-import { ComponentProvider } from '../../../context/ComponentContext';
 import { MessageProvider } from '../../../context/MessageContext';
-import { DialogManagerProvider } from '../../../context';
+import { DialogManagerProvider, WithComponents } from '../../../context';
+import type { ComponentContextValue } from '../../../context/ComponentContext';
 
 import {
   generateMessage,
@@ -16,16 +15,71 @@ import {
 
 const handleReactionMock = vi.fn();
 
-const renderComponent = ({ reactionOptions, ...props }: any = {}) =>
+const defaultMessage = generateMessage();
+
+const renderComponent = ({
+  reactionOptions,
+  ReactionSelectorExtendedList,
+  ...props
+}: Partial<ReactionSelectorProps> & {
+  reactionOptions?: ReactionOptions;
+  ReactionSelectorExtendedList?: ComponentContextValue['ReactionSelectorExtendedList'];
+} = {}) =>
   render(
     <DialogManagerProvider>
-      <ComponentProvider
-        value={{ reactionOptions: reactionOptions ?? defaultReactionOptions }}
+      <WithComponents
+        overrides={{
+          reactionOptions: reactionOptions ?? defaultReactionOptions,
+          ReactionSelectorExtendedList,
+        }}
       >
-        <MessageProvider value={mockMessageContext({ message: generateMessage() })}>
+        <MessageProvider value={mockMessageContext({ message: defaultMessage })}>
           <ReactionSelector handleReaction={handleReactionMock} {...props} />
         </MessageProvider>
-      </ComponentProvider>
+      </WithComponents>
+    </DialogManagerProvider>,
+  );
+
+const extendedReactionOptions: ReactionOptions = {
+  extended: {
+    rocket: { Component: () => <>🚀</>, name: 'Rocket' },
+    star: { Component: () => <>⭐</>, name: 'Star' },
+    thumbsdown: { Component: () => <>👎</>, name: 'Thumbs down' },
+  },
+  quick: {
+    love: { Component: () => <>❤️</>, name: 'Heart' },
+  },
+};
+
+const renderExtendedList = ({
+  componentOverrides = {},
+  messageOverrides = {},
+  ...props
+}: Partial<ReactionSelectorProps> & {
+  componentOverrides?: Partial<ComponentContextValue>;
+  messageOverrides?: Record<string, unknown>;
+  dialogId?: string;
+} = {}) =>
+  render(
+    <DialogManagerProvider>
+      <WithComponents
+        overrides={{
+          reactionOptions: extendedReactionOptions,
+          ...componentOverrides,
+        }}
+      >
+        <MessageProvider
+          value={mockMessageContext({
+            message: defaultMessage,
+            ...messageOverrides,
+          })}
+        >
+          <ReactionSelector.ExtendedList
+            dialogId={`test-dialog-${defaultMessage.id}`}
+            {...props}
+          />
+        </MessageProvider>
+      </WithComponents>
     </DialogManagerProvider>,
   );
 
@@ -43,17 +97,17 @@ describe('ReactionSelector', () => {
   });
 
   it('should render each of reactionOptions if specified as an array (legacy format)', () => {
-    const reactionOptions = [
-      { Component: vi.fn(() => <span>test1</span>), type: 'test1' },
-      { Component: vi.fn(() => <span>test2</span>), type: 'test2' },
+    const reactionOptions: ReactionOptions = [
+      { Component: () => <span>test1</span>, type: 'test1' },
+      { Component: () => <span>test2</span>, type: 'test2' },
     ];
     const { getAllByTestId } = renderComponent({ reactionOptions });
 
     const buttons = getAllByTestId('select-reaction-button');
     expect(buttons).toHaveLength(2);
 
-    reactionOptions.forEach((option) => {
-      expect(option.Component).toHaveBeenCalledTimes(1);
+    buttons.forEach((button, index) => {
+      expect(button).toHaveTextContent(reactionOptions[index].type);
     });
   });
 
@@ -83,13 +137,12 @@ describe('ReactionSelector', () => {
   });
 
   it('should render the add button for extended reactions', () => {
-    const { container } = renderComponent();
-    const addButton = container.querySelector('.str-chat__reaction-selector__add-button');
-    expect(addButton).toBeInTheDocument();
+    const { getByTestId } = renderComponent();
+    expect(getByTestId('reaction-selector-add-button')).toBeInTheDocument();
   });
 
   it('should show extended reaction list when add button is clicked', () => {
-    const reactionOptions = {
+    const reactionOptions: ReactionOptions = {
       extended: {
         rocket: { Component: () => <>🚀</>, name: 'Rocket' },
         star: { Component: () => <>⭐</>, name: 'Star' },
@@ -98,19 +151,14 @@ describe('ReactionSelector', () => {
         love: { Component: () => <>❤️</>, name: 'Heart' },
       },
     };
-    const { container } = renderComponent({ reactionOptions });
+    const { getByTestId, queryByTestId } = renderComponent({ reactionOptions });
 
-    const addButton = container.querySelector('.str-chat__reaction-selector__add-button');
-    fireEvent.click(addButton);
+    fireEvent.click(getByTestId('reaction-selector-add-button'));
 
-    const extendedList = container.querySelector(
-      '.str-chat__reaction-selector-extended-list',
-    );
-    expect(extendedList).toBeInTheDocument();
+    expect(getByTestId('reaction-selector-extended-list')).toBeInTheDocument();
 
     // Quick list should be hidden when extended list is open
-    const quickList = container.querySelector('.str-chat__reaction-selector-list');
-    expect(quickList).not.toBeInTheDocument();
+    expect(queryByTestId('reaction-selector-list')).not.toBeInTheDocument();
   });
 
   it('should have correct data-text attribute on each button', () => {
@@ -121,6 +169,139 @@ describe('ReactionSelector', () => {
 
     expect(dataTexts).toEqual(
       expect.arrayContaining(['haha', 'like', 'love', 'sad', 'wow', 'fire']),
+    );
+  });
+
+  it('should use custom ReactionSelectorExtendedList from ComponentContext', () => {
+    const CustomExtendedList = vi.fn(() => (
+      <div data-testid='custom-extended-list'>Custom</div>
+    ));
+
+    const { getByTestId } = renderComponent({
+      reactionOptions: extendedReactionOptions,
+      ReactionSelectorExtendedList: CustomExtendedList,
+    });
+
+    fireEvent.click(getByTestId('reaction-selector-add-button'));
+
+    expect(getByTestId('custom-extended-list')).toBeInTheDocument();
+    expect(CustomExtendedList).toHaveBeenCalled();
+  });
+});
+
+describe('ReactionSelector.ExtendedList', () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('should render extended reaction buttons', () => {
+    const { getAllByTestId } = renderExtendedList();
+
+    const buttons = getAllByTestId('select-reaction-button');
+    expect(buttons).toHaveLength(3);
+
+    const dataTexts = buttons.map((btn) => btn.getAttribute('data-text'));
+    expect(dataTexts).toEqual(expect.arrayContaining(['rocket', 'star', 'thumbsdown']));
+  });
+
+  it('should render null when reactionOptions is a legacy array', () => {
+    const legacyOptions: ReactionOptions = [{ Component: () => <>❤️</>, type: 'love' }];
+
+    const { queryByTestId } = renderExtendedList({
+      componentOverrides: { reactionOptions: legacyOptions },
+    });
+
+    expect(queryByTestId('reaction-selector-extended-list')).not.toBeInTheDocument();
+  });
+
+  it('should render null when reactionOptions has no extended field', () => {
+    const quickOnly: ReactionOptions = {
+      quick: {
+        love: { Component: () => <>❤️</>, name: 'Heart' },
+      },
+    };
+
+    const { queryByTestId } = renderExtendedList({
+      componentOverrides: { reactionOptions: quickOnly },
+    });
+
+    expect(queryByTestId('reaction-selector-extended-list')).not.toBeInTheDocument();
+  });
+
+  it('should mark own reactions with aria-pressed', () => {
+    const ownReaction = generateReaction({ type: 'rocket' });
+    const { getAllByTestId } = renderExtendedList({
+      own_reactions: [ownReaction],
+    });
+
+    const buttons = getAllByTestId('select-reaction-button');
+    const rocketButton = buttons.find(
+      (btn) => btn.getAttribute('data-text') === 'rocket',
+    );
+    const starButton = buttons.find((btn) => btn.getAttribute('data-text') === 'star');
+
+    expect(rocketButton).toHaveAttribute('aria-pressed', 'true');
+    expect(starButton).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('should call prop handleReaction over context handleReaction', () => {
+    const propHandleReaction = vi.fn();
+    const { getAllByTestId } = renderExtendedList({
+      handleReaction: propHandleReaction,
+    });
+
+    const buttons = getAllByTestId('select-reaction-button');
+    fireEvent.click(buttons[0]);
+
+    expect(propHandleReaction).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Object),
+    );
+  });
+
+  it('should fall back to context handleReaction when prop is not provided', () => {
+    const contextHandleReaction = vi.fn();
+    const { getAllByTestId } = renderExtendedList({
+      messageOverrides: { handleReaction: contextHandleReaction },
+    });
+
+    const buttons = getAllByTestId('select-reaction-button');
+    fireEvent.click(buttons[0]);
+
+    expect(contextHandleReaction).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(Object),
+    );
+  });
+
+  it('should render correct aria-label using reaction name', () => {
+    const { getAllByTestId } = renderExtendedList();
+
+    const buttons = getAllByTestId('select-reaction-button');
+    const rocketButton = buttons.find(
+      (btn) => btn.getAttribute('data-text') === 'rocket',
+    );
+
+    expect(rocketButton).toHaveAttribute('aria-label', 'Select Reaction: Rocket');
+  });
+
+  it('should use reaction type as aria-label fallback when name is missing', () => {
+    const optionsWithoutName: ReactionOptions = {
+      extended: {
+        custom: { Component: () => <>🎯</> },
+      },
+      quick: {
+        love: { Component: () => <>❤️</>, name: 'Heart' },
+      },
+    };
+
+    const { getByTestId } = renderExtendedList({
+      componentOverrides: { reactionOptions: optionsWithoutName },
+    });
+
+    expect(getByTestId('select-reaction-button')).toHaveAttribute(
+      'aria-label',
+      'Select Reaction: custom',
     );
   });
 });

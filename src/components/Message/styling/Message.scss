@@ -280,9 +280,7 @@
             var(--str-chat__message-reactions-host-offset-x) * -1
           );
 
-          &:has(.str-chat__message-reactions--flipped-horizontally) {
-            margin-inline-end: var(--str-chat__message-reactions-host-offset-x);
-          }
+          margin-inline-end: var(--str-chat__message-reactions-host-offset-x);
         }
 
         .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
@@ -325,9 +323,7 @@
         &:has(.str-chat__message-reactions--top) {
           padding-inline-end: calc(var(--str-chat__message-reactions-host-offset-x) * -1);
 
-          &:has(.str-chat__message-reactions--flipped-horizontally) {
-            margin-inline-start: var(--str-chat__message-reactions-host-offset-x);
-          }
+          margin-inline-start: var(--str-chat__message-reactions-host-offset-x);
         }
 
         .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom

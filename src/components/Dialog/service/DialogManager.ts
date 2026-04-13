@@ -70,12 +70,12 @@ export class DialogManager {
     );
   }
 
-  get(id: DialogId) {
+  get(id: DialogId): Dialog | undefined {
     return this.state.getLatestValue().dialogsById[id];
   }
 
   getOrCreate({ closeOnClickOutside, id }: GetOrCreateDialogParams) {
-    let dialog = this.state.getLatestValue().dialogsById[id];
+    let dialog = this.get(id);
     if (!dialog) {
       dialog = {
         close: () => {
@@ -97,7 +97,7 @@ export class DialogManager {
       };
       this.state.next((current) => ({
         ...current,
-        dialogsById: { ...current.dialogsById, [id]: dialog },
+        dialogsById: { ...current.dialogsById, [id]: dialog as Dialog },
       }));
     }
 
@@ -106,16 +106,15 @@ export class DialogManager {
 
     if (shouldUpdateDialogSettings) {
       if (dialog.removalTimeout) clearTimeout(dialog.removalTimeout);
-      dialog = {
-        ...dialog,
-        closeOnClickOutside,
-        removalTimeout: undefined,
-      };
       this.state.next((current) => ({
         ...current,
         dialogsById: {
           ...current.dialogsById,
-          [id]: dialog,
+          [id]: {
+            ...current.dialogsById[id],
+            closeOnClickOutside,
+            removalTimeout: undefined,
+          },
         },
       }));
     }
@@ -158,9 +157,8 @@ export class DialogManager {
     }
   }
 
-  remove(id: DialogId) {
-    const state = this.state.getLatestValue();
-    const dialog = state.dialogsById[id];
+  remove = (id: DialogId) => {
+    const dialog = this.get(id);
     if (!dialog) return;
 
     if (dialog.removalTimeout) {
@@ -175,7 +173,7 @@ export class DialogManager {
         dialogsById: newDialogs,
       };
     });
-  }
+  };
 
   /**
    * Marks the dialog state as unused. If the dialog id is referenced again quickly,
@@ -183,7 +181,7 @@ export class DialogManager {
    * a short timeout.
    */
   markForRemoval(id: DialogId) {
-    const dialog = this.state.getLatestValue().dialogsById[id];
+    const dialog = this.get(id);
 
     if (!dialog) {
       return;
@@ -198,6 +196,27 @@ export class DialogManager {
           removalTimeout: setTimeout(() => {
             this.remove(id);
           }, 16),
+        },
+      },
+    }));
+  }
+
+  cancelPendingRemoval(id: DialogId) {
+    const dialog = this.get(id);
+
+    if (!dialog?.removalTimeout) {
+      return;
+    }
+
+    clearTimeout(dialog.removalTimeout);
+
+    this.state.next((current) => ({
+      ...current,
+      dialogsById: {
+        ...current.dialogsById,
+        [id]: {
+          ...current.dialogsById[id],
+          removalTimeout: undefined,
         },
       },
     }));
