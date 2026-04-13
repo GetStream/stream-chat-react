@@ -242,6 +242,16 @@
       gap: var(--spacing-xxs);
       font: var(--str-chat__metadata-default-text);
       color: var(--text-primary-text);
+
+      .str-chat__message-pin-indicator__icon {
+        display: flex;
+        align-items: center;
+
+        .str-chat__icon {
+          width: var(--icon-size-xs);
+          height: var(--icon-size-xs);
+        }
+      }
     }
   }
 
