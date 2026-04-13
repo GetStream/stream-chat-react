@@ -55,7 +55,7 @@
   --str-chat__message-max-width: calc(var(--str-chat__spacing-px) * 400);
 
   /* The maximum allowed width of the message component, if it has attachments */
-  --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 300);
+  --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 400);
 }
 
 /* Make spaces between message groups */
@@ -82,6 +82,7 @@
   padding-inline: var(--str-chat__message-composer-padding);
 
   .str-chat__message-bubble {
+    width: min(100%, var(--str-chat__message-max-width));
     max-width: var(--str-chat__message-max-width);
     display: flex;
     flex-direction: column;
@@ -148,6 +149,7 @@
   --str-chat__message-max-width: var(--str-chat__message-with-attachment-max-width);
 
   .str-chat__message-bubble {
+    width: min(100%, var(--str-chat__message-max-width));
     max-width: var(--str-chat__message-max-width);
   }
 }
