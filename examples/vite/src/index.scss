@@ -3,6 +3,8 @@
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
+@import url('./CustomMessageActions/CustomMessageActions.scss')
+layer(stream-app-overrides);
 @import url('./SystemNotification/SystemNotification.scss') layer(stream-app-overrides);
 @import url('stream-chat-react/dist/css/emoji-picker.css') layer(stream-new-plugins);
 

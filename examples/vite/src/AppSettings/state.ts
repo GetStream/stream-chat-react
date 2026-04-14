@@ -20,6 +20,15 @@ export type NotificationsSettingsState = {
   verticalAlignment: 'bottom' | 'top';
 };
 
+export type MessageActionsSettingsState = {
+  customMessageActions: {
+    delete: {
+      enableOptionConfiguration: boolean;
+    };
+    markOwnUnread: boolean;
+  };
+};
+
 export const LEFT_PANEL_MIN_WIDTH = 260;
 export const THREAD_PANEL_MIN_WIDTH = 260;
 
@@ -40,6 +49,7 @@ export type PanelLayoutSettingsState = {
 
 export type AppSettingsState = {
   chatView: ChatViewSettingsState;
+  messageActions: MessageActionsSettingsState;
   notifications: NotificationsSettingsState;
   panelLayout: PanelLayoutSettingsState;
   reactions: ReactionsSettingsState;
@@ -65,6 +75,14 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const defaultAppSettingsState: AppSettingsState = {
   chatView: {
     iconOnly: true,
+  },
+  messageActions: {
+    customMessageActions: {
+      delete: {
+        enableOptionConfiguration: false,
+      },
+      markOwnUnread: false,
+    },
   },
   notifications: {
     verticalAlignment: 'bottom',
