@@ -1,0 +1,30 @@
+/*
+Shadows on Web communicate visual separation and hierarchy through composed box-shadow layers.
+
+Unlike iOS (single shadow token) and Android (dp elevation), web elevation is constructed
+from multiple shadow layers to simulate depth and ambient light.
+
+Each shadow level consists of predefined layered shadows.
+Components must use these tokens instead of defining custom box-shadow values.
+
+Higher levels combine stronger blur, increased offset, and additional ambient layers
+to create clearer separation from the base surface.
+ */
+
+.str-chat,
+.str-chat__theme-light {
+  --str-chat__box-shadow-1: var(--light-elevation-1);
+  --str-chat__box-shadow-2: var(--light-elevation-2);
+  --str-chat__box-shadow-3: var(--light-elevation-3);
+  --str-chat__box-shadow-4: var(--light-elevation-4);
+}
+
+.str-chat__theme-dark,
+.str-chat:not(.str-chat__theme-dark)
+  *:not(.str-chat__theme-dark)
+  .str-chat__theme-inverse {
+  --str-chat__box-shadow-1: var(--dark-elevation-1);
+  --str-chat__box-shadow-2: var(--dark-elevation-2);
+  --str-chat__box-shadow-3: var(--dark-elevation-3);
+  --str-chat__box-shadow-4: var(--dark-elevation-4);
+}

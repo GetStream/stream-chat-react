@@ -64,6 +64,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
   const { ButtonIconComponent = IconEmoji } = props;
+  const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -107,6 +108,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
               }
             }}
             {...props.pickerProps}
+            style={{ ...pickerStyle, '--shadow': 'none' }}
           />
         </div>
       )}

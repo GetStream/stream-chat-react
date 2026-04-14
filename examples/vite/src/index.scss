@@ -1,9 +1,10 @@
-@layer stream-new, stream-overrides, stream-app-overrides;
+@layer stream-new, stream-new-plugins, stream-overrides, stream-app-overrides;
 
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
 @import url('./SystemNotification/SystemNotification.scss') layer(stream-app-overrides);
+@import url('stream-chat-react/dist/css/emoji-picker.css') layer(stream-new-plugins);
 
 :root {
   font-synthesis: none;

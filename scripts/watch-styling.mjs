@@ -6,8 +6,20 @@ import { fileURLToPath } from 'node:url';
 import { compileAsync } from 'sass';
 
 const SRC_DIR = path.resolve('src');
-const ENTRY_FILE = path.join(SRC_DIR, 'styling/index.scss');
-const OUTPUT_FILE = path.resolve('dist/css/index.css');
+const STYLE_ENTRYPOINTS = [
+  {
+    entryFile: path.join(SRC_DIR, 'styling/index.scss'),
+    outputFile: path.resolve('dist/css/index.css'),
+  },
+  {
+    entryFile: path.join(SRC_DIR, 'styling/_emoji-replacement.scss'),
+    outputFile: path.resolve('dist/css/emoji-replacement.css'),
+  },
+  {
+    entryFile: path.join(SRC_DIR, 'plugins/Emojis/styling/index.scss'),
+    outputFile: path.resolve('dist/css/emoji-picker.css'),
+  },
+];
 const SCSS_EXTENSION = '.scss';
 const BUILD_DELAY_MS = 150;
 const SCAN_INTERVAL_MS = 500;
@@ -29,9 +41,9 @@ const log = (message) => {
 
 const isScssFile = (filename) => filename.endsWith(SCSS_EXTENSION);
 
-const toOutputRelativePath = (source) =>
+const toOutputRelativePath = (source, outputFile) =>
   path
-    .relative(path.dirname(OUTPUT_FILE), fileURLToPath(source))
+    .relative(path.dirname(outputFile), fileURLToPath(source))
     .split(path.sep)
     .join('/');
 
@@ -86,23 +98,29 @@ const flushQueuedBuild = () => {
   void runBuild(trigger);
 };
 
-const buildStyling = async () => {
-  const { css, sourceMap } = await compileAsync(ENTRY_FILE, {
+const buildStyleEntry = async ({ entryFile, outputFile }) => {
+  const { css, sourceMap } = await compileAsync(entryFile, {
     sourceMap: true,
     style: 'expanded',
   });
-  const sourceMapFile = `${path.basename(OUTPUT_FILE)}.map`;
+  const sourceMapFile = `${path.basename(outputFile)}.map`;
   const normalizedSourceMap = {
     ...sourceMap,
-    file: path.basename(OUTPUT_FILE),
+    file: path.basename(outputFile),
     sources: sourceMap.sources.map((source) =>
-      source.startsWith('file://') ? toOutputRelativePath(source) : source,
+      source.startsWith('file://') ? toOutputRelativePath(source, outputFile) : source,
     ),
   };
 
-  await mkdir(path.dirname(OUTPUT_FILE), { recursive: true });
-  await writeFile(OUTPUT_FILE, `${css}\n\n/*# sourceMappingURL=${sourceMapFile} */\n`);
-  await writeFile(`${OUTPUT_FILE}.map`, JSON.stringify(normalizedSourceMap));
+  await mkdir(path.dirname(outputFile), { recursive: true });
+  await writeFile(outputFile, `${css}\n\n/*# sourceMappingURL=${sourceMapFile} */\n`);
+  await writeFile(`${outputFile}.map`, JSON.stringify(normalizedSourceMap));
+};
+
+const buildStyling = async () => {
+  for (const entry of STYLE_ENTRYPOINTS) {
+    await buildStyleEntry(entry);
+  }
 };
 
 const runBuild = async (trigger) => {

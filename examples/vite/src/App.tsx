@@ -159,7 +159,15 @@ const EmojiPickerWithCustomOptions = (
 ) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
 
-  return <EmojiPicker {...props} pickerProps={{ theme: mode }} />;
+  return (
+    <EmojiPicker
+      {...props}
+      pickerProps={{
+        ...props.pickerProps,
+        theme: mode,
+      }}
+    />
+  );
 };
 
 const ConfigurableNotificationList = (props: NotificationListProps) => {
