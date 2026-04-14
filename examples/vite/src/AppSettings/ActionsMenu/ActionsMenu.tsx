@@ -5,6 +5,7 @@ import {
   ContextMenu,
   ContextMenuButton,
   IconBolt,
+  Tooltip,
   useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
@@ -48,12 +49,12 @@ const ActionsMenuButton = ({
       )}
     </Button>
     {iconOnly && (
-      <div
+      <Tooltip
         aria-hidden='true'
-        className='str-chat__chat-view__selector-button-tooltip str-chat__tooltip'
+        className='str-chat__chat-view__selector-button-tooltip'
       >
         Actions
-      </div>
+      </Tooltip>
     )}
   </div>
 );
