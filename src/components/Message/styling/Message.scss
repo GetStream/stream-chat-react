@@ -110,6 +110,13 @@
         overflow: visible;
       }
     }
+
+    // remove paddings for large-emoji-only messages
+    .str-chat__message-bubble,
+    .str-chat__message-inner .str-chat__message-bubble .str-chat__message-text,
+    .str-chat__message-inner .str-chat__message-replies-count-button-wrapper {
+      padding-inline: 0;
+    }
   }
 
   &.str-chat__message--is-emoji-only-count-1 {
@@ -131,13 +138,6 @@
       font-size: 32px;
       line-height: 32px;
     }
-  }
-
-  // remove paddings for certain elements in emoji-only messages
-  .str-chat__message-bubble,
-  .str-chat__message-inner .str-chat__message-bubble .str-chat__message-text,
-  .str-chat__message-inner .str-chat__message-replies-count-button-wrapper {
-    padding-inline: 0;
   }
 
   .str-chat__message-replies-count-button-wrapper::after {
@@ -175,7 +175,7 @@
   @include utils.component-layer-overrides('message');
 
   @mixin chat-bubble-spacing {
-    padding-inline: var(--spacing-sm);
+    padding-inline: var(--spacing-xxs);
 
     p {
       white-space: pre-line;
@@ -240,8 +240,22 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xxs);
-      font: var(--str-chat__metadata-default-text);
+      font: var(--str-chat__metadata-emphasis-text);
       color: var(--text-primary-text);
+
+      .str-chat__message-pin-indicator__icon {
+        display: flex;
+        align-items: center;
+
+        .str-chat__icon {
+          width: var(--icon-size-xs);
+          height: var(--icon-size-xs);
+
+          path {
+            stroke-width: 2px;
+          }
+        }
+      }
     }
   }
 
@@ -436,6 +450,7 @@
     grid-area: metadata;
     display: flex;
     flex-wrap: wrap;
+    gap: var(--spacing-xxs);
     align-items: center;
     height: var(--size-24);
     color: var(--chat-text-timestamp);

@@ -116,6 +116,7 @@
   overflow-x: hidden; // for ellipsis text
   max-width: 100%;
   row-gap: var(--spacing-xxs);
+  width: 100%;
 }
 
 @mixin empty-theme($component-name) {

@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import {
   AIStateIndicator,
   Channel,
@@ -22,6 +22,7 @@ import {
   useThreadsViewContext,
 } from 'stream-chat-react';
 
+import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { ThreadStateSync } from './Sync.tsx';
@@ -94,8 +95,14 @@ export const ChannelsPanels = ({
   sort: ChannelSort;
 }) => {
   const { channel } = useChatContext('ChannelsPanels');
-  const { sidebarOpen } = useSidebar();
+  const { closeSidebar, sidebarOpen } = useSidebar();
   const channelsLayoutRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!channel?.id || typeof window === 'undefined') return;
+    if (window.innerWidth >= DESKTOP_LAYOUT_BREAKPOINT) return;
+    closeSidebar();
+  }, [channel?.id, closeSidebar]);
 
   return (
     <ChatView.Channels>

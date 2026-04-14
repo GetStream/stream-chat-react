@@ -20,9 +20,14 @@
   @include utils.component-layer-overrides('message-also-sent-in-channel');
   font: var(--str-chat__metadata-emphasis-text);
 
-  svg path {
-    stroke-width: 1.5px;
-    stroke: var(--str-chat__message-also-sent-in-channel-color);
+  .str-chat__icon {
+    height: var(--spacing-sm);
+    width: var(--spacing-sm);
+
+    path {
+      stroke-width: 2px;
+      stroke: var(--str-chat__message-also-sent-in-channel-color);
+    }
   }
 
   .str-chat__message-also-sent-in-channel__link-button {

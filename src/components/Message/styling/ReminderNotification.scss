@@ -31,9 +31,14 @@
   @include utils.component-layer-overrides('message-saved-for-later');
   font: var(--str-chat__metadata-emphasis-text);
 
-  svg path {
-    stroke-width: 1.5px;
-    stroke: var(--str-chat__message-saved-for-later-color);
+  svg {
+    width: var(--icon-size-xs);
+    height: var(--icon-size-xs);
+
+    path {
+      stroke-width: 2px;
+      stroke: var(--str-chat__message-saved-for-later-color);
+    }
   }
 }
 

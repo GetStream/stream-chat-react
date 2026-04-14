@@ -51,6 +51,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   );
   const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
   const { refs, strategy, x, y } = usePopoverPosition({
+    offset: 8,
     placement: props.placement ?? 'top-end',
   });
 

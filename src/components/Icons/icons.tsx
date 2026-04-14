@@ -143,9 +143,8 @@ export const IconBellOff = createIcon(
   />,
 );
 
-// was: IconBookmark
-export const IconSave = createIcon(
-  'IconSave',
+export const IconBookmark = createIcon(
+  'IconBookmark',
   <path
     d='M15 17.5L10 14.375L5 17.5V3.75C5 3.58424 5.06585 3.42527 5.18306 3.30806C5.30027 3.19085 5.45924 3.125 5.625 3.125H14.375C14.5408 3.125 14.6997 3.19085 14.8169 3.30806C14.9342 3.42527 15 3.58424 15 3.75V17.5Z'
     fill='none'
@@ -156,9 +155,8 @@ export const IconSave = createIcon(
   />,
 );
 
-// was: IconBookmarkRemove
-export const IconUnsave = createIcon(
-  'IconUnsave',
+export const IconBookmarkRemove = createIcon(
+  'IconBookmarkRemove',
   <path
     d='M5 6.49074V17.5L10 14.375L15 17.5V16M5.125 3.125H14.375C14.5408 3.125 14.6997 3.19085 14.8169 3.30806C14.9342 3.42527 15 3.58424 15 3.75V13M5.125 3.125L3.5 1.5M5.125 3.125L15 13M15 13L17.5 15.5'
     fill='none'
@@ -425,7 +423,7 @@ export const IconXmark = createIcon(
     stroke='currentColor'
     strokeLinecap='round'
     strokeLinejoin='round'
-    strokeWidth='1.5'
+    strokeWidth='2'
   />,
 );
 
@@ -827,7 +825,7 @@ export const IconPlus = createIcon(
     stroke='currentColor'
     strokeLinecap='round'
     strokeLinejoin='round'
-    strokeWidth='1.5'
+    strokeWidth='2'
   />,
 );
 

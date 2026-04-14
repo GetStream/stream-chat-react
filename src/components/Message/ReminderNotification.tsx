@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
-import { IconBell, IconSave } from '../Icons';
+import { IconBell, IconBookmark } from '../Icons';
 
 export type ReminderNotificationProps = {
   reminder?: Reminder;
@@ -15,10 +15,10 @@ const reminderStateSelector = (state: ReminderState) => ({
 function SavedForLaterContent() {
   const { t } = useTranslationContext();
   return (
-    <p className='str-chat__message-saved-for-later'>
-      <IconSave />
+    <div className='str-chat__message-saved-for-later'>
+      <IconBookmark />
       <span>{t('Saved for later')}</span>
-    </p>
+    </div>
   );
 }
 
