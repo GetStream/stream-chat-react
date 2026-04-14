@@ -219,7 +219,7 @@ export const GalleryUI = () => {
           ref={containerRef}
         >
           <div
-            className={clsx({
+            className={clsx('str-chat__gallery__media-container', {
               'str-chat__gallery__media--dragging': isDragging,
               'str-chat__gallery__media--slide-backward':
                 !isDragging && slideDirection === 'backward',
