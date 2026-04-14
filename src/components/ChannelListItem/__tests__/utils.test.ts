@@ -46,6 +46,12 @@ describe('ChannelPreview utils', () => {
     const channelWithDeletedMessage = generateChannel({
       messages: [generateMessage({ deleted_at: new Date().toISOString() })],
     });
+    const channelWithDeletedTypeMessage = generateChannel({
+      messages: [generateMessage({ type: 'deleted' })],
+    });
+    const channelWithDeletedForMeMessage = generateChannel({
+      messages: [generateMessage({ deleted_for_me: true })],
+    });
     const channelWithLocationMessage = generateChannel({
       messages: [
         generateMessage({
@@ -85,6 +91,12 @@ describe('ChannelPreview utils', () => {
     it.each([
       ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
       ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
+      ['Message deleted', 'channelWithDeletedTypeMessage', channelWithDeletedTypeMessage],
+      [
+        'Message deleted',
+        'channelWithDeletedForMeMessage',
+        channelWithDeletedForMeMessage,
+      ],
       ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
       ['📍Shared location', 'channelWithLocationMessage', channelWithLocationMessage],
       [

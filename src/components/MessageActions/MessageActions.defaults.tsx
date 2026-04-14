@@ -25,7 +25,7 @@ import {
   IconUnpin,
   IconUserCheck,
 } from '../Icons';
-import { isUserMuted } from '../Message/utils';
+import { isMessageDeleted, isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { savePreEditSnapshot } from '../MessageComposer/preEditSnapshot';
 import { useNotificationApi } from '../Notifications';
@@ -499,6 +499,8 @@ const DefaultMessageActionComponents = {
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
+
+      if (isMessageDeleted(message)) return null;
 
       return (
         <>

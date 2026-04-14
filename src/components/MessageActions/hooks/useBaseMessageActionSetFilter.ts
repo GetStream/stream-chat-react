@@ -5,6 +5,7 @@ import { useUserRole } from '../../Message/hooks';
 import {
   ACTIONS_NOT_WORKING_IN_THREAD,
   isMessageBounced,
+  isMessageDeleted,
   isMessageErrorRetryable,
   isNetworkSendFailure,
 } from '../../Message/utils';
@@ -15,7 +16,7 @@ import type { MessageActionSetItem } from '../MessageActions';
  * Base filter hook which covers actions of type `delete`, `edit`,
  * `flag`, `markUnread`, `mute`, `quote`, `react` and `reply`, whether
  * the rendered message is a reply (replies are limited to certain actions) and
- * whether the message has appropriate type and status.
+ * whether the message has appropriate type and status (including soft-deleted).
  */
 export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageActionSetItem[],
@@ -23,6 +24,7 @@ export const useBaseMessageActionSetFilter = (
 ) => {
   const { initialMessage: isInitialMessage, message } = useMessageContext();
   const { channelConfig } = useChannelStateContext();
+  const messageIsDeleted = isMessageDeleted(message);
   const {
     canBlockUser,
     canDelete,
@@ -68,7 +70,9 @@ export const useBaseMessageActionSetFilter = (
         return (
           (type === 'resendMessage' && canSendMessage && (allowRetry || isBounced)) ||
           (type === 'edit' && ((isBounced && canEdit) || hasNetworkSendFailure)) ||
-          (type === 'delete' && ((isBounced && canDelete) || hasNetworkSendFailure))
+          (type === 'delete' &&
+            !messageIsDeleted &&
+            ((isBounced && canDelete) || hasNetworkSendFailure))
         );
       }
 
@@ -76,7 +80,7 @@ export const useBaseMessageActionSetFilter = (
         type === 'resendMessage' ||
         (type === 'blockUser' && !canBlockUser) ||
         (type === 'copyMessageText' && !message.text) ||
-        (type === 'delete' && !canDelete) ||
+        (type === 'delete' && (!canDelete || messageIsDeleted)) ||
         (type === 'edit' && !canEdit) ||
         (type === 'flag' && !canFlag) ||
         (type === 'markUnread' && !canMarkUnread) ||
@@ -106,6 +110,7 @@ export const useBaseMessageActionSetFilter = (
     channelConfig,
     isBounced,
     isInitialMessage,
+    messageIsDeleted,
     isMessageThreadReply,
     message.error,
     message.status,

@@ -277,6 +277,54 @@ describe('<MessageActions />', () => {
       expect(handleDelete).toHaveBeenCalledTimes(1);
     });
 
+    it('should not show Delete when the message is already deleted', async () => {
+      const message = generateMessage({
+        deleted_at: new Date().toISOString(),
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'delete-own-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.queryByText('Delete message')).not.toBeInTheDocument();
+    });
+
+    it('should not show Delete when the message type is deleted', async () => {
+      const message = generateMessage({
+        type: 'deleted',
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'delete-own-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.queryByText('Delete message')).not.toBeInTheDocument();
+    });
+
+    it('should not show Delete when the message is deleted for me', async () => {
+      const message = generateMessage({
+        deleted_for_me: true,
+        user: alice,
+      });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'delete-own-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      expect(screen.queryByText('Delete message')).not.toBeInTheDocument();
+    });
+
     it('should include Edit in dropdown actions when user has edit capability', async () => {
       const message = generateMessage({ user: alice });
       const { container } = await renderMessageActions({

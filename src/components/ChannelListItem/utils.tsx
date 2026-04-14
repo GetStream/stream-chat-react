@@ -8,6 +8,7 @@ import { getTranslatedMessageText } from '../../context/MessageTranslationViewCo
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PluggableList } from 'unified';
 import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
+import { isMessageDeleted } from '../Message/utils';
 import remarkGfm from 'remark-gfm';
 
 const remarkPlugins: PluggableList = [
@@ -54,7 +55,7 @@ export const getLatestMessagePreview = (
     return t('Nothing yet...');
   }
 
-  if (latestMessage.deleted_at) {
+  if (isMessageDeleted(latestMessage)) {
     return t('Message deleted');
   }
 
