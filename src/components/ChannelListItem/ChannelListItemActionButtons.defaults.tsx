@@ -145,82 +145,9 @@ type ChannelActionItem =
       Component: React.ComponentType<ComponentPropsWithRef<'button'>>;
     };
 
-export const defaultChannelActionSet: ChannelActionItem[] = [
-  {
-    // eslint-disable-next-line react/display-name
-    Component: forwardRef<HTMLButtonElement>((_, ref) => {
-      const { channel } = useChannelListItemContext();
-
-      const dialogId = ChannelListItemActionButtons.getDialogId({
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        channelId: channel.id!,
-      });
-      const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
-      const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
-
-      return (
-        <Button
-          appearance='ghost'
-          aria-expanded={dialogIsOpen}
-          aria-pressed={dialogIsOpen}
-          circular
-          onClick={(e) => {
-            e.stopPropagation();
-
-            dialog.toggle();
-          }}
-          ref={ref}
-          size='sm'
-          variant='secondary'
-        >
-          <IconMore />
-        </Button>
-      );
-    }),
-    placement: 'quick-dropdown-toggle',
-  },
-  {
-    Component() {
-      const behaviorProps = useArchiveActionButtonBehavior();
-
-      return (
-        <Button
-          appearance='ghost'
-          aria-label={behaviorProps.title}
-          circular
-          size='sm'
-          variant='secondary'
-          {...behaviorProps}
-        >
-          <IconArchive />
-        </Button>
-      );
-    },
-    placement: 'quick',
-    type: 'archive',
-  },
-  {
-    Component() {
-      const behaviorProps = useMuteActionButtonBehavior();
-
-      return (
-        <Button
-          appearance='ghost'
-          aria-label={behaviorProps.title}
-          circular
-          size='sm'
-          variant='secondary'
-          {...behaviorProps}
-        >
-          <IconMute />
-        </Button>
-      );
-    },
-    placement: 'quick',
-    type: 'mute',
-  },
-  {
-    Component() {
+const defaultComponents = {
+  dropdown: {
+    Archive() {
       const behaviorProps = useArchiveActionButtonBehavior();
 
       return (
@@ -233,28 +160,7 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
-    placement: 'dropdown',
-    type: 'archive',
-  },
-  {
-    Component() {
-      const behaviorProps = useMuteActionButtonBehavior();
-
-      return (
-        <ContextMenuButton
-          aria-label={behaviorProps.title}
-          Icon={IconMute}
-          {...behaviorProps}
-        >
-          {behaviorProps.title}
-        </ContextMenuButton>
-      );
-    },
-    placement: 'dropdown',
-    type: 'mute',
-  },
-  {
-    Component() {
+    Ban() {
       const { client } = useChatContext();
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
@@ -326,11 +232,72 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
-    placement: 'dropdown',
-    type: 'ban',
-  },
-  {
-    Component() {
+    Leave() {
+      const { t } = useTranslationContext();
+      const { channel } = useChannelListItemContext();
+      const { client } = useChatContext();
+      const { addNotification } = useNotificationApi();
+      const [inProgress, setInProgress] = useState(false);
+
+      const title = t('Leave Channel');
+
+      return (
+        <ContextMenuButton
+          aria-label={title}
+          disabled={inProgress}
+          Icon={IconLeave}
+          onClick={async (e) => {
+            e.stopPropagation();
+            try {
+              setInProgress(true);
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+              await channel.removeMembers([client.userID!]);
+              addNotification({
+                context: {
+                  channel,
+                },
+                emitter: ChannelListItemActionButtons.name,
+                message: t('Left channel'),
+                severity: 'success',
+                type: 'api:channel:leave:success',
+              });
+            } catch (error) {
+              addNotification({
+                context: {
+                  channel,
+                },
+                emitter: ChannelListItemActionButtons.name,
+                error:
+                  error instanceof Error ? error : new Error('An unknown error occurred'),
+                message: t('Failed to leave channel'),
+                severity: 'error',
+                type: 'api:channel:leave:failed',
+              });
+            } finally {
+              setInProgress(false);
+            }
+          }}
+          title={title}
+          variant='destructive'
+        >
+          {title}
+        </ContextMenuButton>
+      );
+    },
+    Mute() {
+      const behaviorProps = useMuteActionButtonBehavior();
+
+      return (
+        <ContextMenuButton
+          aria-label={behaviorProps.title}
+          Icon={IconMute}
+          {...behaviorProps}
+        >
+          {behaviorProps.title}
+        </ContextMenuButton>
+      );
+    },
+    Pin() {
       const { t } = useTranslationContext();
       const { addNotification } = useNotificationApi();
       const { channel } = useChannelListItemContext();
@@ -400,62 +367,101 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
         </ContextMenuButton>
       );
     },
+  },
+  quick: {
+    Archive() {
+      const behaviorProps = useArchiveActionButtonBehavior();
+
+      return (
+        <Button
+          appearance='ghost'
+          aria-label={behaviorProps.title}
+          circular
+          size='sm'
+          variant='secondary'
+          {...behaviorProps}
+        >
+          <IconArchive />
+        </Button>
+      );
+    },
+    Mute() {
+      const behaviorProps = useMuteActionButtonBehavior();
+
+      return (
+        <Button
+          appearance='ghost'
+          aria-label={behaviorProps.title}
+          circular
+          size='sm'
+          variant='secondary'
+          {...behaviorProps}
+        >
+          <IconMute />
+        </Button>
+      );
+    },
+  },
+  QuickDropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
+    const { channel } = useChannelListItemContext();
+
+    const dialogId = ChannelListItemActionButtons.getDialogId({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      channelId: channel.id!,
+    });
+    const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+    const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
+    return (
+      <Button
+        appearance='ghost'
+        aria-expanded={dialogIsOpen}
+        aria-pressed={dialogIsOpen}
+        circular
+        onClick={(e) => {
+          e.stopPropagation();
+
+          dialog.toggle();
+        }}
+        ref={ref}
+        size='sm'
+        variant='secondary'
+      >
+        <IconMore />
+      </Button>
+    );
+  }),
+};
+
+defaultComponents.QuickDropdownToggle.displayName = 'QuickDropdownToggle';
+
+export const defaultChannelActionSet: ChannelActionItem[] = [
+  {
+    Component: defaultComponents.QuickDropdownToggle,
+    placement: 'quick-dropdown-toggle',
+  },
+  {
+    Component: defaultComponents.quick.Mute,
+    placement: 'quick',
+    type: 'mute',
+  },
+  {
+    Component: defaultComponents.dropdown.Archive,
+    placement: 'dropdown',
+    type: 'archive',
+  },
+  {
+    Component: defaultComponents.dropdown.Ban,
+    placement: 'dropdown',
+    type: 'ban',
+  },
+  {
+    Component: defaultComponents.dropdown.Pin,
     placement: 'dropdown',
     type: 'pin',
   },
   {
-    Component() {
-      const { t } = useTranslationContext();
-      const { channel } = useChannelListItemContext();
-      const { client } = useChatContext();
-      const { addNotification } = useNotificationApi();
-      const [inProgress, setInProgress] = useState(false);
-
-      const title = t('Leave Channel');
-
-      return (
-        <ContextMenuButton
-          aria-label={title}
-          disabled={inProgress}
-          Icon={IconLeave}
-          onClick={async (e) => {
-            e.stopPropagation();
-            try {
-              setInProgress(true);
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              await channel.removeMembers([client.userID!]);
-              addNotification({
-                context: {
-                  channel,
-                },
-                emitter: ChannelListItemActionButtons.name,
-                message: t('Left channel'),
-                severity: 'success',
-                type: 'api:channel:leave:success',
-              });
-            } catch (error) {
-              addNotification({
-                context: {
-                  channel,
-                },
-                emitter: ChannelListItemActionButtons.name,
-                error:
-                  error instanceof Error ? error : new Error('An unknown error occurred'),
-                message: t('Failed to leave channel'),
-                severity: 'error',
-                type: 'api:channel:leave:failed',
-              });
-            } finally {
-              setInProgress(false);
-            }
-          }}
-          title={title}
-          variant='destructive'
-        >
-          {title}
-        </ContextMenuButton>
-      );
-    },
+    Component: defaultComponents.dropdown.Leave,
     placement: 'dropdown',
     type: 'leave',
   },
@@ -464,11 +470,6 @@ export const defaultChannelActionSet: ChannelActionItem[] = [
 export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionItem[]) => {
   const { channel } = useChannelListItemContext();
   const membership = useChannelMembershipState(channel);
-  const isDirectMessageChannel =
-    channel.type === 'messaging' &&
-    // assuming one of the users is current user
-    channel.data?.member_count === 2 &&
-    channel.id?.startsWith('!members-');
   const memberCount = channel.data?.member_count ?? 0;
   const connectedUserIsMember = typeof membership.user !== 'undefined';
 
@@ -480,17 +481,9 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
 
       switch (action.type) {
         case 'archive':
-          return (
-            connectedUserIsMember &&
-            ((action.placement === 'quick' && isDirectMessageChannel) ||
-              (action.placement === 'dropdown' && !isDirectMessageChannel))
-          );
+          return connectedUserIsMember;
         case 'mute':
-          return (
-            ownCapabilities?.includes('mute-channel') &&
-            ((action.placement === 'dropdown' && isDirectMessageChannel) ||
-              (action.placement === 'quick' && !isDirectMessageChannel))
-          );
+          return ownCapabilities?.includes('mute-channel');
         case 'ban':
           return (
             memberCount > 0 &&
@@ -507,11 +500,5 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
     });
 
     return filtered;
-  }, [
-    channelActionSet,
-    isDirectMessageChannel,
-    memberCount,
-    ownCapabilities,
-    connectedUserIsMember,
-  ]);
+  }, [channelActionSet, memberCount, ownCapabilities, connectedUserIsMember]);
 };
