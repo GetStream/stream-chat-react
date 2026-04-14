@@ -32,6 +32,10 @@
     .str-chat__prompt__header__close-button {
       flex-shrink: 0;
       color: var(--text-primary);
+      .str-chat__icon {
+        width: var(--icon-size-md);
+        height: var(--icon-size-md);
+      }
     }
   }
 
