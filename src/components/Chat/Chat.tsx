@@ -77,7 +77,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     i18nInstance,
   });
 
-  useReportLostConnectionSystemNotification();
   const channelsQueryState = useChannelsQueryState();
 
   const searchController = useMemo(

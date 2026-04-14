@@ -453,6 +453,18 @@
     color: var(--text-primary);
   }
 
+  .app__settings-modal__field .str-chat__form__switch-field {
+    border: 1px solid var(--border-core-default);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .app__settings-modal__field-comment {
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
   .app__settings-modal__options-row {
     display: flex;
     gap: 10px;
