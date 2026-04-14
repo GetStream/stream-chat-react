@@ -25,6 +25,10 @@ export const DialogPortalDestination = () => {
 
     const handleDocumentClick = (event: MouseEvent) => {
       const target = event.target as Node;
+      const clickedOverlay = (target as HTMLElement).closest?.(
+        '[data-str-chat__portal-id]',
+      );
+      if (clickedOverlay && clickedOverlay !== destinationRoot) return;
       if (target !== destinationRoot && destinationRoot.contains(target)) return;
       // Defer so target onClick handlers (e.g. context-menu toggle buttons) can run first.
       setTimeout(() => {
