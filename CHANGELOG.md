@@ -1,3 +1,54 @@
+## [14.0.0-beta.7](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.6...v14.0.0-beta.7) (2026-04-14)
+
+### ⚠ BREAKING CHANGES
+
+* remove onlySenderCanEdit from MessageProps
+* - Removed legacy notification text callback props from Message props:
+  getDeleteMessageErrorNotification,
+  getFetchReactionsErrorNotification,
+  getFlagMessageErrorNotification,
+  getFlagMessageSuccessNotification,
+  getMarkMessageUnreadErrorNotification,
+  getMarkMessageUnreadSuccessNotification,
+  getMuteUserErrorNotification,
+  getMuteUserSuccessNotification,
+  getPinMessageErrorNotification.
+Notification customization must now be done through notification
+translators
+(Streami18n translationBuilder topic: "notification") and/or custom
+MessageActions.
+* - Message action handlers no longer publish notifications internally.
+Errors now propagate to call sites, which are responsible for
+success/error notifications.
+* - Removed ConnectionStatus component. Connection notification UI is app
+responsibility now.
+* externalize sidebar toggle and remove navOpen state from the SDK (#3088)
+* remove deprecated APIs ahead of v14 stable (#3086)
+
+### Bug Fixes
+
+* adjust padding for messages containing only padding ([#3102](https://github.com/GetStream/stream-chat-react/issues/3102)) ([443b9a8](https://github.com/GetStream/stream-chat-react/commit/443b9a8a92ec16a42e4a1a3ecdb1dd70fbbdca6f))
+* **AudioPlayback:** improve wave progress bar smoothness and sizing ([#3094](https://github.com/GetStream/stream-chat-react/issues/3094)) ([982cf2a](https://github.com/GetStream/stream-chat-react/commit/982cf2a17e5aa3f90f4e4ad86f8311626cbe4040))
+* correct various UI glitches ([#3110](https://github.com/GetStream/stream-chat-react/issues/3110)) ([6605f63](https://github.com/GetStream/stream-chat-react/commit/6605f6361f4d44f79f9f313ed8c561faa4cf374f))
+* **Giphy:** use fixed height for giphy preview to prevent layout shifts ([#3095](https://github.com/GetStream/stream-chat-react/issues/3095)) ([30e45fa](https://github.com/GetStream/stream-chat-react/commit/30e45faf719f5bc6a12a7b39729acb17426f03d6))
+* **MessageList:** prevent jump-to-message snap-back from bottom autoscroll ([#3109](https://github.com/GetStream/stream-chat-react/issues/3109)) ([be8ed26](https://github.com/GetStream/stream-chat-react/commit/be8ed265f4306115fde03f4e62637c0c9f32760c))
+
+### Features
+
+* add EmojiPicker plugin stylesheet ([#3108](https://github.com/GetStream/stream-chat-react/issues/3108)) ([b4ed464](https://github.com/GetStream/stream-chat-react/commit/b4ed464550c42e16592da935076dd384d59e466d))
+* add MediaBadge ([#3103](https://github.com/GetStream/stream-chat-react/issues/3103)) ([e15caa4](https://github.com/GetStream/stream-chat-react/commit/e15caa4ef5b7eb43205826d53b3b4f1309c26d4e))
+* add new styles for unsupported attachments (preview, message, channel preview) ([#3107](https://github.com/GetStream/stream-chat-react/issues/3107)) ([19a0add](https://github.com/GetStream/stream-chat-react/commit/19a0add6696d45f4715cfbb2f62a503b4f022aaa))
+* add notification API wrapper ([#3096](https://github.com/GetStream/stream-chat-react/issues/3096)) ([2060768](https://github.com/GetStream/stream-chat-react/commit/2060768b387a544bfa9602a6b0019a24be1bac23))
+* externalize sidebar toggle and remove navOpen state from the SDK ([#3088](https://github.com/GetStream/stream-chat-react/issues/3088)) ([dc16bb5](https://github.com/GetStream/stream-chat-react/commit/dc16bb584675f48d5f67cf5d5d355ba012cf81d2))
+* introduce extended reaction list to a reactions detail component ([#3100](https://github.com/GetStream/stream-chat-react/issues/3100)) ([b284802](https://github.com/GetStream/stream-chat-react/commit/b2848025d83ad05da1fa9ebe96812ba2aa69bdb1))
+* redesign UnsupportedAttachment ([#3099](https://github.com/GetStream/stream-chat-react/issues/3099)) ([9156f6f](https://github.com/GetStream/stream-chat-react/commit/9156f6f4a8c1e24a940c5d2624c77709e9ce07c2))
+* remove onlySenderCanEdit prop from MessageProps ([#3098](https://github.com/GetStream/stream-chat-react/issues/3098)) ([759cadf](https://github.com/GetStream/stream-chat-react/commit/759cadf485a56b509368c58a459430a6973f2dd9))
+* track upload progress in attachment preview components ([#3060](https://github.com/GetStream/stream-chat-react/issues/3060)) ([8b13863](https://github.com/GetStream/stream-chat-react/commit/8b13863a6717d9a39060903a36869cf08c545bea))
+
+### Refactors
+
+* remove deprecated APIs ahead of v14 stable ([#3086](https://github.com/GetStream/stream-chat-react/issues/3086)) ([8317b73](https://github.com/GetStream/stream-chat-react/commit/8317b73a2e0874566d86a84470792c5ffa55c0d4)), closes [#1804](https://github.com/GetStream/stream-chat-react/issues/1804)
+
 ## [14.0.0-beta.6](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.5...v14.0.0-beta.6) (2026-04-03)
 
 ### ⚠ BREAKING CHANGES
