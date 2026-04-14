@@ -60,6 +60,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const closeToTop = useRef(false);
   const previousScrollTopRef = useRef(0);
   const previousMessagesLengthRef = useRef(messages.length);
+  const previousDisableAutoScrollToBottomRef = useRef(disableAutoScrollToBottom);
+  const previousDisableAutoScrollSettleRef = useRef(disableAutoScrollToBottom);
   const anchorRestoreCleanupRef = useRef<(() => void) | null>(null);
 
   const captureAnchor = useCallback(() => {
@@ -249,6 +251,16 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
    * path where existing viewport position must be preserved.
    */
   useLayoutEffect(() => {
+    const disableAutoScrollJustReleased =
+      previousDisableAutoScrollToBottomRef.current && !disableAutoScrollToBottom;
+    previousDisableAutoScrollToBottomRef.current = disableAutoScrollToBottom;
+
+    // Re-enabling auto-scroll should not immediately force a jump to bottom.
+    // This avoids snap-back after temporary suppression (e.g. jump-to-message).
+    if (disableAutoScrollJustReleased) {
+      return;
+    }
+
     if (listElement) {
       setWrapperRect(listElement.getBoundingClientRect());
     }
@@ -275,6 +287,19 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
    * to catch late layout updates without keeping the list in a prolonged lock loop.
    */
   useLayoutEffect(() => {
+    const disableAutoScrollJustReleased =
+      previousDisableAutoScrollSettleRef.current && !disableAutoScrollToBottom;
+    previousDisableAutoScrollSettleRef.current = disableAutoScrollToBottom;
+
+    // Skip one settle cycle when auto-scroll suppression is released.
+    // Without this guard, a jump-to-message flow can scroll to the target and then
+    // get pulled back down by the delayed "keep pinned to bottom" retries
+    // (80/260/420/900/1700ms), which looks like a snap-back to the latest message.
+    // Letting this transition frame pass preserves the jump destination.
+    if (disableAutoScrollJustReleased) {
+      return;
+    }
+
     if (
       !listElement ||
       disableAutoScrollToBottom ||
