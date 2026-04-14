@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-04-08
+Last updated: 2026-04-14
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `dc16bb584675f48d5f67cf5d5d355ba012cf81d2` (`dc16bb584`, `2026-04-08`, `feat!: externalize sidebar toggle and remove navOpen state from the SDK (#3088)`)
-- Future mining starting point: diff `dc16bb584675f48d5f67cf5d5d355ba012cf81d2..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `78934929a2b1b6d82f09736aada08c57c194d45e` (`78934929a`, `2026-04-14`, `chore(release): 14.0.0-beta.7 [skip ci]`)
+- Future mining starting point: diff `78934929a2b1b6d82f09736aada08c57c194d45e..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -2108,6 +2108,82 @@ Only confirmed items should move from this file into the migration guide.
   - `docs/data/docs/chat-sdk/react/v14/02-ui-components/04-channel/02-channel_header.md`
 - Example needed: yes
 
+### BC-061: `onlySenderCanEdit` was removed from the message and message-list surface
+
+- Status: confirmed
+- Area: message edit permissions
+- User impact:
+  - `Message`, `MessageList`, and `VirtualizedMessageList` no longer accept `onlySenderCanEdit`
+  - code that previously forced sender-only editing despite `update-any-message` capability no longer compiles
+  - channels where moderators or admins have `update-any-message` will now expose edit affordances unless the app filters them out manually
+- Old API:
+  - `v13.14.2:src/components/Message/types.ts:79` exposed `onlySenderCanEdit?: boolean`
+  - `v13.14.2:src/components/Message/Message.tsx:184` through `:199` accepted `onlySenderCanEdit` and forwarded it into `useUserRole(message, onlySenderCanEdit, disableQuotedMessages)`
+  - `v13.14.2:src/components/MessageList/MessageList.tsx:494` still drilled `onlySenderCanEdit` through the standard message-list surface
+- New API:
+  - current `src/components/Message/types.ts` has no `onlySenderCanEdit`
+  - current `src/components/Message/Message.tsx:192` through `:206` no longer destructure the prop and call `useUserRole(message, disableQuotedMessages)`
+  - current `src/components/Message/hooks/useUserRole.ts:35` uses only channel capabilities plus `isMyMessage` to decide editability
+  - current `src/components/MessageList/MessageList.tsx` has no `onlySenderCanEdit` prop drilling
+- Replacement:
+  - rely on channel capabilities for the default SDK editability model
+  - if your app still needs sender-only editing, filter the `edit` action out in a custom `messageActionSet` / `MessageActions`, or replace the relevant message UI affordance in app code
+- Evidence:
+  - commit `759cadf48 feat!: remove onlySenderCanEdit prop from MessageProps (#3098)` explicitly removed the prop
+  - `git show v13.14.2:src/components/Message/types.ts` includes `onlySenderCanEdit`
+  - current source has no remaining public `onlySenderCanEdit` references
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/01-message.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/02-virtualized_list.md`
+- Example needed: yes
+
+### BC-062: legacy message-notification callback props and `ConnectionStatus` were removed
+
+- Status: confirmed
+- Area: notifications and message actions
+- User impact:
+  - `Message`, `MessageList`, and `VirtualizedMessageList` no longer accept the old `get*Notification` callback props
+  - top-level imports using `ConnectionStatus` no longer resolve
+  - direct use of low-level message action handlers no longer produces SDK-managed success/error toasts by itself; call sites now own notification publishing
+- Old API:
+  - `v13.14.2:src/components/Message/types.ts:39` through `:55` exposed:
+    - `getDeleteMessageErrorNotification`
+    - `getFetchReactionsErrorNotification`
+    - `getFlagMessageErrorNotification`
+    - `getFlagMessageSuccessNotification`
+    - `getMarkMessageUnreadErrorNotification`
+    - `getMarkMessageUnreadSuccessNotification`
+    - `getMuteUserErrorNotification`
+    - `getMuteUserSuccessNotification`
+    - `getPinMessageErrorNotification`
+  - `v13.14.2:src/components/MessageList/MessageList.tsx:207` through `:216` still drilled those callbacks into message rendering
+  - `v13.14.2:src/components/MessageList/index.ts:1` re-exported `ConnectionStatus`
+- New API:
+  - current `src/components/Message/types.ts` has no `get*Notification` callbacks
+  - current `src/components/MessageList/MessageList.tsx` no longer drills those callbacks into messages
+  - current `src/components/MessageList/index.ts` no longer exports `ConnectionStatus`
+  - current `src/components/Notifications/hooks/useNotificationApi.ts` provides the app-facing notification wrapper
+  - current `src/components/Chat/index.ts:3` exports `useReportLostConnectionSystemNotification` for app-owned connection-status banners
+- Replacement:
+  - customize default notification text through notification translators (`Streami18n` translation-builder topic `notification`) and/or custom `MessageActions`
+  - use `useNotificationApi()` when custom flows need to publish notifications explicitly
+  - replace `ConnectionStatus` usage with app-owned notification UI built on `NotificationList`, `NotificationListMainPanel`, and/or `useReportLostConnectionSystemNotification()`
+- Evidence:
+  - commit `2060768b3 feat: add notification API wrapper (#3096)` explicitly removed the legacy callbacks and `ConnectionStatus`
+  - `git show v13.14.2:src/components/Message/types.ts` contains the old callback props
+  - `git show v13.14.2:src/components/MessageList/index.ts` contains the `ConnectionStatus` export
+  - current source keeps the replacement notification hooks while dropping the legacy prop/component shims
+- Docs impact:
+  - migration guide
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/08-message/01-message.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/02-virtualized_list.md`
+  - `docs/data/docs/chat-sdk/react/v14/04-guides/13-notifications.md`
+  - `docs/data/docs/chat-sdk/react/v14/03-ui-cookbook/03-message-list/02-connection_status.md`
+- Example needed: yes
+
 ## Likely
 
 - None yet
@@ -2141,6 +2217,11 @@ Only confirmed items should move from this file into the migration guide.
 - audio playback wave/progress refinements (`982cf2a17`): investigated; smoother progress rendering and sizing updates do not remove or rename a documented public API.
 - tracker/docs maintenance commit (`b5cb01f53`): investigated; this only updates the internal audit trackers and does not change the SDK surface.
 - beta release commit (`d313317b0`): investigated; release tagging alone does not add a new migration item.
+- upload-progress indicators and attachment preview size tracking (`8b13863a6`): investigated; current source adds `UploadProgressIndicator`, `UploadedSizeIndicator`, `AttachmentUploadedSizeIndicator`, and new `ComponentContext` slots (`FileSizeIndicator`, `ProgressIndicator`, `UploadedSizeIndicator`), but this is additive current-v14 surface area rather than a removed or renamed v13 API. Track it as docs-alignment work only.
+- unsupported-attachment redesign and media badge additions (`9156f6f4a`, `19a0add66`, `e15caa4ef`): investigated; current source redesigns `UnsupportedAttachment`, adds `MediaBadge`, and updates preview styling, but it does not remove or rename a documented v13 public API. Treat it as reference/cookbook maintenance only.
+- extended reaction-list surface (`b2848025d`): investigated; `ReactionSelectorExtendedList` was added to `ComponentContext`, `MessageReactionsDetail` gained an add-reaction step, and `reactionDetailsSort` forwarding was fixed, but these are additive/current-behavior changes rather than a distinct v13-to-v14 migration bucket. Track the missing docs separately.
+- EmojiPicker stylesheet addition (`b4ed46455`): investigated; `stream-chat-react/dist/css/emoji-picker.css` is a new additive stylesheet entrypoint, not a removed or renamed v13 API. Track it as docs-alignment work only.
+- assorted post-beta UI fixes (`443b9a8a9`, `be8ed265f`, `6605f6361`): investigated; message padding, jump-to-message scroll behavior, and broader UI glitch fixes change runtime polish but do not remove or rename a public API.
 
 ## Notes For Migration Guide Drafting
 
