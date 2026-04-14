@@ -202,6 +202,30 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should render deleted message when message type is deleted', async () => {
+    const deletedMessage = generateAliceMessage({
+      type: 'deleted',
+    });
+    const { container, getByTestId } = await renderMessageSimple({
+      message: deletedMessage,
+    });
+    expect(getByTestId('message-deleted-bubble')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render deleted message when message is deleted for current user', async () => {
+    const deletedMessage = generateAliceMessage({
+      deleted_for_me: true,
+    });
+    const { container, getByTestId } = await renderMessageSimple({
+      message: deletedMessage,
+    });
+    expect(getByTestId('message-deleted-bubble')).toBeInTheDocument();
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should render deleted message with custom component when message was deleted and a custom delete message component was passed', async () => {
     const deletedMessage = generateAliceMessage({
       deleted_at: new Date('2019-12-25T03:24:00').toISOString(),
