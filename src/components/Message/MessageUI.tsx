@@ -95,6 +95,8 @@ const MessageUIWithContext = ({
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
+  const isDeleted =
+    !!message.deleted_at || message.type === 'deleted' || message.deleted_for_me;
 
   const finalAttachments = useMemo(
     () =>
@@ -110,7 +112,7 @@ const MessageUIWithContext = ({
     return null;
   }
 
-  if (MessageDeleted && (message.deleted_at || message.type === 'deleted')) {
+  if (MessageDeleted && isDeleted) {
     return <MessageDeleted message={message} />;
   }
 
@@ -121,7 +123,6 @@ const MessageUIWithContext = ({
   const poll = message.poll_id && client.polls.fromState(message.poll_id);
 
   const memberCount = Object.keys(channel?.state?.members ?? {}).length;
-  const isDeleted = !!message.deleted_at;
   const hasAttachment = !isDeleted && messageHasAttachments(message);
   const hasSingleAttachment = !isDeleted && messageHasSingleAttachment(message);
   const hasGiphyAttachment = !isDeleted && messageHasGiphyAttachment(message);
@@ -216,7 +217,7 @@ const MessageUIWithContext = ({
               thread_participants={message.thread_participants}
             />
           )}
-          {message.deleted_at ? (
+          {isDeleted ? (
             <MessageDeletedBubble />
           ) : (
             <>
