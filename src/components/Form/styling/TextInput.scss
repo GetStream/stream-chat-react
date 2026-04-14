@@ -2,165 +2,213 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+}
 
-  &__label {
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-medium);
-    line-height: var(--typography-line-height-tight);
-    color: var(--text-primary);
-  }
+.str-chat__form-text-input__label {
+  font-size: var(--typography-font-size-sm);
+  font-weight: var(--typography-font-weight-medium);
+  line-height: var(--typography-line-height-tight);
+  color: var(--text-primary);
+}
 
-  &__wrapper {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    min-height: var(--size-40);
-    padding: 0 var(--spacing-sm);
-    background-color: var(--background-core-elevation-0);
-    border-radius: var(--radius-md);
-    outline: none;
-    transition:
-      border-color 0.15s ease,
-      box-shadow 0.15s ease;
-  }
+/* Column shell: control row + optional in-border error */
+.str-chat__form-text-input__wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  background-color: var(--background-core-elevation-0);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
 
-  // ---------------------------------------------------------------------------
-  // Outline variant — always 1px border on wrapper; + 2px focus ring on focus-within
-  // ---------------------------------------------------------------------------
-  &__wrapper--outline {
-    border: 1px solid var(--border-core-default);
-    box-shadow: none;
-  }
+.str-chat__form-text-input__control-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  min-width: 0;
+  width: 100%;
+}
 
-  &:focus-within &__wrapper--outline {
-    border: 1px solid var(--input-border-focus);
-    box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
-  }
+// ---------------------------------------------------------------------------
+// Outline variant — always 1px border on wrapper; + 2px focus ring on focus-within
+// ---------------------------------------------------------------------------
+.str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--border-core-default);
+  box-shadow: none;
+}
 
-  &--error &__wrapper--outline {
-    border: 1px solid var(--border-utility-error);
-  }
+.str-chat__form-text-input:focus-within .str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--input-border-focus);
+  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+}
 
-  @at-root .str-chat__form-text-input:focus-within.str-chat__form-text-input--error
-      .str-chat__form-text-input__wrapper--outline {
-    border: 1px solid var(--border-utility-error);
-    box-shadow: none;
-  }
+.str-chat__form-text-input--error .str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--border-utility-error);
+}
 
-  &--disabled &__wrapper--outline {
-    border: 1px solid var(--border-utility-disabled);
-  }
+/* In-border error: shell keeps default outline (red only on message row) */
+.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
+  .str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--border-core-default);
+}
 
-  // ---------------------------------------------------------------------------
-  // Ghost variant — no border on wrapper; 2px focus ring only on focus-within (and error)
-  // ---------------------------------------------------------------------------
-  &__wrapper--ghost {
-    border: none;
-    box-shadow: none;
-  }
+.str-chat__form-text-input:focus-within.str-chat__form-text-input--error
+  .str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--border-utility-error);
+  box-shadow: none;
+}
 
-  &:focus-within &__wrapper--ghost {
-    border: none;
-    box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
-  }
+.str-chat__form-text-input:focus-within.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
+  .str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--input-border-focus);
+  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+}
 
-  &--error &__wrapper--ghost {
-    border: 1px solid var(--border-utility-error);
-    box-shadow: none;
-  }
+.str-chat__form-text-input--disabled .str-chat__form-text-input__wrapper--outline {
+  border: 1px solid var(--border-utility-disabled);
+}
 
-  @at-root .str-chat__form-text-input:focus-within.str-chat__form-text-input--error
-      .str-chat__form-text-input__wrapper--ghost {
-    border: 1px solid var(--border-utility-error);
-    box-shadow: none;
-  }
+// ---------------------------------------------------------------------------
+// Ghost variant — no border on wrapper; 2px focus ring only on focus-within (and error)
+// ---------------------------------------------------------------------------
+.str-chat__form-text-input__wrapper--ghost {
+  border: none;
+  box-shadow: none;
+}
 
-  // ---------------------------------------------------------------------------
-  // Shared: leading, input, suffix, trailing, message
-  // ---------------------------------------------------------------------------
-  &__leading {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: var(--input-text-icon);
-  }
+.str-chat__form-text-input:focus-within .str-chat__form-text-input__wrapper--ghost {
+  border: none;
+  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+}
 
-  &__input {
-    flex: 1;
-    min-width: 0;
-    padding: var(--spacing-xs) 0;
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-normal);
-    color: var(--input-text-default);
-    background: transparent;
-    border: none;
-    outline: none;
-    box-shadow: none;
+.str-chat__form-text-input--error .str-chat__form-text-input__wrapper--ghost {
+  border: 1px solid var(--border-utility-error);
+  box-shadow: none;
+}
 
-    &::placeholder {
-      color: var(--input-text-placeholder);
-    }
+.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
+  .str-chat__form-text-input__wrapper--ghost {
+  border: none;
+  box-shadow: none;
+}
 
-    .str-chat__form-text-input--disabled & {
-      color: var(--input-text-placeholder);
-      cursor: not-allowed;
+.str-chat__form-text-input:focus-within.str-chat__form-text-input--error
+  .str-chat__form-text-input__wrapper--ghost {
+  border: 1px solid var(--border-utility-error);
+  box-shadow: none;
+}
 
-      &::placeholder {
-        color: var(--input-text-placeholder);
-      }
-    }
-  }
+.str-chat__form-text-input:focus-within.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
+  .str-chat__form-text-input__wrapper--ghost {
+  border: none;
+  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+}
 
-  .str-chat__form-text-input__input:focus,
-  .str-chat__form-text-input__input:focus-visible {
-    outline: none;
-    box-shadow: none;
-  }
+// ---------------------------------------------------------------------------
+// Shared: leading, input, suffix, trailing, message
+// ---------------------------------------------------------------------------
+.str-chat__form-text-input__leading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--input-text-icon);
+}
 
-  &__suffix {
-    flex-shrink: 0;
-    font-size: var(--typography-font-size-sm);
-    line-height: var(--typography-line-height-normal);
-    color: var(--text-tertiary);
-  }
+.str-chat__form-text-input .str-chat__form-text-input__input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  font: var(--str-chat__caption-default-text);
+  color: var(--input-text-default);
+  background: transparent;
+  border: none;
+  outline: none;
+  outline-style: none;
+  box-shadow: none;
+}
 
-  &__trailing {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    margin-inline-end: calc(-1 * var(--space-4));
-    color: var(--input-text-icon);
+.str-chat__form-text-input .str-chat__form-text-input__input::placeholder {
+  color: var(--input-text-placeholder);
+}
 
-    .str-chat__form-text-input--error & {
-      color: var(--accent-error);
-    }
-  }
+.str-chat__form-text-input.str-chat__form-text-input--disabled
+  .str-chat__form-text-input__input {
+  color: var(--input-text-placeholder);
+  cursor: not-allowed;
+}
 
-  &__message {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xxs);
-    line-height: var(--typography-line-height-tight);
+.str-chat__form-text-input.str-chat__form-text-input--disabled
+  .str-chat__form-text-input__input::placeholder {
+  color: var(--input-text-placeholder);
+}
 
-    /* Base typography/color only when not error (error uses str-chat__form-field-error) */
-    &:not(.str-chat__form-field-error) {
-      font-size: var(--typography-font-size-xs);
-      color: var(--text-tertiary);
-    }
+.str-chat__form-text-input .str-chat__form-text-input__input:focus,
+.str-chat__form-text-input .str-chat__form-text-input__input:focus-visible {
+  outline: none;
+  outline-style: none;
+  box-shadow: none;
+}
 
-    &--success {
-      color: var(--accent-success);
-    }
-  }
+.str-chat__form-text-input__suffix {
+  flex-shrink: 0;
+  font-size: var(--typography-font-size-sm);
+  line-height: var(--typography-line-height-normal);
+  color: var(--text-tertiary);
+}
 
-  .str-chat__form-text-input__message-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: inherit;
+.str-chat__form-text-input__trailing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-inline-end: calc(-1 * var(--space-4));
+  color: var(--input-text-icon);
+}
+
+.str-chat__form-text-input--error .str-chat__form-text-input__trailing {
+  color: var(--accent-error);
+}
+
+.str-chat__form-text-input__message {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  font: var(--str-chat__metadata-default-text);
+}
+
+/* Base typography/color only when not error (error uses str-chat__form-field-error) */
+.str-chat__form-text-input__message:not(.str-chat__form-field-error) {
+  color: var(--text-tertiary);
+}
+
+.str-chat__form-text-input__message--field-message-inside {
+  padding: var(--spacing-none) var(--spacing-sm) var(--spacing-sm);
+}
+
+.str-chat__form-text-input__message--success {
+  color: var(--accent-success);
+}
+
+.str-chat__form-text-input__message-text {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.str-chat__form-text-input__message-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: inherit;
+
+  svg {
+    height: 13px;
+    width: 13px;
   }
 }

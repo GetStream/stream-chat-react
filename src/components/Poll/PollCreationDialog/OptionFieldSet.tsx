@@ -68,6 +68,7 @@ export const OptionFieldSet = () => {
             <TextInput
               className='str-chat__form__input-field__value'
               error={!!error}
+              fieldMessagePlacement='inside'
               id={option.id}
               leading={
                 draggable ? <IconReorder className='str-chat__drag-handle' /> : undefined
@@ -115,7 +116,7 @@ const RemoveOptionButton = ({ className, ...props }: ButtonProps) => (
     appearance='ghost'
     circular
     className={clsx('str-chat__form__remove-option-button', className)}
-    size='sm'
+    size='xs'
     variant='secondary'
     {...props}
   >
