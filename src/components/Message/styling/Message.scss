@@ -2,49 +2,18 @@
 
 .str-chat {
   /* The width/height of the message options button(s), for Angular SDK it's only used on desktop devices starting from version 5 */
-  --str-chat__message-options-button-size: calc(var(--str-chat__spacing-px) * 26);
+  --str-chat__message-options-button-size: var(--size-32);
 
   --str-chat__message-border-radius: 0;
-  --str-chat__message-color: var(--str-chat__text-color);
   --str-chat__message-link-color: var(--chat-text-link);
-  --str-chat__message-mention-color: var(--str-chat__primary-color);
+  --str-chat__message-mention-color: var(--accent-primary);
   --str-chat__message-background-color: transparent;
-  --str-chat__message-highlighted-background-color: var(
-    --str-chat__message-highlight-color
-  );
-  --str-chat__message-border-block-start: none;
-  --str-chat__message-border-block-end: none;
-  --str-chat__message-border-inline-start: none;
-  --str-chat__message-border-inline-end: none;
-  --str-chat__message-box-shadow: none;
+  --str-chat__message-highlighted-background-color: var(--background-core-highlight);
   --str-chat__message-active-background-color: transparent;
 
-  --str-chat__message-options-color: var(--button-secondary-text);
-  --str-chat__message-options-hover-background-color: var(
-    --str-chat__tertiary-surface-color
-  );
-  --str-chat__message-options-border-radius: var(--str-chat__border-radius-circle);
-  --str-chat__message-options-active-color: var(--str-chat__primary-color);
-
   --str-chat__message-bubble-border-radius: var(--message-bubble-radius-group-bottom);
-  --str-chat__message-bubble-color: var(--chat-text-message);
-  --str-chat__message-bubble-background-color: var(--chat-bg-incoming);
-  --str-chat__own-message-bubble-color: var(--chat-text-message);
-  --str-chat__own-message-bubble-background-color: var(--chat-bg-outgoing);
-  --str-chat__message-bubble-border-block-start: none;
-  --str-chat__message-bubble-border-block-end: none;
-  --str-chat__message-bubble-border-inline-start: none;
-  --str-chat__message-bubble-border-inline-end: none;
-  --str-chat__message-bubble-box-shadow: none;
 
   --str-chat__blocked-message-border-radius: var(--radius-md);
-  --str-chat__blocked-message-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__blocked-message-background-color: var(--str-chat__secondary-surface-color);
-  --str-chat__blocked-message-border-block-start: none;
-  --str-chat__blocked-message-border-block-end: none;
-  --str-chat__blocked-message-border-inline-start: none;
-  --str-chat__blocked-message-border-inline-end: none;
-  --str-chat__blocked-message-box-shadow: none;
 
   --str-chat__message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
@@ -52,10 +21,35 @@
   --str-chat__message-pinned-background-color: var(--background-core-highlight);
 
   /* The maximum allowed width of the message component */
-  --str-chat__message-max-width: calc(var(--str-chat__spacing-px) * 400);
+  --str-chat__message-max-width: 400px;
 
   /* The maximum allowed width of the message component, if it has attachments */
-  --str-chat__message-with-attachment-max-width: calc(var(--str-chat__spacing-px) * 400);
+  --str-chat__message-with-attachment-max-width: 400px;
+
+  .str-chat__message {
+    &.str-chat__message--me {
+      --chat-bg: var(--chat-bg-outgoing);
+      --chat-bg-attachment: var(--chat-bg-attachment-outgoing);
+      --chat-text: var(--chat-text-outgoing);
+      --chat-border: var(--chat-border-outgoing);
+      --chat-border-on-chat: var(--chat-border-on-chat-outgoing);
+      --chat-reply-indicator: var(--chat-reply-indicator-outgoing);
+      --chat-poll-progress-track: var(--chat-poll-progress-track-outgoing);
+      --chat-poll-progress-fill: var(--chat-poll-progress-fill-outgoing);
+      --chat-thread-connector: var(--chat-thread-connector-outgoing);
+    }
+    &.str-chat__message--other {
+      --chat-bg: var(--chat-bg-incoming);
+      --chat-bg-attachment: var(--chat-bg-attachment-incoming);
+      --chat-text: var(--chat-text-incoming);
+      --chat-border: var(--chat-border-incoming);
+      --chat-border-on-chat: var(--chat-border-on-chat-incoming);
+      --chat-reply-indicator: var(--chat-reply-indicator-incoming);
+      --chat-poll-progress-track: var(--chat-poll-progress-track-incoming);
+      --chat-poll-progress-fill: var(--chat-poll-progress-fill-incoming);
+      --chat-thread-connector: var(--chat-thread-connector-incoming);
+    }
+  }
 }
 
 /* Make spaces between message groups */
@@ -172,11 +166,12 @@
 
 .str-chat__message-mention {
   color: var(--str-chat__message-mention-color);
-  font: var(--str-chat__body-emphasis-text);
+  font: var(--str-chat__font-body-emphasis);
 }
 
 .str-chat__message {
   @include utils.component-layer-overrides('message');
+  color: var(--str-chat__message-color, var(--chat-text));
 
   @mixin chat-bubble-spacing {
     padding-inline: var(--spacing-xxs);
@@ -244,7 +239,7 @@
       display: flex;
       align-items: center;
       gap: var(--spacing-xxs);
-      font: var(--str-chat__metadata-emphasis-text);
+      font: var(--str-chat__font-metadata-emphasis);
       color: var(--text-primary-text);
 
       .str-chat__message-pin-indicator__icon {
@@ -411,6 +406,8 @@
       position: relative;
       min-width: 0;
       @include utils.component-layer-overrides('message-bubble');
+      color: var(--str-chat__message-bubble-color, inherit);
+      background-color: var(--str-chat__message-bubble-background-color, var(--chat-bg));
       border-radius: var(--message-bubble-radius-group-bottom);
       overflow: hidden;
 
@@ -426,7 +423,11 @@
 
   &.str-chat__message--me .str-chat__message-bubble {
     justify-self: flex-end;
-    background-color: var(--str-chat__own-message-bubble-background-color);
+    color: var(--str-chat__own-message-bubble-color, inherit);
+    background-color: var(
+      --str-chat__own-message-bubble-background-color,
+      var(--chat-bg)
+    );
   }
 
   &.str-chat__message--me .str-chat__message-inner {
@@ -460,7 +461,7 @@
     color: var(--chat-text-timestamp);
 
     * {
-      font: var(--str-chat__metadata-default-text);
+      font: var(--str-chat__font-metadata-default);
     }
 
     .str-chat__message-metadata__name {
@@ -481,6 +482,9 @@
   .str-chat__message--blocked-inner {
     @include chat-bubble-spacing;
     @include utils.component-layer-overrides('blocked-message');
+    color: var(--str-chat__blocked-message-color, var(--chat-text));
+    background-color: var(--str-chat__blocked-message-background-color, var(--chat-bg));
+
     // todo: once blocked message designs are ready remove this padding?
     padding-block: var(--spacing-xs);
   }
@@ -507,7 +511,7 @@
   }
 
   &.str-chat__message--failed {
-    $icon-size: calc(var(--str-chat__spacing-px) * 18);
+    $icon-size: 18px;
 
     .str-chat__message-error-indicator {
       display: block;

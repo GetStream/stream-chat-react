@@ -19,13 +19,13 @@
   gap: var(--spacing-xs);
   padding-inline: var(--spacing-xs) var(--spacing-sm);
   padding-block: var(--spacing-xs);
-  background-color: var(--chat-bg-outgoing);
+  background-color: var(--chat-bg);
   border-radius: var(--message-bubble-radius-attachment);
 
   .str-chat__tooltip {
     @include utils.ellipsis-text();
     display: block;
-    max-width: calc(var(--str-chat__spacing-px) * 250);
+    max-width: 250px;
     padding-inline: 0.5rem;
   }
 
@@ -40,12 +40,12 @@
     }
 
     .str-chat__link-preview-card__content-title {
-      font: var(--str-chat__metadata-emphasis-text);
+      font: var(--str-chat__font-metadata-emphasis);
     }
 
     .str-chat__link-preview-card__content-description,
     .str-chat__link-preview-card__content__url {
-      font: var(--str-chat__metadata-default-text);
+      font: var(--str-chat__font-metadata-default);
     }
 
     .str-chat__link-preview-card__content__url {
@@ -63,12 +63,12 @@
 //    gap: 0.25rem;
 //
 //    .str-chat__link-preview-card__content-title {
-//      height: calc(var(--str-chat__spacing-px) * 16);
+//      height: var(--size-16);
 //      width: 100%
 //    }
 //
 //    .str-chat__link-preview-card__content-description {
-//      height: calc(var(--str-chat__spacing-px) * 12);
+//      height: var(--size-12);
 //      width: 100%;
 //    }
 //  }

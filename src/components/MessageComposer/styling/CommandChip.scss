@@ -11,7 +11,7 @@
   color: var(--text-inverse);
   background-color: var(--background-core-inverse, var(--slate-900));
   text-transform: uppercase;
-  font: var(--str-chat__metadata-emphasis-text);
+  font: var(--str-chat__font-metadata-emphasis);
 
   .str-chat__command-chip__close-button {
     @include utils.button-reset;

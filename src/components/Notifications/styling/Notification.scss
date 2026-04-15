@@ -36,7 +36,7 @@
     .str-chat__notification-message {
       flex: 1 1 auto;
       padding-block: var(--spacing-xxxs);
-      font: var(--str-chat__caption-default-text);
+      font: var(--str-chat__font-caption-default);
       text-align: center;
       white-space: nowrap;
     }

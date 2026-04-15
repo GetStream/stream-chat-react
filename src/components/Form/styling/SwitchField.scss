@@ -100,12 +100,12 @@
     .str-chat__form__switch-field__label {
       .str-chat__form__switch-field__label__text {
         color: var(--text-primary);
-        font: var(--str-chat__heading-xs-text);
+        font: var(--str-chat__font-heading-xs);
       }
 
       .str-chat__form__switch-field__label__description {
         color: var(--text-tertiary);
-        font: var(--str-chat__metadata-default-text);
+        font: var(--str-chat__font-metadata-default);
       }
     }
 

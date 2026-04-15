@@ -43,14 +43,14 @@
 
 .str-chat__loading-channels-avatar {
   flex-shrink: 0;
-  width: calc(var(--str-chat__spacing-px) * 48);
-  height: calc(var(--str-chat__spacing-px) * 48);
+  width: var(--size-48);
+  height: var(--size-48);
   border-radius: 50%;
 }
 
 .str-chat__loading-channels-username,
 .str-chat__loading-channels-status {
-  height: calc(var(--str-chat__spacing-px) * 20);
+  height: var(--size-20);
   border-radius: 999px;
   -webkit-mask-image: linear-gradient(
     90deg,
@@ -69,11 +69,11 @@
 }
 
 .str-chat__loading-channels-username {
-  width: min(62%, calc(var(--str-chat__spacing-px) * 180));
+  width: min(62%, 180px);
 }
 
 .str-chat__loading-channels-status {
-  width: min(84%, calc(var(--str-chat__spacing-px) * 244));
+  width: min(84%, 244px);
 }
 
 @keyframes loading-channels-shimmer {

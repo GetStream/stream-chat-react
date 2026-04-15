@@ -5,7 +5,7 @@
   gap: var(--spacing-none, 0);
   align-self: stretch;
   width: 100%;
-  font: var(--str-chat__caption-default-text);
+  font: var(--str-chat__font-caption-default);
 
   .str-chat__poll-vote__author {
     flex: 1;

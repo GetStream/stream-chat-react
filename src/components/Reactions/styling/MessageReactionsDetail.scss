@@ -28,7 +28,7 @@
 
   font-family: var(--typography-font-family-sans);
 
-  box-shadow: var(--light-elevation-3);
+  box-shadow: var(--str-chat__box-shadow-3);
 
   padding-block-start: var(--spacing-xxs);
 
@@ -87,7 +87,7 @@
 
         .str-chat__message-reactions-detail__reaction-type-list-item-count {
           color: var(--reaction-text);
-          font: var(--str-chat__metadata-emphasis-text);
+          font: var(--str-chat__font-metadata-emphasis);
         }
       }
     }
@@ -163,7 +163,7 @@
         .str-chat__message-reactions-detail__user-list-item-button {
           @include utils.unset-button;
           color: var(--text-tertiary);
-          font: var(--str-chat__metadata-default-text);
+          font: var(--str-chat__font-metadata-default);
           cursor: pointer;
           align-self: flex-start;
         }

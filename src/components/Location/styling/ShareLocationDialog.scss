@@ -23,7 +23,7 @@
     }
 
     .str-chat__form__switch-field__label__text {
-      font: var(--str-chat__caption-emphasis-text);
+      font: var(--str-chat__font-caption-emphasis);
     }
   }
 
@@ -42,7 +42,7 @@
       display: flex;
       justify-content: space-between;
       min-width: var(--str-chat__duration-selector-min-width);
-      font: var(--str-chat__caption-default-text);
+      font: var(--str-chat__font-caption-default);
     }
 
     .str-chat__context-menu {

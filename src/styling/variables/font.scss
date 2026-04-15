@@ -1,23 +1,23 @@
 // HEADING
 // ================================================================================= //
 @mixin text-heading-xs {
-  font: var(--str-chat__font-body-default);
+  font: var(--str-chat__font-heading-xs);
   color: var(--text-primary);
 }
 
 @mixin text-heading-sm {
-  font: var(--str-chat__font-body-emphasis);
+  font: var(--str-chat__font-heading-sm);
   color: var(--text-primary);
 }
 
 @mixin text-heading-md {
-  font: var(--str-chat__font-body-link);
-  color: var(--text-link);
+  font: var(--str-chat__font-heading-md);
+  color: var(--text-primary);
 }
 
 @mixin text-heading-lg {
-  font: var(--str-chat__font-body-link-emphasis);
-  color: var(--text-link);
+  font: var(--str-chat__font-heading-lg);
+  color: var(--text-primary);
 }
 
 // BODY
@@ -175,25 +175,25 @@
   // CAPTION
   // ================================================================================= //
   --str-chat__font-caption-default: normal var(--typography-font-weight-regular)
-    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--typography-font-size-sm) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
   // --------------------
 
   --str-chat__font-caption-emphasis: normal var(--typography-font-weight-semi-bold)
-    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--typography-font-size-sm) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
   // --------------------
 
   --str-chat__font-caption-link: normal var(--typography-font-weight-regular)
-    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--typography-font-size-sm) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
   // --------------------
 
   --str-chat__font-caption-link-emphasis: normal var(--typography-font-weight-semi-bold)
-    var(--typography-font-size-sm) / var(--typography-line-height-tight)
+    var(--typography-font-size-sm) / var(--typography-line-height-normal)
     var(--str-chat__font-family);
 
   // --------------------
@@ -242,8 +242,7 @@
   // --------------------
 
   --str-chat__font-numeric-xl: normal var(--typography-font-weight-bold)
-    var(--typography-font-size-sm) / var(--line-height-line-height-14)
-    var(--str-chat__font-family);
+    var(--typography-font-size-sm) / 100% var(--str-chat__font-family);
 
   // --------------------
 }

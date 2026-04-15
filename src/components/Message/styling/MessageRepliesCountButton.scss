@@ -36,7 +36,7 @@
     align-items: center;
 
     color: var(--text-link);
-    font: var(--str-chat__heading-xs-text);
+    font: var(--str-chat__font-heading-xs);
   }
 }
 
@@ -54,9 +54,9 @@
     &::after {
       border-end-end-radius: var(--radius-max);
       border-inline-end: var(--replies-button-connector-stroke-width) solid
-        var(--chat-thread-connector-outgoing);
+        var(--chat-thread-connector);
       border-block-end: var(--replies-button-connector-stroke-width) solid
-        var(--chat-thread-connector-outgoing);
+        var(--chat-thread-connector);
 
       inset-inline-end: 0;
     }
@@ -76,9 +76,9 @@
     &::after {
       border-end-start-radius: var(--radius-max);
       border-inline-start: var(--replies-button-connector-stroke-width) solid
-        var(--chat-thread-connector-incoming);
+        var(--chat-thread-connector);
       border-block-end: var(--replies-button-connector-stroke-width) solid
-        var(--chat-thread-connector-incoming);
+        var(--chat-thread-connector);
 
       inset-inline-start: 0;
     }

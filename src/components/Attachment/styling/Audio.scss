@@ -7,12 +7,7 @@
   );
 
   /* Text color used in audio widget */
-  --str-chat__audio-attachment-widget-color: var(--str-chat__text-color);
-
-  /* Border radius applied audio widget */
-  --str-chat__audio-attachment-widget-secondary-color: var(
-    --str-chat__text-low-emphasis-color
-  );
+  --str-chat__audio-attachment-widget-color: var(--text-primary);
 
   /* The text/icon color for low emphasis texts (for example file size) in audio widget */
   --str-chat__audio-attachment-widget-background-color: transparent;
@@ -52,7 +47,7 @@
   }
 
   .str-chat__message-attachment-audio-widget--progress-track {
-    //max-width: calc(var(--str-chat__spacing-px) * 120);
+    //max-width: 120px
   }
 
   .str-chat__message-attachment-audio-widget--text-first-row {
@@ -67,7 +62,7 @@
   }
 
   .str-chat__message-attachment-audio-widget--title {
-    font: var(--str-chat__caption-emphasis-text);
+    font: var(--str-chat__font-caption-emphasis);
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -79,7 +74,7 @@
 
   .str-chat__duration-display {
     width: 40px;
-    font: var(--str-chat__metadata-default-text);
+    font: var(--str-chat__font-metadata-default);
     color: var(--text-secondary);
   }
 
@@ -90,7 +85,6 @@
     gap: var(--spacing-xs);
 
     .str-chat__message-attachment-file--item-size {
-      line-height: calc(var(--str-chat__spacing-px) * 14);
       font: var(--str-chat__font-metadata-default);
     }
   }

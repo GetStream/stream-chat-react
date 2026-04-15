@@ -5,10 +5,10 @@
   --str-chat__thread-border-radius: 0;
 
   /* The text/icon color of the component */
-  --str-chat__thread-color: var(--str-chat__text-color);
+  --str-chat__thread-color: var(--text-primary);
 
   /* The background color of the component */
-  --str-chat__thread-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__thread-background-color: none;
 
   /* Top border of the component */
   --str-chat__thread-border-block-start: none;
@@ -17,7 +17,7 @@
   --str-chat__thread-border-block-end: none;
 
   /* Left (right in RTL layout) border of the component */
-  --str-chat__thread-border-inline-start: 1px solid var(--str-chat__surface-color);
+  --str-chat__thread-border-inline-start: 1px solid var(--border-core-default);
 
   /* Right (left in RTL layout) border of the component */
   --str-chat__thread-border-inline-end: none;
@@ -26,7 +26,7 @@
   --str-chat__thread-box-shadow: none;
 
   /* The text/icon color used to display less emphasized text in the channel header */
-  --str-chat__thread-header-info-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__thread-header-info-color: var(--text-secondary);
 }
 
 // FIXME: figure out why does this "container" exist when __thread is completely valid

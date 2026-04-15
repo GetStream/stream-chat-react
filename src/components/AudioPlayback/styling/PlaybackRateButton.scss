@@ -12,9 +12,9 @@
   padding: var(--button-padding-y-sm) var(--spacing-xs);
   background-color: inherit;
   border-radius: var(--button-radius-lg);
-  border: 1px solid var(--chat-border-on-chat-incoming);
+  border: 1px solid var(--chat-border-on-chat);
   color: var(--control-playback-toggle-text, var(--text-primary));
-  font: var(--str-chat__metadata-emphasis-text);
+  font: var(--str-chat__font-metadata-emphasis);
 
   &:not(:disabled):hover {
     @include utils.overlay-after(var(--background-utility-hover));
@@ -35,13 +35,5 @@
     border-color: var(--border-utility-disabled);
     color: var(--text-disabled);
     cursor: default;
-  }
-}
-
-.str-chat__message--me {
-  .str-chat__message-attachment {
-    .str-chat__playback-rate-button {
-      border: 1px solid var(--chat-border-on-chat-outgoing);
-    }
   }
 }

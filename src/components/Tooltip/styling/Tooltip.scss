@@ -33,9 +33,9 @@
   gap: var(--spacing-xs);
   padding: var(--spacing-xs);
   z-index: 1;
-  max-width: calc(var(--str-chat__spacing-px) * 150);
+  max-width: 150px;
   width: max-content;
-  font: var(--str-chat__metadata-emphasis-text);
+  font: var(--str-chat__font-metadata-emphasis);
 
   &::after {
     background-color: var(--str-chat__tooltip-background-color);

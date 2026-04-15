@@ -18,7 +18,7 @@
   grid-area: also-sent-in-channel;
   padding-block: var(--spacing-xxs);
   @include utils.component-layer-overrides('message-also-sent-in-channel');
-  font: var(--str-chat__metadata-emphasis-text);
+  font: var(--str-chat__font-metadata-emphasis);
 
   .str-chat__icon {
     height: var(--spacing-sm);
@@ -33,7 +33,7 @@
   .str-chat__message-also-sent-in-channel__link-button {
     @include utils.button-reset;
     cursor: pointer;
-    font: var(--str-chat__metadata-default-text);
+    font: var(--str-chat__font-metadata-default);
     color: var(--text-link);
   }
 }

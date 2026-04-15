@@ -27,8 +27,8 @@
       grid-row: span 2;
       height: var(--str-chat__poll-checkmark-size);
       width: var(--str-chat__poll-checkmark-size);
-      border-radius: var(--str-chat__border-radius-circle);
-      border: 1px solid var(--chat-border-on-chat-incoming);
+      border-radius: var(--radius-max);
+      border: 1px solid var(--chat-border-on-chat);
     }
 
     .str-chat__checkmark--checked {
@@ -36,8 +36,8 @@
       background-repeat: no-repeat;
       background-position: center;
       background-size: 11px 10px;
-      background-color: var(--str-chat__primary-color);
-      border-color: var(--str-chat__primary-color);
+      background-color: var(--control-radio-check-bg-selected);
+      border: none;
     }
 
     .str-chat__poll-option-data {
@@ -67,8 +67,7 @@
 
         .str-chat__poll-option-vote-count {
           text-align: right;
-          font: var(--str-chat__metadata-default-text);
-          font-variant-numeric: tabular-nums;
+          font: var(--str-chat__font-metadata-default);
         }
       }
     }
@@ -80,18 +79,10 @@
       width: 100%;
       background: linear-gradient(
         to right,
-        var(--chat-poll-progress-fill-incoming) var(--str-chat__amount-bar-fulfillment),
-        var(--chat-poll-progress-track-incoming) var(--str-chat__amount-bar-fulfillment)
+        var(--chat-poll-progress-fill) var(--str-chat__amount-bar-fulfillment),
+        var(--chat-poll-progress-track) var(--str-chat__amount-bar-fulfillment)
       );
-      border-radius: calc(var(--str-chat__spacing-px) * 4);
-    }
-
-    .str-chat__poll-option__votes-bar--winner {
-      background: linear-gradient(
-        to right,
-        var(--chat-poll-progress-fill-incoming) var(--str-chat__amount-bar-fulfillment),
-        var(--str-chat__surface-color) var(--str-chat__amount-bar-fulfillment)
-      );
+      border-radius: var(--size-4);
     }
   }
 }
