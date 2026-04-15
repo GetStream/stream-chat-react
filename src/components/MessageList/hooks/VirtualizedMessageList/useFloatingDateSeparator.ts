@@ -45,9 +45,19 @@ function getFloatingDateForFirstMessage(
   return null;
 }
 
+function getFloatingDateForFirstItem(
+  firstItem: RenderedMessage,
+  processedMessages: RenderedMessage[],
+  firstItemIndex: number,
+): Date | null {
+  if (isDateSeparatorMessage(firstItem)) return firstItem.date;
+
+  return getFloatingDateForFirstMessage(firstItem, processedMessages, firstItemIndex);
+}
+
 /**
- * Controls when to show the floating date separator (Slack-like: fixed at top when scrolling).
- * Show when no in-flow date separator is visible and we've scrolled past one.
+ * Controls the floating date separator as a sticky "current section" label.
+ * It follows the date separator represented by the first visible item.
  */
 const HIDDEN_STATE = { date: null, visible: false } as const;
 
@@ -74,25 +84,10 @@ export const useFloatingDateSeparator = ({
       }
 
       const first = valid[0];
-
-      // If first visible item is a date separator, it's in view — hide floating
-      if (isDateSeparatorMessage(first)) {
-        setState(HIDDEN_STATE);
-        return;
-      }
-
-      // Check if any date separator is visible — if so, hide floating
-      const hasVisibleDateSeparator = valid.some(isDateSeparatorMessage);
-      if (hasVisibleDateSeparator) {
-        setState(HIDDEN_STATE);
-        return;
-      }
-
-      // First visible is a message; find its date
       const firstIndex = processedMessages.findIndex((m) => m.id === first.id);
       const date =
         firstIndex >= 0
-          ? getFloatingDateForFirstMessage(first, processedMessages, firstIndex)
+          ? getFloatingDateForFirstItem(first, processedMessages, firstIndex)
           : null;
 
       const visible = date !== null;

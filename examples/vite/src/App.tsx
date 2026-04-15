@@ -2,35 +2,33 @@ import { type CSSProperties, useCallback, useEffect, useMemo, useRef } from 'rea
 import {
   ChannelFilters,
   ChannelOptions,
-  ChannelSort,
-  LocalMessage,
-  TextComposerMiddleware,
-  SearchController,
   ChannelSearchSource,
-  UserSearchSource,
+  ChannelSort,
   createActiveCommandGuardMiddleware,
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  LocalMessage,
+  SearchController,
+  TextComposerMiddleware,
+  UserSearchSource,
 } from 'stream-chat';
 import {
   Attachment,
   type AttachmentProps,
-  Button,
   Chat,
   ChatView,
-  DialogManagerProvider,
-  MessageReactions,
-  type NotificationListProps,
-  NotificationList,
-  Streami18n,
-  WithComponents,
   defaultReactionOptions,
-  type ReactionOptions,
+  DialogManagerProvider,
   mapEmojiMartData,
-  useCreateChatClient,
-  useTranslationContext,
+  MessageReactions,
+  NotificationList,
+  type NotificationListProps,
+  type ReactionOptions,
   Search,
+  Streami18n,
+  useCreateChatClient,
+  WithComponents,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
@@ -40,7 +38,7 @@ import { humanId } from 'human-id';
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
-import { SidebarProvider, useSidebar } from './ChatLayout/SidebarContext.tsx';
+import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
 import {
   ChatViewSelectorWidthSync,
   PanelLayoutStyleSync,
@@ -56,15 +54,15 @@ import { SystemNotification } from './SystemNotification/SystemNotification.tsx'
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import {
   CustomAttachmentActions,
-  CustomSystemMessage,
-  SegmentedReactionsList,
   customReactionOptions,
   customReactionOptionsUpvote,
+  CustomSystemMessage,
   getAttachmentActionsVariant,
   getMessageUiComponent,
   getMessageUiVariant,
   getReactionsVariant,
   getSystemMessageVariant,
+  SegmentedReactionsList,
 } from './CustomMessageUi';
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';

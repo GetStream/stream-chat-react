@@ -19,8 +19,8 @@ export type UseFloatingDateSeparatorMessageListResult = {
 };
 
 /**
- * For non-virtualized MessageList: uses scroll + DOM query to find which date
- * separator we've scrolled past. Shows floating date when none are visible.
+ * For non-virtualized MessageList: keeps the floating date synced with the
+ * separator currently pinned to the top boundary of the list viewport.
  */
 export const useFloatingDateSeparatorMessageList = ({
   disableDateSeparator,
@@ -46,32 +46,25 @@ export const useFloatingDateSeparatorMessageList = ({
 
     const containerRect = listElement.getBoundingClientRect();
     let bestDate: Date | null = null;
-    let bestBottom = -Infinity;
-    let anyVisible = false;
+    let bestTop = -Infinity;
 
     for (const el of separators) {
       const rect = el.getBoundingClientRect();
       const dataDate = el.getAttribute('data-date');
       if (!dataDate) continue;
 
-      const isAboveViewport = rect.bottom < containerRect.top;
-      const isVisible =
-        rect.top < containerRect.bottom && rect.bottom > containerRect.top;
+      const isAtOrAboveTopBoundary = rect.top <= containerRect.top;
 
-      if (isVisible) {
-        anyVisible = true;
-      }
-
-      if (isAboveViewport && rect.bottom > bestBottom) {
-        bestBottom = rect.bottom;
+      if (isAtOrAboveTopBoundary && rect.top > bestTop) {
+        bestTop = rect.top;
         const d = new Date(dataDate);
         if (!isNaN(d.getTime())) bestDate = d;
       }
     }
 
     setState({
-      date: anyVisible ? null : bestDate,
-      visible: !anyVisible && bestDate !== null,
+      date: bestDate,
+      visible: bestDate !== null,
     });
   }, [disableDateSeparator, listElement, processedMessages]);
 
