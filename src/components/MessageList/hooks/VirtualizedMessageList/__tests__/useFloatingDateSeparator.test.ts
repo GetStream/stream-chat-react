@@ -48,7 +48,7 @@ describe('useFloatingDateSeparator', () => {
     expect(result.current.floatingDate).toBeNull();
   });
 
-  it('hides floating when first visible item is a date separator', () => {
+  it('shows floating with the first visible date separator value', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
         disableDateSeparator: false,
@@ -60,8 +60,8 @@ describe('useFloatingDateSeparator', () => {
       result.current.onItemsRendered([makeDateSeparator(jan1), makeMessage('m1', jan1)]);
     });
 
-    expect(result.current.showFloatingDate).toBe(false);
-    expect(result.current.floatingDate).toBeNull();
+    expect(result.current.showFloatingDate).toBe(true);
+    expect(result.current.floatingDate).toEqual(jan1);
   });
 
   it('shows floating with correct date when first visible is a message', () => {
@@ -80,7 +80,7 @@ describe('useFloatingDateSeparator', () => {
     expect(result.current.floatingDate).toEqual(jan1);
   });
 
-  it('hides when any date separator is in visible set', () => {
+  it('keeps top group date when a later date separator is also visible', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
         disableDateSeparator: false,
@@ -96,6 +96,7 @@ describe('useFloatingDateSeparator', () => {
       ]);
     });
 
-    expect(result.current.showFloatingDate).toBe(false);
+    expect(result.current.showFloatingDate).toBe(true);
+    expect(result.current.floatingDate).toEqual(jan1);
   });
 });
