@@ -5,10 +5,10 @@
   --str-chat__tooltip-border-radius: var(--radius-md);
 
   /* The text/icon color of the component */
-  --str-chat__tooltip-color: var(--str-chat__text-color);
+  --str-chat__tooltip-color: var(--text-inverse);
 
   /* The background color of the component */
-  --str-chat__tooltip-background-color: var(--background-core-elevation-2);
+  --str-chat__tooltip-background-color: var(--background-core-inverse);
 
   /* Top border of the component */
   --str-chat__tooltip-border-block-start: none;
@@ -23,14 +23,15 @@
   --str-chat__tooltip-border-inline-end: none;
 
   /* Box shadow applied to the component */
-  --str-chat__tooltip-box-shadow: 0 0 20px var(--str-chat__box-shadow-color);
+  --str-chat__tooltip-box-shadow: var(--str-chat__box-shadow-3);
 }
 
 .str-chat__tooltip {
   @include utils.component-layer-overrides('tooltip');
   @include utils.prevent-glitch-text-overflow;
   display: flex;
-  padding: var(--space-8);
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs);
   z-index: 1;
   max-width: calc(var(--str-chat__spacing-px) * 150);
   width: max-content;

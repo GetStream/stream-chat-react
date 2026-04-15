@@ -34,7 +34,7 @@
       display: flex;
       position: relative;
 
-      &:focus-within .str-chat__chat-view__selector-button-tooltip,
+      &:focus-visible + .str-chat__chat-view__selector-button-tooltip,
       &:hover .str-chat__chat-view__selector-button-tooltip {
         opacity: 1;
         transform: translate3d(0, -50%, 0);

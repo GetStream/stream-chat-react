@@ -16,6 +16,7 @@ import {
   IconExclamationTriangleFill,
   IconPlusSmall,
   NumericInput,
+  PopperTooltip,
   Prompt,
   TextInput,
   useNotificationApi,
@@ -105,54 +106,85 @@ const NotificationChipList = ({
 }: {
   notifications: QueuedNotification[];
   removeQueuedNotification: (id: string) => void;
-}) => (
-  <div className='app__notification-dialog__chips' role='list'>
-    {notifications.map((notification) => {
-      const SeverityIcon = severityIcons[notification.severity];
-      const DirectionIcon = directionIcons[notification.entryDirection];
+}) => {
+  const [tooltipState, setTooltipState] = useState<{
+    referenceElement: HTMLDivElement;
+    text: string;
+  } | null>(null);
 
-      return (
-        <div
-          className='app__notification-dialog__chip'
-          key={notification.id}
-          role='listitem'
-          title={notification.message}
-        >
-          {SeverityIcon && (
-            <SeverityIcon className='app__notification-dialog__chip-icon' />
-          )}
-          <span className='app__notification-dialog__chip-text'>
-            {notification.message}
-          </span>
-          <span className='app__notification-dialog__chip-meta'>
-            <span className='app__notification-dialog__chip-meta-item'>
-              <IconClock className='app__notification-dialog__chip-meta-icon' />
-              {formatDurationLabel(notification.duration)}
-            </span>
-            <span className='app__notification-dialog__chip-meta-item'>
-              <DirectionIcon className='app__notification-dialog__chip-meta-icon' />
-              {notification.entryDirection}
-            </span>
-            <span className='app__notification-dialog__chip-panel'>
-              {notification.targetPanel}
-            </span>
-          </span>
-          <Button
-            appearance='ghost'
-            aria-label={`Remove ${notification.message}`}
-            circular
-            className='app__notification-dialog__chip-remove'
-            onClick={() => removeQueuedNotification(notification.id)}
-            size='xs'
-            variant='secondary'
+  return (
+    <div className='app__notification-dialog__chips' role='list'>
+      {notifications.map((notification) => {
+        const SeverityIcon = severityIcons[notification.severity];
+        const DirectionIcon = directionIcons[notification.entryDirection];
+
+        return (
+          <div
+            className='app__notification-dialog__chip'
+            key={notification.id}
+            onBlurCapture={(event) => {
+              if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                return;
+              }
+              setTooltipState(null);
+            }}
+            onFocusCapture={(event) =>
+              setTooltipState({
+                referenceElement: event.currentTarget,
+                text: notification.message,
+              })
+            }
+            onMouseEnter={(event) =>
+              setTooltipState({
+                referenceElement: event.currentTarget,
+                text: notification.message,
+              })
+            }
+            onMouseLeave={() => setTooltipState(null)}
+            role='listitem'
           >
-            <IconXmark />
-          </Button>
-        </div>
-      );
-    })}
-  </div>
-);
+            {SeverityIcon && (
+              <SeverityIcon className='app__notification-dialog__chip-icon' />
+            )}
+            <span className='app__notification-dialog__chip-text'>
+              {notification.message}
+            </span>
+            <span className='app__notification-dialog__chip-meta'>
+              <span className='app__notification-dialog__chip-meta-item'>
+                <IconClock className='app__notification-dialog__chip-meta-icon' />
+                {formatDurationLabel(notification.duration)}
+              </span>
+              <span className='app__notification-dialog__chip-meta-item'>
+                <DirectionIcon className='app__notification-dialog__chip-meta-icon' />
+                {notification.entryDirection}
+              </span>
+              <span className='app__notification-dialog__chip-panel'>
+                {notification.targetPanel}
+              </span>
+            </span>
+            <Button
+              appearance='ghost'
+              aria-label={`Remove ${notification.message}`}
+              circular
+              className='app__notification-dialog__chip-remove'
+              onClick={() => removeQueuedNotification(notification.id)}
+              size='xs'
+              variant='secondary'
+            >
+              <IconXmark />
+            </Button>
+          </div>
+        );
+      })}
+      <PopperTooltip
+        referenceElement={tooltipState?.referenceElement ?? null}
+        visible={!!tooltipState}
+      >
+        {tooltipState?.text ?? ''}
+      </PopperTooltip>
+    </div>
+  );
+};
 
 const NotificationDraftForm = ({
   draft,
