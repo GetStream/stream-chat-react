@@ -611,91 +611,7 @@
 
 .str-chat__theme-dark,
 .str-chat:not(.str-chat__theme-dark) *:not(.str-chat__theme-dark) .str-chat__theme-inverse {
-  /* Background (Figma dark semantics) */
-  --background-core-scrim: rgba(0, 0, 0, 0.75);
-  --background-core-overlay-light: rgba(0, 0, 0, 0.75);
-  --background-core-overlay-dark: rgba(0, 0, 0, 0.5);
-  --background-core-surface: var(--neutral-800);
-  --background-core-surface-subtle: var(--neutral-900);
-  --background-core-surface-strong: var(--neutral-700);
-  --background-core-inverse: var(--neutral-50);
-  --background-core-highlight: var(--yellow-800);
-  --background-core-surface-card: var(--neutral-800);
-  --background-core-elevation-0: var(--neutral-800);
-  --background-core-elevation-1: var(--neutral-900);
-  --background-core-elevation-2: var(--neutral-700);
-  --background-core-elevation-3: var(--neutral-600);
-  --background-core-elevation-4: var(--neutral-500);
-  --background-core-on-accent: var(--base-black);
-  --background-core-app: var(--background-core-elevation-0);
-  --background-utility-hover: rgba(255, 255, 255, 0.15);
-  --background-utility-pressed: var(--base-transparent-white-20);
-  --background-utility-selected: rgba(255, 255, 255, 0.25);
-  --background-utility-disabled: var(--neutral-700);
-  /* Border */
-  --border-utility-disabled: var(--neutral-700);
-  --border-utility-focused: var(--brand-150);
-  --border-utility-focus: rgba(120, 168, 255, 0.25);
-  --border-utility-active: var(--accent-primary);
-  --border-utility-hover: var(--base-transparent-white-10);
-  --border-utility-pressed: var(--base-transparent-white-20);
-  --border-utility-selected: rgba(255, 255, 255, 0.15);
-  --border-utility-error: var(--accent-error);
-  --border-utility-warning: var(--accent-warning);
-  --border-utility-success: var(--accent-success);
-  --border-core-default: var(--neutral-600);
-  --border-core-subtle: var(--neutral-800);
-  --border-core-strong: var(--neutral-400);
-  --border-core-on-surface: var(--neutral-500);
-  --border-core-inverse: var(--neutral-900);
-  --border-core-on-accent: var(--base-black);
-  --border-core-opacity-subtle: var(--base-transparent-white-20);
-  --border-core-opacity-strong: rgba(255, 255, 255, 0.25);
-  /* System */
-  --system-bg-blur: rgba(0, 0, 0, 0.01);
-  --system-scrollbar: rgba(255, 255, 255, 0.5);
-  --system-text: var(--base-white);
-  /* Text */
-  --text-primary: var(--base-white);
-  --text-secondary: var(--neutral-100);
-  --text-tertiary: var(--neutral-300);
-  --text-inverse: var(--neutral-900);
-  --text-on-accent: var(--base-white);
-  --text-disabled: var(--neutral-500);
-  --text-link: var(--brand-600);
-  /* Avatar */
-  --avatar-palette-bg-1: var(--blue-600);
-  --avatar-palette-bg-2: var(--cyan-600);
-  --avatar-palette-bg-3: var(--green-600);
-  --avatar-palette-bg-4: var(--purple-600);
-  --avatar-palette-bg-5: var(--yellow-600);
-  --avatar-palette-text-1: var(--blue-100);
-  --avatar-palette-text-2: var(--cyan-100);
-  --avatar-palette-text-3: var(--green-100);
-  --avatar-palette-text-4: var(--purple-100);
-  --avatar-palette-text-5: var(--yellow-100);
-  --avatar-bg-placeholder: var(--neutral-700);
-  --avatar-text-placeholder: var(--neutral-400);
-  /* Accent & brand */
-  --accent-success: var(--green-300);
-  --accent-warning: var(--yellow-300);
-  --accent-error: var(--red-400);
-  --accent-neutral: var(--neutral-500);
-  --accent-primary: var(--brand-400);
-  --brand-50: var(--blue-900);
-  --brand-100: var(--blue-800);
-  --brand-150: var(--blue-700);
-  --brand-200: var(--blue-600);
-  --brand-300: var(--blue-500);
-  --brand-500: var(--blue-300);
-  --brand-600: var(--blue-200);
-  --brand-700: var(--blue-150);
-  --brand-800: var(--blue-100);
-  --brand-900: var(--blue-50);
-  /* Skeleton */
-  --skeleton-loading-base: var(--base-transparent-0);
-  --skeleton-loading-highlight: var(--base-transparent-white-20);
-  /* Chrome (dark semantic scale) */
+  /* Chrome (dark semantic scale – must be defined first, referenced below) */
   --chrome-0: var(--base-black);
   --chrome-50: var(--neutral-900);
   --chrome-100: var(--neutral-800);
@@ -709,14 +625,101 @@
   --chrome-800: var(--neutral-100);
   --chrome-900: var(--neutral-50);
   --chrome-1000: var(--base-white);
-  /* Button (dark mode – aligned with Figma / design-system-tokens dark semantics) */
+  /* Accent & brand */
+  --accent-primary: var(--brand-400);
+  --accent-success: var(--green-300);
+  --accent-warning: var(--yellow-300);
+  --accent-error: var(--red-400);
+  --accent-neutral: var(--chrome-500);
+  --brand-50: var(--blue-900);
+  --brand-100: var(--blue-800);
+  --brand-150: var(--blue-700);
+  --brand-200: var(--blue-600);
+  --brand-300: var(--blue-500);
+  --brand-500: var(--blue-300);
+  --brand-600: var(--blue-200);
+  --brand-700: var(--blue-150);
+  --brand-800: var(--blue-100);
+  --brand-900: var(--blue-50);
+  /* Background (Figma dark semantics) */
+  --background-core-scrim: rgba(0, 0, 0, 0.75);
+  --background-core-overlay-light: rgba(0, 0, 0, 0.75);
+  --background-core-overlay-dark: rgba(0, 0, 0, 0.5);
+  --background-core-elevation-0: var(--chrome-0);
+  --background-core-elevation-1: var(--chrome-50);
+  --background-core-elevation-2: var(--chrome-100);
+  --background-core-elevation-3: var(--chrome-200);
+  --background-core-elevation-4: var(--chrome-300);
+  --background-core-app: var(--chrome-0);
+  --background-core-surface: var(--chrome-100);
+  --background-core-surface-subtle: var(--chrome-50);
+  --background-core-surface-strong: var(--chrome-150);
+  --background-core-surface-card: var(--chrome-100);
+  --background-core-inverse: var(--chrome-1000);
+  --background-core-on-accent: var(--chrome-1000);
+  --background-core-highlight: var(--yellow-800);
+  --background-utility-hover: rgba(255, 255, 255, 0.15);
+  --background-utility-pressed: var(--base-transparent-white-20);
+  --background-utility-selected: rgba(255, 255, 255, 0.25);
+  --background-utility-disabled: var(--chrome-100);
+  /* Text */
+  --text-primary: var(--chrome-900);
+  --text-secondary: var(--chrome-700);
+  --text-tertiary: var(--chrome-500);
+  --text-inverse: var(--chrome-0);
+  --text-on-accent: var(--chrome-1000);
+  --text-disabled: var(--chrome-300);
+  --text-link: var(--brand-600);
+  /* Border */
+  --border-core-default: var(--chrome-200);
+  --border-core-subtle: var(--chrome-100);
+  --border-core-strong: var(--chrome-300);
+  --border-core-on-surface: var(--chrome-300);
+  --border-core-inverse: var(--chrome-0);
+  --border-core-on-accent: var(--chrome-1000);
+  --border-core-opacity-subtle: var(--base-transparent-white-20);
+  --border-core-opacity-strong: rgba(255, 255, 255, 0.25);
+  --border-utility-disabled: var(--chrome-100);
+  --border-utility-focused: var(--brand-150);
+  --border-utility-focus: rgba(120, 168, 255, 0.25);
+  --border-utility-active: var(--accent-primary);
+  --border-utility-hover: var(--base-transparent-white-10);
+  --border-utility-pressed: var(--base-transparent-white-20);
+  --border-utility-selected: rgba(255, 255, 255, 0.15);
+  --border-utility-error: var(--accent-error);
+  --border-utility-warning: var(--accent-warning);
+  --border-utility-success: var(--accent-success);
+  /* System */
+  --system-bg-blur: rgba(0, 0, 0, 0.01);
+  --system-scrollbar: rgba(255, 255, 255, 0.5);
+  --system-text: var(--chrome-1000);
+  --system-caret: var(--accent-primary);
+  /* Avatar */
+  --avatar-palette-bg-1: var(--blue-600);
+  --avatar-palette-bg-2: var(--cyan-600);
+  --avatar-palette-bg-3: var(--green-600);
+  --avatar-palette-bg-4: var(--purple-600);
+  --avatar-palette-bg-5: var(--yellow-600);
+  --avatar-palette-text-1: var(--blue-100);
+  --avatar-palette-text-2: var(--cyan-100);
+  --avatar-palette-text-3: var(--green-100);
+  --avatar-palette-text-4: var(--purple-100);
+  --avatar-palette-text-5: var(--yellow-100);
+  --avatar-bg-default: var(--avatar-palette-bg-1);
+  --avatar-bg-placeholder: var(--chrome-150);
+  --avatar-text-default: var(--avatar-palette-text-1);
+  --avatar-text-placeholder: var(--chrome-500);
+  /* Skeleton */
+  --skeleton-loading-base: var(--base-transparent-0);
+  --skeleton-loading-highlight: var(--background-core-overlay-light);
+  /* Button (dark mode – aligned with Figma dark semantics) */
   --button-primary-bg: var(--accent-primary);
   --button-primary-bg-liquid-glass: var(--base-transparent-0);
-  --button-primary-text: var(--text-link);
+  --button-primary-text: var(--accent-primary);
   --button-primary-text-on-accent: var(--text-on-accent);
   --button-primary-text-inverse: var(--text-inverse);
   --button-primary-border: var(--brand-200);
-  --button-primary-border-inverse: var(--text-inverse);
+  --button-primary-border-inverse: var(--border-core-inverse);
   --button-secondary-bg: var(--background-core-surface);
   --button-secondary-bg-liquid-glass: var(--background-core-elevation-0);
   --button-secondary-text: var(--text-primary);
@@ -736,24 +739,30 @@
   --chat-bg-outgoing: var(--brand-100);
   --chat-bg-attachment-incoming: var(--background-core-surface-strong);
   --chat-bg-attachment-outgoing: var(--brand-150);
-  --chat-reply-indicator-incoming: var(--neutral-500);
-  --chat-reply-indicator-outgoing: var(--brand-700);
-  --chat-poll-progress-fill-outgoing: var(--base-white);
+  --chat-text-incoming: var(--text-primary);
+  --chat-text-outgoing: var(--brand-900);
   --chat-text-username: var(--text-secondary);
   --chat-text-timestamp: var(--text-tertiary);
+  --chat-text-typing-indicator: var(--chat-text-incoming);
   --chat-text-read: var(--accent-primary);
   --chat-text-mention: var(--text-link);
   --chat-text-link: var(--text-link);
   --chat-text-reaction: var(--text-secondary);
   --chat-text-system: var(--text-secondary);
   --chat-border-incoming: var(--border-core-subtle);
+  --chat-border-outgoing: var(--brand-100);
   --chat-border-on-chat-incoming: var(--border-core-strong);
+  --chat-border-on-chat-outgoing: var(--brand-300);
+  --chat-reply-indicator-incoming: var(--chrome-400);
+  --chat-reply-indicator-outgoing: var(--brand-400);
   --chat-waveform-bar: var(--border-core-opacity-strong);
   --chat-waveform-bar-playing: var(--accent-primary);
   --chat-thread-connector-incoming: var(--border-core-default);
-  --chat-text-typing-indicator: var(--chat-text-incoming);
+  --chat-thread-connector-outgoing: var(--brand-150);
   --chat-poll-progress-track-incoming: var(--control-progress-bar-track);
+  --chat-poll-progress-track-outgoing: var(--brand-200);
   --chat-poll-progress-fill-incoming: var(--control-progress-bar-fill);
+  --chat-poll-progress-fill-outgoing: var(--accent-primary);
   /* Input */
   --input-text-default: var(--text-primary);
   --input-text-placeholder: var(--text-tertiary);
@@ -767,50 +776,52 @@
   --reaction-text: var(--text-primary);
   --reaction-emoji: var(--text-primary);
   /* Presence */
-  --presence-border: var(--border-core-inverse);
+  --presence-bg-online: var(--accent-success);
   --presence-bg-offline: var(--accent-neutral);
-  /* System */
-  --system-caret: var(--accent-primary);
-  /* Badge (-on-dark in tokens = *-inverse in react) */
+  --presence-border: var(--border-core-inverse);
+  /* Badge */
   --badge-bg-overlay: rgba(0, 0, 0, 0.75);
   --badge-bg-default: var(--background-core-elevation-3);
   --badge-bg-primary: var(--accent-primary);
   --badge-bg-neutral: var(--accent-neutral);
+  --badge-bg-error: var(--accent-error);
+  --badge-bg-inverse: var(--chrome-1000);
   --badge-text: var(--text-primary);
   --badge-text-on-accent: var(--text-on-accent);
-  --badge-border: var(--border-core-inverse);
-  --badge-bg-inverse: var(--chrome-1000);
   --badge-text-inverse: var(--text-inverse);
+  --badge-border: var(--border-core-inverse);
   /* Control */
   --control-checkbox-bg: var(--base-transparent-0);
-  --control-playback-thumb-border-default: var(--border-core-opacity-strong);
+  --control-checkbox-border: var(--border-core-default);
+  --control-checkbox-bg-selected: var(--accent-primary);
+  --control-checkbox-icon: var(--text-on-accent);
   --control-radio-button-bg: var(--base-transparent-0);
+  --control-radio-button-border: var(--border-core-default);
+  --control-radio-button-bg-selected: var(--accent-primary);
+  --control-radio-button-indicator: var(--text-on-accent);
   --control-radio-check-bg: var(--base-transparent-0);
+  --control-radio-check-border: var(--border-core-default);
+  --control-radio-check-bg-selected: var(--accent-primary);
+  --control-radio-check-icon: var(--text-on-accent);
   --control-remove-control-bg: var(--background-core-inverse);
   --control-remove-control-icon: var(--text-inverse);
   --control-remove-control-border: var(--border-core-inverse);
   --control-progress-bar-track: var(--background-core-surface-strong);
   --control-progress-bar-fill: var(--accent-neutral);
   --control-toggle-switch-bg: var(--accent-neutral);
+  --control-toggle-switch-bg-selected: var(--accent-primary);
   --control-toggle-switch-bg-disabled: var(--background-utility-disabled);
-  --control-toggle-switch-knob: var(--background-core-elevation-4);
+  --control-toggle-switch-knob: var(--background-core-on-accent);
   --control-playback-toggle-text: var(--text-primary);
   --control-playback-toggle-border: var(--border-core-default);
-  --control-checkbox-border: var(--border-core-default);
-  --control-checkbox-bg-selected: var(--accent-primary);
-  --control-checkbox-icon: var(--text-on-accent);
-  --control-play-button-bg: var(--chrome-1000);
+  --control-play-button-bg: rgba(0, 0, 0, 0.75);
   --control-play-button-icon: var(--text-on-accent);
-  --control-playback-thumb-bg-default: var(--background-core-inverse);
-  --control-playback-thumb-border-active: var(--border-core-on-accent);
+  --control-playback-thumb-bg-default: var(--background-core-on-accent);
+  --control-playback-thumb-border-default: var(--border-core-opacity-strong);
   --control-playback-thumb-bg-active: var(--accent-primary);
-  --control-radio-button-border: var(--border-core-default);
-  --control-radio-button-bg-selected: var(--accent-primary);
-  --control-radio-button-indicator: var(--text-on-accent);
-  --control-radio-check-border: var(--border-core-default);
-  --control-radio-check-bg-selected: var(--accent-primary);
-  --control-radio-check-icon: var(--text-on-accent);
+  --control-playback-thumb-border-active: var(--border-core-on-accent);
   /* Avatar */
+  --avatar-presence-bg-online: var(--accent-success);
   --avatar-presence-bg-offline: var(--accent-neutral);
   --avatar-presence-border: var(--border-core-inverse);
 }
