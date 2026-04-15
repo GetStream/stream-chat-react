@@ -37,6 +37,7 @@ body {
     min-height: 0;
     height: 100%;
     width: 100%;
+    background: var(--str-chat__background-color);
   }
 
   /* Fills viewport minus in-flow `.str-chat__system-notification` when present */

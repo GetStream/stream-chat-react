@@ -20,6 +20,7 @@
   height: 100%;
   min-height: 0;
   position: relative;
+  background-color: var(--str-chat__background-color);
 
   .str-chat__chat-view__selector {
     display: flex;

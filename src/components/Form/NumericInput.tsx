@@ -124,11 +124,10 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             )}
             disabled={disabled || atMin}
             onClick={handleDecrement}
+            size='xs'
             variant='secondary'
           >
-            <span aria-hidden className='str-chat__form-numeric-input__stepper-icon'>
-              <IconMinus />
-            </span>
+            <IconMinus className='str-chat__form-numeric-input__stepper-icon' />
           </Button>
           <input
             className='str-chat__form-numeric-input__input'
@@ -151,7 +150,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             )}
             disabled={disabled || atMax}
             onClick={handleIncrement}
-            size='sm'
+            size='xs'
             variant='secondary'
           >
             <IconPlusSmall className='str-chat__form-numeric-input__stepper-icon' />
