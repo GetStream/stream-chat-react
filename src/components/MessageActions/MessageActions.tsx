@@ -82,7 +82,6 @@ export const MessageActions: MessageActionsInterface = ({
     threadList,
   });
   const dropdownReactionSelectorDialogId = `${reactionSelectorDialogId}-dropdown`;
-  const dropdownReactionSelectorExtendedDialogId = `${dropdownReactionSelectorDialogId}-extended`;
   const { dialog, dialogManager } = useDialogOnNearestManager({
     id: messageActionsDialogId,
   });
@@ -98,10 +97,6 @@ export const MessageActions: MessageActionsInterface = ({
     dropdownReactionSelectorDialogId,
     dialogManager?.id,
   );
-  const dropdownReactionSelectorExtendedDialogIsOpen = useDialogIsOpen(
-    dropdownReactionSelectorExtendedDialogId,
-    dialogManager?.id,
-  );
 
   // do not render anything if total action count is zero
   if (dropdownActionSet.length + quickActionSet.length === 0) {
@@ -114,8 +109,7 @@ export const MessageActions: MessageActionsInterface = ({
         'str-chat__message-options--active':
           messageActionsDialogIsOpen ||
           reactionSelectorDialogIsOpen ||
-          dropdownReactionSelectorDialogIsOpen ||
-          dropdownReactionSelectorExtendedDialogIsOpen,
+          dropdownReactionSelectorDialogIsOpen,
       })}
     >
       {quickDropdownToggleAction && dropdownActionSet.length > 0 && (
@@ -126,7 +120,6 @@ export const MessageActions: MessageActionsInterface = ({
             backLabel={t('Back')}
             className={clsx('str-chat__message-actions-box', {
               'str-chat__message-actions-box--hidden':
-                dropdownReactionSelectorExtendedDialogIsOpen ||
                 dropdownReactionSelectorDialogIsOpen,
               'str-chat__message-actions-box--open': messageActionsDialogIsOpen,
             })}

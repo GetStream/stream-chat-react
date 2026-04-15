@@ -45,7 +45,7 @@ export const ReactionSelectorWithButton = ({
         trapFocus
         updatePositionOnContentResize
       >
-        <ReactionSelector referenceElement={buttonRef.current} />
+        <ReactionSelector />
       </DialogAnchor>
       <QuickMessageActionsButton
         aria-expanded={dialogIsOpen}

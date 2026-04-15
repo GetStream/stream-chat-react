@@ -82,9 +82,6 @@ const DefaultMessageActionComponents = {
       const { dialog, dialogManager } = useDialogOnNearestManager({
         id: dialogId,
       });
-      const { dialog: extendedDialog } = useDialogOnNearestManager({
-        id: `${dialogId}-extended`,
-      });
       const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
       return (
@@ -98,7 +95,7 @@ const DefaultMessageActionComponents = {
             trapFocus
             updatePositionOnContentResize
           >
-            <ReactionSelector dialogId={dialogId} referenceElement={referenceElement} />
+            <ReactionSelector dialogId={dialogId} />
           </DialogAnchor>
           <ContextMenuButton
             aria-expanded={dialogIsOpen}
@@ -111,7 +108,6 @@ const DefaultMessageActionComponents = {
             Icon={IconEmoji}
             onClick={(event) => {
               if (dialogIsOpen) {
-                extendedDialog.close();
                 dialog.close();
                 return;
               }
@@ -661,10 +657,6 @@ const DefaultMessageActionComponents = {
       const { dialog: dropdownReactionSelectorDialog } = useDialogOnNearestManager({
         id: `${reactionSelectorDialogId}-dropdown`,
       });
-      const { dialog: dropdownReactionSelectorExtendedDialog } =
-        useDialogOnNearestManager({
-          id: `${reactionSelectorDialogId}-dropdown-extended`,
-        });
 
       return (
         <QuickMessageActionsButton
@@ -677,7 +669,6 @@ const DefaultMessageActionComponents = {
             // Close dropdown-anchored reaction selectors before toggling actions menu
             // to avoid stale selector re-anchoring.
             dropdownReactionSelectorDialog?.close();
-            dropdownReactionSelectorExtendedDialog?.close();
             dialog?.toggle();
           }}
           ref={ref}
