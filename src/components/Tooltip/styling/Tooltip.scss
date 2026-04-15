@@ -5,7 +5,7 @@
   --str-chat__tooltip-border-radius: var(--radius-md);
 
   /* The text/icon color of the component */
-  --str-chat__tooltip-color: var(--text-inverse);
+  --str-chat__tooltip-color: var(--text-on-accent);
 
   /* The background color of the component */
   --str-chat__tooltip-background-color: var(--background-core-inverse);
@@ -24,6 +24,11 @@
 
   /* Box shadow applied to the component */
   --str-chat__tooltip-box-shadow: var(--str-chat__box-shadow-3);
+
+  // FIXME: this should not be the case
+  &.str-chat__theme-dark {
+    --str-chat__tooltip-background-color: var(--background-core-elevation-2);
+  }
 }
 
 .str-chat__tooltip {
