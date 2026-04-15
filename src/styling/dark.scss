@@ -1,0 +1,610 @@
+@mixin variables {
+  /**
+ * Do not edit directly, this file was auto-generated.
+ */
+  --base-transparent-0: rgba(255, 255, 255, 0);
+  --base-transparent-white-10: rgba(255, 255, 255, 0.1);
+  --base-transparent-white-20: rgba(255, 255, 255, 0.2);
+  --base-transparent-white-30: rgba(255, 255, 255, 0.3);
+  --base-transparent-white-70: rgba(255, 255, 255, 0.7);
+  --base-transparent-black-5: rgba(0, 0, 0, 0.05); /** Used for bg in closeButton */
+  --base-transparent-black-10: rgba(0, 0, 0, 0.1); /** Used for bg in closeButton */
+  --base-transparent-black-70: rgba(0, 0, 0, 0.7); /** Used for bg in closeButton */
+  --base-black: #000000;
+  --base-white: #ffffff;
+  --slate-50: #f6f8fa;
+  --slate-100: #ebeef1;
+  --slate-150: #d5dbe1;
+  --slate-200: #c0c8d2;
+  --slate-300: #a3acba;
+  --slate-400: #87909f;
+  --slate-500: #687385;
+  --slate-600: #545969;
+  --slate-700: #414552;
+  --slate-800: #30313d;
+  --slate-900: #1a1b25;
+  --neutral-50: #f8f8f8;
+  --neutral-100: #efefef;
+  --neutral-150: #d8d8d8;
+  --neutral-200: #c4c4c4;
+  --neutral-300: #ababab;
+  --neutral-400: #8f8f8f;
+  --neutral-500: #6a6a6a;
+  --neutral-600: #565656;
+  --neutral-700: #464646;
+  --neutral-800: #323232;
+  --neutral-900: #1c1c1c;
+  --blue-50: #f3f7ff;
+  --blue-100: #e3edff;
+  --blue-150: #c3d9ff;
+  --blue-200: #a5c5ff;
+  --blue-300: #78a8ff;
+  --blue-400: #4586ff;
+  --blue-500: #005fff;
+  --blue-600: #1b53bd;
+  --blue-700: #19418d;
+  --blue-800: #142f63;
+  --blue-900: #091a3b;
+  --cyan-50: #f1fbfc;
+  --cyan-100: #d1f3f6;
+  --cyan-150: #a9e4ea;
+  --cyan-200: #72d7e0;
+  --cyan-300: #45bcc7;
+  --cyan-400: #1e9ea9;
+  --cyan-500: #248088;
+  --cyan-600: #006970;
+  --cyan-700: #065056;
+  --cyan-800: #003a3f;
+  --cyan-900: #002124;
+  --green-50: #e1ffee;
+  --green-100: #bdfcdb;
+  --green-150: #8febbd;
+  --green-200: #59dea3;
+  --green-300: #00c384;
+  --green-400: #00a46e;
+  --green-500: #277e59;
+  --green-600: #006643;
+  --green-700: #004f33;
+  --green-800: #003a25;
+  --green-900: #002213;
+  --purple-50: #f7f8ff;
+  --purple-100: #ecedff;
+  --purple-150: #d4d7ff;
+  --purple-200: #c1c5ff;
+  --purple-300: #a1a3ff;
+  --purple-400: #8482fc;
+  --purple-500: #644af9;
+  --purple-600: #553bd8;
+  --purple-700: #4032a1;
+  --purple-800: #2e2576;
+  --purple-900: #1a114d;
+  --yellow-50: #fef9da;
+  --yellow-100: #fcedb9;
+  --yellow-150: #fcd579;
+  --yellow-200: #f6bf57;
+  --yellow-300: #fa922b;
+  --yellow-400: #f26d10;
+  --yellow-500: #c84801;
+  --yellow-600: #a82c00;
+  --yellow-700: #842106;
+  --yellow-800: #5f1a05;
+  --yellow-900: #331302;
+  --red-50: #fff5fa;
+  --red-100: #ffe7f2;
+  --red-150: #ffccdf;
+  --red-200: #ffb1cd;
+  --red-300: #fe87a1;
+  --red-400: #fc526a;
+  --red-500: #d90d10;
+  --red-600: #b3093c;
+  --red-700: #890d37;
+  --red-800: #68052b;
+  --red-900: #3e021a;
+  --violet-50: #fef4ff;
+  --violet-100: #fbe8fe;
+  --violet-150: #f7cffc;
+  --violet-200: #eeb5f4;
+  --violet-300: #e68bec;
+  --violet-400: #d75fe7;
+  --violet-500: #b716ca;
+  --violet-600: #9d00ae;
+  --violet-700: #7c0089;
+  --violet-800: #5c0066;
+  --violet-900: #36003d;
+  --lime-50: #f1fde8;
+  --lime-100: #d4ffb0;
+  --lime-150: #b1ee79;
+  --lime-200: #9cda5d;
+  --lime-300: #78c100;
+  --lime-400: #639e11;
+  --lime-500: #4b7a0a;
+  --lime-600: #3e6213;
+  --lime-700: #355315;
+  --lime-800: #203a00;
+  --lime-900: #112100;
+  --size-2: 2px;
+  --size-4: 4px;
+  --size-6: 6px;
+  --size-8: 8px;
+  --size-12: 12px;
+  --size-16: 16px;
+  --size-20: 20px;
+  --size-24: 24px;
+  --size-32: 32px;
+  --size-40: 40px;
+  --size-48: 48px;
+  --size-64: 64px;
+  --size-28: 28px;
+  --size-80: 80px;
+  --size-128: 128px;
+  --size-240: 240px;
+  --size-320: 320px;
+  --size-480: 480px;
+  --size-560: 560px;
+  --size-640: 640px;
+  --size-760: 760px;
+  --size-144: 144px;
+  --size-208: 208px;
+  --size-56: 56px;
+  --radius-0: 0px;
+  --radius-2: 2px;
+  --radius-4: 4px;
+  --radius-6: 6px;
+  --radius-8: 8px;
+  --radius-12: 12px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-24: 24px;
+  --radius-32: 32px;
+  --radius-full: 9999px;
+  --space-0: 0px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --w100: 1px;
+  --w150: 1.5px;
+  --w200: 2px;
+  --w300: 3px;
+  --w400: 4px;
+  --w120: 1.2px;
+  --font-family-geist: 'Geist'; /** Primary sans-serif font for web typography. Use Geist as the main typeface. Recommended fallbacks: system-ui, -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, sans-serif. */
+  --font-family-geist-mono: 'Geist Mono'; /** Primary monospace font for web typography. Use Geist Mono for code, timestamps, and technical text. Recommended fallbacks: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace. */
+  --font-family-sf-pro: 'SF Pro'; /** Primary sans-serif font for iOS typography. Use SF Pro as the main typeface. Recommended fallbacks: -apple-system, BlinkMacSystemFont, “Segoe UI”, Roboto, sans-serif. */
+  --font-family-sf-mono: 'SF Mono'; /** Primary monospace font for iOS typography. Use SF Mono for code, timestamps, and technical text. Recommended fallbacks: SFMono-Regular, Menlo, Monaco, Consolas, monospace. */
+  --font-family-roboto: 'Roboto'; /** Primary sans-serif font for Android typography. Use Roboto as the main typeface, aligned with Material and system defaults. Recommended fallbacks: Roboto, “Noto Sans”, system-ui, sans-serif. */
+  --font-family-roboto-mono: 'Roboto Mono'; /** Primary monospace font for Android typography. Use Roboto Mono for code, timestamps, and technical text. Recommended fallbacks: Roboto Mono, “Noto Sans Mono”, monospace. */
+  --font-weight-w400: 400;
+  --font-weight-w500: 500;
+  --font-weight-w600: 600;
+  --font-weight-w700: 700;
+  --font-size-size-8: 8px;
+  --font-size-size-10: 10px;
+  --font-size-size-11: 11px;
+  --font-size-size-12: 12px;
+  --font-size-size-13: 13px;
+  --font-size-size-14: 14px;
+  --font-size-size-16: 16px;
+  --font-size-size-15: 15px;
+  --font-size-size-17: 17px;
+  --font-size-size-18: 18px;
+  --font-size-size-20: 20px;
+  --font-size-size-22: 22px;
+  --font-size-size-24: 24px;
+  --font-size-size-28: 28px;
+  --font-size-size-32: 32px;
+  --font-size-size-40: 40px;
+  --font-size-size-48: 48px;
+  --font-size-size-64: 64px;
+  --line-height-line-height-8: 8px;
+  --line-height-line-height-10: 10px;
+  --line-height-line-height-12: 12px;
+  --line-height-line-height-13: 13px;
+  --line-height-line-height-14: 14px;
+  --line-height-line-height-15: 15px;
+  --line-height-line-height-16: 16px;
+  --line-height-line-height-17: 17px;
+  --line-height-line-height-18: 18px;
+  --line-height-line-height-20: 20px;
+  --line-height-line-height-24: 24px;
+  --line-height-line-height-28: 28px;
+  --line-height-line-height-32: 32px;
+  --line-height-line-height-40: 40px;
+  --line-height-line-height-48: 48px;
+  --typography-font-family-sans: 'Geist';
+  --typography-font-family-mono: 'Geist Mono';
+  --typography-font-weight-regular: 400;
+  --typography-font-weight-medium: 500;
+  --typography-font-weight-semi-bold: 600;
+  --typography-font-weight-bold: 700;
+  --typography-font-size-xxs: 10px; /** Micro text such as timestamps or subtle metadata. */
+  --typography-font-size-xs: 12px; /** Compact secondary text, small UI labels. */
+  --typography-font-size-sm: 14px; /** Default mobile body size, small controls. */
+  --typography-font-size-md: 16px; /** Default desktop body size, main text. */
+  --typography-font-size-lg: 18px; /** Medium emphasis, section labels. */
+  --typography-font-size-xl: 20px; /** Small headings. */
+  --typography-font-size-2xl: 24px; /** Section titles, important headings. */
+  --typography-font-size-micro: 8px; /** Micro text such as timestamps or subtle metadata. */
+  --typography-line-height-tight: 16px; /** Compact text, headers, UI labels. */
+  --typography-line-height-normal: 20px; /** Default reading line-height for sizes 14–16px. */
+  --typography-line-height-relaxed: 24px; /** For larger text sizes or multiline descriptions. */
+  --light-elevation-1:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 1px 2px 0px rgba(0, 0, 0, 0.1),
+    0px 4px 8px 0px rgba(0, 0, 0, 0.06); /** Low elevation level for subtle separation. */
+  --light-elevation-2:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 2px 4px 0px rgba(0, 0, 0, 0.12),
+    0px 6px 16px 0px rgba(0, 0, 0, 0.06);
+  --light-elevation-3:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 4px 8px 0px rgba(0, 0, 0, 0.14),
+    0px 12px 24px 0px rgba(0, 0, 0, 0.1);
+  --light-elevation-4:
+    0px 0px 0px 1px rgba(0, 0, 0, 0.05), 0px 6px 12px 0px rgba(0, 0, 0, 0.16),
+    0px 20px 32px 0px rgba(0, 0, 0, 0.12);
+  --dark-elevation-1:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.2),
+    0px 4px 8px 0px rgba(0, 0, 0, 0.1);
+  --dark-elevation-2:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.15), 0px 2px 4px 0px rgba(0, 0, 0, 0.22),
+    0px 6px 16px 0px rgba(0, 0, 0, 0.12);
+  --dark-elevation-3:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.15), 0px 4px 8px 0px rgba(0, 0, 0, 0.24),
+    0px 12px 24px 0px rgba(0, 0, 0, 0.14);
+  --dark-elevation-4:
+    0px 0px 0px 1px rgba(255, 255, 255, 0.15), 0px 6px 12px 0px rgba(0, 0, 0, 0.28),
+    0px 20px 32px 0px rgba(0, 0, 0, 0.16);
+  --radius-none: 0px;
+  --radius-xxs: 2px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-max: 9999px;
+  --radius-3xl: 24px;
+  --radius-4xl: 32px;
+  --spacing-none: 0px; /** No spacing. Used for tight component joins. */
+  --spacing-xxs: 4px; /** Base unit. Minimal padding, tight gaps. */
+  --spacing-xs: 8px; /** Small padding and default vertical gaps. */
+  --spacing-sm: 12px; /** Common internal spacing in inputs and buttons. */
+  --spacing-md: 16px; /** Default large padding for sections and cards. */
+  --spacing-xl: 24px; /** Comfortable spacing for chat bubbles and list items. */
+  --spacing-2xl: 32px; /** Larger spacing for panels, modals, and gutters. */
+  --spacing-3xl: 40px; /** Used for wide layout spacing and breathing room. */
+  --spacing-lg: 20px; /** Medium spacing for grouping elements and section breaks. */
+  --spacing-xxxs: 2px;
+  --device-radius: 8px;
+  --device-safe-area-bottom: 0px;
+  --device-safe-area-top: 0px;
+  --message-bubble-radius-group-top: 20px;
+  --message-bubble-radius-group-middle: 20px;
+  --message-bubble-radius-group-bottom: 20px;
+  --message-bubble-radius-tail: 0px;
+  --message-bubble-radius-attachment: 12px;
+  --message-bubble-radius-attachment-inline: 8px;
+  --composer-radius-fixed: 24px;
+  --composer-radius-floating: 24px;
+  --button-radius-lg: 9999px;
+  --button-radius-md: 9999px;
+  --button-radius-sm: 9999px;
+  --button-radius-full: 9999px;
+  --button-visual-height-sm: 32px;
+  --button-visual-height-md: 40px;
+  --button-visual-height-lg: 48px;
+  --button-visual-height-xs: 24px;
+  /**
+   * Minimum interactive hit target size.
+   * 
+   * iOS / Android: enforce minimum touch target.
+   * Web: do not apply a min-width or min-height; size to content.
+   * 
+   * Note: Web uses a placeholder value in Figma due to variable mode constraints.
+   */
+  --button-hit-target-min-height: 48px;
+  /**
+   * Minimum interactive hit target size.
+   * 
+   * iOS / Android: enforce minimum touch target.
+   * Web: do not apply a min-width or min-height; size to content.
+   * 
+   * Note: Web uses a placeholder value in Figma due to variable mode constraints.
+   */
+  --button-hit-target-min-width: 48px;
+  --button-padding-y-lg: 14px;
+  --button-padding-y-md: 10px;
+  --button-padding-y-sm: 6px;
+  --button-padding-y-xs: 4px;
+  --button-padding-x-icon-only-lg: 14px;
+  --button-padding-x-icon-only-md: 10px;
+  --button-padding-x-icon-only-sm: 6px;
+  --button-padding-x-icon-only-xs: 4px;
+  --button-padding-x-with-label-lg: 16px;
+  --button-padding-x-with-label-md: 16px;
+  --button-padding-x-with-label-sm: 16px;
+  --button-padding-x-with-label-xs: 12px;
+  --button-primary-bg: #4586ff;
+  --button-primary-bg-liquid-glass: rgba(255, 255, 255, 0);
+  --button-primary-text: #4586ff;
+  --button-primary-text-on-accent: #ffffff;
+  --button-primary-text-on-dark: #000000;
+  --button-primary-border: #1b53bd;
+  --button-primary-border-on-dark: #000000;
+  --button-secondary-bg: #323232;
+  --button-secondary-bg-liquid-glass: #000000;
+  --button-secondary-text: #f8f8f8;
+  --button-secondary-text-on-accent: #f8f8f8;
+  --button-secondary-text-on-dark: #000000;
+  --button-secondary-border: #565656;
+  --button-secondary-border-on-dark: #000000;
+  --button-destructive-bg: #fc526a;
+  --button-destructive-bg-liquid-glass: #000000;
+  --button-destructive-text: #fc526a;
+  --button-destructive-text-on-accent: #ffffff;
+  --button-destructive-text-on-dark: #000000;
+  --button-destructive-border: #fc526a;
+  --button-destructive-border-on-dark: #000000;
+  --icon-size-xs: 12px;
+  --icon-size-sm: 16px;
+  --icon-size-md: 20px;
+  --icon-size-lg: 32px;
+  --icon-stroke-subtle: 1.2px;
+  --icon-stroke-default: 1.5px;
+  --icon-stroke-emphasis: 2px;
+  --emoji-sm: 16px;
+  --emoji-md: 24px;
+  --emoji-lg: 32px;
+  --emoji-xl: 48px;
+  --emoji-2xl: 64px;
+  --background-core-app: #000000; /** The outermost application background. Sits behind all surfaces and is generally not overridden directly. */
+  --background-core-elevation-0: #000000; /** The base layer. Always white, used as the reference point for the elevation scale. Steps above this gain depth in dark mode through progressively lighter backgrounds. */
+  --background-core-elevation-1: #1c1c1c; /** Slightly raised surfaces. Used for content containers that sit directly on the base layer, such as the message list and channel list. */
+  --background-core-elevation-2: #323232; /** Floating and modal surfaces. Used for popovers, dropdowns, dialogs, and any element that interrupts the content flow. */
+  --background-core-elevation-3: #565656; /** Used for badge counts that float above other UI elements. */
+  --background-core-surface-default: #323232; /** Background for sectioned content areas. Used for grouped containers, and distinct content regions. */
+  --background-core-surface-subtle: #1c1c1c; /** A slightly receded background. Used for secondary containers or to create soft visual separation. */
+  --background-core-surface-card: #323232; /** Background for contained, card-style elements. Matches the surface in light mode but lifts slightly in dark mode to maintain visual separation. */
+  --background-core-surface-strong: #464646; /** A more prominent background. Used for elements that need to stand out from the main surface. */
+  --background-core-inverse: #ffffff; /** The opposite of the primary surface. Used for tooltips, snackbars, and high-contrast floating elements. */
+  --background-core-on-accent: #ffffff; /** Background for elements placed on an accent-colored surface. Ensures legibility against brand colors. */
+  --background-core-highlight: #5f1a05; /** A tint for drawing attention to content. Used for highlights and pinned messages. */
+  --background-core-overlay-light: rgba(
+    0,
+    0,
+    0,
+    0.75
+  ); /** A light semi-transparent layer. Used to lighten surfaces and for hover states on dark backgrounds. */
+  --background-core-overlay-dark: rgba(
+    0,
+    0,
+    0,
+    0.5
+  ); /** A dark semi-transparent layer. Used for image overlays. */
+  --background-core-scrim: rgba(
+    0,
+    0,
+    0,
+    0.75
+  ); /** A heavy semi-transparent layer. Used behind sheets, drawers, and modals to separate them from content. */
+  --background-utility-hover: rgba(
+    255,
+    255,
+    255,
+    0.15
+  ); /** A semi-transparent overlay applied on pointer hover. Sits on top of any surface without replacing it. */
+  --background-utility-pressed: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /** A slightly stronger overlay applied during an active press or tap. Provides tactile feedback on interactive elements. */
+  --background-utility-selected: rgba(
+    255,
+    255,
+    255,
+    0.25
+  ); /** Indicates an active or selected state. Used for selected messages, active list items, and toggled controls. */
+  --background-utility-disabled: #323232; /** Background for non-interactive elements. Flattens the element visually to signal unavailability. */
+  --border-utility-error: #fc526a; /** Border for failure or invalid states. Used on failed inputs and destructive confirmations. */
+  --border-utility-warning: #fa922b; /** Border for cautionary states. Used on inputs or elements requiring attention. */
+  --border-utility-success: #00c384; /** Border for positive or confirmed states. Used on validated inputs and success indicators. */
+  --border-utility-selected: rgba(
+    255,
+    255,
+    255,
+    0.15
+  ); /** Border for selected or active items. Used for highlighted list items and active controls. */
+  --border-utility-disabled: #323232; /** Border for non-interactive elements. Matches the disabled surface to visually flatten the element. */
+  --border-utility-focused: #19418d; /** Focus ring for keyboard and accessibility navigation. Uses the brand color to signal input focus. */
+  --border-utility-active: #4586ff; /** Active input border. Used for focused text fields and selected form elements. */
+  --border-utility-hover: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /** Applied on pointer hover over bordered interactive elements. */
+  --border-utility-pressed: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /** Applied during an active press on bordered interactive elements. */
+  --border-utility-disabled-on-surface: #464646; /** Border for disabled elements on elevated surfaces. Stays visually distinct from the surface without drawing attention to a non-interactive element. */
+  --border-core-default: #565656; /** Standard border for surfaces and containers. Used for input fields, cards, and dividers on neutral backgrounds. */
+  --border-core-subtle: #323232; /** A lighter border for minimal separation. Used where a full-strength border would feel too heavy. */
+  --border-core-strong: #6a6a6a; /** An emphatic border for elements that need clear definition. Used for focused containers and prominent dividers. */
+  --border-core-inverse: #000000; /** Used on dark backgrounds. */
+  --border-core-on-accent: #ffffff; /** Border on accent-colored surfaces. Stays white in both modes since the accent background doesn't invert. */
+  --border-core-opacity-subtle: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /** A very light transparent border. Used as a frame treatment on images and media attachments. */
+  --border-core-opacity-strong: rgba(
+    255,
+    255,
+    255,
+    0.25
+  ); /** A stronger transparent border for elements on colored or dark backgrounds. Used for waveform bars and similar treatments. */
+  --border-core-on-inverse: #000000; /** Border on inverse-colored surfaces. Stays legible when the background flips between light and dark mode. */
+  --border-core-on-surface: #6a6a6a; /** Border for elements sitting on elevated surfaces. Uses a stronger value than default to maintain visible separation when the background is darker. */
+  --chat-bg-incoming: #323232; /** Incoming bubble background. */
+  --chat-bg-outgoing: #142f63; /** Outgoing bubble background. */
+  --chat-bg-attachment-incoming: #464646; /** Attachment card in incoming bubble. */
+  --chat-bg-attachment-outgoing: #19418d; /** Attachment card in outgoing bubble. */
+  --chat-text-incoming: #f8f8f8; /** Message body text. */
+  --chat-text-outgoing: #f3f7ff; /** Message body text. */
+  --chat-text-username: #d8d8d8; /** Username label. */
+  --chat-text-timestamp: #ababab; /** Time labels. */
+  --chat-text-typing-indicator: #f8f8f8; /** Typing indicator chip. */
+  --chat-text-read: #4586ff;
+  --chat-text-mention: #a5c5ff; /** Mention styling. */
+  --chat-text-link: #a5c5ff; /** Links inside message bubbles. */
+  --chat-text-reaction: #d8d8d8; /** Reaction count text. */
+  --chat-text-system: #d8d8d8; /** System messages like date separators. */
+  --chat-border-incoming: #323232;
+  --chat-border-outgoing: #142f63;
+  --chat-border-on-chat-incoming: #6a6a6a;
+  --chat-border-on-chat-outgoing: #005fff;
+  --chat-reply-indicator-incoming: #8f8f8f; /** Reply indicator shading for incoming. */
+  --chat-reply-indicator-outgoing: #4586ff; /** Reply indicator shading for outgoing. */
+  --chat-waveform-bar: rgba(255, 255, 255, 0.25);
+  --chat-waveform-bar-playing: #4586ff;
+  --chat-poll-progress-track-incoming: #464646;
+  --chat-poll-progress-track-outgoing: #1b53bd;
+  --chat-poll-progress-fill-incoming: #ababab;
+  --chat-poll-progress-fill-outgoing: #4586ff;
+  --chat-thread-connector-incoming: #565656;
+  --chat-thread-connector-outgoing: #19418d;
+  --input-text-default: #f8f8f8; /** Main text inside the chat input. */
+  --input-text-placeholder: #ababab; /** Placeholder text for the input. Lower emphasis than main text. */
+  --input-text-disabled: #6a6a6a; /** Placeholder text for the input. Lower emphasis than main text. */
+  --input-text-icon: #ababab; /** Icons inside the input area (attach, emoji, camera, send when idle). Matches secondary text strength. */
+  --input-send-icon: #4586ff; /** Default send icon color in the input. Uses the brand accent. */
+  --input-send-icon-disabled: #6a6a6a; /** Send icon when disabled (e.g. empty input). */
+  --reaction-bg: #565656;
+  --reaction-border: #565656;
+  --reaction-text: #f8f8f8;
+  --reaction-emoji: #f8f8f8;
+  --presence-bg-online: #00c384; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --presence-border: #000000; /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
+  --presence-bg-offline: #ababab; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --system-text: #ffffff;
+  --system-bg-blur: rgba(0, 0, 0, 0.01);
+  --system-scrollbar: rgba(255, 255, 255, 0.5);
+  --system-caret: #4586ff;
+  --badge-bg-default: #565656;
+  --badge-bg-primary: #4586ff;
+  --badge-bg-neutral: #ababab;
+  --badge-bg-error: #fc526a;
+  --badge-bg-inverse: #ffffff;
+  --badge-bg-overlay: rgba(0, 0, 0, 0.75);
+  --badge-text: #f8f8f8;
+  --badge-text-on-inverse: #000000;
+  --badge-text-on-accent: #ffffff;
+  --badge-border: #000000;
+  --control-remove-control-bg: #ffffff;
+  --control-remove-control-icon: #000000;
+  --control-remove-control-border: #000000;
+  --control-progress-bar-fill: #ababab;
+  --control-progress-bar-track: #464646;
+  --control-toggle-switch-bg: #ababab;
+  --control-toggle-switch-bg-selected: #4586ff;
+  --control-toggle-switch-bg-disabled: #323232;
+  --control-toggle-switch-knob: #ffffff;
+  --control-playback-toggle-text: #f8f8f8;
+  --control-playback-toggle-border: #565656;
+  --control-checkbox-bg: rgba(255, 255, 255, 0);
+  --control-checkbox-border: #565656;
+  --control-checkbox-bg-selected: #4586ff;
+  --control-checkbox-icon: #ffffff;
+  --control-play-button-bg: rgba(0, 0, 0, 0.75);
+  --control-play-button-icon: #ffffff;
+  --control-playback-thumb-bg-default: #ffffff;
+  --control-playback-thumb-border-active: #ffffff;
+  --control-playback-thumb-bg-active: #4586ff;
+  --control-playback-thumb-border-default: rgba(255, 255, 255, 0.25);
+  --control-radio-button-bg: rgba(255, 255, 255, 0);
+  --control-radio-button-border: #565656;
+  --control-radio-button-bg-selected: #4586ff;
+  --control-radio-button-indicator: #ffffff;
+  --control-radio-check-bg: rgba(255, 255, 255, 0);
+  --control-radio-check-border: #565656;
+  --control-radio-check-bg-selected: #4586ff;
+  --control-radio-check-icon: #ffffff;
+  --control-chip-border: #565656;
+  --control-chip-text: #f8f8f8;
+  --text-primary: #f8f8f8; /** Main body text. Used for message content, titles, and any text that carries primary meaning. */
+  --text-secondary: #d8d8d8; /** Supporting metadata text. Used for timestamps, subtitles, and secondary labels. */
+  --text-tertiary: #ababab; /** De-emphasized text. Used for hints, placeholders, and lowest-priority supporting information. */
+  --text-on-inverse: #000000; /** Text on inverse-colored surfaces. Flips between light and dark to maintain legibility when the background inverts. */
+  --text-on-accent: #ffffff; /** Text on accent-colored surfaces. Stays white in both light and dark mode since the accent background doesn't invert. */
+  --text-disabled: #6a6a6a; /** Text for non-interactive or unavailable states. Communicates that an element can't be interacted with. */
+  --text-link: #a5c5ff; /** Hyperlinks and inline actions. Uses the brand color to signal interactivity within text content. */
+  --avatar-palette-bg-1: #1b53bd;
+  --avatar-palette-bg-2: #006970;
+  --avatar-palette-bg-3: #006643;
+  --avatar-palette-bg-4: #553bd8;
+  --avatar-palette-bg-5: #a82c00;
+  --avatar-palette-text-1: #e3edff;
+  --avatar-palette-text-2: #d1f3f6;
+  --avatar-palette-text-3: #bdfcdb;
+  --avatar-palette-text-4: #ecedff;
+  --avatar-palette-text-5: #fcedb9;
+  --avatar-bg-default: #1b53bd;
+  --avatar-bg-placeholder: #464646;
+  --avatar-text-default: #e3edff;
+  --avatar-text-placeholder: #ababab;
+  --avatar-presence-bg-online: #00c384; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --avatar-presence-bg-offline: #ababab; /** The green online indicator. Uses success accent in normal themes. In high-contrast, color is dropped and replaced with strong black for maximum clarity. */
+  --avatar-presence-border: #000000; /** The thin outline around the presence dot. Matches the local surface behind the avatar. In high-contrast it uses the base surface. */
+  --accent-primary: #4586ff; /** The main brand color. Used for interactive elements, buttons, links, and primary actions. Override this to apply your brand color across the SDK. */
+  --accent-success: #00c384; /** Indicates a positive or completed state. Used for confirmations, sent indicators, and success feedback. */
+  --accent-warning: #fa922b; /** Indicates a cautionary state that requires attention. Used for moderation flags and non-critical alerts. */
+  --accent-error: #fc526a; /** Indicates a failure or destructive state. Used for failed messages, validation errors, and deletions. */
+  --accent-neutral: #ababab; /** A mid-tone gray for de-emphasized UI elements. */
+  --brand-50: #091a3b;
+  --brand-100: #142f63;
+  --brand-150: #19418d;
+  --brand-200: #1b53bd;
+  --brand-300: #005fff;
+  --brand-400: #4586ff;
+  --brand-500: #78a8ff;
+  --brand-600: #a5c5ff;
+  --brand-700: #c3d9ff;
+  --brand-800: #e3edff;
+  --brand-900: #f3f7ff;
+  --skeleton-loading-base: rgba(
+    255,
+    255,
+    255,
+    0
+  ); /** Base color for the default skeleton loading gradient. Used as the background tone for placeholder surfaces. */
+  --skeleton-loading-highlight: rgba(
+    0,
+    0,
+    0,
+    0.75
+  ); /** Highlight color for the default skeleton loading gradient. Used for the moving shimmer to indicate loading activity. */
+  --chrome-0: #000000;
+  --chrome-50: #1c1c1c;
+  --chrome-100: #323232;
+  --chrome-150: #464646;
+  --chrome-200: #565656;
+  --chrome-300: #6a6a6a;
+  --chrome-400: #8f8f8f;
+  --chrome-500: #ababab;
+  --chrome-600: #c4c4c4;
+  --chrome-700: #d8d8d8;
+  --chrome-800: #efefef;
+  --chrome-900: #f8f8f8;
+  --chrome-1000: #ffffff;
+}
