@@ -20,6 +20,7 @@ import {
   countEmojis,
   isMessageBlocked,
   isMessageBounced,
+  isMessageDeleted,
   isMessageEdited,
   isMessageErrorRetryable,
   messageHasAttachments,
@@ -95,8 +96,7 @@ const MessageUIWithContext = ({
     () => isMessageAIGenerated?.(message),
     [isMessageAIGenerated, message],
   );
-  const isDeleted =
-    !!message.deleted_at || message.type === 'deleted' || message.deleted_for_me;
+  const isDeleted = isMessageDeleted(message);
 
   const finalAttachments = useMemo(
     () =>

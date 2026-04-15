@@ -102,7 +102,7 @@ export const getMessageActions = (
   if (actions && typeof actions === 'boolean') {
     // If value of actions is true, then populate all the possible values
     messageActions = Object.keys(MESSAGE_ACTIONS);
-  } else if (actions && actions.length > 0) {
+  } else if (actions && Array.isArray(actions) && actions.length > 0) {
     messageActions = [...actions];
   } else {
     return [];
@@ -404,6 +404,9 @@ export const isMessageBlocked = (
   message.type === 'error' &&
   (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
     message.moderation?.action === 'remove');
+
+export const isMessageDeleted = (message: LocalMessage): boolean =>
+  Boolean(message.deleted_at || message.type === 'deleted' || message.deleted_for_me);
 
 export const isMessageEdited = (message: Pick<LocalMessage, 'message_text_updated_at'>) =>
   !!message.message_text_updated_at;

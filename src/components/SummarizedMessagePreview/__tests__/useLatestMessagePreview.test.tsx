@@ -155,20 +155,27 @@ describe('useLatestMessagePreview', () => {
   });
 
   describe('deleted message', () => {
-    it('returns deleted type with delivery status and sender name', () => {
-      const message = generateMessage({
-        deleted_at: new Date().toISOString(),
-        user: ownUser,
-      });
-      const { result } = renderPreviewHook({
-        latestMessage: message,
-        messageDeliveryStatus: MessageDeliveryStatus.DELIVERED,
-      });
-      expect(result.current.type).toBe('deleted');
-      expect(result.current.text).toBe('Message deleted');
-      expect(result.current.deliveryStatus).toBe('delivered');
-      expect(result.current.senderName).toBe('You');
-    });
+    it.each([
+      ['deleted_at timestamp', { deleted_at: new Date().toISOString() }],
+      ['deleted type', { type: 'deleted' as const }],
+      ['deleted for current user', { deleted_for_me: true }],
+    ])(
+      'returns deleted type with delivery status and sender name for %s',
+      (_label, messageOverrides) => {
+        const message = generateMessage({
+          ...messageOverrides,
+          user: ownUser,
+        });
+        const { result } = renderPreviewHook({
+          latestMessage: message,
+          messageDeliveryStatus: MessageDeliveryStatus.DELIVERED,
+        });
+        expect(result.current.type).toBe('deleted');
+        expect(result.current.text).toBe('Message deleted');
+        expect(result.current.deliveryStatus).toBe('delivered');
+        expect(result.current.senderName).toBe('You');
+      },
+    );
   });
 
   describe('poll message', () => {

@@ -15,6 +15,7 @@ import {
   useChatContext,
   useTranslationContext,
 } from '../../../context';
+import { isMessageDeleted } from '../../Message/utils';
 
 import type { MessageDeliveryStatus } from '../../ChannelListItem';
 
@@ -161,7 +162,7 @@ export const useLatestMessagePreview = ({
       senderName = latestMessage.user?.name || latestMessage.user?.id;
     }
 
-    if (latestMessage.deleted_at) {
+    if (isMessageDeleted(latestMessage)) {
       return {
         deliveryStatus,
         senderName,
