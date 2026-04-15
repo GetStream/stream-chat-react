@@ -157,7 +157,7 @@ describe('ReactionSelector', () => {
 
     expect(getByTestId('reaction-selector-extended-list')).toBeInTheDocument();
 
-    // Quick list should be hidden when extended list is open
+    // Quick list should be unmounted when extended list is open
     expect(queryByTestId('reaction-selector-list')).not.toBeInTheDocument();
   });
 

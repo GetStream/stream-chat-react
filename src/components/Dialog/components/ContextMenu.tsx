@@ -413,6 +413,7 @@ export type ContextMenuItemProps = ComponentProps<'button'>;
 export type ContextMenuItemComponent = ComponentType<ContextMenuItemProps>;
 
 type ContextMenuContextValue = {
+  anchorReferenceElement?: HTMLElement | null;
   closeMenu: () => void;
   openSubmenu: (params: ContextMenuOpenSubmenuParams) => void;
   returnToParentMenu: () => void;
@@ -464,6 +465,7 @@ type ContextMenuAnchorProps = Partial<
 export type ContextMenuProps = ContextMenuBaseProps & ContextMenuAnchorProps;
 
 export type ContextMenuContentProps = ContextMenuBaseProps & {
+  anchorReferenceElement?: HTMLElement | null;
   transitionDirection?: 'forward' | 'backward';
 };
 
@@ -475,6 +477,7 @@ export type ContextMenuContentProps = ContextMenuBaseProps & {
  * handling from `ContextMenu`.
  */
 export function ContextMenuContent({
+  anchorReferenceElement,
   backLabel = 'Back',
   children,
   className,
@@ -547,7 +550,9 @@ export function ContextMenuContent({
   }, [transitionDirection, menuStack.length]);
 
   return (
-    <ContextMenuContext.Provider value={{ closeMenu, openSubmenu, returnToParentMenu }}>
+    <ContextMenuContext.Provider
+      value={{ anchorReferenceElement, closeMenu, openSubmenu, returnToParentMenu }}
+    >
       <ContextMenuRoot
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}
@@ -705,6 +710,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
 
   const content = (
     <ContextMenuContentComponent
+      anchorReferenceElement={isAnchored ? referenceElement : undefined}
       {...menuProps}
       key={`context-menu-content-${contentResetToken}`}
       onMenuLevelChange={handleMenuLevelChange}

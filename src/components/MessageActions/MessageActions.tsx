@@ -81,6 +81,8 @@ export const MessageActions: MessageActionsInterface = ({
     messageId: message.id,
     threadList,
   });
+  const dropdownReactionSelectorDialogId = `${reactionSelectorDialogId}-dropdown`;
+  const dropdownReactionSelectorExtendedDialogId = `${dropdownReactionSelectorDialogId}-extended`;
   const { dialog, dialogManager } = useDialogOnNearestManager({
     id: messageActionsDialogId,
   });
@@ -90,6 +92,14 @@ export const MessageActions: MessageActionsInterface = ({
   );
   const reactionSelectorDialogIsOpen = useDialogIsOpen(
     reactionSelectorDialogId,
+    dialogManager?.id,
+  );
+  const dropdownReactionSelectorDialogIsOpen = useDialogIsOpen(
+    dropdownReactionSelectorDialogId,
+    dialogManager?.id,
+  );
+  const dropdownReactionSelectorExtendedDialogIsOpen = useDialogIsOpen(
+    dropdownReactionSelectorExtendedDialogId,
     dialogManager?.id,
   );
 
@@ -102,7 +112,10 @@ export const MessageActions: MessageActionsInterface = ({
     <div
       className={clsx('str-chat__message-options', {
         'str-chat__message-options--active':
-          messageActionsDialogIsOpen || reactionSelectorDialogIsOpen,
+          messageActionsDialogIsOpen ||
+          reactionSelectorDialogIsOpen ||
+          dropdownReactionSelectorDialogIsOpen ||
+          dropdownReactionSelectorExtendedDialogIsOpen,
       })}
     >
       {quickDropdownToggleAction && dropdownActionSet.length > 0 && (
@@ -112,6 +125,9 @@ export const MessageActions: MessageActionsInterface = ({
           <ContextMenuComponent
             backLabel={t('Back')}
             className={clsx('str-chat__message-actions-box', {
+              'str-chat__message-actions-box--hidden':
+                dropdownReactionSelectorExtendedDialogIsOpen ||
+                dropdownReactionSelectorDialogIsOpen,
               'str-chat__message-actions-box--open': messageActionsDialogIsOpen,
             })}
             dialogManagerId={dialogManager?.id}

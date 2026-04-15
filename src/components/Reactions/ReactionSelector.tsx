@@ -1,7 +1,7 @@
-import React, { type ReactNode, useMemo, useState } from 'react';
+import React, { type ReactNode, useEffect, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
-import { useDialogOnNearestManager } from '../Dialog';
+import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import { defaultReactionOptions } from './reactionOptions';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
@@ -11,6 +11,10 @@ import { IconPlus } from '../Icons';
 import type { ReactionResponse } from 'stream-chat';
 
 export type ReactionSelectorProps = {
+  /** Override dialog id used by the selector popover. */
+  dialogId?: string;
+  /** Optional anchor for selector dialogs; when provided, extended selector uses this anchor as well. */
+  referenceElement?: HTMLElement | null;
   /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
   handleReaction?: (
     reactionType: string,
@@ -30,8 +34,14 @@ interface ReactionSelectorInterface {
 const stableOwnReactions: ReactionResponse[] = [];
 
 export const ReactionSelector: ReactionSelectorInterface = (props) => {
-  const { handleReaction: propHandleReaction, own_reactions: propOwnReactions } = props;
-  const [extendedListOpen, setExtendedListOpen] = useState(false);
+  const {
+    dialogId: propDialogId,
+    handleReaction: propHandleReaction,
+    own_reactions: propOwnReactions,
+    referenceElement: propReferenceElement,
+  } = props;
+  const [extendedReferenceElement, setExtendedReferenceElement] =
+    useState<HTMLElement | null>(null);
 
   const {
     reactionOptions = defaultReactionOptions,
@@ -41,14 +51,34 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   const {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
+    isMyMessage,
     message,
     threadList,
   } = useMessageContext('ReactionSelector');
-  const dialogId = ReactionSelector.getDialogId({
-    messageId: message.id,
-    threadList,
-  });
+  const dialogId =
+    propDialogId ??
+    ReactionSelector.getDialogId({
+      messageId: message.id,
+      threadList,
+    });
   const { dialog } = useDialogOnNearestManager({ id: dialogId });
+  const extendedDialogId = `${dialogId}-extended`;
+  const { dialog: extendedDialog, dialogManager: extendedDialogManager } =
+    useDialogOnNearestManager({ id: extendedDialogId });
+  const extendedDialogIsOpen = useDialogIsOpen(
+    extendedDialogId,
+    extendedDialogManager?.id,
+  );
+
+  useEffect(() => {
+    if (extendedDialogIsOpen) return;
+    setExtendedReferenceElement(null);
+  }, [extendedDialogIsOpen]);
+
+  useEffect(() => {
+    if (!extendedReferenceElement || extendedDialogIsOpen) return;
+    extendedDialog.open();
+  }, [extendedDialog, extendedDialogIsOpen, extendedReferenceElement]);
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
   const ownReactions = propOwnReactions ?? message?.own_reactions ?? stableOwnReactions;
@@ -77,9 +107,32 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   }, [reactionOptions]);
 
   return (
-    <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
-      {!extendedListOpen && (
-        <>
+    <>
+      <DialogAnchor
+        dialogManagerId={extendedDialogManager?.id}
+        id={extendedDialogId}
+        offset={8}
+        placement={
+          typeof isMyMessage === 'function' && isMyMessage() ? 'top-end' : 'top-start'
+        }
+        referenceElement={propReferenceElement ?? extendedReferenceElement}
+        trapFocus
+      >
+        <div className='str-chat__reaction-selector'>
+          <ReactionSelectorExtendedList
+            {...props}
+            dialogId={extendedDialogId}
+            handleReaction={async (reactionType, event) => {
+              await handleReaction(reactionType, event);
+              if (closeReactionSelectorOnClick) {
+                dialog.close();
+              }
+            }}
+          />
+        </div>
+      </DialogAnchor>
+      {!extendedDialogIsOpen && (
+        <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
           <ul
             className='str-chat__reaction-selector-list'
             data-testid='reaction-selector-list'
@@ -113,18 +166,21 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
             circular
             className='str-chat__reaction-selector__add-button'
             data-testid='reaction-selector-add-button'
-            onClick={() => setExtendedListOpen(true)}
+            onClick={(event) => {
+              if (propReferenceElement) {
+                extendedDialog.open();
+                return;
+              }
+              setExtendedReferenceElement(event.currentTarget);
+            }}
             size='sm'
             variant='secondary'
           >
             <IconPlus />
           </Button>
-        </>
+        </div>
       )}
-      {extendedListOpen && (
-        <ReactionSelectorExtendedList {...props} dialogId={dialogId} />
-      )}
-    </div>
+    </>
   );
 };
 
