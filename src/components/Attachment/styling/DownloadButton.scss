@@ -1,0 +1,14 @@
+.str-chat__button.str-chat__button--secondary.str-chat__button--outline.str-chat__audio-attachment-download-button {
+  border-color: var(--chat-border-on-chat-incoming);
+  flex-shrink: 0;
+
+  .str-chat__attachment-download-button__icon {
+    height: 20px;
+    width: 20px;
+  }
+}
+
+.str-chat__message--me
+  .str-chat__button.str-chat__button--outline.str-chat__audio-attachment-download-button {
+  border-color: var(--chat-border-on-chat-outgoing);
+}

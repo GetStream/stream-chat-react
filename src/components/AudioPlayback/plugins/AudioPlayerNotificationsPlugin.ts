@@ -4,6 +4,8 @@ import type { TFunction } from 'i18next';
 import type { AddNotification } from '../../Notifications/hooks/useNotificationApi';
 import type { NotificationTargetPanel } from '../../Notifications/notificationTarget';
 
+const SEEK_NOT_SUPPORTED_NOTIFICATION_DEBOUNCE_INTERVAL_MS = 1000;
+
 export const audioPlayerNotificationsPluginFactory = ({
   addNotification,
   panel = 'channel',
@@ -20,10 +22,25 @@ export const audioPlayerNotificationsPluginFactory = ({
     ),
     'seek-not-supported': new Error(t('Cannot seek in the recording')),
   };
+  let lastSeekNotSupportedNotificationAt: number | undefined;
 
   return {
     id: 'AudioPlayerNotificationsPlugin',
     onError: ({ errCode, error: e }) => {
+      if (errCode === 'seek-not-supported') {
+        const now = Date.now();
+
+        if (
+          typeof lastSeekNotSupportedNotificationAt === 'number' &&
+          now - lastSeekNotSupportedNotificationAt <
+            SEEK_NOT_SUPPORTED_NOTIFICATION_DEBOUNCE_INTERVAL_MS
+        ) {
+          return;
+        }
+
+        lastSeekNotSupportedNotificationAt = now;
+      }
+
       const error =
         (errCode && errors[errCode]) ??
         e ??

@@ -11,6 +11,13 @@ import {
 } from '../../Message/utils';
 
 import type { MessageActionSetItem } from '../MessageActions';
+import {
+  isAudioAttachment,
+  isFileAttachment,
+  isImageAttachment,
+  isVideoAttachment,
+  isVoiceRecordingAttachment,
+} from 'stream-chat';
 
 /**
  * Base filter hook which covers actions of type `delete`, `edit`,
@@ -80,6 +87,15 @@ export const useBaseMessageActionSetFilter = (
         type === 'resendMessage' ||
         (type === 'blockUser' && !canBlockUser) ||
         (type === 'copyMessageText' && !message.text) ||
+        (type === 'download' &&
+          !message.attachments?.some(
+            (attachment) =>
+              isFileAttachment(attachment) ||
+              isImageAttachment(attachment) ||
+              isVideoAttachment(attachment) ||
+              isAudioAttachment(attachment) ||
+              isVoiceRecordingAttachment(attachment),
+          )) ||
         (type === 'delete' && (!canDelete || messageIsDeleted)) ||
         (type === 'edit' && !canEdit) ||
         (type === 'flag' && !canFlag) ||
@@ -113,6 +129,7 @@ export const useBaseMessageActionSetFilter = (
     messageIsDeleted,
     isMessageThreadReply,
     message.error,
+    message.attachments,
     message.status,
     message.text,
     message.type,

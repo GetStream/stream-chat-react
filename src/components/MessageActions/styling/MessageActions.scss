@@ -3,6 +3,10 @@
 .str-chat__message-actions-box {
   min-width: 180px;
 
+  .str-chat__message-actions-box__submenu--download-attachments {
+    max-width: 256px;
+  }
+
   &.str-chat__message-actions-box--hidden {
     visibility: hidden;
     pointer-events: none;

@@ -17,6 +17,9 @@ import {
 
 import {
   generateChannel,
+  generateFileAttachment,
+  generateImageAttachment,
+  generateLocalFileUploadAttachmentData,
   generateMessage,
   generateReminderResponse,
   generateUser,
@@ -1342,6 +1345,232 @@ describe('<MessageActions />', () => {
   });
 
   describe('Default message actions edge coverage', () => {
+    it('should download single local upload attachment from the Download action', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLAnchorElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockRejectedValue(new Error('fetch blocked in test'));
+      try {
+        const attachment = generateLocalFileUploadAttachmentData(
+          { id: 'local-file-1' },
+          {
+            asset_url: 'https://example.com/q1-2026-report.pdf',
+            title: 'Q1-2026-report.pdf',
+          },
+        );
+        const message = generateMessage({ attachments: [attachment], user: alice });
+
+        await renderMessageActions({
+          customMessageContext: { message },
+        });
+        await toggleOpenMessageActions();
+
+        await act(async () => {
+          await fireEvent.click(screen.getByText('Download Attachment'));
+        });
+
+        await waitFor(() => {
+          expect(clickSpy).toHaveBeenCalledTimes(1);
+        });
+      } finally {
+        fetchSpy.mockRestore();
+        clickSpy.mockRestore();
+      }
+    });
+
+    it('should open a download submenu when message has multiple local upload attachments', async () => {
+      const firstAttachment = generateLocalFileUploadAttachmentData(
+        {
+          file: { name: 'bloom-and-harbor-cafe-menu-summer-2026.pdf' },
+          id: 'local-file-1',
+        },
+        {
+          asset_url: 'https://example.com/bloom-and-harbor-cafe-menu-summer-2026.pdf',
+          title: 'bloom-and-harbor-cafe-menu-summer-2026.pdf',
+        },
+      );
+      const secondAttachment = generateLocalFileUploadAttachmentData(
+        { file: { name: 'Q1-2026-report.pdf' }, id: 'local-file-2' },
+        {
+          asset_url: 'https://example.com/q1-2026-report.pdf',
+          title: 'Q1-2026-report.pdf',
+        },
+      );
+      const message = generateMessage({
+        attachments: [firstAttachment, secondAttachment],
+        user: alice,
+      });
+
+      await renderMessageActions({
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Download Attachment'));
+      });
+
+      expect(screen.getByText('Download All')).toBeInTheDocument();
+      expect(
+        screen.getByText('Download bloom-and-harbor-cafe-menu-summer-2026.pdf'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('Download Q1-2026-report.pdf')).toBeInTheDocument();
+    });
+
+    it('should return to parent menu from download submenu header', async () => {
+      const firstAttachment = generateLocalFileUploadAttachmentData(
+        { file: { name: 'a.pdf' }, id: 'local-file-1' },
+        { asset_url: 'https://example.com/a.pdf', title: 'a.pdf' },
+      );
+      const secondAttachment = generateLocalFileUploadAttachmentData(
+        { file: { name: 'b.pdf' }, id: 'local-file-2' },
+        { asset_url: 'https://example.com/b.pdf', title: 'b.pdf' },
+      );
+      const message = generateMessage({
+        attachments: [firstAttachment, secondAttachment],
+        user: alice,
+      });
+
+      await renderMessageActions({
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Download Attachment'));
+      });
+      expect(screen.getByText('Download All')).toBeInTheDocument();
+
+      await act(async () => {
+        await fireEvent.click(
+          document.querySelector(
+            '.str-chat__context-menu__back-button',
+          ) as HTMLButtonElement,
+        );
+      });
+
+      expect(screen.queryByText('Download All')).not.toBeInTheDocument();
+      expect(screen.getByText('Pin')).toBeInTheDocument();
+    });
+
+    it('should open download submenu when there are multiple downloadable non-local attachments', async () => {
+      const firstAttachment = generateFileAttachment({
+        asset_url: 'https://example.com/attachments/first.pdf',
+        title: 'first.pdf',
+      });
+      const secondAttachment = generateImageAttachment({
+        image_url: 'https://example.com/attachments/second.png',
+        title: 'second.png',
+      });
+      const message = generateMessage({
+        attachments: [firstAttachment, secondAttachment],
+        user: alice,
+      });
+
+      await renderMessageActions({
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Download Attachment'));
+      });
+
+      expect(screen.getByText('Download All')).toBeInTheDocument();
+      expect(screen.getByText('Download first.pdf')).toBeInTheDocument();
+      expect(screen.getByText('Download second.png')).toBeInTheDocument();
+    });
+
+    it('should download all non-local attachments from download submenu', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLAnchorElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockRejectedValue(new Error('fetch blocked in test'));
+      try {
+        const firstAttachment = generateFileAttachment({
+          asset_url: 'https://example.com/attachments/first.pdf',
+          title: 'first.pdf',
+        });
+        const secondAttachment = generateImageAttachment({
+          image_url: 'https://example.com/attachments/second.png',
+          title: 'second.png',
+        });
+        const message = generateMessage({
+          attachments: [firstAttachment, secondAttachment],
+          user: alice,
+        });
+
+        await renderMessageActions({
+          customMessageContext: { message },
+        });
+        await toggleOpenMessageActions();
+        await act(async () => {
+          await fireEvent.click(screen.getByText('Download Attachment'));
+        });
+        await act(async () => {
+          await fireEvent.click(screen.getByText('Download All'));
+        });
+
+        await waitFor(() => {
+          expect(clickSpy).toHaveBeenCalledTimes(2);
+        });
+      } finally {
+        fetchSpy.mockRestore();
+        clickSpy.mockRestore();
+      }
+    });
+
+    it('should download all local upload attachments from download submenu', async () => {
+      const clickSpy = vi
+        .spyOn(HTMLAnchorElement.prototype, 'click')
+        .mockImplementation(() => undefined);
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockRejectedValue(new Error('fetch blocked in test'));
+      try {
+        const firstAttachment = generateLocalFileUploadAttachmentData(
+          { id: 'local-file-1' },
+          {
+            asset_url: 'https://example.com/first.pdf',
+            title: 'first.pdf',
+          },
+        );
+        const secondAttachment = generateLocalFileUploadAttachmentData(
+          { id: 'local-file-2' },
+          {
+            asset_url: 'https://example.com/second.pdf',
+            title: 'second.pdf',
+          },
+        );
+        const message = generateMessage({
+          attachments: [firstAttachment, secondAttachment],
+          user: alice,
+        });
+
+        await renderMessageActions({
+          customMessageContext: { message },
+        });
+        await toggleOpenMessageActions();
+        await act(async () => {
+          await fireEvent.click(screen.getByText('Download Attachment'));
+        });
+
+        await act(async () => {
+          await fireEvent.click(screen.getByText('Download All'));
+        });
+
+        await waitFor(() => {
+          expect(clickSpy).toHaveBeenCalledTimes(2);
+        });
+      } finally {
+        fetchSpy.mockRestore();
+        clickSpy.mockRestore();
+      }
+    });
+
     it('should copy message text to clipboard when Copy is used', async () => {
       const writeText = vi.fn().mockResolvedValue(undefined);
       Object.assign(navigator, { clipboard: { writeText } });

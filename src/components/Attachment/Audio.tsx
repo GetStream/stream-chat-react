@@ -1,7 +1,10 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
+import {
+  FileSizeIndicator as DefaultFileSizeIndicator,
+  DownloadButton,
+} from './components';
 import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
@@ -34,12 +37,6 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
           <div className='str-chat__message-attachment-audio-widget--title'>
             {audioPlayer.title}
           </div>
-          <FileIcon
-            className='str-chat__file-icon'
-            mimeType={audioPlayer.mimeType}
-            size='sm'
-          />
-          {/*<DownloadButton assetUrl={audioPlayer.src} />*/}
         </div>
         <div className='str-chat__message-attachment-audio-widget--text-second-row'>
           {durationSeconds ? (
@@ -59,6 +56,8 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
           )}
         </div>
       </div>
+      <FileIcon className='str-chat__file-icon' mimeType={audioPlayer.mimeType} />
+      <DownloadButton assetUrl={audioPlayer.src} suggestedFileName={audioPlayer.title} />
     </div>
   );
 };
