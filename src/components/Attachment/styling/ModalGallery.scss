@@ -2,7 +2,7 @@
 
 .str-chat__message {
   --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
-  --str-chat__modal-gallery-load-failed-indicator-color: var(--text-inverse);
+  --str-chat__modal-gallery-load-failed-indicator-color: var(--text-on-inverse);
   --str-chat__modal-gallery-loading-background: var(--chat-bg);
   --str-chat__modal-gallery-loading-base: var(--skeleton-loading-base);
   --str-chat__modal-gallery-loading-highlight: var(--skeleton-loading-highlight);
@@ -64,7 +64,7 @@
         cursor: zoom-in;
         // CDN resize requires max-width to be present on this element
         max-width: $max-width;
-        color: var(--text-inverse);
+        color: var(--text-on-inverse);
         border: none;
         font-size: var(--typography-font-size-2xl);
         font-weight: var(--typography-font-weight-medium);
