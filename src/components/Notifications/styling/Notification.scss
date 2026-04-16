@@ -13,7 +13,7 @@
     0 0 0 1px rgba(0, 0, 0, 0.05),
     0 4px 8px 0 rgba(0, 0, 0, 0.14),
     0 12px 24px 0 rgba(0, 0, 0, 0.1);
-  color: var(--str-chat__notification-color, var(--text-inverse));
+  color: var(--str-chat__notification-color, var(--text-on-inverse));
 
   .str-chat__notification-content {
     align-items: flex-start;
@@ -94,22 +94,22 @@
 //// Severity overrides: allow themes to keep colored variants; defaults match Figma (inverse).
 //.str-chat__notification--success {
 //  background: var(--str-chat-success-background, var(--background-core-inverse));
-//  color: var(--str-chat-success-color, var(--text-inverse));
+//  color: var(--str-chat-success-color, var(--text-on-inverse));
 //}
 //
 //.str-chat__notification--error {
 //  background: var(--str-chat-error-background, var(--background-core-inverse));
-//  color: var(--str-chat-error-color, var(--text-inverse));
+//  color: var(--str-chat-error-color, var(--text-on-inverse));
 //}
 //
 //.str-chat__notification--warning {
 //  background: var(--str-chat-warning-background, var(--background-core-inverse));
-//  color: var(--str-chat-warning-color, var(--text-inverse));
+//  color: var(--str-chat-warning-color, var(--text-on-inverse));
 //}
 //
 //.str-chat__notification--info {
 //  background: var(--str-chat-info-background, var(--background-core-inverse));
-//  color: var(--str-chat-info-color, var(--text-inverse));
+//  color: var(--str-chat-info-color, var(--text-on-inverse));
 //}
 
 // Loading state: spin the refresh icon
