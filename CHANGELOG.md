@@ -1,3 +1,18 @@
+## [14.0.0-beta.8](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.7...v14.0.0-beta.8) (2026-04-16)
+
+### Bug Fixes
+
+* **dialog:** prevent outside-click from other dialog managers closing active dialogs ([#3112](https://github.com/GetStream/stream-chat-react/issues/3112)) ([233ec89](https://github.com/GetStream/stream-chat-react/commit/233ec89200acfacb6e1322b60e51beff8054e58c))
+* **MessageUI:** use isDeleted as a flag to determine message deletion ([#3113](https://github.com/GetStream/stream-chat-react/issues/3113)) ([f95f287](https://github.com/GetStream/stream-chat-react/commit/f95f287b439043e990741cb9e900117760951d21))
+* prevent hiding floating date separator in message lists ([#3119](https://github.com/GetStream/stream-chat-react/issues/3119)) ([397fadd](https://github.com/GetStream/stream-chat-react/commit/397fadd70558a3da71e6973d5ac917a07f40daac))
+* remove UI issues in poll related components ([#3118](https://github.com/GetStream/stream-chat-react/issues/3118)) ([d7870bb](https://github.com/GetStream/stream-chat-react/commit/d7870bb8bd93d15ca6de51e576ef0b8274f16116))
+* unify what is considered a deleted message across the components ([#3117](https://github.com/GetStream/stream-chat-react/issues/3117)) ([20b4022](https://github.com/GetStream/stream-chat-react/commit/20b40226181cb22d1335a38b659b79708bff687f))
+
+### Features
+
+* hide quick message actions on small screens ([#3120](https://github.com/GetStream/stream-chat-react/issues/3120)) ([fb8e99b](https://github.com/GetStream/stream-chat-react/commit/fb8e99ba116c350318f5018fb3dac74de27261a9))
+* redesign Tooltip ([#3116](https://github.com/GetStream/stream-chat-react/issues/3116)) ([d0cbaad](https://github.com/GetStream/stream-chat-react/commit/d0cbaaddb4e4d814764616528d67a40011f3f703))
+
 ## [14.0.0-beta.7](https://github.com/GetStream/stream-chat-react/compare/v14.0.0-beta.6...v14.0.0-beta.7) (2026-04-14)
 
 ### ⚠ BREAKING CHANGES
