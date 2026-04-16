@@ -10,15 +10,15 @@
     padding-bottom: var(--spacing-xl);
 
     .str-chat__poll-option-list--full {
-      gap: var(--spacing-xxs);
+      gap: var(--spacing-xs);
       scrollbar-width: none;
-      padding: var(--spacing-sm) var(--spacing-xxs);
+      padding: var(--spacing-xs);
       border-radius: var(--radius-lg);
       background-color: var(--background-core-surface-card);
 
       .str-chat__poll-option {
         padding: var(--spacing-xs);
-        border-radius: var(--radius-lg);
+        border-radius: var(--radius-md);
       }
       .str-chat__poll-option--votable {
         &:hover {

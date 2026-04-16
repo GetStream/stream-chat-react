@@ -29,16 +29,16 @@
       flex-direction: column;
       align-items: center;
       gap: var(--spacing-xs);
+    }
 
-      .str-chat__button.str-chat__poll-action {
-        width: 100%;
-        border: 1px solid var(--chat-border-on-chat);
-        padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
-        font: var(--str-chat__font-body-emphasis);
+    .str-chat__button.str-chat__poll-action {
+      width: 100%;
+      border: 1px solid var(--chat-border-on-chat);
+      padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
+      font: var(--str-chat__font-caption-emphasis);
 
-        &.str-chat__poll-action--additional {
-          border: none;
-        }
+      &.str-chat__poll-action--additional {
+        border: none;
       }
     }
   }
