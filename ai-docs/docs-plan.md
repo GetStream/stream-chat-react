@@ -1,6 +1,6 @@
 # React v14 Docs Plan
 
-Last updated: 2026-04-14
+Last updated: 2026-04-16
 
 ## Goal
 
@@ -8,16 +8,16 @@ Produce a reliable v13 to v14 migration guide for `stream-chat-react` and keep t
 
 ## Current Phase
 
-- Phase: post-snapshot docs maintenance against audited head `78934929a2b1b6d82f09736aada08c57c194d45e`
+- Phase: post-snapshot docs maintenance against audited head `a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1`
 - Constraint: keep `breaking-changes.md` as the source of truth for confirmed migration items, but treat this file as the execution tracker for the remaining v14 docs work
 - Migration-guide and sidebar work is already in flight on `docs-content#1080`; keep the guide aligned with new SDK changes until that PR is merged
-- New SDK changes after the audited head should be mined from `78934929a2b1b6d82f09736aada08c57c194d45e..HEAD`, then folded back into both trackers before related docs edits are made
+- New SDK changes after the audited head should be mined from `a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1..HEAD`, then folded back into both trackers before related docs edits are made
 
 ## Working Baseline
 
 - Code baseline for analysis: `stream-chat-react` `v13.14.2..master`
-- Current audited SDK head: `78934929a2b1b6d82f09736aada08c57c194d45e` (`78934929a`, `2026-04-14`, `chore(release): 14.0.0-beta.7 [skip ci]`)
-- Future mining starting point: review `stream-chat-react` diff `78934929a2b1b6d82f09736aada08c57c194d45e..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
+- Current audited SDK head: `a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1` (`a41311edd`, `2026-04-16`, `chore(release): enable stable releases for v14 (#3121)`)
+- Future mining starting point: review `stream-chat-react` diff `a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1..HEAD`, then map any confirmed changes back to `v13.14.2` before updating `breaking-changes.md` and this file
 - Docs content repo: `/docs/data/docs`
 - Docs content branch: `react-chat-v14`
 - Active migration-guide PR: `docs-content#1080` (`docs/react-v14-migration-guide` -> `react-chat-v14`)
@@ -250,13 +250,13 @@ Completed WS5 pages:
 
 ## Active Batch: Verification
 
-Objective: run docs verification and fix any markdown/build issues that surface from the updated post-`78934929` v14 content set.
+Objective: run docs verification and fix any markdown/build issues that surface from the updated post-`a41311ed` v14 content set.
 
 Post-snapshot maintenance currently in scope:
 
-- confirmed breaking changes from `dc16bb584..78934929` are now tracked in `BC-061` and `BC-062`
-- the matching public-docs follow-up is complete for this window
-- the next docs pass should start from `78934929..HEAD`, then rerun the docs verification commands after those pages are updated
+- the `78934929..a41311ed` follow-up window is now folded into the public docs
+- `BC-017` now captures the built-in `download` action addition inside the current `MessageActions` surface
+- the next maintenance pass should start from `a41311ed..HEAD`, then rerun docs verification after any new docs edits
 
 ## Confirmed Docs Issues
 
@@ -1026,6 +1026,34 @@ Post-snapshot maintenance currently in scope:
   - `data/docs/chat-sdk/react/v14/02-ui-components/09-message-composer/06-emoji-picker.md` and `03-ui-cookbook/07-emoji_picker.md` still explain setup without the dedicated stylesheet import
 - Expected fix: completed; the emoji-picker reference and cookbook pages now include the standalone stylesheet setup
 
+### 80. v14 message-actions docs do not mention the built-in download action or the current small-screen quick-action behavior
+
+- Status: resolved
+- Evidence:
+  - current `src/components/Message/utils.tsx` adds `download` to `MESSAGE_ACTIONS` and includes it in `getMessageActions(true)`
+  - current `src/components/MessageActions/MessageActions.defaults.tsx` adds a built-in dropdown `Download` action to `defaultMessageActionSet`
+  - current `src/components/MessageActions/styling/MessageActions.scss` hides inline reaction and thread-reply quick actions on screens up to `767px` and exposes the dropdown react item instead
+  - `data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md` and `03-ui-cookbook/04-message/04-message_actions.md` do not yet mention the built-in `download` action or the mobile quick-action collapse
+- Expected fix: completed; the message-actions reference and cookbook now document the built-in `download` action, the new `download` action type in filtered sets, and the current small-screen behavior where inline quick actions collapse into the dropdown
+
+### 81. v14 custom message UI cookbook still checks only `message.deleted_at`
+
+- Status: resolved
+- Evidence:
+  - current `src/components/Message/utils.tsx` exports `isMessageDeleted(message)` and treats `deleted_at`, `type === 'deleted'`, and `deleted_for_me` as deleted-message states
+  - current `src/components/Message/MessageUI.tsx` now uses `isMessageDeleted(message)` consistently for `MessageDeleted`, `MessageDeletedBubble`, and attachment/reaction visibility
+  - `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md` still tells readers to check `message.deleted_at` and still branches on `message.deleted_at` in the sample code
+- Expected fix: completed; the custom message UI cookbook now uses broader deleted-message checks instead of `message.deleted_at` only
+
+### 82. v14 message-list and date-separator docs still lag the current sticky floating-date behavior
+
+- Status: resolved
+- Evidence:
+  - current `src/components/MessageList/hooks/MessageList/useFloatingDateSeparatorMessageList.ts` now keeps the floating date synced with the separator pinned at the top boundary instead of hiding it whenever an in-flow separator is visible
+  - current `src/components/MessageList/hooks/VirtualizedMessageList/useFloatingDateSeparator.ts` now follows the first visible item/date section instead of hiding the floating label whenever a visible separator exists
+  - `data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`, `02-virtualized_list.md`, and `08-message/13-date_separator.md` do not yet explain the current sticky floating-date behavior
+- Expected fix: completed; the message-list, virtualized-list, and date-separator pages now describe the floating date as the current-section label that follows the first visible date group
+
 ## Docs Update Checklist
 
 - [x] Freeze the initial breaking-change inventory against audited snapshot `6ea7a78e4184fce6066f7318f9ebd57a5ff1474a`
@@ -1041,6 +1069,7 @@ Post-snapshot maintenance currently in scope:
 - [x] Fold the post-snapshot avatar overflow/internalization follow-up from `241209e8059ce767fe5bc3500466aa73f53618e3..6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee` back into the public v14 docs
 - [x] Fold the post-snapshot deprecated-API purge and sidebar-state externalization from `6c7cd42afffb6d341b7a3b4bf5cc5a9bcd3f98ee..dc16bb584675f48d5f67cf5d5d355ba012cf81d2` back into the public v14 docs
 - [x] Fold the post-snapshot notifications/actions cleanup, sender-only-edit removal, reactions-detail additions, upload-progress indicators, and emoji-picker stylesheet changes from `dc16bb584675f48d5f67cf5d5d355ba012cf81d2..78934929a2b1b6d82f09736aada08c57c194d45e` back into the public v14 docs
+- [x] Fold the post-snapshot message-actions, deleted-message, floating-date, and tooltip/current-behavior follow-up window from `78934929a2b1b6d82f09736aada08c57c194d45e..a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1` back into the trackers and public v14 docs
 - [x] Convert `ai-docs/docs-plan.md` from inventory mode into execution workstreams
 - [x] Draft the v13 to v14 migration guide content
 - [x] Prepare the v14 release-guide rename and sidebar update in `docs-content#1080`
@@ -1052,7 +1081,7 @@ Post-snapshot maintenance currently in scope:
 - [x] Update Channel docs for current `MessageActions`
 - [x] Update ComponentContext docs for `MessageAlsoSentInChannelIndicator`
 - [x] Sweep v14 docs for stale `MessageOptions`, `experimental/MessageActions`, renamed exports, and `Channel X={...}` examples
-- [ ] Run docs verification commands for the current post-`78934929` doc set
+- [ ] Run docs verification commands for the current post-`a41311ed` doc set
 
 ## Page Tracker
 
@@ -1060,6 +1089,12 @@ Post-snapshot maintenance currently in scope:
 | -------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | in PR    | `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md`                              | v13 to v14 migration guide drafted in `docs-content#1080`; keep aligned with post-snapshot changes such as Search, MessageEditedIndicator, current Giphy/composer behavior, the `ChannelListUI` migration, the latest action-set/error/unread changes, the latest channel-list hook cleanup, the stylesheet import-path cleanup, the latest reactions/icon follow-up work, the avatar-overflow follow-up from `49d576e4`, the latest deprecated-API purge plus sidebar-state externalization, and the current notification/editability/reactions/composer follow-up window until merged |
 | in PR    | `data/docs/_sidebars/[chat-sdk][react][v14-rc].json`                                               | Nav label and migration guide metadata are updated in `docs-content#1080`; merge pending                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| resolved | `data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`                      | Now documents the built-in `download` action and the current small-screen behavior where inline quick actions collapse into the dropdown                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/04-message_actions.md`                     | Cookbook examples now mention the built-in `download` action and the current small-screen quick-action behavior                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| resolved | `data/docs/chat-sdk/react/v14/03-ui-cookbook/04-message/01-message_ui.md`                          | Deleted-message examples now use broader deleted-message checks instead of `message.deleted_at` only                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/01-message_list.md`                 | Now describes the current sticky floating-date behavior as a current-section label                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/07-message-list/02-virtualized_list.md`             | Now describes the current sticky floating-date behavior as a current-section label                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| resolved | `data/docs/chat-sdk/react/v14/02-ui-components/08-message/13-date_separator.md`                    | Now explains the floating separator as the current-section label that follows the first visible date group                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | resolved | `data/docs/chat-sdk/react/v14/06-release-guides/01-upgrade-to-v14.md`                              | Now covers `onlySenderCanEdit` removal, the legacy notification-callback / `ConnectionStatus` removal, and the current emoji-picker stylesheet setup for this post-`dc16bb584` window                                                                                                                                                                                                                                                                                                                                                                                                   |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/01-chat.md`                                 | Now treats sidebar state as app-owned and no longer documents removed `initialNavOpen` or `navOpen`-based SDK state                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | resolved | `data/docs/chat-sdk/react/v14/02-ui-components/03-chat/02-chat_context.md`                         | Now reflects the current `ChatContext` shape without removed nav-state fields                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |

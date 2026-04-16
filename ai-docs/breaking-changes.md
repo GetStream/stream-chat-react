@@ -1,6 +1,6 @@
 # React v14 Breaking Changes
 
-Last updated: 2026-04-14
+Last updated: 2026-04-16
 
 ## Scope
 
@@ -13,8 +13,8 @@ This file tracks confirmed v13 to v14 breaking changes for `stream-chat-react`.
 ## Audit Reference
 
 - Baseline tag: `v13.14.2`
-- Current audited SDK head: `78934929a2b1b6d82f09736aada08c57c194d45e` (`78934929a`, `2026-04-14`, `chore(release): 14.0.0-beta.7 [skip ci]`)
-- Future mining starting point: diff `78934929a2b1b6d82f09736aada08c57c194d45e..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
+- Current audited SDK head: `a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1` (`a41311edd`, `2026-04-16`, `chore(release): enable stable releases for v14 (#3121)`)
+- Future mining starting point: diff `a41311edd9caf6f828bdaf1d8fb071c44d0ca0f1..HEAD` first, then compare any newly confirmed changes back to the original v13 baseline before adding them here
 
 Only confirmed items should move from this file into the migration guide.
 
@@ -590,6 +590,7 @@ Only confirmed items should move from this file into the migration guide.
   - `customMessageActions`-style customization is no longer supported through the old list/wrapper APIs
   - `MessageListProps`, `VirtualizedMessageListProps`, `MessageProps`, and `SharedMessageProps` no longer expose `customMessageActions`
   - the default action order and action set are different in v14, so integrations that merge with `defaultMessageActionSet` can render a different menu even without custom code changes
+  - current v14 `defaultMessageActionSet` now includes a built-in `download` action for downloadable attachments, so custom filters that assume the older built-in action set can drop or misplace the new entry
 - Old API:
   - `v13.14.2:src/components/MessageActions/index.ts:2` exported `MessageActionsBox`
   - `v13.14.2:src/components/MessageActions/index.ts:3` exported `CustomMessageActionsList`
@@ -602,6 +603,7 @@ Only confirmed items should move from this file into the migration guide.
   - `src/components/MessageActions/MessageActions.tsx:35` types `MessageActionsProps` as `disableBaseMessageActionSetFilter?` and `messageActionSet?`
   - `src/components/MessageActions/defaults.tsx:383` exports `defaultMessageActionSet`
   - `src/components/MessageActions/hooks/useBaseMessageActionSetFilter.ts:19` and `useSplitMessageActionSet.ts:9` provide the new customization hooks
+  - `src/components/Message/utils.tsx:54` through `:66` add `download` to the public `MESSAGE_ACTIONS` set and to `getMessageActions(true)`
   - `src/components/Message/types.ts:16` no longer includes `customMessageActions` in `MessageProps`
   - `src/components/MessageList/MessageList.tsx` and `src/components/MessageList/VirtualizedMessageList.tsx` no longer accept or route `customMessageActions`
 - Replacement:
@@ -609,12 +611,13 @@ Only confirmed items should move from this file into the migration guide.
   - stop relying on `MessageActionsBox`, `MessageActionsWrapper`, or `CustomMessageActionsList`
   - route any custom edit/delete/etc. logic through the new action-set items and the current message/composer context
   - if your UX depends on action ordering, define your own `messageActionSet` explicitly instead of relying on the SDK defaults
+  - if you filter `defaultMessageActionSet`, decide explicitly whether the built-in `download` action should stay available for downloadable attachments
 - Evidence:
   - current root export comparison removes `MessageActionsBox`, `MessageActionsWrapper`, and `CustomMessageActionsList`
   - current `MessageActions` implementation renders quick actions plus a `ContextMenu`, not the old wrapper/box pair
   - current `MessageActionsProps` no longer exposes the old prop-driven customization surface
   - current public `MessageList` / `VirtualizedMessageList` / `Message` prop types no longer expose `customMessageActions`
-  - current `defaultMessageActionSet` adds entries like `ThreadReply`, `CopyMessageText`, `Resend`, and `BlockUser`, and reorders destructive actions compared with the v13 baseline
+  - current `defaultMessageActionSet` adds entries like `ThreadReply`, `CopyMessageText`, `Resend`, `BlockUser`, and `Download`, and reorders destructive actions compared with the v13 baseline
 - Docs impact:
   - migration guide
   - `docs/data/docs/chat-sdk/react/v14/05-experimental-features/01-message-actions.md`
@@ -2222,6 +2225,14 @@ Only confirmed items should move from this file into the migration guide.
 - extended reaction-list surface (`b2848025d`): investigated; `ReactionSelectorExtendedList` was added to `ComponentContext`, `MessageReactionsDetail` gained an add-reaction step, and `reactionDetailsSort` forwarding was fixed, but these are additive/current-behavior changes rather than a distinct v13-to-v14 migration bucket. Track the missing docs separately.
 - EmojiPicker stylesheet addition (`b4ed46455`): investigated; `stream-chat-react/dist/css/emoji-picker.css` is a new additive stylesheet entrypoint, not a removed or renamed v13 API. Track it as docs-alignment work only.
 - assorted post-beta UI fixes (`443b9a8a9`, `be8ed265f`, `6605f6361`): investigated; message padding, jump-to-message scroll behavior, and broader UI glitch fixes change runtime polish but do not remove or rename a public API.
+- download attachment message action (`2f86376d4`, `d6b103248`): investigated; current source adds `download` to `MESSAGE_ACTIONS`, `getMessageActions(true)`, and the default dropdown action set, but this is additive current-v14 behavior rather than a removed or renamed v13 API. Track the missing docs separately.
+- quick message actions on small screens (`fb8e99ba1`): investigated; current source hides inline reaction and thread-reply quick actions on small screens and moves the reaction entry into the dropdown menu, but this is responsive default behavior rather than a removed or renamed public API.
+- Tooltip redesign (`d0cbaaddb`): investigated; current `Tooltip` and `PopperTooltip` add `className` merging and visual/styling cleanup, but this is additive surface area rather than a removed or renamed v13 API.
+- floating date separator sticky behavior (`397fadd70`): investigated; current message-list hooks keep the floating date synced with the first visible date section instead of hiding it whenever an in-flow separator is visible, but this is current default behavior rather than a distinct v13-to-v14 migration bucket.
+- deleted-message normalization (`20b402261`, `f95f287b4`): investigated; current source centralizes deleted-message checks under `isMessageDeleted(message)` so `deleted_at`, `type === 'deleted'`, and `deleted_for_me` render consistently, but this is docs-alignment/current-behavior work rather than a new removed-or-renamed v13 API.
+- dialog-manager outside-click isolation (`233ec8920`): investigated; current `DialogPortal` avoids cross-manager outside clicks closing the active dialog, but this is runtime hardening rather than a removed or renamed public API.
+- poll and styling polish (`d7870bb8b`, `bb05c20ee`, `3702caaa0`, `f131a6a2a`): investigated; these commits refine visuals, tokens, and pinned-message styling, but they do not remove or rename a documented public API.
+- demo/docs/release follow-ups (`3ec3671a2`, `5f9ee0def`, `4d357b837`, `a41311edd`): investigated; example-app changes, tracker updates, and release commits do not add new migration items on their own.
 
 ## Notes For Migration Guide Drafting
 
