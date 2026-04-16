@@ -2,8 +2,8 @@ import React from 'react';
 import type { Attachment } from 'stream-chat';
 
 import {
-  AudioDownloadButton,
   FileSizeIndicator as DefaultFileSizeIndicator,
+  DownloadButton,
 } from './components';
 import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
@@ -57,7 +57,7 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
         </div>
       </div>
       <FileIcon className='str-chat__file-icon' mimeType={audioPlayer.mimeType} />
-      <AudioDownloadButton assetUrl={audioPlayer.src} title={audioPlayer.title} />
+      <DownloadButton assetUrl={audioPlayer.src} suggestedFileName={audioPlayer.title} />
     </div>
   );
 };

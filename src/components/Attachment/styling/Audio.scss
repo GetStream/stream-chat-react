@@ -90,14 +90,4 @@
       font: var(--str-chat__font-metadata-default);
     }
   }
-
-  .str-chat__audio-attachment-download-button {
-    flex-shrink: 0;
-    text-decoration: none;
-
-    .str-chat__audio-attachment-download-button__icon {
-      height: calc(var(--str-chat__spacing-px) * 20);
-      width: calc(var(--str-chat__spacing-px) * 20);
-    }
-  }
 }

@@ -116,6 +116,13 @@
 
       &.str-chat__modal-gallery__image--load-failed {
         cursor: pointer;
+        min-height: 200px;
+
+        .str-chat__image-placeholder.str-chat__base-image--load-failed {
+          width: 100%;
+          min-height: 200px;
+          align-self: stretch;
+        }
 
         img {
           opacity: 0;

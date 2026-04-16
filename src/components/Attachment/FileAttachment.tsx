@@ -3,7 +3,10 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { FileIcon } from '../FileIcon';
 import type { Attachment } from 'stream-chat';
 
-import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
+import {
+  FileSizeIndicator as DefaultFileSizeIndicator,
+  DownloadButton,
+} from './components';
 
 export type FileAttachmentProps = {
   attachment: Attachment;
@@ -31,12 +34,15 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
           >
             {attachment.title}
           </div>
-          {/*<DownloadButton assetUrl={attachment.asset_url} />*/}
         </div>
         <div className='str-chat__message-attachment-file--item__data'>
           <FileSizeIndicator fileSize={attachment.file_size} />
         </div>
       </div>
+      <DownloadButton
+        assetUrl={attachment.asset_url}
+        suggestedFileName={attachment.title}
+      />
     </div>
   );
 };
