@@ -4,7 +4,9 @@
 .str-chat__message-attachment-unsupported {
   background: transparent;
   color: var(--text-primary);
-  border-radius: calc(var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin));
+  border-radius: calc(
+    var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin)
+  );
   display: flex;
   align-items: center;
   justify-content: center;

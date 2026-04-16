@@ -6,15 +6,10 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  inline-size: min(
-    100%,
-    calc(100% - (var(--str-chat__notification-list-inset) * 2))
-  );
+  inline-size: min(100%, calc(100% - (var(--str-chat__notification-list-inset) * 2)));
   max-width: 100%;
   min-width: 0;
-  max-height: calc(
-    100% - (var(--str-chat__notification-list-inset) * 2)
-  );
+  max-height: calc(100% - (var(--str-chat__notification-list-inset) * 2));
   padding-inline: var(--spacing-xs);
   pointer-events: none;
   position: absolute;

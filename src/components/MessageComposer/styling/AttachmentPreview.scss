@@ -189,11 +189,7 @@
 
   .str-chat__attachment-preview-media--uploading {
     .str-chat__attachment-preview-media__overlay {
-      background: linear-gradient(
-        180deg,
-        var(--base-white) 0%,
-        var(--slate-100) 100%
-      );
+      background: linear-gradient(180deg, var(--base-white) 0%, var(--slate-100) 100%);
     }
   }
 

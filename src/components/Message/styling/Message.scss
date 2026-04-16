@@ -519,7 +519,7 @@
     position: absolute;
     inset-block: 0;
     inset-inline: -9999px;
-    background-color: var(--background-core-highlight);;
+    background-color: var(--background-core-highlight);
     z-index: -1;
     pointer-events: none;
   }
@@ -528,7 +528,7 @@
 /* Fallback for browsers without :has() support */
 @supports not selector(:has(a, b)) {
   .str-chat__message--pinned {
-    background-color: var(--background-core-highlight);;
+    background-color: var(--background-core-highlight);
   }
 }
 

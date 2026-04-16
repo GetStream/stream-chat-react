@@ -3,7 +3,9 @@
 .str-chat__message-attachment-audio-widget {
   background: transparent;
   color: var(--text-primary);
-  border-radius: calc(var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin));
+  border-radius: calc(
+    var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin)
+  );
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
