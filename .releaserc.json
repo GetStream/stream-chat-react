@@ -1,10 +1,8 @@
 {
   "branches": [
-    "release-v13",
     {
       "name": "master",
-      "channel": "beta",
-      "prerelease": "beta"
+      "channel": "latest"
     }
   ],
   "plugins": [
