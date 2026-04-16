@@ -27,7 +27,8 @@
   width: 100%;
   height: 100%;
   max-height: 100%;
-  @include utils.component-layer-overrides('message-list');
+  background: var(--background-core-app);
+  color: var(--text-primary);
 
   .str-chat__message-list-scroll {
     @include utils.message-list-spacing;
@@ -64,37 +65,4 @@
       padding-top: inherit;
     }
   }
-}
-
-// Theme
-.str-chat {
-  /* The border radius used for the borders of the component */
-  --str-chat__message-list-border-radius: 0;
-
-  /* The text/icon color of the component */
-  --str-chat__message-list-color: var(--text-primary);
-
-  /* The background color of the component */
-  --str-chat__message-list-background-color: var(--background-core-app);
-
-  /* Box shadow applied to the component */
-  --str-chat__message-list-box-shadow: none;
-
-  /* Top border of the component */
-  --str-chat__message-list-border-block-start: none;
-
-  /* Bottom border of the component */
-  --str-chat__message-list-border-block-end: none;
-
-  /* Left (right in RTL layout) border of the component */
-  --str-chat__message-list-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component */
-  --str-chat__message-list-border-inline-end: none;
-
-  /* The color used for displaying thread replies and thread separator at the start of a thread */
-  --str-chat__thread-head-start-color: var(--text-tertiary);
-
-  /* The color used for the separator below the first message in a thread */
-  --str-chat__thread-head-start-border-block-end-color: var(--background-core-surface);
 }

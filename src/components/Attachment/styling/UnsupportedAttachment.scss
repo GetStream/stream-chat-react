@@ -1,36 +1,10 @@
 @use '../../../styling/utils';
 @use '../../../styling/variables/font' as font;
 
-.str-chat {
-  /* The border radius used for the borders of file attachments */
-  --str-chat__unsupported-attachment-border-radius: calc(
-    var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
-  );
-
-  /* The text/icon color of file attachments */
-  --str-chat__unsupported-attachment-color: var(--text-primary);
-
-  /* The background color of file attachments */
-  --str-chat__unsupported-attachment-background-color: transparent;
-
-  /* Top border of file attachments */
-  --str-chat__unsupported-attachment-border-block-start: none;
-
-  /* Bottom border of file attachments */
-  --str-chat__unsupported-attachment-border-block-end: none;
-
-  /* Left (right in RTL layout) border of file attachments */
-  --str-chat__unsupported-attachment-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of file attachments */
-  --str-chat__unsupported-attachment-border-inline-end: none;
-
-  /* Box shadow applied to file attachments */
-  --str-chat__unsupported-attachment-box-shadow: none;
-}
-
 .str-chat__message-attachment-unsupported {
-  @include utils.component-layer-overrides('unsupported-attachment');
+  background: transparent;
+  color: var(--text-primary);
+  border-radius: calc(var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin));
   display: flex;
   align-items: center;
   justify-content: center;

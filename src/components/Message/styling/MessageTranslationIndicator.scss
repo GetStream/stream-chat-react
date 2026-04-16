@@ -1,13 +1,3 @@
-@use '../../../styling/utils';
-
-.str-chat {
-  --str-chat__message-translation-indicator-color: var(
-    --text-primary-text,
-    var(--text-primary)
-  );
-  --str-chat__message-translation-indicator-background-color: transparent;
-}
-
 /* Translation indicator: below reminder in message grid. */
 .str-chat__message-translation-indicator {
   display: flex;
@@ -16,8 +6,8 @@
   padding-block: var(--spacing-xxs);
   gap: var(--spacing-xxs);
   margin: 0;
-  color: var(--str-chat__message-translation-indicator-color);
-  @include utils.component-layer-overrides('message-translation-indicator');
+  background: transparent;
+  color: var(--text-primary);
 
   &,
   .str-chat__message-translation-indicator__translation-toggle {

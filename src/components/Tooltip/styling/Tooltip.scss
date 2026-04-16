@@ -1,29 +1,7 @@
 @use '../../../styling/utils';
 
 .str-chat {
-  /* The border radius used for the borders of the component */
-  --str-chat__tooltip-border-radius: var(--radius-md);
-
-  /* The text/icon color of the component */
-  --str-chat__tooltip-color: var(--text-on-accent);
-
-  /* The background color of the component */
   --str-chat__tooltip-background-color: var(--background-core-inverse);
-
-  /* Top border of the component */
-  --str-chat__tooltip-border-block-start: none;
-
-  /* Bottom border of the component */
-  --str-chat__tooltip-border-block-end: none;
-
-  /* Left (right in RTL layout) border of the component */
-  --str-chat__tooltip-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component */
-  --str-chat__tooltip-border-inline-end: none;
-
-  /* Box shadow applied to the component */
-  --str-chat__tooltip-box-shadow: var(--str-chat__box-shadow-3);
 
   // FIXME: this should not be the case
   &.str-chat__theme-dark {
@@ -32,7 +10,10 @@
 }
 
 .str-chat__tooltip {
-  @include utils.component-layer-overrides('tooltip');
+  background: var(--str-chat__tooltip-background-color);
+  color: var(--text-on-accent);
+  box-shadow: var(--str-chat__box-shadow-3);
+  border-radius: var(--radius-md);
   @include utils.prevent-glitch-text-overflow;
   display: flex;
   gap: var(--spacing-xs);

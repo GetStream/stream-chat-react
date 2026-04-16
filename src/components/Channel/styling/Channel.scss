@@ -1,5 +1,3 @@
-@use '../../../styling/utils';
-
 .str-chat__channel {
   height: 100%;
   display: flex;
@@ -178,41 +176,13 @@
   }
 }
 
-.str-chat {
-  /* The border radius used for the borders of the component */
-  --str-chat__channel-border-radius: 0;
-
-  /* The text/icon color of the component */
-  --str-chat__channel-color: var(--text-primary);
-
-  /* The background color of the component */
-  --str-chat__channel-background-color: var(--background-core-app);
-
-  /* Box shadow applied to the component */
-  --str-chat__channel-box-shadow: none;
-
-  /* Top border of the component */
-  --str-chat__channel-border-block-start: none;
-
-  /* Bottom border of the component */
-  --str-chat__channel-border-block-end: none;
-
-  /* Left (right in RTL layout) border of the component */
-  --str-chat__channel-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component */
-  --str-chat__channel-border-inline-end: none;
-
-  /* The base surface color behind the loading shimmer */
-  --str-chat__channel-loading-state-color: var(--background-core-surface);
-}
-
 .str-chat__channel {
-  @include utils.component-layer-overrides('channel');
+  background: var(--background-core-app);
+  color: var(--text-primary);
 }
 
 @mixin channel-loading-shimmer {
-  background-color: var(--str-chat__channel-loading-state-color);
+  background-color: var(--background-core-surface);
   background-image: linear-gradient(
     90deg,
     var(--skeleton-loading-base) 0%,
@@ -281,7 +251,7 @@
     }
 
     .str-chat__loading-channel-message-input-pill {
-      border-radius: var(--str-chat__message-input-border-radius);
+      border-radius: var(--radius-3xl);
     }
   }
 }

@@ -1,34 +1,10 @@
 @use '../../../styling/utils';
 
-.str-chat {
-  /* The border radius used for the borders of the thread header */
-  --str-chat__thread-header-border-radius: 0;
-
-  /* The text/icon color of the thread header */
-  --str-chat__thread-header-color: var(--text-primary);
-
-  /* The background color of the thread header */
-  --str-chat__thread-header-background-color: var(--background-core-elevation-1);
-
-  /* Top border of the thread header */
-  --str-chat__thread-header-border-block-start: none;
-
-  /* Bottom border of the thread header */
-  --str-chat__thread-header-border-block-end: 1px solid var(--border-core-default);
-
-  /* Left (right in RTL layout) border of the thread header */
-  --str-chat__thread-header-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the thread header */
-  --str-chat__thread-header-border-inline-end: none;
-
-  /* Box shadow applied to the thread header */
-  --str-chat__thread-header-box-shadow: none;
-}
-
 .str-chat__thread-header {
   @include utils.header-layout;
-  @include utils.component-layer-overrides('thread-header');
+  background: var(--background-core-elevation-1);
+  color: var(--text-primary);
+  border-block-end: 1px solid var(--border-core-default);
 
   .str-chat__thread-header-title {
     font: var(--str-chat__font-heading-sm);
@@ -36,7 +12,7 @@
 
   .str-chat__thread-header-subtitle {
     font: var(--str-chat__font-caption-default);
-    color: var(--str-chat__thread-header-info-color);
+    color: var(--text-secondary);
   }
 
   .str-chat__thread-header-details {
@@ -74,7 +50,7 @@
     border: none;
 
     .str-chat__icon {
-      fill: var(--str-chat__thread-color);
+      fill: var(--text-primary);
     }
   }
 }

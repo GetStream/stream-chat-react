@@ -2,37 +2,11 @@
 
 .str-chat {
   --str-chat__channel-header-height: 72px;
-
-  /* The border radius used for the borders of the component */
-  --str-chat__channel-header-border-radius: 0;
-
-  /* The text/icon color of the component */
-  --str-chat__channel-header-color: 0;
-
-  /* The background color of the component */
-  --str-chat__channel-header-background-color: var(--background-core-elevation-1);
-
-  /* Top border of the component */
-  --str-chat__channel-header-border-block-start: none;
-
-  /* Bottom border of the component */
-  --str-chat__channel-header-border-block-end: 1px solid var(--border-core-default);
-
-  /* Left (right in RTL layout) border of the component */
-  --str-chat__channel-header-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component */
-  --str-chat__channel-header-border-inline-end: none;
-
-  /* Box shadow applied to the component */
-  --str-chat__channel-header-box-shadow: none;
-
-  /* The text/icon color used to display member information about the channel */
-  --str-chat__channel-header__data__subtitle-color: var(--text-secondary);
 }
 
 .str-chat__channel-header {
-  @include utils.component-layer-overrides('channel-header');
+  background: var(--background-core-elevation-1);
+  border-block-end: 1px solid var(--border-core-default);
   @include utils.header-layout;
 
   .str-chat__channel-header__start {
@@ -62,6 +36,6 @@
 
   .str-chat__channel-header__data__subtitle {
     font: var(--str-chat__font-caption-default);
-    color: var(--str-chat__channel-header__data__subtitle-color);
+    color: var(--text-secondary);
   }
 }

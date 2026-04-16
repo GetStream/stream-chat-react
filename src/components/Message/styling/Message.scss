@@ -1,28 +1,12 @@
 @use '../../../styling/utils';
 
 .str-chat {
-  /* The width/height of the message options button(s), for Angular SDK it's only used on desktop devices starting from version 5 */
+  /* The width/height of the message options button(s) */
   --str-chat__message-options-button-size: var(--size-32);
-
-  --str-chat__message-border-radius: 0;
-  --str-chat__message-link-color: var(--chat-text-link);
-  --str-chat__message-mention-color: var(--accent-primary);
-  --str-chat__message-background-color: transparent;
-  --str-chat__message-highlighted-background-color: var(--background-core-highlight);
   --str-chat__message-active-background-color: transparent;
-
-  --str-chat__message-bubble-border-radius: var(--message-bubble-radius-group-bottom);
-
-  --str-chat__blocked-message-border-radius: var(--radius-md);
-
   --str-chat__message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
-
-  /* Background color for pinned messages (Figma: background/core/highlight) */
-  --str-chat__message-pinned-background-color: var(--background-core-highlight);
-
   /* The maximum allowed width of the message component */
   --str-chat__message-max-width: 400px;
-
   /* The maximum allowed width of the message component, if it has attachments */
   --str-chat__message-with-attachment-max-width: 400px;
 
@@ -94,7 +78,7 @@
 
   a {
     text-decoration: none;
-    color: var(--str-chat__message-link-color);
+    color: var(--chat-text-link);
   }
 }
 
@@ -165,12 +149,12 @@
 }
 
 .str-chat__message-mention {
-  color: var(--str-chat__message-mention-color);
   font: var(--str-chat__font-body-emphasis);
+  color: var(--accent-primary);
 }
 
 .str-chat__message {
-  @include utils.component-layer-overrides('message');
+  background: transparent;
   color: var(--str-chat__message-color, var(--chat-text));
 
   @mixin chat-bubble-spacing {
@@ -240,7 +224,7 @@
       align-items: center;
       gap: var(--spacing-xxs);
       font: var(--str-chat__font-metadata-emphasis);
-      color: var(--text-primary-text);
+      color: var(--text-primary);
 
       .str-chat__message-pin-indicator__icon {
         display: flex;
@@ -405,10 +389,9 @@
       grid-area: message-bubble;
       position: relative;
       min-width: 0;
-      @include utils.component-layer-overrides('message-bubble');
+      border-radius: var(--message-bubble-radius-group-bottom);
       color: var(--str-chat__message-bubble-color, inherit);
       background-color: var(--str-chat__message-bubble-background-color, var(--chat-bg));
-      border-radius: var(--message-bubble-radius-group-bottom);
       overflow: hidden;
 
       .str-chat__message-text {
@@ -481,7 +464,7 @@
 
   .str-chat__message--blocked-inner {
     @include chat-bubble-spacing;
-    @include utils.component-layer-overrides('blocked-message');
+    border-radius: var(--radius-md);
     color: var(--str-chat__blocked-message-color, var(--chat-text));
     background-color: var(--str-chat__blocked-message-background-color, var(--chat-bg));
 
@@ -524,7 +507,7 @@
 
 .str-chat__message--highlighted {
   transition: background-color 0.1s ease-out;
-  background-color: var(--str-chat__message-highlighted-background-color);
+  background-color: var(--background-core-highlight);
 }
 
 .str-chat__li:has(.str-chat__message--pinned) {
@@ -536,7 +519,7 @@
     position: absolute;
     inset-block: 0;
     inset-inline: -9999px;
-    background-color: var(--str-chat__message-pinned-background-color);
+    background-color: var(--background-core-highlight);;
     z-index: -1;
     pointer-events: none;
   }
@@ -545,7 +528,7 @@
 /* Fallback for browsers without :has() support */
 @supports not selector(:has(a, b)) {
   .str-chat__message--pinned {
-    background-color: var(--str-chat__message-pinned-background-color);
+    background-color: var(--background-core-highlight);;
   }
 }
 

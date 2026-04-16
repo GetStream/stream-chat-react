@@ -1,33 +1,8 @@
 @use '../../../styling/utils';
 
-.str-chat {
-  /* The border radius used for the borders of the component */
-  --str-chat__virtual-list-border-radius: 0;
-
-  /* The text/icon color of the component */
-  --str-chat__virtual-list-color: var(--text-primary);
-
-  /* The background color of the component */
-  --str-chat__virtual-list-background-color: var(--background-core-app);
-
-  /* Box shadow applied to the component */
-  --str-chat__virtual-list-box-shadow: none;
-
-  /* Top border of the component */
-  --str-chat__virtual-list-border-block-start: none;
-
-  /* Bottom border of the component */
-  --str-chat__virtual-list-border-block-end: none;
-
-  /* Left (right in RTL layout) border of the component */
-  --str-chat__virtual-list-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component */
-  --str-chat__virtual-list-border-inline-end: none;
-}
-
 .str-chat__virtual-list {
-  @include utils.component-layer-overrides('virtual-list');
+  background: var(--background-core-app);
+  color: var(--text-primary);
   @include utils.scrollable-y;
   --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +

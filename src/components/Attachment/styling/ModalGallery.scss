@@ -1,19 +1,15 @@
 @use '../../../styling/utils';
 
-.str-chat__message {
-  --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
-  --str-chat__modal-gallery-load-failed-indicator-color: var(--text-on-inverse);
-  --str-chat__modal-gallery-loading-background: var(--chat-bg);
-  --str-chat__modal-gallery-loading-base: var(--skeleton-loading-base);
-  --str-chat__modal-gallery-loading-highlight: var(--skeleton-loading-highlight);
-}
-
 .str-chat__attachment-list {
   .str-chat__message-attachment--gallery {
     $max-width: var(--str-chat__attachment-max-width);
 
     .str-chat__modal-gallery {
-      @include utils.component-layer-overrides('image-gallery-attachment');
+      background: transparent;
+      color: var(--text-primary);
+      border-radius: calc(
+        var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin)
+      );
       display: grid;
       grid-template-columns: 50% 50%;
       grid-template-rows: 50% 50%;
@@ -141,12 +137,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--str-chat__modal-gallery-loading-background);
+        background-color: var(--chat-bg);
         background-image: linear-gradient(
           90deg,
-          var(--str-chat__modal-gallery-loading-base) 0%,
-          var(--str-chat__modal-gallery-loading-highlight) 50%,
-          var(--str-chat__modal-gallery-loading-base) 100%
+          var(--skeleton-loading-base) 0%,
+          var(--skeleton-loading-highlight) 50%,
+          var(--skeleton-loading-base) 100%
         );
         background-repeat: no-repeat;
         background-size: 200% 100%;
@@ -168,8 +164,8 @@
         width: 2.75rem;
         height: 2.75rem;
         border-radius: var(--radius-max);
-        background-color: var(--str-chat__modal-gallery-load-failed-indicator-background);
-        color: var(--str-chat__modal-gallery-load-failed-indicator-color);
+        background-color: var(--accent-error);
+        color: var(--text-on-inverse);
 
         svg {
           width: 1.125rem;

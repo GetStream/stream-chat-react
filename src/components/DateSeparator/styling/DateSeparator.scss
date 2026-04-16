@@ -1,15 +1,3 @@
-@use '../../../styling/utils';
-
-.str-chat {
-  --str-chat__date-separator-color: var(--chat-text-system);
-  --str-chat__date-separator-border-radius: 0;
-  --str-chat__date-separator-background-color: transparent;
-  --str-chat__date-separator-border-block-start: none;
-  --str-chat__date-separator-border-block-end: none;
-  --str-chat__date-separator-border-inline-start: none;
-  --str-chat__date-separator-border-inline-end: none;
-  --str-chat__date-separator-box-shadow: none;
-}
 
 .str-chat__date-separator--floating {
   position: absolute;
@@ -23,7 +11,8 @@
 }
 
 .str-chat__date-separator {
-  @include utils.component-layer-overrides('date-separator');
+  background: transparent;
+  color: var(--chat-text-system);
   display: flex;
   justify-content: center;
   align-items: center;

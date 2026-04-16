@@ -1,20 +1,7 @@
 @use '../../../styling/utils';
 
 .str-chat {
-  /*
-   * AttachmentPreviewList theme variables (ported from stream-chat-css v2),
-   * set to match the current React SDK styling values in this file.
-   */
-  --str-chat__attachment-preview-list-border-radius: 0;
-  --str-chat__attachment-preview-list-color: var(--text-primary);
-  --str-chat__attachment-preview-list-background-color: transparent;
-  --str-chat__attachment-preview-list-border-block-start: none;
-  --str-chat__attachment-preview-list-border-block-end: none;
-  --str-chat__attachment-preview-list-border-inline-start: none;
-  --str-chat__attachment-preview-list-border-inline-end: none;
-  --str-chat__attachment-preview-list-box-shadow: none;
   --str-chat__attachment-preview-row-height: 72px;
-
   --str-chat__attachment-preview-close-icon-background: var(--control-remove-control-bg);
   --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-icon);
   --str-chat__attachment-preview-close-icon-border-color: var(
@@ -23,34 +10,6 @@
   --str-chat__attachment-preview-retry-icon-color: var(--accent-primary);
   --str-chat__attachment-preview-download-icon-color: var(--text-secondary);
   --str-chat__attachment-preview-overlay-color: var(--background-core-overlay);
-
-  --str-chat__attachment-preview-image-border-radius: var(
-    --message-bubble-radius-attachment
-  );
-  --str-chat__attachment-preview-image-color: var(--text-primary);
-  --str-chat__attachment-preview-image-background-color: transparent;
-  --str-chat__attachment-preview-image-border-block-start: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-image-border-block-end: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-image-border-inline-start: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-image-border-inline-end: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-image-box-shadow: none;
-
-  --str-chat__attachment-preview-file-border-radius: var(--radius-lg);
-  --str-chat__attachment-preview-file-color: var(--text-primary);
-  --str-chat__attachment-preview-file-background-color: transparent;
-  --str-chat__attachment-preview-file-border-block-start: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-file-border-block-end: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-file-border-inline-start: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-file-border-inline-end: 1px solid
-    var(--border-core-default);
-  --str-chat__attachment-preview-file-box-shadow: none;
 
   /* React-specific preview variants (classes diverged from v2 theme) */
   --str-chat__attachment-preview-media-video-indicator-background-color: var(
@@ -96,7 +55,8 @@
   }
 
   .str-chat__attachment-preview-list {
-    @include utils.component-layer-overrides('attachment-preview-list');
+    background: transparent;
+    color: var(--text-primary);
     padding: var(--spacing-xxs);
     display: flex;
     align-items: flex-start;
@@ -118,7 +78,10 @@
   .str-chat__attachment-preview-file,
   .str-chat__attachment-preview-voice-recording,
   .str-chat__attachment-preview-unsupported {
-    @include utils.component-layer-overrides('attachment-preview-file');
+    background: transparent;
+    color: var(--text-primary);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-core-default);
     display: flex;
     align-items: center;
     flex: 0 1 auto;
@@ -147,17 +110,17 @@
   }
 
   .str-chat__attachment-preview-media {
-    @include utils.component-layer-overrides('attachment-preview-image');
+    background: transparent;
+    color: var(--text-primary);
+    border-radius: var(--message-bubble-radius-attachment);
+    border: 1px solid var(--border-core-default);
     flex: 0 0 auto;
     width: var(--str-chat__attachment-preview-row-height);
     height: var(--str-chat__attachment-preview-row-height);
     cursor: pointer;
 
     .str-chat__attachment-preview-media__thumbnail-wrapper {
-      border-radius: max(
-        0px,
-        calc(var(--str-chat__attachment-preview-image-border-radius) - 1px)
-      );
+      border-radius: max(0px, calc(var(--message-bubble-radius-attachment) - 1px));
       overflow: hidden;
       height: 100%;
       width: 100%;
