@@ -527,8 +527,26 @@
   background-color: var(--str-chat__message-highlighted-background-color);
 }
 
-.str-chat__message--pinned {
-  background-color: var(--str-chat__message-pinned-background-color);
+.str-chat__li:has(.str-chat__message--pinned) {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline: -9999px;
+    background-color: var(--str-chat__message-pinned-background-color);
+    z-index: -1;
+    pointer-events: none;
+  }
+}
+
+/* Fallback for browsers without :has() support */
+@supports not selector(:has(a, b)) {
+  .str-chat__message--pinned {
+    background-color: var(--str-chat__message-pinned-background-color);
+  }
 }
 
 /* This rule won't be applied in browsers that don't support :has() */
