@@ -8,8 +8,10 @@ import {
   IconBellOff,
   IconBookmark,
   IconBookmarkRemove,
+  IconChevronLeft,
   IconCopy,
   IconDelete,
+  IconDownload,
   IconEdit,
   IconEmoji,
   IconFlag,
@@ -40,7 +42,9 @@ import {
 } from '../../context';
 import { RemindMeSubmenu, RemindMeSubmenuHeader } from './RemindMeSubmenu';
 import {
+  ContextMenuBackButton,
   ContextMenuButton,
+  ContextMenuHeader,
   DialogAnchor,
   useContextMenuContext,
   useDialogIsOpen,
@@ -50,6 +54,11 @@ import { MessageActions, type MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
+import {
+  downloadAllAttachments,
+  downloadAttachment,
+  isDownloadableAttachment,
+} from './downloadUtils';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
@@ -174,6 +183,97 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Quote Reply')}
+        </ContextMenuButton>
+      );
+    },
+    Download() {
+      const { closeMenu, openSubmenu } = useContextMenuContext();
+      const { message } = useMessageContext();
+      const { t } = useTranslationContext();
+
+      const downloadableAttachments = (message.attachments ?? []).filter(
+        isDownloadableAttachment,
+      );
+
+      if (!downloadableAttachments.length) return null;
+
+      const DownloadSubmenuHeader = () => {
+        const { returnToParentMenu: goBack } = useContextMenuContext();
+        const { t: translate } = useTranslationContext();
+        return (
+          <ContextMenuHeader>
+            <ContextMenuBackButton onClick={goBack}>
+              <IconChevronLeft />
+              <span>{translate('Download Attachment')}</span>
+            </ContextMenuBackButton>
+          </ContextMenuHeader>
+        );
+      };
+
+      const DownloadSubmenu = () => (
+        <div
+          aria-label={t('aria/Download attachment')}
+          className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'
+          role='listbox'
+        >
+          {downloadableAttachments.map((attachment, index) => {
+            const fileName =
+              attachment.localMetadata?.file?.name ??
+              attachment.title ??
+              t('Download Attachment');
+
+            return (
+              <ContextMenuButton
+                className={msgActionsBoxButtonClassName}
+                Icon={IconDownload}
+                key={
+                  attachment.localMetadata?.id ??
+                  attachment.asset_url ??
+                  attachment.image_url ??
+                  `${fileName}-${index}`
+                }
+                onClick={() => {
+                  void downloadAttachment(attachment);
+                  closeMenu();
+                }}
+              >
+                {`Download ${fileName}`}
+              </ContextMenuButton>
+            );
+          })}
+          <ContextMenuButton
+            className={msgActionsBoxButtonClassName}
+            Icon={IconDownload}
+            onClick={() => {
+              void downloadAllAttachments(downloadableAttachments);
+              closeMenu();
+            }}
+          >
+            {t('Download All')}
+          </ContextMenuButton>
+        </div>
+      );
+
+      return (
+        <ContextMenuButton
+          aria-label={t('aria/Download attachment')}
+          className={msgActionsBoxButtonClassName}
+          hasSubMenu={downloadableAttachments.length > 1}
+          Icon={IconDownload}
+          onClick={() => {
+            if (downloadableAttachments.length > 1) {
+              openSubmenu({
+                Header: DownloadSubmenuHeader,
+                Submenu: DownloadSubmenu,
+              });
+              return;
+            }
+
+            void downloadAttachment(downloadableAttachments[0]);
+            closeMenu();
+          }}
+        >
+          {t('Download Attachment')}
         </ContextMenuButton>
       );
     },
@@ -727,6 +827,11 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
     Component: DefaultMessageActionComponents.dropdown.Quote,
     placement: 'dropdown',
     type: 'quote',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.Download,
+    placement: 'dropdown',
+    type: 'download',
   },
   {
     Component: DefaultMessageActionComponents.dropdown.Pin,

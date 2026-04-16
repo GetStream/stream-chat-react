@@ -141,6 +141,8 @@
   "Delivered": "पहुंच गया",
   "Direct message": "प्रत्यक्ष संदेश",
   "Do you want to end this poll now? Nobody will be able to vote in this poll anymore.": "क्या आप अभी इस पोल को समाप्त करना चाहते हैं? इस पोल में अब कोई भी वोट नहीं कर पाएगा।",
+  "Download All": "सब डाउनलोड करें",
+  "Download Attachment": "अटैचमेंट डाउनलोड करें",
   "Download attachment {{ name }}": "अनुलग्नक {{ name }} डाउनलोड करें",
   "Drag your files here": "अपनी फ़ाइलें यहाँ खींचें",
   "Drag your files here to add to your post": "अपनी फ़ाइलें यहाँ खींचें और अपने पोस्ट में जोड़ने के लिए",

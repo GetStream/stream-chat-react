@@ -116,7 +116,9 @@ export const MessageActions: MessageActionsInterface = ({
         <>
           <quickDropdownToggleAction.Component ref={setActionsBoxButtonElement} />
 
+          {/* Stacked submenu changes height; without this, flip() can swap top↔bottom on updateKey. */}
           <ContextMenuComponent
+            allowFlip={false}
             backLabel={t('Back')}
             className={clsx('str-chat__message-actions-box', {
               'str-chat__message-actions-box--hidden':

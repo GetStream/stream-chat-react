@@ -265,6 +265,7 @@
         text-align: start;
         color: var(--text-primary);
         white-space: nowrap;
+        min-width: 0;
       }
 
       .str-chat__context-menu__button__details {

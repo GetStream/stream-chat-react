@@ -141,6 +141,8 @@
   "Delivered": "İletildi",
   "Direct message": "Doğrudan mesaj",
   "Do you want to end this poll now? Nobody will be able to vote in this poll anymore.": "Bu anketi şimdi sonlandırmak istiyor musunuz? Sonlandırdıktan sonra bu ankette kimse oy kullanamayacak.",
+  "Download All": "Tümünü indir",
+  "Download Attachment": "Eki indir",
   "Download attachment {{ name }}": "Ek {{ name }}'i indir",
   "Drag your files here": "Dosyalarınızı buraya sürükleyin",
   "Drag your files here to add to your post": "Gönderinize eklemek için dosyalarınızı buraya sürükleyin",

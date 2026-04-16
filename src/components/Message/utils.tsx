@@ -53,6 +53,7 @@ export const OPTIONAL_MESSAGE_ACTIONS = {
 
 export const MESSAGE_ACTIONS = {
   delete: 'delete',
+  download: 'download',
   edit: 'edit',
   flag: 'flag',
   markUnread: 'markUnread',
@@ -106,6 +107,10 @@ export const getMessageActions = (
     messageActions = [...actions];
   } else {
     return [];
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.download) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.download);
   }
 
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {

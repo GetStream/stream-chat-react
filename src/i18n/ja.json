@@ -140,6 +140,8 @@
   "Delivered": "配信しました",
   "Direct message": "ダイレクトメッセージ",
   "Do you want to end this poll now? Nobody will be able to vote in this poll anymore.": "このアンケートを今終了しますか？終了すると、誰も投票できなくなります。",
+  "Download All": "すべてダウンロード",
+  "Download Attachment": "添付ファイルをダウンロード",
   "Download attachment {{ name }}": "添付ファイル {{ name }} をダウンロード",
   "Drag your files here": "ここにファイルをドラッグ",
   "Drag your files here to add to your post": "投稿に追加するためにここにファイルをドラッグ",

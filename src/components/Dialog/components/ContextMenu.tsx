@@ -529,9 +529,11 @@ export function ContextMenuContent({
   );
 
   const returnToParentMenu = useCallback(() => {
-    if (menuStack.length <= 1) return;
-    setMenuStack((current) => current.slice(0, current.length - 1));
-  }, [menuStack.length]);
+    setMenuStack((current) => {
+      if (current.length <= 1) return current;
+      return current.slice(0, -1);
+    });
+  }, []);
 
   useEffect(() => {
     setMenuStack((current) => {
