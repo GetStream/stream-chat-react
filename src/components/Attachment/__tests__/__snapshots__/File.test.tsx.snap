@@ -9,7 +9,6 @@ exports[`File > should render File component 1`] = `
     <svg
       class="str-chat__file-icon str-chat__file-icon--size-md str-chat__file-icon--pdf str-chat__file-icon--no-label str-chat__file-icon"
       height="32"
-      label="pdf"
       style="flex-shrink: 0; height: 32px; width: 26px;"
       viewBox="0 0 32 40"
       width="26"
