@@ -109,12 +109,12 @@ export const getMessageActions = (
     return [];
   }
 
-  if (messageActions.indexOf(MESSAGE_ACTIONS.download) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.download);
-  }
-
   if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
+  }
+
+  if (messageActions.indexOf(MESSAGE_ACTIONS.download) > -1) {
+    messageActionsAfterPermission.push(MESSAGE_ACTIONS.download);
   }
 
   if (canDelete && messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1) {
