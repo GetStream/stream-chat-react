@@ -49,6 +49,7 @@ const MESSAGE_ACTIONS_HOST_TEST_ID = 'message-actions-host';
 const dialogOverlayTestId = 'str-chat__dialog-overlay';
 const threadActionTestId = 'thread-action';
 const reactionActionTestId = 'message-reaction-action';
+const dropdownReactionActionTestId = 'dropdown-react-action';
 const reactionSelectorTestId = 'reaction-selector';
 
 const defaultMessageContextValue = {
@@ -557,6 +558,22 @@ describe('<MessageActions />', () => {
 
       expect(queryByTestId(reactionActionTestId)).not.toBeInTheDocument();
     });
+
+    it('should display reaction action at the top of dropdown list', async () => {
+      const { container } = await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'send-reaction': true },
+        },
+      });
+      await toggleOpenMessageActions();
+
+      const contextMenuButtons = container.querySelectorAll(
+        '.str-chat__context-menu__button',
+      );
+
+      expect(contextMenuButtons[0]).toHaveTextContent('Add reaction');
+      expect(screen.getByTestId(dropdownReactionActionTestId)).toBeInTheDocument();
+    });
   });
 
   describe('Reaction selector', () => {
@@ -633,6 +650,75 @@ describe('<MessageActions />', () => {
       });
 
       expect(actionsHost).toHaveClass('str-chat__message-options--active');
+    });
+
+    it('should render ReactionSelector when dropdown reaction action is clicked', async () => {
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'send-reaction': true },
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(dropdownReactionActionTestId));
+      });
+
+      const reactionSelector = screen.getByTestId(reactionSelectorTestId);
+      expect(reactionSelector).toBeInTheDocument();
+      expect(reactionSelector.closest('.str-chat__context-menu')).toBeNull();
+      const messageActionsMenu = document.querySelector('.str-chat__message-actions-box');
+      expect(messageActionsMenu).toBeInTheDocument();
+      expect(messageActionsMenu).toHaveClass('str-chat__message-actions-box--hidden');
+    });
+
+    it('should close ReactionSelector when dropdown reaction action is clicked while selector is open', async () => {
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'send-reaction': true },
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(dropdownReactionActionTestId));
+      });
+
+      expect(screen.getByTestId(reactionSelectorTestId)).toBeInTheDocument();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(dropdownReactionActionTestId));
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
+      });
+
+      const messageActionsMenu = document.querySelector('.str-chat__message-actions-box');
+      expect(messageActionsMenu).not.toHaveClass('str-chat__message-actions-box--hidden');
+    });
+
+    it('should close ReactionSelector when message actions toggle is clicked while dropdown selector is open', async () => {
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'send-reaction': true },
+        },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(dropdownReactionActionTestId));
+      });
+
+      expect(screen.getByTestId(reactionSelectorTestId)).toBeInTheDocument();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID));
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId(reactionSelectorTestId)).not.toBeInTheDocument();
+      });
     });
   });
 

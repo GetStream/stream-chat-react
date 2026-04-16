@@ -30,6 +30,7 @@ import { useMessageComposerController } from '../MessageComposer/hooks/useMessag
 import { savePreEditSnapshot } from '../MessageComposer/preEditSnapshot';
 import { useNotificationApi } from '../Notifications';
 import { useMessageReminder } from '../Message/hooks/useMessageReminder';
+import { ReactionSelector as DefaultReactionSelector } from '../Reactions';
 import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithButton';
 import {
   useChatContext,
@@ -40,6 +41,7 @@ import {
 import { RemindMeSubmenu, RemindMeSubmenuHeader } from './RemindMeSubmenu';
 import {
   ContextMenuButton,
+  DialogAnchor,
   useContextMenuContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
@@ -67,6 +69,61 @@ const getNotificationError = (error: unknown): Error | undefined => {
 
 const DefaultMessageActionComponents = {
   dropdown: {
+    React() {
+      const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
+      const { anchorReferenceElement } = useContextMenuContext();
+      const { isMyMessage, message, threadList } = useMessageContext();
+      const { t } = useTranslationContext();
+      const [referenceElement, setReferenceElement] = useState<HTMLElement | null>(null);
+      const dialogId = `${DefaultReactionSelector.getDialogId({
+        messageId: message.id,
+        threadList,
+      })}-dropdown`;
+      const { dialog, dialogManager } = useDialogOnNearestManager({
+        id: dialogId,
+      });
+      const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
+      return (
+        <>
+          <DialogAnchor
+            dialogManagerId={dialogManager?.id}
+            id={dialogId}
+            offset={8}
+            placement={isMyMessage() ? 'top-end' : 'top-start'}
+            referenceElement={referenceElement}
+            trapFocus
+            updatePositionOnContentResize
+          >
+            <ReactionSelector dialogId={dialogId} />
+          </DialogAnchor>
+          <ContextMenuButton
+            aria-expanded={dialogIsOpen}
+            aria-label={t('aria/Open Reaction Selector')}
+            className={clsx(
+              msgActionsBoxButtonClassName,
+              'str-chat__message-actions-list-item-button--react',
+            )}
+            data-testid='dropdown-react-action'
+            Icon={IconEmoji}
+            onClick={(event) => {
+              if (dialogIsOpen) {
+                dialog.close();
+                return;
+              }
+              setReferenceElement(
+                anchorReferenceElement instanceof HTMLElement
+                  ? anchorReferenceElement
+                  : event.currentTarget,
+              );
+              dialog.open();
+            }}
+          >
+            {t('Add reaction')}
+          </ContextMenuButton>
+        </>
+      );
+    },
     ThreadReply() {
       const { closeMenu } = useContextMenuContext();
       const { handleOpenThread } = useMessageContext();
@@ -586,12 +643,19 @@ const DefaultMessageActionComponents = {
     // eslint-disable-next-line react/display-name
     DropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
       const { t } = useTranslationContext();
-      const { message } = useMessageContext();
+      const { message, threadList } = useMessageContext();
       const dropdownDialogIsOpen = useDialogIsOpen(
         MessageActions.getDialogId({ messageId: message.id }),
       );
       const { dialog } = useDialogOnNearestManager({
         id: MessageActions.getDialogId({ messageId: message.id }),
+      });
+      const reactionSelectorDialogId = DefaultReactionSelector.getDialogId({
+        messageId: message.id,
+        threadList,
+      });
+      const { dialog: dropdownReactionSelectorDialog } = useDialogOnNearestManager({
+        id: `${reactionSelectorDialogId}-dropdown`,
       });
 
       return (
@@ -602,6 +666,9 @@ const DefaultMessageActionComponents = {
           className='str-chat__message-actions-box-button'
           data-testid='message-actions-toggle-button'
           onClick={() => {
+            // Close dropdown-anchored reaction selectors before toggling actions menu
+            // to avoid stale selector re-anchoring.
+            dropdownReactionSelectorDialog?.close();
             dialog?.toggle();
           }}
           ref={ref}
@@ -644,6 +711,11 @@ export const defaultMessageActionSet: MessageActionSetItem[] = [
   {
     Component: DefaultMessageActionComponents.quick.React,
     placement: 'quick',
+    type: 'react',
+  },
+  {
+    Component: DefaultMessageActionComponents.dropdown.React,
+    placement: 'dropdown',
     type: 'react',
   },
   {

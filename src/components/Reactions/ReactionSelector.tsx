@@ -11,6 +11,8 @@ import { IconPlus } from '../Icons';
 import type { ReactionResponse } from 'stream-chat';
 
 export type ReactionSelectorProps = {
+  /** Override dialog id used by the selector popover. */
+  dialogId?: string;
   /** Function that adds/removes a reaction on a message (overrides the function stored in `MessageContext`) */
   handleReaction?: (
     reactionType: string,
@@ -30,7 +32,11 @@ interface ReactionSelectorInterface {
 const stableOwnReactions: ReactionResponse[] = [];
 
 export const ReactionSelector: ReactionSelectorInterface = (props) => {
-  const { handleReaction: propHandleReaction, own_reactions: propOwnReactions } = props;
+  const {
+    dialogId: propDialogId,
+    handleReaction: propHandleReaction,
+    own_reactions: propOwnReactions,
+  } = props;
   const [extendedListOpen, setExtendedListOpen] = useState(false);
 
   const {
@@ -44,10 +50,12 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     message,
     threadList,
   } = useMessageContext('ReactionSelector');
-  const dialogId = ReactionSelector.getDialogId({
-    messageId: message.id,
-    threadList,
-  });
+  const dialogId =
+    propDialogId ??
+    ReactionSelector.getDialogId({
+      messageId: message.id,
+      threadList,
+    });
   const { dialog } = useDialogOnNearestManager({ id: dialogId });
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
@@ -78,7 +86,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
 
   return (
     <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
-      {!extendedListOpen && (
+      {!extendedListOpen ? (
         <>
           <ul
             className='str-chat__reaction-selector-list'
@@ -113,16 +121,26 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
             circular
             className='str-chat__reaction-selector__add-button'
             data-testid='reaction-selector-add-button'
-            onClick={() => setExtendedListOpen(true)}
+            onClick={() => {
+              setExtendedListOpen(true);
+            }}
             size='sm'
             variant='secondary'
           >
             <IconPlus />
           </Button>
         </>
-      )}
-      {extendedListOpen && (
-        <ReactionSelectorExtendedList {...props} dialogId={dialogId} />
+      ) : (
+        <ReactionSelectorExtendedList
+          {...props}
+          dialogId={dialogId}
+          handleReaction={async (reactionType, event) => {
+            await handleReaction(reactionType, event);
+            if (closeReactionSelectorOnClick) {
+              dialog.close();
+            }
+          }}
+        />
       )}
     </div>
   );

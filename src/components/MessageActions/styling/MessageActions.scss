@@ -2,6 +2,11 @@
 
 .str-chat__message-actions-box {
   min-width: 180px;
+
+  &.str-chat__message-actions-box--hidden {
+    visibility: hidden;
+    pointer-events: none;
+  }
 }
 
 .str-chat__message-options {
@@ -39,5 +44,24 @@
 
   .str-chat__message-actions-box-button {
     position: relative;
+  }
+}
+
+.str-chat
+  .str-chat__message-actions-list-item-button.str-chat__message-actions-list-item-button--react {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .str-chat .str-chat__message-options {
+    .str-chat__button.str-chat__message-reactions-button,
+    .str-chat__button.str-chat__message-reply-in-thread-button {
+      display: none;
+    }
+  }
+
+  .str-chat
+    .str-chat__message-actions-list-item-button.str-chat__message-actions-list-item-button--react {
+    display: flex;
   }
 }

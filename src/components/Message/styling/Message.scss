@@ -81,6 +81,10 @@
   --str-chat-message-options-size: calc(3 * var(--str-chat__message-options-button-size));
   padding-inline: var(--str-chat__message-composer-padding);
 
+  @media (max-width: 767px) {
+    --str-chat-message-options-size: var(--str-chat__message-options-button-size);
+  }
+
   .str-chat__message-bubble {
     width: min(100%, var(--str-chat__message-max-width));
     max-width: var(--str-chat__message-max-width);
