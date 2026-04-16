@@ -8,12 +8,7 @@
   );
 
   /* The text/icon color of file attachments */
-  --str-chat__unsupported-attachment-color: var(--str-chat__text-color);
-
-  /* The text/icon color of file attachments for low emphasis texts (for example file size) */
-  --str-chat__unsupported-attachment-secondary-color: var(
-    --str-chat__text-low-emphasis-color
-  );
+  --str-chat__unsupported-attachment-color: var(--text-primary);
 
   /* The background color of file attachments */
   --str-chat__unsupported-attachment-background-color: transparent;
@@ -43,8 +38,8 @@
   column-gap: var(--spacing-xs);
 
   .str-chat__icon {
-    height: calc(var(--str-chat__spacing-px) * 20);
-    width: calc(var(--str-chat__spacing-px) * 20);
+    height: var(--size-20);
+    width: var(--size-20);
   }
 
   .str-chat__message-attachment-unsupported__metadata {

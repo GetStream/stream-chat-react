@@ -13,7 +13,7 @@
   text-align: center;
   @include utils.component-layer-overrides('channel');
   color: var(--text-secondary);
-  font: var(--str-chat__caption-default-text);
+  font: var(--str-chat__font-caption-default);
 
   svg {
     width: 32px;

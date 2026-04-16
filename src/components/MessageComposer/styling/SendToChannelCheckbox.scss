@@ -74,7 +74,7 @@
     }
 
     .str-chat__send-to-channel-checkbox__label {
-      font: var(--str-chat__metadata-default-text);
+      font: var(--str-chat__font-metadata-default);
       transition:
         color 0.15s ease,
         border-color 0.15s ease;

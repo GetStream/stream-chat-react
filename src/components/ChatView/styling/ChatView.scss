@@ -1,5 +1,5 @@
 .str-chat {
-  --str-chat-selector-background-color: var(--str-chat__secondary-background-color);
+  --str-chat-selector-background-color: var(--background-core-elevation-1);
   --str-chat-selector-border-color: var(--border-core-subtle);
   --str-chat__chat-view-selector-transition-duration: 180ms;
   --str-chat__chat-view-selector-transition-easing: ease;
@@ -8,10 +8,10 @@
     var(--spacing-md) + var(--spacing-md) + var(--spacing-xs) + var(--spacing-xs) + 20px
   );
 
-  --str-chat-selector-button-color-default: var(--str-chat__text-low-emphasis-color);
-  --str-chat-selector-button-color-selected: var(--str-chat__text-color);
+  --str-chat-selector-button-color-default: var(--text-tertiary);
+  --str-chat-selector-button-color-selected: var(--text-primary);
   --str-chat-selector-button-background-color-default: transparent;
-  --str-chat-selector-button-background-color-selected: var(--str-chat__surface-color);
+  --str-chat-selector-button-background-color-selected: var(--background-core-surface);
 }
 
 .str-chat__chat-view {
@@ -51,7 +51,7 @@
       gap: 4px;
       padding: var(--spacing-xs);
       border-radius: var(--radius-md);
-      font: var(--str-chat__caption-emphasis-text);
+      font: var(--str-chat__font-caption-emphasis);
       line-height: 1;
       position: relative;
 

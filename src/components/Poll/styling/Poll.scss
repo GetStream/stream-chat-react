@@ -11,9 +11,7 @@
     );
     max-width: 100%;
     min-width: 260px;
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-tight);
+    font: var(--str-chat__font-caption-default);
 
     button {
       @include utils.button-reset;
@@ -22,9 +20,7 @@
 
     .str-chat__poll-header {
       .str-chat__poll-title {
-        font-size: var(--typography-font-size-md);
-        font-weight: var(--typography-font-weight-semi-bold);
-        line-height: var(--typography-line-height-normal);
+        font: var(--str-chat__font-body-emphasis);
       }
     }
 
@@ -33,52 +29,15 @@
       flex-direction: column;
       align-items: center;
       gap: var(--spacing-xs);
-    }
-  }
 
-  .str-chat__button.str-chat__poll-action {
-    width: 100%;
-    color: var(--str-chat__primary-color);
-    border: 1px solid var(--chat-border-on-chat-incoming);
-    font-size: var(--typography-font-size-sm);
-    padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
+      .str-chat__button.str-chat__poll-action {
+        width: 100%;
+        border: 1px solid var(--chat-border-on-chat);
+        padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
+        font: var(--str-chat__font-body-emphasis);
 
-    &.str-chat__poll-action--additional {
-      border: none;
-    }
-  }
-
-  .str-chat__message--me {
-    .str-chat__poll {
-      .str-chat__poll-option-list:not(.str-chat__poll-option-list--full) {
-        .str-chat__poll-option__votes-bar {
-          background: linear-gradient(
-            to right,
-            var(--chat-poll-progress-fill-outgoing)
-              var(--str-chat__amount-bar-fulfillment),
-            var(--chat-poll-progress-track-outgoing)
-              var(--str-chat__amount-bar-fulfillment)
-          );
-        }
-
-        .str-chat__poll-option__votes-bar--winner {
-          background: linear-gradient(
-            to right,
-            var(--chat-poll-progress-fill-outgoing)
-              var(--str-chat__amount-bar-fulfillment),
-            var(--chat-poll-progress-track-outgoing)
-              var(--str-chat__amount-bar-fulfillment)
-          );
-        }
-      }
-
-      .str-chat__poll-actions {
-        .str-chat__poll-action {
-          border: 1px solid var(--chat-border-on-chat-outgoing);
-
-          &.str-chat__poll-action--additional {
-            border: none;
-          }
+        &.str-chat__poll-action--additional {
+          border: none;
         }
       }
     }

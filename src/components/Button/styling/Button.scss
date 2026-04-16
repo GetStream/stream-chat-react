@@ -12,7 +12,7 @@
     align-items: center;
     justify-content: center;
 
-    font: var(--str-chat__heading-xs-text);
+    font: var(--str-chat__font-heading-xs);
     text-transform: capitalize;
 
     &.str-chat__button--solid {
@@ -107,7 +107,7 @@
     }
 
     &.str-chat__button--floating {
-      box-shadow: var(--light-elevation-2);
+      box-shadow: var(--str-chat__box-shadow-2);
     }
 
     &::after {
@@ -176,6 +176,6 @@
   }
 
   .str-chat__theme-dark .str-chat__button.str-chat__button--floating {
-    box-shadow: var(--dark-elevation-2);
+    box-shadow: var(--str-chat__box-shadow-2);
   }
 }

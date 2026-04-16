@@ -75,7 +75,7 @@
   border: 1px solid var(--border-core-subtle);
   background: var(--badge-bg-default);
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
-  font: var(--str-chat__numeric-xl-text);
+  font: var(--str-chat__font-numeric-xl);
   color: var(--badge-text);
 
   &.str-chat__badge--size-xs {
@@ -83,7 +83,7 @@
     min-height: 20px;
     padding-inline: var(--spacing-xxs);
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
-    font: var(--str-chat__numeric-md-text);
+    font: var(--str-chat__font-numeric-md);
   }
 
   &.str-chat__badge--size-sm {

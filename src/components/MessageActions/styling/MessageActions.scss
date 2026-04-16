@@ -30,12 +30,6 @@
     color: var(--str-chat__message-options-color);
   }
 
-  .str-chat__message-actions-box-button:hover,
-  .str-chat__message-reply-in-thread-button:hover,
-  .str-chat__message-reactions-button:hover {
-    background-color: var(--str-chat__message-options-hover-background-color);
-  }
-
   .str-chat__message-actions-box-button:active,
   .str-chat__message-reply-in-thread-button:active,
   .str-chat__message-reactions-button:active {

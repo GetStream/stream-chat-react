@@ -5,7 +5,7 @@
   --str-chat__modal-border-radius: var(--radius-xl);
 
   /* The text/icon color of the content area of the component */
-  --str-chat__modal-color: var(--str-chat__text-color);
+  --str-chat__modal-color: var(--text-primary);
 
   /* The background color of the content area of the component */
   --str-chat__modal-background-color: var(--background-core-elevation-1);
@@ -29,7 +29,7 @@
   --str-chat__modal-border-inline-end: none;
 
   /* Box shadow applied to the content area of the component */
-  --str-chat__modal-box-shadow: var(--str-chat__box-shadow-elevation-1);
+  --str-chat__modal-box-shadow: var(--str-chat__box-shadow-4);
 }
 
 .str-chat__modal--open {

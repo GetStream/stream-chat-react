@@ -3,13 +3,9 @@
 .str-chat__message {
   --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
   --str-chat__modal-gallery-load-failed-indicator-color: var(--text-inverse);
-  --str-chat__modal-gallery-loading-background: var(--chat-bg-incoming);
+  --str-chat__modal-gallery-loading-background: var(--chat-bg);
   --str-chat__modal-gallery-loading-base: var(--skeleton-loading-base);
   --str-chat__modal-gallery-loading-highlight: var(--skeleton-loading-highlight);
-}
-
-.str-chat__message--me {
-  --str-chat__modal-gallery-loading-background: var(--chat-bg-outgoing);
 }
 
 .str-chat__attachment-list {

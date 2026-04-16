@@ -1,0 +1,14 @@
+@use './light' as light;
+@use './dark' as dark;
+
+.str-chat,
+.str-chat__theme-dark .str-chat__theme-inverse {
+  @include light.variables;
+}
+
+.str-chat__theme-dark,
+.str-chat:not(.str-chat__theme-dark)
+  *:not(.str-chat__theme-dark)
+  .str-chat__theme-inverse {
+  @include dark.variables;
+}

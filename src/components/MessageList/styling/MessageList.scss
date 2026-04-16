@@ -72,10 +72,10 @@
   --str-chat__message-list-border-radius: 0;
 
   /* The text/icon color of the component */
-  --str-chat__message-list-color: var(--str-chat__text-color);
+  --str-chat__message-list-color: var(--text-primary);
 
   /* The background color of the component */
-  --str-chat__message-list-background-color: var(--str-chat__background-color);
+  --str-chat__message-list-background-color: var(--background-core-app);
 
   /* Box shadow applied to the component */
   --str-chat__message-list-box-shadow: none;
@@ -93,8 +93,8 @@
   --str-chat__message-list-border-inline-end: none;
 
   /* The color used for displaying thread replies and thread separator at the start of a thread */
-  --str-chat__thread-head-start-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__thread-head-start-color: var(--text-tertiary);
 
   /* The color used for the separator below the first message in a thread */
-  --str-chat__thread-head-start-border-block-end-color: var(--str-chat__surface-color);
+  --str-chat__thread-head-start-border-block-end-color: var(--background-core-surface);
 }

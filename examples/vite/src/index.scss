@@ -143,6 +143,7 @@ body {
     min-width: 1px;
     height: 100%;
     z-index: 1;
+    background: var(--border-core-default);
   }
 
   .app-chat-resize-handle__hitbox {
@@ -164,7 +165,7 @@ body {
   .app-chat-resize-handle__line {
     width: 1px;
     height: 100%;
-    background: var(--str-chat__surface-color);
+    background: transparent;
   }
 
   .app-chat-resize-handle--thread {

@@ -44,9 +44,9 @@
 }
 
 .str-chat__loading-channel {
-  $header-bar-height: calc(var(--str-chat__spacing-px) * 16);
-  $metadata-bar-height: calc(var(--str-chat__spacing-px) * 16);
-  $composer-control-height: calc(var(--str-chat__spacing-px) * 48);
+  $header-bar-height: var(--size-16);
+  $metadata-bar-height: var(--size-16);
+  $composer-control-height: var(--size-48);
   --str-chat__loading-channel-content-max-width: calc(
     var(--str-chat__message-composer-max-width) +
       var(--str-chat__message-composer-padding)
@@ -64,13 +64,13 @@
 
     .str-chat__loading-channel-header-name {
       height: $header-bar-height;
-      width: calc(var(--str-chat__spacing-px) * 120);
+      width: 120px;
     }
 
     .str-chat__loading-channel-header-avatar {
       flex-shrink: 0;
-      width: calc(var(--str-chat__spacing-px) * 40);
-      height: calc(var(--str-chat__spacing-px) * 40);
+      width: var(--size-40);
+      height: var(--size-40);
       border-radius: 50%;
     }
   }
@@ -91,9 +91,8 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: calc(var(--str-chat__spacing-px) * 28);
-    padding-block: calc(var(--str-chat__spacing-px) * 32)
-      calc(var(--str-chat__spacing-px) * 24);
+    gap: var(--size-28);
+    padding-block: var(--size-32) var(--size-24);
 
     .str-chat__loading-channel-message {
       display: flex;
@@ -102,8 +101,8 @@
 
       .str-chat__loading-channel-message-avatar {
         flex-shrink: 0;
-        width: calc(var(--str-chat__spacing-px) * 36);
-        height: calc(var(--str-chat__spacing-px) * 36);
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         align-self: end;
       }
@@ -113,7 +112,7 @@
         flex-direction: column;
         width: min(100%, var(--str-chat__message-max-width));
         max-width: var(--str-chat__message-max-width);
-        row-gap: calc(var(--str-chat__spacing-px) * 12);
+        row-gap: var(--size-12);
         min-width: 0;
       }
 
@@ -123,13 +122,13 @@
       }
 
       .str-chat__loading-channel-message-bubble--md {
-        height: calc(var(--str-chat__spacing-px) * 64);
-        width: min(58%, calc(var(--str-chat__spacing-px) * 272));
+        height: var(--size-64);
+        width: min(58%, 272px);
       }
 
       .str-chat__loading-channel-message-bubble--lg {
-        height: calc(var(--str-chat__spacing-px) * 84);
-        width: min(72%, calc(var(--str-chat__spacing-px) * 352));
+        height: 84px;
+        width: min(72%, 352px);
       }
 
       .str-chat__loading-channel-message-metadata {
@@ -139,11 +138,11 @@
       }
 
       .str-chat__loading-channel-message-metadata--sm {
-        width: calc(var(--str-chat__spacing-px) * 88);
+        width: 88px;
       }
 
       .str-chat__loading-channel-message-metadata--md {
-        width: calc(var(--str-chat__spacing-px) * 124);
+        width: 124px;
       }
 
       &.str-chat__loading-channel-message--outgoing {
@@ -184,10 +183,10 @@
   --str-chat__channel-border-radius: 0;
 
   /* The text/icon color of the component */
-  --str-chat__channel-color: var(--str-chat__text-color);
+  --str-chat__channel-color: var(--text-primary);
 
   /* The background color of the component */
-  --str-chat__channel-background-color: var(--str-chat__background-color);
+  --str-chat__channel-background-color: transparent;
 
   /* Box shadow applied to the component */
   --str-chat__channel-box-shadow: none;

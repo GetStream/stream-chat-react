@@ -56,11 +56,11 @@
   }
 
   .str-chat__channel-header__data__title {
-    font: var(--str-chat__heading-sm-text);
+    font: var(--str-chat__font-heading-sm);
   }
 
   .str-chat__channel-header__data__subtitle {
-    font: var(--str-chat__caption-default-text);
+    font: var(--str-chat__font-caption-default);
     color: var(--str-chat__channel-header__data__subtitle-color);
   }
 }

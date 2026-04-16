@@ -50,10 +50,10 @@
   --str-chat__attachment-action-box-shadow: none;
 
   /* The text/icon color of an attachment action while in pressed state */
-  --str-chat__attachment-action-active-color: var(--str-chat__primary-color);
+  --str-chat__attachment-action-active-color: var(--accent-primary);
 
   /* The text/icon color of an attachment action while in pressed state */
-  --str-chat__attachment-action-focus-color: var(--str-chat__primary-color);
+  --str-chat__attachment-action-focus-color: var(--accent-primary);
 }
 
 .str-chat__message-attachment-actions {
