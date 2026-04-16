@@ -3,6 +3,7 @@ import { appSettingsStore, useAppSettingsState } from '../../state';
 
 export const GeneralTab = () => {
   const {
+    messageList,
     theme,
     theme: { direction },
   } = useAppSettingsState();
@@ -33,6 +34,33 @@ export const GeneralTab = () => {
             }
           >
             RTL
+          </Button>
+        </div>
+      </div>
+      <div className='app__settings-modal__field'>
+        <div className='app__settings-modal__field-label'>Message list</div>
+        <div className='app__settings-modal__options-row'>
+          <Button
+            aria-pressed={messageList.type === 'standard'}
+            className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+            onClick={() =>
+              appSettingsStore.partialNext({
+                messageList: { type: 'standard' },
+              })
+            }
+          >
+            Standard
+          </Button>
+          <Button
+            aria-pressed={messageList.type === 'virtualized'}
+            className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+            onClick={() =>
+              appSettingsStore.partialNext({
+                messageList: { type: 'virtualized' },
+              })
+            }
+          >
+            Virtualized
           </Button>
         </div>
       </div>
