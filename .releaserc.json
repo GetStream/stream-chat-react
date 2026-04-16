@@ -2,7 +2,8 @@
   "branches": [
     {
       "name": "release-v13",
-      "channel": "latest"
+      "channel": "v13",
+      "range": "13.x"
     }
   ],
   "plugins": [
