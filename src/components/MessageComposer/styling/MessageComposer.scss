@@ -158,11 +158,14 @@
   .str-chat__message-composer-previews {
     display: flex;
     flex-direction: column;
+    max-height: 400px;
+    overflow: hidden;
     width: 100%;
     padding: var(--spacing-xs) var(--spacing-xs) 0;
     gap: var(--spacing-xxs);
 
     min-width: 0;
+    min-height: 0;
   }
 
   .str-chat__message-composer-controls {
