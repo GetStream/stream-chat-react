@@ -1,5 +1,5 @@
 @mixin channel-list-item-shimmer {
-  background-color: var(--str-chat__channel-list-item-loading-state-color);
+  background-color: var(--background-core-surface);
   background-image: linear-gradient(
     90deg,
     var(--skeleton-loading-base) 0%,
@@ -9,11 +9,6 @@
   background-repeat: no-repeat;
   background-size: 200% 100%;
   animation: loading-channels-shimmer 1.2s linear infinite;
-}
-
-.str-chat {
-  /* The base surface color behind the channel list loading shimmer */
-  --str-chat__channel-list-item-loading-state-color: var(--background-core-surface);
 }
 
 .str-chat__loading-channels {

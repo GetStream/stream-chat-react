@@ -5,14 +5,6 @@
 .str-chat {
   --str-chat__switch-field-background-color: var(--background-core-surface-card);
   --str-chat__switch-field-border-radius: var(--radius-md);
-  --str-chat__switch-field__track-off-bg: var(
-    --control-toggle-switch-bg,
-    var(--border-core-on-surface, #a3acba)
-  );
-  --str-chat__switch-field__track-on-bg: var(
-    --control-toggle-switch-bg-selected,
-    #005fff
-  );
   --str-chat__switch-field__track-thumb-bg: var(--base-white, #ffffff);
   --str-chat__switch-field__track-height: 24px;
   --str-chat__switch-field__track-radius: var(--button-radius-full, 9999px);
@@ -61,7 +53,7 @@
       height: var(--str-chat__switch-field__track-height);
       padding: var(--spacing-xxs);
       cursor: pointer;
-      background-color: var(--str-chat__switch-field__track-off-bg);
+      background-color: var(--control-toggle-switch-bg);
       border-radius: var(--str-chat__switch-field__track-radius);
       transition: background-color 0.2s ease;
 
@@ -74,7 +66,7 @@
       }
 
       &--on {
-        background-color: var(--str-chat__switch-field__track-on-bg);
+        background-color: var(--control-toggle-switch-bg-selected);
         justify-content: flex-end;
 
         .str-chat__form__switch-field__switch-handle {

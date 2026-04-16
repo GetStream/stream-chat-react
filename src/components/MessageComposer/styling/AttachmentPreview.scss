@@ -25,16 +25,9 @@
     --background-utility-pressed
   );
 
-  --str-chat__attachment-preview-media-uploading-overlay-background: linear-gradient(
-    180deg,
-    var(--base-white) 0%,
-    var(--slate-100) 100%
-  );
   --str-chat__attachment-preview-media-upload-error-overlay-background-color: var(
     --background-core-overlay
   );
-
-  --str-chat__attachment-preview-file-fatal-error-color: var(--color-accent-error);
 
   .str-chat__message-composer-voice-preview-slot {
     display: flex;
@@ -196,7 +189,11 @@
 
   .str-chat__attachment-preview-media--uploading {
     .str-chat__attachment-preview-media__overlay {
-      background: var(--str-chat__attachment-preview-media-uploading-overlay-background);
+      background: linear-gradient(
+        180deg,
+        var(--base-white) 0%,
+        var(--slate-100) 100%
+      );
     }
   }
 
@@ -244,7 +241,7 @@
         display: flex;
         align-items: center;
         gap: var(--spacing-xxs);
-        color: var(--str-chat__attachment-preview-file-fatal-error-color);
+        color: var(--color-accent-error);
       }
 
       .str-chat__attachment-preview-file__retriable-error {

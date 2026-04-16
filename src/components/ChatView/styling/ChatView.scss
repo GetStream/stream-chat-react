@@ -1,6 +1,4 @@
 .str-chat {
-  --str-chat-selector-background-color: var(--background-core-elevation-1);
-  --str-chat-selector-border-color: var(--border-core-subtle);
   --str-chat__chat-view-selector-transition-duration: 180ms;
   --str-chat__chat-view-selector-transition-easing: ease;
   --str-chat__chat-view-selector-transition-offset: 8px;
@@ -10,8 +8,6 @@
 
   --str-chat-selector-button-color-default: var(--text-tertiary);
   --str-chat-selector-button-color-selected: var(--text-primary);
-  --str-chat-selector-button-background-color-default: transparent;
-  --str-chat-selector-button-background-color-selected: var(--background-core-surface);
 }
 
 .str-chat__chat-view {
@@ -27,8 +23,8 @@
     flex-direction: column;
     padding: var(--spacing-md);
     gap: var(--spacing-xs);
-    border-inline-end: 1px solid var(--str-chat-selector-border-color);
-    background-color: var(--str-chat-selector-background-color);
+    border-inline-end: 1px solid var(--border-core-subtle);
+    background-color: var(--background-core-elevation-1);
 
     .str-chat__chat-view__selector-button-container {
       display: flex;
@@ -55,13 +51,13 @@
       line-height: 1;
       position: relative;
 
-      background: var(--str-chat-selector-button-background-color-default);
+      background: transparent;
       color: var(--str-chat-selector-button-color-default);
 
       &[aria-selected='true'] {
         --str-chat-icon-color: var(--str-chat-selector-button-color-selected);
         color: var(--str-chat-selector-button-color-selected);
-        background: var(--str-chat-selector-button-background-color-selected);
+        background: var(--background-core-surface);
       }
 
       svg {

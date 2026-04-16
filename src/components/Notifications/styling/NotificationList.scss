@@ -1,23 +1,20 @@
 .str-chat__notification-list {
   --str-chat__notification-list-inset: 16px;
   --str-chat__notification-list-gap: 8px;
-  --str-chat__notification-list-max-height: calc(
-    100% - (var(--str-chat__notification-list-inset) * 2)
-  );
-  --str-chat__notification-list-width: min(
-    100%,
-    calc(100% - (var(--str-chat__notification-list-inset) * 2))
-  );
-
   background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  inline-size: var(--str-chat__notification-list-width);
+  inline-size: min(
+    100%,
+    calc(100% - (var(--str-chat__notification-list-inset) * 2))
+  );
   max-width: 100%;
   min-width: 0;
-  max-height: var(--str-chat__notification-list-max-height);
+  max-height: calc(
+    100% - (var(--str-chat__notification-list-inset) * 2)
+  );
   padding-inline: var(--spacing-xs);
   pointer-events: none;
   position: absolute;

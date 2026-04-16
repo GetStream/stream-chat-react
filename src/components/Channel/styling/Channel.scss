@@ -45,10 +45,6 @@
   $header-bar-height: var(--size-16);
   $metadata-bar-height: var(--size-16);
   $composer-control-height: var(--size-48);
-  --str-chat__loading-channel-content-max-width: calc(
-    var(--str-chat__message-composer-max-width) +
-      var(--str-chat__message-composer-padding)
-  );
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -79,7 +75,10 @@
     .str-chat__message-list-scroll {
       width: 100%;
       height: 100%;
-      max-width: var(--str-chat__loading-channel-content-max-width);
+      max-width: calc(
+        var(--str-chat__message-composer-max-width) +
+          var(--str-chat__message-composer-padding)
+      );
       margin-inline: auto;
     }
   }

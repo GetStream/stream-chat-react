@@ -1,12 +1,7 @@
 /* Only available in React SDK. */
-.str-chat {
-  --str-chat-unread-count-badge-color: var(--badge-text-on-accent);
-  --str-chat-unread-count-badge-background-color: var(--accent-error);
-}
-
 .str-chat__unread-count-badge {
-  background-color: var(--str-chat-unread-count-badge-background-color);
-  color: var(--str-chat-unread-count-badge-color);
+  background-color: var(--accent-error);
+  color: var(--badge-text-on-accent);
   border-radius: 9999px;
 }
 
