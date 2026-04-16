@@ -1,6 +1,10 @@
 {
   "branches": [
     {
+      "name": "master",
+      "channel": "latest"
+    },
+    {
       "name": "release-v13",
       "channel": "v13",
       "range": "13.x"
