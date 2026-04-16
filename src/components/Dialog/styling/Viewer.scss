@@ -25,12 +25,12 @@
     }
 
     .str-chat__viewer__header__title {
-      font: var(--str-chat__heading-sm-text);
+      font: var(--str-chat__font-heading-sm);
       color: var(--text-primary);
     }
 
     .str-chat__viewer__header__description {
-      font: var(--str-chat__caption-default-text);
+      font: var(--str-chat__font-caption-default);
       color: var(--text-secondary);
     }
 

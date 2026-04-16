@@ -2,7 +2,7 @@
 
 .str-chat {
   /* The height of GIFs */
-  --str-chat__gif-height: calc(var(--str-chat__spacing-px) * 200);
+  --str-chat__gif-height: 200px;
 }
 
 .str-chat__message-attachment-giphy {
@@ -68,7 +68,7 @@
     gap: var(--spacing-xs, 8px);
     align-self: stretch;
 
-    color: var(--chat-text-outgoing);
+    color: var(--chat-text);
     font-size: var(--typography-font-size-sm);
     font-weight: var(--typography-font-weight-semi-bold);
     line-height: var(--typography-line-height-tight);

@@ -7,12 +7,7 @@
   );
 
   /* Text color used in audio recording widget */
-  --str-chat__voice-recording-attachment-widget-color: var(--str-chat__text-color);
-
-  /* Border radius applied to audio recording widget */
-  --str-chat__voice-recording-attachment-widget-secondary-color: var(
-    --str-chat__text-low-emphasis-color
-  );
+  --str-chat__voice-recording-attachment-widget-color: var(--text-primary);
 
   /* The text/icon color for low emphasis texts (for example file size) in audio recording widget */
   --str-chat__voice-recording-attachment-widget-background-color: transparent;
@@ -59,18 +54,15 @@
 
     .str-chat__message-attachment-download-icon {
       svg {
-        width: calc(var(--str-chat__spacing-px) * 24);
-        height: calc(var(--str-chat__spacing-px) * 16);
+        width: var(--size-24);
+        height: var(--size-16);
       }
     }
   }
 
-  .str-chat__message-attachment__voice-recording-widget__right-section {
-  }
-
   .str-chat__message-attachment__voice-recording-widget__timer {
-    min-width: calc(var(--str-chat__spacing-px) * 40);
-    width: calc(var(--str-chat__spacing-px) * 40);
-    font: var(--str-chat__metadata-emphasis-text);
+    min-width: var(--size-40);
+    width: var(--size-40);
+    font: var(--str-chat__font-metadata-emphasis);
   }
 }

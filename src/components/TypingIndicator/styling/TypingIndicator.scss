@@ -42,12 +42,10 @@
   border-radius: var(--message-bubble-radius-group-bottom)
     var(--message-bubble-radius-group-bottom) var(--message-bubble-radius-group-bottom)
     var(--message-bubble-radius-tail);
-  background: var(--chat-bg-incoming);
-
   // variable --chat-bg-typing-indicator has incorrect color value?
   //background: var(--chat-bg-typing-indicator);
-  border: 1px solid var(--chat-bg-incoming);
-  background: var(--chat-bg-incoming, #ebeef1);
+  border: 1px solid var(--chat-bg);
+  background: var(--chat-bg);
 }
 
 .str-chat__typing-indicator__dots {
@@ -101,7 +99,7 @@
   gap: var(--spacing-xs, 4px);
   white-space: nowrap;
   color: var(--text-secondary);
-  font: var(--str-chat__caption-default-text);
+  font: var(--str-chat__font-caption-default);
 }
 
 .str-chat__typing-indicator-header__dots {

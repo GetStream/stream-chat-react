@@ -5,18 +5,12 @@
 
   .str-chat__message {
     .str-chat__quoted-message-preview {
-      background-color: var(--chat-bg-attachment-incoming);
+      background-color: var(--chat-bg-attachment);
       width: calc(
         var(--str-chat__message-with-attachment-max-width) - calc(2 * var(--spacing-xs))
       );
       max-width: 100%;
       min-width: 0;
-    }
-  }
-
-  .str-chat__message--me {
-    .str-chat__quoted-message-preview {
-      background-color: var(--chat-bg-attachment-outgoing);
     }
   }
 }

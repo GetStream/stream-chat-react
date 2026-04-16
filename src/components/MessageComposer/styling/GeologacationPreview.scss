@@ -41,11 +41,11 @@
     }
 
     .str-chat__location-preview__data__title {
-      font: var(--str-chat__metadata-emphasis-text);
+      font: var(--str-chat__font-metadata-emphasis);
     }
     .str-chat__location-preview__data__subtitle,
     .str-chat__location-preview__data__sharing-duration {
-      font: var(--str-chat__metadata-default-text);
+      font: var(--str-chat__font-metadata-default);
     }
   }
 }

@@ -1,7 +1,7 @@
 /* Only available in React SDK. */
 .str-chat {
-  --str-chat-unread-count-badge-color: var(--str-chat__on-unread-badge-color);
-  --str-chat-unread-count-badge-background-color: var(--str-chat__danger-color);
+  --str-chat-unread-count-badge-color: var(--badge-text-on-accent);
+  --str-chat-unread-count-badge-background-color: var(--accent-error);
 }
 
 .str-chat__unread-count-badge {
@@ -33,7 +33,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-variant-numeric: tabular-nums;
 
   &--top-right {
     position: absolute;

@@ -20,18 +20,22 @@
     }
 
     .str-chat__prompt__header__title {
-      font: var(--str-chat__heading-sm-text);
+      font: var(--str-chat__font-heading-sm);
       color: var(--text-primary);
     }
 
     .str-chat__prompt__header__description {
-      font: var(--str-chat__caption-default-text);
+      font: var(--str-chat__font-caption-default);
       color: var(--text-secondary);
     }
 
     .str-chat__prompt__header__close-button {
       flex-shrink: 0;
       color: var(--text-primary);
+      .str-chat__icon {
+        width: var(--icon-size-md);
+        height: var(--icon-size-md);
+      }
     }
   }
 

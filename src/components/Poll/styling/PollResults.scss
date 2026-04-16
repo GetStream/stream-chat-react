@@ -42,7 +42,7 @@
         padding-inline: var(--spacing-md);
 
         .str-chat__poll-option__header__label {
-          font: var(--str-chat__heading-xs-text);
+          font: var(--str-chat__font-heading-xs);
           color: var(--text-tertiary);
         }
 
@@ -51,7 +51,7 @@
           align-items: start;
           gap: var(--spacing-md);
           width: 100%;
-          font: var(--str-chat__heading-sm-text);
+          font: var(--str-chat__font-heading-sm);
           color: var(--text-primary);
 
           .str-chat__poll-option__option-text {
@@ -109,7 +109,7 @@
     .str-chat__modal__poll-results__options-total-count {
       width: 100%;
       text-align: center;
-      font: var(--str-chat__caption-default-text);
+      font: var(--str-chat__font-caption-default);
     }
   }
 
@@ -117,7 +117,7 @@
     display: flex;
     gap: var(--spacing-xs);
     align-items: center;
-    font: var(--str-chat__caption-emphasis-text);
+    font: var(--str-chat__font-caption-emphasis);
 
     svg {
     }

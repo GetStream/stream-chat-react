@@ -1,8 +1,7 @@
 @use '../../../styling/utils';
 
 .str-chat {
-  --str-chat__date-separator-color: var(--str-chat__text-low-emphasis-color);
-  --str-chat__date-separator-line-color: var(--str-chat__disabled-color);
+  --str-chat__date-separator-color: var(--chat-text-system);
   --str-chat__date-separator-border-radius: 0;
   --str-chat__date-separator-background-color: transparent;
   --str-chat__date-separator-border-block-start: none;
@@ -40,9 +39,6 @@
     background-color: var(--background-core-surface-subtle);
     border-radius: var(--radius-max);
 
-    /* metadata/emphasis */
-    font-size: var(--typography-font-size-xs);
-    font-weight: var(--typography-font-weight-semi-bold);
-    line-height: var(--typography-line-height-tight);
+    font: var(--str-chat__font-metadata-emphasis);
   }
 }

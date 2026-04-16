@@ -1,10 +1,7 @@
 // Base styles
 @use 'accessibility';
 @use 'animations';
-@use 'global-layout-variables';
-@use 'global-theme-variables';
-@use 'palette-variables';
-@use './variables-tokens.css';
+@use 'variables-tokens';
 @use 'variables';
 @use 'base';
 @use 'fonts';

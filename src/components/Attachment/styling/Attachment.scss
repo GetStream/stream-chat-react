@@ -7,7 +7,7 @@
   --str-chat__attachment-list-border-radius: 0;
 
   /* The text/icon color of the component */
-  --str-chat__attachment-list-color: var(--str-chat__text-color);
+  --str-chat__attachment-list-color: var(--text-primary);
 
   /* The background color of the component */
   --str-chat__attachment-list-background-color: transparent;
@@ -33,7 +33,7 @@
   );
 
   /* The text/icon color of image/video attachments (images/videos uploaded from files, scraped media, GIFs) */
-  --str-chat__image-attachment-color: var(--str-chat__text-color);
+  --str-chat__image-attachment-color: var(--text-primary);
 
   /* The background color of image/video attachments (images/videos uploaded from files, scraped media, GIFs) */
   --str-chat__image-attachment-background-color: transparent;
@@ -59,7 +59,7 @@
   );
 
   /* The text/icon color of image gallery attachments */
-  --str-chat__image-gallery-attachment-color: var(--str-chat__text-color);
+  --str-chat__image-gallery-attachment-color: var(--text-primary);
 
   /* The background color of image gallery attachments */
   --str-chat__image-gallery-attachment-background-color: transparent;
@@ -79,51 +79,13 @@
   /* Box shadow applied to image gallery attachments */
   --str-chat__image-gallery-attachment-box-shadow: none;
 
-  /* Overlay color applied to image gallery attachments */
-  --str-chat__image-gallery-attachment-overlay: var(--str-chat__secondary-overlay-color);
-
-  /* Text colors used on overlay applied to image gallery attachments */
-  --str-chat__image-gallery-attachment-overlay-text-color: var(
-    --str-chat__secondary-overlay-text-color
-  );
-
-  /* The border radius used for the borders of card attachments */
-  --str-chat__card-attachment-border-radius: 0;
-
-  /* The text/icon color of card attachments */
-  --str-chat__card-attachment-color: var(--str-chat__text-color);
-
-  /* The text color of links inside card attachments */
-  --str-chat__card-attachment-link-color: var(--str-chat__primary-color);
-
-  /* The background color of card attachments */
-  --str-chat__card-attachment-background-color: transparent;
-
-  /* Top border of card attachments */
-  --str-chat__card-attachment-border-block-start: none;
-
-  /* Bottom border of card attachments */
-  --str-chat__card-attachment-border-block-end: none;
-
-  /* Left (right in RTL layout) border of card attachments */
-  --str-chat__card-attachment-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of card attachments */
-  --str-chat__card-attachment-border-inline-end: none;
-
-  /* Box shadow applied to card attachments */
-  --str-chat__card-attachment-box-shadow: none;
-
   /* The border radius used for the borders of file attachments */
   --str-chat__file-attachment-border-radius: calc(
     var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
   );
 
   /* The text/icon color of file attachments */
-  --str-chat__file-attachment-color: var(--str-chat__text-color);
-
-  /* The text/icon color of file attachments for low emphasis texts (for example file size) */
-  --str-chat__file-attachment-secondary-color: var(--str-chat__text-low-emphasis-color);
+  --str-chat__file-attachment-color: var(--text-primary);
 
   /* The background color of file attachments */
   --str-chat__file-attachment-background-color: transparent;
@@ -142,42 +104,6 @@
 
   /* Box shadow applied to file attachments */
   --str-chat__file-attachment-box-shadow: none;
-
-  /* Border radius applied to the play / pause button of audio widget */
-  --str-chat__audio-attachment-controls-button-border-radius: var(
-    --str-chat__border-radius-circle
-  );
-
-  /* Text color applied to audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-color: var(--str-chat__text-color);
-
-  /* Background color applied to audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-background-color: var(
-    --str-chat__secondary-background-color
-  );
-
-  /* Background color applied to audio widget's play / pause button when in pressed (active) state */
-  --str-chat__audio-attachment-controls-button-pressed-background-color: var(
-    --str-chat__surface-color
-  );
-
-  /* Top border of audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-border-block-start: none;
-
-  /* Bottom border of audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-border-block-end: none;
-
-  /* Left (right in RTL layout) border of audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-border-inline-end: none;
-
-  // todo: we need to solve whether we want to keep the CSS variables. E.g. --str-chat__circle-fab-box-shadow is not declared.
-  /* Box shadow applied to audio widget's play / pause button */
-  --str-chat__audio-attachment-controls-button-box-shadow: var(
-    --str-chat__circle-fab-box-shadow
-  );
 }
 
 .str-chat__attachment-list {
@@ -204,12 +130,12 @@
 
   .str-chat__message-attachment {
     overflow: hidden;
-    background-color: var(--chat-bg-attachment-incoming);
+    background-color: var(--chat-bg-attachment);
     border-radius: var(--message-bubble-radius-attachment);
 
     // Many classes to increase selector specificity
     .str-chat__button-play.str-chat__button--secondary.str-chat__button--outline {
-      border-color: var(--chat-border-on-chat-incoming);
+      border-color: var(--chat-border-on-chat);
       background-color: transparent;
     }
   }
@@ -365,7 +291,7 @@
   }
 
   .str-chat__message-attachment-download-icon {
-    --str-chat-icon-height: calc(var(--str-chat__spacing-px) * 16);
+    --str-chat-icon-height: var(--size-16);
   }
 }
 
@@ -383,38 +309,18 @@
   }
 
   .str-chat__message-bubble {
-    border: 1px solid var(--chat-border-incoming);
+    border: 1px solid var(--chat-border);
     box-shadow: var(--background-core-elevation-0);
   }
 
   .str-chat__message-attachment {
-    background-color: var(--chat-bg-incoming);
+    background-color: var(--chat-bg);
   }
 }
 
 .str-chat__message--me {
   .str-chat__attachment-list {
     align-items: flex-end;
-  }
-
-  .str-chat__message-attachment {
-    background-color: var(--chat-bg-attachment-outgoing);
-    border-radius: var(--message-bubble-radius-attachment);
-
-    .str-chat__button-play.str-chat__button--secondary.str-chat__button--outline {
-      border-color: var(--chat-border-on-chat-outgoing);
-    }
-  }
-
-  &.str-chat__message--has-single-attachment.str-chat__message--has-no-text {
-    .str-chat__message-bubble {
-      border: 1px solid var(--chat-border-outgoing);
-      box-shadow: var(--background-core-elevation-0);
-    }
-
-    .str-chat__message-attachment {
-      background-color: var(--chat-bg-outgoing);
-    }
   }
 }
 

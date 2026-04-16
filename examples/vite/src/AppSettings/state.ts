@@ -47,9 +47,14 @@ export type PanelLayoutSettingsState = {
   threadPanel: ThreadPanelLayoutSettingsState;
 };
 
+export type MessageListSettingsState = {
+  type: 'standard' | 'virtualized';
+};
+
 export type AppSettingsState = {
   chatView: ChatViewSettingsState;
   messageActions: MessageActionsSettingsState;
+  messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
   panelLayout: PanelLayoutSettingsState;
   reactions: ReactionsSettingsState;
@@ -83,6 +88,9 @@ const defaultAppSettingsState: AppSettingsState = {
       },
       markOwnUnread: false,
     },
+  },
+  messageList: {
+    type: 'standard',
   },
   notifications: {
     verticalAlignment: 'bottom',

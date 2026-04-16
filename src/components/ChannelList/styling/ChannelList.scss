@@ -5,10 +5,10 @@
   --str-chat__channel-list-border-radius: 0;
 
   /* The text/icon color of the component */
-  --str-chat__channel-list-color: var(--str-chat__text-color);
+  --str-chat__channel-list-color: var(--text-primary);
 
   /* The background color of the component */
-  --str-chat__channel-list-background-color: var(--str-chat__secondary-background-color);
+  --str-chat__channel-list-background-color: var(--background-core-elevation-1);
 
   /* Box shadow applied to the component */
   --str-chat__channel-list-box-shadow: none;
@@ -38,7 +38,7 @@
   --str-chat__channel-list-border-inline-start: none;
 
   /* Right (left in RTL layout) border of the component */
-  --str-chat__channel-list-border-inline-end: 1px solid var(--str-chat__surface-color);
+  --str-chat__channel-list-border-inline-end: 1px solid var(--border-core-default);
 
   /* The border radius used for the borders of the load more button */
   --str-chat__channel-list-load-more-border-radius: var(
@@ -92,9 +92,7 @@
   );
 
   /* The text/icon color for the empty list state */
-  --str-chat__channel-list-empty-indicator-color: var(
-    --str-chat__text-low-emphasis-color
-  );
+  --str-chat__channel-list-empty-indicator-color: var(--text-secondary);
 }
 
 .str-chat__channel-list {
@@ -143,7 +141,7 @@
 
         p {
           color: var(--text-secondary);
-          font: var(--str-chat__caption-default-text);
+          font: var(--str-chat__font-caption-default);
         }
       }
     }

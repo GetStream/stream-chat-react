@@ -66,10 +66,10 @@
     width: 32px;
     padding: 0;
     cursor: pointer;
-    --str-chat-icon-color: var(--str-chat__on-primary-color);
-    border-radius: var(--str-chat__border-radius-circle);
-    color: var(--str-chat__on-primary-color);
-    background-color: var(--str-chat__primary-color);
+    --str-chat-icon-color: var(--text-on-accent);
+    border-radius: var(--radius-max);
+    color: var(--text-on-accent);
+    background-color: var(--accent-primary);
 
     &:disabled {
       cursor: default;
@@ -78,7 +78,7 @@
     .str-chat__loading-indicator svg {
       linearGradient {
         stop:last-child {
-          stop-color: var(--str-chat__background-color);
+          stop-color: var(--background-core-app);
         }
       }
     }

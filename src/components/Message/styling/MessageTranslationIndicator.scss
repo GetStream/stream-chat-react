@@ -21,11 +21,11 @@
 
   &,
   .str-chat__message-translation-indicator__translation-toggle {
-    font: var(--str-chat__metadata-default-text);
+    font: var(--str-chat__font-metadata-default);
   }
 
   .str-chat__message-translation-indicator__sign {
-    font: var(--str-chat__metadata-emphasis-text);
+    font: var(--str-chat__font-metadata-emphasis);
   }
 
   svg path {

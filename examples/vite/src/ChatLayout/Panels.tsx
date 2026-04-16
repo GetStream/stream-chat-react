@@ -13,6 +13,7 @@ import {
   Thread,
   ThreadList,
   TypingIndicator,
+  VirtualizedMessageList,
   Window,
   WithComponents,
   WithDragAndDropUpload,
@@ -22,6 +23,7 @@ import {
   useThreadsViewContext,
 } from 'stream-chat-react';
 
+import { useAppSettingsSelector } from '../AppSettings/state';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { useSidebar } from './SidebarContext.tsx';
@@ -54,6 +56,7 @@ const ChannelThreadPanel = () => {
 const ResponsiveChannelPanels = () => {
   const { thread } = useChannelStateContext('ResponsiveChannelPanels');
   const isThreadOpen = !!thread;
+  const { type: messageListType } = useAppSettingsSelector((s) => s.messageList);
 
   return (
     <div
@@ -64,7 +67,11 @@ const ResponsiveChannelPanels = () => {
       <WithDragAndDropUpload className='app-chat-view__channel-main'>
         <Window>
           <ChannelHeader Avatar={ChannelAvatar} />
-          <MessageList returnAllReadData />
+          {messageListType === 'virtualized' ? (
+            <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+          ) : (
+            <MessageList returnAllReadData />
+          )}
           <AIStateIndicator />
           <MessageComposer
             focus

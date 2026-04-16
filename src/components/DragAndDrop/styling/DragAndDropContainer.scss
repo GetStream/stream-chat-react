@@ -9,11 +9,11 @@
 
   /* Top border of the component on dragover */
   --str-chat__drag-and-drop-container-on-dragover-border-block-start: 2px solid
-    var(--str-chat__primary-color);
+    var(--accent-primary);
 
   /* Bottom border of the component on dragover */
   --str-chat__drag-and-drop-container-on-dragover-border-block-end: 2px solid
-    var(--str-chat__primary-color);
+    var(--accent-primary);
 
   /* Left (right in RTL layout) border of the component on dragover */
   --str-chat__drag-and-drop-container-on-dragover-border-inline-start: none;
