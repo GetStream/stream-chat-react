@@ -66,6 +66,8 @@
         @include common.reaction-button;
         box-shadow: unset;
         min-width: var(--size-48);
+        background: none;
+        border: 1px solid var(--control-chip-border);
 
         .str-chat__message-reactions-detail__reaction-type-list-item-icon {
           font-family: system-ui;

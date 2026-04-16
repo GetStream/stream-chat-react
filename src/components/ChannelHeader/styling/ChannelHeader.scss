@@ -42,6 +42,7 @@
 
   .str-chat__channel-header__data {
     @include utils.header-text-layout;
+    width: unset;
   }
 
   .str-chat__channel-header__end {
