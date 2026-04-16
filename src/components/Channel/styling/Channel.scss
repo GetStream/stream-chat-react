@@ -186,7 +186,7 @@
   --str-chat__channel-color: var(--text-primary);
 
   /* The background color of the component */
-  --str-chat__channel-background-color: transparent;
+  --str-chat__channel-background-color: var(--background-core-app);
 
   /* Box shadow applied to the component */
   --str-chat__channel-box-shadow: none;

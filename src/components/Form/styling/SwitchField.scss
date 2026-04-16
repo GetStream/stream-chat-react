@@ -3,10 +3,7 @@
 // CSS variables aligned with Figma tokens; fallbacks from get_variable_defs.
 
 .str-chat {
-  --str-chat__switch-field-background-color: var(
-    --input-cards-bg,
-    var(--background-core-surface-subtle)
-  );
+  --str-chat__switch-field-background-color: var(--background-core-surface-card);
   --str-chat__switch-field-border-radius: var(--radius-md);
   --str-chat__switch-field__track-off-bg: var(
     --control-toggle-switch-bg,
