@@ -67,4 +67,30 @@ describe('audioPlayerNotificationsPluginFactory', () => {
     const call = addNotification.mock.calls[0][0];
     expect(call.message).toBe('Error reproducing the recording');
   });
+
+  it('debounces seek-not-supported notifications', () => {
+    const { addNotification } = makeNotifier();
+    const plugin = audioPlayerNotificationsPluginFactory({
+      addNotification,
+      t,
+    });
+    const dateNowSpy = vi.spyOn(Date, 'now');
+
+    dateNowSpy
+      .mockReturnValueOnce(1000)
+      .mockReturnValueOnce(1200)
+      .mockReturnValueOnce(1800)
+      .mockReturnValueOnce(2201);
+
+    plugin.onError?.({ errCode: 'seek-not-supported', player: fromPartial({}) });
+    plugin.onError?.({ errCode: 'seek-not-supported', player: fromPartial({}) });
+    plugin.onError?.({ errCode: 'seek-not-supported', player: fromPartial({}) });
+    plugin.onError?.({ errCode: 'seek-not-supported', player: fromPartial({}) });
+
+    expect(addNotification).toHaveBeenCalledTimes(2);
+    expect(addNotification.mock.calls[0][0].message).toBe('Cannot seek in the recording');
+    expect(addNotification.mock.calls[1][0].message).toBe('Cannot seek in the recording');
+
+    dateNowSpy.mockRestore();
+  });
 });
