@@ -25,16 +25,16 @@ Required workflow:
 1. Upgrade both packages to their latest versions together. The v14 peer-dep floor moved; leaving `stream-chat` on a v13-era version will fail peer resolution.
    - `stream-chat-react` → latest v14
    - `stream-chat` → latest
-2. Update stylesheet imports. The `/v2` path no longer resolves.
+2. Update stylesheet imports. The `/v2` path no longer resolves. Prefer the aliased `stream-chat-react/css/*` path over `stream-chat-react/dist/css/*` — the alias is defined in the package's `exports` map and hides the internal `dist/` layout.
    ```ts
    // before
    import 'stream-chat-react/dist/css/v2/index.css';
    // after
-   import 'stream-chat-react/dist/css/index.css';
+   import 'stream-chat-react/css/index.css';
    ```
 3. If the app uses `EmojiPicker`, also import its dedicated stylesheet:
    ```ts
-   import 'stream-chat-react/dist/css/emoji-picker.css';
+   import 'stream-chat-react/css/emoji-picker.css';
    ```
 
 ---
@@ -118,10 +118,10 @@ const VirtualMessage = (props: MessageUIComponentProps) => <CustomMessage {...pr
 
 ```tsx
 // customize preview via EditedMessagePreview in WithComponents
-import { useMessageComposer, useMessageContext } from 'stream-chat-react';
+import { useMessageComposerController, useMessageContext } from 'stream-chat-react';
 
 const { message } = useMessageContext();
-const messageComposer = useMessageComposer();
+const messageComposer = useMessageComposerController();
 
 messageComposer.initState({ composition: message }); // start
 messageComposer.clear(); // cancel
@@ -172,7 +172,7 @@ For richer rendering, override `QuotedMessage` or `QuotedMessagePreview` in `Wit
 - `useChannelDeletedListener`, `useNotificationMessageNewListener`, `useMobileNavigation`, siblings → no shim; remove the calls (`ChannelList` handles these events internally)
 - `ToggleSidebarButton`, `ToggleButtonIcon`, `MenuIcon`, `NAV_SIDEBAR_DESKTOP_BREAKPOINT` → app-owned sidebar (see Phase 6)
 - `pinPermissions`, `PinPermissions`, `PinEnabledUserRoles`, `defaultPinPermissions` → rely on `channelCapabilities['pin-message']`; remove the props
-- `usePinHandler(message, pinPermissions, notifications)` → `usePinHandler(message, notifications?)`
+- `usePinHandler(message, pinPermissions, notifications)` → `usePinHandler(message)` (no second argument; notifications are published via `useNotificationApi()` internally)
 - `ChannelListItemUI.latestMessage` → `latestMessagePreview`
 - `EmojiPicker.popperOptions` → `placement`
 - `InfiniteScroll` / `LoadMoreButton` / `LoadMorePaginator`: `hasMore`, `loadMore`, `refreshing` → `hasNextPage`, `loadNextPage`, `isLoading`
@@ -379,8 +379,8 @@ To preserve the old blank pane, override `EmptyStateIndicator` with a `null`-ret
 - **`ChannelAvatar` / `GroupAvatar`.** `groupChannelDisplayInfo` array of `{image, name}` → `displayMembers`; `size` required.
 - **`useChannelPreviewInfo()`** returns a stable empty group info object instead of `null`/`undefined` — any `groupChannelDisplayInfo == null` checks are now always false.
 - **`useLatestMessagePreview()`** reports native `giphy` attachments with `type: 'giphy'`, not `image`.
-- **`FileIcon` props.** `filename` → `fileName`; `big`, `size`, `sizeSmall`, `type` removed. `mimeTypeToIcon(type, mimeType)` → `mimeTypeToIcon(mimeType?)`.
-- **`Gallery` / `ModalGallery`.** `ModalGallery` API went from `{ images, index }` to `{ items, initialIndex? }`. `Gallery` alone no longer renders a thumbnail grid — supply `GalleryUI` or use `ModalGallery` for the old behavior.
+- **`FileIcon` props.** `filename` → `fileName`; `big`, `sizeSmall`, `type` removed. `size` is retyped from a pixel number to `FileIconSize` (`'sm' | 'md' | 'lg' | 'xl'`); new `sizeConfig` prop allows overriding per-size dimensions. `mimeTypeToIcon(type, mimeType)` → `mimeTypeToIcon(mimeType?)`.
+- **`Gallery` / `ModalGallery`.** `ModalGallery` API went from `{ images, index }` to `{ items }` (also accepts `className`, `modalClassName`, `closeOnBackgroundClick`). `Gallery` alone no longer renders a thumbnail grid — supply `GalleryUI` or use `ModalGallery` for the old behavior.
 - **Low-level attachment containers.** `MediaContainer` now takes `attachments` (plural). Gallery payloads changed `images` → `items`. Audio custom components: rename prop `og` → `attachment`. Native `giphy` stays inline (no `ModalGallery` expansion).
 - **`AttachmentProps.Gallery` → `AttachmentProps.ModalGallery`.** `Media` now uses `VideoPlayerProps`, not `ReactPlayerProps`.
 - **`PinIndicator`** no longer receives `t` as prop — use `useTranslationContext()` inside.
@@ -392,7 +392,7 @@ To preserve the old blank pane, override `EmptyStateIndicator` with a `null`-ret
 
 ## Phase 8 — CSS, DOM, and Selector Audit
 
-- `stream-chat-react/dist/css/v2/*` → `stream-chat-react/dist/css/*`
+- `stream-chat-react/dist/css/v2/*` → `stream-chat-react/css/*` (preferred alias) or `stream-chat-react/dist/css/*`
 - `.str-chat__modal__inner` → removed; children render directly
 - `.str-chat__channel-list-messenger` → `.str-chat__channel-list-inner`
 - `.str-chat__channel-list-messenger__main` → `.str-chat__channel-list-inner__main`
