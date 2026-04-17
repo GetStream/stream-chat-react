@@ -1,5 +1,7 @@
 @use '../../../styling/utils';
 
+$duration-selector-min-width: 120px;
+
 .str-chat__share-location-dialog {
   width: 100%;
   max-width: 520px;
@@ -18,7 +20,7 @@
 
     &.str-chat__live-location-activation--expanded {
       .str-chat__form__switch-field {
-        padding-bottom: var(--spacing-xxs);
+        padding-bottom: var(--str-chat__spacing-xxs);
       }
     }
 
@@ -28,25 +30,23 @@
   }
 
   .str-chat__live-location-sharing-duration-selector {
-    padding-inline: calc(var(--spacing-md) - var(--spacing-xs));
-    padding-bottom: var(--spacing-xs);
-    --str-chat__duration-selector-min-width: 120px;
-
+    padding-inline: calc(var(--str-chat__spacing-md) - var(--str-chat__spacing-xs));
+    padding-bottom: var(--str-chat__spacing-xs);
     .str-chat__live-location-sharing-duration-selector__button {
       @include utils.button-reset;
       align-items: center;
       background: transparent;
-      padding-inline: var(--spacing-xs);
+      padding-inline: var(--str-chat__spacing-xs);
       color: inherit;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
-      min-width: var(--str-chat__duration-selector-min-width);
+      min-width: $duration-selector-min-width;
       font: var(--str-chat__font-caption-default);
     }
 
     .str-chat__context-menu {
-      min-width: var(--str-chat__duration-selector-min-width);
+      min-width: $duration-selector-min-width;
     }
     .str-chat__live-location-sharing-duration-option {
       width: 100%;

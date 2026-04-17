@@ -1,35 +1,13 @@
 @use '../../../styling/utils';
 
-.str-chat {
-  /* Border radius applied audio widget */
-  --str-chat__audio-attachment-widget-border-radius: calc(
-    var(--str-chat__message-bubble-border-radius) - var(--str-chat__attachment-margin)
-  );
-
-  /* Text color used in audio widget */
-  --str-chat__audio-attachment-widget-color: var(--text-primary);
-
-  /* The text/icon color for low emphasis texts (for example file size) in audio widget */
-  --str-chat__audio-attachment-widget-background-color: transparent;
-
-  /* Top border of audio widget */
-  --str-chat__audio-attachment-widget-border-block-start: none;
-
-  /* Bottom border of audio widget */
-  --str-chat__audio-attachment-widget-border-block-end: none;
-
-  /* Left (right in RTL layout) border of audio widget */
-  --str-chat__audio-attachment-widget-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of audio widget */
-  --str-chat__audio-attachment-widget-border-inline-end: none;
-
-  /* Box shadow applied to audio widget */
-  --str-chat__audio-attachment-widget-box-shadow: none;
-}
-
 .str-chat__message-attachment-audio-widget {
-  @include utils.component-layer-overrides('audio-attachment-widget');
+  background: transparent;
+  color: var(--str-chat__text-primary);
+  border-radius: calc(
+    var(--str-chat__message-bubble-radius-group-bottom) - var(
+        --str-chat__attachment-margin
+      )
+  );
   flex: 1 1 auto;
   width: 100%;
   min-width: 0;
@@ -43,14 +21,14 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxs);
+    gap: var(--str-chat__spacing-xxs);
   }
 
   .str-chat__message-attachment-audio-widget--text-first-row {
     display: flex;
     justify-content: space-between;
     align-items: start;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
 
     svg {
       flex-shrink: 0;
@@ -71,14 +49,14 @@
   .str-chat__duration-display {
     width: 40px;
     font: var(--str-chat__font-metadata-default);
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   .str-chat__message-attachment-audio-widget--text-second-row {
     display: flex;
     align-items: center;
     width: 100%;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
 
     .str-chat__message-attachment-file--item-size {
       font: var(--str-chat__font-metadata-default);

@@ -1,34 +1,12 @@
 @use '../../../styling/utils';
 
-.str-chat {
-  /* The border radius used for the borders of the component */
-  --str-chat__virtual-list-border-radius: 0;
-
-  /* The text/icon color of the component */
-  --str-chat__virtual-list-color: var(--text-primary);
-
-  /* The background color of the component */
-  --str-chat__virtual-list-background-color: var(--background-core-app);
-
-  /* Box shadow applied to the component */
-  --str-chat__virtual-list-box-shadow: none;
-
-  /* Top border of the component */
-  --str-chat__virtual-list-border-block-start: none;
-
-  /* Bottom border of the component */
-  --str-chat__virtual-list-border-block-end: none;
-
-  /* Left (right in RTL layout) border of the component */
-  --str-chat__virtual-list-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component */
-  --str-chat__virtual-list-border-inline-end: none;
-}
-
 .str-chat__virtual-list {
-  @include utils.component-layer-overrides('virtual-list');
-  @include utils.scrollable-y;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable both-edges;
+
+  background: var(--str-chat__background-core-app);
+  color: var(--str-chat__text-primary);
   --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +
       var(--str-chat__message-composer-padding)
@@ -58,7 +36,7 @@
   // a simple workaround is to make the loading indicator an overlay.
   &__loading {
     display: flex;
-    padding-top: var(--space-8);
+    padding-top: var(--str-chat__space-8);
     justify-content: center;
     width: 100%;
     position: absolute;

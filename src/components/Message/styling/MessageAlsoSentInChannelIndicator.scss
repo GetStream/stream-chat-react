@@ -1,32 +1,21 @@
 @use '../../../styling/utils';
 
-.str-chat {
-  --str-chat__message-also-sent-in-channel-color: var(--text-primary);
-  --str-chat__message-also-sent-in-channel-background-color: transparent;
-  --str-chat__message-also-sent-in-channel-border-block-start: none;
-  --str-chat__message-also-sent-in-channel-border-block-end: none;
-  --str-chat__message-also-sent-in-channel-border-inline-start: none;
-  --str-chat__message-also-sent-in-channel-border-inline-end: none;
-  --str-chat__message-also-sent-in-channel-box-shadow: none;
-  --str-chat__message-also-sent-in-channel-border-radius: 0;
-}
-
 .str-chat__message-also-sent-in-channel {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   grid-area: also-sent-in-channel;
-  padding-block: var(--spacing-xxs);
-  @include utils.component-layer-overrides('message-also-sent-in-channel');
+  padding-block: var(--str-chat__spacing-xxs);
+  background: transparent;
+  color: var(--str-chat__text-primary);
   font: var(--str-chat__font-metadata-emphasis);
 
   .str-chat__icon {
-    height: var(--spacing-sm);
-    width: var(--spacing-sm);
+    height: var(--str-chat__spacing-sm);
+    width: var(--str-chat__spacing-sm);
 
     path {
       stroke-width: 2px;
-      stroke: var(--str-chat__message-also-sent-in-channel-color);
     }
   }
 
@@ -34,6 +23,6 @@
     @include utils.button-reset;
     cursor: pointer;
     font: var(--str-chat__font-metadata-default);
-    color: var(--text-link);
+    color: var(--str-chat__text-link);
   }
 }

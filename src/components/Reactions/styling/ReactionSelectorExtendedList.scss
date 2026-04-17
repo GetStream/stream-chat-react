@@ -2,14 +2,14 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   height: 100%;
-  padding-block: var(--spacing-md);
-  padding-inline: var(--spacing-sm);
+  padding-block: var(--str-chat__spacing-md);
+  padding-inline: var(--str-chat__spacing-sm);
 
   .str-chat__reaction-selector-extended-list__button {
     .str-chat__reaction-icon {
-      height: var(--emoji-md);
-      width: var(--emoji-md);
-      font-size: var(--emoji-md);
+      height: var(--str-chat__emoji-md);
+      width: var(--str-chat__emoji-md);
+      font-size: var(--str-chat__emoji-md);
       letter-spacing: var(--typography-letter-spacing-default);
       font-style: normal;
       line-height: 0;

@@ -1,39 +1,29 @@
 @use '../../../../styling/utils';
 
 .str-chat {
-  --str-chat__thread-list-border-radius: 0;
-  --str-chat__thread-list-color: var(--text-primary);
-  --str-chat__thread-list-background-color: var(--background-core-elevation-1);
-  --str-chat__thread-list-border-block-start: none;
-  --str-chat__thread-list-border-block-end: none;
-  --str-chat__thread-list-border-inline-start: none;
-  --str-chat__thread-list-border-inline-end: 1px solid var(--border-core-default);
-  --str-chat__thread-list-box-shadow: none;
   --str-chat__thread-list-transition-duration: var(
-    --str-chat__channel-list-transition-duration,
-    180ms
+    --str-chat__channel-list-transition-duration
   );
   --str-chat__thread-list-transition-easing: var(
-    --str-chat__channel-list-transition-easing,
-    ease
+    --str-chat__channel-list-transition-easing
   );
   --str-chat__thread-list-transition-offset: var(
-    --str-chat__channel-list-transition-offset,
-    8px
+    --str-chat__channel-list-transition-offset
   );
-  --str-chat__thread-list-width: var(--str-chat__channel-list-width, 30%);
-  --str-chat__thread-list-mobile-width: var(--str-chat__channel-list-mobile-width, 100%);
-  --str-chat__thread-list-min-width: 280px;
+  --str-chat__thread-list-width: var(--str-chat__channel-list-width);
+  --str-chat__thread-list-mobile-width: var(--str-chat__channel-list-mobile-width);
 }
 
 .str-chat__thread-list-container {
-  @include utils.component-layer-overrides('thread-list');
+  background: var(--str-chat__background-core-elevation-1);
+  color: var(--str-chat__text-primary);
+  border-inline-end: 1px solid var(--str-chat__border-core-default);
   display: flex;
   flex: 0 0 var(--str-chat__thread-list-width);
   flex-direction: column;
   height: 100%;
   max-width: 100%;
-  min-width: var(--str-chat__thread-list-min-width);
+  min-width: 280px;
   opacity: 1;
   position: relative;
   transform: translateX(0);
@@ -62,7 +52,7 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    transform: translateX(calc(0px - var(--str-chat__thread-list-transition-offset)));
+    transform: translateX(calc(var(--str-chat__thread-list-transition-offset) * -1px));
     transition:
       transform var(--str-chat__thread-list-transition-duration)
         var(--str-chat__thread-list-transition-easing),
@@ -82,22 +72,22 @@
     font: var(--str-chat__font-metadata-emphasis);
     cursor: pointer;
     display: flex;
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
     height: 36px;
     justify-content: center;
     align-items: center;
-    gap: var(--spacing-xs);
-    border-radius: var(--radius-none);
+    gap: var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-none);
     background: var(--background-core-surface);
     position: relative;
 
     & > .str-chat__icon {
-      height: var(--icon-size-md);
-      width: var(--icon-size-md);
+      height: var(--str-chat__icon-size-md);
+      width: var(--str-chat__icon-size-md);
     }
 
     &:not(:disabled):hover {
-      @include utils.overlay-after(var(--background-utility-hover));
+      @include utils.overlay-after(var(--str-chat__background-utility-hover));
     }
   }
 }
@@ -115,7 +105,7 @@
 }
 
 .str-chat__thread-list-empty-placeholder {
-  --str-chat-icon-color: var(--text-secondary);
+  --str-chat-icon-color: var(--str-chat__text-secondary);
   @include utils.empty-theme('thread-list');
 
   height: 100%;
@@ -124,14 +114,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
-  color: var(--text-secondary);
+  padding: var(--str-chat__spacing-xl);
+  color: var(--str-chat__text-secondary);
 
   p {
     margin: 0;
-    color: var(--text-secondary);
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-normal);
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-regular);
+    line-height: var(--str-chat__typography-line-height-normal);
   }
 }

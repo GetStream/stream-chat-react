@@ -73,102 +73,61 @@
 }
 
 .str-chat {
-  /*
-   * Dialog theme variables (ported from @stream-chat-css v2 Dialog theme),
-   * set to match the current React SDK styling values in this file.
-   *
-   * Note: React uses `str-chat__context-menu` naming; v2 theme calls this "dialog-menu".
-   */
-  --str-chat__dialog-menu-border-radius: var(--radius-lg);
-  --str-chat__dialog-menu-color: var(--text-primary);
-  --str-chat__dialog-menu-background-color: var(--background-core-elevation-2);
-  --str-chat__dialog-menu-border-block-start: none;
-  --str-chat__dialog-menu-border-block-end: none;
-  --str-chat__dialog-menu-border-inline-start: none;
-  --str-chat__dialog-menu-border-inline-end: none;
-  --str-chat__dialog-menu-box-shadow: var(--str-chat__box-shadow-3);
-
-  --str-chat__dialog-menu-button-border-radius: var(--radius-md);
-  --str-chat__dialog-menu-button-color: var(--text-primary);
-  --str-chat__dialog-menu-button-background-color: transparent;
-  --str-chat__dialog-menu-button-hover-background-color: var(--background-utility-hover);
-  --str-chat__dialog-menu-button-active-background-color: var(
-    --background-utility-pressed
+  --str-chat__dialog-menu-button-hover-background-color: var(
+    --str-chat__background-utility-hover
   );
-  --str-chat__dialog-menu-button-focused-background-color: transparent;
-  --str-chat__dialog-menu-button-disabled-background-color: transparent;
-  --str-chat__dialog-menu-back-button-hover-background-color: var(
-    --background-utility-hover
-  );
-  --str-chat__dialog-menu-back-button-active-background-color: var(
-    --background-utility-pressed
-  );
-  --str-chat__dialog-menu-back-button-focused-background-color: transparent;
-  --str-chat__dialog-menu-back-button-disabled-background-color: transparent;
-  --str-chat__dialog-menu-button-border-block-start: none;
-  --str-chat__dialog-menu-button-border-block-end: none;
-  --str-chat__dialog-menu-button-border-inline-start: none;
-  --str-chat__dialog-menu-button-border-inline-end: none;
-  --str-chat__dialog-menu-button-box-shadow: none;
   --str-chat__menu-roll-duration: 170ms;
   --str-chat__menu-roll-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --str-chat__menu-submenu-forward-duration: 280ms;
-  --str-chat__menu-submenu-backward-duration: 400ms;
-  --str-chat__menu-submenu-forward-ease: cubic-bezier(0.2, 0.95, 0.25, 1);
-  --str-chat__menu-submenu-backward-ease: cubic-bezier(0.16, 0.92, 0.2, 1);
 
   .str-chat__context-menu {
-    @include utils.component-layer-overrides('dialog-menu');
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    box-shadow: var(--str-chat__box-shadow-3);
+    border-radius: var(--str-chat__radius-lg);
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-xxs);
+    padding: var(--str-chat__spacing-xxs);
 
     .str-chat__context-menu__header {
       width: 100%;
-      color: var(--text-tertiary);
-      font-size: var(--typography-font-size-sm);
-      font-weight: var(--typography-font-weight-semi-bold, 600);
-      line-height: var(--typography-line-height-tight);
+      color: var(--str-chat__text-tertiary);
+      font-size: var(--str-chat__typography-font-size-sm);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
+      line-height: var(--str-chat__typography-line-height-tight);
     }
 
     .str-chat__context-menu__back-button {
       @include utils.button-reset;
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
       height: 32px;
       width: 100%;
-      padding: var(--spacing-xs);
+      padding: var(--str-chat__spacing-xs);
       text-align: center;
       cursor: pointer;
-      border-radius: var(--radius-md);
+      border-radius: var(--str-chat__radius-md);
 
-      color: var(--text-tertiary);
+      color: var(--str-chat__text-tertiary);
 
-      font-size: var(--typography-font-size-sm);
-      font-weight: var(--typography-font-weight-semi-bold, 600);
-      line-height: var(--typography-line-height-tight);
+      font-size: var(--str-chat__typography-font-size-sm);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
+      line-height: var(--str-chat__typography-line-height-tight);
 
       &:hover:not(:disabled) {
-        background-color: var(--str-chat__dialog-menu-back-button-hover-background-color);
+        background-color: var(--str-chat__background-utility-hover);
       }
 
       &:active:not(:disabled) {
-        background-color: var(
-          --str-chat__dialog-menu-back-button-active-background-color
-        );
+        background-color: var(--str-chat__background-utility-pressed);
       }
 
       &:focus-visible:not(:disabled) {
-        background-color: var(
-          --str-chat__dialog-menu-back-button-focused-background-color
-        );
+        background-color: transparent;
       }
 
       &:disabled {
-        background-color: var(
-          --str-chat__dialog-menu-back-button-disabled-background-color
-        );
+        background-color: transparent;
       }
 
       .str-chat__icon--chevron-right {
@@ -180,20 +139,17 @@
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xxxs);
+      gap: var(--str-chat__spacing-xxxs);
       overflow-x: hidden;
     }
 
     .str-chat__context-menu__body.str-chat__context-menu__body--submenu-forward {
-      animation-duration: var(--str-chat__menu-submenu-forward-duration, 220ms);
+      animation-duration: 280ms;
       animation-name: var(
         --str-chat__context-menu-submenu-forward-animation,
         str-chat-context-menu-submenu-forward
       );
-      animation-timing-function: var(
-        --str-chat__menu-submenu-forward-ease,
-        cubic-bezier(0.25, 0.9, 0.35, 1)
-      );
+      animation-timing-function: cubic-bezier(0.2, 0.95, 0.25, 1);
       transform-origin: var(
         --str-chat__context-menu-submenu-forward-transform-origin,
         left center
@@ -201,15 +157,12 @@
     }
 
     .str-chat__context-menu__body.str-chat__context-menu__body--submenu-backward {
-      animation-duration: var(--str-chat__menu-submenu-backward-duration, 320ms);
+      animation-duration: 400ms;
       animation-name: var(
         --str-chat__context-menu-submenu-backward-animation,
         str-chat-context-menu-submenu-backward
       );
-      animation-timing-function: var(
-        --str-chat__menu-submenu-backward-ease,
-        cubic-bezier(0.2, 0.75, 0.2, 1)
-      );
+      animation-timing-function: cubic-bezier(0.16, 0.92, 0.2, 1);
       transform-origin: var(
         --str-chat__context-menu-submenu-backward-transform-origin,
         right center
@@ -217,23 +170,25 @@
     }
 
     .str-chat__context-menu__button {
-      @include utils.component-layer-overrides('dialog-menu-button');
+      background: transparent;
+      color: var(--str-chat__text-primary);
+      border-radius: var(--str-chat__radius-md);
       @include utils.button-reset;
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
       width: 100%;
-      padding: var(--spacing-xs);
+      padding: var(--str-chat__spacing-xs);
       cursor: pointer;
 
-      font-size: var(--typography-font-size-sm);
-      font-weight: var(--typography-font-weight-semi-bold);
-      line-height: var(--typography-line-height-tight);
+      font-size: var(--str-chat__typography-font-size-sm);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold);
+      line-height: var(--str-chat__typography-line-height-tight);
 
       &.str-chat__context-menu__button--destructive {
         .str-chat__context-menu__button__label,
         .str-chat__icon {
-          color: var(--accent-error);
+          color: var(--str-chat__accent-error);
         }
       }
 
@@ -242,43 +197,43 @@
       }
 
       &:active:not(:disabled) {
-        background-color: var(--str-chat__dialog-menu-button-active-background-color);
+        background-color: var(--str-chat__background-utility-pressed);
       }
 
       &:focus-visible:not(:disabled) {
-        background-color: var(--str-chat__dialog-menu-button-focused-background-color);
+        background-color: transparent;
       }
 
       &:disabled {
-        background-color: var(--str-chat__dialog-menu-button-disabled-background-color);
+        background-color: transparent;
       }
 
       .str-chat__icon {
-        height: var(--icon-size-sm);
-        width: var(--icon-size-sm);
-        color: var(--text-secondary);
+        height: var(--str-chat__icon-size-sm);
+        width: var(--str-chat__icon-size-sm);
+        color: var(--str-chat__text-secondary);
       }
 
       .str-chat__context-menu__button__label {
         @include utils.ellipsis-text;
         flex: auto;
         text-align: start;
-        color: var(--text-primary);
+        color: var(--str-chat__text-primary);
         white-space: nowrap;
         min-width: 0;
       }
 
       .str-chat__context-menu__button__details {
         flex: 1;
-        color: var(--text-tertiary);
-        font-weight: var(--typography-font-weight-regular);
+        color: var(--str-chat__text-tertiary);
+        font-weight: var(--str-chat__typography-font-weight-regular);
         white-space: nowrap;
       }
     }
 
     .str-chat__emoji-context-menu__button,
     .str-chat__user-context-menu__button {
-      font-weight: var(--typography-font-weight-regular, 400);
+      font-weight: var(--str-chat__typography-font-weight-regular, 400);
     }
   }
 

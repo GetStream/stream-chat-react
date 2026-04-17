@@ -1,21 +1,21 @@
 .str-chat__media-badge {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   position: absolute;
-  bottom: var(--spacing-xs);
-  inset-inline-start: var(--spacing-xs);
-  padding: var(--spacing-xxs) var(--spacing-xs);
-  border-radius: var(--radius-max);
-  background: var(--badge-bg-inverse);
-  color: var(--badge-text-on-inverse);
+  bottom: var(--str-chat__spacing-xs);
+  inset-inline-start: var(--str-chat__spacing-xs);
+  padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+  border-radius: var(--str-chat__radius-max);
+  background: var(--str-chat__badge-bg-inverse);
+  color: var(--str-chat__badge-text-on-inverse);
   font: var(--str-chat__font-numeric-md);
   overflow: hidden;
   text-overflow: ellipsis;
 
   .str-chat__icon {
-    width: var(--icon-size-xs);
-    height: var(--icon-size-xs);
+    width: var(--str-chat__icon-size-xs);
+    height: var(--str-chat__icon-size-xs);
     fill: currentColor;
   }
 }

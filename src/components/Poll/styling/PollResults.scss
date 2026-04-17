@@ -9,7 +9,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-2xl);
+    gap: var(--str-chat__spacing-2xl);
   }
 
   .str-chat__modal__poll-results__options {
@@ -22,40 +22,42 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-md);
+    gap: var(--str-chat__spacing-md);
     align-self: stretch;
 
     .str-chat__poll-option {
       display: flex;
       flex-direction: column;
       width: 100%;
-      padding-block: var(--spacing-md);
-      border-radius: var(--radius-lg);
-      background: var(--background-core-surface-card);
+      padding-block: var(--str-chat__spacing-md);
+      border-radius: var(--str-chat__radius-lg);
+      background: var(--str-chat__background-core-surface-card);
 
       .str-chat__poll-option__header {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-xxs);
+        gap: var(--str-chat__spacing-xxs);
         align-self: stretch;
-        padding-inline: var(--spacing-md);
+        padding-inline: var(--str-chat__spacing-md);
 
         .str-chat__poll-option__header__label {
           font: var(--str-chat__font-heading-xs);
-          color: var(--text-tertiary);
+          color: var(--str-chat__text-tertiary);
         }
 
         .str-chat__poll-option__header__title {
           display: flex;
           align-items: start;
-          gap: var(--spacing-md);
+          gap: var(--str-chat__spacing-md);
           width: 100%;
           font: var(--str-chat__font-heading-sm);
-          color: var(--text-primary);
+          color: var(--str-chat__text-primary);
 
           .str-chat__poll-option__option-text {
             flex: 1;
+            word-break: break-word;
+            hyphens: auto;
           }
         }
       }
@@ -65,11 +67,11 @@
         flex-direction: column;
         align-items: flex-start;
         align-self: stretch;
-        padding: var(--spacing-xs) var(--spacing-none);
+        padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-none);
 
         .str-chat__avatar {
-          height: var(--spacing-2xl);
-          width: var(--spacing-2xl);
+          height: var(--str-chat__spacing-2xl);
+          width: var(--str-chat__spacing-2xl);
         }
       }
 
@@ -77,8 +79,8 @@
         display: flex;
         justify-content: center;
         width: 100%;
-        padding: var(--spacing-xs) var(--spacing-md);
-        border-top: 1px solid var(--border-core-default);
+        padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+        border-top: 1px solid var(--str-chat__border-core-default);
       }
     }
 
@@ -96,7 +98,9 @@
     .str-chat__poll-option__votes-paginated-list {
       .str-chat__loading-indicator-placeholder {
         width: 100%;
-        height: calc(var(--str-chat__loading-indicator-size) + (2 * var(--spacing-xxs)));
+        height: calc(
+          var(--str-chat__loading-indicator-size) + (2 * var(--str-chat__spacing-xxs))
+        );
         display: flex;
         justify-content: center;
       }
@@ -104,7 +108,7 @@
   }
 
   .str-chat__modal__poll-results__options__footer {
-    padding-top: var(--spacing-2xl);
+    padding-top: var(--str-chat__spacing-2xl);
 
     .str-chat__modal__poll-results__options-total-count {
       width: 100%;
@@ -115,11 +119,13 @@
 
   .str-chat__poll-result-option-vote-counter {
     display: flex;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
     align-items: center;
     font: var(--str-chat__font-caption-emphasis);
 
-    svg {
+    .str-chat__icon {
+      height: var(--str-chat__icon-size-md);
+      width: var(--str-chat__icon-size-md);
     }
   }
 }
@@ -130,7 +136,7 @@
     scrollbar-width: none;
     width: 100%;
     height: 100%;
-    padding-bottom: var(--spacing-xl);
+    padding-bottom: var(--str-chat__spacing-xl);
   }
 }
 
@@ -139,6 +145,6 @@
     @include utils.scrollable-y;
     scrollbar-width: none;
     max-height: calc(640px - 76px);
-    padding-bottom: var(--spacing-2xl);
+    padding-bottom: var(--str-chat__spacing-2xl);
   }
 }

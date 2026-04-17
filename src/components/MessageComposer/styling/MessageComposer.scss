@@ -1,41 +1,6 @@
-@use '../../../styling/utils';
-
 .str-chat {
-  /*
-   * MessageInput theme variables (ported from stream-chat-css v2 MessageInput theme),
-   * set to match the current React SDK MessageComposer styling.
-   *
-   * Note: React's "composer" uses different class names than v2's `str-chat__message-input`,
-   * so we apply layer overrides to the closest equivalents in this file.
-   */
-  --str-chat__message-input-border-radius: var(--radius-3xl);
-  --str-chat__message-input-color: var(--input-text-default);
-  --str-chat__message-input-background-color: var(--composer-bg);
-  --str-chat__message-input-border-block-start: 1px solid var(--border-core-default);
-  --str-chat__message-input-border-block-end: 1px solid var(--border-core-default);
-  --str-chat__message-input-border-inline-start: 1px solid var(--border-core-default);
-  --str-chat__message-input-border-inline-end: 1px solid var(--border-core-default);
-  --str-chat__message-input-box-shadow: none;
-
-  --str-chat__message-textarea-border-radius: 0;
-  --str-chat__message-textarea-color: var(--input-text-default);
-  --str-chat__message-textarea-background-color: transparent;
-  --str-chat__message-textarea-border-block-start: 0;
-  --str-chat__message-textarea-border-block-end: 0;
-  --str-chat__message-textarea-border-inline-start: 0;
-  --str-chat__message-textarea-border-inline-end: 0;
-  --str-chat__message-textarea-box-shadow: none;
-
-  --str-chat__cooldown-border-radius: var(--button-radius-full);
-  --str-chat__cooldown-color: var(--text-disabled);
-  --str-chat__cooldown-background-color: var(--background-utility-disabled);
-  --str-chat__cooldown-border-block-start: 0;
-  --str-chat__cooldown-border-block-end: 0;
-  --str-chat__cooldown-border-inline-start: 0;
-  --str-chat__cooldown-border-inline-end: 0;
-  --str-chat__cooldown-box-shadow: none;
   --str-chat__message-composer-max-width: 1120px;
-  --str-chat__message-composer-padding: var(--spacing-md);
+  --str-chat__message-composer-padding: var(--str-chat__spacing-md);
   --str-chat__message-composer-command-transition-duration: 280ms;
   --str-chat__message-composer-command-ease: cubic-bezier(0.22, 1, 0.32, 1);
 
@@ -69,12 +34,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-md);
+    gap: var(--str-chat__spacing-md);
     justify-content: center;
     padding: var(--str-chat__message-composer-padding);
     min-width: 0;
-    border-top: 1px solid var(--border-core-default);
-    background: var(--background-core-elevation-1);
+    border-top: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-1);
   }
 
   .str-chat__message-composer {
@@ -82,7 +47,7 @@
     align-items: end;
     width: 100%;
     max-width: var(--str-chat__message-composer-max-width);
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
     min-width: 0;
     flex-shrink: 1;
     transition: gap var(--str-chat__message-composer-command-transition-duration)
@@ -95,11 +60,11 @@
     flex-grow: 0;
     width: var(
       --str-chat__message-composer-attachment-slot-width,
-      calc(var(--button-visual-height-lg) + 2 * var(--spacing-xxs))
+      calc(var(--str-chat__button-visual-height-lg) + 2 * var(--str-chat__spacing-xxs))
     );
     max-width: var(
       --str-chat__message-composer-attachment-slot-width,
-      calc(var(--button-visual-height-lg) + 2 * var(--spacing-xxs))
+      calc(var(--str-chat__button-visual-height-lg) + 2 * var(--str-chat__spacing-xxs))
     );
     box-sizing: border-box;
     opacity: 1;
@@ -152,7 +117,10 @@
     flex-direction: column;
     flex: 1 1 0;
     min-width: 0;
-    @include utils.component-layer-overrides('message-input');
+    background: var(--composer-bg);
+    color: var(--str-chat__input-text-default);
+    border-radius: var(--str-chat__radius-3xl);
+    border: 1px solid var(--str-chat__border-core-default);
   }
 
   .str-chat__message-composer-previews {
@@ -161,8 +129,8 @@
     max-height: 400px;
     overflow: hidden;
     width: 100%;
-    padding: var(--spacing-xs) var(--spacing-xs) 0;
-    gap: var(--spacing-xxs);
+    padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-xs) 0;
+    gap: var(--str-chat__spacing-xxs);
 
     min-width: 0;
     min-height: 0;
@@ -172,9 +140,9 @@
     display: flex;
     align-items: end;
     width: 100%;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
     padding: calc(
-      var(--spacing-sm) - 1px
+      var(--str-chat__spacing-sm) - 1px
     ); // compensate for the 1px border of the composer container
 
     $controls-containers-min-height: 26px;
@@ -185,7 +153,7 @@
       flex-direction: column;
       min-height: $controls-containers-min-height;
       justify-content: center;
-      gap: var(--spacing-sm);
+      gap: var(--str-chat__spacing-sm);
 
       .str-chat__message-composer-controls__text-composition-controls__command-chip-container {
         height: 100%;
@@ -201,7 +169,7 @@
       align-items: center;
       width: 100%;
       min-width: 0;
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xxs);
     }
 
     .str-chat__message-composer__actions,
@@ -232,13 +200,14 @@
       width: 100%;
 
       textarea {
-        @include utils.component-layer-overrides('message-textarea');
+        background: transparent;
+        color: var(--str-chat__input-text-default);
         resize: none;
         border: none;
         box-shadow: none;
         outline: none;
         width: 100%;
-        font-size: var(--typography-font-size-md);
+        font-size: var(--str-chat__typography-font-size-md);
         scrollbar-width: none;
       }
     }
@@ -248,22 +217,22 @@
       cursor: pointer;
 
       svg {
-        height: var(--icon-size-md);
-        width: var(--icon-size-md);
+        height: var(--str-chat__icon-size-md);
+        width: var(--str-chat__icon-size-md);
       }
     }
 
     .str-chat__start-recording-audio-button {
       .str-chat__icon--voice {
-        height: var(--icon-size-md);
-        width: var(--icon-size-md);
+        height: var(--str-chat__icon-size-md);
+        width: var(--str-chat__icon-size-md);
       }
     }
 
     .str-chat__send-button {
       .str-chat__icon--send {
-        height: var(--icon-size-md);
-        width: var(--icon-size-md);
+        height: var(--str-chat__icon-size-md);
+        width: var(--str-chat__icon-size-md);
       }
     }
 
@@ -278,13 +247,14 @@
     }
 
     .str-chat__message-composer-cooldown {
-      @include utils.component-layer-overrides('cooldown');
+      background: var(--str-chat__background-utility-disabled);
+      color: var(--str-chat__text-disabled);
+      border-radius: var(--str-chat__button-radius-full);
       display: flex;
       align-items: center;
       justify-content: center;
-      height: var(--button-visual-height-md);
-      width: var(--button-visual-height-md);
-      border-radius: var(--str-chat__cooldown-border-radius);
+      height: var(--str-chat__button-visual-height-md);
+      width: var(--str-chat__button-visual-height-md);
     }
 
     [dir='rtl'] .str-chat__send-button,
@@ -320,17 +290,17 @@
   // todo: need designs? what kind of action buttons to use on modals?
   .str-chat__recording-permission-denied-notification {
     max-width: 100%;
-    padding: var(--spacing-md);
-    font-size: var(--typography-font-size-sm);
-    line-height: var(--typography-line-height-tight);
+    padding: var(--str-chat__spacing-md);
+    font-size: var(--str-chat__typography-font-size-sm);
+    line-height: var(--str-chat__typography-line-height-tight);
 
     .str-chat__recording-permission-denied-notification__heading {
-      font-weight: var(--typography-font-weight-semi-bold);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold);
     }
 
     .str-chat__recording-permission-denied-notification__message {
-      margin: var(--spacing-xs) 0 0;
-      font-weight: var(--typography-font-weight-regular, 400);
+      margin: var(--str-chat__spacing-xs) 0 0;
+      font-weight: var(--str-chat__typography-font-weight-regular, 400);
     }
   }
 }

@@ -6,23 +6,23 @@
     scrollbar-width: none;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2xl);
-    padding-bottom: var(--spacing-xl);
+    gap: var(--str-chat__spacing-2xl);
+    padding-bottom: var(--str-chat__spacing-xl);
 
     .str-chat__poll-option-list--full {
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xs);
       scrollbar-width: none;
-      padding: var(--spacing-sm) var(--spacing-xxs);
-      border-radius: var(--radius-lg);
-      background-color: var(--background-core-surface-card);
+      padding: var(--str-chat__spacing-xs);
+      border-radius: var(--str-chat__radius-lg);
+      background-color: var(--str-chat__background-core-surface-card);
 
       .str-chat__poll-option {
-        padding: var(--spacing-xs);
-        border-radius: var(--radius-lg);
+        padding: var(--str-chat__spacing-xs);
+        border-radius: var(--str-chat__radius-md);
       }
       .str-chat__poll-option--votable {
         &:hover {
-          background-color: var(--background-utility-hover);
+          background-color: var(--str-chat__background-utility-hover);
         }
       }
     }

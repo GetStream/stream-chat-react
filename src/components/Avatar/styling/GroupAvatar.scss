@@ -16,8 +16,8 @@
     --avatar-group-count-badge-size: 32px;
 
     & > .str-chat__avatar-group__count-badge {
-      font-size: var(--typography-font-size-sm);
-      padding-inline: var(--spacing-xs);
+      font-size: var(--str-chat__typography-font-size-sm);
+      padding-inline: var(--str-chat__spacing-xs);
     }
   }
 
@@ -27,8 +27,8 @@
     --avatar-group-count-badge-size: 24px;
 
     & > .str-chat__avatar-group__count-badge {
-      font-size: var(--typography-font-size-sm);
-      padding-inline: var(--spacing-xs);
+      font-size: var(--str-chat__typography-font-size-sm);
+      padding-inline: var(--str-chat__spacing-xs);
     }
   }
 
@@ -38,8 +38,8 @@
     --avatar-group-count-badge-size: 20px;
 
     & > .str-chat__avatar-group__count-badge {
-      font-size: var(--typography-font-size-xxs);
-      padding-inline: var(--spacing-xxs);
+      font-size: var(--str-chat__typography-font-size-xxs);
+      padding-inline: var(--str-chat__spacing-xxs);
     }
   }
 
@@ -53,28 +53,28 @@
     inset-inline-end: -2px;
     top: -2px;
 
-    border-radius: var(--radius-max, 9999px);
+    border-radius: var(--str-chat__radius-max, 9999px);
     border-style: solid;
-    border-color: var(--presence-border, #fff);
+    border-color: var(--str-chat__presence-border, #fff);
     border-width: 2px;
   }
 
   &.str-chat__avatar-group--online::after {
-    background: var(--presence-bg-online, #00c384);
+    background: var(--str-chat__presence-bg-online, #00c384);
   }
 
   &.str-chat__avatar-group--offline::after {
-    background: var(--presence-bg-offline, #687385);
+    background: var(--str-chat__presence-bg-offline, #687385);
   }
 
   // TODO: discuss
 
   // & > .str-chat__avatar::before {
   //   content: '';
-  //   border-radius: var(--radius-max);
+  //   border-radius: var(--str-chat__radius-max);
   //   width: 100%;
   //   height: 100%;
-  //   border: 2px solid var(--border-core-on-accent);
+  //   border: 2px solid var(--str-chat__border-core-on-accent);
   //   background: transparent;
   //   position: absolute;
   //   box-sizing: content-box;
@@ -90,12 +90,12 @@
     height: var(--avatar-group-count-badge-size);
     min-width: var(--avatar-group-count-badge-size);
     min-height: var(--avatar-group-count-badge-size);
-    font-weight: var(--typography-font-weight-bold);
-    font-family: var(--typography-font-family-sans);
+    font-weight: var(--str-chat__typography-font-weight-bold);
+    font-family: var(--str-chat__typography-font-family-sans);
     justify-content: center;
     align-items: center;
-    border-radius: var(--radius-max);
-    background: var(--badge-bg-default);
+    border-radius: var(--str-chat__radius-max);
+    background: var(--str-chat__badge-bg-default);
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
   }
 

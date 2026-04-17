@@ -6,7 +6,7 @@
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  padding: var(--spacing-xxs);
+  padding: var(--str-chat__spacing-xxs);
 }
 
 .str-chat__link-preview-card {
@@ -16,11 +16,11 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  gap: var(--spacing-xs);
-  padding-inline: var(--spacing-xs) var(--spacing-sm);
-  padding-block: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-xs);
   background-color: var(--chat-bg);
-  border-radius: var(--message-bubble-radius-attachment);
+  border-radius: var(--str-chat__message-bubble-radius-attachment);
 
   .str-chat__tooltip {
     @include utils.ellipsis-text();
@@ -51,7 +51,7 @@
     .str-chat__link-preview-card__content__url {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xxs);
     }
   }
 }
@@ -63,12 +63,12 @@
 //    gap: 0.25rem;
 //
 //    .str-chat__link-preview-card__content-title {
-//      height: var(--size-16);
+//      height: var(--str-chat__size-16);
 //      width: 100%
 //    }
 //
 //    .str-chat__link-preview-card__content-description {
-//      height: var(--size-12);
+//      height: var(--str-chat__size-12);
 //      width: 100%;
 //    }
 //  }

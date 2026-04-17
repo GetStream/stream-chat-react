@@ -2,20 +2,15 @@
 // Single row: [label / title+description] [optional expanded content] [toggle]
 // CSS variables aligned with Figma tokens; fallbacks from get_variable_defs.
 
+$switch-field-track-height: 24px;
+$switch-field-track-thumb-bg: var(--str-chat__base-white, #ffffff);
+$switch-field-track-radius: var(--str-chat__button-radius-full, 9999px);
+
 .str-chat {
-  --str-chat__switch-field-background-color: var(--background-core-surface-card);
-  --str-chat__switch-field-border-radius: var(--radius-md);
-  --str-chat__switch-field__track-off-bg: var(
-    --control-toggle-switch-bg,
-    var(--border-core-on-surface, #a3acba)
+  --str-chat__switch-field-background-color: var(
+    --str-chat__background-core-surface-card
   );
-  --str-chat__switch-field__track-on-bg: var(
-    --control-toggle-switch-bg-selected,
-    #005fff
-  );
-  --str-chat__switch-field__track-thumb-bg: var(--base-white, #ffffff);
-  --str-chat__switch-field__track-height: 24px;
-  --str-chat__switch-field__track-radius: var(--button-radius-full, 9999px);
+  --str-chat__switch-field-border-radius: var(--str-chat__radius-md);
 
   .str-chat__form__switch-fieldset {
     width: 100%;
@@ -26,9 +21,9 @@
   .str-chat__form__switch-field {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
     background-color: var(--str-chat__switch-field-background-color);
     border-radius: var(--str-chat__switch-field-border-radius);
     box-sizing: border-box;
@@ -58,27 +53,27 @@
       align-items: center;
       flex-shrink: 0;
       width: 44px;
-      height: var(--str-chat__switch-field__track-height);
-      padding: var(--spacing-xxs);
+      height: $switch-field-track-height;
+      padding: var(--str-chat__spacing-xxs);
       cursor: pointer;
-      background-color: var(--str-chat__switch-field__track-off-bg);
-      border-radius: var(--str-chat__switch-field__track-radius);
+      background-color: var(--str-chat__control-toggle-switch-bg);
+      border-radius: $switch-field-track-radius;
       transition: background-color 0.2s ease;
 
       &-handle {
-        width: calc(var(--str-chat__switch-field__track-height) - 8px);
-        height: calc(var(--str-chat__switch-field__track-height) - 8px);
-        border-radius: var(--str-chat__switch-field__track-radius);
-        background-color: var(--str-chat__switch-field__track-thumb-bg);
+        width: calc($switch-field-track-height - 8px);
+        height: calc($switch-field-track-height - 8px);
+        border-radius: $switch-field-track-radius;
+        background-color: $switch-field-track-thumb-bg;
         transition: transform 0.2s ease;
       }
 
       &--on {
-        background-color: var(--str-chat__switch-field__track-on-bg);
+        background-color: var(--str-chat__control-toggle-switch-bg-selected);
         justify-content: flex-end;
 
         .str-chat__form__switch-field__switch-handle {
-          background-color: var(--str-chat__switch-field__track-thumb-bg);
+          background-color: $switch-field-track-thumb-bg;
         }
       }
     }
@@ -96,12 +91,12 @@
 
     .str-chat__form__switch-field__label {
       .str-chat__form__switch-field__label__text {
-        color: var(--text-primary);
+        color: var(--str-chat__text-primary);
         font: var(--str-chat__font-heading-xs);
       }
 
       .str-chat__form__switch-field__label__description {
-        color: var(--text-tertiary);
+        color: var(--str-chat__text-tertiary);
         font: var(--str-chat__font-metadata-default);
       }
     }
@@ -113,7 +108,7 @@
 
     .str-chat__form__switch-field__label--as-error {
       .str-chat__form__switch-field__label__description {
-        color: var(--accent-error);
+        color: var(--str-chat__accent-error);
       }
     }
   }

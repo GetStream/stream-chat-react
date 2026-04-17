@@ -22,12 +22,7 @@
   }
 
   .str-chat__gallery {
-    --str-chat__gallery-action-button-color: rgba(255, 255, 255, 0.88);
-    --str-chat__gallery-action-button-hover-color: #ffffff;
-    --str-chat__gallery-action-button-hover-background: rgba(255, 255, 255, 0.14);
-    --str-chat__gallery-action-button-active-background: rgba(255, 255, 255, 0.2);
-    --str-chat__gallery-foreground: var(--text-on-accent);
-    --str-chat__gallery-muted-foreground: rgba(255, 255, 255, 0.72);
+    --str-chat__gallery-foreground: var(--str-chat__text-on-accent);
     --str-chat__gallery-nav-border: none;
     --str-chat__gallery-nav-background: rgba(255, 255, 255, 0.92);
     --str-chat__gallery-nav-color: #101828;
@@ -48,16 +43,16 @@
   }
 
   &.str-chat__modal.str-chat__gallery-modal {
-    --str-chat__modal-overlay-color: var(--background-core-scrim);
+    --str-chat__modal-overlay-color: var(--str-chat__background-core-scrim);
     --str-chat__modal-overlay-backdrop-filter: none;
   }
 
   .str-chat__gallery__header {
-    padding: var(--spacing-md);
+    padding: var(--str-chat__spacing-md);
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: start;
-    gap: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
     pointer-events: none;
     width: 100%;
   }
@@ -82,7 +77,7 @@
   .str-chat__gallery__timestamp {
     display: block;
     margin-top: 2px;
-    color: var(--str-chat__gallery-muted-foreground);
+    color: rgba(255, 255, 255, 0.72);
     font: var(--str-chat__font-metadata-default);
   }
 
@@ -90,7 +85,7 @@
     display: inline-flex;
     align-items: center;
     justify-self: end;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
     pointer-events: auto;
   }
 
@@ -102,10 +97,10 @@
     width: 2rem;
     height: 2rem;
     padding: 0;
-    border-radius: var(--radius-max);
+    border-radius: var(--str-chat__radius-max);
     border: 0;
     background-color: transparent;
-    color: var(--str-chat__gallery-action-button-color);
+    color: rgba(255, 255, 255, 0.88);
     text-decoration: none;
     opacity: 0.92;
 
@@ -117,13 +112,13 @@
     }
 
     &:hover {
-      background-color: var(--str-chat__gallery-action-button-hover-background);
-      color: var(--str-chat__gallery-action-button-hover-color);
+      background-color: rgba(255, 255, 255, 0.14);
+      color: #ffffff;
       opacity: 1;
     }
 
     &:active {
-      background-color: var(--str-chat__gallery-action-button-active-background);
+      background-color: rgba(255, 255, 255, 0.2);
     }
 
     &:focus-visible {
@@ -131,8 +126,8 @@
     }
 
     .str-chat__icon {
-      width: var(--icon-size-sm);
-      height: var(--icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
+      height: var(--str-chat__icon-size-sm);
     }
   }
 
@@ -159,7 +154,7 @@
     width: 100%;
     height: 100%;
     min-height: 0;
-    padding: var(--size-64);
+    padding: var(--str-chat__size-64);
     box-sizing: border-box;
     overflow: hidden;
     touch-action: pan-y pinch-zoom;
@@ -220,7 +215,7 @@
     height: 2rem;
     padding: 0;
     border: var(--str-chat__gallery-nav-border);
-    border-radius: var(--radius-max);
+    border-radius: var(--str-chat__radius-max);
     background-color: var(--str-chat__gallery-nav-background);
     color: var(--str-chat__gallery-nav-color);
     box-shadow: var(--str-chat__gallery-nav-box-shadow);
@@ -255,11 +250,11 @@
   }
 
   .str-chat__gallery__nav-button--prev {
-    inset-inline-start: var(--spacing-sm);
+    inset-inline-start: var(--str-chat__spacing-sm);
   }
 
   .str-chat__gallery__nav-button--next {
-    inset-inline-end: var(--spacing-sm);
+    inset-inline-end: var(--str-chat__spacing-sm);
   }
 
   .str-chat__gallery__position-indicator {
@@ -272,7 +267,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-md);
+    padding: var(--str-chat__spacing-md);
   }
 
   .str-chat__gallery__loading {
@@ -283,11 +278,11 @@
 
   .str-chat__gallery__error {
     @include utils.flex-col-center;
-    gap: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
     width: 100%;
     height: 100%;
-    color: var(--text-tertiary);
-    font-size: var(--typography-font-size-sm);
+    color: var(--str-chat__text-tertiary);
+    font-size: var(--str-chat__typography-font-size-sm);
   }
 
   &.str-chat__theme-dark {
@@ -302,7 +297,7 @@
 
   @media only screen and (max-device-width: 768px) {
     .str-chat__gallery__header {
-      inset: var(--spacing-xs) var(--spacing-xs) auto;
+      inset: var(--str-chat__spacing-xs) var(--str-chat__spacing-xs) auto;
     }
 
     .str-chat__gallery__nav-button {

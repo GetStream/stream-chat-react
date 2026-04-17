@@ -1,25 +1,23 @@
 @use '../../../styling/utils';
 
-.str-chat__message {
-  --str-chat__modal-gallery-load-failed-indicator-background: var(--accent-error);
-  --str-chat__modal-gallery-load-failed-indicator-color: var(--text-on-inverse);
-  --str-chat__modal-gallery-loading-background: var(--chat-bg);
-  --str-chat__modal-gallery-loading-base: var(--skeleton-loading-base);
-  --str-chat__modal-gallery-loading-highlight: var(--skeleton-loading-highlight);
-}
-
 .str-chat__attachment-list {
   .str-chat__message-attachment--gallery {
     $max-width: var(--str-chat__attachment-max-width);
 
     .str-chat__modal-gallery {
-      @include utils.component-layer-overrides('image-gallery-attachment');
+      background: transparent;
+      color: var(--str-chat__text-primary);
+      border-radius: calc(
+        var(--str-chat__message-bubble-radius-group-bottom) - var(
+            --str-chat__attachment-margin
+          )
+      );
       display: grid;
       grid-template-columns: 50% 50%;
       grid-template-rows: 50% 50%;
       overflow: hidden;
-      border-radius: var(--radius-lg);
-      gap: var(--space-2);
+      border-radius: var(--str-chat__radius-lg);
+      gap: var(--str-chat__space-2);
       width: $max-width;
       max-width: $max-width;
       // CDN resize requires height/max-height to be present on the img element, this rule ensures that
@@ -64,15 +62,15 @@
         cursor: zoom-in;
         // CDN resize requires max-width to be present on this element
         max-width: $max-width;
-        color: var(--text-on-inverse);
+        color: var(--str-chat__text-on-inverse);
         border: none;
-        font-size: var(--typography-font-size-2xl);
-        font-weight: var(--typography-font-weight-medium);
-        line-height: var(--typography-line-height-relaxed);
+        font-size: var(--str-chat__typography-font-size-2xl);
+        font-weight: var(--str-chat__typography-font-weight-medium);
+        line-height: var(--str-chat__typography-line-height-relaxed);
 
         inset: 0;
         position: absolute;
-        background-color: var(--background-core-scrim);
+        background-color: var(--str-chat__background-core-scrim);
       }
     }
   }
@@ -141,12 +139,12 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--str-chat__modal-gallery-loading-background);
+        background-color: var(--chat-bg);
         background-image: linear-gradient(
           90deg,
-          var(--str-chat__modal-gallery-loading-base) 0%,
-          var(--str-chat__modal-gallery-loading-highlight) 50%,
-          var(--str-chat__modal-gallery-loading-base) 100%
+          var(--str-chat__skeleton-loading-base) 0%,
+          var(--str-chat__skeleton-loading-highlight) 50%,
+          var(--str-chat__skeleton-loading-base) 100%
         );
         background-repeat: no-repeat;
         background-size: 200% 100%;
@@ -156,8 +154,8 @@
         .str-chat__loading-indicator {
           position: relative;
           z-index: 1;
-          width: var(--icon-size-lg);
-          height: var(--icon-size-lg);
+          width: var(--str-chat__icon-size-lg);
+          height: var(--str-chat__icon-size-lg);
         }
       }
 
@@ -167,9 +165,9 @@
         z-index: 1;
         width: 2.75rem;
         height: 2.75rem;
-        border-radius: var(--radius-max);
-        background-color: var(--str-chat__modal-gallery-load-failed-indicator-background);
-        color: var(--str-chat__modal-gallery-load-failed-indicator-color);
+        border-radius: var(--str-chat__radius-max);
+        background-color: var(--str-chat__accent-error);
+        color: var(--str-chat__text-on-inverse);
 
         svg {
           width: 1.125rem;

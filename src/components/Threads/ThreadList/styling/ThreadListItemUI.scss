@@ -1,38 +1,38 @@
 @use '../../../../styling/utils';
 
 .str-chat__thread-list-item-container {
-  border-bottom: 1px solid var(--border-core-subtle);
-  padding: var(--spacing-xxs);
+  border-bottom: 1px solid var(--str-chat__border-core-subtle);
+  padding: var(--str-chat__spacing-xxs);
   max-width: 100%;
 
   &:has(.str-chat__thread-list-item--highlighted) {
-    background: var(--background-core-highlight);
+    background: var(--str-chat__background-core-highlight);
   }
 }
 
 .str-chat__thread-list-item {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: var(--str-chat__spacing-sm);
   align-items: flex-start;
-  padding-inline: var(--spacing-sm);
-  padding-block: var(--spacing-sm);
-  padding-block-start: calc(var(--spacing-sm) - 1px);
+  padding-inline: var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-sm);
+  padding-block-start: calc(var(--str-chat__spacing-sm) - 1px);
   border: none;
   cursor: pointer;
   text-align: start;
-  background: var(--background-core-elevation-1);
-  border-radius: var(--radius-lg);
+  background: var(--str-chat__background-core-elevation-1);
+  border-radius: var(--str-chat__radius-lg);
   width: 100%;
   max-width: 100%;
 
   &:not(:disabled):hover {
-    background: var(--background-utility-hover);
+    background: var(--str-chat__background-utility-hover);
   }
   &:not(:disabled):active {
-    background: var(--background-utility-pressed);
+    background: var(--str-chat__background-utility-pressed);
   }
   &:not(:disabled)[aria-pressed='true'] {
-    background: var(--background-utility-selected);
+    background: var(--str-chat__background-utility-selected);
   }
 
   .str-chat__avatar {
@@ -41,10 +41,10 @@
 
   .str-chat__summarized-message-preview {
     .str-chat__summarized-message-preview__sender {
-      color: var(--text-secondary);
+      color: var(--str-chat__text-secondary);
     }
     .str-chat__summarized-message-preview__text {
-      color: var(--text-primary);
+      color: var(--str-chat__text-primary);
     }
   }
 }
@@ -52,7 +52,7 @@
 .str-chat__thread-list-item__content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
   flex: 1 0 0;
   min-width: 0;
 }
@@ -60,15 +60,15 @@
 .str-chat__thread-list-item__content-leading {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xxs);
-  padding-block: var(--spacing-xxxs);
+  gap: var(--str-chat__spacing-xxs);
+  padding-block: var(--str-chat__spacing-xxxs);
 }
 
 .str-chat__thread-list-item__title {
-  font-size: var(--typography-font-size-sm);
-  font-weight: var(--typography-font-weight-semi-bold);
-  line-height: var(--typography-line-height-normal);
-  color: var(--text-tertiary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-weight: var(--str-chat__typography-font-weight-semi-bold);
+  line-height: var(--str-chat__typography-line-height-normal);
+  color: var(--str-chat__text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -76,31 +76,31 @@
 
 .str-chat__thread-list-item__content-trailing {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
   align-items: center;
 }
 
 .str-chat__thread-list-item__reply-information {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
   align-items: center;
 }
 
 .str-chat__thread-list-item__reply-count {
-  font-size: var(--typography-font-size-sm);
-  font-weight: var(--typography-font-weight-semi-bold);
-  line-height: var(--typography-line-height-normal);
-  color: var(--text-link);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-weight: var(--str-chat__typography-font-weight-semi-bold);
+  line-height: var(--str-chat__typography-line-height-normal);
+  color: var(--str-chat__text-link);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .str-chat__thread-list-item__timestamp {
-  font-size: var(--typography-font-size-sm);
-  font-weight: var(--typography-font-weight-regular);
-  line-height: var(--typography-line-height-normal);
-  color: var(--text-tertiary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-weight: var(--str-chat__typography-font-weight-regular);
+  line-height: var(--str-chat__typography-line-height-normal);
+  color: var(--str-chat__text-tertiary);
   white-space: nowrap;
   min-width: 0;
   @include utils.ellipsis-text;

@@ -10,14 +10,14 @@
     form {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xl);
+      gap: var(--str-chat__spacing-xl);
     }
   }
 
   .str-chat__poll-creation-dialog__features-selectors {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
     align-items: center;
   }
 
@@ -42,7 +42,7 @@
     .str-chat__multiple-answers-field__votes-limit-field__numeric-field {
       display: flex;
       align-items: center;
-      gap: var(--spacing-md);
+      gap: var(--str-chat__spacing-md);
       width: 100%;
 
       .str-chat__form__switch-field__label {

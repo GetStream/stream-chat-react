@@ -2,16 +2,16 @@
 
 .str-chat {
   /* The border radius used for the borders of the content area of the component of the content area of the component */
-  --str-chat__modal-border-radius: var(--radius-xl);
+  --str-chat__modal-border-radius: var(--str-chat__radius-xl);
 
   /* The text/icon color of the content area of the component */
-  --str-chat__modal-color: var(--text-primary);
+  --str-chat__modal-color: var(--str-chat__text-primary);
 
   /* The background color of the content area of the component */
-  --str-chat__modal-background-color: var(--background-core-elevation-1);
+  --str-chat__modal-background-color: var(--str-chat__background-core-elevation-1);
 
   /* The overlay color of the component */
-  --str-chat__modal-overlay-color: var(--background-core-scrim);
+  --str-chat__modal-overlay-color: var(--str-chat__background-core-scrim);
 
   /* The backdrop filter applied to the component */
   --str-chat__modal-overlay-backdrop-filter: blur(3px);
@@ -50,8 +50,8 @@
     position: absolute;
     inset-inline-end: 10px;
     top: 10px;
-    padding: var(--spacing-xs);
-    color: var(--text-on-accent);
+    padding: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-on-accent);
 
     svg {
       height: 12px;

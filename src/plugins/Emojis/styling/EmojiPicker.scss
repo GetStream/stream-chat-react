@@ -1,11 +1,11 @@
-.str-chat__message-textarea-emoji-picker-container {
-  --str-chat__emoji-picker-border-radius: 10px;
+$emoji-picker-border-radius: 10px;
 
-  border-radius: var(--str-chat__emoji-picker-border-radius);
+.str-chat__message-textarea-emoji-picker-container {
+  border-radius: $emoji-picker-border-radius;
   box-shadow: var(--str-chat__box-shadow-3);
   overflow: hidden;
 
   em-emoji-picker {
-    --border-radius: var(--str-chat__emoji-picker-border-radius);
+    --border-radius: #{$emoji-picker-border-radius};
   }
 }
