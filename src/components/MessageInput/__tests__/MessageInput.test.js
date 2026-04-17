@@ -79,6 +79,27 @@ const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttac
 const getImage = () => new File(['content'], filename, { type: 'image/png' });
 const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
 
+/** Matches Channel.sendFile / sendImage (uri, name?, contentType?, user?, axiosRequestConfig?). */
+const expectChannelUploadSendFile = (spy, file) => {
+  expect(spy).toHaveBeenCalledWith(
+    file,
+    undefined,
+    undefined,
+    undefined,
+    expect.objectContaining({ onUploadProgress: expect.any(Function) }),
+  );
+};
+
+const expectChannelUploadSendImage = (spy, image) => {
+  expect(spy).toHaveBeenCalledWith(
+    image,
+    undefined,
+    undefined,
+    undefined,
+    expect.objectContaining({ onUploadProgress: expect.any(Function) }),
+  );
+};
+
 const sendMessageMock = jest.fn();
 const mockAddNotification = jest.fn();
 
@@ -411,8 +432,8 @@ describe(`MessageInputFlat`, () => {
       });
       const filenameTexts = await screen.findAllByTitle(filename);
       await waitFor(() => {
-        expect(sendFileSpy).toHaveBeenCalledWith(file);
-        expect(sendImageSpy).toHaveBeenCalledWith(image);
+        expectChannelUploadSendFile(sendFileSpy, file);
+        expectChannelUploadSendImage(sendImageSpy, image);
         expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
         expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
         filenameTexts.forEach((filenameText) => expect(filenameText).toBeInTheDocument());
@@ -483,7 +504,7 @@ describe(`MessageInputFlat`, () => {
         dropFile(file, formElement);
       });
       await waitFor(() => {
-        expect(sendImageSpy).toHaveBeenCalledWith(file);
+        expectChannelUploadSendImage(sendImageSpy, file);
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
