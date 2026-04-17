@@ -40,6 +40,7 @@ export const ReactionSelectorWithButton = ({
       <DialogAnchor
         dialogManagerId={dialogManager?.id}
         id={dialogId}
+        offset={8}
         placement={isMyMessage() ? 'top-end' : 'top-start'}
         referenceElement={buttonRef.current}
         trapFocus
