@@ -40,7 +40,11 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import { useChannelStateContext, useChatContext } from '../../context';
+import {
+  useChannelStateContext,
+  useChatContext,
+  useTranslationContext,
+} from '../../context';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
@@ -68,6 +72,7 @@ const MessageUIWithContext = ({
 }: MessageUIWithContextProps) => {
   const { channel } = useChannelStateContext();
   const { client } = useChatContext();
+  const { t } = useTranslationContext('MessageUI');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
 
@@ -171,11 +176,23 @@ const MessageUIWithContext = ({
     },
   );
 
-  let handleClick: (() => void) | undefined = undefined;
+  let handleClick: (() => void) | undefined;
 
   if (isBounced) {
     handleClick = () => setIsBounceDialogOpen(true);
   }
+
+  const isMessageInnerInteractive = !!handleClick;
+  const messageInnerAriaLabel = isMessageInnerInteractive
+    ? t('aria/Review bounced message')
+    : undefined;
+
+  const handleMessageInnerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!handleClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+    event.preventDefault();
+    handleClick();
+  };
 
   return (
     <>
@@ -202,12 +219,15 @@ const MessageUIWithContext = ({
           />
         )}
         <div
+          aria-label={messageInnerAriaLabel}
           className={clsx('str-chat__message-inner', {
             'str-chat__message-inner--error': allowRetry || isBounced,
           })}
           data-testid='message-inner'
           onClick={handleClick}
-          onKeyUp={handleClick}
+          onKeyDown={isMessageInnerInteractive ? handleMessageInnerKeyDown : undefined}
+          role={isMessageInnerInteractive ? 'button' : undefined}
+          tabIndex={isMessageInnerInteractive ? 0 : undefined}
         >
           {!isDeleted && <MessageActions />}
           {showReplyCountButton && (

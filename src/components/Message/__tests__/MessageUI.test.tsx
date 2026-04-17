@@ -550,6 +550,31 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should not assign keyboard button semantics to failed messages', async () => {
+    const message = generateAliceMessage({ status: 'failed' });
+    const { getByTestId } = await renderMessageSimple({ message });
+    const messageInner = getByTestId('message-inner');
+
+    expect(messageInner).not.toHaveAttribute('aria-label');
+    expect(messageInner).not.toHaveAttribute('role');
+    expect(messageInner).not.toHaveAttribute('tabindex');
+
+    fireEvent.keyDown(messageInner, { code: 'Enter', key: 'Enter' });
+    fireEvent.keyDown(messageInner, { code: 'Space', key: ' ' });
+    fireEvent.click(messageInner);
+    expect(retrySendMessageMock).not.toHaveBeenCalled();
+  });
+
+  it('should not assign keyboard button semantics to non-retryable regular messages', async () => {
+    const message = generateAliceMessage({ status: 'received' });
+    const { getByTestId } = await renderMessageSimple({ message });
+    const messageInner = getByTestId('message-inner');
+
+    expect(messageInner).not.toHaveAttribute('aria-label');
+    expect(messageInner).not.toHaveAttribute('role');
+    expect(messageInner).not.toHaveAttribute('tabindex');
+  });
+
   it('should render message options', async () => {
     const message = generateAliceMessage({ text: undefined });
     const { container, getByTestId } = await renderMessageSimple({
@@ -801,6 +826,46 @@ describe('<MessageSimple />', () => {
       expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
     });
 
+    it('should apply keyboard/button semantics to bounced message wrapper', async () => {
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
+      const { getByTestId } = await renderMessageSimple({ message });
+      const messageInner = getByTestId('message-inner');
+
+      expect(messageInner).toHaveAttribute('aria-label', 'aria/Review bounced message');
+      expect(messageInner).toHaveAttribute('role', 'button');
+      expect(messageInner).toHaveAttribute('tabindex', '0');
+    });
+
+    it('should open bounce modal on Enter key', async () => {
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
+      const { getByTestId, queryByTestId } = await renderMessageSimple({ message });
+      const messageInner = getByTestId('message-inner');
+
+      fireEvent.keyDown(messageInner, { key: 'Backspace' });
+      expect(queryByTestId('message-bounce-prompt')).not.toBeInTheDocument();
+
+      fireEvent.keyDown(messageInner, { code: 'Enter', key: 'Enter' });
+      expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
+    });
+
+    it('should open bounce modal on Space key', async () => {
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
+      const { getByTestId, queryByTestId } = await renderMessageSimple({ message });
+      const messageInner = getByTestId('message-inner');
+
+      fireEvent.keyDown(messageInner, { code: 'Space', key: ' ' });
+      expect(queryByTestId('message-bounce-prompt')).toBeInTheDocument();
+    });
+
     it('should render edit button in bounce prompt', async () => {
       const message = generateAliceMessage({
         ...bouncedMessageOptions,
@@ -881,6 +946,17 @@ describe('<MessageSimple />', () => {
       });
       fireEvent.click(getByTestId('message-inner'));
       expect(queryByText('Overriden')).toBeInTheDocument();
+    });
+
+    it('should pass axe for bounced messages', async () => {
+      const message = generateAliceMessage({
+        ...bouncedMessageOptions,
+        cid: channel.cid,
+      });
+      const { container } = await renderMessageSimple({ message });
+
+      const results = await axe(container);
+      expect(results).toHaveNoViolations();
     });
   });
 
