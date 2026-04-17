@@ -5,8 +5,8 @@
 }
 
 .str-chat__channel-header {
-  background: var(--background-core-elevation-1);
-  border-block-end: 1px solid var(--border-core-default);
+  background: var(--str-chat__background-core-elevation-1);
+  border-block-end: 1px solid var(--str-chat__border-core-default);
   @include utils.header-layout;
 
   .str-chat__channel-header__start {
@@ -36,6 +36,6 @@
 
   .str-chat__channel-header__data__subtitle {
     font: var(--str-chat__font-caption-default);
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 }

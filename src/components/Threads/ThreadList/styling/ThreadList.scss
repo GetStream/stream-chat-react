@@ -15,9 +15,9 @@
 }
 
 .str-chat__thread-list-container {
-  background: var(--background-core-elevation-1);
-  color: var(--text-primary);
-  border-inline-end: 1px solid var(--border-core-default);
+  background: var(--str-chat__background-core-elevation-1);
+  color: var(--str-chat__text-primary);
+  border-inline-end: 1px solid var(--str-chat__border-core-default);
   display: flex;
   flex: 0 0 var(--str-chat__thread-list-width);
   flex-direction: column;
@@ -72,22 +72,22 @@
     font: var(--str-chat__font-metadata-emphasis);
     cursor: pointer;
     display: flex;
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
     height: 36px;
     justify-content: center;
     align-items: center;
-    gap: var(--spacing-xs);
-    border-radius: var(--radius-none);
+    gap: var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-none);
     background: var(--background-core-surface);
     position: relative;
 
     & > .str-chat__icon {
-      height: var(--icon-size-md);
-      width: var(--icon-size-md);
+      height: var(--str-chat__icon-size-md);
+      width: var(--str-chat__icon-size-md);
     }
 
     &:not(:disabled):hover {
-      @include utils.overlay-after(var(--background-utility-hover));
+      @include utils.overlay-after(var(--str-chat__background-utility-hover));
     }
   }
 }
@@ -105,7 +105,7 @@
 }
 
 .str-chat__thread-list-empty-placeholder {
-  --str-chat-icon-color: var(--text-secondary);
+  --str-chat-icon-color: var(--str-chat__text-secondary);
   @include utils.empty-theme('thread-list');
 
   height: 100%;
@@ -114,14 +114,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-xl);
-  color: var(--text-secondary);
+  padding: var(--str-chat__spacing-xl);
+  color: var(--str-chat__text-secondary);
 
   p {
     margin: 0;
-    color: var(--text-secondary);
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-regular);
-    line-height: var(--typography-line-height-normal);
+    color: var(--str-chat__text-secondary);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-regular);
+    line-height: var(--str-chat__typography-line-height-normal);
   }
 }

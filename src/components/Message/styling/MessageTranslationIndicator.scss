@@ -3,11 +3,11 @@
   display: flex;
   align-items: center;
   grid-area: translation-indicator;
-  padding-block: var(--spacing-xxs);
-  gap: var(--spacing-xxs);
+  padding-block: var(--str-chat__spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   margin: 0;
   background: transparent;
-  color: var(--text-primary);
+  color: var(--str-chat__text-primary);
 
   &,
   .str-chat__message-translation-indicator__translation-toggle {

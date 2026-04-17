@@ -11,21 +11,21 @@
 
 .str-chat__date-separator {
   background: transparent;
-  color: var(--chat-text-system);
+  color: var(--str-chat__chat-text-system);
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: var(--spacing-xs) 0;
+  padding: var(--str-chat__spacing-xs) 0;
 
   .str-chat__date-separator-date {
     display: flex;
-    padding: var(--spacing-xxs) var(--spacing-sm);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
     justify-content: center;
     align-items: center;
-    color: var(--chat-text-system);
-    background-color: var(--background-core-surface-subtle);
-    border-radius: var(--radius-max);
+    color: var(--str-chat__chat-text-system);
+    background-color: var(--str-chat__background-core-surface-subtle);
+    border-radius: var(--str-chat__radius-max);
 
     font: var(--str-chat__font-metadata-emphasis);
   }

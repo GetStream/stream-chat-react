@@ -10,7 +10,7 @@ $notification-list-inset: 16px;
   max-width: 100%;
   min-width: 0;
   max-height: calc(100% - ($notification-list-inset * 2));
-  padding-inline: var(--spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs);
   pointer-events: none;
   position: absolute;
   inset-inline-end: $notification-list-inset;

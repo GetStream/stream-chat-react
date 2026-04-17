@@ -1,7 +1,7 @@
 // FIXME: figure out why does this "container" exist when __thread is completely valid
 .str-chat__thread-container {
-  color: var(--text-primary);
-  border-inline-start: 1px solid var(--border-core-default);
+  color: var(--str-chat__text-primary);
+  border-inline-start: 1px solid var(--str-chat__border-core-default);
   position: relative;
   height: 100%;
   display: flex;

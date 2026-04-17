@@ -41,14 +41,14 @@
     transform var(--str-chat__channel-list-transition-duration)
       var(--str-chat__channel-list-transition-easing);
   width: var(--str-chat__channel-list-width);
-  background: var(--background-core-elevation-1);
-  color: var(--text-primary);
-  border-inline-end: 1px solid var(--border-core-default);
+  background: var(--str-chat__background-core-elevation-1);
+  color: var(--str-chat__text-primary);
+  border-inline-end: 1px solid var(--str-chat__border-core-default);
 
   .str-chat__channel-list-inner {
     height: 100%;
     overflow: hidden;
-    padding-bottom: calc(var(--space-8) + var(--space-2));
+    padding-bottom: calc(var(--str-chat__space-8) + var(--str-chat__space-2));
 
     .str-chat__channel-list-inner__main {
       height: 100%;
@@ -62,10 +62,10 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: calc(var(--space-8) + var(--space-4));
+        padding: calc(var(--str-chat__space-8) + var(--str-chat__space-4));
 
         p {
-          color: var(--text-secondary);
+          color: var(--str-chat__text-secondary);
           font: var(--str-chat__font-caption-default);
         }
       }
@@ -75,12 +75,12 @@
   .str-chat__load-more-button {
     display: flex;
     justify-content: center;
-    margin: var(--space-8) 0;
+    margin: var(--str-chat__space-8) 0;
   }
 
   .str-chat__channel-list-empty {
     @include utils.empty-theme('channel-list');
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   /* Mobile: hide when nav closed; when open show as overlay. */

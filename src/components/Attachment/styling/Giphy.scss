@@ -31,21 +31,21 @@ $gif-height: 200px;
 .str-chat__giphy-badge {
   display: inline-flex;
   height: 24px;
-  padding: var(--spacing-xxxs, 2px) var(--spacing-xs, 8px);
+  padding: var(--str-chat__spacing-xxxs, 2px) var(--str-chat__spacing-xs, 8px);
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-xxs, 4px);
+  gap: var(--str-chat__spacing-xxs, 4px);
   position: absolute;
   inset-inline-start: 8px;
   bottom: 8px;
 
-  border-radius: var(--radius-lg, 12px);
-  background-color: var(--badge-bg-overlay, rgba(0, 0, 0, 0.75));
-  color: var(--badge-text-on-accent, #fff);
+  border-radius: var(--str-chat__radius-lg, 12px);
+  background-color: var(--str-chat__badge-bg-overlay, rgba(0, 0, 0, 0.75));
+  color: var(--str-chat__badge-text-on-accent, #fff);
 
-  font-size: var(--typography-font-size-xs, 12px);
-  font-weight: var(--typography-font-weight-semi-bold, 600);
-  line-height: var(--typography-line-height-tight, 16px);
+  font-size: var(--str-chat__typography-font-size-xs, 12px);
+  font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
+  line-height: var(--str-chat__typography-line-height-tight, 16px);
   text-transform: uppercase;
 }
 
@@ -60,14 +60,14 @@ $gif-height: 200px;
 
   .str-chat__visibility-disclaimer {
     display: flex;
-    padding: var(--spacing-sm, 12px);
+    padding: var(--str-chat__spacing-sm, 12px);
     align-items: center;
-    gap: var(--spacing-xs, 8px);
+    gap: var(--str-chat__spacing-xs, 8px);
     align-self: stretch;
 
     color: var(--chat-text);
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-semi-bold);
-    line-height: var(--typography-line-height-tight);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-semi-bold);
+    line-height: var(--str-chat__typography-line-height-tight);
   }
 }

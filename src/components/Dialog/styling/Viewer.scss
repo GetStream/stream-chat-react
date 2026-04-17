@@ -12,26 +12,26 @@
   .str-chat__viewer__header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs) var(--spacing-md);
+    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
     width: 100%;
-    padding: var(--spacing-xl);
+    padding: var(--str-chat__spacing-xl);
 
     .str-chat__viewer__header__title-group {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xxs);
       flex: 1;
       min-width: 0;
     }
 
     .str-chat__viewer__header__title {
       font: var(--str-chat__font-heading-sm);
-      color: var(--text-primary);
+      color: var(--str-chat__text-primary);
     }
 
     .str-chat__viewer__header__description {
       font: var(--str-chat__font-caption-default);
-      color: var(--text-secondary);
+      color: var(--str-chat__text-secondary);
     }
 
     .str-chat__viewer__header__go-back-button {
@@ -44,12 +44,12 @@
 
     .str-chat__viewer__header__close-button {
       flex-shrink: 0;
-      color: var(--text-primary);
+      color: var(--str-chat__text-primary);
     }
   }
 
   .str-chat__viewer__body {
-    padding: 0 var(--spacing-xl);
+    padding: 0 var(--str-chat__spacing-xl);
     flex: 1;
     min-height: 0;
   }
@@ -59,12 +59,12 @@
     align-items: center;
     justify-content: flex-end;
     width: 100%;
-    padding: var(--spacing-xl);
+    padding: var(--str-chat__spacing-xl);
 
     .str-chat__viewer__footer__controls {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
     }
   }
 }

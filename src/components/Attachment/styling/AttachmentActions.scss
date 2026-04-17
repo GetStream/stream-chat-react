@@ -1,6 +1,6 @@
 .str-chat__message-attachment-actions {
   background: transparent;
-  color: var(--button-secondary-text);
+  color: var(--str-chat__button-secondary-text);
 
   .str-chat__message-attachment-actions-form {
     display: flex;
@@ -9,23 +9,24 @@
 
     .str-chat__message-attachment-actions-button {
       background: transparent;
-      color: var(--button-secondary-text);
+      color: var(--str-chat__button-secondary-text);
       width: 100%;
-      padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
+      padding: var(--str-chat__button-padding-y-sm)
+        var(--str-chat__button-padding-x-with-label-sm);
       white-space: nowrap;
       border-collapse: collapse;
 
-      font-size: var(--typography-font-size-md);
-      font-weight: var(--typography-font-weight-semi-bold);
-      line-height: var(--typography-line-height-normal);
+      font-size: var(--str-chat__typography-font-size-md);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold);
+      line-height: var(--str-chat__typography-line-height-normal);
 
       &.str-chat__button {
         &:active {
-          color: var(--accent-primary);
+          color: var(--str-chat__accent-primary);
         }
 
         &:focus-visible {
-          color: var(--accent-primary);
+          color: var(--str-chat__accent-primary);
           outline: none;
         }
       }

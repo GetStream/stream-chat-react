@@ -20,6 +20,6 @@
   .str-chat__context-menu__header--commands:not(
       .str-chat__context-menu__header--submenu-commands
     ) {
-    padding: var(--spacing-xs);
+    padding: var(--str-chat__spacing-xs);
   }
 }

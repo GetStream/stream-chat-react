@@ -1,19 +1,19 @@
-$poll-checkmark-size: var(--size-24);
+$poll-checkmark-size: var(--str-chat__size-24);
 
 .str-chat__poll-option-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--str-chat__spacing-md);
 
   .str-chat__poll-option {
     display: grid;
     grid-template-columns: minmax(0, auto) 1fr;
     grid-template-rows: 1fr auto;
-    row-gap: var(--spacing-xs);
+    row-gap: var(--str-chat__spacing-xs);
     align-items: start;
 
     &.str-chat__poll-option--votable {
-      column-gap: var(--spacing-sm);
+      column-gap: var(--str-chat__spacing-sm);
 
       &:hover {
         cursor: pointer;
@@ -25,8 +25,9 @@ $poll-checkmark-size: var(--size-24);
       grid-row: span 2;
       height: $poll-checkmark-size;
       width: $poll-checkmark-size;
-      border-radius: var(--radius-max);
-      border: 1px solid var(--chat-border-on-chat, var(--chat-border-on-chat-incoming));
+      border-radius: var(--str-chat__radius-max);
+      border: 1px solid
+        var(--chat-border-on-chat, var(--str-chat__chat-border-on-chat-incoming));
     }
 
     .str-chat__checkmark--checked {
@@ -34,7 +35,7 @@ $poll-checkmark-size: var(--size-24);
       background-repeat: no-repeat;
       background-position: center;
       background-size: 11px 10px;
-      background-color: var(--control-radio-check-bg-selected);
+      background-color: var(--str-chat__control-radio-check-bg-selected);
       border: none;
     }
 
@@ -42,11 +43,11 @@ $poll-checkmark-size: var(--size-24);
       flex: 1;
       display: flex;
       align-items: baseline;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
       grid-column: 2 / 3;
       grid-row: 1 / 2;
       min-height: 24px;
-      padding-block: var(--spacing-xxxs);
+      padding-block: var(--str-chat__spacing-xxxs);
 
       p {
         margin: 0;
@@ -58,7 +59,7 @@ $poll-checkmark-size: var(--size-24);
       .str-chat__poll-option-votes {
         display: flex;
         align-items: center;
-        gap: var(--spacing-xxs);
+        gap: var(--str-chat__spacing-xxs);
 
         .str-chat__poll-option-voters {
           --str-chat__avatar-size: 1.175rem;
@@ -79,12 +80,15 @@ $poll-checkmark-size: var(--size-24);
       width: 100%;
       background: linear-gradient(
         to right,
-        var(--chat-poll-progress-fill, var(--chat-poll-progress-fill-incoming))
+        var(--chat-poll-progress-fill, var(--str-chat__chat-poll-progress-fill-incoming))
           var(--str-chat__amount-bar-fulfillment),
-        var(--chat-poll-progress-track, var(--chat-poll-progress-track-incoming))
+        var(
+            --chat-poll-progress-track,
+            var(--str-chat__chat-poll-progress-track-incoming)
+          )
           var(--str-chat__amount-bar-fulfillment)
       );
-      border-radius: var(--size-4);
+      border-radius: var(--str-chat__size-4);
     }
   }
 }

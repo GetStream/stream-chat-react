@@ -20,7 +20,7 @@ $duration-selector-min-width: 120px;
 
     &.str-chat__live-location-activation--expanded {
       .str-chat__form__switch-field {
-        padding-bottom: var(--spacing-xxs);
+        padding-bottom: var(--str-chat__spacing-xxs);
       }
     }
 
@@ -30,13 +30,13 @@ $duration-selector-min-width: 120px;
   }
 
   .str-chat__live-location-sharing-duration-selector {
-    padding-inline: calc(var(--spacing-md) - var(--spacing-xs));
-    padding-bottom: var(--spacing-xs);
+    padding-inline: calc(var(--str-chat__spacing-md) - var(--str-chat__spacing-xs));
+    padding-bottom: var(--str-chat__spacing-xs);
     .str-chat__live-location-sharing-duration-selector__button {
       @include utils.button-reset;
       align-items: center;
       background: transparent;
-      padding-inline: var(--spacing-xs);
+      padding-inline: var(--str-chat__spacing-xs);
       color: inherit;
       cursor: pointer;
       display: flex;

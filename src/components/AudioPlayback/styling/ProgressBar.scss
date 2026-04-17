@@ -1,32 +1,33 @@
 .str-chat {
   .str-chat__message-attachment-audio-widget--progress-track {
     position: relative;
-    height: var(--size-4);
+    height: var(--str-chat__size-4);
     flex: 1;
     min-width: 0;
     cursor: pointer;
     background: linear-gradient(
       to var(--str-chat__progress-direction, right),
-      var(--chat-waveform-bar-playing)
+      var(--str-chat__chat-waveform-bar-playing)
         var(--str-chat__message-attachment-audio-widget-progress),
-      var(--chat-waveform-bar) var(--str-chat__message-attachment-audio-widget-progress)
+      var(--str-chat__chat-waveform-bar)
+        var(--str-chat__message-attachment-audio-widget-progress)
     );
 
     [dir='rtl'] & {
       --str-chat__progress-direction: left;
     }
-    border-radius: var(--radius-max);
+    border-radius: var(--str-chat__radius-max);
 
     .str-chat__message-attachment-audio-widget--progress-indicator {
       position: absolute;
       inset-inline-start: 0;
       top: 50%;
       transform: translateY(-50%);
-      height: var(--size-12);
-      width: var(--size-12);
-      border-radius: var(--radius-max);
-      border: 1px solid var(--control-playback-thumb-border-default);
-      background: var(--control-playback-thumb-bg-default);
+      height: var(--str-chat__size-12);
+      width: var(--str-chat__size-12);
+      border-radius: var(--str-chat__radius-max);
+      border: 1px solid var(--str-chat__control-playback-thumb-border-default);
+      background: var(--str-chat__control-playback-thumb-bg-default);
       box-shadow: var(--str-chat__box-shadow-2);
       cursor: grab;
     }

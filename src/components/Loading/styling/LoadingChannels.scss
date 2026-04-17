@@ -1,10 +1,10 @@
 @mixin channel-list-item-shimmer {
-  background-color: var(--background-core-surface-default);
+  background-color: var(--str-chat__background-core-surface-default);
   background-image: linear-gradient(
     90deg,
-    var(--skeleton-loading-base) 0%,
-    var(--skeleton-loading-highlight) 50%,
-    var(--skeleton-loading-base) 100%
+    var(--str-chat__skeleton-loading-base) 0%,
+    var(--str-chat__skeleton-loading-highlight) 50%,
+    var(--str-chat__skeleton-loading-base) 100%
   );
   background-repeat: no-repeat;
   background-size: 200% 100%;
@@ -38,14 +38,14 @@
 
 .str-chat__loading-channels-avatar {
   flex-shrink: 0;
-  width: var(--size-48);
-  height: var(--size-48);
+  width: var(--str-chat__size-48);
+  height: var(--str-chat__size-48);
   border-radius: 50%;
 }
 
 .str-chat__loading-channels-username,
 .str-chat__loading-channels-status {
-  height: var(--size-20);
+  height: var(--str-chat__size-20);
   border-radius: 999px;
   -webkit-mask-image: linear-gradient(
     90deg,

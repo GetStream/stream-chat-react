@@ -11,10 +11,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xxs) var(--spacing-sm);
-    background-color: var(--background-core-surface-subtle);
-    border-radius: var(--radius-max);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
+    background-color: var(--str-chat__background-core-surface-subtle);
+    border-radius: var(--str-chat__radius-max);
     font: var(--str-chat__font-metadata-emphasis);
-    color: var(--chat-text-system);
+    color: var(--str-chat__chat-text-system);
   }
 }

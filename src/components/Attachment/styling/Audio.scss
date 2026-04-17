@@ -2,9 +2,11 @@
 
 .str-chat__message-attachment-audio-widget {
   background: transparent;
-  color: var(--text-primary);
+  color: var(--str-chat__text-primary);
   border-radius: calc(
-    var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin)
+    var(--str-chat__message-bubble-radius-group-bottom) - var(
+        --str-chat__attachment-margin
+      )
   );
   flex: 1 1 auto;
   width: 100%;
@@ -19,14 +21,14 @@
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxs);
+    gap: var(--str-chat__spacing-xxs);
   }
 
   .str-chat__message-attachment-audio-widget--text-first-row {
     display: flex;
     justify-content: space-between;
     align-items: start;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
 
     svg {
       flex-shrink: 0;
@@ -47,14 +49,14 @@
   .str-chat__duration-display {
     width: 40px;
     font: var(--str-chat__font-metadata-default);
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   .str-chat__message-attachment-audio-widget--text-second-row {
     display: flex;
     align-items: center;
     width: 100%;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
 
     .str-chat__message-attachment-file--item-size {
       font: var(--str-chat__font-metadata-default);

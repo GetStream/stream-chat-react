@@ -1,23 +1,23 @@
 @use '../../../styling/utils';
 
 .str-chat {
-  --str-chat__tooltip-background-color: var(--background-core-inverse);
+  --str-chat__tooltip-background-color: var(--str-chat__background-core-inverse);
 
   // FIXME: this should not be the case
   &.str-chat__theme-dark {
-    --str-chat__tooltip-background-color: var(--background-core-elevation-2);
+    --str-chat__tooltip-background-color: var(--str-chat__background-core-elevation-2);
   }
 }
 
 .str-chat__tooltip {
   background: var(--str-chat__tooltip-background-color);
-  color: var(--text-on-accent);
+  color: var(--str-chat__text-on-accent);
   box-shadow: var(--str-chat__box-shadow-3);
-  border-radius: var(--radius-md);
+  border-radius: var(--str-chat__radius-md);
   @include utils.prevent-glitch-text-overflow;
   display: flex;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
+  padding: var(--str-chat__spacing-xs);
   z-index: 1;
   max-width: 150px;
   width: max-content;

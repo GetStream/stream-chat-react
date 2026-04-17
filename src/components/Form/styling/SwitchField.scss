@@ -3,12 +3,14 @@
 // CSS variables aligned with Figma tokens; fallbacks from get_variable_defs.
 
 $switch-field-track-height: 24px;
-$switch-field-track-thumb-bg: var(--base-white, #ffffff);
-$switch-field-track-radius: var(--button-radius-full, 9999px);
+$switch-field-track-thumb-bg: var(--str-chat__base-white, #ffffff);
+$switch-field-track-radius: var(--str-chat__button-radius-full, 9999px);
 
 .str-chat {
-  --str-chat__switch-field-background-color: var(--background-core-surface-card);
-  --str-chat__switch-field-border-radius: var(--radius-md);
+  --str-chat__switch-field-background-color: var(
+    --str-chat__background-core-surface-card
+  );
+  --str-chat__switch-field-border-radius: var(--str-chat__radius-md);
 
   .str-chat__form__switch-fieldset {
     width: 100%;
@@ -19,9 +21,9 @@ $switch-field-track-radius: var(--button-radius-full, 9999px);
   .str-chat__form__switch-field {
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
     width: 100%;
-    padding: var(--spacing-sm) var(--spacing-md);
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
     background-color: var(--str-chat__switch-field-background-color);
     border-radius: var(--str-chat__switch-field-border-radius);
     box-sizing: border-box;
@@ -52,9 +54,9 @@ $switch-field-track-radius: var(--button-radius-full, 9999px);
       flex-shrink: 0;
       width: 44px;
       height: $switch-field-track-height;
-      padding: var(--spacing-xxs);
+      padding: var(--str-chat__spacing-xxs);
       cursor: pointer;
-      background-color: var(--control-toggle-switch-bg);
+      background-color: var(--str-chat__control-toggle-switch-bg);
       border-radius: $switch-field-track-radius;
       transition: background-color 0.2s ease;
 
@@ -67,7 +69,7 @@ $switch-field-track-radius: var(--button-radius-full, 9999px);
       }
 
       &--on {
-        background-color: var(--control-toggle-switch-bg-selected);
+        background-color: var(--str-chat__control-toggle-switch-bg-selected);
         justify-content: flex-end;
 
         .str-chat__form__switch-field__switch-handle {
@@ -89,12 +91,12 @@ $switch-field-track-radius: var(--button-radius-full, 9999px);
 
     .str-chat__form__switch-field__label {
       .str-chat__form__switch-field__label__text {
-        color: var(--text-primary);
+        color: var(--str-chat__text-primary);
         font: var(--str-chat__font-heading-xs);
       }
 
       .str-chat__form__switch-field__label__description {
-        color: var(--text-tertiary);
+        color: var(--str-chat__text-tertiary);
         font: var(--str-chat__font-metadata-default);
       }
     }
@@ -106,7 +108,7 @@ $switch-field-track-radius: var(--button-radius-full, 9999px);
 
     .str-chat__form__switch-field__label--as-error {
       .str-chat__form__switch-field__label__description {
-        color: var(--accent-error);
+        color: var(--str-chat__accent-error);
       }
     }
   }

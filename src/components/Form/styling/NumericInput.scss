@@ -4,7 +4,7 @@
 .str-chat__form-numeric-input {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs, 0.5rem);
+  gap: var(--str-chat__spacing-xs, 0.5rem);
 
   &__label {
     font: var(--str-chat__caption-default-text);
@@ -13,10 +13,10 @@
   &__wrapper {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs, 0.5rem);
+    gap: var(--str-chat__spacing-xs, 0.5rem);
     padding: 0;
     background: transparent;
-    border-radius: var(--radius-md, 0.5rem);
+    border-radius: var(--str-chat__radius-md, 0.5rem);
     outline: none;
     transition:
       border-color 0.15s ease,
@@ -28,11 +28,11 @@
     flex: 0 1 auto;
     min-width: 2ch;
     width: 2.5rem;
-    padding: var(--spacing-xs, 0.5rem) 0;
-    font-size: var(--typography-font-size-sm, 0.875rem);
-    font-weight: var(--typography-font-weight-medium, 500);
-    line-height: var(--typography-line-height-tight, 1.25);
-    color: var(--input-text-default, #1a1b25);
+    padding: var(--str-chat__spacing-xs, 0.5rem) 0;
+    font-size: var(--str-chat__typography-font-size-sm, 0.875rem);
+    font-weight: var(--str-chat__typography-font-weight-medium, 500);
+    line-height: var(--str-chat__typography-line-height-tight, 1.25);
+    color: var(--str-chat__input-text-default, #1a1b25);
     text-align: center;
     background: transparent;
     border: none;
@@ -40,11 +40,11 @@
     box-shadow: none;
 
     &::placeholder {
-      color: var(--input-text-placeholder, var(--text-tertiary));
+      color: var(--str-chat__input-text-placeholder, var(--str-chat__text-tertiary));
     }
 
     .str-chat__form-numeric-input--disabled & {
-      color: var(--input-text-placeholder);
+      color: var(--str-chat__input-text-placeholder);
       cursor: not-allowed;
     }
   }

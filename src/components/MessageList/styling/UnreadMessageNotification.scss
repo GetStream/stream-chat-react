@@ -2,9 +2,9 @@
   .str-chat__unread-messages-notification {
     display: flex;
     align-items: center;
-    background: var(--background-core-elevation-1);
-    border-radius: var(--button-radius-lg);
-    border: 1px solid var(--button-secondary-border);
+    background: var(--str-chat__background-core-elevation-1);
+    border-radius: var(--str-chat__button-radius-lg);
+    border: 1px solid var(--str-chat__button-secondary-border);
     /* shadow/web/light/elevation-2 */
     box-shadow:
       0 0 0 1px rgba(0, 0, 0, 0.05),
@@ -27,17 +27,21 @@
     button:first-of-type {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      border-radius: var(--button-radius-lg) 0 0 var(--button-radius-lg);
-      padding: var(--button-padding-y-md) var(--spacing-xxs) var(--button-padding-y-md)
-        var(--button-padding-x-with-label-md);
+      gap: var(--str-chat__spacing-xs);
+      border-radius: var(--str-chat__button-radius-lg) 0 0
+        var(--str-chat__button-radius-lg);
+      padding: var(--str-chat__button-padding-y-md) var(--str-chat__spacing-xxs)
+        var(--str-chat__button-padding-y-md)
+        var(--str-chat__button-padding-x-with-label-md);
       font: var(--str-chat__font-caption-emphasis);
     }
 
     button:last-of-type {
-      border-radius: 0 var(--button-radius-lg) var(--button-radius-lg) 0;
-      padding: var(--button-padding-y-md) var(--button-padding-x-with-label-md)
-        var(--button-padding-y-md) var(--spacing-xxs);
+      border-radius: 0 var(--str-chat__button-radius-lg) var(--str-chat__button-radius-lg)
+        0;
+      padding: var(--str-chat__button-padding-y-md)
+        var(--str-chat__button-padding-x-with-label-md)
+        var(--str-chat__button-padding-y-md) var(--str-chat__spacing-xxs);
 
       svg {
         height: 16px;

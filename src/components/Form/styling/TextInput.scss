@@ -1,14 +1,14 @@
 .str-chat__form-text-input {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
 }
 
 .str-chat__form-text-input__label {
-  font-size: var(--typography-font-size-sm);
-  font-weight: var(--typography-font-weight-medium);
-  line-height: var(--typography-line-height-tight);
-  color: var(--text-primary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  font-weight: var(--str-chat__typography-font-weight-medium);
+  line-height: var(--str-chat__typography-line-height-tight);
+  color: var(--str-chat__text-primary);
 }
 
 /* Column shell: control row + optional in-border error */
@@ -17,8 +17,8 @@
   flex-direction: column;
   align-items: stretch;
   gap: 0;
-  background-color: var(--background-core-elevation-0);
-  border-radius: var(--radius-md);
+  background-color: var(--str-chat__background-core-elevation-0);
+  border-radius: var(--str-chat__radius-md);
   outline: none;
   transition:
     border-color 0.15s ease,
@@ -28,8 +28,8 @@
 .str-chat__form-text-input__control-row {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  padding: var(--spacing-xs) var(--spacing-sm);
+  gap: var(--str-chat__spacing-xs);
+  padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
   min-width: 0;
   width: 100%;
 }
@@ -38,7 +38,7 @@
 // Outline variant — always 1px border on wrapper; + 2px focus ring on focus-within
 // ---------------------------------------------------------------------------
 .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--border-core-default);
+  border: 1px solid var(--str-chat__border-core-default);
   box-shadow: none;
 }
 
@@ -48,18 +48,18 @@
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--border-utility-error);
+  border: 1px solid var(--str-chat__border-utility-error);
 }
 
 /* In-border error: shell keeps default outline (red only on message row) */
 .str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
   .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--border-core-default);
+  border: 1px solid var(--str-chat__border-core-default);
 }
 
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error
   .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--border-utility-error);
+  border: 1px solid var(--str-chat__border-utility-error);
   box-shadow: none;
 }
 
@@ -70,7 +70,7 @@
 }
 
 .str-chat__form-text-input--disabled .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--border-utility-disabled);
+  border: 1px solid var(--str-chat__border-utility-disabled);
 }
 
 // ---------------------------------------------------------------------------
@@ -87,7 +87,7 @@
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__wrapper--ghost {
-  border: 1px solid var(--border-utility-error);
+  border: 1px solid var(--str-chat__border-utility-error);
   box-shadow: none;
 }
 
@@ -99,7 +99,7 @@
 
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error
   .str-chat__form-text-input__wrapper--ghost {
-  border: 1px solid var(--border-utility-error);
+  border: 1px solid var(--str-chat__border-utility-error);
   box-shadow: none;
 }
 
@@ -117,7 +117,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--input-text-icon);
+  color: var(--str-chat__input-text-icon);
 }
 
 .str-chat__form-text-input .str-chat__form-text-input__input {
@@ -125,7 +125,7 @@
   min-width: 0;
   padding: 0;
   font: var(--str-chat__caption-default-text);
-  color: var(--input-text-default);
+  color: var(--str-chat__input-text-default);
   background: transparent;
   border: none;
   outline: none;
@@ -134,18 +134,18 @@
 }
 
 .str-chat__form-text-input .str-chat__form-text-input__input::placeholder {
-  color: var(--input-text-placeholder);
+  color: var(--str-chat__input-text-placeholder);
 }
 
 .str-chat__form-text-input.str-chat__form-text-input--disabled
   .str-chat__form-text-input__input {
-  color: var(--input-text-placeholder);
+  color: var(--str-chat__input-text-placeholder);
   cursor: not-allowed;
 }
 
 .str-chat__form-text-input.str-chat__form-text-input--disabled
   .str-chat__form-text-input__input::placeholder {
-  color: var(--input-text-placeholder);
+  color: var(--str-chat__input-text-placeholder);
 }
 
 .str-chat__form-text-input .str-chat__form-text-input__input:focus,
@@ -157,9 +157,9 @@
 
 .str-chat__form-text-input__suffix {
   flex-shrink: 0;
-  font-size: var(--typography-font-size-sm);
-  line-height: var(--typography-line-height-normal);
-  color: var(--text-tertiary);
+  font-size: var(--str-chat__typography-font-size-sm);
+  line-height: var(--str-chat__typography-line-height-normal);
+  color: var(--str-chat__text-tertiary);
 }
 
 .str-chat__form-text-input__trailing {
@@ -167,32 +167,33 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-inline-end: calc(-1 * var(--space-4));
-  color: var(--input-text-icon);
+  margin-inline-end: calc(-1 * var(--str-chat__space-4));
+  color: var(--str-chat__input-text-icon);
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__trailing {
-  color: var(--accent-error);
+  color: var(--str-chat__accent-error);
 }
 
 .str-chat__form-text-input__message {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   font: var(--str-chat__metadata-default-text);
 }
 
 /* Base typography/color only when not error (error uses str-chat__form-field-error) */
 .str-chat__form-text-input__message:not(.str-chat__form-field-error) {
-  color: var(--text-tertiary);
+  color: var(--str-chat__text-tertiary);
 }
 
 .str-chat__form-text-input__message--field-message-inside {
-  padding: var(--spacing-none) var(--spacing-sm) var(--spacing-sm);
+  padding: var(--str-chat__spacing-none) var(--str-chat__spacing-sm)
+    var(--str-chat__spacing-sm);
 }
 
 .str-chat__form-text-input__message--success {
-  color: var(--accent-success);
+  color: var(--str-chat__accent-success);
 }
 
 .str-chat__form-text-input__message-text {

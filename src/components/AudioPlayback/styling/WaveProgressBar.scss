@@ -8,8 +8,8 @@
   .str-chat__message-attachment__voice-recording-widget__audio-state {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    padding-inline: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
+    padding-inline: var(--str-chat__spacing-xs);
     height: 100%;
   }
 
@@ -34,26 +34,26 @@
     .str-chat__wave-progress-bar__progress-indicator {
       position: absolute;
       inset-inline-start: 0;
-      // todo: CSS use semantic variable instead of --base-white
-      border: 2px solid var(--base-white);
+      // todo: CSS use semantic variable instead of --str-chat__base-white
+      border: 2px solid var(--str-chat__base-white);
       box-shadow: var(--str-chat__box-shadow-3);
-      background: var(--accent-neutral);
+      background: var(--str-chat__accent-neutral);
       height: 14px;
       width: 14px;
-      border-radius: var(--radius-max);
+      border-radius: var(--str-chat__radius-max);
       cursor: grab;
       transition: inset-inline-start 250ms linear;
     }
   }
 
   .str-chat__wave-progress-bar__amplitude-bar {
-    background: var(--chat-waveform-bar);
-    border-radius: var(--radius-max);
+    background: var(--str-chat__chat-waveform-bar);
+    border-radius: var(--str-chat__radius-max);
     transition: background 250ms linear;
   }
 
   .str-chat__wave-progress-bar__amplitude-bar--active {
-    background: var(--chat-waveform-bar-playing);
+    background: var(--str-chat__chat-waveform-bar-playing);
   }
 
   .str-chat__wave-progress-bar__track--dragging {
@@ -68,7 +68,7 @@
 
   .str-chat__wave-progress-bar__track--playback-initiated {
     .str-chat__wave-progress-bar__progress-indicator {
-      background: var(--accent-primary);
+      background: var(--str-chat__accent-primary);
     }
   }
 }

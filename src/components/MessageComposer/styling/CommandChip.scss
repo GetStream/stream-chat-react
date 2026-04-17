@@ -2,14 +2,14 @@
 
 .str-chat__command-chip {
   display: flex;
-  padding: var(--spacing-xxs) var(--spacing-xs);
+  padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
   justify-content: center;
   align-items: center;
-  gap: var(--spacing-xxs);
-  border-radius: var(--radius-max);
+  gap: var(--str-chat__spacing-xxs);
+  border-radius: var(--str-chat__radius-max);
 
-  color: var(--text-on-inverse);
-  background-color: var(--background-core-inverse);
+  color: var(--str-chat__text-on-inverse);
+  background-color: var(--str-chat__background-core-inverse);
   text-transform: uppercase;
   font: var(--str-chat__font-metadata-emphasis);
 

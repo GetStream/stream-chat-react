@@ -1,11 +1,11 @@
 @use '../../../styling/utils';
 
 $message-active-background-color: transparent;
-$message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
+$message-reactions-host-offset-x: calc(var(--str-chat__spacing-xs) * -1);
 
 .str-chat {
   /* The width/height of the message options button(s) */
-  --str-chat__message-options-button-size: var(--size-32);
+  --str-chat__message-options-button-size: var(--str-chat__size-32);
   /* The maximum allowed width of the message component */
   --str-chat__message-max-width: 400px;
   /* The maximum allowed width of the message component, if it has attachments */
@@ -13,47 +13,47 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   .str-chat__message {
     &.str-chat__message--me {
-      --chat-bg: var(--chat-bg-outgoing);
-      --chat-bg-attachment: var(--chat-bg-attachment-outgoing);
-      --chat-text: var(--chat-text-outgoing);
-      --chat-border: var(--chat-border-outgoing);
-      --chat-border-on-chat: var(--chat-border-on-chat-outgoing);
-      --chat-reply-indicator: var(--chat-reply-indicator-outgoing);
-      --chat-poll-progress-track: var(--chat-poll-progress-track-outgoing);
-      --chat-poll-progress-fill: var(--chat-poll-progress-fill-outgoing);
-      --chat-thread-connector: var(--chat-thread-connector-outgoing);
+      --chat-bg: var(--str-chat__chat-bg-outgoing);
+      --chat-bg-attachment: var(--str-chat__chat-bg-attachment-outgoing);
+      --chat-text: var(--str-chat__chat-text-outgoing);
+      --chat-border: var(--str-chat__chat-border-outgoing);
+      --chat-border-on-chat: var(--str-chat__chat-border-on-chat-outgoing);
+      --chat-reply-indicator: var(--str-chat__chat-reply-indicator-outgoing);
+      --chat-poll-progress-track: var(--str-chat__chat-poll-progress-track-outgoing);
+      --chat-poll-progress-fill: var(--str-chat__chat-poll-progress-fill-outgoing);
+      --chat-thread-connector: var(--str-chat__chat-thread-connector-outgoing);
     }
     &.str-chat__message--other {
-      --chat-bg: var(--chat-bg-incoming);
-      --chat-bg-attachment: var(--chat-bg-attachment-incoming);
-      --chat-text: var(--chat-text-incoming);
-      --chat-border: var(--chat-border-incoming);
-      --chat-border-on-chat: var(--chat-border-on-chat-incoming);
-      --chat-reply-indicator: var(--chat-reply-indicator-incoming);
-      --chat-poll-progress-track: var(--chat-poll-progress-track-incoming);
-      --chat-poll-progress-fill: var(--chat-poll-progress-fill-incoming);
-      --chat-thread-connector: var(--chat-thread-connector-incoming);
+      --chat-bg: var(--str-chat__chat-bg-incoming);
+      --chat-bg-attachment: var(--str-chat__chat-bg-attachment-incoming);
+      --chat-text: var(--str-chat__chat-text-incoming);
+      --chat-border: var(--str-chat__chat-border-incoming);
+      --chat-border-on-chat: var(--str-chat__chat-border-on-chat-incoming);
+      --chat-reply-indicator: var(--str-chat__chat-reply-indicator-incoming);
+      --chat-poll-progress-track: var(--str-chat__chat-poll-progress-track-incoming);
+      --chat-poll-progress-fill: var(--str-chat__chat-poll-progress-fill-incoming);
+      --chat-thread-connector: var(--str-chat__chat-thread-connector-incoming);
     }
   }
 }
 
 /* Make spaces between message groups */
 .str-chat__li--top {
-  padding-block-start: var(--spacing-xs);
-  padding-block-end: var(--spacing-xxxs);
+  padding-block-start: var(--str-chat__spacing-xs);
+  padding-block-end: var(--str-chat__spacing-xxxs);
 }
 
 .str-chat__li--bottom {
-  padding-block-start: var(--spacing-xxxs);
-  padding-block-end: var(--spacing-xs);
+  padding-block-start: var(--str-chat__spacing-xxxs);
+  padding-block-end: var(--str-chat__spacing-xs);
 }
 
 .str-chat__li--middle {
-  padding-block: var(--spacing-xxxs);
+  padding-block: var(--str-chat__spacing-xxxs);
 }
 
 .str-chat__li--single {
-  padding-block: var(--spacing-xs);
+  padding-block: var(--str-chat__spacing-xs);
 }
 
 .str-chat__message {
@@ -69,8 +69,8 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
     max-width: var(--str-chat__message-max-width);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
+    padding: var(--str-chat__spacing-xs);
   }
 
   .str-chat__message-options {
@@ -79,7 +79,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   a {
     text-decoration: none;
-    color: var(--chat-text-link);
+    color: var(--str-chat__chat-text-link);
   }
 }
 
@@ -151,7 +151,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
 .str-chat__message-mention {
   font: var(--str-chat__font-body-emphasis);
-  color: var(--accent-primary);
+  color: var(--str-chat__accent-primary);
 }
 
 .str-chat__message {
@@ -159,7 +159,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
   color: var(--str-chat__message-color, var(--chat-text));
 
   @mixin chat-bubble-spacing {
-    padding-inline: var(--spacing-xxs);
+    padding-inline: var(--str-chat__spacing-xxs);
 
     p {
       white-space: pre-line;
@@ -218,22 +218,22 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   .str-chat__message-pin-indicator {
     grid-area: pin-indicator;
-    padding-block: var(--spacing-xxs);
+    padding-block: var(--str-chat__spacing-xxs);
 
     .str-chat__message-pin-indicator__content {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xxs);
       font: var(--str-chat__font-metadata-emphasis);
-      color: var(--text-primary);
+      color: var(--str-chat__text-primary);
 
       .str-chat__message-pin-indicator__icon {
         display: flex;
         align-items: center;
 
         .str-chat__icon {
-          width: var(--icon-size-xs);
-          height: var(--icon-size-xs);
+          width: var(--str-chat__icon-size-xs);
+          height: var(--str-chat__icon-size-xs);
 
           path {
             stroke-width: 2px;
@@ -254,7 +254,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
   }
 
   &.str-chat__message--other {
-    column-gap: var(--space-8);
+    column-gap: var(--str-chat__space-8);
     justify-items: flex-start;
 
     &.str-chat__message--with-avatar {
@@ -297,7 +297,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
   }
 
   &.str-chat__message--me {
-    column-gap: var(--space-8);
+    column-gap: var(--str-chat__space-8);
     justify-items: flex-end;
 
     &.str-chat__message--with-avatar {
@@ -359,7 +359,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
       'message-bubble options'
       'replies replies';
     grid-template-columns: auto 1fr;
-    column-gap: var(--space-8);
+    column-gap: var(--str-chat__space-8);
     position: relative;
 
     .str-chat__message-reactions-host {
@@ -367,11 +367,11 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
       grid-area: reactions;
 
       &:has(.str-chat__message-reactions--top) {
-        margin-bottom: calc(var(--spacing-xxs) * -1);
+        margin-bottom: calc(var(--str-chat__spacing-xxs) * -1);
       }
 
       &:has(.str-chat__message-reactions--bottom) {
-        padding-block: var(--spacing-xxs);
+        padding-block: var(--str-chat__spacing-xxs);
       }
     }
 
@@ -388,7 +388,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
       grid-area: message-bubble;
       position: relative;
       min-width: 0;
-      border-radius: var(--message-bubble-radius-group-bottom);
+      border-radius: var(--str-chat__message-bubble-radius-group-bottom);
       color: var(--str-chat__message-bubble-color, inherit);
       background-color: var(--str-chat__message-bubble-background-color, var(--chat-bg));
       overflow: hidden;
@@ -437,10 +437,10 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
     grid-area: metadata;
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-xxs);
+    gap: var(--str-chat__spacing-xxs);
     align-items: center;
-    height: var(--size-24);
-    color: var(--chat-text-timestamp);
+    height: var(--str-chat__size-24);
+    color: var(--str-chat__chat-text-timestamp);
 
     * {
       font: var(--str-chat__font-metadata-default);
@@ -448,11 +448,11 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
     .str-chat__message-metadata__name {
       @include utils.prevent-glitch-text-overflow;
-      margin-inline-end: var(--spacing-xxs);
+      margin-inline-end: var(--str-chat__spacing-xxs);
     }
 
     .str-chat__message-edited-indicator {
-      margin-inline-start: var(--spacing-xs);
+      margin-inline-start: var(--str-chat__spacing-xs);
     }
   }
 
@@ -463,12 +463,12 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   .str-chat__message--blocked-inner {
     @include chat-bubble-spacing;
-    border-radius: var(--radius-md);
+    border-radius: var(--str-chat__radius-md);
     color: var(--str-chat__blocked-message-color, var(--chat-text));
     background-color: var(--str-chat__blocked-message-background-color, var(--chat-bg));
 
     // todo: once blocked message designs are ready remove this padding?
-    padding-block: var(--spacing-xs);
+    padding-block: var(--str-chat__spacing-xs);
   }
 
   .str-chat__message-error-indicator {
@@ -481,13 +481,13 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
   &.str-chat__message--deleted {
     .str-chat__message-bubble {
-      padding: var(--spacing-sm);
+      padding: var(--str-chat__spacing-sm);
 
       .str-chat__message-text {
         display: flex;
         align-items: center;
         padding: 0;
-        gap: var(--spacing-xxs);
+        gap: var(--str-chat__spacing-xxs);
       }
     }
   }
@@ -506,7 +506,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 
 .str-chat__message--highlighted {
   transition: background-color 0.1s ease-out;
-  background-color: var(--background-core-highlight);
+  background-color: var(--str-chat__background-core-highlight);
 }
 
 .str-chat__li:has(.str-chat__message--pinned) {
@@ -518,7 +518,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
     position: absolute;
     inset-block: 0;
     inset-inline: -9999px;
-    background-color: var(--background-core-highlight);
+    background-color: var(--str-chat__background-core-highlight);
     z-index: -1;
     pointer-events: none;
   }
@@ -527,7 +527,7 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 /* Fallback for browsers without :has() support */
 @supports not selector(:has(a, b)) {
   .str-chat__message--pinned {
-    background-color: var(--background-core-highlight);
+    background-color: var(--str-chat__background-core-highlight);
   }
 }
 
@@ -610,13 +610,13 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 .str-chat__li--bottom {
   .str-chat__message--other {
     .str-chat__message-bubble {
-      border-end-start-radius: var(--message-bubble-radius-tail);
+      border-end-start-radius: var(--str-chat__message-bubble-radius-tail);
     }
   }
 
   .str-chat__message--me {
     .str-chat__message-bubble {
-      border-end-end-radius: var(--message-bubble-radius-tail);
+      border-end-end-radius: var(--str-chat__message-bubble-radius-tail);
     }
   }
 }
@@ -624,20 +624,20 @@ $message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
 .str-chat__li--top,
 .str-chat__li--middle {
   .str-chat__message-bubble {
-    border-radius: var(--message-bubble-radius-group-middle);
+    border-radius: var(--str-chat__message-bubble-radius-group-middle);
   }
 }
 
 .str-chat__message-with-thread-link {
   &.str-chat__message--other {
     .str-chat__message-bubble {
-      border-end-start-radius: calc(var(--radius-md) / 6);
+      border-end-start-radius: calc(var(--str-chat__radius-md) / 6);
     }
   }
 
   &.str-chat__message--me {
     .str-chat__message-bubble {
-      border-end-end-radius: calc(var(--radius-md) / 6);
+      border-end-end-radius: calc(var(--str-chat__radius-md) / 6);
     }
   }
 }

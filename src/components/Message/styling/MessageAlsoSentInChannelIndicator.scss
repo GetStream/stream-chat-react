@@ -3,16 +3,16 @@
 .str-chat__message-also-sent-in-channel {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   grid-area: also-sent-in-channel;
-  padding-block: var(--spacing-xxs);
+  padding-block: var(--str-chat__spacing-xxs);
   background: transparent;
-  color: var(--text-primary);
+  color: var(--str-chat__text-primary);
   font: var(--str-chat__font-metadata-emphasis);
 
   .str-chat__icon {
-    height: var(--spacing-sm);
-    width: var(--spacing-sm);
+    height: var(--str-chat__spacing-sm);
+    width: var(--str-chat__spacing-sm);
 
     path {
       stroke-width: 2px;
@@ -23,6 +23,6 @@
     @include utils.button-reset;
     cursor: pointer;
     font: var(--str-chat__font-metadata-default);
-    color: var(--text-link);
+    color: var(--str-chat__text-link);
   }
 }

@@ -2,7 +2,7 @@
 
 .str-chat {
   /* The margin applied to every attachment in the attachment list */
-  --str-chat__attachment-margin: var(--spacing-xs);
+  --str-chat__attachment-margin: var(--str-chat__spacing-xs);
 }
 
 .str-chat__attachment-list {
@@ -17,25 +17,27 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
   min-width: 0;
 
   background: transparent;
-  color: var(--text-primary);
+  color: var(--str-chat__text-primary);
 
   .str-chat__message-attachment--image,
   .str-chat__message-attachment--video {
     background: transparent;
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
     border-radius: calc(
-      var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin)
+      var(--str-chat__message-bubble-radius-group-bottom) - var(
+          --str-chat__attachment-margin
+        )
     );
   }
 
   .str-chat__message-attachment {
     overflow: hidden;
     background-color: var(--chat-bg-attachment);
-    border-radius: var(--message-bubble-radius-attachment);
+    border-radius: var(--str-chat__message-bubble-radius-attachment);
 
     // Many classes to increase selector specificity
     .str-chat__button-play.str-chat__button--secondary.str-chat__button--outline {
@@ -136,7 +138,7 @@
 
   .str-chat__gallery .str-chat__message-attachment--svg-image,
   .str-chat__message-attachment--image.str-chat__message-attachment--svg-image {
-    $padding: var(--space-24);
+    $padding: var(--str-chat__space-24);
     padding: $padding;
 
     img {
@@ -150,8 +152,8 @@
   .str-chat__message-attachment-file--item,
   .str-chat__message-attachment-audio-widget {
     @include utils.flex-row-center;
-    padding: var(--spacing-sm);
-    column-gap: var(--spacing-sm);
+    padding: var(--str-chat__spacing-sm);
+    column-gap: var(--str-chat__spacing-sm);
 
     .str-chat__message-attachment-file--item__info,
     .str-chat__message-attachment-audio-widget--text {
@@ -160,9 +162,9 @@
       flex-direction: column;
       align-items: flex-start;
       justify-content: center;
-      row-gap: var(--space-2);
+      row-gap: var(--str-chat__space-2);
       min-width: 0;
-      line-height: var(--typography-line-height-tight);
+      line-height: var(--str-chat__typography-line-height-tight);
 
       .str-chat__message-attachment-file--item__first-row,
       .str-chat__message-attachment-audio-widget--text-first-row {
@@ -170,9 +172,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        column-gap: var(--space-8);
-        font-weight: var(--typography-font-weight-semi-bold);
-        font-size: var(--typography-font-size-sm);
+        column-gap: var(--str-chat__space-8);
+        font-weight: var(--str-chat__typography-font-weight-semi-bold);
+        font-size: var(--str-chat__typography-font-size-sm);
 
         .str-chat__message-attachment-file--item__name,
         .str-chat__message-attachment-audio-widget--title {
@@ -182,16 +184,18 @@
       }
 
       .str-chat__message-attachment-file--item__data {
-        font-size: var(--typography-font-size-xs);
+        font-size: var(--str-chat__typography-font-size-xs);
       }
     }
   }
 
   .str-chat__message-attachment-file--item {
     background: transparent;
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
     border-radius: calc(
-      var(--message-bubble-radius-group-bottom) - var(--str-chat__attachment-margin)
+      var(--str-chat__message-bubble-radius-group-bottom) - var(
+          --str-chat__attachment-margin
+        )
     );
   }
 
@@ -199,7 +203,7 @@
   }
 
   .str-chat__message-attachment-download-icon {
-    --str-chat-icon-height: var(--size-16);
+    --str-chat-icon-height: var(--str-chat__size-16);
   }
 }
 
@@ -218,7 +222,7 @@
 
   .str-chat__message-bubble {
     border: 1px solid var(--chat-border);
-    box-shadow: var(--background-core-elevation-0);
+    box-shadow: var(--str-chat__background-core-elevation-0);
   }
 
   .str-chat__message-attachment {
@@ -237,14 +241,14 @@
   .str-chat__message--other {
     &.str-chat__message--has-single-attachment.str-chat__message--has-no-text
       .str-chat__message-attachment {
-      border-end-start-radius: var(--message-bubble-radius-tail);
+      border-end-start-radius: var(--str-chat__message-bubble-radius-tail);
     }
   }
 
   .str-chat__message--me {
     &.str-chat__message--has-single-attachment.str-chat__message--has-no-text
       .str-chat__message-attachment {
-      border-end-end-radius: var(--message-bubble-radius-tail);
+      border-end-end-radius: var(--str-chat__message-bubble-radius-tail);
     }
   }
 }
@@ -253,7 +257,7 @@
 .str-chat__li--middle {
   &.str-chat__message--has-single-attachment.str-chat__message--has-no-text
     .str-chat__message-attachment {
-    border-radius: var(--message-bubble-radius-group-middle);
+    border-radius: var(--str-chat__message-bubble-radius-group-middle);
   }
 }
 

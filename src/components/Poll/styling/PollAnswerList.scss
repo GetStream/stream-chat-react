@@ -9,14 +9,16 @@
       .str-chat__infinite-scroll-paginator__content {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-md);
-        padding-bottom: var(--spacing-xl);
+        gap: var(--str-chat__spacing-md);
+        padding-bottom: var(--str-chat__spacing-xl);
       }
     }
 
     .str-chat__loading-indicator-placeholder {
       width: 100%;
-      height: calc(var(--str-chat__loading-indicator-size) + (2 * var(--spacing-xxs)));
+      height: calc(
+        var(--str-chat__loading-indicator-size) + (2 * var(--str-chat__spacing-xxs))
+      );
       display: flex;
       justify-content: center;
     }
@@ -25,22 +27,22 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xxs);
       align-self: stretch;
-      border-radius: var(--radius-lg);
-      background: var(--background-core-surface-card);
+      border-radius: var(--str-chat__radius-lg);
+      background: var(--str-chat__background-core-surface-card);
 
       .str-chat__poll-answer__data {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        gap: var(--spacing-xs);
+        gap: var(--str-chat__spacing-xs);
         align-self: stretch;
-        padding: var(--spacing-md);
+        padding: var(--str-chat__spacing-md);
 
         .str-chat__avatar {
-          height: var(--spacing-xl);
-          width: var(--spacing-xl);
+          height: var(--str-chat__spacing-xl);
+          width: var(--str-chat__spacing-xl);
         }
 
         p {
@@ -52,7 +54,7 @@
         }
 
         .str-chat__poll-vote {
-          padding-inline: var(--spacing-none);
+          padding-inline: var(--str-chat__spacing-none);
           padding-block: 0;
         }
       }
@@ -61,8 +63,8 @@
         display: flex;
         justify-content: center;
         width: 100%;
-        padding: var(--spacing-xs) var(--spacing-md);
-        border-top: 1px solid var(--border-core-default);
+        padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+        border-top: 1px solid var(--str-chat__border-core-default);
       }
     }
   }

@@ -4,10 +4,12 @@
   .str-chat__poll {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xl);
-    padding: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xl);
+    padding: var(--str-chat__spacing-xs);
     width: calc(
-      var(--str-chat__message-with-attachment-max-width) - calc(2 * var(--spacing-xs))
+      var(--str-chat__message-with-attachment-max-width) - calc(
+          2 * var(--str-chat__spacing-xs)
+        )
     );
     max-width: 100%;
     min-width: 260px;
@@ -28,13 +30,14 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
     }
 
     .str-chat__button.str-chat__poll-action {
       width: 100%;
       border: 1px solid var(--chat-border-on-chat);
-      padding: var(--button-padding-y-sm) var(--button-padding-x-with-label-sm);
+      padding: var(--str-chat__button-padding-y-sm)
+        var(--str-chat__button-padding-x-with-label-sm);
       font: var(--str-chat__font-caption-emphasis);
 
       &.str-chat__poll-action--additional {

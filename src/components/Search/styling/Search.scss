@@ -1,27 +1,27 @@
 .str-chat__search {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  padding-block: var(--spacing-xs);
+  gap: var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-xs);
   justify-content: center;
 }
 
 .str-chat__search-bar {
-  padding-inline: var(--spacing-md);
+  padding-inline: var(--str-chat__spacing-md);
   display: flex;
-  gap: var(--spacing-xxxs);
+  gap: var(--str-chat__spacing-xxxs);
 
   .str-chat__search-bar__input-wrapper {
     display: flex;
     min-height: 40px;
     align-items: center;
-    gap: var(--spacing-xs);
-    border-radius: var(--radius-max);
-    border: 1px solid var(--border-core-default);
-    color: var(--input-text-placeholder);
+    gap: var(--str-chat__spacing-xs);
+    border-radius: var(--str-chat__radius-max);
+    border: 1px solid var(--str-chat__border-core-default);
+    color: var(--str-chat__input-text-placeholder);
     font: var(--str_chat__heading-xs-text);
     // FIXME: there's no proper variation so we need to adjust font-weight separately
-    font-weight: var(--typography-font-weight-regular);
+    font-weight: var(--str-chat__typography-font-weight-regular);
     flex-shrink: 1;
     flex-grow: 1;
 
@@ -42,8 +42,8 @@
       flex-shrink: 0;
     }
 
-    padding-block: var(--spacing-xs);
-    padding-inline: var(--spacing-sm);
+    padding-block: var(--str-chat__spacing-xs);
+    padding-inline: var(--str-chat__spacing-sm);
   }
 
   .str-chat__search-bar__exit-search-button {
@@ -54,7 +54,7 @@
 .str-chat__search-results {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: var(--str-chat__spacing-sm);
 
   .str-chat__search-results-header {
     overflow-x: auto;
@@ -62,8 +62,8 @@
 
     .str-chat__search-results-header__filter-source-buttons {
       display: flex;
-      gap: var(--spacing-xxs);
-      padding-inline: var(--spacing-md);
+      gap: var(--str-chat__spacing-xxs);
+      padding-inline: var(--str-chat__spacing-md);
 
       & > .str-chat__button {
         flex-shrink: 0;
@@ -74,16 +74,16 @@
 
 .str-chat__search-source-result-list {
   .str-chat__search-result-container {
-    padding: var(--spacing-xxs);
-    border-bottom: 1px solid var(--border-core-subtle);
+    padding: var(--str-chat__spacing-xxs);
+    border-bottom: 1px solid var(--str-chat__border-core-subtle);
 
     .str-chat__search-result {
       &--user {
         display: flex;
         align-items: center;
-        gap: var(--spacing-md);
-        padding: var(--spacing-sm);
-        border-radius: var(--radius-lg);
+        gap: var(--str-chat__spacing-md);
+        padding: var(--str-chat__spacing-sm);
+        border-radius: var(--str-chat__radius-lg);
         width: 100%;
         border: none;
         background: none;
@@ -96,14 +96,14 @@
         .str-chat__search-result-data {
           display: flex;
           flex-direction: column;
-          gap: var(--spacing-xxs);
+          gap: var(--str-chat__spacing-xxs);
           flex: 1 0 0;
           min-width: 0;
           text-align: start;
 
           .str-chat__search-result__display-name {
             font: var(--str-chat__font-heading-xs);
-            color: var(--text-primary);
+            color: var(--str-chat__text-primary);
             flex: 1;
             min-width: 0;
             text-overflow: ellipsis;
@@ -117,22 +117,22 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            font-weight: var(--typography-font-weight-regular);
-            font-size: var(--typography-font-size-sm);
-            color: var(--text-tertiary);
-            line-height: var(--typography-line-height-normal);
+            font-weight: var(--str-chat__typography-font-weight-regular);
+            font-size: var(--str-chat__typography-font-size-sm);
+            color: var(--str-chat__text-tertiary);
+            line-height: var(--str-chat__typography-line-height-normal);
           }
         }
 
-        background: var(--background-core-elevation-1);
+        background: var(--str-chat__background-core-elevation-1);
         &:not(:disabled):hover {
-          background: var(--background-utility-hover);
+          background: var(--str-chat__background-utility-hover);
         }
         &:not(:disabled):active {
-          background: var(--background-utility-pressed);
+          background: var(--str-chat__background-utility-pressed);
         }
         &:not(:disabled)[aria-pressed='true'] {
-          background: var(--background-utility-selected);
+          background: var(--str-chat__background-utility-selected);
         }
       }
     }
@@ -142,9 +142,9 @@
 .str-chat__search-source-result-list__footer,
 .str-chat__search-results-presearch,
 .str-chat__search-source-results-empty {
-  font-size: var(--typography-font-size-sm);
-  color: var(--text-tertiary);
-  padding-block: var(--spacing-xs);
+  font-size: var(--str-chat__typography-font-size-sm);
+  color: var(--str-chat__text-tertiary);
+  padding-block: var(--str-chat__spacing-xs);
   display: flex;
   justify-content: center;
   align-items: center;

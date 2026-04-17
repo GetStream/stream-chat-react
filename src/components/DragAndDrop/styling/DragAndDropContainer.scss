@@ -22,10 +22,10 @@ $drag-and-drop-container-border-block-start: 2px solid transparent;
   border-block-end: $drag-and-drop-container-border-block-start;
 
   &.str-chat__drag-and-drop-container__item--dragged-over-from-top {
-    border-block-end: 2px solid var(--accent-primary);
+    border-block-end: 2px solid var(--str-chat__accent-primary);
   }
 
   &.str-chat__drag-and-drop-container__item--dragged-over-from-bottom {
-    border-block-start: 2px solid var(--accent-primary);
+    border-block-start: 2px solid var(--str-chat__accent-primary);
   }
 }

@@ -7,41 +7,41 @@
   .str-chat__prompt__header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs) var(--spacing-md);
+    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
     width: 100%;
-    padding: var(--spacing-xl);
+    padding: var(--str-chat__spacing-xl);
 
     .str-chat__prompt__header__title-group {
       display: flex;
       flex-direction: column;
-      gap: var(--spacing-xxs);
+      gap: var(--str-chat__spacing-xxs);
       flex: 1;
       min-width: 0;
     }
 
     .str-chat__prompt__header__title {
       font: var(--str-chat__font-heading-sm);
-      color: var(--text-primary);
+      color: var(--str-chat__text-primary);
     }
 
     .str-chat__prompt__header__description {
       font: var(--str-chat__font-caption-default);
-      color: var(--text-secondary);
+      color: var(--str-chat__text-secondary);
     }
 
     .str-chat__prompt__header__close-button {
       flex-shrink: 0;
-      color: var(--text-primary);
+      color: var(--str-chat__text-primary);
       .str-chat__icon {
-        width: var(--icon-size-md);
-        height: var(--icon-size-md);
+        width: var(--str-chat__icon-size-md);
+        height: var(--str-chat__icon-size-md);
       }
     }
   }
 
   .str-chat__prompt__body {
     /* Vertical padding so focus rings (e.g. TextInput wrapper box-shadow) are not clipped by scrollable-y */
-    padding: var(--spacing-xxs) var(--spacing-xl);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xl);
     @include utils.scrollable-y;
   }
 
@@ -50,12 +50,12 @@
     align-items: center;
     justify-content: flex-end;
     width: 100%;
-    padding: var(--spacing-xl);
+    padding: var(--str-chat__spacing-xl);
 
     .str-chat__prompt__footer__controls {
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
     }
   }
 }

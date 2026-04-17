@@ -52,7 +52,7 @@
   text-overflow: ellipsis;
 }
 
-@mixin unset-button($outline-radius: var(--radius-max)) {
+@mixin unset-button($outline-radius: var(--str-chat__radius-max)) {
   padding: unset;
   background: unset;
   border: unset;
@@ -60,7 +60,7 @@
 }
 
 @mixin focusable {
-  outline: 2px solid var(--border-utility-focused);
+  outline: 2px solid var(--str-chat__border-utility-focused);
   outline-offset: 2px;
 }
 
@@ -77,8 +77,8 @@
 }
 
 @mixin modal {
-  border-radius: var(--radius-xl);
-  background: var(--background-core-elevation-1);
+  border-radius: var(--str-chat__radius-xl);
+  background: var(--str-chat__background-core-elevation-1);
 
   /* shadow/web/light/elevation-4 */
   box-shadow:
@@ -100,7 +100,7 @@
 
 @mixin header-layout {
   width: 100%;
-  padding: var(--spacing-md);
+  padding: var(--str-chat__spacing-md);
   height: var(--str-chat__channel-header-height);
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);

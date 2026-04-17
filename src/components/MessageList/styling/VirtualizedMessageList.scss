@@ -2,10 +2,11 @@
 
 .str-chat__virtual-list {
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-gutter: stable both-edges;
 
-  background: var(--background-core-app);
-  color: var(--text-primary);
+  background: var(--str-chat__background-core-app);
+  color: var(--str-chat__text-primary);
   --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +
       var(--str-chat__message-composer-padding)
@@ -35,7 +36,7 @@
   // a simple workaround is to make the loading indicator an overlay.
   &__loading {
     display: flex;
-    padding-top: var(--space-8);
+    padding-top: var(--str-chat__space-8);
     justify-content: center;
     width: 100%;
     position: absolute;

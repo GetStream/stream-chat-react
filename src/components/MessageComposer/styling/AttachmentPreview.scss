@@ -3,27 +3,33 @@
 $attachment-preview-row-height: 72px;
 
 .str-chat {
-  --str-chat__attachment-preview-close-icon-background: var(--control-remove-control-bg);
-  --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-icon);
-  --str-chat__attachment-preview-close-icon-border-color: var(
-    --control-remove-control-border
+  --str-chat__attachment-preview-close-icon-background: var(
+    --str-chat__control-remove-control-bg
   );
-  --str-chat__attachment-preview-retry-icon-color: var(--accent-primary);
-  --str-chat__attachment-preview-download-icon-color: var(--text-secondary);
+  --str-chat__attachment-preview-close-icon-color: var(
+    --str-chat__control-remove-control-icon
+  );
+  --str-chat__attachment-preview-close-icon-border-color: var(
+    --str-chat__control-remove-control-border
+  );
+  --str-chat__attachment-preview-retry-icon-color: var(--str-chat__accent-primary);
+  --str-chat__attachment-preview-download-icon-color: var(--str-chat__text-secondary);
   --str-chat__attachment-preview-overlay-color: var(--background-core-overlay);
 
   /* React-specific preview variants (classes diverged from v2 theme) */
   --str-chat__attachment-preview-media-video-indicator-background-color: var(
     --chat-bg-typing-indicator
   );
-  --str-chat__attachment-preview-media-video-indicator-color: var(--badge-text);
-  --str-chat__attachment-preview-media-video-indicator-border-radius: var(--radius-max);
+  --str-chat__attachment-preview-media-video-indicator-color: var(--str-chat__badge-text);
+  --str-chat__attachment-preview-media-video-indicator-border-radius: var(
+    --str-chat__radius-max
+  );
 
   --str-chat__attachment-preview-media-overlay-hover-background-color: var(
-    --background-utility-hover
+    --str-chat__background-utility-hover
   );
   --str-chat__attachment-preview-media-overlay-pressed-background-color: var(
-    --background-utility-pressed
+    --str-chat__background-utility-pressed
   );
 
   --str-chat__attachment-preview-media-upload-error-overlay-background-color: var(
@@ -34,7 +40,7 @@ $attachment-preview-row-height: 72px;
     display: flex;
     align-items: center;
     width: 100%;
-    padding: var(--spacing-xxs);
+    padding: var(--str-chat__spacing-xxs);
     min-width: 0;
 
     .str-chat__attachment-preview-audio {
@@ -50,8 +56,8 @@ $attachment-preview-row-height: 72px;
 
   .str-chat__attachment-preview-list {
     background: transparent;
-    color: var(--text-primary);
-    padding: var(--spacing-xxs);
+    color: var(--str-chat__text-primary);
+    padding: var(--str-chat__spacing-xxs);
     display: flex;
     align-items: flex-start;
     align-content: flex-start;
@@ -65,7 +71,7 @@ $attachment-preview-row-height: 72px;
     overflow-x: hidden;
     overflow-y: auto;
     flex: 0 1 auto;
-    gap: var(--spacing-md);
+    gap: var(--str-chat__spacing-md);
   }
 
   .str-chat__attachment-preview-audio,
@@ -73,22 +79,22 @@ $attachment-preview-row-height: 72px;
   .str-chat__attachment-preview-voice-recording,
   .str-chat__attachment-preview-unsupported {
     background: transparent;
-    color: var(--text-primary);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-core-default);
+    color: var(--str-chat__text-primary);
+    border-radius: var(--str-chat__radius-lg);
+    border: 1px solid var(--str-chat__border-core-default);
     display: flex;
     align-items: center;
     flex: 0 1 auto;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-md);
-    padding-inline-end: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
+    padding: var(--str-chat__spacing-md);
+    padding-inline-end: var(--str-chat__spacing-sm);
     width: 290px;
     height: $attachment-preview-row-height;
   }
 
   .str-chat__attachment-preview-audio {
     .str-chat__attachment-preview-file__data {
-      padding-inline-end: var(--spacing-xs);
+      padding-inline-end: var(--str-chat__spacing-xs);
     }
   }
 
@@ -105,16 +111,19 @@ $attachment-preview-row-height: 72px;
 
   .str-chat__attachment-preview-media {
     background: transparent;
-    color: var(--text-primary);
-    border-radius: var(--message-bubble-radius-attachment);
-    border: 1px solid var(--border-core-default);
+    color: var(--str-chat__text-primary);
+    border-radius: var(--str-chat__message-bubble-radius-attachment);
+    border: 1px solid var(--str-chat__border-core-default);
     flex: 0 0 auto;
     width: $attachment-preview-row-height;
     height: $attachment-preview-row-height;
     cursor: pointer;
 
     .str-chat__attachment-preview-media__thumbnail-wrapper {
-      border-radius: max(0px, calc(var(--message-bubble-radius-attachment) - 1px));
+      border-radius: max(
+        0px,
+        calc(var(--str-chat__message-bubble-radius-attachment) - 1px)
+      );
       overflow: hidden;
       height: 100%;
       width: 100%;
@@ -134,7 +143,7 @@ $attachment-preview-row-height: 72px;
     position: absolute;
     inset: 0;
     overflow: hidden;
-    border-radius: var(--message-bubble-radius-attachment);
+    border-radius: var(--str-chat__message-bubble-radius-attachment);
 
     &:hover {
       @include utils.overlay-after(
@@ -156,27 +165,27 @@ $attachment-preview-row-height: 72px;
 
     .str-chat__loading-indicator,
     .str-chat__progress-indicator {
-      width: var(--icon-size-sm);
-      height: var(--icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
+      height: var(--str-chat__icon-size-sm);
       position: absolute;
-      inset-inline-start: var(--spacing-xxs);
-      bottom: var(--spacing-xxs);
-      border-radius: var(--radius-max);
-      background: var(--background-core-elevation-0);
-      color: var(--accent-primary);
+      inset-inline-start: var(--str-chat__spacing-xxs);
+      bottom: var(--str-chat__spacing-xxs);
+      border-radius: var(--str-chat__radius-max);
+      background: var(--str-chat__background-core-elevation-0);
+      color: var(--str-chat__accent-primary);
     }
 
     .str-chat__icon--exclamation {
-      padding: var(--spacing-xxxs);
-      width: var(--icon-size-sm);
-      height: var(--icon-size-sm);
+      padding: var(--str-chat__spacing-xxxs);
+      width: var(--str-chat__icon-size-sm);
+      height: var(--str-chat__icon-size-sm);
       position: absolute;
-      inset-inline-start: var(--spacing-xxs);
-      bottom: var(--spacing-xxs);
-      border: 2px solid var(--badge-border);
-      border-radius: var(--radius-max);
-      background: var(--badge-bg-error);
-      color: var(--badge-text-on-accent);
+      inset-inline-start: var(--str-chat__spacing-xxs);
+      bottom: var(--str-chat__spacing-xxs);
+      border: 2px solid var(--str-chat__badge-border);
+      border-radius: var(--str-chat__radius-max);
+      background: var(--str-chat__badge-bg-error);
+      color: var(--str-chat__badge-text-on-accent);
     }
   }
 
@@ -190,7 +199,11 @@ $attachment-preview-row-height: 72px;
 
   .str-chat__attachment-preview-media--uploading {
     .str-chat__attachment-preview-media__overlay {
-      background: linear-gradient(180deg, var(--base-white) 0%, var(--slate-100) 100%);
+      background: linear-gradient(
+        180deg,
+        var(--str-chat__base-white) 0%,
+        var(--str-chat__slate-100) 100%
+      );
     }
   }
 
@@ -206,14 +219,14 @@ $attachment-preview-row-height: 72px;
     flex-direction: column;
     align-items: flex-start;
     justify-content: center;
-    gap: var(--spacing-xxs);
+    gap: var(--str-chat__spacing-xxs);
 
     .str-chat__attachment-preview-file-name {
       @include utils.ellipsis-text;
       max-width: 100%;
-      font-weight: var(--typography-font-weight-semi-bold);
-      font-size: var(--typography-font-size-sm);
-      line-height: var(--typography-line-height-tight);
+      font-weight: var(--str-chat__typography-font-weight-semi-bold);
+      font-size: var(--str-chat__typography-font-size-sm);
+      line-height: var(--str-chat__typography-line-height-tight);
     }
 
     .str-chat__attachment-preview-file__data {
@@ -221,50 +234,50 @@ $attachment-preview-row-height: 72px;
       align-items: center;
       width: min(160px, 100%);
       max-width: 100%;
-      gap: var(--spacing-xxs);
-      color: var(--text-secondary);
-      font-weight: var(--typography-font-weight-regular);
-      font-size: var(--typography-font-size-xs);
-      line-height: var(--typography-line-height-tight);
+      gap: var(--str-chat__spacing-xxs);
+      color: var(--str-chat__text-secondary);
+      font-weight: var(--str-chat__typography-font-weight-regular);
+      font-size: var(--str-chat__typography-font-size-xs);
+      line-height: var(--str-chat__typography-line-height-tight);
 
       .str-chat__loading-indicator,
       .str-chat__progress-indicator {
-        width: var(--icon-size-sm);
-        height: var(--icon-size-sm);
-        color: var(--accent-primary);
+        width: var(--str-chat__icon-size-sm);
+        height: var(--str-chat__icon-size-sm);
+        color: var(--str-chat__accent-primary);
       }
 
       .str-chat__attachment-preview-file__fatal-error {
         display: flex;
         align-items: center;
-        gap: var(--spacing-xxs);
+        gap: var(--str-chat__spacing-xxs);
         color: var(--color-accent-error);
       }
 
       .str-chat__attachment-preview-file__retriable-error {
         display: flex;
         align-items: center;
-        gap: var(--spacing-xxs);
+        gap: var(--str-chat__spacing-xxs);
         white-space: nowrap;
 
         .str-chat__icon--exclamation-triangle path {
-          fill: var(--accent-error);
+          fill: var(--str-chat__accent-error);
         }
 
         .str-chat__attachment-preview-file__retry-upload-button {
           @include utils.button-reset;
           padding: 0;
-          color: var(--text-link);
+          color: var(--str-chat__text-link);
           cursor: pointer;
-          line-height: var(--typography-line-height-tight, 16px);
+          line-height: var(--str-chat__typography-line-height-tight, 16px);
         }
       }
     }
   }
 
   .str-chat__button-play {
-    height: var(--button-visual-height-md);
-    width: var(--button-visual-height-md);
+    height: var(--str-chat__button-visual-height-md);
+    width: var(--str-chat__button-visual-height-md);
     border: 1px solid var(--control-play-control-border);
   }
 }

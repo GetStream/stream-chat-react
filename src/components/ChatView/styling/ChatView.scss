@@ -3,7 +3,8 @@
   --str-chat__chat-view-selector-transition-easing: ease;
   --str-chat__chat-view-selector-transition-offset: 8px;
   --str-chat__chat-view-selector-mobile-width: calc(
-    var(--spacing-md) + var(--spacing-md) + var(--spacing-xs) + var(--spacing-xs) + 20px
+    var(--str-chat__spacing-md) + var(--str-chat__spacing-md) +
+      var(--str-chat__spacing-xs) + var(--str-chat__spacing-xs) + 20px
   );
 }
 
@@ -13,15 +14,15 @@
   height: 100%;
   min-height: 0;
   position: relative;
-  background-color: var(--background-core-app);
+  background-color: var(--str-chat__background-core-app);
 
   .str-chat__chat-view__selector {
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-md);
-    gap: var(--spacing-xs);
-    border-inline-end: 1px solid var(--border-core-subtle);
-    background-color: var(--background-core-elevation-1);
+    padding: var(--str-chat__spacing-md);
+    gap: var(--str-chat__spacing-xs);
+    border-inline-end: 1px solid var(--str-chat__border-core-subtle);
+    background-color: var(--str-chat__background-core-elevation-1);
 
     .str-chat__chat-view__selector-button-container {
       display: flex;
@@ -39,23 +40,23 @@
       --str-chat-unread-count-badge-absolute-offset-vertical: 25%;
 
       gap: 4px;
-      padding: var(--spacing-xs);
-      border-radius: var(--radius-md);
+      padding: var(--str-chat__spacing-xs);
+      border-radius: var(--str-chat__radius-md);
       font: var(--str-chat__font-caption-emphasis);
       line-height: 1;
       position: relative;
 
       background: transparent;
-      color: var(--text-tertiary);
+      color: var(--str-chat__text-tertiary);
 
       &[aria-selected='true'] {
-        color: var(--text-primary);
-        background: var(--background-core-surface-default);
+        color: var(--str-chat__text-primary);
+        background: var(--str-chat__background-core-surface-default);
       }
 
       .str-chat__icon {
-        height: var(--icon-size-md);
-        width: var(--icon-size-md);
+        height: var(--str-chat__icon-size-md);
+        width: var(--str-chat__icon-size-md);
       }
 
       .str-chat__button__content {

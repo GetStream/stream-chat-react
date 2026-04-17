@@ -4,13 +4,13 @@
 
 .str-chat {
   .str-chat__dialog-contents:has(.str-chat__message-reactions-detail):focus-visible {
-    border-radius: var(--radius-lg);
+    border-radius: var(--str-chat__radius-lg);
   }
 }
 
 .str-chat__message-reactions-detail {
-  border-radius: var(--radius-lg);
-  background: var(--background-core-elevation-2);
+  border-radius: var(--str-chat__radius-lg);
+  background: var(--str-chat__background-core-elevation-2);
   max-width: 256px;
   min-width: min(90vw, 256px);
 
@@ -26,38 +26,38 @@
     min-width: unset;
   }
 
-  font-family: var(--typography-font-family-sans);
+  font-family: var(--str-chat__typography-font-family-sans);
 
   box-shadow: var(--str-chat__box-shadow-3);
 
-  padding-block-start: var(--spacing-xxs);
+  padding-block-start: var(--str-chat__spacing-xxs);
 
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xxxs);
+  gap: var(--str-chat__spacing-xxxs);
 
   .str-chat__message-reactions-detail__total-count {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding-inline: var(--spacing-md);
-    min-height: var(--size-32);
-    max-height: var(--size-32);
+    padding-inline: var(--str-chat__spacing-md);
+    min-height: var(--str-chat__size-32);
+    max-height: var(--str-chat__size-32);
 
-    color: var(--text-tertiary);
-    font-size: var(--typography-font-size-sm);
-    font-weight: var(--typography-font-weight-medium);
-    line-height: var(--typography-line-height-normal);
+    color: var(--str-chat__text-tertiary);
+    font-size: var(--str-chat__typography-font-size-sm);
+    font-weight: var(--str-chat__typography-font-weight-medium);
+    line-height: var(--str-chat__typography-line-height-normal);
   }
 
   .str-chat__message-reactions-detail__reaction-type-list {
     list-style: none;
     margin: 0;
-    padding-inline: var(--spacing-md);
-    padding-block: var(--spacing-xs);
+    padding-inline: var(--str-chat__spacing-md);
+    padding-block: var(--str-chat__spacing-xs);
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-xs) var(--spacing-xxs);
+    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-xxs);
 
     .str-chat__message-reactions-detail__reaction-type-list-item {
       display: flex;
@@ -65,19 +65,19 @@
       .str-chat__message-reactions-detail__reaction-type-list-item-button {
         @include common.reaction-button;
         box-shadow: unset;
-        min-width: var(--size-48);
+        min-width: var(--str-chat__size-48);
         background: none;
-        border: 1px solid var(--control-chip-border);
+        border: 1px solid var(--str-chat__control-chip-border);
 
         .str-chat__message-reactions-detail__reaction-type-list-item-icon {
           font-family: system-ui;
-          font-size: var(--font-size-size-17);
+          font-size: var(--str-chat__font-size-size-17);
           font-style: normal;
-          line-height: var(--typography-line-height-normal);
+          line-height: var(--str-chat__typography-line-height-normal);
 
           .str-chat__icon {
-            width: var(--icon-size-sm);
-            height: var(--icon-size-sm);
+            width: var(--str-chat__icon-size-sm);
+            height: var(--str-chat__icon-size-sm);
           }
 
           &:has(.str-chat__icon) {
@@ -88,7 +88,7 @@
         }
 
         .str-chat__message-reactions-detail__reaction-type-list-item-count {
-          color: var(--reaction-text);
+          color: var(--str-chat__reaction-text);
           font: var(--str-chat__font-metadata-emphasis);
         }
       }
@@ -108,45 +108,45 @@
     @include utils.scrollable-y;
     scrollbar-width: none;
     position: relative;
-    padding-block-end: var(--spacing-xxs);
+    padding-block-end: var(--str-chat__spacing-xxs);
     max-height: 180px;
 
     .str-chat__message-reactions-detail__skeleton-item {
-      padding-block: var(--spacing-xxs);
+      padding-block: var(--str-chat__spacing-xxs);
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding-inline: calc(var(--spacing-sm) + var(--spacing-xxs));
+      gap: var(--str-chat__spacing-xs);
+      padding-inline: calc(var(--str-chat__spacing-sm) + var(--str-chat__spacing-xxs));
 
       .str-chat__message-reactions-detail__skeleton-avatar {
-        width: var(--size-32);
-        height: var(--size-32);
-        border-radius: var(--radius-max);
+        width: var(--str-chat__size-32);
+        height: var(--str-chat__size-32);
+        border-radius: var(--str-chat__radius-max);
         @include channel-utils.channel-loading-shimmer;
         flex-shrink: 0;
       }
 
       .str-chat__message-reactions-detail__skeleton-line {
         flex-grow: 1;
-        height: var(--size-20);
-        border-radius: var(--radius-sm);
+        height: var(--str-chat__size-20);
+        border-radius: var(--str-chat__radius-sm);
         @include channel-utils.channel-loading-faded-bar;
       }
     }
 
     .str-chat__message-reactions-detail__user-list-item {
-      padding-block: var(--spacing-xxs);
+      padding-block: var(--str-chat__spacing-xxs);
       display: flex;
       align-items: center;
-      gap: var(--spacing-xs);
-      padding-inline: calc(var(--spacing-sm) + var(--spacing-xxs));
-      max-height: var(--size-40);
+      gap: var(--str-chat__spacing-xs);
+      padding-inline: calc(var(--str-chat__spacing-sm) + var(--str-chat__spacing-xxs));
+      max-height: var(--str-chat__size-40);
 
       .str-chat__message-reactions-detail__user-list-item-icon {
         font-family: system-ui;
-        font-size: var(--font-size-size-17);
+        font-size: var(--str-chat__font-size-size-17);
         font-style: normal;
-        line-height: var(--typography-line-height-normal);
+        line-height: var(--str-chat__typography-line-height-normal);
       }
 
       .str-chat__message-reactions-detail__user-list-item-info {
@@ -156,15 +156,15 @@
         min-width: 0;
 
         .str-chat__message-reactions-detail__user-list-item-username {
-          color: var(--text-primary);
-          font-size: var(--typography-font-size-sm);
-          font-weight: var(--typography-font-weight-regular);
-          line-height: var(--typography-line-height-normal);
+          color: var(--str-chat__text-primary);
+          font-size: var(--str-chat__typography-font-size-sm);
+          font-weight: var(--str-chat__typography-font-weight-regular);
+          line-height: var(--str-chat__typography-line-height-normal);
         }
 
         .str-chat__message-reactions-detail__user-list-item-button {
           @include utils.unset-button;
-          color: var(--text-tertiary);
+          color: var(--str-chat__text-tertiary);
           font: var(--str-chat__font-metadata-default);
           cursor: pointer;
           align-self: flex-start;

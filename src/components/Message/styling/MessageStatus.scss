@@ -3,15 +3,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    column-gap: var(--space-2);
+    column-gap: var(--str-chat__space-2);
     position: relative;
-    color: var(--chat-text-timestamp);
+    color: var(--str-chat__chat-text-timestamp);
     svg {
       height: 16px;
       width: 16px;
 
       &.str-chat__message-status-read {
-        color: var(--accent-primary);
+        color: var(--str-chat__accent-primary);
       }
     }
   }

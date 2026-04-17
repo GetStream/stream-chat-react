@@ -2,9 +2,9 @@
 
 .str-chat__thread-header {
   @include utils.header-layout;
-  background: var(--background-core-elevation-1);
-  color: var(--text-primary);
-  border-block-end: 1px solid var(--border-core-default);
+  background: var(--str-chat__background-core-elevation-1);
+  color: var(--str-chat__text-primary);
+  border-block-end: 1px solid var(--str-chat__border-core-default);
 
   .str-chat__thread-header-title {
     font: var(--str-chat__font-heading-sm);
@@ -12,7 +12,7 @@
 
   .str-chat__thread-header-subtitle {
     font: var(--str-chat__font-caption-default);
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   .str-chat__thread-header-details {
@@ -44,14 +44,14 @@
     display: flex;
     align-items: flex-start;
     justify-content: flex-end;
-    width: var(--size-40);
-    height: var(--size-40);
+    width: var(--str-chat__size-40);
+    height: var(--str-chat__size-40);
     cursor: pointer;
     background-color: transparent;
     border: none;
 
     .str-chat__icon {
-      fill: var(--text-primary);
+      fill: var(--str-chat__text-primary);
     }
   }
 }

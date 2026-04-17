@@ -5,83 +5,83 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: var(--typography-font-weight-bold);
-  border-radius: var(--radius-max);
+  font-weight: var(--str-chat__typography-font-weight-bold);
+  border-radius: var(--str-chat__radius-max);
   line-height: 1;
   border-style: solid;
 }
 
 // Variants: map to design tokens
 .str-chat__badge--variant-default {
-  background: var(--badge-bg-default);
-  color: var(--badge-text);
-  border-color: var(--badge-border);
+  background: var(--str-chat__badge-bg-default);
+  color: var(--str-chat__badge-text);
+  border-color: var(--str-chat__badge-border);
 }
 
 .str-chat__badge--variant-primary {
-  background: var(--badge-bg-primary);
-  color: var(--badge-text-on-accent);
-  border-color: var(--badge-border);
+  background: var(--str-chat__badge-bg-primary);
+  color: var(--str-chat__badge-text-on-accent);
+  border-color: var(--str-chat__badge-border);
 }
 
 .str-chat__badge--variant-error {
-  background: var(--badge-bg-error);
-  color: var(--badge-text-on-accent);
-  border-color: var(--badge-border);
+  background: var(--str-chat__badge-bg-error);
+  color: var(--str-chat__badge-text-on-accent);
+  border-color: var(--str-chat__badge-border);
 }
 
 .str-chat__badge--variant-neutral {
-  background: var(--badge-bg-neutral);
-  color: var(--badge-text-on-accent);
-  border-color: var(--badge-border);
+  background: var(--str-chat__badge-bg-neutral);
+  color: var(--str-chat__badge-text-on-accent);
+  border-color: var(--str-chat__badge-border);
 }
 
 .str-chat__badge--variant-inverse {
-  background: var(--badge-bg-inverse);
-  color: var(--badge-text-on-inverse);
-  border-color: var(--badge-border);
+  background: var(--str-chat__badge-bg-inverse);
+  color: var(--str-chat__badge-text-on-inverse);
+  border-color: var(--str-chat__badge-border);
 }
 
 // Sizes: caption-numeric equivalents (sm/12px, md/14px, lg/16px)
 .str-chat__badge--size-sm {
-  font-size: var(--typography-font-size-xxs);
+  font-size: var(--str-chat__typography-font-size-xxs);
   min-width: 16px;
   min-height: 16px;
-  padding-inline: var(--spacing-xxxs);
+  padding-inline: var(--str-chat__spacing-xxxs);
   border-width: 1px;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
 }
 
 .str-chat__badge--size-md {
-  font-size: var(--typography-font-size-xs);
+  font-size: var(--str-chat__typography-font-size-xs);
   min-width: 20px;
   min-height: 20px;
-  padding-inline: var(--spacing-xxs);
+  padding-inline: var(--str-chat__spacing-xxs);
   border-width: 2px;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
 }
 
 .str-chat__badge--size-lg {
-  font-size: var(--typography-font-size-sm);
+  font-size: var(--str-chat__typography-font-size-sm);
   min-width: 24px;
   min-height: 24px;
-  padding-inline: var(--spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs);
   border-width: 2px;
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
 }
 
 .str-chat__badge--variant-counter {
-  border-radius: var(--radius-max);
-  border: 1px solid var(--border-core-subtle);
-  background: var(--badge-bg-default);
+  border-radius: var(--str-chat__radius-max);
+  border: 1px solid var(--str-chat__border-core-subtle);
+  background: var(--str-chat__badge-bg-default);
   box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
   font: var(--str-chat__font-numeric-xl);
-  color: var(--badge-text);
+  color: var(--str-chat__badge-text);
 
   &.str-chat__badge--size-xs {
     min-width: 20px;
     min-height: 20px;
-    padding-inline: var(--spacing-xxs);
+    padding-inline: var(--str-chat__spacing-xxs);
     box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
     font: var(--str-chat__font-numeric-md);
   }
@@ -89,19 +89,19 @@
   &.str-chat__badge--size-sm {
     min-width: 24px;
     min-height: 24px;
-    padding-inline: var(--spacing-xs);
+    padding-inline: var(--str-chat__spacing-xs);
   }
 
   &.str-chat__badge--size-md {
     min-width: 32px;
     min-height: 32px;
-    padding-inline: var(--spacing-xs);
+    padding-inline: var(--str-chat__spacing-xs);
   }
 
   &.str-chat__badge--size-lg {
     min-width: 40px;
     min-height: 40px;
-    padding-inline: var(--spacing-sm);
+    padding-inline: var(--str-chat__spacing-sm);
   }
 }
 

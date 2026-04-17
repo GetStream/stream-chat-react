@@ -1,16 +1,16 @@
 .str-chat__empty-channel {
-  --str-chat-icon-color: var(--text-tertiary);
+  --str-chat-icon-color: var(--str-chat__text-tertiary);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100%;
-  padding: var(--spacing-md);
+  padding: var(--str-chat__spacing-md);
   position: relative;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
   text-align: center;
-  background: var(--background-core-app);
-  color: var(--text-secondary);
+  background: var(--str-chat__background-core-app);
+  color: var(--str-chat__text-secondary);
   font: var(--str-chat__font-caption-default);
 
   svg {
