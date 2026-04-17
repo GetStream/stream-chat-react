@@ -37,14 +37,8 @@
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
-    "./dist/scss/*": {
-      "default": "./dist/scss/*"
-    },
     "./css/*": {
       "default": "./dist/css/*"
-    },
-    "./scss/*": {
-      "default": "./dist/scss/*"
     }
   },
   "typesVersions": {
