@@ -1,3 +1,11 @@
+## [14.0.1](https://github.com/GetStream/stream-chat-react/compare/v14.0.0...v14.0.1) (2026-04-17)
+
+### Bug Fixes
+
+* allow flipping message actions context menu ([#3130](https://github.com/GetStream/stream-chat-react/issues/3130)) ([f8c9600](https://github.com/GetStream/stream-chat-react/commit/f8c9600dd8df23c90c13fc044eee525fe0d55c4f))
+* drop unused/outdated CSS variables ([#3128](https://github.com/GetStream/stream-chat-react/issues/3128)) ([1a2a61f](https://github.com/GetStream/stream-chat-react/commit/1a2a61f0619ad460d3d49ce94e9806436809de72))
+* recognize async moderated shadow blocked messages as blocked ([#3131](https://github.com/GetStream/stream-chat-react/issues/3131)) ([eac76dc](https://github.com/GetStream/stream-chat-react/commit/eac76dc848a0a5b58245e45e1c7e6aa27771f28c))
+
 ## [14.0.0](https://github.com/GetStream/stream-chat-react/compare/v13.13.1...v14.0.0) (2026-04-16)
 
 ### ⚠ BREAKING CHANGES
