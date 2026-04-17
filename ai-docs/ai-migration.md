@@ -2,6 +2,24 @@
 
 Execution-only guide for a coding agent migrating a third-party app from `stream-chat-react` v13 to v14. Run the phases in order; stop and fix each phase's errors before moving to the next. For evidence or edge cases, fall back to `./breaking-changes.md`.
 
+## Source of Truth
+
+Before writing any code, and whenever ambiguity hits, verify against the user's installed SDK source. Never rely on training knowledge — the v13 surface is still heavily represented in pretraining data and will mislead you.
+
+Authoritative locations, in order of preference:
+
+1. `node_modules/stream-chat-react/dist/index.d.ts` (and `dist/index.d.cts`) — public type surface. Fastest way to confirm a symbol exists, check a prop signature, or see an override-key name.
+2. `node_modules/stream-chat-react/package.json` — `exports` map and peer dependencies.
+3. `node_modules/stream-chat-react/dist/` — transpiled JS when runtime behavior matters more than types.
+4. `node_modules/stream-chat/dist/index.d.ts` — core client types (channel capabilities, event names, `ReactionSort`, etc.).
+5. `node_modules/stream-chat-react/dist/css/index.css` — default class names and CSS variables when auditing selectors.
+
+Required workflow:
+
+- Before claiming a symbol, prop, or override key exists: grep the installed `.d.ts` files.
+- Before writing a replacement snippet: read the current signature, don't reconstruct it from memory.
+- If a file or symbol referenced in this guide is missing from the installed package, stop and report — don't invent a fallback.
+
 ## Prerequisites
 
 1. Upgrade both packages to their latest versions together. The v14 peer-dep floor moved; leaving `stream-chat` on a v13-era version will fail peer resolution.
