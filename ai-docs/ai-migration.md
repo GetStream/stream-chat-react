@@ -178,6 +178,16 @@ For richer rendering, override `QuotedMessage` or `QuotedMessagePreview` in `Wit
 - `InfiniteScroll` / `LoadMoreButton` / `LoadMorePaginator`: `hasMore`, `loadMore`, `refreshing` → `hasNextPage`, `loadNextPage`, `isLoading`
 - `InfiniteScroll` / `LoadMoreButton` / `LoadMorePaginator`: `hasMoreNewer`, `loadMoreNewer` → no alias; use `hasNextPage` / `loadNextPage` where appropriate
 
+### About the v14 notification system
+
+The removed pieces above (`MessageListNotifications`, `ConnectionStatus`, `get*Notification` callbacks) were parts of ad-hoc flows. v14 consolidates them into three primitives:
+
+- **`useNotificationApi()`** — publish app-owned notifications (toasts, inline feedback). Replaces the old `get*Notification` callback props on `Message` / `MessageList` / `VirtualizedMessageList`.
+- **`NotificationList`** — renders client-emitted notifications inside a panel. Replaces the removed `MessageListNotifications` wrapper. `MessageList`, `VirtualizedMessageList`, `ChannelList`, and `ThreadList` render it by default.
+- **`useSystemNotifications()` / `useReportLostConnectionSystemNotification()`** — publish persistent system banners (connection status, etc.). Replaces `ConnectionStatus`.
+
+For custom notification text, prefer overriding `Streami18n` translation keys under the `notification` namespace over wrapping `useNotificationApi()` yourself.
+
 ---
 
 ## Phase 3 — Move UI Overrides to `WithComponents`
@@ -383,6 +393,19 @@ To preserve the old blank pane, override `EmptyStateIndicator` with a `null`-ret
 - **`Gallery` / `ModalGallery`.** `ModalGallery` API went from `{ images, index }` to `{ items }` (also accepts `className`, `modalClassName`, `closeOnBackgroundClick`). `Gallery` alone no longer renders a thumbnail grid — supply `GalleryUI` or use `ModalGallery` for the old behavior.
 - **Low-level attachment containers.** `MediaContainer` now takes `attachments` (plural). Gallery payloads changed `images` → `items`. Audio custom components: rename prop `og` → `attachment`. Native `giphy` stays inline (no `ModalGallery` expansion).
 - **`AttachmentProps.Gallery` → `AttachmentProps.ModalGallery`.** `Media` now uses `VideoPlayerProps`, not `ReactPlayerProps`.
+
+### About the v14 gallery model
+
+`Gallery`, `ModalGallery`, and `GalleryUI` are three distinct primitives in v14, not interchangeable:
+
+- **`ModalGallery`** — full replacement for the v13 "thumbnail grid that opens a lightbox" component. Takes `{ items }`. Use this when migrating direct `<Gallery images={...}>` usage.
+- **`Gallery`** — provider-only. Exposes gallery state (active item, close handler) via `GalleryContext` but renders nothing visible unless a `GalleryUI` is supplied.
+- **`GalleryUI`** — the visual layer consumed by `Gallery` / `GalleryContext`. Supply a custom one for a custom carousel / viewer.
+
+Migration shortcut: if the v13 usage was `<Gallery images={...} />`, change the import to `ModalGallery` and pass `items`. Only reach for the provider-style `Gallery` + custom `GalleryUI` if the app genuinely needs carousel customization.
+
+Remaining Phase 7 behavior bullets:
+
 - **`PinIndicator`** no longer receives `t` as prop — use `useTranslationContext()` inside.
 - **Suggestion `UserItem`** no longer receives `Avatar` prop — render avatar/menu UI directly.
 - **Modal prompt components.** `MessageBouncePrompt`, `RecordingPermissionDeniedNotification`, poll `PollOptionsFullList` / `PollResults` / `PollAnswerList` / `SuggestPollOptionPrompt` no longer receive `onClose` / `close` props. Dismiss via `useModalContext().close()`.
