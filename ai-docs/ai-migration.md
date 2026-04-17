@@ -8,10 +8,10 @@ Before writing any code, and whenever ambiguity hits, verify against the user's 
 
 Authoritative locations, in order of preference:
 
-1. `node_modules/stream-chat-react/dist/index.d.ts` (and `dist/index.d.cts`) — public type surface. Fastest way to confirm a symbol exists, check a prop signature, or see an override-key name.
+1. `node_modules/stream-chat-react/dist/types/index.d.ts` — public type surface. Fastest way to confirm a symbol exists, check a prop signature, or see an override-key name. (The SDK emits `.d.ts` only; there is no `.d.cts`.)
 2. `node_modules/stream-chat-react/package.json` — `exports` map and peer dependencies.
-3. `node_modules/stream-chat-react/dist/` — transpiled JS when runtime behavior matters more than types.
-4. `node_modules/stream-chat/dist/index.d.ts` — core client types (channel capabilities, event names, `ReactionSort`, etc.).
+3. `node_modules/stream-chat-react/dist/es/` and `dist/cjs/` — transpiled JS when runtime behavior matters more than types.
+4. `node_modules/stream-chat/dist/types/index.d.ts` — core client types (channel capabilities, event names, `ReactionSort`, etc.).
 5. `node_modules/stream-chat-react/dist/css/index.css` — default class names and CSS variables when auditing selectors.
 
 Required workflow:
