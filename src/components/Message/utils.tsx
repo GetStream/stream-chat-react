@@ -399,11 +399,12 @@ export const isMessageBounced = (
     message.moderation?.action === 'bounce');
 
 export const isMessageBlocked = (
-  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details' | 'shadowed'>,
 ) =>
-  message.type === 'error' &&
-  (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
-    message.moderation?.action === 'remove');
+  message.shadowed ||
+  (message.type === 'error' &&
+    (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
+      message.moderation?.action === 'remove'));
 
 export const isMessageDeleted = (message: LocalMessage): boolean =>
   Boolean(message.deleted_at || message.type === 'deleted' || message.deleted_for_me);
