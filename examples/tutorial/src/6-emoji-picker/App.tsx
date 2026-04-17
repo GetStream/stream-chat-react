@@ -18,7 +18,7 @@ import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 
 import './layout.css';
-import { apiKey, userId, userName, userToken } from '../1-client-setup/credentials';
+import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -38,7 +38,7 @@ const App = () => {
   const [isReady, setIsReady] = useState(false);
   const client = useCreateChatClient({
     apiKey,
-    tokenOrProvider: userToken,
+    tokenOrProvider: tokenProvider,
     userData: user,
   });
 
