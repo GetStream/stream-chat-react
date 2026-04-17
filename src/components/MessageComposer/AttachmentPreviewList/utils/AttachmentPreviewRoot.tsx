@@ -96,12 +96,13 @@ export const AttachmentPreviewRoot = ({
         isInteractive
           ? (e) => {
               if (e.key !== 'Enter' && e.key !== ' ') return;
-              e.preventDefault();
               handlePressed(e);
+              e.preventDefault();
             }
           : undefined
       }
       ref={setRoot}
+      role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? tabIndex : -1}
     >
       {props.children}

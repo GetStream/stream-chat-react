@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { WaveProgressBar } from '../../AudioPlayback';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
@@ -125,5 +125,23 @@ describe('WaveProgressBar', () => {
     ).toHaveLength(8);
     expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
     expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).not.toHaveStyle('left: 0px');
+  });
+
+  it('adds keyboard focus semantics and supports keyboard seek', () => {
+    const seek = vi.fn();
+    render(<WaveProgressBar progress={20} seek={seek} waveformData={originalSample} />);
+
+    const root = screen.getByTestId(BAR_ROOT_TEST_ID);
+    expect(root).toHaveAttribute('tabindex', '0');
+    expect(root).toHaveAttribute('aria-valuemin', '0');
+    expect(root).toHaveAttribute('aria-valuemax', '100');
+    expect(root).toHaveAttribute('aria-valuenow', '20');
+
+    fireEvent.keyDown(root, { key: 'End' });
+
+    expect(seek).toHaveBeenCalledWith({
+      clientX: 120,
+      currentTarget: root,
+    });
   });
 });

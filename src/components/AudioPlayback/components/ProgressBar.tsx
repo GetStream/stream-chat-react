@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React from 'react';
+import { handleProgressBarKeyboardSeek } from './keyboardSeek';
 import { useInteractiveProgressBar } from './useInteractiveProgressBar';
 import type { SeekFn as AudioPlayerSeekFn } from '../AudioPlayer';
 
@@ -23,6 +24,9 @@ export const ProgressBar = ({ className, progress, seek }: ProgressBarProps) => 
 
   return (
     <div
+      aria-valuemax={100}
+      aria-valuemin={0}
+      aria-valuenow={Math.round(progress)}
       className={clsx(
         'str-chat__message-attachment-audio-widget--progress-track',
         className,
@@ -30,6 +34,7 @@ export const ProgressBar = ({ className, progress, seek }: ProgressBarProps) => 
       data-progress={progress}
       data-testid='audio-progress'
       onClick={seek}
+      onKeyDown={(event) => handleProgressBarKeyboardSeek({ event, progress, seek })}
       onPointerDown={handleDragStart}
       onPointerMove={handleDrag}
       onPointerUp={handleDragStop}
@@ -40,6 +45,7 @@ export const ProgressBar = ({ className, progress, seek }: ProgressBarProps) => 
           '--str-chat__message-attachment-audio-widget-progress': progress + '%',
         } as React.CSSProperties
       }
+      tabIndex={0}
     >
       <div
         className='str-chat__message-attachment-audio-widget--progress-indicator'

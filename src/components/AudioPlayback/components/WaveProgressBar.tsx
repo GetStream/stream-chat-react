@@ -3,6 +3,7 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { resampleWaveformData } from '../../Attachment/audioSampling';
 import type { SeekFn as AudioPlayerSeekFn } from '../AudioPlayer';
+import { handleProgressBarKeyboardSeek } from './keyboardSeek';
 import { useInteractiveProgressBar } from './useInteractiveProgressBar';
 
 type SeekParams = Parameters<AudioPlayerSeekFn>[0];
@@ -115,11 +116,15 @@ export const WaveProgressBar = ({
 
   return (
     <div
+      aria-valuemax={100}
+      aria-valuemin={0}
+      aria-valuenow={Math.round(progress)}
       className={clsx('str-chat__wave-progress-bar__track', {
         'str-chat__wave-progress-bar__track--playback-initiated': progress > 0,
       })}
       data-testid='wave-progress-bar-track'
       onClick={seek}
+      onKeyDown={(event) => handleProgressBarKeyboardSeek({ event, progress, seek })}
       onPointerDown={handleDragStart}
       onPointerMove={handleDrag}
       onPointerUp={handleDragStop}
@@ -131,6 +136,7 @@ export const WaveProgressBar = ({
             typeof amplitudeGapWidth === 'number' ? `${amplitudeGapWidth}px` : undefined,
         } as React.CSSProperties
       }
+      tabIndex={0}
     >
       {resampledWaveformData.map((amplitude, i) => (
         <div
