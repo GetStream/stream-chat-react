@@ -185,7 +185,6 @@
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
-    "@total-typescript/shoehorn": "^0.1.2",
     "@types/deep-equal": "^1.0.1",
     "@types/dotenv": "^8.2.0",
     "@types/hast": "^2.3.4",
