@@ -1,4 +1,5 @@
 export * from './AIStateIndicator';
+export * from './Accessibility';
 export * from './Attachment';
 export * from './AudioPlayback';
 export * from './Avatar';
@@ -40,6 +41,7 @@ export * from './Thread';
 export * from './Threads';
 export * from './Tooltip';
 export * from './TypingIndicator';
+export * from './VisuallyHidden';
 export * from './Window';
 
 export { FileInput } from './ReactFileUtilities';
