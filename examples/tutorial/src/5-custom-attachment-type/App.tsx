@@ -118,7 +118,7 @@ const App = () => {
 
   return (
     <WithComponents overrides={{ Attachment: CustomAttachment }}>
-      <Chat client={client} theme='str-chat__theme-custom'>
+      <Chat client={client} theme='custom-theme'>
         <Channel channel={channel}>
           <Window>
             <ChannelHeader />
