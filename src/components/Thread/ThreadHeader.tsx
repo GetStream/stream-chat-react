@@ -99,11 +99,9 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
 
   return (
     <div className='str-chat__thread-header'>
-      {activeChatView === 'threads' && HeaderStartContent && (
-        <div className='str-chat__thread-header__start'>
-          <HeaderStartContent />
-        </div>
-      )}
+      <div className='str-chat__thread-header__start'>
+        {activeChatView === 'threads' && HeaderStartContent && <HeaderStartContent />}
+      </div>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>
         <ThreadHeaderSubtitle

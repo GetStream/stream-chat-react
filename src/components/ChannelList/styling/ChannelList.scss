@@ -41,7 +41,6 @@
     transform var(--str-chat__channel-list-transition-duration)
       var(--str-chat__channel-list-transition-easing);
   width: var(--str-chat__channel-list-width);
-  @include utils.scrollable-y;
   background: var(--background-core-elevation-1);
   color: var(--text-primary);
   border-inline-end: 1px solid var(--border-core-default);
@@ -54,6 +53,8 @@
     .str-chat__channel-list-inner__main {
       height: 100%;
       overflow-y: auto;
+      scrollbar-gutter: stable both-edges;
+      scrollbar-width: thin;
 
       .str-chat__channel-list-empty {
         height: 100%;

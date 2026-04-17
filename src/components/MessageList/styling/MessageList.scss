@@ -19,7 +19,9 @@
 }
 
 .str-chat__message-list {
-  @include utils.scrollable-y;
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+  overscroll-behavior: contain;
   display: flex;
   justify-content: center;
   position: relative;

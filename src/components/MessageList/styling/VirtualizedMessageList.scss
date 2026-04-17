@@ -1,9 +1,11 @@
 @use '../../../styling/utils';
 
 .str-chat__virtual-list {
+  overflow-y: auto;
+  scrollbar-gutter: stable both-edges;
+
   background: var(--background-core-app);
   color: var(--text-primary);
-  @include utils.scrollable-y;
   --str-chat__message-list-scroll-max-width: calc(
     var(--str-chat__message-composer-max-width) +
       var(--str-chat__message-composer-padding)

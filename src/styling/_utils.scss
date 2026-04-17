@@ -99,24 +99,19 @@
 }
 
 @mixin header-layout {
-  display: flex;
-  align-items: center;
   width: 100%;
   padding: var(--spacing-md);
-  gap: var(--spacing-sm);
   height: var(--str-chat__channel-header-height);
-  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
 }
-
 @mixin header-text-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
   overflow-y: hidden; // for Edge
   overflow-x: hidden; // for ellipsis text
-  max-width: 100%;
-  row-gap: var(--spacing-xxs);
-  width: 100%;
 }
 
 @mixin empty-theme($component-name) {

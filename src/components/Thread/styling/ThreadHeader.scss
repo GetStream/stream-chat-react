@@ -17,8 +17,8 @@
 
   .str-chat__thread-header-details {
     @include utils.header-text-layout;
-    align-items: start;
-    flex: 1;
+    min-width: 0;
+    justify-self: center;
 
     .str-chat__thread-header-subtitle,
     .str-chat__thread-header-title {
@@ -31,12 +31,13 @@
   }
 
   .str-chat__thread-header__start {
-    display: flex;
+    min-width: 0;
+    justify-self: start;
   }
 
   .str-chat__thread-header__end {
-    display: flex;
-    justify-content: flex-end;
+    min-width: 0;
+    justify-self: end;
   }
 
   .str-chat__close-thread-button {

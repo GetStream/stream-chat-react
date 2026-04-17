@@ -10,19 +10,19 @@
   @include utils.header-layout;
 
   .str-chat__channel-header__start {
-    flex: 1;
-    display: flex;
+    justify-self: start;
+    min-width: 0;
   }
 
   .str-chat__channel-header__data {
     @include utils.header-text-layout;
-    width: unset;
+    justify-self: center;
+    min-width: 0;
   }
 
   .str-chat__channel-header__end {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
+    justify-self: end;
+    min-width: 0;
   }
 
   .str-chat__channel-header__data__title,
