@@ -1,3 +1,9 @@
+## [13.14.4](https://github.com/GetStream/stream-chat-react/compare/v13.14.3...v13.14.4) (2026-04-17)
+
+### Bug Fixes
+
+* recognize async moderated shadow blocked messages as blocked ([#3132](https://github.com/GetStream/stream-chat-react/issues/3132)) ([096de30](https://github.com/GetStream/stream-chat-react/commit/096de30c6b89c2db216e3add13f979e05d2552a3))
+
 ## [13.14.3](https://github.com/GetStream/stream-chat-react/compare/v13.14.2...v13.14.3) (2026-03-25)
 
 ### Bug Fixes
