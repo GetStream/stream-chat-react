@@ -1,7 +1,8 @@
 @use '../../../styling/utils';
 
+$attachment-preview-row-height: 72px;
+
 .str-chat {
-  --str-chat__attachment-preview-row-height: 72px;
   --str-chat__attachment-preview-close-icon-background: var(--control-remove-control-bg);
   --str-chat__attachment-preview-close-icon-color: var(--control-remove-control-icon);
   --str-chat__attachment-preview-close-icon-border-color: var(
@@ -59,8 +60,8 @@
     width: 100%;
     min-width: 0;
     max-width: 100%;
-    min-height: calc(var(--str-chat__attachment-preview-row-height) * 1.2);
-    max-height: calc(var(--str-chat__attachment-preview-row-height) * 1.7);
+    min-height: calc($attachment-preview-row-height * 1.2);
+    max-height: calc($attachment-preview-row-height * 1.7);
     overflow-x: hidden;
     overflow-y: auto;
     flex: 0 1 auto;
@@ -82,7 +83,7 @@
     padding: var(--spacing-md);
     padding-inline-end: var(--spacing-sm);
     width: 290px;
-    height: var(--str-chat__attachment-preview-row-height);
+    height: $attachment-preview-row-height;
   }
 
   .str-chat__attachment-preview-audio {
@@ -108,8 +109,8 @@
     border-radius: var(--message-bubble-radius-attachment);
     border: 1px solid var(--border-core-default);
     flex: 0 0 auto;
-    width: var(--str-chat__attachment-preview-row-height);
-    height: var(--str-chat__attachment-preview-row-height);
+    width: $attachment-preview-row-height;
+    height: $attachment-preview-row-height;
     cursor: pointer;
 
     .str-chat__attachment-preview-media__thumbnail-wrapper {

@@ -1,9 +1,6 @@
 @use '../../../styling/utils' as utils;
 
-.str-chat {
-  /* The height of GIFs */
-  --str-chat__gif-height: 200px;
-}
+$gif-height: 200px;
 
 .str-chat__message-attachment-giphy {
   position: relative;
@@ -26,7 +23,7 @@
   }
 
   .str-chat__image-placeholder {
-    height: var(--str-chat__gif-height);
+    height: $gif-height;
     width: var(--str-chat__attachment-max-width);
   }
 }
@@ -54,10 +51,10 @@
 
 .str-chat__message-attachment--giphy--actions {
   .str-chat__message-attachment-giphy {
-    height: var(--str-chat__gif-height);
+    height: $gif-height;
 
     img.str-chat__base-image {
-      height: var(--str-chat__gif-height);
+      height: $gif-height;
     }
   }
 

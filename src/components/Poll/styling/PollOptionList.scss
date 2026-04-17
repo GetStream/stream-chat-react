@@ -1,6 +1,4 @@
-.str-chat {
-  --str-chat__poll-checkmark-size: 24px;
-}
+$poll-checkmark-size: var(--size-24);
 
 .str-chat__poll-option-list {
   display: flex;
@@ -25,8 +23,8 @@
     .str-chat__checkmark {
       grid-column: 1;
       grid-row: span 2;
-      height: var(--str-chat__poll-checkmark-size);
-      width: var(--str-chat__poll-checkmark-size);
+      height: $poll-checkmark-size;
+      width: $poll-checkmark-size;
       border-radius: var(--radius-max);
       border: 1px solid var(--chat-border-on-chat, var(--chat-border-on-chat-incoming));
     }

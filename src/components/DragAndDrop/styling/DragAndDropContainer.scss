@@ -1,18 +1,6 @@
 // Ported from stream-chat-css DragAndDropContainer (layout + theme)
 
-.str-chat {
-  /* Top border of the component */
-  --str-chat__drag-and-drop-container-border-block-start: 2px solid transparent;
-
-  /* Bottom border of the component */
-  --str-chat__drag-and-drop-container-border-block-end: 2px solid transparent;
-
-  /* Left (right in RTL layout) border of the component on dragover */
-  --str-chat__drag-and-drop-container-on-dragover-border-inline-start: none;
-
-  /* Right (left in RTL layout) border of the component on dragover */
-  --str-chat__drag-and-drop-container-on-dragover-border-inline-end: none;
-}
+$drag-and-drop-container-border-block-start: 2px solid transparent;
 
 .str-chat__drag-and-drop-container--dragging {
   cursor: grabbing;
@@ -30,14 +18,14 @@
   display: flex;
   width: 100%;
   padding-block: 0.25rem;
-  border-bottom: var(--str-chat__drag-and-drop-container-border-block-start);
-  border-top: var(--str-chat__drag-and-drop-container-border-block-start);
+  border-block-start: $drag-and-drop-container-border-block-start;
+  border-block-end: $drag-and-drop-container-border-block-start;
 
   &.str-chat__drag-and-drop-container__item--dragged-over-from-top {
-    border-bottom: 2px solid var(--accent-primary);
+    border-block-end: 2px solid var(--accent-primary);
   }
 
   &.str-chat__drag-and-drop-container__item--dragged-over-from-bottom {
-    border-top: 2px solid var(--accent-primary);
+    border-block-start: 2px solid var(--accent-primary);
   }
 }

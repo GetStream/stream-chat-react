@@ -1,10 +1,11 @@
 @use '../../../styling/utils';
 
+$message-active-background-color: transparent;
+$message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
+
 .str-chat {
   /* The width/height of the message options button(s) */
   --str-chat__message-options-button-size: var(--size-32);
-  --str-chat__message-active-background-color: transparent;
-  --str-chat__message-reactions-host-offset-x: calc(var(--spacing-xs) * -1);
   /* The maximum allowed width of the message component */
   --str-chat__message-max-width: 400px;
   /* The maximum allowed width of the message component, if it has attachments */
@@ -273,11 +274,9 @@
         }
 
         &:has(.str-chat__message-reactions--top) {
-          padding-inline-start: calc(
-            var(--str-chat__message-reactions-host-offset-x) * -1
-          );
+          padding-inline-start: calc($message-reactions-host-offset-x * -1);
 
-          margin-inline-end: var(--str-chat__message-reactions-host-offset-x);
+          margin-inline-end: $message-reactions-host-offset-x;
         }
 
         .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
@@ -318,9 +317,9 @@
         }
 
         &:has(.str-chat__message-reactions--top) {
-          padding-inline-end: calc(var(--str-chat__message-reactions-host-offset-x) * -1);
+          padding-inline-end: calc($message-reactions-host-offset-x * -1);
 
-          margin-inline-start: var(--str-chat__message-reactions-host-offset-x);
+          margin-inline-start: $message-reactions-host-offset-x;
         }
 
         .str-chat__message-reactions.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom
@@ -534,13 +533,13 @@
 
 /* This rule won't be applied in browsers that don't support :has() */
 .str-chat__li:hover:not(:has(.str-chat__reaction-list:hover, .str-chat__modal--open)) {
-  background-color: var(--str-chat__message-active-background-color);
+  background-color: $message-active-background-color;
 }
 
 /* Fallback for when :has() is unsupported */
 @supports not selector(:has(a, b)) {
   .str-chat__li:hover {
-    background-color: var(--str-chat__message-active-background-color);
+    background-color: $message-active-background-color;
   }
 }
 

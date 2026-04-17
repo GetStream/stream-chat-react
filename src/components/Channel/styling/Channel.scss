@@ -181,7 +181,7 @@
 }
 
 @mixin channel-loading-shimmer {
-  background-color: var(--background-core-surface);
+  background-color: var(--background-core-surface-default);
   background-image: linear-gradient(
     90deg,
     var(--skeleton-loading-base) 0%,

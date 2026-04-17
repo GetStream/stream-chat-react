@@ -5,9 +5,6 @@
   --str-chat__chat-view-selector-mobile-width: calc(
     var(--spacing-md) + var(--spacing-md) + var(--spacing-xs) + var(--spacing-xs) + 20px
   );
-
-  --str-chat-selector-button-color-default: var(--text-tertiary);
-  --str-chat-selector-button-color-selected: var(--text-primary);
 }
 
 .str-chat__chat-view {
@@ -39,10 +36,7 @@
     }
 
     .str-chat__chat-view__selector-button {
-      --str-chat-icon-height: 20px;
-      --str-chat-icon-width: 20px;
       --str-chat-unread-count-badge-absolute-offset-vertical: 25%;
-      --str-chat-icon-color: var(--str-chat-selector-button-color-default);
 
       gap: 4px;
       padding: var(--spacing-xs);
@@ -52,17 +46,16 @@
       position: relative;
 
       background: transparent;
-      color: var(--str-chat-selector-button-color-default);
+      color: var(--text-tertiary);
 
       &[aria-selected='true'] {
-        --str-chat-icon-color: var(--str-chat-selector-button-color-selected);
-        color: var(--str-chat-selector-button-color-selected);
-        background: var(--background-core-surface);
+        color: var(--text-primary);
+        background: var(--background-core-surface-default);
       }
 
-      svg {
-        height: var(--str-chat-icon-height);
-        width: var(--str-chat-icon-height);
+      .str-chat__icon {
+        height: var(--icon-size-md);
+        width: var(--icon-size-md);
       }
 
       .str-chat__button__content {

@@ -2,12 +2,13 @@
 // Single row: [label / title+description] [optional expanded content] [toggle]
 // CSS variables aligned with Figma tokens; fallbacks from get_variable_defs.
 
+$switch-field-track-height: 24px;
+$switch-field-track-thumb-bg: var(--base-white, #ffffff);
+$switch-field-track-radius: var(--button-radius-full, 9999px);
+
 .str-chat {
   --str-chat__switch-field-background-color: var(--background-core-surface-card);
   --str-chat__switch-field-border-radius: var(--radius-md);
-  --str-chat__switch-field__track-thumb-bg: var(--base-white, #ffffff);
-  --str-chat__switch-field__track-height: 24px;
-  --str-chat__switch-field__track-radius: var(--button-radius-full, 9999px);
 
   .str-chat__form__switch-fieldset {
     width: 100%;
@@ -50,18 +51,18 @@
       align-items: center;
       flex-shrink: 0;
       width: 44px;
-      height: var(--str-chat__switch-field__track-height);
+      height: $switch-field-track-height;
       padding: var(--spacing-xxs);
       cursor: pointer;
       background-color: var(--control-toggle-switch-bg);
-      border-radius: var(--str-chat__switch-field__track-radius);
+      border-radius: $switch-field-track-radius;
       transition: background-color 0.2s ease;
 
       &-handle {
-        width: calc(var(--str-chat__switch-field__track-height) - 8px);
-        height: calc(var(--str-chat__switch-field__track-height) - 8px);
-        border-radius: var(--str-chat__switch-field__track-radius);
-        background-color: var(--str-chat__switch-field__track-thumb-bg);
+        width: calc($switch-field-track-height - 8px);
+        height: calc($switch-field-track-height - 8px);
+        border-radius: $switch-field-track-radius;
+        background-color: $switch-field-track-thumb-bg;
         transition: transform 0.2s ease;
       }
 
@@ -70,7 +71,7 @@
         justify-content: flex-end;
 
         .str-chat__form__switch-field__switch-handle {
-          background-color: var(--str-chat__switch-field__track-thumb-bg);
+          background-color: $switch-field-track-thumb-bg;
         }
       }
     }

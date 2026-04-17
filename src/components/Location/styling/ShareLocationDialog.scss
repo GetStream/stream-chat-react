@@ -1,5 +1,7 @@
 @use '../../../styling/utils';
 
+$duration-selector-min-width: 120px;
+
 .str-chat__share-location-dialog {
   width: 100%;
   max-width: 520px;
@@ -30,8 +32,6 @@
   .str-chat__live-location-sharing-duration-selector {
     padding-inline: calc(var(--spacing-md) - var(--spacing-xs));
     padding-bottom: var(--spacing-xs);
-    --str-chat__duration-selector-min-width: 120px;
-
     .str-chat__live-location-sharing-duration-selector__button {
       @include utils.button-reset;
       align-items: center;
@@ -41,12 +41,12 @@
       cursor: pointer;
       display: flex;
       justify-content: space-between;
-      min-width: var(--str-chat__duration-selector-min-width);
+      min-width: $duration-selector-min-width;
       font: var(--str-chat__font-caption-default);
     }
 
     .str-chat__context-menu {
-      min-width: var(--str-chat__duration-selector-min-width);
+      min-width: $duration-selector-min-width;
     }
     .str-chat__live-location-sharing-duration-option {
       width: 100%;
