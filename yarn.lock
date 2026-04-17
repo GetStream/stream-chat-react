@@ -7753,10 +7753,10 @@ stdin-discarder@^0.2.2:
   resolved "https://registry.yarnpkg.com/stdin-discarder/-/stdin-discarder-0.2.2.tgz#390037f44c4ae1a1ae535c5fe38dc3aba8d997be"
   integrity sha512-UhDfHmA92YAlNnCfhmq0VeNL5bDbiZGg7sZ2IvPsXubGkiNa9EC+tUTsjBRsYUAz87btI6/1wf4XoVvQ3uRnmQ==
 
-stream-chat@^9.41.0:
-  version "9.41.0"
-  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.41.0.tgz#ad88d7919aaf1d3c35b4a431a8cd464cb640f146"
-  integrity sha512-Rgp3vULGKYxHZ/aCeundly6ngdBGttTPz+YknmWhbqvNlEhPB/RM61CpQPHgPyfkSm+osJT3tEV9fKd+I/S77g==
+stream-chat@^9.41.1:
+  version "9.41.1"
+  resolved "https://registry.yarnpkg.com/stream-chat/-/stream-chat-9.41.1.tgz#a877c8aa800d78b497eec2fad636345d4422309c"
+  integrity sha512-W8zjfINYol2UtdRMz2t/NN2GyjDrvb4pJgKmhtuRYzCY1u0Cjezcsu5OCNgyAM0QsenlY6tRqnvAU8Qam5R49Q==
   dependencies:
     "@types/jsonwebtoken" "^9.0.8"
     "@types/ws" "^8.5.14"
