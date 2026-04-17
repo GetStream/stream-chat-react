@@ -12,19 +12,39 @@ import fs from 'fs';
 import zlib from 'zlib';
 import { fileURLToPath } from 'url';
 
+import {
+  variants as themingVariants,
+  baselineVariants,
+  rtlVariant,
+} from './theming-variants.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ASSETS_DIR = path.resolve(
-  __dirname,
-  '../../docs/data/docs/chat-sdk/react/v14/_assets',
-);
+// Target the docs-content tree used by the published React SDK docs.
+// Path anchor: `../../../../docs` resolves from
+//   stream-chat-sdks/stream-chat-react/examples/vite/docs-playwright/
+// to
+//   stream-chat-sdks/docs/
+// i.e. the sibling `docs` repo / submodule on the host workspace.
+const ASSETS_DIR =
+  process.env.ASSETS_DIR ||
+  path.resolve(__dirname, '../../../../docs/data/docs/chat-sdk/react/v14-latest/_assets');
 const TMP_DIR = '/tmp/stream-chat-seed-images';
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5175';
-const CHANNEL_PARAMS = 'view=chat&channel=internal';
+// Dedicated channel + users for the theming doc captures, kept separate from
+// any live demo channels so regenerating screenshots stays deterministic.
+const CHANNEL_ID = process.env.DOC_CHANNEL_ID || 'theming-docs-v14';
+const CHANNEL_PARAMS = `view=chat&channel=${CHANNEL_ID}`;
 const UI_LOAD_TIMEOUT = 20000;
 
-// Two users for the conversation
-const USER_A = 'stream_dev_alice';
-const USER_B = 'stream_dev_bob';
+// Viewport used for every captured screenshot. 1280×1200 at deviceScaleFactor
+// 1 yields 1280×1200 PNGs — taller frame so more of the conversation is
+// visible without relying on retina scaling.
+const CAPTURE_VIEWPORT = { width: 1280, height: 1200 };
+const CAPTURE_DPR = 1;
+
+// Two users scoped to the docs capture harness.
+const USER_A = 'docs_v14_alice';
+const USER_B = 'docs_v14_bob';
 
 // Free avatar photos (Unsplash, small crop)
 const USER_AVATARS = {
@@ -177,57 +197,89 @@ function saveImages() {
 const CONVERSATION = [
   {
     user: 'a',
-    text: 'Hey team 👋 just pushed the redesign branch — would love some eyes on it',
-    reactions: ['😮', '🔥'],
+    text: 'Morning 👋 just pushed the redesign branch — would love eyes on the **new composer** and **channel list**',
+    reactions: ['🔥', '❤️'],
   },
   {
     user: 'b',
-    text: 'On it! First impression is really solid. Love the new header',
-    reactions: ['❤️'],
-  },
-  {
-    user: 'a',
-    text: "Thanks! Here's a side-by-side of the old vs new layout",
-    images: ['photo-mountains.png'],
-    reactions: ['🔥'],
-  },
-  {
-    user: 'b',
-    text: 'Wow, the spacing improvement is huge. One thing — the mobile breakpoint looks a bit cramped',
-  },
-  {
-    user: 'a',
-    text: "Good catch. I was playing with a warmer background too, here's a mock",
-    images: ['photo-sunset.png'],
-    reactions: ['😂'],
-  },
-  {
-    user: 'b',
-    text: 'That warmth really works 🎨 Can we see it next to the ocean palette as well?',
+    text: 'Reviewing now 👀 First impression: the bubble rhythm *finally* feels intentional',
     reactions: ['👍'],
   },
   {
     user: 'a',
-    text: 'Sure, here are both side by side',
+    text: "Here's a side-by-side — old vs new channel list affordances",
+    images: ['photo-mountains.png'],
+    reactions: ['😮', '🔥'],
+  },
+  {
+    user: 'b',
+    text: 'The spacing improvement is huge 🎯 Are the v14 theme tokens documented anywhere yet?',
+  },
+  {
+    user: 'a',
+    text: "Yep, full write-up here → https://getstream.io/chat/docs/sdk/react/theming/themingv2/\n\nTL;DR: override `--accent-primary`, `--chat-bg-outgoing`, `--text-link` and you're 80% of the way there 🎨",
+    reactions: ['❤️'],
+  },
+  {
+    user: 'b',
+    text: 'Thanks! Also poking at the React SDK repo → https://github.com/GetStream/stream-chat-react',
+    reactions: ['👍'],
+  },
+  {
+    user: 'a',
+    text: 'Quick mock of the outgoing bubbles against the **new accent** 🎨',
+    images: ['photo-sunset.png'],
+    reactions: ['🔥'],
+  },
+  {
+    user: 'b',
+    text: 'Contrast is *noticeably* better. Type stays legible even at the smaller weight',
+  },
+  {
+    user: 'a',
+    text: 'Stacked both brand directions side by side 👇',
     images: ['photo-ocean.png', 'photo-pattern.png'],
   },
   {
     user: 'b',
-    text: 'Ocean variant all the way. The contrast on the action buttons is much better 👍',
+    text: '**Ocean variant** all the way — the `--border-utility-focused` treatment is really crisp 👌',
     reactions: ['❤️'],
   },
   {
     user: 'a',
-    text: "Agreed! I'll update the design tokens and cut a new build tonight",
+    text: "Agreed 🙌 I'll finalize the tokens tonight. Sync tomorrow at **9:30**?",
+    reactions: ['👍'],
   },
   {
     user: 'b',
-    text: 'Perfect. Also dropping the reference photo the designer shared',
+    text: "Works for me — I'll bring the component sweep 📋",
+  },
+  {
+    user: 'a',
+    text: 'One more — mood board the design team shared, really captures the vibe ✨',
     images: ['photo-forest.png'],
+    reactions: ['🔥', '😮'],
+  },
+  {
+    user: 'b',
+    text: "That's exactly it. Let's ship 🚀",
+    reactions: ['👍'],
+  },
+  {
+    user: 'a',
+    text: 'Thread surface finally matches the composer rhythm — *single source of truth* for `--radius-max` + spacing tokens 🎯',
+    reactions: ['❤️'],
+  },
+  {
+    user: 'a',
+    text: 'Last thing — dropped the PR for a final pass 🙏 https://github.com/GetStream/stream-chat-react',
+    reactions: ['👍'],
+  },
+  {
+    user: 'b',
+    text: 'Design team signed off too ✅ marking this sprint item **done** 🎉',
     reactions: ['🔥'],
   },
-  { user: 'a', text: "That's exactly the vibe. Let's go with it 🚀", reactions: ['👍'] },
-  { user: 'b', text: 'Design team signed off too ✅ Marking this sprint item as done!' },
 ];
 
 // ---------------------------------------------------------------------------
@@ -236,7 +288,63 @@ const CONVERSATION = [
 async function waitForChatUI(page) {
   await page.waitForSelector('.str-chat__channel-list', { timeout: UI_LOAD_TIMEOUT });
   await page.waitForSelector('.str-chat__message-list', { timeout: UI_LOAD_TIMEOUT });
+  // Wait for at least one rendered message item so the capture doesn't
+  // race an empty list during the initial channel query.
+  await page
+    .waitForSelector('.str-chat__li', { timeout: UI_LOAD_TIMEOUT })
+    .catch(() => null);
   await page.waitForTimeout(1500);
+}
+
+// Force the message list to the bottom so the most recent exchange (which
+// includes both users' most recent bubbles) is visible in the capture
+// viewport. Needed because the list only auto-scrolls for messages the
+// current user sent — incoming messages arriving while we're in the scripted
+// seeding phase can leave the scroll anchored to an older position.
+async function scrollToLatest(page) {
+  await page.evaluate(() => {
+    const container =
+      document.querySelector('.str-chat__message-list-scroll') ||
+      document.querySelector('.str-chat__message-list');
+    if (container) container.scrollTop = container.scrollHeight;
+    // Virtualized list variant uses its own inner scroller.
+    const virt = document.querySelector('.str-chat__virtual-list');
+    if (virt) virt.scrollTop = virt.scrollHeight;
+  });
+  await page.waitForTimeout(500);
+}
+
+// A single retina context is reused for every captured screenshot. Using one
+// context (rather than a fresh one per page) lets localStorage, IndexedDB,
+// and cached auth tokens persist across captures — otherwise each themed
+// capture re-runs the token-fetch flow from scratch and can race the
+// message list before it populates.
+let _captureContext = null;
+
+async function getCaptureContext(browser) {
+  if (!_captureContext) {
+    _captureContext = await browser.newContext({
+      viewport: CAPTURE_VIEWPORT,
+      deviceScaleFactor: CAPTURE_DPR,
+    });
+  }
+  return _captureContext;
+}
+
+async function newCapturePage(browser) {
+  const ctx = await getCaptureContext(browser);
+  return ctx.newPage();
+}
+
+async function closeCapturePage(page) {
+  await page.close();
+}
+
+async function disposeCaptureContext() {
+  if (_captureContext) {
+    await _captureContext.close();
+    _captureContext = null;
+  }
 }
 
 async function sendMessage(page, text, imagePaths = []) {
@@ -331,145 +439,22 @@ async function addReactionToLastMessage(page, emoji) {
 }
 
 // ---------------------------------------------------------------------------
-// CSS overrides — each block mirrors a code example in 01-themingv2.md
+// CSS overrides mirroring each code example in 01-themingv2.md live in
+// `./theming-variants.mjs`. Keep that file and the doc in lockstep.
 // ---------------------------------------------------------------------------
 
-// Docs §"Global variables" (lines 72–89)
-// Screenshot: stream-chat-css-chat-ui-theme-customization-screenshot.png
-const CSS_GLOBAL_VARS = `
-@layer stream-overrides {
-  .str-chat {
-    --brand-50: #edf7f7;
-    --brand-100: #e0f2f1;
-    --brand-150: #b2dfdb;
-    --brand-200: #80cbc4;
-    --brand-300: #4db6ac;
-    --brand-400: #26a69a;
-    --brand-500: #009688;
-    --brand-600: #00897b;
-    --brand-700: #00796b;
-    --brand-800: #00695c;
-    --brand-900: #004d40;
-    --accent-primary: var(--brand-500);
-    --radius-full: 6px;
-  }
-}`;
-
-// Docs §"Component variables" — avatar (lines 112–133)
-// Screenshot: stream-chat-css-custom-avatar-color-screenshot.png
-const CSS_AVATAR_COLOR = `
-@layer stream-overrides {
-  .str-chat {
-    --brand-50: #edf7f7;
-    --brand-100: #e0f2f1;
-    --brand-150: #b2dfdb;
-    --brand-200: #80cbc4;
-    --brand-300: #4db6ac;
-    --brand-400: #26a69a;
-    --brand-500: #009688;
-    --brand-600: #00897b;
-    --brand-700: #00796b;
-    --brand-800: #00695c;
-    --brand-900: #004d40;
-    --accent-primary: var(--brand-500);
-    --radius-full: 6px;
-    --avatar-palette-bg-1: #bf360c;
-    --avatar-palette-text-1: #ffffff;
-  }
-}`;
-
-// Docs §"Component variables" — message bubble color (lines 148–169)
-// Screenshot: stream-chat-css-message-color-customization-screenshot.png
-const CSS_MESSAGE_BUBBLE = `
-@layer stream-overrides {
-  .str-chat {
-    --brand-50: #edf7f7;
-    --brand-100: #e0f2f1;
-    --brand-150: #b2dfdb;
-    --brand-200: #80cbc4;
-    --brand-300: #4db6ac;
-    --brand-400: #26a69a;
-    --brand-500: #009688;
-    --brand-600: #00897b;
-    --brand-700: #00796b;
-    --brand-800: #00695c;
-    --brand-900: #004d40;
-    --accent-primary: var(--brand-500);
-    --radius-full: 6px;
-    --avatar-palette-bg-1: #bf360c;
-    --avatar-palette-text-1: #ffffff;
-    --str-chat__message-bubble-color: #00695c;
-  }
-}`;
-
-// Docs §"Component variables" — bubble + card attachment (lines 178–200)
-// Screenshot: stream-chat-css-message-color-customization2-screenshot.png
-const CSS_MESSAGE_BUBBLE_AND_CARD = `
-@layer stream-overrides {
-  .str-chat {
-    --brand-50: #edf7f7;
-    --brand-100: #e0f2f1;
-    --brand-150: #b2dfdb;
-    --brand-200: #80cbc4;
-    --brand-300: #4db6ac;
-    --brand-400: #26a69a;
-    --brand-500: #009688;
-    --brand-600: #00897b;
-    --brand-700: #00796b;
-    --brand-800: #00695c;
-    --brand-900: #004d40;
-    --accent-primary: var(--brand-500);
-    --radius-full: 6px;
-    --avatar-palette-bg-1: #bf360c;
-    --avatar-palette-text-1: #ffffff;
-    --str-chat__message-bubble-color: #00695c;
-    --str-chat__card-attachment-color: #00695c;
-  }
-}`;
-
-// Docs §"Dark and light themes" — custom dark (lines 373–404)
-// Screenshot: stream-chat-css-custom-dark-theme-screenshot.png
-const CSS_CUSTOM_DARK = `
-@layer stream-overrides {
-  .str-chat {
-    --radius-full: 6px;
-  }
-  .str-chat__theme-light {
-    --brand-500: #009688;
-    --brand-400: #26a69a;
-    --brand-300: #4db6ac;
-    --brand-200: #80cbc4;
-    --brand-150: #b2dfdb;
-    --brand-100: #e0f2f1;
-    --brand-50: #edf7f7;
-    --accent-primary: var(--brand-500);
-    --avatar-palette-bg-1: #bf360c;
-    --avatar-palette-text-1: #ffffff;
-  }
-  .str-chat__theme-dark {
-    --brand-500: #26a69a;
-    --brand-400: #4db6ac;
-    --brand-300: #80cbc4;
-    --brand-200: #b2dfdb;
-    --brand-150: #e0f2f1;
-    --brand-100: #00796b;
-    --brand-50: #004d40;
-    --accent-primary: var(--brand-400);
-    --avatar-palette-bg-1: #ff7043;
-    --avatar-palette-text-1: #ffffff;
-  }
-}`;
-
-// Helper: open a page, optionally inject raw CSS
+// Helper: open a page with the shared capture viewport/DPR, optionally
+// inject raw CSS, and scroll to the latest message so both users' most
+// recent bubbles are in frame.
 async function openWithCSS(browser, url, css) {
-  const page = await browser.newPage();
-  await page.setViewportSize({ width: 1280, height: 900 });
+  const page = await newCapturePage(browser);
   await page.goto(url);
   await waitForChatUI(page);
   if (css) {
     await page.addStyleTag({ content: css });
     await page.waitForTimeout(400);
   }
+  await scrollToLatest(page);
   return page;
 }
 
@@ -479,12 +464,13 @@ async function screenshot(page, filename) {
 }
 
 async function takeScreenshots(browser) {
-  // ------- Default light theme -------
+  // ------- Default light theme (baselines + region crops) -------
   console.log('\n--- Default (light) screenshots ---');
   {
     const page = await openWithCSS(browser, channelUrl(USER_A, 'light'));
 
     await screenshot(page, 'stream-chat-css-chat-ui-screenshot.png');
+    // Region crops used by other doc pages (kept for backwards compatibility).
     await page
       .locator('.str-chat__channel-list')
       .first()
@@ -525,145 +511,38 @@ async function takeScreenshots(browser) {
       console.warn('  ⚠ Emoji picker screenshot failed:', e.message.substring(0, 60));
     }
 
-    await page.close();
+    await closeCapturePage(page);
   }
 
-  // ------- Default dark theme -------
-  console.log('\n--- Default dark theme ---');
-  {
-    const page = await openWithCSS(browser, channelUrl(USER_A, 'dark'));
-    await screenshot(page, 'stream-chat-css-dark-ui-screenshot.png');
-    await page.close();
+  // ------- Additional baseline variants from theming-variants.mjs -------
+  console.log('\n--- Theming baselines ---');
+  for (const v of baselineVariants) {
+    if (v.screenshot === 'stream-chat-css-chat-ui-screenshot.png') continue; // already taken above
+    const page = await openWithCSS(browser, channelUrl(USER_A, v.theme), v.css);
+    await screenshot(page, v.screenshot);
+    await closeCapturePage(page);
   }
 
-  // ------- Docs §"Global variables": teal brand palette + square radius -------
-  console.log('\n--- Theming guide screenshots ---');
-  {
-    const page = await openWithCSS(browser, channelUrl(USER_A, 'light'), CSS_GLOBAL_VARS);
-    await screenshot(page, 'stream-chat-css-chat-ui-theme-customization-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Docs §"Component variables": message color before override -------
-  // Same as global vars — shows message text without custom bubble color
-  {
-    const page = await openWithCSS(browser, channelUrl(USER_A, 'light'), CSS_GLOBAL_VARS);
-    await screenshot(page, 'stream-chat-css-message-color-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Docs §"Component variables": avatar color override -------
-  {
-    const page = await openWithCSS(
-      browser,
-      channelUrl(USER_A, 'light'),
-      CSS_AVATAR_COLOR,
-    );
-    await screenshot(page, 'stream-chat-css-custom-avatar-color-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Docs §"Component variables": message bubble text color -------
-  {
-    const page = await openWithCSS(
-      browser,
-      channelUrl(USER_A, 'light'),
-      CSS_MESSAGE_BUBBLE,
-    );
-    await screenshot(page, 'stream-chat-css-message-color-customization-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Docs §"Component variables": bubble + card attachment text color -------
-  {
-    const page = await openWithCSS(
-      browser,
-      channelUrl(USER_A, 'light'),
-      CSS_MESSAGE_BUBBLE_AND_CARD,
-    );
-    await screenshot(page, 'stream-chat-css-message-color-customization2-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Docs §"Dark and light themes": custom dark + light overrides -------
-  // Uses dark theme URL; CSS targets .str-chat__theme-dark specifically
-  {
-    const page = await openWithCSS(browser, channelUrl(USER_A, 'dark'), CSS_CUSTOM_DARK);
-    await screenshot(page, 'stream-chat-css-custom-dark-theme-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Docs §"Creating your own theme": round + square themes -------
-  // The docs show customClasses with square on channelList and round on channel.
-  // CSS variable overrides via layers don't visually apply due to cascade priority,
-  // so we apply border-radius via inline styles on the avatar elements directly.
-  {
-    const page = await browser.newPage();
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(channelUrl(USER_A, 'light'));
-    await waitForChatUI(page);
-    // Square avatars in channel list (6px), round in channel (default 9999px)
-    await page.evaluate(() => {
-      document
-        .querySelectorAll('.str-chat__channel-list .str-chat__avatar')
-        .forEach((el) => {
-          el.style.setProperty('border-radius', '6px', 'important');
-        });
-    });
-    await page.waitForTimeout(400);
-    await screenshot(page, 'stream-chat-css-square-theme-screenshot.png');
-    await page.close();
+  // ------- Docs theming examples: drive from theming-variants.mjs -------
+  console.log('\n--- Theming guide variants ---');
+  for (const v of themingVariants) {
+    const page = await openWithCSS(browser, channelUrl(USER_A, v.theme), v.css);
+    await screenshot(page, v.screenshot);
+    await closeCapturePage(page);
   }
 
   // ------- Docs §"RTL support" -------
+  console.log('\n--- RTL ---');
   {
-    const page = await browser.newPage();
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(channelUrl(USER_A, 'light'));
-    await waitForChatUI(page);
+    const page = await openWithCSS(browser, channelUrl(USER_A, rtlVariant.theme));
     await page.evaluate(() => document.documentElement.setAttribute('dir', 'rtl'));
     await page.waitForTimeout(500);
-    await screenshot(page, 'stream-chat-css-rtl-layout-screenshot.png');
-    await page.close();
+    await scrollToLatest(page);
+    await screenshot(page, rtlVariant.screenshot);
+    await closeCapturePage(page);
   }
 
-  // ------- Docs §"Apply your own look and feel": layout-only -------
-  console.log('\n--- Layout-only screenshot ---');
-  {
-    const page = await browser.newPage();
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto(channelUrl(USER_A, 'light'));
-    await waitForChatUI(page);
-    // Simulate importing only index.layout.scss by stripping all visual theming
-    await page.addStyleTag({
-      content: [
-        '.str-chat, .str-chat * { box-shadow: none !important; text-shadow: none !important; }',
-        '.str-chat { color: #000 !important; background: #fff !important; }',
-      ].join('\n'),
-    });
-    await page.evaluate(() => {
-      const stripped = {
-        '--str-chat__primary-color': 'transparent',
-        '--str-chat__active-primary-color': 'transparent',
-        '--str-chat__surface-color': 'transparent',
-        '--str-chat__secondary-surface-color': 'transparent',
-        '--str-chat__primary-surface-color': 'transparent',
-        '--str-chat__primary-surface-color-low-emphasis': 'transparent',
-        '--str-chat__border-radius-circle': '0',
-        '--str-chat__font-family': 'inherit',
-      };
-      document.querySelectorAll('.str-chat').forEach((el) => {
-        for (const [k, v] of Object.entries(stripped)) {
-          el.style.setProperty(k, v, 'important');
-        }
-      });
-    });
-    await page.waitForTimeout(400);
-    await screenshot(page, 'stream-chat-css-chat-ui-layout-screenshot.png');
-    await page.close();
-  }
-
-  // ------- Thread -------
+  // ------- Thread (utility crop used by other doc pages) -------
   console.log('\n--- Thread screenshot ---');
   {
     const page = await openWithCSS(browser, channelUrl(USER_A, 'light'));
@@ -693,7 +572,7 @@ async function takeScreenshots(browser) {
       }
     }
     if (!threadOpened) console.warn('  ⚠ Could not open thread, skipping');
-    await page.close();
+    await closeCapturePage(page);
   }
 }
 
@@ -712,7 +591,9 @@ async function run() {
   if (!SKIP_SEED)
     console.log(`  ✓ ${Object.keys(imagesByName).length} images written to ${TMP_DIR}`);
 
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({
+    headless: process.env.HEADED !== '1',
+  });
   try {
     // -----------------------------------------------------------------------
     // Step 1: Seed with two users conversing
@@ -730,6 +611,51 @@ async function run() {
       console.log(`  Loading ${USER_A}...`);
       await pageA.goto(channelUrl(USER_A));
       await waitForChatUI(pageA);
+
+      // Explicitly create the channel with both members + a friendly name
+      // before either user tries to post. Without this, USER_B lands on a
+      // channel they're not a member of and has no composer. Also truncate
+      // any prior seed so reruns don't stack duplicate messages.
+      console.log(`  Creating channel "${CHANNEL_ID}" with both members...`);
+      const createResult = await pageA.evaluate(
+        async ({ userA, userB, channelId }) => {
+          const findClient = () => {
+            const el =
+              document.querySelector('.str-chat__channel') ||
+              document.querySelector('.str-chat');
+            if (!el) return null;
+            const key = Object.keys(el).find((k) => k.startsWith('__reactFiber'));
+            let fiber = el[key];
+            while (fiber) {
+              if (fiber.memoizedProps?.client?.channel) return fiber.memoizedProps.client;
+              fiber = fiber.return;
+            }
+            return null;
+          };
+          const client = findClient();
+          if (!client) return { ok: false, reason: 'no client' };
+          try {
+            const ch = client.channel('messaging', channelId, {
+              members: [userA, userB],
+              name: 'Design redesign — v14',
+            });
+            await ch.watch();
+            const existingCount = (ch.state.messages || []).length;
+            if (existingCount > 0) {
+              await ch.truncate();
+            }
+            return { ok: true, truncated: existingCount };
+          } catch (err) {
+            return { ok: false, reason: err?.message?.substring(0, 120) || String(err) };
+          }
+        },
+        { userA: USER_A, userB: USER_B, channelId: CHANNEL_ID },
+      );
+      console.log(
+        createResult.ok
+          ? `  ✓ channel ready (truncated ${createResult.truncated} prior msg${createResult.truncated === 1 ? '' : 's'})`
+          : `  ⚠ channel create: ${createResult.reason}`,
+      );
 
       console.log(`  Loading ${USER_B}...`);
       await pageB.goto(channelUrl(USER_B));
@@ -861,6 +787,7 @@ async function run() {
 
     console.log(`\n✅ Done! Screenshots saved to:\n   ${ASSETS_DIR}`);
   } finally {
+    await disposeCaptureContext();
     await browser.close();
   }
 }
