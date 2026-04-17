@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { nanoid } from 'nanoid';
 import { axe } from '../../../../axe-helper';
@@ -98,6 +98,10 @@ async function renderQuotedMessage({
 }
 
 describe('QuotedMessage', () => {
+  beforeEach(() => {
+    jumpToMessageMock.mockClear();
+  });
+
   it('should not be rendered if no message.quoted_message', async () => {
     const { container, queryByTestId } = await renderQuotedMessage({
       customProps: { message: {} },
@@ -193,7 +197,7 @@ describe('QuotedMessage', () => {
 
   it('should render quoted message preview', async () => {
     const message = {
-      quoted_message: { text: quotedText },
+      quoted_message: { id: 'quoted-message-id', text: quotedText },
     };
     const { container, queryByTestId } = await renderQuotedMessage({
       customProps: { message },
@@ -202,6 +206,44 @@ describe('QuotedMessage', () => {
     expect(queryByTestId(quotedMessageTextTestId)).toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should apply keyboard button semantics when quoted message preview is interactive', async () => {
+    const message = {
+      quoted_message: { id: 'quoted-message-id', text: quotedText },
+    };
+    const { getByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
+
+    const quotedMessagePreview = getByTestId(quotedMessagePreviewTestId);
+    expect(quotedMessagePreview).toHaveAttribute(
+      'aria-label',
+      'aria/Jump to quoted message',
+    );
+    expect(quotedMessagePreview).toHaveAttribute('role', 'button');
+    expect(quotedMessagePreview).toHaveAttribute('tabindex', '0');
+  });
+
+  it('should jump to quoted message on Enter and Space, but not on other keys', async () => {
+    const quotedMessageId = 'quoted-message-id';
+    const message = {
+      quoted_message: { id: quotedMessageId, text: quotedText },
+    };
+    const { getByTestId } = await renderQuotedMessage({
+      customProps: { message },
+    });
+
+    const quotedMessagePreview = getByTestId(quotedMessagePreviewTestId);
+    fireEvent.keyDown(quotedMessagePreview, { key: 'Backspace' });
+    expect(jumpToMessageMock).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(quotedMessagePreview, { code: 'Enter', key: 'Enter' });
+    fireEvent.keyDown(quotedMessagePreview, { code: 'Space', key: ' ' });
+
+    expect(jumpToMessageMock).toHaveBeenCalledTimes(2);
+    expect(jumpToMessageMock).toHaveBeenNthCalledWith(1, quotedMessageId);
+    expect(jumpToMessageMock).toHaveBeenNthCalledWith(2, quotedMessageId);
   });
 
   it('should render author info when user data is provided', async () => {

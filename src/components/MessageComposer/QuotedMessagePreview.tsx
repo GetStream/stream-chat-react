@@ -1,5 +1,6 @@
 import React, {
   type ComponentType,
+  type KeyboardEvent,
   type MouseEventHandler,
   type ReactElement,
   type ReactNode,
@@ -396,18 +397,29 @@ export const QuotedMessagePreviewUI = ({
   }, [giphyVersionName, quotedMessage, quotedMessageText, renderText, t]);
 
   const isOwnMessage = client.user?.id === quotedMessage?.user?.id;
+  const isInteractive = !!onClick;
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!onClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+
+    event.preventDefault();
+    onClick(event as unknown as Parameters<NonNullable<typeof onClick>>[0]);
+  };
 
   if (!renderedText && !AttachmentIcon && !PreviewImage) return null;
 
   const authorName = getQuotedMessageAuthor?.(quotedMessage) ?? quotedMessage.user?.name;
   return (
     <div
+      aria-label={isInteractive ? t('aria/Jump to quoted message') : undefined}
       className={clsx('str-chat__quoted-message-preview', {
         'str-chat__quoted-message-preview--own': isOwnMessage,
       })}
       data-testid='quoted-message-preview'
       onClick={onClick}
-      tabIndex={onClick && 0}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
     >
       <QuotedMessageIndicator isOwnMessage={isOwnMessage} />
       <div className='str-chat__quoted-message-preview__content'>
