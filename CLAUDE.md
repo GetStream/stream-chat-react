@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Development (requires Node 24 — see .nvmrc)
 yarn install              # Setup
-yarn build                # Full build (CSS, translations, Vite, types, SCSS)
+yarn build                # Full build (translations, Vite, types, SCSS)
 yarn test                 # Run Jest tests
 yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
 yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
@@ -258,29 +258,23 @@ When deprecating, use `@deprecated` JSDoc tag with reason and docs link. Commit 
 
 ## Build System
 
-The build runs 5 steps in parallel via `concurrently`:
+The build runs 4 steps in parallel via `concurrently`:
 
-1. **`copy-css.sh`** — Copies pre-built CSS/SCSS/assets from `@stream-io/stream-chat-css` into `dist/`
-2. **`build-translations`** — Extracts `t()` calls from source via `i18next-cli`
-3. **`vite build`** — Bundles 3 entry points (index, emojis, mp3-encoder) as CJS + ESM, no minification
-4. **`tsc`** — Generates `.d.ts` type declarations only (`tsconfig.lib.json`)
-5. **`build-styling`** — Compiles `src/styling/index.scss` → `dist/css/index.css`
+1. **`build-translations`** — Extracts `t()` calls from source via `i18next-cli`
+2. **`vite build`** — Bundles 3 entry points (index, emojis, mp3-encoder) as CJS + ESM, no minification
+3. **`tsc`** — Generates `.d.ts` type declarations only (`tsconfig.lib.json`) to `dist/types/`
+4. **`build-styling`** — Compiles `src/styling/index.scss` → `dist/css/index.css`
 
 All steps write to separate directories under `dist/` so they don't conflict.
 
 ## Styling Architecture
 
-### Dual-Layer CSS System
-
-This repo has **two style sources**:
-
-1. **`@stream-io/stream-chat-css`** (external dep) — Base design system. Copied to `dist/css/v2/` and `dist/scss/v2/` at build time. Organized as `*-layout.scss` (structure) + `*-theme.scss` (colors/typography) per component.
-2. **`src/styling/`** (this repo) — Component styles, theme variables, animations. Compiled to `dist/css/index.css`.
+All component styles live in `src/styling/` (master entry: `src/styling/index.scss`) and in `src/components/*/styling/index.scss`. The Sass build compiles the tree to `dist/css/index.css`. There is no longer any step that pulls CSS/SCSS from an external design-system package.
 
 ### CSS Layers (cascade order, low → high)
 
 ```
-css-reset → stream (v2 base) → stream-new (compiled index.css) → stream-overrides → stream-app-overrides
+css-reset → stream-new (compiled index.css) → stream-overrides → stream-app-overrides
 ```
 
 See `examples/vite/src/index.scss` for reference implementation. Layers eliminate the need for `!important`.
@@ -300,23 +294,16 @@ See `examples/vite/src/index.scss` for reference implementation. Layers eliminat
 - **Date/time**: `Streami18n` class wraps i18next + Dayjs with per-locale calendar formats
 - **When adding translatable strings**: Use `t()` from `useTranslationContext()`, then run `yarn build-translations` to update JSON files. All 12 language files must have non-empty values.
 
-## Styling Architecture
+## Styling Architecture (Theming & Build Details)
 
-### Dual-Layer CSS System
-
-Styles come from two sources:
-
-1. **`@stream-io/stream-chat-css`** — Base design system (copied to `dist/css/v2/` and `dist/scss/v2/` via `scripts/copy-css.sh`). Layout and theme SCSS split per component (`*-layout.scss` + `*-theme.scss`).
-2. **`src/styling/`** — SDK-specific styles compiled to `dist/css/index.css` via Sass. Master entry: `src/styling/index.scss`.
-
-Component styles live in `src/components/*/styling/index.scss` and are imported by the master stylesheet.
+All styles live in `src/styling/` (master entry: `src/styling/index.scss`) and in `src/components/*/styling/index.scss`. Component styles are imported by the master stylesheet and compiled to `dist/css/index.css` via Sass.
 
 ### CSS Layers & Theming
 
 CSS layers control cascade order (no `!important` needed):
 
 ```
-css-reset → stream (v2 base) → stream-new (compiled SDK CSS) → stream-overrides → stream-app-overrides
+css-reset → stream-new (compiled SDK CSS) → stream-overrides → stream-app-overrides
 ```
 
 See `examples/vite/src/index.scss` for the reference layer setup.
@@ -329,13 +316,12 @@ See `examples/vite/src/index.scss` for the reference layer setup.
 
 ### Build System
 
-`yarn build` runs 5 tasks in parallel via `concurrently`:
+`yarn build` runs 4 tasks in parallel via `concurrently`:
 
-1. `scripts/copy-css.sh` — Copies `stream-chat-css` assets into `dist/`
-2. `yarn build-translations` — Extracts `t()` calls via `i18next-cli`
-3. `vite build` — Bundles 3 entry points (index, emojis, mp3-encoder) as ESM + CJS
-4. `tsc --project tsconfig.lib.json` — Generates `.d.ts` type declarations only
-5. `yarn build-styling` — Compiles SCSS to `dist/css/index.css`
+1. `yarn build-translations` — Extracts `t()` calls via `i18next-cli`
+2. `vite build` — Bundles 3 entry points (index, emojis, mp3-encoder) as ESM + CJS
+3. `tsc --project tsconfig.lib.json` — Generates `.d.ts` type declarations to `dist/types/`
+4. `yarn build-styling` — Compiles SCSS to `dist/css/index.css`
 
 **Library entry points** (from `package.json` exports):
 
