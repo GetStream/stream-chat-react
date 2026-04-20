@@ -7,12 +7,18 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   mockChatContext,
+  mockTranslationContextValue,
   useMockedApis,
 } from 'mock-builders';
 
 import type { Channel, StreamChat } from 'stream-chat';
 import { ChannelListItemUI } from '../ChannelListItemUI';
-import { ChatProvider, ComponentProvider, DialogManagerProvider } from '../../../context';
+import {
+  ChatProvider,
+  ComponentProvider,
+  DialogManagerProvider,
+  TranslationProvider,
+} from '../../../context';
 
 const PREVIEW_TEST_ID = 'channel-list-item-button';
 
@@ -21,34 +27,47 @@ const NoopActionButtons = () => null;
 NoopActionButtons.getDialogId = () => '';
 NoopActionButtons.displayName = 'ChannelListItemActionButtons';
 
+const mockTranslation = (key: string, options?: Record<string, unknown>) => {
+  const interpolated = Object.entries(options || {}).reduce(
+    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+    key,
+  );
+
+  return interpolated.startsWith('aria/')
+    ? interpolated.replace('aria/', '')
+    : interpolated;
+};
+
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();
 
   let chatClient: StreamChat;
   let channel: Channel;
   const renderComponent = (props?: any, componentOverrides = {}) => (
-    <ChatProvider value={mockChatContext({ client: chatClient })}>
-      <DialogManagerProvider>
-        <ComponentProvider
-          value={{
-            ChannelListItemActionButtons: NoopActionButtons,
-            ...componentOverrides,
-          }}
-        >
-          <div aria-label='Select Channel' role='listbox'>
-            <ChannelListItemUI
-              channel={channel}
-              displayImage='https://randomimage.com/src.jpg'
-              displayTitle='Channel name'
-              latestMessagePreview='Latest message!'
-              setActiveChannel={vi.fn()}
-              unread={10}
-              {...props}
-            />
-          </div>
-        </ComponentProvider>
-      </DialogManagerProvider>
-    </ChatProvider>
+    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        <DialogManagerProvider>
+          <ComponentProvider
+            value={{
+              ChannelListItemActionButtons: NoopActionButtons,
+              ...componentOverrides,
+            }}
+          >
+            <div aria-label='Select Channel' role='listbox'>
+              <ChannelListItemUI
+                channel={channel}
+                displayImage='https://randomimage.com/src.jpg'
+                displayTitle='Channel name'
+                latestMessagePreview='Latest message!'
+                setActiveChannel={vi.fn()}
+                unread={10}
+                {...props}
+              />
+            </div>
+          </ComponentProvider>
+        </DialogManagerProvider>
+      </ChatProvider>
+    </TranslationProvider>
   );
 
   const initializeChannel = async (c) => {

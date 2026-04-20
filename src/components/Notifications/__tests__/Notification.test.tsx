@@ -14,6 +14,21 @@ vi.mock('../hooks/useNotificationApi', () => ({
 
 const mockedUseNotificationApi = vi.mocked(useNotificationApi);
 
+const mockTranslation = (key: string, options?: Record<string, unknown>) => {
+  if (typeof options?.value === 'string') {
+    return options.value;
+  }
+
+  const interpolated = Object.entries(options || {}).reduce((value, [name, arg]) => {
+    if (name === 'value') return value;
+    return value.replace(`{{ ${name} }}`, String(arg));
+  }, key);
+
+  return interpolated.startsWith('aria/')
+    ? interpolated.replace('aria/', '')
+    : interpolated;
+};
+
 describe('Notification', () => {
   const removeNotification = vi.fn();
 
@@ -38,25 +53,21 @@ describe('Notification', () => {
 
   it('removes by id when dismiss is triggered without onDismiss', () => {
     render(
-      <TranslationProvider
-        value={mockTranslationContextValue({ t: (_k, opts) => opts?.value ?? _k })}
-      >
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
         <Notification
           notification={{ ...baseNotification, duration: undefined }}
           showClose
         />
       </TranslationProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
     expect(removeNotification).toHaveBeenCalledWith('n1');
   });
 
   it('renders action buttons and invokes handler', () => {
     const handler = vi.fn();
     render(
-      <TranslationProvider
-        value={mockTranslationContextValue({ t: (_k, opts) => opts?.value ?? _k })}
-      >
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
         <Notification
           notification={{
             ...baseNotification,
@@ -73,9 +84,7 @@ describe('Notification', () => {
   it('calls onDismiss when provided instead of removeNotification', () => {
     const onDismiss = vi.fn();
     render(
-      <TranslationProvider
-        value={mockTranslationContextValue({ t: (_k, opts) => opts?.value ?? _k })}
-      >
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
         <Notification
           notification={{ ...baseNotification, duration: undefined }}
           onDismiss={onDismiss}
@@ -83,7 +92,7 @@ describe('Notification', () => {
         />
       </TranslationProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Dismiss' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Dismiss notification' }));
     expect(onDismiss).toHaveBeenCalledTimes(1);
     expect(removeNotification).not.toHaveBeenCalled();
   });

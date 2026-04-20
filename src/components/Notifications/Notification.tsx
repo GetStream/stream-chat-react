@@ -134,7 +134,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         {(showClose || isPersistent) && (
           <Button
             appearance='ghost'
-            aria-label='Dismiss'
+            aria-label={t('aria/Dismiss notification')}
             circular
             className='str-chat__notification-close-button'
             inverseTheme

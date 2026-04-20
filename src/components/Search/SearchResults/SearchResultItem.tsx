@@ -6,7 +6,11 @@ import type { Channel, MessageResponse, User } from 'stream-chat';
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
 import { ChannelListItem } from '../../../components/ChannelListItem';
-import { useChannelListContext, useChatContext } from '../../../context';
+import {
+  useChannelListContext,
+  useChatContext,
+  useTranslationContext,
+} from '../../../context';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 import { Timestamp } from '../../../components/Message/Timestamp';
 
@@ -94,6 +98,7 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
   const { client, setActiveChannel } = useChatContext();
   const { setChannels } = useChannelListContext();
   const { directMessagingChannelType } = useSearchContext();
+  const { t } = useTranslationContext();
 
   const onClick = useCallback(() => {
     const newChannel = client.channel(directMessagingChannelType, {
@@ -107,7 +112,9 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
   return (
     <div className='str-chat__search-result-container'>
       <button
-        aria-label={`Select User Channel: ${item.name || ''}`}
+        aria-label={t('aria/Select User Channel: {{ name }}', {
+          name: item.name || '',
+        })}
         className='str-chat__search-result str-chat__search-result--user'
         data-testid='search-result-user'
         onClick={onClick}

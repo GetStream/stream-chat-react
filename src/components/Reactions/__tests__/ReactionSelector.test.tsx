@@ -4,18 +4,34 @@ import { ReactionSelector, type ReactionSelectorProps } from '../ReactionSelecto
 import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 
 import { MessageProvider } from '../../../context/MessageContext';
-import { DialogManagerProvider, WithComponents } from '../../../context';
+import {
+  DialogManagerProvider,
+  TranslationProvider,
+  WithComponents,
+} from '../../../context';
 import type { ComponentContextValue } from '../../../context/ComponentContext';
 
 import {
   generateMessage,
   generateReaction,
   mockMessageContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const handleReactionMock = vi.fn();
 
 const defaultMessage = generateMessage();
+
+const mockTranslation = (key: string, options?: Record<string, unknown>) => {
+  const interpolated = Object.entries(options || {}).reduce(
+    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+    key,
+  );
+
+  return interpolated.startsWith('aria/')
+    ? interpolated.replace('aria/', '')
+    : interpolated;
+};
 
 const renderComponent = ({
   reactionOptions,
@@ -26,18 +42,20 @@ const renderComponent = ({
   ReactionSelectorExtendedList?: ComponentContextValue['ReactionSelectorExtendedList'];
 } = {}) =>
   render(
-    <DialogManagerProvider>
-      <WithComponents
-        overrides={{
-          reactionOptions: reactionOptions ?? defaultReactionOptions,
-          ReactionSelectorExtendedList,
-        }}
-      >
-        <MessageProvider value={mockMessageContext({ message: defaultMessage })}>
-          <ReactionSelector handleReaction={handleReactionMock} {...props} />
-        </MessageProvider>
-      </WithComponents>
-    </DialogManagerProvider>,
+    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+      <DialogManagerProvider>
+        <WithComponents
+          overrides={{
+            reactionOptions: reactionOptions ?? defaultReactionOptions,
+            ReactionSelectorExtendedList,
+          }}
+        >
+          <MessageProvider value={mockMessageContext({ message: defaultMessage })}>
+            <ReactionSelector handleReaction={handleReactionMock} {...props} />
+          </MessageProvider>
+        </WithComponents>
+      </DialogManagerProvider>
+    </TranslationProvider>,
   );
 
 const extendedReactionOptions: ReactionOptions = {
@@ -61,26 +79,28 @@ const renderExtendedList = ({
   dialogId?: string;
 } = {}) =>
   render(
-    <DialogManagerProvider>
-      <WithComponents
-        overrides={{
-          reactionOptions: extendedReactionOptions,
-          ...componentOverrides,
-        }}
-      >
-        <MessageProvider
-          value={mockMessageContext({
-            message: defaultMessage,
-            ...messageOverrides,
-          })}
+    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+      <DialogManagerProvider>
+        <WithComponents
+          overrides={{
+            reactionOptions: extendedReactionOptions,
+            ...componentOverrides,
+          }}
         >
-          <ReactionSelector.ExtendedList
-            dialogId={`test-dialog-${defaultMessage.id}`}
-            {...props}
-          />
-        </MessageProvider>
-      </WithComponents>
-    </DialogManagerProvider>,
+          <MessageProvider
+            value={mockMessageContext({
+              message: defaultMessage,
+              ...messageOverrides,
+            })}
+          >
+            <ReactionSelector.ExtendedList
+              dialogId={`test-dialog-${defaultMessage.id}`}
+              {...props}
+            />
+          </MessageProvider>
+        </WithComponents>
+      </DialogManagerProvider>
+    </TranslationProvider>,
   );
 
 describe('ReactionSelector', () => {
