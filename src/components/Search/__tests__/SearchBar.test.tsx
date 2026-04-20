@@ -9,6 +9,7 @@ import { useSearchQueriesInProgress } from '../hooks';
 import type { TranslationContextValue } from '../../../context';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { axe } from '../../../../axe-helper';
 
 // Mock the hooks
 vi.mock('../SearchContext');
@@ -19,6 +20,8 @@ vi.mock('../hooks', () => ({
 }));
 
 const INPUT_TEST_ID = 'search-input';
+const CLEAR_SEARCH_BUTTON_ARIA_LABEL = 'Close';
+const SEARCH_INPUT_ACCESSIBLE_NAME = 'Search';
 
 describe('SearchBar', () => {
   const mockSearchController = {
@@ -55,8 +58,17 @@ describe('SearchBar', () => {
     render(<SearchBar />);
 
     expect(screen.getByTestId('search-bar')).toBeInTheDocument();
+    expect(screen.getByRole('search')).toBeInTheDocument();
     expect(screen.getByTestId('search-input')).toBeInTheDocument();
     expect(screen.queryByTestId('clear-input-button')).not.toBeInTheDocument();
+  });
+
+  it('gives the search input an accessible name', () => {
+    render(<SearchBar />);
+
+    expect(
+      screen.getByRole('textbox', { name: SEARCH_INPUT_ACCESSIBLE_NAME }),
+    ).toBeInTheDocument();
   });
 
   it('shows placeholder text', () => {
@@ -110,6 +122,9 @@ describe('SearchBar', () => {
     render(<SearchBar />);
 
     expect(screen.getByTestId('clear-input-button')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: CLEAR_SEARCH_BUTTON_ARIA_LABEL }),
+    ).toBeInTheDocument();
   });
 
   it('handles clear button click', () => {
@@ -209,5 +224,12 @@ describe('SearchBar', () => {
     rerender(<SearchBar />);
 
     expect(screen.getByTestId('clear-input-button')).toBeDisabled();
+  });
+
+  it('passes accessibility checks', async () => {
+    const { container } = render(<SearchBar />);
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
   });
 });

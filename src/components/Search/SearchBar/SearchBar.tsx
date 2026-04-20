@@ -5,7 +5,7 @@ import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { Button, IconSearch, IconXCircle } from '../../../components';
+import { Button, IconSearch, IconXCircle, VisuallyHidden } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -25,6 +25,7 @@ export const SearchBar = () => {
   } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
   const clearButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const searchInputId = React.useId();
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   const { isActive, searchQuery } = useStateStore(
@@ -48,17 +49,21 @@ export const SearchBar = () => {
   }, [searchController, input]);
 
   return (
-    <div className='str-chat__search-bar' data-testid='search-bar'>
+    <div className='str-chat__search-bar' data-testid='search-bar' role='search'>
       <div
         className={clsx('str-chat__search-bar__input-wrapper', {
           'str-chat__search-bar__input-wrapper--active': isActive,
         })}
       >
+        <label htmlFor={searchInputId}>
+          <VisuallyHidden>{t('Search')}</VisuallyHidden>
+        </label>
         <IconSearch />
         <input
           className='str-chat__search-bar__input'
           data-testid='search-input'
           disabled={disabled}
+          id={searchInputId}
           onBlur={({ currentTarget, relatedTarget }) => {
             if (
               exitSearchOnInputBlur &&
@@ -88,6 +93,7 @@ export const SearchBar = () => {
         {searchQuery && (
           <Button
             appearance='ghost'
+            aria-label={t('Close')}
             circular
             className='str-chat__search-bar__clear-button'
             data-testid='clear-input-button'
