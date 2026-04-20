@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { type ComponentPropsWithRef, useState } from 'react';
+import React, { type ComponentPropsWithRef, useMemo, useState } from 'react';
 
 import {
   useComponentContext,
@@ -12,6 +12,7 @@ import {
   useDialogIsOpen,
   useDialogOnNearestManager,
 } from '../Dialog';
+import { createRovingFocusKeyDownHandler } from '../../a11y/a11yUtils';
 import { useBaseMessageActionSetFilter } from './hooks';
 import { defaultMessageActionSet } from './MessageActions.defaults';
 import { type MESSAGE_ACTIONS } from '../Message';
@@ -97,6 +98,18 @@ export const MessageActions: MessageActionsInterface = ({
     dropdownReactionSelectorDialogId,
     dialogManager?.id,
   );
+  const handleMenuKeyDown = useMemo(
+    () =>
+      createRovingFocusKeyDownHandler<HTMLButtonElement>({
+        getItems: (event) =>
+          Array.from(
+            event.currentTarget.querySelectorAll<HTMLButtonElement>(
+              '[role="menuitem"]:not(:disabled)',
+            ),
+          ),
+      }),
+    [],
+  );
 
   // do not render anything if total action count is zero
   if (dropdownActionSet.length + quickActionSet.length === 0) {
@@ -126,8 +139,10 @@ export const MessageActions: MessageActionsInterface = ({
             dialogManagerId={dialogManager?.id}
             id={messageActionsDialogId}
             onClose={dialog?.close}
+            onKeyDown={handleMenuKeyDown}
             placement={isMyMessage() ? 'top-end' : 'top-start'}
             referenceElement={actionsBoxButtonElement}
+            role='menu'
             tabIndex={-1}
             trapFocus
           >

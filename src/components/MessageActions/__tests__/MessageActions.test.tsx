@@ -1313,12 +1313,7 @@ describe('<MessageActions />', () => {
     it('should have no accessibility violations when dropdown is open', async () => {
       const { container } = await renderMessageActions();
       await toggleOpenMessageActions();
-      const results = await axe(container, {
-        rules: {
-          // Known issue: ContextMenuButton uses aria-selected on <button> without role="option"
-          'aria-allowed-attr': { enabled: false },
-        },
-      });
+      const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
@@ -1333,6 +1328,48 @@ describe('<MessageActions />', () => {
       await toggleOpenMessageActions();
 
       expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('should render dropdown actions with menu semantics', async () => {
+      await renderMessageActions();
+      await toggleOpenMessageActions();
+
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(screen.getAllByRole('menuitem').length).toBeGreaterThan(0);
+    });
+
+    it('should move focus between menu items with arrow/home/end keys', async () => {
+      await renderMessageActions();
+      await toggleOpenMessageActions();
+
+      const menuContainer = screen.getByTestId('str-chat__dialog-contents');
+      const menuItems = Array.from(
+        menuContainer.querySelectorAll<HTMLButtonElement>('[role="menuitem"]'),
+      );
+      const firstItem = menuItems[0];
+      const lastItem = menuItems[menuItems.length - 1];
+
+      expect(menuItems.length).toBeGreaterThan(1);
+
+      firstItem.focus();
+
+      fireEvent.keyDown(firstItem, { code: 'ArrowDown', key: 'ArrowDown' });
+      const focusedAfterArrowDown =
+        document.activeElement instanceof HTMLButtonElement
+          ? document.activeElement
+          : null;
+      expect(focusedAfterArrowDown).not.toBeNull();
+      expect(menuItems).toContain(focusedAfterArrowDown);
+      expect(focusedAfterArrowDown).not.toBe(firstItem);
+
+      fireEvent.keyDown(focusedAfterArrowDown!, { code: 'ArrowUp', key: 'ArrowUp' });
+      expect(firstItem).toHaveFocus();
+
+      fireEvent.keyDown(firstItem, { code: 'End', key: 'End' });
+      expect(lastItem).toHaveFocus();
+
+      fireEvent.keyDown(lastItem, { code: 'Home', key: 'Home' });
+      expect(firstItem).toHaveFocus();
     });
 
     it('should render context menu with dropdown actions when opened', async () => {

@@ -270,7 +270,8 @@ const ContextMenuButtonWithSubmenu = ({
   return (
     <>
       <BaseContextMenuButton
-        aria-selected='false'
+        aria-expanded={dialogIsOpen}
+        aria-haspopup='menu'
         className={clsx(className, 'str_chat__button-with-submenu', {
           'str_chat__button-with-submenu--submenu-open': dialogIsOpen,
         })}
@@ -283,7 +284,6 @@ const ContextMenuButtonWithSubmenu = ({
         onFocus={handleFocusParentButton}
         onMouseEnter={handleFocusParentButton}
         onMouseLeave={closeSubmenu}
-        role='option'
         {...buttonProps}
         ref={buttonRef}
       >
@@ -330,8 +330,6 @@ export const ContextMenuButton = (props: ContextMenuButtonProps) => {
     submenuRollAxis,
     ...buttonProps
   } = props;
-  const [isFocused, setIsFocused] = useState(false);
-
   if (Submenu) {
     return (
       <ContextMenuButtonWithSubmenu
@@ -344,21 +342,7 @@ export const ContextMenuButton = (props: ContextMenuButtonProps) => {
     );
   }
 
-  const { onBlur, onFocus, ...baseButtonProps } = buttonProps;
-  return (
-    <BaseContextMenuButton
-      {...baseButtonProps}
-      aria-selected={isFocused ? 'true' : 'false'}
-      onBlur={(e) => {
-        setIsFocused(false);
-        onBlur?.(e);
-      }}
-      onFocus={(e) => {
-        setIsFocused(true);
-        onFocus?.(e);
-      }}
-    />
-  );
+  return <BaseContextMenuButton {...buttonProps} />;
 };
 
 export const ContextMenuBackButton = ({
@@ -730,6 +714,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
       menuClassName: _m,
       onClose: _c,
       onMenuLevelChange: _l,
+      role: _r,
       ...anchorDivProps
     } = menuProps;
     return (

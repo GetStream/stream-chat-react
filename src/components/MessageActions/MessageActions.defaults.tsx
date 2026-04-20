@@ -63,6 +63,10 @@ import {
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 
+const MessageActionsMenuItemButton = (
+  props: React.ComponentProps<typeof ContextMenuButton>,
+) => <ContextMenuButton role='menuitem' {...props} />;
+
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error && error.message ? error.message : fallback;
 
@@ -106,7 +110,7 @@ const DefaultMessageActionComponents = {
           >
             <ReactionSelector dialogId={dialogId} />
           </DialogAnchor>
-          <ContextMenuButton
+          <MessageActionsMenuItemButton
             aria-expanded={dialogIsOpen}
             aria-label={t('aria/Open Reaction Selector')}
             className={clsx(
@@ -129,7 +133,7 @@ const DefaultMessageActionComponents = {
             }}
           >
             {t('Add reaction')}
-          </ContextMenuButton>
+          </MessageActionsMenuItemButton>
         </>
       );
     },
@@ -139,7 +143,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Open Thread')}
           className={msgActionsBoxButtonClassName}
           data-testid='thread-action'
@@ -150,7 +154,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Thread Reply')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Quote() {
@@ -173,7 +177,7 @@ const DefaultMessageActionComponents = {
       };
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Quote Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconQuote}
@@ -183,7 +187,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Quote Reply')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Download() {
@@ -214,7 +218,7 @@ const DefaultMessageActionComponents = {
         <div
           aria-label={t('aria/Download attachment')}
           className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'
-          role='listbox'
+          role='menu'
         >
           {downloadableAttachments.map((attachment, index) => {
             const fileName =
@@ -223,7 +227,7 @@ const DefaultMessageActionComponents = {
               t('Download Attachment');
 
             return (
-              <ContextMenuButton
+              <MessageActionsMenuItemButton
                 className={msgActionsBoxButtonClassName}
                 Icon={IconDownload}
                 key={
@@ -238,10 +242,10 @@ const DefaultMessageActionComponents = {
                 }}
               >
                 {`Download ${fileName}`}
-              </ContextMenuButton>
+              </MessageActionsMenuItemButton>
             );
           })}
-          <ContextMenuButton
+          <MessageActionsMenuItemButton
             className={msgActionsBoxButtonClassName}
             Icon={IconDownload}
             onClick={() => {
@@ -250,12 +254,12 @@ const DefaultMessageActionComponents = {
             }}
           >
             {t('Download All')}
-          </ContextMenuButton>
+          </MessageActionsMenuItemButton>
         </div>
       );
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Download attachment')}
           className={msgActionsBoxButtonClassName}
           hasSubMenu={downloadableAttachments.length > 1}
@@ -274,7 +278,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Download Attachment')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Pin() {
@@ -284,7 +288,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
       const isPinned = !!message.pinned;
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={isPinned ? t('aria/Unpin Message') : t('aria/Pin Message')}
           className={msgActionsBoxButtonClassName}
           Icon={isPinned ? IconUnpin : IconPin}
@@ -319,7 +323,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {isPinned ? t('Unpin') : t('Pin')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     CopyMessageText() {
@@ -328,7 +332,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Copy Message Text')}
           className={msgActionsBoxButtonClassName}
           Icon={IconCopy}
@@ -338,7 +342,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Copy Message')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Resend() {
@@ -347,7 +351,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Resend Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconRetry}
@@ -357,7 +361,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Resend')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Edit() {
@@ -367,7 +371,7 @@ const DefaultMessageActionComponents = {
       const { closeMenu } = useContextMenuContext();
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Edit Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconEdit}
@@ -378,7 +382,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Edit Message')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     MarkUnread() {
@@ -388,7 +392,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Mark Message Unread')}
           className={msgActionsBoxButtonClassName}
           Icon={IconNotification}
@@ -425,7 +429,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Mark as unread')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     RemindMe() {
@@ -440,7 +444,7 @@ const DefaultMessageActionComponents = {
       if (messageAlreadyBookmarked) return null;
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={reminder ? t('aria/Remind Me Message') : t('aria/Remove Reminder')}
           className={msgActionsBoxButtonClassName}
           hasSubMenu={!reminder}
@@ -481,7 +485,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {reminder ? t('Remove reminder') : t('Remind me')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     SaveForLater() {
@@ -496,7 +500,7 @@ const DefaultMessageActionComponents = {
       if (messageAlreadyHasReminderScheduled) return null;
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={
             reminder ? t('aria/Remove Save For Later') : t('aria/Bookmark Message')
           }
@@ -551,7 +555,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {reminder ? t('Remove save for later') : t('Save for later')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Flag() {
@@ -561,7 +565,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={t('aria/Flag Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconFlag}
@@ -593,7 +597,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {t('Flag')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Mute() {
@@ -605,7 +609,7 @@ const DefaultMessageActionComponents = {
 
       const isMuted = isUserMuted(message, mutes);
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
           className={msgActionsBoxButtonClassName}
           Icon={isMuted ? IconAudio : IconMute}
@@ -646,7 +650,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {isMuted ? t('Unmute') : t('Mute')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
     Delete() {
@@ -661,7 +665,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <>
-          <ContextMenuButton
+          <MessageActionsMenuItemButton
             aria-label={t('aria/Delete Message')}
             className={msgActionsBoxButtonClassName}
             Icon={IconDelete}
@@ -671,7 +675,7 @@ const DefaultMessageActionComponents = {
             variant='destructive'
           >
             {t('Delete message')}
-          </ContextMenuButton>
+          </MessageActionsMenuItemButton>
           <Modal open={openModal}>
             <DeleteMessageAlert
               onCancel={() => {
@@ -721,7 +725,7 @@ const DefaultMessageActionComponents = {
         new Set(client.blockedUsers.getLatestValue().userIds).has(message.user?.id);
 
       return (
-        <ContextMenuButton
+        <MessageActionsMenuItemButton
           aria-label={isBlocked ? t('aria/Unblock User') : t('aria/Block User')}
           className={clsx(msgActionsBoxButtonClassName)}
           Icon={isBlocked ? IconUserCheck : IconNoSign}
@@ -735,7 +739,7 @@ const DefaultMessageActionComponents = {
           }}
         >
           {isBlocked ? t('Unblock User') : t('Block User')}
-        </ContextMenuButton>
+        </MessageActionsMenuItemButton>
       );
     },
   },

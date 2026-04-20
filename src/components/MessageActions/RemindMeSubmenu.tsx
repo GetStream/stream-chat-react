@@ -45,7 +45,7 @@ export const RemindMeSubmenu = () => {
     <div
       aria-label={t('aria/Remind Me Options')}
       className='str-chat__message-actions-box__submenu'
-      role='listbox'
+      role='menu'
     >
       {client.reminders.scheduledOffsetsMs.map((offsetMs) => (
         <ContextMenuButton
@@ -81,6 +81,7 @@ export const RemindMeSubmenu = () => {
               closeMenu();
             }
           }}
+          role='menuitem'
         >
           {t('duration/Remind Me', { milliseconds: offsetMs })}
         </ContextMenuButton>
