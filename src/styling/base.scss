@@ -1,8 +1,5 @@
 .str-chat {
-  font-family: var(--str-chat__font-family);
-  font-size: var(--str-chat__typography-font-size-md);
-  font-weight: var(--str-chat__typography-font-weight-regular);
-  line-height: var(--str-chat__typography-line-height-normal);
+  font: var(--str-chat__font-body-default);
   letter-spacing: var(--typography-letter-spacing-default);
   color: var(--str-chat__text-primary);
 

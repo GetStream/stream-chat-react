@@ -1,5 +1,7 @@
 @layer stream-new, stream-new-plugins, stream-overrides, stream-app-overrides;
 
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);

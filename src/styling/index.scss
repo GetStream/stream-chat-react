@@ -4,7 +4,6 @@
 @use 'variable-tokens';
 @use 'variables';
 @use 'base';
-@use 'font-imports';
 
 // alias is necessary to allow sass create namespaces with different names (and not same name styling)
 @use '../components/Icons/styling' as Icons;
