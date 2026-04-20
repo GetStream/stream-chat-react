@@ -7,11 +7,7 @@
   border-radius: var(--str-chat__radius-max);
   background: var(--str-chat__avatar-bg-default);
   color: var(--str-chat__avatar-text-default);
-  text-align: center;
 
-  font-weight: var(--str-chat__typography-font-weight-semi-bold);
-  font-style: normal;
-  line-height: 1;
   text-transform: uppercase;
   width: var(--avatar-size);
   height: var(--avatar-size);
@@ -89,7 +85,7 @@
     --avatar-icon-size: var(--str-chat__icon-size-lg);
     --avatar-icon-stroke-width: 1.5px;
 
-    font-size: var(--str-chat__typography-font-size-xl);
+    font: var(--str-chat__font-heading-lg);
   }
 
   &.str-chat__avatar--size-xl {
@@ -98,7 +94,7 @@
     --avatar-icon-size: var(--str-chat__size-24); // TODO: missing icon size
     --avatar-icon-stroke-width: 1.5px;
 
-    font-size: var(--str-chat__typography-font-size-xl);
+    font: var(--str-chat__font-heading-md);
   }
 
   &.str-chat__avatar--size-lg {
@@ -107,7 +103,7 @@
     --avatar-icon-size: var(--str-chat__icon-size-md);
     --avatar-icon-stroke-width: 1.5px;
 
-    font-size: var(--str-chat__typography-font-size-md);
+    font: var(--str-chat__font-body-emphasis);
   }
 
   &.str-chat__avatar--size-md {
@@ -116,7 +112,7 @@
     --avatar-icon-size: var(--str-chat__icon-size-md);
     --avatar-icon-stroke-width: 1.5px;
 
-    font-size: var(--str-chat__typography-font-size-sm);
+    font: var(--str-chat__font-caption-emphasis);
   }
 
   &.str-chat__avatar--size-sm {
@@ -125,7 +121,7 @@
     --avatar-icon-size: var(--str-chat__icon-size-sm);
     --avatar-icon-stroke-width: 1.2px;
 
-    font-size: var(--str-chat__typography-font-size-sm);
+    font: var(--str-chat__font-caption-emphasis);
 
     .str-chat__avatar-status-badge {
       border-width: 1px;
@@ -138,7 +134,7 @@
     --avatar-icon-size: 10px;
     --avatar-icon-stroke-width: 1.2px;
 
-    font-size: var(--str-chat__typography-font-size-xs);
+    font: var(--str-chat__font-metadata-emphasis);
 
     .str-chat__avatar-status-badge {
       border-width: 1px;

@@ -25,9 +25,7 @@
       display: flex;
       align-items: center;
       width: 2.75rem;
-      font-size: var(--str-chat__typography-font-size-sm);
-      font-weight: var(--str-chat__typography-font-weight-semi-bold);
-      line-height: var(--str-chat__typography-line-height-tight);
+      font: var(--str-chat__font-caption-emphasis);
     }
 
     .str-chat__recording-timer--hours {

@@ -16,9 +16,7 @@
       white-space: nowrap;
       border-collapse: collapse;
 
-      font-size: var(--str-chat__typography-font-size-md);
-      font-weight: var(--str-chat__typography-font-weight-semi-bold);
-      line-height: var(--str-chat__typography-line-height-normal);
+      font: var(--str-chat__font-body-emphasis);
 
       &.str-chat__button {
         &:active {

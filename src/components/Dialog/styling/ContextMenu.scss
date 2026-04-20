@@ -91,9 +91,7 @@
     .str-chat__context-menu__header {
       width: 100%;
       color: var(--str-chat__text-tertiary);
-      font-size: var(--str-chat__typography-font-size-sm);
-      font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
-      line-height: var(--str-chat__typography-line-height-tight);
+      font: var(--str-chat__font-caption-emphasis);
     }
 
     .str-chat__context-menu__back-button {
@@ -109,10 +107,7 @@
       border-radius: var(--str-chat__radius-md);
 
       color: var(--str-chat__text-tertiary);
-
-      font-size: var(--str-chat__typography-font-size-sm);
-      font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
-      line-height: var(--str-chat__typography-line-height-tight);
+      font: var(--str-chat__font-caption-emphasis);
 
       &:hover:not(:disabled) {
         background-color: var(--str-chat__background-utility-hover);
@@ -180,10 +175,7 @@
       width: 100%;
       padding: var(--str-chat__spacing-xs);
       cursor: pointer;
-
-      font-size: var(--str-chat__typography-font-size-sm);
-      font-weight: var(--str-chat__typography-font-weight-semi-bold);
-      line-height: var(--str-chat__typography-line-height-tight);
+      font: var(--str-chat__font-caption-emphasis);
 
       &.str-chat__context-menu__button--destructive {
         .str-chat__context-menu__button__label,
@@ -226,14 +218,23 @@
       .str-chat__context-menu__button__details {
         flex: 1;
         color: var(--str-chat__text-tertiary);
-        font-weight: var(--str-chat__typography-font-weight-regular);
+        font: var(--str-chat__font-caption-default);
         white-space: nowrap;
       }
     }
 
     .str-chat__emoji-context-menu__button,
     .str-chat__user-context-menu__button {
-      font-weight: var(--str-chat__typography-font-weight-regular, 400);
+      font: var(--str-chat__font-caption-default);
+      .str-chat__context-menu__button__emoji {
+        font-size: var(--str-chat__typography-font-size-md);
+        width: var(--str-chat__typography-font-size-md);
+        height: var(--str-chat__typography-font-size-md);
+        line-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 

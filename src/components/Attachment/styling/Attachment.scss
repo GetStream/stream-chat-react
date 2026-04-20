@@ -173,8 +173,7 @@
         align-items: center;
         justify-content: space-between;
         column-gap: var(--str-chat__space-8);
-        font-weight: var(--str-chat__typography-font-weight-semi-bold);
-        font-size: var(--str-chat__typography-font-size-sm);
+        font: var(--str-chat__font-caption-emphasis);
 
         .str-chat__message-attachment-file--item__name,
         .str-chat__message-attachment-audio-widget--title {
@@ -184,7 +183,7 @@
       }
 
       .str-chat__message-attachment-file--item__data {
-        font-size: var(--str-chat__typography-font-size-xs);
+        font: var(--str-chat__font-metadata-default);
       }
     }
   }

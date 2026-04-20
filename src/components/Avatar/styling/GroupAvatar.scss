@@ -16,7 +16,7 @@
     --avatar-group-count-badge-size: 32px;
 
     & > .str-chat__avatar-group__count-badge {
-      font-size: var(--str-chat__typography-font-size-sm);
+      font: var(--str-chat__font-numeric-xl);
       padding-inline: var(--str-chat__spacing-xs);
     }
   }
@@ -27,7 +27,7 @@
     --avatar-group-count-badge-size: 24px;
 
     & > .str-chat__avatar-group__count-badge {
-      font-size: var(--str-chat__typography-font-size-sm);
+      font: var(--str-chat__font-numeric-xl);
       padding-inline: var(--str-chat__spacing-xs);
     }
   }
@@ -38,7 +38,7 @@
     --avatar-group-count-badge-size: 20px;
 
     & > .str-chat__avatar-group__count-badge {
-      font-size: var(--str-chat__typography-font-size-xxs);
+      font: var(--str-chat__font-numeric-md);
       padding-inline: var(--str-chat__spacing-xxs);
     }
   }
@@ -90,8 +90,6 @@
     height: var(--avatar-group-count-badge-size);
     min-width: var(--avatar-group-count-badge-size);
     min-height: var(--avatar-group-count-badge-size);
-    font-weight: var(--str-chat__typography-font-weight-bold);
-    font-family: var(--str-chat__typography-font-family-sans);
     justify-content: center;
     align-items: center;
     border-radius: var(--str-chat__radius-max);

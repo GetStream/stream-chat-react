@@ -120,8 +120,6 @@
   p {
     margin: 0;
     color: var(--str-chat__text-secondary);
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: var(--str-chat__typography-font-weight-regular);
-    line-height: var(--str-chat__typography-line-height-normal);
+    font: var(--str-chat__font-caption-default);
   }
 }
