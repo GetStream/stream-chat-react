@@ -26,7 +26,7 @@ import {
 } from './MediaAttachmentPreview';
 import { toBaseImageDescriptors } from '../../BaseImage';
 import { Gallery } from '../../Gallery';
-import { GlobalModal } from '../../Modal';
+import { GlobalModal, type ModalCloseSource } from '../../Modal';
 import { useComponentContext } from '../../../context';
 
 export type AttachmentPreviewListProps = {
@@ -50,6 +50,10 @@ export const AttachmentPreviewList = ({
   const { Modal = GlobalModal } = useComponentContext();
   const [showPreview, setShowPreview] = useState(false);
   const initialIndexRef = useRef(0);
+  const preventOverlayClose = useCallback(
+    (source: ModalCloseSource) => source !== 'overlay',
+    [],
+  );
 
   const { attachments } = useAttachmentsForPreview();
   const filteredAttachments = useMemo(
@@ -146,6 +150,7 @@ export const AttachmentPreviewList = ({
         <Modal
           className='str-chat__gallery-modal'
           onClose={() => setShowPreview(false)}
+          onCloseAttempt={preventOverlayClose}
           open={showPreview}
         >
           <Gallery initialIndex={initialIndexRef.current} items={galleryItems} />

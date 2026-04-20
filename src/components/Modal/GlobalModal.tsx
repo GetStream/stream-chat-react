@@ -34,6 +34,12 @@ export type ModalProps = {
   open: boolean;
   /** Custom class to be applied to the modal root div */
   className?: string;
+  /** Accessible label for the modal dialog. Ignored when aria-labelledby is provided. */
+  'aria-label'?: string;
+  /** ID of the element that labels the modal dialog. */
+  'aria-labelledby'?: string;
+  /** ID of the element that describes the modal dialog. */
+  'aria-describedby'?: string;
   /** If provided, the close button is rendered on overlay */
   CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
   /** Callback handler for closing of modal. */
@@ -43,6 +49,9 @@ export type ModalProps = {
 };
 
 export const GlobalModal = ({
+  'aria-describedby': ariaDescribedby,
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledby,
   children,
   className,
   CloseButtonOnOverlay,
@@ -76,25 +85,21 @@ export const GlobalModal = ({
     [maybeClose],
   );
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => {
-    const target = event.target as HTMLButtonElement | HTMLDivElement;
-    if (closeButtonRef.current?.contains(target)) {
-      maybeClose('button', event);
-    } else if (overlayRef.current === target) {
+  const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLDivElement;
+    if (overlayRef.current === target) {
       maybeClose('overlay', event);
     }
   };
 
-  useEffect(() => {
-    if (!open || !isOpen) return;
+  const handleCloseButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    maybeClose('button', event);
+  };
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') maybeClose('escape', event);
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, maybeClose, open]);
+  const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.defaultPrevented || event.key !== 'Escape') return;
+    maybeClose('escape', event);
+  };
 
   // Sync open prop → dialog open. Don't close here (dialog ref changes after close → effect loop).
   // closingRef blocks re-open when we just closed and parent hasn't set open=false yet.
@@ -119,14 +124,24 @@ export const GlobalModal = ({
             'str-chat__modal str-chat-react__modal str-chat__modal--open',
             className,
           )}
-          onClick={handleClick}
+          onClick={handleOverlayClick}
           ref={overlayRef}
         >
           <FocusScope autoFocus contain>
-            {children}
+            <div
+              aria-describedby={ariaDescribedby}
+              aria-label={ariaLabelledby ? undefined : ariaLabel}
+              aria-labelledby={ariaLabelledby}
+              aria-modal='true'
+              className='str-chat__modal__dialog'
+              onKeyDown={handleDialogKeyDown}
+              role='dialog'
+            >
+              {children}
+            </div>
           </FocusScope>
           {CloseButtonOnOverlay && (
-            <CloseButtonOnOverlay onClick={handleClick} ref={closeButtonRef} />
+            <CloseButtonOnOverlay onClick={handleCloseButtonClick} ref={closeButtonRef} />
           )}
         </div>
       </ModalContextProvider>

@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { GlobalModal } from '../GlobalModal';
 import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
 import { mockChatContext } from '../../../mock-builders';
+import { axe } from '../../../../axe-helper';
 
 const OVERLAY_SELECTOR = '.str-chat__modal';
 const renderComponent = ({ props }: any = {}) =>
@@ -16,11 +17,29 @@ const renderComponent = ({ props }: any = {}) =>
   );
 
 // Wrap children in a focusable element so FocusScope can manage focus
-const ModalContent = ({ text }) => (
-  <div className='str-chat__modal__inner' role='dialog'>
+const ModalContent = ({
+  children,
+  text,
+}: {
+  children?: React.ReactNode;
+  text: string;
+}) => (
+  <div className='str-chat__modal__inner'>
     <button type='button'>{text}</button>
+    {children}
   </div>
 );
+
+const OverlayCloseButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentProps<'button'>
+>(function OverlayCloseButton(props, ref) {
+  return (
+    <button {...props} aria-label='Close overlay' ref={ref} type='button'>
+      Close
+    </button>
+  );
+});
 
 describe('GlobalModal', () => {
   const textContent = 'some text';
@@ -54,17 +73,12 @@ describe('GlobalModal', () => {
       props: { children: <ModalContent text='content' />, onClose, open: true },
     });
 
-    fireEvent(
-      document,
-      new KeyboardEvent('keydown', {
-        key: 'Escape',
-      }),
-    );
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('should remove the escape keydown event handler on unmount', () => {
+  it('should remove the escape keydown event handler when unmounted', () => {
     const onClose = vi.fn();
     const { unmount } = renderComponent({
       props: { children: <ModalContent text='content' />, onClose, open: true },
@@ -90,9 +104,8 @@ describe('GlobalModal', () => {
         open: true,
       },
     });
-    // Click on the inner dialog div, not the overlay
-    const innerDialog = screen.getByRole('dialog');
-    fireEvent.click(innerDialog);
+    // Click inside modal content, not the overlay root.
+    fireEvent.click(screen.getByRole('button', { name: textContent }));
 
     expect(onClose).not.toHaveBeenCalled();
   });
@@ -114,6 +127,22 @@ describe('GlobalModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('should call onClose if the overlay close button is clicked', () => {
+    const onClose = vi.fn();
+    renderComponent({
+      props: {
+        children: <ModalContent text={textContent} />,
+        CloseButtonOnOverlay: OverlayCloseButton,
+        onClose,
+        open: true,
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close overlay' }));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('should call onClose if onCloseAttempt returns true and Escape pressed', () => {
     const onClose = vi.fn();
     const onCloseAttempt = () => true;
@@ -126,12 +155,7 @@ describe('GlobalModal', () => {
       },
     });
 
-    fireEvent(
-      document,
-      new KeyboardEvent('keydown', {
-        key: 'Escape',
-      }),
-    );
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -165,12 +189,7 @@ describe('GlobalModal', () => {
       },
     });
 
-    fireEvent(
-      document,
-      new KeyboardEvent('keydown', {
-        key: 'Escape',
-      }),
-    );
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
 
     expect(onClose).not.toHaveBeenCalled();
   });
@@ -190,5 +209,54 @@ describe('GlobalModal', () => {
     fireEvent.click(container.querySelector(OVERLAY_SELECTOR));
 
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('forwards modal labeling props to the dialog surface', () => {
+    renderComponent({
+      props: {
+        'aria-describedby': 'modal-description',
+        'aria-labelledby': 'modal-title',
+        children: (
+          <ModalContent text={textContent}>
+            <h2 id='modal-title'>Dialog title</h2>
+            <p id='modal-description'>Dialog description</p>
+          </ModalContent>
+        ),
+        open: true,
+      },
+    });
+
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveClass('str-chat__modal__dialog');
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
+    expect(dialog).toHaveAttribute('aria-describedby', 'modal-description');
+  });
+
+  it('falls back to aria-label when aria-labelledby is not provided', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Fallback modal label',
+        children: <ModalContent text={textContent} />,
+        open: true,
+      },
+    });
+
+    const dialog = screen.getByRole('dialog', { name: 'Fallback modal label' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(dialog).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('has no accessibility violations for modal semantics', async () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Accessible modal',
+        children: <ModalContent text={textContent} />,
+        open: true,
+      },
+    });
+
+    const results = await axe(document.body);
+    expect(results).toHaveNoViolations();
   });
 });
