@@ -49,7 +49,6 @@
   min-height: 16px;
   padding-inline: var(--str-chat__spacing-xxxs);
   border-width: 1px;
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
 }
 
 .str-chat__badge--size-md {
@@ -58,7 +57,6 @@
   min-height: 20px;
   padding-inline: var(--str-chat__spacing-xxs);
   border-width: 2px;
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
 }
 
 .str-chat__badge--size-lg {
@@ -67,22 +65,20 @@
   min-height: 24px;
   padding-inline: var(--str-chat__spacing-xs);
   border-width: 2px;
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
 }
 
 .str-chat__badge--variant-counter {
   border-radius: var(--str-chat__radius-max);
   border: 1px solid var(--str-chat__border-core-subtle);
   background: var(--str-chat__badge-bg-default);
-  box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
   font: var(--str-chat__font-numeric-xl);
   color: var(--str-chat__badge-text);
+  box-shadow: var(--str-chat__box-shadow-2);
 
   &.str-chat__badge--size-xs {
     min-width: 20px;
     min-height: 20px;
     padding-inline: var(--str-chat__spacing-xxs);
-    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
     font: var(--str-chat__font-numeric-md);
   }
 

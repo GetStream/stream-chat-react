@@ -96,7 +96,7 @@
     align-items: center;
     border-radius: var(--str-chat__radius-max);
     background: var(--str-chat__badge-bg-default);
-    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.14);
+    box-shadow: var(--str-chat__box-shadow-2);
   }
 
   &:has(> :last-child:nth-child(4)) {

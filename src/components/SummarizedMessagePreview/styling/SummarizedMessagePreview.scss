@@ -8,10 +8,7 @@
   min-width: 0;
 
   color: var(--str-chat__text-secondary);
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-style: normal;
-  font-weight: var(--str-chat__typography-font-weight-regular);
-  line-height: var(--str-chat__typography-line-height-normal);
+  font: var(--str-chat__font-caption-default);
 
   .str-chat__icon {
     flex-shrink: 0;
@@ -48,7 +45,7 @@
 
   .str-chat__summarized-message-preview__sender {
     color: var(--str-chat__text-tertiary);
-    font-weight: var(--str-chat__typography-font-weight-semi-bold);
+    font: var(--str-chat__font-caption-emphasis);
 
     white-space: nowrap;
     overflow: hidden;
