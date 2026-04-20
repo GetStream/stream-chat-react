@@ -1,8 +1,9 @@
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type React from 'react';
 import { useEffect } from 'react';
 
 import { fromPartial } from '@total-typescript/shoehorn';
+import { axe } from '../../../../axe-helper';
 import { ChatProvider, TranslationProvider } from '../../../context';
 import {
   getTestClientWithUser,
@@ -98,6 +99,38 @@ const renderSelector = async (selectorProps?: any) => {
   );
 };
 
+const renderSelectorWithPanels = async (selectorProps?: any) => {
+  const client = await getTestClientWithUser();
+
+  return render(
+    <ChatProvider
+      value={{
+        channelsQueryState: fromPartial({}),
+        client,
+        getAppSettings: vi.fn(),
+        latestMessageDatesByChannels: {},
+        mutes: [],
+        searchController: fromPartial({}),
+        setActiveChannel: vi.fn(),
+        theme: 'messaging light',
+        useImageFlagEmojisOnWindows: false,
+      }}
+    >
+      <TranslationProvider value={mockTranslationContextValue()}>
+        <ChatView>
+          <ChatView.Selector {...selectorProps} />
+          <ChatView.Channels>
+            <div data-testid='channels-panel-content' />
+          </ChatView.Channels>
+          <ChatView.Threads>
+            <div data-testid='threads-panel-content' />
+          </ChatView.Threads>
+        </ChatView>
+      </TranslationProvider>
+    </ChatProvider>,
+  );
+};
+
 describe('ChatView.ThreadAdapter', () => {
   afterEach(() => {
     cleanup();
@@ -183,5 +216,60 @@ describe('ChatView.Selector', () => {
         container.querySelectorAll('.str-chat__chat-view__selector-button-text'),
       ).map((element) => element.textContent),
     ).toEqual(['Channels', 'Threads']);
+  });
+
+  it('renders tabs with tablist/tabpanel semantics and roving tab index', async () => {
+    await renderSelectorWithPanels();
+
+    const tablist = screen.getByRole('tablist', { name: 'Chat view tabs' });
+    const channelsTab = screen.getByRole('tab', { name: 'Channels' });
+    const threadsTab = screen.getByRole('tab', { name: 'Threads' });
+
+    expect(tablist).toContainElement(channelsTab);
+    expect(tablist).toContainElement(threadsTab);
+    expect(channelsTab).toHaveAttribute('tabindex', '0');
+    expect(threadsTab).toHaveAttribute('tabindex', '-1');
+
+    const channelsPanel = document.getElementById(
+      channelsTab.getAttribute('aria-controls') || '',
+    );
+    const threadsPanel = document.getElementById(
+      threadsTab.getAttribute('aria-controls') || '',
+    );
+
+    expect(channelsPanel).toHaveAttribute('role', 'tabpanel');
+    expect(channelsPanel).toHaveAttribute('aria-labelledby', channelsTab.id);
+    expect(threadsPanel).toBeNull();
+  });
+
+  it('does not switch tabs on arrow keys', async () => {
+    await renderSelectorWithPanels();
+
+    const channelsTab = screen.getByRole('tab', { name: 'Channels' });
+    const threadsTab = screen.getByRole('tab', { name: 'Threads' });
+
+    channelsTab.focus();
+    fireEvent.keyDown(channelsTab, { key: 'ArrowRight' });
+
+    await waitFor(() => {
+      expect(channelsTab).toHaveAttribute('aria-selected', 'true');
+      expect(channelsTab).toHaveAttribute('tabindex', '0');
+      expect(threadsTab).toHaveAttribute('aria-selected', 'false');
+      expect(threadsTab).toHaveAttribute('tabindex', '-1');
+      expect(
+        document.getElementById(channelsTab.getAttribute('aria-controls') || ''),
+      ).toHaveAttribute('role', 'tabpanel');
+      expect(
+        document.getElementById(threadsTab.getAttribute('aria-controls') || ''),
+      ).toBeNull();
+    });
+  });
+
+  it('has no axe violations for tabs and panels markup', async () => {
+    const { container } = await renderSelectorWithPanels();
+
+    const results = await axe(container);
+
+    expect(results).toHaveNoViolations();
   });
 });
