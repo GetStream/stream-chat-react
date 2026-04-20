@@ -6,6 +6,7 @@ import { ThreadList } from '../ThreadList';
 
 const mockUseChatContext = vi.fn();
 const mockUseComponentContext = vi.fn();
+const mockUseTranslationContext = vi.fn();
 const mockUseStateStore = vi.fn();
 const mockVirtuoso = vi.fn();
 
@@ -19,6 +20,7 @@ vi.mock('react-virtuoso', () => ({
 vi.mock('../../../../context', () => ({
   useChatContext: () => mockUseChatContext(),
   useComponentContext: () => mockUseComponentContext(),
+  useTranslationContext: () => mockUseTranslationContext(),
 }));
 
 vi.mock('../../../../store', () => ({
@@ -62,6 +64,7 @@ describe('ThreadList', () => {
   beforeEach(() => {
     mockUseChatContext.mockReturnValue({ client: mockClient });
     mockUseComponentContext.mockReturnValue({});
+    mockUseTranslationContext.mockReturnValue({ t: (value: string) => value });
     mockUseStateStore.mockReturnValue({ isLoading: false, threads: [] });
   });
 
@@ -93,5 +96,10 @@ describe('ThreadList', () => {
     expect(screen.getByTestId('thread-list-unseen-banner')).toBeInTheDocument();
     expect(screen.getByTestId('virtuoso')).toBeInTheDocument();
     expect(screen.queryByTestId('loading-channels')).not.toBeInTheDocument();
+    expect(mockVirtuoso).toHaveBeenCalledTimes(1);
+    expect(mockVirtuoso.mock.calls[0][0]).toMatchObject({
+      'aria-label': 'aria/Thread list',
+      role: 'listbox',
+    });
   });
 });

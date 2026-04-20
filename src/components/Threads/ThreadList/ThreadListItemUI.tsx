@@ -88,7 +88,7 @@ export const ThreadListItemUI = ({
   return (
     <div className='str-chat__thread-list-item-container'>
       <button
-        aria-pressed={activeThread === thread}
+        aria-selected={activeThread === thread}
         className={clsx('str-chat__thread-list-item', {
           'str-chat__thread-list-item--highlighted':
             typeof resetHighlighting !== 'undefined',
