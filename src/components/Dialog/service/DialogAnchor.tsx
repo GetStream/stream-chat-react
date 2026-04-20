@@ -228,16 +228,33 @@ export const DialogAnchor = ({
     return null;
   }
 
+  const {
+    ['aria-describedby']: ariaDescribedBy,
+    ['aria-label']: ariaLabel,
+    ['aria-labelledby']: ariaLabelledBy,
+    ['aria-modal']: ariaModal,
+    role,
+    ...anchorDivProps
+  } = restDivProps;
+  const resolvedRole = trapFocus ? (role ?? 'dialog') : role;
+  const resolvedAriaModal = trapFocus ? true : ariaModal;
+  const resolvedAriaLabel = ariaLabelledBy ? undefined : ariaLabel;
+
   return (
     <DialogPortalEntry dialogId={id} dialogManagerId={dialogManagerId}>
       <FocusScope autoFocus={focus} contain={trapFocus} restoreFocus>
         <div
-          {...restDivProps}
+          {...anchorDivProps}
+          aria-describedby={ariaDescribedBy}
+          aria-label={resolvedAriaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-modal={resolvedAriaModal}
           className={clsx('str-chat__dialog-contents', className)}
           data-str-chat-dialog-state={isClosing ? 'closing' : 'open'}
           data-str-chat-placement={chosenPlacement}
           data-testid='str-chat__dialog-contents'
           ref={setPopperElement}
+          role={resolvedRole}
           style={styles}
           tabIndex={typeof tabIndex !== 'undefined' ? tabIndex : 0}
         >
