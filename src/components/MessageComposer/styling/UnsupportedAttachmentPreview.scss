@@ -1,5 +1,5 @@
 @use '../../../styling/utils';
-@use '../../../styling/variables/font' as font;
+@use '../../../styling/variables/fonts' as fonts;
 
 .str-chat__attachment-preview-unsupported {
   background: transparent;
@@ -30,7 +30,7 @@
 
   .str-chat__attachment-preview-unsupported__title {
     @include utils.ellipsis-text;
-    @include font.text-caption-emphasis;
+    @include fonts.text-caption-emphasis;
     max-width: 100%;
     height: fit-content;
   }
