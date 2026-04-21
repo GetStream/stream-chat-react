@@ -1,11 +1,13 @@
 import clsx from 'clsx';
 import type {
+  ChangeEventHandler,
   ComponentProps,
   KeyboardEventHandler,
+  MouseEventHandler,
   PropsWithChildren,
   ReactNode,
 } from 'react';
-import React, { useRef } from 'react';
+import React, { isValidElement, useId, useRef, useState } from 'react';
 
 export type SwitchFieldProps = Omit<
   PropsWithChildren<ComponentProps<'input'>>,
@@ -28,60 +30,116 @@ export const SwitchField = ({
   title,
   ...props
 }: SwitchFieldProps) => {
+  const {
+    'aria-label': ariaLabel,
+    'aria-labelledby': ariaLabelledBy,
+    checked,
+    defaultChecked,
+    disabled,
+    id,
+    onChange,
+    onKeyDown,
+    ...rest
+  } = props;
+  const generatedSwitchId = useId();
+  const switchId = id ?? `str-chat__switch-field-${generatedSwitchId}`;
+  const switchLabelId = `${switchId}-label`;
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleSwitchKeyDown: KeyboardEventHandler<HTMLDivElement> = (e) => {
-    if (![' ', 'Enter'].includes(e.key) || !inputRef.current) return;
-    e.preventDefault();
-    inputRef.current.click();
+  const [uncontrolledChecked, setUncontrolledChecked] = useState(Boolean(defaultChecked));
+  const isControlled = checked !== undefined;
+  const isOn = isControlled ? checked : uncontrolledChecked;
+  const isReadOnly = isControlled && onChange === undefined;
+
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    if (!isControlled) {
+      setUncontrolledChecked(event.target.checked);
+    }
+
+    onChange?.(event);
   };
 
-  const id = props.id;
+  const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
+    onKeyDown?.(event);
+    if (event.defaultPrevented || event.key !== ' ') return;
+
+    event.preventDefault();
+    event.currentTarget.click();
+  };
+
+  const handleSwitchClick: MouseEventHandler<HTMLDivElement> = (event) => {
+    if (disabled || event.target === inputRef.current) return;
+    inputRef.current?.click();
+  };
+
+  // When no title/aria-label is provided, SwitchField can still be named by a caller-supplied
+  // child element id via aria-labelledby.
+  const childElement = isValidElement<{ id?: string }>(children) ? children : undefined;
+  const childLabelId = childElement?.props.id;
+  // Accessible-name precedence:
+  // 1) explicit aria-labelledby prop
+  // 2) explicit aria-label prop
+  // 3) generated title label id (title path)
+  // 4) caller-supplied child id (children path)
+  const resolvedAriaLabelledBy =
+    ariaLabelledBy ?? (!ariaLabel ? (title ? switchLabelId : childLabelId) : undefined);
 
   return (
     <div
       className={clsx(
         'str-chat__form__switch-field',
         fieldClassName,
-        props.disabled && 'str-chat__form__switch-field--disabled',
+        disabled && 'str-chat__form__switch-field--disabled',
       )}
     >
-      <input
-        aria-hidden
-        className='str-chat__form__switch-field__input'
-        id={id}
-        type='checkbox'
-        {...props}
-        ref={inputRef}
-      />
       {title ? (
-        <SwitchFieldLabel description={description} htmlFor={id} title={title} />
+        <SwitchFieldLabel
+          description={description}
+          htmlFor={switchId}
+          id={switchLabelId}
+          title={title}
+        />
       ) : (
         children
       )}
       <Switch
-        on={props.checked}
-        onClick={() => inputRef.current?.click()}
-        onKeyDown={handleSwitchKeyDown}
+        {...rest}
+        aria-label={ariaLabel}
+        aria-labelledby={resolvedAriaLabelledBy}
+        checked={isOn}
+        disabled={disabled}
+        id={switchId}
+        on={isOn}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onSwitchClick={handleSwitchClick}
+        readOnly={isReadOnly}
+        switchRef={inputRef}
       />
     </div>
   );
 };
 
-export type SwitchProps = ComponentProps<'div'> & {
+export type SwitchProps = Omit<ComponentProps<'input'>, 'type'> & {
   on?: boolean;
+  onSwitchClick?: MouseEventHandler<HTMLDivElement>;
+  switchRef?: React.RefObject<HTMLInputElement | null>;
 };
 
-const Switch = ({ on, ...props }: SwitchProps) => (
+const Switch = ({ className, on, onSwitchClick, switchRef, ...props }: SwitchProps) => (
   <div
-    {...props}
-    aria-checked={on}
     className={clsx('str-chat__form__switch-field__switch', {
       'str-chat__form__switch-field__switch--on': on,
     })}
-    role='button'
-    tabIndex={0}
+    onClick={onSwitchClick}
   >
+    <input
+      {...props}
+      className={clsx('str-chat__form__switch-field__input', className)}
+      ref={switchRef}
+      role='switch'
+      type='checkbox'
+    />
     <span className='str-chat__form__switch-field__switch-handle' />
   </div>
 );
