@@ -13,13 +13,8 @@ type SequenceByPriority = {
   [key in AriaLivePriority]: number;
 };
 
-const runInMicrotask = (callback: () => void) => {
-  if (typeof queueMicrotask === 'function') {
-    queueMicrotask(callback);
-    return;
-  }
-
-  Promise.resolve().then(callback);
+type TimeoutByPriority = {
+  [key in AriaLivePriority]: ReturnType<typeof setTimeout> | undefined;
 };
 
 export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
@@ -29,28 +24,50 @@ export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
     assertive: 0,
     polite: 0,
   });
+  const timeoutByPriorityRef = useRef<TimeoutByPriority>({
+    assertive: undefined,
+    polite: undefined,
+  });
   const unmountedRef = useRef(false);
 
-  const announce = useCallback<AriaLiveAnnounce>((message, priority = 'polite') => {
-    const setAnnouncement =
-      priority === 'assertive' ? setAssertiveMessage : setPoliteMessage;
-    const sequence = sequenceByPriorityRef.current[priority] + 1;
-
-    sequenceByPriorityRef.current[priority] = sequence;
-    setAnnouncement('');
-    runInMicrotask(() => {
-      if (unmountedRef.current) return;
-      if (sequenceByPriorityRef.current[priority] !== sequence) return;
-      setAnnouncement(message);
-    });
+  const clearPendingTimeout = useCallback((priority: AriaLivePriority) => {
+    if (!timeoutByPriorityRef.current[priority]) return;
+    clearTimeout(timeoutByPriorityRef.current[priority]);
+    timeoutByPriorityRef.current[priority] = undefined;
   }, []);
 
-  useEffect(
-    () => () => {
-      unmountedRef.current = true;
+  const clearPendingTimeouts = useCallback(() => {
+    clearPendingTimeout('assertive');
+    clearPendingTimeout('polite');
+  }, [clearPendingTimeout]);
+
+  const announce = useCallback<AriaLiveAnnounce>(
+    (message, priority = 'polite') => {
+      const setAnnouncement =
+        priority === 'assertive' ? setAssertiveMessage : setPoliteMessage;
+      const sequence = sequenceByPriorityRef.current[priority] + 1;
+
+      sequenceByPriorityRef.current[priority] = sequence;
+      clearPendingTimeout(priority);
+      setAnnouncement('');
+      timeoutByPriorityRef.current[priority] = setTimeout(() => {
+        if (unmountedRef.current) return;
+        if (sequenceByPriorityRef.current[priority] !== sequence) return;
+        setAnnouncement(message);
+        timeoutByPriorityRef.current[priority] = undefined;
+      }, 50);
     },
-    [],
+    [clearPendingTimeout],
   );
+
+  useEffect(() => {
+    unmountedRef.current = false;
+
+    return () => {
+      unmountedRef.current = true;
+      clearPendingTimeouts();
+    };
+  }, [clearPendingTimeouts]);
 
   const contextValue = useMemo(() => ({ announce }), [announce]);
 
@@ -61,22 +78,24 @@ export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
       {children}
       <Portal getPortalDestination={getPortalDestination} isOpen>
         <VisuallyHidden>
-          <span
+          <div
             aria-atomic='true'
             aria-live='polite'
+            aria-relevant='additions text'
             data-testid='str-chat__aria-live-region--polite'
             role='status'
           >
             {politeMessage}
-          </span>
-          <span
+          </div>
+          <div
             aria-atomic='true'
             aria-live='assertive'
+            aria-relevant='additions text'
             data-testid='str-chat__aria-live-region--assertive'
             role='alert'
           >
             {assertiveMessage}
-          </span>
+          </div>
         </VisuallyHidden>
       </Portal>
     </AriaLiveAnnouncerContext.Provider>

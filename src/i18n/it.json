@@ -328,6 +328,7 @@
   "mute-command-description": "Silenzia un utente",
   "network error": "errore di rete",
   "New": "Nuovo",
+  "New message from {{user}}": "Nuovo messaggio da {{user}}",
   "New Messages!": "Nuovi messaggi!",
   "Next image": "Immagine successiva",
   "No chats here yet…": "Non ci sono ancora messaggi qui...",

@@ -47,6 +47,7 @@ import {
   NotificationList as DefaultNotificationList,
   useNotificationTarget,
 } from '../Notifications';
+import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
 
 type MessageListWithContextProps = Omit<
   ChannelStateContextValue,
@@ -93,6 +94,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     showUnreadNotificationAlways,
     sortReactions,
     suppressAutoscroll,
+    thread,
     threadList = false,
     unsafeHTML = false,
   } = props;
@@ -229,6 +231,13 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messages,
     renderMessages,
     returnAllReadData,
+    threadList,
+  });
+
+  useIncomingMessageAnnouncements({
+    activeThreadId: thread?.id,
+    channel,
+    ownUserId: channel.getClient().user?.id,
     threadList,
   });
 
@@ -568,12 +577,14 @@ export const MessageList = (props: MessageListProps) => {
   } = useChannelStateContext('MessageList');
 
   return (
-    <MessageListWithContext
-      jumpToLatestMessage={jumpToLatestMessage}
-      loadMore={loadMore}
-      loadMoreNewer={loadMoreNewer}
-      {...restChannelStateContext}
-      {...props}
-    />
+    <AriaLiveRegion>
+      <MessageListWithContext
+        jumpToLatestMessage={jumpToLatestMessage}
+        loadMore={loadMore}
+        loadMoreNewer={loadMoreNewer}
+        {...restChannelStateContext}
+        {...props}
+      />
+    </AriaLiveRegion>
   );
 };

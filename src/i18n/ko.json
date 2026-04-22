@@ -313,6 +313,7 @@
   "mute-command-description": "사용자 음소거",
   "network error": "네트워크 오류",
   "New": "새로운",
+  "New message from {{user}}": "{{user}}의 새 메시지",
   "New Messages!": "새 메시지!",
   "Next image": "다음 이미지",
   "No chats here yet…": "아직 채팅이 없습니다...",

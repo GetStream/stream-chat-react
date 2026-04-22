@@ -317,6 +317,7 @@
   "mute-command-description": "Stummschalten eines Benutzers",
   "network error": "Netzwerkfehler",
   "New": "Neu",
+  "New message from {{user}}": "Neue Nachricht von {{user}}",
   "New Messages!": "Neue Nachrichten!",
   "Next image": "Nächstes Bild",
   "No chats here yet…": "Noch keine Chats hier...",

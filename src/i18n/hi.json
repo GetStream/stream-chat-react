@@ -318,6 +318,7 @@
   "mute-command-description": "एक उपयोगकर्ता को म्यूट करें",
   "network error": "नेटवर्क त्रुटि",
   "New": "नए",
+  "New message from {{user}}": "{{user}} से नया संदेश",
   "New Messages!": "नए मैसेज!",
   "Next image": "अगली छवि",
   "No chats here yet…": "यहां अभी तक कोई चैट नहीं...",

@@ -77,6 +77,7 @@ import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
+import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
 
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
@@ -147,6 +148,7 @@ type VirtualizedMessageListWithContextProps = VirtualizedMessageListProps & {
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
   read?: StreamChannelState['read'];
+  thread?: ChannelStateContextValue['thread'];
 };
 
 function captureResizeObserverExceededError(e: ErrorEvent) {
@@ -232,6 +234,7 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
+    thread,
     threadList,
   } = props;
 
@@ -417,6 +420,13 @@ const VirtualizedMessageListWithContext = (
     processedMessages,
     client.userID,
   );
+
+  useIncomingMessageAnnouncements({
+    activeThreadId: thread?.id,
+    channel,
+    ownUserId: client.userID,
+    threadList,
+  });
 
   const handleItemsRendered = useMemo(
     () =>
@@ -727,27 +737,31 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
     notifications,
     read,
     suppressAutoscroll,
+    thread,
   } = useChannelStateContext('VirtualizedMessageList');
 
   const messages = props.messages || contextMessages;
 
   return (
-    <VirtualizedMessageListWithContext
-      channel={channel}
-      channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
-      hasMore={!!hasMore}
-      hasMoreNewer={!!hasMoreNewer}
-      highlightedMessageId={highlightedMessageId}
-      jumpToLatestMessage={jumpToLatestMessage}
-      loadingMore={!!loadingMore}
-      loadingMoreNewer={!!loadingMoreNewer}
-      loadMore={loadMore}
-      loadMoreNewer={loadMoreNewer}
-      messages={messages}
-      notifications={notifications}
-      read={read}
-      suppressAutoscroll={suppressAutoscroll}
-      {...props}
-    />
+    <AriaLiveRegion>
+      <VirtualizedMessageListWithContext
+        channel={channel}
+        channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
+        hasMore={!!hasMore}
+        hasMoreNewer={!!hasMoreNewer}
+        highlightedMessageId={highlightedMessageId}
+        jumpToLatestMessage={jumpToLatestMessage}
+        loadingMore={!!loadingMore}
+        loadingMoreNewer={!!loadingMoreNewer}
+        loadMore={loadMore}
+        loadMoreNewer={loadMoreNewer}
+        messages={messages}
+        notifications={notifications}
+        read={read}
+        suppressAutoscroll={suppressAutoscroll}
+        thread={thread}
+        {...props}
+      />
+    </AriaLiveRegion>
   );
 }

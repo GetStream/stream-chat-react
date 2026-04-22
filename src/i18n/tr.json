@@ -317,6 +317,7 @@
   "mute-command-description": "Bir kullanıcının sesini kapat",
   "network error": "ağ hatası",
   "New": "Yeni",
+  "New message from {{user}}": "{{user}} adlı kullanıcıdan yeni mesaj",
   "New Messages!": "Yeni Mesajlar!",
   "Next image": "Sonraki görsel",
   "No chats here yet…": "Henüz burada sohbet yok...",

@@ -343,6 +343,7 @@
   "mute-command-description": "Выключить микрофон у пользователя",
   "network error": "ошибка сети",
   "New": "Новые",
+  "New message from {{user}}": "Новое сообщение от {{user}}",
   "New Messages!": "Новые сообщения!",
   "Next image": "Следующее изображение",
   "No chats here yet…": "Здесь еще нет чатов...",

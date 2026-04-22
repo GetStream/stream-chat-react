@@ -313,6 +313,7 @@
   "mute-command-description": "ユーザーをミュートする",
   "network error": "ネットワークエラー",
   "New": "新しい",
+  "New message from {{user}}": "{{user}}からの新しいメッセージ",
   "New Messages!": "新しいメッセージ!",
   "Next image": "次の画像",
   "No chats here yet…": "ここにはまだチャットはありません…",
