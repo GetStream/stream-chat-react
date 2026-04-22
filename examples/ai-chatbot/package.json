@@ -15,8 +15,8 @@
     "next": "^16.2.4",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
-    "stream-chat": "^9.38.0",
-    "stream-chat-react": "^13.14.3"
+    "stream-chat": "^9.41.0",
+    "stream-chat-react": "^14.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",

@@ -1,6 +1,6 @@
 @layer material-rounded, stream, stream-overrides, ai-chat, ai-demo;
 
-@import 'stream-chat-react/dist/css/v2/index.css' layer(stream);
+@import 'stream-chat-react/css/index.css' layer(stream);
 @import 'material-symbols/rounded.css' layer(material-rounded);
 @import '@stream-io/chat-react-ai/styles/index.css' layer(ai-chat);
 @import './ai-demo.scss' layer(ai-demo);

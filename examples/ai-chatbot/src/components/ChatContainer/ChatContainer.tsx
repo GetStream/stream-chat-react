@@ -1,14 +1,13 @@
 'use client';
 
 import { useEffect } from 'react';
-import type { DateSeparatorProps } from 'stream-chat-react';
 import { useChatContext } from 'stream-chat-react';
 import {
   Channel,
   MessageList,
   Window,
-  MessageInput,
-  DateSeparator,
+  MessageComposer,
+  WithComponents,
 } from 'stream-chat-react';
 import { customAlphabet } from 'nanoid';
 import { EmptyState } from '../EmptyState';
@@ -23,10 +22,6 @@ interface ChatContainerProps {
 }
 
 const NoOp = () => null;
-
-const CustomDateSeparator = (props: DateSeparatorProps) => (
-  <DateSeparator {...props} position="center" />
-);
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
 
@@ -46,22 +41,24 @@ export const ChatContainer = ({ onToggleSidebar }: ChatContainerProps) => {
 
   return (
     <div className="ai-demo-chat-container">
-      <Channel
-        initializeOnMount={false}
-        // EmptyPlaceholder={<EmptyState />}
-        EmptyStateIndicator={EmptyState}
-        DateSeparator={CustomDateSeparator}
-        Message={MessageBubble}
-        UnreadMessagesNotification={NoOp}
-        UnreadMessagesSeparator={NoOp}
+      <WithComponents
+        overrides={{
+          EmptyStateIndicator: EmptyState,
+          Message: MessageBubble,
+          UnreadMessagesNotification: NoOp,
+          UnreadMessagesSeparator: NoOp,
+          MessageComposerUI: MessageInputBar,
+        }}
       >
-        <TopNavBar onToggleSidebar={onToggleSidebar} />
-        <Window>
-          <MessageList />
-          <AIStateIndicator />
-          <MessageInput Input={MessageInputBar} focus />
-        </Window>
-      </Channel>
+        <Channel initializeOnMount={false}>
+          <TopNavBar onToggleSidebar={onToggleSidebar} />
+          <Window>
+            <MessageList />
+            <AIStateIndicator />
+            <MessageComposer focus />
+          </Window>
+        </Channel>
+      </WithComponents>
     </div>
   );
 };

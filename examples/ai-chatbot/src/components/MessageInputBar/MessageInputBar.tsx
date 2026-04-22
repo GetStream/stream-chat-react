@@ -13,7 +13,7 @@ import {
   useChannelActionContext,
   useChannelStateContext,
   useChatContext,
-  useMessageComposer,
+  useMessageComposerController,
 } from 'stream-chat-react';
 import { startAiAgent, summarizeConversation } from '@/components/api';
 import {
@@ -43,7 +43,7 @@ export const MessageInputBar = () => {
   const { client } = useChatContext();
   const { updateMessage, sendMessage } = useChannelActionContext();
   const { channel } = useChannelStateContext();
-  const composer = useMessageComposer();
+  const composer = useMessageComposerController();
 
   const { attachments } = useAttachmentsForPreview();
   const [selectedPlatformModel, setSelectedPlatformModel] = useState<string>();

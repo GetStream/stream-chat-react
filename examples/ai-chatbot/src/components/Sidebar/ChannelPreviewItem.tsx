@@ -1,10 +1,10 @@
 'use client';
 
-import type { ChannelPreviewProps } from 'stream-chat-react';
+import type { ChannelListItemUIProps } from 'stream-chat-react';
 import { useChatContext } from 'stream-chat-react';
 import './ChannelPreviewItem.scss';
 
-export const ChannelPreviewItem = (props: ChannelPreviewProps) => {
+export const ChannelPreviewItem = (props: ChannelListItemUIProps) => {
   const { id, data } = props.channel;
   const { setActiveChannel, channel: activeChannel } = useChatContext();
   const isActive = activeChannel?.id === id;

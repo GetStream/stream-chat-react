@@ -21,12 +21,12 @@
       padding: 0.5rem 0;
     }
 
-    .str-chat__channel-list-messenger {
+    .str-chat__channel-list-inner {
       background-color: transparent;
       padding: 0;
     }
 
-    .str-chat__channel-list-messenger__main {
+    .str-chat__channel-list-inner__main {
       padding: 0;
     }
   }
@@ -46,28 +46,25 @@
 }
 
 .str-chat__load-more-button {
-  padding: 0 1rem;
+  width: 100%;
+  margin: 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--ai-demo-border);
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--ai-demo-text-primary);
+  font-family: var(--ai-demo-font-family);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 
-  .str-chat__load-more-button__button {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--ai-demo-border);
-    border-radius: 8px;
-    background-color: transparent;
-    color: var(--ai-demo-text-primary);
-    font-family: var(--ai-demo-font-family);
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+  &:hover {
+    background-color: var(--ai-demo-bg-tertiary);
+  }
 
-    &:hover {
-      background-color: var(--ai-demo-bg-tertiary);
-    }
-
-    &:active {
-      background-color: var(--ai-demo-border);
-    }
+  &:active {
+    background-color: var(--ai-demo-border);
   }
 }
 

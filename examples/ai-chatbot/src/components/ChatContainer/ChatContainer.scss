@@ -50,7 +50,7 @@
     flex: 1;
   }
 
-  .str-chat__list {
+  .str-chat__virtual-list {
     background-color: var(--ai-demo-bg-primary);
     padding: 1rem 0;
     flex: 1;
@@ -84,8 +84,8 @@
     font-size: 0.875rem;
   }
 
-  /* Override message input */
-  .str-chat__input-flat {
+  /* Override message composer */
+  .str-chat__message-composer {
     background-color: transparent;
     border: none;
   }

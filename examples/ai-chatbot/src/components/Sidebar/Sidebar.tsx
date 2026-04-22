@@ -1,6 +1,6 @@
 'use client';
 import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
-import { ChannelList } from 'stream-chat-react';
+import { ChannelList, WithComponents } from 'stream-chat-react';
 import { SidebarHeader } from './SidebarHeader';
 import { SidebarFooter } from './SidebarFooter';
 import { ChannelPreviewItem } from './ChannelPreviewItem';
@@ -33,14 +33,17 @@ export const Sidebar = ({
       >
         <SidebarHeader />
         <div className="ai-demo-sidebar__list">
-          <ChannelList
-            setActiveChannelOnMount={false}
-            Preview={ChannelPreviewItem}
-            EmptyStateIndicator={NoOp}
-            filters={filters}
-            options={options}
-            sort={sort}
-          />
+          <WithComponents
+            overrides={{ ChannelListItemUI: ChannelPreviewItem }}
+          >
+            <ChannelList
+              setActiveChannelOnMount={false}
+              EmptyStateIndicator={NoOp}
+              filters={filters}
+              options={options}
+              sort={sort}
+            />
+          </WithComponents>
         </div>
         <SidebarFooter />
       </div>
