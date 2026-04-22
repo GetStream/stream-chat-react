@@ -82,7 +82,7 @@
 
         &:focus-visible {
           color: var(--str-chat__attachment-action-focus-color);
-          outline: none;
+          @include utils.focusable;
         }
       }
     }

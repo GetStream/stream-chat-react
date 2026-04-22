@@ -75,8 +75,8 @@
       }
 
       &:focus-within {
-        outline: 2px solid var(--border-utility-focused);
-        outline-offset: 2px;
+        outline: var(--str-chat__focus-outline, 2px solid var(--border-utility-focused));
+        outline-offset: var(--str-chat__focus-outline-offset, 2px);
       }
 
       &--on {

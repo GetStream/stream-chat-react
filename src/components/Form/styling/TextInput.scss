@@ -19,7 +19,6 @@
   gap: 0;
   background-color: var(--background-core-elevation-0);
   border-radius: var(--radius-md);
-  outline: none;
   transition:
     border-color 0.15s ease,
     box-shadow 0.15s ease;
@@ -44,7 +43,8 @@
 
 .str-chat__form-text-input:focus-within .str-chat__form-text-input__wrapper--outline {
   border: 1px solid var(--input-border-focus);
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  box-shadow: 0 0 0 2px
+    var(--str-chat__focus-outline-color, var(--border-utility-focused));
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__wrapper--outline {
@@ -60,13 +60,15 @@
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error
   .str-chat__form-text-input__wrapper--outline {
   border: 1px solid var(--border-utility-error);
-  box-shadow: none;
+  box-shadow: 0 0 0 2px
+    var(--str-chat__focus-outline-color, var(--border-utility-focused));
 }
 
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
   .str-chat__form-text-input__wrapper--outline {
   border: 1px solid var(--input-border-focus);
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  box-shadow: 0 0 0 2px
+    var(--str-chat__focus-outline-color, var(--border-utility-focused));
 }
 
 .str-chat__form-text-input--disabled .str-chat__form-text-input__wrapper--outline {
@@ -83,7 +85,8 @@
 
 .str-chat__form-text-input:focus-within .str-chat__form-text-input__wrapper--ghost {
   border: none;
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  box-shadow: 0 0 0 2px
+    var(--str-chat__focus-outline-color, var(--border-utility-focused));
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__wrapper--ghost {
@@ -100,13 +103,15 @@
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error
   .str-chat__form-text-input__wrapper--ghost {
   border: 1px solid var(--border-utility-error);
-  box-shadow: none;
+  box-shadow: 0 0 0 2px
+    var(--str-chat__focus-outline-color, var(--border-utility-focused));
 }
 
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
   .str-chat__form-text-input__wrapper--ghost {
   border: none;
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  box-shadow: 0 0 0 2px
+    var(--str-chat__focus-outline-color, var(--border-utility-focused));
 }
 
 // ---------------------------------------------------------------------------

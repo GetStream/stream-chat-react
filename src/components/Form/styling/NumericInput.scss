@@ -17,7 +17,6 @@
     padding: 0;
     background: transparent;
     border-radius: var(--radius-md, 0.5rem);
-    outline: none;
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -36,7 +35,6 @@
     text-align: center;
     background: transparent;
     border: none;
-    outline: none;
     box-shadow: none;
 
     &::placeholder {
@@ -47,11 +45,5 @@
       color: var(--input-text-placeholder);
       cursor: not-allowed;
     }
-  }
-
-  .str-chat__form-numeric-input__input:focus,
-  .str-chat__form-numeric-input__input:focus-visible {
-    outline: none;
-    box-shadow: none;
   }
 }

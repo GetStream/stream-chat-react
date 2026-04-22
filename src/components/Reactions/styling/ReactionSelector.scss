@@ -67,7 +67,7 @@
         background-color: var(--background-utility-pressed);
       }
       &:not(:disabled):focus-visible {
-        outline: 2px solid var(--border-utility-focused);
+        outline: var(--str-chat__focus-outline, 2px solid var(--border-utility-focused));
         outline-offset: -2px;
       }
       &:not(:disabled)[aria-pressed='true'] {
