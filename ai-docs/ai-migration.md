@@ -236,6 +236,10 @@ Removed override keys (no rename; redesign the surface): `EditMessageInput`, `Ed
 
 After the `MessageInput*` → `MessageComposer*` rename (Phase 1):
 
+- Use `useMessageComposerContext()` for component-level bindings exposed by the rendered composer UI, such as `handleSubmit`, paste handling, recording state, and refs.
+- Use `useMessageComposerController()` when the integration needs the underlying `MessageComposer` controller, such as `initState()`, `clear()`, `textComposer`, `attachmentManager`, `pollComposer`, or `linkPreviewsManager`.
+- Prefer dedicated state hooks for simple reads instead of reaching into the controller directly.
+
 ### `handleSubmit` signature
 
 ```tsx
