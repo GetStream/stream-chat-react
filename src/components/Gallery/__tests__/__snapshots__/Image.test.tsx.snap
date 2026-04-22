@@ -138,6 +138,7 @@ exports[`Image > should render component with default props 1`] = `
               class="str-chat__gallery__media str-chat__gallery__media--image"
             >
               <img
+                alt=""
                 class="str-chat__base-image"
                 data-testid="str-chat__base-image"
                 src="https://placeimg.com/640/480/any"

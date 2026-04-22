@@ -2,6 +2,7 @@ import React from 'react';
 
 import { cleanup, fireEvent, render } from '@testing-library/react';
 
+import { axe } from '../../../../axe-helper';
 import { Avatar } from '../Avatar';
 
 const AVATAR_ROOT_TEST_ID = 'avatar';
@@ -34,17 +35,18 @@ describe('Avatar', () => {
       'str-chat__avatar--size-md',
     );
     const img = getByTestId('avatar-img');
+    expect(img).toHaveAttribute('alt', '');
     expect(img).toHaveAttribute('src', 'random');
   });
 
-  it('should render initials as alt and title', () => {
+  it('should render user name as image alt and title', () => {
     const userName = 'Cherry Blossom';
     const { getByAltText, getByTitle } = render(
       <Avatar imageUrl='randomImage' size='md' userName={userName} />,
     );
 
     expect(getByTitle(userName)).toBeInTheDocument();
-    expect(getByAltText('CB')).toBeInTheDocument();
+    expect(getByAltText(userName)).toBeInTheDocument();
   });
 
   it('should render initials as fallback when no image is supplied', () => {
@@ -98,5 +100,13 @@ describe('Avatar', () => {
 
     rerender(<Avatar imageUrl='anotherImage' size='md' />);
     expect(getByTestId(AVATAR_IMG_TEST_ID)).toHaveAttribute('src', 'anotherImage');
+  });
+
+  it('passes axe checks', async () => {
+    const { container } = render(
+      <Avatar imageUrl='randomImage' size='md' userName='Cherry Blossom' />,
+    );
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

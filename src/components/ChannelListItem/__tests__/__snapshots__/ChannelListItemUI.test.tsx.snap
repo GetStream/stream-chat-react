@@ -22,7 +22,7 @@ exports[`ChannelPreviewMessenger > should render correctly 1`] = `
           title="Channel name"
         >
           <img
-            alt="Cn"
+            alt="Channel name"
             class="str-chat__avatar-image"
             data-testid="avatar-img"
             src="https://randomimage.com/src.jpg"

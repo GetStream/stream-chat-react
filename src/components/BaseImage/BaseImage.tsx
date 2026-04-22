@@ -47,7 +47,7 @@ export const BaseImage = forwardRef<HTMLImageElement, BaseImageProps>(function B
     <img
       data-testid='str-chat__base-image'
       {...imgProps}
-      alt={propsAlt}
+      alt={propsAlt ?? ''}
       className={clsx(propsClassName, 'str-chat__base-image')}
       onError={(e) => {
         setError(true);
