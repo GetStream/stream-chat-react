@@ -12,14 +12,14 @@
     "clsx": "^2.1.1",
     "material-symbols": "^0.43.0",
     "nanoid": "^5.1.7",
-    "next": "^16.2.1",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "next": "^16.2.4",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "stream-chat": "^9.38.0",
     "stream-chat-react": "^13.14.3"
   },
   "devDependencies": {
-    "@types/node": "^24.10.1",
+    "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "typescript": "^5.9.3"
