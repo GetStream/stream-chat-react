@@ -1,6 +1,6 @@
-import React, { type ComponentProps, type ReactNode } from 'react';
+import React, { type ReactNode } from 'react';
 import clsx from 'clsx';
-import { BaseIcon } from './BaseIcon';
+import { BaseIcon, type BaseIconProps } from './BaseIcon';
 
 function toIconClass(name: string) {
   return (
@@ -15,13 +15,11 @@ function toIconClass(name: string) {
   );
 }
 
-export function createIcon(
-  name: string,
-  content: ReactNode,
-  defaultProps?: ComponentProps<'svg'> & Record<`data-${string}`, string>,
-) {
+type IconProps = BaseIconProps & Record<`data-${string}`, string>;
+
+export function createIcon(name: string, content: ReactNode, defaultProps?: IconProps) {
   const iconClass = toIconClass(name);
-  const Icon = ({ className, ...props }: ComponentProps<'svg'>) => (
+  const Icon = ({ className, ...props }: BaseIconProps) => (
     <BaseIcon {...defaultProps} {...props} className={clsx(iconClass, className)}>
       {content}
     </BaseIcon>

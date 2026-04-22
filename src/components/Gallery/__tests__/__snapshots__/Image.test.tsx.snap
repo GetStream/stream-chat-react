@@ -22,7 +22,9 @@ exports[`Image > should render component with default props 1`] = `
         data-testid="str-chat__modal-gallery__image-loading-overlay"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -80,7 +82,9 @@ exports[`Image > should render component with default props 1`] = `
               title="Download attachment"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--arrow-down-circle"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -106,8 +110,10 @@ exports[`Image > should render component with default props 1`] = `
             class="str-chat__button__content"
           >
             <svg
+              aria-hidden="true"
               class="str-chat__icon str-chat__icon--chevron-left"
               data-rtl-mirror=""
+              focusable="false"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -149,8 +155,10 @@ exports[`Image > should render component with default props 1`] = `
             class="str-chat__button__content"
           >
             <svg
+              aria-hidden="true"
               class="str-chat__icon str-chat__icon--chevron-right"
               data-rtl-mirror=""
+              focusable="false"
               viewBox="0 0 20 20"
               xmlns="http://www.w3.org/2000/svg"
             >

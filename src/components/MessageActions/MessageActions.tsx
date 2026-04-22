@@ -130,6 +130,7 @@ export const MessageActions: MessageActionsInterface = ({
           <quickDropdownToggleAction.Component ref={setActionsBoxButtonElement} />
 
           <ContextMenuComponent
+            aria-label={t('aria/Message Actions')}
             backLabel={t('Back')}
             className={clsx('str-chat__message-actions-box', {
               'str-chat__message-actions-box--hidden':

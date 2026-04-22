@@ -4,7 +4,7 @@ import { useDialogIsOpen } from '../hooks';
 import { Button } from '../../Button';
 import clsx from 'clsx';
 import { IconXmark } from '../../Icons';
-import { useComponentContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 
 export type CalloutProps = PropsWithChildren<
   DialogAnchorProps & {
@@ -50,18 +50,23 @@ export const Callout = ({
 
 export type CalloutDialogProps = Pick<CalloutProps, 'children' | 'className' | 'onClose'>;
 
-const DefaultCalloutDialog = ({ children, className, onClose }: CalloutDialogProps) => (
-  <div className='str-chat__callout'>
-    {children}
-    <Button
-      appearance='ghost'
-      circular
-      className={clsx(className, 'str-chat__callout__close-button')}
-      onClick={onClose}
-      size='sm'
-      variant='secondary'
-    >
-      <IconXmark />
-    </Button>
-  </div>
-);
+const DefaultCalloutDialog = ({ children, className, onClose }: CalloutDialogProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <div className='str-chat__callout'>
+      {children}
+      <Button
+        appearance='ghost'
+        aria-label={t('aria/Close callout dialog')}
+        circular
+        className={clsx(className, 'str-chat__callout__close-button')}
+        onClick={onClose}
+        size='sm'
+        variant='secondary'
+      >
+        <IconXmark />
+      </Button>
+    </div>
+  );
+};

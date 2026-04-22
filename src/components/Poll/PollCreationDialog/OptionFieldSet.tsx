@@ -98,7 +98,10 @@ export const OptionFieldSet = () => {
               placeholder={t('Add an option')}
               trailing={
                 option.text ? (
-                  <RemoveOptionButton onClick={() => clearOption(option.id)} />
+                  <RemoveOptionButton
+                    aria-label={t('aria/Remove option')}
+                    onClick={() => clearOption(option.id)}
+                  />
                 ) : undefined
               }
               type='text'

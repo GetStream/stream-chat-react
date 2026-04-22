@@ -122,6 +122,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
           </ul>
           <Button
             appearance='outline'
+            aria-label={t('aria/Open Reaction Selector')}
             circular
             className='str-chat__reaction-selector__add-button'
             data-testid='reaction-selector-add-button'

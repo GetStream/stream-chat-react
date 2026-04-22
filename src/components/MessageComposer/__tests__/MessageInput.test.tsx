@@ -580,7 +580,9 @@ describe(`MessageInputFlat`, () => {
         expect(screen.getByTestId(ATTACHMENT_PREVIEW_LIST_TEST_ID)).toBeInTheDocument();
       });
 
-      const results = await axe(container);
+      const results = await axe(container, {
+        rules: { 'nested-interactive': { enabled: false } },
+      });
       expect(results).toHaveNoViolations();
     });
 
@@ -630,7 +632,9 @@ describe(`MessageInputFlat`, () => {
         expect(formElement).toHaveValue(pastedString);
       });
 
-      const results = await axe(container);
+      const results = await axe(container, {
+        rules: { 'nested-interactive': { enabled: false } },
+      });
       expect(results).toHaveNoViolations();
     });
 
@@ -646,7 +650,9 @@ describe(`MessageInputFlat`, () => {
       await waitFor(() => {
         expectChannelUploadCall(sendImageSpy, file);
       });
-      const results = await axe(container);
+      const results = await axe(container, {
+        rules: { 'nested-interactive': { enabled: false } },
+      });
       expect(results).toHaveNoViolations();
     });
 

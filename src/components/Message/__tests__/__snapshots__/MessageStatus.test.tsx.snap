@@ -6,7 +6,9 @@ exports[`MessageStatus > renders default sending UI 1`] = `
   data-testid="message-status-sending"
 >
   <svg
+    aria-hidden="true"
     class="str-chat__icon str-chat__icon--clock str-chat__message-status-sending"
+    focusable="false"
     viewBox="0 0 20 20"
     xmlns="http://www.w3.org/2000/svg"
   >

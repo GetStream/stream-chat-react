@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ReactionSelector, type ReactionSelectorProps } from '../ReactionSelector';
 import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 
@@ -159,6 +159,14 @@ describe('ReactionSelector', () => {
   it('should render the add button for extended reactions', () => {
     const { getByTestId } = renderComponent();
     expect(getByTestId('reaction-selector-add-button')).toBeInTheDocument();
+  });
+
+  it('should provide an accessible name for the add button', () => {
+    renderComponent();
+
+    expect(
+      screen.getByRole('button', { name: 'Open Reaction Selector' }),
+    ).toBeInTheDocument();
   });
 
   it('should show extended reaction list when add button is clicked', () => {

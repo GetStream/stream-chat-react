@@ -89,6 +89,7 @@ export const AttachmentSelectorButton = forwardRef<
 
 export const SimpleAttachmentSelector = () => {
   const { channelCapabilities } = useChannelStateContext();
+  const { t } = useTranslationContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
   const id = useStableId();
@@ -112,6 +113,7 @@ export const SimpleAttachmentSelector = () => {
   return (
     <div className='str-chat__attachment-selector'>
       <AttachmentSelectorButton
+        aria-label={t('aria/Open Attachment Selector')}
         disabled={isCooldownActive}
         onClick={() => inputRef.current?.click()}
         ref={setButtonElement}

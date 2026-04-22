@@ -834,7 +834,7 @@ describe('<MessageSimple />', () => {
       const { getByTestId } = await renderMessageSimple({ message });
       const messageInner = getByTestId('message-inner');
 
-      expect(messageInner).toHaveAttribute('aria-label', 'aria/Review bounced message');
+      expect(messageInner).toHaveAttribute('aria-label', 'Review bounced message');
       expect(messageInner).toHaveAttribute('role', 'button');
       expect(messageInner).toHaveAttribute('tabindex', '0');
     });

@@ -31,7 +31,9 @@ exports[`VirtualizedMessageList > should render the list without any message 1`]
                 class="str-chat__empty-channel"
               >
                 <svg
+                  aria-hidden="true"
                   class="str-chat__icon str-chat__icon--message-bubble"
+                  focusable="false"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
                 >

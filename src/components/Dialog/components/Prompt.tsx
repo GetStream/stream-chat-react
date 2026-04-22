@@ -2,6 +2,7 @@ import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import { IconXmark } from '../../Icons';
+import { useTranslationContext } from '../../../context';
 
 const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__prompt', className)}>
@@ -16,28 +17,33 @@ export type PromptHeaderProps = {
   close?: () => void;
 };
 
-const PromptHeader = ({ className, close, description, title }: PromptHeaderProps) => (
-  <div className={clsx('str-chat__prompt__header', className)}>
-    <div className='str-chat__prompt__header__title-group'>
-      <div className='str-chat__prompt__header__title'>{title}</div>
-      {description != null && description !== '' && (
-        <div className='str-chat__prompt__header__description'>{description}</div>
+const PromptHeader = ({ className, close, description, title }: PromptHeaderProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <div className={clsx('str-chat__prompt__header', className)}>
+      <div className='str-chat__prompt__header__title-group'>
+        <div className='str-chat__prompt__header__title'>{title}</div>
+        {description != null && description !== '' && (
+          <div className='str-chat__prompt__header__description'>{description}</div>
+        )}
+      </div>
+      {close && (
+        <Button
+          appearance='ghost'
+          aria-label={t('Close prompt: {{ title }}', { title })}
+          circular
+          className='str-chat__prompt__header__close-button'
+          onClick={close}
+          size='sm'
+          variant='secondary'
+        >
+          <IconXmark />
+        </Button>
       )}
     </div>
-    {close && (
-      <Button
-        appearance='ghost'
-        circular
-        className='str-chat__prompt__header__close-button'
-        onClick={close}
-        size='sm'
-        variant='secondary'
-      >
-        <IconXmark />
-      </Button>
-    )}
-  </div>
-);
+  );
+};
 
 export type PromptBodyProps = PropsWithChildren<{
   className?: string;

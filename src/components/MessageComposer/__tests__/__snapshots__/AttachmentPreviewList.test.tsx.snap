@@ -32,8 +32,10 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__attachment-preview-media__overlay"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
                 data-testid="loading-indicator"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -65,7 +67,9 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__button__content"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--xmark-small"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -100,8 +104,10 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__attachment-preview-media__overlay"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
                 data-testid="loading-indicator"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -133,7 +139,9 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__button__content"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--xmark-small"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >

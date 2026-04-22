@@ -26,7 +26,9 @@ exports[`VirtualizedMessageComponents > EmptyPlaceholder > should render for mai
     class="str-chat__empty-channel"
   >
     <svg
+      aria-hidden="true"
       class="str-chat__icon str-chat__icon--message-bubble"
+      focusable="false"
       viewBox="0 0 20 20"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -58,7 +60,9 @@ exports[`VirtualizedMessageComponents > Header > should not render custom head i
     class="str-chat__virtual-list__loading"
   >
     <svg
+      aria-hidden="true"
       class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
+      focusable="false"
       viewBox="0 0 20 20"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -87,7 +91,9 @@ exports[`VirtualizedMessageComponents > Header > should render LoadingIndicator 
     class="str-chat__virtual-list__loading"
   >
     <svg
+      aria-hidden="true"
       class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
+      focusable="false"
       viewBox="0 0 20 20"
       xmlns="http://www.w3.org/2000/svg"
     >
