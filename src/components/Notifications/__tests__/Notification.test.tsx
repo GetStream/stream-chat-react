@@ -96,4 +96,28 @@ describe('Notification', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
     expect(removeNotification).not.toHaveBeenCalled();
   });
+
+  it('uses severity-aware live region semantics for notification messages', () => {
+    const { rerender } = render(
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+        <Notification notification={baseNotification} />
+      </TranslationProvider>,
+    );
+
+    const politeMessage = screen.getByText('Hello');
+    expect(politeMessage).toHaveAttribute('aria-live', 'polite');
+    expect(politeMessage).toHaveAttribute('aria-atomic', 'true');
+    expect(politeMessage).toHaveAttribute('role', 'status');
+    expect(screen.getByTestId('notification')).not.toHaveAttribute('aria-live');
+
+    rerender(
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+        <Notification notification={{ ...baseNotification, severity: 'error' }} />
+      </TranslationProvider>,
+    );
+
+    const assertiveMessage = screen.getByText('Hello');
+    expect(assertiveMessage).toHaveAttribute('aria-live', 'assertive');
+    expect(assertiveMessage).toHaveAttribute('role', 'alert');
+  });
 });

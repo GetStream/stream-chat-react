@@ -33,9 +33,11 @@ const UnMemoizedNewMessageNotification = (props: NewMessageNotificationProps) =>
   return (
     <div className='str-chat__new-message-notification'>
       <div
+        aria-atomic='true'
         aria-live='polite'
         className='str-chat__message-notification__label'
         data-testid='message-notification'
+        role='status'
       >
         {label}
       </div>

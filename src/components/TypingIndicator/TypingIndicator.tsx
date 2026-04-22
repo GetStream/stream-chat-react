@@ -5,10 +5,13 @@ import { AvatarStack } from '../Avatar';
 import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { useTypingContext } from '../../context/TypingContext';
 import { useThreadContext } from '../Threads';
+import { VisuallyHidden } from '../VisuallyHidden';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
+import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
 
 export type TypingIndicatorProps = {
   /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
@@ -30,6 +33,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const threadInstance = useThreadContext();
   const parentId = threadInstance?.id ?? thread?.id;
   const { client } = useChatContext('TypingIndicator');
+  const { t } = useTranslationContext();
   const { typing = {} } = useTypingContext('TypingIndicator');
 
   const typingInChannel = !threadList
@@ -47,6 +51,10 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const typingUsers = threadList ? typingInThread : typingInChannel;
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const showIndicator = displayUsers.length > 0;
+  const typingAnnouncement = useMemo(
+    () => getTypingStatusMessage(displayUsers, t),
+    [displayUsers, t],
+  );
 
   const displayInfo = useMemo(
     () =>
@@ -85,13 +93,25 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
       data-testid='typing-indicator'
     >
       {displayInfo.length > 0 && (
-        <AvatarStack badgeSize='md' displayInfo={displayInfo} size='md' />
+        <div aria-hidden='true'>
+          <AvatarStack badgeSize='md' displayInfo={displayInfo} size='md' />
+        </div>
       )}
-      <div className='str-chat__typing-indicator__bubble'>
+      <div aria-hidden='true' className='str-chat__typing-indicator__bubble'>
         <div className='str-chat__typing-indicator__dots'>
           <TypingIndicatorDots />
         </div>
       </div>
+      <VisuallyHidden>
+        <span
+          aria-atomic='true'
+          aria-live='polite'
+          data-testid='typing-indicator-status'
+          role='status'
+        >
+          {typingAnnouncement}
+        </span>
+      </VisuallyHidden>
     </div>
   );
 };

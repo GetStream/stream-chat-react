@@ -9,6 +9,7 @@ import { useTypingContext } from '../../context/TypingContext';
 import { useThreadContext } from '../Threads';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
+import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
 
 export type TypingIndicatorHeaderProps = {
   /** When true, show typing in the current thread only; when false, show typing in the channel. */
@@ -43,21 +44,10 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
 
   const typingUsers = threadList ? typingInThread : typingInChannel;
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
+  const label = getTypingStatusMessage(displayUsers, t);
 
   if (channelConfig?.typing_events === false || displayUsers.length === 0) {
     return null;
-  }
-
-  const names = displayUsers.map(({ user }) => user?.name ?? '');
-  let label: string;
-  if (names.length === 1) {
-    label = t('{{ typing }} is typing', { typing: names[0] });
-  } else if (names.length === 2) {
-    label = t('{{ typing }} are typing', {
-      typing: `${names[0]} and ${names[1]}`,
-    });
-  } else {
-    label = t('{{ count }} people are typing', { count: names.length });
   }
 
   return (
