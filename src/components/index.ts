@@ -11,6 +11,7 @@ export * from './ChannelHeader';
 export * from './ChannelList';
 export * from './ChannelListItem';
 export * from './Search';
+export * from './SkipNavigation';
 export * from './Chat';
 export * from './ChatView';
 export * from './DateSeparator';

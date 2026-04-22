@@ -8,7 +8,7 @@
  *   - unique id
  *   - aria-controls=<panel-id>
  *   - aria-selected
- *   - active-only tabIndex=0 (-1 for inactive)
+ *   - tabIndex=0 (all tabs tabbable)
  * - Active panel container is role="tabpanel" with:
  *   - id=<panel-id>
  *   - aria-labelledby=<tab-id>

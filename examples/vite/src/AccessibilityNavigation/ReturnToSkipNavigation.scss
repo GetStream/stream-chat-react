@@ -1,0 +1,25 @@
+.app-return-to-skip-navigation {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.app-return-to-skip-navigation:focus,
+.app-return-to-skip-navigation:focus-visible {
+  clip: auto;
+  clip-path: none;
+  background: var(--str-chat__background-color, #fff);
+  border: 1px solid var(--accent-primary);
+  border-radius: 4px;
+  color: var(--str-chat__text-color, currentColor);
+  display: inline-block;
+  height: auto;
+  margin: 8px;
+  padding: 6px 10px;
+  position: static;
+  width: auto;
+}

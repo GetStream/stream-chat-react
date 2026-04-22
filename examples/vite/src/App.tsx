@@ -37,6 +37,7 @@ import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
+import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
 import {
@@ -386,6 +387,7 @@ const App = () => {
           isMessageAIGenerated={isMessageAIGenerated}
           theme={chatTheme}
         >
+          <ChatSkipNavigation />
           <div
             className='app-chat-layout'
             ref={appLayoutRef}

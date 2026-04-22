@@ -41,7 +41,9 @@ export type ChatView = 'channels' | 'threads';
  * 1) Selector container is role="tablist".
  * 2) Each selector button is role="tab", with id + aria-controls=<panel-id>.
  * 3) Each view container is role="tabpanel", with id + aria-labelledby=<tab-id>.
- * 4) Tab activation is pointer-driven and updates the active panel.
+ * 4) Tab activation updates the active panel.
+ * 5) Tabs are always tabbable (tabIndex=0), so users can reach both without
+ *    arrow-key navigation.
  */
 type ChatViewContextValue = {
   activeChatView: ChatView;
@@ -299,7 +301,7 @@ export const ChatViewChannelsSelectorButton = ({
       isActive={isActive}
       onClick={() => setActiveChatView('channels')}
       onPointerDown={() => setActiveChatView('channels')}
-      tabIndex={isActive ? 0 : -1}
+      tabIndex={0}
       text={t('Channels')}
     />
   );
@@ -333,7 +335,7 @@ export const ChatViewThreadsSelectorButton = ({
       isActive={isActive}
       onClick={() => setActiveChatView('threads')}
       onPointerDown={() => setActiveChatView('threads')}
-      tabIndex={isActive ? 0 : -1}
+      tabIndex={0}
       text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>

@@ -218,7 +218,7 @@ describe('ChatView.Selector', () => {
     ).toEqual(['Channels', 'Threads']);
   });
 
-  it('renders tabs with tablist/tabpanel semantics and roving tab index', async () => {
+  it('renders tabs with tablist/tabpanel semantics and tabbable tabs', async () => {
     await renderSelectorWithPanels();
 
     const tablist = screen.getByRole('tablist', { name: 'Chat view tabs' });
@@ -228,7 +228,7 @@ describe('ChatView.Selector', () => {
     expect(tablist).toContainElement(channelsTab);
     expect(tablist).toContainElement(threadsTab);
     expect(channelsTab).toHaveAttribute('tabindex', '0');
-    expect(threadsTab).toHaveAttribute('tabindex', '-1');
+    expect(threadsTab).toHaveAttribute('tabindex', '0');
 
     const channelsPanel = document.getElementById(
       channelsTab.getAttribute('aria-controls') || '',
@@ -255,7 +255,7 @@ describe('ChatView.Selector', () => {
       expect(channelsTab).toHaveAttribute('aria-selected', 'true');
       expect(channelsTab).toHaveAttribute('tabindex', '0');
       expect(threadsTab).toHaveAttribute('aria-selected', 'false');
-      expect(threadsTab).toHaveAttribute('tabindex', '-1');
+      expect(threadsTab).toHaveAttribute('tabindex', '0');
       expect(
         document.getElementById(channelsTab.getAttribute('aria-controls') || ''),
       ).toHaveAttribute('role', 'tabpanel');
