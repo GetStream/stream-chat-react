@@ -26,12 +26,8 @@
     min-width: unset;
   }
 
-  font-family: var(--str-chat__typography-font-family-sans);
-
   box-shadow: var(--str-chat__box-shadow-3);
-
   padding-block-start: var(--str-chat__spacing-xxs);
-
   display: flex;
   flex-direction: column;
   gap: var(--str-chat__spacing-xxxs);
@@ -45,9 +41,7 @@
     max-height: var(--str-chat__size-32);
 
     color: var(--str-chat__text-tertiary);
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: var(--str-chat__typography-font-weight-medium);
-    line-height: var(--str-chat__typography-line-height-normal);
+    font: var(--str-chat__font-heading-xs);
   }
 
   .str-chat__message-reactions-detail__reaction-type-list {
@@ -72,7 +66,6 @@
         .str-chat__message-reactions-detail__reaction-type-list-item-icon {
           font-family: system-ui;
           font-size: var(--str-chat__font-size-size-17);
-          font-style: normal;
           line-height: var(--str-chat__typography-line-height-normal);
 
           .str-chat__icon {
@@ -145,7 +138,6 @@
       .str-chat__message-reactions-detail__user-list-item-icon {
         font-family: system-ui;
         font-size: var(--str-chat__font-size-size-17);
-        font-style: normal;
         line-height: var(--str-chat__typography-line-height-normal);
       }
 
@@ -157,9 +149,7 @@
 
         .str-chat__message-reactions-detail__user-list-item-username {
           color: var(--str-chat__text-primary);
-          font-size: var(--str-chat__typography-font-size-sm);
-          font-weight: var(--str-chat__typography-font-weight-regular);
-          line-height: var(--str-chat__typography-line-height-normal);
+          font: var(--str-chat__font-caption-default);
         }
 
         .str-chat__message-reactions-detail__user-list-item-button {

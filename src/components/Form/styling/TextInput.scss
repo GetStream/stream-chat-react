@@ -5,9 +5,7 @@
 }
 
 .str-chat__form-text-input__label {
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-weight: var(--str-chat__typography-font-weight-medium);
-  line-height: var(--str-chat__typography-line-height-tight);
+  font: var(--str-chat__font-heading-xs);
   color: var(--str-chat__text-primary);
 }
 
@@ -43,8 +41,8 @@
 }
 
 .str-chat__form-text-input:focus-within .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--input-border-focus);
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  // border: 1px solid var(--input-border-focus);
+  box-shadow: 0 0 0 2px var(--str-chat__border-utility-focused);
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__wrapper--outline {
@@ -65,8 +63,8 @@
 
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
   .str-chat__form-text-input__wrapper--outline {
-  border: 1px solid var(--input-border-focus);
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  // border: 1px solid var(--input-border-focus);
+  box-shadow: 0 0 0 2px var(--str-chat__border-utility-focused);
 }
 
 .str-chat__form-text-input--disabled .str-chat__form-text-input__wrapper--outline {
@@ -83,7 +81,7 @@
 
 .str-chat__form-text-input:focus-within .str-chat__form-text-input__wrapper--ghost {
   border: none;
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  box-shadow: 0 0 0 2px var(--str-chat__border-utility-focused);
 }
 
 .str-chat__form-text-input--error .str-chat__form-text-input__wrapper--ghost {
@@ -106,7 +104,7 @@
 .str-chat__form-text-input:focus-within.str-chat__form-text-input--error.str-chat__form-text-input--field-message-inside
   .str-chat__form-text-input__wrapper--ghost {
   border: none;
-  box-shadow: 0 0 0 2px var(--border-utility-focus, #c3d9ff);
+  box-shadow: 0 0 0 2px var(--str-chat__border-utility-focused);
 }
 
 // ---------------------------------------------------------------------------

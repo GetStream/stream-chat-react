@@ -52,14 +52,12 @@
   }
 
   .str-chat__message-attachment-card--title {
-    @include utils.ellipsis-text;
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: var(--str-chat__typography-font-weight-semi-bold);
+    font: var(--str-chat__font-caption-emphasis);
   }
 
   .str-chat__message-attachment-card--source-link,
   .str-chat__message-attachment-card--text {
-    font-size: var(--str-chat__typography-font-size-xs);
+    font: var(--str-chat__font-metadata-default);
   }
 
   .str-chat__message-attachment-card--title,
@@ -69,6 +67,7 @@
 
   .str-chat__message-attachment-card--text {
     @include utils.ellipsis-text-clamp-lines();
+    font: var(--str-chat__font-metadata-default);
   }
 
   .str-chat__message-attachment-card--source-link {

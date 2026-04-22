@@ -7,7 +7,7 @@
     gap: 16px;
 
     .app__settings-group_button {
-      color: var(--text-secondary);
+      color: var(--str-chat__text-secondary);
     }
   }
 
@@ -77,13 +77,13 @@
   }
 
   .app__attachment-dialog__field-label {
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
     font-size: 14px;
     font-weight: 600;
   }
 
   .app__attachment-dialog__subsection {
-    border-top: 1px solid var(--border-core-default);
+    border-top: 1px solid var(--str-chat__border-core-default);
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -92,7 +92,7 @@
   }
 
   .app__attachment-dialog__subsection-title {
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
     font-size: 14px;
     font-weight: 700;
     margin: 0;
@@ -104,10 +104,10 @@
   }
 
   .app__attachment-dialog__tab {
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 999px;
-    background: var(--background-core-elevation-2);
-    color: var(--text-secondary);
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-secondary);
     cursor: pointer;
     font: inherit;
     font-size: 13px;
@@ -117,20 +117,20 @@
   }
 
   .app__attachment-dialog__tab[aria-selected='true'] {
-    background: var(--background-utility-selected);
-    border-color: var(--border-utility-selected);
-    color: var(--text-primary);
+    background: var(--str-chat__background-utility-selected);
+    border-color: var(--str-chat__border-utility-selected);
+    color: var(--str-chat__text-primary);
   }
 
   .app__attachment-dialog__textarea {
     width: 100%;
     min-height: 200px;
     resize: vertical;
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 10px;
     padding: 10px 12px;
-    background: var(--background-core-elevation-2);
-    color: var(--text-primary);
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
     font-family:
       ui-monospace,
       SFMono-Regular,
@@ -142,7 +142,7 @@
   }
 
   .app__attachment-dialog__textarea:focus-visible {
-    outline: 2px solid var(--border-utility-selected);
+    outline: 2px solid var(--str-chat__border-utility-selected);
     outline-offset: 1px;
   }
 
@@ -199,7 +199,7 @@
   }
 
   .app__notification-dialog__field-label {
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
     font-size: 14px;
     font-weight: 600;
   }
@@ -207,10 +207,10 @@
   .app__notification-dialog__select {
     min-height: 40px;
     padding: 0 12px;
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 10px;
-    background: var(--background-core-elevation-2);
-    color: var(--text-primary);
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
     font: inherit;
   }
 
@@ -260,7 +260,7 @@
     flex-shrink: 0;
     width: 32px;
     height: 32px;
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 999px;
     background: transparent;
   }
@@ -279,7 +279,7 @@
   }
 
   .app__notification-dialog__queue-hint {
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
     font-size: 13px;
   }
 
@@ -303,7 +303,7 @@
     gap: 8px;
     max-width: 100%;
     padding: 6px 8px 6px 10px;
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 999px;
     background: var(--background-core-surface);
   }
@@ -324,7 +324,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
     font-size: 12px;
     white-space: nowrap;
   }
@@ -346,7 +346,7 @@
   }
 
   .app__notification-dialog__chip-remove {
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   .app__notification-dialog__footer {
@@ -378,9 +378,9 @@
     flex-direction: column;
     width: min(920px, 90vw);
     height: min(80vh, 760px);
-    background: var(--background-core-elevation-2);
-    color: var(--text-primary);
-    border: 1px solid var(--border-core-default);
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 14px;
   }
 
@@ -391,7 +391,7 @@
     padding: 16px 20px;
     font-size: 1.5rem;
     font-weight: 700;
-    border-bottom: 1px solid var(--border-core-default);
+    border-bottom: 1px solid var(--str-chat__border-core-default);
 
     svg.str-chat__icon--cog {
       height: 1.75rem;
@@ -409,7 +409,7 @@
   .app__settings-modal__tabs {
     overflow-y: auto;
     overscroll-behavior: contain;
-    border-inline-end: 1px solid var(--border-core-default);
+    border-inline-end: 1px solid var(--str-chat__border-core-default);
     padding: 10px;
   }
 
@@ -419,14 +419,14 @@
     justify-content: flex-start;
     font-weight: 500;
     margin-bottom: 6px;
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
   }
 
   .app__settings-modal__tab[aria-selected='true'],
   .app__settings-modal__tab.app__settings-modal__tab--active {
-    background: var(--background-utility-selected);
-    border-color: var(--border-utility-selected);
-    color: var(--text-primary);
+    background: var(--str-chat__background-utility-selected);
+    border-color: var(--str-chat__border-utility-selected);
+    color: var(--str-chat__text-primary);
     font-weight: 600;
   }
 
@@ -450,17 +450,17 @@
 
   .app__settings-modal__field-label {
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
   }
 
   .app__settings-modal__field .str-chat__form__switch-field {
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 10px;
     padding: 10px 12px;
   }
 
   .app__settings-modal__field-comment {
-    color: var(--text-secondary);
+    color: var(--str-chat__text-secondary);
     font-size: 13px;
     line-height: 1.4;
   }
@@ -472,8 +472,8 @@
   }
 
   .app__settings-modal__option-button[aria-pressed='true'] {
-    border-color: var(--border-utility-selected);
-    background: var(--background-utility-selected);
+    border-color: var(--str-chat__border-utility-selected);
+    background: var(--str-chat__background-utility-selected);
     font-weight: 600;
   }
 
@@ -485,7 +485,7 @@
   }
 
   .app__settings-modal__preview {
-    border: 1px solid var(--border-core-default);
+    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 12px;
     padding: 12px;
     background: var(--background-core-surface);
@@ -524,7 +524,7 @@
     }
 
     .app__settings-modal__tabs {
-      border-inline-end: 1px solid var(--border-core-default);
+      border-inline-end: 1px solid var(--str-chat__border-core-default);
       border-bottom: 0;
       display: block;
       gap: 0;

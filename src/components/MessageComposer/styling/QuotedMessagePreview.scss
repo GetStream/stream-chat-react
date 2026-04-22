@@ -24,14 +24,13 @@
       justify-content: center;
       flex: 1;
       min-width: 0;
-      font-size: var(--str-chat__typography-font-size-xs);
-      line-height: var(--str-chat__typography-line-height-tight);
       height: 40px; // to keep the same height even though the image preview is missing (it has 40px height)
+      font: var(--str-chat__font-caption-default);
 
       .str-chat__quoted-message-preview__author {
         @include utils.ellipsis-text();
         overflow-x: hidden; // force ellipsis to show
-        font-weight: var(--str-chat__typography-font-weight-semi-bold);
+        font: var(--str-chat__font-caption-emphasis);
       }
 
       .str-chat__quoted-message-preview__message {

@@ -1,5 +1,4 @@
 .str-chat__channel-list-item-container {
-  // display: flex;
   padding: var(--str-chat__spacing-xxs);
   position: relative;
 
@@ -15,13 +14,10 @@
     position: absolute;
     gap: var(--str-chat__spacing-xs);
 
-    border-radius: var(--str-chat__radius-md, 8px);
-    background: var(--str-chat__background-core-elevation-3, #fff);
+    border-radius: var(--str-chat__radius-md);
+    background: var(--str-chat__background-core-elevation-3);
 
-    box-shadow:
-      0 0 0 1px rgba(0, 0, 0, 0.05),
-      0 2px 4px 0 rgba(0, 0, 0, 0.12),
-      0 6px 16px 0 rgba(0, 0, 0, 0.06);
+    box-shadow: var(--str-chat__box-shadow-2);
 
     inset-inline-end: 10px;
     top: 10px;
@@ -49,7 +45,6 @@
   background: none;
   cursor: pointer;
   text-align: start;
-  font-family: var(--str-chat__typography-font-family-sans);
   border-radius: var(--str-chat__radius-lg);
   width: 100%;
 
@@ -90,9 +85,7 @@
         display: flex;
         align-items: inherit;
         gap: var(--str-chat__spacing-xxs);
-        font-size: var(--str-chat__typography-font-size-sm);
-        font-weight: var(--str-chat__typography-font-weight-semi-bold);
-        line-height: var(--str-chat__typography-line-height-normal);
+        font: var(--str-chat__font-caption-emphasis);
         color: var(--str-chat__text-primary);
 
         & > span {
@@ -115,10 +108,8 @@
         gap: var(--str-chat__spacing-xs);
 
         .str-chat__channel-list-item-timestamp {
-          font-weight: var(--str-chat__typography-font-weight-regular);
-          font-size: var(--str-chat__typography-font-size-sm);
+          font: var(--str-chat__font-caption-default);
           color: var(--str-chat__text-tertiary);
-          line-height: var(--str-chat__typography-line-height-normal);
         }
       }
     }

@@ -4,9 +4,7 @@
   border: none;
 
   .str-chat__form__input-fieldset__label {
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: var(--str-chat__typography-font-weight-medium);
-    line-height: var(--str-chat__typography-line-height-tight);
+    font: var(--str-chat__font-heading-xs);
     color: var(--str-chat__text-primary);
   }
 

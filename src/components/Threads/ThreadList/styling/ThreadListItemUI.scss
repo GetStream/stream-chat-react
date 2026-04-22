@@ -62,12 +62,17 @@
   flex-direction: column;
   gap: var(--str-chat__spacing-xxs);
   padding-block: var(--str-chat__spacing-xxxs);
+
+  .str-chat__summarized-message-preview {
+    font: var(--str-chat__font-body-default);
+    .str-chat__summarized-message-preview__sender {
+      font: var(--str-chat__font-body-emphasis);
+    }
+  }
 }
 
 .str-chat__thread-list-item__title {
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-weight: var(--str-chat__typography-font-weight-semi-bold);
-  line-height: var(--str-chat__typography-line-height-normal);
+  font: var(--str-chat__font-caption-emphasis);
   color: var(--str-chat__text-tertiary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -87,9 +92,7 @@
 }
 
 .str-chat__thread-list-item__reply-count {
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-weight: var(--str-chat__typography-font-weight-semi-bold);
-  line-height: var(--str-chat__typography-line-height-normal);
+  font: var(--str-chat__font-caption-emphasis);
   color: var(--str-chat__text-link);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -97,9 +100,7 @@
 }
 
 .str-chat__thread-list-item__timestamp {
-  font-size: var(--str-chat__typography-font-size-sm);
-  font-weight: var(--str-chat__typography-font-weight-regular);
-  line-height: var(--str-chat__typography-line-height-normal);
+  font: var(--str-chat__font-caption-default);
   color: var(--str-chat__text-tertiary);
   white-space: nowrap;
   min-width: 0;

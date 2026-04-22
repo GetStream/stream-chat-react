@@ -2,6 +2,7 @@
 
 $message-active-background-color: transparent;
 $message-reactions-host-offset-x: calc(var(--str-chat__spacing-xs) * -1);
+$message-bubble-padding: var(--str-chat__spacing-xs);
 
 .str-chat {
   /* The width/height of the message options button(s) */
@@ -70,7 +71,7 @@ $message-reactions-host-offset-x: calc(var(--str-chat__spacing-xs) * -1);
     display: flex;
     flex-direction: column;
     gap: var(--str-chat__spacing-xs);
-    padding: var(--str-chat__spacing-xs);
+    padding: $message-bubble-padding;
   }
 
   .str-chat__message-options {
@@ -395,6 +396,9 @@ $message-reactions-host-offset-x: calc(var(--str-chat__spacing-xs) * -1);
 
       .str-chat__message-text {
         @include chat-bubble-spacing;
+        border-radius: calc(
+          var(--str-chat__message-bubble-radius-group-bottom) - #{$message-bubble-padding}
+        );
 
         .str-chat__message-text-inner {
           @include utils.prevent-glitch-text-overflow;
@@ -611,12 +615,18 @@ $message-reactions-host-offset-x: calc(var(--str-chat__spacing-xs) * -1);
   .str-chat__message--other {
     .str-chat__message-bubble {
       border-end-start-radius: var(--str-chat__message-bubble-radius-tail);
+      .str-chat__message-text {
+        border-end-start-radius: var(--str-chat__message-bubble-radius-tail);
+      }
     }
   }
 
   .str-chat__message--me {
     .str-chat__message-bubble {
       border-end-end-radius: var(--str-chat__message-bubble-radius-tail);
+      .str-chat__message-text {
+        border-end-end-radius: var(--str-chat__message-bubble-radius-tail);
+      }
     }
   }
 }

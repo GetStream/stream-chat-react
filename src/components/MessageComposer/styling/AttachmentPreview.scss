@@ -224,9 +224,7 @@ $attachment-preview-row-height: 72px;
     .str-chat__attachment-preview-file-name {
       @include utils.ellipsis-text;
       max-width: 100%;
-      font-weight: var(--str-chat__typography-font-weight-semi-bold);
-      font-size: var(--str-chat__typography-font-size-sm);
-      line-height: var(--str-chat__typography-line-height-tight);
+      font: var(--str-chat__font-caption-emphasis);
     }
 
     .str-chat__attachment-preview-file__data {
@@ -236,9 +234,7 @@ $attachment-preview-row-height: 72px;
       max-width: 100%;
       gap: var(--str-chat__spacing-xxs);
       color: var(--str-chat__text-secondary);
-      font-weight: var(--str-chat__typography-font-weight-regular);
-      font-size: var(--str-chat__typography-font-size-xs);
-      line-height: var(--str-chat__typography-line-height-tight);
+      font: var(--str-chat__font-metadata-default);
 
       .str-chat__loading-indicator,
       .str-chat__progress-indicator {

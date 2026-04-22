@@ -76,11 +76,13 @@
 
       .str-chat__reaction-icon {
         font-size: var(--str-chat__typography-font-size-2xl);
-        line-height: 1;
+        height: var(--str-chat__typography-font-size-2xl);
+        width: var(--str-chat__typography-font-size-2xl);
+        font-family: system-ui;
+        line-height: 0;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: system-ui, sans-serif;
       }
     }
   }

@@ -19,9 +19,7 @@
     border-radius: var(--str-chat__radius-max);
     border: 1px solid var(--str-chat__border-core-default);
     color: var(--str-chat__input-text-placeholder);
-    font: var(--str_chat__heading-xs-text);
-    // FIXME: there's no proper variation so we need to adjust font-weight separately
-    font-weight: var(--str-chat__typography-font-weight-regular);
+    font: var(--str-chat__font-caption-default);
     flex-shrink: 1;
     flex-grow: 1;
 
@@ -102,7 +100,7 @@
           text-align: start;
 
           .str-chat__search-result__display-name {
-            font: var(--str-chat__font-heading-xs);
+            font: var(--str-chat__font-caption-emphasis);
             color: var(--str-chat__text-primary);
             flex: 1;
             min-width: 0;
@@ -117,10 +115,8 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            font-weight: var(--str-chat__typography-font-weight-regular);
-            font-size: var(--str-chat__typography-font-size-sm);
             color: var(--str-chat__text-tertiary);
-            line-height: var(--str-chat__typography-line-height-normal);
+            font: var(--str-chat__font-caption-default);
           }
         }
 
@@ -142,7 +138,7 @@
 .str-chat__search-source-result-list__footer,
 .str-chat__search-results-presearch,
 .str-chat__search-source-results-empty {
-  font-size: var(--str-chat__typography-font-size-sm);
+  font: var(--str-chat__font-caption-default);
   color: var(--str-chat__text-tertiary);
   padding-block: var(--str-chat__spacing-xs);
   display: flex;

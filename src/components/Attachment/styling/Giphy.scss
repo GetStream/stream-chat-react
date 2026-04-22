@@ -31,21 +31,19 @@ $gif-height: 200px;
 .str-chat__giphy-badge {
   display: inline-flex;
   height: 24px;
-  padding: var(--str-chat__spacing-xxxs, 2px) var(--str-chat__spacing-xs, 8px);
+  padding: var(--str-chat__spacing-xxxs) var(--str-chat__spacing-xs);
   justify-content: center;
   align-items: center;
-  gap: var(--str-chat__spacing-xxs, 4px);
+  gap: var(--str-chat__spacing-xxs);
   position: absolute;
   inset-inline-start: 8px;
   bottom: 8px;
 
-  border-radius: var(--str-chat__radius-lg, 12px);
-  background-color: var(--str-chat__badge-bg-overlay, rgba(0, 0, 0, 0.75));
-  color: var(--str-chat__badge-text-on-accent, #fff);
+  border-radius: var(--str-chat__radius-lg);
+  background-color: var(--str-chat__badge-bg-overlay);
+  color: var(--str-chat__badge-text-on-accent);
 
-  font-size: var(--str-chat__typography-font-size-xs, 12px);
-  font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
-  line-height: var(--str-chat__typography-line-height-tight, 16px);
+  font: var(--str-chat__font-metadata-emphasis);
   text-transform: uppercase;
 }
 
@@ -66,8 +64,6 @@ $gif-height: 200px;
     align-self: stretch;
 
     color: var(--chat-text);
-    font-size: var(--str-chat__typography-font-size-sm);
-    font-weight: var(--str-chat__typography-font-weight-semi-bold);
-    line-height: var(--str-chat__typography-line-height-tight);
+    font: var(--str-chat__font-caption-emphasis);
   }
 }

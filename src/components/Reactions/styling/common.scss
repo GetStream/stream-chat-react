@@ -15,7 +15,7 @@
   border: 1px solid var(--str-chat__reaction-border);
   background: var(--str-chat__reaction-bg);
   color: var(--str-chat__reaction-text);
-  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.16);
+  box-shadow: var(--str-chat__box-shadow-3);
   font-weight: inherit;
   font-size: inherit;
   line-height: 1;
