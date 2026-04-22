@@ -77,6 +77,7 @@ import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
+import { useReducedMotionPreference } from './hooks/useReducedMotionPreference';
 import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
 
 type PropsDrilledToMessage =
@@ -260,6 +261,10 @@ const VirtualizedMessageListWithContext = (
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
   const { client, customClasses } = useChatContext('VirtualizedMessageList');
+  const prefersReducedMotion = useReducedMotionPreference();
+  const effectiveStickToBottomScrollBehavior = prefersReducedMotion
+    ? 'auto'
+    : stickToBottomScrollBehavior;
   const notificationTarget = useNotificationTarget();
 
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -445,10 +450,10 @@ const VirtualizedMessageListWithContext = (
     }
 
     if (shouldForceScrollToBottom()) {
-      return isAtBottom ? stickToBottomScrollBehavior : 'auto';
+      return isAtBottom ? effectiveStickToBottomScrollBehavior : 'auto';
     }
     // a message from another user has been received - don't scroll to bottom unless already there
-    return isAtBottom ? stickToBottomScrollBehavior : false;
+    return isAtBottom ? effectiveStickToBottomScrollBehavior : false;
   };
 
   const computeItemKey = useCallback<ComputeItemKey<UnknownType, VirtuosoContext>>(
@@ -709,7 +714,7 @@ export type VirtualizedMessageListProps = Partial<
    * is shown only when viewing unread messages.
    */
   showUnreadNotificationAlways?: boolean;
-  /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
+  /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. Reduced-motion users are always treated as `"auto"`. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   /** stops the list from autoscrolling when new messages are loaded */
   suppressAutoscroll?: boolean;

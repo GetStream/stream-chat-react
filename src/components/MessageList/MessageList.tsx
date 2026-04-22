@@ -42,6 +42,7 @@ import {
   DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
 } from '../../constants/limits';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
+import { useReducedMotionPreference } from './hooks/useReducedMotionPreference';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 import {
   NotificationList as DefaultNotificationList,
@@ -117,6 +118,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   const { customClasses } = useChatContext('MessageList');
+  const prefersReducedMotion = useReducedMotionPreference();
+  const scrollBehavior = prefersReducedMotion ? 'auto' : 'smooth';
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -269,8 +272,14 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       return;
     }
 
-    scrollToBottom({ behavior: 'smooth' });
-  }, [hasMoreNewer, jumpToLatestMessage, messageSetSignature, scrollToBottom]);
+    scrollToBottom({ behavior: scrollBehavior });
+  }, [
+    scrollBehavior,
+    hasMoreNewer,
+    jumpToLatestMessage,
+    messageSetSignature,
+    scrollToBottom,
+  ]);
 
   React.useLayoutEffect(() => {
     if (
@@ -287,13 +296,14 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     const animationFrameId = requestAnimationFrame(() => {
       setJumpToLatestPhase('animating');
       listElement.scrollTo({
-        behavior: 'smooth',
+        behavior: scrollBehavior,
         top: listElement.scrollHeight,
       });
     });
 
     return () => cancelAnimationFrame(animationFrameId);
   }, [
+    scrollBehavior,
     hasMoreNewer,
     jumpSourceMessageSetSignature,
     jumpToLatestPhase,
@@ -340,7 +350,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
     const animationFrameId = requestAnimationFrame(() => {
       element.scrollIntoView({
-        behavior: 'smooth',
+        behavior: scrollBehavior,
         block: 'center',
       });
 
@@ -369,7 +379,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [highlightedMessageId, messageSetSignature]);
+  }, [scrollBehavior, highlightedMessageId, messageSetSignature]);
 
   React.useEffect(() => {
     previousHasMoreNewerRef.current = hasMoreNewer;

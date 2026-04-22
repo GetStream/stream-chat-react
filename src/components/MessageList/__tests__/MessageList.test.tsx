@@ -115,6 +115,29 @@ const createDeferred = () => {
   return { promise, resolve };
 };
 
+const originalMatchMedia = window.matchMedia;
+const mockReducedMotionPreference = (matches: boolean) => {
+  const matchMediaMock = vi.fn().mockImplementation((query: string) => {
+    const mediaQueryList = {
+      addEventListener: vi.fn(),
+      addListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+      matches: query === '(prefers-reduced-motion: reduce)' ? matches : false,
+      media: query,
+      onchange: null,
+      removeEventListener: vi.fn(),
+      removeListener: vi.fn(),
+    };
+
+    return mediaQueryList as MediaQueryList;
+  });
+
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: matchMediaMock,
+  });
+};
+
 describe('MessageList', () => {
   let chatClient: StreamChat;
   let channel: ChannelType;
@@ -135,6 +158,17 @@ describe('MessageList', () => {
     cleanup();
     vi.clearAllMocks();
     markReadMock.mockRestore();
+    if (originalMatchMedia) {
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        value: originalMatchMedia,
+      });
+    } else {
+      Object.defineProperty(window, 'matchMedia', {
+        configurable: true,
+        value: undefined,
+      });
+    }
   });
 
   it('should add new message at the bottom of the list', async () => {
@@ -1009,6 +1043,100 @@ describe('MessageList', () => {
           expect(scrollToMock).toHaveBeenNthCalledWith(1, { top: 0 });
           expect(scrollToMock).toHaveBeenNthCalledWith(2, {
             behavior: 'smooth',
+            top: 1000,
+          });
+        });
+
+        if (originalScrollTo) {
+          Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+            configurable: true,
+            value: originalScrollTo,
+          });
+        } else {
+          delete HTMLElement.prototype.scrollTo;
+        }
+      });
+
+      it('uses auto scroll behavior when reduced motion is preferred', async () => {
+        mockReducedMotionPreference(true);
+
+        const olderMessages = [
+          generateMessage({ id: 'older-1', text: 'older-1', user: user1 }),
+          generateMessage({ id: 'older-2', text: 'older-2', user: user2 }),
+        ];
+        const latestMessages = [
+          generateMessage({ id: 'latest-1', text: 'latest-1', user: user1 }),
+          generateMessage({ id: 'latest-2', text: 'latest-2', user: user2 }),
+        ];
+        const jumpDeferred = createDeferred();
+        const scrollToMock = vi.fn(function scrollTo(this: HTMLElement, options) {
+          if (typeof options === 'object' && typeof options.top === 'number') {
+            this.scrollTop = options.top;
+          }
+        });
+        const originalScrollTo = HTMLElement.prototype.scrollTo;
+        Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+          configurable: true,
+          value: scrollToMock,
+        });
+
+        const MessageListHarness = () => {
+          const [renderedMessages, setRenderedMessages] = React.useState(olderMessages);
+          const [canLoadNewer, setCanLoadNewer] = React.useState(true);
+
+          const jumpToLatestMessage = React.useCallback(
+            () =>
+              jumpDeferred.promise.then(() => {
+                setRenderedMessages(latestMessages);
+                setCanLoadNewer(false);
+              }),
+            [],
+          );
+
+          return (
+            <Chat client={chatClient}>
+              <Channel channel={channel}>
+                <ChannelStateOverride overrides={{ hasMoreNewer: canLoadNewer }}>
+                  <MessageList
+                    jumpToLatestMessage={jumpToLatestMessage}
+                    messages={renderedMessages}
+                  />
+                </ChannelStateOverride>
+              </Channel>
+            </Chat>
+          );
+        };
+
+        render(<MessageListHarness />);
+
+        await waitFor(() => {
+          expect(screen.getByText('older-1')).toBeInTheDocument();
+        });
+
+        const listElement = document.querySelector('.str-chat__message-list');
+        Object.defineProperties(listElement, {
+          offsetHeight: { configurable: true, value: 250 },
+          scrollHeight: { configurable: true, value: 1000, writable: true },
+          scrollTop: { configurable: true, value: 0, writable: true },
+        });
+
+        fireEvent.click(screen.getByTestId(SCROLL_TO_LATEST_MESSAGE_TEST_ID));
+
+        expect(scrollToMock).not.toHaveBeenCalled();
+
+        await act(async () => {
+          jumpDeferred.resolve();
+          await jumpDeferred.promise;
+        });
+
+        await waitFor(() => {
+          expect(screen.getByText('latest-1')).toBeInTheDocument();
+        });
+
+        await waitFor(() => {
+          expect(scrollToMock).toHaveBeenNthCalledWith(1, { top: 0 });
+          expect(scrollToMock).toHaveBeenNthCalledWith(2, {
+            behavior: 'auto',
             top: 1000,
           });
         });
