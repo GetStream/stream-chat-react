@@ -158,6 +158,10 @@ export type ComponentContextValue = {
   /** Custom UI component for determinate progress (0–100), defaults to and accepts same props as: [ProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/progress-indicators.tsx) */
   ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
+  MessageUI?: React.ComponentType<MessageUIComponentProps>;
+  /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx)
+   * @deprecated use `MessageUI` instead
+   */
   Message?: React.ComponentType<MessageUIComponentProps>;
   /** Custom UI component for message actions popup, accepts no props, all the defaults are set within [MessageActions (unstable)](https://github.com/GetStream/stream-chat-react/blob/master/src/experimental/MessageActions/MessageActions.tsx) */
   MessageActions?: React.ComponentType;
