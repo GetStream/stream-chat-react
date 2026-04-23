@@ -472,6 +472,11 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
   const membership = useChannelMembershipState(channel);
   const memberCount = channel.data?.member_count ?? 0;
   const connectedUserIsMember = typeof membership.user !== 'undefined';
+  const isDirectMessageChannel =
+    connectedUserIsMember &&
+    memberCount === 2 &&
+    channel.type === 'messaging' &&
+    channel.id?.startsWith('!members-');
 
   const ownCapabilities = channel.data?.own_capabilities;
 
@@ -486,9 +491,7 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
           return ownCapabilities?.includes('mute-channel');
         case 'ban':
           return (
-            memberCount > 0 &&
-            memberCount <= 2 &&
-            ownCapabilities?.includes('ban-channel-members')
+            isDirectMessageChannel && ownCapabilities?.includes('ban-channel-members')
           );
         case 'leave':
           return ownCapabilities?.includes('leave-channel');
@@ -500,5 +503,5 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
     });
 
     return filtered;
-  }, [channelActionSet, memberCount, ownCapabilities, connectedUserIsMember]);
+  }, [channelActionSet, connectedUserIsMember, ownCapabilities, isDirectMessageChannel]);
 };
