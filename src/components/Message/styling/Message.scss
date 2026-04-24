@@ -181,6 +181,46 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
 
   @media (max-width: 767px) {
     --str-chat-message-options-size: var(--str-chat__message-options-button-size);
+
+    & .str-chat__message-bubble {
+      width: fit-content(var(--str-chat__message-max-width));
+      max-width: min(100%, var(--str-chat__message-max-width));
+    }
+
+    &.str-chat__message--other,
+    &.str-chat__message--me {
+      .str-chat__message-inner {
+        margin-inline: 0;
+        width: fit-content;
+        max-width: min(100%, var(--str-chat__message-max-width));
+
+        .str-chat__message-reactions-host {
+          justify-self: flex-start;
+          justify-content: flex-start;
+          width: 0;
+          min-width: 0;
+          overflow: visible;
+          margin-inline: 0;
+          padding-inline: 0;
+        }
+      }
+    }
+
+    &.str-chat__message--other {
+      .str-chat__message-inner {
+        grid-template-columns: auto var(--str-chat-message-options-size);
+      }
+    }
+
+    &.str-chat__message--me {
+      .str-chat__message-inner {
+        grid-template-columns: var(--str-chat-message-options-size) auto;
+      }
+
+      .str-chat__message-bubble {
+        justify-self: flex-start;
+      }
+    }
   }
 
   a {
@@ -258,7 +298,7 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
     }
 
     .str-chat__message-bubble {
-      width: min(100%, var(--str-chat__message-max-width));
+      width: fit-content(var(--str-chat__message-max-width));
       max-width: var(--str-chat__message-max-width);
       min-width: 0;
       display: flex;
