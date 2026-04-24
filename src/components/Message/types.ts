@@ -41,8 +41,10 @@ export type MessageProps = {
   // todo: could be moved to the Channel instance reactive state as lastReceivedMessage keeping the the receipt status as well (useful for channel preview)
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
-  /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/#message) */
-  Message?: ComponentContextValue['Message'];
+  /** UI component to display a Message in MessageList, overrides value in [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/#message)
+   * @deprecated use `ComponentContext` (`WithComponents`) component override instead (`MessageUI` slot)
+   */
+  Message?: ComponentContextValue['MessageUI'];
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
