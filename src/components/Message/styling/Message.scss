@@ -197,7 +197,6 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
         .str-chat__message-reactions-host {
           justify-self: flex-start;
           justify-content: flex-start;
-          width: 0;
           min-width: 0;
           overflow: visible;
           margin-inline: 0;
@@ -218,7 +217,7 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
       }
 
       .str-chat__message-bubble {
-        justify-self: flex-start;
+        justify-self: flex-end;
       }
     }
   }
