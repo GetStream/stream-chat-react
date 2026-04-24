@@ -24,7 +24,10 @@ body {
 #root {
   display: flex;
   flex-direction: column;
+  /* Fallback for browsers without dynamic viewport units */
   height: 100vh;
+  /* Match the visible viewport on mobile browser UI changes */
+  height: 100dvh;
   min-height: 0;
 }
 
