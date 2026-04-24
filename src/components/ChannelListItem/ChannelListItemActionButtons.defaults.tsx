@@ -472,11 +472,7 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
   const membership = useChannelMembershipState(channel);
   const memberCount = channel.data?.member_count ?? 0;
   const connectedUserIsMember = typeof membership.user !== 'undefined';
-  const isDirectMessageChannel =
-    connectedUserIsMember &&
-    memberCount === 2 &&
-    channel.type === 'messaging' &&
-    channel.id?.startsWith('!members-');
+  const isDirectMessageChannel = connectedUserIsMember && memberCount === 2;
 
   const ownCapabilities = channel.data?.own_capabilities;
 
