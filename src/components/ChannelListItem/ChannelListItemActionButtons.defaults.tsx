@@ -153,6 +153,7 @@ const defaultComponents = {
       return (
         <ContextMenuButton
           aria-label={behaviorProps.title}
+          data-testid='dropdown-action-archive'
           Icon={IconArchive}
           {...behaviorProps}
         >
@@ -176,6 +177,7 @@ const defaultComponents = {
       return (
         <ContextMenuButton
           aria-label={title}
+          data-testid='dropdown-action-ban'
           disabled={inProgress}
           Icon={IconNoSign}
           onClick={async () => {
@@ -244,6 +246,7 @@ const defaultComponents = {
       return (
         <ContextMenuButton
           aria-label={title}
+          data-testid='dropdown-action-leave'
           disabled={inProgress}
           Icon={IconLeave}
           onClick={async (e) => {
@@ -290,6 +293,7 @@ const defaultComponents = {
       return (
         <ContextMenuButton
           aria-label={behaviorProps.title}
+          data-testid='dropdown-action-mute'
           Icon={IconMute}
           {...behaviorProps}
         >
@@ -314,6 +318,7 @@ const defaultComponents = {
       return (
         <ContextMenuButton
           aria-label={title}
+          data-testid='dropdown-action-pin'
           disabled={inProgress}
           Icon={IconPin}
           onClick={async (e) => {
@@ -377,6 +382,7 @@ const defaultComponents = {
           appearance='ghost'
           aria-label={behaviorProps.title}
           circular
+          data-testid='quick-action-archive'
           size='sm'
           variant='secondary'
           {...behaviorProps}
@@ -393,6 +399,7 @@ const defaultComponents = {
           appearance='ghost'
           aria-label={behaviorProps.title}
           circular
+          data-testid='quick-action-mute'
           size='sm'
           variant='secondary'
           {...behaviorProps}
@@ -418,6 +425,7 @@ const defaultComponents = {
         aria-expanded={dialogIsOpen}
         aria-pressed={dialogIsOpen}
         circular
+        data-testid='channel-list-item-dropdown-toggle'
         onClick={(e) => {
           e.stopPropagation();
 
