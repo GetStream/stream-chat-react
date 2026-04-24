@@ -152,9 +152,10 @@ export const DefaultAttachmentSelectorComponents = {
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
         hasSubMenu={hasSubmenu}
         Icon={IconCommand}
-        onClick={() => {
+        onClick={(event) => {
           if (!hasSubmenu) return;
           openSubmenu({
+            focusReturnTarget: event.currentTarget,
             Header: submenuHeader,
             menuClassName: CommandsMenuClassName,
             Submenu: submenuItems,

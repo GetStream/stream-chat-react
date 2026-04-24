@@ -65,7 +65,7 @@ const msgActionsBoxButtonClassName =
 
 const MessageActionsMenuItemButton = (
   props: React.ComponentProps<typeof ContextMenuButton>,
-) => <ContextMenuButton role='menuitem' {...props} />;
+) => <ContextMenuButton {...props} />;
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error && error.message ? error.message : fallback;
@@ -264,9 +264,10 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           hasSubMenu={downloadableAttachments.length > 1}
           Icon={IconDownload}
-          onClick={() => {
+          onClick={(event) => {
             if (downloadableAttachments.length > 1) {
               openSubmenu({
+                focusReturnTarget: event.currentTarget,
                 Header: DownloadSubmenuHeader,
                 Submenu: DownloadSubmenu,
               });
@@ -449,7 +450,7 @@ const DefaultMessageActionComponents = {
           className={msgActionsBoxButtonClassName}
           hasSubMenu={!reminder}
           Icon={reminder ? IconBellOff : IconBell}
-          onClick={async () => {
+          onClick={async (event) => {
             if (reminder) {
               try {
                 await client.reminders.deleteReminder(reminder.id);
@@ -478,6 +479,7 @@ const DefaultMessageActionComponents = {
               }
             } else {
               openSubmenu({
+                focusReturnTarget: event.currentTarget,
                 Header: RemindMeSubmenuHeader,
                 Submenu: RemindMeSubmenu,
               });

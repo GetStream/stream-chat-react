@@ -81,7 +81,6 @@ export const RemindMeSubmenu = () => {
               closeMenu();
             }
           }}
-          role='menuitem'
         >
           {t('duration/Remind Me', { milliseconds: offsetMs })}
         </ContextMenuButton>

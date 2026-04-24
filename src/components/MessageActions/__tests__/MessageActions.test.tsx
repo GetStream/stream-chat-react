@@ -1736,8 +1736,9 @@ describe('<MessageActions />', () => {
         },
       });
       await toggleOpenMessageActions();
+      const remindMeButton = screen.getByRole('menuitem', { name: /Reminder/i });
       await act(async () => {
-        await fireEvent.click(screen.getByText('Remind me'));
+        await fireEvent.click(remindMeButton);
       });
       await act(async () => {
         await fireEvent.click(
@@ -1745,6 +1746,9 @@ describe('<MessageActions />', () => {
             '.str-chat__context-menu__back-button',
           ) as HTMLButtonElement,
         );
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: /Reminder/i })).toHaveFocus();
       });
       expect(screen.getByText('Thread Reply')).toBeInTheDocument();
     });
