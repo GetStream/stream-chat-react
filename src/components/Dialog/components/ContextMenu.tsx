@@ -135,6 +135,7 @@ export const UserContextMenuButton = ({
   children,
   className,
   imageUrl,
+  role = 'menuitem',
   userName,
   ...props
 }: UserContextMenuButtonProps) => (
@@ -144,6 +145,7 @@ export const UserContextMenuButton = ({
       'str-chat__context-menu__button str-chat__user-context-menu__button',
       className,
     )}
+    role={role}
     type='button'
   >
     <Avatar imageUrl={imageUrl} size='sm' userName={userName} />
@@ -162,6 +164,7 @@ export const EmojiContextMenuButton = ({
   className,
   emoji,
   label,
+  role = 'menuitem',
   ...props
 }: EmojiContextMenuButtonProps) => (
   <button
@@ -170,6 +173,7 @@ export const EmojiContextMenuButton = ({
       'str-chat__context-menu__button str-chat__emoji-context-menu__button',
       className,
     )}
+    role={role}
     type='button'
   >
     <span className='str-chat__context-menu__button__emoji str-chat__emoji-item--entity'>
