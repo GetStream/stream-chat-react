@@ -400,6 +400,15 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   });
 
   useLayoutEffect(() => {
+    if (!listElement) return;
+
+    const initialScrollTop = listElement.scrollTop;
+    previousScrollTopRef.current = initialScrollTop;
+    // Keep pagination mode selection in sync with the actual initial DOM position.
+    updateScrollTop(initialScrollTop, null);
+  }, [listElement, updateScrollTop]);
+
+  useLayoutEffect(() => {
     previousHasMoreNewerRef.current = hasMoreNewer;
   }, [hasMoreNewer]);
 
