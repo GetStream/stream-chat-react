@@ -11,6 +11,7 @@ export type DeleteMessageAlertProps = {
 export const DeleteMessageAlert = ({ onCancel, onDelete }: DeleteMessageAlertProps) => {
   const { t } = useTranslationContext();
   const { close } = useModalContext();
+
   return (
     <Alert.Root
       className='str-chat__delete-message-alert'
@@ -33,6 +34,7 @@ export const DeleteMessageAlert = ({ onCancel, onDelete }: DeleteMessageAlertPro
         </Button>
         <Button
           appearance='outline'
+          autoFocus
           className='str-chat__delete-message-alert__cancel-button'
           data-testid='delete-message-alert-cancel-button'
           onClick={() => {

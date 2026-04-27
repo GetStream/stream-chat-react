@@ -2,7 +2,8 @@ import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import { IconArrowLeft, IconXmark } from '../../Icons';
-import { useTranslationContext } from '../../../context';
+import { useModalContext, useTranslationContext } from '../../../context';
+import { useAriaIdentifiers } from '../../../hooks/useAriaIdentifiers';
 
 const ViewerRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__viewer', className)}>
@@ -16,16 +17,25 @@ export type ViewerHeaderProps = {
   className?: string;
   close?: () => void;
   goBack?: () => void;
+  descriptionId?: string;
+  titleId?: string;
 };
 
 const ViewerHeader = ({
   className,
   close,
   description,
+  descriptionId,
   goBack,
   title,
+  titleId,
 }: ViewerHeaderProps) => {
   const { t } = useTranslationContext();
+  const { dialogId } = useModalContext();
+  const { descriptionId: derivedDescriptionId, titleId: derivedTitleId } =
+    useAriaIdentifiers(dialogId);
+  const resolvedTitleId = titleId ?? derivedTitleId;
+  const resolvedDescriptionId = descriptionId ?? derivedDescriptionId;
 
   return (
     <div className={clsx('str-chat__viewer__header', className)}>
@@ -43,9 +53,13 @@ const ViewerHeader = ({
         </Button>
       )}
       <div className='str-chat__viewer__header__title-group'>
-        <div className='str-chat__viewer__header__title'>{title}</div>
+        <h2 className='str-chat__viewer__header__title' id={resolvedTitleId}>
+          {title}
+        </h2>
         {description != null && description !== '' && (
-          <div className='str-chat__viewer__header__description'>{description}</div>
+          <p className='str-chat__viewer__header__description' id={resolvedDescriptionId}>
+            {description}
+          </p>
         )}
       </div>
       {close && (

@@ -21,6 +21,7 @@ import {
   useModalDialog,
   useModalDialogIsOpen,
 } from '../Dialog';
+import { useAriaIdentifiers } from '../../hooks/useAriaIdentifiers';
 
 export type ModalCloseEvent =
   | KeyboardEvent
@@ -40,6 +41,8 @@ export type ModalProps = {
   'aria-labelledby'?: string;
   /** ID of the element that describes the modal dialog. */
   'aria-describedby'?: string;
+  /** ARIA role for the modal dialog surface. */
+  role?: 'alertdialog' | 'dialog';
   /** If provided, the close button is rendered on overlay */
   CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
   /** Callback handler for closing of modal. */
@@ -58,13 +61,27 @@ export const GlobalModal = ({
   onClose,
   onCloseAttempt,
   open,
+  role = 'dialog',
 }: PropsWithChildren<ModalProps>) => {
   const dialog = useModalDialog();
   const isOpen = useModalDialogIsOpen();
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
-  const { theme } = useChatContext('GlobalModal');
+  const { theme } = useChatContext();
+  const dialogLabelingBaseId = dialog.id;
+  const {
+    descriptionId: derivedAriaDescribedby = ariaDescribedby,
+    titleId: derivedAriaLabelledby = ariaLabelledby,
+  } = useAriaIdentifiers(dialogLabelingBaseId);
+  const resolvedAriaLabelledby = ariaLabel
+    ? ariaLabelledby
+    : (ariaLabelledby ?? derivedAriaLabelledby);
+  const resolvedAriaDescribedby =
+    role === 'alertdialog'
+      ? (ariaDescribedby ?? derivedAriaDescribedby)
+      : ariaDescribedby;
+  const resolvedAriaLabel = resolvedAriaLabelledby ? undefined : ariaLabel;
 
   const maybeClose = useCallback(
     (source: ModalCloseSource, event: ModalCloseEvent) => {
@@ -78,11 +95,12 @@ export const GlobalModal = ({
     [dialog, onClose, onCloseAttempt],
   );
 
-  const modalContextValue = useMemo<{ close: () => void }>(
+  const modalContextValue = useMemo<{ close: () => void; dialogId?: string }>(
     () => ({
       close: () => maybeClose('button', {} as ModalCloseEvent),
+      dialogId: dialogLabelingBaseId,
     }),
-    [maybeClose],
+    [dialogLabelingBaseId, maybeClose],
   );
 
   const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -129,13 +147,13 @@ export const GlobalModal = ({
         >
           <FocusScope autoFocus contain>
             <div
-              aria-describedby={ariaDescribedby}
-              aria-label={ariaLabelledby ? undefined : ariaLabel}
-              aria-labelledby={ariaLabelledby}
+              aria-describedby={resolvedAriaDescribedby}
+              aria-label={resolvedAriaLabel}
+              aria-labelledby={resolvedAriaLabelledby}
               aria-modal='true'
               className='str-chat__modal__dialog'
               onKeyDown={handleDialogKeyDown}
-              role='dialog'
+              role={role}
             >
               {children}
             </div>

@@ -329,6 +329,28 @@ describe('<MessageActions />', () => {
       expect(screen.queryByText('Delete message')).not.toBeInTheDocument();
     });
 
+    it('should render delete confirmation as labeled alertdialog with description', async () => {
+      const message = generateMessage({ user: alice });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'delete-own-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Delete message'));
+      });
+
+      const dialog = screen.getByRole('alertdialog', { name: 'Delete message' });
+      expect(dialog).toHaveAttribute('aria-labelledby', 'modal-dialog-title');
+      expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+      expect(
+        screen.getByText('Are you sure you want to delete this message?'),
+      ).toHaveAttribute('id', 'modal-dialog-description');
+    });
+
     it('should include Edit in dropdown actions when user has edit capability', async () => {
       const message = generateMessage({ user: alice });
       const { container } = await renderMessageActions({

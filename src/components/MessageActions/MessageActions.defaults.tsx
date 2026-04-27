@@ -678,7 +678,7 @@ const DefaultMessageActionComponents = {
           >
             {t('Delete message')}
           </MessageActionsMenuItemButton>
-          <Modal open={openModal}>
+          <Modal open={openModal} role='alertdialog'>
             <DeleteMessageAlert
               onCancel={() => {
                 setOpenModal(false);

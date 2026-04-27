@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { DeleteMessageOptions, LocalMessage } from 'stream-chat';
 import {
   Alert,
@@ -281,6 +288,7 @@ export const ConfigurableMessageActions = (
   const { customMessageActions } = useAppSettingsSelector(
     (state) => state.messageActions,
   );
+  const customDeleteEnabled = customMessageActions.delete.enableOptionConfiguration;
   const configurableActionSet = useMemo(() => {
     const actionSet = props.messageActionSet ?? defaultMessageActionSet;
     const actionOverrides: Record<
@@ -309,7 +317,7 @@ export const ConfigurableMessageActions = (
     const overrides: CustomMessageActionOverrideSpec[] = [
       {
         ...actionOverrides.delete,
-        enabled: true,
+        enabled: customDeleteEnabled,
       },
       {
         ...actionOverrides.markOwnUnread,
@@ -318,21 +326,27 @@ export const ConfigurableMessageActions = (
     ];
 
     return applyCustomMessageActionOverrides({ messageActionSet: actionSet, overrides });
-  }, [customMessageActions, props.messageActionSet]);
+  }, [customDeleteEnabled, customMessageActions.markOwnUnread, props.messageActionSet]);
   const openDeleteDialog = useCallback((params: OpenDeleteDialogParams) => {
     setDeleteDialogTarget(params);
   }, []);
+
+  useEffect(() => {
+    if (!customDeleteEnabled && deleteDialogTarget) {
+      setDeleteDialogTarget(null);
+    }
+  }, [customDeleteEnabled, deleteDialogTarget]);
 
   return (
     <CustomDeleteActionContext.Provider value={{ openDeleteDialog }}>
       <MessageActions {...props} messageActionSet={configurableActionSet} />
       <Modal
-        open={Boolean(deleteDialogTarget)}
+        open={customDeleteEnabled && Boolean(deleteDialogTarget)}
         onClose={() => {
           setDeleteDialogTarget(null);
         }}
       >
-        {deleteDialogTarget && (
+        {customDeleteEnabled && deleteDialogTarget && (
           <CustomDeleteMessageAlert
             enableOptionConfiguration={
               customMessageActions.delete.enableOptionConfiguration
