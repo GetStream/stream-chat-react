@@ -148,6 +148,7 @@ export const GlobalModal = ({
               className='str-chat__modal__dialog'
               onKeyDown={handleDialogKeyDown}
               role={role}
+              tabIndex={-1}
             >
               {children}
             </div>

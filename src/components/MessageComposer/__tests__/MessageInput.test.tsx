@@ -150,8 +150,11 @@ if (typeof globalThis.DOMRect === 'undefined') {
 
 // Patch getComputedStyle to return an iterable CSSStyleDeclaration (jsdom lacks Symbol.iterator)
 const origGetComputedStyle = window.getComputedStyle;
-window.getComputedStyle = function (...args) {
-  const style = origGetComputedStyle.apply(this, args);
+window.getComputedStyle = function (element: Element, pseudoElt?: string | null) {
+  // jsdom does not implement pseudo-element computed styles.
+  const style = pseudoElt
+    ? origGetComputedStyle.call(this, element)
+    : origGetComputedStyle.call(this, element, pseudoElt);
   if (!style[Symbol.iterator]) {
     style[Symbol.iterator] = function* () {
       for (let i = 0; i < this.length; i++) {

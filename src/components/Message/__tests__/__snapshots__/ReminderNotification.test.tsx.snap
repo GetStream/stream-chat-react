@@ -2,6 +2,21 @@
 
 exports[`ReminderNotification > displays text for bookmark notifications (saved for later) 1`] = `
 <div>
+  <span
+    data-testid="notification-announcer"
+    style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+  >
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      role="status"
+    />
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      role="alert"
+    />
+  </span>
   <div
     class="str-chat__message-saved-for-later"
   >
@@ -30,6 +45,21 @@ exports[`ReminderNotification > displays text for bookmark notifications (saved 
 
 exports[`ReminderNotification > displays text for reminder deadline if trespassed the refresh boundary 1`] = `
 <div>
+  <span
+    data-testid="notification-announcer"
+    style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+  >
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      role="status"
+    />
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      role="alert"
+    />
+  </span>
   <p
     class="str-chat__message-reminder"
   >
@@ -66,6 +96,21 @@ exports[`ReminderNotification > displays text for reminder deadline if trespasse
 
 exports[`ReminderNotification > displays text for time due in case of timed reminders (remind me) 1`] = `
 <div>
+  <span
+    data-testid="notification-announcer"
+    style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+  >
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      role="status"
+    />
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      role="alert"
+    />
+  </span>
   <p
     class="str-chat__message-reminder"
   >

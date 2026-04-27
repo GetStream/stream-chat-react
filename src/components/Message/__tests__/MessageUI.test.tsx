@@ -187,7 +187,7 @@ describe('<MessageSimple />', () => {
       date: new Date(),
     });
     const { container } = await renderMessageSimple({ message });
-    expect(container).toBeEmptyDOMElement();
+    expect(container.querySelector('.str-chat__message')).not.toBeInTheDocument();
   });
 
   it('should render deleted message with default MessageDelete component when message was deleted', async () => {

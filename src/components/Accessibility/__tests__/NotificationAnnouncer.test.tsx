@@ -12,7 +12,7 @@ import { mockTranslationContextValue } from 'mock-builders';
 
 import type { Notification } from '../../../../../stream-chat-js/src';
 
-vi.mock('../../components/Notifications/hooks/useNotifications', () => ({
+vi.mock('../../Notifications/hooks/useNotifications', () => ({
   useNotifications: vi.fn(),
 }));
 
