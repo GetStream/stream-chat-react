@@ -70,7 +70,11 @@ export const SuggestPollOptionPrompt = () => {
 
   return (
     <Prompt.Root className='str-chat__modal__suggest-poll-option-prompt'>
-      <Prompt.Header close={close} title={t('Suggest an option')} />
+      <Prompt.Header
+        close={close}
+        description={t('Suggest a new option to add to this poll')}
+        title={t('Suggest an option')}
+      />
       <form autoComplete='off' onSubmit={handleSubmit}>
         <Prompt.Body>
           <TextInput

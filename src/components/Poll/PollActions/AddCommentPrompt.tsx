@@ -56,12 +56,15 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
   }, [input]);
 
   const title = ownAnswer ? t('Update your comment') : t('Add a comment');
+  const description = ownAnswer
+    ? t('Update the comment attached to your poll answer')
+    : t('Add a comment to your poll answer');
   const submitDisabled =
     !value.comment?.trim() || value.comment === ownAnswer?.answer_text;
 
   return (
     <Prompt.Root className='str-chat__modal__poll-add-comment'>
-      {title && <Prompt.Header close={close} title={title} />}
+      {title && <Prompt.Header close={close} description={description} title={title} />}
       <form autoComplete='off' onSubmit={handleSubmit}>
         <Prompt.Body>
           <TextInput

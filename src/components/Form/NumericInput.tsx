@@ -132,6 +132,9 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             <IconMinus className='str-chat__form-numeric-input__stepper-icon' />
           </Button>
           <input
+            aria-valuemax={Number.isFinite(maxDef) ? maxDef : undefined}
+            aria-valuemin={Number.isFinite(minDef) ? minDef : undefined}
+            aria-valuenow={num ?? undefined}
             className='str-chat__form-numeric-input__input'
             disabled={disabled}
             id={id}
@@ -139,6 +142,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             ref={ref}
+            role='spinbutton'
             type='text'
             value={value}
             {...inputProps}

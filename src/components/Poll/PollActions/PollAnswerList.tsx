@@ -39,7 +39,11 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
 
   return (
     <Viewer.Root className='str-chat__modal__poll-answer-list'>
-      <Viewer.Header close={close} title={t('Poll comments')} />
+      <Viewer.Header
+        close={close}
+        description={t('Review comments submitted with poll answers')}
+        title={t('Poll comments')}
+      />
       <Viewer.Body className='str-chat__modal__poll-answer-list__body'>
         <div className='str-chat__poll-answer-list'>
           <InfiniteScrollPaginator loadNextOnScrollToBottom={loadMore} threshold={40}>

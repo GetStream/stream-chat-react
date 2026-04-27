@@ -48,7 +48,12 @@ export const PollResults = () => {
     >
       {optionToView?.option ? (
         <>
-          <Viewer.Header close={close} goBack={goBack} title={t('Votes')} />
+          <Viewer.Header
+            close={close}
+            description={t('Review who voted for this option')}
+            goBack={goBack}
+            title={t('Votes')}
+          />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
             <PollOptionWithVotesList
               option={optionToView?.option}
@@ -58,7 +63,13 @@ export const PollResults = () => {
         </>
       ) : (
         <>
-          <Viewer.Header close={close} title={t('Poll results')} />
+          <Viewer.Header
+            close={close}
+            description={t(
+              'Review poll results and open an option to see detailed votes',
+            )}
+            title={t('Poll results')}
+          />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
             <PollQuestion question={name} />
             <div className='str-chat__modal__poll-results__options'>

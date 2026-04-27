@@ -335,7 +335,10 @@ export const AttachmentSelector = ({
     [actions],
   );
 
-  const closeModal = useCallback(() => setModalContentActionAction(undefined), []);
+  const closeModal = useCallback(() => {
+    setModalContentActionAction(undefined);
+    menuButtonRef.current?.focus();
+  }, []);
 
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -382,6 +385,7 @@ export const AttachmentSelector = ({
         />
         <ContextMenuComponent
           allowFlip
+          aria-label={t('aria/Attachment Actions')}
           backLabel={t('Back')}
           className='str-chat__attachment-selector-actions-menu'
           data-testid='attachment-selector-actions-menu'

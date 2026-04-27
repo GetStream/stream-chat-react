@@ -167,7 +167,9 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
     : showSuccess || showNeutral
       ? `${id}-message`
       : undefined;
-  const describedBy = messageId;
+  const describedBy = [inputProps['aria-describedby'], messageId]
+    .filter((value): value is string => !!value)
+    .join(' ');
 
   const fieldMessage = hasError ? (
     <TextInputFieldMessage

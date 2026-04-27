@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
@@ -21,6 +21,7 @@ export const MultipleAnswersField = () => {
     pollComposerStateSelector,
   );
   const [voteLimitEnabled, setVoteLimitEnabled] = useState(false);
+  const maxVotesInputRef = useRef<HTMLInputElement | null>(null);
 
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
@@ -32,6 +33,8 @@ export const MultipleAnswersField = () => {
 
   const multipleVotesEnabled = !enforce_unique_vote;
   const errorText = error && knownValidationErrors[error];
+  const voteLimitSwitchId = 'max_votes_allowed_enabled';
+  const voteLimitSwitchLabelId = `${voteLimitSwitchId}-label`;
 
   return (
     <div className={clsx('str-chat__form__switch-fieldset', {})}>
@@ -47,22 +50,31 @@ export const MultipleAnswersField = () => {
       />
       {multipleVotesEnabled && (
         <SwitchField
+          aria-labelledby={voteLimitSwitchLabelId}
           checked={voteLimitEnabled}
           fieldClassName='str-chat__multiple-answers-field__votes-limit-field'
-          onChange={() => {
-            setVoteLimitEnabled((prev) => !prev);
+          id={voteLimitSwitchId}
+          onChange={(event) => {
+            const nextVoteLimitEnabled = event.target.checked;
+            setVoteLimitEnabled(nextVoteLimitEnabled);
             pollComposer.updateFields({ max_votes_allowed: '2' });
+            if (!nextVoteLimitEnabled) return;
+            requestAnimationFrame(() => {
+              maxVotesInputRef.current?.focus();
+            });
           }}
         >
           <div className='str-chat__multiple-answers-field__votes-limit-field__numeric-field'>
             <SwitchFieldLabel
               asError={!!errorText}
               description={t('Choose between 2 to 10 options')}
-              htmlFor={'max_votes_allowed'}
+              htmlFor={voteLimitSwitchId}
+              id={voteLimitSwitchLabelId}
               title={t('Limit votes per person')}
             />
             {voteLimitEnabled && (
               <NumericInput
+                aria-label={t('Maximum votes per person')}
                 id='max_votes_allowed'
                 max={10}
                 min={2}
@@ -84,6 +96,7 @@ export const MultipleAnswersField = () => {
                     nativeFieldValidation,
                   );
                 }}
+                ref={maxVotesInputRef}
                 value={max_votes_allowed ?? ''}
               />
             )}

@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type ComponentType, forwardRef } from 'react';
 import clsx from 'clsx';
 import { useModalContext } from '../../../context';
-import { useAriaIdentifiers } from '../../../hooks/useAriaIdentifiers';
+import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 export const Root = forwardRef<HTMLDivElement, ComponentProps<'div'>>(function AlertRoot(
   { children, className, ...props }: ComponentProps<'div'>,

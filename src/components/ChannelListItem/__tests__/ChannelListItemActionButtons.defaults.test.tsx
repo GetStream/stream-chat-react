@@ -127,6 +127,8 @@ describe('ChannelListItemActionButtons defaults', () => {
     });
 
     const menu = document.querySelector('.str-chat__context-menu') as HTMLElement;
+    expect(menu).toHaveAttribute('aria-label');
+    expect(menu.getAttribute('aria-label')).toBeTruthy();
     act(() => {
       fireEvent.click(within(menu).getByRole('menuitem', { name: 'Block User' }));
     });

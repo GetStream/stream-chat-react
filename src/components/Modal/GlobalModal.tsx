@@ -21,7 +21,7 @@ import {
   useModalDialog,
   useModalDialogIsOpen,
 } from '../Dialog';
-import { useAriaIdentifiers } from '../../hooks/useAriaIdentifiers';
+import { useResolvedModalAriaProps } from '../../a11y/hooks/useResolvedModalAriaProps';
 
 export type ModalCloseEvent =
   | KeyboardEvent
@@ -70,18 +70,12 @@ export const GlobalModal = ({
   const closingRef = useRef(false);
   const { theme } = useChatContext();
   const dialogLabelingBaseId = dialog.id;
-  const {
-    descriptionId: derivedAriaDescribedby = ariaDescribedby,
-    titleId: derivedAriaLabelledby = ariaLabelledby,
-  } = useAriaIdentifiers(dialogLabelingBaseId);
-  const resolvedAriaLabelledby = ariaLabel
-    ? ariaLabelledby
-    : (ariaLabelledby ?? derivedAriaLabelledby);
-  const resolvedAriaDescribedby =
-    role === 'alertdialog'
-      ? (ariaDescribedby ?? derivedAriaDescribedby)
-      : ariaDescribedby;
-  const resolvedAriaLabel = resolvedAriaLabelledby ? undefined : ariaLabel;
+  const resolvedModalAriaProps = useResolvedModalAriaProps({
+    ariaDescribedby,
+    ariaLabel,
+    ariaLabelledby,
+    dialogId: dialogLabelingBaseId,
+  });
 
   const maybeClose = useCallback(
     (source: ModalCloseSource, event: ModalCloseEvent) => {
@@ -145,11 +139,11 @@ export const GlobalModal = ({
           onClick={handleOverlayClick}
           ref={overlayRef}
         >
-          <FocusScope autoFocus contain>
+          <FocusScope autoFocus contain restoreFocus>
             <div
-              aria-describedby={resolvedAriaDescribedby}
-              aria-label={resolvedAriaLabel}
-              aria-labelledby={resolvedAriaLabelledby}
+              aria-describedby={resolvedModalAriaProps['aria-describedby']}
+              aria-label={resolvedModalAriaProps['aria-label']}
+              aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
               aria-modal='true'
               className='str-chat__modal__dialog'
               onKeyDown={handleDialogKeyDown}

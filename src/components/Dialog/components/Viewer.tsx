@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import { IconArrowLeft, IconXmark } from '../../Icons';
 import { useModalContext, useTranslationContext } from '../../../context';
-import { useAriaIdentifiers } from '../../../hooks/useAriaIdentifiers';
+import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const ViewerRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__viewer', className)}>
@@ -42,6 +42,9 @@ const ViewerHeader = ({
       {goBack && (
         <Button
           appearance='ghost'
+          aria-describedby={
+            description != null && description !== '' ? resolvedDescriptionId : undefined
+          }
           aria-label={t('Back')}
           circular
           className='str-chat__viewer__header__go-back-button'
@@ -65,7 +68,10 @@ const ViewerHeader = ({
       {close && (
         <Button
           appearance='ghost'
-          aria-label={t('Close')}
+          aria-describedby={
+            description != null && description !== '' ? resolvedDescriptionId : undefined
+          }
+          aria-label={t('Close dialog')}
           circular
           className='str-chat__viewer__header__close-button'
           onClick={close}

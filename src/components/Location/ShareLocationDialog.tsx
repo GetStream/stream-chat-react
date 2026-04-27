@@ -150,7 +150,13 @@ export const ShareLocationDialog = ({
       className='str-chat__share-location-dialog'
       data-testid='share-location-dialog'
     >
-      <Prompt.Header close={close} title={t('Share Location')} />
+      <Prompt.Header
+        close={close}
+        description={t(
+          'Select your current location and optionally enable live location sharing',
+        )}
+        title={t('Share Location')}
+      />
       <Prompt.Body>
         <GeolocationMap
           geolocationPositionError={geolocationPositionError}

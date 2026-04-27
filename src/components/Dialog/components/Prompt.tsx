@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import { IconXmark } from '../../Icons';
 import { useModalContext, useTranslationContext } from '../../../context';
-import { useAriaIdentifiers } from '../../../hooks/useAriaIdentifiers';
+import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__prompt', className)}>
@@ -50,6 +50,9 @@ const PromptHeader = ({
       {close && (
         <Button
           appearance='ghost'
+          aria-describedby={
+            description != null && description !== '' ? resolvedDescriptionId : undefined
+          }
           aria-label={t('Close prompt: {{ title }}', { title })}
           circular
           className='str-chat__prompt__header__close-button'

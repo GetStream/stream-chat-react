@@ -171,6 +171,7 @@ describe('AttachmentSelector', () => {
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     expect(menu).toBeInTheDocument();
+    expect(menu).toHaveAttribute('aria-label', 'aria/Attachment Actions');
     expect(menu).toHaveTextContent('File');
     expect(menu).toHaveTextContent('Poll');
     expect(menu).toHaveTextContent('Location');
@@ -424,6 +425,7 @@ describe('AttachmentSelector', () => {
 
   it('opens poll creation dialog if Poll option is selected and closes the attachment selector menu', async () => {
     await renderComponent();
+    const invokeButton = screen.getByTestId('invoke-attachment-selector-button');
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
 
@@ -434,6 +436,64 @@ describe('AttachmentSelector', () => {
       expect(menu).not.toBeInTheDocument();
       expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument();
     });
+
+    const dialog = screen.getByRole('dialog', { name: 'Create poll' });
+    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
+      'Create a question, add options, and configure poll settings',
+    );
+    expect(screen.getByPlaceholderText(/Ask a question/i)).toHaveAttribute(
+      'aria-describedby',
+      expect.stringContaining('modal-dialog-description'),
+    );
+
+    const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument();
+    });
+    expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens share location dialog with description wired to initial close control', async () => {
+    (navigator as any).geolocation = {
+      clearWatch: vi.fn(),
+      getCurrentPosition: vi.fn(),
+      watchPosition: vi.fn(),
+    };
+    await renderComponent();
+    const invokeButton = screen.getByTestId('invoke-attachment-selector-button');
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    const locationButton = menu.querySelector(`.${SHARE_LOCATION_BUTTON_CLASS}`);
+
+    expect(locationButton).toBeInTheDocument();
+    fireEvent.click(locationButton);
+
+    await waitFor(() => {
+      expect(menu).not.toBeInTheDocument();
+      expect(screen.getByTestId('share-location-dialog')).toBeInTheDocument();
+    });
+
+    const dialog = screen.getByRole('dialog', { name: /share location/i });
+    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
+      'Select your current location and optionally enable live location sharing',
+    );
+    const closePromptButton = document.querySelector(
+      '.str-chat__prompt__header__close-button',
+    ) as HTMLButtonElement | null;
+    expect(closePromptButton).toHaveAttribute(
+      'aria-describedby',
+      'modal-dialog-description',
+    );
+
+    const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    await waitFor(() => {
+      expect(screen.queryByTestId('share-location-dialog')).not.toBeInTheDocument();
+    });
+    expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
   });
 
   it('is closed if File menu button is clicked', async () => {
