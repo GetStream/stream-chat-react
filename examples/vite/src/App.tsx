@@ -125,12 +125,20 @@ const useUser = () => {
     localStorage.setItem('user_id', userId);
   }, [userId]);
 
+  const environment =
+    import.meta.env.VITE_STREAM_API_KEY === 'xzwhhgtazy6h'
+      ? 'public-shared-chat-redesign'
+      : 'shared-chat-redesign';
+
+  const url = new URL('https://pronto.getstream.io/api/auth/create-token');
+
+  url.searchParams.set('environment', environment);
+  url.searchParams.set('user_id', userId);
+
   const tokenProvider = useCallback(() => {
     return token && userId === parseUserIdFromToken(token)
       ? Promise.resolve(token)
-      : fetch(
-          `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
-        )
+      : fetch(url.toString())
           .then((response) => response.json())
           .then((data) => data.token as string);
   }, [userId]);
