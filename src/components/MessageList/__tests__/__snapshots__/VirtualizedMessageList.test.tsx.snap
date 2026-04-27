@@ -70,6 +70,38 @@ exports[`VirtualizedMessageList > should render the list without any message 1`]
               </div>
             </div>
           </div>
+          <div
+            class="str-chat__jump-to-latest-message"
+          >
+            <button
+              aria-label="Jump to latest message"
+              aria-live="polite"
+              class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-md str-chat__jump-to-latest-message__button"
+              data-testid="scroll-to-latest-message-button"
+              type="button"
+            >
+              <div
+                class="str-chat__button__content"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="str-chat__icon str-chat__icon--arrow-down"
+                  focusable="false"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M10 3.125V16.875M10 16.875L4.375 11.25M10 16.875L15.625 11.25"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                  />
+                </svg>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>

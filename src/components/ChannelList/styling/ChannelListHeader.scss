@@ -1,12 +1,12 @@
 .str-chat__channel-list__header {
   display: flex;
   align-items: center;
-  padding: var(--spacing-md);
+  padding: var(--str-chat__spacing-md);
   width: 100%;
 
   .str-chat__channel-list__header__title {
     flex: 1;
     font: var(--str-chat__font-heading-lg);
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
   }
 }

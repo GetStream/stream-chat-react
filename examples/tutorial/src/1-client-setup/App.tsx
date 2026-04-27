@@ -1,10 +1,10 @@
 import { Chat, useCreateChatClient } from 'stream-chat-react';
-import { apiKey, userId, userName, userToken } from './credentials';
+import { apiKey, userId, userName, tokenProvider } from './credentials';
 
 const App = () => {
   const client = useCreateChatClient({
     apiKey,
-    tokenOrProvider: userToken,
+    tokenOrProvider: tokenProvider,
     userData: { id: userId, name: userName },
   });
 

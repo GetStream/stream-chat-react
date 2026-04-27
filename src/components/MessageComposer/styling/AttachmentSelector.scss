@@ -1,17 +1,21 @@
 .str-chat {
   // todo: find existing replacement for variable button-style-outline-text)
   --str-chat__attachment-selector-button-icon-color: var(--button-style-outline-text);
-  --str-chat__attachment-selector-button-icon-color-hover: var(--text-secondary);
-  --str-chat__attachment-selector-actions-menu-button-icon-color: var(--text-secondary);
+  --str-chat__attachment-selector-button-icon-color-hover: var(
+    --str-chat__text-secondary
+  );
+  --str-chat__attachment-selector-actions-menu-button-icon-color: var(
+    --str-chat__text-secondary
+  );
   --str-chat__attachment-selector-actions-menu-button-icon-color-active: var(
-    --text-secondary
+    --str-chat__text-secondary
   );
 
   .str-chat__attachment-selector {
     .str-chat__attachment-selector__menu-button {
       .str-chat__attachment-selector__menu-button__icon {
-        height: var(--icon-size-md);
-        width: var(--icon-size-md);
+        height: var(--str-chat__icon-size-md);
+        width: var(--str-chat__icon-size-md);
         color: var(--str-chat__attachment-selector-button-icon-color);
       }
 
@@ -48,7 +52,7 @@
 
   .str-chat__message-composer--floating {
     .str-chat__attachment-selector__menu-button {
-      background-color: var(--background-core-elevation-1);
+      background-color: var(--str-chat__background-core-elevation-1);
       // todo: variable exists only in Figma, not added to tokens repo
       box-shadow: var(--shadow-web-light-elevation-2);
     }

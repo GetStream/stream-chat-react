@@ -2,14 +2,17 @@
   height: 40px;
   width: 40px;
   position: absolute;
-  inset-block-end: var(--spacing-md);
+  inset-block-end: var(--str-chat__spacing-md);
   inset-inline-end: max(
-    var(--spacing-md),
-    calc((100% - var(--str-chat__message-list-scroll-max-width)) / 2 + var(--spacing-md))
+    var(--str-chat__spacing-md),
+    calc(
+      (100% - var(--str-chat__message-list-scroll-max-width)) / 2 +
+        var(--str-chat__spacing-md)
+    )
   );
   z-index: 2;
-  border-radius: var(--radius-max);
-  background-color: var(--background-core-elevation-1);
+  border-radius: var(--str-chat__radius-max);
+  background-color: var(--str-chat__background-core-elevation-1);
   // todo - we ned to have the shadows in variables that are supported in light and dark mode too
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.05),
@@ -25,7 +28,7 @@
   .str-chat__jump-to-latest__unread-count {
     position: absolute;
     inset-block-end: 100%;
-    margin-block-end: var(--space-4);
+    margin-block-end: var(--str-chat__space-4);
     inset-inline-end: -15%;
     top: -15%;
   }

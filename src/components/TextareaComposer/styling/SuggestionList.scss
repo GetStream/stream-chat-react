@@ -4,7 +4,8 @@
   .str-chat__suggestion-list {
     max-height: 320px;
     min-width: 200px;
-    @include utils.scrollable-y;
+    overflow-y: auto;
+    scrollbar-width: none;
 
     .str-chat__suggestion-list-item--selected {
       background-color: var(--str-chat__dialog-menu-button-hover-background-color);

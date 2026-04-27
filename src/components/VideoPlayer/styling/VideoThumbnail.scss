@@ -19,8 +19,8 @@
       position: absolute;
       height: $size;
       width: $size;
-      border-radius: var(--radius-max);
-      background-color: var(--control-play-button-bg);
+      border-radius: var(--str-chat__radius-max);
+      background-color: var(--str-chat__control-play-button-bg);
       left: calc(50% - calc($size / 2));
       top: calc(50% - calc($size / 2));
 
@@ -29,7 +29,7 @@
         width: calc($size / 2);
 
         path {
-          fill: var(--control-play-button-icon);
+          fill: var(--str-chat__control-play-button-icon);
         }
       }
     }

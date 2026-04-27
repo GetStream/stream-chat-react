@@ -45,6 +45,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
       className={clsx('str-chat__channel-list-item__action-buttons', {
         'str-chat__channel-list-item__action-buttons--active': dialogIsOpen,
       })}
+      data-testid='channel-list-item-action-buttons'
     >
       {quickDropdownToggleAction && dropdownActionSet.length > 0 && (
         <quickDropdownToggleAction.Component ref={setReferenceElement} />
@@ -55,6 +56,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
       <ContextMenuComponent
         aria-label={t('aria/Channel Actions')}
         className='str-chat__channel-list-item__action-buttons-context-menu'
+        data-testid='channel-list-item-context-menu'
         dialogManagerId={dialogManager?.id}
         id={dialog.id}
         onClose={dialog?.close}

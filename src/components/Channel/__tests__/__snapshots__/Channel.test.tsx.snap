@@ -2,19 +2,6 @@
 
 exports[`Channel > should render a LoadingIndicator if it is loading 1`] = `
 <DocumentFragment>
-  <div
-    class="str-chat messaging light str-chat__channel"
-    id="str-chat__channel"
-  >
-    <div>
-      Loading channel
-    </div>
-  </div>
-</DocumentFragment>
-`;
-
-exports[`Channel > should render a LoadingIndicator if it is loading 2`] = `
-<DocumentFragment>
   <span
     data-testid="notification-announcer"
     style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"

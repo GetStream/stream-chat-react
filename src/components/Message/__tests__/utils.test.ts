@@ -1,7 +1,12 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { TFunction } from 'i18next';
-import type { ChannelConfigWithInfo, MessageResponse, Mute } from 'stream-chat';
+import type {
+  ChannelConfigWithInfo,
+  LocalMessage,
+  MessageResponse,
+  Mute,
+} from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import {
   countReactions,
@@ -15,6 +20,7 @@ import {
   getMessageActions,
   getNonImageAttachments,
   getReadByTooltipText,
+  isMessageBlocked,
   isUserMuted,
   mapToUserNameOrId,
   MESSAGE_ACTIONS,
@@ -541,6 +547,33 @@ describe('Message utils', () => {
       ).toThrow(
         'getReadByTooltipText was called, but tooltipUserNameMapper function is not available',
       );
+    });
+  });
+
+  describe('isMessageBlocked function', () => {
+    it('returns true when message.shadowed is true', () => {
+      const message = fromPartial<LocalMessage>({
+        shadowed: true,
+        type: 'regular',
+      });
+      expect(isMessageBlocked(message)).toBe(true);
+    });
+
+    it('returns true for moderation remove error messages when not shadowed', () => {
+      const message = fromPartial<LocalMessage>({
+        moderation: { action: 'remove' },
+        shadowed: false,
+        type: 'error',
+      });
+      expect(isMessageBlocked(message)).toBe(true);
+    });
+
+    it('returns false when message is not shadowed and not a moderation remove error', () => {
+      const message = fromPartial<LocalMessage>({
+        shadowed: false,
+        type: 'regular',
+      });
+      expect(isMessageBlocked(message)).toBe(false);
     });
   });
 });

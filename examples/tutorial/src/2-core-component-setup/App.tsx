@@ -13,7 +13,7 @@ import {
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
-import { apiKey, userId, userName, userToken } from '../1-client-setup/credentials';
+import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -25,7 +25,7 @@ const App = () => {
   const [channel, setChannel] = useState<StreamChannel>();
   const client = useCreateChatClient({
     apiKey,
-    tokenOrProvider: userToken,
+    tokenOrProvider: tokenProvider,
     userData: user,
   });
 

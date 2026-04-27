@@ -1,8 +1,8 @@
 .str-chat__poll-vote {
   display: flex;
-  padding: var(--spacing-xxs) var(--spacing-sm);
+  padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-sm);
   align-items: center;
-  gap: var(--spacing-none, 0);
+  gap: var(--str-chat__spacing-none, 0);
   align-self: stretch;
   width: 100%;
   font: var(--str-chat__font-caption-default);
@@ -11,7 +11,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-sm);
+    gap: var(--str-chat__spacing-sm);
   }
 
   .str-chat__poll-vote__author__name {

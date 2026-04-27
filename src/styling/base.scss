@@ -3,15 +3,15 @@
   --str-chat__focus-outline: 2px solid var(--str-chat__focus-outline-color);
   --str-chat__focus-outline-offset: 2px;
 
-  font-family: var(--str-chat__font-family);
-  font-size: var(--typography-font-size-md);
-  font-weight: var(--typography-font-weight-regular);
-  line-height: var(--typography-line-height-normal);
+  font: var(--str-chat__font-body-default);
   letter-spacing: var(--typography-letter-spacing-default);
-  color: var(--text-primary);
+  color: var(--str-chat__text-primary);
 
   *:not(:disabled):focus-visible {
-    outline: var(--str-chat__focus-outline, 2px solid var(--border-utility-focused));
+    outline: var(
+      --str-chat__focus-outline,
+      2px solid var(--str-chat__border-utility-focused)
+    );
     outline-offset: var(--str-chat__focus-outline-offset, 2px);
   }
 

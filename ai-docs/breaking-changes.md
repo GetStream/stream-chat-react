@@ -239,7 +239,7 @@ Only confirmed items should move from this file into the migration guide.
   - `src/context/MessageContext.tsx:143` `setTranslationView`
 - Replacement:
   - delete handlers should call `handleDelete(options?)` without an event argument
-  - edit flows now go through `MessageComposer`; current default message actions call `useMessageComposer().initState({ composition: message })` in `src/components/MessageActions/defaults.tsx:163`
+  - edit flows now go through `MessageComposer`; current default message actions call `useMessageComposerController().initState({ composition: message })` in `src/components/MessageActions/MessageActions.defaults.tsx:160`
   - custom message actions need to be implemented through the new `MessageActions` customization surface instead of `customMessageActions`
 - Evidence:
   - current `MessageContextValue` removes the old edit-state and custom-action fields
@@ -763,11 +763,13 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/components/ReactFileUtilities/FileIcon/FileIcon.tsx:6` `FileIconProps` exposed `big`, `filename`, `mimeType`, `size`, `sizeSmall`, and `type`
   - `v13.14.2:src/components/ReactFileUtilities/FileIcon/FileIcon.tsx:16` `mimeTypeToIcon(type, mimeType)`
 - New API:
-  - `src/components/FileIcon/FileIcon.tsx:5` `FileIconProps` expose only `className`, `fileName`, and `mimeType`
+  - `src/components/FileIcon/FileIcon.tsx:5` `FileIconProps` expose `className`, `fileName`, `mimeType`, `size`, and `sizeConfig`
   - `src/components/FileIcon/FileIcon.tsx:11` `mimeTypeToIcon(mimeType?)`
+  - `size` is retyped from a pixel number to `FileIconSize` (`'sm' | 'md' | 'lg' | 'xl'`); `sizeConfig` is a new optional per-size dimension override
 - Replacement:
   - rename `filename` to `fileName`
-  - remove `big`, `size`, `sizeSmall`, and `type`
+  - remove `big`, `sizeSmall`, and `type`
+  - migrate any custom numeric `size` values to one of `'sm' | 'md' | 'lg' | 'xl'`; use `sizeConfig` if custom pixel dimensions are required
   - style the rendered icon through `className` or a wrapper instead of size-mode props
 - Evidence:
   - current file-icon implementation uses an internal label renderer and no longer passes size variants into the icon set
@@ -928,7 +930,7 @@ Only confirmed items should move from this file into the migration guide.
 - Replacement:
   - if you need the old thumbnail-grid-plus-lightbox behavior, use `ModalGallery`
   - if you customize the gallery carousel itself, migrate to the new `Gallery` provider API and a custom `GalleryUI`
-  - rename `ModalGallery` props from `images` / `index` to `items` / `initialIndex` semantics as appropriate
+  - rename `ModalGallery` props from `images` / `index` to `items`; `ModalGallery` no longer accepts an `index` / `initialIndex` prop (use `Gallery` + `GalleryUI` with `initialIndex` if a non-zero starting item is required)
   - rewrite custom `Image` components against the new `GalleryItem` contract and let `ModalGallery` own modal state
 - Evidence:
   - current `Gallery` is no longer a visible thumbnail-grid component by itself unless a `GalleryUI` is supplied
@@ -2024,7 +2026,7 @@ Only confirmed items should move from this file into the migration guide.
 - Area: deprecated API cleanup
 - User impact:
   - imports or props using `pinPermissions`, `PinPermissions`, `PinEnabledUserRoles`, or `defaultPinPermissions` no longer compile
-  - custom `usePinHandler(message, pinPermissions, notifications)` calls must be rewritten to the new two-argument signature
+  - custom `usePinHandler(message, pinPermissions, notifications)` calls must be rewritten to the new one-argument signature `usePinHandler(message)` (notifications are now published internally via `useNotificationApi()`)
   - wrappers around `InfiniteScroll`, `LoadMoreButton`, and `LoadMorePaginator` can no longer use the deprecated alias props `hasMore`, `hasMoreNewer`, `loadMore`, `loadMoreNewer`, or `refreshing`
   - top-level imports using `UploadButton` / `UploadButtonProps` no longer resolve; use `FileInput` / `FileInputProps` instead
   - `ChannelListItemUI` no longer accepts the deprecated `latestMessage` alias; use `latestMessagePreview`
@@ -2041,7 +2043,7 @@ Only confirmed items should move from this file into the migration guide.
   - `v13.14.2:src/plugins/Emojis/EmojiPicker.tsx:30` exposed `popperOptions?: Partial<{ placement: PopperLikePlacement }>`
   - `git grep` on `v13.14.2` finds public exports for `StreamEmoji`, `moveChannelUp`, `hasNotMoreMessages`, `useChannelDeletedListener`, `useNotificationMessageNewListener`, and the rest of the old standalone channel-list listener hooks
 - New API:
-  - `src/components/Message/hooks/usePinHandler.ts:16` through `:19` now accept only `(message, notifications?)`
+  - `src/components/Message/hooks/usePinHandler.ts:16` through `:19` now accept only `(message)` (no second argument)
   - current source has no `PinPermissions`, `PinEnabledUserRoles`, or `defaultPinPermissions`
   - `src/components/InfiniteScrollPaginator/InfiniteScroll.tsx:16` through `:23` now expose only `hasNextPage`, `hasPreviousPage`, `loadNextPage`, and `loadPreviousPage` through `PaginatorProps`
   - `src/types/types.ts:14` through `:18` expose `hasNextPage`, `hasPreviousPage`, and `isLoading`, with no `refreshing`
@@ -2052,7 +2054,7 @@ Only confirmed items should move from this file into the migration guide.
   - current `rg` over `src` returns no `StreamEmoji`, `moveChannelUp`, `hasNotMoreMessages`, `useChannelDeletedListener`, `useNotificationMessageNewListener`, or sibling standalone listener-hook exports
 - Replacement:
   - remove `pinPermissions` customization and rely on `channelCapabilities['pin-message']`
-  - rewrite `usePinHandler(message, notifications?)` callers to the new signature
+  - rewrite `usePinHandler` callers to the new one-argument signature `usePinHandler(message)`
   - update paginator wrappers to `hasNextPage`, `hasPreviousPage`, `loadNextPage`, `loadPreviousPage`, and `isLoading`
   - replace top-level `UploadButton` imports with `FileInput`
   - replace `latestMessage` with `latestMessagePreview`

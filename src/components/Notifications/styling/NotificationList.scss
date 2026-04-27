@@ -1,36 +1,28 @@
-.str-chat__notification-list {
-  --str-chat__notification-list-inset: 16px;
-  --str-chat__notification-list-gap: 8px;
-  --str-chat__notification-list-max-height: calc(
-    100% - (var(--str-chat__notification-list-inset) * 2)
-  );
-  --str-chat__notification-list-width: min(
-    100%,
-    calc(100% - (var(--str-chat__notification-list-inset) * 2))
-  );
+$notification-list-inset: 16px;
 
+.str-chat__notification-list {
   background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  inline-size: var(--str-chat__notification-list-width);
+  inline-size: min(100%, calc(100% - ($notification-list-inset * 2)));
   max-width: 100%;
   min-width: 0;
-  max-height: var(--str-chat__notification-list-max-height);
-  padding-inline: var(--spacing-xs);
+  max-height: calc(100% - ($notification-list-inset * 2));
+  padding-inline: var(--str-chat__spacing-xs);
   pointer-events: none;
   position: absolute;
-  inset-inline-end: var(--str-chat__notification-list-inset);
+  inset-inline-end: $notification-list-inset;
   z-index: 2;
 }
 
 .str-chat__notification-list--position-top {
-  inset-block-start: var(--str-chat__notification-list-inset);
+  inset-block-start: $notification-list-inset;
 }
 
 .str-chat__notification-list--position-bottom {
-  inset-block-end: var(--str-chat__notification-list-inset);
+  inset-block-end: $notification-list-inset;
 }
 
 .str-chat__notification-list__edge {

@@ -12,7 +12,7 @@ import {
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, userId, userName, userToken } from '../1-client-setup/credentials';
+import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -32,14 +32,14 @@ const options: ChannelOptions = {
 const App = () => {
   const client = useCreateChatClient({
     apiKey,
-    tokenOrProvider: userToken,
+    tokenOrProvider: tokenProvider,
     userData: user,
   });
 
   if (!client) return <div>Setting up client & connection...</div>;
 
   return (
-    <Chat client={client} theme='str-chat__theme-custom'>
+    <Chat client={client} theme='custom-theme'>
       <ChannelList filters={filters} sort={sort} options={options} />
       <Channel>
         <Window>

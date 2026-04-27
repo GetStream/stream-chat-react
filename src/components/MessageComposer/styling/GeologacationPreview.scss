@@ -7,17 +7,17 @@
   display: flex;
   align-items: start;
   justify-content: space-around;
-  gap: var(--spacing-xs);
-  padding-inline: var(--spacing-xs) var(--spacing-sm);
-  padding-block: var(--spacing-xs);
-  background-color: var(--chat-bg-outgoing);
-  border-radius: var(--message-bubble-radius-attachment);
+  gap: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+  padding-block: var(--str-chat__spacing-xs);
+  background-color: var(--str-chat__chat-bg-outgoing);
+  border-radius: var(--str-chat__message-bubble-radius-attachment);
 
   .str-chat__location-preview-image {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--background-core-overlay-light);
+    background-color: var(--str-chat__background-core-overlay-light);
     width: 40px;
     height: 40px;
 

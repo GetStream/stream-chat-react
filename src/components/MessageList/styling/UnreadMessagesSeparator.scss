@@ -1,5 +1,5 @@
 .str-chat__unread-messages-separator-wrapper {
-  padding-block: var(--spacing-xs);
+  padding-block: var(--str-chat__spacing-xs);
   display: flex;
   justify-content: center;
 
@@ -7,15 +7,16 @@
     display: flex;
     align-items: center;
     width: fit-content;
-    padding: var(--spacing-xxs) var(--spacing-xs);
-    background: var(--background-core-elevation-1);
-    border-radius: var(--button-radius-lg);
-    border: 1px solid var(--button-secondary-border);
+    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+    background: var(--str-chat__background-core-elevation-1);
+    border-radius: var(--str-chat__button-radius-lg);
+    border: 1px solid var(--str-chat__button-secondary-border);
     overflow: clip;
 
     .str-chat__unread-messages-separator__text {
-      padding-inline: var(--spacing-xs) var(--spacing-xxs);
-      border-radius: var(--button-radius-lg) 0 0 var(--button-radius-lg);
+      padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-xxs);
+      border-radius: var(--str-chat__button-radius-lg) 0 0
+        var(--str-chat__button-radius-lg);
       font: var(--str-chat__font-caption-emphasis);
       text-transform: lowercase;
     }

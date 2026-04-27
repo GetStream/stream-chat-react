@@ -1,5 +1,7 @@
 @layer stream-new, stream-new-plugins, stream-overrides, stream-app-overrides;
 
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
@@ -24,7 +26,10 @@ body {
 #root {
   display: flex;
   flex-direction: column;
+  /* Fallback for browsers without dynamic viewport units */
   height: 100vh;
+  /* Match the visible viewport on mobile browser UI changes */
+  height: 100dvh;
   min-height: 0;
 }
 
@@ -145,7 +150,7 @@ body {
     min-width: 1px;
     height: 100%;
     z-index: 1;
-    background: var(--border-core-default);
+    background: var(--str-chat__border-core-default);
   }
 
   .app-chat-resize-handle__hitbox {

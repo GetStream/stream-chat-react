@@ -3,18 +3,18 @@
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs, 8px);
-  padding-block: var(--spacing-xs, 8px);
-  padding-inline: var(--spacing-sm, 12px);
-  background: var(--background-core-surface-default, #ebeef1);
-  color: var(--chat-text-system, #414552);
+  gap: var(--str-chat__spacing-xs, 8px);
+  padding-block: var(--str-chat__spacing-xs, 8px);
+  padding-inline: var(--str-chat__spacing-sm, 12px);
+  background: var(--str-chat__background-core-surface-default, #ebeef1);
+  color: var(--str-chat__chat-text-system, #414552);
   font-feature-settings:
     'liga' off,
     'clig' off;
-  font-size: var(--typography-font-size-xs, 12px);
+  font-size: var(--str-chat__typography-font-size-xs, 12px);
   font-style: normal;
-  font-weight: var(--typography-font-weight-semi-bold, 600);
-  line-height: var(--typography-line-height-tight, 16px);
+  font-weight: var(--str-chat__typography-font-weight-semi-bold, 600);
+  line-height: var(--str-chat__typography-line-height-tight, 16px);
   animation: str-chat__system-notification-slide-in 300ms ease-out both;
   overflow: hidden;
   width: 100%;

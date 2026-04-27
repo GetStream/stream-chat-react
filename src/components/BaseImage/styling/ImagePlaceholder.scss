@@ -7,12 +7,12 @@
     min-width: 0;
     min-height: 0;
     @include utils.flex-col-center;
-    background-color: var(--background-core-overlay-light);
+    background-color: var(--str-chat__background-core-overlay-light);
 
     svg {
-      fill: var(--accent-neutral);
-      width: min(var(--icon-size-lg, 32px), 50%);
-      height: min(var(--icon-size-lg, 32px), 50%);
+      fill: var(--str-chat__accent-neutral);
+      width: min(var(--str-chat__icon-size-lg, 32px), 50%);
+      height: min(var(--str-chat__icon-size-lg, 32px), 50%);
     }
   }
 }

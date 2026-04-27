@@ -9,23 +9,23 @@
 .str-chat__alert-root {
   @include utils.modal;
   @include flex-column;
-  gap: var(--spacing-2xl);
-  padding: var(--spacing-xl);
+  gap: var(--str-chat__spacing-2xl);
+  padding: var(--str-chat__spacing-xl);
   text-align: center;
 
   .str-chat__alert-header {
     @include flex-column;
-    gap: var(--spacing-md);
+    gap: var(--str-chat__spacing-md);
     width: 100%;
 
     svg {
-      height: var(--button-visual-height-sm);
-      width: var(--button-visual-height-sm);
+      height: var(--str-chat__button-visual-height-sm);
+      width: var(--str-chat__button-visual-height-sm);
     }
 
     .str-chat__alert-header__copy {
       @include flex-column;
-      gap: var(--spacing-xs);
+      gap: var(--str-chat__spacing-xs);
       width: 100%;
 
       .str-chat__alert-header__title {
@@ -40,7 +40,7 @@
 
   .str-chat__alert-actions {
     @include flex-column;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
     width: 100%;
 
     button {

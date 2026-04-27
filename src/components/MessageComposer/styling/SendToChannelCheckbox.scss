@@ -3,17 +3,17 @@
   display: flex;
   align-items: flex-start;
   max-width: var(--str-chat__message-composer-max-width);
-  color: var(--text-tertiary);
+  color: var(--str-chat__text-tertiary);
 
   &.str-chat__send-to-channel-checkbox__container--checked {
-    color: var(--text-primary);
+    color: var(--str-chat__text-primary);
   }
 
   .str-chat__send-to-channel-checkbox__field {
     position: relative;
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
     cursor: pointer;
 
     /* Visually hide the native checkbox; it stays focusable and clickable for a11y */
@@ -36,8 +36,8 @@
     .str-chat__send-to-channel-checkbox__visual {
       width: 20px;
       height: 20px;
-      border: 1px solid var(--control-checkbox-border, #d5dbe1);
-      border-radius: var(--radius-sm);
+      border: 1px solid var(--str-chat__control-checkbox-border, #d5dbe1);
+      border-radius: var(--str-chat__radius-sm);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -49,12 +49,18 @@
 
     .str-chat__send-to-channel-checkbox__input:checked
       + .str-chat__send-to-channel-checkbox__visual {
-      background-color: var(--control-radiocheck-bg-selected, var(--accent-primary));
-      border-color: var(--control-radiocheck-bg-selected, var(--accent-primary));
+      background-color: var(
+        --control-radiocheck-bg-selected,
+        var(--str-chat__accent-primary)
+      );
+      border-color: var(
+        --control-radiocheck-bg-selected,
+        var(--str-chat__accent-primary)
+      );
     }
 
     .str-chat__send-to-channel-checkbox__checkmark {
-      color: var(--control-checkbox-icon);
+      color: var(--str-chat__control-checkbox-icon);
       opacity: 0;
       display: flex;
       align-items: center;

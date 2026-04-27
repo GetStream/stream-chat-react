@@ -3,6 +3,7 @@ import { IconXmark } from '../Icons';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 
+// todo: remove as unused
 export const CloseButtonOnModalOverlay = ({
   children,
   className,

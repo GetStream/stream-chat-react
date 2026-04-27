@@ -1,26 +1,29 @@
 .str-chat__notification {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
   min-height: 48px;
   max-width: 100%;
-  padding: var(--spacing-xs);
+  padding: var(--str-chat__spacing-xs);
   position: relative;
   pointer-events: visible;
-  background: var(--str-chat__notification-background, var(--background-core-inverse));
-  border-radius: var(--str-chat__notification-border-radius, var(--radius-3xl));
+  background: var(
+    --str-chat__notification-background,
+    var(--str-chat__background-core-inverse)
+  );
+  border-radius: var(--str-chat__notification-border-radius, var(--str-chat__radius-3xl));
   box-shadow:
     0 0 0 1px rgba(0, 0, 0, 0.05),
     0 4px 8px 0 rgba(0, 0, 0, 0.14),
     0 12px 24px 0 rgba(0, 0, 0, 0.1);
-  color: var(--str-chat__notification-color, var(--text-on-inverse));
+  color: var(--str-chat__notification-color, var(--str-chat__text-on-inverse));
 
   .str-chat__notification-content {
     align-items: flex-start;
     display: flex;
     flex: 1 1 auto;
-    gap: var(--spacing-xs);
-    padding-inline: var(--spacing-xxs) var(--spacing-xs);
+    gap: var(--str-chat__spacing-xs);
+    padding-inline: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
 
     .str-chat__notification-icon {
       display: flex;
@@ -28,14 +31,14 @@
       height: 100%;
 
       svg {
-        block-size: var(--icon-size-sm);
-        inline-size: var(--icon-size-sm);
+        block-size: var(--str-chat__icon-size-sm);
+        inline-size: var(--str-chat__icon-size-sm);
       }
     }
 
     .str-chat__notification-message {
       flex: 1 1 auto;
-      padding-block: var(--spacing-xxxs);
+      padding-block: var(--str-chat__spacing-xxxs);
       font: var(--str-chat__font-caption-default);
       text-align: center;
       white-space: nowrap;
@@ -47,16 +50,16 @@
     flex-basis: 100%;
     align-items: center;
     justify-content: flex-end;
-    gap: var(--spacing-xxs);
+    gap: var(--str-chat__spacing-xxs);
   }
 
   .str-chat__notification-close-button {
     align-self: center;
-    padding: var(--spacing-xxs);
+    padding: var(--str-chat__spacing-xxs);
 
     svg {
-      height: var(--icon-size-sm);
-      width: var(--icon-size-sm);
+      height: var(--str-chat__icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
     }
   }
 }
@@ -93,23 +96,23 @@
 
 //// Severity overrides: allow themes to keep colored variants; defaults match Figma (inverse).
 //.str-chat__notification--success {
-//  background: var(--str-chat-success-background, var(--background-core-inverse));
-//  color: var(--str-chat-success-color, var(--text-on-inverse));
+//  background: var(--str-chat-success-background, var(--str-chat__background-core-inverse));
+//  color: var(--str-chat-success-color, var(--str-chat__text-on-inverse));
 //}
 //
 //.str-chat__notification--error {
-//  background: var(--str-chat-error-background, var(--background-core-inverse));
-//  color: var(--str-chat-error-color, var(--text-on-inverse));
+//  background: var(--str-chat-error-background, var(--str-chat__background-core-inverse));
+//  color: var(--str-chat-error-color, var(--str-chat__text-on-inverse));
 //}
 //
 //.str-chat__notification--warning {
-//  background: var(--str-chat-warning-background, var(--background-core-inverse));
-//  color: var(--str-chat-warning-color, var(--text-on-inverse));
+//  background: var(--str-chat-warning-background, var(--str-chat__background-core-inverse));
+//  color: var(--str-chat-warning-color, var(--str-chat__text-on-inverse));
 //}
 //
 //.str-chat__notification--info {
-//  background: var(--str-chat-info-background, var(--background-core-inverse));
-//  color: var(--str-chat-info-color, var(--text-on-inverse));
+//  background: var(--str-chat-info-background, var(--str-chat__background-core-inverse));
+//  color: var(--str-chat-info-color, var(--str-chat__text-on-inverse));
 //}
 
 // Loading state: spin the refresh icon

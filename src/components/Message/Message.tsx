@@ -72,7 +72,11 @@ const MessageWithContext = (props: MessageWithContextProps) => {
 
   const { client, isMessageAIGenerated } = useChatContext('Message');
   const { channelConfig, read } = useChannelStateContext('Message');
-  const { Message: contextMessage } = useComponentContext('Message');
+  const {
+    Message: contextMessage = DefaultMessageUI,
+    // TODO: remove this passthrough once we drop Message from the ComponentContext
+    MessageUI: contextMessageUI = contextMessage,
+  } = useComponentContext('Message');
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
 
@@ -83,7 +87,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   );
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
-  const MessageUIComponent = propMessage ?? contextMessage ?? DefaultMessageUI;
+  const MessageUIComponent = propMessage ?? contextMessageUI;
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,

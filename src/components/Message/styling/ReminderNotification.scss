@@ -1,43 +1,21 @@
-@use '../../../styling/utils';
-
-.str-chat {
-  --str-chat__message-saved-for-later-color: var(--accent-primary);
-  --str-chat__message-saved-for-later-background-color: transparent;
-  --str-chat__message-saved-for-later-border-block-start: none;
-  --str-chat__message-saved-for-later-border-block-end: none;
-  --str-chat__message-saved-for-later-border-inline-start: none;
-  --str-chat__message-saved-for-later-border-inline-end: none;
-  --str-chat__message-saved-for-later-box-shadow: none;
-  --str-chat__message-saved-for-later-border-radius: 0;
-
-  --str-chat__message-reminder-color: var(--text-primary);
-  --str-chat__message-reminder-background-color: transparent;
-  --str-chat__message-reminder-border-block-start: none;
-  --str-chat__message-reminder-border-block-end: none;
-  --str-chat__message-reminder-border-inline-start: none;
-  --str-chat__message-reminder-border-inline-end: none;
-  --str-chat__message-reminder-box-shadow: none;
-  --str-chat__message-reminder-border-radius: 0;
-}
-
 /* Saved for Later: above pin indicator. Font and spacing aligned with pin indicator. */
 .str-chat__message-saved-for-later {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   grid-area: message-saved-for-later;
-  padding-block: var(--spacing-xxs);
+  padding-block: var(--str-chat__spacing-xxs);
   margin: 0;
-  @include utils.component-layer-overrides('message-saved-for-later');
+  background: transparent;
+  color: var(--str-chat__accent-primary);
   font: var(--str-chat__font-metadata-emphasis);
 
-  svg {
-    width: var(--icon-size-xs);
-    height: var(--icon-size-xs);
+  .str-chat__icon {
+    width: var(--str-chat__icon-size-xs);
+    height: var(--str-chat__icon-size-xs);
 
     path {
-      stroke-width: 2px;
-      stroke: var(--str-chat__message-saved-for-later-color);
+      stroke-width: var(--str-chat__icon-stroke-emphasis);
     }
   }
 }
@@ -46,15 +24,18 @@
 .str-chat__message-reminder {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxs);
+  gap: var(--str-chat__spacing-xxs);
   grid-area: message-reminder;
-  padding-block: var(--spacing-xxs);
+  padding-block: var(--str-chat__spacing-xxs);
   margin: 0;
-  @include utils.component-layer-overrides('message-reminder');
+  background: transparent;
+  color: var(--str-chat__text-primary);
   font: var(--str-chat__font-metadata-emphasis);
 
-  svg path {
-    stroke-width: 1.5px;
+  .str-chat__icon {
+    path {
+      stroke-width: var(--str-chat__icon-stroke-default);
+    }
   }
 
   .str-chat__message-reminder__time-left {

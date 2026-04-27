@@ -23,8 +23,8 @@
       var(--str-chat__message-composer-padding)
   );
   margin: auto;
-  gap: var(--spacing-xs);
-  padding-block: var(--spacing-xs);
+  gap: var(--str-chat__spacing-xs);
+  padding-block: var(--str-chat__spacing-xs);
   padding-inline: var(--str-chat__message-composer-padding);
 
   &.str-chat__typing-indicator--with-transition {
@@ -37,11 +37,12 @@
   align-items: center;
   min-height: 36px;
   max-height: 36px;
-  padding-block: var(--spacing-xs);
-  padding-inline: var(--spacing-sm);
-  border-radius: var(--message-bubble-radius-group-bottom)
-    var(--message-bubble-radius-group-bottom) var(--message-bubble-radius-group-bottom)
-    var(--message-bubble-radius-tail);
+  padding-block: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-sm);
+  border-radius: var(--str-chat__message-bubble-radius-group-bottom)
+    var(--str-chat__message-bubble-radius-group-bottom)
+    var(--str-chat__message-bubble-radius-group-bottom)
+    var(--str-chat__message-bubble-radius-tail);
   // variable --chat-bg-typing-indicator has incorrect color value?
   //background: var(--chat-bg-typing-indicator);
   border: 1px solid var(--chat-bg);
@@ -51,7 +52,7 @@
 .str-chat__typing-indicator__dots {
   display: flex;
   align-items: center;
-  column-gap: var(--spacing-xxs);
+  column-gap: var(--str-chat__spacing-xxs);
 }
 
 /* SVG dots (TypingIndicatorDots component) */
@@ -59,19 +60,19 @@
   display: block;
 
   circle:nth-child(1) {
-    fill: var(--chat-text-typing-indicator);
+    fill: var(--str-chat__chat-text-typing-indicator);
     animation: str-chat__typing-indicator-dot 1.2s ease-in-out infinite both;
     animation-delay: 0s;
   }
 
   circle:nth-child(2) {
-    fill: var(--chat-text-typing-indicator);
+    fill: var(--str-chat__chat-text-typing-indicator);
     animation: str-chat__typing-indicator-dot 1.2s ease-in-out infinite both;
     animation-delay: 0.15s;
   }
 
   circle:nth-child(3) {
-    fill: var(--chat-text-typing-indicator);
+    fill: var(--str-chat__chat-text-typing-indicator);
     animation: str-chat__typing-indicator-dot 1.2s ease-in-out infinite both;
     animation-delay: 0.3s;
   }
@@ -96,9 +97,9 @@
 .str-chat__typing-indicator-header {
   display: inline-flex;
   align-items: baseline;
-  gap: var(--spacing-xs, 4px);
+  gap: var(--str-chat__spacing-xs);
   white-space: nowrap;
-  color: var(--text-secondary);
+  color: var(--str-chat__text-secondary);
   font: var(--str-chat__font-caption-default);
 }
 
