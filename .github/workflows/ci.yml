@@ -100,7 +100,7 @@ jobs:
       - name: Vercel Pull/Build/Deploy (Preview)
         working-directory: examples/vite
         if: ${{ github.ref_name != 'master' }}
-        run: >
+        run: >-
           npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} &&
           npx vercel build &&
           npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
@@ -108,7 +108,7 @@ jobs:
       - name: Vercel Pull/Build/Deploy (Production)
         working-directory: examples/vite
         if: ${{ github.ref_name == 'master' }}
-        run: >
+        run: >-
           npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} &&
           npx vercel build --prod &&
           npx vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}

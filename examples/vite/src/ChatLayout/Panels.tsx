@@ -1,6 +1,11 @@
 import clsx from 'clsx';
-import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
-import { useEffect, useRef } from 'react';
+import type {
+  ChannelFilters,
+  ChannelMemberResponse,
+  ChannelOptions,
+  ChannelSort,
+} from 'stream-chat';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   AIStateIndicator,
   Channel,
@@ -21,6 +26,8 @@ import {
   useChatContext,
   type ChatViewSelectorEntry,
   useThreadsViewContext,
+  Button,
+  useChannelMembersState,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
@@ -97,6 +104,34 @@ const ResponsiveChannelPanels = () => {
   );
 };
 
+const HeaderStartContent = () => {
+  const { client } = useChatContext();
+  const { channel } = useChannelStateContext();
+  const members = useChannelMembersState(channel);
+  const membership = members[client.userID!] as ChannelMemberResponse | undefined;
+
+  const isMember = typeof membership?.channel_role === 'string';
+  const canJoin = channel.data?.own_capabilities?.includes('join-channel');
+
+  const handleClick = useCallback(() => {
+    if (isMember) {
+      channel.removeMembers([client.userID!]).then(() => {
+        channel.watch();
+      });
+    } else {
+      channel.addMembers([client.userID!]);
+    }
+  }, [isMember]);
+
+  if (!canJoin) return null;
+
+  return (
+    <Button onClick={handleClick} variant='secondary' appearance='outline' size='sm'>
+      {isMember ? 'Leave' : 'Join'}
+    </Button>
+  );
+};
+
 export const ChannelsPanels = ({
   filters,
   iconOnly,
@@ -148,6 +183,7 @@ export const ChannelsPanels = ({
             }}
           >
             <ChannelList
+              onRemovedFromChannel={() => {}}
               customActiveChannel={initialChannelId}
               filters={filters}
               options={options}
@@ -157,7 +193,7 @@ export const ChannelsPanels = ({
           </WithComponents>
         </div>
         <SidebarResizeHandle layoutRef={channelsLayoutRef} />
-        <WithComponents overrides={{ TypingIndicator }}>
+        <WithComponents overrides={{ TypingIndicator, HeaderStartContent }}>
           <Channel>
             <ResponsiveChannelPanels />
           </Channel>
