@@ -8,12 +8,14 @@ import {
   UserSearchSource,
 } from 'stream-chat';
 
+import { NotificationAnnouncer as DefaultNotificationAnnouncer } from '../Accessibility';
 import { useChat } from './hooks/useChat';
 import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import type { CustomClasses } from '../../context/ChatContext';
 import { ChatProvider } from '../../context/ChatContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import { TranslationProvider } from '../../context/TranslationContext';
 import { type MessageContextValue, ModalDialogManagerProvider } from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
@@ -106,6 +108,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     theme,
     useImageFlagEmojisOnWindows,
   });
+  const { NotificationAnnouncer = DefaultNotificationAnnouncer } = useComponentContext();
 
   if (!translators.t) return null;
 
@@ -114,6 +117,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
       <TranslationProvider value={translators}>
         <ModalDialogManagerProvider>
           <NetworkConnectionNotificationReporter />
+          <NotificationAnnouncer />
           {children}
         </ModalDialogManagerProvider>
       </TranslationProvider>

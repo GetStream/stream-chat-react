@@ -5,7 +5,7 @@ import type { Channel, OwnUserResponse } from 'stream-chat';
 
 import { Chat } from '..';
 
-import { ChatContext, TranslationContext } from '../../../context';
+import { ChatContext, ComponentProvider, TranslationContext } from '../../../context';
 import type { ChatContextValue } from '../../../context';
 import { Streami18n } from '../../../i18n';
 import type { Mute } from 'stream-chat';
@@ -240,6 +240,27 @@ describe('Chat', () => {
           ),
         ).toBeUndefined();
       });
+    });
+
+    it('uses NotificationAnnouncer from ComponentContext', async () => {
+      const client = getTestClient();
+
+      const CustomNotificationAnnouncer = () => (
+        <div data-testid='custom-notification-announcer' />
+      );
+
+      render(
+        <ComponentProvider value={{ NotificationAnnouncer: CustomNotificationAnnouncer }}>
+          <Chat client={client}>
+            <div data-testid='children' />
+          </Chat>
+        </ComponentProvider>,
+      );
+
+      await waitFor(() =>
+        expect(screen.getByTestId('custom-notification-announcer')).toBeInTheDocument(),
+      );
+      expect(screen.queryByTestId('notification-announcer')).not.toBeInTheDocument();
     });
   });
 
