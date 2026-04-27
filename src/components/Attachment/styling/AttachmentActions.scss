@@ -1,3 +1,5 @@
+@use '../../../styling/utils';
+
 .str-chat__message-attachment-actions {
   background: transparent;
   color: var(--str-chat__button-secondary-text);
