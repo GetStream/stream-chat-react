@@ -57,7 +57,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         aria-label={t('aria/Select Channel: {{ channelName }}', {
           channelName: displayTitle || '',
         })}
-        aria-pressed={active}
+        aria-selected={active}
         className={clsx(
           'str-chat__channel-list-item',
           typeof unread === 'number' &&

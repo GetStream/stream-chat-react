@@ -417,7 +417,7 @@ const defaultComponents = {
       <Button
         appearance='ghost'
         aria-expanded={dialogIsOpen}
-        aria-label={t('aria/Open Message Actions Menu')}
+        aria-label={t('aria/Open Channel Actions Menu')}
         aria-pressed={dialogIsOpen}
         circular
         onClick={(e) => {

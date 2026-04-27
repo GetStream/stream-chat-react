@@ -82,7 +82,7 @@ describe('SearchResultsHeader', () => {
       buttons.forEach((button) => {
         expect(button).toHaveAttribute(
           'aria-label',
-          'aria/Search results header filter button',
+          'aria/Search results header filter button for: {{ source }}',
         );
       });
     });

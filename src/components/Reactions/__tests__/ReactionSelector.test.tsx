@@ -116,6 +116,14 @@ describe('ReactionSelector', () => {
     expect(buttons).toHaveLength(6);
   });
 
+  it('should expose labeled group semantics for the selector container', () => {
+    const { getByTestId } = renderComponent();
+
+    const selector = getByTestId('reaction-selector');
+    expect(selector).toHaveAttribute('role', 'group');
+    expect(selector).toHaveAttribute('aria-label', 'Reaction list');
+  });
+
   it('should render each of reactionOptions if specified as an array (legacy format)', () => {
     const reactionOptions: ReactionOptions = [
       { Component: () => <span>test1</span>, type: 'test1' },
@@ -230,6 +238,14 @@ describe('ReactionSelector.ExtendedList', () => {
 
     const dataTexts = buttons.map((btn) => btn.getAttribute('data-text'));
     expect(dataTexts).toEqual(expect.arrayContaining(['rocket', 'star', 'thumbsdown']));
+  });
+
+  it('should expose labeled group semantics for extended list container', () => {
+    const { getByTestId } = renderExtendedList();
+
+    const extendedList = getByTestId('reaction-selector-extended-list');
+    expect(extendedList).toHaveAttribute('role', 'group');
+    expect(extendedList).toHaveAttribute('aria-label', 'Reaction list');
   });
 
   it('should render null when reactionOptions is a legacy array', () => {

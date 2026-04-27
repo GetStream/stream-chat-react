@@ -93,7 +93,7 @@ export const SearchBar = () => {
         {searchQuery && (
           <Button
             appearance='ghost'
-            aria-label={t('Close')}
+            aria-label={t('aria/Clear search')}
             circular
             className='str-chat__search-bar__clear-button'
             data-testid='clear-input-button'
@@ -113,6 +113,7 @@ export const SearchBar = () => {
       {isActive && (
         <Button
           appearance='ghost'
+          aria-label={t('aria/Exit search')}
           className='str-chat__search-bar__exit-search-button'
           data-testid='search-bar-button'
           onClick={() => {

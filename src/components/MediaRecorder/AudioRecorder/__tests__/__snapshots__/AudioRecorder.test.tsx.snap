@@ -10,6 +10,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
       class="str-chat__audio-recorder__recording-playback"
     >
       <button
+        aria-label="aria/Play"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-playback-button"
         data-testid="audio-recording-preview-toggle-play-btn"
         type="button"
@@ -43,216 +44,260 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
         class="str-chat__wave-progress-bar__track-container"
       >
         <div
+          aria-label="aria/Seek audio position"
+          aria-orientation="horizontal"
           aria-valuemax="100"
           aria-valuemin="0"
           aria-valuenow="0"
+          aria-valuetext="aria/Audio position {{ elapsed }} of {{ duration }}"
           class="str-chat__wave-progress-bar__track"
           data-testid="wave-progress-bar-track"
-          role="progressbar"
+          role="slider"
           style="--str-chat__voice-recording-amplitude-bar-gap-width: 1px;"
           tabindex="0"
         >
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 31.399506330490112%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 24.018539488315582%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 18.365363776683807%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 59.02017951011658%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 26.63217782974243%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.37155795097351%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 82.78987407684326%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 15.16059935092926%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 47.57987558841705%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.29274868965149%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 55.40405511856079%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 85.32787561416626%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 57.56412744522095%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 83.30334424972534%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 75.42996406555176%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 46.48399353027344%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 77.82987952232361%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.917882204055786%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 71.56173586845398%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 7.107513397932053%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.29901123046875%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.445610344409943%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 95.34039497375488%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 48.61070513725281%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.09651231765747%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 8.803673088550568%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 49.2523193359375%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 3.940269351005554%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 77.68490314483643%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 18.697471916675568%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 4.977691546082497%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 5.717025697231293%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 4.073379561305046%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.73514586687088%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 94.67474222183228%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 54.55475449562073%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 81.71653747558594%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 61.83612942695618%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 81.5593957901001%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 89.80446457862854%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__progress-indicator"
             data-testid="wave-progress-bar-progress-indicator"
             style="inset-inline-start: 0px;"
@@ -264,6 +309,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
+        aria-label="aria/Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -290,6 +336,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
         </div>
       </button>
       <button
+        aria-label="aria/Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -315,6 +362,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
         </div>
       </button>
       <button
+        aria-label="aria/Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -380,6 +428,7 @@ exports[`AudioRecorder > does not render recording preview if recording 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
+        aria-label="aria/Pause recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -400,6 +449,7 @@ exports[`AudioRecorder > does not render recording preview if recording 1`] = `
         </div>
       </button>
       <button
+        aria-label="aria/Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -465,6 +515,7 @@ exports[`AudioRecorder > renders audio recording in progress UI 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
+        aria-label="aria/Pause recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -485,6 +536,7 @@ exports[`AudioRecorder > renders audio recording in progress UI 1`] = `
         </div>
       </button>
       <button
+        aria-label="aria/Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -518,6 +570,7 @@ exports[`AudioRecorder > renders audio recording paused UI when paused 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
+        aria-label="aria/Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -544,6 +597,7 @@ exports[`AudioRecorder > renders audio recording paused UI when paused 1`] = `
         </div>
       </button>
       <button
+        aria-label="aria/Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -569,6 +623,7 @@ exports[`AudioRecorder > renders audio recording paused UI when paused 1`] = `
         </div>
       </button>
       <button
+        aria-label="aria/Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -602,6 +657,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
+        aria-label="aria/Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -628,6 +684,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
         </div>
       </button>
       <button
+        aria-label="aria/Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -653,6 +710,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
         </div>
       </button>
       <button
+        aria-label="aria/Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -686,6 +744,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
       class="str-chat__audio-recorder__recording-playback"
     >
       <button
+        aria-label="aria/Play"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-playback-button"
         data-testid="audio-recording-preview-toggle-play-btn"
         type="button"
@@ -719,216 +778,260 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
         class="str-chat__wave-progress-bar__track-container"
       >
         <div
+          aria-label="aria/Seek audio position"
+          aria-orientation="horizontal"
           aria-valuemax="100"
           aria-valuemin="0"
           aria-valuenow="0"
+          aria-valuetext="aria/Audio position {{ elapsed }} of {{ duration }}"
           class="str-chat__wave-progress-bar__track"
           data-testid="wave-progress-bar-track"
-          role="progressbar"
+          role="slider"
           style="--str-chat__voice-recording-amplitude-bar-gap-width: 1px;"
           tabindex="0"
         >
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 31.399506330490112%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 24.018539488315582%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 18.365363776683807%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 59.02017951011658%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 26.63217782974243%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.37155795097351%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 82.78987407684326%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 15.16059935092926%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 47.57987558841705%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.29274868965149%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 55.40405511856079%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 85.32787561416626%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 57.56412744522095%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 83.30334424972534%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 75.42996406555176%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 46.48399353027344%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 77.82987952232361%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.917882204055786%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 71.56173586845398%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 7.107513397932053%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.29901123046875%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.445610344409943%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 95.34039497375488%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 48.61070513725281%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 62.09651231765747%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 8.803673088550568%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 49.2523193359375%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 3.940269351005554%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 77.68490314483643%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 18.697471916675568%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 4.977691546082497%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 5.717025697231293%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 4.073379561305046%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 14.73514586687088%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 94.67474222183228%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 54.55475449562073%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 81.71653747558594%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 61.83612942695618%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 81.5593957901001%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__amplitude-bar"
             data-testid="amplitude-bar"
             style="--str-chat__voice-recording-amplitude-bar-width: 2px; --str-chat__wave-progress-bar__amplitude-bar-height: 89.80446457862854%;"
           />
           <div
+            aria-hidden="true"
             class="str-chat__wave-progress-bar__progress-indicator"
             data-testid="wave-progress-bar-progress-indicator"
             style="inset-inline-start: 0px;"
@@ -940,6 +1043,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
+        aria-label="aria/Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -966,6 +1070,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
         </div>
       </button>
       <button
+        aria-label="aria/Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -991,6 +1096,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
         </div>
       </button>
       <button
+        aria-label="aria/Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"

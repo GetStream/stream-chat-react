@@ -231,12 +231,6 @@
       align-items: center;
       width: 100%;
 
-      &:focus-within {
-        outline: var(--str-chat__focus-outline, 2px solid var(--border-utility-focused));
-        outline-offset: var(--str-chat__focus-outline-offset, 2px);
-        border-radius: var(--radius-md);
-      }
-
       textarea {
         @include utils.component-layer-overrides('message-textarea');
         resize: none;

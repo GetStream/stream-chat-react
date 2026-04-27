@@ -87,7 +87,12 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   }, [reactionOptions]);
 
   return (
-    <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
+    <div
+      aria-label={t('aria/Reaction list')}
+      className='str-chat__reaction-selector'
+      data-testid='reaction-selector'
+      role='group'
+    >
       {!extendedListOpen ? (
         <>
           <ul
@@ -111,6 +116,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
                         dialog.close();
                       }
                     }}
+                    type='button'
                   >
                     <span className='str-chat__reaction-icon'>
                       <Component />
@@ -194,8 +200,10 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
 
   return (
     <div
+      aria-label={t('aria/Reaction list')}
       className='str-chat__reaction-selector-extended-list'
       data-testid='reaction-selector-extended-list'
+      role='group'
     >
       {Object.entries(reactionOptions.extended).map(
         ([reactionType, { Component, name: reactionName }]) => (
@@ -214,6 +222,7 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
                 dialog.close();
               }
             }}
+            type='button'
           >
             <span className='str-chat__reaction-icon'>
               <Component />

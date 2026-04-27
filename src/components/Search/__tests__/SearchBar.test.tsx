@@ -20,7 +20,7 @@ vi.mock('../hooks', () => ({
 }));
 
 const INPUT_TEST_ID = 'search-input';
-const CLEAR_SEARCH_BUTTON_ARIA_LABEL = 'Close';
+const CLEAR_SEARCH_BUTTON_ARIA_LABEL = 'aria/Clear search';
 const SEARCH_INPUT_ACCESSIBLE_NAME = 'Search';
 
 describe('SearchBar', () => {

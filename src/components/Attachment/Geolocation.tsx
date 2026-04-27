@@ -100,19 +100,24 @@ export type GeolocationAttachmentMapPlaceholderProps = {
 
 const DefaultGeolocationAttachmentMapPlaceholder = ({
   location,
-}: GeolocationAttachmentMapPlaceholderProps) => (
-  <div
-    className='str-chat__message-attachment-geolocation__placeholder'
-    data-testid='geolocation-attachment-map-placeholder'
-  >
-    <IconLocation />
-    <a
-      className='str-chat__message-attachment-geolocation__placeholder-link'
-      href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}
-      rel='noreferrer'
-      target='_blank'
+}: GeolocationAttachmentMapPlaceholderProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <div
+      className='str-chat__message-attachment-geolocation__placeholder'
+      data-testid='geolocation-attachment-map-placeholder'
     >
-      <ExternalLinkIcon />
-    </a>
-  </div>
-);
+      <IconLocation />
+      <a
+        aria-label={t('Open location in a map')}
+        className='str-chat__message-attachment-geolocation__placeholder-link'
+        href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}
+        rel='noreferrer'
+        target='_blank'
+      >
+        <ExternalLinkIcon />
+      </a>
+    </div>
+  );
+};

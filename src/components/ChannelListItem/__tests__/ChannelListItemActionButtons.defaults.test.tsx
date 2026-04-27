@@ -128,7 +128,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     const menu = document.querySelector('.str-chat__context-menu') as HTMLElement;
     act(() => {
-      fireEvent.click(within(menu).getByRole('button', { name: 'Block User' }));
+      fireEvent.click(within(menu).getByRole('menuitem', { name: 'Block User' }));
     });
 
     await waitFor(() => {
@@ -164,7 +164,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     const menu = document.querySelector('.str-chat__context-menu') as HTMLElement;
     act(() => {
-      fireEvent.click(within(menu).getByRole('button', { name: 'Leave Channel' }));
+      fireEvent.click(within(menu).getByRole('menuitem', { name: 'Leave Channel' }));
     });
 
     await waitFor(() => {

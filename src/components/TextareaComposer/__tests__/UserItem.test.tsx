@@ -16,12 +16,14 @@ describe('UserItem', () => {
 
   it('should render username if provided', async () => {
     const { container, getByText } = render(
-      <UserItem
-        entity={{
-          name: 'Frits Sissing',
-          tokenizedDisplayName: { parts: ['Frits Sissin', 'g'], token: 'g' },
-        }}
-      />,
+      <div role='menu'>
+        <UserItem
+          entity={{
+            name: 'Frits Sissing',
+            tokenizedDisplayName: { parts: ['Frits Sissin', 'g'], token: 'g' },
+          }}
+        />
+      </div>,
     );
     expect(getByText('Frits Sissin')).toBeInTheDocument();
     expect(getByText('g')).toBeInTheDocument();
@@ -31,14 +33,16 @@ describe('UserItem', () => {
 
   it('should render profile picture if provided', async () => {
     const { container, getByTestId } = render(
-      <UserItem
-        entity={{
-          id: '123',
-          image: 'frits.jpg',
-          name: 'Frits Sissing',
-          tokenizedDisplayName: { parts: ['F', 'rits Sissing'], token: 'f' },
-        }}
-      />,
+      <div role='menu'>
+        <UserItem
+          entity={{
+            id: '123',
+            image: 'frits.jpg',
+            name: 'Frits Sissing',
+            tokenizedDisplayName: { parts: ['F', 'rits Sissing'], token: 'f' },
+          }}
+        />
+      </div>,
     );
     expect(getByTestId('avatar-img')).toHaveAttribute('src', 'frits.jpg');
     const results = await axe(container);

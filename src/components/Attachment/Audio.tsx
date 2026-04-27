@@ -46,12 +46,22 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
                 isPlaying={!!isPlaying}
                 secondsElapsed={secondsElapsed}
               />
-              <ProgressBar progress={progress ?? 0} seek={audioPlayer.seek} />
+              <ProgressBar
+                durationSeconds={durationSeconds}
+                progress={progress ?? 0}
+                secondsElapsed={secondsElapsed}
+                seek={audioPlayer.seek}
+              />
             </>
           ) : (
             <>
               <FileSizeIndicator fileSize={audioPlayer.fileSize} />
-              <ProgressBar progress={progress ?? 0} seek={audioPlayer.seek} />
+              <ProgressBar
+                durationSeconds={durationSeconds}
+                progress={progress ?? 0}
+                secondsElapsed={secondsElapsed}
+                seek={audioPlayer.seek}
+              />
             </>
           )}
         </div>
