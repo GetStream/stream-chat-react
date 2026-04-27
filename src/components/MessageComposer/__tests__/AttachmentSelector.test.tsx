@@ -452,7 +452,9 @@ describe('AttachmentSelector', () => {
     await waitFor(() => {
       expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument();
     });
-    expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('opens share location dialog with description wired to initial close control', async () => {
@@ -493,7 +495,9 @@ describe('AttachmentSelector', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('share-location-dialog')).not.toBeInTheDocument();
     });
-    expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('is closed if File menu button is clicked', async () => {

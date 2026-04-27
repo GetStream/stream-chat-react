@@ -326,6 +326,7 @@ export const AttachmentSelector = ({
 
   const [modalContentAction, setModalContentActionAction] =
     useState<AttachmentSelectorAction>();
+  const shouldRestoreFocusToTriggerRef = useRef(false);
   const openModalForAction = useCallback(
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
@@ -336,12 +337,23 @@ export const AttachmentSelector = ({
   );
 
   const closeModal = useCallback(() => {
+    shouldRestoreFocusToTriggerRef.current = true;
     setModalContentActionAction(undefined);
-    menuButtonRef.current?.focus();
   }, []);
 
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (modalContentAction || !shouldRestoreFocusToTriggerRef.current) return;
+
+    const frame = requestAnimationFrame(() => {
+      menuButtonRef.current?.focus();
+      shouldRestoreFocusToTriggerRef.current = false;
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [modalContentAction]);
 
   const contextMenuItems = useMemo(
     () =>
