@@ -1,10 +1,6 @@
 @use '../../../styling/utils';
 
 .str-chat__virtual-list {
-  overflow-y: auto;
-  overflow-x: hidden;
-  scrollbar-gutter: stable both-edges;
-
   background: var(--str-chat__background-core-app);
   color: var(--str-chat__text-primary);
   --str-chat__message-list-scroll-max-width: calc(
