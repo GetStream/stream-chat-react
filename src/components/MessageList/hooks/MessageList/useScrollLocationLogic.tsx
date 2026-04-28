@@ -393,6 +393,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     scrollContainerMeasures: () => ({
       offsetHeight: listElement?.offsetHeight || 0,
       scrollHeight: listElement?.scrollHeight || 0,
+      scrollTop: listElement?.scrollTop || 0,
     }),
     scrolledUpThreshold,
     scrollToBottom,

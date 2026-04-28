@@ -6,6 +6,7 @@ import type { LocalMessage } from 'stream-chat';
 export type ContainerMeasures = {
   offsetHeight: number;
   scrollHeight: number;
+  scrollTop: number;
 };
 
 export type UseMessageListScrollManagerParams = {
@@ -101,6 +102,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
   const measures = useRef<ContainerMeasures>({
     offsetHeight: 0,
     scrollHeight: 0,
+    scrollTop: 0,
   });
   const messages = useRef<LocalMessage[]>(undefined);
   const olderPaginationState = useRef<OlderPaginationState>({
@@ -130,16 +132,32 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     const finishedLoadingOlder = !loadingMore && previousLoadingMoreRef.current;
 
     if (startedLoadingOlder) {
+      // Read the live DOM scroll position instead of the cached ref so we get
+      // the correct value even when scrollToBottom() has been called but the
+      // async scroll event hasn't updated the ref yet (common on initial mount).
+      const liveMeasures = scrollContainerMeasures();
+      const hasOverflow = liveMeasures.scrollHeight > liveMeasures.offsetHeight;
+      const liveScrollTop = liveMeasures.scrollTop;
+
       // Older-page pagination uses one of three modes:
       // - `stick-to-top`: user hit the absolute top and wants to keep reading upward
       // - `preserve-anchor`: user was only near the top, so keep the same message in view
       // - `idle`: no restoration needed for this load cycle
-      if (scrollTop.current <= 1) {
+      //
+      // When the container doesn't overflow yet (e.g. content hasn't reached its
+      // final height due to font loading) the scroll position is meaningless, so
+      // default to idle to avoid a false stick-to-top that would jump the list.
+      if (!hasOverflow) {
+        olderPaginationState.current = {
+          anchor: null,
+          mode: 'idle',
+        };
+      } else if (liveScrollTop <= 1) {
         olderPaginationState.current = {
           anchor: null,
           mode: 'stick-to-top',
         };
-      } else if (scrollTop.current < loadMoreScrollThreshold) {
+      } else if (liveScrollTop < loadMoreScrollThreshold) {
         const capturedAnchor = captureAnchor();
         if (capturedAnchor) {
           olderPaginationState.current = {
