@@ -194,6 +194,21 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should make only inner wrapper focusable when message has mentions', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    const innerWrapper = getByTestId(messageTextTestId);
+    const outerWrapper = innerWrapper.parentElement;
+
+    expect(outerWrapper).not.toHaveAttribute('tabindex');
+    expect(innerWrapper).toHaveAttribute('tabindex', '0');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should handle message mention mouse click event', async () => {
     const message = generateAliceMessage({ mentioned_users: [bob] });
     const { container, getByTestId } = await renderMessageText({
@@ -205,6 +220,36 @@ describe('<MessageText />', () => {
     expect(onMentionsClickMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId(messageTextTestId));
     expect(onMentionsClickMock).toHaveBeenCalledTimes(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should handle message mention keyboard interaction with Enter and Space', async () => {
+    const message = generateAliceMessage({ mentioned_users: [bob] });
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    expect(onMentionsClickMock).not.toHaveBeenCalled();
+    fireEvent.keyDown(getByTestId(messageTextTestId), { key: 'Enter' });
+    fireEvent.keyDown(getByTestId(messageTextTestId), { key: ' ' });
+    fireEvent.keyDown(getByTestId(messageTextTestId), { key: 'Escape' });
+    expect(onMentionsClickMock).toHaveBeenCalledTimes(2);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should keep only outer wrapper focusable when message has no mentions', async () => {
+    const message = generateAliceMessage({ mentioned_users: [] });
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    const innerWrapper = getByTestId(messageTextTestId);
+    const outerWrapper = innerWrapper.parentElement;
+
+    expect(outerWrapper).toHaveAttribute('tabindex', '0');
+    expect(innerWrapper).not.toHaveAttribute('tabindex');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

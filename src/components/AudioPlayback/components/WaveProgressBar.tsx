@@ -3,7 +3,10 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { resampleWaveformData } from '../../Attachment/audioSampling';
 import type { SeekFn as AudioPlayerSeekFn } from '../AudioPlayer';
+import { handleProgressBarKeyboardSeek } from './keyboardSeek';
+import { getAudioTrackSliderAriaValueText } from './progressBarA11y';
 import { useInteractiveProgressBar } from './useInteractiveProgressBar';
+import { useTranslationContext } from '../../../context';
 
 type SeekParams = Parameters<AudioPlayerSeekFn>[0];
 
@@ -14,6 +17,10 @@ type WaveProgressBarProps = {
   waveformData: number[];
   /** Progress expressed in fractional number value btw 0 and 100. */
   progress?: number;
+  /** Total track duration in seconds. */
+  durationSeconds?: number;
+  /** Current elapsed position in seconds. */
+  secondsElapsed?: number;
   /** Absolute gap width between bars in px (overrides computed gap var). */
   amplitudeBarGapWidthPx?: number;
   relativeAmplitudeBarWidth?: number;
@@ -22,12 +29,15 @@ type WaveProgressBarProps = {
 
 export const WaveProgressBar = ({
   amplitudeBarGapWidthPx,
+  durationSeconds,
   progress = 0,
   relativeAmplitudeBarWidth = 2,
   relativeAmplitudeGap = 1,
+  secondsElapsed,
   seek,
   waveformData,
 }: WaveProgressBarProps) => {
+  const { t } = useTranslationContext('WaveProgressBar');
   const [trackAxisX, setTrackAxisX] = useState<{
     barCount: number;
     barWidth: number;
@@ -46,6 +56,7 @@ export const WaveProgressBar = ({
     setProgressIndicator,
     setRoot,
   } = useInteractiveProgressBar({ progress, seek });
+  const normalizedProgress = Math.max(0, Math.min(100, progress));
 
   const getTrackAxisX = useMemo(
     () =>
@@ -112,31 +123,48 @@ export const WaveProgressBar = ({
   if (!waveformData.length || trackAxisX?.barCount === 0) return null;
 
   const amplitudeGapWidth = amplitudeBarGapWidthPx ?? trackAxisX?.gap;
+  const ariaValueText = getAudioTrackSliderAriaValueText({
+    durationSeconds,
+    progress: normalizedProgress,
+    secondsElapsed,
+    t,
+  });
 
   return (
     <div
+      aria-label={t('aria/Seek audio position')}
+      aria-orientation='horizontal'
+      aria-valuemax={100}
+      aria-valuemin={0}
+      aria-valuenow={Math.round(normalizedProgress)}
+      aria-valuetext={ariaValueText}
       className={clsx('str-chat__wave-progress-bar__track', {
-        'str-chat__wave-progress-bar__track--playback-initiated': progress > 0,
+        'str-chat__wave-progress-bar__track--playback-initiated': normalizedProgress > 0,
       })}
       data-testid='wave-progress-bar-track'
       onClick={seek}
+      onKeyDown={(event) =>
+        handleProgressBarKeyboardSeek({ event, progress: normalizedProgress, seek })
+      }
       onPointerDown={handleDragStart}
       onPointerMove={handleDrag}
       onPointerUp={handleDragStop}
       ref={setRoot}
-      role='progressbar'
+      role='slider'
       style={
         {
           '--str-chat__voice-recording-amplitude-bar-gap-width':
             typeof amplitudeGapWidth === 'number' ? `${amplitudeGapWidth}px` : undefined,
         } as React.CSSProperties
       }
+      tabIndex={0}
     >
       {resampledWaveformData.map((amplitude, i) => (
         <div
+          aria-hidden='true'
           className={clsx('str-chat__wave-progress-bar__amplitude-bar', {
             ['str-chat__wave-progress-bar__amplitude-bar--active']:
-              progress > (i / resampledWaveformData.length) * 100,
+              normalizedProgress > (i / resampledWaveformData.length) * 100,
           })}
           data-testid='amplitude-bar'
           key={`amplitude-${i}`}
@@ -152,6 +180,7 @@ export const WaveProgressBar = ({
         />
       ))}
       <div
+        aria-hidden='true'
         className='str-chat__wave-progress-bar__progress-indicator'
         data-testid='wave-progress-bar-progress-indicator'
         ref={setProgressIndicator}

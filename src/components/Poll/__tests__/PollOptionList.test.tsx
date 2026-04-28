@@ -3,6 +3,7 @@ import { Poll, VotingVisibility } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { axe } from '../../../../axe-helper';
 import { PollOptionList } from '../PollOptionList';
 import {
   ChannelStateProvider,
@@ -191,6 +192,8 @@ describe('PollOptionList', () => {
     expect(options).toHaveLength(pollData.options.length);
     options.forEach((o) => {
       expect(o.querySelector(CHECKMARK_SELECTOR)).toBeNull();
+      expect(o).not.toHaveAttribute('role');
+      expect(o).not.toHaveAttribute('tabindex');
     });
 
     act(() => {
@@ -216,6 +219,8 @@ describe('PollOptionList', () => {
     expect(options).toHaveLength(pollData.options.length);
     options.forEach((o) => {
       expect(o.querySelector(CHECKMARK_SELECTOR)).toBeNull();
+      expect(o).not.toHaveAttribute('role');
+      expect(o).not.toHaveAttribute('tabindex');
     });
 
     act(() => {
@@ -274,6 +279,40 @@ describe('PollOptionList', () => {
         defaultMessageContext.message.id,
       );
     });
+  });
+
+  it('supports keyboard activation semantics for votable options', async () => {
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: pollWithNoVotes,
+    });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    expect(firstOption).toHaveAttribute('role', 'button');
+    expect(firstOption).toHaveAttribute('tabindex', '0');
+    expect(firstOption).toHaveAttribute('aria-pressed', 'false');
+
+    act(() => {
+      fireEvent.keyDown(firstOption, { key: 'Enter' });
+    });
+
+    await waitFor(() => {
+      expect(castVoteSpy).toHaveBeenCalledWith(
+        pollWithNoVotes.options[0].id,
+        defaultMessageContext.message.id,
+      );
+    });
+  });
+
+  it('passes axe on the default poll option list', async () => {
+    const poll = new Poll({ client: fromPartial<StreamChat>({}), poll: generatePoll() });
+    const { container } = renderComponent({ poll });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 
   it('updates the UI on cast poll vote state update', () => {

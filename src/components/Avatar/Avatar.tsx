@@ -10,7 +10,7 @@ import { IconUser } from '../Icons';
 export type AvatarProps = {
   /** URL of the avatar image */
   imageUrl?: string;
-  /** Name of the user, used for title tag fallback */
+  /** Name of the user, used for avatar image alt text and title fallback */
   userName?: string;
   /** Online status indicator, not rendered if not of type boolean */
   isOnline?: boolean;
@@ -54,6 +54,7 @@ export const Avatar = ({
   useEffect(() => () => setError(false), [imageUrl]);
 
   const nameString = userName?.toString() || '';
+  const avatarImageAlt = nameString.trim();
 
   const sizeAwareInitials = useMemo(() => {
     const initials = getInitials(nameString);
@@ -90,7 +91,7 @@ export const Avatar = ({
       )}
       {showImage ? (
         <img
-          alt={sizeAwareInitials}
+          alt={avatarImageAlt}
           className='str-chat__avatar-image'
           data-testid='avatar-img'
           onError={() => setError(true)}

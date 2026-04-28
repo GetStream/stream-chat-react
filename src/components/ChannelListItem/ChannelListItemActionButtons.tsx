@@ -2,7 +2,7 @@ import React, { type ComponentProps, type ComponentType, type ReactNode } from '
 
 import clsx from 'clsx';
 import { ContextMenu, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
-import { useComponentContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import {
   defaultChannelActionSet,
   useBaseChannelActionSetFilter,
@@ -20,6 +20,7 @@ interface ChannelListItemActionButtonsInterface {
 
 export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface = () => {
   const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
+  const { t } = useTranslationContext();
   const { channel } = useChannelListItemContext();
   const [referenceElement, setReferenceElement] =
     React.useState<HTMLButtonElement | null>(null);
@@ -53,6 +54,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         <Component key={type} />
       ))}
       <ContextMenuComponent
+        aria-label={t('aria/Channel Actions')}
         className='str-chat__channel-list-item__action-buttons-context-menu'
         data-testid='channel-list-item-context-menu'
         dialogManagerId={dialogManager?.id}

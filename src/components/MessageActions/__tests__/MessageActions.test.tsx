@@ -329,6 +329,28 @@ describe('<MessageActions />', () => {
       expect(screen.queryByText('Delete message')).not.toBeInTheDocument();
     });
 
+    it('should render delete confirmation as labeled alertdialog with description', async () => {
+      const message = generateMessage({ user: alice });
+      await renderMessageActions({
+        channelStateOpts: {
+          channelCapabilities: { 'delete-own-message': true },
+        },
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Delete message'));
+      });
+
+      const dialog = screen.getByRole('alertdialog', { name: 'Delete message' });
+      expect(dialog).toHaveAttribute('aria-labelledby', 'modal-dialog-title');
+      expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+      expect(
+        screen.getByText('Are you sure you want to delete this message?'),
+      ).toHaveAttribute('id', 'modal-dialog-description');
+    });
+
     it('should include Edit in dropdown actions when user has edit capability', async () => {
       const message = generateMessage({ user: alice });
       const { container } = await renderMessageActions({
@@ -1313,12 +1335,7 @@ describe('<MessageActions />', () => {
     it('should have no accessibility violations when dropdown is open', async () => {
       const { container } = await renderMessageActions();
       await toggleOpenMessageActions();
-      const results = await axe(container, {
-        rules: {
-          // Known issue: ContextMenuButton uses aria-selected on <button> without role="option"
-          'aria-allowed-attr': { enabled: false },
-        },
-      });
+      const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
@@ -1333,6 +1350,48 @@ describe('<MessageActions />', () => {
       await toggleOpenMessageActions();
 
       expect(button).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('should render dropdown actions with menu semantics', async () => {
+      await renderMessageActions();
+      await toggleOpenMessageActions();
+
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+      expect(screen.getAllByRole('menuitem').length).toBeGreaterThan(0);
+    });
+
+    it('should move focus between menu items with arrow/home/end keys', async () => {
+      await renderMessageActions();
+      await toggleOpenMessageActions();
+
+      const menuContainer = screen.getByTestId('str-chat__dialog-contents');
+      const menuItems = Array.from(
+        menuContainer.querySelectorAll<HTMLButtonElement>('[role="menuitem"]'),
+      );
+      const firstItem = menuItems[0];
+      const lastItem = menuItems[menuItems.length - 1];
+
+      expect(menuItems.length).toBeGreaterThan(1);
+
+      firstItem.focus();
+
+      fireEvent.keyDown(firstItem, { code: 'ArrowDown', key: 'ArrowDown' });
+      const focusedAfterArrowDown =
+        document.activeElement instanceof HTMLButtonElement
+          ? document.activeElement
+          : null;
+      expect(focusedAfterArrowDown).not.toBeNull();
+      expect(menuItems).toContain(focusedAfterArrowDown);
+      expect(focusedAfterArrowDown).not.toBe(firstItem);
+
+      fireEvent.keyDown(focusedAfterArrowDown!, { code: 'ArrowUp', key: 'ArrowUp' });
+      expect(firstItem).toHaveFocus();
+
+      fireEvent.keyDown(firstItem, { code: 'End', key: 'End' });
+      expect(lastItem).toHaveFocus();
+
+      fireEvent.keyDown(lastItem, { code: 'Home', key: 'Home' });
+      expect(firstItem).toHaveFocus();
     });
 
     it('should render context menu with dropdown actions when opened', async () => {
@@ -1699,8 +1758,9 @@ describe('<MessageActions />', () => {
         },
       });
       await toggleOpenMessageActions();
+      const remindMeButton = screen.getByRole('menuitem', { name: /Reminder/i });
       await act(async () => {
-        await fireEvent.click(screen.getByText('Remind me'));
+        await fireEvent.click(remindMeButton);
       });
       await act(async () => {
         await fireEvent.click(
@@ -1708,6 +1768,9 @@ describe('<MessageActions />', () => {
             '.str-chat__context-menu__back-button',
           ) as HTMLButtonElement,
         );
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: /Reminder/i })).toHaveFocus();
       });
       expect(screen.getByText('Thread Reply')).toBeInTheDocument();
     });

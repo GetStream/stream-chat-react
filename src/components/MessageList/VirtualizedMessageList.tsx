@@ -77,6 +77,8 @@ import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
+import { useReducedMotionPreference } from './hooks/useReducedMotionPreference';
+import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
 
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
@@ -147,6 +149,7 @@ type VirtualizedMessageListWithContextProps = VirtualizedMessageListProps & {
   loadingMoreNewer: boolean;
   notifications: ChannelNotifications;
   read?: StreamChannelState['read'];
+  thread?: ChannelStateContextValue['thread'];
 };
 
 function captureResizeObserverExceededError(e: ErrorEvent) {
@@ -232,6 +235,7 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll,
+    thread,
     threadList,
   } = props;
 
@@ -257,6 +261,10 @@ const VirtualizedMessageListWithContext = (
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
   const { client, customClasses } = useChatContext('VirtualizedMessageList');
+  const prefersReducedMotion = useReducedMotionPreference();
+  const effectiveStickToBottomScrollBehavior = prefersReducedMotion
+    ? 'auto'
+    : stickToBottomScrollBehavior;
   const notificationTarget = useNotificationTarget();
 
   const virtuoso = useRef<VirtuosoHandle>(null);
@@ -418,6 +426,13 @@ const VirtualizedMessageListWithContext = (
     client.userID,
   );
 
+  useIncomingMessageAnnouncements({
+    activeThreadId: thread?.id,
+    channel,
+    ownUserId: client.userID,
+    threadList,
+  });
+
   const handleItemsRendered = useMemo(
     () =>
       makeItemsRenderedHandler(
@@ -435,10 +450,10 @@ const VirtualizedMessageListWithContext = (
     }
 
     if (shouldForceScrollToBottom()) {
-      return isAtBottom ? stickToBottomScrollBehavior : 'auto';
+      return isAtBottom ? effectiveStickToBottomScrollBehavior : 'auto';
     }
     // a message from another user has been received - don't scroll to bottom unless already there
-    return isAtBottom ? stickToBottomScrollBehavior : false;
+    return isAtBottom ? effectiveStickToBottomScrollBehavior : false;
   };
 
   const computeItemKey = useCallback<ComputeItemKey<UnknownType, VirtuosoContext>>(
@@ -699,7 +714,7 @@ export type VirtualizedMessageListProps = Partial<
    * is shown only when viewing unread messages.
    */
   showUnreadNotificationAlways?: boolean;
-  /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. */
+  /** The scrollTo behavior when new messages appear. Use `"smooth"` for regular chat channels, and `"auto"` (which results in instant scroll to bottom) if you expect high throughput. Reduced-motion users are always treated as `"auto"`. */
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   /** stops the list from autoscrolling when new messages are loaded */
   suppressAutoscroll?: boolean;
@@ -727,27 +742,31 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
     notifications,
     read,
     suppressAutoscroll,
+    thread,
   } = useChannelStateContext('VirtualizedMessageList');
 
   const messages = props.messages || contextMessages;
 
   return (
-    <VirtualizedMessageListWithContext
-      channel={channel}
-      channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
-      hasMore={!!hasMore}
-      hasMoreNewer={!!hasMoreNewer}
-      highlightedMessageId={highlightedMessageId}
-      jumpToLatestMessage={jumpToLatestMessage}
-      loadingMore={!!loadingMore}
-      loadingMoreNewer={!!loadingMoreNewer}
-      loadMore={loadMore}
-      loadMoreNewer={loadMoreNewer}
-      messages={messages}
-      notifications={notifications}
-      read={read}
-      suppressAutoscroll={suppressAutoscroll}
-      {...props}
-    />
+    <AriaLiveRegion>
+      <VirtualizedMessageListWithContext
+        channel={channel}
+        channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
+        hasMore={!!hasMore}
+        hasMoreNewer={!!hasMoreNewer}
+        highlightedMessageId={highlightedMessageId}
+        jumpToLatestMessage={jumpToLatestMessage}
+        loadingMore={!!loadingMore}
+        loadingMoreNewer={!!loadingMoreNewer}
+        loadMore={loadMore}
+        loadMoreNewer={loadMoreNewer}
+        messages={messages}
+        notifications={notifications}
+        read={read}
+        suppressAutoscroll={suppressAutoscroll}
+        thread={thread}
+        {...props}
+      />
+    </AriaLiveRegion>
   );
 }

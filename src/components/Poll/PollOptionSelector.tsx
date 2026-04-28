@@ -20,9 +20,9 @@ type AmountBarProps = {
 
 export const AmountBar = ({ amount, className }: AmountBarProps) => (
   <div
+    aria-hidden='true'
     className={clsx('str-chat__amount-bar', className)}
     data-testid='amount-bar'
-    role='progressbar'
     style={
       {
         '--str-chat__amount-bar-fulfillment': amount + '%',
@@ -82,6 +82,8 @@ export const PollOptionSelector = ({
   } = useStateStore(poll.state, pollStateSelector);
 
   const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
+  const isInteractive = !!canCastVote;
+  const isSelected = !!ownVotesByOptionId[option.id];
   const winningOptionCount = maxVotedOptionIds[0]
     ? vote_counts_by_option[maxVotedOptionIds[0]]
     : 0;
@@ -114,13 +116,25 @@ export const PollOptionSelector = ({
 
   return (
     <div
+      aria-pressed={isInteractive ? isSelected : undefined}
       className={clsx('str-chat__poll-option', {
         'str-chat__poll-option--votable': canCastVote,
       })}
       key={`base-poll-option-${option.id}`}
-      onClick={toggleVote}
+      onClick={isInteractive ? toggleVote : undefined}
+      onKeyDown={
+        isInteractive
+          ? (event) => {
+              if (event.key !== 'Enter' && event.key !== ' ') return;
+              event.preventDefault();
+              toggleVote();
+            }
+          : undefined
+      }
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
     >
-      {canCastVote && <Checkmark checked={!!ownVotesByOptionId[option.id]} />}
+      {canCastVote && <Checkmark checked={isSelected} />}
       <div className='str-chat__poll-option-data'>
         <p className='str-chat__poll-option-text'>{option.text}</p>
         <div className='str-chat__poll-option-votes'>

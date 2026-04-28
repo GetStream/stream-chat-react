@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { forwardRef, useCallback } from 'react';
 import type { ChangeEvent, ComponentProps, KeyboardEvent } from 'react';
+import { useTranslationContext } from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { IconMinus, IconPlusSmall } from '../Icons';
 import { Button } from '../Button';
@@ -50,6 +51,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
   ) {
     const generatedId = useStableId();
     const id = idProp ?? generatedId;
+    const { t } = useTranslationContext();
 
     const num = parseNumeric(value);
     const minDef = min ?? -Infinity;
@@ -117,7 +119,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         <div className={clsx('str-chat__form-numeric-input__wrapper')}>
           <Button
             appearance='outline'
-            aria-label='Decrease value'
+            aria-label={t('aria/Decrease value')}
             circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--decrement',
@@ -130,6 +132,9 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             <IconMinus className='str-chat__form-numeric-input__stepper-icon' />
           </Button>
           <input
+            aria-valuemax={Number.isFinite(maxDef) ? maxDef : undefined}
+            aria-valuemin={Number.isFinite(minDef) ? minDef : undefined}
+            aria-valuenow={num ?? undefined}
             className='str-chat__form-numeric-input__input'
             disabled={disabled}
             id={id}
@@ -137,13 +142,14 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             ref={ref}
+            role='spinbutton'
             type='text'
             value={value}
             {...inputProps}
           />
           <Button
             appearance='outline'
-            aria-label='Increase value'
+            aria-label={t('aria/Increase value')}
             circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--increment',

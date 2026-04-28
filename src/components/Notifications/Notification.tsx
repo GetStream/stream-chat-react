@@ -92,10 +92,10 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
     const isPersistent = !notification.duration;
 
     const severity = notification.severity;
+    const livePriority = severity === 'error' ? 'assertive' : 'polite';
 
     return (
       <div
-        aria-live='polite'
         className={clsx(
           'str-chat__notification',
           entryDirection && `str-chat__notification--enter-from-${entryDirection}`,
@@ -110,7 +110,14 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
       >
         <div className='str-chat__notification-content'>
           {Icon && <Icon notification={notification} />}
-          <div className='str-chat__notification-message'>{displayMessage}</div>
+          <div
+            aria-atomic='true'
+            aria-live={livePriority}
+            className='str-chat__notification-message'
+            role={livePriority === 'assertive' ? 'alert' : 'status'}
+          >
+            {displayMessage}
+          </div>
         </div>
         {notification.actions && notification.actions.length > 0 && (
           <div className='str-chat__notification-actions'>
@@ -134,7 +141,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         {(showClose || isPersistent) && (
           <Button
             appearance='ghost'
-            aria-label='Dismiss'
+            aria-label={t('aria/Dismiss notification')}
             circular
             className='str-chat__notification-close-button'
             inverseTheme

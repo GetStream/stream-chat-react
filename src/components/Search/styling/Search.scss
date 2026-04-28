@@ -23,6 +23,11 @@
     flex-shrink: 1;
     flex-grow: 1;
 
+    &:focus-within {
+      outline: var(--str-chat__focus-outline, 2px solid var(--border-utility-focused));
+      outline-offset: var(--str-chat__focus-outline-offset, 2px);
+    }
+
     .str-chat__search-bar__input {
       min-height: 24px;
       border: none;

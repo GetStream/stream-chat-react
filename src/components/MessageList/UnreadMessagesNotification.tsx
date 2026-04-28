@@ -44,7 +44,12 @@ export const UnreadMessagesNotification = ({
           ? t('{{count}} unread', { count: unreadCount })
           : t('Unread messages')}
       </Button>
-      <Button appearance='outline' onClick={() => markRead()} variant='secondary'>
+      <Button
+        appearance='outline'
+        aria-label={t('aria/Mark messages as read')}
+        onClick={() => markRead()}
+        variant='secondary'
+      >
         <IconXmark />
       </Button>
     </div>

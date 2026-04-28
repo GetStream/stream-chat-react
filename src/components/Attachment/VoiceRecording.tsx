@@ -37,6 +37,7 @@ type VoiceRecordingPlayerUIProps = {
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
 const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) => {
   const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
+  const { t } = useTranslationContext();
   const {
     canPlayRecord,
     durationSeconds,
@@ -69,7 +70,9 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
             )}
           </div>
           <WaveProgressBar
+            durationSeconds={durationSeconds}
             progress={progress}
+            secondsElapsed={secondsElapsed}
             seek={audioPlayer.seek}
             waveformData={audioPlayer.waveformData || []}
           />
@@ -77,6 +80,9 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
         <PlaybackRateButton
+          aria-label={t('Playback speed {{ rate }}x', {
+            rate: playbackRate?.toString() ?? '1',
+          })}
           disabled={!canPlayRecord}
           onClick={audioPlayer.increasePlaybackRate}
         >

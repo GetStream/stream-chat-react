@@ -1,6 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import { axe } from '../../../../axe-helper';
 import { BaseImage } from '../BaseImage';
 import { TranslationProvider } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
@@ -40,6 +41,11 @@ describe('BaseImage', () => {
     expect(img).toBeInTheDocument();
     expect(img).toHaveClass('custom');
     expect(img).toHaveClass('str-chat__base-image');
+  });
+
+  it('should default alt to an empty string when not provided', () => {
+    renderComponent({ src: 'src' });
+    expect(getImage()).toHaveAttribute('alt', '');
   });
 
   it('should render an image placeholder on load error', () => {
@@ -105,5 +111,11 @@ describe('BaseImage', () => {
 
     fireEvent.error(getImage());
     expect(onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('passes axe checks', async () => {
+    const { container } = renderComponent(props);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
   });
 });

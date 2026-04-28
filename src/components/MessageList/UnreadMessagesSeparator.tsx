@@ -34,6 +34,7 @@ export const UnreadMessagesSeparator = ({
       </div>
       <Button
         appearance='ghost'
+        aria-label={t('aria/Mark messages as read')}
         circular
         onClick={() => markRead()}
         size='sm'

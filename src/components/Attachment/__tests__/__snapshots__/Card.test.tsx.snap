@@ -126,7 +126,9 @@ exports[`Card > (4) should render 'unable-to-display card' if attachment type is
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -171,7 +173,9 @@ exports[`Card > (5) should render 'unable-to-display card' if attachment type is
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -216,7 +220,9 @@ exports[`Card > (6) should render 'unable-to-display card' if attachment type is
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -278,7 +284,9 @@ exports[`Card > (7) should render 'audio with caption using og_scrape_ur…' if 
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -340,7 +348,9 @@ exports[`Card > (8) should render 'video with caption using og_scrape_ur…' if 
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -402,7 +412,9 @@ exports[`Card > (9) should render 'image with caption using og_scrape_ur…' if 
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -459,7 +471,9 @@ exports[`Card > (10) should render 'audio without title' if attachment type is '
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -516,7 +530,9 @@ exports[`Card > (11) should render 'video without title' if attachment type is '
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -573,7 +589,9 @@ exports[`Card > (12) should render 'image without title' if attachment type is '
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -630,7 +648,9 @@ exports[`Card > (13) should render 'audio without title and with caption …' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -687,7 +707,9 @@ exports[`Card > (14) should render 'video without title and with caption …' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -744,7 +766,9 @@ exports[`Card > (15) should render 'image without title and with caption …' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -794,7 +818,9 @@ exports[`Card > (16) should render 'audio widget with title & text in Car…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -844,7 +870,9 @@ exports[`Card > (17) should render 'video widget in header and title & te…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -894,7 +922,9 @@ exports[`Card > (18) should render 'card with title and text only and wit…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -956,7 +986,9 @@ exports[`Card > (19) should render 'image loaded from thumb_url not audio…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1018,7 +1050,9 @@ exports[`Card > (20) should render 'image loaded from thumb_url not video…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1080,7 +1114,9 @@ exports[`Card > (21) should render 'image loaded from thumb_url' if attachment t
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1142,7 +1178,9 @@ exports[`Card > (22) should render 'image loaded from image_url not audio…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1204,7 +1242,9 @@ exports[`Card > (23) should render 'image loaded from image_url not video…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1266,7 +1306,9 @@ exports[`Card > (24) should render 'image loaded from image_url' if attachment t
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1328,7 +1370,9 @@ exports[`Card > (25) should render 'audio widget with image loaded from t…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1390,7 +1434,9 @@ exports[`Card > (26) should render 'video widget in header and title & te…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1440,7 +1486,9 @@ exports[`Card > (27) should render 'content part with title and text only…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >
@@ -1490,7 +1538,9 @@ exports[`Card > (28) should render 'content part with title and text only…' if
         data-testid="card-source-link"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--link"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >

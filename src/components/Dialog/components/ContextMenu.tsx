@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import clsx from 'clsx';
 import React, {
   type ComponentProps,
@@ -19,6 +18,7 @@ import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import type { DialogAnchorProps } from '../service/DialogAnchor';
 import { DialogAnchor, useDialogAnchor } from '../service/DialogAnchor';
 import { useComponentContext } from '../../../context';
+import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
 
 /**
  * ContextMenu module
@@ -95,6 +95,7 @@ export const BaseContextMenuButton = ({
   hasSubMenu,
   Icon,
   label,
+  role = 'menuitem',
   SubmenuIcon = IconChevronRight,
   variant,
   ...props
@@ -109,6 +110,7 @@ export const BaseContextMenuButton = ({
       },
       className,
     )}
+    role={role}
     type='button'
   >
     {Icon && <Icon className='str-chat__context-menu__button__icon' />}
@@ -133,6 +135,7 @@ export const UserContextMenuButton = ({
   children,
   className,
   imageUrl,
+  role = 'menuitem',
   userName,
   ...props
 }: UserContextMenuButtonProps) => (
@@ -142,6 +145,7 @@ export const UserContextMenuButton = ({
       'str-chat__context-menu__button str-chat__user-context-menu__button',
       className,
     )}
+    role={role}
     type='button'
   >
     <Avatar imageUrl={imageUrl} size='sm' userName={userName} />
@@ -160,6 +164,7 @@ export const EmojiContextMenuButton = ({
   className,
   emoji,
   label,
+  role = 'menuitem',
   ...props
 }: EmojiContextMenuButtonProps) => (
   <button
@@ -168,6 +173,7 @@ export const EmojiContextMenuButton = ({
       'str-chat__context-menu__button str-chat__emoji-context-menu__button',
       className,
     )}
+    role={role}
     type='button'
   >
     <span className='str-chat__context-menu__button__emoji str-chat__emoji-item--entity'>
@@ -195,6 +201,7 @@ const ContextMenuButtonWithSubmenu = ({
 }: BaseContextMenuButtonProps & ButtonWithSubmenuProps) => {
   const { className: submenuClassName, ...submenuContainerRestProps } =
     submenuContainerProps ?? {};
+  const { registerDialogSubmenu, unregisterDialogSubmenu } = useContextMenuContext();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [dialogContainer, setDialogContainer] = useState<HTMLDivElement | null>(null);
   const keepSubmenuOpenFlag = useRef(false);
@@ -202,6 +209,12 @@ const ContextMenuButtonWithSubmenu = ({
   const dialogId = useMemo(() => `submenu-${Math.random().toString(36).slice(2)}`, []);
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
+  useEffect(() => {
+    if (!dialogIsOpen) return;
+    registerDialogSubmenu();
+    return () => unregisterDialogSubmenu();
+  }, [dialogIsOpen, registerDialogSubmenu, unregisterDialogSubmenu]);
   const {
     placement: chosenPlacement,
     setPopperElement,
@@ -270,7 +283,8 @@ const ContextMenuButtonWithSubmenu = ({
   return (
     <>
       <BaseContextMenuButton
-        aria-selected='false'
+        aria-expanded={dialogIsOpen}
+        aria-haspopup='menu'
         className={clsx(className, 'str_chat__button-with-submenu', {
           'str_chat__button-with-submenu--submenu-open': dialogIsOpen,
         })}
@@ -283,7 +297,6 @@ const ContextMenuButtonWithSubmenu = ({
         onFocus={handleFocusParentButton}
         onMouseEnter={handleFocusParentButton}
         onMouseLeave={closeSubmenu}
-        role='option'
         {...buttonProps}
         ref={buttonRef}
       >
@@ -330,8 +343,6 @@ export const ContextMenuButton = (props: ContextMenuButtonProps) => {
     submenuRollAxis,
     ...buttonProps
   } = props;
-  const [isFocused, setIsFocused] = useState(false);
-
   if (Submenu) {
     return (
       <ContextMenuButtonWithSubmenu
@@ -344,31 +355,19 @@ export const ContextMenuButton = (props: ContextMenuButtonProps) => {
     );
   }
 
-  const { onBlur, onFocus, ...baseButtonProps } = buttonProps;
-  return (
-    <BaseContextMenuButton
-      {...baseButtonProps}
-      aria-selected={isFocused ? 'true' : 'false'}
-      onBlur={(e) => {
-        setIsFocused(false);
-        onBlur?.(e);
-      }}
-      onFocus={(e) => {
-        setIsFocused(true);
-        onFocus?.(e);
-      }}
-    />
-  );
+  return <BaseContextMenuButton {...buttonProps} />;
 };
 
 export const ContextMenuBackButton = ({
   children,
   className,
+  role = 'menuitem',
   ...props
 }: ComponentProps<'button'>) => (
   <button
     {...props}
     className={clsx('str-chat__context-menu__back-button', className)}
+    role={role}
     type='button'
   >
     {children}
@@ -396,9 +395,14 @@ export const ContextMenuBody = ({
 );
 
 export const ContextMenuRoot = React.forwardRef<HTMLDivElement, ComponentProps<'div'>>(
-  function ContextMenuRoot({ className, ...props }, ref) {
+  function ContextMenuRoot({ className, role = 'menu', ...props }, ref) {
     return (
-      <div {...props} className={clsx('str-chat__context-menu', className)} ref={ref} />
+      <div
+        {...props}
+        className={clsx('str-chat__context-menu', className)}
+        ref={ref}
+        role={role}
+      />
     );
   },
 );
@@ -406,17 +410,109 @@ export const ContextMenuRoot = React.forwardRef<HTMLDivElement, ComponentProps<'
 export type ContextMenuHeaderComponent = ComponentType;
 export type ContextMenuSubmenu = ComponentType;
 
-export type ContextMenuOpenSubmenuParams = Omit<ContextMenuLevel, 'items'>;
+export type ContextMenuOpenSubmenuParams = Omit<
+  ContextMenuLevel,
+  'focusRestoreRequest' | 'items'
+> & {
+  focusReturnTarget?: HTMLElement | null;
+};
 
 export type ContextMenuItemProps = ComponentProps<'button'>;
 
 export type ContextMenuItemComponent = ComponentType<ContextMenuItemProps>;
 
+export const DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR = [
+  '[role="menuitem"]:not(:disabled)',
+  '[role="menuitemradio"]:not(:disabled)',
+  '[role="menuitemcheckbox"]:not(:disabled)',
+].join(',');
+
+const isVisibleContextMenuKeyboardNavigationItem = (item: HTMLElement) => {
+  // Fast path: offsetParent is null for display:none elements (and their descendants).
+  // offsetHeight covers position:fixed elements which have no offsetParent.
+  if (item.offsetParent !== null || item.offsetHeight > 0) return true;
+
+  // In environments without layout (e.g. jsdom), offsetParent/offsetHeight are always 0/null.
+  // Fall back to checking inline style and the `hidden` attribute.
+  if (item.hidden) return false;
+  const display = item.style.display;
+  if (display === 'none') return false;
+
+  // If no layout info and no explicit hiding signal, assume visible.
+  return true;
+};
+
+type ContextMenuFocusRestoreRequest = {
+  /** Positional fallback used when the target element is no longer in the DOM. */
+  index: number;
+  target: HTMLElement | null;
+};
+
+const getVisibleContextMenuKeyboardNavigationItems = (
+  contextMenuRoot: Element | null,
+  itemSelector: string = DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR,
+) =>
+  Array.from(contextMenuRoot?.querySelectorAll<HTMLElement>(itemSelector) ?? []).filter(
+    isVisibleContextMenuKeyboardNavigationItem,
+  );
+
+const createContextMenuFocusRestoreRequest = ({
+  contextMenuRoot,
+  focusReturnTarget,
+}: {
+  contextMenuRoot: Element | null;
+  focusReturnTarget?: HTMLElement | null;
+}): ContextMenuFocusRestoreRequest => {
+  const target =
+    focusReturnTarget ??
+    (document.activeElement instanceof HTMLElement ? document.activeElement : null);
+
+  if (!target) return { index: -1, target: null };
+
+  const index = getVisibleContextMenuKeyboardNavigationItems(contextMenuRoot).findIndex(
+    (menuItem) => menuItem === target,
+  );
+
+  return { index, target };
+};
+
+const resolveContextMenuFocusRestoreTarget = ({
+  contextMenuRoot,
+  request,
+}: {
+  contextMenuRoot: Element | null;
+  request: ContextMenuFocusRestoreRequest | null;
+}) => {
+  if (!request) return null;
+
+  // Prefer the original element if it's still in the DOM.
+  if (request.target?.isConnected) return request.target;
+
+  // Fall back to positional index when the element has been unmounted.
+  if (request.index >= 0) {
+    return (
+      getVisibleContextMenuKeyboardNavigationItems(contextMenuRoot)[request.index] ?? null
+    );
+  }
+
+  return null;
+};
+
+export type ContextMenuKeyboardNavigation = {
+  /**
+   * CSS selector used to collect focusable menu items.
+   * Defaults to `[role="menuitem"]:not(:disabled)`.
+   */
+  itemSelector?: string;
+};
+
 type ContextMenuContextValue = {
   anchorReferenceElement?: HTMLElement | null;
   closeMenu: () => void;
   openSubmenu: (params: ContextMenuOpenSubmenuParams) => void;
+  registerDialogSubmenu: () => void;
   returnToParentMenu: () => void;
+  unregisterDialogSubmenu: () => void;
 };
 
 const ContextMenuContext = React.createContext<ContextMenuContextValue | undefined>(
@@ -427,6 +523,7 @@ export const useContextMenuContext = () =>
   useContext(ContextMenuContext) as ContextMenuContextValue;
 
 type ContextMenuLevel = {
+  focusRestoreRequest?: ContextMenuFocusRestoreRequest;
   items?: ContextMenuItemComponent[];
   Submenu?: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
@@ -438,6 +535,13 @@ type ContextMenuBaseProps = ComponentPropsWithoutRef<'div'> & {
   backLabel?: ReactNode;
   enableAnimations?: boolean;
   Header?: ContextMenuHeaderComponent;
+  /**
+   * Customizes roving-focus keyboard navigation for menu items.
+   * ArrowUp/ArrowDown/Home/End move focus across items matched by
+   * `keyboardNavigation.itemSelector` (defaults to `[role="menuitem"]:not(:disabled)`).
+   * Navigation is always enabled; use this prop only to override the item selector.
+   */
+  keyboardNavigation?: ContextMenuKeyboardNavigation;
   onClose?: () => void;
   onMenuLevelChange?: (level: number) => void;
   /** Duration (ms) to keep submenu transition direction active for forward/backward animations. */
@@ -485,6 +589,7 @@ export function ContextMenuContent({
   Header,
   items,
   ItemsWrapper,
+  keyboardNavigation,
   menuClassName,
   onClose,
   onMenuLevelChange,
@@ -502,6 +607,8 @@ export function ContextMenuContent({
   );
   const [menuStack, setMenuStack] = useState<ContextMenuLevel[]>(() => [rootLevel]);
   const [menuBodyAnimationKey, setMenuBodyAnimationKey] = useState(0);
+  const contextMenuRootRef = useRef<HTMLDivElement | null>(null);
+  const focusRestoreRequestRef = useRef<ContextMenuFocusRestoreRequest | null>(null);
   const activeMenu = menuStack[menuStack.length - 1];
 
   const ActiveMenuItemsWrapper = activeMenu.ItemsWrapper ?? React.Fragment;
@@ -512,12 +619,17 @@ export function ContextMenuContent({
 
   const openSubmenu = useCallback(
     ({
+      focusReturnTarget,
       Header,
       ItemsWrapper: SubmenuItemsWrapper,
       menuClassName,
       Submenu,
     }: ContextMenuOpenSubmenuParams) => {
       const nextLevel: ContextMenuLevel = {
+        focusRestoreRequest: createContextMenuFocusRestoreRequest({
+          contextMenuRoot: contextMenuRootRef.current,
+          focusReturnTarget,
+        }),
         Header,
         ItemsWrapper: SubmenuItemsWrapper ?? ItemsWrapper,
         menuClassName,
@@ -531,6 +643,8 @@ export function ContextMenuContent({
   const returnToParentMenu = useCallback(() => {
     setMenuStack((current) => {
       if (current.length <= 1) return current;
+      focusRestoreRequestRef.current =
+        current[current.length - 1]?.focusRestoreRequest ?? null;
       return current.slice(0, -1);
     });
   }, []);
@@ -547,17 +661,95 @@ export function ContextMenuContent({
   }, [menuStack.length, onMenuLevelChange]);
 
   useEffect(() => {
+    const focusRestoreRequest = focusRestoreRequestRef.current;
+    if (!focusRestoreRequest) return;
+    focusRestoreRequestRef.current = null;
+
+    requestAnimationFrame(() => {
+      resolveContextMenuFocusRestoreTarget({
+        contextMenuRoot: contextMenuRootRef.current,
+        request: focusRestoreRequest,
+      })?.focus();
+    });
+  }, [menuStack.length]);
+
+  useEffect(() => {
     if (!transitionDirection) return;
     setMenuBodyAnimationKey((value) => value + 1);
   }, [transitionDirection, menuStack.length]);
 
+  const dialogSubmenuOpenCountRef = useRef(0);
+
+  const registerDialogSubmenu = useCallback(() => {
+    dialogSubmenuOpenCountRef.current += 1;
+  }, []);
+
+  const unregisterDialogSubmenu = useCallback(() => {
+    dialogSubmenuOpenCountRef.current = Math.max(
+      0,
+      dialogSubmenuOpenCountRef.current - 1,
+    );
+  }, []);
+
+  const rovingFocusKeyDownHandler = useMemo(() => {
+    const itemSelector =
+      keyboardNavigation?.itemSelector ??
+      DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR;
+
+    return createRovingFocusKeyDownHandler<HTMLElement>({
+      getItems: (event) =>
+        getVisibleContextMenuKeyboardNavigationItems(event.currentTarget, itemSelector),
+    });
+  }, [keyboardNavigation]);
+
+  const escapeConsumedRef = useRef(false);
+
+  const keyboardNavigationHandler = useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
+      if (event.key === 'Escape') {
+        if (dialogSubmenuOpenCountRef.current > 0) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (menuStack.length > 1) {
+          escapeConsumedRef.current = true;
+          returnToParentMenu();
+        } else {
+          closeMenu();
+        }
+        return;
+      }
+
+      rovingFocusKeyDownHandler(event);
+    },
+    [closeMenu, menuStack.length, returnToParentMenu, rovingFocusKeyDownHandler],
+  );
+
+  const suppressEscapeKeyUp = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape' && escapeConsumedRef.current) {
+      escapeConsumedRef.current = false;
+      event.stopPropagation();
+    }
+  }, []);
+
   return (
     <ContextMenuContext.Provider
-      value={{ anchorReferenceElement, closeMenu, openSubmenu, returnToParentMenu }}
+      value={{
+        anchorReferenceElement,
+        closeMenu,
+        openSubmenu,
+        registerDialogSubmenu,
+        returnToParentMenu,
+        unregisterDialogSubmenu,
+      }}
     >
       <ContextMenuRoot
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}
+        onKeyDownCapture={keyboardNavigationHandler}
+        onKeyUpCapture={suppressEscapeKeyUp}
+        ref={contextMenuRootRef}
         {...props}
       >
         {activeMenu.Header ? (
@@ -643,6 +835,7 @@ export const ContextMenu = (props: ContextMenuProps) => {
     focus,
     id,
     offset = 8,
+    onMenuLevelChange: onMenuLevelChangeProp,
     placement,
     referenceElement,
     submenuTransitionDurationMs,
@@ -705,9 +898,9 @@ export const ContextMenu = (props: ContextMenuProps) => {
         setMenuLevel(level);
         return;
       }
-      menuProps.onMenuLevelChange?.(level);
+      onMenuLevelChangeProp?.(level);
     },
-    [isAnchored, menuProps, resolvedSubmenuTransitionDurationMs],
+    [isAnchored, onMenuLevelChangeProp, resolvedSubmenuTransitionDurationMs],
   );
 
   const content = (
@@ -722,14 +915,24 @@ export const ContextMenu = (props: ContextMenuProps) => {
 
   if (isAnchored) {
     const {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       backLabel: _b,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       enableAnimations: _ea,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       Header: _h,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       items: _i,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ItemsWrapper: _w,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      keyboardNavigation: _kn,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       menuClassName: _m,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onClose: _c,
-      onMenuLevelChange: _l,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      role: _r,
       ...anchorDivProps
     } = menuProps;
     return (

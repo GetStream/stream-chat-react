@@ -1,0 +1,20 @@
+.str-chat__skip-navigation-link {
+  background-color: var(--str-chat__background-color, #fff);
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--str-chat__text-color, currentColor);
+  left: 0;
+  margin: 8px;
+  padding: 8px 12px;
+  position: absolute;
+  text-decoration: none;
+  top: 0;
+  transform: translateY(-200%);
+  z-index: 2;
+}
+
+.str-chat__skip-navigation-link:focus,
+.str-chat__skip-navigation-link:focus-visible {
+  border: 1px solid var(--accent-primary);
+  transform: translateY(0);
+}

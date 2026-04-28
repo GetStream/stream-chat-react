@@ -2,6 +2,8 @@ import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import { IconXmark } from '../../Icons';
+import { useModalContext, useTranslationContext } from '../../../context';
+import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__prompt', className)}>
@@ -14,30 +16,56 @@ export type PromptHeaderProps = {
   description?: string;
   className?: string;
   close?: () => void;
+  descriptionId?: string;
+  titleId?: string;
 };
 
-const PromptHeader = ({ className, close, description, title }: PromptHeaderProps) => (
-  <div className={clsx('str-chat__prompt__header', className)}>
-    <div className='str-chat__prompt__header__title-group'>
-      <div className='str-chat__prompt__header__title'>{title}</div>
-      {description != null && description !== '' && (
-        <div className='str-chat__prompt__header__description'>{description}</div>
+const PromptHeader = ({
+  className,
+  close,
+  description,
+  descriptionId,
+  title,
+  titleId,
+}: PromptHeaderProps) => {
+  const { t } = useTranslationContext();
+  const { dialogId } = useModalContext();
+  const { descriptionId: derivedDescriptionId, titleId: derivedTitleId } =
+    useAriaIdentifiers(dialogId);
+  const resolvedTitleId = titleId ?? derivedTitleId;
+  const resolvedDescriptionId = descriptionId ?? derivedDescriptionId;
+
+  return (
+    <div className={clsx('str-chat__prompt__header', className)}>
+      <div className='str-chat__prompt__header__title-group'>
+        <h2 className='str-chat__prompt__header__title' id={resolvedTitleId}>
+          {title}
+        </h2>
+        {description != null && description !== '' && (
+          <p className='str-chat__prompt__header__description' id={resolvedDescriptionId}>
+            {description}
+          </p>
+        )}
+      </div>
+      {close && (
+        <Button
+          appearance='ghost'
+          aria-describedby={
+            description != null && description !== '' ? resolvedDescriptionId : undefined
+          }
+          aria-label={t('Close prompt: {{ title }}', { title })}
+          circular
+          className='str-chat__prompt__header__close-button'
+          onClick={close}
+          size='sm'
+          variant='secondary'
+        >
+          <IconXmark />
+        </Button>
       )}
     </div>
-    {close && (
-      <Button
-        appearance='ghost'
-        circular
-        className='str-chat__prompt__header__close-button'
-        onClick={close}
-        size='sm'
-        variant='secondary'
-      >
-        <IconXmark />
-      </Button>
-    )}
-  </div>
-);
+  );
+};
 
 export type PromptBodyProps = PropsWithChildren<{
   className?: string;

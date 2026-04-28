@@ -79,6 +79,7 @@ import type { FileSizeIndicatorProps } from '../components/Attachment/components
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { ProgressIndicatorProps } from '../components/Loading/progress-indicators';
 import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedSizeIndicator';
+import type { NotificationAnnouncerProps } from '../components/Accessibility';
 
 export type ComponentContextValue = {
   /** Custom UI component to display additional message composer action buttons left to the textarea, defaults to and accepts same props as: [AdditionalMessageComposerActions](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerActions.tsx) */
@@ -178,6 +179,8 @@ export type ComponentContextValue = {
   Notification?: React.ForwardRefExoticComponent<
     NotificationProps & React.RefAttributes<HTMLDivElement>
   >;
+  /** Custom UI component to render screen-reader notification announcements, defaults to and accepts same props as: [NotificationAnnouncer](https://github.com/GetStream/stream-chat-react/blob/master/src/a11y/NotificationAnnouncer.tsx) */
+  NotificationAnnouncer?: React.ComponentType<NotificationAnnouncerProps>;
   /** Custom UI component to display notifications rendered by `NotificationList`, defaults to and accepts same props as: [NotificationList](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Notifications/NotificationList.tsx) */
   NotificationList?: React.ComponentType<NotificationListProps>;
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [NewMessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/NewMessageNotification.tsx) */

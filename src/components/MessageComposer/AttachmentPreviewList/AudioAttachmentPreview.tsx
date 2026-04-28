@@ -110,9 +110,11 @@ export const AudioAttachmentPreview = ({
                     showRemaining
                   />
                   <WaveProgressBar
+                    durationSeconds={resolvedDuration}
                     progress={progressPercent}
                     relativeAmplitudeBarWidth={1}
                     relativeAmplitudeGap={1}
+                    secondsElapsed={secondsElapsed}
                     seek={audioPlayer.seek}
                     waveformData={audioPlayer.waveformData}
                   />
@@ -156,7 +158,12 @@ export const AudioAttachmentPreview = ({
         </div>
       </div>
       {audioPlayer && canPlayRecord && (
-        <PlaybackRateButton onClick={audioPlayer.increasePlaybackRate}>
+        <PlaybackRateButton
+          aria-label={t('Playback speed {{ rate }}x', {
+            rate: playbackRate?.toString() ?? '1',
+          })}
+          onClick={audioPlayer.increasePlaybackRate}
+        >
           x{playbackRate?.toString()}
         </PlaybackRateButton>
       )}

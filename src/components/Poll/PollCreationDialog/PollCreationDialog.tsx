@@ -37,7 +37,11 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
       className='str-chat__poll-creation-dialog'
       data-testid='poll-creation-dialog'
     >
-      <Prompt.Header close={onClose} title={t('Create poll')} />
+      <Prompt.Header
+        close={onClose}
+        description={t('Create a question, add options, and configure poll settings')}
+        title={t('Create poll')}
+      />
       <Prompt.Body>
         <form autoComplete='off'>
           <NameField />

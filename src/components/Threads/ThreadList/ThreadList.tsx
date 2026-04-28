@@ -9,7 +9,11 @@ import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner }
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import { LoadingChannels } from '../../Loading';
 import { NotificationList } from '../../Notifications';
-import { useChatContext, useComponentContext } from '../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../context';
 import { useStateStore } from '../../../store';
 import { ThreadListHeader } from './ThreadListHeader';
 
@@ -84,6 +88,7 @@ const useThreadHighlighting = (threadManager: ThreadManager) => {
 
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
+  const { t } = useTranslationContext('ThreadList');
   const {
     NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
@@ -114,6 +119,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
       {/* TODO: allow re-load on stale ThreadManager state */}
       <ThreadListUnseenThreadsBanner />
       <Virtuoso
+        aria-label={t('aria/Thread list')}
         atBottomStateChange={(atBottom) => atBottom && client.threads.loadNextPage()}
         className='str-chat__thread-list'
         components={{
@@ -130,6 +136,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
             }}
           />
         )}
+        role='listbox'
         // TODO: handle visibility (for a button that scrolls to the unread thread)
         // itemsRendered={(items) => console.log({ items })}
         {...virtuosoProps}

@@ -89,6 +89,7 @@ export const AttachmentSelectorButton = forwardRef<
 
 export const SimpleAttachmentSelector = () => {
   const { channelCapabilities } = useChannelStateContext();
+  const { t } = useTranslationContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
   const id = useStableId();
@@ -112,6 +113,7 @@ export const SimpleAttachmentSelector = () => {
   return (
     <div className='str-chat__attachment-selector'>
       <AttachmentSelectorButton
+        aria-label={t('aria/Open Attachment Selector')}
         disabled={isCooldownActive}
         onClick={() => inputRef.current?.click()}
         ref={setButtonElement}
@@ -150,9 +152,10 @@ export const DefaultAttachmentSelectorComponents = {
         className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
         hasSubMenu={hasSubmenu}
         Icon={IconCommand}
-        onClick={() => {
+        onClick={(event) => {
           if (!hasSubmenu) return;
           openSubmenu({
+            focusReturnTarget: event.currentTarget,
             Header: submenuHeader,
             menuClassName: CommandsMenuClassName,
             Submenu: submenuItems,
@@ -323,6 +326,7 @@ export const AttachmentSelector = ({
 
   const [modalContentAction, setModalContentActionAction] =
     useState<AttachmentSelectorAction>();
+  const shouldRestoreFocusToTriggerRef = useRef(false);
   const openModalForAction = useCallback(
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
@@ -332,10 +336,24 @@ export const AttachmentSelector = ({
     [actions],
   );
 
-  const closeModal = useCallback(() => setModalContentActionAction(undefined), []);
+  const closeModal = useCallback(() => {
+    shouldRestoreFocusToTriggerRef.current = true;
+    setModalContentActionAction(undefined);
+  }, []);
 
   const [fileInput, setFileInput] = useState<HTMLInputElement | null>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (modalContentAction || !shouldRestoreFocusToTriggerRef.current) return;
+
+    const frame = requestAnimationFrame(() => {
+      menuButtonRef.current?.focus();
+      shouldRestoreFocusToTriggerRef.current = false;
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [modalContentAction]);
 
   const contextMenuItems = useMemo(
     () =>
@@ -379,6 +397,7 @@ export const AttachmentSelector = ({
         />
         <ContextMenuComponent
           allowFlip
+          aria-label={t('aria/Attachment Actions')}
           backLabel={t('Back')}
           className='str-chat__attachment-selector-actions-menu'
           data-testid='attachment-selector-actions-menu'

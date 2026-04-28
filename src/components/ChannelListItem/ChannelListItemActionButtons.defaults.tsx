@@ -411,6 +411,7 @@ const defaultComponents = {
   },
   QuickDropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
     const { channel } = useChannelListItemContext();
+    const { t } = useTranslationContext();
 
     const dialogId = ChannelListItemActionButtons.getDialogId({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -423,6 +424,7 @@ const defaultComponents = {
       <Button
         appearance='ghost'
         aria-expanded={dialogIsOpen}
+        aria-label={t('aria/Open Channel Actions Menu')}
         aria-pressed={dialogIsOpen}
         circular
         data-testid='channel-list-item-dropdown-toggle'

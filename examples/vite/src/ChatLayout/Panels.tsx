@@ -26,8 +26,15 @@ import {
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
+import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { ThreadStateSync } from './Sync.tsx';
+
+export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
+  'app-channel-message-composer-textarea';
+export const CHANNEL_LIST_TARGET_ID = 'app-channel-list';
+export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
+  '[id^="str-chat__chat-view-"][id$="-tab-channels"]';
 
 const ChannelThreadPanel = () => {
   const { thread } = useChannelStateContext('ChannelThreadPanel');
@@ -41,6 +48,7 @@ const ChannelThreadPanel = () => {
           'app-chat-thread-panel--open': isOpen,
         })}
       >
+        <ReturnToSkipNavigation />
         <Thread
           additionalMessageComposerProps={{
             audioRecordingEnabled: true,
@@ -72,9 +80,12 @@ const ResponsiveChannelPanels = () => {
           ) : (
             <MessageList returnAllReadData />
           )}
+          <ReturnToSkipNavigation />
           <AIStateIndicator />
           <MessageComposer
-            focus
+            additionalTextareaProps={{
+              id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+            }}
             audioRecordingEnabled
             maxRows={10}
             asyncMessagesMultiSendEnabled
@@ -110,6 +121,15 @@ export const ChannelsPanels = ({
     if (window.innerWidth >= DESKTOP_LAYOUT_BREAKPOINT) return;
     closeSidebar();
   }, [channel?.id, closeSidebar]);
+
+  useEffect(() => {
+    const channelListElement = channelsLayoutRef.current?.querySelector<HTMLElement>(
+      '.app-chat-sidebar-overlay > .str-chat__channel-list',
+    );
+    if (!channelListElement) return;
+
+    channelListElement.id = CHANNEL_LIST_TARGET_ID;
+  }, [channel?.id, sidebarOpen]);
 
   return (
     <ChatView.Channels>
@@ -177,6 +197,7 @@ export const ThreadsPanels = ({
           <ChatView.ThreadAdapter>
             <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
               <WithComponents overrides={{ TypingIndicator }}>
+                <ReturnToSkipNavigation />
                 <Thread
                   additionalMessageComposerProps={{
                     audioRecordingEnabled: true,

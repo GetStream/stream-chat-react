@@ -36,10 +36,13 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
     [t],
   );
 
+  const buttonContent = knownLabels[label] ?? t(label);
   return (
     <Button
       appearance='outline'
-      aria-label={t('aria/Search results header filter button')}
+      aria-label={t('aria/Search results header filter button for: {{ source }}', {
+        source: buttonContent,
+      })}
       aria-pressed={isActive}
       className={clsx('str-chat__search-results-header__filter-source-button', {
         'str-chat__search-results-header__filter-source-button--active': isActive,
@@ -57,7 +60,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
       size='xs'
       variant='secondary'
     >
-      {knownLabels[label] ?? t(label)}
+      {buttonContent}
     </Button>
   );
 };

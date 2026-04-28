@@ -6,7 +6,7 @@ import type { GalleryItem } from '../Gallery/GalleryContext';
 import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
-import { GlobalModal } from '../Modal';
+import { GlobalModal, type ModalCloseSource } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
 import { IconRetry } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
@@ -63,6 +63,10 @@ export const ModalGallery = ({
   const closeModal = useCallback(() => {
     setModalOpen(false);
   }, []);
+  const preventOverlayClose = useCallback(
+    (source: ModalCloseSource) => source !== 'overlay',
+    [],
+  );
 
   const handleThumbnailClick = useCallback((index: number) => {
     setSelectedIndex(index);
@@ -103,6 +107,7 @@ export const ModalGallery = ({
       <Modal
         className={clsx('str-chat__gallery-modal', modalClassName)}
         onClose={closeModal}
+        onCloseAttempt={preventOverlayClose}
         open={modalOpen}
       >
         <Gallery

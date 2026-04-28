@@ -2,6 +2,21 @@
 
 exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = `
 <div>
+  <span
+    data-testid="notification-announcer"
+    style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+  >
+    <div
+      aria-atomic="true"
+      aria-live="polite"
+      role="status"
+    />
+    <div
+      aria-atomic="true"
+      aria-live="assertive"
+      role="alert"
+    />
+  </span>
   <div
     class="str-chat messaging light str-chat__channel"
     id="str-chat__channel"
@@ -32,8 +47,10 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__attachment-preview-media__overlay"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
                 data-testid="loading-indicator"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -65,7 +82,9 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__button__content"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--xmark-small"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -100,8 +119,10 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__attachment-preview-media__overlay"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--loading str-chat__loading-indicator"
                 data-testid="loading-indicator"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -133,7 +154,9 @@ exports[`AttachmentPreviewList > should render custom BaseImage component 1`] = 
               class="str-chat__button__content"
             >
               <svg
+                aria-hidden="true"
                 class="str-chat__icon str-chat__icon--xmark-small"
+                focusable="false"
                 viewBox="0 0 20 20"
                 xmlns="http://www.w3.org/2000/svg"
               >

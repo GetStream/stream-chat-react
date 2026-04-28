@@ -45,6 +45,11 @@
   &.str-chat__modal.str-chat__gallery-modal {
     --str-chat__modal-overlay-color: var(--str-chat__background-core-scrim);
     --str-chat__modal-overlay-backdrop-filter: none;
+
+    .str-chat__modal__dialog {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .str-chat__gallery__header {

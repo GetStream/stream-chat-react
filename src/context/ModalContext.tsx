@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 
 export type ModalContextValue = {
   close: () => void;
+  dialogId?: string;
 };
 
 export const ModalContext = React.createContext<ModalContextValue | undefined>(undefined);
@@ -22,7 +23,7 @@ export const useModalContext = () => {
       `The useModalContext hook was called outside of the ModalContext provider. Make sure this hook is called within a child of the GlobalModal.`,
     );
 
-    return { close: () => null } as ModalContextValue;
+    return { close: () => null };
   }
 
   return contextValue;

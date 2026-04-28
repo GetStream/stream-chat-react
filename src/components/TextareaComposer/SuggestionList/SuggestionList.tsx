@@ -25,6 +25,7 @@ import { ContextMenu } from '../../Dialog';
 import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
+import { useTranslationContext } from '../../../context';
 import type {
   SearchSourceState,
   TextComposerState,
@@ -83,6 +84,7 @@ export const SuggestionList = ({
   setFocusedItemIndex,
   suggestionItemComponents = defaultComponents,
 }: SuggestionListProps) => {
+  const { t } = useTranslationContext();
   const {
     AutocompleteSuggestionItem = DefaultSuggestionListItem,
     ContextMenu: ContextMenuComponent = ContextMenu,
@@ -207,6 +209,15 @@ export const SuggestionList = ({
 
   if (!suggestions || !items?.length || !component) return null;
 
+  const suggestionMenuLabel =
+    suggestions.searchSource.type === 'commands'
+      ? t('aria/Command Suggestions')
+      : suggestions.searchSource.type === 'emojis'
+        ? t('aria/Emoji Suggestions')
+        : suggestions.searchSource.type === 'mentions'
+          ? t('aria/User Suggestions')
+          : t('aria/Suggestions');
+
   return (
     <div
       className={clsx('str-chat__suggestion-list-container', containerClassName)}
@@ -220,6 +231,7 @@ export const SuggestionList = ({
       }}
     >
       <ContextMenuComponent
+        aria-label={suggestionMenuLabel}
         className={clsx('str-chat__suggestion-list', className)}
         Header={
           suggestions.searchSource.type === 'commands' ? CommandsMenuHeader : undefined

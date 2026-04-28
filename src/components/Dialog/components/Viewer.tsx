@@ -2,6 +2,8 @@ import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import { IconArrowLeft, IconXmark } from '../../Icons';
+import { useModalContext, useTranslationContext } from '../../../context';
+import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const ViewerRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
   <div {...props} className={clsx('str-chat__viewer', className)}>
@@ -15,48 +17,73 @@ export type ViewerHeaderProps = {
   className?: string;
   close?: () => void;
   goBack?: () => void;
+  descriptionId?: string;
+  titleId?: string;
 };
 
 const ViewerHeader = ({
   className,
   close,
   description,
+  descriptionId,
   goBack,
   title,
-}: ViewerHeaderProps) => (
-  <div className={clsx('str-chat__viewer__header', className)}>
-    {goBack && (
-      <Button
-        appearance='ghost'
-        circular
-        className='str-chat__viewer__header__go-back-button'
-        onClick={goBack}
-        size='sm'
-        variant='secondary'
-      >
-        <IconArrowLeft />
-      </Button>
-    )}
-    <div className='str-chat__viewer__header__title-group'>
-      <div className='str-chat__viewer__header__title'>{title}</div>
-      {description != null && description !== '' && (
-        <div className='str-chat__viewer__header__description'>{description}</div>
+  titleId,
+}: ViewerHeaderProps) => {
+  const { t } = useTranslationContext();
+  const { dialogId } = useModalContext();
+  const { descriptionId: derivedDescriptionId, titleId: derivedTitleId } =
+    useAriaIdentifiers(dialogId);
+  const resolvedTitleId = titleId ?? derivedTitleId;
+  const resolvedDescriptionId = descriptionId ?? derivedDescriptionId;
+
+  return (
+    <div className={clsx('str-chat__viewer__header', className)}>
+      {goBack && (
+        <Button
+          appearance='ghost'
+          aria-describedby={
+            description != null && description !== '' ? resolvedDescriptionId : undefined
+          }
+          aria-label={t('Back')}
+          circular
+          className='str-chat__viewer__header__go-back-button'
+          onClick={goBack}
+          size='sm'
+          variant='secondary'
+        >
+          <IconArrowLeft />
+        </Button>
+      )}
+      <div className='str-chat__viewer__header__title-group'>
+        <h2 className='str-chat__viewer__header__title' id={resolvedTitleId}>
+          {title}
+        </h2>
+        {description != null && description !== '' && (
+          <p className='str-chat__viewer__header__description' id={resolvedDescriptionId}>
+            {description}
+          </p>
+        )}
+      </div>
+      {close && (
+        <Button
+          appearance='ghost'
+          aria-describedby={
+            description != null && description !== '' ? resolvedDescriptionId : undefined
+          }
+          aria-label={t('Close dialog')}
+          circular
+          className='str-chat__viewer__header__close-button'
+          onClick={close}
+          size='sm'
+          variant='secondary'
+        >
+          <IconXmark />
+        </Button>
       )}
     </div>
-    {close && (
-      <Button
-        appearance='ghost'
-        circular
-        className='str-chat__viewer__header__close-button'
-        onClick={close}
-        size='sm'
-        variant='secondary'
-      >
-        <IconXmark />
-      </Button>
-    )}
-  </div>
-);
+  );
+};
 
 export type ViewerBodyProps = PropsWithChildren<{
   className?: string;

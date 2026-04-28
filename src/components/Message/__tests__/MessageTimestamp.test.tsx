@@ -67,6 +67,21 @@ describe('<MessageTimestamp />', () => {
     const { container } = await renderComponent();
     expect(container).toMatchInlineSnapshot(`
       <div>
+        <span
+          data-testid="notification-announcer"
+          style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+        >
+          <div
+            aria-atomic="true"
+            aria-live="polite"
+            role="status"
+          />
+          <div
+            aria-atomic="true"
+            aria-live="assertive"
+            role="alert"
+          />
+        </span>
         <time
           datetime="2019-04-03T14:42:47.087Z"
           title="2019-04-03T14:42:47.087Z"
@@ -83,6 +98,21 @@ describe('<MessageTimestamp />', () => {
     });
     expect(container).toMatchInlineSnapshot(`
       <div>
+        <span
+          data-testid="notification-announcer"
+          style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+        >
+          <div
+            aria-atomic="true"
+            aria-live="polite"
+            role="status"
+          />
+          <div
+            aria-atomic="true"
+            aria-live="assertive"
+            role="alert"
+          />
+        </span>
         <time
           datetime="28"
           title="28"
@@ -239,6 +269,21 @@ describe('<MessageTimestamp />', () => {
     const { container } = await renderComponent({ props: { customClass } });
     expect(container).toMatchInlineSnapshot(`
       <div>
+        <span
+          data-testid="notification-announcer"
+          style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+        >
+          <div
+            aria-atomic="true"
+            aria-live="polite"
+            role="status"
+          />
+          <div
+            aria-atomic="true"
+            aria-live="assertive"
+            role="alert"
+          />
+        </span>
         <time
           class="custom-css-class"
           datetime="2019-04-03T14:42:47.087Z"

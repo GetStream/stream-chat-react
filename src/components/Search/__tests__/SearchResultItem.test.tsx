@@ -14,6 +14,7 @@ import {
   ChannelListContextProvider,
   ChatProvider,
   DialogManagerProvider,
+  TranslationProvider,
 } from '../../../context';
 import {
   generateChannel,
@@ -22,6 +23,7 @@ import {
   initChannelFromData,
   initClientWithChannels,
   mockChannelListContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
@@ -29,6 +31,17 @@ const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 const mockSetActiveChannel = vi.fn().mockImplementation(() => {});
 const mockSetChannels = vi.fn().mockImplementation(() => {});
 const directMessagingChannelType = 'X';
+
+const mockTranslation = (key: string, options?: Record<string, unknown>) => {
+  const interpolated = Object.entries(options || {}).reduce(
+    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+    key,
+  );
+
+  return interpolated.startsWith('aria/')
+    ? interpolated.replace('aria/', '')
+    : interpolated;
+};
 
 const renderComponent = async ({
   activeChannel,
@@ -64,26 +77,28 @@ const renderComponent = async ({
   }
 
   render(
-    <ChatProvider
-      value={{
-        channel: activeChannel ?? channel,
-        client: customClient ?? client,
-        setActiveChannel: mockSetActiveChannel,
-        ...chatContext,
-      }}
-    >
-      <DialogManagerProvider>
-        <ChannelListContextProvider
-          value={mockChannelListContext({ setChannels: mockSetChannels })}
-        >
-          <SearchContextProvider
-            value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
+    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+      <ChatProvider
+        value={{
+          channel: activeChannel ?? channel,
+          client: customClient ?? client,
+          setActiveChannel: mockSetActiveChannel,
+          ...chatContext,
+        }}
+      >
+        <DialogManagerProvider>
+          <ChannelListContextProvider
+            value={mockChannelListContext({ setChannels: mockSetChannels })}
           >
-            <SearchResultItemComponent item={item} />
-          </SearchContextProvider>
-        </ChannelListContextProvider>
-      </DialogManagerProvider>
-    </ChatProvider>,
+            <SearchContextProvider
+              value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
+            >
+              <SearchResultItemComponent item={item} />
+            </SearchContextProvider>
+          </ChannelListContextProvider>
+        </DialogManagerProvider>
+      </ChatProvider>
+    </TranslationProvider>,
   );
 };
 

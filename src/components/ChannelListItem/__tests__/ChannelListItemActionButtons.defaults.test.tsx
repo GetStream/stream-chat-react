@@ -1,6 +1,6 @@
 /* eslint-disable sort-keys */
 import React from 'react';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { MuteChannelAPIResponse } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
@@ -252,9 +252,11 @@ describe('ChannelListItemActionButtons defaults', () => {
 
       openDropdownMenu();
 
-      const blockButton = screen.getByTestId('dropdown-action-ban');
+      const menu = document.querySelector('.str-chat__context-menu') as HTMLElement;
+      expect(menu).toHaveAttribute('aria-label');
+      expect(menu.getAttribute('aria-label')).toBeTruthy();
       act(() => {
-        fireEvent.click(blockButton);
+        fireEvent.click(within(menu).getByRole('menuitem', { name: 'Block User' }));
       });
 
       await waitFor(() => {
@@ -352,9 +354,9 @@ describe('ChannelListItemActionButtons defaults', () => {
 
       openDropdownMenu();
 
-      const leaveButton = screen.getByTestId('dropdown-action-leave');
+      const menu = document.querySelector('.str-chat__context-menu') as HTMLElement;
       act(() => {
-        fireEvent.click(leaveButton);
+        fireEvent.click(within(menu).getByRole('menuitem', { name: 'Leave Channel' }));
       });
 
       await waitFor(() => {

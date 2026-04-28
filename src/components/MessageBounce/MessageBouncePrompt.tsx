@@ -34,6 +34,13 @@ export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
     >
       <Alert.Header
         className='str-chat__message-bounce-alert-header'
+        description={
+          !children
+            ? t(
+                'Review this message and choose whether to delete it, edit it, or send it anyway',
+              )
+            : undefined
+        }
         Icon={IconExclamationMark}
         title={
           !children ? t('This message did not meet our content guidelines') : undefined

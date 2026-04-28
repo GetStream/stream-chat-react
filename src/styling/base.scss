@@ -1,11 +1,15 @@
 .str-chat {
+  --str-chat__focus-outline-color: var(--str-chat__border-utility-focused);
+  --str-chat__focus-outline: 2px solid var(--str-chat__focus-outline-color);
+  --str-chat__focus-outline-offset: 2px;
+
   font: var(--str-chat__font-body-default);
   letter-spacing: var(--typography-letter-spacing-default);
   color: var(--str-chat__text-primary);
 
   *:not(:disabled):focus-visible {
-    outline: 2px solid var(--str-chat__border-utility-focused);
-    outline-offset: 2px;
+    outline: var(--str-chat__focus-outline);
+    outline-offset: var(--str-chat__focus-outline-offset, 2px);
   }
 
   // hide spin buttons form input of type number

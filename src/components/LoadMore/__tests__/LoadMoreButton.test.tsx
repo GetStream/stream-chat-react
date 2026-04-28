@@ -20,7 +20,7 @@ describe('LoadMoreButton', () => {
     const button = getByTestId('load-more-button');
     expect(button).toBeInTheDocument();
     expect(button).toHaveClass('str-chat__button');
-    expect(button).toHaveAttribute('aria-label', 'Load More Channels');
+    expect(button).toHaveAttribute('aria-label', 'Load more');
     expect(button.textContent).toContain('Load more');
   });
 

@@ -21,6 +21,10 @@ vi.mock('../../../context', () => ({
       },
     },
   }),
+  useTranslationContext: () => ({
+    t: (key: string, options?: { command?: string }) =>
+      key.replace('{{ command }}', options?.command ?? ''),
+  }),
 }));
 
 describe('CommandChip', () => {
@@ -47,5 +51,13 @@ describe('CommandChip', () => {
 
     expect(setCommandMock).toHaveBeenCalledWith(null);
     expect(focusMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('has an accessible name for the close button', () => {
+    render(<CommandChip command={{ name: 'giphy' }} />);
+
+    expect(
+      screen.getByRole('button', { name: 'Exit command giphy' }),
+    ).toBeInTheDocument();
   });
 });

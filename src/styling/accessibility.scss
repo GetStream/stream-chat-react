@@ -1,5 +1,16 @@
 @media (prefers-reduced-motion: reduce) {
-  // todo: come up with a general class that will apply the transform
+  .str-chat,
+  .str-chat *,
+  .str-chat *::before,
+  .str-chat *::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+
   .str-chat__attachment-selector__menu-button__icon {
     transform: none;
   }

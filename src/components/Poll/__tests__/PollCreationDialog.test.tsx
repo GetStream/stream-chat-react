@@ -266,10 +266,16 @@ describe('PollCreationDialog', () => {
       await fireEvent.click(enforceUniqueToggle);
     });
     expect(enforceUniqueToggle).toBeChecked();
+    const voteLimitSwitch = screen.getByRole('switch', {
+      name: /limit votes per person/i,
+    });
     await act(async () => {
-      await fireEvent.click(getVoteLimitSwitch());
+      await fireEvent.click(voteLimitSwitch);
     });
     expect(getMaxVoteCountInput()?.value).toBe('2');
+    await waitFor(() => {
+      expect(getMaxVoteCountInput()).toHaveFocus();
+    });
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeDisabled();
   });

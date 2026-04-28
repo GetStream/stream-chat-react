@@ -84,6 +84,9 @@ describe.each([
       </ChatProvider>,
     );
     expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'aria/Jump to latest message' }),
+    ).toBeInTheDocument();
   });
 
   it('calls the onclick callback', async () => {

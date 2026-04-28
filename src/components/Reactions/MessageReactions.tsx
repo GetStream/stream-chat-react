@@ -52,10 +52,15 @@ export type MessageReactionsProps = Partial<
 const FragmentOrButton = ({
   buttonIf: renderButton = false,
   children,
+  type = 'button',
   ...props
 }: ComponentPropsWithoutRef<'button'> & { buttonIf?: boolean }) => {
   if (renderButton) {
-    return <button {...props}>{children}</button>;
+    return (
+      <button {...props} type={type}>
+        {children}
+      </button>
+    );
   }
 
   return <>{children}</>;
@@ -156,6 +161,7 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
       >
         <FragmentOrButton
           aria-expanded={isDialogOpen}
+          aria-label={t('aria/Reaction list')}
           aria-pressed={isDialogOpen}
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
@@ -172,6 +178,9 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                     key={reactionType}
                   >
                     <FragmentOrButton
+                      aria-label={t('aria/Select Reaction: {{ reactionName }}', {
+                        reactionName: reactionType,
+                      })}
                       buttonIf={visualStyle === 'segmented'}
                       className='str-chat__message-reactions__list-item-button'
                       onClick={() => handleReactionButtonClick(reactionType)}
@@ -199,8 +208,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
               visualStyle === 'segmented' && (
                 <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
                   <button
+                    aria-label={t('aria/Reaction list')}
                     className='str-chat__message-reactions__list-item-button'
                     onClick={() => handleReactionButtonClick(null)}
+                    type='button'
                   >
                     <span className='str-chat__message-reactions__overflow-count'>
                       +

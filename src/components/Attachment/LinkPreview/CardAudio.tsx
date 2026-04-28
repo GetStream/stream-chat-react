@@ -39,8 +39,10 @@ const SourceLink = ({
 );
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
+  durationSeconds: state.durationSeconds,
   isPlaying: state.isPlaying,
   progress: state.progressPercent,
+  secondsElapsed: state.secondsElapsed,
 });
 
 const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
@@ -63,7 +65,7 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
     src,
   });
 
-  const { isPlaying, progress } =
+  const { durationSeconds, isPlaying, progress, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
   if (!audioPlayer) return;
@@ -73,7 +75,12 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
       <div className='str-chat__message-attachment-audio-widget--play-controls'>
         <PlayButton isPlaying={!!isPlaying} onClick={audioPlayer.togglePlay} />
       </div>
-      <ProgressBar progress={progress ?? 0} seek={audioPlayer.seek} />
+      <ProgressBar
+        durationSeconds={durationSeconds}
+        progress={progress ?? 0}
+        secondsElapsed={secondsElapsed}
+        seek={audioPlayer.seek}
+      />
     </div>
   );
 };

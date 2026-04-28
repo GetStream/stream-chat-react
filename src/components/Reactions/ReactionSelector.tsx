@@ -5,6 +5,7 @@ import { useDialogOnNearestManager } from '../Dialog';
 import { defaultReactionOptions } from './reactionOptions';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
+import { useTranslationContext } from '../../context/TranslationContext';
 import { Button } from '../Button';
 import { IconPlus } from '../Icons';
 
@@ -50,6 +51,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     message,
     threadList,
   } = useMessageContext('ReactionSelector');
+  const { t } = useTranslationContext('ReactionSelector');
   const dialogId =
     propDialogId ??
     ReactionSelector.getDialogId({
@@ -85,7 +87,12 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   }, [reactionOptions]);
 
   return (
-    <div className='str-chat__reaction-selector' data-testid='reaction-selector'>
+    <div
+      aria-label={t('aria/Reaction list')}
+      className='str-chat__reaction-selector'
+      data-testid='reaction-selector'
+      role='group'
+    >
       {!extendedListOpen ? (
         <>
           <ul
@@ -96,7 +103,9 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
               ({ Component, name: reactionName, type: reactionType }) => (
                 <li className='str-chat__reaction-list-selector__item' key={reactionType}>
                   <button
-                    aria-label={`Select Reaction: ${reactionName || reactionType}`}
+                    aria-label={t('aria/Select Reaction: {{ reactionName }}', {
+                      reactionName: reactionName || reactionType,
+                    })}
                     aria-pressed={typeof ownReactionByType[reactionType] !== 'undefined'}
                     className={clsx('str-chat__reaction-selector-list__item-button')}
                     data-testid='select-reaction-button'
@@ -107,6 +116,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
                         dialog.close();
                       }
                     }}
+                    type='button'
                   >
                     <span className='str-chat__reaction-icon'>
                       <Component />
@@ -118,6 +128,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
           </ul>
           <Button
             appearance='outline'
+            aria-label={t('aria/Open Reaction Selector')}
             circular
             className='str-chat__reaction-selector__add-button'
             data-testid='reaction-selector-add-button'
@@ -166,6 +177,7 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
     handleReaction: contextHandleReaction,
     message,
   } = useMessageContext('ReactionSelector');
+  const { t } = useTranslationContext('ReactionSelector');
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
   const ownReactions = propOwnReactions ?? message?.own_reactions ?? stableOwnReactions;
@@ -188,13 +200,17 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
 
   return (
     <div
+      aria-label={t('aria/Reaction list')}
       className='str-chat__reaction-selector-extended-list'
       data-testid='reaction-selector-extended-list'
+      role='group'
     >
       {Object.entries(reactionOptions.extended).map(
         ([reactionType, { Component, name: reactionName }]) => (
           <button
-            aria-label={`Select Reaction: ${reactionName || reactionType}`}
+            aria-label={t('aria/Select Reaction: {{ reactionName }}', {
+              reactionName: reactionName || reactionType,
+            })}
             aria-pressed={typeof ownReactionByType[reactionType] !== 'undefined'}
             className='str-chat__reaction-selector-extended-list__button str-chat__button str-chat__button--ghost str-chat__button--size-sm str-chat__button--circular'
             data-testid='select-reaction-button'
@@ -206,6 +222,7 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
                 dialog.close();
               }
             }}
+            type='button'
           >
             <span className='str-chat__reaction-icon'>
               <Component />

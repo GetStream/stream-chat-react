@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { WaveProgressBar } from '../../AudioPlayback';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
@@ -125,5 +125,42 @@ describe('WaveProgressBar', () => {
     ).toHaveLength(8);
     expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).toBeInTheDocument();
     expect(screen.queryByTestId(PROGRESS_INDICATOR_TEST_ID)).not.toHaveStyle('left: 0px');
+  });
+
+  it('adds slider semantics and supports keyboard seek', () => {
+    const seek = vi.fn();
+    render(<WaveProgressBar progress={20} seek={seek} waveformData={originalSample} />);
+
+    const root = screen.getByTestId(BAR_ROOT_TEST_ID);
+    expect(root).toHaveAttribute('role', 'slider');
+    expect(root).toHaveAttribute('aria-label', 'aria/Seek audio position');
+    expect(root).toHaveAttribute('tabindex', '0');
+    expect(root).toHaveAttribute('aria-valuemin', '0');
+    expect(root).toHaveAttribute('aria-valuemax', '100');
+    expect(root).toHaveAttribute('aria-valuenow', '20');
+    expect(root).toHaveAttribute(
+      'aria-valuetext',
+      'aria/Audio position {{ progress }} percent',
+    );
+
+    fireEvent.keyDown(root, { key: 'End' });
+
+    expect(seek).toHaveBeenCalledWith({
+      clientX: 120,
+      currentTarget: root,
+    });
+  });
+
+  it('seeks backward with PageDown key using larger step', () => {
+    const seek = vi.fn();
+    render(<WaveProgressBar progress={20} seek={seek} waveformData={originalSample} />);
+
+    const root = screen.getByTestId(BAR_ROOT_TEST_ID);
+    fireEvent.keyDown(root, { key: 'PageDown' });
+
+    expect(seek).toHaveBeenCalledWith({
+      clientX: 12,
+      currentTarget: root,
+    });
   });
 });

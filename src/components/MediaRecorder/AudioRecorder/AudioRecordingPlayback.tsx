@@ -5,6 +5,7 @@ import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
 import { IconPauseFill, IconPlayFill } from '../../Icons';
 import { Button } from '../../Button';
+import { useTranslationContext } from '../../../context';
 import clsx from 'clsx';
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
@@ -26,6 +27,7 @@ export const AudioRecordingPlayback = ({
   src,
   waveformData,
 }: AudioRecordingPlayerProps) => {
+  const { t } = useTranslationContext();
   const audioPlayer = useAudioPlayer({
     durationSeconds,
     mimeType,
@@ -55,6 +57,7 @@ export const AudioRecordingPlayback = ({
     >
       <Button
         appearance='ghost'
+        aria-label={isPlaying ? t('aria/Pause') : t('aria/Play')}
         circular
         className='str-chat__audio_recorder__toggle-playback-button'
         data-testid='audio-recording-preview-toggle-play-btn'
@@ -74,7 +77,9 @@ export const AudioRecordingPlayback = ({
       />
       <div className='str-chat__wave-progress-bar__track-container'>
         <WaveProgressBar
+          durationSeconds={durationSeconds}
           progress={progress}
+          secondsElapsed={secondsElapsed}
           seek={audioPlayer.seek}
           waveformData={waveformData || []}
         />

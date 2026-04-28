@@ -14,8 +14,14 @@ import {
   getTestClient,
   mockChatContext,
   mockMessageContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
-import { ChatProvider, DialogManagerProvider, WithComponents } from '../../../context';
+import {
+  ChatProvider,
+  DialogManagerProvider,
+  TranslationProvider,
+  WithComponents,
+} from '../../../context';
 import type { ComponentContextValue } from '../../../context/ComponentContext';
 import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 import { useProcessReactions } from '../hooks/useProcessReactions';
@@ -74,6 +80,12 @@ const MessageReactionsDetailWrapper = ({
 };
 
 const chatClient = getTestClient();
+
+const mockTranslation = (key: string, options?: Record<string, unknown>) =>
+  Object.entries(options || {}).reduce(
+    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+    key,
+  );
 
 const renderComponent = ({
   handleFetchReactions,
@@ -364,6 +376,49 @@ describe('MessageReactionsDetail', () => {
 
     // The reaction type list should NOT be visible
     expect(queryByTestId('reaction-type-list')).not.toBeInTheDocument();
+  });
+
+  it('should provide contextual accessible name for current-user remove button', async () => {
+    const reactionGroups = {
+      love: { count: 1 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = vi.fn((type: string) =>
+      Promise.resolve(reactions.filter((r) => r.type === type)),
+    );
+
+    const previousUser = chatClient.user;
+    chatClient.user = generateUser({ id: 'mark-0', name: 'Mark Number 0' });
+
+    const { getByTestId } = render(
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+        <ChatProvider value={mockChatContext({ client: chatClient })}>
+          <DialogManagerProvider>
+            <WithComponents overrides={{ reactionOptions: defaultReactionOptions }}>
+              <MessageProvider value={mockMessageContext()}>
+                <MessageReactionsDetailWrapper
+                  handleFetchReactions={fetchReactions}
+                  reaction_groups={reactionGroups}
+                  reactions={reactions}
+                  selectedReactionType='love'
+                />
+              </MessageProvider>
+            </WithComponents>
+          </DialogManagerProvider>
+        </ChatProvider>
+      </TranslationProvider>,
+    );
+
+    try {
+      await waitFor(() => {
+        expect(getByTestId('remove-reaction-button')).toHaveAttribute(
+          'aria-label',
+          'Tap to remove: Heart',
+        );
+      });
+    } finally {
+      chatClient.user = previousUser;
+    }
   });
 
   it('should use custom ReactionSelectorExtendedList from ComponentContext', () => {

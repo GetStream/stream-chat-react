@@ -37,6 +37,8 @@ describe('NewMessageNotification', () => {
     expect(notification).toBeInTheDocument();
     expect(notification).toHaveClass('str-chat__message-notification__label');
     expect(notification).toHaveAttribute('aria-live', 'polite');
+    expect(notification).toHaveAttribute('aria-atomic', 'true');
+    expect(notification).toHaveAttribute('role', 'status');
     expect(notification).toHaveTextContent('New Messages!');
     const results = await axe(container);
     expect(results).toHaveNoViolations();

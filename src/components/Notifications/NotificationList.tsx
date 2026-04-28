@@ -5,7 +5,7 @@ import type { Notification } from 'stream-chat';
 import { hasSystemNotificationTag, useNotificationApi } from './hooks/useNotificationApi';
 import { useNotifications } from './hooks/useNotifications';
 import { Notification as DefaultNotification } from './Notification';
-import { useComponentContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 import type { NotificationTargetPanel } from './notificationTarget';
 
@@ -74,6 +74,7 @@ export const NotificationList = ({
 }: NotificationListProps) => {
   const { Notification: NotificationComponent = DefaultNotification } =
     useComponentContext();
+  const { t } = useTranslationContext();
   const { removeNotification, startNotificationTimeout } = useNotificationApi();
   const exitTimeoutRef = useRef<number | null>(null);
   const latestNotificationRef = useRef<Notification | null>(null);
@@ -202,7 +203,7 @@ export const NotificationList = ({
 
   return (
     <div
-      aria-label='Notifications'
+      aria-label={t('aria/Notifications')}
       className={clsx(
         'str-chat__notification-list',
         `str-chat__notification-list--enter-from-${notificationEnterFrom}`,

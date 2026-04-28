@@ -438,6 +438,35 @@ describe('AttachmentPreviewList', () => {
     expect(screen.getByRole('img', { name: 'image-upload-1' })).toBeInTheDocument();
   });
 
+  it('passes onCloseAttempt to prevent overlay-close handling for gallery preview modal', async () => {
+    const modalProps: Array<any> = [];
+    const Modal = ({ children, open, ...props }: any) => {
+      modalProps.push(props);
+      return open ? <div>{children}</div> : null;
+    };
+
+    await renderComponent({
+      attachments: [
+        generateLocalImageUploadAttachmentData(
+          { id: 'image-upload-1', uploadState: 'finished' },
+          {
+            fallback: 'image-upload-1',
+            image_url: 'https://example.com/image-upload-1.jpg',
+          },
+        ),
+      ],
+      components: { Modal },
+    });
+
+    fireEvent.click(screen.getByTestId('attachment-preview-media'));
+
+    const latest = modalProps.at(-1);
+    expect(typeof latest?.onCloseAttempt).toBe('function');
+    expect(latest.onCloseAttempt('overlay', {})).toBe(false);
+    expect(latest.onCloseAttempt('button', {})).toBe(true);
+    expect(latest.onCloseAttempt('escape', {})).toBe(true);
+  });
+
   describe('shared location', () => {
     const renderLocationPreview = async ({
       customPreview,

@@ -1,21 +1,37 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ReactionSelector, type ReactionSelectorProps } from '../ReactionSelector';
 import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions';
 
 import { MessageProvider } from '../../../context/MessageContext';
-import { DialogManagerProvider, WithComponents } from '../../../context';
+import {
+  DialogManagerProvider,
+  TranslationProvider,
+  WithComponents,
+} from '../../../context';
 import type { ComponentContextValue } from '../../../context/ComponentContext';
 
 import {
   generateMessage,
   generateReaction,
   mockMessageContext,
+  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const handleReactionMock = vi.fn();
 
 const defaultMessage = generateMessage();
+
+const mockTranslation = (key: string, options?: Record<string, unknown>) => {
+  const interpolated = Object.entries(options || {}).reduce(
+    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+    key,
+  );
+
+  return interpolated.startsWith('aria/')
+    ? interpolated.replace('aria/', '')
+    : interpolated;
+};
 
 const renderComponent = ({
   reactionOptions,
@@ -26,18 +42,20 @@ const renderComponent = ({
   ReactionSelectorExtendedList?: ComponentContextValue['ReactionSelectorExtendedList'];
 } = {}) =>
   render(
-    <DialogManagerProvider>
-      <WithComponents
-        overrides={{
-          reactionOptions: reactionOptions ?? defaultReactionOptions,
-          ReactionSelectorExtendedList,
-        }}
-      >
-        <MessageProvider value={mockMessageContext({ message: defaultMessage })}>
-          <ReactionSelector handleReaction={handleReactionMock} {...props} />
-        </MessageProvider>
-      </WithComponents>
-    </DialogManagerProvider>,
+    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+      <DialogManagerProvider>
+        <WithComponents
+          overrides={{
+            reactionOptions: reactionOptions ?? defaultReactionOptions,
+            ReactionSelectorExtendedList,
+          }}
+        >
+          <MessageProvider value={mockMessageContext({ message: defaultMessage })}>
+            <ReactionSelector handleReaction={handleReactionMock} {...props} />
+          </MessageProvider>
+        </WithComponents>
+      </DialogManagerProvider>
+    </TranslationProvider>,
   );
 
 const extendedReactionOptions: ReactionOptions = {
@@ -61,26 +79,28 @@ const renderExtendedList = ({
   dialogId?: string;
 } = {}) =>
   render(
-    <DialogManagerProvider>
-      <WithComponents
-        overrides={{
-          reactionOptions: extendedReactionOptions,
-          ...componentOverrides,
-        }}
-      >
-        <MessageProvider
-          value={mockMessageContext({
-            message: defaultMessage,
-            ...messageOverrides,
-          })}
+    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+      <DialogManagerProvider>
+        <WithComponents
+          overrides={{
+            reactionOptions: extendedReactionOptions,
+            ...componentOverrides,
+          }}
         >
-          <ReactionSelector.ExtendedList
-            dialogId={`test-dialog-${defaultMessage.id}`}
-            {...props}
-          />
-        </MessageProvider>
-      </WithComponents>
-    </DialogManagerProvider>,
+          <MessageProvider
+            value={mockMessageContext({
+              message: defaultMessage,
+              ...messageOverrides,
+            })}
+          >
+            <ReactionSelector.ExtendedList
+              dialogId={`test-dialog-${defaultMessage.id}`}
+              {...props}
+            />
+          </MessageProvider>
+        </WithComponents>
+      </DialogManagerProvider>
+    </TranslationProvider>,
   );
 
 describe('ReactionSelector', () => {
@@ -94,6 +114,14 @@ describe('ReactionSelector', () => {
     const buttons = getAllByTestId('select-reaction-button');
     // defaultReactionOptions.quick has 6 entries: haha, like, love, sad, wow, fire
     expect(buttons).toHaveLength(6);
+  });
+
+  it('should expose labeled group semantics for the selector container', () => {
+    const { getByTestId } = renderComponent();
+
+    const selector = getByTestId('reaction-selector');
+    expect(selector).toHaveAttribute('role', 'group');
+    expect(selector).toHaveAttribute('aria-label', 'Reaction list');
   });
 
   it('should render each of reactionOptions if specified as an array (legacy format)', () => {
@@ -139,6 +167,14 @@ describe('ReactionSelector', () => {
   it('should render the add button for extended reactions', () => {
     const { getByTestId } = renderComponent();
     expect(getByTestId('reaction-selector-add-button')).toBeInTheDocument();
+  });
+
+  it('should provide an accessible name for the add button', () => {
+    renderComponent();
+
+    expect(
+      screen.getByRole('button', { name: 'Open Reaction Selector' }),
+    ).toBeInTheDocument();
   });
 
   it('should show extended reaction list when add button is clicked', () => {
@@ -202,6 +238,14 @@ describe('ReactionSelector.ExtendedList', () => {
 
     const dataTexts = buttons.map((btn) => btn.getAttribute('data-text'));
     expect(dataTexts).toEqual(expect.arrayContaining(['rocket', 'star', 'thumbsdown']));
+  });
+
+  it('should expose labeled group semantics for extended list container', () => {
+    const { getByTestId } = renderExtendedList();
+
+    const extendedList = getByTestId('reaction-selector-extended-list');
+    expect(extendedList).toHaveAttribute('role', 'group');
+    expect(extendedList).toHaveAttribute('aria-label', 'Reaction list');
   });
 
   it('should render null when reactionOptions is a legacy array', () => {

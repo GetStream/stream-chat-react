@@ -53,11 +53,23 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass = customInnerClass;
+  const hasMentionedUsers = Boolean(message.mentioned_users?.length);
+  const isMentionsInteractionEnabled =
+    hasMentionedUsers && typeof onMentionsClickMessage === 'function';
+
+  const handleMentionsKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!isMentionsInteractionEnabled || (event.key !== 'Enter' && event.key !== ' ')) {
+      return;
+    }
+
+    event.preventDefault();
+    onMentionsClickMessage(event);
+  };
 
   if (!messageTextToRender) return null;
 
   return (
-    <div className={wrapperClass} tabIndex={0}>
+    <div className={wrapperClass} tabIndex={isMentionsInteractionEnabled ? undefined : 0}>
       <div
         className={clsx(innerClass, {
           [` str-chat__message-text-inner--is-emoji`]:
@@ -66,7 +78,9 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
         })}
         data-testid='message-text-inner-wrapper'
         onClick={onMentionsClickMessage}
+        onKeyDown={isMentionsInteractionEnabled ? handleMentionsKeyDown : undefined}
         onMouseOver={onMentionsHoverMessage}
+        tabIndex={isMentionsInteractionEnabled ? 0 : undefined}
       >
         {unsafeHTML && message.html ? (
           <div dangerouslySetInnerHTML={{ __html: message.html }} />

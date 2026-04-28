@@ -7,7 +7,7 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { IconMute } from '../Icons';
-import { useComponentContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 
@@ -32,6 +32,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     Avatar = DefaultChannelAvatar,
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
   } = useComponentContext();
+  const { t } = useTranslationContext();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -53,8 +54,10 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     <div className='str-chat__channel-list-item-container'>
       <ChannelListItemActionButtons />
       <button
-        aria-label={`Select Channel: ${displayTitle || ''}`}
-        aria-pressed={active}
+        aria-label={t('aria/Select Channel: {{ channelName }}', {
+          channelName: displayTitle || '',
+        })}
+        aria-selected={active}
         className={clsx(
           'str-chat__channel-list-item',
           typeof unread === 'number' &&

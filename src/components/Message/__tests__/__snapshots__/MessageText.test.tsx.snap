@@ -41,7 +41,9 @@ exports[`<MessageText /> > should render with a custom inner class when one is s
           class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
           <svg
+            aria-hidden="true"
             class="str-chat__icon str-chat__icon--exclamation-mark-fill"
+            focusable="false"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -103,7 +105,9 @@ exports[`<MessageText /> > should render with a custom wrapper class when one is
           class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
           <svg
+            aria-hidden="true"
             class="str-chat__icon str-chat__icon--exclamation-mark-fill"
+            focusable="false"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -165,7 +169,9 @@ exports[`<MessageText /> > should render with custom theme identifier in generat
           class="str-chat__badge str-chat__badge--variant-error str-chat__badge--size-sm"
         >
           <svg
+            aria-hidden="true"
             class="str-chat__icon str-chat__icon--exclamation-mark-fill"
+            focusable="false"
             viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg"
           >

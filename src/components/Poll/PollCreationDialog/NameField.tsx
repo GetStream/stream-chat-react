@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { TextInput } from '../../Form';
-import { useTranslationContext } from '../../../context';
+import { useModalContext, useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
+import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   error: state.errors.name,
@@ -13,6 +14,8 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
+  const { dialogId } = useModalContext();
+  const { descriptionId } = useAriaIdentifiers(dialogId);
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
@@ -23,6 +26,7 @@ export const NameField = () => {
 
   return (
     <TextInput
+      aria-describedby={descriptionId}
       className='str-chat__form__input-field__value'
       error={!!error}
       errorMessage={

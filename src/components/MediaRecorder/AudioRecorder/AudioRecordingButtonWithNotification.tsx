@@ -2,7 +2,11 @@ import { RecordingAttachmentType, RecordingPermission } from '../classes';
 import { RecordingPermissionDeniedNotification as DefaultRecordingPermissionDeniedNotification } from '../RecordingPermissionDeniedNotification';
 import React, { forwardRef, useRef } from 'react';
 import { useAttachmentManagerState } from '../../MessageComposer/hooks/useAttachmentManagerState';
-import { useComponentContext, useMessageComposerContext } from '../../../context';
+import {
+  useComponentContext,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';
 import { IconVoice } from '../../Icons';
@@ -64,10 +68,12 @@ export const DefaultStartRecordingAudioButton = forwardRef<
   HTMLButtonElement,
   StartRecordingAudioButtonProps
 >(function StartRecordingAudioButton(props, ref) {
+  const { t } = useTranslationContext();
+
   return (
     <Button
       appearance='ghost'
-      aria-label='Start recording audio'
+      aria-label={t('aria/Start recording audio')}
       circular
       className='str-chat__start-recording-audio-button'
       data-testid='start-recording-audio-button'

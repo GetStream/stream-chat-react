@@ -7,6 +7,7 @@ import { TypingIndicator } from '../TypingIndicator';
 import { ChannelStateProvider } from '../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
+import { TranslationProvider } from '../../../context/TranslationContext';
 import { TypingProvider } from '../../../context/TypingContext';
 
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -25,6 +26,7 @@ import {
   mockChannelStateContext,
   mockChatContext,
   mockComponentContext,
+  mockTranslationContextValue,
   mockTypingContext,
   useMockedApis,
 } from '../../../mock-builders';
@@ -35,6 +37,11 @@ vi.mock('../../Threads', () => ({
 
 const me = generateUser();
 const scrollToBottom = vi.fn();
+const mockTranslation = (key: string, options?: Record<string, unknown>) =>
+  Object.entries(options || {}).reduce(
+    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+    key,
+  );
 
 async function renderComponent(
   typing = {},
@@ -46,17 +53,19 @@ async function renderComponent(
 
   return render(
     <ChatProvider value={mockChatContext({ client })}>
-      <ChannelStateProvider value={mockChannelStateContext({ ...value })}>
-        <ComponentProvider value={mockComponentContext()}>
-          <TypingProvider value={mockTypingContext({ typing })}>
-            <TypingIndicator
-              scrollToBottom={scrollToBottom}
-              threadList={threadList}
-              {...typingIndicatorProps}
-            />
-          </TypingProvider>
-        </ComponentProvider>
-      </ChannelStateProvider>
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+        <ChannelStateProvider value={mockChannelStateContext({ ...value })}>
+          <ComponentProvider value={mockComponentContext()}>
+            <TypingProvider value={mockTypingContext({ typing })}>
+              <TypingIndicator
+                scrollToBottom={scrollToBottom}
+                threadList={threadList}
+                {...typingIndicatorProps}
+              />
+            </TypingProvider>
+          </ComponentProvider>
+        </ChannelStateProvider>
+      </TranslationProvider>
     </ChatProvider>,
   );
 }
@@ -71,11 +80,13 @@ describe('TypingIndicator', () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const { container } = render(
       <ChatProvider value={mockChatContext()}>
-        <ChannelStateProvider value={mockChannelStateContext()}>
-          <ComponentProvider value={mockComponentContext()}>
-            <TypingIndicator scrollToBottom={scrollToBottom} />
-          </ComponentProvider>
-        </ChannelStateProvider>
+        <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+          <ChannelStateProvider value={mockChannelStateContext()}>
+            <ComponentProvider value={mockComponentContext()}>
+              <TypingIndicator scrollToBottom={scrollToBottom} />
+            </ComponentProvider>
+          </ChannelStateProvider>
+        </TranslationProvider>
       </ChatProvider>,
     );
     expect(container).toBeEmptyDOMElement();
@@ -85,13 +96,15 @@ describe('TypingIndicator', () => {
     const client = await getTestClientWithUser(me);
     const { container } = render(
       <ChatProvider value={mockChatContext({ client })}>
-        <ChannelStateProvider value={mockChannelStateContext()}>
-          <ComponentProvider value={mockComponentContext()}>
-            <TypingProvider value={mockTypingContext({ typing: {} })}>
-              <TypingIndicator scrollToBottom={scrollToBottom} />
-            </TypingProvider>
-          </ComponentProvider>
-        </ChannelStateProvider>
+        <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+          <ChannelStateProvider value={mockChannelStateContext()}>
+            <ComponentProvider value={mockComponentContext()}>
+              <TypingProvider value={mockTypingContext({ typing: {} })}>
+                <TypingIndicator scrollToBottom={scrollToBottom} />
+              </TypingProvider>
+            </ComponentProvider>
+          </ChannelStateProvider>
+        </TranslationProvider>
       </ChatProvider>,
     );
 
@@ -110,6 +123,14 @@ describe('TypingIndicator', () => {
 
     expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
     expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
+    const status = screen.getByTestId('typing-indicator-status');
+    expect(status).toHaveTextContent('Jessica is typing');
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(status).toHaveAttribute('aria-atomic', 'true');
+    expect(status).toHaveAttribute('role', 'status');
+    expect(
+      container.querySelector('.str-chat__typing-indicator__bubble'),
+    ).toHaveAttribute('aria-hidden', 'true');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -135,6 +156,9 @@ describe('TypingIndicator', () => {
       margriet: { user: { id: 'margriet', image: 'margriet.jpg', name: 'Margriet' } },
     });
     expect(screen.getByTestId('typing-indicator')).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      '3 people are typing',
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -174,13 +198,17 @@ describe('TypingIndicator', () => {
 
     const { container } = render(
       <ChatProvider value={mockChatContext({ client })}>
-        <ChannelStateProvider value={mockChannelStateContext({ channel, channelConfig })}>
-          <ComponentProvider value={mockComponentContext()}>
-            <TypingProvider value={mockTypingContext({ typing: {} })}>
-              <TypingIndicator scrollToBottom={scrollToBottom} />
-            </TypingProvider>
-          </ComponentProvider>
-        </ChannelStateProvider>
+        <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+          <ChannelStateProvider
+            value={mockChannelStateContext({ channel, channelConfig })}
+          >
+            <ComponentProvider value={mockComponentContext()}>
+              <TypingProvider value={mockTypingContext({ typing: {} })}>
+                <TypingIndicator scrollToBottom={scrollToBottom} />
+              </TypingProvider>
+            </ComponentProvider>
+          </ChannelStateProvider>
+        </TranslationProvider>
       </ChatProvider>,
     );
 

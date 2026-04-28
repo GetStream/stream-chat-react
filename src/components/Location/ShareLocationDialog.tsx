@@ -150,7 +150,13 @@ export const ShareLocationDialog = ({
       className='str-chat__share-location-dialog'
       data-testid='share-location-dialog'
     >
-      <Prompt.Header close={close} title={t('Share Location')} />
+      <Prompt.Header
+        close={close}
+        description={t(
+          'Select your current location and optionally enable live location sharing',
+        )}
+        title={t('Share Location')}
+      />
       <Prompt.Body>
         <GeolocationMap
           geolocationPositionError={geolocationPositionError}
@@ -191,6 +197,7 @@ export const ShareLocationDialog = ({
                   <DurationDropdownItems
                     durations={durations}
                     selectDuration={setSelectedDuration}
+                    selectedDuration={selectedDuration}
                   />
                 </Dropdown>
               </div>
@@ -283,11 +290,13 @@ export const ShareLocationDialog = ({
 
 export type DurationDropdownItemsProps = {
   durations: number[];
+  selectedDuration?: number;
   selectDuration: (duration: number) => void;
 };
 const DurationDropdownItems = ({
   durations,
   selectDuration,
+  selectedDuration,
 }: DurationDropdownItemsProps) => {
   const { t } = useTranslationContext();
   const { close } = useDropdownContext();
@@ -296,13 +305,14 @@ const DurationDropdownItems = ({
       <ContextMenuBody>
         {durations.map((duration) => (
           <ContextMenuButton
+            aria-checked={selectedDuration === duration}
             className='str-chat__live-location-sharing-duration-option'
             key={`duration-${duration}`}
             onClick={() => {
               selectDuration(duration);
               close();
             }}
-            role='option'
+            role='menuitemradio'
           >
             {t('duration/Share Location', { milliseconds: duration })}
           </ContextMenuButton>

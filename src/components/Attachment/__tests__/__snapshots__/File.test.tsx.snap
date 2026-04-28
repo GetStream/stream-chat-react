@@ -73,7 +73,9 @@ exports[`File > should render File component 1`] = `
         class="str-chat__button__content"
       >
         <svg
+          aria-hidden="true"
           class="str-chat__icon str-chat__icon--download str-chat__icon str-chat__audio-attachment-download-button__icon"
+          focusable="false"
           viewBox="0 0 20 20"
           xmlns="http://www.w3.org/2000/svg"
         >

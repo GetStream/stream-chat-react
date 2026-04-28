@@ -191,6 +191,30 @@ describe('ModalGallery', () => {
       });
     });
 
+    it('passes onCloseAttempt to prevent overlay-close handling in GlobalModal', async () => {
+      let capturedModalProps: any;
+      const Modal = ({ children, className, open, ...props }: any) => {
+        capturedModalProps = props;
+        return open ? <div className={className}>{children}</div> : null;
+      };
+      const items = [makeImageItem(), makeImageItem()];
+      const { container } = renderComponent({ items }, { Modal });
+      const thumbnails = container.querySelectorAll('.str-chat__modal-gallery__image');
+
+      act(() => {
+        fireEvent.click(thumbnails[0]);
+      });
+
+      await waitFor(() => {
+        expect(container.querySelector('.str-chat__gallery-modal')).toBeInTheDocument();
+      });
+
+      expect(typeof capturedModalProps?.onCloseAttempt).toBe('function');
+      expect(capturedModalProps.onCloseAttempt('overlay', {})).toBe(false);
+      expect(capturedModalProps.onCloseAttempt('button', {})).toBe(true);
+      expect(capturedModalProps.onCloseAttempt('escape', {})).toBe(true);
+    });
+
     it('should pass correct initialIndex to Gallery when clicking second thumbnail', async () => {
       const items = [
         makeImageItem({ imageUrl: 'http://img0.jpg' }),

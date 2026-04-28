@@ -92,6 +92,21 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     sort: reactionDetailsSort,
   });
 
+  const getReactionName = (reactionType: string) => {
+    if (Array.isArray(reactionOptions)) {
+      return (
+        reactionOptions.find((reactionOption) => reactionOption.type === reactionType)
+          ?.name ?? reactionType
+      );
+    }
+
+    return (
+      reactionOptions.quick[reactionType]?.name ??
+      reactionOptions.extended?.[reactionType]?.name ??
+      reactionType
+    );
+  };
+
   if (extendedReactionListOpen) {
     return (
       <div
@@ -128,6 +143,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
               className='str-chat__message-reactions-detail__reaction-type-list-item-button'
               data-testid='add-reaction-button'
               onClick={() => setExtendedReactionListOpen(true)}
+              type='button'
             >
               <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
                 <IconEmojiAdd />
@@ -143,6 +159,9 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                   key={reactionType}
                 >
                   <button
+                    aria-label={t('aria/Select Reaction: {{ reactionName }}', {
+                      reactionName: reactionType,
+                    })}
                     aria-pressed={reactionType === selectedReactionType}
                     className='str-chat__message-reactions-detail__reaction-type-list-item-button'
                     onClick={() =>
@@ -150,6 +169,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                         selectedReactionType === reactionType ? null : reactionType,
                       )
                     }
+                    type='button'
                   >
                     <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
                       <EmojiComponent />
@@ -176,6 +196,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
             <>
               {reactionDetails.map(({ type, user }) => {
                 const belongsToCurrentUser = client.user?.id === user?.id;
+                const reactionName = getReactionName(type);
                 const EmojiComponent = Array.isArray(reactionOptions)
                   ? undefined
                   : (reactionOptions.quick[type]?.Component ??
@@ -202,6 +223,9 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                       </span>
                       {belongsToCurrentUser && (
                         <button
+                          aria-label={t('Tap to remove: {{ reactionName }}', {
+                            reactionName,
+                          })}
                           className='str-chat__message-reactions-detail__user-list-item-button'
                           data-testid='remove-reaction-button'
                           onClick={async (e) => {
@@ -220,6 +244,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                               refetch();
                             }
                           }}
+                          type='button'
                         >
                           {t('Tap to remove')}
                         </button>
