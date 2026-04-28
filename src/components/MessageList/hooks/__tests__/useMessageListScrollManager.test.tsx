@@ -24,6 +24,7 @@ const defaultInputs: any = {
   scrollContainerMeasures: () => ({
     offsetHeight: 200,
     scrollHeight: 2000,
+    scrollTop: 0,
   }),
   scrolledUpThreshold: 200,
   scrollToBottom: () => {},

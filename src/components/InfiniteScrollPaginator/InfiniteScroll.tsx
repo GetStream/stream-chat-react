@@ -109,9 +109,18 @@ export const InfiniteScroll = (props: PropsWithChildren<InfiniteScrollProps>) =>
 
     scrollElement.addEventListener('scroll', scrollListener, useCapture);
     scrollElement.addEventListener('resize', scrollListener, useCapture);
-    scrollListener();
+
+    // Defer the initial proximity check so that any pending scroll-to-bottom
+    // from useLayoutEffect (e.g. the MessageList settle pass) has been applied
+    // to the DOM before we evaluate whether more pages should be loaded.
+    // Without this, scrollTop is still 0 on mount which falsely triggers
+    // loadPreviousPage and breaks the initial scroll position.
+    const rafId = requestAnimationFrame(() => {
+      scrollListener();
+    });
 
     return () => {
+      cancelAnimationFrame(rafId);
       scrollElement.removeEventListener('scroll', scrollListener, useCapture);
       scrollElement.removeEventListener('resize', scrollListener, useCapture);
     };
