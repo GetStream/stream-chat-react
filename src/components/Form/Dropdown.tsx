@@ -7,12 +7,16 @@ import type {
   ReactNode,
   Ref,
 } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
+import { createRovingFocusKeyDownHandler } from '../../a11y/a11yUtils';
 import {
   type PopperLikePlacement,
   usePopoverPosition,
 } from '../Dialog/hooks/usePopoverPosition';
+
+const DEFAULT_DROPDOWN_ITEM_SELECTOR =
+  '[role="option"]:not(:disabled), [role="menuitem"]:not(:disabled), button:not(:disabled), a:not(:disabled)';
 
 type DropdownContextValue = {
   close(): void;
@@ -118,19 +122,37 @@ export const Dropdown = ({
       close();
     };
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      close();
-    };
-
     document.addEventListener('mousedown', handleClickOutside);
-    document.addEventListener('keyup', handleEscape);
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('keyup', handleEscape);
     };
   }, [close, floatingElement, isOpen, resolvedReferenceElement]);
+
+  const rovingFocusKeyDownHandler = useMemo(
+    () =>
+      createRovingFocusKeyDownHandler<HTMLElement>({
+        getItems: (event) =>
+          Array.from(
+            event.currentTarget.querySelectorAll<HTMLElement>(
+              DEFAULT_DROPDOWN_ITEM_SELECTOR,
+            ),
+          ),
+      }),
+    [],
+  );
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+        return;
+      }
+      rovingFocusKeyDownHandler(event);
+    },
+    [close, rovingFocusKeyDownHandler],
+  );
 
   const DropdownTriggerComponent = TriggerComponent;
 
@@ -150,7 +172,9 @@ export const Dropdown = ({
           <div
             className={clsx('str-chat__dropdown__items', className)}
             onClick={close}
+            onKeyDown={handleKeyDown}
             ref={setFloatingElement}
+            role='menu'
             style={{
               left: x ?? 0,
               position: strategy,
