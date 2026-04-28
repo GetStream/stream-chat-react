@@ -1,6 +1,7 @@
 @layer stream-new, stream-new-plugins, stream-overrides, stream-app-overrides;
 
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
+// Geist font is preloaded in index.html to avoid layout shift on mount.
+//@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 
 // v3 CSS import
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
