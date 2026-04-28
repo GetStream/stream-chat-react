@@ -90,6 +90,25 @@ describe('InfiniteScroll', () => {
     },
   );
 
+  it('should not call loadPreviousPage synchronously on mount', () => {
+    renderComponent({
+      hasPreviousPage: true,
+    });
+
+    expect(loadPreviousPage).not.toHaveBeenCalled();
+  });
+
+  it('should defer the initial scroll check to a requestAnimationFrame', () => {
+    const rafSpy = vi.spyOn(window, 'requestAnimationFrame');
+
+    renderComponent({
+      hasPreviousPage: true,
+    });
+
+    expect(rafSpy).toHaveBeenCalledWith(expect.any(Function));
+    rafSpy.mockRestore();
+  });
+
   describe('Rendering loader', () => {
     const getRenderResult = () => {
       const props = fromPartial<InfiniteScrollProps>({
