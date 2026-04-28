@@ -201,6 +201,7 @@ const ContextMenuButtonWithSubmenu = ({
 }: BaseContextMenuButtonProps & ButtonWithSubmenuProps) => {
   const { className: submenuClassName, ...submenuContainerRestProps } =
     submenuContainerProps ?? {};
+  const { registerDialogSubmenu, unregisterDialogSubmenu } = useContextMenuContext();
   const buttonRef = useRef<HTMLButtonElement | null>(null);
   const [dialogContainer, setDialogContainer] = useState<HTMLDivElement | null>(null);
   const keepSubmenuOpenFlag = useRef(false);
@@ -208,6 +209,12 @@ const ContextMenuButtonWithSubmenu = ({
   const dialogId = useMemo(() => `submenu-${Math.random().toString(36).slice(2)}`, []);
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
+  useEffect(() => {
+    if (!dialogIsOpen) return;
+    registerDialogSubmenu();
+    return () => unregisterDialogSubmenu();
+  }, [dialogIsOpen, registerDialogSubmenu, unregisterDialogSubmenu]);
   const {
     placement: chosenPlacement,
     setPopperElement,
@@ -414,8 +421,11 @@ export type ContextMenuItemProps = ComponentProps<'button'>;
 
 export type ContextMenuItemComponent = ComponentType<ContextMenuItemProps>;
 
-const DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR =
-  '[role="menuitem"]:not(:disabled)' as const;
+export const DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR = [
+  '[role="menuitem"]:not(:disabled)',
+  '[role="menuitemradio"]:not(:disabled)',
+  '[role="menuitemcheckbox"]:not(:disabled)',
+].join(',');
 
 const isVisibleContextMenuKeyboardNavigationItem = (item: HTMLElement) => {
   // Fast path: offsetParent is null for display:none elements (and their descendants).
@@ -500,7 +510,9 @@ type ContextMenuContextValue = {
   anchorReferenceElement?: HTMLElement | null;
   closeMenu: () => void;
   openSubmenu: (params: ContextMenuOpenSubmenuParams) => void;
+  registerDialogSubmenu: () => void;
   returnToParentMenu: () => void;
+  unregisterDialogSubmenu: () => void;
 };
 
 const ContextMenuContext = React.createContext<ContextMenuContextValue | undefined>(
@@ -666,7 +678,20 @@ export function ContextMenuContent({
     setMenuBodyAnimationKey((value) => value + 1);
   }, [transitionDirection, menuStack.length]);
 
-  const keyboardNavigationHandler = useMemo(() => {
+  const dialogSubmenuOpenCountRef = useRef(0);
+
+  const registerDialogSubmenu = useCallback(() => {
+    dialogSubmenuOpenCountRef.current += 1;
+  }, []);
+
+  const unregisterDialogSubmenu = useCallback(() => {
+    dialogSubmenuOpenCountRef.current = Math.max(
+      0,
+      dialogSubmenuOpenCountRef.current - 1,
+    );
+  }, []);
+
+  const rovingFocusKeyDownHandler = useMemo(() => {
     const itemSelector =
       keyboardNavigation?.itemSelector ??
       DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR;
@@ -677,14 +702,53 @@ export function ContextMenuContent({
     });
   }, [keyboardNavigation]);
 
+  const escapeConsumedRef = useRef(false);
+
+  const keyboardNavigationHandler = useCallback(
+    (event: React.KeyboardEvent<HTMLElement>) => {
+      if (event.key === 'Escape') {
+        if (dialogSubmenuOpenCountRef.current > 0) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (menuStack.length > 1) {
+          escapeConsumedRef.current = true;
+          returnToParentMenu();
+        } else {
+          closeMenu();
+        }
+        return;
+      }
+
+      rovingFocusKeyDownHandler(event);
+    },
+    [closeMenu, menuStack.length, returnToParentMenu, rovingFocusKeyDownHandler],
+  );
+
+  const suppressEscapeKeyUp = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape' && escapeConsumedRef.current) {
+      escapeConsumedRef.current = false;
+      event.stopPropagation();
+    }
+  }, []);
+
   return (
     <ContextMenuContext.Provider
-      value={{ anchorReferenceElement, closeMenu, openSubmenu, returnToParentMenu }}
+      value={{
+        anchorReferenceElement,
+        closeMenu,
+        openSubmenu,
+        registerDialogSubmenu,
+        returnToParentMenu,
+        unregisterDialogSubmenu,
+      }}
     >
       <ContextMenuRoot
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}
         onKeyDownCapture={keyboardNavigationHandler}
+        onKeyUpCapture={suppressEscapeKeyUp}
         ref={contextMenuRootRef}
         {...props}
       >

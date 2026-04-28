@@ -121,6 +121,64 @@ describe('ContextMenu keyboard navigation', () => {
     expect(firstItem).toHaveFocus();
   });
 
+  it('supports ArrowUp/ArrowDown for menuitemradio items', async () => {
+    const MenuitemRadioFixture = () => {
+      const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
+        null,
+      );
+      const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+
+      return (
+        <>
+          <button
+            data-testid='open-context-menu-radio'
+            onClick={() => dialog.open()}
+            ref={setReferenceElement}
+          >
+            Open
+          </button>
+          <ContextMenu
+            aria-label='Fixture radio menu'
+            dialogManagerId={dialogManager?.id}
+            id={dialogId}
+            onClose={dialog.close}
+            placement='bottom-start'
+            referenceElement={referenceElement}
+            tabIndex={-1}
+            trapFocus
+          >
+            <ContextMenuButton role='menuitemradio'>15 minutes</ContextMenuButton>
+            <ContextMenuButton role='menuitemradio'>an hour</ContextMenuButton>
+            <ContextMenuButton role='menuitemradio'>8 hours</ContextMenuButton>
+          </ContextMenu>
+        </>
+      );
+    };
+
+    render(
+      <DialogManagerProvider>
+        <MenuitemRadioFixture />
+      </DialogManagerProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId('open-context-menu-radio'));
+    await screen.findByRole('menu', { name: 'Fixture radio menu' });
+
+    const [firstItem, secondItem, thirdItem] = screen.getAllByRole(
+      'menuitemradio',
+    ) as HTMLButtonElement[];
+
+    firstItem.focus();
+    fireEvent.keyDown(firstItem, { key: 'ArrowDown' });
+    expect(secondItem).toHaveFocus();
+
+    fireEvent.keyDown(secondItem, { key: 'ArrowDown' });
+    expect(thirdItem).toHaveFocus();
+
+    fireEvent.keyDown(thirdItem, { key: 'ArrowDown' });
+    expect(firstItem).toHaveFocus();
+  });
+
   it('wraps around from last to first and first to last', async () => {
     render(
       <DialogManagerProvider>
@@ -220,6 +278,22 @@ describe('ContextMenu keyboard navigation', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('menuitem', { name: 'Open submenu' })).toHaveFocus();
+    });
+  });
+
+  it('closes the root menu on Escape', async () => {
+    render(
+      <DialogManagerProvider>
+        <ContextMenuFixture />
+      </DialogManagerProvider>,
+    );
+
+    const [firstItem] = await openMenu();
+    firstItem.focus();
+    fireEvent.keyDown(firstItem, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu', { name: 'Fixture menu' })).toBeNull();
     });
   });
 });
