@@ -68,6 +68,8 @@ import {
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 
+const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
+
 init({ data });
 
 const parseUserIdFromToken = (token: string) => {
@@ -125,12 +127,20 @@ const useUser = () => {
     localStorage.setItem('user_id', userId);
   }, [userId]);
 
+  const environment =
+    apiKey === PUBLIC_VITE_EXAMPLE_API_KEY
+      ? 'public-shared-chat-redesign'
+      : 'shared-chat-redesign';
+
+  const url = new URL('https://pronto.getstream.io/api/auth/create-token');
+
+  url.searchParams.set('environment', environment);
+  url.searchParams.set('user_id', userId);
+
   const tokenProvider = useCallback(() => {
     return token && userId === parseUserIdFromToken(token)
       ? Promise.resolve(token)
-      : fetch(
-          `https://pronto.getstream.io/api/auth/create-token?environment=shared-chat-redesign&user_id=${userId}`,
-        )
+      : fetch(url.toString())
           .then((response) => response.json())
           .then((data) => data.token as string);
   }, [userId]);
@@ -249,6 +259,7 @@ const App = () => {
       ...(userName && { name: userName }),
     },
   });
+
   const searchController = useMemo(() => {
     if (!chatClient) return undefined;
 
@@ -278,6 +289,14 @@ const App = () => {
           members: { $in: [userId] },
         },
         { type: 'public' },
+        // public example channels
+        {
+          cid: {
+            $in: ['random', 'general', 'music', 'jokes'].map(
+              (channelId) => `messaging:${channelId}`,
+            ),
+          },
+        },
       ],
     }),
     [userId],

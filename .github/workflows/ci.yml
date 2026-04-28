@@ -55,6 +55,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   deploy-vite-example:
+    strategy:
+      matrix:
+        projects:
+          - name: Vite Example Development
+            project-id: prj_2Rq8kuNd0BmqKd2NwvkDjX9Htnx5
+            stream-api-key: rq7ntdb4zzsq
+          - name: Vite Example Public
+            project-id: prj_yBYBe1AJV0tbpTqxCMzcyRfFWXxP
+            stream-api-key: xzwhhgtazy6h
     runs-on: ubuntu-latest
     # skip if build fails
     needs:
@@ -62,8 +71,8 @@ jobs:
     name: Deploy Vite Example to Vercel
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: prj_2Rq8kuNd0BmqKd2NwvkDjX9Htnx5
-      VITE_STREAM_API_KEY: ${{ vars.VITE_STREAM_API_KEY }}
+      VERCEL_PROJECT_ID: ${{ matrix.projects.project-id }}
+      VITE_STREAM_API_KEY: ${{ matrix.projects.stream-api-key }}
       NODE_ENV: production
     steps:
       - uses: actions/checkout@v6
@@ -91,7 +100,7 @@ jobs:
       - name: Vercel Pull/Build/Deploy (Preview)
         working-directory: examples/vite
         if: ${{ github.ref_name != 'master' }}
-        run: >
+        run: >-
           npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} &&
           npx vercel build &&
           npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
@@ -99,7 +108,7 @@ jobs:
       - name: Vercel Pull/Build/Deploy (Production)
         working-directory: examples/vite
         if: ${{ github.ref_name == 'master' }}
-        run: >
+        run: >-
           npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} &&
           npx vercel build --prod &&
           npx vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
