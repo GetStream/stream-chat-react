@@ -1,5 +1,5 @@
 .str-chat {
-  --str-chat__focus-outline-color: var(--border-utility-focused);
+  --str-chat__focus-outline-color: var(--str-chat__border-utility-focused);
   --str-chat__focus-outline: 2px solid var(--str-chat__focus-outline-color);
   --str-chat__focus-outline-offset: 2px;
 
@@ -8,10 +8,7 @@
   color: var(--str-chat__text-primary);
 
   *:not(:disabled):focus-visible {
-    outline: var(
-      --str-chat__focus-outline,
-      2px solid var(--str-chat__border-utility-focused)
-    );
+    outline: var(--str-chat__focus-outline);
     outline-offset: var(--str-chat__focus-outline-offset, 2px);
   }
 
