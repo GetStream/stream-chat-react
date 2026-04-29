@@ -40,7 +40,7 @@ export const useTextareaPlaceholder = ({
     command?.name === 'giphy' ? t('Search GIFs') : (commandArgs ?? undefined);
 
   const defaultPlaceholder =
-    placeholder ?? additionalTextareaProps?.placeholder ?? t('Type your message');
+    placeholder ?? additionalTextareaProps?.placeholder ?? t('Send a message');
 
   if (cooldownRemaining) {
     return t('Slow mode, wait {{ seconds }}s...', { seconds: cooldownRemaining });
