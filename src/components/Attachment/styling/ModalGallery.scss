@@ -19,9 +19,8 @@
       border-radius: var(--str-chat__radius-lg);
       gap: var(--str-chat__space-2);
       width: $max-width;
-      max-width: $max-width;
-      // CDN resize requires height/max-height to be present on the img element, this rule ensures that
-      height: var(--str-chat__attachment-max-width);
+      max-width: 100%;
+      aspect-ratio: 4 / 3;
 
       .str-chat__modal-gallery__image {
         width: 100%;
@@ -97,8 +96,9 @@
         height: 100%;
         object-fit: cover;
         cursor: zoom-in;
-        // CDN resize requires max-width to be present on this element
+        // CDN resize requires max-width and max-height to be present on this element
         max-width: $max-width;
+        max-height: $max-width;
         transition: opacity 150ms ease-in-out;
       }
 
