@@ -46,15 +46,16 @@
   border-inline-end: 1px solid var(--str-chat__border-core-default);
 
   .str-chat__channel-list-inner {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
-    padding-bottom: calc(var(--str-chat__space-8) + var(--str-chat__space-2));
 
     .str-chat__channel-list-inner__main {
       height: 100%;
       overflow-y: auto;
       scrollbar-gutter: stable both-edges;
       scrollbar-width: thin;
+      padding-bottom: calc(var(--str-chat__space-8) + var(--str-chat__space-2));
 
       .str-chat__channel-list-empty {
         height: 100%;
