@@ -5,7 +5,7 @@
     $max-width: var(--str-chat__attachment-max-width);
 
     .str-chat__modal-gallery {
-      background: transparent;
+      background-color: var(--chat-bg);
       color: var(--str-chat__text-primary);
       border-radius: calc(
         var(--str-chat__message-bubble-radius-group-bottom) - var(
@@ -17,36 +17,64 @@
       grid-template-rows: 50% 50%;
       overflow: hidden;
       border-radius: var(--str-chat__radius-lg);
-      gap: var(--str-chat__space-2);
+      gap: var(--str-chat__spacing-xxs);
       width: $max-width;
       max-width: 100%;
       aspect-ratio: 4 / 3;
+
+      $outer-radius: var(--str-chat__radius-lg);
+      $inner-radius: var(--str-chat__radius-md);
 
       .str-chat__modal-gallery__image {
         width: 100%;
         height: 100%;
         min-width: 0;
         min-height: 0;
+        border-radius: $inner-radius;
+
+        &:nth-child(1) {
+          border-start-start-radius: $outer-radius;
+        }
+        &:nth-child(2) {
+          border-start-end-radius: $outer-radius;
+        }
+        &:nth-child(3) {
+          border-end-start-radius: $outer-radius;
+        }
+        &:nth-child(4) {
+          border-end-end-radius: $outer-radius;
+        }
       }
 
       &.str-chat__modal-gallery--two-images {
         grid-template-rows: 1fr;
+
+        .str-chat__modal-gallery__image:nth-child(1) {
+          border-end-start-radius: $outer-radius;
+        }
+
+        .str-chat__modal-gallery__image:nth-child(2) {
+          border-end-end-radius: $outer-radius;
+        }
       }
 
       &.str-chat__modal-gallery--three-images {
         .str-chat__modal-gallery__image:nth-child(1) {
           grid-column: 1;
-          grid-row: 1 / span 2; /* Span two rows */
+          grid-row: 1 / span 2;
+          border-end-start-radius: $outer-radius;
         }
 
         .str-chat__modal-gallery__image:nth-child(2) {
           grid-column: 2;
           grid-row: 1;
+          border-start-end-radius: $outer-radius;
         }
 
         .str-chat__modal-gallery__image:nth-child(3) {
           grid-column: 2;
           grid-row: 2;
+          border-end-end-radius: $outer-radius;
         }
       }
 
