@@ -4,6 +4,11 @@
   gap: var(--str-chat__spacing-sm);
   padding-block: var(--str-chat__spacing-xs);
   justify-content: center;
+
+  &.str-chat__search--active {
+    flex: 1;
+    min-height: 0;
+  }
 }
 
 .str-chat__search-bar {
@@ -58,6 +63,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--str-chat__spacing-sm);
+  flex: 1;
+  min-height: 0;
 
   .str-chat__search-results-header {
     overflow-x: auto;
@@ -75,7 +82,26 @@
   }
 }
 
+.str-chat__search-source-results {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
 .str-chat__search-source-result-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+
+  .str-chat__infinite-scroll-paginator {
+    flex: 1;
+    min-height: 0;
+    scrollbar-gutter: stable both-edges;
+    scrollbar-width: thin;
+  }
+
   .str-chat__search-result-container {
     padding: var(--str-chat__spacing-xxs);
     border-bottom: 1px solid var(--str-chat__border-core-subtle);
