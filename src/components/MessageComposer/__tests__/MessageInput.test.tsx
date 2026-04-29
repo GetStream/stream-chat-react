@@ -76,7 +76,7 @@ const ATTACHMENT_PREVIEW_LIST_TEST_ID = 'attachment-preview-list';
 const UNKNOWN_ATTACHMENT_PREVIEW_TEST_ID = 'attachment-preview-unsupported';
 
 const cid = 'messaging:general';
-const inputPlaceholder = 'Type your message';
+const inputPlaceholder = 'Send a message';
 const userId = 'userId';
 const username = 'username';
 const mentionId = 'mention-id';
