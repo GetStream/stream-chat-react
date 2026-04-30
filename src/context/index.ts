@@ -1,3 +1,4 @@
+export * from './AttachmentSelectorContext';
 export * from './ChannelActionContext';
 export * from './ChannelListContext';
 export * from './ChannelStateContext';
