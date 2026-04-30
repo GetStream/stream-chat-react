@@ -147,7 +147,10 @@ const ThumbnailButton = ({
   const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
-  const [retryCount, setRetryCount] = useState(0);
+  // Cache-busting suffix appended to image src on retry. Using a suffix instead of
+  // a React key remount keeps the component (and its placeholder) mounted, preventing
+  // layout shifts and height collapse during the reload attempt.
+  const [retrySuffix, setRetrySuffix] = useState('');
 
   const {
     onError: itemOnError,
@@ -161,7 +164,7 @@ const ThumbnailButton = ({
     if (showRetryIndicator) {
       setIsLoadFailed(false);
       setIsImageLoading(true);
-      setRetryCount((currentRetryCount) => currentRetryCount + 1);
+      setRetrySuffix(`&retry=${Date.now()}`);
       return;
     }
 
@@ -186,9 +189,6 @@ const ThumbnailButton = ({
         <VideoThumbnail alt={t('User uploaded content')} src={item.videoThumbnailUrl} />
       ) : (
         <BaseImage
-          // Remount the image on retry so the browser gets a fresh load attempt and
-          // BaseImage clears its local load-failed state.
-          key={retryCount}
           {...baseImageProps}
           alt={item.alt ?? t('User uploaded content')}
           onError={(event) => {
@@ -201,7 +201,7 @@ const ThumbnailButton = ({
             setIsLoadFailed(false);
             itemOnLoad?.(event);
           }}
-          src={imageUrl}
+          src={imageUrl ? `${imageUrl}${retrySuffix}` : imageUrl}
           {...(baseImageUsesDefaultBehavior ? { showDownloadButtonOnError: false } : {})}
         />
       )}

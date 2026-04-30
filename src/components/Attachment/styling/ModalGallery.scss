@@ -1,8 +1,11 @@
 @use '../../../styling/utils';
 
 .str-chat__attachment-list {
-  .str-chat__message-attachment--gallery {
+  .str-chat__message-attachment--gallery,
+  .str-chat__message-attachment--image {
     $max-width: var(--str-chat__attachment-max-width);
+    min-width: 0;
+    max-width: 100%;
 
     .str-chat__modal-gallery {
       background-color: var(--chat-bg);
@@ -13,8 +16,8 @@
           )
       );
       display: grid;
-      grid-template-columns: 50% 50%;
-      grid-template-rows: 50% 50%;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
       overflow: hidden;
       border-radius: var(--str-chat__radius-lg);
       gap: var(--str-chat__spacing-xxs);
@@ -31,6 +34,17 @@
         min-width: 0;
         min-height: 0;
         border-radius: $inner-radius;
+
+        &.str-chat__modal-gallery__image--loading,
+        &.str-chat__modal-gallery__image--load-failed {
+          min-height: 0;
+        }
+
+        &:only-child {
+          grid-column: 1 / -1;
+          grid-row: 1 / -1;
+          border-radius: $outer-radius;
+        }
 
         &:nth-child(1) {
           border-start-start-radius: $outer-radius;
@@ -131,19 +145,31 @@
       }
 
       &.str-chat__modal-gallery__image--loading {
+        min-height: 200px;
+        align-items: stretch;
+
         img {
+          position: absolute;
           opacity: 0;
+        }
+
+        .str-chat__modal-gallery__image-loading-overlay {
+          position: static;
+          flex: 1;
+          min-width: 0;
+          height: auto;
         }
       }
 
       &.str-chat__modal-gallery__image--load-failed {
         cursor: pointer;
         min-height: 200px;
+        align-items: stretch;
 
         .str-chat__image-placeholder.str-chat__base-image--load-failed {
-          width: 100%;
-          min-height: 200px;
-          align-self: stretch;
+          flex: 1;
+          min-width: 0;
+          height: auto;
         }
 
         img {
@@ -167,7 +193,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--chat-bg);
+        background-color: var(--str-chat__background-core-overlay-light);
         background-image: linear-gradient(
           90deg,
           var(--str-chat__skeleton-loading-base) 0%,

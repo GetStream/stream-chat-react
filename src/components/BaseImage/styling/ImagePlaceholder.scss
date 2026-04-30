@@ -7,12 +7,14 @@
     min-width: 0;
     min-height: 0;
     @include utils.flex-col-center;
+    overflow: hidden;
     background-color: var(--str-chat__background-core-overlay-light);
 
     svg {
       fill: var(--str-chat__accent-neutral);
       width: min(var(--str-chat__icon-size-lg, 32px), 50%);
       height: min(var(--str-chat__icon-size-lg, 32px), 50%);
+      flex-shrink: 0;
     }
   }
 }
