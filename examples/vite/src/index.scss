@@ -138,6 +138,14 @@ body {
     height: 100%;
   }
 
+  .app-chat-view__channel-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
   .app-chat-view__threads-main > * {
     flex: 1 1 auto;
     min-width: 0;

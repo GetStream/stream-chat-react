@@ -83,22 +83,24 @@ const ResponsiveChannelPanels = () => {
       <WithDragAndDropUpload className='app-chat-view__channel-main'>
         <Window>
           <ChannelHeader Avatar={ChannelAvatar} />
-          {messageListType === 'virtualized' ? (
-            <VirtualizedMessageList returnAllReadData shouldGroupByUser />
-          ) : (
-            <MessageList returnAllReadData />
-          )}
-          <ReturnToSkipNavigation />
-          <AIStateIndicator />
-          <MessageComposer
-            additionalTextareaProps={{
-              id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-            }}
-            audioRecordingEnabled
-            maxRows={10}
-            asyncMessagesMultiSendEnabled
-          />
-          <PublicChannelOverlay />
+          <div className='app-chat-view__channel-body'>
+            {messageListType === 'virtualized' ? (
+              <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+            ) : (
+              <MessageList returnAllReadData />
+            )}
+            <ReturnToSkipNavigation />
+            <AIStateIndicator />
+            <MessageComposer
+              additionalTextareaProps={{
+                id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+              }}
+              audioRecordingEnabled
+              maxRows={10}
+              asyncMessagesMultiSendEnabled
+            />
+            <PublicChannelOverlay />
+          </div>
         </Window>
       </WithDragAndDropUpload>
       <ChannelThreadPanel />
