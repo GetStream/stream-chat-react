@@ -1,11 +1,13 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 import {
   Button,
   IconMessageBubbles,
+  LoadingIndicator,
   useChannelMembersState,
   useChannelStateContext,
   useChatContext,
+  useNotificationApi,
 } from 'stream-chat-react';
 
 import './PublicChannelOverlay.scss';
@@ -15,14 +17,34 @@ export const PublicChannelOverlay = () => {
   const { channel } = useChannelStateContext();
   const members = useChannelMembersState(channel);
   const membership = members[client.userID!] as ChannelMemberResponse | undefined;
+  const { addNotification } = useNotificationApi();
+  const [joining, setJoining] = useState(false);
 
   const isMember = typeof membership?.channel_role === 'string';
+  const canJoin = channel.data?.own_capabilities?.includes('join-channel');
 
-  const handleJoin = useCallback(() => {
-    channel.addMembers([client.userID!]);
-  }, [channel, client.userID]);
+  const handleJoin = useCallback(async () => {
+    setJoining(true);
+    try {
+      await channel.addMembers([client.userID!]);
+    } catch (error) {
+      addNotification({
+        emitter: 'PublicChannelOverlay',
+        incident: {
+          domain: 'api',
+          entity: 'channel',
+          operation: 'join',
+        },
+        message: 'Failed to join the group',
+        severity: 'error',
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+    } finally {
+      setJoining(false);
+    }
+  }, [addNotification, channel, client.userID]);
 
-  if (isMember) return null;
+  if (isMember || !canJoin) return null;
 
   return (
     <div className='app-public-channel-overlay'>
@@ -39,11 +61,12 @@ export const PublicChannelOverlay = () => {
         <Button
           appearance='solid'
           className='app-public-channel-overlay__join-button'
+          disabled={joining}
           onClick={handleJoin}
           size='md'
           variant='primary'
         >
-          Join Group
+          {joining ? <LoadingIndicator /> : 'Join Group'}
         </Button>
       </div>
     </div>
