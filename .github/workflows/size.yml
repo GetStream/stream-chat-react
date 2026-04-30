@@ -16,10 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: '.nvmrc'
       - uses: preactjs/compressed-size-action@v2
         env:
           NODE_OPTIONS: --max_old_space_size=4096
-          YARN_IGNORE_ENGINES: 'true' # skip validation for node20 requirement
         with:
           repo-token: '${{ secrets.GITHUB_TOKEN }}'
           pattern: './dist/**/*.{?(c|m)js,css,json}'
