@@ -291,11 +291,18 @@ const App = () => {
         { type: 'public' },
         // public example channels
         {
-          cid: {
-            $in: ['random', 'general', 'music', 'jokes'].map(
-              (channelId) => `messaging:${channelId}`,
-            ),
-          },
+          $and: [
+            {
+              cid: {
+                $in: ['random', 'general', 'music', 'jokes'].map(
+                  (channelId) => `messaging:${channelId}`,
+                ),
+              },
+            },
+            {
+              members: { $in: [userId] },
+            },
+          ],
         },
       ],
     }),
