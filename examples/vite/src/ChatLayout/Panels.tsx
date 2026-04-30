@@ -34,6 +34,7 @@ import { useAppSettingsSelector } from '../AppSettings/state';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
+import { PublicChannelOverlay } from '../PublicChannelOverlay/PublicChannelOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { ThreadStateSync } from './Sync.tsx';
 
@@ -97,6 +98,7 @@ const ResponsiveChannelPanels = () => {
             maxRows={10}
             asyncMessagesMultiSendEnabled
           />
+          <PublicChannelOverlay />
         </Window>
       </WithDragAndDropUpload>
       <ChannelThreadPanel />
