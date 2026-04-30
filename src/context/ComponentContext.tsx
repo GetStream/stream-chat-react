@@ -47,6 +47,7 @@ import {
   type ReactionSelectorProps,
   type RecordingPermissionDeniedNotificationProps,
   type ReminderNotificationProps,
+  type ScrollToLatestMessageButtonProps,
   type SearchResultsPresearchProps,
   type SearchSourceResultListProps,
   type SendButtonProps,
@@ -185,6 +186,8 @@ export type ComponentContextValue = {
   NotificationList?: React.ComponentType<NotificationListProps>;
   /** Custom UI component to display a notification when scrolled up the list and new messages arrive, defaults to and accepts same props as [NewMessageNotification](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/NewMessageNotification.tsx) */
   NewMessageNotification?: React.ComponentType<NewMessageNotificationProps>;
+  /** Custom UI component to display the scroll-to-latest-message button in a `MessageList`, defaults to and accepts same props as: [ScrollToLatestMessageButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/ScrollToLatestMessageButton.tsx) */
+  ScrollToLatestMessageButton?: React.ComponentType<ScrollToLatestMessageButtonProps>;
   /** Custom UI component to display message replies, defaults to and accepts same props as: [MessageRepliesCountButton](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageRepliesCountButton.tsx) */
   MessageRepliesCountButton?: React.ComponentType<MessageRepliesCountButtonProps>;
   /** Custom UI component to display message delivery status, defaults to and accepts same props as: [MessageStatus](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageStatus.tsx) */

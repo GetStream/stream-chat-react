@@ -11,7 +11,7 @@ import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { IconArrowDown } from '../Icons';
 
-type ScrollToLatestMessageButtonProps = {
+export type ScrollToLatestMessageButtonProps = {
   /** When true, user has jumped to an older message set and newer messages can be loaded */
   isNotAtLatestMessageSet?: boolean;
   isMessageListScrolledToBottom?: boolean;
