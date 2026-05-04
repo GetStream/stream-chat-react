@@ -1,4 +1,4 @@
-.app-public-channel-overlay {
+.app-channel-preview-overlay {
   position: absolute;
   inset: 0;
   z-index: 3;
@@ -14,7 +14,7 @@
   }
 }
 
-.app-public-channel-overlay__content {
+.app-channel-preview-overlay__content {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -53,7 +53,7 @@
   }
 }
 
-.app-public-channel-overlay__text {
+.app-channel-preview-overlay__text {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -66,39 +66,22 @@
   }
 }
 
-.app-public-channel-overlay__title {
+.app-channel-preview-overlay__title {
   font: var(--str-chat__font-heading-xs);
   color: var(--str-chat__text-color);
 }
 
-.app-public-channel-overlay__description {
+.app-channel-preview-overlay__description {
   font: var(--str-chat__font-caption-default);
   color: var(--str-chat__text-secondary);
   max-width: 200px;
 }
 
-.app-public-channel-overlay__join-button {
+.app-channel-preview-overlay__join-button {
   width: 106px;
 
   .str-chat__loading-indicator {
     height: 20px;
     width: 20px;
   }
-}
-
-.app-public-channel-composer-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 56px;
-  padding: 16px;
-  border-top: 1px solid var(--str-chat__border-color);
-}
-
-.app-public-channel-composer-banner__text {
-  margin: 0;
-  font: var(--str-chat__font-caption-default);
-  color: var(--str-chat__text-secondary);
-  text-align: center;
 }

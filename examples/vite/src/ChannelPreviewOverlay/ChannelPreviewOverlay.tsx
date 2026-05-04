@@ -10,9 +10,9 @@ import {
   useNotificationApi,
 } from 'stream-chat-react';
 
-import './PublicChannelOverlay.scss';
+import './ChannelPreviewOverlay.scss';
 
-export const usePublicChannelState = () => {
+export const useChannelMembershipState = () => {
   const { client } = useChatContext();
   const { channel } = useChannelStateContext();
   const members = useChannelMembersState(channel);
@@ -24,8 +24,8 @@ export const usePublicChannelState = () => {
   return { canJoin, channel, client, isMember };
 };
 
-export const PublicChannelOverlay = () => {
-  const { canJoin, channel, client, isMember } = usePublicChannelState();
+export const ChannelPreviewOverlay = () => {
+  const { canJoin, channel, client, isMember } = useChannelMembershipState();
   const { addNotification } = useNotificationApi();
   const [joining, setJoining] = useState(false);
 
@@ -35,7 +35,7 @@ export const PublicChannelOverlay = () => {
       await channel.addMembers([client.userID!]);
     } catch (error) {
       addNotification({
-        emitter: 'PublicChannelOverlay',
+        emitter: 'ChannelPreviewOverlay',
         incident: {
           domain: 'api',
           entity: 'channel',
@@ -50,45 +50,35 @@ export const PublicChannelOverlay = () => {
     }
   }, [addNotification, channel, client.userID]);
 
-  if (isMember || !canJoin) return null;
+  if (isMember) return null;
 
   return (
-    <div className='app-public-channel-overlay'>
-      <div className='app-public-channel-overlay__content'>
+    <div className='app-channel-preview-overlay'>
+      <div className='app-channel-preview-overlay__content'>
         <IconMessageBubbles />
-        <div className='app-public-channel-overlay__text'>
-          <p className='app-public-channel-overlay__title'>
-            You're previewing this group
+        <div className='app-channel-preview-overlay__text'>
+          <p className='app-channel-preview-overlay__title'>
+            {canJoin ? "You're previewing this group" : 'This is a private group'}
           </p>
-          <p className='app-public-channel-overlay__description'>
-            Join to send messages and follow the conversation
+          <p className='app-channel-preview-overlay__description'>
+            {canJoin
+              ? 'Join to send messages and follow the conversation'
+              : 'It is not possible to join this group'}
           </p>
         </div>
-        <Button
-          appearance='solid'
-          className='app-public-channel-overlay__join-button'
-          disabled={joining}
-          onClick={handleJoin}
-          size='md'
-          variant='primary'
-        >
-          {joining ? <LoadingIndicator /> : 'Join Group'}
-        </Button>
+        {canJoin && (
+          <Button
+            appearance='solid'
+            className='app-channel-preview-overlay__join-button'
+            disabled={joining}
+            onClick={handleJoin}
+            size='md'
+            variant='primary'
+          >
+            {joining ? <LoadingIndicator /> : 'Join Group'}
+          </Button>
+        )}
       </div>
-    </div>
-  );
-};
-
-export const PublicChannelComposerBanner = () => {
-  const { canJoin, isMember } = usePublicChannelState();
-
-  if (isMember || canJoin) return null;
-
-  return (
-    <div className='app-public-channel-composer-banner'>
-      <p className='app-public-channel-composer-banner__text'>
-        You can only view this conversation
-      </p>
     </div>
   );
 };
