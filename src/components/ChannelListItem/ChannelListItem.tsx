@@ -17,6 +17,7 @@ import {
   useChatContext,
   useComponentContext,
 } from '../../context';
+import { useChannelMembershipState } from '../ChannelList';
 
 export type ChannelListItemUIProps = ChannelListItemProps & {
   /** Image of Channel to display */
@@ -33,6 +34,8 @@ export type ChannelListItemUIProps = ChannelListItemProps & {
   messageDeliveryStatus?: MessageDeliveryStatus;
   /** Whether the channel is muted by the current user */
   muted?: boolean;
+  /** Whether the channel is pinned by the current user */
+  pinned?: boolean;
   /** Number of unread Messages */
   unread?: number;
 };
@@ -88,6 +91,7 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
+  const membership = useChannelMembershipState(channel);
 
   const [lastMessage, setLastMessage] = useState<LocalMessage>(
     channel.state.messages[channel.state.messages.length - 1],
@@ -203,6 +207,7 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
         latestMessagePreview={latestMessagePreview}
         messageDeliveryStatus={messageDeliveryStatus}
         muted={muted}
+        pinned={!!membership.pinned_at}
         setActiveChannel={setActiveChannel}
         unread={unread}
       />
