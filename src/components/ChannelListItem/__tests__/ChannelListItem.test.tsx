@@ -49,6 +49,7 @@ const PreviewUIComponent = (props: ChannelListItemUIProps) => (
     <div data-testid='last-event-message'>
       {props.lastMessage ? props.lastMessage.text : EMPTY_CHANNEL_PREVIEW_TEXT}
     </div>
+    <div data-testid='pinned'>{String(!!props.pinned)}</div>
   </>
 );
 const PreviewUIComponentWithLatestMessagePreview = (props: ChannelListItemUIProps) => (
@@ -671,6 +672,39 @@ describe('ChannelPreview', () => {
         });
       });
       expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+    });
+  });
+
+  describe('pinned', () => {
+    it('should pass pinned=false when membership has no pinned_at', async () => {
+      renderComponent(
+        {
+          activeChannel: c1,
+          channel: c0,
+        },
+        render,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId('pinned')).toHaveTextContent('false');
+      });
+    });
+
+    it('should pass pinned=true when membership has pinned_at', async () => {
+      c0.state.membership = fromPartial({
+        ...c0.state.membership,
+        pinned_at: '2024-01-01T00:00:00Z',
+      });
+
+      renderComponent(
+        {
+          activeChannel: c1,
+          channel: c0,
+        },
+        render,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId('pinned')).toHaveTextContent('true');
+      });
     });
   });
 

@@ -127,4 +127,29 @@ describe('ChannelPreviewMessenger', () => {
     fireEvent.click(previewButton);
     expect(onSelect).toHaveBeenCalledTimes(1);
   });
+
+  describe('pinned', () => {
+    it('should not add pinned class or render pin icon when not pinned', () => {
+      const { container } = render(renderComponent({ pinned: false }));
+      const button = screen.getByTestId(PREVIEW_TEST_ID);
+      expect(button).not.toHaveClass('str-chat__channel-list-item--pinned');
+      expect(container.querySelector('.str-chat__icon--pin')).not.toBeInTheDocument();
+    });
+
+    it('should add pinned class and render pin icon when pinned', () => {
+      const { container } = render(renderComponent({ pinned: true }));
+      const button = screen.getByTestId(PREVIEW_TEST_ID);
+      expect(button).toHaveClass('str-chat__channel-list-item--pinned');
+      expect(container.querySelector('.str-chat__icon--pin')).toBeInTheDocument();
+    });
+
+    it('should render both pin and mute icons when pinned and muted', () => {
+      const { container } = render(renderComponent({ muted: true, pinned: true }));
+      const button = screen.getByTestId(PREVIEW_TEST_ID);
+      expect(button).toHaveClass('str-chat__channel-list-item--pinned');
+      expect(button).toHaveClass('str-chat__channel-list-item--muted');
+      expect(container.querySelector('.str-chat__icon--pin')).toBeInTheDocument();
+      expect(container.querySelector('.str-chat__icon--mute')).toBeInTheDocument();
+    });
+  });
 });

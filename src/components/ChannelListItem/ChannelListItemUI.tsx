@@ -6,7 +6,7 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
-import { IconMute } from '../Icons';
+import { IconMute, IconPin } from '../Icons';
 import { useComponentContext, useTranslationContext } from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
@@ -23,6 +23,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     messageDeliveryStatus,
     muted,
     onSelect: customOnSelectChannel,
+    pinned,
     setActiveChannel,
     unread,
     watchers,
@@ -60,10 +61,12 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         aria-selected={active}
         className={clsx(
           'str-chat__channel-list-item',
-          typeof unread === 'number' &&
-            unread > 0 &&
-            'str-chat__channel-list-item--unread',
-          muted && 'str-chat__channel-list-item--muted',
+          {
+            'str-chat__channel-list-item--muted': muted,
+            'str-chat__channel-list-item--pinned': pinned,
+            'str-chat__channel-list-item--unread':
+              typeof unread === 'number' && unread > 0,
+          },
           customClassName,
         )}
         data-testid='channel-list-item-button'
@@ -81,6 +84,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
           <div className='str-chat__channel-list-item-data__first-row'>
             <div className='str-chat__channel-list-item-data__title'>
               <span>{displayTitle || 'N/A'}</span>
+              {pinned && <IconPin />}
               {muted && <IconMute />}
             </div>
             <div className='str-chat__channel-list-item-data__timestamp-and-badge'>
