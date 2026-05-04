@@ -225,7 +225,12 @@ body {
   }
 
   .str-chat__tooltip {
-    z-index: 10;
+    z-index: 2;
+  }
+
+  .str-chat__notification-list,
+  .str-chat__dialog-overlay {
+    z-index: 4;
   }
 
   @media (max-width: 767px) {

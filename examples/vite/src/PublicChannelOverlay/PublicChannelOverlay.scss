@@ -1,7 +1,7 @@
 .app-public-channel-overlay {
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,4 +84,21 @@
     height: 20px;
     width: 20px;
   }
+}
+
+.app-public-channel-composer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 56px;
+  padding: 16px;
+  border-top: 1px solid var(--str-chat__border-color);
+}
+
+.app-public-channel-composer-banner__text {
+  margin: 0;
+  font: var(--str-chat__font-caption-default);
+  color: var(--str-chat__text-secondary);
+  text-align: center;
 }

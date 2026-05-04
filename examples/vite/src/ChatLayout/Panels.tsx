@@ -27,7 +27,11 @@ import { useAppSettingsSelector } from '../AppSettings/state';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
-import { PublicChannelOverlay } from '../PublicChannelOverlay/PublicChannelOverlay.tsx';
+import {
+  PublicChannelComposerBanner,
+  PublicChannelOverlay,
+  usePublicChannelState,
+} from '../PublicChannelOverlay/PublicChannelOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { ThreadStateSync } from './Sync.tsx';
 
@@ -62,6 +66,23 @@ const ChannelThreadPanel = () => {
   );
 };
 
+const MessageComposerOrBanner = () => {
+  const { canJoin, isMember } = usePublicChannelState();
+
+  if (!isMember && !canJoin) return <PublicChannelComposerBanner />;
+
+  return (
+    <MessageComposer
+      additionalTextareaProps={{
+        id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+      }}
+      audioRecordingEnabled
+      maxRows={10}
+      asyncMessagesMultiSendEnabled
+    />
+  );
+};
+
 const ResponsiveChannelPanels = () => {
   const { thread } = useChannelStateContext('ResponsiveChannelPanels');
   const isThreadOpen = !!thread;
@@ -84,14 +105,7 @@ const ResponsiveChannelPanels = () => {
             )}
             <ReturnToSkipNavigation />
             <AIStateIndicator />
-            <MessageComposer
-              additionalTextareaProps={{
-                id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-              }}
-              audioRecordingEnabled
-              maxRows={10}
-              asyncMessagesMultiSendEnabled
-            />
+            <MessageComposerOrBanner />
             <PublicChannelOverlay />
           </div>
         </Window>

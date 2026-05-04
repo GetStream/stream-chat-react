@@ -12,16 +12,22 @@ import {
 
 import './PublicChannelOverlay.scss';
 
-export const PublicChannelOverlay = () => {
+export const usePublicChannelState = () => {
   const { client } = useChatContext();
   const { channel } = useChannelStateContext();
   const members = useChannelMembersState(channel);
   const membership = members[client.userID!] as ChannelMemberResponse | undefined;
-  const { addNotification } = useNotificationApi();
-  const [joining, setJoining] = useState(false);
 
   const isMember = typeof membership?.channel_role === 'string';
   const canJoin = channel.data?.own_capabilities?.includes('join-channel');
+
+  return { canJoin, channel, client, isMember };
+};
+
+export const PublicChannelOverlay = () => {
+  const { canJoin, channel, client, isMember } = usePublicChannelState();
+  const { addNotification } = useNotificationApi();
+  const [joining, setJoining] = useState(false);
 
   const handleJoin = useCallback(async () => {
     setJoining(true);
@@ -69,6 +75,20 @@ export const PublicChannelOverlay = () => {
           {joining ? <LoadingIndicator /> : 'Join Group'}
         </Button>
       </div>
+    </div>
+  );
+};
+
+export const PublicChannelComposerBanner = () => {
+  const { canJoin, isMember } = usePublicChannelState();
+
+  if (isMember || canJoin) return null;
+
+  return (
+    <div className='app-public-channel-composer-banner'>
+      <p className='app-public-channel-composer-banner__text'>
+        You can only view this conversation
+      </p>
     </div>
   );
 };
