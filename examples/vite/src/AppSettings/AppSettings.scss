@@ -36,6 +36,16 @@
     max-width: min(480px, calc(100vw - 32px));
   }
 
+  .app__message-info-dialog {
+    min-width: min(520px, calc(100vw - 32px));
+    max-width: min(520px, calc(100vw - 32px));
+  }
+
+  .app__websocket-event-dialog {
+    min-width: min(560px, calc(100vw - 32px));
+    max-width: min(560px, calc(100vw - 32px));
+  }
+
   .app__notification-dialog__prompt {
     display: flex;
     flex-direction: column;
@@ -52,16 +62,39 @@
     overflow: hidden;
   }
 
-  .app__attachment-dialog__drag-handle {
+  .app__message-info-dialog__prompt {
+    display: flex;
+    flex-direction: column;
+    width: min(520px, calc(100vw - 32px));
+    max-height: min(640px, calc(100vh - 32px));
+    overflow: hidden;
+    padding-bottom: 20px;
+  }
+
+  .app__websocket-event-dialog__prompt {
+    display: flex;
+    flex-direction: column;
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(640px, calc(100vh - 32px));
+    overflow: hidden;
+  }
+
+  .app__attachment-dialog__drag-handle,
+  .app__message-info-dialog__drag-handle,
+  .app__websocket-event-dialog__drag-handle {
     cursor: grab;
     touch-action: none;
   }
 
-  .app__attachment-dialog__drag-handle:active {
+  .app__attachment-dialog__drag-handle:active,
+  .app__message-info-dialog__drag-handle:active,
+  .app__websocket-event-dialog__drag-handle:active {
     cursor: grabbing;
   }
 
-  .app__attachment-dialog__body {
+  .app__attachment-dialog__body,
+  .app__message-info-dialog__body,
+  .app__websocket-event-dialog__body {
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -69,14 +102,70 @@
     padding-top: 4px;
   }
 
-  .app__attachment-dialog__field {
+  .app__websocket-event-dialog__body {
+    flex: 1 1 auto;
+  }
+
+  .app__message-info-dialog__body {
+    flex: 1 1 auto;
+  }
+
+  .app__websocket-event-dialog__body-scroll {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    margin-inline-end: calc(var(--str-chat__spacing-xl) * -1);
+    min-height: 0;
+    overflow-y: auto;
+    padding-inline-end: var(--str-chat__spacing-xl);
+  }
+
+  .app__message-info-dialog__code-block,
+  .app__websocket-event-dialog__body-scroll,
+  .app__websocket-event-dialog__intervals-list,
+  .app__websocket-event-dialog__textarea {
+    scrollbar-color: var(--str-chat__border-core-default) transparent;
+    scrollbar-width: thin;
+  }
+
+  .app__message-info-dialog__code-block::-webkit-scrollbar,
+  .app__websocket-event-dialog__body-scroll::-webkit-scrollbar,
+  .app__websocket-event-dialog__intervals-list::-webkit-scrollbar,
+  .app__websocket-event-dialog__textarea::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  .app__message-info-dialog__code-block::-webkit-scrollbar-track,
+  .app__websocket-event-dialog__body-scroll::-webkit-scrollbar-track,
+  .app__websocket-event-dialog__intervals-list::-webkit-scrollbar-track,
+  .app__websocket-event-dialog__textarea::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .app__message-info-dialog__code-block::-webkit-scrollbar-thumb,
+  .app__websocket-event-dialog__body-scroll::-webkit-scrollbar-thumb,
+  .app__websocket-event-dialog__intervals-list::-webkit-scrollbar-thumb,
+  .app__websocket-event-dialog__textarea::-webkit-scrollbar-thumb {
+    background: var(--str-chat__border-core-default);
+    background-clip: padding-box;
+    border: 2px solid transparent;
+    border-radius: 999px;
+  }
+
+  .app__attachment-dialog__field,
+  .app__message-info-dialog__field,
+  .app__websocket-event-dialog__field {
     display: flex;
     flex-direction: column;
     gap: 8px;
     min-height: 0;
   }
 
-  .app__attachment-dialog__field-label {
+  .app__attachment-dialog__field-label,
+  .app__message-info-dialog__field-label,
+  .app__websocket-event-dialog__field-label {
     color: var(--str-chat__text-primary);
     font-size: 14px;
     font-weight: 600;
@@ -122,10 +211,10 @@
     color: var(--str-chat__text-primary);
   }
 
-  .app__attachment-dialog__textarea {
+  .app__attachment-dialog__textarea,
+  .app__message-info-dialog__code-block,
+  .app__websocket-event-dialog__textarea {
     width: 100%;
-    min-height: 200px;
-    resize: vertical;
     border: 1px solid var(--str-chat__border-core-default);
     border-radius: 10px;
     padding: 10px 12px;
@@ -141,12 +230,42 @@
     line-height: 1.4;
   }
 
-  .app__attachment-dialog__textarea:focus-visible {
+  .app__attachment-dialog__textarea,
+  .app__websocket-event-dialog__textarea {
+    resize: vertical;
+  }
+
+  .app__attachment-dialog__textarea {
+    min-height: 200px;
+  }
+
+  .app__message-info-dialog__code-block {
+    margin: 0;
+    margin-inline-end: calc(var(--str-chat__spacing-xl) * -1);
+    min-height: 360px;
+    overflow: auto;
+    padding-inline-end: calc(12px + var(--str-chat__spacing-xl));
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .app__websocket-event-dialog__textarea {
+    min-height: 280px;
+  }
+
+  .app__attachment-dialog__textarea:focus-visible,
+  .app__websocket-event-dialog__textarea:focus-visible {
     outline: 2px solid var(--str-chat__border-utility-selected);
     outline-offset: 1px;
   }
 
-  .app__attachment-dialog__error {
+  .app__message-info-dialog__code-block code {
+    display: block;
+    min-width: max-content;
+  }
+
+  .app__attachment-dialog__error,
+  .app__websocket-event-dialog__error {
     color: var(--text-error);
     font-size: 13px;
   }
@@ -162,8 +281,358 @@
     flex-shrink: 0;
   }
 
-  .app__attachment-dialog__footer-controls {
+  .app__attachment-dialog__footer-controls,
+  .app__websocket-event-dialog__footer-controls {
     margin-inline-start: 0;
+  }
+
+  .app__websocket-event-dialog__mode-tabs {
+    display: flex;
+    gap: 8px;
+  }
+
+  .app__websocket-event-dialog__mode-tab {
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 999px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-secondary);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    padding: 8px 12px;
+  }
+
+  .app__websocket-event-dialog__mode-tab[aria-selected='true'] {
+    background: var(--str-chat__background-utility-selected);
+    border-color: var(--str-chat__border-utility-selected);
+    color: var(--str-chat__text-primary);
+  }
+
+  .app__websocket-event-dialog__panel,
+  .app__websocket-event-dialog__stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .app__websocket-event-dialog__intervals-panel {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .app__websocket-event-dialog__intervals-list {
+    flex: 1 1 auto;
+    margin-inline-end: calc(var(--str-chat__spacing-xl) * -1);
+    min-height: 0;
+    overflow-y: auto;
+    padding-inline-end: var(--str-chat__spacing-xl);
+  }
+
+  .app__websocket-event-dialog__inline-fields {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app__websocket-event-dialog__select,
+  .app__websocket-event-dialog__text-input,
+  .app__websocket-event-dialog__number-input {
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 0 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    font: inherit;
+  }
+
+  .app__websocket-event-dialog__select-trigger {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .app__websocket-event-dialog__select:focus-visible,
+  .app__websocket-event-dialog__text-input:focus-visible,
+  .app__websocket-event-dialog__number-input:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__websocket-event-dialog__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 0 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
+  .app__websocket-event-dialog__trigger:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__websocket-event-dialog__trigger-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app__websocket-event-dialog__trigger-icon {
+    color: var(--str-chat__text-secondary);
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  .app__websocket-event-dialog__dropdown {
+    max-height: min(360px, calc(100vh - 80px));
+    min-width: min(420px, calc(100vw - 32px));
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 18%);
+    overflow-y: auto;
+    padding: 6px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .app__websocket-event-dialog__dropdown::-webkit-scrollbar {
+    display: none;
+  }
+
+  .app__websocket-event-dialog__dropdown-section {
+    color: var(--str-chat__text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 8px 8px 4px;
+    text-transform: uppercase;
+  }
+
+  .app__websocket-event-dialog__dropdown-search {
+    padding: 4px 4px 8px;
+    position: sticky;
+    top: 0;
+    background: var(--str-chat__background-core-elevation-2);
+    z-index: 1;
+  }
+
+  .app__websocket-event-dialog__dropdown-search-input {
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 0 10px;
+    background: var(--str-chat__background-core-elevation-3);
+    color: var(--str-chat__text-primary);
+    font: inherit;
+  }
+
+  .app__websocket-event-dialog__dropdown-search-input:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__websocket-event-dialog__dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: transparent;
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+  }
+
+  .app__websocket-event-dialog__dropdown-item[aria-checked='true'] {
+    background: var(--str-chat__background-utility-selected);
+  }
+
+  .app__websocket-event-dialog__dropdown-item:hover {
+    background: var(--str-chat__background-utility-selected);
+  }
+
+  .app__websocket-event-dialog__dropdown-item-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app__websocket-event-dialog__dropdown-item-badge {
+    color: var(--str-chat__text-secondary);
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .app__websocket-event-dialog__saved-pipeline-meta {
+    color: var(--str-chat__text-secondary);
+    flex-shrink: 0;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .app__websocket-event-dialog__dropdown-empty {
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .app__websocket-event-dialog__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__websocket-event-dialog__action-button,
+  .app__websocket-event-dialog__mini-button {
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+    font: inherit;
+    padding: 8px 12px;
+  }
+
+  .app__websocket-event-dialog__mini-button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .app__websocket-event-dialog__action-button--primary,
+  .app__websocket-event-dialog__mini-button--primary {
+    background: var(--str-chat__background-utility-selected);
+    border-color: var(--str-chat__border-utility-selected);
+  }
+
+  .app__websocket-event-dialog__action-button--danger,
+  .app__websocket-event-dialog__mini-button--danger {
+    color: var(--text-error);
+  }
+
+  .app__websocket-event-dialog__checkbox-label {
+    align-items: center;
+    color: var(--str-chat__text-primary);
+    display: inline-flex;
+    gap: 10px;
+    min-height: 40px;
+  }
+
+  .app__websocket-event-dialog__saved-pipeline-actions {
+    align-items: flex-end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__websocket-event-dialog__automation-card {
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+    background: var(--background-core-surface);
+  }
+
+  .app__websocket-event-dialog__automation-card--new {
+    border-color: var(--str-chat__border-utility-selected);
+    box-shadow: 0 0 0 1px var(--str-chat__border-utility-selected);
+  }
+
+  .app__websocket-event-dialog__automation-card-header {
+    align-items: flex-start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+  }
+
+  .app__websocket-event-dialog__automation-card-title {
+    align-items: center;
+    color: var(--str-chat__text-primary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__websocket-event-dialog__automation-card-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .app__websocket-event-dialog__automation-kind,
+  .app__websocket-event-dialog__automation-status {
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 999px;
+    color: var(--str-chat__text-secondary);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    padding: 4px 8px;
+    text-transform: uppercase;
+  }
+
+  .app__websocket-event-dialog__automation-status--running {
+    background: var(--str-chat__background-utility-selected);
+    border-color: var(--str-chat__border-utility-selected);
+    color: var(--str-chat__text-primary);
+  }
+
+  .app__websocket-event-dialog__automation-summary {
+    color: var(--str-chat__text-secondary);
+    font-size: 12px;
+  }
+
+  .app__websocket-event-dialog__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .app__websocket-event-dialog__description,
+  .app__websocket-event-dialog__todo,
+  .app__websocket-event-dialog__note {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__websocket-event-dialog__description {
+    background: var(--str-chat__surface-color);
+    border-radius: 10px;
+    color: var(--str-chat__text-primary);
+    padding: 8px 10px;
+  }
+
+  .app__websocket-event-dialog__todo,
+  .app__websocket-event-dialog__note {
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__websocket-event-dialog__footer {
+    flex-shrink: 0;
   }
 
   .app__notification-dialog__drag-handle {
@@ -505,14 +974,28 @@
   @media (max-width: 760px) {
     .app__actions-menu,
     .app__notification-dialog,
-    .app__attachment-dialog {
+    .app__attachment-dialog,
+    .app__websocket-event-dialog {
       min-width: min(360px, calc(100vw - 24px));
       max-width: min(360px, calc(100vw - 24px));
     }
 
     .app__notification-dialog__prompt,
-    .app__attachment-dialog__prompt {
+    .app__attachment-dialog__prompt,
+    .app__websocket-event-dialog__prompt {
       width: min(360px, calc(100vw - 24px));
+    }
+
+    .app__websocket-event-dialog__dropdown {
+      min-width: min(320px, calc(100vw - 24px));
+    }
+
+    .app__websocket-event-dialog__inline-fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .app__websocket-event-dialog__automation-card-header {
+      flex-direction: column;
     }
 
     .app__settings-modal {

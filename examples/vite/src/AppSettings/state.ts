@@ -26,6 +26,7 @@ export type MessageActionsSettingsState = {
       enableOptionConfiguration: boolean;
     };
     markOwnUnread: boolean;
+    viewMessageInfo: boolean;
   };
 };
 
@@ -87,6 +88,7 @@ const defaultAppSettingsState: AppSettingsState = {
         enableOptionConfiguration: false,
       },
       markOwnUnread: false,
+      viewMessageInfo: false,
     },
   },
   messageList: {

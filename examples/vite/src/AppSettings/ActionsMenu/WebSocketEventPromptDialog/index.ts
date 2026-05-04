@@ -1,2 +1,2 @@
-export * from './ActionsMenu';
 export * from './WebSocketEventPromptDialog';
+export * from './websocketEventTemplates';
