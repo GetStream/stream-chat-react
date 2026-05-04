@@ -7,8 +7,8 @@
     gap: var(--str-chat__spacing-xl);
     padding: var(--str-chat__spacing-xs);
     width: calc(
-        var(--str-chat__message-with-attachment-max-width) - calc(
-        2 * var(--str-chat__spacing-xs)
+      var(--str-chat__message-with-attachment-max-width) - calc(
+          2 * var(--str-chat__spacing-xs)
         )
     );
     max-width: 100%;
