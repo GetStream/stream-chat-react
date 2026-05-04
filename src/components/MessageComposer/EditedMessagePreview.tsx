@@ -1,6 +1,7 @@
 import React from 'react';
 import { QuotedMessagePreviewUI } from './QuotedMessagePreview';
 import type { LocalMessage } from 'stream-chat';
+import { useTranslationContext } from '../../context';
 
 export type EditedMessagePreviewProps = {
   message: LocalMessage;
@@ -10,6 +11,14 @@ export type EditedMessagePreviewProps = {
 export const EditedMessagePreview = ({
   message,
   onCancel,
-}: EditedMessagePreviewProps) => (
-  <QuotedMessagePreviewUI onRemove={onCancel} quotedMessage={message} />
-);
+}: EditedMessagePreviewProps) => {
+  const { t } = useTranslationContext();
+
+  return (
+    <QuotedMessagePreviewUI
+      authorLabel={t('Edit Message')}
+      onRemove={onCancel}
+      quotedMessage={message}
+    />
+  );
+};

@@ -311,11 +311,15 @@ export const QuotedMessagePreview = ({
 
 type QuotedMessagePreviewUIProps = QuotedMessagePreviewProps & {
   quotedMessage: LocalMessageBase;
+  authorLabel?: ReactNode;
+  className?: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
   onRemove?: () => void;
 };
 
 export const QuotedMessagePreviewUI = ({
+  authorLabel,
+  className,
   getQuotedMessageAuthor,
   onClick,
   onRemove,
@@ -412,7 +416,7 @@ export const QuotedMessagePreviewUI = ({
   return (
     <div
       aria-label={isInteractive ? t('aria/Jump to quoted message') : undefined}
-      className={clsx('str-chat__quoted-message-preview', {
+      className={clsx('str-chat__quoted-message-preview', className, {
         'str-chat__quoted-message-preview--own': isOwnMessage,
       })}
       data-testid='quoted-message-preview'
@@ -424,11 +428,12 @@ export const QuotedMessagePreviewUI = ({
       <QuotedMessageIndicator isOwnMessage={isOwnMessage} />
       <div className='str-chat__quoted-message-preview__content'>
         <div className='str-chat__quoted-message-preview__author'>
-          {isOwnMessage
-            ? t('You')
-            : authorName
-              ? t('Reply to {{ authorName }}', { authorName })
-              : t('Reply')}
+          {authorLabel ??
+            (isOwnMessage
+              ? t('You')
+              : authorName
+                ? t('Reply to {{ authorName }}', { authorName })
+                : t('Reply'))}
         </div>
 
         <div
