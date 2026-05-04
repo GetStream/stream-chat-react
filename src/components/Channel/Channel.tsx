@@ -192,7 +192,7 @@ const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
     );
   }
 
-  if (channelsQueryState.error && LoadingErrorIndicator) {
+  if (channelsQueryState.error && !channel && LoadingErrorIndicator) {
     return (
       <ChannelContainer>
         <LoadingErrorIndicator error={channelsQueryState.error} />
@@ -200,7 +200,7 @@ const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
     );
   }
 
-  if (channelsQueryState.error) {
+  if (channelsQueryState.error && !channel) {
     return <ChannelContainer />;
   }
 
