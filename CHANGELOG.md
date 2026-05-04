@@ -1,3 +1,9 @@
+## [13.14.5](https://github.com/GetStream/stream-chat-react/compare/v13.14.4...v13.14.5) (2026-05-04)
+
+### Bug Fixes
+
+* export AttachmentSelectorContext from the SDK ([#3158](https://github.com/GetStream/stream-chat-react/issues/3158)) ([f458b5f](https://github.com/GetStream/stream-chat-react/commit/f458b5f244542f0688361616fe4c65441692c92e))
+
 ## [13.14.4](https://github.com/GetStream/stream-chat-react/compare/v13.14.3...v13.14.4) (2026-04-17)
 
 ### Bug Fixes
