@@ -49,7 +49,7 @@ jobs:
         run: yarn coverage
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           verbose: true
           token: ${{ secrets.CODECOV_TOKEN }}

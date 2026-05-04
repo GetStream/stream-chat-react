@@ -43,7 +43,7 @@ import {
 } from '../../constants/limits';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 import { useReducedMotionPreference } from './hooks/useReducedMotionPreference';
-import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { ScrollToLatestMessageButton as DefaultScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
 import {
   NotificationList as DefaultNotificationList,
   useNotificationTarget,
@@ -128,6 +128,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
     NotificationList = DefaultNotificationList,
+    ScrollToLatestMessageButton = DefaultScrollToLatestMessageButton,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext();

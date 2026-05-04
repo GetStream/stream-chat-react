@@ -1,11 +1,6 @@
 import clsx from 'clsx';
-import type {
-  ChannelFilters,
-  ChannelMemberResponse,
-  ChannelOptions,
-  ChannelSort,
-} from 'stream-chat';
-import { useCallback, useEffect, useRef } from 'react';
+import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
+import { useEffect, useRef } from 'react';
 import {
   AIStateIndicator,
   Channel,
@@ -26,14 +21,13 @@ import {
   useChatContext,
   type ChatViewSelectorEntry,
   useThreadsViewContext,
-  Button,
-  useChannelMembersState,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
+import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { ThreadStateSync } from './Sync.tsx';
 
@@ -82,53 +76,28 @@ const ResponsiveChannelPanels = () => {
       <WithDragAndDropUpload className='app-chat-view__channel-main'>
         <Window>
           <ChannelHeader Avatar={ChannelAvatar} />
-          {messageListType === 'virtualized' ? (
-            <VirtualizedMessageList returnAllReadData shouldGroupByUser />
-          ) : (
-            <MessageList returnAllReadData />
-          )}
-          <ReturnToSkipNavigation />
-          <AIStateIndicator />
-          <MessageComposer
-            additionalTextareaProps={{
-              id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-            }}
-            audioRecordingEnabled
-            maxRows={10}
-            asyncMessagesMultiSendEnabled
-          />
+          <div className='app-chat-view__channel-body'>
+            {messageListType === 'virtualized' ? (
+              <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+            ) : (
+              <MessageList returnAllReadData />
+            )}
+            <ReturnToSkipNavigation />
+            <AIStateIndicator />
+            <MessageComposer
+              additionalTextareaProps={{
+                id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+              }}
+              audioRecordingEnabled
+              maxRows={10}
+              asyncMessagesMultiSendEnabled
+            />
+            <ChannelPreviewOverlay />
+          </div>
         </Window>
       </WithDragAndDropUpload>
       <ChannelThreadPanel />
     </div>
-  );
-};
-
-const HeaderStartContent = () => {
-  const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
-  const members = useChannelMembersState(channel);
-  const membership = members[client.userID!] as ChannelMemberResponse | undefined;
-
-  const isMember = typeof membership?.channel_role === 'string';
-  const canJoin = channel.data?.own_capabilities?.includes('join-channel');
-
-  const handleClick = useCallback(() => {
-    if (isMember) {
-      channel.removeMembers([client.userID!]).then(() => {
-        channel.watch();
-      });
-    } else {
-      channel.addMembers([client.userID!]);
-    }
-  }, [isMember]);
-
-  if (!canJoin) return null;
-
-  return (
-    <Button onClick={handleClick} variant='secondary' appearance='outline' size='sm'>
-      {isMember ? 'Leave' : 'Join'}
-    </Button>
   );
 };
 
@@ -193,7 +162,7 @@ export const ChannelsPanels = ({
           </WithComponents>
         </div>
         <SidebarResizeHandle layoutRef={channelsLayoutRef} />
-        <WithComponents overrides={{ TypingIndicator, HeaderStartContent }}>
+        <WithComponents overrides={{ TypingIndicator }}>
           <Channel>
             <ResponsiveChannelPanels />
           </Channel>
