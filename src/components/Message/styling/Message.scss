@@ -252,7 +252,7 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
     grid-template-columns: minmax(0, auto) 1fr;
     column-gap: var(--str-chat__space-8);
     position: relative;
-    max-width: 100%;
+    width: fit-content;
 
     .str-chat__message-reactions-host {
       display: flex;
@@ -518,10 +518,6 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
 
   &.str-chat__message--has-attachment {
     --str-chat__message-max-width: var(--str-chat__message-with-attachment-max-width);
-
-    .str-chat__message-inner {
-      width: fit-content(var(--str-chat__message-max-width));
-    }
 
     .str-chat__message-bubble {
       width: 100%;
