@@ -249,7 +249,7 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
       'reactions .'
       'message-bubble options'
       'replies replies';
-    grid-template-columns: minmax(0, auto) 1fr;
+    grid-template-columns: fit-content(var(--str-chat__message-max-width)) auto;
     column-gap: var(--str-chat__space-8);
     position: relative;
     width: fit-content;
@@ -443,7 +443,7 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
         '. reactions'
         'options message-bubble'
         'replies replies';
-      grid-template-columns: 1fr auto;
+      grid-template-columns: auto fit-content(var(--str-chat__message-max-width));
 
       margin-inline-start: var(--str-chat-message-options-size);
 
