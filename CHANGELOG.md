@@ -1,3 +1,28 @@
+## [14.1.0](https://github.com/GetStream/stream-chat-react/compare/v14.0.1...v14.1.0) (2026-05-04)
+
+### Bug Fixes
+
+* add ScrollToLatestMessageButton to ComponentContext ([#3159](https://github.com/GetStream/stream-chat-react/issues/3159)) ([952c125](https://github.com/GetStream/stream-chat-react/commit/952c125120c401258f4654d6ce1c3314ceef6964))
+* allow user blocking only in DM-type channels ([#3139](https://github.com/GetStream/stream-chat-react/issues/3139)) ([deda536](https://github.com/GetStream/stream-chat-react/commit/deda536d14da5ea108959e8144d29da0e3afbf25))
+* decouple msg bubble width from reaction list width ([#3142](https://github.com/GetStream/stream-chat-react/issues/3142)) ([980c233](https://github.com/GetStream/stream-chat-react/commit/980c233e5993ffff559ede3e8b8942066c0761f8))
+* export AttachmentSelectorContext from the SDK ([#3158](https://github.com/GetStream/stream-chat-react/issues/3158)) ([68efeb5](https://github.com/GetStream/stream-chat-react/commit/68efeb59542b1f849b04c0f8c09ac16f077c7d46))
+* font & box shadow fixes ([#3135](https://github.com/GetStream/stream-chat-react/issues/3135)) ([6d04cdf](https://github.com/GetStream/stream-chat-react/commit/6d04cdf6dc4f1a67685d0080fd6a530da336b4f7)), closes [#3134](https://github.com/GetStream/stream-chat-react/issues/3134)
+* limit reactions host width (segmented/bottom) ([#3154](https://github.com/GetStream/stream-chat-react/issues/3154)) ([be50105](https://github.com/GetStream/stream-chat-react/commit/be50105a8a4e2002ea1d0b13ccbd3bd3fe1fc779))
+* make search results scrollable ([#3152](https://github.com/GetStream/stream-chat-react/issues/3152)) ([ead6cb5](https://github.com/GetStream/stream-chat-react/commit/ead6cb55e855104b06774358c8fac24ff2c699b6))
+* **MessageList:** prevent message pagination too early on mount ([#3143](https://github.com/GetStream/stream-chat-react/issues/3143)) ([12e282f](https://github.com/GetStream/stream-chat-react/commit/12e282f36706745453b29e4852d799cd498c52ae))
+* prevent cutting off button outlines in ContextMenu components ([#3151](https://github.com/GetStream/stream-chat-react/issues/3151)) ([b3469f0](https://github.com/GetStream/stream-chat-react/commit/b3469f012623a1500090e7a8acd1af3403fccc8a))
+* remove scrollbar gutters from VML ([#3148](https://github.com/GetStream/stream-chat-react/issues/3148)) ([4a6a8ae](https://github.com/GetStream/stream-chat-react/commit/4a6a8aed3e62eb0da5c56ceeb46eb317205341f1))
+
+### Features
+
+* **a11y:** improve accessibility across dialogs, forms, menus, media, and focus flows ([#3146](https://github.com/GetStream/stream-chat-react/issues/3146)) ([917b7f5](https://github.com/GetStream/stream-chat-react/commit/917b7f5e214e51129e41cc24070b59c759359e3e))
+* change textarea default placeholder text ([#3150](https://github.com/GetStream/stream-chat-react/issues/3150)) ([45b1836](https://github.com/GetStream/stream-chat-react/commit/45b18361d54e36e964d3fa7b38814590fad037b4))
+* introduce `MessageUI` to `ComponentContext` ([#3140](https://github.com/GetStream/stream-chat-react/issues/3140)) ([16af18d](https://github.com/GetStream/stream-chat-react/commit/16af18de4a2891e47f36fff108ace1f290caf25d))
+
+### Refactors
+
+* message styling ([#3136](https://github.com/GetStream/stream-chat-react/issues/3136)) ([cd3a9c0](https://github.com/GetStream/stream-chat-react/commit/cd3a9c052c8a55a26b0415b1447dcd8f16f001a3))
+
 ## [14.0.1](https://github.com/GetStream/stream-chat-react/compare/v14.0.0...v14.0.1) (2026-04-17)
 
 ### Bug Fixes

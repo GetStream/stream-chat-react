@@ -280,6 +280,10 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
       display: flex;
       grid-area: reactions;
 
+      &:has(.str-chat__message-reactions--segmented.str-chat__message-reactions--bottom) {
+        max-width: var(--str-chat__message-max-width);
+      }
+
       &:has(.str-chat__message-reactions--top) {
         margin-bottom: calc(var(--str-chat__spacing-xxs) * -1);
       }
