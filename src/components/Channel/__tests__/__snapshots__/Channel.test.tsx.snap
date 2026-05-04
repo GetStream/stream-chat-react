@@ -50,7 +50,7 @@ exports[`Channel > should render empty channel container if channel does not hav
 </DocumentFragment>
 `;
 
-exports[`Channel > should render empty channel container if channels query failed 1`] = `
+exports[`Channel > should render empty channel container if channels query failed and no channel is available 1`] = `
 <DocumentFragment>
   <div
     class="str-chat str-chat__channel"

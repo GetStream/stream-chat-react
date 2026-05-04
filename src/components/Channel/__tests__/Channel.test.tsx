@@ -380,7 +380,7 @@ describe('Channel', () => {
     await waitFor(() => expect(asFragment()).toMatchSnapshot());
   });
 
-  it('should render empty channel container if channels query failed', async () => {
+  it('should render empty channel container if channels query failed and no channel is available', async () => {
     const childrenContent = 'Channel children';
     const { asFragment } = render(
       <ChatProvider
@@ -397,6 +397,58 @@ describe('Channel', () => {
       </ChatProvider>,
     );
     await waitFor(() => expect(asFragment()).toMatchSnapshot());
+  });
+
+  it('should render channel content if channels query failed but channel is available', async () => {
+    const childrenContent = 'Channel children';
+    await channel.watch();
+    render(
+      <ChatProvider
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: new Error('pagination failed'),
+            queryInProgress: null,
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+          client: chatClient,
+          searchController: new SearchController(),
+        })}
+      >
+        <Channel channel={channel}>{childrenContent}</Channel>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
+  });
+
+  it('should render channel content if channels query failed and channel is available even if LoadingErrorIndicator is provided', async () => {
+    const errMsg = 'Channels query failed';
+    const childrenContent = 'Channel children';
+    await channel.watch();
+    render(
+      <ChatProvider
+        value={fromPartial<ChatContextValue>({
+          channelsQueryState: {
+            error: new Error(errMsg),
+            queryInProgress: null,
+            setError: vi.fn(),
+            setQueryInProgress: vi.fn(),
+          },
+          client: chatClient,
+          searchController: new SearchController(),
+        })}
+      >
+        <WithComponents
+          overrides={{
+            LoadingErrorIndicator: ({ error }) => <div>{error.message}</div>,
+          }}
+        >
+          <Channel channel={channel}>{childrenContent}</Channel>
+        </WithComponents>
+      </ChatProvider>,
+    );
+    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
+    expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
   });
 
   it('should render provided loading indicator if channels query is in progress', async () => {
