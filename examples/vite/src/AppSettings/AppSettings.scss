@@ -409,6 +409,7 @@
     padding: 6px;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    z-index: 1;
   }
 
   .app__websocket-event-dialog__dropdown::-webkit-scrollbar {
