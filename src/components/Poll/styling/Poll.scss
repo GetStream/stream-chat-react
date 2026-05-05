@@ -12,7 +12,7 @@
         )
     );
     max-width: 100%;
-    min-width: 260px;
+    min-width: min(260px, 100%);
     font: var(--str-chat__font-caption-default);
 
     button {

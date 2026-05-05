@@ -1,11 +1,14 @@
 @use '../../../styling/utils';
 
 .str-chat__attachment-list {
-  .str-chat__message-attachment--gallery {
+  .str-chat__message-attachment--gallery,
+  .str-chat__message-attachment--image {
     $max-width: var(--str-chat__attachment-max-width);
+    min-width: 0;
+    max-width: 100%;
 
     .str-chat__modal-gallery {
-      background: transparent;
+      background-color: var(--chat-bg);
       color: var(--str-chat__text-primary);
       border-radius: calc(
         var(--str-chat__message-bubble-radius-group-bottom) - var(
@@ -13,41 +16,79 @@
           )
       );
       display: grid;
-      grid-template-columns: 50% 50%;
-      grid-template-rows: 50% 50%;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
       overflow: hidden;
       border-radius: var(--str-chat__radius-lg);
-      gap: var(--str-chat__space-2);
+      gap: var(--str-chat__spacing-xxs);
       width: $max-width;
-      max-width: $max-width;
-      // CDN resize requires height/max-height to be present on the img element, this rule ensures that
-      height: var(--str-chat__attachment-max-width);
+      max-width: 100%;
+      aspect-ratio: 4 / 3;
+
+      $outer-radius: var(--str-chat__radius-lg);
+      $inner-radius: var(--str-chat__radius-md);
 
       .str-chat__modal-gallery__image {
         width: 100%;
         height: 100%;
         min-width: 0;
         min-height: 0;
+        border-radius: $inner-radius;
+
+        &.str-chat__modal-gallery__image--loading,
+        &.str-chat__modal-gallery__image--load-failed {
+          min-height: 0;
+        }
+
+        &:only-child {
+          grid-column: 1 / -1;
+          grid-row: 1 / -1;
+          border-radius: $outer-radius;
+        }
+
+        &:nth-child(1) {
+          border-start-start-radius: $outer-radius;
+        }
+        &:nth-child(2) {
+          border-start-end-radius: $outer-radius;
+        }
+        &:nth-child(3) {
+          border-end-start-radius: $outer-radius;
+        }
+        &:nth-child(4) {
+          border-end-end-radius: $outer-radius;
+        }
       }
 
       &.str-chat__modal-gallery--two-images {
         grid-template-rows: 1fr;
+
+        .str-chat__modal-gallery__image:nth-child(1) {
+          border-end-start-radius: $outer-radius;
+        }
+
+        .str-chat__modal-gallery__image:nth-child(2) {
+          border-end-end-radius: $outer-radius;
+        }
       }
 
       &.str-chat__modal-gallery--three-images {
         .str-chat__modal-gallery__image:nth-child(1) {
           grid-column: 1;
-          grid-row: 1 / span 2; /* Span two rows */
+          grid-row: 1 / span 2;
+          border-end-start-radius: $outer-radius;
         }
 
         .str-chat__modal-gallery__image:nth-child(2) {
           grid-column: 2;
           grid-row: 1;
+          border-start-end-radius: $outer-radius;
         }
 
         .str-chat__modal-gallery__image:nth-child(3) {
           grid-column: 2;
           grid-row: 2;
+          border-end-end-radius: $outer-radius;
         }
       }
 
@@ -97,25 +138,38 @@
         height: 100%;
         object-fit: cover;
         cursor: zoom-in;
-        // CDN resize requires max-width to be present on this element
+        // CDN resize requires max-width and max-height to be present on this element
         max-width: $max-width;
+        max-height: $max-width;
         transition: opacity 150ms ease-in-out;
       }
 
       &.str-chat__modal-gallery__image--loading {
+        min-height: 200px;
+        align-items: stretch;
+
         img {
+          position: absolute;
           opacity: 0;
+        }
+
+        .str-chat__modal-gallery__image-loading-overlay {
+          position: static;
+          flex: 1;
+          min-width: 0;
+          height: auto;
         }
       }
 
       &.str-chat__modal-gallery__image--load-failed {
         cursor: pointer;
         min-height: 200px;
+        align-items: stretch;
 
         .str-chat__image-placeholder.str-chat__base-image--load-failed {
-          width: 100%;
-          min-height: 200px;
-          align-self: stretch;
+          flex: 1;
+          min-width: 0;
+          height: auto;
         }
 
         img {
@@ -139,7 +193,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: var(--chat-bg);
+        background-color: var(--str-chat__background-core-overlay-light);
         background-image: linear-gradient(
           90deg,
           var(--str-chat__skeleton-loading-base) 0%,

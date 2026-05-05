@@ -212,7 +212,7 @@ export const DialogAnchor = ({
   useEffect(() => {
     if (!open) return;
     const hideOnEscape = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
       dialog?.close();
     };
 
