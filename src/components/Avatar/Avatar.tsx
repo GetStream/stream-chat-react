@@ -66,7 +66,7 @@ export const Avatar = ({
     return initials;
   }, [nameString, size]);
 
-  const showImage = typeof imageUrl === 'string' && !error;
+  const showImage = typeof imageUrl === 'string' && imageUrl && !error;
 
   return (
     <div

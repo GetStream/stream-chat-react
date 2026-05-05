@@ -57,6 +57,14 @@ describe('Avatar', () => {
     expect(queryByTestId(AVATAR_IMG_TEST_ID)).not.toBeInTheDocument();
   });
 
+  it('should render fallback when imageUrl is an empty string', () => {
+    const { getByTestId, queryByTestId } = render(
+      <Avatar imageUrl='' size='md' userName='frank N. Stein' />,
+    );
+    expect(queryByTestId(AVATAR_IMG_TEST_ID)).not.toBeInTheDocument();
+    expect(getByTestId(AVATAR_FALLBACK_TEST_ID)).toHaveTextContent('fS');
+  });
+
   it('should call onClick prop on user click', () => {
     const onClick = vi.fn();
 
