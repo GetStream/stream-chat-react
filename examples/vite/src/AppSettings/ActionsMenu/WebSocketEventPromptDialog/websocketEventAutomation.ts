@@ -8,6 +8,7 @@ import {
 import type { SimulationState, SimulationUser } from './types';
 
 type JsonObject = Record<string, unknown>;
+type HandleEventArgument = Parameters<StreamChat['handleEvent']>[0];
 
 const messageTextFragments = [
   'debug event payload',
@@ -521,7 +522,7 @@ export const emitWebSocketEventPayload = ({
 
   client.handleEvent({
     data: JSON.stringify(emittedPayload),
-  } as WebSocket.MessageEvent);
+  } as HandleEventArgument);
 
   trackSimulationStateFromPayload({
     payload: emittedPayload,
