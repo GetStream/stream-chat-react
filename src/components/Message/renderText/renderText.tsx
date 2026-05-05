@@ -24,7 +24,7 @@ export type RenderTextPluginConfigurator = (
 ) => PluggableList;
 
 export const defaultAllowedTagNames: Array<
-  keyof JSX.IntrinsicElements | 'emoji' | 'mention'
+  keyof React.JSX.IntrinsicElements | 'emoji' | 'mention'
 > = [
   'html',
   'text',
@@ -89,7 +89,7 @@ export const markDownRenderers: RenderTextOptions['customMarkDownRenderers'] = {
 
 export type RenderTextOptions = {
   allowedTagNames?: Array<
-    keyof JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})
+    keyof React.JSX.IntrinsicElements | 'emoji' | 'mention' | (string & {})
   >;
   customMarkDownRenderers?: Options['components'] &
     Partial<{
