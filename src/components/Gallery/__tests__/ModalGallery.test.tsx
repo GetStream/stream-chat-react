@@ -365,7 +365,9 @@ describe('ModalGallery', () => {
         screen.getByTestId('str-chat__modal-gallery__image-loading-overlay'),
       ).toBeInTheDocument();
       expect(retriedImage).not.toBe(image);
-      expect(retriedImage).toHaveAttribute('src', 'http://test-image.jpg');
+      expect(retriedImage.getAttribute('src')).toMatch(
+        /^http:\/\/test-image\.jpg&retry=\d+$/,
+      );
 
       fireEvent.load(retriedImage);
       fireEvent.click(container.querySelector('.str-chat__modal-gallery__image'));

@@ -20,14 +20,20 @@ export const BaseImage = forwardRef<HTMLImageElement, BaseImageProps>(function B
     showDownloadButtonOnError = false,
     ...imgProps
   } = props;
-  const [error, setError] = useState(false);
+  // Store the failed URL rather than a boolean so that when src changes (e.g. retry
+  // with a cache-busting param), the error state clears synchronously via the derived
+  // `error` check below. A boolean would require a useEffect to reset, causing a
+  // 1-frame flash of the error placeholder before the loading state kicks in.
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const { ImagePlaceholder: ImagePlaceholderComponent = DefaultImagePlaceholder } =
     useComponentContext();
 
   const sanitizedUrl = useMemo(() => sanitizeUrl(src), [src]);
+  const error = failedSrc === sanitizedUrl;
+
   useEffect(
     () => () => {
-      setError(false);
+      setFailedSrc(null);
     },
     [sanitizedUrl],
   );
@@ -50,7 +56,7 @@ export const BaseImage = forwardRef<HTMLImageElement, BaseImageProps>(function B
       alt={propsAlt ?? ''}
       className={clsx(propsClassName, 'str-chat__base-image')}
       onError={(e) => {
-        setError(true);
+        setFailedSrc(sanitizedUrl);
         propsOnError?.(e);
       }}
       ref={ref}

@@ -90,13 +90,17 @@
     padding: 0;
 
     img {
-      height: var(--str-chat__scraped-image-height);
+      aspect-ratio: 1.91 / 1;
       width: 100%;
+      height: auto;
+      // CDN resize requires max-height to be present on this element
+      max-height: var(--str-chat__scraped-image-height);
       border-radius: 0;
     }
 
     .str-chat__message-attachment-card--header:has(.str-chat__image-placeholder) {
-      height: var(--str-chat__scraped-image-height);
+      aspect-ratio: 1.91 / 1;
+      height: auto;
 
       .str-chat__image-placeholder {
         border-radius: 0;
