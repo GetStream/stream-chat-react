@@ -1,14 +1,13 @@
-import type { Channel, StreamChat } from 'stream-chat';
+import type { Channel, Event, StreamChat } from 'stream-chat';
 
 import {
-  websocketEventTemplateDefinitions,
   type SupportedWebsocketEventType,
   type WebSocketEventTemplateContext,
+  websocketEventTemplateDefinitions,
 } from './websocketEventTemplates';
 import type { SimulationState, SimulationUser } from './types';
 
 type JsonObject = Record<string, unknown>;
-type HandleEventArgument = Parameters<StreamChat['handleEvent']>[0];
 
 const messageTextFragments = [
   'debug event payload',
@@ -454,7 +453,7 @@ export const trackSimulationStateFromPayload = ({
   simulationState,
   templateContext,
 }: {
-  payload: JsonObject;
+  payload: Event;
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
@@ -511,18 +510,16 @@ export const emitWebSocketEventPayload = ({
 }: {
   client: StreamChat;
   eventType: SupportedWebsocketEventType;
-  payload: JsonObject;
+  payload: Event;
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
-  const emittedPayload = {
+  const emittedPayload: Event = {
     ...payload,
     type: eventType,
   };
 
-  client.handleEvent({
-    data: JSON.stringify(emittedPayload),
-  } as HandleEventArgument);
+  client.dispatchEvent(emittedPayload);
 
   trackSimulationStateFromPayload({
     payload: emittedPayload,
