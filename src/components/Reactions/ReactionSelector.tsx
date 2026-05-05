@@ -86,6 +86,11 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     );
   }, [reactionOptions]);
 
+  const hasExtendedReactions =
+    !Array.isArray(reactionOptions) &&
+    reactionOptions.extended &&
+    Object.keys(reactionOptions.extended).length > 0;
+
   return (
     <div
       aria-label={t('aria/Reaction list')}
@@ -126,20 +131,22 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
               ),
             )}
           </ul>
-          <Button
-            appearance='outline'
-            aria-label={t('aria/Open Reaction Selector')}
-            circular
-            className='str-chat__reaction-selector__add-button'
-            data-testid='reaction-selector-add-button'
-            onClick={() => {
-              setExtendedListOpen(true);
-            }}
-            size='sm'
-            variant='secondary'
-          >
-            <IconPlus />
-          </Button>
+          {hasExtendedReactions && (
+            <Button
+              appearance='outline'
+              aria-label={t('aria/Open Reaction Selector')}
+              circular
+              className='str-chat__reaction-selector__add-button'
+              data-testid='reaction-selector-add-button'
+              onClick={() => {
+                setExtendedListOpen(true);
+              }}
+              size='sm'
+              variant='secondary'
+            >
+              <IconPlus />
+            </Button>
+          )}
         </>
       ) : (
         <ReactionSelectorExtendedList
