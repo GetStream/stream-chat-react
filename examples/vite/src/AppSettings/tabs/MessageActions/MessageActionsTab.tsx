@@ -56,6 +56,27 @@ export const MessageActionsTab = () => {
           Mark own messages as unread too
         </SwitchField>
       </div>
+
+      <div className='app__settings-modal__field'>
+        <div className='app__settings-modal__field-label'>View message info</div>
+        <SwitchField
+          checked={customMessageActions.viewMessageInfo}
+          id='view-message-info-switch'
+          onChange={(event) =>
+            appSettingsStore.partialNext({
+              messageActions: {
+                ...messageActions,
+                customMessageActions: {
+                  ...customMessageActions,
+                  viewMessageInfo: event.target.checked,
+                },
+              },
+            })
+          }
+        >
+          Show JSON viewer action in the message actions menu
+        </SwitchField>
+      </div>
     </div>
   );
 };

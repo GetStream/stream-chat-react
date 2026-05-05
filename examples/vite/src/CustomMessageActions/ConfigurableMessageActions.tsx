@@ -14,12 +14,15 @@ import {
   defaultMessageActionSet,
   GlobalModal,
   IconDelete,
+  IconEyeFill,
   IconNotification,
   MessageActions,
   SwitchField,
   type MessageActionSetItem,
   useComponentContext,
   useContextMenuContext,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
   useMessageContext,
   useModalContext,
   useNotificationApi,
@@ -27,6 +30,10 @@ import {
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings';
+import {
+  MessageInfoPromptDialog,
+  messageInfoPromptDialogId,
+} from '../AppSettings/ActionsMenu/MessageInfoPromptDialog';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error && error.message ? error.message : fallback;
@@ -140,6 +147,7 @@ type OpenDeleteDialogParams = {
 
 type CustomDeleteActionContextValue = {
   openDeleteDialog: (params: OpenDeleteDialogParams) => void;
+  openMessageInfoDialog: (params: OpenMessageInfoDialogParams) => void;
 };
 
 const CustomDeleteActionContext = createContext<
@@ -231,7 +239,37 @@ const CustomMarkOwnUnreadMessageAction = () => {
   );
 };
 
-type SupportedCustomMessageActionType = 'delete' | 'markOwnUnread';
+type OpenMessageInfoDialogParams = {
+  message: LocalMessage;
+  referenceElement: HTMLElement | null;
+};
+
+const CustomViewMessageInfoAction = () => {
+  const { anchorReferenceElement, closeMenu } = useContextMenuContext();
+  const { openMessageInfoDialog } = useCustomDeleteActionContext();
+  const { message } = useMessageContext();
+
+  return (
+    <ContextMenuButton
+      className='str-chat__message-actions-list-item-button'
+      Icon={IconEyeFill}
+      onClick={(event) => {
+        openMessageInfoDialog({
+          message,
+          referenceElement:
+            anchorReferenceElement instanceof HTMLElement
+              ? anchorReferenceElement
+              : event.currentTarget,
+        });
+        closeMenu();
+      }}
+    >
+      View message info
+    </ContextMenuButton>
+  );
+};
+
+type SupportedCustomMessageActionType = 'delete' | 'markOwnUnread' | 'viewMessageInfo';
 
 type CustomMessageActionOverrideSpec = {
   actionSetItem: MessageActionSetItem;
@@ -280,11 +318,22 @@ const applyCustomMessageActionOverrides = ({
 export const ConfigurableMessageActions = (
   props: React.ComponentProps<typeof MessageActions>,
 ) => {
+  const { message: currentMessage } = useMessageContext();
   const { addNotification } = useNotificationApi();
   const { Modal = GlobalModal } = useComponentContext();
   const [deleteDialogTarget, setDeleteDialogTarget] =
     useState<OpenDeleteDialogParams | null>(null);
+  const [messageInfoDialogTarget, setMessageInfoDialogTarget] =
+    useState<OpenMessageInfoDialogParams | null>(null);
   const { t } = useTranslationContext();
+  const currentMessageInfoDialogId = `${messageInfoPromptDialogId}-${currentMessage.id}`;
+  const { dialog: messageInfoDialog, dialogManager } = useDialogOnNearestManager({
+    id: currentMessageInfoDialogId,
+  });
+  const messageInfoDialogIsOpen = useDialogIsOpen(
+    currentMessageInfoDialogId,
+    dialogManager?.id,
+  );
   const { customMessageActions } = useAppSettingsSelector(
     (state) => state.messageActions,
   );
@@ -312,6 +361,15 @@ export const ConfigurableMessageActions = (
         insertBeforeType: 'remindMe',
         mode: 'append',
       },
+      viewMessageInfo: {
+        actionSetItem: {
+          Component: CustomViewMessageInfoAction,
+          placement: 'dropdown',
+          type: 'viewMessageInfo',
+        },
+        insertBeforeType: 'remindMe',
+        mode: 'append',
+      },
     };
 
     const overrides: CustomMessageActionOverrideSpec[] = [
@@ -323,13 +381,33 @@ export const ConfigurableMessageActions = (
         ...actionOverrides.markOwnUnread,
         enabled: customMessageActions.markOwnUnread,
       },
+      {
+        ...actionOverrides.viewMessageInfo,
+        enabled: customMessageActions.viewMessageInfo,
+      },
     ];
 
     return applyCustomMessageActionOverrides({ messageActionSet: actionSet, overrides });
-  }, [customDeleteEnabled, customMessageActions.markOwnUnread, props.messageActionSet]);
+  }, [
+    customDeleteEnabled,
+    customMessageActions.markOwnUnread,
+    customMessageActions.viewMessageInfo,
+    props.messageActionSet,
+  ]);
   const openDeleteDialog = useCallback((params: OpenDeleteDialogParams) => {
     setDeleteDialogTarget(params);
   }, []);
+  const closeMessageInfoDialog = useCallback(() => {
+    messageInfoDialog.close();
+    setMessageInfoDialogTarget(null);
+  }, [messageInfoDialog]);
+  const openMessageInfoDialog = useCallback(
+    (params: OpenMessageInfoDialogParams) => {
+      setMessageInfoDialogTarget(params);
+      messageInfoDialog.open();
+    },
+    [messageInfoDialog],
+  );
 
   useEffect(() => {
     if (!customDeleteEnabled && deleteDialogTarget) {
@@ -337,9 +415,34 @@ export const ConfigurableMessageActions = (
     }
   }, [customDeleteEnabled, deleteDialogTarget]);
 
+  useEffect(() => {
+    if (customMessageActions.viewMessageInfo) return;
+    if (!messageInfoDialogTarget) return;
+
+    closeMessageInfoDialog();
+  }, [
+    closeMessageInfoDialog,
+    customMessageActions.viewMessageInfo,
+    messageInfoDialogTarget,
+  ]);
+
   return (
-    <CustomDeleteActionContext.Provider value={{ openDeleteDialog }}>
+    <CustomDeleteActionContext.Provider
+      value={{ openDeleteDialog, openMessageInfoDialog }}
+    >
       <MessageActions {...props} messageActionSet={configurableActionSet} />
+      {messageInfoDialogTarget && (
+        <MessageInfoPromptDialog
+          dialogId={currentMessageInfoDialogId}
+          dialogIsOpen={messageInfoDialogIsOpen}
+          dialogManagerId={dialogManager?.id}
+          message={
+            customMessageActions.viewMessageInfo ? messageInfoDialogTarget.message : null
+          }
+          onClose={closeMessageInfoDialog}
+          referenceElement={messageInfoDialogTarget.referenceElement}
+        />
+      )}
       <Modal
         open={customDeleteEnabled && Boolean(deleteDialogTarget)}
         onClose={() => {

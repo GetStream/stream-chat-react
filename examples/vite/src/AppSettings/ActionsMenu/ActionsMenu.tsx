@@ -18,6 +18,10 @@ import {
   AttachmentPromptDialog,
   attachmentPromptDialogId,
 } from './AttachmentPromptDialog';
+import {
+  WebSocketEventPromptDialog,
+  webSocketEventPromptDialogId,
+} from './WebSocketEventPromptDialog';
 
 const actionsMenuDialogId = 'app-actions-menu';
 
@@ -91,6 +95,20 @@ function TriggerAttachmentAction({ onTrigger }: { onTrigger: () => void }) {
   );
 }
 
+function TriggerWebSocketEventAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Trigger WS Event'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
 const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
@@ -103,6 +121,9 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
   });
   const { dialog: attachmentDialog } = useDialogOnNearestManager({
     id: attachmentPromptDialogId,
+  });
+  const { dialog: webSocketEventDialog } = useDialogOnNearestManager({
+    id: webSocketEventPromptDialogId,
   });
   const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
@@ -127,9 +148,11 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
       >
         <TriggerNotificationAction onTrigger={notificationDialog.open} />
         <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
+        <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
       </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
       <AttachmentPromptDialog referenceElement={menuButtonElement} />
+      <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
     </div>
   );
 };

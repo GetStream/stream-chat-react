@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Dispatch, PointerEvent as ReactPointerEvent, SetStateAction } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { NotificationSeverity } from 'stream-chat';
 import {
   IconArrowDown,
   IconArrowLeft,
   IconChevronRight,
   Button,
-  DialogAnchor,
   IconRefresh,
   IconArrowUp,
   IconCheckmark,
@@ -25,6 +24,7 @@ import {
   type NotificationListEnterFrom,
   type NotificationTargetPanel,
 } from 'stream-chat-react';
+import { DraggableDialog } from './DraggableDialog';
 import {
   buildNotificationActions,
   entryDirectionOptions,
@@ -38,13 +38,6 @@ import {
 } from './triggerNotificationUtils';
 
 export const notificationPromptDialogId = 'app-notification-prompt-dialog';
-
-const VIEWPORT_MARGIN = 8;
-
-const clamp = (value: number, min: number, max: number) => {
-  if (max < min) return min;
-  return Math.min(Math.max(value, min), max);
-};
 
 const severityIcons: Partial<
   Record<NotificationSeverity, React.ComponentType<{ className?: string }>>
@@ -336,9 +329,7 @@ export const NotificationPromptDialog = ({
   const [queuedNotifications, setQueuedNotifications] = useState<QueuedNotification[]>(
     [],
   );
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const chipIdRef = useRef(0);
-  const shellRef = useRef<HTMLDivElement | null>(null);
   const { addNotification } = useNotificationApi();
   const { dialog, dialogManager } = useDialogOnNearestManager({
     id: notificationPromptDialogId,
@@ -348,47 +339,12 @@ export const NotificationPromptDialog = ({
   const resetState = useCallback(() => {
     setDraft(initialDraft);
     setQueuedNotifications([]);
-    setDragOffset({ x: 0, y: 0 });
   }, []);
 
   useEffect(() => {
     if (dialogIsOpen) return;
     resetState();
   }, [dialogIsOpen, resetState]);
-
-  useEffect(() => {
-    if (!dialogIsOpen) return;
-
-    const clampToViewport = () => {
-      const shell = shellRef.current;
-      if (!shell) return;
-
-      const rect = shell.getBoundingClientRect();
-      const nextLeft = clamp(
-        rect.left,
-        VIEWPORT_MARGIN,
-        window.innerWidth - rect.width - VIEWPORT_MARGIN,
-      );
-      const nextTop = clamp(
-        rect.top,
-        VIEWPORT_MARGIN,
-        window.innerHeight - rect.height - VIEWPORT_MARGIN,
-      );
-
-      if (nextLeft === rect.left && nextTop === rect.top) return;
-
-      setDragOffset((current) => ({
-        x: current.x + (nextLeft - rect.left),
-        y: current.y + (nextTop - rect.top),
-      }));
-    };
-
-    window.addEventListener('resize', clampToViewport);
-
-    return () => {
-      window.removeEventListener('resize', clampToViewport);
-    };
-  }, [dialogIsOpen]);
 
   const closeDialog = useCallback(() => {
     dialog.close();
@@ -442,85 +398,27 @@ export const NotificationPromptDialog = ({
     setQueuedNotifications((current) => current.filter((item) => item.id !== id));
   }, []);
 
-  const handleHeaderPointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (event.button !== 0) return;
-      if (!(event.target instanceof HTMLElement)) return;
-      if (event.target.closest('button')) return;
-
-      const shell = shellRef.current;
-      if (!shell) return;
-
-      event.preventDefault();
-
-      const startClientX = event.clientX;
-      const startClientY = event.clientY;
-      const startOffset = dragOffset;
-      const startRect = shell.getBoundingClientRect();
-
-      const handlePointerMove = (moveEvent: PointerEvent) => {
-        const nextLeft = clamp(
-          startRect.left + (moveEvent.clientX - startClientX),
-          VIEWPORT_MARGIN,
-          window.innerWidth - startRect.width - VIEWPORT_MARGIN,
-        );
-        const nextTop = clamp(
-          startRect.top + (moveEvent.clientY - startClientY),
-          VIEWPORT_MARGIN,
-          window.innerHeight - startRect.height - VIEWPORT_MARGIN,
-        );
-
-        setDragOffset({
-          x: startOffset.x + (nextLeft - startRect.left),
-          y: startOffset.y + (nextTop - startRect.top),
-        });
-      };
-
-      const handlePointerUp = () => {
-        window.removeEventListener('pointermove', handlePointerMove);
-        window.removeEventListener('pointerup', handlePointerUp);
-      };
-
-      window.addEventListener('pointermove', handlePointerMove);
-      window.addEventListener('pointerup', handlePointerUp);
-    },
-    [dragOffset],
-  );
-
-  const shellStyle = {
-    transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)`,
-  };
-
   return (
-    <DialogAnchor
-      allowFlip
-      className='app__notification-dialog'
+    <DraggableDialog
+      dialogClassName='app__notification-dialog'
+      dialogId={notificationPromptDialogId}
+      dialogIsOpen={dialogIsOpen}
       dialogManagerId={dialogManager?.id}
-      id={notificationPromptDialogId}
-      placement='right-start'
+      dragHandleClassName='app__notification-dialog__drag-handle'
+      onClose={closeDialog}
+      promptClassName='app__notification-dialog__prompt'
       referenceElement={referenceElement}
-      tabIndex={-1}
-      trapFocus
-      updatePositionOnContentResize
+      shellClassName='app__notification-dialog__shell'
+      title='Trigger Notification'
     >
-      <div className='app__notification-dialog__shell' ref={shellRef} style={shellStyle}>
-        <Prompt.Root className='app__notification-dialog__prompt'>
-          <div
-            className='app__notification-dialog__drag-handle'
-            onPointerDown={handleHeaderPointerDown}
-          >
-            <Prompt.Header close={closeDialog} title='Trigger Notification' />
-          </div>
-          <NotificationDraftForm
-            draft={draft}
-            queueCurrentDraft={queueCurrentDraft}
-            queuedNotifications={queuedNotifications}
-            registerQueuedNotifications={registerQueuedNotifications}
-            removeQueuedNotification={removeQueuedNotification}
-            setDraft={setDraft}
-          />
-        </Prompt.Root>
-      </div>
-    </DialogAnchor>
+      <NotificationDraftForm
+        draft={draft}
+        queueCurrentDraft={queueCurrentDraft}
+        queuedNotifications={queuedNotifications}
+        registerQueuedNotifications={registerQueuedNotifications}
+        removeQueuedNotification={removeQueuedNotification}
+        setDraft={setDraft}
+      />
+    </DraggableDialog>
   );
 };
