@@ -1,5 +1,10 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  Dropdown,
+  type DropdownTriggerProps,
+  useDropdownContext,
+} from '../../Form/Dropdown';
 import { useDialogOnNearestManager } from '../hooks';
 import { DialogAnchor } from '../service';
 import { DialogManagerProvider } from '../../../context';
@@ -26,6 +31,32 @@ const DialogFixture = ({
         {children ?? <button data-testid={testId}>Dialog content</button>}
       </DialogAnchor>
     </>
+  );
+};
+
+const DropdownTriggerButton = ({
+  children,
+  onClick,
+  referenceRef,
+  ...props
+}: DropdownTriggerProps) => (
+  <button
+    {...props}
+    onClick={onClick}
+    ref={referenceRef as React.Ref<HTMLButtonElement>}
+    type='button'
+  >
+    {children}
+  </button>
+);
+
+const DropdownItem = ({ label }: { label: string }) => {
+  const { close } = useDropdownContext();
+
+  return (
+    <button onClick={close} role='menuitem' type='button'>
+      {label}
+    </button>
   );
 };
 
@@ -117,5 +148,48 @@ describe('DialogPortal', () => {
 
     const results = await axe(document.body);
     expect(results).toHaveNoViolations();
+  });
+
+  it('does not close the dialog when Escape is handled by a nested dropdown', async () => {
+    render(
+      <DialogManagerProvider>
+        <DialogFixture
+          dialogId='dialog-with-dropdown'
+          testId='dialog-dropdown-content'
+          trapFocus
+        >
+          <Dropdown
+            TriggerComponent={DropdownTriggerButton}
+            triggerProps={{ children: 'Duration' }}
+          >
+            <DropdownItem label='15 minutes' />
+            <DropdownItem label='1 hour' />
+          </Dropdown>
+        </DialogFixture>
+      </DialogManagerProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId('open-dialog-with-dropdown'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Duration' }));
+    await screen.findByRole('menu');
+
+    const item = screen.getByRole('menuitem', { name: '15 minutes' });
+    item.focus();
+
+    fireEvent.keyDown(item, { key: 'Escape' });
+    fireEvent.keyUp(item, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    });
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    fireEvent.keyUp(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 });
