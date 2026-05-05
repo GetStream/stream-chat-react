@@ -7,7 +7,7 @@ import type {
   ReactNode,
   Ref,
 } from 'react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { createRovingFocusKeyDownHandler } from '../../a11y/a11yUtils';
 import {
@@ -17,6 +17,11 @@ import {
 
 const DEFAULT_DROPDOWN_ITEM_SELECTOR =
   '[role="option"]:not(:disabled), [role="menuitem"]:not(:disabled), button:not(:disabled), a:not(:disabled)';
+
+const isEditableTarget = (target: EventTarget | null) =>
+  target instanceof HTMLInputElement ||
+  target instanceof HTMLTextAreaElement ||
+  (target instanceof HTMLElement && target.isContentEditable);
 
 type DropdownContextValue = {
   close(): void;
@@ -47,6 +52,7 @@ export type DropdownTriggerProps = Pick<
 
 export type DropdownProps = PropsWithChildren<{
   className?: string;
+  matchReferenceWidth?: boolean;
   onClose?: () => void;
   onOpen?: () => void;
   placement?: PopperLikePlacement;
@@ -58,6 +64,7 @@ export type DropdownProps = PropsWithChildren<{
 export const Dropdown = ({
   children,
   className,
+  matchReferenceWidth = false,
   onClose,
   onOpen,
   placement = 'bottom',
@@ -142,17 +149,31 @@ export const Dropdown = ({
     [],
   );
 
+  const escapeConsumedRef = useRef(false);
+
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLElement>) => {
       if (event.key === 'Escape') {
         event.preventDefault();
+        event.stopPropagation();
+        escapeConsumedRef.current = true;
         close();
+        return;
+      }
+      if (isEditableTarget(event.target)) {
         return;
       }
       rovingFocusKeyDownHandler(event);
     },
     [close, rovingFocusKeyDownHandler],
   );
+
+  const suppressEscapeKeyUp = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape' && escapeConsumedRef.current) {
+      escapeConsumedRef.current = false;
+      event.stopPropagation();
+    }
+  }, []);
 
   const DropdownTriggerComponent = TriggerComponent;
 
@@ -173,10 +194,14 @@ export const Dropdown = ({
             className={clsx('str-chat__dropdown__items', className)}
             onClick={close}
             onKeyDown={handleKeyDown}
+            onKeyUpCapture={suppressEscapeKeyUp}
             ref={setFloatingElement}
             role='menu'
             style={{
               left: x ?? 0,
+              minWidth: matchReferenceWidth
+                ? resolvedReferenceElement.getBoundingClientRect().width
+                : undefined,
               position: strategy,
               top: y ?? 0,
             }}
