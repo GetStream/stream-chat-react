@@ -2,7 +2,6 @@ import React, { useMemo, useState } from 'react';
 
 import type { ReactionSummary, ReactionType } from './types';
 
-import { useFetchReactions } from './hooks/useFetchReactions';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import type { MessageContextValue } from '../../context';
 import {
@@ -14,8 +13,11 @@ import {
 import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
+import { useReactionPaginator } from './hooks/useReactionPaginator';
 import { IconEmojiAdd } from '../Icons';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
+import { LoadMorePaginator } from '../LoadMore';
+import { Button } from '../Button';
 
 export type MessageReactionsDetailProps = Partial<
   Pick<MessageContextValue, 'handleFetchReactions' | 'reactionDetailsSort'>
@@ -52,7 +54,6 @@ interface MessageReactionsDetailInterface {
 }
 
 export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
-  handleFetchReactions,
   handleReaction,
   onSelectedReactionTypeChange,
   own_reactions,
@@ -62,8 +63,8 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   selectedReactionType,
   totalReactionCount,
 }) => {
-  const [extendedReactionListOpen, setExtendedReactionListOpen] = useState(false);
   const { client } = useChatContext();
+  const [extendedReactionListOpen, setExtendedReactionListOpen] = useState(false);
   const {
     Avatar = DefaultAvatar,
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
@@ -82,13 +83,13 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
 
   const {
+    hasNext,
     isLoading: areReactionsLoading,
+    paginator,
     reactions: reactionDetails,
     refetch,
-  } = useFetchReactions({
-    handleFetchReactions,
+  } = useReactionPaginator({
     reactionType: selectedReactionType,
-    shouldFetch: true,
     sort: reactionDetailsSort,
   });
 
@@ -191,8 +192,27 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
           className='str-chat__message-reactions-detail__user-list'
           data-testid='all-reacting-users'
         >
-          {areReactionsLoading && <LoadingIndicator />}
-          {!areReactionsLoading && (
+          <LoadMorePaginator
+            hasNextPage={hasNext}
+            isLoading={areReactionsLoading}
+            LoadMoreButton={({ isLoading, onClick }) => {
+              if (isLoading) return null;
+
+              return (
+                <Button
+                  appearance='ghost'
+                  aria-label={t('Load more')}
+                  className='str-chat__button--load-more'
+                  onClick={onClick}
+                  size='xs'
+                  variant='secondary'
+                >
+                  {t('Load more')}
+                </Button>
+              );
+            }}
+            loadNextPage={paginator.next}
+          >
             <>
               {reactionDetails.map(({ type, user }) => {
                 const belongsToCurrentUser = client.user?.id === user?.id;
@@ -257,7 +277,8 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                 );
               })}
             </>
-          )}
+          </LoadMorePaginator>
+          {areReactionsLoading && <LoadingIndicator />}
         </div>
       </div>
     </div>
