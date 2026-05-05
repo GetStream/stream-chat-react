@@ -39,6 +39,7 @@ import { QuotedMessagePreview } from '../QuotedMessagePreview';
 import type {
   Attachment,
   Channel as ChannelType,
+  CommandResponse,
   CooldownTimerState,
   LinkPreviewsManagerState,
   LocalAttachment,
@@ -1377,6 +1378,28 @@ describe(`MessageInputFlat`, () => {
       });
       quotedMessagePreviewIsNotDisplayed(mainListMessage);
     });
+
+    it('clears active command when quoting makes it unavailable', async () => {
+      const { channel } = await renderComponent();
+      const command = fromPartial<CommandResponse>({
+        args: 'ban-command-args',
+        description: 'ban-command-description',
+        name: 'ban',
+        set: 'moderation_set',
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(command);
+      });
+
+      expect(screen.getByText('ban')).toBeInTheDocument();
+
+      await initQuotedMessagePreview(mainListMessage);
+
+      await waitFor(() => {
+        expect(screen.queryByText('ban')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('send button', () => {
@@ -1552,6 +1575,27 @@ describe(`MessageInputFlat`, () => {
 
       await waitFor(() => {
         expect(textarea).toHaveValue('');
+      });
+    });
+
+    it('should clear active command when entering edit mode', async () => {
+      const { channel } = await renderComponent();
+      const command = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(command);
+      });
+
+      expect(screen.getByText('giphy')).toBeInTheDocument();
+
+      await enterEditMode();
+
+      await waitFor(() => {
+        expect(screen.queryByText('giphy')).not.toBeInTheDocument();
       });
     });
   });

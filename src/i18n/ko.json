@@ -165,6 +165,8 @@
   "Close dialog": "대화 상자 닫기",
   "Close emoji picker": "이모티콘 선택기 닫기",
   "Close prompt: {{ title }}": "프롬프트 닫기: {{ title }}",
+  "Command not available while editing": "편집 중에는 명령을 사용할 수 없습니다",
+  "Command not available while replying": "답장 중에는 명령을 사용할 수 없습니다",
   "Commands": "명령어",
   "Commands matching": "일치하는 명령",
   "Connection failure, reconnecting now...": "연결 실패, 지금 다시 연결 중...",

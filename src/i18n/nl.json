@@ -166,6 +166,8 @@
   "Close dialog": "Dialoog sluiten",
   "Close emoji picker": "Sluit de emoji-kiezer",
   "Close prompt: {{ title }}": "Prompt sluiten: {{ title }}",
+  "Command not available while editing": "Opdracht niet beschikbaar tijdens bewerken",
+  "Command not available while replying": "Opdracht niet beschikbaar tijdens beantwoorden",
   "Commands": "Commando's",
   "Commands matching": "Bijpassende opdrachten",
   "Connection failure, reconnecting now...": "Verbindingsfout, opnieuw verbinden...",

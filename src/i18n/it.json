@@ -174,6 +174,8 @@
   "Close dialog": "Chiudi finestra di dialogo",
   "Close emoji picker": "Chiudi il selettore di emoji",
   "Close prompt: {{ title }}": "Chiudi prompt: {{ title }}",
+  "Command not available while editing": "Comando non disponibile durante la modifica",
+  "Command not available while replying": "Comando non disponibile durante la risposta",
   "Commands": "Comandi",
   "Commands matching": "Comandi corrispondenti",
   "Connection failure, reconnecting now...": "Errore di connessione, riconnessione in corso...",

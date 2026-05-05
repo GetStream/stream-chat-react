@@ -166,6 +166,8 @@
   "Close dialog": "Close dialog",
   "Close emoji picker": "Close emoji picker",
   "Close prompt: {{ title }}": "Close prompt: {{ title }}",
+  "Command not available while editing": "Command not available while editing",
+  "Command not available while replying": "Command not available while replying",
   "Commands": "Commands",
   "Commands matching": "Commands matching",
   "Connection failure, reconnecting now...": "Connection failure, reconnecting now...",
