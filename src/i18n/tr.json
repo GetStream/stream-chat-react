@@ -166,6 +166,8 @@
   "Close dialog": "İletişim kutusunu kapat",
   "Close emoji picker": "Emoji seçiciyi kapat",
   "Close prompt: {{ title }}": "İstemi kapat: {{ title }}",
+  "Command not available while editing": "Düzenleme sırasında komut kullanılamaz",
+  "Command not available while replying": "Yanıtlama sırasında komut kullanılamaz",
   "Commands": "Komutlar",
   "Commands matching": "Eşleşen komutlar",
   "Connection failure, reconnecting now...": "Bağlantı hatası, tekrar bağlanılıyor...",

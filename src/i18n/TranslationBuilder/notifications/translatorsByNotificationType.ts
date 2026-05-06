@@ -3,6 +3,7 @@ import {
   translateAttachmentUploadBlocked,
   translateAttachmentUploadFailed,
   translateBrowserAudioPlaybackError,
+  translateCommandDisabled,
   translatePollCreateFailed,
   translatePollEndFailed,
 } from './translators';
@@ -30,6 +31,7 @@ export const translatorsByNotificationType: Record<
   'validation:attachment:upload:blocked': translateAttachmentUploadBlocked,
   'validation:attachment:upload:in-progress': ({ t }) =>
     t('Wait until all attachments have uploaded'),
+  'validation:command:disabled': translateCommandDisabled,
   'validation:poll:castVote:limit': ({ t }) =>
     t('Reached the vote limit. Remove an existing vote first.'),
 };

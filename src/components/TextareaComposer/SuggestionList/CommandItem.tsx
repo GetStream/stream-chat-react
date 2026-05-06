@@ -1,23 +1,41 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
 import React from 'react';
-import type { CommandResponse } from 'stream-chat';
+import type { CommandResponse, MessageComposerState } from 'stream-chat';
 import { CommandContextMenuItem } from '../../MessageComposer/AttachmentSelector/CommandsMenu';
+import { useStateStore } from '../../../store';
+import { useMessageComposerController } from '../../MessageComposer/hooks';
 
 export type CommandItemProps = {
   entity: CommandResponse;
+  enabled?: boolean;
   focused?: boolean;
 } & ComponentProps<'button'>;
 
+const messageComposerStateSelector = ({
+  editedMessage,
+  quotedMessage,
+}: MessageComposerState) => ({
+  editedMessage,
+  quotedMessage,
+});
+
 export const CommandItem = (props: PropsWithChildren<CommandItemProps>) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { entity, focused: _, ...buttonProps } = props;
+  const { enabled, entity, focused: _, ...buttonProps } = props;
+  const messageComposer = useMessageComposerController();
+  useStateStore(messageComposer.state, messageComposerStateSelector);
 
   if (!entity.name) return null;
+
+  const resolvedEnabled =
+    enabled ??
+    !messageComposer.isCommandDisabled(entity as CommandResponse & { name: string });
 
   return (
     <CommandContextMenuItem
       {...buttonProps}
       command={entity as CommandResponse & { name: string }}
+      enabled={resolvedEnabled}
     />
   );
 };

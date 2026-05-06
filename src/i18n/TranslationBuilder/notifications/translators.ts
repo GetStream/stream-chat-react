@@ -71,3 +71,20 @@ export const translateBrowserAudioPlaybackError: Translator<
   NotificationTranslatorOptions
 > = ({ options: { notification }, t }) =>
   notification?.message ? t(notification.message) : t('Error reproducing the recording');
+
+export const translateCommandDisabled: Translator<NotificationTranslatorOptions> = ({
+  options: { notification },
+  t,
+}) => {
+  const reason = normalizeReason(notification);
+
+  if (reason === 'editing') {
+    return t('Command not available while editing');
+  }
+
+  if (reason === 'quoted_message') {
+    return t('Command not available while replying');
+  }
+
+  return t(notification?.message || 'Command not available');
+};

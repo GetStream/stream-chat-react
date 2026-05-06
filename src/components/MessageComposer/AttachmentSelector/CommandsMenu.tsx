@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
 import type { CommandResponse } from 'stream-chat';
 import { useMessageComposerContext, useTranslationContext } from '../../../context';
-import { useMessageComposerController } from '../hooks';
+import { useMessageComposerCommands, useMessageComposerController } from '../hooks';
 import {
   ContextMenuBackButton,
   ContextMenuButton,
@@ -56,25 +56,24 @@ export const CommandsMenu = () => {
   const { closeMenu } = useContextMenuContext();
   const messageComposer = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
-  const channelConfig = messageComposer.channel.getConfig();
-  const commands = useMemo<(CommandResponse & { name: string })[]>(
+  const commands = useMessageComposerCommands();
+  const sortedCommands = useMemo(
     () =>
-      (channelConfig?.commands ?? [])
-        .filter(
-          (command): command is CommandResponse & { name: string } => !!command.name,
-        )
-        .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')),
-    [channelConfig],
+      [...commands].sort((a, b) =>
+        (a.command.name ?? '').localeCompare(b.command.name ?? ''),
+      ),
+    [commands],
   );
 
   return (
     <>
-      {commands.map((command) => (
+      {sortedCommands.map(({ command, enabled }) => (
         <CommandContextMenuItem
           command={command}
+          enabled={enabled}
           key={command.name}
           onClick={() => {
-            if (!command.name) return;
+            if (!command.name || !enabled) return;
             messageComposer.textComposer.setCommand(command);
             closeMenu();
             // Defer the focus to the next frame so it wins over FocusScope's restore-to-attachment-selector-button behavior.
@@ -122,20 +121,26 @@ export const useCommandTranslation = (command: CommandResponse) => {
 export const CommandContextMenuItem = ({
   className,
   command,
+  enabled = true,
   ...props
 }: ComponentProps<'button'> & {
   command: CommandResponse & { name: string };
+  enabled?: boolean;
 }) => {
   const { args, description } = useCommandTranslation(command);
 
   // todo: retrieve the command trigger char from textComposer - needed adjustment in LLC
-  const details = useMemo(() => `/${command.name} ${args}`, [args, command.name]);
+  const details = useMemo(
+    () => (args ? `/${command.name} ${args}` : `/${command.name}`),
+    [args, command.name],
+  );
 
   return (
     <ContextMenuButton
       {...props}
       className={clsx('str-chat__context-menu__button--command', className)}
       details={details}
+      disabled={!enabled}
       Icon={icons[command.name]}
       key={command.name}
       label={command.name}

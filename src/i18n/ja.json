@@ -165,6 +165,8 @@
   "Close dialog": "ダイアログを閉じる",
   "Close emoji picker": "絵文字ピッカーを閉める",
   "Close prompt: {{ title }}": "プロンプトを閉じる: {{ title }}",
+  "Command not available while editing": "編集中はコマンドを使用できません",
+  "Command not available while replying": "返信中はコマンドを使用できません",
   "Commands": "コマンド",
   "Commands matching": "一致するコマンド",
   "Connection failure, reconnecting now...": "接続が失敗しました。再接続中...",

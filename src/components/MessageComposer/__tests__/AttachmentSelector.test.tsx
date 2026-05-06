@@ -8,6 +8,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { CommandResponse } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
 import {
@@ -38,6 +39,8 @@ const UPLOAD_FILE_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__upload-file-button';
 const CREATE_POLL_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__create-poll-button';
+const COMMANDS_BUTTON_CLASS =
+  'str-chat__attachment-selector-actions-menu__commands-button';
 const SHARE_LOCATION_BUTTON_CLASS =
   'str-chat__attachment-selector-actions-menu__add-location-button';
 const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
@@ -175,6 +178,53 @@ describe('AttachmentSelector', () => {
     expect(menu).toHaveTextContent('File');
     expect(menu).toHaveTextContent('Poll');
     expect(menu).toHaveTextContent('Location');
+  });
+
+  it('keeps Commands visible and disables it when all commands are unavailable', async () => {
+    const disabledCommand = fromPartial<CommandResponse>({
+      args: 'ban-command-args',
+      description: 'ban-command-description',
+      name: 'ban',
+      set: 'moderation_set',
+    });
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            ...defaultChannelData,
+            cid: 'type:id',
+            config: {
+              commands: [disabledCommand],
+              polls: false,
+              shared_locations: false,
+              uploads: false,
+            },
+            id: 'id',
+            type: 'type',
+          },
+        },
+      ],
+    });
+
+    customChannel.messageComposer.initState({
+      composition: generateMessage({ text: 'editing' }),
+    });
+
+    await renderComponent({
+      channelStateContext: { channelCapabilities: {} },
+      customChannel,
+      customClient,
+    });
+
+    await invokeMenu();
+
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    const commandsButton = menu.querySelector(`.${COMMANDS_BUTTON_CLASS}`);
+
+    expect(commandsButton).toBeDisabled();
   });
 
   it('renders with poll only if only polls are enabled', async () => {

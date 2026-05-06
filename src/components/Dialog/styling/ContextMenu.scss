@@ -199,6 +199,13 @@
 
       &:disabled {
         background-color: transparent;
+        color: var(--str-chat__text-disabled);
+        cursor: default;
+
+        .str-chat__context-menu__button__details,
+        .str-chat__icon {
+          color: inherit;
+        }
       }
 
       .str-chat__icon {
@@ -211,7 +218,6 @@
         @include utils.ellipsis-text;
         flex: auto;
         text-align: start;
-        color: var(--str-chat__text-primary);
         white-space: nowrap;
         min-width: 0;
       }

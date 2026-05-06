@@ -7,7 +7,11 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { useAttachmentManagerState, useMessageComposerController } from '../hooks';
+import {
+  useAttachmentManagerState,
+  useMessageComposerCommands,
+  useMessageComposerController,
+} from '../hooks';
 import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import {
   ContextMenu,
@@ -146,10 +150,14 @@ export const DefaultAttachmentSelectorComponents = {
   Command({ submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
     const { openSubmenu } = useContextMenuContext();
+    const commands = useMessageComposerCommands();
+    const hasEnabledCommands = commands.some(({ enabled }) => enabled);
     const hasSubmenu = !!submenuItems;
+
     return (
       <ContextMenuButton
-        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__create-poll-button'
+        className='str-chat__attachment-selector-actions-menu__button str-chat__attachment-selector-actions-menu__commands-button'
+        disabled={!hasEnabledCommands}
         hasSubMenu={hasSubmenu}
         Icon={IconCommand}
         onClick={(event) => {

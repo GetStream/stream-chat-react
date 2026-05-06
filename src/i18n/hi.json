@@ -166,6 +166,8 @@
   "Close dialog": "डायलॉग बंद करें",
   "Close emoji picker": "इमोजी पिकर बंद करें",
   "Close prompt: {{ title }}": "प्रॉम्प्ट बंद करें: {{ title }}",
+  "Command not available while editing": "संपादन के दौरान कमांड उपलब्ध नहीं है",
+  "Command not available while replying": "उत्तर देते समय कमांड उपलब्ध नहीं है",
   "Commands": "कमांड",
   "Commands matching": "मेल खाती है",
   "Connection failure, reconnecting now...": "कनेक्शन विफल रहा, अब पुनः कनेक्ट हो रहा है ...",

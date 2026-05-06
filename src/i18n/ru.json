@@ -183,6 +183,8 @@
   "Close dialog": "Закрыть диалог",
   "Close emoji picker": "Закрыть окно выбора смайлов",
   "Close prompt: {{ title }}": "Закрыть запрос: {{ title }}",
+  "Command not available while editing": "Команда недоступна при редактировании",
+  "Command not available while replying": "Команда недоступна при ответе",
   "Commands": "Команды",
   "Commands matching": "Соответствие команд",
   "Connection failure, reconnecting now...": "Ошибка соединения, переподключение...",
