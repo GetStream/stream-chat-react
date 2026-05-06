@@ -1598,5 +1598,52 @@ describe(`MessageInputFlat`, () => {
         expect(screen.queryByText('giphy')).not.toBeInTheDocument();
       });
     });
+
+    it('should not render command suggestions when all commands are disabled', async () => {
+      const scrollIntoView = Element.prototype.scrollIntoView;
+      // eslint-disable-next-line vitest/prefer-spy-on
+      Element.prototype.scrollIntoView = vi.fn();
+
+      await renderComponent();
+      const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(async () => {
+        await fireEvent.change(textarea, {
+          target: {
+            selectionEnd: 1,
+            selectionStart: 1,
+            value: '/',
+          },
+        });
+      });
+
+      await waitFor(() => {
+        expect(screen.getByText('giphy')).toBeInTheDocument();
+      });
+
+      await enterEditMode();
+
+      await waitFor(() => {
+        expect(screen.queryByText('giphy')).not.toBeInTheDocument();
+      });
+
+      await act(async () => {
+        await fireEvent.change(textarea, {
+          target: {
+            selectionEnd: 1,
+            selectionStart: 1,
+            value: '/',
+          },
+        });
+      });
+
+      await waitFor(() => {
+        expect(
+          document.querySelector('.str-chat__suggestion-list'),
+        ).not.toBeInTheDocument();
+      });
+
+      Element.prototype.scrollIntoView = scrollIntoView;
+    });
   });
 });
