@@ -132,12 +132,7 @@
   background: transparent;
   border: none;
   outline: none;
-  outline-style: none;
   box-shadow: none;
-}
-
-.str-chat__form-text-input .str-chat__form-text-input__input::placeholder {
-  color: var(--str-chat__input-text-placeholder);
 }
 
 .str-chat__form-text-input.str-chat__form-text-input--disabled
@@ -154,7 +149,6 @@
 .str-chat__form-text-input .str-chat__form-text-input__input:focus,
 .str-chat__form-text-input .str-chat__form-text-input__input:focus-visible {
   outline: none;
-  outline-style: none;
   box-shadow: none;
 }
 
