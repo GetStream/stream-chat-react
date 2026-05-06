@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Event } from 'stream-chat';
 import {
   Dropdown,
   type DropdownTriggerProps,
@@ -808,7 +809,7 @@ export const WebSocketEventPromptDialog = ({
       throw new Error('Payload must be a JSON object');
     }
 
-    return parsedPayload as Record<string, unknown>;
+    return parsedPayload as Partial<Event>;
   }, []);
 
   const emitConfiguredEvent = useCallback(

@@ -1,3 +1,4 @@
+import type { ChannelMemberResponse, UserResponse } from 'stream-chat';
 import type { SupportedWebsocketEventType } from './websocketEventTemplates';
 
 export type PayloadMode = 'fixed' | 'fresh';
@@ -63,12 +64,12 @@ export type IntervalEmitter = {
 
 export type DialogMode = 'single' | 'pipeline' | 'intervals';
 
-export type SimulationUser = Record<string, unknown> & {
-  id: string;
+export type SimulationUser = UserResponse & {
+  invisible?: boolean;
 };
 
 export type SimulationState = {
-  membersByCid: Record<string, Record<string, Record<string, unknown>>>;
+  membersByCid: Record<string, Record<string, ChannelMemberResponse>>;
   messageIdsByCid: Record<string, string[]>;
   nextReactionTypeIndex: number;
   nextSequence: number;

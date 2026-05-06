@@ -30,7 +30,6 @@ const defaultUnsupportedObjectAttachment = {
     uploadState: 'finished',
   },
   debug: true,
-  metadata: { randomNumber: 7, source: 'vite-preview' },
   title: 'custom payload',
   type: 'custom',
 };

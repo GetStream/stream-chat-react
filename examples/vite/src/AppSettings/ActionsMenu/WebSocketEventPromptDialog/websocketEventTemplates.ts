@@ -1,6 +1,14 @@
-import type { Channel, StreamChat } from 'stream-chat';
+import type {
+  Channel,
+  ChannelMemberResponse,
+  ChannelResponse,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 
 type JsonObject = Record<string, unknown>;
+type DebugUserResponse = UserResponse & { invisible?: boolean };
+type DebugChannelResponse = ChannelResponse & { name?: string };
 
 export const supportedWebsocketEventTypes = [
   'ai_indicator.clear',
@@ -84,11 +92,11 @@ export type WebSocketEventPresetOption = {
 };
 
 export type WebSocketEventTemplateContext = {
-  actor: JsonObject;
-  actorMember: JsonObject;
+  actor: DebugUserResponse;
+  actorMember: ChannelMemberResponse;
   actorId: string;
-  channel: JsonObject;
-  channelMembers: JsonObject[];
+  channel: DebugChannelResponse;
+  channelMembers: ChannelMemberResponse[];
   channelId: string;
   channelName: string;
   channelType: string;
@@ -97,8 +105,8 @@ export type WebSocketEventTemplateContext = {
   lastReadAt: string;
   memberCount: number;
   messageId: string;
-  otherMember: JsonObject;
-  otherUser: JsonObject;
+  otherMember: ChannelMemberResponse;
+  otherUser: DebugUserResponse;
   parentMessageId: string;
   pollId: string;
   reactionType: string;
@@ -108,7 +116,11 @@ export type WebSocketEventTemplateContext = {
   watcherCount: number;
 };
 
-const createFallbackUser = (id: string, createdAt: string): JsonObject => ({
+type BuildChannelSeedContext = Omit<WebSocketEventTemplateContext, 'channel'> & {
+  channel: Partial<DebugChannelResponse>;
+};
+
+const createFallbackUser = (id: string, createdAt: string): DebugUserResponse => ({
   banned: false,
   blocked_user_ids: [],
   created_at: createdAt,
@@ -124,10 +136,10 @@ const createFallbackUser = (id: string, createdAt: string): JsonObject => ({
   updated_at: createdAt,
 });
 
-const getUserId = (user: JsonObject) =>
+const getUserId = (user: DebugUserResponse) =>
   typeof user.id === 'string' ? user.id : 'debug-user';
 
-const createMember = (user: JsonObject): JsonObject => {
+const createMember = (user: DebugUserResponse): ChannelMemberResponse => {
   const createdAt =
     typeof user.created_at === 'string' ? user.created_at : new Date().toISOString();
 
@@ -159,9 +171,9 @@ const getMemberUserId = (member: { user?: unknown; user_id?: unknown }) => {
 };
 
 const buildChannel = (
-  context: WebSocketEventTemplateContext,
+  context: BuildChannelSeedContext,
   overrides: JsonObject = {},
-): JsonObject => {
+): DebugChannelResponse => {
   const createdAt = context.createdAt;
 
   return {
@@ -274,7 +286,7 @@ const buildNotificationChannelMutesUpdatedPayload = (
 
 const buildMuteEntry = (
   context: WebSocketEventTemplateContext,
-  target: JsonObject = context.otherUser,
+  target: DebugUserResponse = context.otherUser,
   overrides: JsonObject = {},
 ): JsonObject => ({
   created_at: context.createdAt,
@@ -749,7 +761,7 @@ export const createWebSocketEventTemplateContext = ({
   const createdAt = new Date().toISOString();
   const actorUser =
     client.user && typeof client.user === 'object'
-      ? ({ ...client.user } as JsonObject)
+      ? ({ ...client.user } as DebugUserResponse)
       : createFallbackUser('debug-user', createdAt);
   const actorId = typeof actorUser.id === 'string' ? actorUser.id : 'debug-user';
 
@@ -758,7 +770,7 @@ export const createWebSocketEventTemplateContext = ({
     (member) => getMemberUserId(member) === actorId,
   );
   const actorMember = actorMemberFromChannel
-    ? ({ ...actorMemberFromChannel } as JsonObject)
+    ? ({ ...actorMemberFromChannel } as ChannelMemberResponse)
     : createMember(actorUser);
 
   const otherMemberFromChannel = members.find(
@@ -766,16 +778,16 @@ export const createWebSocketEventTemplateContext = ({
   );
   const otherUser =
     otherMemberFromChannel?.user && typeof otherMemberFromChannel.user === 'object'
-      ? ({ ...otherMemberFromChannel.user } as JsonObject)
+      ? ({ ...otherMemberFromChannel.user } as DebugUserResponse)
       : createFallbackUser('debug-other-user', createdAt);
   const otherMember = otherMemberFromChannel
-    ? ({ ...otherMemberFromChannel } as JsonObject)
+    ? ({ ...otherMemberFromChannel } as ChannelMemberResponse)
     : createMember(otherUser);
   const channelMembers = (
     members.length
-      ? members.map((member) => ({ ...member }) as JsonObject)
+      ? members.map((member) => ({ ...member }) as ChannelMemberResponse)
       : [actorMember, otherMember]
-  ) as JsonObject[];
+  ) as ChannelMemberResponse[];
 
   const channelData = channel?.data as
     | {
@@ -916,7 +928,7 @@ export const websocketEventTemplateDefinitions = {
   ),
   'channel.updated': {
     buildDefault: (context) => buildChannelUpdatedRenamedPayload(context),
-    description: 'Update the active channel metadata.',
+    description: 'Update the active channel details.',
   },
   'channel.visible': {
     buildDefault: (context) =>
@@ -1367,7 +1379,7 @@ export const websocketEventTemplateDefinitions = {
         },
         user: context.actor,
       }),
-    description: 'Update thread metadata for the active channel.',
+    description: 'Update thread details for the active channel.',
   },
   'typing.start': {
     buildDefault: (context) =>

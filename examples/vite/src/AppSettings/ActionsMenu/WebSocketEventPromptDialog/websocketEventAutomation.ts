@@ -1,4 +1,12 @@
-import type { Channel, Event, StreamChat } from 'stream-chat';
+import type {
+  Channel,
+  ChannelMemberResponse,
+  Event,
+  MessageResponseBase,
+  ReactionResponse,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
 
 import {
   type SupportedWebsocketEventType,
@@ -7,7 +15,17 @@ import {
 } from './websocketEventTemplates';
 import type { SimulationState, SimulationUser } from './types';
 
-type JsonObject = Record<string, unknown>;
+type UnknownRecord = Record<string, unknown>;
+type EventPayload = Omit<
+  Partial<Event>,
+  'channel' | 'member' | 'message' | 'reaction' | 'user'
+> & {
+  channel?: Partial<WebSocketEventTemplateContext['channel']>;
+  member?: ChannelMemberResponse;
+  message?: Partial<MessageResponseBase>;
+  reaction?: ReactionResponse;
+  user?: UserResponse;
+};
 
 const messageTextFragments = [
   'debug event payload',
@@ -19,12 +37,12 @@ const messageTextFragments = [
 
 const reactionTypes = ['love', 'haha', 'wow', 'like', 'sad'] as const;
 
-const asJsonObject = (value: unknown): JsonObject | undefined => {
+const asJsonObject = (value: unknown): UnknownRecord | undefined => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return undefined;
   }
 
-  return value as JsonObject;
+  return value as UnknownRecord;
 };
 
 const getId = (value: unknown) => {
@@ -44,10 +62,33 @@ const getMessageUser = (message: unknown) => asJsonObject(asJsonObject(message)?
 const getMessageMember = (message: unknown) =>
   asJsonObject(asJsonObject(message)?.member);
 
+const asUserResponse = (value: unknown): UserResponse | undefined => {
+  const user = asJsonObject(value);
+
+  return typeof user?.id === 'string' ? (user as unknown as UserResponse) : undefined;
+};
+
+const asChannelMemberResponse = (value: unknown): ChannelMemberResponse | undefined => {
+  const member = asJsonObject(value);
+
+  if (!member) return undefined;
+
+  const userId = getId(member.user_id) ?? getUserId(member.user);
+
+  return userId ? (member as unknown as ChannelMemberResponse) : undefined;
+};
+
 const buildRandomMessageText = (sequence: number) =>
   `${messageTextFragments[sequence % messageTextFragments.length]} #${sequence}`;
 
-const buildReactionState = ({ reaction }: { reaction: JsonObject }): JsonObject => {
+const buildReactionState = ({
+  reaction,
+}: {
+  reaction: ReactionResponse;
+}): Pick<
+  MessageResponseBase,
+  'latest_reactions' | 'reaction_counts' | 'reaction_groups' | 'reaction_scores'
+> => {
   const reactionType = getId(reaction.type) ?? 'love';
   const reactionScore =
     typeof reaction.score === 'number' && Number.isFinite(reaction.score)
@@ -99,7 +140,7 @@ const getChannelMembersForCid = (
   cid: string,
   simulationState: SimulationState,
   templateContext: WebSocketEventTemplateContext,
-) => {
+): ChannelMemberResponse[] => {
   const knownMembers = Object.values(simulationState.membersByCid[cid] ?? {});
 
   if (knownMembers.length > 0) {
@@ -121,7 +162,7 @@ const buildFreshContext = (
     templateContext,
   );
   const memberCount = channelMembers.length || templateContext.memberCount;
-  const baseChannel = asJsonObject(templateContext.channel) ?? {};
+  const baseChannel = templateContext.channel;
 
   return {
     ...templateContext,
@@ -211,9 +252,9 @@ const registerUserAndMember = ({
   user,
 }: {
   cid: string;
-  member?: JsonObject;
+  member?: ChannelMemberResponse;
   simulationState: SimulationState;
-  user?: JsonObject;
+  user?: UserResponse;
 }) => {
   if (user) {
     const userId = getUserId(user);
@@ -265,9 +306,9 @@ export const createInitialSimulationState = ({
 
   registerUserAndMember({
     cid,
-    member: templateContext.actorMember,
+    member: templateContext.actorMember as ChannelMemberResponse,
     simulationState: state,
-    user: templateContext.actor,
+    user: templateContext.actor as UserResponse,
   });
   registerUserAndMember({
     cid,
@@ -283,9 +324,9 @@ export const createInitialSimulationState = ({
 
     registerUserAndMember({
       cid,
-      member: memberObject,
+      member: asChannelMemberResponse(memberObject),
       simulationState: state,
-      user: userObject,
+      user: asUserResponse(userObject),
     });
   });
 
@@ -304,9 +345,9 @@ export const createInitialSimulationState = ({
 
     registerUserAndMember({
       cid,
-      member: getMessageMember(messageObject),
+      member: asChannelMemberResponse(getMessageMember(messageObject)),
       simulationState: state,
-      user: getMessageUser(messageObject),
+      user: asUserResponse(getMessageUser(messageObject)),
     });
   });
 
@@ -321,11 +362,11 @@ export const buildFreshWebSocketEventPayload = ({
   eventType: SupportedWebsocketEventType;
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
-}): JsonObject => {
+}): EventPayload => {
   const freshContext = buildFreshContext(templateContext, simulationState);
   const basePayload = websocketEventTemplateDefinitions[eventType].buildDefault(
     freshContext,
-  ) as JsonObject;
+  ) as EventPayload;
 
   switch (eventType) {
     case 'message.new':
@@ -470,15 +511,15 @@ export const trackSimulationStateFromPayload = ({
 
   registerUserAndMember({
     cid,
-    member: asJsonObject(payload.member),
+    member: asChannelMemberResponse(payload.member),
     simulationState,
-    user: asJsonObject(payload.user),
+    user: asUserResponse(payload.user),
   });
   registerUserAndMember({
     cid,
-    member: getMessageMember(message),
+    member: asChannelMemberResponse(getMessageMember(message)),
     simulationState,
-    user: getMessageUser(message),
+    user: asUserResponse(getMessageUser(message)),
   });
 
   const channelObject = asJsonObject(payload.channel);
@@ -493,9 +534,9 @@ export const trackSimulationStateFromPayload = ({
 
       registerUserAndMember({
         cid,
-        member,
+        member: asChannelMemberResponse(member),
         simulationState,
-        user: asJsonObject(member.user),
+        user: asUserResponse(member.user),
       });
     });
   }
@@ -510,14 +551,14 @@ export const emitWebSocketEventPayload = ({
 }: {
   client: StreamChat;
   eventType: SupportedWebsocketEventType;
-  payload: Event;
+  payload: EventPayload;
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
-  const emittedPayload: Event = {
+  const emittedPayload = {
     ...payload,
     type: eventType,
-  };
+  } as Event;
 
   client.dispatchEvent(emittedPayload);
 

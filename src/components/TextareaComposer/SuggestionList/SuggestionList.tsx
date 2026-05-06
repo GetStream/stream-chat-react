@@ -24,7 +24,10 @@ import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialo
 import { ContextMenu } from '../../Dialog';
 import { usePopoverPosition } from '../../Dialog/hooks/usePopoverPosition';
 import { InfiniteScrollPaginator } from '../../InfiniteScrollPaginator/InfiniteScrollPaginator';
-import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
+import {
+  useMessageComposerCommands,
+  useMessageComposerController,
+} from '../../MessageComposer/hooks';
 import { useTranslationContext } from '../../../context';
 import type {
   SearchSourceState,
@@ -91,6 +94,7 @@ export const SuggestionList = ({
   } = useComponentContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
+  const commands = useMessageComposerCommands();
   const { textComposer } = messageComposer;
   const { selection, suggestions } = useStateStore(
     textComposer.state,
@@ -98,6 +102,12 @@ export const SuggestionList = ({
   );
   const { items } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
+  const hasEnabledCommandSuggestions = useMemo(
+    () =>
+      suggestions?.searchSource.type !== 'commands' ||
+      commands.some(({ enabled }) => enabled),
+    [commands, suggestions?.searchSource.type],
+  );
 
   const [container, setContainer] = useState<HTMLDivElement | null>(null);
   const caretRectRef = useRef<DOMRect | null>(null);
@@ -207,7 +217,8 @@ export const SuggestionList = ({
     virtualCaretReference,
   ]);
 
-  if (!suggestions || !items?.length || !component) return null;
+  if (!suggestions || !items?.length || !component || !hasEnabledCommandSuggestions)
+    return null;
 
   const suggestionMenuLabel =
     suggestions.searchSource.type === 'commands'
