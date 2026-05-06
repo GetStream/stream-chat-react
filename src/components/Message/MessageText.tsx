@@ -1,9 +1,10 @@
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { useId, useMemo } from 'react';
 import { messageHasAttachments, messageTextHasEmojisOnly } from './utils';
 
 import type { MessageContextValue } from '../../context';
 import { useMessageContext, useTranslationContext } from '../../context';
+import { VisuallyHidden } from '../VisuallyHidden';
 import { renderText as defaultRenderText } from './renderText';
 
 import type { LocalMessage } from 'stream-chat';
@@ -37,9 +38,11 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
 
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
-  const { userLanguage } = useTranslationContext('MessageText');
+  const { t, userLanguage } = useTranslationContext('MessageText');
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
+  const messageContextId = useId();
+  const messageTextId = useId();
 
   const messageTextToRender =
     translationView === 'original'
@@ -56,6 +59,13 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const hasMentionedUsers = Boolean(message.mentioned_users?.length);
   const isMentionsInteractionEnabled =
     hasMentionedUsers && typeof onMentionsClickMessage === 'function';
+  const senderName = message.user?.name;
+  const messageContext = senderName
+    ? t('aria/Message from {{ user }},', { user: senderName })
+    : t('aria/Message,');
+  // `aria-labelledby` accepts a space-separated list of element ids. We point to the
+  // hidden message context and the rendered message text so screen readers announce both.
+  const messageLabelledBy = `${messageContextId} ${messageTextId}`;
 
   const handleMentionsKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (!isMentionsInteractionEnabled || (event.key !== 'Enter' && event.key !== ' ')) {
@@ -68,9 +78,27 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
 
   if (!messageTextToRender) return null;
 
+  /**
+   * The component has two mutually exclusive focus models. The reason is this bit of behavior:
+   *
+   * if mentions are not interactive:
+   *  - the whole message text block is just a readable focus stop
+   *  - outer wrapper gets tabIndex={0}
+   *  - inner wrapper is not focusable
+   * if mentions are interactive:
+   *  - keyboard interaction needs to land on the inner element, because that’s where onClick, onKeyDown, and mention hover/click behavior live
+   *  - inner wrapper gets tabIndex={0}
+   *  - outer wrapper must stop being focusable, otherwise you create an extra dead focus stop before the actual interactive target
+   */
   return (
-    <div className={wrapperClass} tabIndex={isMentionsInteractionEnabled ? undefined : 0}>
+    <div
+      aria-labelledby={isMentionsInteractionEnabled ? undefined : messageLabelledBy}
+      className={wrapperClass}
+      tabIndex={isMentionsInteractionEnabled ? undefined : 0}
+    >
+      <VisuallyHidden id={messageContextId}>{messageContext}</VisuallyHidden>
       <div
+        aria-labelledby={isMentionsInteractionEnabled ? messageLabelledBy : undefined}
         className={clsx(innerClass, {
           [` str-chat__message-text-inner--is-emoji`]:
             messageTextHasEmojisOnly(message) && !message.quoted_message,
@@ -83,9 +111,9 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
         tabIndex={isMentionsInteractionEnabled ? 0 : undefined}
       >
         {unsafeHTML && message.html ? (
-          <div dangerouslySetInnerHTML={{ __html: message.html }} />
+          <div dangerouslySetInnerHTML={{ __html: message.html }} id={messageTextId} />
         ) : (
-          <div>{messageText}</div>
+          <div id={messageTextId}>{messageText}</div>
         )}
       </div>
     </div>

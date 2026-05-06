@@ -64,6 +64,9 @@ const defaultProps = {
   threadList: false,
 };
 
+const translate = (key: string, options?: Record<string, string>) =>
+  key.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token: string) => options?.[token] ?? '');
+
 function generateAliceMessage(messageOptions) {
   return generateMessage({
     user: alice,
@@ -100,7 +103,8 @@ async function renderMessageText({
         >
           <TranslationProvider
             value={mockTranslationContextValue({
-              t: ((key: string) => key) as TranslationContextValue['t'],
+              t: ((key: string, options?: Record<string, string>) =>
+                translate(key, options)) as TranslationContextValue['t'],
               tDateTimeParser:
                 customDateTimeParser as TranslationContextValue['tDateTimeParser'],
               userLanguage: 'en',
@@ -252,6 +256,45 @@ describe('<MessageText />', () => {
     expect(innerWrapper).not.toHaveAttribute('tabindex');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  it('should expose sender context on the focusable message wrapper', async () => {
+    const text = 'Hello, world!';
+    const message = generateAliceMessage({ text });
+    const { getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    const focusableWrapper = getByTestId(messageTextTestId).parentElement;
+
+    expect(focusableWrapper).toHaveAccessibleName(`aria/Message from alice, ${text}`);
+  });
+
+  it('should expose sender context on the mention-interactive text wrapper', async () => {
+    const text = 'Hello @bob';
+    const message = generateAliceMessage({ mentioned_users: [bob], text });
+    const { getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    expect(getByTestId(messageTextTestId)).toHaveAccessibleName(
+      `aria/Message from alice, ${text}`,
+    );
+  });
+
+  it('should not expose message user id in the accessible name fallback', async () => {
+    const text = 'Hello, world!';
+    const message = generateMessage({
+      text,
+      user: generateUser({ id: 'alice-id', name: undefined }),
+    });
+    const { getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    const focusableWrapper = getByTestId(messageTextTestId).parentElement;
+
+    expect(focusableWrapper).toHaveAccessibleName(`aria/Message, ${text}`);
   });
 
   it('should inform that message was not sent when message is has type "error"', async () => {
