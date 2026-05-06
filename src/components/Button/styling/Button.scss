@@ -4,7 +4,6 @@
   .str-chat__button {
     @include utils.button-reset;
     position: relative; /* creates positioning context for pseudo ::after overlay */
-    overflow: hidden;
     white-space: nowrap;
     cursor: pointer;
 
