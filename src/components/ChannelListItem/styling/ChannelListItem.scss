@@ -3,6 +3,7 @@
   position: relative;
 
   &:has(.str-chat__channel-list-item__action-buttons--active),
+  &:focus-within,
   &:hover {
     .str-chat__channel-list-item__action-buttons {
       display: flex;

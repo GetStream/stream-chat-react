@@ -814,5 +814,38 @@ describe('ChannelListItemActionButtons defaults', () => {
         expect(toggle).toHaveAttribute('aria-expanded', 'false');
       });
     });
+
+    it('restores focus to the dropdown toggle on Escape', async () => {
+      const { channel, client } = await setupTwoMemberGroupChannel();
+
+      act(() => {
+        render(
+          <Chat client={client}>
+            <ChannelListItem channel={channel} />
+          </Chat>,
+        );
+      });
+
+      const toggle = screen.getByTestId('channel-list-item-dropdown-toggle');
+
+      act(() => {
+        fireEvent.click(toggle);
+      });
+
+      const firstItem = await screen.findByRole('menuitem', { name: 'Archive' });
+      firstItem.focus();
+
+      act(() => {
+        fireEvent.keyDown(firstItem, { key: 'Escape' });
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(toggle).toHaveFocus();
+      });
+    });
   });
 });

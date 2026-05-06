@@ -24,12 +24,33 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
   const { channel } = useChannelListItemContext();
   const [referenceElement, setReferenceElement] =
     React.useState<HTMLButtonElement | null>(null);
+  const [isRestoringFocus, setIsRestoringFocus] = React.useState(false);
   const dialogId = ChannelListItemActionButtons.getDialogId({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     channelId: channel.id!,
   });
   const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
+
+  const closeContextMenu = React.useCallback(() => {
+    setIsRestoringFocus(true);
+    dialog?.close();
+
+    requestAnimationFrame(() => {
+      if (!referenceElement?.isConnected) {
+        setIsRestoringFocus(false);
+        return;
+      }
+
+      referenceElement.focus();
+
+      requestAnimationFrame(() => {
+        if (document.activeElement !== referenceElement) {
+          setIsRestoringFocus(false);
+        }
+      });
+    });
+  }, [dialog, referenceElement]);
 
   const filteredActionSet = useBaseChannelActionSetFilter(defaultChannelActionSet);
   const { dropdownActionSet, quickActionSet, quickDropdownToggleAction } =
@@ -43,9 +64,13 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
   return (
     <div
       className={clsx('str-chat__channel-list-item__action-buttons', {
-        'str-chat__channel-list-item__action-buttons--active': dialogIsOpen,
+        'str-chat__channel-list-item__action-buttons--active':
+          dialogIsOpen || isRestoringFocus,
       })}
       data-testid='channel-list-item-action-buttons'
+      onFocusCapture={() => {
+        setIsRestoringFocus(false);
+      }}
     >
       {quickDropdownToggleAction && dropdownActionSet.length > 0 && (
         <quickDropdownToggleAction.Component ref={setReferenceElement} />
@@ -59,7 +84,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         data-testid='channel-list-item-context-menu'
         dialogManagerId={dialogManager?.id}
         id={dialog.id}
-        onClose={dialog?.close}
+        onClose={closeContextMenu}
         placement='bottom-start'
         referenceElement={referenceElement}
         tabIndex={-1}

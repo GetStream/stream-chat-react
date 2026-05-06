@@ -13,8 +13,10 @@ import {
 
 import type { Channel, StreamChat } from 'stream-chat';
 import { ChannelListItemUI } from '../ChannelListItemUI';
+import type { ChannelListItemUIProps } from '../ChannelListItem';
 import {
   ChatProvider,
+  type ComponentContextValue,
   ComponentProvider,
   DialogManagerProvider,
   TranslationProvider,
@@ -26,6 +28,16 @@ const PREVIEW_TEST_ID = 'channel-list-item-button';
 const NoopActionButtons = () => null;
 NoopActionButtons.getDialogId = () => '';
 NoopActionButtons.displayName = 'ChannelListItemActionButtons';
+
+const FocusableActionButtons = () => (
+  <div data-testid='channel-list-item-action-buttons'>
+    <button data-testid='channel-options-button' type='button'>
+      Channel actions
+    </button>
+  </div>
+);
+FocusableActionButtons.getDialogId = () => '';
+FocusableActionButtons.displayName = 'ChannelListItemActionButtons';
 
 const mockTranslation = (key: string, options?: Record<string, unknown>) => {
   const interpolated = Object.entries(options || {}).reduce(
@@ -43,7 +55,10 @@ describe('ChannelPreviewMessenger', () => {
 
   let chatClient: StreamChat;
   let channel: Channel;
-  const renderComponent = (props?: any, componentOverrides = {}) => (
+  const renderComponent = (
+    props?: Partial<ChannelListItemUIProps>,
+    componentOverrides: Partial<ComponentContextValue> = {},
+  ) => (
     <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
       <ChatProvider value={mockChatContext({ client: chatClient })}>
         <DialogManagerProvider>
@@ -126,6 +141,21 @@ describe('ChannelPreviewMessenger', () => {
     const previewButton = screen.queryByTestId(PREVIEW_TEST_ID);
     fireEvent.click(previewButton);
     expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders channel actions after the channel item so keyboard users can tab into them', () => {
+    render(
+      renderComponent(undefined, {
+        ChannelListItemActionButtons: FocusableActionButtons,
+      }),
+    );
+
+    const previewButton = screen.getByTestId(PREVIEW_TEST_ID);
+    const actionButton = screen.getByTestId('channel-options-button');
+    expect(
+      previewButton.compareDocumentPosition(actionButton) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   describe('pinned', () => {
