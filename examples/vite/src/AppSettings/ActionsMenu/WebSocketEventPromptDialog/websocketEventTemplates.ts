@@ -247,7 +247,6 @@ const buildChannel = (
     hidden: false,
     id: context.channelId,
     last_message_at: createdAt,
-    metadata: [],
     member_count: context.memberCount,
     members: context.channelMembers,
     name: context.channelName,
@@ -929,7 +928,7 @@ export const websocketEventTemplateDefinitions = {
   ),
   'channel.updated': {
     buildDefault: (context) => buildChannelUpdatedRenamedPayload(context),
-    description: 'Update the active channel metadata.',
+    description: 'Update the active channel details.',
   },
   'channel.visible': {
     buildDefault: (context) =>
@@ -1380,7 +1379,7 @@ export const websocketEventTemplateDefinitions = {
         },
         user: context.actor,
       }),
-    description: 'Update thread metadata for the active channel.',
+    description: 'Update thread details for the active channel.',
   },
   'typing.start': {
     buildDefault: (context) =>
