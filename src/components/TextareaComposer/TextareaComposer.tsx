@@ -57,6 +57,8 @@ const attachmentManagerStateSelector = (state: AttachmentManagerState) => ({
 const defaultShouldSubmit = (event: React.KeyboardEvent<HTMLTextAreaElement>) =>
   event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing;
 
+export const shouldBackspaceExitCommandMode = (text: string) => text.length === 0;
+
 export type TextareaComposerProps = Omit<
   TextareaHTMLAttributes<HTMLTextAreaElement>,
   'style' | 'defaultValue' | 'disabled' | 'value'
@@ -174,6 +176,9 @@ export const TextareaComposer = ({
         return;
       }
 
+      // use the textarea value directly as the composer state is a step behind
+      const textareaValue = textareaRef.current?.value ?? event.currentTarget.value;
+
       if (
         textComposer.suggestions &&
         textComposer.suggestions.searchSource.items?.length
@@ -209,6 +214,13 @@ export const TextareaComposer = ({
             return nextIndex;
           });
         }
+      } else if (
+        textComposer.command &&
+        (event.key === 'Escape' ||
+          (event.key === 'Backspace' && shouldBackspaceExitCommandMode(textareaValue)))
+      ) {
+        event.preventDefault();
+        textComposer.clearCommand();
       } else if (
         shouldSubmit(event) &&
         textareaRef.current &&
