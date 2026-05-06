@@ -1,5 +1,17 @@
 import React from 'react';
-import { SearchController } from 'stream-chat';
+import type {
+  Channel as ChannelType,
+  CommandResponse,
+  CooldownTimerState,
+  LinkPreview,
+  LinkPreviewsManagerState,
+  LocalAttachment,
+  LocalMessage,
+  SendFileAPIResponse,
+  StreamChat,
+  UserResponse,
+} from 'stream-chat';
+import { LinkPreviewStatus, SearchController } from 'stream-chat';
 import {
   act,
   cleanup,
@@ -13,16 +25,18 @@ import { axe } from '../../../../axe-helper';
 import { nanoid } from 'nanoid';
 import { fromPartial } from '@total-typescript/shoehorn';
 
+import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
 import { Channel } from '../../Channel/Channel';
+import type { MessageActionsProps } from '../../MessageActions';
 import { MessageActions } from '../../MessageActions';
 
-import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
 import type {
   ChatContextValue,
   ComponentContextValue,
   MessageContextValue,
 } from '../../../context';
+import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -36,21 +50,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
-import type {
-  Attachment,
-  Channel as ChannelType,
-  CommandResponse,
-  CooldownTimerState,
-  LinkPreviewsManagerState,
-  LocalAttachment,
-  LocalMessage,
-  SendFileAPIResponse,
-  StreamChat,
-  UserResponse,
-} from 'stream-chat';
 import type { ChannelProps } from '../../Channel';
-import type { MessageComposerProps } from '../MessageComposer';
-import type { MessageActionsProps } from '../../MessageActions';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
 vi.mock('../../ChatView', async (importOriginal) => {
@@ -102,24 +102,25 @@ const mockedChannelData = generateChannel(
     },
     members: [generateMember({ user }), generateMember({ user: mentionUser })],
     messages: [mainListMessage],
-    threads: [threadMessage],
+    threads: [threadMessage] as unknown as GenerateChannelOptions['threads'],
   }),
 );
 
-const defaultChatContext = {
+const defaultChatContext = fromPartial<ChatContextValue>({
   channelsQueryState: { queryInProgress: 'uninitialized' },
   getAppSettings: vi.fn(),
   latestMessageDatesByChannels: {},
   mutes: [],
   searchController: new SearchController(),
-};
+});
 
 const cooldown = 30;
 const filename = 'some.txt';
 const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttachmentPreview will try to load the image
 
 const getImage = () => new File(['content'], filename, { type: 'image/png' });
-const getFile = (name = filename) => new File(['content'], name, { type: 'text/plain' });
+const getFile = (name = filename): File =>
+  new File(['content'], name, { type: 'text/plain' });
 
 // Polyfill DOMRect for jsdom
 if (typeof globalThis.DOMRect === 'undefined') {
@@ -174,7 +175,7 @@ vi.mock('../../Channel/utils', async (importOriginal) => ({
   makeAddNotifications: () => mockAddNotification,
 }));
 
-const defaultMessageContextValue = {
+const defaultMessageContextValue = fromPartial<MessageContextValue>({
   getMessageActions: () => ['delete', 'edit', 'quote'],
   handleDelete: () => {},
   handleFlag: () => {},
@@ -183,7 +184,7 @@ const defaultMessageContextValue = {
   handlePin: () => {},
   isMyMessage: () => true,
   message: mainListMessage,
-};
+});
 
 function dropFile(file: File, formElement: Element) {
   fireEvent.drop(formElement, {
@@ -350,8 +351,14 @@ const setupUploadRejected = async (error: unknown) => {
 };
 
 /** `channel.sendImage` / `channel.sendFile` pass upload options (e.g. `onUploadProgress`) after the file. */
-const expectChannelUploadCall = (spy, expectedFile) => {
-  expect(spy).toHaveBeenCalled();
+type UploadSpy = {
+  mock: {
+    calls: [unknown, ...unknown[]][];
+  };
+};
+
+const expectChannelUploadCall = (spy: UploadSpy, expectedFile: File) => {
+  expect(spy.mock.calls.length).toBeGreaterThan(0);
   const callArgs = spy.mock.calls[0];
   expect(callArgs[0]).toBe(expectedFile);
   expect(callArgs[callArgs.length - 1]).toEqual(
@@ -359,7 +366,11 @@ const expectChannelUploadCall = (spy, expectedFile) => {
   );
 };
 
-const renderWithActiveCooldown = async ({ messageInputProps = {} } = {}) => {
+const renderWithActiveCooldown = async ({
+  messageInputProps = {},
+}: {
+  messageInputProps?: Partial<MessageComposerProps>;
+} = {}) => {
   const {
     channels: [channel],
     client,
@@ -530,9 +541,9 @@ describe(`MessageInputFlat`, () => {
     // Manually trigger link preview state so the previews section renders
     await act(() => {
       const scrapedData = generateScrapedDataAttachment(
-        fromPartial<Attachment>({
+        fromPartial<LinkPreview>({
           og_scrape_url: 'http://getstream.io',
-          status: 'loaded',
+          status: LinkPreviewStatus.LOADED,
           title: 'http://getstream.io',
         }),
       );
@@ -1319,6 +1330,87 @@ describe(`MessageInputFlat`, () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  describe('Command dismissal', () => {
+    it('clears the active command when Escape is pressed in the textarea', async () => {
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      const command = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(command);
+      });
+
+      expect(screen.getByText('giphy')).toBeInTheDocument();
+
+      await act(() => {
+        fireEvent.keyDown(input, { key: 'Escape' });
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('giphy')).not.toBeInTheDocument();
+      });
+    });
+
+    it('clears the active command when Backspace is pressed in an empty textarea', async () => {
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      const command = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(command);
+      });
+
+      expect(screen.getByText('giphy')).toBeInTheDocument();
+      expect(input).toHaveValue('');
+
+      await act(() => {
+        fireEvent.keyDown(input, { key: 'Backspace' });
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('giphy')).not.toBeInTheDocument();
+      });
+    });
+
+    it('clears the active command when the textarea DOM is empty even if composer text lags behind', async () => {
+      const { channel } = await renderComponent();
+      const input = (await screen.findByPlaceholderText(
+        inputPlaceholder,
+      )) as HTMLTextAreaElement;
+      const command = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(command);
+        channel.messageComposer.textComposer.state.next({
+          ...channel.messageComposer.textComposer.state.getLatestValue(),
+          text: 'a',
+        });
+      });
+
+      input.value = '';
+
+      await act(() => {
+        fireEvent.keyDown(input, { key: 'Backspace' });
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByText('giphy')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('QuotedMessagePreview', () => {
