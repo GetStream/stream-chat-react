@@ -53,7 +53,6 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
 
   return (
     <div className='str-chat__channel-list-item-container'>
-      <ChannelListItemActionButtons />
       <button
         aria-label={t('aria/Select Channel: {{ channelName }}', {
           channelName: displayTitle || '',
@@ -103,6 +102,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
           />
         </div>
       </button>
+      <ChannelListItemActionButtons />
     </div>
   );
 };
