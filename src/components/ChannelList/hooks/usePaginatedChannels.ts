@@ -12,6 +12,8 @@ import type {
 } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
+import { useTranslationContext } from '../../../context/TranslationContext';
+import { useNotificationApi } from '../../Notifications';
 
 import type { ChannelsQueryState } from '../../Chat/hooks/useChannelsQueryState';
 
@@ -44,9 +46,11 @@ export const usePaginatedChannels = (
   recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
   customQueryChannels?: CustomQueryChannelsFn,
 ) => {
+  const { addNotification } = useNotificationApi();
   const {
     channelsQueryState: { error, setError, setQueryInProgress },
   } = useChatContext('usePaginatedChannels');
+  const { t } = useTranslationContext();
   const [channels, setChannels] = useState<Array<Channel>>([]);
   const [hasNextPage, setHasNextPage] = useState(true);
   const lastRecoveryTimestamp = useRef<number | undefined>(undefined);
@@ -62,6 +66,8 @@ export const usePaginatedChannels = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const queryChannels = async (queryType = 'load-more') => {
     setError(null);
+    const offset = queryType === 'reload' ? 0 : channels.length;
+    const isFirstPage = offset === 0;
 
     if (queryType === 'reload') {
       setChannels([]);
@@ -77,8 +83,6 @@ export const usePaginatedChannels = (
           setHasNextPage,
         });
       } else {
-        const offset = queryType === 'reload' ? 0 : channels.length;
-
         const newOptions = {
           offset,
           ...options,
@@ -105,7 +109,22 @@ export const usePaginatedChannels = (
       }
     } catch (error) {
       console.warn(error);
-      setError(error as ErrorFromResponse<APIErrorResponse>);
+      addNotification({
+        emitter: 'ChannelList',
+        error: error instanceof Error ? error : undefined,
+        message: isFirstPage
+          ? t('Failed to load channels')
+          : t('Failed to load more channels'),
+        severity: 'error',
+        targetPanels: ['channel-list'],
+        type: isFirstPage
+          ? 'api:channel-list:load:failed'
+          : 'api:channel-list:load-more:failed',
+      });
+
+      if (isFirstPage) {
+        setError(error as ErrorFromResponse<APIErrorResponse>);
+      }
     }
 
     setQueryInProgress(null);

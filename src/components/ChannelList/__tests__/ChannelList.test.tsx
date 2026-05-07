@@ -314,6 +314,42 @@ describe('ChannelList', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should add a notification when the first page of channels fails to load', async () => {
+    useMockedApis(chatClient, [erroredPostApi()]);
+    const addNotificationSpy = vi.spyOn(chatClient.notifications, 'add');
+    vi.spyOn(console, 'warn').mockImplementation(() => null);
+
+    render(
+      <Chat client={chatClient}>
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList
+            filters={{}}
+            options={{ presence: true, state: true, watch: true }}
+          />
+        </WithComponents>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Failed to load channels',
+          options: expect.objectContaining({
+            severity: 'error',
+            tags: expect.arrayContaining(['target:channel-list']),
+            type: 'api:channel-list:load:failed',
+          }),
+          origin: { emitter: 'ChannelList' },
+        }),
+      );
+    });
+  });
+
   it('provides the error object to LoadingErrorIndicator', async () => {
     useMockedApis(chatClient, [erroredPostApi()]);
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
@@ -339,6 +375,54 @@ describe('ChannelList', () => {
     });
 
     expect(screen.getByText('StreamChat error HTTP code: 500')).toBeInTheDocument();
+  });
+
+  it('should keep loaded channels visible and add a notification when loading more fails', async () => {
+    useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
+    const addNotificationSpy = vi.spyOn(chatClient.notifications, 'add');
+    vi.spyOn(console, 'warn').mockImplementation(() => null);
+
+    render(
+      <Chat client={chatClient}>
+        <WithComponents
+          overrides={{
+            ChannelListItemUI: ChannelPreviewComponent,
+            ChannelListUI: ChannelListComponent,
+          }}
+        >
+          <ChannelList filters={{}} options={{ limit: 2 }} />
+        </WithComponents>
+      </Chat>,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
+      expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
+    });
+
+    useMockedApis(chatClient, [erroredPostApi()]);
+
+    await act(() => {
+      fireEvent.click(screen.getByTestId('load-more-button'));
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Failed to load more channels',
+          options: expect.objectContaining({
+            severity: 'error',
+            tags: expect.arrayContaining(['target:channel-list']),
+            type: 'api:channel-list:load-more:failed',
+          }),
+          origin: { emitter: 'ChannelList' },
+        }),
+      );
+    });
+
+    expect(screen.getByTestId(testChannel1.channel.id)).toBeInTheDocument();
+    expect(screen.getByTestId(testChannel2.channel.id)).toBeInTheDocument();
+    expect(screen.queryByTestId('error-indicator')).not.toBeInTheDocument();
   });
 
   it('should render loading indicator before the first channel list load and on reload', async () => {
