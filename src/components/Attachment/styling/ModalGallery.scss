@@ -234,7 +234,17 @@
       }
 
       &:focus-visible {
-        @include utils.focusable;
+        outline: none;
+      }
+
+      &:focus-visible::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        border-radius: inherit;
+        box-shadow: inset 0 0 0 2px var(--str-chat__brand-300);
+        z-index: 1;
       }
     }
   }
