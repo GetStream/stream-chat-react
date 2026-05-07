@@ -92,6 +92,7 @@ if (!apiKey) {
 const options: ChannelOptions = {
   presence: true,
   state: true,
+  limit: 10,
 };
 
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
