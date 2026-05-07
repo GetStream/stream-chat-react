@@ -90,7 +90,7 @@ const UnMemoizedScrollToLatestMessageButton = (
   return (
     <div className='str-chat__jump-to-latest-message'>
       <Button
-        appearance='outline'
+        appearance='ghost'
         aria-label={t('aria/Jump to latest message')}
         aria-live='polite'
         circular

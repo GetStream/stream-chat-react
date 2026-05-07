@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { type ComponentType, useState } from 'react';
 import {
   Button,
   ChatViewSelectorButton,
@@ -7,7 +7,6 @@ import {
   IconEmoji,
   IconMessageBubble,
 } from 'stream-chat-react';
-import { type ComponentType, useState } from 'react';
 
 import { ActionsMenu } from './ActionsMenu';
 import { GeneralTab } from './tabs/General';
@@ -16,7 +15,13 @@ import { NotificationsTab } from './tabs/Notifications';
 import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
 import { appSettingsStore, useAppSettingsState } from './state';
-import { IconGear, IconLightBulb, IconSidebar, IconTextDirection } from '../icons.tsx';
+import {
+  IconGear,
+  IconMoon,
+  IconSidebar,
+  IconSun,
+  IconTextDirection,
+} from '../icons.tsx';
 
 type TabId = 'general' | 'messageActions' | 'notifications' | 'reactions' | 'sidebar';
 
@@ -34,15 +39,15 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
     theme: { mode },
   } = useAppSettingsState();
   const nextMode = mode === 'dark' ? 'light' : 'dark';
-
+  const Icon = mode === 'dark' ? IconSun : IconMoon;
   return (
     <ChatViewSelectorButton
       aria-checked={mode === 'dark'}
       aria-label={`Switch to ${nextMode} mode`}
       aria-selected={mode === 'dark'}
-      className='app__settings-group_button'
+      className='app__settings-group_button app__settings-group_button--toggle'
       iconOnly={iconOnly}
-      Icon={IconLightBulb}
+      Icon={Icon}
       isActive={mode === 'dark'}
       onClick={() =>
         appSettingsStore.partialNext({
@@ -50,8 +55,7 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         })
       }
       role='switch'
-      style={{ color: mode === 'dark' ? '#facc15' : undefined }}
-      text={mode === 'dark' ? 'Dark mode' : 'Light mode'}
+      text={mode === 'dark' ? 'Light mode' : 'Dark mode'}
     />
   );
 };
@@ -68,7 +72,7 @@ const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       aria-checked={isRtl}
       aria-label={`Switch to ${isRtl ? 'LTR' : 'RTL'} direction`}
       aria-selected={isRtl}
-      className='app__settings-group_button'
+      className='app__settings-group_button app__settings-group_button--toggle'
       iconOnly={iconOnly}
       Icon={IconTextDirection}
       isActive={isRtl}
@@ -89,9 +93,9 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
   return (
     <div className='app__settings-group'>
-      <ActionsMenu iconOnly={iconOnly} />
-      <SidebarThemeToggle iconOnly={iconOnly} />
       <SidebarRtlToggle iconOnly={iconOnly} />
+      <SidebarThemeToggle iconOnly={iconOnly} />
+      <ActionsMenu iconOnly={iconOnly} />
       <ChatViewSelectorButton
         className='app__settings-group_button'
         iconOnly={iconOnly}

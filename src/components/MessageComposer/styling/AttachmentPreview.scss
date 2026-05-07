@@ -75,6 +75,11 @@ $attachment-preview-row-height: 72px;
   }
 
   .str-chat__attachment-preview-audio,
+  .str-chat__attachment-preview-voice-recording {
+    --chat-border-on-chat: var(--str-chat__chat-border-on-chat-incoming);
+  }
+
+  .str-chat__attachment-preview-audio,
   .str-chat__attachment-preview-file,
   .str-chat__attachment-preview-voice-recording,
   .str-chat__attachment-preview-unsupported {

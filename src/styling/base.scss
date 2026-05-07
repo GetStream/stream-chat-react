@@ -25,4 +25,9 @@
   input[type='number'] {
     -moz-appearance: textfield;
   }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--str-chat__input-text-placeholder);
+  }
 }
