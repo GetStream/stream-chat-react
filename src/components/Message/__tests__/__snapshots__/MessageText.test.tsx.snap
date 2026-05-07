@@ -16,14 +16,23 @@ exports[`<MessageText /> > should render with a custom inner class when one is s
         class="str-chat__message-bubble"
       >
         <div
+          aria-labelledby=":r1c: :r1d:"
           class="str-chat__message-text"
           tabindex="0"
         >
+          <span
+            id=":r1c:"
+            style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+          >
+            aria/Message,
+          </span>
           <div
             class=""
             data-testid="message-text-inner-wrapper"
           >
-            <div>
+            <div
+              id=":r1d:"
+            >
               <p>
                 hi mate
               </p>
@@ -80,14 +89,23 @@ exports[`<MessageText /> > should render with a custom wrapper class when one is
         class="str-chat__message-bubble"
       >
         <div
+          aria-labelledby=":r1a: :r1b:"
           class="str-chat__message-text"
           tabindex="0"
         >
+          <span
+            id=":r1a:"
+            style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+          >
+            aria/Message,
+          </span>
           <div
             class=""
             data-testid="message-text-inner-wrapper"
           >
-            <div>
+            <div
+              id=":r1b:"
+            >
               <p>
                 hello world
               </p>
@@ -144,14 +162,23 @@ exports[`<MessageText /> > should render with custom theme identifier in generat
         class="str-chat__message-bubble"
       >
         <div
+          aria-labelledby=":r1e: :r1f:"
           class="str-chat__message-text"
           tabindex="0"
         >
+          <span
+            id=":r1e:"
+            style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
+          >
+            aria/Message,
+          </span>
           <div
             class=""
             data-testid="message-text-inner-wrapper"
           >
-            <div>
+            <div
+              id=":r1f:"
+            >
               <p>
                 whatup?!
               </p>

@@ -120,6 +120,7 @@ export const WithDragAndDropUpload = ({
       : false,
     multiple: multipleUploads,
     noClick: true,
+    noKeyboard: true,
     onDrop: isWithinMessageComposerContext
       ? messageComposer.attachmentManager.uploadFiles
       : handleDrop,
