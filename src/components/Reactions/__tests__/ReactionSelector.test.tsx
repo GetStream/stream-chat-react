@@ -165,12 +165,14 @@ describe('ReactionSelector', () => {
   });
 
   it('should render the add button for extended reactions', () => {
-    const { getByTestId } = renderComponent();
+    const { getByTestId } = renderComponent({
+      reactionOptions: extendedReactionOptions,
+    });
     expect(getByTestId('reaction-selector-add-button')).toBeInTheDocument();
   });
 
   it('should provide an accessible name for the add button', () => {
-    renderComponent();
+    renderComponent({ reactionOptions: extendedReactionOptions });
 
     expect(
       screen.getByRole('button', { name: 'Open Reaction Selector' }),

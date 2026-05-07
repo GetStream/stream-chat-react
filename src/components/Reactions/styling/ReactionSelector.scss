@@ -3,14 +3,13 @@
 
 .str-chat__reaction-selector {
   display: flex;
-  padding-inline-start: var(--str-chat__spacing-xxs, 0);
-  padding-inline-end: var(--str-chat__spacing-xs, 0);
-  padding-block: var(--str-chat__spacing-xxs, 0);
+  padding-inline: var(--str-chat__spacing-xxs);
+  padding-block: var(--str-chat__spacing-xxs);
   align-items: center;
   gap: var(--str-chat__spacing-xs);
 
-  border-radius: var(--str-chat__radius-4xl, 32px);
-  background: var(--str-chat__background-core-elevation-2, #fff);
+  border-radius: var(--str-chat__radius-4xl);
+  background: var(--str-chat__background-core-elevation-2);
 
   box-shadow: var(--str-chat__box-shadow-3);
 
@@ -35,12 +34,16 @@
     }
   }
 
+  &:has(.str-chat__reaction-selector__add-button) {
+    padding-inline-end: var(--str-chat__spacing-xs);
+  }
+
   .str-chat__reaction-selector-list {
     list-style: none;
-    margin: var(--str-chat__spacing-none, 0);
-    padding: var(--str-chat__spacing-none, 0);
+    margin: var(--str-chat__spacing-none);
+    padding: var(--str-chat__spacing-none);
     display: flex;
-    gap: var(--str-chat__space-2, 2px);
+    gap: var(--str-chat__space-2);
 
     .str-chat__reaction-selector-list__item {
       display: flex;
