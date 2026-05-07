@@ -7,7 +7,19 @@
     gap: 16px;
 
     .app__settings-group_button {
-      color: var(--str-chat__text-secondary);
+      color: var(--str-chat__text-tertiary);
+
+      .str-chat__icon--bolt,
+      .str-chat__icon--moon,
+      .str-chat__icon--sun {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5px;
+      }
+
+      &.app__settings-group_button--toggle[aria-checked='true'] {
+        color: var(--str-chat__text-on-accent);
+      }
     }
   }
 

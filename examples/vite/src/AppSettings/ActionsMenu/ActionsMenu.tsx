@@ -63,53 +63,7 @@ const ActionsMenuButton = ({
   </div>
 );
 
-export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => (
-  <ActionsMenuInner iconOnly={iconOnly} />
-);
-
-function TriggerNotificationAction({ onTrigger }: { onTrigger: () => void }) {
-  const { closeMenu } = useContextMenuContext();
-
-  return (
-    <ContextMenuButton
-      label='Trigger Notification'
-      onClick={() => {
-        closeMenu();
-        onTrigger();
-      }}
-    />
-  );
-}
-
-function TriggerAttachmentAction({ onTrigger }: { onTrigger: () => void }) {
-  const { closeMenu } = useContextMenuContext();
-
-  return (
-    <ContextMenuButton
-      label='Message Composer'
-      onClick={() => {
-        closeMenu();
-        onTrigger();
-      }}
-    />
-  );
-}
-
-function TriggerWebSocketEventAction({ onTrigger }: { onTrigger: () => void }) {
-  const { closeMenu } = useContextMenuContext();
-
-  return (
-    <ContextMenuButton
-      label='Trigger WS Event'
-      onClick={() => {
-        closeMenu();
-        onTrigger();
-      }}
-    />
-  );
-}
-
-const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
+export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -156,3 +110,45 @@ const ActionsMenuInner = ({ iconOnly }: { iconOnly: boolean }) => {
     </div>
   );
 };
+
+function TriggerNotificationAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Trigger Notification'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerAttachmentAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Message Composer'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerWebSocketEventAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Trigger WS Event'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
