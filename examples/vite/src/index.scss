@@ -1,12 +1,10 @@
-@layer css-reset, stream-new, stream-new-plugins, stream-overrides, stream-app-overrides;
+@layer modern-normalize, stream-new, stream-new-plugins, stream-overrides, stream-app-overrides;
 
 // Geist font is preloaded in index.html to avoid layout shift on mount.
 //@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 
 // v3 CSS import
-@import url('modern-normalize') layer(css-reset);
-// @import url('stream-chat-react/dist/css/minimal-normalize.css') layer(css-reset);
-// @import url('stream-chat-react/dist/css/wrapped-modern-normalize.css') layer(css-reset);
+@import url('modern-normalize') layer(modern-normalize);
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
 @import url('./CustomMessageActions/CustomMessageActions.scss')
