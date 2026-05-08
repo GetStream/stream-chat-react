@@ -1,0 +1,9 @@
+// modern-normalize package wrapped in .str-chat to prevent normalization
+// from leaking into application styling that does not expect it
+// only recommended for gradual migration
+
+@use 'sass:meta';
+
+.str-chat {
+  @include meta.load-css('../../../node_modules/modern-normalize/modern-normalize.css');
+}

@@ -202,12 +202,12 @@
       textarea {
         background: transparent;
         color: var(--str-chat__input-text-default);
+        font: var(--str-chat__font-body-default);
         resize: none;
         border: none;
         box-shadow: none;
         outline: none;
         width: 100%;
-        font-size: var(--str-chat__typography-font-size-md);
         scrollbar-width: none;
       }
     }
