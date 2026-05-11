@@ -1109,7 +1109,7 @@ const ChannelInner = (
       props.imageAttachmentSizeHandler || getImageAttachmentConfiguration,
     mutes,
     notifications: [],
-    shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail || true,
+    shouldGenerateVideoThumbnail: props.shouldGenerateVideoThumbnail ?? true,
     videoAttachmentSizeHandler:
       props.videoAttachmentSizeHandler || getVideoAttachmentConfiguration,
     watcher_count: state.watcherCount,
