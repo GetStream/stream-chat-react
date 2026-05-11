@@ -54,26 +54,26 @@ For complete pricing and details visit our [Chat Pricing Page](https://getstream
 
 ## Example Applications
 
-We have built five demo applications showcasing a variety of chat use cases, including social messaging, team collaboration, customer support, livestream gaming, and virtual event. You can preview these [demos](https://getstream.io/chat/demos/) on our website. Also, the code is [open source](https://github.com/GetStream/website-react-examples/).
+We have built demo applications showcasing a variety of chat use cases, including social messaging, team collaboration, customer support, livestream gaming, and virtual events. You can preview these [demos](https://getstream.io/chat/demos/) on our website.
 
 ## Documentation
 
 We use a doc generator to build our [component documentation](https://getstream.io/chat/docs/sdk/react/). We provide a brief description of each chat component and define all of the props it accepts.
 
-The React components are created using the [stream-chat](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, it's likely you'll need to make additional calls to our Chat API using our JavaScript client, which has [documentation](https://getstream.io/chat/docs/javascript/) on our website.
+The React components are created using the [stream-chat](https://github.com/getstream/stream-chat-js) library. If you're customizing the components, you'll likely need to make additional calls to our Chat API using our JavaScript client, which has [documentation](https://getstream.io/chat/docs/javascript/) on our website.
 
 ## Component Reusability
 
-For components that implement significant logic, it's helpful to split the component into two parts: a top-level component which handles functionality and a lower level component which renders the UI. This way you can swap UI without altering the logic that gives the component its functionality. We use this provider/consumer pattern frequently in the library, and the below example shows how to swap out the `Message` UI component with `CustomMessageUI` (using `WithComponents`), without affecting any logic in the application.
+For components that implement significant logic, it's helpful to split the component into two parts: a top-level component that handles functionality and a lower-level component that renders the UI. This way, you can swap UI without altering the logic that gives the component its functionality. We use this provider/consumer pattern frequently in the library, and the below example shows how to swap out the `Message` UI component with `CustomMessageUI` (using `WithComponents`), without affecting any logic in the application.
 
 ```jsx
 <Channel>
   <Window>
     <ChannelHeader />
-    <WithComponents overrides={{ Message: CustomMessageUI }}>
+    <WithComponents overrides={{ MessageUI: CustomMessageUI }}>
       <MessageList />
     </WithComponents>
-    <MessageInput />
+    <MessageComposer />
   </Window>
   <Thread />
 </Channel>
@@ -81,14 +81,12 @@ For components that implement significant logic, it's helpful to split the compo
 
 ### Customizing Styles
 
-The preferred method for overriding the pre-defined styles in the library is to two-step process. First, import our bundled CSS into your main CSS file (or CSS file loaded with your chat application). Second, locate any Stream styles you want to override using either the browser inspector or by viewing the library code. You can then add selectors to your local CSS file to override our defaults (ideally within the stream-overrides layer). Layers (when ordered correctly, see example) ensure that your overrides take precedence even if your overriding selectors are less specific. For example:
+The preferred method for overriding the pre-defined styles in the library is a two-step process. First, import our bundled CSS into your main CSS file (or CSS file loaded with your chat application). Second, locate any Stream styles you want to override using either the browser inspector or by viewing the library code. You can then add selectors to your local CSS file to override our defaults (ideally within the stream-overrides layer). Layers (when ordered correctly, see example) ensure that your overrides take precedence even if your overriding selectors are less specific. For example:
 
 ```css title="index.css"
 @layer stream, stream-overrides;
 
-@import 'stream-chat-react/css/v2/index.css' layer(stream);
-/* or */
-@import 'stream-chat-react/dist/css/v2/index.css' layer(stream);
+@import 'stream-chat-react/css/index.css' layer(stream);
 
 @layer stream-overrides {
   /* your overrides */
