@@ -6047,11 +6047,6 @@ minizlib@^3.0.1, minizlib@^3.1.0:
   dependencies:
     minipass "^7.1.2"
 
-modern-normalize@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/modern-normalize/-/modern-normalize-3.0.1.tgz#4e2dc8da282ab854d53d70d7155a8027f59fbed6"
-  integrity sha512-VqlMdYi59Uch6fnUPxnpijWUQe+TW6zeWCvyr6Mb7JibheHzSuAAoJi2c71ZwIaWKpECpGpYHoaaBp6rBRr+/g==
-
 moment-timezone@^0.5.43:
   version "0.5.43"
   resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.43.tgz#3dd7f3d0c67f78c23cd1906b9b2137a09b3c4790"
