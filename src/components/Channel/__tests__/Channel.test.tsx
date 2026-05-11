@@ -671,6 +671,25 @@ describe('Channel', () => {
     expect(await findByText('children')).toBeInTheDocument();
   });
 
+  it('should preserve shouldGenerateVideoThumbnail when set to false', async () => {
+    let contextShouldGenerateVideoThumbnail: boolean | undefined;
+
+    await renderComponent(
+      {
+        channel,
+        chatClient,
+        shouldGenerateVideoThumbnail: false,
+      },
+      ({ shouldGenerateVideoThumbnail }) => {
+        contextShouldGenerateVideoThumbnail = shouldGenerateVideoThumbnail;
+      },
+    );
+
+    await waitFor(() => {
+      expect(contextShouldGenerateVideoThumbnail).toBe(false);
+    });
+  });
+
   it('should store pinned messages as an array in the channel context', async () => {
     let ctxPins: LocalMessage[] | undefined;
 
