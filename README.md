@@ -54,7 +54,7 @@ For complete pricing and details visit our [Chat Pricing Page](https://getstream
 
 ## Example Applications
 
-We have built five demo applications showcasing a variety of chat use cases, including social messaging, team collaboration, customer support, livestream gaming, and virtual events. You can preview these [demos](https://getstream.io/chat/demos/) on our website.
+We have built demo applications showcasing a variety of chat use cases, including social messaging, team collaboration, customer support, livestream gaming, and virtual events. You can preview these [demos](https://getstream.io/chat/demos/) on our website.
 
 ## Documentation
 
