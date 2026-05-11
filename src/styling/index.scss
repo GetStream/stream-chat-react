@@ -55,6 +55,3 @@
 @use '../components/Tooltip/styling' as Tooltip;
 @use '../components/TypingIndicator/styling' as TypingIndicator;
 @use '../components/VideoPlayer/styling' as VideoPlayer;
-
-// Layers have to be kept the last
-@import 'modern-normalize' layer(css-reset);

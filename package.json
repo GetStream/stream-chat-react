@@ -79,7 +79,6 @@
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
-    "modern-normalize": "^3.0.1",
     "nanoid": "^3.3.4",
     "react-dropzone": "^14.2.3",
     "react-fast-compare": "^3.2.2",
@@ -104,7 +103,8 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.43.0"
+    "stream-chat": "^9.43.0",
+    "modern-normalize": "^3.0.1"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -117,6 +117,9 @@
       "optional": true
     },
     "@emoji-mart/react": {
+      "optional": true
+    },
+    "modern-normalize": {
       "optional": true
     }
   },

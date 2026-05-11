@@ -1,3 +1,5 @@
+@use './css-normalize/minimal';
+
 .str-chat {
   --str-chat__focus-outline-color: var(--str-chat__border-utility-focused);
   --str-chat__focus-outline: 2px solid var(--str-chat__focus-outline-color);
