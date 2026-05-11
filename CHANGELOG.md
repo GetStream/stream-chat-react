@@ -1,3 +1,27 @@
+## [14.2.0](https://github.com/GetStream/stream-chat-react/compare/v14.1.0...v14.2.0) (2026-05-11)
+
+### Bug Fixes
+
+* allow content overflow in generic Button ([#3167](https://github.com/GetStream/stream-chat-react/issues/3167)) ([6735fa1](https://github.com/GetStream/stream-chat-react/commit/6735fa17306245cfb96e0b8e483cb2ecd00cd206))
+* **Avatar:** fall back to initials when imageUrl is an empty string ([#3168](https://github.com/GetStream/stream-chat-react/issues/3168)) ([541eef8](https://github.com/GetStream/stream-chat-react/commit/541eef84f870326e68f27347b0381732445ea18e))
+* **Channel:** respect false shouldGenerateVideoThumbnail prop ([#3184](https://github.com/GetStream/stream-chat-react/issues/3184)) ([340af2b](https://github.com/GetStream/stream-chat-react/commit/340af2bb4b1ab59e0b829c3b921efd247c75293d))
+* decouple modern-normalize from the SDK ([#3180](https://github.com/GetStream/stream-chat-react/issues/3180)) ([bcaf1f6](https://github.com/GetStream/stream-chat-react/commit/bcaf1f63a0f454270a485c4e5b48f6df809b1b99)), closes [#3134](https://github.com/GetStream/stream-chat-react/issues/3134)
+* extended reactions button adjustments ([#3172](https://github.com/GetStream/stream-chat-react/issues/3172)) ([5259c17](https://github.com/GetStream/stream-chat-react/commit/5259c175cf9158ea84c3e844251735cf26d3a457))
+* prevent messages being squashed in narrow message lists ([#3153](https://github.com/GetStream/stream-chat-react/issues/3153)) ([a1cc63f](https://github.com/GetStream/stream-chat-react/commit/a1cc63f06c9a8f5fcb75d3d4c50a8c07303f103d))
+* prevent overriding active channel UI on ChannelList pagination error ([#3164](https://github.com/GetStream/stream-chat-react/issues/3164)) ([0c0d65c](https://github.com/GetStream/stream-chat-react/commit/0c0d65c968cf9cbba82b174c8805398017a82f60))
+* remove visual glitches in ModalGallery, placeholder color, borders ([#3178](https://github.com/GetStream/stream-chat-react/issues/3178)) ([32dcace](https://github.com/GetStream/stream-chat-react/commit/32dcace0a03c37e97366caaad9c6b86d5458c853))
+
+### Features
+
+* **a11y:** announce message bubble text with context ([#3177](https://github.com/GetStream/stream-chat-react/issues/3177)) ([16f7294](https://github.com/GetStream/stream-chat-react/commit/16f7294c92ccb095fd0a4d758cec0695b0939c9a))
+* **a11y:** make ChannelListItemActionButtons accessible with keyboard ([#3176](https://github.com/GetStream/stream-chat-react/issues/3176)) ([8a6b90c](https://github.com/GetStream/stream-chat-react/commit/8a6b90cb5aad8e58a170bccbdee4078ae73e4c77))
+* add authorLabel prop to QuotedMessagePreviewUIProps ([#3162](https://github.com/GetStream/stream-chat-react/issues/3162)) ([88ef71e](https://github.com/GetStream/stream-chat-react/commit/88ef71e6eaa7bbb2ac637d09a0fc4a01abe367b2))
+* add matchReferenceWidth to DropdownProps ([#3166](https://github.com/GetStream/stream-chat-react/issues/3166)) ([cef7fa5](https://github.com/GetStream/stream-chat-react/commit/cef7fa5fb2c1db4dd9a499e90575ab268eb434a3))
+* add pin icon to the ChannelListItemUI ([#3163](https://github.com/GetStream/stream-chat-react/issues/3163)) ([f37f0a9](https://github.com/GetStream/stream-chat-react/commit/f37f0a9a77d072e52fb7452209877785d516b9a1))
+* add snackbar notification upon channels query pagination failure ([#3179](https://github.com/GetStream/stream-chat-react/issues/3179)) ([1028763](https://github.com/GetStream/stream-chat-react/commit/1028763e17983e7e920bc483350761b023ccb3e4))
+* clear command mode in message composer using keyboard ([#3175](https://github.com/GetStream/stream-chat-react/issues/3175)) ([6257e17](https://github.com/GetStream/stream-chat-react/commit/6257e177e8ce9c6d9358698861190eac9d7fb421))
+* introduce selective command enablement based on message editing or quoting in message composer ([#3171](https://github.com/GetStream/stream-chat-react/issues/3171)) ([8fa096a](https://github.com/GetStream/stream-chat-react/commit/8fa096a32cf96d5335312baa4ff411a412e2dc37))
+
 ## [14.1.0](https://github.com/GetStream/stream-chat-react/compare/v14.0.1...v14.1.0) (2026-05-04)
 
 ### Bug Fixes
