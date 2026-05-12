@@ -9,12 +9,15 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "dependencies": {
-    "@emoji-mart/data": "^1.1.2",
-    "emoji-mart": "^5.5.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "stream-chat": "^9.43.0",
+    "@emoji-mart/data": "^1.2.1",
+    "emoji-mart": "^5.6.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "stream-chat": "^9.43.2",
     "stream-chat-react": "workspace:^"
   },
   "devDependencies": {
@@ -23,11 +26,11 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.4",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
-    "globals": "^17.4.0",
+    "globals": "^17.6.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
-    "vite": "^8.0.3"
+    "vite": "^8.0.11"
   }
 }
