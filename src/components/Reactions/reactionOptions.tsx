@@ -106,3 +106,8 @@ export const defaultReactionOptions: ReactionOptions = {
     },
   },
 };
+
+export const getHasExtendedReactions = (reactionOptions: ReactionOptions) =>
+  !Array.isArray(reactionOptions) &&
+  typeof reactionOptions.extended !== 'undefined' &&
+  Object.keys(reactionOptions.extended).length > 0;
