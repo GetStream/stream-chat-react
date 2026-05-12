@@ -13,12 +13,16 @@ runs:
       shell: bash
       run: echo "NODE_VERSION=$(node --version)" >> $GITHUB_ENV
 
-    - name: Cache dependencies
+    - name: Cache Yarn Berry cache and install state
       uses: actions/cache@v5
       with:
-        path: ./node_modules
-        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-modules-${{ hashFiles('./yarn.lock') }}
+        path: |
+          .yarn/cache
+          .yarn/install-state.gz
+        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-yarn-${{ hashFiles('yarn.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ env.NODE_VERSION }}-yarn-
 
     - name: Install dependencies
-      run: yarn install --frozen-lockfile
+      run: yarn install --immutable
       shell: bash
