@@ -16,12 +16,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Development (requires Node 24 — see .nvmrc)
-yarn install              # Setup
+# Yarn 4 is committed to .yarn/releases/ and activated via .yarnrc.yml
+# (yarnPath). Any globally installed `yarn` shim launches it; no Corepack.
+yarn install              # Setup (installs root + examples/* workspaces)
 yarn build                # Full build (translations, Vite, types, SCSS)
 yarn test                 # Run Jest tests
 yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
 yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
 yarn types                # TypeScript type checking (noEmit mode)
+
+# Examples (workspaces under examples/*)
+yarn example:tutorial     # Start the tutorial example dev server
+yarn example:vite         # Start the vite example dev server
+yarn examples:build       # Build all examples
 
 # E2E
 yarn e2e-fixtures         # Generate e2e test fixtures
