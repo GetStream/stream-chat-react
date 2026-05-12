@@ -170,8 +170,8 @@
     "lint-staged": "^15.2.1",
     "moment-timezone": "^0.5.43",
     "prettier": "3.5.3",
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "sass": "^1.97.2",
     "semantic-release": "^25.0.3",
     "stream-chat": "^9.43.0",
@@ -225,6 +225,9 @@
       "built": true
     },
     "esbuild": {
+      "built": true
+    },
+    "husky": {
       "built": true
     }
   },
