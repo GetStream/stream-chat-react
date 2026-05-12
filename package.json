@@ -101,22 +101,22 @@
     "@emoji-mart/data": "^1.1.0",
     "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
+    "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.43.0",
-    "modern-normalize": "^3.0.1"
+    "stream-chat": "^9.43.0"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
-      "optional": true
-    },
-    "emoji-mart": {
       "optional": true
     },
     "@emoji-mart/data": {
       "optional": true
     },
     "@emoji-mart/react": {
+      "optional": true
+    },
+    "emoji-mart": {
       "optional": true
     },
     "modern-normalize": {
@@ -205,16 +205,33 @@
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "example:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
+    "example:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
+    "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build"
   },
   "resolutions": {
     "ast-types": "^0.14.0",
     "@types/unist": "^2.0.6"
+  },
+  "dependenciesMeta": {
+    "@parcel/watcher": {
+      "built": true
+    },
+    "@swc/core": {
+      "built": true
+    },
+    "esbuild": {
+      "built": true
+    }
   },
   "browserslist": [
     ">0.2%",
     "not ie <= 11",
     "not op_mini all"
   ],
-  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
+  "packageManager": "yarn@4.14.1",
+  "workspaces": [
+    "examples/*"
+  ]
 }

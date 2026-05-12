@@ -43,6 +43,15 @@ build/Release
 node_modules/
 jspm_packages/
 
+# Yarn Berry — keep releases/patches/plugins/sdks/versions, ignore caches
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
 # TypeScript v1 declaration files
 typings/
 

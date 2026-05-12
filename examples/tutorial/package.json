@@ -1,5 +1,5 @@
 {
-  "name": "tutorial",
+  "name": "@stream-io/stream-chat-react-tutorial",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,12 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emoji-mart/data": "link:../../node_modules/@emoji-mart/data",
-    "emoji-mart": "link:../../node_modules/emoji-mart",
-    "react": "link:../../node_modules/react",
-    "react-dom": "link:../../node_modules/react-dom",
-    "stream-chat": "link:../../node_modules/stream-chat",
-    "stream-chat-react": "link:../../"
+    "@emoji-mart/data": "^1.1.2",
+    "emoji-mart": "^5.5.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "stream-chat": "^9.43.0",
+    "stream-chat-react": "workspace:^"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
