@@ -52,6 +52,9 @@ jspm_packages/
 !.yarn/versions
 .pnp.*
 
+# Claude Code worktrees
+.claude/worktrees/
+
 # TypeScript v1 declaration files
 typings/
 
