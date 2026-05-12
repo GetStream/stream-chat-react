@@ -2,7 +2,7 @@ import React, { type ReactNode, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import { useDialogOnNearestManager } from '../Dialog';
-import { defaultReactionOptions } from './reactionOptions';
+import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
@@ -86,10 +86,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
     );
   }, [reactionOptions]);
 
-  const hasExtendedReactions =
-    !Array.isArray(reactionOptions) &&
-    reactionOptions.extended &&
-    Object.keys(reactionOptions.extended).length > 0;
+  const hasExtendedReactions = getHasExtendedReactions(reactionOptions);
 
   return (
     <div
