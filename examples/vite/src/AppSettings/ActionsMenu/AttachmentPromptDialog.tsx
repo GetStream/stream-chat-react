@@ -172,15 +172,15 @@ export const AttachmentPromptDialog = ({
           <div className='app__attachment-dialog__subsection-actions'>
             {activeTab === 'unsupported-file' ? (
               <Prompt.FooterControlsButtonPrimary
-                size='sm'
                 onClick={() => attachToComposer('unsupported-file')}
+                size='sm'
               >
                 Attach Unsupported file
               </Prompt.FooterControlsButtonPrimary>
             ) : (
               <Prompt.FooterControlsButtonPrimary
-                size='sm'
                 onClick={() => attachToComposer('unsupported-object')}
+                size='sm'
               >
                 Attach Unsupported object
               </Prompt.FooterControlsButtonPrimary>

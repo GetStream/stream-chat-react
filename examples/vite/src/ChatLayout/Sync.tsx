@@ -4,8 +4,8 @@ import {
   type ChatView as ChatViewType,
   useChatContext,
   useChatViewContext,
-  useThreadsViewContext,
   useStateStore,
+  useThreadsViewContext,
 } from 'stream-chat-react';
 
 const selectedChannelUrlParam = 'channel';

@@ -10,7 +10,15 @@ import vitestPlugin from '@vitest/eslint-plugin';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'src/@types', '*.{js,ts}', '.yarn', 'examples'],
+    ignores: [
+      'dist',
+      'src/@types',
+      '*.{js,ts}',
+      '.yarn',
+      'examples/*/dist',
+      'examples/*/node_modules',
+      'examples/*/docs-playwright',
+    ],
   },
   {
     name: 'default',
@@ -19,7 +27,7 @@ export default tseslint.config(
       ...tseslint.configs.recommended,
       reactPlugin.configs.flat.recommended,
     ],
-    files: ['src/**/*.{js,ts,jsx,tsx}'],
+    files: ['src/**/*.{js,ts,jsx,tsx}', 'examples/*/src/**/*.{js,ts,jsx,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -136,6 +144,20 @@ export default tseslint.config(
         'error',
         { disallowTypeAnnotations: false },
       ], // allow typeof import() in vi.mock importOriginal
+    },
+  },
+  {
+    // Example apps inherit the SDK's plugins + recommended rules but relax
+    // the cosmetic style rules that don't add value in demo code. Real bug
+    // patterns (react-hooks deps, no-unknown-property for SVG, undeclared
+    // imports, etc.) stay on.
+    name: 'examples',
+    files: ['examples/*/src/**/*.{js,ts,jsx,tsx}'],
+    rules: {
+      'sort-keys': 'off',
+      'sort-destructure-keys/sort-destructure-keys': 'off',
+      'react/jsx-sort-props': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
 );

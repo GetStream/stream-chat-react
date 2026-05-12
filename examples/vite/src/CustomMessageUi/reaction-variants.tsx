@@ -1,7 +1,7 @@
 import {
-  ReactionSelector,
   MessageReactions,
   type ReactionOptions,
+  ReactionSelector,
 } from 'stream-chat-react';
 
 // ─── Custom Reaction Options (upvote/downvote) ───────────────────

@@ -1,4 +1,4 @@
-import { DefaultAttachmentData, DefaultChannelData } from 'stream-chat-react';
+import type { DefaultAttachmentData, DefaultChannelData } from 'stream-chat-react';
 
 declare module 'stream-chat' {
   interface CustomAttachmentData extends DefaultAttachmentData {

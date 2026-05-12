@@ -1,18 +1,18 @@
-import type { User, ChannelSort, ChannelFilters, ChannelOptions } from 'stream-chat';
+import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
 import {
-  useCreateChatClient,
-  Chat,
   Channel,
   ChannelHeader,
   ChannelList,
+  Chat,
   MessageComposer,
   MessageList,
   Thread,
+  useCreateChatClient,
   Window,
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -40,7 +40,7 @@ const App = () => {
 
   return (
     <Chat client={client} theme='custom-theme'>
-      <ChannelList filters={filters} sort={sort} options={options} />
+      <ChannelList filters={filters} options={options} sort={sort} />
       <Channel>
         <Window>
           <ChannelHeader />

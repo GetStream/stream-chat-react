@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
 import {
-  Chat,
   Channel,
   ChannelAvatar,
   ChannelHeader,
   ChannelList,
+  type ChannelListItemUIProps,
+  Chat,
   MessageComposer,
   MessageList,
   Thread,
-  Window,
-  WithComponents,
   useCreateChatClient,
   useMessageContext,
-  type ChannelListItemUIProps,
+  Window,
+  WithComponents,
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -152,7 +152,7 @@ const App = () => {
       }}
     >
       <Chat client={client} theme='custom-theme'>
-        <ChannelList filters={filters} sort={sort} options={options} />
+        <ChannelList filters={filters} options={options} sort={sort} />
         <Channel>
           <Window>
             <ChannelHeader />
