@@ -18,6 +18,17 @@ const remarkPlugins: PluggableList = [
   imageToLink,
 ];
 
+// `channel.getClient()` throws if the underlying client has been disconnected.
+// A late passive effect (e.g. after a `channel.deleted` event tears the client
+// down) can otherwise crash the render — fall back to an undefined user id.
+export const getCurrentUserId = (channel: Channel): string | undefined => {
+  try {
+    return channel.getClient().userID ?? undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const renderPreviewText = (text: string) => (
   <ReactMarkdown remarkPlugins={remarkPlugins} skipHtml>
     {text}
@@ -60,9 +71,10 @@ export const getLatestMessagePreview = (
   }
 
   if (poll) {
+    const currentUserId = getCurrentUserId(channel);
     if (!poll.vote_count) {
       const createdBy =
-        poll.created_by?.id === channel.getClient().userID
+        poll.created_by?.id === currentUserId
           ? t('You')
           : (poll.created_by?.name ?? t('Poll'));
       return t('📊 {{createdBy}} created: {{ pollName}}', {
@@ -80,7 +92,7 @@ export const getLatestMessagePreview = (
         return t('📊 {{votedBy}} voted: {{pollOptionText}}', {
           pollOptionText: option.text,
           votedBy:
-            latestVote?.user?.id === channel.getClient().userID
+            latestVote?.user?.id === currentUserId
               ? t('You')
               : (latestVote.user?.name ?? t('Poll')),
         });
@@ -128,7 +140,7 @@ export const getChannelDisplayImage = (channel: Channel): string | undefined => 
   if (data?.image && typeof data.image === 'string') return data.image;
 
   const memberList = Object.values(channel.state.members);
-  const currentUserId = channel.getClient().userID ?? undefined;
+  const currentUserId = getCurrentUserId(channel);
   if (memberList.length === 2) {
     const other = memberList.find((m) => m.user?.id !== currentUserId);
     const image = other?.user?.image;

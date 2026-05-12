@@ -3,6 +3,7 @@ import type { Channel } from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 import { useTranslationContext } from '../../../context/TranslationContext';
+import { getCurrentUserId } from '../utils';
 
 /**
  * 1. channel.data.name
@@ -18,7 +19,7 @@ function computeChannelDisplayName(
   if (data?.name && typeof data.name === 'string') return data.name;
 
   const memberList = Object.values(channel.state.members);
-  const currentUserId = channel.getClient().userID ?? undefined;
+  const currentUserId = getCurrentUserId(channel);
   const otherMembers = memberList.filter((m) => m.user?.id !== currentUserId);
 
   if (memberList.length === 2 && otherMembers.length === 1) {
