@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "allowJs": true,
     "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
-    "module": "esnext",
+    "module": "es2020",
     "target": "es2020",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
