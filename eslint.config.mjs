@@ -10,7 +10,7 @@ import vitestPlugin from '@vitest/eslint-plugin';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'src/@types', '*.{js,ts}'],
+    ignores: ['dist', 'src/@types', '*.{js,ts}', '.yarn', 'examples'],
   },
   {
     name: 'default',
