@@ -2301,7 +2301,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@semantic-release/github@npm:^12.0.0, @semantic-release/github@npm:^12.0.6":
+"@semantic-release/github@npm:^12.0.0, @semantic-release/github@npm:^12.0.8":
   version: 12.0.8
   resolution: "@semantic-release/github@npm:12.0.8"
   dependencies:
@@ -6724,7 +6724,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next-cli@npm:^1.31.0":
+"i18next-cli@npm:^1.56.12":
   version: 1.56.12
   resolution: "i18next-cli@npm:1.56.12"
   dependencies:
@@ -9275,7 +9275,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.3.11, nanoid@npm:^3.3.4":
+"nanoid@npm:^3.3.11, nanoid@npm:^3.3.12":
   version: 3.3.12
   resolution: "nanoid@npm:3.3.12"
   bin:
@@ -11198,7 +11198,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.75.0, sass@npm:^1.97.2":
+"sass@npm:^1.75.0, sass@npm:^1.99.0":
   version: 1.99.0
   resolution: "sass@npm:1.99.0"
   dependencies:
@@ -11691,7 +11691,7 @@ __metadata:
     "@react-aria/focus": "npm:^3.22.0"
     "@semantic-release/changelog": "npm:^6.0.3"
     "@semantic-release/git": "npm:^10.0.1"
-    "@semantic-release/github": "npm:^12.0.6"
+    "@semantic-release/github": "npm:^12.0.8"
     "@stream-io/transliterate": "npm:^1.5.5"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
@@ -11704,7 +11704,7 @@ __metadata:
     "@types/lodash.mergewith": "npm:^4.6.9"
     "@types/lodash.throttle": "npm:^4.1.9"
     "@types/lodash.uniqby": "npm:^4.7.9"
-    "@types/react": "npm:^19.0.7"
+    "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@types/use-sync-external-store": "npm:^0.0.6"
     "@vitest/coverage-v8": "npm:~4.0.18"
@@ -11725,7 +11725,7 @@ __metadata:
     hast-util-find-and-replace: "npm:^5.0.1"
     husky: "npm:^8.0.3"
     i18next: "npm:^25.10.10"
-    i18next-cli: "npm:^1.31.0"
+    i18next-cli: "npm:^1.56.12"
     jsdom: "npm:^24.1.3"
     linkifyjs: "npm:^4.3.2"
     lint-staged: "npm:^15.5.2"
@@ -11734,7 +11734,7 @@ __metadata:
     lodash.throttle: "npm:^4.1.1"
     lodash.uniqby: "npm:^4.7.0"
     moment-timezone: "npm:^0.5.48"
-    nanoid: "npm:^3.3.4"
+    nanoid: "npm:^3.3.12"
     prettier: "npm:^3.8.3"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
@@ -11745,17 +11745,17 @@ __metadata:
     react-textarea-autosize: "npm:^8.5.9"
     react-virtuoso: "npm:^2.19.1"
     remark-gfm: "npm:^4.0.1"
-    sass: "npm:^1.97.2"
+    sass: "npm:^1.99.0"
     semantic-release: "npm:^25.0.3"
     stream-chat: "npm:^9.43.2"
     ts-pattern: "npm:^5.9.0"
-    tslib: "npm:^2.6.2"
+    tslib: "npm:^2.8.1"
     typescript: "npm:^5.9.3"
-    typescript-eslint: "npm:^8.17.0"
+    typescript-eslint: "npm:^8.59.3"
     unist-builder: "npm:^4.0.0"
     unist-util-visit: "npm:^5.1.0"
     use-sync-external-store: "npm:^1.6.0"
-    vite: "npm:^7.3.1"
+    vite: "npm:^7.3.3"
     vitest: "npm:~4.0.18"
     vitest-axe: "npm:^0.1.0"
   peerDependencies:
@@ -12373,7 +12373,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.6.2, tslib@npm:^2.7.0, tslib@npm:^2.8.0":
+"tslib@npm:^2.0.0, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.7.0, tslib@npm:^2.8.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62
@@ -12518,7 +12518,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript-eslint@npm:^8.17.0, typescript-eslint@npm:^8.57.2":
+"typescript-eslint@npm:^8.57.2, typescript-eslint@npm:^8.59.3":
   version: 8.59.3
   resolution: "typescript-eslint@npm:8.59.3"
   dependencies:
@@ -12866,7 +12866,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"vite@npm:^6.0.0 || ^7.0.0, vite@npm:^7.3.0, vite@npm:^7.3.1":
+"vite@npm:^6.0.0 || ^7.0.0, vite@npm:^7.3.0, vite@npm:^7.3.3":
   version: 7.3.3
   resolution: "vite@npm:7.3.3"
   dependencies:
