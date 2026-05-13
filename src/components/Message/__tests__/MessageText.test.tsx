@@ -351,6 +351,29 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('renders built-in, role, and user-group mentions with mention styling', async () => {
+    const text = 'Hello @channel @here @admin @backend-team';
+    const message = generateAliceMessage({
+      mentioned_channel: true,
+      mentioned_group_ids: ['backend-team'],
+      mentioned_here: true,
+      mentioned_roles: ['admin'],
+      text,
+    });
+    const { container, getByText } = await renderMessageText({
+      customProps: { message },
+    });
+
+    expect(getByText('@channel')).toHaveAttribute('data-mention-type', 'channel');
+    expect(getByText('@here')).toHaveAttribute('data-mention-type', 'here');
+    expect(getByText('@admin')).toHaveAttribute('data-mention-type', 'role');
+    expect(getByText('@backend-team')).toHaveAttribute('data-mention-type', 'user_group');
+    expect(container.querySelectorAll('.str-chat__message-mention')).toHaveLength(4);
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should display text in users set language', async () => {
     const text = 'bonjour';
     const message = generateAliceMessage({

@@ -562,6 +562,8 @@ exports[`renderText > handles the special case where there are pronouns in the n
     hey, 
     <span
       class="str-chat__message-mention"
+      data-mention-id="john"
+      data-mention-type="user"
       data-user-id="john"
     >
       @John (they/them)
@@ -577,6 +579,8 @@ exports[`renderText > handles the special case where there is a backslash in the
     hey, 
     <span
       class="str-chat__message-mention"
+      data-mention-id="john"
+      data-mention-type="user"
       data-user-id="john"
     >
       @John\\Cena
@@ -592,6 +596,8 @@ exports[`renderText > handles the special case where there is a forward slash in
     hey, 
     <span
       class="str-chat__message-mention"
+      data-mention-id="john"
+      data-mention-type="user"
       data-user-id="john"
     >
       @John/Cena
@@ -606,6 +612,8 @@ exports[`renderText > handles the special case where there's at least one mentio
   <p>
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -621,6 +629,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
     Hello 
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -653,6 +663,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
      
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -667,6 +679,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
   <p>
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -674,6 +688,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
      
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -681,6 +697,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
      
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -688,6 +706,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
      
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -701,6 +721,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
   <p>
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -708,6 +730,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
      
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -724,6 +748,8 @@ exports[`renderText > handles the special case where user name matches to an e-m
      
     <span
       class="str-chat__message-mention"
+      data-mention-id="id-username@email.com"
+      data-mention-type="user"
       data-user-id="id-username@email.com"
     >
       @username@email.com
@@ -753,6 +779,7 @@ exports[`renderText > renders custom mention 1`] = `
   <p>
     <span
       class="my-mention"
+      data-node-mentioned-entity-id="id-username@email.com"
       data-node-mentioned-user-id="id-username@email.com"
     >
       @username@email.com
@@ -760,6 +787,7 @@ exports[`renderText > renders custom mention 1`] = `
      
     <span
       class="my-mention"
+      data-node-mentioned-entity-id="id-username@email.com"
       data-node-mentioned-user-id="id-username@email.com"
     >
       @username@email.com
@@ -776,6 +804,7 @@ exports[`renderText > renders custom mention 1`] = `
      
     <span
       class="my-mention"
+      data-node-mentioned-entity-id="id-username@email.com"
       data-node-mentioned-user-id="id-username@email.com"
     >
       @username@email.com
