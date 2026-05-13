@@ -26,9 +26,20 @@ export const targetPanelOptions = [
   'thread-list',
 ] as const satisfies NotificationTargetPanel[];
 
+export type NotificationDraftAction = {
+  feedback: string;
+  id: string;
+  includedInPayload: boolean;
+  label: string;
+};
+
+export type QueuedNotificationAction = {
+  feedback: string;
+  label: string;
+};
+
 export type NotificationDraft = {
-  actionFeedback: string;
-  actionLabel: string;
+  actions: NotificationDraftAction[];
   duration: string;
   entryDirection: NotificationListEnterFrom | '';
   message: string;
@@ -37,8 +48,7 @@ export type NotificationDraft = {
 };
 
 export type QueuedNotification = {
-  actionFeedback: string;
-  actionLabel: string;
+  actions: QueuedNotificationAction[];
   duration: number;
   entryDirection: NotificationListEnterFrom;
   id: string;
@@ -48,8 +58,7 @@ export type QueuedNotification = {
 };
 
 export const initialDraft: NotificationDraft = {
-  actionFeedback: '',
-  actionLabel: '',
+  actions: [],
   duration: '5000',
   entryDirection: 'bottom',
   message: '',
@@ -74,17 +83,19 @@ export const isDraftReady = (draft: NotificationDraft) =>
 export const buildNotificationActions = (
   queuedNotification: QueuedNotification,
 ): NotificationAction[] | undefined => {
-  if (!queuedNotification.actionLabel.trim()) return;
+  const actions = queuedNotification.actions
+    .map((action) => ({
+      feedback: action.feedback.trim(),
+      label: action.label.trim(),
+    }))
+    .filter((action) => action.label);
 
-  return [
-    {
-      handler: () => {
-        window.alert(
-          queuedNotification.actionFeedback.trim() ||
-            `${queuedNotification.actionLabel.trim()} clicked`,
-        );
-      },
-      label: queuedNotification.actionLabel.trim(),
+  if (actions.length === 0) return;
+
+  return actions.map((action) => ({
+    handler: () => {
+      window.alert(action.feedback || `${action.label} clicked`);
     },
-  ];
+    label: action.label,
+  }));
 };
