@@ -2,11 +2,10 @@ import { useMemo } from 'react';
 import type { LocalMessage, UserResponse } from 'stream-chat';
 import {
   Avatar,
-  MessageText,
   MessageReactions,
-  useMessageContext,
+  MessageText,
   useChatContext,
-  useComponentContext,
+  useMessageContext,
 } from 'stream-chat-react';
 
 // ─── Shared Helpers ────────────────────────────────────────────────
@@ -28,9 +27,9 @@ type MessageStatusParams = {
 };
 
 const getMessageStatus = ({
+  deliveredTo,
   message,
   ownUserId,
-  deliveredTo,
   readBy,
   threadList,
 }: MessageStatusParams): keyof typeof statusIconMap => {

@@ -17,8 +17,8 @@ import {
   IconEyeFill,
   IconNotification,
   MessageActions,
-  SwitchField,
   type MessageActionSetItem,
+  SwitchField,
   useComponentContext,
   useContextMenuContext,
   useDialogIsOpen,
@@ -444,10 +444,10 @@ export const ConfigurableMessageActions = (
         />
       )}
       <Modal
-        open={customDeleteEnabled && Boolean(deleteDialogTarget)}
         onClose={() => {
           setDeleteDialogTarget(null);
         }}
+        open={customDeleteEnabled && Boolean(deleteDialogTarget)}
       >
         {customDeleteEnabled && deleteDialogTarget && (
           <CustomDeleteMessageAlert

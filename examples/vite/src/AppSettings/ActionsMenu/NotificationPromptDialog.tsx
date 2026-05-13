@@ -2,27 +2,27 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { NotificationSeverity } from 'stream-chat';
 import {
+  Button,
   IconArrowDown,
   IconArrowLeft,
-  IconChevronRight,
-  Button,
-  IconRefresh,
   IconArrowUp,
   IconCheckmark,
-  IconExclamationMark,
+  IconChevronRight,
   IconClock,
-  IconXmark,
+  IconExclamationMark,
   IconExclamationTriangleFill,
   IconPlusSmall,
+  IconRefresh,
+  IconXmark,
+  type NotificationListEnterFrom,
+  type NotificationTargetPanel,
   NumericInput,
   PopperTooltip,
   Prompt,
   TextInput,
-  useNotificationApi,
   useDialogIsOpen,
   useDialogOnNearestManager,
-  type NotificationListEnterFrom,
-  type NotificationTargetPanel,
+  useNotificationApi,
 } from 'stream-chat-react';
 import { DraggableDialog } from './DraggableDialog';
 import {
@@ -30,11 +30,11 @@ import {
   entryDirectionOptions,
   initialDraft,
   isDraftReady,
+  type NotificationDraft,
   parseDuration,
+  type QueuedNotification,
   severityOptions,
   targetPanelOptions,
-  type NotificationDraft,
-  type QueuedNotification,
 } from './triggerNotificationUtils';
 
 export const notificationPromptDialogId = 'app-notification-prompt-dialog';

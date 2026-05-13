@@ -1,5 +1,5 @@
 import { Chat, useCreateChatClient } from 'stream-chat-react';
-import { apiKey, userId, userName, tokenProvider } from './credentials';
+import { apiKey, tokenProvider, userId, userName } from './credentials';
 
 const App = () => {
   const client = useCreateChatClient({

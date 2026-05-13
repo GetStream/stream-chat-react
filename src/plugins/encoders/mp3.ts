@@ -48,5 +48,5 @@ export async function encodeToMp3(file: File, sampleRate: number) {
 
   const lastBlock = mp3Encoder.flush();
   if (lastBlock.length) dataBuffer.push(new Int8Array(lastBlock));
-  return new Blob(dataBuffer, { type: 'audio/mp3;sbu_type=voice' });
+  return new Blob(dataBuffer as BlobPart[], { type: 'audio/mp3;sbu_type=voice' });
 }

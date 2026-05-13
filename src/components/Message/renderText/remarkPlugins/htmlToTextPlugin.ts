@@ -1,7 +1,9 @@
 import type { Visitor } from 'unist-util-visit';
 import { visit } from 'unist-util-visit';
 
-import type { Nodes } from 'hast-util-find-and-replace/lib';
+// `Nodes` is not part of hast-util-find-and-replace's public surface; derive
+// the visit-compatible tree type from `visit` itself.
+type Nodes = Parameters<typeof visit>[0];
 
 const visitor: Visitor = (node) => {
   if (node.type !== 'html') return;

@@ -1,5 +1,5 @@
 {
-  "name": "vite",
+  "name": "@stream-io/stream-chat-react-vite",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,27 +9,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@emoji-mart/data": "^1.2.1",
+    "clsx": "^2.1.1",
+    "emoji-mart": "^5.6.0",
     "human-id": "^4.1.3",
     "modern-normalize": "^3.0.1",
-    "react": "link:../../node_modules/react",
-    "react-dom": "link:../../node_modules/react-dom",
-    "stream-chat-react": "link:../../"
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "stream-chat": "^9.43.2",
+    "stream-chat-react": "workspace:^"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
     "@playwright/test": "^1.59.1",
-    "@types/react": "link:../../node_modules/@types/react",
-    "@types/react-dom": "link:../../node_modules/@types/react-dom",
-    "@typescript-eslint/eslint-plugin": "^7.2.0",
-    "@typescript-eslint/parser": "^7.2.0",
-    "@vitejs/plugin-react": "^5.1.1",
-    "@vitejs/plugin-react-swc": "^3.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitejs/plugin-react-swc": "^4.3.0",
     "babel-plugin-react-compiler": "^1.0.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.6",
-    "sass": "^1.75.0",
-    "typescript": "^5.4.5",
-    "vite": "^7.3.0",
-    "vite-plugin-babel": "^1.3.2"
+    "sass": "^1.99.0",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.12",
+    "vite-plugin-babel": "^1.6.0"
   }
 }

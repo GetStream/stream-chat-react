@@ -26,16 +26,16 @@ import {
 
 import {
   buildInitialWebSocketEventDrafts,
-  buildWebSocketEventPresetDraft,
   buildWebSocketEventDraft,
+  buildWebSocketEventPresetDraft,
   createWebSocketEventTemplateContext,
   readyWebsocketEventTypes,
-  supportedWebsocketEventTypes,
   type SupportedWebsocketEventType,
+  supportedWebsocketEventTypes,
   todoWebsocketEventTypes,
+  type WebSocketEventPresetId,
   websocketEventPresetOptions,
   websocketEventTemplateDefinitions,
-  type WebSocketEventPresetId,
 } from './websocketEventTemplates';
 import type {
   DialogMode,
@@ -218,8 +218,8 @@ const EventPresetDropdownItem = ({
 const EventTypeDropdownItems = ({
   eventSearchQuery,
   onSearchChange,
-  onSelectPreset,
   onSelect,
+  onSelectPreset,
   selectedEventPresetId,
   selectedEventType,
 }: {
@@ -334,8 +334,8 @@ const SavedPipelineDropdownItem = ({
 const SavedPipelineDropdownItems = ({
   onSearchChange,
   onSelect,
-  savedPipelineSearchQuery,
   savedPipelines,
+  savedPipelineSearchQuery,
   selectedSavedPipelineId,
 }: {
   onSearchChange: (value: string) => void;
@@ -1352,6 +1352,11 @@ export const WebSocketEventPromptDialog = ({
                   <EventTypeDropdownItems
                     eventSearchQuery={eventSearchQuery}
                     onSearchChange={setEventSearchQuery}
+                    onSelect={(eventType) => {
+                      setSelectedEventType(eventType);
+                      setSelectedEventPresetId(null);
+                      setErrorMessage(null);
+                    }}
                     onSelectPreset={(presetId) => {
                       const preset = websocketEventPresetOptions.find(
                         (option) => option.id === presetId,
@@ -1368,11 +1373,6 @@ export const WebSocketEventPromptDialog = ({
                           templateContext,
                         ),
                       }));
-                      setErrorMessage(null);
-                    }}
-                    onSelect={(eventType) => {
-                      setSelectedEventType(eventType);
-                      setSelectedEventPresetId(null);
                       setErrorMessage(null);
                     }}
                     selectedEventPresetId={selectedEventPresetId}
@@ -1430,8 +1430,8 @@ export const WebSocketEventPromptDialog = ({
                     <SavedPipelineDropdownItems
                       onSearchChange={setSavedPipelineSearchQuery}
                       onSelect={loadSavedPipeline}
-                      savedPipelineSearchQuery={savedPipelineSearchQuery}
                       savedPipelines={savedPipelines}
+                      savedPipelineSearchQuery={savedPipelineSearchQuery}
                       selectedSavedPipelineId={selectedSavedPipelineId}
                     />
                   </Dropdown>

@@ -31,11 +31,15 @@ export default defineConfig({
       external,
       output: formats.map((format) => {
         const extension = format === 'es' ? 'mjs' : 'js';
+        // Hardcode the output dir per format — under vite 8 / rolldown 1 the
+        // `[format]` placeholder expands to "esm" instead of "es", which
+        // would break our package.json `exports` pointing at `./dist/es/...`.
+        const dir = format === 'es' ? 'es' : 'cjs';
 
         return {
           format,
-          chunkFileNames: `[format]/[name].[hash].${extension}`,
-          entryFileNames: `[format]/[name].${extension}`,
+          chunkFileNames: `${dir}/[name].[hash].${extension}`,
+          entryFileNames: `${dir}/[name].${extension}`,
           hashCharacters: 'hex',
         };
       }),

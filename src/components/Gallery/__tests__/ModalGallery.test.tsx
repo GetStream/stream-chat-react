@@ -366,7 +366,7 @@ describe('ModalGallery', () => {
       ).toBeInTheDocument();
       expect(retriedImage).not.toBe(image);
       expect(retriedImage.getAttribute('src')).toMatch(
-        /^http:\/\/test-image\.jpg&retry=\d+$/,
+        /^http:\/\/test-image\.jpg&retry=\d+\/$/,
       );
 
       fireEvent.load(retriedImage);
