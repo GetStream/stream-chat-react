@@ -195,6 +195,8 @@
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc -p tsconfig.lib.json -w",
     "start:css": "node scripts/watch-styling.mjs",
+    "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
+    "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
     "postinstall": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -204,8 +206,6 @@
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
-    "example:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
-    "example:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
     "build:all": "yarn workspaces foreach -A -tpv run build"
   },

@@ -17,7 +17,7 @@ The tutorial app is a Yarn workspace (`@stream-io/stream-chat-react-tutorial`) u
 From the repo root:
 
 ```shell
-yarn example:tutorial
+yarn start:tutorial
 ```
 
 Or from within this folder:

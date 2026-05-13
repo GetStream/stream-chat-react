@@ -26,8 +26,8 @@ yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
 yarn types                # TypeScript type checking (noEmit mode)
 
 # Examples (workspaces under examples/*)
-yarn example:tutorial     # Start the tutorial example dev server
-yarn example:vite         # Start the vite example dev server
+yarn start:tutorial       # Start the tutorial example dev server
+yarn start:vite           # Start the vite example dev server
 yarn examples:build       # Build all examples
 
 # E2E

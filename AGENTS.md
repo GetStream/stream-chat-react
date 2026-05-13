@@ -54,7 +54,7 @@ Respect any repo-specific rules. Do not suppress rules broadly; justify and scop
 4. Lint: yarn lint
 5. Fix lint issues: yarn lint-fix
 6. Unit tests: yarn test
-7. Run an example: yarn example:tutorial or yarn example:vite
+7. Run an example: yarn start:tutorial or yarn start:vite
 8. Build all examples: yarn examples:build
 
 ### General rules
