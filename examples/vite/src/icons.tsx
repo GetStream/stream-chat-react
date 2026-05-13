@@ -22,8 +22,8 @@ export const IconMoon = createIcon(
   'IconMoon',
   <path
     d='M8.44608 2.19604C8.05317 3.4961 8.0203 4.87838 8.35097 6.19564C8.68165 7.5129 9.36348 8.71577 10.3238 9.67611C11.2842 10.6365 12.487 11.3183 13.8043 11.649C15.1215 11.9796 16.5038 11.9468 17.8039 11.5539C17.427 12.7931 16.7356 13.9136 15.797 14.8062C14.8584 15.6988 13.7047 16.3331 12.4481 16.6474C11.1916 16.9617 9.87504 16.9452 8.62676 16.5995C7.37848 16.2538 6.24101 15.5907 5.32512 14.6748C4.40923 13.7589 3.74615 12.6215 3.40046 11.3732C3.05477 10.1249 3.03826 8.80836 3.35252 7.5518C3.66679 6.29524 4.30113 5.14149 5.19375 4.20292C6.08638 3.26434 7.20686 2.57294 8.44608 2.19604Z'
-    stroke-linecap='round'
-    stroke-linejoin='round'
+    strokeLinecap='round'
+    strokeLinejoin='round'
   />,
 );
 
@@ -31,8 +31,8 @@ export const IconSun = createIcon(
   'IconSun',
   <path
     d='M10 3.125V1.25M5 5L3.75 3.75M5 15L3.75 16.25M15 5L16.25 3.75M15 15L16.25 16.25M3.125 10H1.25M10 16.875V18.75M16.875 10H18.75M14.375 10C14.375 12.4162 12.4162 14.375 10 14.375C7.58375 14.375 5.625 12.4162 5.625 10C5.625 7.58375 7.58375 5.625 10 5.625C12.4162 5.625 14.375 7.58375 14.375 10Z'
-    stroke-linecap='round'
-    stroke-linejoin='round'
+    strokeLinecap='round'
+    strokeLinejoin='round'
   />,
 );
 
@@ -41,9 +41,9 @@ export const IconTextDirection = createIcon(
   <path
     d='M13.75 16.25L16.25 13.75L13.75 11.25M16.25 13.75H3.75M6.25 3.75L3.75 6.25L6.25 8.75M3.75 6.25H16.25'
     stroke='currentColor'
-    stroke-width='1.5'
-    stroke-linecap='round'
-    stroke-linejoin='round'
+    strokeWidth='1.5'
+    strokeLinecap='round'
+    strokeLinejoin='round'
   />,
 );
 
