@@ -1,12 +1,21 @@
 name: CI
 
-on: [push]
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+  push:
+    branches:
+      - master
 
 env:
   BUILD_CACHE_KEY: ${{ github.sha }}-dist
 jobs:
   lint:
     runs-on: ubuntu-latest
+    if: ${{ github.ref_name != 'master' }}
     name: ESLint & Prettier
     steps:
       - uses: actions/checkout@v6
@@ -38,6 +47,7 @@ jobs:
           key: '${{ env.BUILD_CACHE_KEY }}'
 
   test:
+    if: ${{ github.ref_name != 'master' }}
     runs-on: ubuntu-latest
     name: Test
     steps:
@@ -55,6 +65,10 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
   deploy-vite-example:
+    concurrency:
+      cancel-in-progress: true
+      # one deployment per PR, not commit
+      group: "${{ github.base_ref || github.ref_name }}:${{ github.head_ref || 'nil' }}:${{matrix.projects.project-id}}"
     strategy:
       matrix:
         projects:
@@ -65,6 +79,10 @@ jobs:
             project-id: prj_yBYBe1AJV0tbpTqxCMzcyRfFWXxP
             stream-api-key: xzwhhgtazy6h
     runs-on: ubuntu-latest
+    environment:
+      name: "${{ matrix.projects.name }} (${{ github.ref_name == 'master' && 'Production' || 'Preview' }})"
+      deployment: true
+      url: '${{ steps.deploy-to-vercel.outputs.deploy-url }}'
     # skip if build fails
     needs:
       - build
@@ -74,6 +92,7 @@ jobs:
       VERCEL_PROJECT_ID: ${{ matrix.projects.project-id }}
       VITE_STREAM_API_KEY: ${{ matrix.projects.stream-api-key }}
       NODE_ENV: production
+      DEPLOY_ENVIRONMENT: ${{ github.ref_name == 'master' && 'production' || 'preview' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -92,18 +111,14 @@ jobs:
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: yarn build
 
-      - name: Vercel Pull/Build/Deploy (Preview)
+      - name: Vercel Pull/Build/Deploy
         working-directory: examples/vite
-        if: ${{ github.ref_name != 'master' }}
+        id: deploy-to-vercel
+        env:
+          # "target=production" is not treated the same way "--prod" does
+          PROD_FLAG: ${{ env.DEPLOY_ENVIRONMENT == 'production' && '--prod' || '' }}
         run: >-
-          npx vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }} &&
-          npx vercel build &&
-          npx vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Vercel Pull/Build/Deploy (Production)
-        working-directory: examples/vite
-        if: ${{ github.ref_name == 'master' }}
-        run: >-
-          npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }} &&
-          npx vercel build --prod &&
-          npx vercel deploy --prod --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+          npx vercel pull --yes --environment=${{ env.DEPLOY_ENVIRONMENT }} --token=${{ secrets.VERCEL_TOKEN }} &&
+          npx vercel build ${{ env.PROD_FLAG }} &&
+          npx vercel deploy ${{ env.PROD_FLAG }} --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | 
+          xargs -I % echo "deploy-url=%" >> "$GITHUB_OUTPUT"

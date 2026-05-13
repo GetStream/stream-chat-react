@@ -12,7 +12,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import type { ReactionSort } from 'stream-chat';
-import { defaultReactionOptions } from './reactionOptions';
+import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
 import { IconEmojiAdd } from '../Icons';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
@@ -81,6 +81,8 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
 
+  const hasExtendedReactions = getHasExtendedReactions(reactionOptions);
+
   const {
     isLoading: areReactionsLoading,
     reactions: reactionDetails,
@@ -137,19 +139,21 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
           className='str-chat__message-reactions-detail__reaction-type-list'
           data-testid='reaction-type-list'
         >
-          <li className='str-chat__message-reactions-detail__reaction-type-list-item'>
-            <button
-              aria-label={t('Add reaction')}
-              className='str-chat__message-reactions-detail__reaction-type-list-item-button'
-              data-testid='add-reaction-button'
-              onClick={() => setExtendedReactionListOpen(true)}
-              type='button'
-            >
-              <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
-                <IconEmojiAdd />
-              </span>
-            </button>
-          </li>
+          {hasExtendedReactions && (
+            <li className='str-chat__message-reactions-detail__reaction-type-list-item'>
+              <button
+                aria-label={t('Add reaction')}
+                className='str-chat__message-reactions-detail__reaction-type-list-item-button'
+                data-testid='add-reaction-button'
+                onClick={() => setExtendedReactionListOpen(true)}
+                type='button'
+              >
+                <span className='str-chat__message-reactions-detail__reaction-type-list-item-icon'>
+                  <IconEmojiAdd />
+                </span>
+              </button>
+            </li>
+          )}
 
           {reactions.map(
             ({ EmojiComponent, reactionCount, reactionType }) =>
