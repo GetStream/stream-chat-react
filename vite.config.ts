@@ -7,9 +7,10 @@ import getPackageVersion from './scripts/get-package-version.mjs';
 const external = [
   ...Object.keys(dependencies),
   ...Object.keys(peerDependencies),
-  // regex patterns to match subpaths of external dependencies
-  // e.g. @stream-io/abc and @stream-io/abc/xyz (without this, Vite bundles subpaths)
-].map((dependency) => new RegExp(`^${dependency}(\\/[\\w-]+)?$`));
+  // regex patterns to match subpaths of external dependencies at any depth
+  // e.g. dayjs/locale/de, @stream-io/abc/xyz/inner (without this, Vite/Rolldown
+  // bundles the subpath module, which can drag CJS `require()` glue into ESM output)
+].map((dependency) => new RegExp(`^${dependency}(\\/.+)?$`));
 
 const formats: LibraryFormats[] = ['es', 'cjs'];
 
