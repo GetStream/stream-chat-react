@@ -7,22 +7,13 @@ runs:
     - name: Setup Node
       uses: actions/setup-node@v6
       with:
+        cache: 'yarn'
         node-version-file: '.nvmrc'
 
     - name: Set NODE_VERSION env
       shell: bash
       run: echo "NODE_VERSION=$(node --version)" >> $GITHUB_ENV
 
-    - name: Cache Yarn Berry cache and install state
-      uses: actions/cache@v5
-      with:
-        path: |
-          .yarn/cache
-          .yarn/install-state.gz
-        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-yarn-${{ hashFiles('yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ env.NODE_VERSION }}-yarn-
-
     - name: Install dependencies
-      run: yarn install --immutable
+      run: yarn install
       shell: bash
