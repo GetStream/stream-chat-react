@@ -240,9 +240,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
             </span>
           ) : null}
           {trailing ? (
-            <span aria-hidden className='str-chat__form-text-input__trailing'>
-              {trailing}
-            </span>
+            <span className='str-chat__form-text-input__trailing'>{trailing}</span>
           ) : null}
         </div>
         {messageInside ? fieldMessage : null}

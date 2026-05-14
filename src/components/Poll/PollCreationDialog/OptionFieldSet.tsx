@@ -40,9 +40,20 @@ export const OptionFieldSet = () => {
 
   const clearOption = useCallback(
     (removedOptionId: string) => {
+      const removedOptionIndex = pollComposer.options.findIndex(
+        (option) => option.id === removedOptionId,
+      );
+      const nextOptionId = pollComposer.options[removedOptionIndex + 1]?.id;
+
       pollComposer.updateFields({
         options: pollComposer.options.filter((option) => option.id !== removedOptionId),
       });
+
+      if (nextOptionId) {
+        requestAnimationFrame(() => {
+          document.getElementById(nextOptionId)?.focus();
+        });
+      }
     },
     [pollComposer],
   );

@@ -167,6 +167,40 @@ describe('PollCreationDialog', () => {
     expect(getSubmitPollButton()).toBeDisabled();
   });
 
+  it('exposes the remove option button to assistive technology', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const removeOptionButton = screen.getByRole('button', { name: /remove option/i });
+
+    expect(removeOptionButton).toBeInTheDocument();
+    expect(removeOptionButton.closest('[aria-hidden="true"]')).toBeNull();
+  });
+
+  it('focuses the next option input after removing a focused option', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const removeOptionButton = screen.getByRole('button', { name: /remove option/i });
+    removeOptionButton.focus();
+
+    expect(removeOptionButton).toHaveFocus();
+
+    await act(async () => {
+      await fireEvent.click(removeOptionButton);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDER)).toHaveFocus();
+    });
+  });
+
   it('allows submission with at least one option and name', async () => {
     const text = 'Abc';
     await renderComponent();
