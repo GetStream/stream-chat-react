@@ -29,6 +29,7 @@ export type ModalCloseEvent =
   | React.MouseEvent<HTMLButtonElement | HTMLDivElement>;
 
 export type ModalCloseSource = 'overlay' | 'button' | 'escape';
+export type ModalInitialFocusStrategy = 'dialog' | 'firstElement';
 
 export type ModalProps = {
   /** If true, modal is opened or visible. */
@@ -43,6 +44,10 @@ export type ModalProps = {
   'aria-describedby'?: string;
   /** ARIA role for the modal dialog surface. */
   role?: 'alertdialog' | 'dialog';
+  /** Controls whether the dialog surface or the first focusable descendant receives initial focus. */
+  initialFocusStrategy?: ModalInitialFocusStrategy;
+  /** Resolves a custom initial focus element. When provided, it overrides `initialFocusStrategy` and falls back to the dialog surface when no element is returned. */
+  getInitialFocusElement?: (dialogElement: HTMLDivElement) => HTMLElement | null;
   /** If provided, the close button is rendered on overlay */
   CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
   /** Callback handler for closing of modal. */
@@ -58,6 +63,8 @@ export const GlobalModal = ({
   children,
   className,
   CloseButtonOnOverlay,
+  getInitialFocusElement,
+  initialFocusStrategy,
   onClose,
   onCloseAttempt,
   open,
@@ -66,10 +73,13 @@ export const GlobalModal = ({
   const dialog = useModalDialog();
   const isOpen = useModalDialogIsOpen();
   const overlayRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
   const { theme } = useChatContext();
   const dialogLabelingBaseId = dialog.id;
+  const resolvedInitialFocusStrategy: ModalInitialFocusStrategy =
+    initialFocusStrategy ?? 'firstElement';
   const resolvedModalAriaProps = useResolvedModalAriaProps({
     ariaDescribedby,
     ariaLabel,
@@ -124,6 +134,26 @@ export const GlobalModal = ({
     }
   }, [dialog, isOpen, open]);
 
+  useEffect(() => {
+    if (
+      !open ||
+      !isOpen ||
+      (!getInitialFocusElement && resolvedInitialFocusStrategy === 'firstElement')
+    )
+      return;
+
+    const frame = requestAnimationFrame(() => {
+      const dialogElement = dialogRef.current;
+      if (!dialogElement) return;
+
+      const target = getInitialFocusElement?.(dialogElement) ?? dialogElement;
+
+      target.focus();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [getInitialFocusElement, isOpen, open, resolvedInitialFocusStrategy]);
+
   if (!open || !isOpen) return null;
 
   return (
@@ -139,7 +169,13 @@ export const GlobalModal = ({
           onClick={handleOverlayClick}
           ref={overlayRef}
         >
-          <FocusScope autoFocus contain restoreFocus>
+          <FocusScope
+            autoFocus={
+              !getInitialFocusElement && resolvedInitialFocusStrategy === 'firstElement'
+            }
+            contain
+            restoreFocus
+          >
             <div
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
@@ -147,6 +183,7 @@ export const GlobalModal = ({
               aria-modal='true'
               className='str-chat__modal__dialog'
               onKeyDown={handleDialogKeyDown}
+              ref={dialogRef}
               role={role}
               tabIndex={-1}
             >

@@ -44,6 +44,10 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - For dialog surfaces:
   - provide `role` and `aria-modal` for modal behavior
   - wire `aria-labelledby` and `aria-describedby` to visible title/description nodes
+  - keep dialog title/description IDs on the dialog surface; do not reuse dialog-level `descriptionId` on descendant inputs/buttons just to make the dialog copy read again
+  - child controls should reference only control-specific help/error text via `aria-describedby`
+  - avoid attaching the dialog description to close buttons in prompt/modal headers
+  - when surrounding dialog context is already announced, prefer short close labels (for example existing `t('Close')`) over redundant labels like `Close dialog`
 - For images:
   - always render `alt` (`''` when decorative)
 
@@ -72,6 +76,12 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 
 - Maintain visible focus indicators (do not remove outlines without replacement).
 - When trapping focus in dialogs, ensure focus enters the dialog and is restored on close.
+- Initial dialog focus depends on dialog type:
+  - short task-oriented form dialogs: usually prefer the first meaningful control
+  - content-heavy or context-first dialogs: focusing the dialog container or a static heading with `tabIndex={-1}` can be appropriate
+  - destructive confirmation dialogs: prefer the least destructive action
+- Treat dialog-surface/title initial focus as an explicit tradeoff, not a universal default.
+- If using dialog-surface initial focus to improve announcement reliability, keep it opt-in for specific dialogs instead of changing all modals globally.
 - After closing transient dialogs/popovers, restore focus to the invoking trigger when expected.
 
 ### 5) Motion preferences
@@ -88,6 +98,15 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - `aria-hidden` is for decorative/non-essential content only, never for focusable controls.
 - Icon-only controls must carry an accessible name on the control element itself.
 
+## Screen Reader Dialog Quirks
+
+- macOS VoiceOver may re-announce ancestor dialog/group context (for example `dialog, 5 items`) when focus moves to controls inside a dialog.
+- This repeated container announcement is often screen-reader behavior, not necessarily a labeling bug in the app.
+- Distinguish between:
+  - expected container-context announcement from the screen reader
+  - actual label leakage caused by descendant `aria-describedby` / `aria-labelledby`
+- Fix leakage in code; do not try to fight VoiceOver container announcements with extra ARIA or live-region workarounds.
+
 ## i18n rules for accessibility text
 
 1. New accessibility labels/announcements must use `t('aria/...')` or established translation topics.
@@ -101,11 +120,13 @@ Minimum:
 
 - unit tests for new keyboard/focus/semantics behavior in nearest `__tests__` folder
 - one `jest-axe` assertion for components where semantics changed
+- for modal changes, verify dialog-surface semantics (`role`, `aria-labelledby`, `aria-describedby`) and that descendant controls do not inherit dialog descriptions unless explicitly intended
 
 Recommended:
 
 - regression tests for:
   - Enter/Space activation
+  - initial focus target for dialogs that use custom open-focus behavior
   - role/state attributes
   - focus restore on close
   - reduced-motion behavior where logic branches in JS
@@ -129,3 +150,5 @@ Recommended:
 - Creating two focusable wrappers for one action path.
 - Introducing invalid role/attribute pairs (for example `aria-selected` on plain buttons).
 - Using live regions to force modal text announcement instead of fixing dialog semantics.
+- Using placeholders as the only field label, or combining a visible label with a redundant placeholder that causes extra screen-reader chatter without adding meaning.
+- Treating repeated VoiceOver dialog/group announcements as proof that app markup is wrong before checking whether descendant controls are actually inheriting dialog descriptions.

@@ -488,13 +488,20 @@ describe('AttachmentSelector', () => {
     });
 
     const dialog = screen.getByRole('dialog', { name: 'Create poll' });
+    const questionInput = screen.getByLabelText('Question');
     expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
     expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
-    expect(screen.getByPlaceholderText(/Ask a question/i)).toHaveAttribute(
+    await waitFor(() => {
+      expect(questionInput).toHaveFocus();
+    });
+    expect(questionInput).not.toHaveAttribute(
       'aria-describedby',
       expect.stringContaining('modal-dialog-description'),
+    );
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveAttribute(
+      'aria-describedby',
     );
 
     const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
@@ -507,7 +514,7 @@ describe('AttachmentSelector', () => {
     });
   });
 
-  it('opens share location dialog with description wired to initial close control', async () => {
+  it('opens share location dialog and focuses the dialog surface for announcement', async () => {
     (navigator as any).geolocation = {
       clearWatch: vi.fn(),
       getCurrentPosition: vi.fn(),
@@ -532,12 +539,11 @@ describe('AttachmentSelector', () => {
     expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
       'Select your current location and optionally enable live location sharing',
     );
-    const closePromptButton = document.querySelector(
-      '.str-chat__prompt__header__close-button',
-    ) as HTMLButtonElement | null;
-    expect(closePromptButton).toHaveAttribute(
+    await waitFor(() => {
+      expect(dialog).toHaveFocus();
+    });
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveAttribute(
       'aria-describedby',
-      'modal-dialog-description',
     );
 
     const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');

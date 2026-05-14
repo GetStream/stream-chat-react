@@ -50,10 +50,7 @@ const PromptHeader = ({
       {close && (
         <Button
           appearance='ghost'
-          aria-describedby={
-            description != null && description !== '' ? resolvedDescriptionId : undefined
-          }
-          aria-label={t('Close prompt: {{ title }}', { title })}
+          aria-label={t('Close')}
           circular
           className='str-chat__prompt__header__close-button'
           onClick={close}

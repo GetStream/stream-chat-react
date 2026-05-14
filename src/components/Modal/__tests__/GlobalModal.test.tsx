@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { GlobalModal } from '../GlobalModal';
 import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
@@ -328,5 +328,45 @@ describe('GlobalModal', () => {
 
     const results = await axe(document.body);
     expect(results).toHaveNoViolations();
+  });
+
+  it('can focus the dialog surface on open when requested', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Focused dialog',
+        children: <ModalContent text={textContent} />,
+        initialFocusStrategy: 'dialog',
+        open: true,
+      },
+    });
+
+    return waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Focused dialog' })).toHaveFocus();
+    });
+  });
+
+  it('can focus a custom element on open when requested', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Custom focused dialog',
+        children: (
+          <div className='str-chat__modal__inner'>
+            <button id='first-button' type='button'>
+              First
+            </button>
+            <button id='second-button' type='button'>
+              Second
+            </button>
+          </div>
+        ),
+        getInitialFocusElement: (dialogElement) =>
+          dialogElement.querySelector('#second-button'),
+        open: true,
+      },
+    });
+
+    return waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Second' })).toHaveFocus();
+    });
   });
 });

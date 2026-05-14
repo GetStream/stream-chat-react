@@ -429,6 +429,9 @@ export const AttachmentSelector = ({
               'str-chat__share-location-modal':
                 modalContentAction?.type === 'addLocation',
             })}
+            initialFocusStrategy={
+              modalContentAction?.type === 'createPoll' ? 'firstElement' : 'dialog'
+            }
             onClose={closeModal}
             open={modalIsOpen}
           >
