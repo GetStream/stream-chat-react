@@ -25,6 +25,7 @@ import {
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
+import { renderText } from '../renderText';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -136,6 +137,36 @@ describe('QuotedMessage', () => {
 
     const textEl = await findByTestId('quoted-message-text');
     expect(textEl.textContent).toContain(messageText);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('renders built-in, role, and user-group mentions inside quoted message text', async () => {
+    const messageText = 'hey @channel @here @admin @backend-team';
+    const { container, findByText } = await renderQuotedMessage({
+      customProps: {
+        message: {
+          quoted_message: {
+            mentioned_channel: true,
+            mentioned_group_ids: ['backend-team'],
+            mentioned_here: true,
+            mentioned_roles: ['admin'],
+            text: messageText,
+          },
+        },
+        renderText,
+      },
+    });
+
+    expect(await findByText('@channel')).toHaveAttribute('data-mention-type', 'channel');
+    expect(await findByText('@here')).toHaveAttribute('data-mention-type', 'here');
+    expect(await findByText('@admin')).toHaveAttribute('data-mention-type', 'role');
+    expect(await findByText('@backend-team')).toHaveAttribute(
+      'data-mention-type',
+      'user_group',
+    );
+    expect(container.querySelectorAll('.str-chat__message-mention')).toHaveLength(4);
+
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

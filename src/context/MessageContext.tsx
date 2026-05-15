@@ -1,4 +1,4 @@
-import type { BaseSyntheticEvent, PropsWithChildren, ReactNode } from 'react';
+import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 
 import type {
@@ -18,7 +18,7 @@ import type { MessageActionsArray } from '../components/Message/utils';
 import type { GroupStyle } from '../components/MessageList/utils';
 import type { ReactionsComparator, ReactionType } from '../components/Reactions/types';
 
-import type { RenderTextOptions } from '../components/Message/renderText';
+import type { RenderTextFunction } from '../components/Message/renderText';
 
 export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
@@ -107,11 +107,7 @@ export type MessageContextValue = {
   /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */
   showAvatar?: boolean | 'incoming' | 'outgoing';
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.tsx) */
-  renderText?: (
-    text?: string,
-    mentioned_users?: UserResponse[],
-    options?: RenderTextOptions,
-  ) => ReactNode;
+  renderText?: RenderTextFunction;
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */
   returnAllReadData?: boolean;
   /** Comparator function to sort reactions, defaults to chronological order */

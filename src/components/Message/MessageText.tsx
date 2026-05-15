@@ -6,6 +6,7 @@ import type { MessageContextValue } from '../../context';
 import { useMessageContext, useTranslationContext } from '../../context';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { renderText as defaultRenderText } from './renderText';
+import { getRenderTextMentionEntities } from './renderText/rehypePlugins';
 
 import type { LocalMessage } from 'stream-chat';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
@@ -48,10 +49,30 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     translationView === 'original'
       ? message.text
       : getTranslatedMessageText({ language: userLanguage, message }) || message.text;
+  const renderTextMentionEntities = useMemo(
+    () =>
+      getRenderTextMentionEntities({
+        mentioned_channel: message.mentioned_channel,
+        mentioned_group_ids: message.mentioned_group_ids,
+        mentioned_here: message.mentioned_here,
+        mentioned_roles: message.mentioned_roles,
+        mentioned_users: message.mentioned_users,
+      }),
+    [
+      message.mentioned_channel,
+      message.mentioned_group_ids,
+      message.mentioned_here,
+      message.mentioned_roles,
+      message.mentioned_users,
+    ],
+  );
 
   const messageText = useMemo(
-    () => renderText(messageTextToRender, message.mentioned_users),
-    [message.mentioned_users, messageTextToRender, renderText],
+    () =>
+      renderText(messageTextToRender, message.mentioned_users, {
+        messageMentionEntities: renderTextMentionEntities,
+      }),
+    [message.mentioned_users, messageTextToRender, renderText, renderTextMentionEntities],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';

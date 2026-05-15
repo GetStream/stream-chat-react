@@ -1,4 +1,5 @@
 @use '../../../styling/utils';
+@use '../../../styling/variables/fonts';
 
 .str-chat {
   .str-chat__suggestion-list {
@@ -10,5 +11,42 @@
     .str-chat__suggestion-list-item--selected {
       background-color: var(--str-chat__dialog-menu-button-hover-background-color);
     }
+  }
+
+  .str-chat__suggestion-list__item-with-avatar {
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+  }
+
+  .str-chat__suggestion-list__item-avatar {
+    background: var(--str-chat__background-core-surface-subtle);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    flex-shrink: 0;
+
+    .str-chat__icon {
+      color: var(--str-chat__text-secondary);
+    }
+  }
+
+  .str-chat__suggestion-list__item-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .str-chat__suggestion-list__item-title {
+    @include fonts.text-caption-default;
+    @include utils.ellipsis-text;
+    text-align: start;
+    min-width: 0;
+  }
+
+  .str-chat__suggestion-list__item-details {
+    @include fonts.text-metadata-default;
+    @include utils.ellipsis-text;
+    color: var(--str-chat__text-tertiary);
+    text-align: start;
+    min-width: 0;
   }
 }
