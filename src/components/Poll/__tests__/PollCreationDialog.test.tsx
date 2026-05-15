@@ -34,6 +34,9 @@ const getVoteLimitSwitch = () => {
   return el;
 };
 
+const getLatestLiveAnnouncement = (region: HTMLElement) =>
+  region.lastElementChild?.textContent ?? '';
+
 const getMaxVoteCountInput = () =>
   document.getElementById('max_votes_allowed') as HTMLInputElement | null;
 const NAME_INPUT_FIELD_ERROR_TEST_ID = 'poll-name-input-field-error';
@@ -167,17 +170,21 @@ describe('PollCreationDialog', () => {
     expect(getSubmitPollButton()).toBeDisabled();
   });
 
-  it('exposes the remove option button to assistive technology', async () => {
+  it('renders a remove option button for every draggable option row', async () => {
     await renderComponent();
 
     await act(async () => {
       await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
     });
 
-    const removeOptionButton = screen.getByRole('button', { name: /remove option/i });
+    const removeOptionButtons = screen.getAllByRole('button', { name: /remove option/i });
+    const reorderHandles = screen.getAllByRole('button', { name: /reorder option/i });
 
-    expect(removeOptionButton).toBeInTheDocument();
-    expect(removeOptionButton.closest('[aria-hidden="true"]')).toBeNull();
+    expect(removeOptionButtons).toHaveLength(reorderHandles.length);
+    for (const removeOptionButton of removeOptionButtons) {
+      expect(removeOptionButton).toBeInTheDocument();
+      expect(removeOptionButton.closest('[aria-hidden="true"]')).toBeNull();
+    }
   });
 
   it('focuses the next option input after removing a focused option', async () => {
@@ -187,7 +194,9 @@ describe('PollCreationDialog', () => {
       await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
     });
 
-    const removeOptionButton = screen.getByRole('button', { name: /remove option/i });
+    const removeOptionButton = screen.getAllByRole('button', {
+      name: /remove option/i,
+    })[0];
     removeOptionButton.focus();
 
     expect(removeOptionButton).toHaveFocus();
@@ -198,6 +207,99 @@ describe('PollCreationDialog', () => {
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDER)).toHaveFocus();
+    });
+  });
+
+  it('supports keyboard reorder mode from the drag handle', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const reorderHandle = screen.getByRole('button', { name: /reorder option 1/i });
+    const assertiveLiveRegion = screen.getByTestId(
+      'str-chat__aria-live-region--assertive',
+    );
+    const politeLiveRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+    await act(() => {
+      reorderHandle.focus();
+    });
+
+    expect(reorderHandle).toHaveFocus();
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.',
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.click(reorderHandle);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
+        'Option "First option" selected.',
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.keyDown(reorderHandle, { key: 'ArrowDown' });
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
+        'Option "First option" moved to position 2.',
+      );
+    });
+
+    const optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
+    expect(optionFields[0]).toHaveValue('');
+    expect(optionFields[1]).toHaveValue('First option');
+    await waitFor(() => {
+      expect(document.activeElement).toHaveAttribute('aria-label', 'Reorder option 2');
+    });
+
+    await act(async () => {
+      await fireEvent.click(document.activeElement as HTMLElement);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
+        'Option "First option" deselected.',
+      );
+    });
+  });
+
+  it('supports click activation for keyboard reorder mode', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const reorderHandle = screen.getByRole('button', { name: /reorder option 1/i });
+    const politeLiveRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+
+    await act(async () => {
+      await fireEvent.click(reorderHandle);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
+        'Option "First option" selected.',
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.click(reorderHandle);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
+        'Option "First option" deselected.',
+      );
     });
   });
 

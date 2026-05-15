@@ -1,26 +1,35 @@
 import clsx from 'clsx';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { TextInput } from '../../Form/TextInput';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
-import { IconMinusCircle, IconReorder } from '../../Icons';
+import { IconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
+import { AriaLiveRegion } from '../../Accessibility';
+import { PollOptionReorderHandle } from './PollOptionReorderHandle';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   errors: state.errors.options,
   options: state.data.options,
 });
 
-export const OptionFieldSet = () => {
+export const OptionFieldSet = () => (
+  <AriaLiveRegion>
+    <OptionFieldSetContent />
+  </AriaLiveRegion>
+);
+
+const OptionFieldSetContent = () => {
   const { pollComposer } = useMessageComposerController();
   const { errors, options } = useStateStore(
     pollComposer.state,
     pollComposerStateSelector,
   );
   const { t } = useTranslationContext('OptionFieldSet');
+  const optionInputRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
@@ -40,20 +49,25 @@ export const OptionFieldSet = () => {
 
   const clearOption = useCallback(
     (removedOptionId: string) => {
+      const nextOptions = [...pollComposer.options];
+      if (!nextOptions.length) return;
+
       const removedOptionIndex = pollComposer.options.findIndex(
         (option) => option.id === removedOptionId,
       );
-      const nextOptionId = pollComposer.options[removedOptionIndex + 1]?.id;
+
+      if (removedOptionIndex === -1) return;
+      nextOptions.splice(removedOptionIndex, 1);
 
       pollComposer.updateFields({
-        options: pollComposer.options.filter((option) => option.id !== removedOptionId),
+        options: nextOptions,
       });
 
-      if (nextOptionId) {
-        requestAnimationFrame(() => {
-          document.getElementById(nextOptionId)?.focus();
-        });
-      }
+      if (!nextOptions.length) return;
+      const nextFocusedOptionIndex = Math.min(removedOptionIndex, nextOptions.length - 1);
+      requestAnimationFrame(() => {
+        optionInputRefs.current[nextFocusedOptionIndex]?.focus();
+      });
     },
     [pollComposer],
   );
@@ -74,7 +88,7 @@ export const OptionFieldSet = () => {
               'str-chat__form__input-field--draggable': draggable,
               'str-chat__form__input-field--has-error': error,
             })}
-            key={`new-poll-option-${i}`}
+            key={option.id}
           >
             <TextInput
               className='str-chat__form__input-field__value'
@@ -82,7 +96,7 @@ export const OptionFieldSet = () => {
               fieldMessagePlacement='inside'
               id={option.id}
               leading={
-                draggable ? <IconReorder className='str-chat__drag-handle' /> : undefined
+                draggable ? <PollOptionReorderHandle option={option} /> : undefined
               }
               message={
                 error ? (
@@ -102,13 +116,15 @@ export const OptionFieldSet = () => {
               onKeyUp={(event) => {
                 const isFocusedLastOptionField = i === options.length - 1;
                 if (event.key === 'Enter' && !isFocusedLastOptionField) {
-                  const nextInputId = options[i + 1].id;
-                  document.getElementById(nextInputId)?.focus();
+                  optionInputRefs.current[i + 1]?.focus();
                 }
               }}
               placeholder={t('Add an option')}
+              ref={(element) => {
+                optionInputRefs.current[i] = element;
+              }}
               trailing={
-                option.text ? (
+                draggable ? (
                   <RemoveOptionButton
                     aria-label={t('aria/Remove option')}
                     onClick={() => clearOption(option.id)}

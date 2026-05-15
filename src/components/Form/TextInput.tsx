@@ -221,9 +221,7 @@ export const TextInput = forwardRef<HTMLInputElement, TextInputProps>(function T
       >
         <div className='str-chat__form-text-input__control-row'>
           {leading ? (
-            <span aria-hidden className='str-chat__form-text-input__leading'>
-              {leading}
-            </span>
+            <span className='str-chat__form-text-input__leading'>{leading}</span>
           ) : null}
           <input
             aria-describedby={describedBy}

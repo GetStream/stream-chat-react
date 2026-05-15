@@ -4,6 +4,11 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { AriaLiveRegion } from '../AriaLiveRegion';
 import { useAriaLiveAnnouncer } from '../useAriaLiveAnnouncer';
 
+const LIVE_ANNOUNCEMENT_TTL_MS = 1500;
+
+const getLatestAnnouncement = (region: HTMLElement) =>
+  region.lastElementChild?.textContent ?? '';
+
 const AnnouncerTrigger = () => {
   const announce = useAriaLiveAnnouncer();
 
@@ -48,16 +53,16 @@ describe('AriaLiveRegion', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'announce-polite' }));
     await waitFor(() => {
-      expect(politeRegion).toHaveTextContent('Polite announcement');
+      expect(getLatestAnnouncement(politeRegion)).toBe('Polite announcement');
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'announce-assertive' }));
     await waitFor(() => {
-      expect(assertiveRegion).toHaveTextContent('Assertive announcement');
+      expect(getLatestAnnouncement(assertiveRegion)).toBe('Assertive announcement');
     });
   });
 
-  it('re-announces repeated identical messages by clearing then resetting text', async () => {
+  it('re-announces repeated identical messages as distinct live nodes', async () => {
     render(
       <AriaLiveRegion>
         <AnnouncerTrigger />
@@ -69,15 +74,15 @@ describe('AriaLiveRegion', () => {
 
     fireEvent.click(repeatButton);
     await waitFor(() => {
-      expect(politeRegion).toHaveTextContent('Repeat announcement');
+      expect(getLatestAnnouncement(politeRegion)).toBe('Repeat announcement');
     });
 
     fireEvent.click(repeatButton);
-    expect(politeRegion).toHaveTextContent('');
 
     await waitFor(() => {
-      expect(politeRegion).toHaveTextContent('Repeat announcement');
+      expect(getLatestAnnouncement(politeRegion)).toBe('Repeat announcement');
     });
+    expect(politeRegion.childElementCount).toBe(2);
   });
 
   it('announces messages in React Strict Mode', async () => {
@@ -94,11 +99,11 @@ describe('AriaLiveRegion', () => {
     fireEvent.click(screen.getByRole('button', { name: 'announce-polite' }));
 
     await waitFor(() => {
-      expect(politeRegion).toHaveTextContent('Polite announcement');
+      expect(getLatestAnnouncement(politeRegion)).toBe('Polite announcement');
     });
   });
 
-  it('delays polite announcements to force a detectable DOM mutation', () => {
+  it('expires polite announcements after their TTL', () => {
     vi.useFakeTimers();
 
     try {
@@ -111,23 +116,23 @@ describe('AriaLiveRegion', () => {
       const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
 
       fireEvent.click(screen.getByRole('button', { name: 'announce-polite' }));
-      expect(politeRegion).toHaveTextContent('');
+      expect(getLatestAnnouncement(politeRegion)).toBe('Polite announcement');
 
       act(() => {
-        vi.advanceTimersByTime(49);
+        vi.advanceTimersByTime(LIVE_ANNOUNCEMENT_TTL_MS - 1);
       });
-      expect(politeRegion).toHaveTextContent('');
+      expect(getLatestAnnouncement(politeRegion)).toBe('Polite announcement');
 
       act(() => {
         vi.advanceTimersByTime(1);
       });
-      expect(politeRegion).toHaveTextContent('Polite announcement');
+      expect(getLatestAnnouncement(politeRegion)).toBe('');
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it('cancels stale pending polite announcements when a newer one arrives', () => {
+  it('keeps rapid polite announcements independent until each TTL expires', () => {
     vi.useFakeTimers();
 
     try {
@@ -142,12 +147,15 @@ describe('AriaLiveRegion', () => {
       fireEvent.click(screen.getByRole('button', { name: 'announce-polite' }));
       fireEvent.click(screen.getByRole('button', { name: 'announce-repeat' }));
 
+      expect(politeRegion.childElementCount).toBe(2);
+      expect(getLatestAnnouncement(politeRegion)).toBe('Repeat announcement');
+
       act(() => {
-        vi.advanceTimersByTime(50);
+        vi.advanceTimersByTime(LIVE_ANNOUNCEMENT_TTL_MS);
       });
 
-      expect(politeRegion).toHaveTextContent('Repeat announcement');
-      expect(politeRegion).not.toHaveTextContent('Polite announcement');
+      expect(getLatestAnnouncement(politeRegion)).toBe('');
+      expect(politeRegion.childElementCount).toBe(0);
     } finally {
       vi.useRealTimers();
     }

@@ -9,65 +9,70 @@ import {
   type AriaLivePriority,
 } from './useAriaLiveAnnouncer';
 
-type SequenceByPriority = {
-  [key in AriaLivePriority]: number;
+type LiveAnnouncement = {
+  id: number;
+  message: string;
 };
 
-type TimeoutByPriority = {
-  [key in AriaLivePriority]: ReturnType<typeof setTimeout> | undefined;
+type AnnouncementsByPriority = {
+  [key in AriaLivePriority]: LiveAnnouncement[];
 };
+
+const LIVE_ANNOUNCEMENT_TTL_MS = 1500;
 
 export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
-  const [assertiveMessage, setAssertiveMessage] = useState('');
-  const [politeMessage, setPoliteMessage] = useState('');
-  const sequenceByPriorityRef = useRef<SequenceByPriority>({
-    assertive: 0,
-    polite: 0,
-  });
-  const timeoutByPriorityRef = useRef<TimeoutByPriority>({
-    assertive: undefined,
-    polite: undefined,
-  });
-  const unmountedRef = useRef(false);
+  const [announcementsByPriority, setAnnouncementsByPriority] =
+    useState<AnnouncementsByPriority>({
+      assertive: [],
+      polite: [],
+    });
+  const nextAnnouncementIdRef = useRef(0);
+  const timeoutByAnnouncementIdRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
 
-  const clearPendingTimeout = useCallback((priority: AriaLivePriority) => {
-    if (!timeoutByPriorityRef.current[priority]) return;
-    clearTimeout(timeoutByPriorityRef.current[priority]);
-    timeoutByPriorityRef.current[priority] = undefined;
+  const removeAnnouncement = useCallback((priority: AriaLivePriority, id: number) => {
+    setAnnouncementsByPriority((currentAnnouncements) => ({
+      ...currentAnnouncements,
+      [priority]: currentAnnouncements[priority].filter(
+        (announcement) => announcement.id !== id,
+      ),
+    }));
+
+    const timeout = timeoutByAnnouncementIdRef.current.get(id);
+    if (!timeout) return;
+
+    clearTimeout(timeout);
+    timeoutByAnnouncementIdRef.current.delete(id);
   }, []);
-
-  const clearPendingTimeouts = useCallback(() => {
-    clearPendingTimeout('assertive');
-    clearPendingTimeout('polite');
-  }, [clearPendingTimeout]);
 
   const announce = useCallback<AriaLiveAnnounce>(
     (message, priority = 'polite') => {
-      const setAnnouncement =
-        priority === 'assertive' ? setAssertiveMessage : setPoliteMessage;
-      const sequence = sequenceByPriorityRef.current[priority] + 1;
+      const announcementId = nextAnnouncementIdRef.current++;
 
-      sequenceByPriorityRef.current[priority] = sequence;
-      clearPendingTimeout(priority);
-      setAnnouncement('');
-      timeoutByPriorityRef.current[priority] = setTimeout(() => {
-        if (unmountedRef.current) return;
-        if (sequenceByPriorityRef.current[priority] !== sequence) return;
-        setAnnouncement(message);
-        timeoutByPriorityRef.current[priority] = undefined;
-      }, 50);
+      setAnnouncementsByPriority((currentAnnouncements) => ({
+        ...currentAnnouncements,
+        [priority]: [...currentAnnouncements[priority], { id: announcementId, message }],
+      }));
+
+      const timeout = setTimeout(() => {
+        removeAnnouncement(priority, announcementId);
+      }, LIVE_ANNOUNCEMENT_TTL_MS);
+
+      timeoutByAnnouncementIdRef.current.set(announcementId, timeout);
     },
-    [clearPendingTimeout],
+    [removeAnnouncement],
   );
 
-  useEffect(() => {
-    unmountedRef.current = false;
-
-    return () => {
-      unmountedRef.current = true;
-      clearPendingTimeouts();
-    };
-  }, [clearPendingTimeouts]);
+  useEffect(
+    () => () => {
+      for (const timeout of timeoutByAnnouncementIdRef.current.values()) {
+        clearTimeout(timeout);
+      }
+      timeoutByAnnouncementIdRef.current.clear();
+    },
+    [],
+  );
 
   const contextValue = useMemo(() => ({ announce }), [announce]);
 
@@ -79,22 +84,26 @@ export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
       <Portal getPortalDestination={getPortalDestination} isOpen>
         <VisuallyHidden>
           <div
-            aria-atomic='true'
+            aria-atomic='false'
             aria-live='polite'
-            aria-relevant='additions text'
+            aria-relevant='additions'
             data-testid='str-chat__aria-live-region--polite'
             role='status'
           >
-            {politeMessage}
+            {announcementsByPriority.polite.map((announcement) => (
+              <div key={announcement.id}>{announcement.message}</div>
+            ))}
           </div>
           <div
-            aria-atomic='true'
+            aria-atomic='false'
             aria-live='assertive'
-            aria-relevant='additions text'
+            aria-relevant='additions'
             data-testid='str-chat__aria-live-region--assertive'
             role='alert'
           >
-            {assertiveMessage}
+            {announcementsByPriority.assertive.map((announcement) => (
+              <div key={announcement.id}>{announcement.message}</div>
+            ))}
           </div>
         </VisuallyHidden>
       </Portal>
