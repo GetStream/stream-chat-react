@@ -1,49 +1,55 @@
-import React, { useEffect, useRef, useState } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { PollComposerOption } from 'stream-chat';
 
 import { IconReorder } from '../../Icons';
 import { useAriaLiveAnnouncer } from '../../Accessibility';
-import { useMessageComposerController } from '../../MessageComposer';
 import { useTranslationContext } from '../../../context';
 
 type PollOptionReorderHandleProps = {
+  index: number;
+  isActive: boolean;
+  onActivate: (optionId: string) => void;
+  onDeselect: () => void;
+  onMove: (direction: -1 | 1) => void;
   option: PollComposerOption;
+  registerRef: (index: number, element: HTMLButtonElement | null) => void;
+  /** Total number of options. Used to embed "position N of total" into the
+   * active handle's aria-label so VoiceOver's native focus announcement after a
+   * move carries the new position instead of just "Reorder option N". */
+  totalOptionCount: number;
 };
 
-export const PollOptionReorderHandle = ({ option }: PollOptionReorderHandleProps) => {
-  const { pollComposer } = useMessageComposerController();
+export const PollOptionReorderHandle = ({
+  index,
+  isActive,
+  onActivate,
+  onDeselect,
+  onMove,
+  option,
+  registerRef,
+  totalOptionCount,
+}: PollOptionReorderHandleProps) => {
   const { t } = useTranslationContext();
   const announce = useAriaLiveAnnouncer();
   const hasAnnouncedFocusRef = useRef(false);
-  const buttonRef = useRef<HTMLButtonElement | null>(null);
   const focusAnnouncementFrameRef = useRef<number | null>(null);
-  const [isKeyboardReordering, setIsKeyboardReordering] = useState(false);
-  const optionPosition =
-    pollComposer.options.findIndex((candidate) => candidate.id === option.id) + 1;
-  const optionAnnouncementLabel =
-    option.text.trim() || t('aria/Option {{ position }}', { position: optionPosition });
 
-  const moveOption = (direction: -1 | 1) => {
-    const currentIndex = pollComposer.options.findIndex(
-      (candidate) => candidate.id === option.id,
-    );
-    if (currentIndex === -1) return false;
-
-    const targetIndex = currentIndex + direction;
-    if (targetIndex < 0 || targetIndex >= pollComposer.options.length) return false;
-
-    const nextOptions = [...pollComposer.options];
-    const [movedOption] = nextOptions.splice(currentIndex, 1);
-    nextOptions.splice(targetIndex, 0, movedOption);
-
-    pollComposer.updateFields({ options: nextOptions });
-
-    requestAnimationFrame(() => {
-      buttonRef.current?.focus();
-    });
-
-    return true;
-  };
+  const position = index + 1;
+  const optionLabel = option.text.trim() || t('aria/Option {{ position }}', { position });
+  // While picked up, fold the option text + new position into the aria-label
+  // so VoiceOver speaks "Reorder 'option B' at position 1 of 3" on the focus
+  // event triggered by ArrowUp/ArrowDown. That replaces the otherwise
+  // redundant "Reorder option N, selected, toggle button" native announcement
+  // and removes the need for a duplicate live-region "moved to position"
+  // message.
+  const ariaLabel = isActive
+    ? t('aria/Reorder "{{ option }}" at position {{ position }} of {{ total }}', {
+        option: optionLabel,
+        position,
+        total: totalOptionCount,
+      })
+    : t('aria/Reorder option {{ position }}', { position });
 
   useEffect(
     () => () => {
@@ -53,46 +59,50 @@ export const PollOptionReorderHandle = ({ option }: PollOptionReorderHandleProps
     [],
   );
 
+  const onKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    if (!isActive) return;
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      onMove(-1);
+      return;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      onMove(1);
+      return;
+    }
+    if (event.key === 'Escape' || event.key === 'Esc') {
+      event.preventDefault();
+      onDeselect();
+    }
+  };
+
   return (
     <button
-      aria-label={t('aria/Reorder option {{ position }}', {
-        position: optionPosition,
-      })}
-      aria-pressed={isKeyboardReordering}
+      aria-label={ariaLabel}
+      aria-pressed={isActive}
       className='str-chat__drag-handle-button'
       onBlur={() => {
         if (focusAnnouncementFrameRef.current !== null) {
           cancelAnimationFrame(focusAnnouncementFrameRef.current);
           focusAnnouncementFrameRef.current = null;
         }
-
-        requestAnimationFrame(() => {
-          if (document.activeElement === buttonRef.current) return;
-
-          hasAnnouncedFocusRef.current = false;
-          setIsKeyboardReordering(false);
-        });
+        hasAnnouncedFocusRef.current = false;
+        if (isActive) {
+          // Tabbing or clicking away while picked up drops the option.
+          onDeselect();
+        }
       }}
       onClick={() => {
-        if (isKeyboardReordering) {
-          setIsKeyboardReordering(false);
-          announce(
-            t('aria/Option "{{ option }}" deselected.', {
-              option: optionAnnouncementLabel,
-            }),
-          );
+        if (isActive) {
+          onDeselect();
           return;
         }
-
-        setIsKeyboardReordering(true);
-        announce(
-          t('aria/Option "{{ option }}" selected.', {
-            option: optionAnnouncementLabel,
-          }),
-        );
+        onActivate(option.id);
       }}
       onFocus={() => {
-        if (hasAnnouncedFocusRef.current) return;
+        if (isActive || hasAnnouncedFocusRef.current) return;
 
         hasAnnouncedFocusRef.current = true;
         focusAnnouncementFrameRef.current = requestAnimationFrame(() => {
@@ -105,35 +115,10 @@ export const PollOptionReorderHandle = ({ option }: PollOptionReorderHandleProps
           focusAnnouncementFrameRef.current = null;
         });
       }}
-      onKeyDown={(event) => {
-        if (!isKeyboardReordering) return;
-
-        if (event.key === 'ArrowUp') {
-          event.preventDefault();
-          const moved = moveOption(-1);
-          if (!moved) return;
-          announce(
-            t('aria/Option "{{ option }}" moved to position {{ position }}.', {
-              option: optionAnnouncementLabel,
-              position: optionPosition - 1,
-            }),
-          );
-          return;
-        }
-
-        if (event.key === 'ArrowDown') {
-          event.preventDefault();
-          const moved = moveOption(1);
-          if (!moved) return;
-          announce(
-            t('aria/Option "{{ option }}" moved to position {{ position }}.', {
-              option: optionAnnouncementLabel,
-              position: optionPosition + 1,
-            }),
-          );
-        }
+      onKeyDown={onKeyDown}
+      ref={(element) => {
+        registerRef(index, element);
       }}
-      ref={buttonRef}
       type='button'
     >
       <IconReorder className='str-chat__drag-handle' />

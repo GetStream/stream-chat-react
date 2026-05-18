@@ -239,8 +239,8 @@ describe('PollCreationDialog', () => {
     });
 
     await waitFor(() => {
-      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
-        'Option "First option" selected.',
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Picked up "First option". Use arrow keys to reorder. Press Space or Tab to drop.',
       );
     });
 
@@ -248,26 +248,29 @@ describe('PollCreationDialog', () => {
       await fireEvent.keyDown(reorderHandle, { key: 'ArrowDown' });
     });
 
-    await waitFor(() => {
-      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
-        'Option "First option" moved to position 2.',
-      );
-    });
-
     const optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
     expect(optionFields[0]).toHaveValue('');
     expect(optionFields[1]).toHaveValue('First option');
+    // Focus follows the moved option to its new row, and the active handle's
+    // aria-label embeds the option text + new position so VoiceOver's native
+    // focus announcement carries the move information without duplicating a
+    // live-region "moved to position" message.
     await waitFor(() => {
-      expect(document.activeElement).toHaveAttribute('aria-label', 'Reorder option 2');
+      expect(document.activeElement).toHaveAttribute(
+        'aria-label',
+        'Reorder "First option" at position 2 of 2',
+      );
+      expect(document.activeElement).toHaveAttribute('aria-pressed', 'true');
     });
+    expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe('');
 
     await act(async () => {
       await fireEvent.click(document.activeElement as HTMLElement);
     });
 
     await waitFor(() => {
-      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
-        'Option "First option" deselected.',
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Dropped "First option" at position 2.',
       );
     });
   });
@@ -280,15 +283,17 @@ describe('PollCreationDialog', () => {
     });
 
     const reorderHandle = screen.getByRole('button', { name: /reorder option 1/i });
-    const politeLiveRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+    const assertiveLiveRegion = screen.getByTestId(
+      'str-chat__aria-live-region--assertive',
+    );
 
     await act(async () => {
       await fireEvent.click(reorderHandle);
     });
 
     await waitFor(() => {
-      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
-        'Option "First option" selected.',
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Picked up "First option". Use arrow keys to reorder. Press Space or Tab to drop.',
       );
     });
 
@@ -297,8 +302,8 @@ describe('PollCreationDialog', () => {
     });
 
     await waitFor(() => {
-      expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe(
-        'Option "First option" deselected.',
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Dropped "First option" at position 1.',
       );
     });
   });

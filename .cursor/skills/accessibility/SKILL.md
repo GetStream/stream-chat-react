@@ -71,6 +71,10 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - Use `polite` for non-urgent updates; `assertive` for urgent/error updates.
 - For repeated announcements, clear then set message (small delay) to force re-announcement.
 - For modals, do not use live regions for static body content; rely on correct dialog semantics + focus management.
+- **`aria-modal="true"` suppresses live regions outside its subtree.** VoiceOver (and most ATs) ignore live regions that are not descendants of the active `aria-modal` container. Live regions portalled to `document.body` are therefore swallowed when a modal is open. When announcing inside a modal dialog, mount the live region inside the dialog subtree. Do not "fix" missing announcements by escalating polite -> assertive; if the region is outside the modal, no priority will save it.
+- **Do not double-announce a state change that already moves focus.** When an action (reorder, tab switch, step navigation) shifts DOM focus to a new control, the screen reader will already speak that control's accessible name. Emitting a parallel live-region message for the same event causes overlap or interruption. Pick one channel:
+  - focus moves -> encode the new state in the focused control's `aria-label` (dynamic label rides the native focus announcement)
+  - focus does not move (pickup, drop, async state changes) -> use a live-region announcement
 
 ### 4) Focus management
 
@@ -84,7 +88,19 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - If using dialog-surface initial focus to improve announcement reliability, keep it opt-in for specific dialogs instead of changing all modals globally.
 - After closing transient dialogs/popovers, restore focus to the invoking trigger when expected.
 
-### 5) Motion preferences
+### 5) Keyboard reorder / drag-and-drop fallback
+
+When a list supports drag-and-drop reordering, provide a keyboard equivalent driven by a per-row toggle handle (Space picks up, ArrowUp/Down move, Space/Enter/Escape/Tab/blur drop):
+
+- **`aria-pressed` on the toggle handle** communicates picked-up state; do not invent a custom ARIA state.
+- **Focus follows the moved item.** After a move, focus belongs to the handle now at the item's new position — not on a static slot, the previous DOM node, or the list container. Otherwise sighted/keyboard and AT users diverge on what is "selected".
+- **Stable keys + persistent DOM nodes for the handle.** Key the row (or just the handle) so React does not unmount it across reorders. Unmounting the focused element drops focus to `<body>` and aborts the keyboard mode mid-press. A common approach is keying handles by row index and re-applying focus to that index after the array reorders, using a refs-by-index registry and `useLayoutEffect`.
+- **Do not move focus to a sibling input** (the row's text field, the container, etc.) on activation. The handle owns the keyboard mode for its full lifecycle.
+- **Encode the new position in the active handle's `aria-label`.** While picked up, expand the label to include item identity, current position, and total (`Reorder "{name}" at position {n} of {total}`). When focus shifts to the handle at the new position after ArrowUp/Down, the native focus announcement carries the move information — no parallel live-region message needed.
+- **Use live-region announcements only for pickup and drop**, where focus does not shift. These are the events the dynamic `aria-label` cannot cover.
+- **`aria-activedescendant` is not a substitute for moving real DOM focus** in this pattern on Chrome + VoiceOver. It is unreliable for tracking moves; prefer real focus management.
+
+### 6) Motion preferences
 
 - Respect `prefers-reduced-motion` in both CSS and JS behavior:
   - CSS transitions/animations minimized in `accessibility.scss`
@@ -152,3 +168,9 @@ Recommended:
 - Using live regions to force modal text announcement instead of fixing dialog semantics.
 - Using placeholders as the only field label, or combining a visible label with a redundant placeholder that causes extra screen-reader chatter without adding meaning.
 - Treating repeated VoiceOver dialog/group announcements as proof that app markup is wrong before checking whether descendant controls are actually inheriting dialog descriptions.
+- Live region rendered outside the active `aria-modal="true"` subtree (for example portalled to `document.body`) — the announcements are silently dropped. Mount the live region inside the modal subtree.
+- Emitting a live-region message for an action that also shifts focus — causes overlapping announcements. Encode the new state in the focused control's `aria-label` instead.
+- Remounting the focused control to "reset" its accessible name; this drops focus to `<body>` and breaks keyboard flows. Update attributes on the existing node.
+- Moving focus to a sibling (text input, container) when activating a per-row keyboard mode (reorder, edit, etc.). The activating control must keep focus until the mode ends.
+- Reaching for `aria-activedescendant` to fix VoiceOver tracking on Chrome instead of moving real DOM focus.
+- Passing both an index and a derived position/label prop to a child component when one can be computed from the other — keep one source of truth, derive the rest in the child.

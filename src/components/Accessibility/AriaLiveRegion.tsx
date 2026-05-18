@@ -9,6 +9,16 @@ import {
   type AriaLivePriority,
 } from './useAriaLiveAnnouncer';
 
+export type AriaLiveRegionProps = PropsWithChildren<{
+  /**
+   * When true, render the live region inline (as a sibling of `children`) instead
+   * of portalling it to `document.body`. Use this when the consumer is rendered
+   * inside an `aria-modal="true"` dialog, since most assistive technologies
+   * suppress live regions outside such a modal subtree.
+   */
+  inline?: boolean;
+}>;
+
 type LiveAnnouncement = {
   id: number;
   message: string;
@@ -20,7 +30,7 @@ type AnnouncementsByPriority = {
 
 const LIVE_ANNOUNCEMENT_TTL_MS = 1500;
 
-export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
+export const AriaLiveRegion = ({ children, inline = false }: AriaLiveRegionProps) => {
   const [announcementsByPriority, setAnnouncementsByPriority] =
     useState<AnnouncementsByPriority>({
       assertive: [],
@@ -78,35 +88,43 @@ export const AriaLiveRegion = ({ children }: PropsWithChildren) => {
 
   const getPortalDestination = useCallback(() => document.body, []);
 
+  const liveRegions = (
+    <VisuallyHidden>
+      <div
+        aria-atomic='false'
+        aria-live='polite'
+        aria-relevant='additions'
+        data-testid='str-chat__aria-live-region--polite'
+        role='status'
+      >
+        {announcementsByPriority.polite.map((announcement) => (
+          <div key={announcement.id}>{announcement.message}</div>
+        ))}
+      </div>
+      <div
+        aria-atomic='false'
+        aria-live='assertive'
+        aria-relevant='additions'
+        data-testid='str-chat__aria-live-region--assertive'
+        role='alert'
+      >
+        {announcementsByPriority.assertive.map((announcement) => (
+          <div key={announcement.id}>{announcement.message}</div>
+        ))}
+      </div>
+    </VisuallyHidden>
+  );
+
   return (
     <AriaLiveAnnouncerContext.Provider value={contextValue}>
       {children}
-      <Portal getPortalDestination={getPortalDestination} isOpen>
-        <VisuallyHidden>
-          <div
-            aria-atomic='false'
-            aria-live='polite'
-            aria-relevant='additions'
-            data-testid='str-chat__aria-live-region--polite'
-            role='status'
-          >
-            {announcementsByPriority.polite.map((announcement) => (
-              <div key={announcement.id}>{announcement.message}</div>
-            ))}
-          </div>
-          <div
-            aria-atomic='false'
-            aria-live='assertive'
-            aria-relevant='additions'
-            data-testid='str-chat__aria-live-region--assertive'
-            role='alert'
-          >
-            {announcementsByPriority.assertive.map((announcement) => (
-              <div key={announcement.id}>{announcement.message}</div>
-            ))}
-          </div>
-        </VisuallyHidden>
-      </Portal>
+      {inline ? (
+        liveRegions
+      ) : (
+        <Portal getPortalDestination={getPortalDestination} isOpen>
+          {liveRegions}
+        </Portal>
+      )}
     </AriaLiveAnnouncerContext.Provider>
   );
 };
