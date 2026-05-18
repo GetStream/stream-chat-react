@@ -11,7 +11,10 @@ import type {
 } from 'stream-chat';
 
 import { useConnectionRecoveredListener } from './hooks/useConnectionRecoveredListener';
-import type { CustomQueryChannelsFn } from './hooks/usePaginatedChannels';
+import type {
+  CustomQueryChannelsFn,
+  EffectiveQueryParams,
+} from './hooks/usePaginatedChannels';
 import { usePaginatedChannels } from './hooks/usePaginatedChannels';
 import {
   useChannelListShape,
@@ -211,6 +214,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   const activeChannelHandler = async (
     channels: Array<Channel>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
+    effectiveQueryParams: EffectiveQueryParams,
   ) => {
     if (!channels.length) {
       return;
@@ -234,7 +238,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
         const newChannels = moveChannelUpwards({
           channels,
           channelToMove: customActiveChannelObject,
-          sort,
+          sort: effectiveQueryParams.sort,
         });
 
         setChannels(newChannels);
@@ -253,7 +257,14 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
    */
   const forceUpdate = useCallback(() => setChannelUpdateCount((count) => count + 1), []);
 
-  const { channels, hasNextPage, loadNextPage, setChannels } = usePaginatedChannels(
+  const {
+    channels,
+    effectiveFilters,
+    effectiveSort,
+    hasNextPage,
+    loadNextPage,
+    setChannels,
+  } = usePaginatedChannels(
     client,
     filters || DEFAULT_FILTERS,
     sort || DEFAULT_SORT,
@@ -269,7 +280,11 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
 
   const { customHandler, defaultHandler } = usePrepareShapeHandlers({
     allowNewMessagesFromUnfilteredChannels,
-    filters,
+    // `effectiveFilters`/`effectiveSort` reflect the backend-resolved
+    // `predefined_filter` metadata when `options.predefined_filter` is in use.
+    // For non-predefined queries they fall back to the caller-supplied
+    // `filters`/`sort` props so behavior is unchanged.
+    filters: effectiveFilters,
     lockChannelOrder,
     onAddedToChannel,
     onChannelDeleted,
@@ -281,7 +296,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     onMessageNewHandler,
     onRemovedFromChannel,
     setChannels,
-    sort,
+    sort: effectiveSort,
     // TODO: implement
     // customHandleChannelListShape
   });
