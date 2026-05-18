@@ -103,7 +103,7 @@
     "emoji-mart": "^5.4.0",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.43.0",
+    "stream-chat": "^9.44.2",
     "modern-normalize": "^3.0.1"
   },
   "peerDependenciesMeta": {
@@ -174,7 +174,7 @@
     "react-dom": "^19.0.0",
     "sass": "^1.97.2",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^9.43.0",
+    "stream-chat": "^9.44.2",
     "typescript": "^5.4.5",
     "typescript-eslint": "^8.17.0",
     "vite": "^7.3.1",
