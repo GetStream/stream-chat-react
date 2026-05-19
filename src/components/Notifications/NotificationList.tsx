@@ -19,12 +19,21 @@ export type NotificationListVerticalAlignment = 'bottom' | 'top';
  * different notification triggers a swap (immediate or after `minDisplayMs`, see the
  * scheduling effect); returning `null` triggers the empty-slot exit.
  *
- * Default: `defaultPickNext` — applies persistent-wins, same-type-refresh and FIFO rules
- * from the design spec. Pass your own selector to opt out of any of those policies.
- * The library also exports `pickOldest` (FIFO) and `pickNewest` (LIFO) as low-level
- * building blocks you can compose.
+ * Default: `createDefaultPickNext(pickOldest)` — applies persistent-wins,
+ * same-type-refresh and FIFO queue rules from the design spec. Pass
+ * `pickNext={createDefaultPickNext(pickNewest)}` to swap FIFO for LIFO without
+ * reimplementing those rules, or your own `pickNext` to opt out entirely.
  */
 export type PickNextNotification = (
+  notifications: Notification[],
+  displayed: Notification | null,
+) => Notification | null;
+
+/**
+ * Picks the next queued notification when no higher-priority rule applies (persistent
+ * wins, same-type refresh). Used by `createDefaultPickNext`.
+ */
+export type PickFromQueue = (
   notifications: Notification[],
   displayed: Notification | null,
 ) => Notification | null;
@@ -53,8 +62,7 @@ export type NotificationListProps = {
   /**
    * Override the candidate-selection policy. The function decides which notification
    * should be displayed given the store and the currently displayed one. Defaults to
-   * `defaultPickNext`, which applies the persistent-wins / same-type-refresh / FIFO rules
-   * documented on `PickNextNotification`.
+   * `createDefaultPickNext(pickOldest)`. Pass `createDefaultPickNext(pickNewest)` for LIFO.
    */
   pickNext?: PickNextNotification;
   /** Panel target consumed by this list. */
@@ -101,8 +109,8 @@ const isPersistent = (notification: Notification) => !notification.duration;
 const haveSameType = (a: Notification | null, b: Notification | null) =>
   !!a?.type && !!b?.type && a.type === b.type;
 
-/** FIFO selector — oldest `createdAt` other than `displayed` wins. */
-export const pickOldest: PickNextNotification = (notifications, displayed) => {
+/** FIFO queue selector — oldest `createdAt` other than `displayed` wins. */
+export const pickOldest: PickFromQueue = (notifications, displayed) => {
   const excludeId = displayed?.id ?? null;
   let oldest: Notification | null = null;
   for (const notification of notifications) {
@@ -114,8 +122,8 @@ export const pickOldest: PickNextNotification = (notifications, displayed) => {
   return oldest;
 };
 
-/** LIFO selector — newest `createdAt` other than `displayed` wins. */
-export const pickNewest: PickNextNotification = (notifications, displayed) => {
+/** LIFO queue selector — newest `createdAt` other than `displayed` wins. */
+export const pickNewest: PickFromQueue = (notifications, displayed) => {
   const excludeId = displayed?.id ?? null;
   let newest: Notification | null = null;
   for (const notification of notifications) {
@@ -160,9 +168,9 @@ const pickNewestOfType = (
 };
 
 /**
- * Default `PickNextNotification` selector. Encodes the snackbar concurrency rules from
- * the design spec — the scheduling effect only decides *when* to swap, this function
- * decides *what* to swap to.
+ * Builds the default `PickNextNotification` selector with a configurable queue fallback.
+ * Encodes the snackbar concurrency rules from the design spec — the scheduling effect
+ * only decides *when* to swap, the returned function decides *what* to swap to.
  *
  * Rules, in order of precedence:
  *   1. **Persistent wins.** Persistent variants (no `duration`) jump ahead of any
@@ -173,52 +181,56 @@ const pickNewestOfType = (
  *      same `type` collapses to its latest occurrence. (The scheduling effect detects
  *      this via `haveSameType` and bypasses the dwell window so the refresh feels
  *      instant; this function just makes sure the latest same-type is returned.)
- *   4. **FIFO fallback.** Otherwise, the oldest queued notification (other than the
- *      displayed one) is shown next, so every notification is guaranteed at least
- *      `minDisplayMs` of visibility — nothing is silently dropped.
+ *   4. **Queue fallback.** Otherwise, `pickFromQueue` selects the next notification
+ *      (default: `pickOldest` / FIFO).
  *
  * Exported so callers that want to layer behavior on top of the design rules can wrap
- * this function instead of rewriting it.
+ * the result instead of rewriting it.
  */
-export const defaultPickNext: PickNextNotification = (notifications, displayed) => {
-  if (notifications.length === 0) return null;
+export const createDefaultPickNext =
+  (pickFromQueue: PickFromQueue = pickOldest): PickNextNotification =>
+  (notifications, displayed) => {
+    if (notifications.length === 0) return null;
 
-  const newestPersistent = pickNewestPersistent(notifications, null);
+    const newestPersistent = pickNewestPersistent(notifications, null);
 
-  if (!displayed) {
-    return newestPersistent ?? pickOldest(notifications, null);
-  }
-
-  const displayedInStore = notifications.some(({ id }) => id === displayed.id);
-  if (!displayedInStore) {
-    return newestPersistent ?? pickOldest(notifications, null);
-  }
-
-  if (isPersistent(displayed)) {
-    // Currently showing a persistent: only a newer persistent can replace it. Reuse the
-    // earlier lookup when it already points at a different persistent.
-    const newerPersistent =
-      newestPersistent && newestPersistent.id !== displayed.id
-        ? newestPersistent
-        : pickNewestPersistent(notifications, displayed.id);
-    if (newerPersistent && newerPersistent.createdAt > displayed.createdAt) {
-      return newerPersistent;
+    if (!displayed) {
+      return newestPersistent ?? pickFromQueue(notifications, null);
     }
-    return displayed;
-  }
 
-  // Currently showing a transient.
-  // 1. Same-type "refresh of current" wins immediately — a repeated trigger of the
-  //    displayed snackbar collapses to the latest occurrence of that type.
-  const sameTypeNewest = pickNewestOfType(notifications, displayed.type, displayed.id);
-  if (sameTypeNewest) return sameTypeNewest;
+    const displayedInStore = notifications.some(({ id }) => id === displayed.id);
+    if (!displayedInStore) {
+      return newestPersistent ?? pickFromQueue(notifications, null);
+    }
 
-  // 2. Any queued persistent jumps ahead of the queue.
-  if (newestPersistent) return newestPersistent;
+    if (isPersistent(displayed)) {
+      // Currently showing a persistent: only a newer persistent can replace it. Reuse the
+      // earlier lookup when it already points at a different persistent.
+      const newerPersistent =
+        newestPersistent && newestPersistent.id !== displayed.id
+          ? newestPersistent
+          : pickNewestPersistent(notifications, displayed.id);
+      if (newerPersistent && newerPersistent.createdAt > displayed.createdAt) {
+        return newerPersistent;
+      }
+      return displayed;
+    }
 
-  // 3. FIFO fallback.
-  return pickOldest(notifications, displayed) ?? displayed;
-};
+    // Currently showing a transient.
+    // 1. Same-type "refresh of current" wins immediately — a repeated trigger of the
+    //    displayed snackbar collapses to the latest occurrence of that type.
+    const sameTypeNewest = pickNewestOfType(notifications, displayed.type, displayed.id);
+    if (sameTypeNewest) return sameTypeNewest;
+
+    // 2. Any queued persistent jumps ahead of the queue.
+    if (newestPersistent) return newestPersistent;
+
+    // 3. Queue fallback.
+    return pickFromQueue(notifications, displayed) ?? displayed;
+  };
+
+/** Default selector — design-spec rules with FIFO queue fallback (`pickOldest`). */
+const defaultPickNext = createDefaultPickNext(pickOldest);
 
 export const NotificationList = ({
   className,
@@ -316,7 +328,7 @@ export const NotificationList = ({
   }, [displayedNotification, notifications, pickNext]);
 
   // Main scheduling effect — owns *when* swaps happen. The *what* is delegated entirely
-  // to `pickNext` (default: `defaultPickNext`).
+  // to `pickNext` (default: `createDefaultPickNext(pickOldest)`).
   //
   // Runs on every change to `displayedNotification`, `notifications`, `pickNext`, or
   // `transitionState`, and decides one of four outcomes:

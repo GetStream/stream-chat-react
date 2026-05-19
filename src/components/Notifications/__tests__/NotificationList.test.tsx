@@ -1,7 +1,7 @@
 import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { NotificationList, pickNewest } from '../NotificationList';
+import { createDefaultPickNext, NotificationList, pickNewest } from '../NotificationList';
 import { useNotificationApi } from '../hooks/useNotificationApi';
 import { useNotifications } from '../hooks/useNotifications';
 import { ComponentProvider } from '../../../context/ComponentContext';
@@ -183,15 +183,16 @@ describe('NotificationList', () => {
     expect(screen.queryByTestId('notification-n-2')).not.toBeInTheDocument();
   });
 
-  it('uses a custom pickNext to override the default FIFO order', () => {
+  it('uses createDefaultPickNext to switch the default selector to LIFO', () => {
     currentNotifications = [
       transientFixture({ createdAt: 1, id: 'n-1', message: 'First' }),
       transientFixture({ createdAt: 2, id: 'n-2', message: 'Second' }),
       transientFixture({ createdAt: 3, id: 'n-3', message: 'Third' }),
     ];
 
+    const pickNextLifo = createDefaultPickNext(pickNewest);
     const { rerender } = render(
-      <NotificationList minDisplayMs={500} pickNext={pickNewest} />,
+      <NotificationList minDisplayMs={500} pickNext={pickNextLifo} />,
     );
 
     // With LIFO ordering the newest queued notification is shown first.
@@ -200,11 +201,11 @@ describe('NotificationList', () => {
     act(() => {
       vi.advanceTimersByTime(500);
     });
-    rerender(<NotificationList minDisplayMs={500} pickNext={pickNewest} />);
+    rerender(<NotificationList minDisplayMs={500} pickNext={pickNextLifo} />);
     act(() => {
       vi.advanceTimersByTime(EXIT_ANIMATION_MS);
     });
-    rerender(<NotificationList minDisplayMs={500} pickNext={pickNewest} />);
+    rerender(<NotificationList minDisplayMs={500} pickNext={pickNextLifo} />);
 
     // After dwell + exit, the next-newest replaces it.
     expect(remove).toHaveBeenCalledWith('n-3');
