@@ -8,6 +8,7 @@ import type {
   ChannelOptions,
   ChannelSort,
   ErrorFromResponse,
+  ParsedPredefinedFilterResponse,
   StreamChat,
 } from 'stream-chat';
 
@@ -34,6 +35,27 @@ export type CustomQueryChannelParams = {
 
 export type CustomQueryChannelsFn = (params: CustomQueryChannelParams) => Promise<void>;
 
+/**
+ * Filters and sort effectively used by the channel list. When `options.predefined_filter`
+ * is set, these reflect the backend-resolved values from `predefined_filter` response
+ * metadata; otherwise they fall back to the caller-supplied `filters`/`sort`.
+ */
+export type EffectiveQueryParams = {
+  filters: ChannelFilters;
+  sort: ChannelSort;
+};
+
+/**
+ * The `predefined_filter` response carries sort as
+ * `[{ field, direction }]`. `ChannelSort` expects `[{ field: direction }]`.
+ */
+const mapPredefinedFilterSortToChannelSort = (
+  sort: NonNullable<ParsedPredefinedFilterResponse['sort']>,
+): ChannelSort =>
+  sort.map(({ direction = 1, field }) => ({
+    [field]: direction,
+  })) as ChannelSort;
+
 export const usePaginatedChannels = (
   client: StreamChat,
   filters: ChannelFilters,
@@ -42,6 +64,7 @@ export const usePaginatedChannels = (
   activeChannelHandler: (
     channels: Array<Channel>,
     setChannels: React.Dispatch<React.SetStateAction<Array<Channel>>>,
+    effectiveQueryParams: EffectiveQueryParams,
   ) => void,
   recoveryThrottleIntervalMs: number = RECOVER_LOADED_CHANNELS_THROTTLE_INTERVAL_IN_MS,
   customQueryChannels?: CustomQueryChannelsFn,
@@ -53,6 +76,14 @@ export const usePaginatedChannels = (
   const { t } = useTranslationContext();
   const [channels, setChannels] = useState<Array<Channel>>([]);
   const [hasNextPage, setHasNextPage] = useState(true);
+  // Backend-resolved filter/sort from `predefined_filter` response metadata.
+  // Used to override the caller `filters`/`sort` for local WS-driven list
+  // mutation decisions (archiving, pinning) when a predefined filter is in
+  // use. Stays `undefined` for non-predefined queries.
+  const [responseFilters, setResponseFilters] = useState<ChannelFilters | undefined>(
+    undefined,
+  );
+  const [responseSort, setResponseSort] = useState<ChannelSort | undefined>(undefined);
   const lastRecoveryTimestamp = useRef<number | undefined>(undefined);
 
   const recoveryThrottleInterval =
@@ -82,6 +113,10 @@ export const usePaginatedChannels = (
           setChannels,
           setHasNextPage,
         });
+        // `customQueryChannels` bypasses the SDK response so any previously
+        // resolved predefined-filter metadata is no longer trustworthy.
+        setResponseFilters(undefined);
+        setResponseSort(undefined);
       } else {
         const newOptions = {
           offset,
@@ -92,19 +127,38 @@ export const usePaginatedChannels = (
           filters,
           sort || {},
           newOptions,
+          { withResponse: true },
         );
 
         const newChannels =
           queryType === 'reload'
-            ? channelQueryResponse
-            : uniqBy([...channels, ...channelQueryResponse], 'cid');
+            ? channelQueryResponse.channels
+            : uniqBy([...channels, ...channelQueryResponse.channels], 'cid');
 
         setChannels(newChannels);
-        setHasNextPage(channelQueryResponse.length >= (newOptions.limit ?? 1));
+        setHasNextPage(channelQueryResponse.channels.length >= (newOptions.limit ?? 1));
+
+        // Pull backend-resolved filter/sort from `predefined_filter` metadata so
+        // WS-driven list mutations use the effective semantics. Always reset
+        // first; non-predefined queries do not return this metadata and keeping
+        // stale values would silently change list behavior.
+        const predefinedFilter = channelQueryResponse.predefined_filter;
+        const nextResponseFilters = predefinedFilter
+          ? (predefinedFilter.filter as ChannelFilters)
+          : undefined;
+        const nextResponseSort = predefinedFilter?.sort
+          ? mapPredefinedFilterSortToChannelSort(predefinedFilter.sort)
+          : undefined;
+
+        setResponseFilters(nextResponseFilters);
+        setResponseSort(nextResponseSort);
 
         // Set active channel only on load of first page
         if (!offset && activeChannelHandler) {
-          activeChannelHandler(newChannels, setChannels);
+          activeChannelHandler(newChannels, setChannels, {
+            filters: nextResponseFilters ?? filters,
+            sort: nextResponseSort ?? sort,
+          });
         }
       }
     } catch (error) {
@@ -165,8 +219,17 @@ export const usePaginatedChannels = (
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterString, sortString]);
 
+  // Effective filters/sort: response-derived values take precedence over
+  // caller-supplied props when a predefined filter is in use. Falls back to
+  // the caller props for non-predefined queries and during the initial load
+  // before the first response.
+  const effectiveFilters = responseFilters ?? filters;
+  const effectiveSort = responseSort ?? sort;
+
   return {
     channels,
+    effectiveFilters,
+    effectiveSort,
     hasNextPage,
     loadNextPage,
     setChannels,
