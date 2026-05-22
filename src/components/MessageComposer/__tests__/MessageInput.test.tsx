@@ -1333,6 +1333,23 @@ describe(`MessageInputFlat`, () => {
   });
 
   describe('Command dismissal', () => {
+    it('exposes giphy composer as a single-line textbox for assistive tech', async () => {
+      const { channel } = await renderComponent();
+      const command = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(command);
+      });
+
+      const input = await screen.findByRole('textbox', { name: 'Search GIFs' });
+
+      expect(input).toHaveAttribute('aria-multiline', 'false');
+    });
+
     it('clears the active command when Escape is pressed in the textarea', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);

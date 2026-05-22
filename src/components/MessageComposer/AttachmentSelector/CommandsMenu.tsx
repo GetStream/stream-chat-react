@@ -134,9 +134,14 @@ export const CommandContextMenuItem = ({
     () => (args ? `/${command.name} ${args}` : `/${command.name}`),
     [args, command.name],
   );
+  const ariaLabel = useMemo(
+    () => (description ? `${description}, ${details}` : details),
+    [description, details],
+  );
 
   return (
     <ContextMenuButton
+      aria-label={ariaLabel}
       {...props}
       className={clsx('str-chat__context-menu__button--command', className)}
       details={details}
@@ -144,7 +149,6 @@ export const CommandContextMenuItem = ({
       Icon={icons[command.name]}
       key={command.name}
       label={command.name}
-      title={`${description} ${command.args}`}
     />
   );
 };
