@@ -215,16 +215,15 @@ const DefaultMessageActionComponents = {
       };
 
       const DownloadSubmenu = () => (
-        <div
-          aria-label={t('aria/Download attachment')}
-          className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'
-          role='menu'
-        >
+        <div className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'>
           {downloadableAttachments.map((attachment, index) => {
-            const fileName =
-              attachment.localMetadata?.file?.name ??
-              attachment.title ??
-              t('Download Attachment');
+            const fileName = attachment.localMetadata?.file?.name ?? attachment.title;
+            const downloadLabelTemplate = fileName
+              ? t('Download {{ fileName }}', { fileName })
+              : t('Download attachment {{ number }}', { number: index + 1 });
+            const downloadLabel = fileName
+              ? downloadLabelTemplate.replace('{{ fileName }}', fileName)
+              : downloadLabelTemplate.replace('{{ number }}', `${index + 1}`);
 
             return (
               <MessageActionsMenuItemButton
@@ -241,7 +240,7 @@ const DefaultMessageActionComponents = {
                   closeMenu();
                 }}
               >
-                {`Download ${fileName}`}
+                {downloadLabel}
               </MessageActionsMenuItemButton>
             );
           })}

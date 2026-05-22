@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -17,8 +18,9 @@ import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import type { DialogAnchorProps } from '../service/DialogAnchor';
 import { DialogAnchor, useDialogAnchor } from '../service/DialogAnchor';
-import { useComponentContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
+import { VisuallyHidden } from '../../VisuallyHidden';
 
 /**
  * ContextMenu module
@@ -359,20 +361,37 @@ export const ContextMenuButton = (props: ContextMenuButtonProps) => {
 };
 
 export const ContextMenuBackButton = ({
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   children,
   className,
   role = 'menuitem',
   ...props
-}: ComponentProps<'button'>) => (
-  <button
-    {...props}
-    className={clsx('str-chat__context-menu__back-button', className)}
-    role={role}
-    type='button'
-  >
-    {children}
-  </button>
-);
+}: ComponentProps<'button'>) => {
+  const { t } = useTranslationContext();
+  const generatedBackNavigationLabelId = useId();
+  const generatedVisibleLabelId = useId();
+  const resolvedAriaLabel = ariaLabel ?? t('aria/Back to parent menu button');
+  const resolvedAriaLabelledBy =
+    ariaLabelledBy ?? `${generatedVisibleLabelId} ${generatedBackNavigationLabelId}`;
+
+  return (
+    <button
+      {...props}
+      aria-labelledby={resolvedAriaLabelledBy}
+      className={clsx('str-chat__context-menu__back-button', className)}
+      role={role}
+      type='button'
+    >
+      {!ariaLabelledBy && (
+        <VisuallyHidden id={generatedBackNavigationLabelId}>
+          {resolvedAriaLabel}
+        </VisuallyHidden>
+      )}
+      <span id={generatedVisibleLabelId}>{children}</span>
+    </button>
+  );
+};
 
 export const ContextMenuHeader = ({
   children,
@@ -532,6 +551,7 @@ type ContextMenuLevel = {
 };
 
 type ContextMenuBaseProps = ComponentPropsWithoutRef<'div'> & {
+  backButtonAriaLabel?: string;
   backLabel?: ReactNode;
   enableAnimations?: boolean;
   Header?: ContextMenuHeaderComponent;
@@ -582,7 +602,8 @@ export type ContextMenuContentProps = ContextMenuBaseProps & {
  */
 export function ContextMenuContent({
   anchorReferenceElement,
-  backLabel = 'Back',
+  backButtonAriaLabel,
+  backLabel,
   children,
   className,
   enableAnimations = true,
@@ -596,6 +617,14 @@ export function ContextMenuContent({
   transitionDirection,
   ...props
 }: ContextMenuContentProps) {
+  const { t } = useTranslationContext();
+  const resolvedBackLabel = backLabel ?? t('Back');
+  const {
+    ['aria-describedby']: rootAriaDescribedBy,
+    ['aria-label']: rootAriaLabel,
+    ['aria-labelledby']: rootAriaLabelledBy,
+    ...contextMenuRootProps
+  } = props;
   const rootLevel = useMemo<ContextMenuLevel>(
     () => ({
       Header,
@@ -732,6 +761,7 @@ export function ContextMenuContent({
       event.stopPropagation();
     }
   }, []);
+  const isSubmenuLevel = menuStack.length > 1;
 
   return (
     <ContextMenuContext.Provider
@@ -745,20 +775,26 @@ export function ContextMenuContent({
       }}
     >
       <ContextMenuRoot
+        aria-describedby={isSubmenuLevel ? undefined : rootAriaDescribedBy}
+        aria-label={isSubmenuLevel ? t('aria/Submenu') : rootAriaLabel}
+        aria-labelledby={isSubmenuLevel ? undefined : rootAriaLabelledBy}
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}
         onKeyDownCapture={keyboardNavigationHandler}
         onKeyUpCapture={suppressEscapeKeyUp}
         ref={contextMenuRootRef}
-        {...props}
+        {...contextMenuRootProps}
       >
         {activeMenu.Header ? (
           <activeMenu.Header />
         ) : menuStack.length > 1 ? (
           <ContextMenuHeader>
-            <ContextMenuBackButton onClick={returnToParentMenu}>
+            <ContextMenuBackButton
+              aria-label={backButtonAriaLabel}
+              onClick={returnToParentMenu}
+            >
               <IconChevronLeft />
-              <span>{backLabel}</span>
+              <span>{resolvedBackLabel}</span>
             </ContextMenuBackButton>
           </ContextMenuHeader>
         ) : null}
@@ -915,6 +951,11 @@ export const ContextMenu = (props: ContextMenuProps) => {
 
   if (isAnchored) {
     const {
+      ['aria-describedby']: ariaDescribedBy,
+      ['aria-label']: ariaLabel,
+      ['aria-labelledby']: ariaLabelledBy,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      backButtonAriaLabel: _bbal,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       backLabel: _b,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -935,9 +976,13 @@ export const ContextMenu = (props: ContextMenuProps) => {
       role: _r,
       ...anchorDivProps
     } = menuProps;
+    const isSubmenuLevel = menuLevel > 1;
     return (
       <DialogAnchor
         allowFlip={allowFlip}
+        aria-describedby={isSubmenuLevel ? undefined : ariaDescribedBy}
+        aria-label={isSubmenuLevel ? undefined : ariaLabel}
+        aria-labelledby={isSubmenuLevel ? undefined : ariaLabelledBy}
         closeOnClickOutside={closeOnClickOutside}
         closeTransitionMs={closeTransitionMs}
         dialogManagerId={dialogManagerId}
