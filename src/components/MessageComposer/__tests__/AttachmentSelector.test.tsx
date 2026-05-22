@@ -47,8 +47,9 @@ const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 const translationContext = fromPartial<TranslationContextValue>({
-  t: (v: any) => v,
-  tDateTimeParser: (v: any) => v.toString(),
+  t: ((value: string) => value) as TranslationContextValue['t'],
+  tDateTimeParser: ((value: string | number | Date) =>
+    value.toString()) as TranslationContextValue['tDateTimeParser'],
 });
 
 const defaultChannelData = {
@@ -167,6 +168,21 @@ describe('AttachmentSelector', () => {
     expect(invokeButton).not.toHaveClass('str-chat__rotate45');
     expect(icon).toHaveClass('str-chat__prepare-rotate45');
     expect(icon).toHaveClass('str-chat__rotate45');
+  });
+
+  it('allows configuring trigger button props', async () => {
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector buttonProps={{ tabIndex: -1 }} />
+    );
+
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
   });
 
   it('renders with all the buttons if all the permissions are granted', async () => {
@@ -698,6 +714,22 @@ describe('SimpleAttachmentSelector', () => {
   it('renders the button', async () => {
     await renderComponent({ message });
     expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
+  });
+
+  it('allows configuring trigger button props', async () => {
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector buttonProps={{ tabIndex: -1 }} />
+    );
+
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+      message,
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
   });
 
   it('does not render if missing "upload-file" capability', async () => {

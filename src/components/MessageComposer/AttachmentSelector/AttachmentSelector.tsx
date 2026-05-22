@@ -91,7 +91,13 @@ export const AttachmentSelectorButton = forwardRef<
   );
 });
 
-export const SimpleAttachmentSelector = () => {
+type SimpleAttachmentSelectorProps = {
+  buttonProps?: Omit<ButtonProps, 'onClick'>;
+};
+
+export const SimpleAttachmentSelector = ({
+  buttonProps,
+}: SimpleAttachmentSelectorProps = {}) => {
   const { channelCapabilities } = useChannelStateContext();
   const { t } = useTranslationContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -117,6 +123,7 @@ export const SimpleAttachmentSelector = () => {
   return (
     <div className='str-chat__attachment-selector'>
       <AttachmentSelectorButton
+        {...buttonProps}
         aria-label={t('aria/Open Attachment Selector')}
         disabled={isCooldownActive}
         onClick={() => inputRef.current?.click()}
@@ -252,6 +259,7 @@ export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
 
 export type AttachmentSelectorProps = {
   attachmentSelectorActionSet?: AttachmentSelectorAction[];
+  buttonProps?: Omit<ButtonProps, 'onClick'>;
   getModalPortalDestination?: () => HTMLElement | null;
 };
 
@@ -316,6 +324,7 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
 
 export const AttachmentSelector = ({
   attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
+  buttonProps,
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
@@ -384,7 +393,7 @@ export const AttachmentSelector = ({
   if (actions.length === 0) return null;
 
   if (actions.length === 1 && actions[0].type === 'uploadFile')
-    return <SimpleAttachmentSelector />;
+    return <SimpleAttachmentSelector buttonProps={buttonProps} />;
 
   const ModalContent = modalContentAction?.ModalContent;
   const modalIsOpen = !!ModalContent;
@@ -393,6 +402,7 @@ export const AttachmentSelector = ({
       <div className='str-chat__attachment-selector'>
         {channelCapabilities['upload-file'] && <UploadFileInput ref={setFileInput} />}
         <AttachmentSelectorButton
+          {...buttonProps}
           aria-expanded={menuDialogIsOpen}
           aria-haspopup='true'
           aria-label={t('aria/Open Attachment Selector')}
