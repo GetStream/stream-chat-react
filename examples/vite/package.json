@@ -21,15 +21,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@playwright/test": "^1.59.1",
-    "@types/react": "^19.2.14",
+    "@playwright/test": "^1.60.0",
+    "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "@vitejs/plugin-react-swc": "^4.3.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "@vitejs/plugin-react-swc": "^4.3.1",
     "babel-plugin-react-compiler": "^1.0.0",
-    "sass": "^1.99.0",
+    "sass": "^1.100.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.12",
-    "vite-plugin-babel": "^1.6.0"
+    "vite": "^8.0.14",
+    "vite-plugin-babel": "^1.7.3"
   }
 }
