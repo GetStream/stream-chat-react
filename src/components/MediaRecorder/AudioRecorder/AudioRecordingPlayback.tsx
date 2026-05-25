@@ -47,7 +47,7 @@ export const AudioRecordingPlayback = ({
     };
   }, [audioPlayer]);
 
-  if (!audioPlayer) return;
+  if (!audioPlayer) return null;
 
   return (
     <div

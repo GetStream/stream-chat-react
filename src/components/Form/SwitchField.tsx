@@ -7,7 +7,8 @@ import type {
   PropsWithChildren,
   ReactNode,
 } from 'react';
-import React, { isValidElement, useId, useRef, useState } from 'react';
+import React, { isValidElement, useRef, useState } from 'react';
+import { useStableId } from '../../utils/useStableId';
 
 export type SwitchFieldProps = Omit<
   PropsWithChildren<ComponentProps<'input'>>,
@@ -41,7 +42,7 @@ export const SwitchField = ({
     onKeyDown,
     ...rest
   } = props;
-  const generatedSwitchId = useId();
+  const generatedSwitchId = useStableId('switch');
   const switchId = id ?? `str-chat__switch-field-${generatedSwitchId}`;
   const switchLabelId = `${switchId}-label`;
   const inputRef = useRef<HTMLInputElement | null>(null);
