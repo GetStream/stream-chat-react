@@ -159,7 +159,7 @@ SDK supports **React 17, 18, 19**.
 
 **Forbidden in `src/`** (enforced by the `react-compat` block in `eslint.config.mjs`):
 
-- `useId` from `react` → use `useStableId` from `src/utils/useStableId`
+- `useId` from `react` → use `useStableId` from `src/components/UtilityComponents/useStableId`
 - `useSyncExternalStore` from `react` → use the shim from `use-sync-external-store/shim`
 - `useEffectEvent`, `use()` → not allowed (React 19-only)
 - `ref` declared in a prop type or destructured from props → use `forwardRef` (React 17/18 only deliver `ref` to forwardRef'd components)
