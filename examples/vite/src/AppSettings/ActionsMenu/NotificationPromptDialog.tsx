@@ -11,6 +11,7 @@ import {
   IconClock,
   IconExclamationMark,
   IconExclamationTriangleFill,
+  IconMinus,
   IconPlusSmall,
   IconRefresh,
   IconXmark,
@@ -31,6 +32,7 @@ import {
   initialDraft,
   isDraftReady,
   type NotificationDraft,
+  type NotificationDraftAction,
   parseDuration,
   type QueuedNotification,
   severityOptions,
@@ -65,6 +67,12 @@ const formatDurationLabel = (duration: number) => {
   if (duration % 1000 === 0) return `${duration / 1000}s`;
   return `${(duration / 1000).toFixed(1)}s`;
 };
+
+const formatActionsLabel = (count: number) => `${count} action${count === 1 ? '' : 's'}`;
+
+const isDraftActionReady = (
+  action: Pick<NotificationDraftAction, 'feedback' | 'label'>,
+) => action.label.trim().length > 0 && action.feedback.trim().length > 0;
 
 const NotificationEntrySelect = ({
   label,
@@ -154,6 +162,11 @@ const NotificationChipList = ({
               <span className='app__notification-dialog__chip-panel'>
                 {notification.targetPanel}
               </span>
+              {notification.actions.length > 0 && (
+                <span className='app__notification-dialog__chip-panel'>
+                  {formatActionsLabel(notification.actions.length)}
+                </span>
+              )}
             </span>
             <Button
               appearance='ghost'
@@ -180,21 +193,32 @@ const NotificationChipList = ({
 };
 
 const NotificationDraftForm = ({
+  addDraftAction,
   draft,
   queueCurrentDraft,
   queuedNotifications,
   registerQueuedNotifications,
+  toggleDraftActionInPayload,
   removeQueuedNotification,
   setDraft,
+  updateDraftAction,
 }: {
+  addDraftAction: () => void;
   draft: NotificationDraft;
   queueCurrentDraft: () => void;
   queuedNotifications: QueuedNotification[];
   registerQueuedNotifications: () => void;
+  toggleDraftActionInPayload: (id: string) => void;
   removeQueuedNotification: (id: string) => void;
   setDraft: Dispatch<SetStateAction<NotificationDraft>>;
+  updateDraftAction: <Key extends keyof NotificationDraftAction>(
+    actionId: string,
+    key: Key,
+    value: NotificationDraftAction[Key],
+  ) => void;
 }) => {
   const canQueueCurrentDraft = isDraftReady(draft);
+  const canAddDraftAction = draft.actions.every((action) => action.includedInPayload);
 
   return (
     <>
@@ -254,27 +278,68 @@ const NotificationDraftForm = ({
               options={targetPanelOptions}
               value={draft.targetPanel}
             />
-            <TextInput
-              className='app__notification-dialog__text-input'
-              label='Action Label (optional)'
-              onChange={(event) =>
-                setDraft((current) => ({ ...current, actionLabel: event.target.value }))
-              }
-              placeholder='Optional button label'
-              value={draft.actionLabel}
-            />
-            <TextInput
-              className='app__notification-dialog__text-input app__notification-dialog__text-input--wide'
-              label='Action Follow-up Message (optional)'
-              onChange={(event) =>
-                setDraft((current) => ({
-                  ...current,
-                  actionFeedback: event.target.value,
-                }))
-              }
-              placeholder='Optional notification triggered by the action button'
-              value={draft.actionFeedback}
-            />
+            <div className='app__notification-dialog__actions'>
+              <div className='app__notification-dialog__actions-header'>
+                <span className='app__notification-dialog__field-label'>
+                  Action(s) (optional)
+                </span>
+              </div>
+              <div className='app__notification-dialog__actions-list'>
+                {draft.actions.map((action, index) => {
+                  const canAddActionToPayload = isDraftActionReady(action);
+
+                  return (
+                    <div className='app__notification-dialog__action-row' key={action.id}>
+                      <TextInput
+                        className='app__notification-dialog__text-input'
+                        label={`Action ${index + 1} Label`}
+                        onChange={(event) =>
+                          updateDraftAction(action.id, 'label', event.target.value)
+                        }
+                        placeholder='Optional button label'
+                        value={action.label}
+                      />
+                      <TextInput
+                        className='app__notification-dialog__text-input'
+                        label={`Action ${index + 1} Follow-up Message`}
+                        onChange={(event) =>
+                          updateDraftAction(action.id, 'feedback', event.target.value)
+                        }
+                        placeholder='Optional alert triggered by the action button'
+                        value={action.feedback}
+                      />
+                      <Button
+                        aria-label={
+                          action.includedInPayload
+                            ? 'Remove action from payload'
+                            : 'Add action to payload'
+                        }
+                        appearance='outline'
+                        circular
+                        className='app__notification-dialog__action-toggle'
+                        disabled={!action.includedInPayload && !canAddActionToPayload}
+                        onClick={() => toggleDraftActionInPayload(action.id)}
+                        size='xs'
+                        variant='secondary'
+                      >
+                        {action.includedInPayload ? <IconMinus /> : <IconPlusSmall />}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+              <Button
+                appearance='ghost'
+                className='app__notification-dialog__action-add'
+                disabled={!canAddDraftAction}
+                onClick={addDraftAction}
+                size='sm'
+                variant='secondary'
+              >
+                <IconPlusSmall />
+                Add action
+              </Button>
+            </div>
           </div>
         </div>
       </Prompt.Body>
@@ -325,7 +390,25 @@ export const NotificationPromptDialog = ({
 }: {
   referenceElement: HTMLElement | null;
 }) => {
-  const [draft, setDraft] = useState(initialDraft);
+  const actionIdRef = useRef(0);
+  const createDraftAction = useCallback((): NotificationDraftAction => {
+    actionIdRef.current += 1;
+
+    return {
+      feedback: '',
+      id: `draft-notification-action-${actionIdRef.current}`,
+      includedInPayload: false,
+      label: '',
+    };
+  }, []);
+  const createInitialDraftState = useCallback(
+    (): NotificationDraft => ({
+      ...initialDraft,
+      actions: [createDraftAction()],
+    }),
+    [createDraftAction],
+  );
+  const [draft, setDraft] = useState<NotificationDraft>(() => createInitialDraftState());
   const [queuedNotifications, setQueuedNotifications] = useState<QueuedNotification[]>(
     [],
   );
@@ -337,9 +420,9 @@ export const NotificationPromptDialog = ({
   const dialogIsOpen = useDialogIsOpen(notificationPromptDialogId, dialogManager?.id);
 
   const resetState = useCallback(() => {
-    setDraft(initialDraft);
+    setDraft(createInitialDraftState());
     setQueuedNotifications([]);
-  }, []);
+  }, [createInitialDraftState]);
 
   useEffect(() => {
     if (dialogIsOpen) return;
@@ -376,8 +459,14 @@ export const NotificationPromptDialog = ({
     setQueuedNotifications((current) => [
       ...current,
       {
-        actionFeedback: draft.actionFeedback,
-        actionLabel: draft.actionLabel,
+        actions: draft.actions
+          .map((action) => ({
+            includedInPayload: action.includedInPayload,
+            feedback: action.feedback.trim(),
+            label: action.label.trim(),
+          }))
+          .filter((action) => action.includedInPayload && action.label && action.feedback)
+          .map(({ feedback, label }) => ({ feedback, label })),
         duration,
         entryDirection: draft.entryDirection as NotificationListEnterFrom,
         id: `queued-notification-${chipIdRef.current}`,
@@ -386,8 +475,8 @@ export const NotificationPromptDialog = ({
         targetPanel: draft.targetPanel as NotificationTargetPanel,
       },
     ]);
-    setDraft(initialDraft);
-  }, [draft]);
+    setDraft(createInitialDraftState());
+  }, [createInitialDraftState, draft]);
 
   const registerQueuedNotifications = useCallback(() => {
     queuedNotifications.forEach(publishNotification);
@@ -397,6 +486,54 @@ export const NotificationPromptDialog = ({
   const removeQueuedNotification = useCallback((id: string) => {
     setQueuedNotifications((current) => current.filter((item) => item.id !== id));
   }, []);
+
+  const addDraftAction = useCallback(() => {
+    setDraft((current) => ({
+      ...current,
+      actions: [...current.actions, createDraftAction()],
+    }));
+  }, [createDraftAction]);
+
+  const toggleDraftActionInPayload = useCallback((id: string) => {
+    setDraft((current) => ({
+      ...current,
+      actions: current.actions.map((action) =>
+        action.id === id
+          ? { ...action, includedInPayload: !action.includedInPayload }
+          : action,
+      ),
+    }));
+  }, []);
+
+  const updateDraftAction = useCallback(
+    <Key extends keyof NotificationDraftAction>(
+      actionId: string,
+      key: Key,
+      value: NotificationDraftAction[Key],
+    ) => {
+      setDraft((current) => ({
+        ...current,
+        actions: current.actions.map((action) =>
+          action.id === actionId
+            ? {
+                ...action,
+                [key]: value,
+                includedInPayload:
+                  key === 'feedback' || key === 'label'
+                    ? isDraftActionReady({
+                        ...action,
+                        [key]: value,
+                      })
+                      ? action.includedInPayload
+                      : false
+                    : action.includedInPayload,
+              }
+            : action,
+        ),
+      }));
+    },
+    [],
+  );
 
   return (
     <DraggableDialog
@@ -412,12 +549,15 @@ export const NotificationPromptDialog = ({
       title='Trigger Notification'
     >
       <NotificationDraftForm
+        addDraftAction={addDraftAction}
         draft={draft}
         queueCurrentDraft={queueCurrentDraft}
         queuedNotifications={queuedNotifications}
         registerQueuedNotifications={registerQueuedNotifications}
         removeQueuedNotification={removeQueuedNotification}
         setDraft={setDraft}
+        toggleDraftActionInPayload={toggleDraftActionInPayload}
+        updateDraftAction={updateDraftAction}
       />
     </DraggableDialog>
   );

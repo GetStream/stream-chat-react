@@ -704,6 +704,39 @@
     grid-column: 1 / -1;
   }
 
+  .app__notification-dialog__actions {
+    display: grid;
+    gap: 12px;
+  }
+
+  .app__notification-dialog__actions-header {
+    display: flex;
+    align-items: center;
+  }
+
+  .app__notification-dialog__actions-list {
+    display: grid;
+    gap: 12px;
+  }
+
+  .app__notification-dialog__action-row {
+    display: grid;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 12px;
+    background: var(--str-chat__background-core-elevation-2);
+  }
+
+  .app__notification-dialog__action-add {
+    width: fit-content;
+  }
+
+  .app__notification-dialog__action-toggle {
+    width: fit-content;
+    justify-self: flex-start;
+  }
+
   .app__notification-dialog__footer-leading {
     display: flex;
     flex: 1 1 auto;

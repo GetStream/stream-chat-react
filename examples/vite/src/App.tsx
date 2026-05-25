@@ -91,12 +91,6 @@ if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
 }
 
-const options: ChannelOptions = {
-  presence: true,
-  state: true,
-  limit: 10,
-};
-
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 // @ts-expect-error ai_generated isn't on LocalMessage's public type yet
@@ -222,6 +216,18 @@ const App = () => {
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
     () => new URLSearchParams(window.location.search),
+    [],
+  );
+  const options = useMemo<ChannelOptions>(
+    () => ({
+      // filter_values: {
+      //   user_id: userId,
+      // },
+      // predefined_filter: 'livestreams_channels',
+      presence: true,
+      state: true,
+      limit: 10,
+    }),
     [],
   );
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);

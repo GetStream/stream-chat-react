@@ -103,7 +103,7 @@
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.43.0"
+    "stream-chat": "^9.44.2"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -173,7 +173,7 @@
     "react-dom": "^19.2.6",
     "sass": "^1.99.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^9.43.2",
+    "stream-chat": "^9.44.2",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.2",
     "vite": "^8.0.12",
