@@ -130,7 +130,11 @@ export default tseslint.config(
     // - ref as a regular prop → wrap the component with React.forwardRef
     name: 'react-compat',
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/utils/useStableId.ts', 'src/**/__tests__/**', 'src/mock-builders/**'],
+    ignores: [
+      'src/components/UtilityComponents/useStableId.ts',
+      'src/**/__tests__/**',
+      'src/mock-builders/**',
+    ],
     rules: {
       'no-restricted-imports': [
         'error',

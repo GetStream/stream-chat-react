@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import React, { useEffect, useState } from 'react';
 
-import { useStableId } from '../../../utils/useStableId';
+import { useStableId } from '../../UtilityComponents/useStableId';
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useTranslationContext } from '../../../context';
@@ -26,7 +26,7 @@ export const SearchBar = () => {
   } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
   const clearButtonRef = React.useRef<HTMLButtonElement | null>(null);
-  const searchInputId = useStableId('search-input');
+  const searchInputId = useStableId();
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   const { isActive, searchQuery } = useStateStore(

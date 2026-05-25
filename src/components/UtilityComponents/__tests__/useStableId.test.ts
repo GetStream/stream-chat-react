@@ -2,10 +2,6 @@ import { renderHook } from '@testing-library/react';
 
 import { useStableId } from '../useStableId';
 
-// The React-17 fallback branch (nanoid-backed useState) cannot be exercised at
-// runtime in this suite because the bundled React module marks `useId` as
-// non-configurable. The compat/types-17 workspace verifies the fallback path
-// compiles against `@types/react@17`, which is the contract we care about.
 describe('useStableId', () => {
   it('returns a non-empty string', () => {
     const { result } = renderHook(() => useStableId());

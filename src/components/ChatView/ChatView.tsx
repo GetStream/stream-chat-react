@@ -7,7 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useStableId } from '../../utils/useStableId';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 import { Button, type ButtonProps } from '../Button';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
@@ -71,7 +71,7 @@ const useChatViewA11yContext = () => useContext(ChatViewA11yContext);
 
 export const ChatView = ({ children }: PropsWithChildren) => {
   const [activeChatView, setActiveChatView] = useState<ChatView>('channels');
-  const chatViewId = useStableId('chatview');
+  const chatViewId = useStableId();
 
   const { theme } = useChatContext();
 
