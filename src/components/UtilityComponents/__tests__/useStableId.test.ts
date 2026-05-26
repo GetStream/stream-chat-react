@@ -1,6 +1,6 @@
 import { renderHook } from '@testing-library/react';
 
-import { useStableId } from '../useStableId';
+import { stripUseIdWrappers, useStableId } from '../useStableId';
 
 describe('useStableId', () => {
   it('returns a non-empty string', () => {
@@ -25,5 +25,15 @@ describe('useStableId', () => {
   it('never contains a colon (so it is safe as an HTML id)', () => {
     const { result } = renderHook(() => useStableId());
     expect(result.current).not.toContain(':');
+  });
+});
+
+describe('stripUseIdWrappers', () => {
+  it('strips colons from React 19.0 format (:r0:)', () => {
+    expect(stripUseIdWrappers(':r0:')).toBe('r0');
+  });
+
+  it('strips guillemets from React 19.1 format («r0»)', () => {
+    expect(stripUseIdWrappers('«r0»')).toBe('r0');
   });
 });
