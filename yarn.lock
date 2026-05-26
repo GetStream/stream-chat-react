@@ -2354,16 +2354,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hast@npm:^2.3.10":
-  version: 2.3.10
-  resolution: "@types/hast@npm:2.3.10"
-  dependencies:
-    "@types/unist": "npm:^2"
-  checksum: 10c0/16daac35d032e656defe1f103f9c09c341a6dc553c7ec17b388274076fa26e904a71ea5ea41fd368a6d5f1e9e53be275c80af7942b9c466d8511d261c9529c7e
-  languageName: node
-  linkType: hard
-
-"@types/hast@npm:^3.0.0":
+"@types/hast@npm:^3.0.0, @types/hast@npm:^3.0.4":
   version: 3.0.4
   resolution: "@types/hast@npm:3.0.4"
   dependencies:
@@ -10017,7 +10008,7 @@ __metadata:
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"
     "@total-typescript/shoehorn": "npm:^0.1.2"
-    "@types/hast": "npm:^2.3.10"
+    "@types/hast": "npm:^3.0.4"
     "@types/jsdom": "npm:^21.1.7"
     "@types/linkifyjs": "npm:^2.1.7"
     "@types/lodash.debounce": "npm:^4.0.9"
