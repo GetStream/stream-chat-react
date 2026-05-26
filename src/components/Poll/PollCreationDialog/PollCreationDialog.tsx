@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import type { PollComposerState } from 'stream-chat';
 import { VotingVisibility } from 'stream-chat';
 import { MultipleAnswersField } from './MultipleAnswersField';
@@ -27,18 +27,13 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   const { allow_answers, allow_user_suggested_options, voting_visibility } =
     useStateStore(pollComposer.state, pollComposerStateSelector);
 
-  const onClose = useCallback(() => {
-    pollComposer.initState();
-    close();
-  }, [pollComposer, close]);
-
   return (
     <Prompt.Root
       className='str-chat__poll-creation-dialog'
       data-testid='poll-creation-dialog'
     >
       <Prompt.Header
-        close={onClose}
+        close={close}
         description={t('Create a question, add options, and configure poll settings')}
         title={t('Create poll')}
       />

@@ -108,7 +108,7 @@ const renderComponent = async ({
       <MessageComposer {...messageInputProps} />
     );
 
-  let result: RenderResult;
+  let result: RenderResult = undefined as unknown as RenderResult;
   await act(() => {
     result = render(
       <ChatViewContext.Provider
@@ -144,7 +144,7 @@ const renderComponent = async ({
       </ChatViewContext.Provider>,
     );
   });
-  return result;
+  return { ...result, channel, client };
 };
 
 describe('AttachmentSelector', () => {
@@ -528,6 +528,22 @@ describe('AttachmentSelector', () => {
     await waitFor(() => {
       expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('resets pollComposer state when the Poll dialog is opened', async () => {
+    const { channel } = await renderComponent();
+    const initStateSpy = vi
+      .spyOn(channel.messageComposer.pollComposer, 'initState')
+      .mockImplementation(() => {});
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    const createPollButton = menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`);
+    expect(initStateSpy).not.toHaveBeenCalled();
+    fireEvent.click(createPollButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument();
+    });
+    expect(initStateSpy).toHaveBeenCalledTimes(1);
   });
 
   it('opens share location dialog and focuses the dialog surface for announcement', async () => {

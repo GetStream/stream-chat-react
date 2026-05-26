@@ -420,6 +420,7 @@
   "Poll ended": "Опрос завершён",
   "Poll options": "Опции опроса",
   "Poll results": "Результаты опроса",
+  "Poll sent": "Опрос отправлен",
   "Previous image": "Предыдущее изображение",
   "Question": "Вопрос",
   "Question {{ optionOrderNumber}}": "Вопрос {{ optionOrderNumber}}",

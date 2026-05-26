@@ -390,6 +390,7 @@
   "Poll ended": "アンケート終了",
   "Poll options": "投票オプション",
   "Poll results": "投票結果",
+  "Poll sent": "アンケートを送信しました",
   "Previous image": "前の画像",
   "Question": "質問",
   "Question {{ optionOrderNumber}}": "質問 {{ optionOrderNumber}}",

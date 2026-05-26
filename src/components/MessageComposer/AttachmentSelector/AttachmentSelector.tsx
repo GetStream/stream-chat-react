@@ -348,9 +348,15 @@ export const AttachmentSelector = ({
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
       if (!action?.ModalContent) return;
+      // Reset composer state when the dialog is opened (not on close), so every
+      // open starts from a fresh form without flashing cleared fields right
+      // before the modal unmounts on cancel/submit.
+      if (actionType === 'createPoll') {
+        messageComposer.pollComposer.initState();
+      }
       setModalContentActionAction(action);
     },
-    [actions],
+    [actions, messageComposer],
   );
 
   const closeModal = useCallback(() => {

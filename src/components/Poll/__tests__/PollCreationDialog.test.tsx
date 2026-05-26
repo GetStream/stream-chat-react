@@ -537,9 +537,6 @@ describe('PollCreationDialog', () => {
     const createPollSpy = vi
       .spyOn(client, 'createPoll')
       .mockImplementationOnce(() => Promise.resolve(fromPartial({ poll })));
-    const initPollStateSpy = vi
-      .spyOn(channel.messageComposer.pollComposer, 'initState')
-      .mockImplementation(() => {});
 
     await act(async () => {
       await fireEvent.change(getNameInput(), { target: { value: formState.name } });
@@ -587,25 +584,131 @@ describe('PollCreationDialog', () => {
         expect.objectContaining(expectedPollPayload),
       );
       expect(close).toHaveBeenCalledTimes(1);
-      expect(initPollStateSpy).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('closes the form on cancel', async () => {
+  it('notifies on successful poll submission', async () => {
     const {
       channels: [channel],
       client,
     } = await initClientWithChannels({ customUser: user });
-    const initPollStateSpy = vi
-      .spyOn(channel.messageComposer.pollComposer, 'initState')
-      .mockImplementation(() => {});
-
     await renderComponent({ channel, client });
+    vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+    const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Poll sent',
+          options: expect.objectContaining({
+            severity: 'success',
+            type: 'api:poll:create:success',
+          }),
+        }),
+      );
+    });
+  });
+
+  it('does not emit success notification on poll submission failure', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
+    // createPoll() in stream-chat-js already publishes an
+    // `api:poll:create:failed` notification on failure, so the React side must
+    // not add its own error notification (avoids a duplicate). It also must
+    // not emit the success notification.
+    vi.spyOn(client, 'createPoll').mockRejectedValueOnce(new Error('create failed'));
+    const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Failed to create the poll',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:poll:create:failed',
+          }),
+        }),
+      );
+    });
+    const successCalls = addNotificationSpy.mock.calls.filter(
+      ([payload]) => payload?.message === 'Poll sent',
+    );
+    expect(successCalls).toHaveLength(0);
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the form on cancel', async () => {
+    await renderComponent();
 
     act(() => {
       fireEvent.click(screen.getByText(CANCEL_BUTTON_TEXT));
     });
     expect(close).toHaveBeenCalledTimes(1);
-    expect(initPollStateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the form optimistically before createPoll resolves', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
+
+    let resolveCreatePoll: (value: unknown) => void = () => {};
+    const createPollPromise = new Promise((resolve) => {
+      resolveCreatePoll = resolve;
+    });
+    vi.spyOn(client, 'createPoll').mockImplementationOnce(
+      () => createPollPromise as ReturnType<StreamChat['createPoll']>,
+    );
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveCreatePoll(fromPartial({ poll: { id: 'pid' } }));
+      await createPollPromise;
+    });
+
+    await waitFor(() => {
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+    });
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });
