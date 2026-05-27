@@ -34,7 +34,7 @@ exports[`VirtualizedMessageList > should render the list without any message 1`]
             class="str-chat__message-list-scroll"
             data-test-id="virtuoso-scroller"
             data-virtuoso-scroller="true"
-            style="height: 100%; outline: none; overflow-y: auto; position: relative; -webkit-overflow-scrolling: touch; overflow-x: hidden;"
+            style="height: 100%; outline: none; overflow-y: auto; position: relative; overflow-x: hidden;"
             tabindex="0"
           >
             <div
