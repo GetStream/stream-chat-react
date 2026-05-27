@@ -1,3 +1,15 @@
+## [14.3.0](https://github.com/GetStream/stream-chat-react/compare/v14.2.0...v14.3.0) (2026-05-26)
+
+### Bug Fixes
+
+* **ContextMenu:** show focus outline for auto-focused context menu items ([#3193](https://github.com/GetStream/stream-chat-react/issues/3193)) ([237b139](https://github.com/GetStream/stream-chat-react/commit/237b13961395b154ebd49a66e248fdbccd94574d))
+* extended reactions button visibility adjustments in MessageReactionsDetail ([#3186](https://github.com/GetStream/stream-chat-react/issues/3186)) ([52b0b59](https://github.com/GetStream/stream-chat-react/commit/52b0b59627f256afbfd50a2f5ee8201ca43af7d5)), closes [#3172](https://github.com/GetStream/stream-chat-react/issues/3172)
+
+### Features
+
+* **Notifications:** swap snackbar notifications after minDisplayMs dwell  ([#3196](https://github.com/GetStream/stream-chat-react/issues/3196)) ([dec271f](https://github.com/GetStream/stream-chat-react/commit/dec271f65cc44e37886332a9abc71b53841486a7))
+* reflect predefined filters in the channel list ordering ([#3194](https://github.com/GetStream/stream-chat-react/issues/3194)) ([a422d4b](https://github.com/GetStream/stream-chat-react/commit/a422d4bd7a69293abe3d835c1f92d54d33f29308))
+
 ## [14.2.0](https://github.com/GetStream/stream-chat-react/compare/v14.1.0...v14.2.0) (2026-05-11)
 
 ### Bug Fixes
