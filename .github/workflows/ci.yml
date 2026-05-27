@@ -15,7 +15,6 @@ env:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    if: ${{ github.ref_name != 'master' }}
     name: ESLint & Prettier
     steps:
       - uses: actions/checkout@v6
@@ -47,7 +46,6 @@ jobs:
           key: '${{ env.BUILD_CACHE_KEY }}'
 
   test:
-    if: ${{ github.ref_name != 'master' }}
     runs-on: ubuntu-latest
     name: Test
     steps:
