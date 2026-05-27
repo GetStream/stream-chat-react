@@ -1,19 +1,20 @@
-import { useState, useEffect } from 'react';
-import { type User, Channel as StreamChannel } from 'stream-chat';
+import { useEffect, useState } from 'react';
+import type { Channel as StreamChannel } from 'stream-chat';
+import { type User } from 'stream-chat';
 import {
-  useCreateChatClient,
-  Chat,
   Channel,
   ChannelHeader,
+  Chat,
   MessageComposer,
   MessageList,
   Thread,
+  useCreateChatClient,
   Window,
 } from 'stream-chat-react';
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
-import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,

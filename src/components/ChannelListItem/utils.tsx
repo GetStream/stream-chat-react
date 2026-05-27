@@ -123,12 +123,14 @@ export type GroupChannelDisplayInfo = {
 /**
  * Channel display image: channel.data.image, or for DM (2 members) the other member's user.image.
  */
-export const getChannelDisplayImage = (channel: Channel): string | undefined => {
+export const getChannelDisplayImage = (
+  channel: Channel,
+  currentUserId?: string,
+): string | undefined => {
   const data = channel.data as { image?: string } | undefined;
   if (data?.image && typeof data.image === 'string') return data.image;
 
   const memberList = Object.values(channel.state.members);
-  const currentUserId = channel.getClient().userID ?? undefined;
   if (memberList.length === 2) {
     const other = memberList.find((m) => m.user?.id !== currentUserId);
     const image = other?.user?.image;

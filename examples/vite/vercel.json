@@ -1,0 +1,5 @@
+{
+  "installCommand": "cd ../.. && yarn install --immutable",
+  "buildCommand": "cd ../.. && yarn workspace @stream-io/stream-chat-react-vite build",
+  "outputDirectory": "dist"
+}

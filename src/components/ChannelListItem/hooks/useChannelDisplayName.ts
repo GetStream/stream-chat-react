@@ -13,12 +13,12 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 function computeChannelDisplayName(
   channel: Channel,
   directMessageLabel: string,
+  currentUserId: string | undefined,
 ): string | undefined {
   const data = channel.data as { name?: string } | undefined;
   if (data?.name && typeof data.name === 'string') return data.name;
 
   const memberList = Object.values(channel.state.members);
-  const currentUserId = channel.getClient().userID ?? undefined;
   const otherMembers = memberList.filter((m) => m.user?.id !== currentUserId);
 
   if (memberList.length === 2 && otherMembers.length === 1) {
@@ -50,7 +50,9 @@ export const useChannelDisplayName = (
   const directMessageLabel = t('Direct message');
 
   const [displayName, setDisplayName] = useState<string | undefined>(() =>
-    channel ? computeChannelDisplayName(channel, directMessageLabel) : undefined,
+    channel
+      ? computeChannelDisplayName(channel, directMessageLabel, client.userID ?? undefined)
+      : undefined,
   );
 
   useEffect(() => {
@@ -59,7 +61,13 @@ export const useChannelDisplayName = (
       return;
     }
     const updateDisplayName = () =>
-      setDisplayName(computeChannelDisplayName(channel, directMessageLabel));
+      setDisplayName(
+        computeChannelDisplayName(
+          channel,
+          directMessageLabel,
+          client.userID ?? undefined,
+        ),
+      );
     updateDisplayName();
     client.on('user.updated', updateDisplayName);
     return () => {

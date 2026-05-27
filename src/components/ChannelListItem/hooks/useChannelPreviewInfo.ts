@@ -31,7 +31,9 @@ export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
   const displayTitle = overrideTitle ?? channelDisplayName;
 
   const [displayImage, setDisplayImage] = useState<string | undefined>(() =>
-    channel ? (overrideImage ?? getChannelDisplayImage(channel)) : undefined,
+    channel
+      ? (overrideImage ?? getChannelDisplayImage(channel, client.userID ?? undefined))
+      : undefined,
   );
   const [groupChannelDisplayInfo, setGroupChannelDisplayInfo] =
     useState<GroupChannelDisplayInfo>(() =>
@@ -43,7 +45,7 @@ export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
     if (overrideImage) return;
 
     const updateInfo = () => {
-      setDisplayImage(getChannelDisplayImage(channel));
+      setDisplayImage(getChannelDisplayImage(channel, client.userID ?? undefined));
       setGroupChannelDisplayInfo(getGroupChannelDisplayInfo(channel) ?? emptyGroupInfo);
     };
 

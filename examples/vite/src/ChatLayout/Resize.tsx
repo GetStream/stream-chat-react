@@ -9,8 +9,8 @@ import {
 import { useSidebar } from './SidebarContext.tsx';
 
 import {
-  type LeftPanelLayoutSettingsState,
   LEFT_PANEL_MIN_WIDTH,
+  type LeftPanelLayoutSettingsState,
   THREAD_PANEL_MIN_WIDTH,
   updatePanelLayoutSettings,
   useAppSettingsSelector,

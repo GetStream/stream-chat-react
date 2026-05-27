@@ -6,20 +6,20 @@ import type {
 } from 'stream-chat';
 import {
   Attachment,
-  Chat,
+  type AttachmentProps,
   Channel,
   ChannelHeader,
+  Chat,
   MessageComposer,
   MessageList,
   Thread,
+  useCreateChatClient,
   Window,
   WithComponents,
-  useCreateChatClient,
-  type AttachmentProps,
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,

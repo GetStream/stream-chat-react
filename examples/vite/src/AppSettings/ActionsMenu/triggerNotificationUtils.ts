@@ -74,10 +74,10 @@ export const parseDuration = (value: string) => {
 export const isDraftReady = (draft: NotificationDraft) =>
   Boolean(
     draft.message.trim() &&
-      draft.severity &&
-      draft.entryDirection &&
-      draft.targetPanel &&
-      parseDuration(draft.duration) !== null,
+    draft.severity &&
+    draft.entryDirection &&
+    draft.targetPanel &&
+    parseDuration(draft.duration) !== null,
   );
 
 export const buildNotificationActions = (

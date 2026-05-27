@@ -8,19 +8,19 @@ import {
   ChannelHeader,
   ChannelList,
   ChatView,
+  type ChatViewSelectorEntry,
   MessageComposer,
   MessageList,
   Thread,
   ThreadList,
   TypingIndicator,
+  useChannelStateContext,
+  useChatContext,
+  useThreadsViewContext,
   VirtualizedMessageList,
   Window,
   WithComponents,
   WithDragAndDropUpload,
-  useChannelStateContext,
-  useChatContext,
-  type ChatViewSelectorEntry,
-  useThreadsViewContext,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
@@ -88,9 +88,9 @@ const ResponsiveChannelPanels = () => {
               additionalTextareaProps={{
                 id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
               }}
+              asyncMessagesMultiSendEnabled
               audioRecordingEnabled
               maxRows={10}
-              asyncMessagesMultiSendEnabled
             />
             <ChannelPreviewOverlay />
           </div>
@@ -152,12 +152,12 @@ export const ChannelsPanels = ({
             }}
           >
             <ChannelList
-              onRemovedFromChannel={() => {}}
               customActiveChannel={initialChannelId}
               filters={filters}
+              onRemovedFromChannel={() => undefined}
               options={options}
-              sort={sort}
               showChannelSearch
+              sort={sort}
             />
           </WithComponents>
         </div>

@@ -16,12 +16,12 @@ exports[`<MessageText /> > should render with a custom inner class when one is s
         class="str-chat__message-bubble"
       >
         <div
-          aria-labelledby=":r1c: :r1d:"
+          aria-labelledby="_r_1c_ _r_1d_"
           class="str-chat__message-text"
           tabindex="0"
         >
           <span
-            id=":r1c:"
+            id="_r_1c_"
             style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
           >
             aria/Message,
@@ -31,7 +31,7 @@ exports[`<MessageText /> > should render with a custom inner class when one is s
             data-testid="message-text-inner-wrapper"
           >
             <div
-              id=":r1d:"
+              id="_r_1d_"
             >
               <p>
                 hi mate
@@ -89,12 +89,12 @@ exports[`<MessageText /> > should render with a custom wrapper class when one is
         class="str-chat__message-bubble"
       >
         <div
-          aria-labelledby=":r1a: :r1b:"
+          aria-labelledby="_r_1a_ _r_1b_"
           class="str-chat__message-text"
           tabindex="0"
         >
           <span
-            id=":r1a:"
+            id="_r_1a_"
             style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
           >
             aria/Message,
@@ -104,7 +104,7 @@ exports[`<MessageText /> > should render with a custom wrapper class when one is
             data-testid="message-text-inner-wrapper"
           >
             <div
-              id=":r1b:"
+              id="_r_1b_"
             >
               <p>
                 hello world
@@ -162,12 +162,12 @@ exports[`<MessageText /> > should render with custom theme identifier in generat
         class="str-chat__message-bubble"
       >
         <div
-          aria-labelledby=":r1e: :r1f:"
+          aria-labelledby="_r_1e_ _r_1f_"
           class="str-chat__message-text"
           tabindex="0"
         >
           <span
-            id=":r1e:"
+            id="_r_1e_"
             style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; margin: -1px; overflow: hidden; padding: 0px; position: absolute; white-space: nowrap; width: 1px;"
           >
             aria/Message,
@@ -177,7 +177,7 @@ exports[`<MessageText /> > should render with custom theme identifier in generat
             data-testid="message-text-inner-wrapper"
           >
             <div
-              id=":r1f:"
+              id="_r_1f_"
             >
               <p>
                 whatup?!

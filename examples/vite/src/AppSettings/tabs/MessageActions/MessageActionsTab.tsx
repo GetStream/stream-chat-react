@@ -32,7 +32,8 @@ export const MessageActionsTab = () => {
         </SwitchField>
         <div className='app__settings-modal__field-comment'>
           It enables to configure delete request params in the Delete Message Alert like
-          <strong>"Delete only for me"</strong>, <strong>"Hard delete"</strong>.
+          <strong>&ldquo;Delete only for me&rdquo;</strong>,{' '}
+          <strong>&ldquo;Hard delete&rdquo;</strong>.
         </div>
       </div>
 

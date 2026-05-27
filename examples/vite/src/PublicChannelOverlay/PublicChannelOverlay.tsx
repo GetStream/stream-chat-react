@@ -58,7 +58,7 @@ export const PublicChannelOverlay = () => {
         <IconMessageBubbles />
         <div className='app-public-channel-overlay__text'>
           <p className='app-public-channel-overlay__title'>
-            You're previewing this group
+            You&apos;re previewing this group
           </p>
           <p className='app-public-channel-overlay__description'>
             Join to send messages and follow the conversation
