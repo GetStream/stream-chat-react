@@ -74,7 +74,7 @@ export const MessageSearchResultItem = ({
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const getLatestMessagePreview = useCallback(() => item.text!, [item]);
 
-  if (!channel) return;
+  if (!channel) return null;
 
   return (
     <ChannelListItem

@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import React, { useId, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { messageHasAttachments, messageTextHasEmojisOnly } from './utils';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { MessageContextValue } from '../../context';
 import { useMessageContext, useTranslationContext } from '../../context';
@@ -41,8 +42,8 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const { t, userLanguage } = useTranslationContext('MessageText');
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
-  const messageContextId = useId();
-  const messageTextId = useId();
+  const messageContextId = useStableId();
+  const messageTextId = useStableId();
 
   const messageTextToRender =
     translationView === 'original'
