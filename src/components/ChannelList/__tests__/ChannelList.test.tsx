@@ -1876,6 +1876,192 @@ describe('ChannelList', () => {
         expect(results).toHaveNoViolations();
       });
     });
+
+    describe('predefined_filter response metadata', () => {
+      // Resolved `predefined_filter` from queryChannels response overrides the
+      // caller-supplied `filters`/`sort` props for local WS-driven channel list
+      // mutation decisions. See stream-chat PR #1747 for the underlying SDK
+      // change.
+
+      const mockQueryChannelsResponseWithPredefinedFilter = ({
+        channels,
+        filter,
+        sort,
+      }: {
+        channels: ChannelAPIResponse[];
+        filter: Record<string, unknown>;
+        sort?: { direction?: 1 | -1; field: string }[];
+      }) => {
+        (vi.spyOn(chatClient.axiosInstance, 'post') as unknown as Mock).mockResolvedValue(
+          {
+            data: {
+              channels,
+              duration: '0.01ms',
+              predefined_filter: {
+                filter,
+                name: 'messaging_channels',
+                sort,
+              },
+            },
+            status: 200,
+          },
+        );
+      };
+
+      const channelListProps = {
+        filters: {},
+        options: {
+          limit: 25,
+          message_limit: 25,
+          predefined_filter: 'messaging_channels',
+        },
+      };
+
+      it('does not promote an archived channel when resolved filter excludes archived', async () => {
+        mockQueryChannelsResponseWithPredefinedFilter({
+          channels: [testChannel1, testChannel2, testChannel3],
+          filter: { archived: false },
+        });
+
+        const { getAllByRole, getByRole } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        // Mark target channel as archived after it has been loaded into the
+        // list so the response is still "non-archived" but local state for the
+        // channel is archived.
+        const targetChannel = chatClient.activeChannels[testChannel3.channel.cid];
+        targetChannel.state.membership = {
+          archived_at: '2024-01-15T10:30:00Z',
+        };
+
+        const itemsBefore = getAllByRole('listitem').map((el) =>
+          el.getAttribute('data-testid'),
+        );
+
+        await act(() => {
+          dispatchMessageNewEvent(
+            chatClient,
+            generateMessage({ user: generateUser() }),
+            testChannel3.channel,
+          );
+        });
+
+        const itemsAfter = getAllByRole('listitem').map((el) =>
+          el.getAttribute('data-testid'),
+        );
+
+        expect(itemsAfter).toStrictEqual(itemsBefore);
+      });
+
+      it('does not move a pinned channel when resolved sort considers pinned_at', async () => {
+        mockQueryChannelsResponseWithPredefinedFilter({
+          channels: [testChannel1, testChannel2, testChannel3],
+          filter: {},
+          sort: [{ direction: -1, field: 'pinned_at' }],
+        });
+
+        const { getAllByRole, getByRole } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        // Mark target channel as pinned in local state after it has been
+        // loaded.
+        const targetChannel = chatClient.activeChannels[testChannel3.channel.cid];
+        targetChannel.state.membership = {
+          pinned_at: '2024-01-15T10:30:00Z',
+        };
+
+        const itemsBefore = getAllByRole('listitem').map((el) =>
+          el.getAttribute('data-testid'),
+        );
+
+        await act(() => {
+          dispatchMessageNewEvent(
+            chatClient,
+            generateMessage({ user: generateUser() }),
+            testChannel3.channel,
+          );
+        });
+
+        const itemsAfter = getAllByRole('listitem').map((el) =>
+          el.getAttribute('data-testid'),
+        );
+
+        expect(itemsAfter).toStrictEqual(itemsBefore);
+      });
+
+      it('falls back to caller filters/sort when response has no predefined_filter', async () => {
+        useMockedApis(chatClient, [
+          queryChannelsApi([testChannel1, testChannel2, testChannel3]),
+        ]);
+
+        const { getAllByRole, getByRole, getByText } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList filters={{}} options={{ limit: 25, message_limit: 25 }} />
+            </WithComponents>
+          </Chat>,
+        );
+
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        // Even with archived local membership, the absence of an effective
+        // `archived` filter means the channel should still be promoted.
+        const targetChannel = chatClient.activeChannels[testChannel3.channel.cid];
+        targetChannel.state.membership = {
+          archived_at: '2024-01-15T10:30:00Z',
+        };
+
+        const newMessage = generateMessage({ user: generateUser() });
+        await act(() => {
+          dispatchMessageNewEvent(chatClient, newMessage, testChannel3.channel);
+        });
+
+        await waitFor(() => {
+          expect(getByText(newMessage.text)).toBeInTheDocument();
+        });
+
+        const items = getAllByRole('listitem');
+        const channelPreview = getByText(newMessage.text).closest(
+          ROLE_LIST_ITEM_SELECTOR,
+        );
+        expect(channelPreview?.isEqualNode(items[0])).toBe(true);
+      });
+    });
   });
 
   describe('on connection recovery', () => {

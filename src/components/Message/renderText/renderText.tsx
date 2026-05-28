@@ -3,7 +3,7 @@ import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
 import remarkGfm from 'remark-gfm';
 import type { ComponentType, JSX, ReactNode } from 'react';
-import type { Options } from 'react-markdown/lib';
+import type { Options } from 'react-markdown';
 import type { UserResponse } from 'stream-chat';
 import type { PluggableList } from 'unified'; // A sub-dependency of react-markdown. The type is not declared or re-exported from anywhere else
 

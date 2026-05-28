@@ -118,6 +118,33 @@ describe(`renderText`, () => {
     `);
   });
 
+  it('wraps user-group mentions by id even when the entity also has a name', () => {
+    const Markdown = renderText('Hello @backend-team', undefined, {
+      messageMentionEntities: [
+        {
+          id: 'backend-team',
+          mentionType: 'user_group',
+          name: 'Backend Team',
+        },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            class="str-chat__message-mention"
+            data-mention-id="backend-team"
+            data-mention-type="user_group"
+          >
+            @backend-team
+          </span>
+        </p>
+      </div>
+    `);
+  });
+
   it('wraps multi-word mention names without consuming following text', () => {
     const Markdown = renderText('Hello @React support hey', undefined, {
       messageMentionEntities: [

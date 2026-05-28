@@ -11,7 +11,7 @@ import timezone from 'dayjs/plugin/timezone';
 import { NotificationTranslationTopic, TranslationBuilder } from './TranslationBuilder';
 import { defaultTranslatorFunction, predefinedFormatters } from './utils';
 
-import type { TFunction } from 'i18next';
+import type { i18n as I18n, TFunction } from 'i18next';
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguages } from 'stream-chat';
 
@@ -442,7 +442,7 @@ const defaultStreami18nOptions = {
 };
 
 export class Streami18n {
-  i18nInstance = i18n.createInstance();
+  i18nInstance: I18n = i18n.createInstance();
   translationBuilder: TranslationBuilder;
   private translationBuilderTopics: Record<string, TranslationTopicConstructor> = {};
   Dayjs = null;
@@ -692,7 +692,7 @@ export class Streami18n {
   };
 
   /** Returns an instance of i18next used within this class instance */
-  geti18Instance = () => this.i18nInstance;
+  geti18Instance = (): I18n => this.i18nInstance;
 
   /** Returns list of available languages. */
   getAvailableLanguages = () => Object.keys(this.translations);

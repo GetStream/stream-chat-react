@@ -36,7 +36,7 @@ export const PollHeader = () => {
     return '';
   }, [is_closed, enforce_unique_vote, max_votes_allowed, options.length, t]);
 
-  if (!name) return;
+  if (!name) return null;
 
   return (
     <div className='str-chat__poll-header'>

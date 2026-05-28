@@ -315,20 +315,55 @@ describe('MessageReactionsDetail', () => {
     expect(counts[1]).toHaveTextContent('3');
   });
 
-  it('should render add emoji button in the reaction type list', () => {
+  it('should render add emoji button when extended reactions are available', () => {
     const reactionGroups = {
       love: { count: 2 },
     };
     const reactions = generateReactionsFromReactionGroups(reactionGroups);
     const fetchReactions = vi.fn(() => Promise.resolve([]));
 
-    const { getByTestId } = renderComponent({
+    const extendedReactionOptions: ReactionOptions = {
+      extended: {
+        rocket: { Component: () => <>🚀</>, name: 'Rocket' },
+      },
+      quick: {
+        love: { Component: () => <>❤️</>, name: 'Heart' },
+      },
+    };
+
+    const { getByTestId } = render(
+      <ChatProvider value={mockChatContext({ client: chatClient })}>
+        <DialogManagerProvider>
+          <WithComponents overrides={{ reactionOptions: extendedReactionOptions }}>
+            <MessageProvider value={mockMessageContext()}>
+              <MessageReactionsDetailWrapper
+                handleFetchReactions={fetchReactions}
+                reaction_groups={reactionGroups}
+                reactions={reactions}
+              />
+            </MessageProvider>
+          </WithComponents>
+        </DialogManagerProvider>
+      </ChatProvider>,
+    );
+
+    expect(getByTestId('add-reaction-button')).toBeInTheDocument();
+  });
+
+  it('should not render add emoji button when no extended reactions are available', () => {
+    const reactionGroups = {
+      love: { count: 2 },
+    };
+    const reactions = generateReactionsFromReactionGroups(reactionGroups);
+    const fetchReactions = vi.fn(() => Promise.resolve([]));
+
+    const { queryByTestId } = renderComponent({
       handleFetchReactions: fetchReactions,
       reaction_groups: reactionGroups,
       reactions,
     });
 
-    expect(getByTestId('add-reaction-button')).toBeInTheDocument();
+    expect(queryByTestId('add-reaction-button')).not.toBeInTheDocument();
   });
 
   it('should show extended reaction list when add emoji button is clicked', () => {

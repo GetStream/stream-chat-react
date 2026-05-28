@@ -46,7 +46,6 @@ jobs:
           key: '${{ env.BUILD_CACHE_KEY }}'
 
   test:
-    if: ${{ github.ref_name != 'master' }}
     runs-on: ubuntu-latest
     name: Test
     steps:
@@ -91,7 +90,7 @@ jobs:
       VERCEL_PROJECT_ID: ${{ matrix.projects.project-id }}
       VITE_STREAM_API_KEY: ${{ matrix.projects.stream-api-key }}
       NODE_ENV: production
-      DEPLOY_TARGET: ${{ github.ref_name == 'master' && 'production' || 'preview' }}
+      DEPLOY_ENVIRONMENT: ${{ github.ref_name == 'master' && 'production' || 'preview' }}
     steps:
       - uses: actions/checkout@v6
 
@@ -110,16 +109,14 @@ jobs:
         if: steps.build-cache.outputs.cache-hit != 'true'
         run: yarn build
 
-      - name: Install example dependencies
-        working-directory: examples/vite
-        run: yarn install --frozen-lockfile
-        shell: bash
-
       - name: Vercel Pull/Build/Deploy
         working-directory: examples/vite
         id: deploy-to-vercel
+        env:
+          # "target=production" is not treated the same way "--prod" does
+          PROD_FLAG: ${{ env.DEPLOY_ENVIRONMENT == 'production' && '--prod' || '' }}
         run: >-
-          npx vercel pull --yes --environment=${{ env.DEPLOY_TARGET }} --token=${{ secrets.VERCEL_TOKEN }} &&
-          npx vercel build --target=${{ env.DEPLOY_TARGET }} &&
-          npx vercel deploy --target=${{ env.DEPLOY_TARGET }} --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | 
+          npx vercel pull --yes --environment=${{ env.DEPLOY_ENVIRONMENT }} --token=${{ secrets.VERCEL_TOKEN }} &&
+          npx vercel build ${{ env.PROD_FLAG }} &&
+          npx vercel deploy ${{ env.PROD_FLAG }} --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | 
           xargs -I % echo "deploy-url=%" >> "$GITHUB_OUTPUT"

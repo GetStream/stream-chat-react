@@ -10,7 +10,7 @@
     "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
     "module": "es2020",
     "target": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "paths": {

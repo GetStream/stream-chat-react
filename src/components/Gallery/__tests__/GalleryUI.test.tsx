@@ -102,7 +102,7 @@ describe('GalleryUI', () => {
 
       const img = screen.getByTestId('str-chat__base-image');
       expect(img).toBeInTheDocument();
-      expect(img).toHaveAttribute('src', 'http://my-image.jpg');
+      expect(img).toHaveAttribute('src', 'http://my-image.jpg/');
     });
 
     it('should use fallback as alt text for images', () => {
@@ -125,7 +125,7 @@ describe('GalleryUI', () => {
       expect(playButton).toBeInTheDocument();
       expect(screen.getByTestId('str-chat__base-image')).toHaveAttribute(
         'src',
-        'http://test-thumb.jpg',
+        'http://test-thumb.jpg/',
       );
     });
 
@@ -195,7 +195,7 @@ describe('GalleryUI', () => {
       });
 
       const img = screen.getByTestId('str-chat__base-image');
-      expect(img).toHaveAttribute('src', 'http://img1.jpg');
+      expect(img).toHaveAttribute('src', 'http://img1.jpg/');
     });
 
     it('should navigate backward when prev button is clicked', () => {
@@ -211,7 +211,7 @@ describe('GalleryUI', () => {
       });
 
       const img = screen.getByTestId('str-chat__base-image');
-      expect(img).toHaveAttribute('src', 'http://img0.jpg');
+      expect(img).toHaveAttribute('src', 'http://img0.jpg/');
     });
   });
 
@@ -366,7 +366,7 @@ describe('GalleryUI', () => {
       });
 
       const img = screen.getByTestId('str-chat__base-image');
-      expect(img).toHaveAttribute('src', 'http://img1.jpg');
+      expect(img).toHaveAttribute('src', 'http://img1.jpg/');
     });
 
     it('should navigate backward with ArrowLeft key', () => {
@@ -382,7 +382,7 @@ describe('GalleryUI', () => {
       });
 
       const img = screen.getByTestId('str-chat__base-image');
-      expect(img).toHaveAttribute('src', 'http://img0.jpg');
+      expect(img).toHaveAttribute('src', 'http://img0.jpg/');
     });
   });
 

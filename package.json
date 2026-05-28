@@ -65,33 +65,32 @@
     "getstream.io"
   ],
   "dependencies": {
-    "@braintree/sanitize-url": "^6.0.4",
-    "@floating-ui/react": "^0.27.2",
-    "@react-aria/focus": "^3",
-    "clsx": "^2.0.0",
-    "dayjs": "^1.10.4",
-    "emoji-regex": "^9.2.0",
-    "fix-webm-duration": "^1.0.5",
+    "@braintree/sanitize-url": "^7.1.2",
+    "@floating-ui/react": "^0.27.19",
+    "@react-aria/focus": "^3.22.0",
+    "clsx": "^2.1.1",
+    "dayjs": "^1.11.20",
+    "emoji-regex": "^9.2.2",
+    "fix-webm-duration": "^1.0.6",
     "hast-util-find-and-replace": "^5.0.1",
-    "i18next": "^25.2.1",
-    "linkifyjs": "^4.3.2",
+    "i18next": "^25.10.10",
+    "linkifyjs": "^4.3.3",
     "lodash.debounce": "^4.0.8",
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
-    "nanoid": "^3.3.4",
-    "react-dropzone": "^14.2.3",
+    "nanoid": "^3.3.12",
+    "react-dropzone": "^14.4.1",
     "react-fast-compare": "^3.2.2",
-    "react-markdown": "^9.0.3",
+    "react-markdown": "^9.1.0",
     "react-player": "2.10.1",
-    "react-textarea-autosize": "^8.3.0",
-    "react-virtuoso": "^2.16.5",
+    "react-textarea-autosize": "^8.5.9",
+    "react-virtuoso": "^2.19.1",
     "remark-gfm": "^4.0.1",
     "ts-pattern": "^5.9.0",
-    "tslib": "^2.6.2",
     "unist-builder": "^4.0.0",
-    "unist-util-visit": "^5.0.0",
-    "use-sync-external-store": "^1.4.0"
+    "unist-util-visit": "^5.1.0",
+    "use-sync-external-store": "^1.6.0"
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5"
@@ -101,22 +100,22 @@
     "@emoji-mart/data": "^1.1.0",
     "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
+    "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.43.0",
-    "modern-normalize": "^3.0.1"
+    "stream-chat": "^9.44.2"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
-      "optional": true
-    },
-    "emoji-mart": {
       "optional": true
     },
     "@emoji-mart/data": {
       "optional": true
     },
     "@emoji-mart/react": {
+      "optional": true
+    },
+    "emoji-mart": {
       "optional": true
     },
     "modern-normalize": {
@@ -131,54 +130,54 @@
   ],
   "devDependencies": {
     "@breezystack/lamejs": "^1.2.7",
-    "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
-    "@emoji-mart/data": "^1.1.2",
+    "@commitlint/cli": "^21.0.1",
+    "@commitlint/config-conventional": "^21.0.1",
+    "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@eslint/js": "^9.39.4",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^12.0.6",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
+    "@semantic-release/github": "^12.0.8",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@total-typescript/shoehorn": "^0.1.2",
-    "@types/hast": "^2.3.4",
-    "@types/jsdom": "^21.1.5",
+    "@types/hast": "^3.0.4",
+    "@types/jsdom": "^28.0.3",
     "@types/linkifyjs": "^2.1.7",
-    "@types/lodash.debounce": "^4.0.7",
+    "@types/lodash.debounce": "^4.0.9",
     "@types/lodash.mergewith": "^4.6.9",
-    "@types/lodash.throttle": "^4.1.7",
-    "@types/lodash.uniqby": "^4.7.7",
-    "@types/react": "^19.0.7",
-    "@types/react-dom": "^19.0.3",
-    "@types/use-sync-external-store": "^0.0.6",
-    "@vitest/coverage-v8": "~4.0.18",
-    "@vitest/eslint-plugin": "^1.6.13",
-    "concurrently": "^8.2.2",
-    "conventional-changelog-conventionalcommits": "^8.0.0",
-    "emoji-mart": "^5.5.2",
+    "@types/lodash.throttle": "^4.1.9",
+    "@types/lodash.uniqby": "^4.7.9",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "@types/use-sync-external-store": "^1.5.0",
+    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/eslint-plugin": "^1.6.18",
+    "concurrently": "^9.2.1",
+    "conventional-changelog-conventionalcommits": "^9.3.1",
+    "emoji-mart": "^5.6.0",
     "eslint": "^9.39.4",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-react": "^7.37.2",
-    "eslint-plugin-react-hooks": "^5.1.0",
-    "eslint-plugin-sort-destructure-keys": "^2.0.0",
-    "globals": "^15.13.0",
-    "husky": "^8.0.3",
-    "i18next-cli": "^1.31.0",
-    "jsdom": "^24.1.1",
-    "lint-staged": "^15.2.1",
-    "moment-timezone": "^0.5.43",
-    "prettier": "^3.5.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "sass": "^1.97.2",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-sort-destructure-keys": "^3.0.0",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "i18next-cli": "^1.58.0",
+    "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.5",
+    "moment-timezone": "^0.5.48",
+    "prettier": "^3.8.3",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "sass": "^1.100.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^9.43.0",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^8.17.0",
-    "vite": "^7.3.1",
-    "vitest": "~4.0.18",
+    "stream-chat": "^9.44.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.7",
     "vitest-axe": "^0.1.0"
   },
   "scripts": {
@@ -196,8 +195,9 @@
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc -p tsconfig.lib.json -w",
     "start:css": "node scripts/watch-styling.mjs",
-    "prepare": "husky install",
-    "preversion": "yarn install",
+    "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
+    "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
+    "postinstall": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
     "types": "tsc --emitDeclarationOnly false --noEmit",
@@ -205,16 +205,35 @@
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "semantic-release": "semantic-release",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
+    "build:all": "yarn workspaces foreach -A -tpv run build"
   },
   "resolutions": {
     "ast-types": "^0.14.0",
     "@types/unist": "^2.0.6"
+  },
+  "dependenciesMeta": {
+    "@parcel/watcher": {
+      "built": true
+    },
+    "@swc/core": {
+      "built": true
+    },
+    "esbuild": {
+      "built": true
+    },
+    "husky": {
+      "built": true
+    }
   },
   "browserslist": [
     ">0.2%",
     "not ie <= 11",
     "not op_mini all"
   ],
-  "packageManager": "yarn@1.22.21+sha1.1959a18351b811cdeedbd484a8f86c3cc3bbaf72"
+  "packageManager": "yarn@4.15.0",
+  "workspaces": [
+    "examples/*"
+  ]
 }

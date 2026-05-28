@@ -4,8 +4,7 @@ import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
-import type { Nodes } from 'hast-util-find-and-replace/lib';
-import type { Element } from 'hast';
+import type { Element, Nodes } from 'hast';
 import type { LocalMessage, UserResponse } from 'stream-chat';
 
 export type RenderTextMentionEntity =

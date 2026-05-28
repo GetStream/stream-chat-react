@@ -10,7 +10,15 @@ import vitestPlugin from '@vitest/eslint-plugin';
 
 export default tseslint.config(
   {
-    ignores: ['dist', 'src/@types', '*.{js,ts}'],
+    ignores: [
+      'dist',
+      'src/@types',
+      '*.{js,ts}',
+      '.yarn',
+      'examples/*/dist',
+      'examples/*/node_modules',
+      'examples/*/docs-playwright',
+    ],
   },
   {
     name: 'default',
@@ -19,7 +27,7 @@ export default tseslint.config(
       ...tseslint.configs.recommended,
       reactPlugin.configs.flat.recommended,
     ],
-    files: ['src/**/*.{js,ts,jsx,tsx}'],
+    files: ['src/**/*.{js,ts,jsx,tsx}', 'examples/*/src/**/*.{js,ts,jsx,tsx}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -115,6 +123,55 @@ export default tseslint.config(
     },
   },
   {
+    // Forbid patterns that silently break on React 17 or 18. Approved alternatives:
+    // - useId → src/utils/useStableId.ts
+    // - useSyncExternalStore → use-sync-external-store/shim
+    // - useEffectEvent, use() → not allowed; SDK supports React 17+.
+    // - ref as a regular prop → wrap the component with React.forwardRef
+    name: 'react-compat',
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: [
+      'src/components/UtilityComponents/useStableId.ts',
+      'src/**/__tests__/**',
+      'src/mock-builders/**',
+    ],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react',
+              importNames: ['useId', 'useSyncExternalStore', 'useEffectEvent', 'use'],
+              message:
+                'React 18+/19-only API. Use useStableId from src/utils/useStableId, useSyncExternalStore from use-sync-external-store/shim. useEffectEvent and use() are not allowed: SDK supports React 17+.',
+            },
+          ],
+        },
+      ],
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "MemberExpression[object.name='React'][property.name=/^(useId|useSyncExternalStore|useEffectEvent|use)$/]",
+          message:
+            'React 18+/19-only API. Use useStableId / use-sync-external-store/shim instead of React.<api>.',
+        },
+        {
+          selector: "TSPropertySignature[key.name='ref']",
+          message:
+            '`ref` declared as a regular prop. React 17 and 18 only deliver `ref` to components wrapped in `React.forwardRef` — declare the component with `forwardRef` instead of putting `ref` in the prop type.',
+        },
+        {
+          selector:
+            ":matches(FunctionDeclaration, FunctionExpression, ArrowFunctionExpression) > ObjectPattern > Property[key.name='ref']",
+          message:
+            '`ref` destructured from props. React 17 and 18 only deliver `ref` to components wrapped in `React.forwardRef` — use `React.forwardRef((props, ref) => …)` and take `ref` as the second parameter instead.',
+        },
+      ],
+    },
+  },
+  {
     name: 'vitest',
     files: ['src/**/__tests__/**', 'src/mock-builders/**'],
     plugins: { vitest: vitestPlugin },
@@ -136,6 +193,20 @@ export default tseslint.config(
         'error',
         { disallowTypeAnnotations: false },
       ], // allow typeof import() in vi.mock importOriginal
+    },
+  },
+  {
+    // Example apps inherit the SDK's plugins + recommended rules but relax
+    // the cosmetic style rules that don't add value in demo code. Real bug
+    // patterns (react-hooks deps, no-unknown-property for SVG, undeclared
+    // imports, etc.) stay on.
+    name: 'examples',
+    files: ['examples/*/src/**/*.{js,ts,jsx,tsx}'],
+    rules: {
+      'sort-keys': 'off',
+      'sort-destructure-keys/sort-destructure-keys': 'off',
+      'react/jsx-sort-props': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
 );

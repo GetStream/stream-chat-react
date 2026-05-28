@@ -110,11 +110,11 @@ const App = () => {
 
             return (
               <button
-                key={step.id}
-                onClick={() => setSelectedStepId(step.id)}
                 className={`tutorial-browser__step-button${
                   isActive ? ' tutorial-browser__step-button--active' : ''
                 }`}
+                key={step.id}
+                onClick={() => setSelectedStepId(step.id)}
                 type='button'
               >
                 <div className='tutorial-browser__step-title'>{step.title}</div>

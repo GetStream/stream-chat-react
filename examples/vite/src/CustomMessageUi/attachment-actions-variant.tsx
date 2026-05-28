@@ -24,8 +24,8 @@ export const CustomAttachmentActions = (props: AttachmentActionsProps) => {
       <>
         {actions.map((action) => (
           <button
-            key={action.value}
             className={`action-button ${action.value === 'Love' ? 'love' : ''}`}
+            key={action.value}
             onClick={(event) => handleClick(event, action.value)}
           >
             {action.value}
