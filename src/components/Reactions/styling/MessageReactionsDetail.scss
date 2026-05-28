@@ -103,6 +103,15 @@
     position: relative;
     padding-block-end: var(--str-chat__spacing-xxs);
     max-height: 180px;
+    display: flex;
+    flex-direction: column;
+
+    .str-chat__button.str-chat__button--load-more {
+      align-self: center;
+      flex-shrink: 0;
+      margin-block-end: var(--str-chat__spacing-xs);
+      margin-block-start: var(--str-chat__spacing-xxs);
+    }
 
     .str-chat__message-reactions-detail__skeleton-item {
       padding-block: var(--str-chat__spacing-xxs);
