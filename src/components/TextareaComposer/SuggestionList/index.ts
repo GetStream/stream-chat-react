@@ -1,5 +1,6 @@
 export * from './CommandItem';
 export * from './EmoticonItem';
+export * from './BroadcastMentionItem';
 export * from './MentionItem';
 export * from './RoleItem';
 export * from './SpecialMentionItem';

@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import React from 'react';
 import type { RoleMentionSuggestion } from 'stream-chat';
-import { IconUser } from '../../Icons';
+import { IconShield } from '../../Icons';
 import { SuggestionItemWithAvatar } from './SuggestionItemWithAvatar';
 import { TokenizedSuggestionParts } from './TokenizedSuggestionParts';
 
@@ -17,7 +17,7 @@ export const RoleItem = ({ entity, focused, ...buttonProps }: RoleItemProps) => 
   return (
     <SuggestionItemWithAvatar
       {...buttonProps}
-      avatarFallbackIcon={IconUser}
+      avatarFallbackIcon={IconShield}
       title={title}
     >
       <TokenizedSuggestionParts tokenizedDisplayName={entity.tokenizedDisplayName} />

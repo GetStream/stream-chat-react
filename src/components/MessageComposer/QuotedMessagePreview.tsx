@@ -342,14 +342,14 @@ export const QuotedMessagePreviewUI = ({
     () =>
       getRenderTextMentionEntities({
         mentioned_channel: quotedMessage?.mentioned_channel,
-        mentioned_group_ids: quotedMessage?.mentioned_group_ids,
+        mentioned_groups: quotedMessage?.mentioned_groups,
         mentioned_here: quotedMessage?.mentioned_here,
         mentioned_roles: quotedMessage?.mentioned_roles,
         mentioned_users: quotedMessage?.mentioned_users,
       }),
     [
       quotedMessage?.mentioned_channel,
-      quotedMessage?.mentioned_group_ids,
+      quotedMessage?.mentioned_groups,
       quotedMessage?.mentioned_here,
       quotedMessage?.mentioned_roles,
       quotedMessage?.mentioned_users,

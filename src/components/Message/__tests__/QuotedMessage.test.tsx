@@ -1,6 +1,7 @@
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { nanoid } from 'nanoid';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import {
@@ -142,13 +143,20 @@ describe('QuotedMessage', () => {
   });
 
   it('renders built-in, role, and user-group mentions inside quoted message text', async () => {
-    const messageText = 'hey @channel @here @admin @backend-team';
+    const messageText = 'hey @channel @here @admin @Backend Team';
     const { container, findByText } = await renderQuotedMessage({
       customProps: {
         message: {
           quoted_message: {
             mentioned_channel: true,
-            mentioned_group_ids: ['backend-team'],
+            mentioned_groups: [
+              fromPartial({
+                created_at: '2026-05-28T00:00:00.000Z',
+                id: 'backend-team',
+                name: 'Backend Team',
+                updated_at: '2026-05-28T00:00:00.000Z',
+              }),
+            ],
             mentioned_here: true,
             mentioned_roles: ['admin'],
             text: messageText,
@@ -161,7 +169,7 @@ describe('QuotedMessage', () => {
     expect(await findByText('@channel')).toHaveAttribute('data-mention-type', 'channel');
     expect(await findByText('@here')).toHaveAttribute('data-mention-type', 'here');
     expect(await findByText('@admin')).toHaveAttribute('data-mention-type', 'role');
-    expect(await findByText('@backend-team')).toHaveAttribute(
+    expect(await findByText('@Backend Team')).toHaveAttribute(
       'data-mention-type',
       'user_group',
     );

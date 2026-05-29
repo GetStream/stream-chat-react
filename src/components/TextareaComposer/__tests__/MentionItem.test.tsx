@@ -4,6 +4,8 @@ import { cleanup, render } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 
 import { TranslationProvider } from '../../../context';
+import type { BroadcastMentionItem } from '../SuggestionList/BroadcastMentionItem';
+import { SpecialMentionItem } from '../SuggestionList/SpecialMentionItem';
 import type { RoleItemProps, UserItemProps } from '../SuggestionList';
 import { MentionItem } from '../SuggestionList';
 import { mockTranslationContextValue } from '../../../mock-builders';
@@ -134,6 +136,30 @@ describe('MentionItem', () => {
     expect(getByTestId('custom-role-mention-item')).toHaveTextContent('admin');
   });
 
+  it('should allow overriding the broadcast mention row component', () => {
+    const CustomBroadcastMentionItem = ({
+      entity,
+    }: React.ComponentProps<typeof BroadcastMentionItem>) => (
+      <button data-testid='custom-broadcast-mention-item' type='button'>
+        {entity.name}
+      </button>
+    );
+
+    const { getByTestId } = render(
+      <MentionItem
+        BroadcastMentionItemComponent={CustomBroadcastMentionItem}
+        entity={{
+          id: 'channel',
+          mentionType: 'channel',
+          name: 'channel',
+          tokenizedDisplayName: { parts: ['chan', 'nel'], token: 'nel' },
+        }}
+      />,
+    );
+
+    expect(getByTestId('custom-broadcast-mention-item')).toHaveTextContent('channel');
+  });
+
   it('should allow overriding the user row component', () => {
     const CustomUserItem = ({ entity }: UserItemProps) => (
       <button data-testid='custom-user-item' type='button'>
@@ -155,5 +181,45 @@ describe('MentionItem', () => {
     );
 
     expect(getByTestId('custom-user-item')).toHaveTextContent('User 1');
+  });
+
+  it('should fall back to SpecialMentionItem for unsupported mention suggestions', () => {
+    const { getByRole, getByText } = render(
+      <TranslationProvider value={mockTranslationContextValue()}>
+        <div role='menu'>
+          <MentionItem
+            entity={
+              {
+                id: 'unsupported',
+                mentionType: 'unsupported',
+                name: 'Unsupported',
+              } as unknown as React.ComponentProps<typeof MentionItem>['entity']
+            }
+          />
+        </div>
+      </TranslationProvider>,
+    );
+
+    expect(getByRole('menuitem')).toHaveAttribute('title', '@Unsupported');
+    expect(getByText('@Unsupported')).toBeInTheDocument();
+  });
+
+  it('should not crash when SpecialMentionItem receives an unsupported mention type', () => {
+    const { getByRole, getByText } = render(
+      <TranslationProvider value={mockTranslationContextValue()}>
+        <div role='menu'>
+          <SpecialMentionItem
+            entity={{
+              id: 'ops-team',
+              mentionType: 'unsupported',
+              name: 'Ops Team',
+            }}
+          />
+        </div>
+      </TranslationProvider>,
+    );
+
+    expect(getByRole('menuitem')).toHaveAttribute('title', '@Ops Team');
+    expect(getByText('@Ops Team')).toBeInTheDocument();
   });
 });

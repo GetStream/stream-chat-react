@@ -352,10 +352,17 @@ describe('<MessageText />', () => {
   });
 
   it('renders built-in, role, and user-group mentions with mention styling', async () => {
-    const text = 'Hello @channel @here @admin @backend-team';
+    const text = 'Hello @channel @here @admin @Backend Team';
     const message = generateAliceMessage({
       mentioned_channel: true,
-      mentioned_group_ids: ['backend-team'],
+      mentioned_groups: [
+        fromPartial({
+          created_at: '2026-05-28T00:00:00.000Z',
+          id: 'backend-team',
+          name: 'Backend Team',
+          updated_at: '2026-05-28T00:00:00.000Z',
+        }),
+      ],
       mentioned_here: true,
       mentioned_roles: ['admin'],
       text,
@@ -367,7 +374,7 @@ describe('<MessageText />', () => {
     expect(getByText('@channel')).toHaveAttribute('data-mention-type', 'channel');
     expect(getByText('@here')).toHaveAttribute('data-mention-type', 'here');
     expect(getByText('@admin')).toHaveAttribute('data-mention-type', 'role');
-    expect(getByText('@backend-team')).toHaveAttribute('data-mention-type', 'user_group');
+    expect(getByText('@Backend Team')).toHaveAttribute('data-mention-type', 'user_group');
     expect(container.querySelectorAll('.str-chat__message-mention')).toHaveLength(4);
 
     const results = await axe(container);

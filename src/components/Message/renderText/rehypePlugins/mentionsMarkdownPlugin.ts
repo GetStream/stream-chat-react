@@ -4,8 +4,8 @@ import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { visit } from 'unist-util-visit';
 
-import type { Element, Nodes } from 'hast';
-import type { LocalMessage, UserResponse } from 'stream-chat';
+import type { Element } from 'hast';
+import type { LocalMessage, UserGroupResponse, UserResponse } from 'stream-chat';
 
 export type RenderTextMentionEntity =
   | (UserResponse & {
@@ -35,7 +35,7 @@ export type RenderTextMentionEntity =
 export type RenderTextMentionMetadata = Pick<
   Partial<LocalMessage>,
   | 'mentioned_channel'
-  | 'mentioned_group_ids'
+  | 'mentioned_groups'
   | 'mentioned_here'
   | 'mentioned_roles'
   | 'mentioned_users'
@@ -55,7 +55,16 @@ type MentionLookup = {
 
 type MentionPluginAndDisplayTextSet = {
   mentionDisplayTextSet: Set<string>;
-  plugin: () => (tree: Nodes) => void;
+  plugin: () => (tree: HastTree) => void;
+};
+
+type HastTree = Parameters<typeof findAndReplace>[0];
+type MentionTraversalParent = {
+  children: unknown[];
+};
+type TextNode = {
+  type: 'text';
+  value: string;
 };
 
 // Mention matches may end at the end of the string, before whitespace,
@@ -118,11 +127,12 @@ export const getRenderTextMentionEntities = (
     );
   }
 
-  if (metadata.mentioned_group_ids?.length) {
+  if (metadata.mentioned_groups?.length) {
     mentions.push(
-      ...metadata.mentioned_group_ids.map((groupId) => ({
-        id: groupId,
+      ...metadata.mentioned_groups.map((group: UserGroupResponse) => ({
+        id: group.id,
         mentionType: 'user_group' as const,
+        name: group.name,
       })),
     );
   }
@@ -210,7 +220,7 @@ export const mentionsMarkdownPluginFromLookup =
       );
     };
 
-    const transform = (tree: Nodes) => {
+    const transform = (tree: HastTree) => {
       if (!mentionReplacements.length || !mentionsRegex) return;
 
       // handles special cases of mentions where the mention display text
@@ -221,30 +231,34 @@ export const mentionsMarkdownPluginFromLookup =
       // this piece finds these two separated nodes and merges them together
       // before "replace" function takes over
       if (mentionDisplayTextSet.size) {
-        visit(tree, (node, index, parent) => {
-          if (typeof index === 'undefined') return;
-          if (!parent) return;
+        visit(
+          tree,
+          (node: unknown, index, parent: MentionTraversalParent | undefined) => {
+            if (typeof index === 'undefined') return;
+            if (!parent) return;
 
-          const nextChild = parent.children.at(index + 1) as Element;
-          const nextChildHref = nextChild?.properties?.href as string | undefined;
+            const nextChild = parent.children.at(index + 1) as Element;
+            const nextChildHref = nextChild?.properties?.href as string | undefined;
+            const textNode = node as TextNode;
 
-          if (
-            node.type === 'text' &&
-            // text value has to have @ sign at the end of the string
-            // and no other characters except whitespace can precede it
-            // valid cases:   "text @", "@", " @"
-            // invalid cases: "text@", "@text",
-            /.?\s?@$|^@$/.test(node.value) &&
-            nextChildHref?.startsWith('mailto:')
-          ) {
-            const newTextValue = node.value.replace(/@$/, '');
-            const rawDisplayName = nextChildHref.replace('mailto:', '');
-            const mentionDisplayText = `@${rawDisplayName}`;
-            if (!mentionDisplayTextSet.has(mentionDisplayText)) return;
-            parent.children[index] = u('text', newTextValue);
-            parent.children[index + 1] = u('text', mentionDisplayText);
-          }
-        });
+            if (
+              textNode.type === 'text' &&
+              // text value has to have @ sign at the end of the string
+              // and no other characters except whitespace can precede it
+              // valid cases:   "text @", "@", " @"
+              // invalid cases: "text@", "@text",
+              /.?\s?@$|^@$/.test(textNode.value) &&
+              nextChildHref?.startsWith('mailto:')
+            ) {
+              const newTextValue = textNode.value.replace(/@$/, '');
+              const rawDisplayName = nextChildHref.replace('mailto:', '');
+              const mentionDisplayText = `@${rawDisplayName}`;
+              if (!mentionDisplayTextSet.has(mentionDisplayText)) return;
+              parent.children[index] = u('text', newTextValue);
+              parent.children[index + 1] = u('text', mentionDisplayText);
+            }
+          },
+        );
       }
 
       findAndReplace(tree, [mentionsRegex, replace]);
@@ -266,10 +280,10 @@ export const createMentionPluginAndDisplayTextSet = (
 
 export function mentionsMarkdownPlugin(
   mentionedUsers: UserResponse[],
-): () => (tree: Nodes) => void;
+): () => (tree: HastTree) => void;
 export function mentionsMarkdownPlugin(
   mentionEntities: RenderTextMentionEntity[],
-): () => (tree: Nodes) => void;
+): () => (tree: HastTree) => void;
 export function mentionsMarkdownPlugin(
   mentionEntitiesOrUsers: RenderTextMentionEntity[] | UserResponse[],
 ) {

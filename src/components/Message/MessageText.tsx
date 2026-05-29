@@ -54,14 +54,14 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     () =>
       getRenderTextMentionEntities({
         mentioned_channel: message.mentioned_channel,
-        mentioned_group_ids: message.mentioned_group_ids,
+        mentioned_groups: message.mentioned_groups,
         mentioned_here: message.mentioned_here,
         mentioned_roles: message.mentioned_roles,
         mentioned_users: message.mentioned_users,
       }),
     [
       message.mentioned_channel,
-      message.mentioned_group_ids,
+      message.mentioned_groups,
       message.mentioned_here,
       message.mentioned_roles,
       message.mentioned_users,

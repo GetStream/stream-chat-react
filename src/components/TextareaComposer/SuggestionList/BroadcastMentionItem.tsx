@@ -5,14 +5,8 @@ import { IconMegaphone } from '../../Icons';
 import { useTranslationContext } from '../../../context';
 import { SuggestionItemWithAvatar } from './SuggestionItemWithAvatar';
 
-type SpecialMentionItemEntity = {
-  id: string;
-  mentionType: string;
-  name?: string;
-};
-
-export type SpecialMentionItemProps = {
-  entity: ChannelMentionSuggestion | HereMentionSuggestion | SpecialMentionItemEntity;
+export type BroadcastMentionItemProps = {
+  entity: ChannelMentionSuggestion | HereMentionSuggestion;
   focused?: boolean;
 } & ComponentProps<'button'>;
 
@@ -27,34 +21,26 @@ const descriptionByMentionType = {
   },
 } as const;
 
-const isSpecialMentionType = (
-  mentionType: string,
-): mentionType is keyof typeof descriptionByMentionType =>
-  mentionType in descriptionByMentionType;
-
 const isTranslationFallback = (translatedValue: string, translationKey: string) =>
   translatedValue === translationKey ||
   translatedValue === translationKey.split('/').pop();
 
-export const SpecialMentionItem = ({
+export const BroadcastMentionItem = ({
   entity,
   focused,
   ...buttonProps
-}: SpecialMentionItemProps) => {
+}: BroadcastMentionItemProps) => {
   void focused;
   const { t } = useTranslationContext();
-  const label = `@${entity.name ?? entity.id}`;
-  const descriptionConfig = isSpecialMentionType(entity.mentionType)
-    ? descriptionByMentionType[entity.mentionType]
-    : undefined;
-  const translatedDescription = descriptionConfig
-    ? t(descriptionConfig.translationKey)
-    : '';
-  const description = descriptionConfig
-    ? isTranslationFallback(translatedDescription, descriptionConfig.translationKey)
-      ? descriptionConfig.fallback
-      : translatedDescription
-    : undefined;
+  const label = `@${entity.name}`;
+  const descriptionConfig = descriptionByMentionType[entity.mentionType];
+  const translatedDescription = t(descriptionConfig.translationKey);
+  const description = isTranslationFallback(
+    translatedDescription,
+    descriptionConfig.translationKey,
+  )
+    ? descriptionConfig.fallback
+    : translatedDescription;
 
   return (
     <SuggestionItemWithAvatar
