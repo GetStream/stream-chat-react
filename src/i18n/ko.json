@@ -355,6 +355,7 @@
   "No results found": "검색 결과가 없습니다",
   "Nobody will be able to vote in this poll anymore.": "이 투표에 더 이상 아무도 투표할 수 없습니다.",
   "Nothing yet...": "아직 아무것도...",
+  "Notify all {{ role }} members": "{{ role }} 역할의 모든 멤버에게 알림",
   "Offline": "오프라인",
   "Ok": "확인",
   "Online": "온라인",

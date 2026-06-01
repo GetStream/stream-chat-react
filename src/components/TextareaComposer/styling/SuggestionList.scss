@@ -28,6 +28,24 @@
     }
   }
 
+  .str-chat__suggestion-list__mention-item-leading-slot {
+    align-items: center;
+    background: var(--str-chat__background-core-surface-subtle);
+    border: 1px solid var(--str-chat__border-core-subtle);
+    border-radius: var(--str-chat__radius-max);
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    padding: var(--str-chat__spacing-xs);
+  }
+
+  .str-chat__suggestion-list__mention-item-leading-slot-icon {
+    color: var(--str-chat__text-secondary);
+    height: var(--str-chat__icon-size-sm);
+    stroke-width: 1.2px;
+    width: var(--str-chat__icon-size-sm);
+  }
+
   .str-chat__suggestion-list__item-content {
     display: flex;
     flex: 1;
@@ -40,6 +58,10 @@
     @include utils.ellipsis-text;
     text-align: start;
     min-width: 0;
+  }
+
+  .str-chat__list-item-layout__title.str-chat__suggestion-list__mention-item-title {
+    font: var(--str-chat__font-body-default);
   }
 
   .str-chat__suggestion-list__item-details {

@@ -360,6 +360,7 @@
   "No results found": "कोई परिणाम नहीं मिला",
   "Nobody will be able to vote in this poll anymore.": "अब कोई भी इस मतदान में मतदान नहीं कर सकेगा।",
   "Nothing yet...": "कोई मैसेज नहीं है",
+  "Notify all {{ role }} members": "{{ role }} भूमिका वाले सभी सदस्यों को सूचित करें",
   "Offline": "ऑफलाइन",
   "Ok": "ठीक है",
   "Online": "ऑनलाइन",

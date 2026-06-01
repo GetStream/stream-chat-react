@@ -359,6 +359,7 @@
   "No results found": "Sonuç bulunamadı",
   "Nobody will be able to vote in this poll anymore.": "Artık bu ankette kimse oy kullanamayacak.",
   "Nothing yet...": "Şimdilik hiçbir şey...",
+  "Notify all {{ role }} members": "{{ role }} rolündeki tüm üyelere bildir",
   "Offline": "Çevrimdışı",
   "Ok": "Tamam",
   "Online": "Çevrimiçi",

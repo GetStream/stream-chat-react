@@ -370,6 +370,7 @@
   "No results found": "No se han encontrado resultados",
   "Nobody will be able to vote in this poll anymore.": "Nadie podrá votar en esta encuesta.",
   "Nothing yet...": "Nada aún...",
+  "Notify all {{ role }} members": "Notificar a todos los miembros con rol {{ role }}",
   "Offline": "Desconectado",
   "Ok": "Aceptar",
   "Online": "En línea",

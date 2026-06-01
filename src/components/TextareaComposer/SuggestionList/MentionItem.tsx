@@ -2,53 +2,55 @@ import type { ComponentProps } from 'react';
 import React from 'react';
 import type { MentionSuggestion } from 'stream-chat';
 import {
-  BroadcastMentionItem,
   type BroadcastMentionItemProps,
+  BroadcastMentionItem as DefaultBroadcastMentionItem,
 } from './BroadcastMentionItem';
-import { RoleItem, type RoleItemProps } from './RoleItem';
-import { SpecialMentionItem, type SpecialMentionItemProps } from './SpecialMentionItem';
-import { UserGroupItem, type UserGroupItemProps } from './UserGroupItem';
-import { UserItem, type UserItemProps } from './UserItem';
+import { RoleItem as DefaultRoleItem, type RoleItemProps } from './RoleItem';
+import {
+  SpecialMentionItem as DefaultSpecialMentionItem,
+  type SpecialMentionItemProps,
+} from './SpecialMentionItem';
+import {
+  UserGroupItem as DefaultUserGroupItem,
+  type UserGroupItemProps,
+} from './UserGroupItem';
+import { UserItem as DefaultUserItem, type UserItemProps } from './UserItem';
 
 export type MentionItemProps = {
-  BroadcastMentionItemComponent?: React.ComponentType<BroadcastMentionItemProps>;
+  BroadcastMentionItem?: React.ComponentType<BroadcastMentionItemProps>;
   entity: MentionSuggestion;
   focused?: boolean;
-  RoleItemComponent?: React.ComponentType<RoleItemProps>;
-  SpecialMentionItemComponent?: React.ComponentType<SpecialMentionItemProps>;
-  UserGroupItemComponent?: React.ComponentType<UserGroupItemProps>;
-  UserItemComponent?: React.ComponentType<UserItemProps>;
+  RoleItem?: React.ComponentType<RoleItemProps>;
+  SpecialMentionItem?: React.ComponentType<SpecialMentionItemProps>;
+  UserGroupItem?: React.ComponentType<UserGroupItemProps>;
+  UserItem?: React.ComponentType<UserItemProps>;
 } & ComponentProps<'button'>;
 
 export const MentionItem = ({
-  BroadcastMentionItemComponent = BroadcastMentionItem,
+  BroadcastMentionItem = DefaultBroadcastMentionItem,
   entity,
   focused,
-  RoleItemComponent = RoleItem,
-  SpecialMentionItemComponent = SpecialMentionItem,
-  UserGroupItemComponent = UserGroupItem,
-  UserItemComponent = UserItem,
+  RoleItem = DefaultRoleItem,
+  SpecialMentionItem = DefaultSpecialMentionItem,
+  UserGroupItem = DefaultUserGroupItem,
+  UserItem = DefaultUserItem,
   ...buttonProps
 }: MentionItemProps) => {
   if (entity.mentionType === 'user') {
-    return <UserItemComponent {...buttonProps} entity={entity} focused={focused} />;
+    return <UserItem {...buttonProps} entity={entity} focused={focused} />;
   }
 
   if (entity.mentionType === 'role') {
-    return <RoleItemComponent {...buttonProps} entity={entity} focused={focused} />;
+    return <RoleItem {...buttonProps} entity={entity} focused={focused} />;
   }
 
   if (entity.mentionType === 'user_group') {
-    return <UserGroupItemComponent {...buttonProps} entity={entity} focused={focused} />;
+    return <UserGroupItem {...buttonProps} entity={entity} focused={focused} />;
   }
 
   if (entity.mentionType === 'channel' || entity.mentionType === 'here') {
-    return (
-      <BroadcastMentionItemComponent {...buttonProps} entity={entity} focused={focused} />
-    );
+    return <BroadcastMentionItem {...buttonProps} entity={entity} focused={focused} />;
   }
 
-  return (
-    <SpecialMentionItemComponent {...buttonProps} entity={entity} focused={focused} />
-  );
+  return <SpecialMentionItem {...buttonProps} entity={entity} focused={focused} />;
 };

@@ -63,23 +63,26 @@ describe('MentionItem', () => {
 
   it('should render role mention rows', async () => {
     const { container, getByRole, getByText, queryByTestId } = render(
-      <div role='menu'>
-        <MentionItem
-          entity={{
-            id: 'admin',
-            mentionType: 'role',
-            name: 'admin',
-            tokenizedDisplayName: { parts: ['ad', 'min'], token: 'min' },
-          }}
-        />
-      </div>,
+      <TranslationProvider value={mockTranslationContextValue()}>
+        <div role='menu'>
+          <MentionItem
+            entity={{
+              id: 'admin',
+              mentionType: 'role',
+              name: 'admin',
+              tokenizedDisplayName: { parts: ['ad', 'min'], token: 'min' },
+            }}
+          />
+        </div>
+      </TranslationProvider>,
     );
 
     expect(getByRole('menuitem')).toHaveAttribute('title', 'admin');
     expect(getByText('ad')).toBeInTheDocument();
     expect(getByText('min')).toBeInTheDocument();
+    expect(getByText('Notify all admin members')).toBeInTheDocument();
     expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
-    expect(container.querySelector('.str-chat__icon--user')).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__icon--shield')).toBeInTheDocument();
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -91,6 +94,7 @@ describe('MentionItem', () => {
         <div role='menu'>
           <MentionItem
             entity={{
+              description: 'Backend services and APIs',
               id: 'backend-team',
               memberCount: 3,
               mentionType: 'user_group',
@@ -106,6 +110,7 @@ describe('MentionItem', () => {
     expect(getByText('@')).toBeInTheDocument();
     expect(getByText('Backend')).toBeInTheDocument();
     expect(getByText(/Team/)).toBeInTheDocument();
+    expect(getByText('Backend services and APIs')).toBeInTheDocument();
     expect(getByText('3 members')).toBeInTheDocument();
     expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
     expect(container.querySelector('.str-chat__icon--users')).toBeInTheDocument();
@@ -129,7 +134,7 @@ describe('MentionItem', () => {
           name: 'admin',
           tokenizedDisplayName: { parts: ['admin'], token: '' },
         }}
-        RoleItemComponent={CustomRoleItem}
+        RoleItem={CustomRoleItem}
       />,
     );
 
@@ -147,7 +152,7 @@ describe('MentionItem', () => {
 
     const { getByTestId } = render(
       <MentionItem
-        BroadcastMentionItemComponent={CustomBroadcastMentionItem}
+        BroadcastMentionItem={CustomBroadcastMentionItem}
         entity={{
           id: 'channel',
           mentionType: 'channel',
@@ -176,7 +181,7 @@ describe('MentionItem', () => {
           name: 'User 1',
           tokenizedDisplayName: { parts: ['User 1'], token: '' },
         }}
-        UserItemComponent={CustomUserItem}
+        UserItem={CustomUserItem}
       />,
     );
 

@@ -355,6 +355,7 @@
   "No results found": "結果が見つかりません",
   "Nobody will be able to vote in this poll anymore.": "この投票では、誰も投票できなくなります。",
   "Nothing yet...": "まだ何もありません...",
+  "Notify all {{ role }} members": "{{ role }} メンバー全員に通知",
   "Offline": "オフライン",
   "Ok": "OK",
   "Online": "オンライン",
