@@ -1,4 +1,3 @@
-import type { ComponentProps } from 'react';
 import React from 'react';
 import type { MentionSuggestion } from 'stream-chat';
 import {
@@ -15,16 +14,15 @@ import {
   type UserGroupItemProps,
 } from './UserGroupItem';
 import { UserItem as DefaultUserItem, type UserItemProps } from './UserItem';
+import type { MentionItemComponentProps } from './types';
 
-export type MentionItemProps = {
+export type MentionItemProps = MentionItemComponentProps<MentionSuggestion> & {
   BroadcastMentionItem?: React.ComponentType<BroadcastMentionItemProps>;
-  entity: MentionSuggestion;
-  focused?: boolean;
   RoleItem?: React.ComponentType<RoleItemProps>;
   SpecialMentionItem?: React.ComponentType<SpecialMentionItemProps>;
   UserGroupItem?: React.ComponentType<UserGroupItemProps>;
   UserItem?: React.ComponentType<UserItemProps>;
-} & ComponentProps<'button'>;
+};
 
 export const MentionItem = ({
   BroadcastMentionItem = DefaultBroadcastMentionItem,

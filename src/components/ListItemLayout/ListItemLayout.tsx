@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import type { ComponentProps, ComponentType, HTMLAttributes, ReactNode } from 'react';
+import type {
+  ComponentProps,
+  ComponentType,
+  ElementType,
+  HTMLAttributes,
+  ReactNode,
+} from 'react';
 import React from 'react';
 
 export type ListItemLayoutRootElement = Extract<
@@ -48,7 +54,9 @@ export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = '
   TrailingIcon,
   TrailingSlot,
 }: ListItemLayoutProps<RootElement>) => {
-  const RootComponent = RootElement ?? 'div';
+  const RootComponent = (RootElement ?? 'div') as ElementType<
+    HTMLAttributes<HTMLElement>
+  >;
   const resolvedRootProps = {
     ...(RootComponent === 'button' ? { type: 'button' } : undefined),
     ...rootProps,
@@ -60,32 +68,30 @@ export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = '
     ),
   } as HTMLAttributes<HTMLElement>;
 
-  // JSX cannot type-check a generic intrinsic element with generic root props here.
-  // Call sites still get RootElement-specific rootProps; createElement keeps rendering simple internally.
-  return React.createElement(
-    RootComponent,
-    resolvedRootProps,
-    LeadingIcon && (
-      <span className='str-chat__list-item-layout__leading-icon'>
-        <LeadingIcon />
-      </span>
-    ),
-    LeadingSlot && <LeadingSlot />,
-    <ContentSlot
-      className={contentClassName}
-      description={description}
-      descriptionClassName={descriptionClassName}
-      subtitle={subtitle}
-      subtitleClassName={subtitleClassName}
-      title={title}
-      titleClassName={titleClassName}
-    />,
-    TrailingIcon && (
-      <span className='str-chat__list-item-layout__trailing-icon'>
-        <TrailingIcon />
-      </span>
-    ),
-    TrailingSlot && <TrailingSlot />,
+  return (
+    <RootComponent {...resolvedRootProps}>
+      {LeadingIcon && (
+        <div className='str-chat__list-item-layout__leading-icon'>
+          <LeadingIcon />
+        </div>
+      )}
+      {LeadingSlot && <LeadingSlot />}
+      <ContentSlot
+        className={contentClassName}
+        description={description}
+        descriptionClassName={descriptionClassName}
+        subtitle={subtitle}
+        subtitleClassName={subtitleClassName}
+        title={title}
+        titleClassName={titleClassName}
+      />
+      {TrailingIcon && (
+        <div className='str-chat__list-item-layout__trailing-icon'>
+          <TrailingIcon />
+        </div>
+      )}
+      {TrailingSlot && <TrailingSlot />}
+    </RootComponent>
   );
 };
 

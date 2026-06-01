@@ -4,9 +4,13 @@ import { cleanup, render } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 
 import { TranslationProvider } from '../../../context';
-import type { BroadcastMentionItem } from '../SuggestionList/BroadcastMentionItem';
-import { SpecialMentionItem } from '../SuggestionList/SpecialMentionItem';
-import type { RoleItemProps, UserItemProps } from '../SuggestionList';
+import type { BroadcastMentionItem } from '../SuggestionList/MentionItem/BroadcastMentionItem';
+import { SpecialMentionItem } from '../SuggestionList/MentionItem/SpecialMentionItem';
+import type {
+  RoleItemProps,
+  SpecialMentionItemProps,
+  UserItemProps,
+} from '../SuggestionList';
 import { MentionItem } from '../SuggestionList';
 import { mockTranslationContextValue } from '../../../mock-builders';
 
@@ -15,7 +19,14 @@ afterEach(cleanup);
 describe('MentionItem', () => {
   it('should render built-in mention rows with a fallback avatar icon and description', async () => {
     const { container, getByRole, getByText, queryByTestId } = render(
-      <TranslationProvider value={mockTranslationContextValue()}>
+      <TranslationProvider
+        value={mockTranslationContextValue({
+          t: (key: string) =>
+            key === 'mention/Channel Description'
+              ? 'Notify everyone in this channel'
+              : key,
+        })}
+      >
         <div role='menu'>
           <MentionItem
             entity={{
@@ -39,10 +50,15 @@ describe('MentionItem', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should fall back to default description copy when built-in translation resolves to a key', () => {
+  it('should render the built-in here mention description translation', () => {
     const { getByText } = render(
       <TranslationProvider
-        value={mockTranslationContextValue({ t: (key: string) => key })}
+        value={mockTranslationContextValue({
+          t: (key: string) =>
+            key === 'mention/Here Description'
+              ? 'Notify every online member in this channel'
+              : key,
+        })}
       >
         <div role='menu'>
           <MentionItem
@@ -63,7 +79,14 @@ describe('MentionItem', () => {
 
   it('should render role mention rows', async () => {
     const { container, getByRole, getByText, queryByTestId } = render(
-      <TranslationProvider value={mockTranslationContextValue()}>
+      <TranslationProvider
+        value={mockTranslationContextValue({
+          t: (key: string, options?: Record<string, string>) =>
+            key === 'Notify all {{ role }} members' && options?.role
+              ? `Notify all ${options.role} members`
+              : key,
+        })}
+      >
         <div role='menu'>
           <MentionItem
             entity={{
@@ -77,7 +100,7 @@ describe('MentionItem', () => {
       </TranslationProvider>,
     );
 
-    expect(getByRole('menuitem')).toHaveAttribute('title', 'admin');
+    expect(getByRole('menuitem')).toHaveAttribute('title', '@admin');
     expect(getByText('ad')).toBeInTheDocument();
     expect(getByText('min')).toBeInTheDocument();
     expect(getByText('Notify all admin members')).toBeInTheDocument();
@@ -88,7 +111,7 @@ describe('MentionItem', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should render user-group mention rows with member count metadata', async () => {
+  it('should render user-group mention rows with description metadata', async () => {
     const { container, getByRole, getByText, queryByTestId } = render(
       <TranslationProvider value={mockTranslationContextValue()}>
         <div role='menu'>
@@ -96,7 +119,6 @@ describe('MentionItem', () => {
             entity={{
               description: 'Backend services and APIs',
               id: 'backend-team',
-              memberCount: 3,
               mentionType: 'user_group',
               name: 'Backend Team',
               tokenizedDisplayName: { parts: ['Backend', ' Team'], token: ' team' },
@@ -107,11 +129,9 @@ describe('MentionItem', () => {
     );
 
     expect(getByRole('menuitem')).toHaveAttribute('title', '@Backend Team');
-    expect(getByText('@')).toBeInTheDocument();
     expect(getByText('Backend')).toBeInTheDocument();
     expect(getByText(/Team/)).toBeInTheDocument();
     expect(getByText('Backend services and APIs')).toBeInTheDocument();
-    expect(getByText('3 members')).toBeInTheDocument();
     expect(queryByTestId('avatar-img')).not.toBeInTheDocument();
     expect(container.querySelector('.str-chat__icon--users')).toBeInTheDocument();
 
@@ -188,8 +208,8 @@ describe('MentionItem', () => {
     expect(getByTestId('custom-user-item')).toHaveTextContent('User 1');
   });
 
-  it('should fall back to SpecialMentionItem for unsupported mention suggestions', () => {
-    const { getByRole, getByText } = render(
+  it('should render nothing for unsupported mention suggestions by default', () => {
+    const { queryByRole } = render(
       <TranslationProvider value={mockTranslationContextValue()}>
         <div role='menu'>
           <MentionItem
@@ -205,12 +225,39 @@ describe('MentionItem', () => {
       </TranslationProvider>,
     );
 
-    expect(getByRole('menuitem')).toHaveAttribute('title', '@Unsupported');
+    expect(queryByRole('menuitem')).not.toBeInTheDocument();
+  });
+
+  it('should allow overriding the special mention row component', () => {
+    const CustomSpecialMentionItem = ({ entity }: SpecialMentionItemProps) => (
+      <button title={`@${entity.name ?? entity.id}`} type='button'>
+        @{entity.name ?? entity.id}
+      </button>
+    );
+
+    const { getByRole, getByText } = render(
+      <TranslationProvider value={mockTranslationContextValue()}>
+        <div role='menu'>
+          <MentionItem
+            entity={
+              {
+                id: 'unsupported',
+                mentionType: 'unsupported',
+                name: 'Unsupported',
+              } as unknown as React.ComponentProps<typeof MentionItem>['entity']
+            }
+            SpecialMentionItem={CustomSpecialMentionItem}
+          />
+        </div>
+      </TranslationProvider>,
+    );
+
+    expect(getByRole('button')).toHaveAttribute('title', '@Unsupported');
     expect(getByText('@Unsupported')).toBeInTheDocument();
   });
 
   it('should not crash when SpecialMentionItem receives an unsupported mention type', () => {
-    const { getByRole, getByText } = render(
+    const { queryByRole } = render(
       <TranslationProvider value={mockTranslationContextValue()}>
         <div role='menu'>
           <SpecialMentionItem
@@ -224,7 +271,6 @@ describe('MentionItem', () => {
       </TranslationProvider>,
     );
 
-    expect(getByRole('menuitem')).toHaveAttribute('title', '@Ops Team');
-    expect(getByText('@Ops Team')).toBeInTheDocument();
+    expect(queryByRole('menuitem')).not.toBeInTheDocument();
   });
 });

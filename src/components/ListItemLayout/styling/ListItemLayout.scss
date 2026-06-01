@@ -77,14 +77,6 @@
   .str-chat__list-item-layout__trailing-icon {
     display: flex;
     flex-shrink: 0;
-    width: var(--str-chat__icon-size-sm);
-    height: var(--str-chat__icon-size-sm);
-
-    svg {
-      stroke: currentColor;
-      width: 100%;
-      height: 100%;
-    }
   }
 
   .str-chat__list-item-layout__description,

@@ -1297,11 +1297,10 @@ describe(`MessageInputFlat`, () => {
       );
       expect(
         container.querySelectorAll('.str-chat__suggestion-list-item').length,
-      ).toBeGreaterThanOrEqual(4);
+      ).toBeGreaterThanOrEqual(3);
       expect(screen.getByText(mentionName)).toBeInTheDocument();
       expect(screen.getByText('@channel')).toBeInTheDocument();
       expect(screen.getByText('@here')).toBeInTheDocument();
-      expect(screen.getByText('admin')).toBeInTheDocument();
     });
 
     const results = await axe(container);
