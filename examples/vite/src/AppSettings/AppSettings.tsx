@@ -46,8 +46,8 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       aria-label={`Switch to ${nextMode} mode`}
       aria-selected={mode === 'dark'}
       className='app__settings-group_button app__settings-group_button--toggle'
-      iconOnly={iconOnly}
       Icon={Icon}
+      iconOnly={iconOnly}
       isActive={mode === 'dark'}
       onClick={() =>
         appSettingsStore.partialNext({
@@ -73,8 +73,8 @@ const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       aria-label={`Switch to ${isRtl ? 'LTR' : 'RTL'} direction`}
       aria-selected={isRtl}
       className='app__settings-group_button app__settings-group_button--toggle'
-      iconOnly={iconOnly}
       Icon={IconTextDirection}
+      iconOnly={iconOnly}
       isActive={isRtl}
       onClick={() =>
         appSettingsStore.partialNext({
@@ -98,12 +98,12 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       <ActionsMenu iconOnly={iconOnly} />
       <ChatViewSelectorButton
         className='app__settings-group_button'
-        iconOnly={iconOnly}
         Icon={IconGear}
+        iconOnly={iconOnly}
         onClick={() => setOpen(true)}
         text='Settings'
       />
-      <GlobalModal open={open} onClose={() => setOpen(false)}>
+      <GlobalModal onClose={() => setOpen(false)} open={open}>
         <div className='app__settings-modal'>
           <header className='app__settings-modal__header'>
             <IconGear />

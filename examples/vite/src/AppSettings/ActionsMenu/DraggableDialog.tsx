@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react';
+import type { CSSProperties, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import { DialogAnchor, ModalContextProvider, Prompt } from 'stream-chat-react';
 
 const VIEWPORT_MARGIN = 8;

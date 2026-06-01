@@ -5,13 +5,13 @@ import {
   ChannelHeader,
   Chat,
   MessageComposer,
+  useCreateChatClient,
   VirtualizedMessageList,
   Window,
-  useCreateChatClient,
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,

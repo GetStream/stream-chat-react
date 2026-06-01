@@ -1,16 +1,18 @@
 import { type CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react';
-import {
+import type {
   ChannelFilters,
   ChannelOptions,
-  ChannelSearchSource,
   ChannelSort,
+  LocalMessage,
+  TextComposerMiddleware,
+} from 'stream-chat';
+import {
+  ChannelSearchSource,
   createActiveCommandGuardMiddleware,
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
-  LocalMessage,
   SearchController,
-  TextComposerMiddleware,
   UserSearchSource,
 } from 'stream-chat';
 import {
@@ -98,7 +100,7 @@ const options: ChannelOptions = {
 
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
-// @ts-ignore
+// @ts-expect-error ai_generated isn't on LocalMessage's public type yet
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
 const newReactionOptions: ReactionOptions = {
@@ -109,17 +111,23 @@ const newReactionOptions: ReactionOptions = {
 const useUser = () => {
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
 
-  const userId = useMemo(() => {
-    return (
+  const userId = useMemo(
+    () =>
       searchParams.get('user_id') ||
       import.meta.env.VITE_USER_ID ||
       localStorage.getItem('user_id') ||
-      humanId({ separator: '_', capitalize: false })
-    );
-  }, []);
+      humanId({ separator: '_', capitalize: false }),
+    [searchParams],
+  );
 
-  const userImage = useMemo(() => searchParams.get('user_image') || undefined, []);
-  const userName = useMemo(() => searchParams.get('user_name') || undefined, []);
+  const userImage = useMemo(
+    () => searchParams.get('user_image') || undefined,
+    [searchParams],
+  );
+  const userName = useMemo(
+    () => searchParams.get('user_name') || undefined,
+    [searchParams],
+  );
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('user_id');
@@ -134,24 +142,23 @@ const useUser = () => {
       ? 'public-shared-chat-redesign'
       : 'shared-chat-redesign';
 
-  const url = new URL('https://pronto.getstream.io/api/auth/create-token');
-
-  url.searchParams.set('environment', environment);
-  url.searchParams.set('user_id', userId);
-
   const tokenProvider = useCallback(() => {
-    return token && userId === parseUserIdFromToken(token)
-      ? Promise.resolve(token)
-      : fetch(url.toString())
-          .then((response) => response.json())
-          .then((data) => data.token as string);
-  }, [userId]);
+    if (token && userId === parseUserIdFromToken(token)) {
+      return Promise.resolve(token);
+    }
+    const url = new URL('https://pronto.getstream.io/api/auth/create-token');
+    url.searchParams.set('environment', environment);
+    url.searchParams.set('user_id', userId);
+    return fetch(url.toString())
+      .then((response) => response.json())
+      .then((data) => data.token as string);
+  }, [environment, userId]);
 
   return { tokenProvider, userId, userImage, userName };
 };
 
 const CustomMessageReactions = (props: React.ComponentProps<typeof MessageReactions>) => {
-  const { visualStyle, verticalPosition, flipHorizontalPosition } =
+  const { flipHorizontalPosition, verticalPosition, visualStyle } =
     useAppSettingsSelector((state) => state.reactions);
 
   return (
@@ -189,7 +196,13 @@ const ConfigurableNotificationList = (props: NotificationListProps) => {
 };
 
 const language = new URLSearchParams(window.location.search).get('language');
-const i18nInstance = language ? new Streami18n({ language: language as any }) : undefined;
+const i18nInstance = language
+  ? new Streami18n({
+      language: language as NonNullable<
+        ConstructorParameters<typeof Streami18n>[0]
+      >['language'],
+    })
+  : undefined;
 
 const messageUiVariant = getMessageUiVariant();
 const MessageUiOverride = messageUiVariant
@@ -272,7 +285,6 @@ const App = () => {
             $or: {
               enabled: true,
               generate: () => ({
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 $or: [{ members: { $in: [chatClient.userID!] } }, { type: 'public' }],
                 members: undefined,
               }),
@@ -410,18 +422,18 @@ const App = () => {
     >
       <SidebarProvider initialOpen={initialSidebarOpen}>
         <Chat
-          searchController={searchController}
           client={chatClient}
           i18nInstance={i18nInstance}
           isMessageAIGenerated={isMessageAIGenerated}
+          searchController={searchController}
           theme={chatTheme}
         >
           <ChatSkipNavigation />
           <div
             className='app-chat-layout'
+            data-variant={messageUiVariant ?? undefined}
             ref={appLayoutRef}
             style={initialAppLayoutStyle}
-            data-variant={messageUiVariant ?? undefined}
           >
             <SystemNotification />
             <div className='app-chat-layout__body'>

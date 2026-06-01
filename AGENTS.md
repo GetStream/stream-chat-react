@@ -10,7 +10,9 @@ Agents should prioritize backwards compatibility, API stability, and high test c
 
 - Language: React (Typescript)
 - Primary runtime: Node (use the version in .nvmrc via nvm use)
-- Testing: Unit/integration: Jest (+ React Testing Library).
+- Package manager: Yarn 4 (Berry). The binary lives at `.yarn/releases/yarn-4.14.1.cjs` and is activated via `yarnPath` in `.yarnrc.yml`. Any globally installed `yarn` (e.g. classic 1.x) acts only as a launcher — no Corepack required.
+- Workspaces: Yarn workspaces monorepo. The published SDK lives at the repo root (`stream-chat-react`); `examples/*` are private workspaces consuming the SDK via `workspace:^`.
+- Testing: Unit/integration: Vitest (+ React Testing Library).
 - CI: GitHub Actions (assume PR validation on build + tests + lint)
 - Lint/format: ESLint + Prettier (configs in repo root)
 - Styles: Import Stream styles and override via CSS layers as described in README (don’t edit compiled CSS)
@@ -20,7 +22,7 @@ Agents should prioritize backwards compatibility, API stability, and high test c
 
 - src/ — Components, hooks, contexts, styles, and utilities (library source).
 - scripts/ - Scripts run during the build process
-- examples/ — Example apps/snippets.
+- examples/ — Example apps as private Yarn workspaces. Currently `examples/tutorial` and `examples/vite`.
 - developers/ — Dev notes & scripts.
 
 Use the closest folder’s patterns and conventions when editing.
@@ -46,12 +48,14 @@ Respect any repo-specific rules. Do not suppress rules broadly; justify and scop
 
 ### Runbook (commands)
 
-1. Install dependencies: yarn install
+1. Install dependencies (root + all workspaces): yarn install
 2. Build: yarn build
 3. Typecheck: yarn types
 4. Lint: yarn lint
 5. Fix lint issues: yarn lint-fix
 6. Unit tests: yarn test
+7. Run an example: yarn start:tutorial or yarn start:vite
+8. Build all examples: yarn examples:build
 
 ### General rules
 

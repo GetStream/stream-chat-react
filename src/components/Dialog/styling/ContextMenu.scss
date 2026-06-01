@@ -117,6 +117,10 @@
         background-color: var(--str-chat__background-utility-pressed);
       }
 
+      &:focus:not(:disabled) {
+        @include utils.focusable;
+      }
+
       &:focus-visible:not(:disabled) {
         background-color: transparent;
       }

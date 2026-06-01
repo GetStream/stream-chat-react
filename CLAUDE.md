@@ -16,12 +16,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Development (requires Node 24 — see .nvmrc)
-yarn install              # Setup
+# Yarn 4 is committed to .yarn/releases/ and activated via .yarnrc.yml
+# (yarnPath). Any globally installed `yarn` shim launches it; no Corepack.
+yarn install              # Setup (installs root + examples/* workspaces)
 yarn build                # Full build (translations, Vite, types, SCSS)
 yarn test                 # Run Jest tests
 yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
 yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
 yarn types                # TypeScript type checking (noEmit mode)
+
+# Examples (workspaces under examples/*)
+yarn start:tutorial       # Start the tutorial example dev server
+yarn start:vite           # Start the vite example dev server
+yarn examples:build       # Build all examples
 
 # E2E
 yarn e2e-fixtures         # Generate e2e test fixtures
@@ -145,6 +152,17 @@ Messages are processed in order:
 - Main channel: `state.messages` (flat list)
 - Threads: `state.threads[parentId]` (keyed by parent message ID)
 - **Invariant:** Messages in threads MUST also exist in main channel state
+
+### React Version Compatibility
+
+SDK supports **React 17, 18, 19**.
+
+**Forbidden in `src/`** (enforced by the `react-compat` block in `eslint.config.mjs`):
+
+- `useId` from `react` → use `useStableId` from `src/components/UtilityComponents/useStableId`
+- `useSyncExternalStore` from `react` → use the shim from `use-sync-external-store/shim`
+- `useEffectEvent`, `use()` → not allowed (React 19-only)
+- `ref` declared in a prop type or destructured from props → use `forwardRef` (React 17/18 only deliver `ref` to forwardRef'd components)
 
 ### Context Dependency Gotcha
 

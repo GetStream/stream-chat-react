@@ -68,7 +68,7 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
   const { durationSeconds, isPlaying, progress, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
-  if (!audioPlayer) return;
+  if (!audioPlayer) return null;
 
   return (
     <div className='str-chat__message-attachment-card-audio-widget--first-row'>

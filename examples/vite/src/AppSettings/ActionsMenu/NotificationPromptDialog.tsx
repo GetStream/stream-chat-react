@@ -2,28 +2,28 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import type { NotificationSeverity } from 'stream-chat';
 import {
+  Button,
   IconArrowDown,
   IconArrowLeft,
-  IconChevronRight,
-  Button,
-  IconMinus,
-  IconRefresh,
   IconArrowUp,
   IconCheckmark,
-  IconExclamationMark,
+  IconChevronRight,
   IconClock,
-  IconXmark,
+  IconExclamationMark,
   IconExclamationTriangleFill,
+  IconMinus,
   IconPlusSmall,
+  IconRefresh,
+  IconXmark,
+  type NotificationListEnterFrom,
+  type NotificationTargetPanel,
   NumericInput,
   PopperTooltip,
   Prompt,
   TextInput,
-  useNotificationApi,
   useDialogIsOpen,
   useDialogOnNearestManager,
-  type NotificationListEnterFrom,
-  type NotificationTargetPanel,
+  useNotificationApi,
 } from 'stream-chat-react';
 import { DraggableDialog } from './DraggableDialog';
 import {
@@ -31,12 +31,12 @@ import {
   entryDirectionOptions,
   initialDraft,
   isDraftReady,
+  type NotificationDraft,
+  type NotificationDraftAction,
   parseDuration,
+  type QueuedNotification,
   severityOptions,
   targetPanelOptions,
-  type NotificationDraftAction,
-  type NotificationDraft,
-  type QueuedNotification,
 } from './triggerNotificationUtils';
 
 export const notificationPromptDialogId = 'app-notification-prompt-dialog';
@@ -495,16 +495,14 @@ export const NotificationPromptDialog = ({
   }, [createDraftAction]);
 
   const toggleDraftActionInPayload = useCallback((id: string) => {
-    setDraft((current) => {
-      return {
-        ...current,
-        actions: current.actions.map((action) =>
-          action.id === id
-            ? { ...action, includedInPayload: !action.includedInPayload }
-            : action,
-        ),
-      };
-    });
+    setDraft((current) => ({
+      ...current,
+      actions: current.actions.map((action) =>
+        action.id === id
+          ? { ...action, includedInPayload: !action.includedInPayload }
+          : action,
+      ),
+    }));
   }, []);
 
   const updateDraftAction = useCallback(

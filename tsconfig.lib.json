@@ -2,7 +2,7 @@
   "compilerOptions": {
     "lib": ["es2022", "dom"],
     "jsx": "react-jsx",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "module": "es2020",
     "target": "es2020",
     "allowSyntheticDefaultImports": true,

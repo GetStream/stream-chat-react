@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import type { ChannelFilters, ChannelSort, User } from 'stream-chat';
 import {
-  Chat,
   Channel,
   ChannelHeader,
   ChannelList,
+  Chat,
   MessageComposer,
   MessageList,
   Thread,
+  useCreateChatClient,
   Window,
   WithComponents,
-  useCreateChatClient,
 } from 'stream-chat-react';
 import { EmojiPicker } from 'stream-chat-react/emojis';
 
@@ -18,7 +18,7 @@ import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 
 import './layout.css';
-import { apiKey, userId, userName, tokenProvider } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
 const user: User = {
   id: userId,

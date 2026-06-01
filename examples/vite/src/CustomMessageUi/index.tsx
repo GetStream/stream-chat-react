@@ -15,18 +15,13 @@ export const getMessageUiVariant = () => {
   return variant && variant in variantMap ? variant : null;
 };
 
-export const getMessageUiComponent = (variant: string) => {
-  return variantMap[variant] ?? null;
-};
+export const getMessageUiComponent = (variant: string) => variantMap[variant] ?? null;
 
-export const getSystemMessageVariant = () => {
-  return new URLSearchParams(window.location.search).get('system_message');
-};
+export const getSystemMessageVariant = () =>
+  new URLSearchParams(window.location.search).get('system_message');
 
-export const getReactionsVariant = () => {
-  return new URLSearchParams(window.location.search).get('reactions');
-};
+export const getReactionsVariant = () =>
+  new URLSearchParams(window.location.search).get('reactions');
 
-export const getAttachmentActionsVariant = () => {
-  return new URLSearchParams(window.location.search).get('attachment_actions');
-};
+export const getAttachmentActionsVariant = () =>
+  new URLSearchParams(window.location.search).get('attachment_actions');

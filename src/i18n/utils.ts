@@ -193,12 +193,16 @@ export const predefinedFormatters: PredefinedFormatters = {
     (value, _, { format, withSuffix }: DurationFormatterOptions) => {
       // NOTE: isDayjs is not exported in "dayjs" package for ESM, hence we access
       // `isDayjs` from Dayjs instance
+      // dayjs's `.duration(value)` accepts both number and string at runtime,
+      // but its TS signature post-1.11 narrowed to string only — cast through
+      // unknown to keep callers passing a numeric value as before.
+      const durationValue = value as unknown as string;
       if (format && Dayjs.isDayjs(streamI18n.DateTimeParser)) {
-        return (streamI18n.DateTimeParser.duration(value) as DayjsDuration).format(
-          format,
-        );
+        return (
+          streamI18n.DateTimeParser.duration(durationValue) as DayjsDuration
+        ).format(format);
       }
-      return streamI18n.DateTimeParser.duration(value).humanize(!!withSuffix);
+      return streamI18n.DateTimeParser.duration(durationValue).humanize(!!withSuffix);
     },
   timestampFormatter:
     (streamI18n) =>
