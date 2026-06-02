@@ -1332,24 +1332,60 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
-  describe('Command dismissal', () => {
-    it('exposes giphy composer as a single-line textbox for assistive tech', async () => {
-      const { channel } = await renderComponent();
-      const command = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
-        name: 'giphy',
-      });
-
-      await act(() => {
-        channel.messageComposer.textComposer.setCommand(command);
-      });
-
-      const input = await screen.findByRole('textbox', { name: 'Search GIFs' });
-
-      expect(input).toHaveAttribute('aria-multiline', 'false');
+  describe('Command activation announcement', () => {
+    const giphyCommand = fromPartial<CommandResponse>({
+      args: 'giphy-command-args',
+      description: 'giphy-command-description',
+      name: 'giphy',
     });
 
+    const getPoliteLiveRegion = () =>
+      screen.getByTestId('str-chat__aria-live-region--polite');
+
+    it('announces the new textarea label when the command activates while the textarea is focused', async () => {
+      const { channel } = await renderComponent();
+      const input = (await screen.findByPlaceholderText(
+        inputPlaceholder,
+      )) as HTMLTextAreaElement;
+
+      await act(() => {
+        input.focus();
+      });
+      expect(document.activeElement).toBe(input);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        expect(getPoliteLiveRegion()).toHaveTextContent('Search GIFs');
+      });
+    });
+
+    it('does not announce the new label when the command activates while focus is elsewhere', async () => {
+      const { channel } = await renderComponent();
+      await screen.findByPlaceholderText(inputPlaceholder);
+
+      const decoyButton = document.createElement('button');
+      decoyButton.textContent = 'decoy';
+      document.body.appendChild(decoyButton);
+      decoyButton.focus();
+      expect(document.activeElement).toBe(decoyButton);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      expect(getPoliteLiveRegion()).toHaveTextContent('');
+
+      decoyButton.remove();
+    });
+  });
+
+  describe('Command dismissal', () => {
     it('clears the active command when Escape is pressed in the textarea', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);

@@ -24,6 +24,7 @@ import { useComponentContext, useMessageComposerContext } from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
+import { AriaLiveRegion, useAriaLiveAnnouncer } from '../Accessibility';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -71,7 +72,21 @@ export type TextareaComposerProps = Omit<
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
 };
 
-export const TextareaComposer = ({
+/**
+ * Wraps the textarea body in a local `AriaLiveRegion` so the inner component
+ * can announce composer-mode changes (e.g. activating the `/giphy` command)
+ * via `useAriaLiveAnnouncer`. Inline mode is used so the live region also
+ * works when the composer is rendered inside an `aria-modal` dialog – most
+ * assistive technologies suppress live regions outside an active modal
+ * subtree, so a portalled region would be missed in that case.
+ */
+export const TextareaComposer = (props: TextareaComposerProps) => (
+  <AriaLiveRegion inline>
+    <TextareaComposerWithLiveAnnouncements {...props} />
+  </AriaLiveRegion>
+);
+
+const TextareaComposerWithLiveAnnouncements = ({
   className,
   closeSuggestionsOnClickOutside,
   containerClassName,
@@ -101,6 +116,7 @@ export const TextareaComposer = ({
   const cooldownRemaining = useCooldownRemaining();
 
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
+  const announce = useAriaLiveAnnouncer();
 
   const maxRows = maxRowsProp ?? maxRowsContext ?? 10;
   const minRows = minRowsProp ?? minRowsContext;
@@ -278,6 +294,47 @@ export const TextareaComposer = ({
     if (!textareaRef.current || textareaIsFocused || !focus) return;
     textareaRef.current.focus();
   }, [attachments, focus, quotedMessage, textareaRef]);
+
+  // Announce textarea-mode changes (e.g. activating the `/giphy` command) over
+  // the polite live region when the textarea is already focused at the moment
+  // the command activates.
+  //
+  // When focus is elsewhere (e.g. on a command menu item or a suggestion list
+  // item that calls `textareaRef.current.focus()` right after selecting the
+  // command), the subsequent focus shift to the textarea is what causes
+  // assistive tech to re-announce the field with its new accessible name –
+  // announcing here too would duplicate the message.
+  //
+  // We subscribe to the state store synchronously rather than via
+  // `useStateStore` + `useEffect` so that the `document.activeElement` check
+  // runs before any `focus()` call that follows `textComposer.handleSelect`
+  // inside the same event handler (e.g. mouse-click on a suggestion item).
+  //
+  // The announcement itself is deferred to `requestAnimationFrame` so the
+  // textarea DOM node already reflects the command-specific placeholder /
+  // `aria-label` produced by the React render that follows this state change.
+  useEffect(() => {
+    const pendingFrames = new Set<number>();
+    const unsubscribe = textComposer.state.subscribeWithSelector(
+      (state) => ({ commandName: state.command?.name ?? null }),
+      ({ commandName }, previous) => {
+        if (!previous) return;
+        if (!commandName || commandName === previous.commandName) return;
+        if (document.activeElement !== textareaRef.current) return;
+
+        const frame = window.requestAnimationFrame(() => {
+          pendingFrames.delete(frame);
+          const label = textareaRef.current?.placeholder;
+          if (label) announce(label, 'polite');
+        });
+        pendingFrames.add(frame);
+      },
+    );
+    return () => {
+      unsubscribe();
+      pendingFrames.forEach(window.cancelAnimationFrame);
+    };
+  }, [announce, textComposer.state, textareaRef]);
 
   useLayoutEffect(() => {
     /**

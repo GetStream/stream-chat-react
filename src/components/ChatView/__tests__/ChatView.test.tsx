@@ -9,7 +9,10 @@ import {
   getTestClientWithUser,
   mockTranslationContextValue,
 } from '../../../mock-builders';
-import { ChatView, useChatViewContext } from '../ChatView';
+import { ChatView, type ChatViewSelectorProps, useChatViewContext } from '../ChatView';
+
+import type { TranslationContextValue } from '../../../context';
+import type { ThreadManagerState } from 'stream-chat';
 
 vi.mock('../../Threads', async () => {
   const React = await import('react');
@@ -31,7 +34,11 @@ const ActivateThreadsView = () => {
   return null;
 };
 
-const renderComponent = async (threadManagerState: any) => {
+type ThreadManagerStatePatch = Partial<Omit<ThreadManagerState, 'pagination'>> & {
+  pagination?: Partial<ThreadManagerState['pagination']>;
+};
+
+const renderComponent = async (threadManagerState: ThreadManagerStatePatch) => {
   const client = await getTestClientWithUser();
   const currentThreadManagerState = client.threads.state.getLatestValue();
 
@@ -73,7 +80,7 @@ const renderComponent = async (threadManagerState: any) => {
   );
 };
 
-const renderSelector = async (selectorProps?: any) => {
+const renderSelector = async (selectorProps?: ChatViewSelectorProps) => {
   const client = await getTestClientWithUser();
 
   return render(
@@ -99,8 +106,26 @@ const renderSelector = async (selectorProps?: any) => {
   );
 };
 
-const renderSelectorWithPanels = async (selectorProps?: any) => {
+const renderSelectorWithPanels = async ({
+  selectorProps,
+  threadManagerState = {},
+  translationContextValue = mockTranslationContextValue(),
+}: {
+  selectorProps?: ChatViewSelectorProps;
+  threadManagerState?: ThreadManagerStatePatch;
+  translationContextValue?: TranslationContextValue;
+} = {}) => {
   const client = await getTestClientWithUser();
+  const currentThreadManagerState = client.threads.state.getLatestValue();
+
+  client.threads.state.next({
+    ...currentThreadManagerState,
+    ...threadManagerState,
+    pagination: {
+      ...currentThreadManagerState.pagination,
+      ...threadManagerState.pagination,
+    },
+  });
 
   return render(
     <ChatProvider
@@ -116,7 +141,7 @@ const renderSelectorWithPanels = async (selectorProps?: any) => {
         useImageFlagEmojisOnWindows: false,
       }}
     >
-      <TranslationProvider value={mockTranslationContextValue()}>
+      <TranslationProvider value={translationContextValue}>
         <ChatView>
           <ChatView.Selector {...selectorProps} />
           <ChatView.Channels>
@@ -188,8 +213,10 @@ describe('ChatView.Selector', () => {
   it('renders tooltips instead of inline labels by default', async () => {
     const { container } = await renderSelector();
 
-    expect(screen.getByRole('tab', { name: 'Channels' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Threads' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Open channels view' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open threads view' })).toBeInTheDocument();
     expect(
       container.querySelectorAll('.str-chat__chat-view__selector-button-text'),
     ).toHaveLength(0);
@@ -218,54 +245,74 @@ describe('ChatView.Selector', () => {
     ).toEqual(['Channels', 'Threads']);
   });
 
-  it('renders tabs with tablist/tabpanel semantics and tabbable tabs', async () => {
+  it('renders a labelled control group with toggle buttons and only renders the active view container (no tab/tabpanel roles)', async () => {
     await renderSelectorWithPanels();
 
-    const tablist = screen.getByRole('tablist', { name: 'Chat view tabs' });
-    const channelsTab = screen.getByRole('tab', { name: 'Channels' });
-    const threadsTab = screen.getByRole('tab', { name: 'Threads' });
+    const group = screen.getByRole('group', { name: 'Chat view controls' });
+    const channelsButton = screen.getByRole('button', { name: 'Open channels view' });
+    const threadsButton = screen.getByRole('button', { name: 'Open threads view' });
 
-    expect(tablist).toContainElement(channelsTab);
-    expect(tablist).toContainElement(threadsTab);
-    expect(channelsTab).toHaveAttribute('tabindex', '0');
-    expect(threadsTab).toHaveAttribute('tabindex', '0');
+    expect(group).toContainElement(channelsButton);
+    expect(group).toContainElement(threadsButton);
+    expect(channelsButton).toHaveAttribute('aria-pressed', 'true');
+    expect(threadsButton).toHaveAttribute('aria-pressed', 'false');
 
-    const channelsPanel = document.getElementById(
-      channelsTab.getAttribute('aria-controls') || '',
-    );
-    const threadsPanel = document.getElementById(
-      threadsTab.getAttribute('aria-controls') || '',
-    );
+    // No WAI-ARIA Tabs semantics anywhere.
+    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(screen.queryByRole('tab')).toBeNull();
+    expect(screen.queryByRole('tabpanel')).toBeNull();
 
-    expect(channelsPanel).toHaveAttribute('role', 'tabpanel');
-    expect(channelsPanel).toHaveAttribute('aria-labelledby', channelsTab.id);
-    expect(threadsPanel).toBeNull();
+    // Active view container is a plain div with a stable id and no landmark role.
+    const channelsPanel = screen.getByTestId('channels-panel-content').parentElement;
+    expect(channelsPanel).not.toHaveAttribute('role');
+    expect(channelsPanel).not.toHaveAttribute('aria-labelledby');
+    expect(channelsPanel?.id).toMatch(/str-chat__chat-view-.*-panel-channels$/);
+
+    // Inactive view is not rendered.
+    expect(screen.queryByTestId('threads-panel-content')).toBeNull();
   });
 
-  it('does not switch tabs on arrow keys', async () => {
+  it('updates aria-pressed when the active view changes', async () => {
     await renderSelectorWithPanels();
 
-    const channelsTab = screen.getByRole('tab', { name: 'Channels' });
-    const threadsTab = screen.getByRole('tab', { name: 'Threads' });
+    const channelsButton = screen.getByRole('button', { name: 'Open channels view' });
+    const threadsButton = screen.getByRole('button', { name: 'Open threads view' });
 
-    channelsTab.focus();
-    fireEvent.keyDown(channelsTab, { key: 'ArrowRight' });
+    expect(channelsButton).toHaveAttribute('aria-pressed', 'true');
+    expect(threadsButton).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(threadsButton);
 
     await waitFor(() => {
-      expect(channelsTab).toHaveAttribute('aria-selected', 'true');
-      expect(channelsTab).toHaveAttribute('tabindex', '0');
-      expect(threadsTab).toHaveAttribute('aria-selected', 'false');
-      expect(threadsTab).toHaveAttribute('tabindex', '0');
-      expect(
-        document.getElementById(channelsTab.getAttribute('aria-controls') || ''),
-      ).toHaveAttribute('role', 'tabpanel');
-      expect(
-        document.getElementById(threadsTab.getAttribute('aria-controls') || ''),
-      ).toBeNull();
+      expect(threadsButton).toHaveAttribute('aria-pressed', 'true');
+      expect(channelsButton).toHaveAttribute('aria-pressed', 'false');
+      expect(screen.getByTestId('threads-panel-content')).toBeInTheDocument();
+      expect(screen.queryByTestId('channels-panel-content')).toBeNull();
     });
   });
 
-  it('has no axe violations for tabs and panels markup', async () => {
+  it('includes unread thread count in the threads button accessible name', async () => {
+    await renderSelectorWithPanels({
+      threadManagerState: { unreadThreadCount: 3 },
+      translationContextValue: mockTranslationContextValue({
+        t: ((key: string, options?: { count?: number }) => {
+          if (key === 'aria/Open threads view with unread threads') {
+            return `Open threads view, ${options?.count ?? 0} unread threads`;
+          }
+
+          return key.split('/').pop();
+        }) as TranslationContextValue['t'],
+      }),
+    });
+
+    expect(
+      screen.getByRole('button', {
+        name: 'Open threads view, 3 unread threads',
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it('has no axe violations for control group + view markup', async () => {
     const { container } = await renderSelectorWithPanels();
 
     const results = await axe(container);
