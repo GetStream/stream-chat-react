@@ -3,6 +3,7 @@ import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
 import { useEffect, useRef } from 'react';
 import {
   AIStateIndicator,
+  AvatarWithChannelDetail,
   Channel,
   ChannelAvatar,
   ChannelHeader,
@@ -75,7 +76,7 @@ const ResponsiveChannelPanels = () => {
     >
       <WithDragAndDropUpload className='app-chat-view__channel-main'>
         <Window>
-          <ChannelHeader Avatar={ChannelAvatar} />
+          <ChannelHeader Avatar={AvatarWithChannelDetail} />
           <div className='app-chat-view__channel-body'>
             {messageListType === 'virtualized' ? (
               <VirtualizedMessageList returnAllReadData shouldGroupByUser />

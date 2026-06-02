@@ -57,7 +57,7 @@ const PromptHeader = ({
           circular
           className='str-chat__prompt__header__close-button'
           onClick={close}
-          size='sm'
+          size='md'
           variant='secondary'
         >
           <IconXmark />

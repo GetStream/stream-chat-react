@@ -11,6 +11,7 @@ import {
   IconClock,
   IconExclamationMark,
   IconExclamationTriangleFill,
+  IconInfo,
   IconMinus,
   IconPlusSmall,
   IconRefresh,
@@ -45,7 +46,7 @@ const severityIcons: Partial<
   Record<NotificationSeverity, React.ComponentType<{ className?: string }>>
 > = {
   error: IconExclamationMark,
-  info: IconExclamationMark,
+  info: IconInfo,
   loading: IconRefresh,
   success: IconCheckmark,
   warning: IconExclamationTriangleFill,

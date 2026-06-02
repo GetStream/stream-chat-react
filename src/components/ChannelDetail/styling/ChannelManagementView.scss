@@ -1,0 +1,44 @@
+.str-chat__channel-detail__channel-management-view__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-2xl);
+}
+
+.str-chat__channel-detail__channel-management-view__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--str-chat__spacing-md);
+  width: 100%;
+
+  .str-chat__channel-detail__channel-management-view__profile__details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    width: 100%;
+
+    .str-chat__channel-detail__channel-management-view__profile__details__title {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-xs);
+      font: var(--str-chat__font-heading-lg);
+    }
+
+    .str-chat__channel-detail__channel-management-view__profile__details__connection-status {
+      font: var(--str-chat__font-caption-default);
+      color: var(--str-chat__text-secondary);
+    }
+  }
+}
+
+.str-chat__channel-detail__channel-management-view__actions {
+  padding-block: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xxs);
+
+  .str-chat__form__switch-field
+    .str-chat__form__switch-field__label
+    .str-chat__form__switch-field__label__text {
+    font: var(--str-chat__font-caption-default);
+  }
+}

@@ -234,6 +234,50 @@ describe('GlobalModal', () => {
     expect(dialog).toHaveAttribute('aria-describedby', 'modal-description');
   });
 
+  it('forwards dialogRootProps to the dialog surface', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Modal label',
+        children: <ModalContent text={textContent} />,
+        dialogRootProps: {
+          className: 'custom-dialog',
+          'data-testid': 'dialog-root',
+        },
+        open: true,
+      },
+    });
+
+    const dialog = screen.getByRole('dialog', { name: 'Modal label' });
+
+    expect(dialog).toBe(screen.getByTestId('dialog-root'));
+    expect(dialog).toHaveClass('str-chat__modal__dialog');
+    expect(dialog).toHaveClass('custom-dialog');
+  });
+
+  it('lets dialogRootProps onKeyDown prevent the internal escape close', () => {
+    const onClose = vi.fn();
+    const onKeyDown = vi.fn((event: React.KeyboardEvent<HTMLDivElement>) => {
+      event.preventDefault();
+    });
+
+    renderComponent({
+      props: {
+        'aria-label': 'Modal label',
+        children: <ModalContent text={textContent} />,
+        dialogRootProps: { onKeyDown },
+        onClose,
+        open: true,
+      },
+    });
+
+    fireEvent.keyDown(screen.getByRole('dialog', { name: 'Modal label' }), {
+      key: 'Escape',
+    });
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('falls back to aria-label when aria-labelledby is not provided', () => {
     renderComponent({
       props: {

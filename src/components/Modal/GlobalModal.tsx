@@ -35,6 +35,11 @@ export type ModalProps = {
   open: boolean;
   /** Custom class to be applied to the modal root div */
   className?: string;
+  /** Properties forwarded to the root div within which the dialog content is rendered */
+  dialogRootProps?: Omit<
+    ComponentProps<'div'>,
+    'aria-label' | 'aria-labelledby' | 'aria-describedby' | 'role'
+  >;
   /** Accessible label for the modal dialog. Ignored when aria-labelledby is provided. */
   'aria-label'?: string;
   /** ID of the element that labels the modal dialog. */
@@ -58,6 +63,7 @@ export const GlobalModal = ({
   children,
   className,
   CloseButtonOnOverlay,
+  dialogRootProps,
   onClose,
   onCloseAttempt,
   open,
@@ -69,6 +75,11 @@ export const GlobalModal = ({
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
   const { theme } = useChatContext();
+  const {
+    className: dialogRootClassName,
+    onKeyDown: dialogRootOnKeyDown,
+    ...dialogRootPropsRest
+  } = dialogRootProps ?? {};
   const dialogLabelingBaseId = dialog.id;
   const resolvedModalAriaProps = useResolvedModalAriaProps({
     ariaDescribedby,
@@ -109,6 +120,7 @@ export const GlobalModal = ({
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    dialogRootOnKeyDown?.(event);
     if (event.defaultPrevented || event.key !== 'Escape') return;
     maybeClose('escape', event);
   };
@@ -141,14 +153,15 @@ export const GlobalModal = ({
         >
           <FocusScope autoFocus contain restoreFocus>
             <div
+              tabIndex={-1}
+              {...dialogRootPropsRest}
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
               aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
               aria-modal='true'
-              className='str-chat__modal__dialog'
+              className={clsx('str-chat__modal__dialog', dialogRootClassName)}
               onKeyDown={handleDialogKeyDown}
               role={role}
-              tabIndex={-1}
             >
               {children}
             </div>
