@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import debounce from 'lodash.debounce';
 
 import {
@@ -8,10 +8,10 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { isDmChannel } from '../../../utils';
-import { ListItemButton } from '../../Button';
 import { useIsChannelMuted } from '../../ChannelListItem/hooks/useIsChannelMuted';
-import { SwitchField } from '../../Form';
+import { Switch } from '../../Form';
 import { IconAudio, IconDelete, IconLeave, IconMute, IconNoSign } from '../../Icons';
+import { ListItemLayout } from '../../ListItemLayout';
 import { useNotificationApi } from '../../Notifications';
 
 export type ChannelInfoActionType =
@@ -29,6 +29,22 @@ export type ChannelInfoActionItem = {
 
 const toError = (error: unknown) =>
   error instanceof Error ? error : new Error('An unknown error occurred');
+
+const BlockUserActionIcon = () => (
+  <IconNoSign className='str-chat__channel-detail__action-icon' />
+);
+const DeleteChatActionIcon = () => (
+  <IconDelete className='str-chat__channel-detail__action-icon' />
+);
+const MuteActionIcon = () => (
+  <IconMute className='str-chat__channel-detail__action-icon' />
+);
+const MutedActionIcon = () => (
+  <IconAudio className='str-chat__channel-detail__action-icon' />
+);
+const LeaveChannelActionIcon = () => (
+  <IconLeave className='str-chat__channel-detail__action-icon' />
+);
 
 const useOtherMember = () => {
   const { client } = useChatContext();
@@ -96,11 +112,16 @@ const ChannelMuteAction = () => {
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const { muted: channelMuted } = useIsChannelMuted(channel);
+  const [optimisticChannelMuted, setOptimisticChannelMuted] = useState(channelMuted);
+
+  useEffect(() => {
+    setOptimisticChannelMuted(channelMuted);
+  }, [channelMuted]);
 
   const toggleChannelMute = useMemo(
     () =>
-      debounce(() => {
-        if (channelMuted) {
+      debounce((nextMuted: boolean) => {
+        if (!nextMuted) {
           return channel
             .unmute()
             .then(() =>
@@ -112,16 +133,18 @@ const ChannelMuteAction = () => {
                 type: 'api:channel:unmute:success',
               }),
             )
-            .catch((error) =>
-              addNotification({
+            .catch((error) => {
+              setOptimisticChannelMuted(true);
+
+              return addNotification({
                 context: { channel },
                 emitter: 'ChannelManagementView',
                 error: toError(error),
                 message: t('Error unmuting channel'),
                 severity: 'error',
                 type: 'api:channel:unmute:failed',
-              }),
-            );
+              });
+            });
         }
 
         return channel
@@ -135,27 +158,59 @@ const ChannelMuteAction = () => {
               type: 'api:channel:mute:success',
             }),
           )
-          .catch((error) =>
-            addNotification({
+          .catch((error) => {
+            setOptimisticChannelMuted(false);
+
+            return addNotification({
               context: { channel },
               emitter: 'ChannelManagementView',
               error: toError(error),
               message: t('Error muting channel'),
               severity: 'error',
               type: 'api:channel:mute:failed',
-            }),
-          );
+            });
+          });
       }, 1000),
-    [addNotification, channel, channelMuted, t],
+    [addNotification, channel, t],
   );
 
+  useEffect(
+    () => () => {
+      toggleChannelMute.cancel();
+    },
+    [toggleChannelMute],
+  );
+
+  const toggleOptimisticChannelMute = useCallback(() => {
+    const nextMuted = !optimisticChannelMuted;
+
+    setOptimisticChannelMuted(nextMuted);
+    toggleChannelMute(nextMuted);
+  }, [optimisticChannelMuted, toggleChannelMute]);
+
+  const rootProps = useMemo(
+    () => ({
+      'aria-pressed': optimisticChannelMuted,
+      className: 'str-chat__form__switch-field',
+      onClick: toggleOptimisticChannelMute,
+    }),
+    [optimisticChannelMuted, toggleOptimisticChannelMute],
+  );
+  const TrailingSlot = useMemo(() => {
+    function ChannelMuteSwitch() {
+      return <Switch on={optimisticChannelMuted} presentation />;
+    }
+
+    return ChannelMuteSwitch;
+  }, [optimisticChannelMuted]);
+
   return (
-    <SwitchField
-      checked={channelMuted}
-      Icon={channelMuted ? IconAudio : IconMute}
-      id='channel-mute-switch'
-      onChange={toggleChannelMute}
-      title={channelMuted ? t('Unmute chat') : t('Mute chat')}
+    <ListItemLayout
+      LeadingIcon={optimisticChannelMuted ? MutedActionIcon : MuteActionIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      title={optimisticChannelMuted ? t('Unmute chat') : t('Mute chat')}
+      TrailingSlot={TrailingSlot}
     />
   );
 };
@@ -167,13 +222,18 @@ const UserMuteAction = () => {
   const { t } = useTranslationContext();
   const otherMember = useOtherMember();
   const userMuted = !!mutes.find((mute) => mute.target.id === otherMember?.user?.id);
+  const [optimisticUserMuted, setOptimisticUserMuted] = useState(userMuted);
+
+  useEffect(() => {
+    setOptimisticUserMuted(userMuted);
+  }, [userMuted]);
 
   const toggleUserMute = useMemo(
     () =>
-      debounce(() => {
+      debounce((nextMuted: boolean) => {
         if (!otherMember?.user?.id) return;
 
-        if (userMuted) {
+        if (!nextMuted) {
           return client
             .unmuteUser(otherMember.user.id)
             .then(() =>
@@ -185,16 +245,18 @@ const UserMuteAction = () => {
                 type: 'api:user:unmute:success',
               }),
             )
-            .catch((error) =>
-              addNotification({
+            .catch((error) => {
+              setOptimisticUserMuted(true);
+
+              return addNotification({
                 context: { channel },
                 emitter: 'ChannelManagementView',
                 error: toError(error),
                 message: t('Error unmuting user'),
                 severity: 'error',
                 type: 'api:user:unmute:failed',
-              }),
-            );
+              });
+            });
         }
 
         return client
@@ -208,27 +270,59 @@ const UserMuteAction = () => {
               type: 'api:user:mute:success',
             }),
           )
-          .catch((error) =>
-            addNotification({
+          .catch((error) => {
+            setOptimisticUserMuted(false);
+
+            return addNotification({
               context: { channel },
               emitter: 'ChannelManagementView',
               error: toError(error),
               message: t('Error muting user'),
               severity: 'error',
               type: 'api:user:mute:failed',
-            }),
-          );
+            });
+          });
       }, 1000),
-    [addNotification, channel, client, otherMember, t, userMuted],
+    [addNotification, channel, client, otherMember, t],
   );
 
+  useEffect(
+    () => () => {
+      toggleUserMute.cancel();
+    },
+    [toggleUserMute],
+  );
+
+  const toggleOptimisticUserMute = useCallback(() => {
+    const nextMuted = !optimisticUserMuted;
+
+    setOptimisticUserMuted(nextMuted);
+    toggleUserMute(nextMuted);
+  }, [optimisticUserMuted, toggleUserMute]);
+
+  const rootProps = useMemo(
+    () => ({
+      'aria-pressed': optimisticUserMuted,
+      className: 'str-chat__form__switch-field',
+      onClick: toggleOptimisticUserMute,
+    }),
+    [optimisticUserMuted, toggleOptimisticUserMute],
+  );
+  const TrailingSlot = useMemo(() => {
+    function UserMuteSwitch() {
+      return <Switch on={optimisticUserMuted} presentation />;
+    }
+
+    return UserMuteSwitch;
+  }, [optimisticUserMuted]);
+
   return (
-    <SwitchField
-      checked={userMuted}
-      Icon={userMuted ? IconAudio : IconMute}
-      id='user-mute-switch'
-      onChange={toggleUserMute}
-      title={userMuted ? t('Unmute user') : t('Mute user')}
+    <ListItemLayout
+      LeadingIcon={optimisticUserMuted ? MutedActionIcon : MuteActionIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      title={optimisticUserMuted ? t('Unmute user') : t('Mute user')}
+      TrailingSlot={TrailingSlot}
     />
   );
 };
@@ -268,12 +362,20 @@ const BlockUserAction = () => {
     }
   }, [addNotification, channel, client, otherMember, t]);
 
+  const rootProps = useMemo(
+    () => ({
+      disabled: userBlockInProgress,
+      onClick: blockUser,
+    }),
+    [blockUser, userBlockInProgress],
+  );
+
   return (
-    <ListItemButton
+    <ListItemLayout
       destructive
-      disabled={userBlockInProgress}
-      LeadingIcon={IconNoSign}
-      onClick={blockUser}
+      LeadingIcon={BlockUserActionIcon}
+      RootElement='button'
+      rootProps={rootProps}
       title={t('Block user')}
     />
   );
@@ -319,12 +421,20 @@ const LeaveChannelAction = () => {
     [addNotification, channel, client.userID, close, t],
   );
 
+  const rootProps = useMemo(
+    () => ({
+      disabled: leaveChannelInProgress,
+      onClick: leaveChannel,
+    }),
+    [leaveChannel, leaveChannelInProgress],
+  );
+
   return (
-    <ListItemButton
+    <ListItemLayout
       destructive
-      disabled={leaveChannelInProgress}
-      LeadingIcon={IconLeave}
-      onClick={leaveChannel}
+      LeadingIcon={LeaveChannelActionIcon}
+      RootElement='button'
+      rootProps={rootProps}
       title={t('Leave Channel')}
     />
   );
@@ -333,7 +443,14 @@ const LeaveChannelAction = () => {
 const DeleteChatAction = () => {
   const { t } = useTranslationContext();
 
-  return <ListItemButton destructive LeadingIcon={IconDelete} title={t('Delete chat')} />;
+  return (
+    <ListItemLayout
+      destructive
+      LeadingIcon={DeleteChatActionIcon}
+      RootElement='button'
+      title={t('Delete chat')}
+    />
+  );
 };
 
 export const DefaultChannelInfoActions = {

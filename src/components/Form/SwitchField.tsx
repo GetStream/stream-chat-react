@@ -2,15 +2,13 @@ import clsx from 'clsx';
 import type {
   ChangeEventHandler,
   ComponentProps,
-  ComponentType,
   KeyboardEventHandler,
   MouseEventHandler,
   PropsWithChildren,
   ReactNode,
 } from 'react';
-import React, { isValidElement, useCallback, useMemo, useRef, useState } from 'react';
+import React, { isValidElement, useRef, useState } from 'react';
 import { useStableId } from '../UtilityComponents/useStableId';
-import { ListItemLayout } from '../ListItemLayout';
 
 export type SwitchFieldProps = Omit<
   PropsWithChildren<ComponentProps<'input'>>,
@@ -22,22 +20,14 @@ export type SwitchFieldProps = Omit<
   description?: string;
   /** Class applied to the root div element of the SwitchField component */
   fieldClassName?: string;
-  /** Optional decorative icon rendered before the label content */
-  Icon?: ComponentType<SwitchFieldIconProps>;
   /** Optional title line */
   title?: string;
-};
-
-export type SwitchFieldIconProps = {
-  className?: string;
-  decorative?: boolean;
 };
 
 export const SwitchField = ({
   children,
   description,
   fieldClassName,
-  Icon,
   title,
   ...props
 }: SwitchFieldProps) => {
@@ -62,35 +52,26 @@ export const SwitchField = ({
   const isOn = isControlled ? checked : uncontrolledChecked;
   const isReadOnly = isControlled && onChange === undefined;
 
-  const handleChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      if (!isControlled) {
-        setUncontrolledChecked(event.target.checked);
-      }
+  const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    if (!isControlled) {
+      setUncontrolledChecked(event.target.checked);
+    }
 
-      onChange?.(event);
-    },
-    [isControlled, onChange],
-  );
+    onChange?.(event);
+  };
 
-  const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      onKeyDown?.(event);
-      if (event.defaultPrevented || event.key !== ' ') return;
+  const handleKeyDown: KeyboardEventHandler<HTMLInputElement> = (event) => {
+    onKeyDown?.(event);
+    if (event.defaultPrevented || event.key !== ' ') return;
 
-      event.preventDefault();
-      event.currentTarget.click();
-    },
-    [onKeyDown],
-  );
+    event.preventDefault();
+    event.currentTarget.click();
+  };
 
-  const handleSwitchClick: MouseEventHandler<HTMLDivElement> = useCallback(
-    (event) => {
-      if (disabled || event.target === inputRef.current) return;
-      inputRef.current?.click();
-    },
-    [disabled],
-  );
+  const handleSwitchClick: MouseEventHandler<HTMLDivElement> = (event) => {
+    if (disabled || event.target === inputRef.current) return;
+    inputRef.current?.click();
+  };
 
   // When no title/aria-label is provided, SwitchField can still be named by a caller-supplied
   // child element id via aria-labelledby.
@@ -103,78 +84,6 @@ export const SwitchField = ({
   // 4) caller-supplied child id (children path)
   const resolvedAriaLabelledBy =
     ariaLabelledBy ?? (!ariaLabel ? (title ? switchLabelId : childLabelId) : undefined);
-  const LeadingIcon = useMemo(() => {
-    if (!Icon) return undefined;
-
-    const LeadingIcon = Icon;
-
-    function SwitchFieldLeadingIcon() {
-      return <LeadingIcon className='str-chat__form__switch-field__icon' decorative />;
-    }
-
-    return SwitchFieldLeadingIcon;
-  }, [Icon]);
-  const rootProps = useMemo(
-    () => ({
-      className: clsx(
-        'str-chat__form__switch-field',
-        fieldClassName,
-        disabled && 'str-chat__form__switch-field--disabled',
-      ),
-    }),
-    [disabled, fieldClassName],
-  );
-  const TrailingSlot = useMemo(() => {
-    function SwitchFieldTrailingSlot() {
-      return (
-        <Switch
-          {...rest}
-          aria-label={ariaLabel}
-          aria-labelledby={resolvedAriaLabelledBy}
-          checked={isOn}
-          disabled={disabled}
-          id={switchId}
-          on={isOn}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onSwitchClick={handleSwitchClick}
-          readOnly={isReadOnly}
-          switchRef={inputRef}
-        />
-      );
-    }
-
-    return SwitchFieldTrailingSlot;
-  }, [
-    ariaLabel,
-    disabled,
-    handleChange,
-    handleKeyDown,
-    handleSwitchClick,
-    isOn,
-    isReadOnly,
-    resolvedAriaLabelledBy,
-    rest,
-    switchId,
-  ]);
-
-  if (title) {
-    return (
-      <ListItemLayout
-        LeadingIcon={LeadingIcon}
-        rootProps={rootProps}
-        title={
-          <SwitchFieldLabel
-            description={description}
-            htmlFor={switchId}
-            id={switchLabelId}
-            title={title}
-          />
-        }
-        TrailingSlot={TrailingSlot}
-      />
-    );
-  }
 
   return (
     <div
@@ -184,33 +93,68 @@ export const SwitchField = ({
         disabled && 'str-chat__form__switch-field--disabled',
       )}
     >
-      {Icon && <Icon className='str-chat__form__switch-field__icon' decorative />}
-      {children}
-      <TrailingSlot />
+      {title ? (
+        <SwitchFieldLabel
+          description={description}
+          htmlFor={switchId}
+          id={switchLabelId}
+          title={title}
+        />
+      ) : (
+        children
+      )}
+      <Switch
+        {...rest}
+        aria-label={ariaLabel}
+        aria-labelledby={resolvedAriaLabelledBy}
+        checked={isOn}
+        disabled={disabled}
+        id={switchId}
+        on={isOn}
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        onSwitchClick={handleSwitchClick}
+        readOnly={isReadOnly}
+        switchRef={inputRef}
+      />
     </div>
   );
 };
-
 export type SwitchProps = Omit<ComponentProps<'input'>, 'type'> & {
   on?: boolean;
   onSwitchClick?: MouseEventHandler<HTMLDivElement>;
+  /**
+   * Renders the switch as a visual-only indicator when another element owns interaction.
+   * Example: a button row with a trailing switch indicator must not render an input inside the button.
+   */
+  presentation?: boolean;
   switchRef?: React.RefObject<HTMLInputElement | null>;
 };
 
-const Switch = ({ className, on, onSwitchClick, switchRef, ...props }: SwitchProps) => (
+export const Switch = ({
+  className,
+  on,
+  onSwitchClick,
+  presentation,
+  switchRef,
+  ...props
+}: SwitchProps) => (
   <div
+    aria-hidden={presentation ? true : undefined}
     className={clsx('str-chat__form__switch-field__switch', {
       'str-chat__form__switch-field__switch--on': on,
     })}
-    onClick={onSwitchClick}
+    onClick={presentation ? undefined : onSwitchClick}
   >
-    <input
-      {...props}
-      className={clsx('str-chat__form__switch-field__input', className)}
-      ref={switchRef}
-      role='switch'
-      type='checkbox'
-    />
+    {!presentation && (
+      <input
+        {...props}
+        className={clsx('str-chat__form__switch-field__input', className)}
+        ref={switchRef}
+        role='switch'
+        type='checkbox'
+      />
+    )}
     <span className='str-chat__form__switch-field__switch-handle' />
   </div>
 );

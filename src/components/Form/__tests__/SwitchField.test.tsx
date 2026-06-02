@@ -4,10 +4,6 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { SwitchField } from '../SwitchField';
 import { axe } from '../../../../axe-helper';
 
-const TestIcon = ({ className }: { className?: string; decorative?: boolean }) => (
-  <svg className={className} data-testid='switch-field-icon' />
-);
-
 describe('SwitchField', () => {
   it('renders a single switch control with switch semantics', () => {
     render(
@@ -76,22 +72,6 @@ describe('SwitchField', () => {
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();
-  });
-
-  it('renders an optional decorative icon without changing the switch name', () => {
-    render(
-      <SwitchField
-        defaultChecked={false}
-        Icon={TestIcon}
-        id='mute-chat'
-        title='Mute chat'
-      />,
-    );
-
-    expect(screen.getByTestId('switch-field-icon')).toHaveClass(
-      'str-chat__form__switch-field__icon',
-    );
-    expect(screen.getByRole('switch', { name: 'Mute chat' })).toBeInTheDocument();
   });
 
   it('uses caller-provided child id for aria-labelledby when title is not provided', () => {

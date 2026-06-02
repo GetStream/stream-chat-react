@@ -1,11 +1,12 @@
 @use '../../../styling/utils';
 
 .str-chat__list-item-layout {
+  --list-item-padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
   display: flex;
   align-items: center;
   gap: var(--str-chat__spacing-sm);
   text-align: start;
-  padding: var(--str-chat__spacing-xs);
+  padding: var(--list-item-padding);
   width: 100%;
   min-width: 0;
   border-radius: var(--str-chat__radius-md);
@@ -36,7 +37,7 @@
 
   &:is(button) {
     @include utils.button-reset;
-    padding: var(--str-chat__spacing-xs);
+    padding: var(--list-item-padding);
     cursor: pointer;
 
     &:hover:not(:disabled) {
@@ -52,7 +53,7 @@
     }
   }
 
-  .str-chat__list-item-layout__text {
+  .str-chat__list-item-layout__content {
     flex: 1;
     display: grid;
     align-items: start;
@@ -64,7 +65,7 @@
     min-width: 0;
   }
 
-  .str-chat__list-item-layout__text--subtitled {
+  .str-chat__list-item-layout__content--withSubtitle {
     grid-template-areas:
       'title description'
       'subtitle description';
@@ -76,14 +77,6 @@
   .str-chat__list-item-layout__trailing-icon {
     display: flex;
     flex-shrink: 0;
-    width: var(--str-chat__icon-size-sm);
-    height: var(--str-chat__icon-size-sm);
-
-    svg {
-      stroke: currentColor;
-      width: 100%;
-      height: 100%;
-    }
   }
 
   .str-chat__list-item-layout__description,

@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import type { ComponentProps, ComponentType, HTMLAttributes, ReactNode } from 'react';
+import type {
+  ComponentProps,
+  ComponentType,
+  ElementType,
+  HTMLAttributes,
+  ReactNode,
+} from 'react';
 import React from 'react';
 
 export type ListItemLayoutRootElement = Extract<
@@ -8,14 +14,18 @@ export type ListItemLayoutRootElement = Extract<
 >;
 
 export type ListItemLayoutBaseProps = {
+  ContentSlot?: ComponentType<ListItemLayoutContentProps>;
+  contentClassName?: string;
   description?: ReactNode;
+  descriptionClassName?: string;
   destructive?: boolean;
   LeadingIcon?: ComponentType;
   LeadingSlot?: ComponentType;
   selected?: boolean;
   subtitle?: ReactNode;
-  textClassName?: string;
+  subtitleClassName?: string;
   title: ReactNode;
+  titleClassName?: string;
   TrailingIcon?: ComponentType;
   TrailingSlot?: ComponentType;
 };
@@ -27,7 +37,10 @@ export type ListItemLayoutProps<RootElement extends ListItemLayoutRootElement = 
   };
 
 export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = 'div'>({
+  ContentSlot = ListItemLayoutContent,
+  contentClassName,
   description,
+  descriptionClassName,
   destructive,
   LeadingIcon,
   LeadingSlot,
@@ -35,13 +48,17 @@ export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = '
   rootProps,
   selected,
   subtitle,
-  textClassName,
+  subtitleClassName,
   title,
+  titleClassName,
   TrailingIcon,
   TrailingSlot,
 }: ListItemLayoutProps<RootElement>) => {
-  const RootComponent = RootElement ?? 'div';
+  const RootComponent = (RootElement ?? 'div') as ElementType<
+    HTMLAttributes<HTMLElement>
+  >;
   const resolvedRootProps = {
+    ...(RootComponent === 'button' ? { type: 'button' } : undefined),
     ...rootProps,
     className: clsx(
       'str-chat__list-item-layout',
@@ -51,57 +68,76 @@ export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = '
     ),
   } as HTMLAttributes<HTMLElement>;
 
-  // JSX cannot type-check a generic intrinsic element with generic root props here.
-  // Call sites still get RootElement-specific rootProps; createElement keeps rendering simple internally.
-  return React.createElement(
-    RootComponent,
-    resolvedRootProps,
-    LeadingIcon && (
-      <span className='str-chat__list-item-layout__leading-icon'>
-        <LeadingIcon />
-      </span>
-    ),
-    LeadingSlot && <LeadingSlot />,
-    <ListItemLayoutText
-      className={textClassName}
-      description={description}
-      subtitle={subtitle}
-      title={title}
-    />,
-    TrailingIcon && (
-      <span className='str-chat__list-item-layout__trailing-icon'>
-        <TrailingIcon />
-      </span>
-    ),
-    TrailingSlot && <TrailingSlot />,
+  return (
+    <RootComponent {...resolvedRootProps}>
+      {LeadingIcon && (
+        <div className='str-chat__list-item-layout__leading-icon'>
+          <LeadingIcon />
+        </div>
+      )}
+      {LeadingSlot && <LeadingSlot />}
+      <ContentSlot
+        className={contentClassName}
+        description={description}
+        descriptionClassName={descriptionClassName}
+        subtitle={subtitle}
+        subtitleClassName={subtitleClassName}
+        title={title}
+        titleClassName={titleClassName}
+      />
+      {TrailingIcon && (
+        <div className='str-chat__list-item-layout__trailing-icon'>
+          <TrailingIcon />
+        </div>
+      )}
+      {TrailingSlot && <TrailingSlot />}
+    </RootComponent>
   );
 };
 
-export type ListItemLayoutTextProps = Omit<ComponentProps<'div'>, 'title'> & {
+export type ListItemLayoutContentProps = Omit<ComponentProps<'div'>, 'title'> & {
   description?: ReactNode;
+  descriptionClassName?: string;
   subtitle?: ReactNode;
+  subtitleClassName?: string;
   title: ReactNode;
+  titleClassName?: string;
 };
 
-export const ListItemLayoutText = ({
+export const ListItemLayoutContent = ({
   className,
   description,
+  descriptionClassName,
   subtitle,
+  subtitleClassName,
   title,
+  titleClassName,
   ...props
-}: ListItemLayoutTextProps) => (
+}: ListItemLayoutContentProps) => (
   <div
     {...props}
-    className={clsx('str-chat__list-item-layout__text', className, {
-      'str-chat__list-item-layout__text--described': description,
-      'str-chat__list-item-layout__text--subtitled': subtitle,
-      'str-chat__list-item-layout__text--titled': title,
+    className={clsx('str-chat__list-item-layout__content', className, {
+      'str-chat__list-item-layout__content--withDescription': description,
+      'str-chat__list-item-layout__content--withSubtitle': subtitle,
+      'str-chat__list-item-layout__content--withTitle': title,
     })}
   >
-    {title && <div className='str-chat__list-item-layout__title'>{title}</div>}
-    {subtitle && <div className='str-chat__list-item-layout__subtitle'>{subtitle}</div>}
+    {title && (
+      <div className={clsx('str-chat__list-item-layout__title', titleClassName)}>
+        {title}
+      </div>
+    )}
+    {subtitle && (
+      <div className={clsx('str-chat__list-item-layout__subtitle', subtitleClassName)}>
+        {subtitle}
+      </div>
+    )}
     {description && (
-      <div className='str-chat__list-item-layout__description'>{description}</div>
+      <div
+        className={clsx('str-chat__list-item-layout__description', descriptionClassName)}
+      >
+        {description}
+      </div>
     )}
   </div>
 );

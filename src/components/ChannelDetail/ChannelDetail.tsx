@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
   SectionNavigator,
@@ -9,24 +9,40 @@ import {
 } from '../SectionNavigator';
 import { ChannelManagementView } from './Views/ChannelManagementView';
 import { Prompt } from '../Dialog';
-import { ListItemButton } from '../Button';
 import { IconInfo } from '../Icons';
+import { ListItemLayout } from '../ListItemLayout';
 
 const ChannelDetailNavButtonClassName = 'str-chat__channel-detail__nav-button';
+
+const ChannelInfoNavButtonIcon = () => (
+  <IconInfo className='str-chat__channel-detail__action-icon' />
+);
+
+const ChannelInfoNavButton = ({ select, selected }: SectionNavigatorNavButtonProps) => {
+  const rootProps = useMemo(
+    () => ({
+      'aria-current': selected ? ('page' as const) : undefined,
+      className: ChannelDetailNavButtonClassName,
+      onClick: select,
+    }),
+    [select, selected],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingIcon={ChannelInfoNavButtonIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      selected={selected}
+      title='Channel info'
+    />
+  );
+};
 
 const defaultSections: SectionNavigatorSection[] = [
   {
     id: 'channel-info',
-    NavButton: ({ select, selected }: SectionNavigatorNavButtonProps) => (
-      <ListItemButton
-        aria-current={selected ? 'page' : undefined}
-        className={ChannelDetailNavButtonClassName}
-        LeadingIcon={IconInfo}
-        onClick={select}
-        selected={selected}
-        title='Channel info'
-      />
-    ),
+    NavButton: ChannelInfoNavButton,
     SectionContent: ChannelManagementView,
   },
 ];

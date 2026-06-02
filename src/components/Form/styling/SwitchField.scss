@@ -23,6 +23,7 @@ $switch-field-track-radius: var(--str-chat__button-radius-full, 9999px);
     align-items: center;
     gap: var(--str-chat__spacing-sm);
     width: 100%;
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
     background-color: var(--str-chat__switch-field-background-color);
     border-radius: var(--str-chat__switch-field-border-radius);
     box-sizing: border-box;
@@ -35,10 +36,6 @@ $switch-field-track-radius: var(--str-chat__button-radius-full, 9999px);
       cursor: pointer;
     }
 
-    .str-chat__form__switch-field__layout {
-      flex: 1;
-    }
-
     .str-chat__form__switch-field__input {
       position: absolute;
       inset: 0;
@@ -48,13 +45,6 @@ $switch-field-track-radius: var(--str-chat__button-radius-full, 9999px);
       margin: 0;
       opacity: 0;
       cursor: pointer;
-    }
-
-    .str-chat__form__switch-field__icon {
-      width: 16px;
-      height: 16px;
-      flex-shrink: 0;
-      color: var(--str-chat__text-secondary);
     }
 
     .str-chat__form__switch-field__switch {

@@ -42,3 +42,10 @@
     font: var(--str-chat__font-caption-default);
   }
 }
+
+.str-chat__channel-detail__action-icon {
+  width: var(--str-chat__icon-size-sm);
+  height: var(--str-chat__icon-size-sm);
+  flex-shrink: 0;
+  color: var(--str-chat__text-secondary);
+}

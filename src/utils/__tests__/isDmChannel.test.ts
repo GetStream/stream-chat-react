@@ -1,11 +1,16 @@
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { ChannelState } from 'stream-chat';
+import type { Channel, ChannelState } from 'stream-chat';
 import { describe, expect, it } from 'vitest';
 import { isDmChannel } from '../isDmChannel';
 
 describe('isDmChannel', () => {
   it('returns true for one-member channels', () => {
-    expect(isDmChannel({ memberCount: 1 })).toBe(true);
+    const channel = fromPartial<Channel>({
+      data: { member_count: 1 },
+      state: { members: {} },
+    });
+
+    expect(isDmChannel({ channel })).toBe(true);
   });
 
   it('returns true for two-member channels that include the current user', () => {
@@ -16,9 +21,11 @@ describe('isDmChannel', () => {
 
     expect(
       isDmChannel({
-        memberCount: 2,
-        members,
-        userId: 'user-1',
+        channel: fromPartial<Channel>({
+          data: { member_count: 2 },
+          state: { members },
+        }),
+        ownUserId: 'user-1',
       }),
     ).toBe(true);
   });
@@ -32,9 +39,11 @@ describe('isDmChannel', () => {
 
     expect(
       isDmChannel({
-        memberCount: 3,
-        members,
-        userId: 'user-1',
+        channel: fromPartial<Channel>({
+          data: { member_count: 3 },
+          state: { members },
+        }),
+        ownUserId: 'user-1',
       }),
     ).toBe(false);
   });
