@@ -715,6 +715,10 @@
     font-size: 13px;
   }
 
+  .app__notification-dialog__open-modal-button {
+    width: fit-content;
+  }
+
   .app__notification-dialog__text-input {
     width: 100%;
   }
@@ -909,6 +913,10 @@
     font-style: italic;
   }
 
+  .app__notification-dialog__chip-trigger {
+    flex-shrink: 0;
+  }
+
   .app__notification-dialog__chip-remove {
     color: var(--str-chat__text-secondary);
   }
@@ -922,9 +930,25 @@
   }
 
   .app__notification-dialog__footer-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     align-self: flex-end;
     flex-shrink: 0;
     margin-inline-start: 0;
+  }
+
+  .app__notification-dialog__close-on-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .str-chat__dialog-overlay:has(.app__notification-dialog) {
+    z-index: 101;
   }
 
   @media (max-width: 560px) {

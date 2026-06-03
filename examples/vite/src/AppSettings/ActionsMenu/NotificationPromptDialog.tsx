@@ -141,9 +141,11 @@ const NotificationTargetPanelSelect = ({
 
 const NotificationChipList = ({
   notifications,
+  publishQueuedNotification,
   removeQueuedNotification,
 }: {
   notifications: QueuedNotification[];
+  publishQueuedNotification: (notification: QueuedNotification) => void;
   removeQueuedNotification: (id: string) => void;
 }) => {
   const [tooltipState, setTooltipState] = useState<{
@@ -207,6 +209,16 @@ const NotificationChipList = ({
               )}
             </span>
             <Button
+              appearance='outline'
+              className='app__notification-dialog__chip-trigger'
+              onClick={() => publishQueuedNotification(notification)}
+              size='xs'
+              type='button'
+              variant='secondary'
+            >
+              Trigger
+            </Button>
+            <Button
               appearance='ghost'
               aria-label={`Remove ${notification.message}`}
               circular
@@ -232,20 +244,28 @@ const NotificationChipList = ({
 
 const NotificationDraftForm = ({
   addDraftAction,
+  closeOnSubmit,
   draft,
+  openGlobalModal,
+  publishQueuedNotification,
   queueCurrentDraft,
   queuedNotifications,
   registerQueuedNotifications,
+  setCloseOnSubmit,
   toggleDraftActionInPayload,
   removeQueuedNotification,
   setDraft,
   updateDraftAction,
 }: {
   addDraftAction: () => void;
+  closeOnSubmit: boolean;
   draft: NotificationDraft;
+  openGlobalModal: () => void;
+  publishQueuedNotification: (notification: QueuedNotification) => void;
   queueCurrentDraft: () => void;
   queuedNotifications: QueuedNotification[];
   registerQueuedNotifications: () => void;
+  setCloseOnSubmit: Dispatch<SetStateAction<boolean>>;
   toggleDraftActionInPayload: (id: string) => void;
   removeQueuedNotification: (id: string) => void;
   setDraft: Dispatch<SetStateAction<NotificationDraft>>;
@@ -303,6 +323,17 @@ const NotificationDraftForm = ({
                   variant='secondary'
                 >
                   Make permanent
+                </Button>
+
+                <Button
+                  appearance='outline'
+                  className='app__notification-dialog__open-modal-button'
+                  onClick={openGlobalModal}
+                  size='sm'
+                  type='button'
+                  variant='secondary'
+                >
+                  Open preview modal
                 </Button>
               </div>
             </div>
@@ -418,10 +449,19 @@ const NotificationDraftForm = ({
           </div>
           <NotificationChipList
             notifications={queuedNotifications}
+            publishQueuedNotification={publishQueuedNotification}
             removeQueuedNotification={removeQueuedNotification}
           />
         </div>
         <Prompt.FooterControls className='app__notification-dialog__footer-controls'>
+          <label className='app__notification-dialog__close-on-submit'>
+            <input
+              checked={closeOnSubmit}
+              onChange={(event) => setCloseOnSubmit(event.target.checked)}
+              type='checkbox'
+            />
+            <span>Close on submit</span>
+          </label>
           <Prompt.FooterControlsButtonPrimary
             disabled={queuedNotifications.length === 0}
             onClick={registerQueuedNotifications}
@@ -461,10 +501,8 @@ export const NotificationPromptDialog = ({
   const [queuedNotifications, setQueuedNotifications] = useState<QueuedNotification[]>(
     [],
   );
+  const [closeOnSubmit, setCloseOnSubmit] = useState(false);
   const [globalModalOpen, setGlobalModalOpen] = useState(false);
-  const [globalModalNotifications, setGlobalModalNotifications] = useState<
-    QueuedNotification[]
-  >([]);
   const chipIdRef = useRef(0);
   const { addNotification } = useNotificationApi();
   const { dialog, dialogManager } = useDialogOnNearestManager({
@@ -475,6 +513,7 @@ export const NotificationPromptDialog = ({
   const resetState = useCallback(() => {
     setDraft(createInitialDraftState());
     setQueuedNotifications([]);
+    setCloseOnSubmit(false);
   }, [createInitialDraftState]);
 
   useEffect(() => {
@@ -534,33 +573,25 @@ export const NotificationPromptDialog = ({
   }, [createInitialDraftState, draft]);
 
   const registerQueuedNotifications = useCallback(() => {
-    const modalNotifications = queuedNotifications.filter(({ targetPanels }) =>
-      targetPanels.includes('modal'),
-    );
-    const localNotifications = queuedNotifications.filter(
-      ({ targetPanels }) => !targetPanels.includes('modal'),
-    );
+    queuedNotifications.forEach(publishNotification);
+    setQueuedNotifications([]);
 
-    localNotifications.forEach(publishNotification);
-
-    if (modalNotifications.length > 0) {
-      setGlobalModalNotifications(modalNotifications);
-      setGlobalModalOpen(true);
+    if (closeOnSubmit) {
+      closeDialog();
     }
-
-    closeDialog();
-  }, [closeDialog, publishNotification, queuedNotifications]);
-
-  useEffect(() => {
-    if (!globalModalOpen || globalModalNotifications.length === 0) return;
-
-    globalModalNotifications.forEach(publishNotification);
-    setGlobalModalNotifications([]);
-  }, [globalModalNotifications, globalModalOpen, publishNotification]);
+  }, [closeDialog, closeOnSubmit, publishNotification, queuedNotifications]);
 
   const removeQueuedNotification = useCallback((id: string) => {
     setQueuedNotifications((current) => current.filter((item) => item.id !== id));
   }, []);
+
+  const publishQueuedNotification = useCallback(
+    (notification: QueuedNotification) => {
+      publishNotification(notification);
+      removeQueuedNotification(notification.id);
+    },
+    [publishNotification, removeQueuedNotification],
+  );
 
   const addDraftAction = useCallback(() => {
     setDraft((current) => ({
@@ -612,6 +643,18 @@ export const NotificationPromptDialog = ({
 
   return (
     <>
+      <GlobalModal onClose={() => setGlobalModalOpen(false)} open={globalModalOpen}>
+        <Viewer.Root className='app__notification-dialog__global-modal-preview'>
+          <h2>GlobalModal notification preview</h2>
+          <p>
+            Keep the trigger dialog open and submit notifications while this modal is
+            visible.
+          </p>
+          <Button onClick={() => setGlobalModalOpen(false)} type='button'>
+            Close preview modal
+          </Button>
+        </Viewer.Root>
+      </GlobalModal>
       <DraggableDialog
         dialogClassName='app__notification-dialog'
         dialogId={notificationPromptDialogId}
@@ -626,25 +669,20 @@ export const NotificationPromptDialog = ({
       >
         <NotificationDraftForm
           addDraftAction={addDraftAction}
+          closeOnSubmit={closeOnSubmit}
           draft={draft}
+          openGlobalModal={() => setGlobalModalOpen(true)}
+          publishQueuedNotification={publishQueuedNotification}
           queueCurrentDraft={queueCurrentDraft}
           queuedNotifications={queuedNotifications}
           registerQueuedNotifications={registerQueuedNotifications}
           removeQueuedNotification={removeQueuedNotification}
+          setCloseOnSubmit={setCloseOnSubmit}
           setDraft={setDraft}
           toggleDraftActionInPayload={toggleDraftActionInPayload}
           updateDraftAction={updateDraftAction}
         />
       </DraggableDialog>
-      <GlobalModal onClose={() => setGlobalModalOpen(false)} open={globalModalOpen}>
-        <Viewer.Root className='app__notification-dialog__global-modal-preview'>
-          <h2>GlobalModal notification preview</h2>
-          <p>Notifications triggered from the dialog should render above this modal.</p>
-          <Button onClick={() => setGlobalModalOpen(false)} type='button'>
-            Close preview modal
-          </Button>
-        </Viewer.Root>
-      </GlobalModal>
     </>
   );
 };

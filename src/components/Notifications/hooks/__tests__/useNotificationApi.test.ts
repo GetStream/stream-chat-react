@@ -1,8 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { StateStore } from 'stream-chat';
 
-import { useChatContext } from '../../../../context';
+import { useChatContext, useModalDialogManager } from '../../../../context';
+import { modalDialogId } from '../../../Dialog';
 import { useNotificationTarget } from '../useNotificationTarget';
+import type { DialogManagerState } from '../../../Dialog/service/DialogManager';
 import type { Notification } from 'stream-chat';
 
 import {
@@ -13,6 +16,7 @@ import {
 
 vi.mock('../../../../context', () => ({
   useChatContext: vi.fn(),
+  useModalDialogManager: vi.fn(),
 }));
 
 vi.mock('../useNotificationTarget', () => ({
@@ -24,10 +28,21 @@ const remove = vi.fn();
 const startTimeout = vi.fn();
 
 const mockedUseChatContext = vi.mocked(useChatContext);
+const mockedUseModalDialogManager = vi.mocked(useModalDialogManager);
 const mockedUseNotificationTarget = vi.mocked(useNotificationTarget);
+
+const createModalDialogManager = (isOpen: boolean) =>
+  fromPartial({
+    state: new StateStore<DialogManagerState>({
+      dialogsById: {
+        [modalDialogId]: fromPartial({ isOpen }),
+      },
+    }),
+  });
 
 describe('useNotificationApi', () => {
   beforeEach(() => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(false));
     mockedUseNotificationTarget.mockReturnValue(undefined);
     mockedUseChatContext.mockReturnValue(
       fromPartial({
@@ -120,6 +135,60 @@ describe('useNotificationApi', () => {
   });
 
   it('allows passing targetPanels as an empty array to skip target tags', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'Message',
+      message: 'Skipped panel tag',
+      targetPanels: [],
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Skipped panel tag',
+      options: {},
+      origin: { emitter: 'Message' },
+    });
+  });
+
+  it('adds the modal target to explicit target panels while a modal is open', () => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(true));
+
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'Message',
+      message: 'Channel notification above modal',
+      targetPanels: ['channel'],
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Channel notification above modal',
+      options: { tags: ['target:channel', 'target:modal'] },
+      origin: { emitter: 'Message' },
+    });
+  });
+
+  it('adds the modal target to inferred target panel while a modal is open', () => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(true));
+    mockedUseNotificationTarget.mockReturnValue('thread');
+
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'MessageComposer',
+      message: 'Inferred target above modal',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Inferred target above modal',
+      options: { tags: ['target:thread', 'target:modal'] },
+      origin: { emitter: 'MessageComposer' },
+    });
+  });
+
+  it('preserves explicitly empty target panels while a modal is open', () => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(true));
+
     const { result } = renderHook(() => useNotificationApi());
 
     result.current.addNotification({

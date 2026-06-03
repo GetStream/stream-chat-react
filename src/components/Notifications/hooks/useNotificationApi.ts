@@ -2,13 +2,21 @@ import { useCallback } from 'react';
 
 import type { Notification, NotificationAction, NotificationSeverity } from 'stream-chat';
 
-import { useChatContext } from '../../../context';
+import { modalDialogId } from '../../Dialog';
+import { useChatContext, useModalDialogManager } from '../../../context';
+import { useStateStore } from '../../../store';
 import {
   addNotificationTargetTag,
   getNotificationTargetTag,
   type NotificationTargetPanel,
 } from '../notificationTarget';
 import { useNotificationTarget } from './useNotificationTarget';
+
+import type { DialogManagerState } from '../../Dialog/service/DialogManager';
+
+const modalDialogIsOpenSelector = ({ dialogsById }: DialogManagerState) => ({
+  isOpen: !!dialogsById[modalDialogId]?.isOpen,
+});
 
 /** Tag used for full-width system banners (e.g. connection status). Excluded from `NotificationList` by default. */
 export const SYSTEM_NOTIFICATION_TAG = 'system' as const;
@@ -81,10 +89,26 @@ const getTargetTags = (
   targetPanels: NotificationTargetPanel[] | undefined,
   inferredPanel: NotificationTargetPanel | undefined,
   tags: string[] | undefined,
+  modalIsOpen: boolean,
 ) => {
   if (targetPanels) {
+    const effectiveTargetPanels =
+      modalIsOpen && targetPanels.length > 0
+        ? [...targetPanels, 'modal' as const]
+        : targetPanels;
+
     return Array.from(
-      new Set([...targetPanels.map(getNotificationTargetTag), ...(tags ?? [])]),
+      new Set([...effectiveTargetPanels.map(getNotificationTargetTag), ...(tags ?? [])]),
+    );
+  }
+
+  if (modalIsOpen) {
+    return Array.from(
+      new Set([
+        ...(inferredPanel ? [getNotificationTargetTag(inferredPanel)] : []),
+        getNotificationTargetTag('modal'),
+        ...(tags ?? []),
+      ]),
     );
   }
 
@@ -111,6 +135,9 @@ const getTypeFromIncident = ({
 export const useNotificationApi = (): NotificationApi => {
   const { client } = useChatContext();
   const inferredPanel = useNotificationTarget();
+  const modalDialogManager = useModalDialogManager();
+  const modalIsOpen =
+    useStateStore(modalDialogManager?.state, modalDialogIsOpenSelector)?.isOpen ?? false;
 
   const addNotification: AddNotification = useCallback(
     ({
@@ -126,7 +153,12 @@ export const useNotificationApi = (): NotificationApi => {
       targetPanels,
       type,
     }: AddNotificationParams) => {
-      const notificationTags = getTargetTags(targetPanels, inferredPanel, tags);
+      const notificationTags = getTargetTags(
+        targetPanels,
+        inferredPanel,
+        tags,
+        modalIsOpen,
+      );
       const resolvedType = getTypeFromIncident({ incident, severity, type });
       const origin = context ? { context, emitter } : { emitter };
 
@@ -145,7 +177,7 @@ export const useNotificationApi = (): NotificationApi => {
         origin,
       });
     },
-    [client, inferredPanel],
+    [client, inferredPanel, modalIsOpen],
   );
 
   const addSystemNotification: AddSystemNotification = useCallback(
