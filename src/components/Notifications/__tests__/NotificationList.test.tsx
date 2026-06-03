@@ -4,6 +4,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createDefaultPickNext, NotificationList, pickNewest } from '../NotificationList';
 import { useNotificationApi } from '../hooks/useNotificationApi';
 import { useNotifications } from '../hooks/useNotifications';
+import { isNotificationForPanel } from '../notificationTarget';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
 import type { Notification } from 'stream-chat';
@@ -13,6 +14,9 @@ vi.mock('../hooks/useNotifications', () => ({
 }));
 
 vi.mock('../hooks/useNotificationApi', () => ({
+  hasSystemNotificationTag: vi.fn(
+    (notification: Notification) => notification.tags?.includes('system') ?? false,
+  ),
   useNotificationApi: vi.fn(),
 }));
 
@@ -127,8 +131,19 @@ describe('NotificationList', () => {
         (notification) => notification.id !== id,
       );
     });
-    mockedUseNotifications.mockImplementation(() => currentNotifications);
-    window.IntersectionObserver = IntersectionObserverMock as any;
+    mockedUseNotifications.mockImplementation((options) => {
+      const byPanel = options?.panel
+        ? currentNotifications.filter((notification) =>
+            isNotificationForPanel(notification, options.panel, {
+              fallbackPanel: options.fallbackPanel,
+            }),
+          )
+        : currentNotifications;
+
+      return options?.filter ? byPanel.filter(options.filter) : byPanel;
+    });
+    window.IntersectionObserver =
+      IntersectionObserverMock as unknown as typeof IntersectionObserver;
   });
 
   afterEach(() => {
@@ -169,6 +184,32 @@ describe('NotificationList', () => {
 
     expect(startTimeout).toHaveBeenCalledTimes(1);
     expect(startTimeout).toHaveBeenNthCalledWith(1, 'n-1');
+  });
+
+  it('shows untargeted notifications in the channel panel by default', () => {
+    currentNotifications = [transientFixture()];
+
+    render(<NotificationList panel='channel' />);
+
+    expect(screen.getByTestId('notification-n-1')).toBeInTheDocument();
+  });
+
+  it('shows explicitly channel-targeted notifications in the channel panel', () => {
+    currentNotifications = [transientFixture({ tags: ['target:channel'] })];
+
+    render(<NotificationList panel='channel' />);
+
+    expect(screen.getByTestId('notification-n-1')).toBeInTheDocument();
+  });
+
+  it('keeps existing targeted panels working', () => {
+    currentNotifications = [
+      transientFixture({ id: 'n-channel-list', tags: ['target:channel-list'] }),
+    ];
+
+    render(<NotificationList panel='channel-list' />);
+
+    expect(screen.getByTestId('notification-n-channel-list')).toBeInTheDocument();
   });
 
   it('shows the oldest queued notification first (FIFO) when multiple are already queued at mount', () => {

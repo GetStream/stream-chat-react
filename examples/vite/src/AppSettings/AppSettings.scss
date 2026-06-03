@@ -38,11 +38,6 @@
     max-width: min(320px, calc(100vw - 32px));
   }
 
-  .app__notification-dialog {
-    min-width: min(420px, calc(100vw - 32px));
-    max-width: min(420px, calc(100vw - 32px));
-  }
-
   .app__attachment-dialog {
     min-width: min(480px, calc(100vw - 32px));
     max-width: min(480px, calc(100vw - 32px));
@@ -61,8 +56,8 @@
   .app__notification-dialog__prompt {
     display: flex;
     flex-direction: column;
-    width: min(420px, calc(100vw - 32px));
-    max-height: min(500px, calc(100vh - 32px));
+    width: min(620px, calc(100vw - 32px));
+    max-height: min(720px, calc(100vh - 32px));
     overflow: hidden;
   }
 
@@ -694,6 +689,30 @@
     background: var(--str-chat__background-core-elevation-2);
     color: var(--str-chat__text-primary);
     font: inherit;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  .app__notification-dialog__target-panel-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__notification-dialog__target-panel-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 999px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    cursor: pointer;
+    font-size: 13px;
   }
 
   .app__notification-dialog__text-input {
@@ -702,6 +721,36 @@
 
   .app__notification-dialog__text-input--wide {
     grid-column: 1 / -1;
+  }
+
+  .app__notification-dialog__duration-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .str-chat__form-input-field {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+  }
+
+  .app__notification-dialog__permanent-duration-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .app__notification-dialog__global-modal-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    padding: 24px;
+    text-align: center;
+    background-color: var(--str-chat__background-core-elevation-1);
+
+    h2,
+    p {
+      margin: 0;
+    }
   }
 
   .app__notification-dialog__actions {

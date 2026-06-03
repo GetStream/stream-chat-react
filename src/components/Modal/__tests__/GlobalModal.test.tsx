@@ -2,17 +2,34 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 
 import { GlobalModal } from '../GlobalModal';
-import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
+import {
+  ChatProvider,
+  ComponentProvider,
+  ModalDialogManagerProvider,
+} from '../../../context';
 import { mockChatContext } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 
+import type { NotificationListProps } from '../../Notifications';
+
 const OVERLAY_SELECTOR = '.str-chat__modal';
-const renderComponent = ({ props }: any = {}) =>
+const NoopNotificationList: React.ComponentType<NotificationListProps> = () => null;
+const renderComponent = ({
+  components,
+  props,
+}: {
+  components?: React.ComponentProps<typeof ComponentProvider>['value'];
+  props?: React.ComponentProps<typeof GlobalModal>;
+} = {}) =>
   render(
     <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
-      <ModalDialogManagerProvider>
-        <GlobalModal {...props} />
-      </ModalDialogManagerProvider>
+      <ComponentProvider
+        value={{ NotificationList: NoopNotificationList, ...components }}
+      >
+        <ModalDialogManagerProvider>
+          <GlobalModal {...props} />
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
     </ChatProvider>,
   );
 
@@ -65,6 +82,34 @@ describe('GlobalModal', () => {
     });
 
     expect(queryByText(textContent)).toBeInTheDocument();
+  });
+
+  it('renders notifications relative to the modal overlay', () => {
+    const ModalNotificationList = ({
+      className,
+      panel,
+      verticalAlignment,
+    }: NotificationListProps) => (
+      <div
+        className={className}
+        data-panel={panel}
+        data-testid='modal-notification-list'
+        data-vertical-alignment={verticalAlignment}
+      />
+    );
+
+    renderComponent({
+      components: { NotificationList: ModalNotificationList },
+      props: { children: <ModalContent text={textContent} />, open: true },
+    });
+
+    const notificationList = screen.getByTestId('modal-notification-list');
+
+    expect(notificationList).toHaveClass('str-chat__modal__notification-list');
+    expect(notificationList).toHaveAttribute('data-panel', 'modal');
+    expect(notificationList).toHaveAttribute('data-vertical-alignment', 'top');
+    expect(document.querySelector(OVERLAY_SELECTOR)).toContainElement(notificationList);
+    expect(screen.getByRole('dialog')).not.toContainElement(notificationList);
   });
 
   it('should call the onClose prop function if the escape key is pressed', () => {

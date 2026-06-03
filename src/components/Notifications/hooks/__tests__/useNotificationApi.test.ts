@@ -28,7 +28,7 @@ const mockedUseNotificationTarget = vi.mocked(useNotificationTarget);
 
 describe('useNotificationApi', () => {
   beforeEach(() => {
-    mockedUseNotificationTarget.mockReturnValue('channel');
+    mockedUseNotificationTarget.mockReturnValue(undefined);
     mockedUseChatContext.mockReturnValue(
       fromPartial({
         client: {
@@ -60,6 +60,21 @@ describe('useNotificationApi', () => {
     result.current.startNotificationTimeout('notification-id');
 
     expect(startTimeout).toHaveBeenCalledWith('notification-id');
+  });
+
+  it('does not add target panel tags when targetPanels and inferred panel are missing', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'MessageComposer',
+      message: 'Send message request failed',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Send message request failed',
+      options: {},
+      origin: { emitter: 'MessageComposer' },
+    });
   });
 
   it('adds inferred target panel tag when targetPanels is not provided', () => {
@@ -104,9 +119,7 @@ describe('useNotificationApi', () => {
     });
   });
 
-  it('allows passing targetPanels as an empty array to skip inferred panel tag', () => {
-    mockedUseNotificationTarget.mockReturnValue('thread-list');
-
+  it('allows passing targetPanels as an empty array to skip target tags', () => {
     const { result } = renderHook(() => useNotificationApi());
 
     result.current.addNotification({
@@ -133,7 +146,7 @@ describe('useNotificationApi', () => {
 
     expect(add).toHaveBeenCalledWith({
       message: 'Heads up',
-      options: { severity: 'warning', tags: ['target:channel'] },
+      options: { severity: 'warning' },
       origin: { emitter: 'NotificationPromptDialog' },
     });
   });
@@ -152,7 +165,6 @@ describe('useNotificationApi', () => {
       message: 'Edit message request failed',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'api:message:edit:failed',
       },
       origin: { emitter: 'MessageComposer' },
@@ -177,7 +189,6 @@ describe('useNotificationApi', () => {
       message: 'Failed to share location',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'api:location:share:failed',
       },
       origin: { emitter: 'ShareLocationDialog' },
@@ -203,7 +214,6 @@ describe('useNotificationApi', () => {
       message: 'Failed to share location',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'custom:type',
       },
       origin: { emitter: 'ShareLocationDialog' },
@@ -229,7 +239,6 @@ describe('useNotificationApi', () => {
       message: 'Location sharing blocked',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'api:location:share:blocked',
       },
       origin: { emitter: 'ShareLocationDialog' },
@@ -254,7 +263,6 @@ describe('useNotificationApi', () => {
       message: 'Uploading attachment',
       options: {
         severity: 'loading',
-        tags: ['target:channel'],
         type: 'api:attachment:upload:loading',
       },
       origin: { emitter: 'Uploader' },
@@ -262,8 +270,6 @@ describe('useNotificationApi', () => {
   });
 
   it('addSystemNotification applies system tag and skips panel target tags', () => {
-    mockedUseNotificationTarget.mockReturnValue('thread');
-
     const { result } = renderHook(() => useNotificationApi());
 
     result.current.addSystemNotification({
