@@ -20,8 +20,10 @@ import {
   modalDialogId,
   useModalDialog,
   useModalDialogIsOpen,
+  useModalDialogIsTopmost,
 } from '../Dialog';
 import { useResolvedModalAriaProps } from '../../a11y/hooks/useResolvedModalAriaProps';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 export type ModalCloseEvent =
   | KeyboardEvent
@@ -35,6 +37,8 @@ export type ModalProps = {
   open: boolean;
   /** Custom class to be applied to the modal root div */
   className?: string;
+  /** Optional stable id for this modal instance. Generated automatically when omitted. */
+  dialogId?: string;
   /** Accessible label for the modal dialog. Ignored when aria-labelledby is provided. */
   'aria-label'?: string;
   /** ID of the element that labels the modal dialog. */
@@ -58,13 +62,17 @@ export const GlobalModal = ({
   children,
   className,
   CloseButtonOnOverlay,
+  dialogId,
   onClose,
   onCloseAttempt,
   open,
   role = 'dialog',
 }: PropsWithChildren<ModalProps>) => {
-  const dialog = useModalDialog();
-  const isOpen = useModalDialogIsOpen();
+  const generatedDialogId = useStableId();
+  const resolvedDialogId = dialogId ?? `${modalDialogId}-${generatedDialogId}`;
+  const dialog = useModalDialog(resolvedDialogId);
+  const isOpen = useModalDialogIsOpen(resolvedDialogId);
+  const isTopmost = useModalDialogIsTopmost(resolvedDialogId);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
@@ -98,6 +106,7 @@ export const GlobalModal = ({
   );
 
   const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isTopmost) return;
     const target = event.target as HTMLDivElement;
     if (overlayRef.current === target) {
       maybeClose('overlay', event);
@@ -105,11 +114,12 @@ export const GlobalModal = ({
   };
 
   const handleCloseButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!isTopmost) return;
     maybeClose('button', event);
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.defaultPrevented || event.key !== 'Escape') return;
+    if (event.defaultPrevented || event.key !== 'Escape' || !isTopmost) return;
     maybeClose('escape', event);
   };
 
@@ -127,7 +137,7 @@ export const GlobalModal = ({
   if (!open || !isOpen) return null;
 
   return (
-    <DialogPortalEntry dialogId={modalDialogId} dialogManagerId={modalDialogManagerId}>
+    <DialogPortalEntry dialogId={resolvedDialogId} dialogManagerId={modalDialogManagerId}>
       <ModalContextProvider value={modalContextValue}>
         <div
           className={clsx(
@@ -139,7 +149,7 @@ export const GlobalModal = ({
           onClick={handleOverlayClick}
           ref={overlayRef}
         >
-          <FocusScope autoFocus contain restoreFocus>
+          <FocusScope autoFocus={isTopmost} contain={isTopmost} restoreFocus>
             <div
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
