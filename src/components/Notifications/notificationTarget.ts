@@ -5,6 +5,7 @@ const NOTIFICATION_TARGET_PANELS = [
   'thread',
   'channel-list',
   'thread-list',
+  'modal',
 ] as const;
 
 /**

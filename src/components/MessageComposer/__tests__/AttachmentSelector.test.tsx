@@ -47,8 +47,9 @@ const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 const translationContext = fromPartial<TranslationContextValue>({
-  t: (v: any) => v,
-  tDateTimeParser: (v: any) => v.toString(),
+  t: ((value: string) => value) as TranslationContextValue['t'],
+  tDateTimeParser: ((value: string) =>
+    value.toString()) as TranslationContextValue['tDateTimeParser'],
 });
 
 const defaultChannelData = {
@@ -488,13 +489,14 @@ describe('AttachmentSelector', () => {
     });
 
     const dialog = screen.getByRole('dialog', { name: 'Create poll' });
-    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
-    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
+    const descriptionId = dialog.getAttribute('aria-describedby');
+    expect(descriptionId).toBeTruthy();
+    expect(document.getElementById(descriptionId ?? '')).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
     expect(screen.getByPlaceholderText(/Ask a question/i)).toHaveAttribute(
       'aria-describedby',
-      expect.stringContaining('modal-dialog-description'),
+      expect.stringContaining(descriptionId ?? ''),
     );
 
     const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
@@ -528,17 +530,15 @@ describe('AttachmentSelector', () => {
     });
 
     const dialog = screen.getByRole('dialog', { name: /share location/i });
-    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
-    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
+    const descriptionId = dialog.getAttribute('aria-describedby');
+    expect(descriptionId).toBeTruthy();
+    expect(document.getElementById(descriptionId ?? '')).toHaveTextContent(
       'Select your current location and optionally enable live location sharing',
     );
     const closePromptButton = document.querySelector(
       '.str-chat__prompt__header__close-button',
     ) as HTMLButtonElement | null;
-    expect(closePromptButton).toHaveAttribute(
-      'aria-describedby',
-      'modal-dialog-description',
-    );
+    expect(closePromptButton).toHaveAttribute('aria-describedby', descriptionId);
 
     const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
     fireEvent.keyDown(dialog, { key: 'Escape' });

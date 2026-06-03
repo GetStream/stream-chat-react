@@ -10085,7 +10085,6 @@ __metadata:
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
     stream-chat: "npm:^9.44.2"
-    ts-pattern: "npm:^5.9.0"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
     unist-builder: "npm:^4.0.0"
@@ -10654,13 +10653,6 @@ __metadata:
   peerDependencies:
     typescript: ">=4.8.4"
   checksum: 10c0/767849383c114e7f1971fa976b20e73ac28fd0c70d8d65c0004790bf4d8f89888c7e4cf6d5949f9c1beae9bc3c64835bef77bbe27fddf45a3c7b60cebcf85c8c
-  languageName: node
-  linkType: hard
-
-"ts-pattern@npm:^5.9.0":
-  version: 5.9.0
-  resolution: "ts-pattern@npm:5.9.0"
-  checksum: 10c0/7640db25c39d29b287471b2b82d4f7b4674a02098c6ba4d10fed180adfb07d0e0c71930d9e59dc0d90654145e02fd320af63cf0df3c41e100d4154658a612a0a
   languageName: node
   linkType: hard
 

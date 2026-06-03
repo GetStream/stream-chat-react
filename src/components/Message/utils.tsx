@@ -1,5 +1,6 @@
 import deepequal from 'react-fast-compare';
-import emojiRegex from 'emoji-regex';
+
+import { EMOJI_REGEX } from './emojiRegex';
 
 import type { TFunction } from 'i18next';
 import type {
@@ -377,14 +378,14 @@ export const getReadByTooltipText = (
 };
 
 export const countEmojis = (text?: string) => {
-  const matches = text?.match(emojiRegex());
+  const matches = text?.match(EMOJI_REGEX);
   return matches ? matches.length : 0;
 };
 
 export const messageTextHasEmojisOnly = (message: LocalMessage) => {
   if (!message.text) return false;
 
-  const noEmojis = message.text.replace(emojiRegex(), '');
+  const noEmojis = message.text.replace(EMOJI_REGEX, '');
   const noSpace = noEmojis.replace(/[\s\n]/gm, '');
 
   return !noSpace;

@@ -7,7 +7,9 @@ import { Chat } from '..';
 
 import { ChatContext, ComponentProvider, TranslationContext } from '../../../context';
 import type { ChatContextValue } from '../../../context';
+import { useNotificationConfigurationContext } from '../../Notifications';
 import { Streami18n } from '../../../i18n';
+import type { Notification } from 'stream-chat';
 import type { Mute } from 'stream-chat';
 import {
   dispatchConnectionChangedEvent,
@@ -26,6 +28,21 @@ const TranslationContextConsumer = ({ fn }) => {
   return <div data-testid='children' />;
 };
 
+const NotificationDisplayFilterConsumer = ({ fn }) => {
+  fn(useNotificationConfigurationContext().displayFilter);
+  return <div data-testid='children' />;
+};
+
+const notification = (tags: string[]) =>
+  ({
+    createdAt: 1,
+    id: 'n-1',
+    message: 'test',
+    origin: { emitter: 'test' },
+    severity: 'info',
+    tags,
+  }) as Notification;
+
 describe('Chat', () => {
   afterEach(cleanup);
   const chatClient = getTestClient();
@@ -41,6 +58,35 @@ describe('Chat', () => {
     });
 
     await waitFor(() => expect(screen.getByTestId('children')).toBeInTheDocument());
+  });
+
+  it('keeps modal-targeted notifications exclusive to the modal panel by default', async () => {
+    let displayFilter: ReturnType<
+      typeof useNotificationConfigurationContext
+    >['displayFilter'];
+
+    await act(() => {
+      render(
+        <Chat client={chatClient}>
+          <NotificationDisplayFilterConsumer
+            fn={(filter) => {
+              displayFilter = filter;
+            }}
+          />
+        </Chat>,
+      );
+    });
+
+    await waitFor(() => {
+      const modalNotification = notification(['target:modal', 'target:channel']);
+
+      expect(displayFilter({ notification: modalNotification, panel: 'channel' })).toBe(
+        false,
+      );
+      expect(displayFilter({ notification: modalNotification, panel: 'modal' })).toBe(
+        true,
+      );
+    });
   });
 
   it('should expose the context', async () => {

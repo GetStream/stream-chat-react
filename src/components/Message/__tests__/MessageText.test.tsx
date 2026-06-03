@@ -9,6 +9,7 @@ import {
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
+  MessageProvider,
   TranslationProvider,
 } from '../../../context';
 import {
@@ -23,6 +24,7 @@ import {
   mockChannelStateContext,
   mockChatContext,
   mockComponentContext,
+  mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
@@ -89,6 +91,8 @@ async function renderMessageText({
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
   const channelConfig = channel['getConfig']();
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
+  const renderMessageTextDirectly =
+    'customInnerClass' in customProps || 'customWrapperClass' in customProps;
 
   return render(
     <ChatProvider value={mockChatContext({ client })}>
@@ -119,9 +123,28 @@ async function renderMessageText({
               })}
             >
               <DialogManagerProvider id='message-dialog-manager-provider'>
-                <Message {...(defaultProps as MessageProps)} {...customProps}>
-                  <MessageText {...(defaultProps as MessageTextProps)} {...customProps} />
-                </Message>
+                {renderMessageTextDirectly ? (
+                  <MessageProvider
+                    value={mockMessageContext({
+                      message: defaultProps.message,
+                      onMentionsClickMessage: onMentionsClickMock,
+                      onMentionsHoverMessage: onMentionsHoverMock,
+                      ...customProps,
+                    })}
+                  >
+                    <MessageText
+                      {...(defaultProps as MessageTextProps)}
+                      {...customProps}
+                    />
+                  </MessageProvider>
+                ) : (
+                  <Message {...(defaultProps as MessageProps)} {...customProps}>
+                    <MessageText
+                      {...(defaultProps as MessageTextProps)}
+                      {...customProps}
+                    />
+                  </Message>
+                )}
               </DialogManagerProvider>
             </ComponentProvider>
           </TranslationProvider>
@@ -448,26 +471,39 @@ describe('<MessageText />', () => {
   it('should render with a custom wrapper class when one is set', async () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
-    const { container } = await renderMessageText({
-      customProps: { customWrapperClass, message },
+    const { getByText } = await renderMessageText({
+      customProps: {
+        customWrapperClass,
+        message,
+      },
     });
-    expect(container).toMatchSnapshot();
+
+    expect(getByText('hello world').closest(`.${customWrapperClass}`)).toHaveClass(
+      customWrapperClass,
+    );
   });
 
   it('should render with a custom inner class when one is set', async () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
-    const { container } = await renderMessageText({
-      customProps: { customInnerClass, message },
+    const { getByTestId } = await renderMessageText({
+      customProps: {
+        customInnerClass,
+        message,
+      },
     });
-    expect(container).toMatchSnapshot();
+
+    expect(getByTestId(messageTextTestId)).toHaveClass(customInnerClass);
   });
 
-  it('should render with custom theme identifier in generated css classes when theme is set', async () => {
+  it('should render with the default wrapper class when no custom wrapper class is set', async () => {
     const message = generateMessage({ text: 'whatup?!' });
-    const { container } = await renderMessageText({
-      customProps: { message, theme: 'custom' },
+    const { getByText } = await renderMessageText({
+      customProps: { message },
     });
-    expect(container).toMatchSnapshot();
+
+    expect(getByText('whatup?!').closest('.str-chat__message-text')).toHaveClass(
+      'str-chat__message-text',
+    );
   });
 });

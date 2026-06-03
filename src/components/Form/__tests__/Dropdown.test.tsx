@@ -2,8 +2,16 @@ import React, { act } from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Dropdown, type DropdownTriggerProps, useDropdownContext } from '../Dropdown';
 import { GlobalModal, type ModalProps } from '../../Modal/GlobalModal';
-import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
+import {
+  ChatProvider,
+  ComponentProvider,
+  ModalDialogManagerProvider,
+} from '../../../context';
 import { mockChatContext } from '../../../mock-builders';
+
+import type { NotificationListProps } from '../../Notifications';
+
+const NoopNotificationList: React.ComponentType<NotificationListProps> = () => null;
 
 const TriggerButton = ({
   children,
@@ -153,20 +161,22 @@ const renderDropdownInModal = ({
 } = {}) =>
   render(
     <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
-      <ModalDialogManagerProvider>
-        <GlobalModal aria-label='Test modal' onClose={onClose} open {...modalProps}>
-          <div className='str-chat__modal__inner'>
-            <Dropdown
-              TriggerComponent={TriggerButton}
-              triggerProps={{ children: 'Duration' }}
-            >
-              <DropdownItem label='15 minutes' />
-              <DropdownItem label='1 hour' />
-              <DropdownItem label='8 hours' />
-            </Dropdown>
-          </div>
-        </GlobalModal>
-      </ModalDialogManagerProvider>
+      <ComponentProvider value={{ NotificationList: NoopNotificationList }}>
+        <ModalDialogManagerProvider>
+          <GlobalModal aria-label='Test modal' onClose={onClose} open {...modalProps}>
+            <div className='str-chat__modal__inner'>
+              <Dropdown
+                TriggerComponent={TriggerButton}
+                triggerProps={{ children: 'Duration' }}
+              >
+                <DropdownItem label='15 minutes' />
+                <DropdownItem label='1 hour' />
+                <DropdownItem label='8 hours' />
+              </Dropdown>
+            </div>
+          </GlobalModal>
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
     </ChatProvider>,
   );
 

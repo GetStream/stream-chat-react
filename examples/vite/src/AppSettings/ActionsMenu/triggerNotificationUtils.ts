@@ -24,6 +24,7 @@ export const targetPanelOptions = [
   'thread',
   'channel-list',
   'thread-list',
+  'modal',
 ] as const satisfies NotificationTargetPanel[];
 
 export type NotificationDraftAction = {
@@ -44,7 +45,7 @@ export type NotificationDraft = {
   entryDirection: NotificationListEnterFrom | '';
   message: string;
   severity: NotificationSeverity | '';
-  targetPanel: NotificationTargetPanel | '';
+  targetPanels: NotificationTargetPanel[];
 };
 
 export type QueuedNotification = {
@@ -54,16 +55,16 @@ export type QueuedNotification = {
   id: string;
   message: string;
   severity: NotificationSeverity;
-  targetPanel: NotificationTargetPanel;
+  targetPanels: NotificationTargetPanel[];
 };
 
 export const initialDraft: NotificationDraft = {
   actions: [],
   duration: '5000',
   entryDirection: 'bottom',
-  message: '',
+  message: 'This is a test notification',
   severity: 'info',
-  targetPanel: 'channel',
+  targetPanels: ['channel'],
 };
 
 export const parseDuration = (value: string) => {
@@ -76,7 +77,7 @@ export const isDraftReady = (draft: NotificationDraft) =>
     draft.message.trim() &&
     draft.severity &&
     draft.entryDirection &&
-    draft.targetPanel &&
+    draft.targetPanels.length > 0 &&
     parseDuration(draft.duration) !== null,
   );
 
