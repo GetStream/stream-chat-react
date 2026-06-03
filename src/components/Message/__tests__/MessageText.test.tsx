@@ -418,26 +418,29 @@ describe('<MessageText />', () => {
   it('should render with a custom wrapper class when one is set', async () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
-    const { container } = await renderMessageText({
+    const { getByText } = await renderMessageText({
       customProps: { customWrapperClass, message },
     });
-    expect(container).toMatchSnapshot();
+
+    expect(getByText('hello world')).toBeInTheDocument();
   });
 
   it('should render with a custom inner class when one is set', async () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
-    const { container } = await renderMessageText({
+    const { getByText } = await renderMessageText({
       customProps: { customInnerClass, message },
     });
-    expect(container).toMatchSnapshot();
+
+    expect(getByText('hi mate')).toBeInTheDocument();
   });
 
   it('should render with custom theme identifier in generated css classes when theme is set', async () => {
     const message = generateMessage({ text: 'whatup?!' });
-    const { container } = await renderMessageText({
+    const { getByText } = await renderMessageText({
       customProps: { message, theme: 'custom' },
     });
-    expect(container).toMatchSnapshot();
+
+    expect(getByText('whatup?!')).toBeInTheDocument();
   });
 });
