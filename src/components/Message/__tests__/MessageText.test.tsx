@@ -9,6 +9,7 @@ import {
   ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
+  MessageProvider,
   TranslationProvider,
 } from '../../../context';
 import {
@@ -23,6 +24,7 @@ import {
   mockChannelStateContext,
   mockChatContext,
   mockComponentContext,
+  mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
@@ -89,6 +91,8 @@ async function renderMessageText({
   const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
   const channelConfig = channel['getConfig']();
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
+  const renderMessageTextDirectly =
+    'customInnerClass' in customProps || 'customWrapperClass' in customProps;
 
   return render(
     <ChatProvider value={mockChatContext({ client })}>
@@ -119,9 +123,28 @@ async function renderMessageText({
               })}
             >
               <DialogManagerProvider id='message-dialog-manager-provider'>
-                <Message {...(defaultProps as MessageProps)} {...customProps}>
-                  <MessageText {...(defaultProps as MessageTextProps)} {...customProps} />
-                </Message>
+                {renderMessageTextDirectly ? (
+                  <MessageProvider
+                    value={mockMessageContext({
+                      message: defaultProps.message,
+                      onMentionsClickMessage: onMentionsClickMock,
+                      onMentionsHoverMessage: onMentionsHoverMock,
+                      ...customProps,
+                    })}
+                  >
+                    <MessageText
+                      {...(defaultProps as MessageTextProps)}
+                      {...customProps}
+                    />
+                  </MessageProvider>
+                ) : (
+                  <Message {...(defaultProps as MessageProps)} {...customProps}>
+                    <MessageText
+                      {...(defaultProps as MessageTextProps)}
+                      {...customProps}
+                    />
+                  </Message>
+                )}
               </DialogManagerProvider>
             </ComponentProvider>
           </TranslationProvider>
@@ -420,10 +443,8 @@ describe('<MessageText />', () => {
     const message = generateMessage({ text: 'hello world' });
     const { getByText } = await renderMessageText({
       customProps: {
+        customWrapperClass,
         message,
-        Message: () => (
-          <MessageText customWrapperClass={customWrapperClass} message={message} />
-        ),
       },
     });
 
@@ -437,10 +458,8 @@ describe('<MessageText />', () => {
     const message = generateMessage({ text: 'hi mate' });
     const { getByTestId } = await renderMessageText({
       customProps: {
+        customInnerClass,
         message,
-        Message: () => (
-          <MessageText customInnerClass={customInnerClass} message={message} />
-        ),
       },
     });
 
