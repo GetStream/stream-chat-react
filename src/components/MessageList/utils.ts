@@ -249,6 +249,15 @@ export const insertIntro = (messages: RenderedMessage[], headerPosition?: number
 
 export type GroupStyle = '' | 'middle' | 'top' | 'bottom' | 'single';
 
+// Allocation-free, early-exiting emptiness check. Avoids the throwaway array
+// that `Object.keys(obj).length > 0` allocates per message inside getGroupStyles.
+const isNonEmptyRecord = (record: Record<string, unknown>) => {
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) return true;
+  }
+  return false;
+};
+
 export const getGroupStyles = (
   message: RenderedMessage,
   previousMessage: RenderedMessage,
@@ -268,7 +277,7 @@ export const getGroupStyles = (
     previousMessage.type === 'error' ||
     previousMessage.attachments?.length !== 0 ||
     message.user?.id !== previousMessage.user?.id ||
-    (message.reaction_groups && Object.keys(message.reaction_groups).length > 0) ||
+    (message.reaction_groups && isNonEmptyRecord(message.reaction_groups)) ||
     isMessageEdited(previousMessage) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
       previousMessage.created_at &&
@@ -285,8 +294,7 @@ export const getGroupStyles = (
     nextMessage.type === 'error' ||
     nextMessage.attachments?.length !== 0 ||
     message.user?.id !== nextMessage.user?.id ||
-    (nextMessage.reaction_groups &&
-      Object.keys(nextMessage.reaction_groups).length > 0) ||
+    (nextMessage.reaction_groups && isNonEmptyRecord(nextMessage.reaction_groups)) ||
     isMessageEdited(message) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
       nextMessage.created_at &&

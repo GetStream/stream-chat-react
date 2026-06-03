@@ -24,7 +24,7 @@ export const MediaBadge = ({ attachment, variant }: MediaBadgeProps) => {
       })}
     >
       {Icon && <Icon />}
-      {attachment.duration && <div>{attachment.duration}</div>}
+      {attachment.duration ? <div>{attachment.duration}</div> : null}
     </div>
   );
 };
