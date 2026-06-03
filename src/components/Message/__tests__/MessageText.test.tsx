@@ -419,28 +419,42 @@ describe('<MessageText />', () => {
     const customWrapperClass = 'custom-wrapper';
     const message = generateMessage({ text: 'hello world' });
     const { getByText } = await renderMessageText({
-      customProps: { customWrapperClass, message },
+      customProps: {
+        message,
+        Message: () => (
+          <MessageText customWrapperClass={customWrapperClass} message={message} />
+        ),
+      },
     });
 
-    expect(getByText('hello world')).toBeInTheDocument();
+    expect(getByText('hello world').closest(`.${customWrapperClass}`)).toHaveClass(
+      customWrapperClass,
+    );
   });
 
   it('should render with a custom inner class when one is set', async () => {
     const customInnerClass = 'custom-inner';
     const message = generateMessage({ text: 'hi mate' });
-    const { getByText } = await renderMessageText({
-      customProps: { customInnerClass, message },
+    const { getByTestId } = await renderMessageText({
+      customProps: {
+        message,
+        Message: () => (
+          <MessageText customInnerClass={customInnerClass} message={message} />
+        ),
+      },
     });
 
-    expect(getByText('hi mate')).toBeInTheDocument();
+    expect(getByTestId(messageTextTestId)).toHaveClass(customInnerClass);
   });
 
-  it('should render with custom theme identifier in generated css classes when theme is set', async () => {
+  it('should render with the default wrapper class when no custom wrapper class is set', async () => {
     const message = generateMessage({ text: 'whatup?!' });
     const { getByText } = await renderMessageText({
-      customProps: { message, theme: 'custom' },
+      customProps: { message },
     });
 
-    expect(getByText('whatup?!')).toBeInTheDocument();
+    expect(getByText('whatup?!').closest('.str-chat__message-text')).toHaveClass(
+      'str-chat__message-text',
+    );
   });
 });

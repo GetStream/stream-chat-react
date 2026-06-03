@@ -7,14 +7,31 @@ import { mockChatContext } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 
 const OVERLAY_SELECTOR = '.str-chat__modal';
-const renderComponent = ({ props }: any = {}) =>
+
+type GlobalModalProps = React.ComponentProps<typeof GlobalModal>;
+
+const renderComponent = ({ props }: { props?: Partial<GlobalModalProps> } = {}) =>
   render(
     <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
       <ModalDialogManagerProvider>
-        <GlobalModal {...props} />
+        <GlobalModal open={false} {...props} />
       </ModalDialogManagerProvider>
     </ChatProvider>,
   );
+
+// Wrap children in a focusable element so FocusScope can manage focus
+const ModalContent = ({
+  children,
+  text,
+}: {
+  children?: React.ReactNode;
+  text: string;
+}) => (
+  <div className='str-chat__modal__inner'>
+    <button type='button'>{text}</button>
+    {children}
+  </div>
+);
 
 const renderStackedModals = ({
   childOnClose = vi.fn(),
@@ -40,20 +57,6 @@ const renderStackedModals = ({
       </ModalDialogManagerProvider>
     </ChatProvider>,
   );
-
-// Wrap children in a focusable element so FocusScope can manage focus
-const ModalContent = ({
-  children,
-  text,
-}: {
-  children?: React.ReactNode;
-  text: string;
-}) => (
-  <div className='str-chat__modal__inner'>
-    <button type='button'>{text}</button>
-    {children}
-  </div>
-);
 
 const OverlayCloseButton = React.forwardRef<
   HTMLButtonElement,
@@ -336,8 +339,15 @@ describe('GlobalModal', () => {
   it('supports rendering an alertdialog above an existing modal', () => {
     renderStackedModals();
 
-    expect(screen.getByRole('dialog', { name: 'Parent modal' })).toBeInTheDocument();
-    expect(screen.getByRole('alertdialog', { name: 'Child modal' })).toBeInTheDocument();
+    const parentModal = screen.getByRole('dialog', { name: 'Parent modal' });
+    const childModal = screen.getByRole('alertdialog', { name: 'Child modal' });
+
+    expect(parentModal).toBeInTheDocument();
+    expect(parentModal).not.toHaveAttribute('aria-modal');
+    expect(parentModal).toHaveAttribute('inert');
+    expect(childModal).toBeInTheDocument();
+    expect(childModal).toHaveAttribute('aria-modal', 'true');
+    expect(childModal).not.toHaveAttribute('inert');
   });
 
   it('only closes the topmost modal on Escape', () => {
