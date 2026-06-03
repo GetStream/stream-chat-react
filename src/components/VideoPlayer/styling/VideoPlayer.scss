@@ -1,0 +1,11 @@
+// Shown as the Suspense fallback while the lazily-loaded react-player chunk is
+// fetched. Fills the player box (which has a defined height) and centers the
+// spinner so it doesn't flash as a stray icon or shift layout once the player
+// mounts.
+.str-chat__video-player-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 100%;
+  block-size: 100%;
+}

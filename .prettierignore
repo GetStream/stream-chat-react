@@ -2,3 +2,8 @@ node_modules/
 CHANGELOG.md
 examples/**/serviceWorker.ts
 ./dist/
+
+# Vendored agent skills (third-party content from vercel-labs/agent-skills)
+.agents/
+.claude/skills/
+skills-lock.json
