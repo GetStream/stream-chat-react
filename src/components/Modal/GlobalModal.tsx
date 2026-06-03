@@ -10,10 +10,12 @@ import React, {
 } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
+import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
   ModalContextProvider,
   modalDialogManagerId,
   useChatContext,
+  useComponentContext,
 } from '../../context';
 import {
   DialogPortalEntry,
@@ -77,6 +79,7 @@ export const GlobalModal = ({
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
   const { theme } = useChatContext();
+  const { NotificationList = DefaultNotificationList } = useComponentContext();
   const dialogLabelingBaseId = dialog.id;
   const resolvedModalAriaProps = useResolvedModalAriaProps({
     ariaDescribedby,
@@ -164,6 +167,11 @@ export const GlobalModal = ({
               {children}
             </div>
           </FocusScope>
+          <NotificationList
+            className='str-chat__modal__notification-list'
+            panel='modal'
+            verticalAlignment='top'
+          />
           {CloseButtonOnOverlay && (
             <CloseButtonOnOverlay onClick={handleCloseButtonClick} ref={closeButtonRef} />
           )}

@@ -278,6 +278,7 @@ export const NotificationList = ({
     [filter],
   );
   const notifications = useNotifications({
+    applyDisplayFilter: true,
     fallbackPanel,
     filter: combinedFilter,
     panel,

@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useChatContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { Notification, NotificationManagerState } from 'stream-chat';
+import { useNotificationConfigurationContext } from '../NotificationConfigurationContext';
 import { isNotificationForPanel } from '../notificationTarget';
 
 import type { NotificationTargetPanel } from '../notificationTarget';
@@ -9,6 +10,11 @@ import type { NotificationTargetPanel } from '../notificationTarget';
 export type UseNotificationsFilter = (notification: Notification) => boolean;
 
 export type UseNotificationsOptions = {
+  /**
+   * When true, the configured Chat-level notificationDisplayFilter is applied after
+   * panel routing and before the local filter.
+   */
+  applyDisplayFilter?: boolean;
   /**
    * When provided, only notifications that pass this filter are returned.
    * Use to have a given NotificationList consume only a subset of client.notifications
@@ -32,23 +38,39 @@ export type UseNotificationsOptions = {
  */
 export const useNotifications = (options?: UseNotificationsOptions): Notification[] => {
   const { client } = useChatContext();
+  const { displayFilter } = useNotificationConfigurationContext();
+  const { applyDisplayFilter, fallbackPanel, filter, panel } = options ?? {};
   const selector = useCallback(
     (state: NotificationManagerState) => {
       const notifications = state.notifications;
-      const panel = options?.panel;
-      const byPanel = panel
-        ? notifications.filter((notification) =>
-            isNotificationForPanel(notification, panel, {
-              fallbackPanel: options?.fallbackPanel,
-            }),
-          )
-        : notifications;
-
       return {
-        notifications: options?.filter ? byPanel.filter(options.filter) : byPanel,
+        notifications: notifications.filter((notification) => {
+          if (
+            panel &&
+            !isNotificationForPanel(notification, panel, {
+              fallbackPanel,
+            })
+          ) {
+            return false;
+          }
+
+          if (
+            applyDisplayFilter &&
+            !displayFilter({
+              fallbackPanel,
+              filter,
+              notification,
+              panel,
+            })
+          ) {
+            return false;
+          }
+
+          return filter ? filter(notification) : true;
+        }),
       };
     },
-    [options?.fallbackPanel, options?.filter, options?.panel],
+    [applyDisplayFilter, displayFilter, fallbackPanel, filter, panel],
   );
 
   const { notifications } = useStateStore(client.notifications.store, selector);

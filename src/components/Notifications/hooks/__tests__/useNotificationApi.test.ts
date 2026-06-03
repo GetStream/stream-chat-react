@@ -1,8 +1,11 @@
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { StateStore } from 'stream-chat';
 
-import { useChatContext } from '../../../../context';
+import { useChatContext, useModalDialogManager } from '../../../../context';
+import { modalDialogId } from '../../../Dialog';
 import { useNotificationTarget } from '../useNotificationTarget';
+import type { DialogManagerState } from '../../../Dialog/service/DialogManager';
 import type { Notification } from 'stream-chat';
 
 import {
@@ -13,6 +16,7 @@ import {
 
 vi.mock('../../../../context', () => ({
   useChatContext: vi.fn(),
+  useModalDialogManager: vi.fn(),
 }));
 
 vi.mock('../useNotificationTarget', () => ({
@@ -24,11 +28,22 @@ const remove = vi.fn();
 const startTimeout = vi.fn();
 
 const mockedUseChatContext = vi.mocked(useChatContext);
+const mockedUseModalDialogManager = vi.mocked(useModalDialogManager);
 const mockedUseNotificationTarget = vi.mocked(useNotificationTarget);
+
+const createModalDialogManager = (isOpen: boolean) =>
+  fromPartial({
+    state: new StateStore<DialogManagerState>({
+      dialogsById: {
+        [modalDialogId]: fromPartial({ isOpen }),
+      },
+    }),
+  });
 
 describe('useNotificationApi', () => {
   beforeEach(() => {
-    mockedUseNotificationTarget.mockReturnValue('channel');
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(false));
+    mockedUseNotificationTarget.mockReturnValue(undefined);
     mockedUseChatContext.mockReturnValue(
       fromPartial({
         client: {
@@ -60,6 +75,21 @@ describe('useNotificationApi', () => {
     result.current.startNotificationTimeout('notification-id');
 
     expect(startTimeout).toHaveBeenCalledWith('notification-id');
+  });
+
+  it('does not add target panel tags when targetPanels and inferred panel are missing', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'MessageComposer',
+      message: 'Send message request failed',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Send message request failed',
+      options: {},
+      origin: { emitter: 'MessageComposer' },
+    });
   });
 
   it('adds inferred target panel tag when targetPanels is not provided', () => {
@@ -104,8 +134,60 @@ describe('useNotificationApi', () => {
     });
   });
 
-  it('allows passing targetPanels as an empty array to skip inferred panel tag', () => {
-    mockedUseNotificationTarget.mockReturnValue('thread-list');
+  it('allows passing targetPanels as an empty array to skip target tags', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'Message',
+      message: 'Skipped panel tag',
+      targetPanels: [],
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Skipped panel tag',
+      options: {},
+      origin: { emitter: 'Message' },
+    });
+  });
+
+  it('adds the modal target to explicit target panels while a modal is open', () => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(true));
+
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'Message',
+      message: 'Channel notification above modal',
+      targetPanels: ['channel'],
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Channel notification above modal',
+      options: { tags: ['target:channel', 'target:modal'] },
+      origin: { emitter: 'Message' },
+    });
+  });
+
+  it('adds the modal target to inferred target panel while a modal is open', () => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(true));
+    mockedUseNotificationTarget.mockReturnValue('thread');
+
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      emitter: 'MessageComposer',
+      message: 'Inferred target above modal',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Inferred target above modal',
+      options: { tags: ['target:thread', 'target:modal'] },
+      origin: { emitter: 'MessageComposer' },
+    });
+  });
+
+  it('preserves explicitly empty target panels while a modal is open', () => {
+    mockedUseModalDialogManager.mockReturnValue(createModalDialogManager(true));
 
     const { result } = renderHook(() => useNotificationApi());
 
@@ -133,7 +215,7 @@ describe('useNotificationApi', () => {
 
     expect(add).toHaveBeenCalledWith({
       message: 'Heads up',
-      options: { severity: 'warning', tags: ['target:channel'] },
+      options: { severity: 'warning' },
       origin: { emitter: 'NotificationPromptDialog' },
     });
   });
@@ -152,7 +234,6 @@ describe('useNotificationApi', () => {
       message: 'Edit message request failed',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'api:message:edit:failed',
       },
       origin: { emitter: 'MessageComposer' },
@@ -177,7 +258,6 @@ describe('useNotificationApi', () => {
       message: 'Failed to share location',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'api:location:share:failed',
       },
       origin: { emitter: 'ShareLocationDialog' },
@@ -203,7 +283,6 @@ describe('useNotificationApi', () => {
       message: 'Failed to share location',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'custom:type',
       },
       origin: { emitter: 'ShareLocationDialog' },
@@ -229,7 +308,6 @@ describe('useNotificationApi', () => {
       message: 'Location sharing blocked',
       options: {
         severity: 'error',
-        tags: ['target:channel'],
         type: 'api:location:share:blocked',
       },
       origin: { emitter: 'ShareLocationDialog' },
@@ -254,7 +332,6 @@ describe('useNotificationApi', () => {
       message: 'Uploading attachment',
       options: {
         severity: 'loading',
-        tags: ['target:channel'],
         type: 'api:attachment:upload:loading',
       },
       origin: { emitter: 'Uploader' },
@@ -262,8 +339,6 @@ describe('useNotificationApi', () => {
   });
 
   it('addSystemNotification applies system tag and skips panel target tags', () => {
-    mockedUseNotificationTarget.mockReturnValue('thread');
-
     const { result } = renderHook(() => useNotificationApi());
 
     result.current.addSystemNotification({
