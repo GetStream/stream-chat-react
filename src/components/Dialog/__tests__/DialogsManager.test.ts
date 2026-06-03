@@ -222,6 +222,22 @@ describe('DialogManager', () => {
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
   });
 
+  it('removes a dialog from the open stack as soon as it is marked for removal', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'underlying-dialog' });
+    dialogManager.open({ id: dialogId });
+    dialogManager.markForRemoval(dialogId);
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'underlying-dialog',
+    ]);
+    expect(dialogManager.openDialogCount).toBe(1);
+
+    vi.runAllTimers();
+  });
+
   it('cancels dialog removal if it is referenced again quickly', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
@@ -235,5 +251,27 @@ describe('DialogManager', () => {
 
     expect(dialogManager.openDialogCount).toBe(1);
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
+  });
+
+  it('restores an open dialog to the stack when pending removal is cancelled', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'underlying-dialog' });
+    dialogManager.open({ id: dialogId });
+    dialogManager.markForRemoval(dialogId);
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'underlying-dialog',
+    ]);
+
+    dialogManager.getOrCreate({ id: dialogId });
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'underlying-dialog',
+      dialogId,
+    ]);
+
+    vi.runAllTimers();
   });
 });
