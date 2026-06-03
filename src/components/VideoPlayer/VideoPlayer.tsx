@@ -1,15 +1,13 @@
-import { useComponentContext } from '../../context';
-import ReactPlayerImport from 'react-player';
 import React from 'react';
 
-// react-player ships as CJS with the component on `exports.default`. Some
-// bundler/interop setups (e.g. Vite serving our built ESM as a linked workspace
-// dependency) hand back the module namespace `{ default }` instead of the
-// component itself, which makes React throw "Element type is invalid ... got:
-// object". Unwrap the default defensively so it works regardless of interop.
-const ReactPlayer =
-  (ReactPlayerImport as unknown as { default?: typeof ReactPlayerImport }).default ??
-  ReactPlayerImport;
+import { useComponentContext } from '../../context';
+import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingIndicator';
+
+// `react-player` (~2 MB) is loaded lazily so it stays out of the SDK's eager
+// import graph; the consumer's bundler emits it as a separate chunk that is
+// fetched only when a default video player renders. Consumers who override
+// `VideoPlayer` via `ComponentContext` never load it at all.
+const ReactPlayer = React.lazy(() => import('./ReactPlayerWrapper'));
 
 export type VideoPlayerProps = {
   isPlaying?: boolean;
@@ -18,19 +16,24 @@ export type VideoPlayerProps = {
 };
 
 export const VideoPlayer = ({ isPlaying, thumbnailUrl, videoUrl }: VideoPlayerProps) => {
-  const { VideoPlayer: VideoPlayerContext } = useComponentContext();
+  const { LoadingIndicator = DefaultLoadingIndicator, VideoPlayer: VideoPlayerContext } =
+    useComponentContext();
 
   return VideoPlayerContext ? (
     <VideoPlayerContext thumbnailUrl={thumbnailUrl} videoUrl={videoUrl} />
   ) : (
-    <ReactPlayer
-      className='react-player'
-      config={{ file: { attributes: { poster: thumbnailUrl } } }}
-      controls
-      height='100%'
-      playing={isPlaying}
-      url={videoUrl}
-      width='100%'
-    />
+    <React.Suspense
+      fallback={
+        <div className='str-chat__video-player-loading'>
+          <LoadingIndicator />
+        </div>
+      }
+    >
+      <ReactPlayer
+        isPlaying={isPlaying}
+        thumbnailUrl={thumbnailUrl}
+        videoUrl={videoUrl}
+      />
+    </React.Suspense>
   );
 };
