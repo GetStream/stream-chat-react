@@ -167,7 +167,7 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
     window.addEventListener('blur', handleVisibilityChange);
     return () => {
       activeThread.deactivate();
-      window.addEventListener('blur', handleVisibilityChange);
+      window.removeEventListener('blur', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
     };
   }, [activeThread]);
