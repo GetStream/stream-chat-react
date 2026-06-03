@@ -51,6 +51,7 @@ describe('notificationOrigin helpers', () => {
     expect(isNotificationTargetPanel('thread')).toBe(true);
     expect(isNotificationTargetPanel('channel-list')).toBe(true);
     expect(isNotificationTargetPanel('thread-list')).toBe(true);
+    expect(isNotificationTargetPanel('modal')).toBe(true);
     expect(isNotificationTargetPanel('unknown')).toBe(false);
   });
 
@@ -76,6 +77,24 @@ describe('notificationOrigin helpers', () => {
   it('falls back to channel panel when panel is missing', () => {
     expect(isNotificationForPanel(notification(), 'channel')).toBe(true);
     expect(isNotificationForPanel(notification(), 'thread')).toBe(false);
+  });
+
+  it('supports overriding the fallback panel', () => {
+    expect(
+      isNotificationForPanel(notification(), 'thread-list', {
+        fallbackPanel: 'thread-list',
+      }),
+    ).toBe(true);
+    expect(
+      isNotificationForPanel(notification(), 'modal', {
+        fallbackPanel: 'modal',
+      }),
+    ).toBe(true);
+    expect(
+      isNotificationForPanel(notification(), 'channel', {
+        fallbackPanel: 'thread-list',
+      }),
+    ).toBe(false);
   });
 
   it('matches explicit target panel when present', () => {
