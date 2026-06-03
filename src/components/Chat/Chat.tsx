@@ -9,6 +9,12 @@ import {
 } from 'stream-chat';
 
 import { NotificationAnnouncer as DefaultNotificationAnnouncer } from '../Accessibility';
+import { useModalDialogIsOpen } from '../Dialog';
+import {
+  getNotificationTargetPanels,
+  NotificationConfigurationProvider,
+  type NotificationDisplayFilter,
+} from '../Notifications';
 import { useChat } from './hooks/useChat';
 import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
@@ -26,6 +32,40 @@ const NetworkConnectionNotificationReporter = () => {
   return null;
 };
 
+const createDefaultNotificationDisplayFilter =
+  (modalIsOpen: boolean): NotificationDisplayFilter =>
+  ({ notification, panel }) => {
+    const targetPanels = getNotificationTargetPanels(notification);
+
+    if (targetPanels.includes('modal')) {
+      return panel === 'modal';
+    }
+
+    if (!modalIsOpen) return true;
+
+    return panel === 'modal';
+  };
+
+const ModalNotificationConfiguration = ({
+  children,
+  notificationDisplayFilter,
+}: PropsWithChildren<{
+  notificationDisplayFilter?: NotificationDisplayFilter;
+}>) => {
+  const modalIsOpen = useModalDialogIsOpen();
+  const displayFilter = useMemo<NotificationDisplayFilter>(
+    () =>
+      notificationDisplayFilter ?? createDefaultNotificationDisplayFilter(modalIsOpen),
+    [modalIsOpen, notificationDisplayFilter],
+  );
+
+  return (
+    <NotificationConfigurationProvider displayFilter={displayFilter}>
+      {children}
+    </NotificationConfigurationProvider>
+  );
+};
+
 export type ChatProps = {
   /** The StreamChat client object */
   client: StreamChat;
@@ -37,6 +77,8 @@ export type ChatProps = {
   i18nInstance?: Streami18n;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController?: SearchController;
+  /** Controls whether a notification can be displayed by a NotificationList. */
+  notificationDisplayFilter?: NotificationDisplayFilter;
   /** Used for injecting className/s to the Channel and ChannelList components */
   theme?: string;
   /**
@@ -61,6 +103,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     defaultLanguage,
     i18nInstance,
     isMessageAIGenerated,
+    notificationDisplayFilter,
     searchController: customChannelSearchController,
     theme = 'messaging light',
     useImageFlagEmojisOnWindows = false,
@@ -116,9 +159,13 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     <ChatProvider value={chatContextValue}>
       <TranslationProvider value={translators}>
         <ModalDialogManagerProvider>
-          <NetworkConnectionNotificationReporter />
-          <NotificationAnnouncer />
-          {children}
+          <ModalNotificationConfiguration
+            notificationDisplayFilter={notificationDisplayFilter}
+          >
+            <NetworkConnectionNotificationReporter />
+            <NotificationAnnouncer />
+            {children}
+          </ModalNotificationConfiguration>
         </ModalDialogManagerProvider>
       </TranslationProvider>
     </ChatProvider>

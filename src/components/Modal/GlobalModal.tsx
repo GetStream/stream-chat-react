@@ -10,18 +10,22 @@ import React, {
 } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
+import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
   ModalContextProvider,
   modalDialogManagerId,
   useChatContext,
+  useComponentContext,
 } from '../../context';
 import {
   DialogPortalEntry,
   modalDialogId,
   useModalDialog,
   useModalDialogIsOpen,
+  useModalDialogIsTopmost,
 } from '../Dialog';
 import { useResolvedModalAriaProps } from '../../a11y/hooks/useResolvedModalAriaProps';
+import { useStableId } from '../UtilityComponents/useStableId';
 
 export type ModalCloseEvent =
   | KeyboardEvent
@@ -35,6 +39,8 @@ export type ModalProps = {
   open: boolean;
   /** Custom class to be applied to the modal root div */
   className?: string;
+  /** Optional stable id for this modal instance. Generated automatically when omitted. */
+  dialogId?: string;
   /** Properties forwarded to the root div within which the dialog content is rendered */
   dialogRootProps?: Omit<
     ComponentProps<'div'>,
@@ -63,18 +69,23 @@ export const GlobalModal = ({
   children,
   className,
   CloseButtonOnOverlay,
+  dialogId,
   dialogRootProps,
   onClose,
   onCloseAttempt,
   open,
   role = 'dialog',
 }: PropsWithChildren<ModalProps>) => {
-  const dialog = useModalDialog();
-  const isOpen = useModalDialogIsOpen();
+  const generatedDialogId = useStableId();
+  const resolvedDialogId = dialogId ?? `${modalDialogId}-${generatedDialogId}`;
+  const dialog = useModalDialog(resolvedDialogId);
+  const isOpen = useModalDialogIsOpen(resolvedDialogId);
+  const isTopmost = useModalDialogIsTopmost(resolvedDialogId);
   const overlayRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
   const { theme } = useChatContext();
+  const { NotificationList = DefaultNotificationList } = useComponentContext();
   const {
     className: dialogRootClassName,
     onKeyDown: dialogRootOnKeyDown,
@@ -109,6 +120,7 @@ export const GlobalModal = ({
   );
 
   const handleOverlayClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!isTopmost) return;
     const target = event.target as HTMLDivElement;
     if (overlayRef.current === target) {
       maybeClose('overlay', event);
@@ -116,12 +128,13 @@ export const GlobalModal = ({
   };
 
   const handleCloseButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (!isTopmost) return;
     maybeClose('button', event);
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     dialogRootOnKeyDown?.(event);
-    if (event.defaultPrevented || event.key !== 'Escape') return;
+    if (event.defaultPrevented || event.key !== 'Escape' || !isTopmost) return;
     maybeClose('escape', event);
   };
 
@@ -139,7 +152,7 @@ export const GlobalModal = ({
   if (!open || !isOpen) return null;
 
   return (
-    <DialogPortalEntry dialogId={modalDialogId} dialogManagerId={modalDialogManagerId}>
+    <DialogPortalEntry dialogId={resolvedDialogId} dialogManagerId={modalDialogManagerId}>
       <ModalContextProvider value={modalContextValue}>
         <div
           className={clsx(
@@ -151,21 +164,27 @@ export const GlobalModal = ({
           onClick={handleOverlayClick}
           ref={overlayRef}
         >
-          <FocusScope autoFocus contain restoreFocus>
+          <FocusScope autoFocus={isTopmost} contain={isTopmost} restoreFocus>
             <div
               tabIndex={-1}
               {...dialogRootPropsRest}
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
               aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
-              aria-modal='true'
+              aria-modal={isTopmost ? 'true' : undefined}
               className={clsx('str-chat__modal__dialog', dialogRootClassName)}
+              inert={isTopmost ? undefined : true}
               onKeyDown={handleDialogKeyDown}
               role={role}
             >
               {children}
             </div>
           </FocusScope>
+          <NotificationList
+            className='str-chat__modal__notification-list'
+            panel='modal'
+            verticalAlignment='top'
+          />
           {CloseButtonOnOverlay && (
             <CloseButtonOnOverlay onClick={handleCloseButtonClick} ref={closeButtonRef} />
           )}

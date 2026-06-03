@@ -87,7 +87,6 @@
     "react-textarea-autosize": "^8.5.9",
     "react-virtuoso": "^2.19.1",
     "remark-gfm": "^4.0.1",
-    "ts-pattern": "^5.9.0",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
     "use-sync-external-store": "^1.6.0"

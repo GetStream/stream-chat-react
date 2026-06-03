@@ -5,12 +5,13 @@ import {
   useDialogManager,
 } from '../../../context/DialogManagerContext';
 
-import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
+import { useDialogIsOpen, useDialogIsTopmost, useOpenedDialogCount } from '../hooks';
 
 const TEST_IDS = {
   CLOSE_DIALOG: 'close-dialog',
   DIALOG_COUNT: 'dialog-count',
   DIALOG_OPEN: 'dialog-open',
+  DIALOG_TOPMOST: 'dialog-topmost',
   MANAGER_ID_DISPLAY: 'manager-id-display',
   OPEN_DIALOG: 'open-dialog',
   TEST_COMPONENT: 'test-component',
@@ -21,20 +22,34 @@ const SHARED_MANAGER_ID = 'shared-manager';
 const MANAGER_1_ID = 'manager-1';
 const MANAGER_2_ID = 'manager-2';
 
-const TestComponent = ({ dialogId, dialogManagerId, testId }: any) => {
+type TestComponentProps = {
+  dialogId?: string;
+  dialogManagerId?: string;
+  testId?: string;
+};
+
+const TestComponent = ({ dialogId, dialogManagerId, testId }: TestComponentProps) => {
   const { dialogManager } = useDialogManager({ dialogId, dialogManagerId });
+  const selectorDialogId = dialogId ?? 'test-dialog';
   const openDialogCount = useOpenedDialogCount({ dialogManagerId });
-  const isOpen = useDialogIsOpen(dialogId, dialogManagerId);
+  const isOpen = useDialogIsOpen(selectorDialogId, dialogManagerId);
+  const isTopmost = useDialogIsTopmost(selectorDialogId, dialogManagerId);
   return (
     <div data-testid={testId ?? TEST_IDS.TEST_COMPONENT}>
       <span data-testid={TEST_IDS.MANAGER_ID_DISPLAY}>{dialogManager?.id}</span>
       <span data-testid={TEST_IDS.DIALOG_COUNT}>{openDialogCount}</span>
       <span data-testid={TEST_IDS.DIALOG_OPEN}>{isOpen ? 'true' : 'false'}</span>
+      <span data-testid={TEST_IDS.DIALOG_TOPMOST}>{isTopmost ? 'true' : 'false'}</span>
     </div>
   );
 };
 
-const DialogTestComponent = ({ dialogId, managerId }: any) => {
+type DialogTestComponentProps = {
+  dialogId: string;
+  managerId?: string;
+};
+
+const DialogTestComponent = ({ dialogId, managerId }: DialogTestComponentProps) => {
   const { dialogManager } = useDialogManager({ dialogManagerId: managerId });
 
   const handleOpenDialog = () => {
@@ -169,6 +184,61 @@ describe('DialogManagerContext', () => {
       expect(
         component2.querySelector(`[data-testid="${TEST_IDS.DIALOG_OPEN}"`),
       ).toHaveTextContent('true');
+    });
+
+    it('updates topmost dialog state when the dialog stack changes', () => {
+      render(
+        <DialogManagerProvider id={SHARED_MANAGER_ID}>
+          <DialogTestComponent dialogId='first-dialog' managerId={SHARED_MANAGER_ID} />
+          <DialogTestComponent dialogId='second-dialog' managerId={SHARED_MANAGER_ID} />
+          <TestComponent
+            dialogId='first-dialog'
+            dialogManagerId={SHARED_MANAGER_ID}
+            testId='first-component'
+          />
+          <TestComponent
+            dialogId='second-dialog'
+            dialogManagerId={SHARED_MANAGER_ID}
+            testId='second-component'
+          />
+        </DialogManagerProvider>,
+      );
+
+      const firstComponent = screen.getByTestId('first-component');
+      const secondComponent = screen.getByTestId('second-component');
+
+      act(() => {
+        fireEvent.click(screen.getAllByTestId(TEST_IDS.OPEN_DIALOG)[0]);
+      });
+
+      expect(
+        firstComponent.querySelector(`[data-testid="${TEST_IDS.DIALOG_TOPMOST}"]`),
+      ).toHaveTextContent('true');
+      expect(
+        secondComponent.querySelector(`[data-testid="${TEST_IDS.DIALOG_TOPMOST}"]`),
+      ).toHaveTextContent('false');
+
+      act(() => {
+        fireEvent.click(screen.getAllByTestId(TEST_IDS.OPEN_DIALOG)[1]);
+      });
+
+      expect(
+        firstComponent.querySelector(`[data-testid="${TEST_IDS.DIALOG_TOPMOST}"]`),
+      ).toHaveTextContent('false');
+      expect(
+        secondComponent.querySelector(`[data-testid="${TEST_IDS.DIALOG_TOPMOST}"]`),
+      ).toHaveTextContent('true');
+
+      act(() => {
+        fireEvent.click(screen.getAllByTestId(TEST_IDS.CLOSE_DIALOG)[1]);
+      });
+
+      expect(
+        firstComponent.querySelector(`[data-testid="${TEST_IDS.DIALOG_TOPMOST}"]`),
+      ).toHaveTextContent('true');
+      expect(
+        secondComponent.querySelector(`[data-testid="${TEST_IDS.DIALOG_TOPMOST}"]`),
+      ).toHaveTextContent('false');
     });
 
     it('creates different managers for different IDs', () => {
