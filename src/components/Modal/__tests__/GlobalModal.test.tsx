@@ -57,19 +57,21 @@ const renderStackedModals = ({
 } = {}) =>
   render(
     <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
-      <ModalDialogManagerProvider>
-        <GlobalModal aria-label='Parent modal' onClose={parentOnClose} open>
-          <ModalContent text='Parent content' />
-          <GlobalModal
-            aria-label='Child modal'
-            onClose={childOnClose}
-            open
-            role='alertdialog'
-          >
-            <ModalContent text='Child content' />
+      <ComponentProvider value={{ NotificationList: NoopNotificationList }}>
+        <ModalDialogManagerProvider>
+          <GlobalModal aria-label='Parent modal' onClose={parentOnClose} open>
+            <ModalContent text='Parent content' />
+            <GlobalModal
+              aria-label='Child modal'
+              onClose={childOnClose}
+              open
+              role='alertdialog'
+            >
+              <ModalContent text='Child content' />
+            </GlobalModal>
           </GlobalModal>
-        </GlobalModal>
-      </ModalDialogManagerProvider>
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
     </ChatProvider>,
   );
 
