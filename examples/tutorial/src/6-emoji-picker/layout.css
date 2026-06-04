@@ -4,29 +4,29 @@
 @layer stream-overrides {
   .custom-theme {
     /* Accent */
-    --accent-primary: #0d47a1;
+    --str-chat__accent-primary: #0d47a1;
 
     /* Message bubble colors */
-    --chat-bg-outgoing: #1e3a8a;
-    --chat-bg-attachment-outgoing: #0d47a1;
-    --chat-bg-incoming: #dbeafe;
-    --chat-text-outgoing: #ffffff;
-    --chat-reply-indicator-outgoing: #93c5fd;
+    --str-chat__chat-bg-outgoing: #1e3a8a;
+    --str-chat__chat-bg-attachment-outgoing: #0d47a1;
+    --str-chat__chat-bg-incoming: #dbeafe;
+    --str-chat__chat-text-outgoing: #ffffff;
+    --str-chat__chat-reply-indicator-outgoing: #93c5fd;
 
     /* Links */
-    --text-link: #1e40af;
-    --chat-text-link: #93c5fd;
+    --str-chat__text-link: #1e40af;
+    --str-chat__chat-text-link: #93c5fd;
 
     /* Panel backgrounds */
-    --background-core-elevation-1: #dbeafe; /* channel list, surrounding panels */
-    --background-core-app: #c7dafc;         /* message list background */
+    --str-chat__background-core-elevation-1: #dbeafe; /* channel list, surrounding panels */
+    --str-chat__background-core-app: #c7dafc;         /* message list background */
 
     /* Focus ring */
-    --border-utility-focused: #1e40af;
+    --str-chat__border-utility-focused: #1e40af;
 
     /* Radii */
-    --radius-max: 8px;
-    --button-radius-full: 6px;
+    --str-chat__radius-max: 8px;
+    --str-chat__button-radius-full: 6px;
   }
 }
 
