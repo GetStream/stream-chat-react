@@ -7,9 +7,9 @@ import {
 import { isDmChannel } from '../../../utils';
 import type { SectionNavigatorSectionContentProps } from '../../SectionNavigator';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../Avatar';
-import { useChannelPreviewInfo } from '../../ChannelListItem';
+import { useChannelPreviewInfo, useIsUserMuted } from '../../ChannelListItem';
 import { IconMute, IconPin } from '../../Icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useChannelMembershipState } from '../../ChannelList';
 import { useIsChannelMuted } from '../../ChannelListItem/hooks/useIsChannelMuted';
 import { useChannelHasMembersOnline } from '../../ChannelHeader/hooks/useChannelHasMembersOnline';
@@ -37,19 +37,30 @@ export const ChannelManagementView = ({
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
+  const resolvedIsDmChannel = isDmChannel({
+    channel,
+    ownUserId: client.user?.id,
+  });
+  const otherMemberUserId = useMemo(() => {
+    if (!resolvedIsDmChannel) return;
+
+    return (
+      Object.values(channel.state?.members ?? {}).find(
+        (member) => member.user?.id && member.user.id !== client.user?.id,
+      )?.user?.id ??
+      channel.data?.members?.find(
+        (member) => member.user?.id && member.user.id !== client.user?.id,
+      )?.user?.id
+    );
+  }, [channel, client.user?.id, resolvedIsDmChannel]);
   const isOnline = useChannelHasMembersOnline({ channel });
   const { muted: channelMuted } = useIsChannelMuted(channel);
-  const userMuted = false;
+  const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
   const actions = useBaseChannelManagementActionSetFilter(channelManagementActionSet);
   const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
 
   const pinned = !!membership.pinned_at;
-  const resolvedIsDmChannel = isDmChannel({
-    channel,
-    ownUserId: client.user?.id,
-  });
-
   return (
     <div className='str-chat__channel-detail__channel-management-view'>
       <Prompt.Header
