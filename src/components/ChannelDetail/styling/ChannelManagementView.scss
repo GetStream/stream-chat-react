@@ -43,9 +43,18 @@
   }
 }
 
+.str-chat__channel-management-view-action {
+  text-transform: capitalize;
+}
+
 .str-chat__channel-detail__action-icon {
   width: var(--str-chat__icon-size-sm);
   height: var(--str-chat__icon-size-sm);
   flex-shrink: 0;
   color: var(--str-chat__text-secondary);
+}
+
+.str-chat__channel-management-confirmation-alert {
+  min-width: min(304px, calc(100vw - 32px));
+  max-width: min(304px, calc(100vw - 32px));
 }

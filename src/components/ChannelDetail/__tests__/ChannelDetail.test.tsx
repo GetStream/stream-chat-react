@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, vi } from 'vitest';
+import type { Channel } from 'stream-chat';
 
 import { ChannelDetail } from '../ChannelDetail';
 import type { SectionNavigatorSection } from '../../SectionNavigator';
@@ -12,6 +13,10 @@ const sections: SectionNavigatorSection[] = [
     SectionContent: () => <div>Channel info</div>,
   },
 ];
+
+const channel = {
+  cid: 'messaging:test-channel',
+} as Channel;
 
 describe('ChannelDetail', () => {
   const OriginalResizeObserver = globalThis.ResizeObserver;
@@ -30,7 +35,11 @@ describe('ChannelDetail', () => {
 
   it('applies the channel-detail width class to the prompt wrapper', () => {
     const { container } = render(
-      <ChannelDetail className='custom-channel-detail' sections={sections} />,
+      <ChannelDetail
+        channel={channel}
+        className='custom-channel-detail'
+        sections={sections}
+      />,
     );
 
     const prompt = container.querySelector('.str-chat__prompt');

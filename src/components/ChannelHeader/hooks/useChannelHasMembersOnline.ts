@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
-import type { ChannelState } from 'stream-chat';
+import type { Channel, ChannelState } from 'stream-chat';
 
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 
-export const useChannelHasMembersOnline = (enabled = true) => {
-  const { channel } = useChannelStateContext();
+export type UseChannelHasMembersOnlineParams = {
+  channel?: Channel;
+  enabled?: boolean;
+};
+
+export const useChannelHasMembersOnline = ({
+  channel: channelOverride,
+  enabled = true,
+}: UseChannelHasMembersOnlineParams = {}) => {
+  const { channel: contextChannel } = useChannelStateContext();
+  const channel = channelOverride ?? contextChannel;
   const [watchers, setWatchers] = useState<ChannelState['watchers']>(() =>
     Object.assign({}, channel?.state?.watchers ?? {}),
   );

@@ -112,6 +112,9 @@ export class DialogManager {
             removalTimeout: undefined,
           },
         },
+        openedDialogIds: current.dialogsById[id]?.isOpen
+          ? [...current.openedDialogIds.filter((dialogId) => dialogId !== id), id]
+          : current.openedDialogIds,
       }));
     }
 
@@ -200,6 +203,7 @@ export class DialogManager {
           }, 16),
         },
       },
+      openedDialogIds: current.openedDialogIds.filter((dialogId) => dialogId !== id),
     }));
   }
 
@@ -221,6 +225,9 @@ export class DialogManager {
           removalTimeout: undefined,
         },
       },
+      openedDialogIds: current.dialogsById[id]?.isOpen
+        ? [...current.openedDialogIds.filter((dialogId) => dialogId !== id), id]
+        : current.openedDialogIds,
     }));
   }
 }

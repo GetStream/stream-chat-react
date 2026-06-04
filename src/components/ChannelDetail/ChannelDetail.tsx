@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
+import type { Channel } from 'stream-chat';
 
 import {
   SectionNavigator,
@@ -7,6 +8,7 @@ import {
   type SectionNavigatorProps,
   type SectionNavigatorSection,
 } from '../SectionNavigator';
+import { ChannelDetailProvider } from './ChannelDetailContext';
 import { ChannelManagementView } from './Views/ChannelManagementView';
 import { Prompt } from '../Dialog';
 import { IconInfo } from '../Icons';
@@ -14,11 +16,14 @@ import { ListItemLayout } from '../ListItemLayout';
 
 const ChannelDetailNavButtonClassName = 'str-chat__channel-detail__nav-button';
 
-const ChannelInfoNavButtonIcon = () => (
+const ChannelManagementNavButtonIcon = () => (
   <IconInfo className='str-chat__channel-detail__action-icon' />
 );
 
-const ChannelInfoNavButton = ({ select, selected }: SectionNavigatorNavButtonProps) => {
+const ChannelManagementNavButton = ({
+  select,
+  selected,
+}: SectionNavigatorNavButtonProps) => {
   const rootProps = useMemo(
     () => ({
       'aria-current': selected ? ('page' as const) : undefined,
@@ -30,7 +35,7 @@ const ChannelInfoNavButton = ({ select, selected }: SectionNavigatorNavButtonPro
 
   return (
     <ListItemLayout
-      LeadingIcon={ChannelInfoNavButtonIcon}
+      LeadingIcon={ChannelManagementNavButtonIcon}
       RootElement='button'
       rootProps={rootProps}
       selected={selected}
@@ -42,21 +47,25 @@ const ChannelInfoNavButton = ({ select, selected }: SectionNavigatorNavButtonPro
 const defaultSections: SectionNavigatorSection[] = [
   {
     id: 'channel-info',
-    NavButton: ChannelInfoNavButton,
+    NavButton: ChannelManagementNavButton,
     SectionContent: ChannelManagementView,
   },
 ];
 
 export type ChannelDetailProps = Omit<SectionNavigatorProps, 'sections'> & {
+  channel: Channel;
   sections?: SectionNavigatorSection[];
 };
 
 export const ChannelDetail = ({
+  channel,
   className,
   sections = defaultSections,
   ...props
 }: ChannelDetailProps) => (
-  <Prompt.Root className={clsx('str-chat__channel-detail', className)}>
-    <SectionNavigator {...props} sections={sections} />
-  </Prompt.Root>
+  <ChannelDetailProvider channel={channel}>
+    <Prompt.Root className={clsx('str-chat__channel-detail', className)}>
+      <SectionNavigator {...props} sections={sections} />
+    </Prompt.Root>
+  </ChannelDetailProvider>
 );

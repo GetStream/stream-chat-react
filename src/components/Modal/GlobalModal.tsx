@@ -138,11 +138,15 @@ export const GlobalModal = ({
     maybeClose('escape', event);
   };
 
-  // Sync open prop → dialog open. Don't close here (dialog ref changes after close → effect loop).
+  // Sync open prop → dialog state.
   // closingRef blocks re-open when we just closed and parent hasn't set open=false yet.
   useEffect(() => {
     if (!open) {
       closingRef.current = false;
+      if (isOpen) {
+        dialog.close();
+      }
+      return;
     }
     if (open && !isOpen && !closingRef.current) {
       dialog.open();
@@ -166,7 +170,6 @@ export const GlobalModal = ({
         >
           <FocusScope autoFocus={isTopmost} contain={isTopmost} restoreFocus>
             <div
-              tabIndex={-1}
               {...dialogRootPropsRest}
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
@@ -176,6 +179,7 @@ export const GlobalModal = ({
               inert={isTopmost ? undefined : true}
               onKeyDown={handleDialogKeyDown}
               role={role}
+              tabIndex={isTopmost ? 0 : -1}
             >
               {children}
             </div>

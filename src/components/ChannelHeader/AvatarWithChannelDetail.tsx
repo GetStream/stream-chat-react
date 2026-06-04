@@ -1,17 +1,24 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 
-import { useComponentContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import {
   type ChannelAvatarProps,
   ChannelAvatar as DefaultChannelAvatar,
 } from '../Avatar';
-import { ChannelDetail as DefaultChannelDetail } from '../ChannelDetail/ChannelDetail';
+import {
+  type ChannelDetailProps,
+  ChannelDetail as DefaultChannelDetail,
+} from '../ChannelDetail/ChannelDetail';
 import { GlobalModal } from '../Modal';
 
 export type AvatarWithChannelDetailProps = ChannelAvatarProps & {
   Avatar?: React.ComponentType<ChannelAvatarProps>;
-  ChannelDetail?: React.ComponentType;
+  ChannelDetail?: React.ComponentType<ChannelDetailProps>;
 };
 
 const avatarWithChannelDetailDialogRootProps = {
@@ -25,6 +32,7 @@ export const AvatarWithChannelDetail = ({
   ...avatarProps
 }: AvatarWithChannelDetailProps) => {
   const { t } = useTranslationContext();
+  const { channel } = useChannelStateContext();
   const { Avatar: ContextAvatar, Modal = GlobalModal } = useComponentContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -55,7 +63,7 @@ export const AvatarWithChannelDetail = ({
         onClose={closeModal}
         open={isModalOpen}
       >
-        <ChannelDetail />
+        <ChannelDetail channel={channel} />
       </Modal>
     </>
   );

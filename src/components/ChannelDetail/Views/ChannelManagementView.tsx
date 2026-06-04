@@ -1,5 +1,4 @@
 import {
-  useChannelStateContext,
   useChatContext,
   useComponentContext,
   useModalContext,
@@ -16,33 +15,34 @@ import { useIsChannelMuted } from '../../ChannelListItem/hooks/useIsChannelMuted
 import { useChannelHasMembersOnline } from '../../ChannelHeader/hooks/useChannelHasMembersOnline';
 import { Prompt } from '../../Dialog';
 import {
-  type ChannelInfoActionItem,
-  defaultChannelInfoActionSet,
-  useBaseChannelInfoActionSetFilter,
-} from './ChannelInfoActions.defaults';
+  type ChannelManagementActionItem,
+  defaultChannelManagementActionSet,
+  useBaseChannelManagementActionSetFilter,
+} from './ChannelManagementActions.defaults';
 import { useChannelHeaderOnlineStatus } from '../../ChannelHeader/hooks/useChannelHeaderOnlineStatus';
+import { useChannelDetailContext } from '../ChannelDetailContext';
 
 export type ChannelManagementViewProps = SectionNavigatorSectionContentProps & {
-  channelInfoActionSet?: ChannelInfoActionItem[];
+  channelManagementActionSet?: ChannelManagementActionItem[];
 };
 
 export const ChannelManagementView = ({
-  channelInfoActionSet = defaultChannelInfoActionSet,
+  channelManagementActionSet = defaultChannelManagementActionSet,
 }: ChannelManagementViewProps) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
+  const { channel } = useChannelDetailContext();
   const { close } = useModalContext();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
-  const isOnline = useChannelHasMembersOnline();
+  const isOnline = useChannelHasMembersOnline({ channel });
   const { muted: channelMuted } = useIsChannelMuted(channel);
   const userMuted = false;
   const membership = useChannelMembershipState(channel);
-  const actions = useBaseChannelInfoActionSetFilter(channelInfoActionSet);
-  const onlineStatusText = useChannelHeaderOnlineStatus();
+  const actions = useBaseChannelManagementActionSetFilter(channelManagementActionSet);
+  const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
 
   const pinned = !!membership.pinned_at;
   const resolvedIsDmChannel = isDmChannel({
