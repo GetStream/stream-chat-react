@@ -20,8 +20,31 @@ const mocks = vi.hoisted(() => {
   const muteUser = vi.fn();
   const removeMembers = vi.fn();
   const t = vi.fn((key: string) => key);
+  const unBlockUser = vi.fn();
   const unmute = vi.fn();
   const unmuteUser = vi.fn();
+  const blockedUsers = (() => {
+    let currentValue = { userIds: [] as string[] };
+    const listeners = new Set<() => void>();
+
+    return {
+      getLatestValue: () => currentValue,
+      next: (nextValue: { userIds: string[] }) => {
+        currentValue = nextValue;
+        listeners.forEach((listener) => listener());
+      },
+      subscribeWithSelector: (
+        _selector: (value: { userIds: string[] }) => Readonly<Record<string, unknown>>,
+        listener: () => void,
+      ) => {
+        listeners.add(listener);
+
+        return () => {
+          listeners.delete(listener);
+        };
+      },
+    };
+  })();
 
   const channel = {
     data: {
@@ -42,8 +65,10 @@ const mocks = vi.hoisted(() => {
   };
 
   const client = {
+    blockedUsers,
     blockUser,
     muteUser,
+    unBlockUser,
     unmuteUser,
     user: { id: 'own-user' },
     userID: 'own-user',
@@ -62,6 +87,7 @@ const mocks = vi.hoisted(() => {
     muteUser,
     removeMembers,
     t,
+    unBlockUser,
     unmute,
     unmuteUser,
     useStableTranslationFunction: true,
@@ -154,6 +180,7 @@ describe('DefaultChannelManagementActions', () => {
     mocks.muteUser.mockReset();
     mocks.removeMembers.mockReset();
     mocks.t.mockClear();
+    mocks.unBlockUser.mockReset();
     mocks.unmute.mockReset();
     mocks.unmuteUser.mockReset();
     mocks.useStableTranslationFunction = true;
@@ -172,6 +199,7 @@ describe('DefaultChannelManagementActions', () => {
       'other-user': { user: { id: 'other-user' } },
       'own-user': { user: { id: 'own-user' } },
     };
+    mocks.client.blockedUsers.next({ userIds: [] });
     mocks.mutes = [];
   });
 
@@ -299,6 +327,35 @@ describe('DefaultChannelManagementActions', () => {
         message: 'User blocked',
         severity: 'success',
         type: 'api:user:block:success',
+      }),
+    );
+  });
+
+  it('opens an unblock user alert and runs the API from the confirm button', async () => {
+    mocks.client.blockedUsers.next({ userIds: ['other-user'] });
+    mocks.unBlockUser.mockResolvedValueOnce(undefined);
+
+    renderAction(<DefaultChannelManagementActions.BlockUser />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Unblock User' }));
+
+    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Unblock User' })).toBeInTheDocument();
+    expect(mocks.unBlockUser).not.toHaveBeenCalled();
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByTestId('channel-detail-block-user-alert-confirm-button'),
+      );
+      await Promise.resolve();
+    });
+
+    expect(mocks.unBlockUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.addNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: 'User unblocked',
+        severity: 'success',
+        type: 'api:user:unblock:success',
       }),
     );
   });

@@ -10,6 +10,7 @@ import {
 } from '../../../context';
 import { isDmChannel, useStableCallback } from '../../../utils';
 import { useIsChannelMuted } from '../../ChannelListItem/hooks/useIsChannelMuted';
+import { useStateStore } from '../../../store';
 import { Alert } from '../../Dialog';
 import { Button } from '../../Button';
 import { Switch } from '../../Form';
@@ -39,22 +40,24 @@ const toError = (error: unknown) =>
 const getDisplayName = (name?: string, fallback?: string) => name || fallback || '';
 
 const BlockUserActionIcon = () => (
-  <IconNoSign className='str-chat__channel-detail__action-icon' />
+  <IconNoSign className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
 );
 const DeleteChatActionIcon = () => (
-  <IconDelete className='str-chat__channel-detail__action-icon' />
+  <IconDelete className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
 );
 const MuteActionIcon = () => (
-  <IconMute className='str-chat__channel-detail__action-icon' />
+  <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
 );
 const MutedActionIcon = () => (
-  <IconAudio className='str-chat__channel-detail__action-icon' />
+  <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
 );
 const LeaveChannelActionIcon = () => (
-  <IconLeave className='str-chat__channel-detail__action-icon' />
+  <IconLeave className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
 );
 
 const channelManagementViewActionClassName = 'str-chat__channel-management-view-action';
+
+const blockedUsersSelector = ({ userIds }: { userIds: string[] }) => ({ userIds });
 
 type ChannelManagementConfirmationAlertProps = {
   action: 'blockUser' | 'deleteChat' | 'leaveChannel';
@@ -420,6 +423,15 @@ const BlockUserAction = () => {
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const otherMember = useOtherMember();
+  const targetUserId = otherMember?.user?.id;
+  const { userIds: blockedUserIds } = useStateStore(
+    client.blockedUsers,
+    blockedUsersSelector,
+  );
+  const isBlocked = useMemo(
+    () => !!targetUserId && new Set(blockedUserIds).has(targetUserId),
+    [blockedUserIds, targetUserId],
+  );
   const [alertOpen, setAlertOpen] = useState(false);
   const [userBlockInProgress, setUserBlockInProgress] = useState(false);
 
@@ -431,12 +443,40 @@ const BlockUserAction = () => {
     setAlertOpen(true);
   }, []);
 
-  const blockUser = useCallback(async () => {
-    if (!otherMember?.user?.id) return;
+  const unblockUser = useCallback(async () => {
+    if (!targetUserId) return;
 
     try {
       setUserBlockInProgress(true);
-      await client.blockUser(otherMember.user.id);
+      await client.unBlockUser(targetUserId);
+      addNotification({
+        context: { channel },
+        emitter: 'ChannelManagementView',
+        message: t('User unblocked'),
+        severity: 'success',
+        type: 'api:user:unblock:success',
+      });
+    } catch (error) {
+      addNotification({
+        context: { channel },
+        emitter: 'ChannelManagementView',
+        error: toError(error),
+        message: t('Error unblocking user'),
+        severity: 'error',
+        type: 'api:user:unblock:failed',
+      });
+    } finally {
+      setAlertOpen(false);
+      setUserBlockInProgress(false);
+    }
+  }, [addNotification, channel, client, targetUserId, t]);
+
+  const blockUser = useCallback(async () => {
+    if (!targetUserId) return;
+
+    try {
+      setUserBlockInProgress(true);
+      await client.blockUser(targetUserId);
       addNotification({
         context: { channel },
         emitter: 'ChannelManagementView',
@@ -457,7 +497,7 @@ const BlockUserAction = () => {
       setAlertOpen(false);
       setUserBlockInProgress(false);
     }
-  }, [addNotification, channel, client, otherMember, t]);
+  }, [addNotification, channel, client, targetUserId, t]);
 
   const rootProps = useMemo(
     () => ({
@@ -475,21 +515,25 @@ const BlockUserAction = () => {
         LeadingIcon={BlockUserActionIcon}
         RootElement='button'
         rootProps={rootProps}
-        title={t('Block user')}
+        title={isBlocked ? t('Unblock User') : t('Block user')}
       />
       <Modal open={alertOpen} role='alertdialog'>
         <ChannelManagementConfirmationAlert
           action='blockUser'
           cancelLabel={t('Cancel')}
-          confirmLabel={t('Block User')}
-          description={t(
-            "This user won't be able to message you anymore. You can unblock them anytime.",
-          )}
+          confirmLabel={isBlocked ? t('Unblock User') : t('Block User')}
+          description={
+            isBlocked
+              ? t('This user will be able to message you again.')
+              : t(
+                  "This user won't be able to message you anymore. You can unblock them anytime.",
+                )
+          }
           isSubmitting={userBlockInProgress}
           onCancel={closeBlockUserAlert}
-          onConfirm={blockUser}
+          onConfirm={isBlocked ? unblockUser : blockUser}
           testId='channel-detail-block-user-alert'
-          title={t('Block User')}
+          title={isBlocked ? t('Unblock User') : t('Block User')}
         />
       </Modal>
     </>
