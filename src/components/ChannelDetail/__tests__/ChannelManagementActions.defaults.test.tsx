@@ -337,10 +337,10 @@ describe('DefaultChannelManagementActions', () => {
 
     renderAction(<DefaultChannelManagementActions.BlockUser />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Unblock User' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Unblock' }));
 
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Unblock User' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Unblock' })).toBeInTheDocument();
     expect(mocks.unBlockUser).not.toHaveBeenCalled();
 
     await act(async () => {

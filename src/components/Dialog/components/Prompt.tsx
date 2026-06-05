@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import { IconXmark } from '../../Icons';
+import { IconArrowLeft, IconXmark } from '../../Icons';
 import { useModalContext, useTranslationContext } from '../../../context';
 import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
@@ -13,11 +13,14 @@ const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) =>
 
 export type PromptHeaderProps = {
   title: string;
-  description?: string;
   className?: string;
   close?: () => void;
+  description?: string;
   descriptionId?: string;
+  goBack?: () => void;
+  LeadingContent?: React.ComponentType;
   titleId?: string;
+  TrailingContent?: React.ComponentType;
 };
 
 const PromptHeader = ({
@@ -25,8 +28,11 @@ const PromptHeader = ({
   close,
   description,
   descriptionId,
+  goBack,
+  LeadingContent,
   title,
   titleId,
+  TrailingContent,
 }: PromptHeaderProps) => {
   const { t } = useTranslationContext();
   const { dialogId } = useModalContext();
@@ -36,8 +42,26 @@ const PromptHeader = ({
   const resolvedDescriptionId = descriptionId ?? derivedDescriptionId;
 
   return (
-    <div className={clsx('str-chat__prompt__header', className)}>
+    <div
+      className={clsx('str-chat__prompt__header', className, {
+        'str-chat__prompt__header--withGoBack': goBack,
+      })}
+    >
+      {LeadingContent && <LeadingContent />}
       <div className='str-chat__prompt__header__title-group'>
+        {goBack && (
+          <Button
+            appearance='ghost'
+            aria-label={t('Go back')}
+            circular
+            className='str-chat__prompt__header__go-back-button'
+            onClick={goBack}
+            size='md'
+            variant='secondary'
+          >
+            <IconArrowLeft />
+          </Button>
+        )}
         <h2 className='str-chat__prompt__header__title' id={resolvedTitleId}>
           {title}
         </h2>
@@ -47,21 +71,28 @@ const PromptHeader = ({
           </p>
         )}
       </div>
-      {close && (
-        <Button
-          appearance='ghost'
-          aria-describedby={
-            description != null && description !== '' ? resolvedDescriptionId : undefined
-          }
-          aria-label={t('Close prompt: {{ title }}', { title })}
-          circular
-          className='str-chat__prompt__header__close-button'
-          onClick={close}
-          size='md'
-          variant='secondary'
-        >
-          <IconXmark />
-        </Button>
+      {(close || TrailingContent) && (
+        <div className='str-chat__prompt__header__trailing-content'>
+          {TrailingContent && <TrailingContent />}
+          {close && (
+            <Button
+              appearance='ghost'
+              aria-describedby={
+                description != null && description !== ''
+                  ? resolvedDescriptionId
+                  : undefined
+              }
+              aria-label={t('Close prompt: {{ title }}', { title })}
+              circular
+              className='str-chat__prompt__header__close-button'
+              onClick={close}
+              size='md'
+              variant='secondary'
+            >
+              <IconXmark />
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );

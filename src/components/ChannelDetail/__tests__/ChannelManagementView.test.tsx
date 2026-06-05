@@ -1,16 +1,19 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Channel, Mute } from 'stream-chat';
 
 import { ChannelDetailProvider } from '../ChannelDetailContext';
 import { ChannelManagementView } from '../Views/ChannelManagementView';
 
 const mocks = vi.hoisted(() => ({
+  addNotification: vi.fn(),
   channel: {
     data: {
       member_count: 2,
       name: 'Test channel',
+      own_capabilities: ['update-channel'],
     },
+    sendImage: vi.fn(),
     state: {
       members: {
         'other-user': { user: { id: 'other-user' } },
@@ -18,8 +21,10 @@ const mocks = vi.hoisted(() => ({
       },
       membership: {},
     },
+    updatePartial: vi.fn(),
   },
   close: vi.fn(),
+  displayImage: undefined as string | undefined,
   mutes: [] as Mute[],
 }));
 
@@ -56,7 +61,7 @@ vi.mock('../../ChannelListItem', async (importOriginal) => {
   return {
     ...actual,
     useChannelPreviewInfo: () => ({
-      displayImage: undefined,
+      displayImage: mocks.displayImage,
       displayTitle: 'Other user',
       groupChannelDisplayInfo: { members: [] },
     }),
@@ -84,10 +89,43 @@ vi.mock('../../Dialog', () => ({
       children: React.ReactNode;
       className?: string;
     }) => <div className={className}>{children}</div>,
-    Header: ({ description, title }: { description: string; title: string }) => (
+    Footer: ({
+      children,
+      className,
+    }: {
+      children: React.ReactNode;
+      className?: string;
+    }) => <footer className={className}>{children}</footer>,
+    FooterControls: ({
+      children,
+      className,
+    }: {
+      children: React.ReactNode;
+      className?: string;
+    }) => <div className={className}>{children}</div>,
+    FooterControlsButtonPrimary: (
+      props: React.ButtonHTMLAttributes<HTMLButtonElement>,
+    ) => <button {...props} />,
+    Header: ({
+      description,
+      goBack,
+      title,
+      TrailingContent,
+    }: {
+      description?: string;
+      goBack?: () => void;
+      title: string;
+      TrailingContent?: React.ComponentType;
+    }) => (
       <header>
         <h2>{title}</h2>
-        <p>{description}</p>
+        {description && <p>{description}</p>}
+        {goBack && (
+          <button aria-label='Go back' onClick={goBack}>
+            Go back
+          </button>
+        )}
+        {TrailingContent && <TrailingContent />}
       </header>
     ),
   },
@@ -103,15 +141,37 @@ vi.mock('../../Icons', async (importOriginal) => {
   };
 });
 
-const renderChannelManagementView = () =>
+vi.mock('../../Notifications/hooks/useNotificationApi', () => ({
+  useNotificationApi: () => ({ addNotification: mocks.addNotification }),
+}));
+
+const renderChannelManagementView = (
+  props: Partial<React.ComponentProps<typeof ChannelManagementView>> = {},
+) =>
   render(
     <ChannelDetailProvider channel={mocks.channel as unknown as Channel}>
-      <ChannelManagementView channelManagementActionSet={[]} layout='tabs' />
+      <ChannelManagementView channelManagementActionSet={[]} layout='tabs' {...props} />
     </ChannelDetailProvider>,
   );
 
 describe('ChannelManagementView', () => {
   beforeEach(() => {
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: vi.fn(() => 'blob:preview'),
+    });
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      value: vi.fn(),
+    });
+    mocks.addNotification.mockReset();
+    mocks.channel.sendImage.mockReset();
+    mocks.channel.updatePartial.mockReset();
+    mocks.channel.sendImage.mockResolvedValue({ file: 'https://stream-upload.example' });
+    mocks.channel.updatePartial.mockResolvedValue({});
+    mocks.channel.data.name = 'Test channel';
+    mocks.channel.data.member_count = 2;
+    mocks.displayImage = undefined;
     mocks.mutes = [];
   });
 
@@ -133,5 +193,197 @@ describe('ChannelManagementView', () => {
     );
 
     expect(screen.getByTestId('channel-management-muted-icon')).toBeInTheDocument();
+  });
+
+  it('renders custom view and edit mode components', () => {
+    const ViewModeComponent = vi.fn(() => <div data-testid='custom-view-mode' />);
+    const EditModeComponent = vi.fn(() => <div data-testid='custom-edit-mode' />);
+
+    renderChannelManagementView({ EditModeComponent, ViewModeComponent });
+
+    expect(screen.getByTestId('custom-view-mode')).toBeInTheDocument();
+    expect(ViewModeComponent).toHaveBeenCalledWith({ actions: [] }, undefined);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit chat data' }));
+
+    expect(screen.getByTestId('custom-edit-mode')).toBeInTheDocument();
+    expect(EditModeComponent).toHaveBeenCalledWith({ uploadImage: undefined }, undefined);
+  });
+
+  it('uses custom image upload callback when saving a new image', async () => {
+    const uploadImage = vi.fn().mockResolvedValue('https://custom-upload.example');
+    const { container } = renderChannelManagementView({ uploadImage });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit chat data' }));
+    fireEvent.change(container.querySelector('input[type="file"]')!, {
+      target: {
+        files: [new File(['avatar'], 'avatar.png', { type: 'image/png' })],
+      },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(1));
+    expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+    expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
+      set: { image: 'https://custom-upload.example' },
+    });
+  });
+
+  describe('edit mode save', () => {
+    const enterEditMode = () =>
+      fireEvent.click(screen.getByRole('button', { name: 'Edit chat data' }));
+
+    const setName = (value: string) =>
+      fireEvent.change(screen.getByRole('textbox'), {
+        target: { value },
+      });
+
+    const uploadFile = (container: HTMLElement) =>
+      fireEvent.change(container.querySelector('input[type="file"]')!, {
+        target: { files: [new File(['avatar'], 'avatar.png', { type: 'image/png' })] },
+      });
+
+    const save = () => fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    it('persists a name-only change without uploading an image', async () => {
+      renderChannelManagementView();
+
+      enterEditMode();
+      setName('Renamed channel');
+      save();
+
+      await waitFor(() =>
+        expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
+          set: { name: 'Renamed channel' },
+        }),
+      );
+      expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+    });
+
+    it('uploads via channel.sendImage when no custom upload is provided', async () => {
+      const { container } = renderChannelManagementView();
+
+      enterEditMode();
+      uploadFile(container);
+      save();
+
+      await waitFor(() => expect(mocks.channel.sendImage).toHaveBeenCalledTimes(1));
+      expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
+        set: { image: 'https://stream-upload.example' },
+      });
+    });
+
+    it('persists both name and image when both change', async () => {
+      const { container } = renderChannelManagementView();
+
+      enterEditMode();
+      setName('Renamed channel');
+      uploadFile(container);
+      save();
+
+      await waitFor(() =>
+        expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
+          set: { image: 'https://stream-upload.example', name: 'Renamed channel' },
+        }),
+      );
+    });
+
+    it('unsets the image when an existing image is deleted', async () => {
+      mocks.displayImage = 'https://existing.example';
+      renderChannelManagementView();
+
+      enterEditMode();
+      fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+      save();
+
+      await waitFor(() =>
+        expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
+          unset: ['image'],
+        }),
+      );
+      expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+    });
+
+    it('emits a success notification after saving', async () => {
+      renderChannelManagementView();
+
+      enterEditMode();
+      setName('Renamed channel');
+      save();
+
+      await waitFor(() =>
+        expect(mocks.addNotification).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: 'Changes saved',
+            severity: 'success',
+          }),
+        ),
+      );
+    });
+
+    it('emits an error notification when the update fails', async () => {
+      mocks.channel.updatePartial.mockRejectedValueOnce(new Error('boom'));
+      renderChannelManagementView();
+
+      enterEditMode();
+      setName('Renamed channel');
+      save();
+
+      await waitFor(() =>
+        expect(mocks.addNotification).toHaveBeenCalledWith(
+          expect.objectContaining({
+            error: expect.any(Error),
+            message: 'Failed to save changes',
+            severity: 'error',
+          }),
+        ),
+      );
+    });
+
+    it('does not persist when the upload returns no URL', async () => {
+      mocks.channel.sendImage.mockResolvedValueOnce({ file: undefined });
+      const { container } = renderChannelManagementView();
+
+      enterEditMode();
+      uploadFile(container);
+      save();
+
+      await waitFor(() =>
+        expect(mocks.addNotification).toHaveBeenCalledWith(
+          expect.objectContaining({ severity: 'error' }),
+        ),
+      );
+      expect(mocks.channel.updatePartial).not.toHaveBeenCalled();
+    });
+
+    it('labels the name field "Contact name" for a DM channel', () => {
+      renderChannelManagementView();
+
+      enterEditMode();
+
+      expect(screen.getByLabelText('Contact name')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Contact name')).toBeInTheDocument();
+    });
+
+    it('labels the name field "Group name" for a group channel', () => {
+      mocks.channel.data.member_count = 5;
+      renderChannelManagementView();
+
+      enterEditMode();
+
+      expect(screen.getByLabelText('Group name')).toBeInTheDocument();
+      expect(screen.getByPlaceholderText('Group name')).toBeInTheDocument();
+    });
+
+    it('keeps the save button disabled until something changes', () => {
+      renderChannelManagementView();
+
+      enterEditMode();
+
+      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+      setName('Renamed channel');
+      expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    });
   });
 });

@@ -64,3 +64,37 @@
   min-width: min(304px, calc(100vw - 32px));
   max-width: min(304px, calc(100vw - 32px));
 }
+
+.str-chat__channel-detail__channel-management-view__form {
+  display: contents;
+}
+
+.str-chat__channel-detail__channel-management-view__avatar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xl);
+  flex-wrap: wrap;
+}
+
+.str-chat__channel-detail__channel-management-view__avatar-row__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xs);
+  flex-wrap: wrap;
+}
+
+.str-chat__channel-detail__channel-management-view__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.str-chat__channel-detail__channel-management-view__name-input {
+  width: 100%;
+}

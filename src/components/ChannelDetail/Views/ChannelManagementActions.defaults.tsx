@@ -515,13 +515,13 @@ const BlockUserAction = () => {
         LeadingIcon={BlockUserActionIcon}
         RootElement='button'
         rootProps={rootProps}
-        title={isBlocked ? t('Unblock User') : t('Block user')}
+        title={isBlocked ? t('Unblock') : t('Block user')}
       />
       <Modal open={alertOpen} role='alertdialog'>
         <ChannelManagementConfirmationAlert
           action='blockUser'
           cancelLabel={t('Cancel')}
-          confirmLabel={isBlocked ? t('Unblock User') : t('Block User')}
+          confirmLabel={isBlocked ? t('Unblock') : t('Block User')}
           description={
             isBlocked
               ? t('This user will be able to message you again.')
@@ -533,7 +533,7 @@ const BlockUserAction = () => {
           onCancel={closeBlockUserAlert}
           onConfirm={isBlocked ? unblockUser : blockUser}
           testId='channel-detail-block-user-alert'
-          title={isBlocked ? t('Unblock User') : t('Block User')}
+          title={isBlocked ? t('Unblock') : t('Block User')}
         />
       </Modal>
     </>
