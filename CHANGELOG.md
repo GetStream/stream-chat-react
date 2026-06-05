@@ -1,3 +1,9 @@
+## [14.4.1](https://github.com/GetStream/stream-chat-react/compare/v14.4.0...v14.4.1) (2026-06-05)
+
+### Bug Fixes
+
+* only run husky in a git checkout so npm consumers don't break ([#3211](https://github.com/GetStream/stream-chat-react/issues/3211)) ([640bf4b](https://github.com/GetStream/stream-chat-react/commit/640bf4b2b33a2ce1cc2c2d17649cc52fdcf6f487))
+
 ## [14.4.0](https://github.com/GetStream/stream-chat-react/compare/v14.3.0...v14.4.0) (2026-06-05)
 
 ### Bug Fixes
