@@ -196,7 +196,7 @@
     "start:css": "node scripts/watch-styling.mjs",
     "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
     "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
-    "postinstall": "husky",
+    "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",
     "test:watch": "vitest",
     "types": "tsc --emitDeclarationOnly false --noEmit",
