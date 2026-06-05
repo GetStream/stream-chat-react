@@ -227,7 +227,10 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(sendReaction).toHaveBeenCalledWith(message.id, { type: reaction.type });
+    expect(sendReaction).toHaveBeenCalledWith(message.id, {
+      emoji_code: '❤️',
+      type: reaction.type,
+    });
   });
 
   it('should not send reaction without permission', async () => {

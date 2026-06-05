@@ -6,6 +6,11 @@ import { useThreadContext } from '../../Threads';
 import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
+import { useComponentContext } from '../../../context/ComponentContext';
+import {
+  defaultReactionOptions,
+  getEmojiCodeByReactionType,
+} from '../../Reactions/reactionOptions';
 
 import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
 
@@ -17,6 +22,8 @@ export const useReactionHandler = (message?: LocalMessage) => {
   const { updateMessage } = useChannelActionContext('useReactionHandler');
   const { channel, channelCapabilities } = useChannelStateContext('useReactionHandler');
   const { client } = useChatContext('useReactionHandler');
+  const { reactionOptions = defaultReactionOptions } =
+    useComponentContext('useReactionHandler');
 
   const createMessagePreview = useCallback(
     (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
@@ -69,18 +76,22 @@ export const useReactionHandler = (message?: LocalMessage) => {
     [client.user, client.userID],
   );
 
-  const createReactionPreview = (type: string) => ({
+  const createReactionPreview = (type: string, emojiCode?: string) => ({
     message_id: message?.id,
     score: 1,
     type,
     user: client.user,
     user_id: client.user?.id,
+    ...(emojiCode && { emoji_code: emojiCode }),
   });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
     if (!message || !channelCapabilities['send-reaction']) return;
 
-    const newReaction = createReactionPreview(type) as ReactionResponse;
+    // Native emoji (e.g. "👍") for this reaction type, sent as `emoji_code` so
+    // push notifications in mobile SDKs can render the emoji.
+    const emojiCode = getEmojiCodeByReactionType(reactionOptions, type);
+    const newReaction = createReactionPreview(type, emojiCode) as ReactionResponse;
     const tempMessage = createMessagePreview(add, newReaction, message);
 
     try {
@@ -88,7 +99,10 @@ export const useReactionHandler = (message?: LocalMessage) => {
       thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
-        ? await channel.sendReaction(id, { type } as Reaction)
+        ? await channel.sendReaction(id, {
+            type,
+            ...(emojiCode && { emoji_code: emojiCode }),
+          } as Reaction)
         : await channel.deleteReaction(id, type);
 
       // seems useless as we're expecting WS event to come in and replace this anyway
