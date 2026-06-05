@@ -281,6 +281,39 @@ describe('<MessageText />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it.each([
+    ['channel mention', { mentioned_channel: true, text: 'Hello @channel' }],
+    ['here mention', { mentioned_here: true, text: 'Hello @here' }],
+    ['role mention', { mentioned_roles: ['admin'], text: 'Hello @admin' }],
+    [
+      'user-group mention',
+      {
+        mentioned_groups: [
+          fromPartial({
+            created_at: '2026-05-28T00:00:00.000Z',
+            id: 'backend-team',
+            name: 'Backend Team',
+            updated_at: '2026-05-28T00:00:00.000Z',
+          }),
+        ],
+        text: 'Hello @Backend Team',
+      },
+    ],
+  ])('should make only inner wrapper focusable for a %s', async (_, messageOptions) => {
+    const message = generateAliceMessage(messageOptions);
+    const { container, getByTestId } = await renderMessageText({
+      customProps: { message },
+    });
+
+    const innerWrapper = getByTestId(messageTextTestId);
+    const outerWrapper = innerWrapper.parentElement;
+
+    expect(outerWrapper).not.toHaveAttribute('tabindex');
+    expect(innerWrapper).toHaveAttribute('tabindex', '0');
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
   it('should expose sender context on the focusable message wrapper', async () => {
     const text = 'Hello, world!';
     const message = generateAliceMessage({ text });
@@ -390,7 +423,7 @@ describe('<MessageText />', () => {
       mentioned_roles: ['admin'],
       text,
     });
-    const { container, getByText } = await renderMessageText({
+    const { container, getByTestId, getByText } = await renderMessageText({
       customProps: { message },
     });
 
@@ -399,6 +432,11 @@ describe('<MessageText />', () => {
     expect(getByText('@admin')).toHaveAttribute('data-mention-type', 'role');
     expect(getByText('@Backend Team')).toHaveAttribute('data-mention-type', 'user_group');
     expect(container.querySelectorAll('.str-chat__message-mention')).toHaveLength(4);
+    expect(getByTestId(messageTextTestId)).toHaveAttribute('tabindex', '0');
+
+    expect(onMentionsClickMock).not.toHaveBeenCalled();
+    fireEvent.keyDown(getByTestId(messageTextTestId), { key: 'Enter' });
+    expect(onMentionsClickMock).toHaveBeenCalledWith(expect.anything(), [], message);
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

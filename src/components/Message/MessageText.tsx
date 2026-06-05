@@ -78,9 +78,9 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass = customInnerClass;
-  const hasMentionedUsers = Boolean(message.mentioned_users?.length);
+  const hasMentions = Boolean(renderTextMentionEntities.length);
   const isMentionsInteractionEnabled =
-    hasMentionedUsers && typeof onMentionsClickMessage === 'function';
+    hasMentions && typeof onMentionsClickMessage === 'function';
   const senderName = message.user?.name;
   const messageContext = senderName
     ? t('aria/Message from {{ user }},', { user: senderName })
