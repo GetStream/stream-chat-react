@@ -221,18 +221,13 @@ export const SuggestionList = ({
     return null;
 
   // todo: remove the legacyUserSuggestionsLabel check with the next major release. It was introduced for backwards compatibility.
-  const legacyUserSuggestionsLabel = t('aria/User Suggestions', {
-    defaultValue: 'aria/User Suggestions',
-  });
   const suggestionMenuLabel =
     suggestions.searchSource.type === 'commands'
       ? t('aria/Command Suggestions')
       : suggestions.searchSource.type === 'emojis'
         ? t('aria/Emoji Suggestions')
         : suggestions.searchSource.type === 'mentions'
-          ? legacyUserSuggestionsLabel === 'aria/User Suggestions'
-            ? t('aria/Mention Suggestions')
-            : legacyUserSuggestionsLabel
+          ? t('aria/Mention Suggestions')
           : t('aria/Suggestions');
 
   return (
