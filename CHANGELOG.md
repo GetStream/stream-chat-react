@@ -1,3 +1,23 @@
+## [14.4.0](https://github.com/GetStream/stream-chat-react/compare/v14.3.0...v14.4.0) (2026-06-05)
+
+### Bug Fixes
+
+* **compat:** restore React 17/18 compatibility in certain components ([#3197](https://github.com/GetStream/stream-chat-react/issues/3197)) ([b513b69](https://github.com/GetStream/stream-chat-react/commit/b513b691b125de00979b70da274d5a61b13cecde))
+* general performance and bug fixes ([#3201](https://github.com/GetStream/stream-chat-react/issues/3201)) ([57c5795](https://github.com/GetStream/stream-chat-react/commit/57c5795ce7704fcc400003ef1b2eae5c576bf529))
+* **interop:** unwrap CJS default exports (react-player, @emoji-mart/react) ([#3199](https://github.com/GetStream/stream-chat-react/issues/3199)) ([4cddb02](https://github.com/GetStream/stream-chat-react/commit/4cddb02f758b3a9a790203a519c2d27f682d5e08))
+* maintain topmost modal non-inert ([#3206](https://github.com/GetStream/stream-chat-react/issues/3206)) ([7ad98fa](https://github.com/GetStream/stream-chat-react/commit/7ad98fadee6a5c2d13c2d7d234e84e87d36a464b))
+
+### Features
+
+* allow to stack modals on top of each other ([#3203](https://github.com/GetStream/stream-chat-react/issues/3203)) ([4c934ae](https://github.com/GetStream/stream-chat-react/commit/4c934aec4bbf2e06eb559553d96d9963443c99f2))
+* display notifications above modals ([#3200](https://github.com/GetStream/stream-chat-react/issues/3200)) ([0433090](https://github.com/GetStream/stream-chat-react/commit/04330905cb61bb3bf31c49943df78786a50b51fe))
+* **Reactions:** send emoji_code with reactions for push notification rendering ([#3209](https://github.com/GetStream/stream-chat-react/issues/3209)) ([2faa620](https://github.com/GetStream/stream-chat-react/commit/2faa620ee27c9aeb702e1dd59e22f4990706de11))
+
+### Performance Improvements
+
+* **Message:** hoist regex compilation in message text rendering ([#3202](https://github.com/GetStream/stream-chat-react/issues/3202)) ([8c018a4](https://github.com/GetStream/stream-chat-react/commit/8c018a44a9abd2c1a88e1285ae215ed537be55eb))
+* **VideoPlayer:** lazy-load react-player to keep it out of the main bundle ([#3204](https://github.com/GetStream/stream-chat-react/issues/3204)) ([18dc966](https://github.com/GetStream/stream-chat-react/commit/18dc966518e492bf9e31e9c885d56f205af8659c))
+
 ## [14.3.0](https://github.com/GetStream/stream-chat-react/compare/v14.2.0...v14.3.0) (2026-05-26)
 
 ### Bug Fixes
