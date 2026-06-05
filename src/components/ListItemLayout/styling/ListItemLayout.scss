@@ -2,6 +2,7 @@
 
 .str-chat__list-item-layout {
   --list-item-padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+
   display: flex;
   align-items: center;
   gap: var(--str-chat__spacing-sm);
