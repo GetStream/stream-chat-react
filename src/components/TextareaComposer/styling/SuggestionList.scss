@@ -42,6 +42,7 @@
   .str-chat__suggestion-list__item-title {
     @include fonts.text-caption-default;
     @include utils.ellipsis-text;
+
     text-align: start;
     min-width: 0;
   }
@@ -53,6 +54,7 @@
   .str-chat__suggestion-list__item-details {
     @include fonts.text-metadata-default;
     @include utils.ellipsis-text;
+
     color: var(--str-chat__text-tertiary);
     text-align: start;
     min-width: 0;
