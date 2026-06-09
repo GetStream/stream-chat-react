@@ -61,6 +61,12 @@
   color: var(--str-chat__text-low-emphasis);
 }
 
+.str-chat__channel-detail__channel-members-view__list-item__trailing-slot {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xs);
+}
+
 .str-chat__channel-detail__channel-members-view__role-label,
 .str-chat__channel-detail__channel-members-view__already-member-label {
   color: var(--str-chat__text-secondary);

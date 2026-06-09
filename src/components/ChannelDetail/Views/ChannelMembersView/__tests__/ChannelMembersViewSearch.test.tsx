@@ -16,6 +16,12 @@ import {
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
 
+vi.mock('../../../../Notifications', () => ({
+  useNotificationApi: () => ({
+    addNotification: vi.fn(),
+  }),
+}));
+
 vi.mock('../../../../InfiniteScrollPaginator/InfiniteScrollPaginator', () => ({
   InfiniteScrollPaginator: ({ children }: { children: React.ReactNode }) => (
     <div data-testid='infinite-scroll-paginator'>{children}</div>
@@ -53,6 +59,7 @@ describe('ChannelMembersViewSearch', () => {
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { user: { id: 'user-1' } },
+      mutes: [],
     } as ReturnType<typeof useChatContext>);
 
     vi.mocked(useStateStore).mockReturnValue({

@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
-import { useTranslationContext } from '../../../../../context';
+import { useChatContext, useTranslationContext } from '../../../../../context';
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersViewList } from '../ChannelMembersViewList';
 import { createChannel, getSelectableMemberButton, renderWithChannel } from './testUtils';
@@ -32,7 +32,12 @@ vi.mock('stream-chat', async (importOriginal) => {
 
 vi.mock('lodash.debounce', () => ({
   default: (fn: (...args: unknown[]) => unknown) => {
-    const debounced = (...args: unknown[]) => fn(...args);
+    const debounced = Object.assign(
+      vi.fn((...args: unknown[]) => fn(...args)),
+      {
+        cancel: () => undefined,
+      },
+    );
     vi.spyOn(debounced, 'cancel').mockImplementation();
     return debounced;
   },
@@ -89,6 +94,9 @@ describe('ChannelMembersViewList', () => {
         return key;
       },
     } as ReturnType<typeof useTranslationContext>);
+    vi.mocked(useChatContext).mockReturnValue({
+      mutes: [],
+    } as ReturnType<typeof useChatContext>);
 
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,

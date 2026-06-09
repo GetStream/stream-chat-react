@@ -22,12 +22,14 @@ import {
   getUserDisplayName,
 } from './ChannelMembersView.utils';
 
-const getMemberRoleTranslationKey = (member: ChannelMemberResponse) => {
-  const role = member.channel_role || member.role;
-
-  if (role === 'admin') return 'Admin';
-  if (role === 'channel_moderator' || role === 'moderator') return 'Moderator';
-  if (role === 'owner') return 'Owner';
+const getMemberRoleTranslation = (
+  member: ChannelMemberResponse,
+  t: ReturnType<typeof useTranslationContext>['t'],
+) => {
+  if ([member.user?.role, member.channel_role].includes('admin')) return t('Admin');
+  if (member.channel_role === 'channel_moderator' || member.channel_role === 'moderator')
+    return t('Moderator');
+  if (member.role === 'owner') return t('Owner');
 
   return undefined;
 };
@@ -211,7 +213,7 @@ export const ChannelMembersViewList = ({
 
               const user = member.user;
               const displayName = getMemberDisplayName(member);
-              const roleTranslationKey = getMemberRoleTranslationKey(member);
+              const roleTranslation = getMemberRoleTranslation(member, t);
               const isMuted = mutedUserIdSet.has(memberUserId);
               const avatar = (
                 <Avatar
@@ -259,16 +261,16 @@ export const ChannelMembersViewList = ({
                   subtitle={getPresenceStatusText(user, t)}
                   title={displayName}
                   TrailingSlot={() => (
-                    <span className='str-chat__channel-detail__channel-members-view__trailing'>
-                      {roleTranslationKey ? (
+                    <div className='str-chat__channel-detail__channel-members-view__list-item__trailing-slot'>
+                      {roleTranslation ? (
                         <span className='str-chat__channel-detail__channel-members-view__role-label'>
-                          {t(roleTranslationKey)}
+                          {roleTranslation}
                         </span>
                       ) : null}
                       {isMuted ? (
                         <IconMute className='str-chat__channel-detail__channel-members-view__list-item__indicator-icon str-chat__channel-detail__channel-members-view__list-item__indicator-icon--mute' />
                       ) : null}
-                    </span>
+                    </div>
                   )}
                 />
               );
