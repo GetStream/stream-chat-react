@@ -155,12 +155,8 @@ export const DefaultChannelMembersHeaderActions = {
 
 export const defaultChannelMembersHeaderActionSet: ChannelMembersHeaderActionItem[] = [
   {
-    menu: DefaultChannelMembersHeaderActions.AddMembersMenu,
+    quick: DefaultChannelMembersHeaderActions.AddMembers,
     type: 'addMembers',
-  },
-  {
-    menu: DefaultChannelMembersHeaderActions.RemoveMembersMenu,
-    type: 'removeMembers',
   },
 ];
 

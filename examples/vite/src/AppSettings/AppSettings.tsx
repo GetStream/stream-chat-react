@@ -6,9 +6,11 @@ import {
   IconBell,
   IconEmoji,
   IconMessageBubble,
+  IconMessageBubbles,
 } from 'stream-chat-react';
 
 import { ActionsMenu } from './ActionsMenu';
+import { ChannelDetailTab } from './tabs/ChannelDetail';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
@@ -23,10 +25,17 @@ import {
   IconTextDirection,
 } from '../icons.tsx';
 
-type TabId = 'general' | 'messageActions' | 'notifications' | 'reactions' | 'sidebar';
+type TabId =
+  | 'channelDetail'
+  | 'general'
+  | 'messageActions'
+  | 'notifications'
+  | 'reactions'
+  | 'sidebar';
 
 const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
   { Icon: IconGear, id: 'general', title: 'General' },
+  { Icon: IconMessageBubbles, id: 'channelDetail', title: 'Channel Detail' },
   { Icon: IconMessageBubble, id: 'messageActions', title: 'Message Actions' },
   { Icon: IconBell, id: 'notifications', title: 'Notifications' },
   { Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
@@ -136,6 +145,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
               id={`${activeTab}-content`}
               role='tabpanel'
             >
+              {activeTab === 'channelDetail' && <ChannelDetailTab />}
               {activeTab === 'general' && <GeneralTab />}
               {activeTab === 'messageActions' && <MessageActionsTab />}
               {activeTab === 'notifications' && <NotificationsTab />}

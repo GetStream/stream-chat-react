@@ -229,7 +229,8 @@ body {
     z-index: 2;
   }
 
-  .str-chat__notification-list {
+  .str-chat__notification-list,
+  .str-chat__dialog-overlay {
     z-index: 4;
   }
 

@@ -1059,6 +1059,22 @@
     flex-wrap: wrap;
   }
 
+  .app__settings-modal__action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app__settings-modal__action-row {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
   .app__settings-modal__option-button[aria-pressed='true'] {
     border-color: var(--str-chat__border-utility-selected);
     background: var(--str-chat__background-utility-selected);

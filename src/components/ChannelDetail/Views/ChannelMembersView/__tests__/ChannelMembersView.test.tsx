@@ -172,15 +172,15 @@ describe('ChannelMembersView', () => {
     );
   });
 
-  it('shows member action buttons by default when update-channel-members capability is granted', () => {
+  it('shows only Add button by default when update-channel-members capability is granted', () => {
     renderWithChannel(<ChannelMembersView />);
 
     expect(
       screen.getByRole('button', { name: 'Add channel members' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Remove channel members' }),
-    ).toBeInTheDocument();
+      screen.queryByRole('button', { name: 'Remove channel members' }),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId('channel-members-view-list')).toBeInTheDocument();
   });
 

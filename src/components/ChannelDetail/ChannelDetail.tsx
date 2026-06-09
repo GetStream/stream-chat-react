@@ -25,7 +25,7 @@ const ChannelMembersNavButtonIcon = () => (
   <IconUser className='str-chat__channel-detail__action-icon' />
 );
 
-const ChannelManagementNavButton = ({
+export const ChannelManagementNavButton = ({
   select,
   selected,
 }: SectionNavigatorNavButtonProps) => {
@@ -49,7 +49,7 @@ const ChannelManagementNavButton = ({
   );
 };
 
-const ChannelMembersNavButton = ({
+export const ChannelMembersNavButton = ({
   select,
   selected,
 }: SectionNavigatorNavButtonProps) => {
