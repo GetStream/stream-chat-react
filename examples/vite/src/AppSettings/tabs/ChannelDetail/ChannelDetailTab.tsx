@@ -6,6 +6,10 @@ import {
   type ChannelMembersHeaderActionId,
   useAppSettingsState,
 } from '../../state';
+import {
+  SettingsTabBody,
+  SettingsTabLayoutHeader,
+} from '../SettingsTabLayoutComponents.tsx';
 import { channelMembersHeaderActionLabels } from './channelDetailSettings';
 
 const channelMembersHeaderActionIds: ChannelMembersHeaderActionId[] = [
@@ -21,7 +25,11 @@ const channelMembersHeaderActionForms: ChannelMembersHeaderActionForm[] = [
 const getChannelMembersHeaderActionFormLabel = (form: ChannelMembersHeaderActionForm) =>
   form === 'quick' ? 'Quick' : 'Menu';
 
-export const ChannelDetailTab = () => {
+type ChannelDetailTabProps = {
+  close: () => void;
+};
+
+export const ChannelDetailTab = ({ close }: ChannelDetailTabProps) => {
   const {
     channelDetail,
     channelDetail: {
@@ -57,55 +65,57 @@ export const ChannelDetailTab = () => {
 
   return (
     <div className='app__settings-modal__content-stack'>
-      <div className='app__settings-modal__field'>
-        <div className='app__settings-modal__field-label'>
-          Channel members view actions
-        </div>
-        <div className='app__settings-modal__field-comment'>
-          Configure which default header actions are available in the ChannelDetail modal
-          and how each action is rendered.
-        </div>
+      <SettingsTabLayoutHeader
+        close={close}
+        description='Configure ChannelDetail modal behavior for the demo app.'
+        title='Channel Detail'
+      />
+      <SettingsTabBody>
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>
+            Channel members view actions
+          </div>
 
-        <div className='app__settings-modal__action-list'>
-          {channelMembersHeaderActionIds.map((type) => {
-            const action = headerActions[type];
+          <div className='app__settings-modal__action-list'>
+            {channelMembersHeaderActionIds.map((type) => {
+              const action = headerActions[type];
 
-            return (
-              <div className='app__settings-modal__action-row' key={type}>
-                <SwitchField
-                  checked={action.enabled}
-                  id={`channel-members-${type}-enabled-switch`}
-                  onChange={(event) =>
-                    updateChannelMembersHeaderAction(type, {
-                      enabled: event.target.checked,
-                    })
-                  }
-                >
-                  {channelMembersHeaderActionLabels[type]}
-                </SwitchField>
+              return (
+                <div className='app__settings-modal__action-row' key={type}>
+                  <SwitchField
+                    checked={action.enabled}
+                    id={`channel-members-${type}-enabled-switch`}
+                    onChange={(event) =>
+                      updateChannelMembersHeaderAction(type, {
+                        enabled: event.target.checked,
+                      })
+                    }
+                    title={channelMembersHeaderActionLabels[type]}
+                  ></SwitchField>
 
-                <div
-                  aria-label={`${channelMembersHeaderActionLabels[type]} form`}
-                  className='app__settings-modal__options-row'
-                  role='group'
-                >
-                  {channelMembersHeaderActionForms.map((form) => (
-                    <Button
-                      aria-pressed={action.form === form}
-                      className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
-                      disabled={!action.enabled}
-                      key={form}
-                      onClick={() => updateChannelMembersHeaderAction(type, { form })}
-                    >
-                      {getChannelMembersHeaderActionFormLabel(form)}
-                    </Button>
-                  ))}
+                  <div
+                    aria-label={`${channelMembersHeaderActionLabels[type]} form`}
+                    className='app__settings-modal__options-row'
+                    role='group'
+                  >
+                    {channelMembersHeaderActionForms.map((form) => (
+                      <Button
+                        aria-pressed={action.form === form}
+                        className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+                        disabled={!action.enabled}
+                        key={form}
+                        onClick={() => updateChannelMembersHeaderAction(type, { form })}
+                      >
+                        {getChannelMembersHeaderActionFormLabel(form)}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      </SettingsTabBody>
     </div>
   );
 };

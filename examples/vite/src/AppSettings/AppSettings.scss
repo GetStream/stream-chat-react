@@ -972,21 +972,6 @@
     border-radius: 14px;
   }
 
-  .app__settings-modal__header {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 16px 20px;
-    font-size: 1.5rem;
-    font-weight: 700;
-    border-bottom: 1px solid var(--str-chat__border-core-default);
-
-    svg.str-chat__icon--cog {
-      height: 1.75rem;
-      width: 1.75rem;
-    }
-  }
-
   .app__settings-modal__body {
     display: grid;
     grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
@@ -994,11 +979,16 @@
     height: 100%;
   }
 
-  .app__settings-modal__tabs {
+  .app__settings-modal__body .str-chat__section-navigator__navigation {
     overflow-y: auto;
     overscroll-behavior: contain;
     border-inline-end: 1px solid var(--str-chat__border-core-default);
     padding: 10px;
+    width: auto;
+  }
+
+  .app__settings-modal__body .str-chat__section-navigator__navigation-item {
+    padding: 0;
   }
 
   .app__settings-modal__tab {
@@ -1018,22 +1008,52 @@
     font-weight: 600;
   }
 
-  .app__settings-modal__content {
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 20px 24px;
-  }
-
   .app__settings-modal__content-stack {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+  }
+
+  .app__settings-modal__tab-header .str-chat__prompt__header__title {
+    color: var(--str-chat__text-primary);
+    font: var(--str-chat__font-heading-sm);
+    margin: 0;
+  }
+
+  .app__settings-modal__tab-header .str-chat__prompt__header__description {
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+    margin: 0;
+  }
+
+  .app__settings-modal__tab-header .str-chat__prompt__header__trailing-content {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .app__settings-modal__tab-header .str-chat__prompt__header__close-button {
+    flex-shrink: 0;
+    color: var(--str-chat__text-primary);
+  }
+
+  .app__settings-modal__tab-header
+    .str-chat__prompt__header__close-button
+    .str-chat__icon {
+    height: var(--str-chat__icon-size-sm);
+    width: var(--str-chat__icon-size-sm);
+  }
+
+  .app__settings-modal__tab-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xl);
+    padding-inline: var(--str-chat__spacing-xl);
   }
 
   .app__settings-modal__field {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: var(--str-chat__spacing-xs);
   }
 
   .app__settings-modal__field-label {
@@ -1141,8 +1161,7 @@
       grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
     }
 
-    .app__settings-modal__tabs {
-      border-inline-end: 1px solid var(--str-chat__border-core-default);
+    .app__settings-modal__body .str-chat__section-navigator__navigation {
       border-bottom: 0;
       display: block;
       gap: 0;

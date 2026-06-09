@@ -3,92 +3,98 @@
 .str-chat__prompt {
   @include utils.modal;
   width: 100%;
+}
 
-  .str-chat__prompt__header {
+.str-chat__prompt__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+  width: 100%;
+  padding: var(--str-chat__spacing-xl);
+
+  .str-chat__prompt__header__title-group {
     display: flex;
+    gap: var(--str-chat__spacing-xxs);
+    padding-block: var(--str-chat__spacing-xs);
+    flex: 1;
+    min-width: 0;
+  }
+
+  .str-chat__prompt__header__title-group.str-chat__prompt__header__title-group--withDescription {
+    flex-direction: column;
+  }
+  &.str-chat__prompt__header--withGoBack .str-chat__prompt__header__title-group {
     align-items: center;
-    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
-    width: 100%;
-    padding: var(--str-chat__spacing-xl);
+  }
 
-    &.str-chat__prompt__header--withGoBack
-      .str-chat__prompt__header__title-group.str-chat__prompt__header__title-group--withDescription {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      grid-template-areas:
-        'goBack title'
-        '.      description';
+  &.str-chat__prompt__header--withGoBack
+    .str-chat__prompt__header__title-group.str-chat__prompt__header__title-group--withDescription {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    grid-template-areas:
+      'goBack title'
+      '.      description';
 
-      .str-chat__prompt__header__go-back-button {
-        grid-area: goBack;
-        justify-self: start;
-        align-self: center;
-      }
-
-      .str-chat__prompt__header__title {
-        grid-area: title;
-      }
-
-      .str-chat__prompt__header__description {
-        grid-area: description;
-      }
-    }
-
-    .str-chat__prompt__header__title-group {
-      display: flex;
-      align-items: center;
-      gap: var(--str-chat__spacing-xxs);
-      padding-block: var(--str-chat__spacing-xs);
-      flex: 1;
-      min-width: 0;
+    .str-chat__prompt__header__go-back-button {
+      grid-area: goBack;
+      justify-self: start;
+      align-self: center;
     }
 
     .str-chat__prompt__header__title {
-      margin: 0;
-      font: var(--str-chat__font-heading-sm);
-      color: var(--str-chat__text-primary);
+      grid-area: title;
     }
 
     .str-chat__prompt__header__description {
-      font: var(--str-chat__font-caption-default);
-      color: var(--str-chat__text-secondary);
-    }
-
-    .str-chat__prompt__header__leading-content,
-    .str-chat__prompt__header__trailing-content {
-      display: flex;
-      gap: var(--str-chat__spacing-xs);
-      align-items: center;
-    }
-
-    .str-chat__prompt__header__close-button {
-      flex-shrink: 0;
-      color: var(--str-chat__text-primary);
-      .str-chat__icon {
-        width: var(--str-chat__icon-size-sm);
-        height: var(--str-chat__icon-size-sm);
-      }
+      grid-area: description;
     }
   }
 
-  .str-chat__prompt__body {
-    /* Vertical padding so focus rings (e.g. TextInput wrapper box-shadow) are not clipped by scrollable-y */
-    padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xl);
-    @include utils.scrollable-y;
+  .str-chat__prompt__header__title {
+    margin: 0;
+    font: var(--str-chat__font-heading-sm);
+    color: var(--str-chat__text-primary);
   }
 
-  .str-chat__prompt__footer {
+  .str-chat__prompt__header__description {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-secondary);
+  }
+
+  .str-chat__prompt__header__leading-content,
+  .str-chat__prompt__header__trailing-content {
+    display: flex;
+    gap: var(--str-chat__spacing-xs);
+    align-items: center;
+  }
+
+  .str-chat__prompt__header__close-button {
+    flex-shrink: 0;
+    color: var(--str-chat__text-primary);
+    .str-chat__icon {
+      width: var(--str-chat__icon-size-sm);
+      height: var(--str-chat__icon-size-sm);
+    }
+  }
+}
+
+.str-chat__prompt__body {
+  /* Vertical padding so focus rings (e.g. TextInput wrapper box-shadow) are not clipped by scrollable-y */
+  padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xl);
+  @include utils.scrollable-y;
+}
+
+.str-chat__prompt__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: var(--str-chat__spacing-xl);
+
+  .str-chat__prompt__footer__controls {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    width: 100%;
-    padding: var(--str-chat__spacing-xl);
-
-    .str-chat__prompt__footer__controls {
-      display: flex;
-      align-items: center;
-      gap: var(--str-chat__spacing-xs);
-    }
+    gap: var(--str-chat__spacing-xs);
   }
 }
