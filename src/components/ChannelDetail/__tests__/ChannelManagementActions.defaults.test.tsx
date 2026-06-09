@@ -9,7 +9,7 @@ import {
   DefaultChannelManagementActions,
   defaultChannelManagementActionSet,
   useBaseChannelManagementActionSetFilter,
-} from '../Views/ChannelManagementActions.defaults';
+} from '../Views/ChannelManagementView/ChannelManagementActions.defaults';
 
 const mocks = vi.hoisted(() => {
   const addNotification = vi.fn();

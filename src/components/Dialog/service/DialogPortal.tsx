@@ -2,7 +2,11 @@ import type { PropsWithChildren } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
 import { Portal } from '../../Portal/Portal';
-import { useDialogManager, useNearestDialogManagerContext } from '../../../context';
+import {
+  modalDialogManagerId,
+  useDialogManager,
+  useNearestDialogManagerContext,
+} from '../../../context';
 
 const shouldCloseOnOutsideClick = ({
   dialog,
@@ -57,9 +61,15 @@ export const DialogPortalDestination = () => {
 
   if (!openedDialogCount) return null;
 
+  const isModalDialogManager = dialogManager?.id === modalDialogManagerId;
+
   return (
     <div
-      className='str-chat__dialog-overlay'
+      className={
+        isModalDialogManager
+          ? 'str-chat__dialog-overlay str-chat__dialog-overlay--modal'
+          : 'str-chat__dialog-overlay'
+      }
       data-str-chat__portal-id={dialogManager?.id}
       data-testid='str-chat__dialog-overlay'
       ref={setDestinationRoot}

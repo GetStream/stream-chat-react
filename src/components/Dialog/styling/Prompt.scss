@@ -4,15 +4,26 @@
   @include utils.modal;
   width: 100%;
 
-  .str-chat__prompt__header.str-chat__prompt__header--withGoBack {
-    .str-chat__prompt__header__title-group {
+  .str-chat__prompt__header {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+    width: 100%;
+    padding: var(--str-chat__spacing-xl);
+
+    &.str-chat__prompt__header--withGoBack
+      .str-chat__prompt__header__title-group.str-chat__prompt__header__title-group--withDescription {
       display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
       grid-template-areas:
         'goBack title'
-        '. description';
+        '.      description';
 
       .str-chat__prompt__header__go-back-button {
         grid-area: goBack;
+        justify-self: start;
+        align-self: center;
       }
 
       .str-chat__prompt__header__title {
@@ -23,18 +34,10 @@
         grid-area: description;
       }
     }
-  }
-
-  .str-chat__prompt__header {
-    display: flex;
-    align-items: center;
-    gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
-    width: 100%;
-    padding: var(--str-chat__spacing-xl);
 
     .str-chat__prompt__header__title-group {
       display: flex;
-      flex-direction: column;
+      align-items: center;
       gap: var(--str-chat__spacing-xxs);
       padding-block: var(--str-chat__spacing-xs);
       flex: 1;

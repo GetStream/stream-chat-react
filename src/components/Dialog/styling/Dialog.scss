@@ -3,10 +3,20 @@
   position: absolute;
   height: var(--str-chat__dialog-overlay-height);
   width: 100%;
-  z-index: 2;
   pointer-events: none;
 
   .str-chat__dialog-contents {
     pointer-events: auto;
+  }
+}
+
+.str-chat__dialog-overlay--modal {
+  pointer-events: auto;
+  z-index: 101;
+
+  // Context menus/dialogs rendered inside modal manager must stack above
+  // the modal surface (which sits at z-index: 100 in Modal.scss).
+  .str-chat__dialog-contents {
+    z-index: 102;
   }
 }

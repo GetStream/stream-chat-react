@@ -1,0 +1,159 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ChannelMemberResponse } from 'stream-chat';
+
+import { useModalContext, useTranslationContext } from '../../../../context';
+import { Prompt } from '../../../Dialog';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
+import { ChannelMemberDetail } from '../ChannelMemberDetailView';
+import {
+  type ChannelMembersHeaderActionItem,
+  type ChannelMembersHeaderActionsMenuTriggerProps,
+  defaultChannelMembersHeaderActionSet,
+  DefaultHeaderActions,
+} from './ChannelMembersHeaderActions.defaults';
+import { ChannelMembersViewList } from './ChannelMembersViewList';
+import { ChannelMembersViewSearch } from './ChannelMembersViewSearch';
+import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+
+export type ChannelMembersHeaderActionsProps = {
+  controller: ChannelMembersViewController;
+  HeaderActionsMenuTrigger?: React.ComponentType<ChannelMembersHeaderActionsMenuTriggerProps>;
+  headerActionSet: ChannelMembersHeaderActionItem[];
+};
+
+export type ChannelMembersViewMode = 'add' | 'browse' | 'manage' | 'memberDetail';
+
+export type ChannelMembersViewController = {
+  mode: ChannelMembersViewMode;
+  setMode: (mode: ChannelMembersViewMode) => void;
+};
+
+export type ChannelMembersViewProps = SectionNavigatorSectionContentProps & {
+  HeaderActions?: React.ComponentType<ChannelMembersHeaderActionsProps>;
+  HeaderActionsMenuTrigger?: React.ComponentType<ChannelMembersHeaderActionsMenuTriggerProps>;
+  headerActionSet?: ChannelMembersHeaderActionItem[];
+};
+
+export const ChannelMembersView = ({
+  HeaderActions = DefaultHeaderActions,
+  headerActionSet = defaultChannelMembersHeaderActionSet,
+  HeaderActionsMenuTrigger,
+  layout,
+}: ChannelMembersViewProps) => {
+  const { t } = useTranslationContext();
+  const { channel } = useChannelDetailContext();
+  const { close } = useModalContext();
+  const [mode, setMode] = useState<ChannelMembersViewMode>('browse');
+  const [selectedMember, setSelectedMember] = useState<ChannelMemberResponse>();
+  const [memberCount, setMemberCount] = useState(channel.data?.member_count ?? 0);
+  const [membersRefreshKey, setMembersRefreshKey] = useState(0);
+  const [membersAddedCount, setMembersAddedCount] = useState(0);
+
+  const isAddingMember = mode === 'add';
+  const isManagingMembers = mode === 'manage';
+  const isViewingMemberDetail = !!selectedMember;
+  const isAlternateMode = isAddingMember || isManagingMembers || isViewingMemberDetail;
+
+  useEffect(() => {
+    setMemberCount(channel.data?.member_count ?? 0);
+  }, [channel.data?.member_count]);
+
+  useEffect(() => {
+    if (!membersAddedCount) return;
+
+    const timeout = setTimeout(() => setMembersAddedCount(0), 3000);
+
+    return () => clearTimeout(timeout);
+  }, [membersAddedCount]);
+
+  const setViewMode = useCallback((nextMode: ChannelMembersViewMode) => {
+    setMode(nextMode);
+    if (nextMode !== 'memberDetail') {
+      setSelectedMember(undefined);
+    }
+  }, []);
+
+  const controller = useMemo<ChannelMembersViewController>(
+    () => ({
+      mode,
+      setMode: setViewMode,
+    }),
+    [mode, setViewMode],
+  );
+
+  const HeaderTrailingActions = useMemo(
+    () =>
+      function HeaderTrailingActions() {
+        return (
+          <HeaderActions
+            controller={controller}
+            headerActionSet={headerActionSet}
+            HeaderActionsMenuTrigger={HeaderActionsMenuTrigger}
+          />
+        );
+      },
+    [HeaderActions, HeaderActionsMenuTrigger, controller, headerActionSet],
+  );
+
+  const headerTitle = isAddingMember
+    ? t('Add members')
+    : isManagingMembers
+      ? t('Manage members')
+      : t('{{ count }} members', { count: memberCount });
+
+  if (isViewingMemberDetail && selectedMember) {
+    return (
+      <ChannelMemberDetail
+        layout={layout}
+        member={selectedMember}
+        onBack={() => setViewMode('browse')}
+      />
+    );
+  }
+
+  return (
+    <div className='str-chat__channel-detail__channel-members-view'>
+      <Prompt.Header
+        close={close}
+        description={isAlternateMode ? undefined : t('Browse channel members')}
+        goBack={
+          isAddingMember
+            ? () => {
+                setViewMode('browse');
+              }
+            : isViewingMemberDetail
+              ? () => {
+                  setViewMode('browse');
+                }
+              : isManagingMembers
+                ? () => setViewMode('browse')
+                : undefined
+        }
+        title={headerTitle}
+        TrailingContent={HeaderTrailingActions}
+      />
+      {isAddingMember ? (
+        <ChannelMembersViewSearch
+          onMembersAdded={(count) => {
+            setMemberCount((currentCount) => currentCount + count);
+            setMembersAddedCount(count);
+            setMembersRefreshKey((currentKey) => currentKey + 1);
+            setViewMode('browse');
+          }}
+        />
+      ) : (
+        <ChannelMembersViewList
+          key={membersRefreshKey}
+          manageMembers={isManagingMembers}
+          onMemberSelect={(member) => {
+            setSelectedMember(member);
+            setViewMode('memberDetail');
+          }}
+          onMembersRemoved={(count) => {
+            setMemberCount((currentCount) => currentCount - count);
+          }}
+        />
+      )}
+    </div>
+  );
+};

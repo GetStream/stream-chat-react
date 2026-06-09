@@ -1,0 +1,63 @@
+.str-chat__channel-detail__channel-member-detail-view__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-2xl);
+}
+
+.str-chat__channel-detail__channel-member-detail-view__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--str-chat__spacing-md);
+  width: 100%;
+
+  .str-chat__channel-detail__channel-member-detail-view__profile__details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    width: 100%;
+
+    .str-chat__channel-detail__channel-member-detail-view__profile__details__title {
+      text-align: center;
+      font: var(--str-chat__font-heading-lg);
+      color: var(--str-chat__text-primary);
+    }
+
+    .str-chat__channel-detail__channel-member-detail-view__profile__details__connection-status {
+      text-align: center;
+      font: var(--str-chat__font-caption-default);
+      color: var(--str-chat__text-secondary);
+    }
+  }
+}
+
+.str-chat__channel-detail__channel-member-detail-view__actions {
+  width: 100%;
+  border-radius: var(--str-chat__radius-lg);
+  background-color: var(--str-chat__surface-card);
+  padding-block: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xxs);
+}
+
+.str-chat__channel-member-detail-action {
+  text-transform: capitalize;
+}
+
+.str-chat__channel-detail__action-icon--remove-user {
+  color: var(--str-chat__accent-error);
+}
+
+.str-chat__channel-member-confirmation-alert {
+  min-width: min(304px, calc(100vw - 32px));
+  max-width: min(304px, calc(100vw - 32px));
+}
+
+.str-chat__channel-detail__channel-member-detail-view__empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 128px;
+  font: var(--str-chat__font-caption-default);
+  color: var(--str-chat__text-secondary);
+}

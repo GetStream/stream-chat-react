@@ -10,14 +10,19 @@ import {
 } from '../SectionNavigator';
 import { ChannelDetailProvider } from './ChannelDetailContext';
 import { ChannelManagementView } from './Views/ChannelManagementView';
+import { ChannelMembersView } from './Views/ChannelMembersView';
 import { Prompt } from '../Dialog';
-import { IconInfo } from '../Icons';
+import { IconInfo, IconUser } from '../Icons';
 import { ListItemLayout } from '../ListItemLayout';
 
 const ChannelDetailNavButtonClassName = 'str-chat__channel-detail__nav-button';
 
 const ChannelManagementNavButtonIcon = () => (
   <IconInfo className='str-chat__channel-detail__action-icon' />
+);
+
+const ChannelMembersNavButtonIcon = () => (
+  <IconUser className='str-chat__channel-detail__action-icon' />
 );
 
 const ChannelManagementNavButton = ({
@@ -44,11 +49,40 @@ const ChannelManagementNavButton = ({
   );
 };
 
+const ChannelMembersNavButton = ({
+  select,
+  selected,
+}: SectionNavigatorNavButtonProps) => {
+  const rootProps = useMemo(
+    () => ({
+      'aria-current': selected ? ('page' as const) : undefined,
+      className: ChannelDetailNavButtonClassName,
+      onClick: select,
+    }),
+    [select, selected],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingIcon={ChannelMembersNavButtonIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      selected={selected}
+      title='Members'
+    />
+  );
+};
+
 const defaultSections: SectionNavigatorSection[] = [
   {
     id: 'channel-info',
     NavButton: ChannelManagementNavButton,
     SectionContent: ChannelManagementView,
+  },
+  {
+    id: 'channel-members',
+    NavButton: ChannelMembersNavButton,
+    SectionContent: ChannelMembersView,
   },
 ];
 

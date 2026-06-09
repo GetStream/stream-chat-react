@@ -11,6 +11,10 @@
   min-width: 0;
   border-radius: var(--str-chat__radius-md);
 
+  &.str-chat__form__switch-field {
+    padding: var(--list-item-padding);
+  }
+
   &.str-chat__list-item-layout--selected {
     background-color: var(--str-chat__background-utility-selected);
   }
@@ -18,6 +22,7 @@
   &.str-chat__list-item-layout--destructive {
     color: var(--str-chat__accent-error);
 
+    .str-chat__icon,
     .str-chat__list-item-layout__title,
     .str-chat__list-item-layout__subtitle,
     .str-chat__list-item-layout__description {

@@ -12,26 +12,26 @@ import {
   useComponentContext,
   useModalContext,
   useTranslationContext,
-} from '../../../context';
-import { isDmChannel } from '../../../utils';
-import type { SectionNavigatorSectionContentProps } from '../../SectionNavigator';
-import { ChannelAvatar as DefaultChannelAvatar } from '../../Avatar';
-import { useChannelPreviewInfo, useIsUserMuted } from '../../ChannelListItem';
-import { IconCheckmark, IconMute, IconPin } from '../../Icons';
-import { useChannelMembershipState } from '../../ChannelList';
-import { useIsChannelMuted } from '../../ChannelListItem/hooks/useIsChannelMuted';
-import { useChannelHasMembersOnline } from '../../ChannelHeader/hooks/useChannelHasMembersOnline';
-import { Prompt } from '../../Dialog';
+} from '../../../../context';
+import { isDmChannel } from '../../../../utils';
+import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import { ChannelAvatar as DefaultChannelAvatar } from '../../../Avatar';
+import { useChannelPreviewInfo, useIsUserMuted } from '../../../ChannelListItem';
+import { IconCheckmark, IconMute, IconPin } from '../../../Icons';
+import { useChannelMembershipState } from '../../../ChannelList';
+import { useIsChannelMuted } from '../../../ChannelListItem/hooks/useIsChannelMuted';
+import { useChannelHasMembersOnline } from '../../../ChannelHeader/hooks/useChannelHasMembersOnline';
+import { Prompt } from '../../../Dialog';
 import {
   type ChannelManagementActionItem,
   defaultChannelManagementActionSet,
   useBaseChannelManagementActionSetFilter,
 } from './ChannelManagementActions.defaults';
-import { useChannelHeaderOnlineStatus } from '../../ChannelHeader/hooks/useChannelHeaderOnlineStatus';
-import { useChannelDetailContext } from '../ChannelDetailContext';
-import { Button } from '../../Button';
-import { TextInput } from '../../Form';
-import { useNotificationApi } from '../../Notifications/hooks/useNotificationApi';
+import { useChannelHeaderOnlineStatus } from '../../../ChannelHeader/hooks/useChannelHeaderOnlineStatus';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
+import { Button } from '../../../Button';
+import { TextInput } from '../../../Form';
+import { useNotificationApi } from '../../../Notifications/hooks/useNotificationApi';
 
 export type ChannelManagementViewProps = SectionNavigatorSectionContentProps & {
   channelManagementActionSet?: ChannelManagementActionItem[];

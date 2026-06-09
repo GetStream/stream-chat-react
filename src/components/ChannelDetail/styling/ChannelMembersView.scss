@@ -1,0 +1,89 @@
+@use '../../../styling/utils';
+
+.str-chat__channel-detail__channel-members-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.str-chat__channel-detail__channel-members-view__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-sm);
+}
+
+.str-chat__channel-members-view__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.str-chat__channel-detail__channel-members-view__search-input {
+  flex-shrink: 0;
+  width: 100%;
+  margin-bottom: var(--str-chat__spacing-md);
+
+  .str-chat__form-text-input__wrapper--outline {
+    border-radius: var(--str-chat__radius-max);
+  }
+}
+
+.str-chat__channel-detail__channel-members-view__list {
+  @include utils.hide-scrollbar;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  .str-chat__infinite-scroll-paginator__content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    padding: var(--str-chat__spacing-xxs);
+  }
+}
+
+.str-chat__list-item-layout.str-chat__channel-detail__channel-members-view__list-item {
+  width: 100%;
+  text-align: start;
+
+  .str-chat__channel-detail__channel-members-view__list-item__indicator-icon {
+    color: var(--str-chat__text-tertiary);
+  }
+}
+
+.str-chat__channel-detail__channel-members-view__list-item--disabled {
+  color: var(--str-chat__text-low-emphasis);
+}
+
+.str-chat__channel-detail__channel-members-view__role-label,
+.str-chat__channel-detail__channel-members-view__already-member-label {
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-caption-default);
+}
+
+.str-chat__channel-detail__channel-members-view__empty-state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--str-chat__spacing-sm);
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-body);
+}
+
+.str-chat__channel-detail__channel-members-view__toast {
+  align-self: center;
+  padding-block: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-md);
+  border-radius: var(--str-chat__radius-md);
+  background: var(--str-chat__background-core-inverse);
+  color: var(--str-chat__text-on-inverse);
+  font: var(--str-chat__font-caption-default);
+}

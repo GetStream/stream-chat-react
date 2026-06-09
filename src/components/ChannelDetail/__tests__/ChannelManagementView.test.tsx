@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Channel, Mute } from 'stream-chat';
 
 import { ChannelDetailProvider } from '../ChannelDetailContext';
-import { ChannelManagementView } from '../Views/ChannelManagementView';
+import { ChannelManagementView } from '../Views/ChannelManagementView/ChannelManagementView';
 
 const mocks = vi.hoisted(() => ({
   addNotification: vi.fn(),

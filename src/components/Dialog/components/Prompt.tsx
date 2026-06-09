@@ -40,6 +40,7 @@ const PromptHeader = ({
     useAriaIdentifiers(dialogId);
   const resolvedTitleId = titleId ?? derivedTitleId;
   const resolvedDescriptionId = descriptionId ?? derivedDescriptionId;
+  const hasDescription = description != null && description !== '';
 
   return (
     <div
@@ -48,7 +49,11 @@ const PromptHeader = ({
       })}
     >
       {LeadingContent && <LeadingContent />}
-      <div className='str-chat__prompt__header__title-group'>
+      <div
+        className={clsx('str-chat__prompt__header__title-group', {
+          'str-chat__prompt__header__title-group--withDescription': hasDescription,
+        })}
+      >
         {goBack && (
           <Button
             appearance='ghost'
@@ -65,7 +70,7 @@ const PromptHeader = ({
         <h2 className='str-chat__prompt__header__title' id={resolvedTitleId}>
           {title}
         </h2>
-        {description != null && description !== '' && (
+        {hasDescription && (
           <p className='str-chat__prompt__header__description' id={resolvedDescriptionId}>
             {description}
           </p>
@@ -77,11 +82,7 @@ const PromptHeader = ({
           {close && (
             <Button
               appearance='ghost'
-              aria-describedby={
-                description != null && description !== ''
-                  ? resolvedDescriptionId
-                  : undefined
-              }
+              aria-describedby={hasDescription ? resolvedDescriptionId : undefined}
               aria-label={t('Close prompt: {{ title }}', { title })}
               circular
               className='str-chat__prompt__header__close-button'

@@ -7,18 +7,18 @@ import {
   useComponentContext,
   useModalContext,
   useTranslationContext,
-} from '../../../context';
-import { isDmChannel, useStableCallback } from '../../../utils';
-import { useIsChannelMuted } from '../../ChannelListItem/hooks/useIsChannelMuted';
-import { useStateStore } from '../../../store';
-import { Alert } from '../../Dialog';
-import { Button } from '../../Button';
-import { Switch } from '../../Form';
-import { IconAudio, IconDelete, IconLeave, IconMute, IconNoSign } from '../../Icons';
-import { ListItemLayout } from '../../ListItemLayout';
-import { GlobalModal } from '../../Modal';
-import { useNotificationApi } from '../../Notifications';
-import { useChannelDetailContext } from '../ChannelDetailContext';
+} from '../../../../context';
+import { isDmChannel, useStableCallback } from '../../../../utils';
+import { useIsChannelMuted } from '../../../ChannelListItem/hooks/useIsChannelMuted';
+import { useStateStore } from '../../../../store';
+import { Alert } from '../../../Dialog';
+import { Button } from '../../../Button';
+import { Switch } from '../../../Form';
+import { IconAudio, IconDelete, IconLeave, IconMute, IconNoSign } from '../../../Icons';
+import { ListItemLayout } from '../../../ListItemLayout';
+import { GlobalModal } from '../../../Modal';
+import { useNotificationApi } from '../../../Notifications';
+import { useChannelDetailContext } from '../../ChannelDetailContext';
 import clsx from 'clsx';
 
 export type ChannelManagementActionType =
@@ -40,10 +40,10 @@ const toError = (error: unknown) =>
 const getDisplayName = (name?: string, fallback?: string) => name || fallback || '';
 
 const BlockUserActionIcon = () => (
-  <IconNoSign className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
+  <IconNoSign className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
 );
 const DeleteChatActionIcon = () => (
-  <IconDelete className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
+  <IconDelete className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
 );
 const MuteActionIcon = () => (
   <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
@@ -52,7 +52,7 @@ const MutedActionIcon = () => (
   <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
 );
 const LeaveChannelActionIcon = () => (
-  <IconLeave className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
+  <IconLeave className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
 );
 
 const channelManagementViewActionClassName = 'str-chat__channel-management-view-action';
