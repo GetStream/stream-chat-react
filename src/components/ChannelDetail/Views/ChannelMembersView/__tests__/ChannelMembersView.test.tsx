@@ -28,14 +28,14 @@ vi.mock('../ChannelMembersViewSearch', () => ({
 
 vi.mock('../ChannelMembersViewList', () => ({
   ChannelMembersViewList: ({
-    manageMembers,
     onMembersRemoved,
+    removeMembers,
   }: {
-    manageMembers?: boolean;
     onMembersRemoved?: (count: number) => void;
+    removeMembers?: boolean;
   }) => (
-    <div data-manage-members={manageMembers} data-testid='channel-members-view-list'>
-      {manageMembers && (
+    <div data-manage-members={removeMembers} data-testid='channel-members-view-list'>
+      {removeMembers && (
         <button onClick={() => onMembersRemoved?.(1)} type='button'>
           Mock remove members
         </button>
@@ -50,12 +50,16 @@ vi.mock('../../../../Dialog', () => ({
   ),
   ContextMenuButton: ({
     children,
+    Icon,
     onClick,
+    ...props
   }: {
     children: React.ReactNode;
+    Icon?: React.ComponentType;
     onClick?: () => void;
-  }) => (
-    <button onClick={onClick} type='button'>
+  } & React.ComponentProps<'button'>) => (
+    <button onClick={onClick} type='button' {...props}>
+      {Icon && <Icon />}
       {children}
     </button>
   ),
@@ -89,6 +93,14 @@ vi.mock('../../../../Dialog', () => ({
     toggle: vi.fn(),
   }),
   useDialogIsOpen: () => false,
+  useDialogOnNearestManager: ({ id }: { id: string }) => ({
+    dialog: {
+      close: vi.fn(),
+      id,
+      toggle: vi.fn(),
+    },
+    dialogManager: { id: 'nearest-dialog-manager' },
+  }),
 }));
 
 describe('ChannelMembersView', () => {
@@ -96,7 +108,7 @@ describe('ChannelMembersView', () => {
   const customHeaderActionSet: ChannelMembersHeaderActionItem[] = [
     {
       menu: () => null,
-      type: 'manageMembers',
+      type: 'removeMembers',
     },
     {
       quick: () => null,
@@ -108,15 +120,15 @@ describe('ChannelMembersView', () => {
     headerActionSet,
   }: {
     controller: {
-      mode: 'add' | 'browse' | 'manage' | 'memberDetail';
-      setMode: (mode: 'add' | 'browse' | 'manage' | 'memberDetail') => void;
+      mode: 'add' | 'browse' | 'remove' | 'memberDetail';
+      setMode: (mode: 'add' | 'browse' | 'remove' | 'memberDetail') => void;
     };
     headerActionSet: ChannelMembersHeaderActionItem[];
   }) => {
     if (controller.mode !== 'browse') return null;
 
     const hasManageAction = headerActionSet.some(
-      (action) => action.type === 'manageMembers',
+      (action) => action.type === 'removeMembers',
     );
     const hasAddAction = headerActionSet.some((action) => action.type === 'addMembers');
 
@@ -124,11 +136,11 @@ describe('ChannelMembersView', () => {
       <div>
         {hasManageAction && (
           <button
-            aria-label='Manage channel members'
-            onClick={() => controller.setMode('manage')}
+            aria-label='Remove channel members'
+            onClick={() => controller.setMode('remove')}
             type='button'
           >
-            Manage
+            Remove
           </button>
         )}
         {hasAddAction && (
@@ -160,15 +172,15 @@ describe('ChannelMembersView', () => {
     );
   });
 
-  it('shows only Add button by default when update-channel-members capability is granted', () => {
+  it('shows member action buttons by default when update-channel-members capability is granted', () => {
     renderWithChannel(<ChannelMembersView />);
 
     expect(
       screen.getByRole('button', { name: 'Add channel members' }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Manage channel members' }),
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', { name: 'Remove channel members' }),
+    ).toBeInTheDocument();
     expect(screen.getByTestId('channel-members-view-list')).toBeInTheDocument();
   });
 
@@ -189,6 +201,35 @@ describe('ChannelMembersView', () => {
     expect(screen.getByTestId('channel-members-view-search')).toBeInTheDocument();
     expect(screen.queryByTestId('channel-members-view-list')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Add members' })).toBeInTheDocument();
+  });
+
+  it('does not render header trailing actions outside browse mode', () => {
+    const AlwaysRenderingHeaderActions = ({
+      controller,
+    }: {
+      controller: {
+        setMode: (mode: 'add') => void;
+      };
+    }) => (
+      <button
+        aria-label='Always visible header action'
+        onClick={() => controller.setMode('add')}
+        type='button'
+      >
+        Always visible
+      </button>
+    );
+
+    renderWithChannel(
+      <ChannelMembersView HeaderActions={AlwaysRenderingHeaderActions} />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Always visible header action' }));
+
+    expect(screen.getByRole('heading', { name: 'Add members' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Always visible header action' }),
+    ).not.toBeInTheDocument();
   });
 
   it('returns to member list after members are added', () => {
@@ -214,7 +255,7 @@ describe('ChannelMembersView', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Manage channel members' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
 
     expect(screen.getByTestId('channel-members-view-list')).toHaveAttribute(
       'data-manage-members',
@@ -226,7 +267,7 @@ describe('ChannelMembersView', () => {
       screen.queryByRole('button', { name: 'Add channel members' }),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: 'Manage channel members' }),
+      screen.queryByRole('button', { name: 'Remove channel members' }),
     ).not.toBeInTheDocument();
   });
 
@@ -238,7 +279,7 @@ describe('ChannelMembersView', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Manage channel members' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
     fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
 
     expect(screen.getByTestId('channel-members-view-list')).toHaveAttribute(
@@ -249,7 +290,7 @@ describe('ChannelMembersView', () => {
       screen.getByRole('heading', { name: '{{ count }} members:2' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Manage channel members' }),
+      screen.getByRole('button', { name: 'Remove channel members' }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Add channel members' }),
@@ -264,7 +305,7 @@ describe('ChannelMembersView', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Manage channel members' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mock remove members' }));
 
     expect(screen.getByTestId('channel-members-view-list')).toHaveAttribute(
@@ -303,7 +344,7 @@ describe('ChannelMembersView', () => {
       },
       {
         menu: () => <span>Menu manage action</span>,
-        type: 'manageMembers',
+        type: 'removeMembers',
       },
     ];
 

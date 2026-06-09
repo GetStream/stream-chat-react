@@ -1,17 +1,12 @@
 import React, { useMemo, useState } from 'react';
 
-import {
-  modalDialogManagerId,
-  useComponentContext,
-  useModalContext,
-  useTranslationContext,
-} from '../../../../context';
+import { useComponentContext, useTranslationContext } from '../../../../context';
 import { Button } from '../../../Button';
 import {
   ContextMenu,
   ContextMenuButton,
-  useDialog,
   useDialogIsOpen,
+  useDialogOnNearestManager,
 } from '../../../Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { canUpdateChannelMembers } from './ChannelMembersView.utils';
@@ -19,10 +14,11 @@ import type {
   ChannelMembersHeaderActionsProps,
   ChannelMembersViewController,
 } from './ChannelMembersView';
+import { IconUserAdd, IconUserRemove } from '../../../Icons';
 
 export type ChannelMembersHeaderActionType =
   | 'addMembers'
-  | 'manageMembers'
+  | 'removeMembers'
   | (string & {});
 
 export type ChannelMembersHeaderActionComponentProps = {
@@ -54,7 +50,7 @@ export const useBaseChannelMembersHeaderActionSetFilter = (
       channelMembersHeaderActionSet.filter((action) => {
         switch (action.type) {
           case 'addMembers':
-          case 'manageMembers':
+          case 'removeMembers':
             return canManageChannelMembers;
           default:
             return true;
@@ -96,6 +92,7 @@ const AddMembersMenuAction = ({
   return (
     <ContextMenuButton
       aria-label={t('Add channel members')}
+      Icon={IconUserAdd}
       onClick={() => {
         controller.setMode('add');
         closeMenu?.();
@@ -106,7 +103,7 @@ const AddMembersMenuAction = ({
   );
 };
 
-const ManageMembersHeaderAction = ({
+const RemoveMembersHeaderAction = ({
   controller,
 }: ChannelMembersHeaderActionComponentProps) => {
   const { t } = useTranslationContext();
@@ -116,18 +113,18 @@ const ManageMembersHeaderAction = ({
   return (
     <Button
       appearance='outline'
-      aria-label={t('Manage channel members')}
-      className='str-chat__channel-detail__channel-members-view__manage-button'
-      onClick={() => controller.setMode('manage')}
+      aria-label={t('Remove channel members')}
+      className='str-chat__channel-detail__channel-members-view__remove-button'
+      onClick={() => controller.setMode('remove')}
       size='md'
       variant='secondary'
     >
-      {t('Manage')}
+      {t('Remove')}
     </Button>
   );
 };
 
-const ManageMembersMenuAction = ({
+const RemoveMembersMenuAction = ({
   closeMenu,
   controller,
 }: ChannelMembersHeaderActionComponentProps) => {
@@ -137,13 +134,14 @@ const ManageMembersMenuAction = ({
 
   return (
     <ContextMenuButton
-      aria-label={t('Manage channel members')}
+      aria-label={t('Remove channel members')}
+      Icon={IconUserRemove}
       onClick={() => {
-        controller.setMode('manage');
+        controller.setMode('remove');
         closeMenu?.();
       }}
     >
-      {t('Manage')}
+      {t('Remove')}
     </ContextMenuButton>
   );
 };
@@ -151,18 +149,18 @@ const ManageMembersMenuAction = ({
 export const DefaultChannelMembersHeaderActions = {
   AddMembers: AddMembersHeaderAction,
   AddMembersMenu: AddMembersMenuAction,
-  ManageMembers: ManageMembersHeaderAction,
-  ManageMembersMenu: ManageMembersMenuAction,
+  RemoveMembers: RemoveMembersHeaderAction,
+  RemoveMembersMenu: RemoveMembersMenuAction,
 };
 
 export const defaultChannelMembersHeaderActionSet: ChannelMembersHeaderActionItem[] = [
   {
-    menu: DefaultChannelMembersHeaderActions.AddMembers,
+    menu: DefaultChannelMembersHeaderActions.AddMembersMenu,
     type: 'addMembers',
   },
   {
-    quick: DefaultChannelMembersHeaderActions.ManageMembers,
-    type: 'manageMembers',
+    menu: DefaultChannelMembersHeaderActions.RemoveMembersMenu,
+    type: 'removeMembers',
   },
 ];
 
@@ -208,9 +206,8 @@ export const DefaultHeaderActions = ({
     null,
   );
   const dialogId = getHeaderActionsDialogId(channel.id);
-  const modalContext = useModalContext();
-  const dialogManagerId = modalContext?.dialogId ? modalDialogManagerId : undefined;
-  const dialog = useDialog({ dialogManagerId, id: dialogId });
+  const { dialog, dialogManager } = useDialogOnNearestManager({ id: dialogId });
+  const dialogManagerId = dialogManager?.id;
   const dialogIsOpen = useDialogIsOpen(dialogId, dialogManagerId);
 
   if (!actions.length) return null;

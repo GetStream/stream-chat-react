@@ -8,7 +8,10 @@ import React, {
 import { StateStore } from 'stream-chat';
 
 import { DialogManager } from '../components/Dialog/service/DialogManager';
-import { DialogPortalDestination } from '../components/Dialog/service/DialogPortal';
+import {
+  DialogPortalDestination,
+  type DialogPortalDestinationProps,
+} from '../components/Dialog/service/DialogPortal';
 import type { PropsWithChildrenOnly } from '../types/types';
 
 type DialogManagerId = string;
@@ -56,6 +59,7 @@ type DialogManagerProviderProps = PropsWithChildren<{
    * in this manager. When `false`, outside clicks do not dismiss dialogs.
    */
   closeOnClickOutside?: boolean;
+  portalDestinationProps?: DialogPortalDestinationProps;
   id?: string;
 }>;
 
@@ -66,6 +70,7 @@ export const DialogManagerProvider = ({
   children,
   closeOnClickOutside,
   id,
+  portalDestinationProps,
 }: DialogManagerProviderProps) => {
   const [dialogManager, setDialogManager] = useState<DialogManager | null>(() => {
     if (id) return getDialogManager(id) ?? null;
@@ -87,7 +92,7 @@ export const DialogManagerProvider = ({
   return (
     <DialogManagerProviderContext.Provider value={{ dialogManager }}>
       {children}
-      <DialogPortalDestination />
+      <DialogPortalDestination {...portalDestinationProps} />
     </DialogManagerProviderContext.Provider>
   );
 };

@@ -12,6 +12,7 @@ import { FocusScope } from '@react-aria/focus';
 
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
+  DialogManagerProvider,
   ModalContextProvider,
   modalDialogManagerId,
   useChatContext,
@@ -181,7 +182,15 @@ export const GlobalModal = ({
               role={role}
               tabIndex={isTopmost ? 0 : -1}
             >
-              {children}
+              <DialogManagerProvider
+                id={`${resolvedDialogId}-floating-dialog-manager`}
+                portalDestinationProps={{
+                  captureOutsideClicks: true,
+                  className: 'str-chat__modal__floating-dialog-overlay',
+                }}
+              >
+                {children}
+              </DialogManagerProvider>
             </div>
           </FocusScope>
           <NotificationList

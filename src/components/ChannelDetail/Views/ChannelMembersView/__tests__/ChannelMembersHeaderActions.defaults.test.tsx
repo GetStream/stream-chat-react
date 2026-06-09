@@ -41,6 +41,14 @@ vi.mock('../../../../Dialog', () => ({
     toggle: vi.fn(),
   }),
   useDialogIsOpen: () => false,
+  useDialogOnNearestManager: ({ id }: { id: string }) => ({
+    dialog: {
+      close: vi.fn(),
+      id,
+      toggle: vi.fn(),
+    },
+    dialogManager: { id: 'nearest-dialog-manager' },
+  }),
 }));
 
 const createChannel = (ownCapabilities: string[] = ['update-channel-members']) =>
@@ -124,7 +132,7 @@ describe('ChannelMembersHeaderActions.defaults', () => {
       },
       {
         menu: () => <span>Menu Manage</span>,
-        type: 'manageMembers',
+        type: 'removeMembers',
       },
     ];
 

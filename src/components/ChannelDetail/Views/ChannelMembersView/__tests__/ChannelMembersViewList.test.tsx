@@ -96,7 +96,7 @@ describe('ChannelMembersViewList', () => {
     });
   });
 
-  it('renders browse-only rows when manageMembers is disabled', () => {
+  it('renders browse-only rows when removeMembers is disabled', () => {
     renderWithChannel(<ChannelMembersViewList />);
 
     expect(screen.getByText('Alice')).toBeInTheDocument();
@@ -108,11 +108,11 @@ describe('ChannelMembersViewList', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows selectable rows and remove footer when manageMembers and permission are granted', async () => {
+  it('shows selectable rows and remove footer when removeMembers and permission are granted', async () => {
     const channel = createChannel({ ownCapabilities: ['update-channel-members'] });
 
     renderWithChannel(
-      <ChannelMembersViewList manageMembers onMembersRemoved={onMembersRemoved} />,
+      <ChannelMembersViewList onMembersRemoved={onMembersRemoved} removeMembers />,
       channel,
     );
 
@@ -134,7 +134,7 @@ describe('ChannelMembersViewList', () => {
     const channel = createChannel({ ownCapabilities: ['update-channel-members'] });
 
     renderWithChannel(
-      <ChannelMembersViewList manageMembers onMembersRemoved={onMembersRemoved} />,
+      <ChannelMembersViewList onMembersRemoved={onMembersRemoved} removeMembers />,
       channel,
     );
 
@@ -155,9 +155,9 @@ describe('ChannelMembersViewList', () => {
     });
   });
 
-  it('does not show selection UI when manageMembers is enabled without permission', () => {
+  it('does not show selection UI when removeMembers is enabled without permission', () => {
     renderWithChannel(
-      <ChannelMembersViewList manageMembers onMembersRemoved={onMembersRemoved} />,
+      <ChannelMembersViewList onMembersRemoved={onMembersRemoved} removeMembers />,
       createChannel({ ownCapabilities: [] }),
     );
 

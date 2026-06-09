@@ -21,7 +21,7 @@ export type ChannelMembersHeaderActionsProps = {
   headerActionSet: ChannelMembersHeaderActionItem[];
 };
 
-export type ChannelMembersViewMode = 'add' | 'browse' | 'manage' | 'memberDetail';
+export type ChannelMembersViewMode = 'add' | 'browse' | 'remove' | 'memberDetail';
 
 export type ChannelMembersViewController = {
   mode: ChannelMembersViewMode;
@@ -50,7 +50,7 @@ export const ChannelMembersView = ({
   const [membersAddedCount, setMembersAddedCount] = useState(0);
 
   const isAddingMember = mode === 'add';
-  const isManagingMembers = mode === 'manage';
+  const isManagingMembers = mode === 'remove';
   const isViewingMemberDetail = !!selectedMember;
   const isAlternateMode = isAddingMember || isManagingMembers || isViewingMemberDetail;
 
@@ -84,6 +84,7 @@ export const ChannelMembersView = ({
   const HeaderTrailingActions = useMemo(
     () =>
       function HeaderTrailingActions() {
+        if (mode !== 'browse') return null;
         return (
           <HeaderActions
             controller={controller}
@@ -92,7 +93,7 @@ export const ChannelMembersView = ({
           />
         );
       },
-    [HeaderActions, HeaderActionsMenuTrigger, controller, headerActionSet],
+    [HeaderActions, HeaderActionsMenuTrigger, controller, headerActionSet, mode],
   );
 
   const headerTitle = isAddingMember
@@ -144,7 +145,6 @@ export const ChannelMembersView = ({
       ) : (
         <ChannelMembersViewList
           key={membersRefreshKey}
-          manageMembers={isManagingMembers}
           onMemberSelect={(member) => {
             setSelectedMember(member);
             setViewMode('memberDetail');
@@ -152,6 +152,7 @@ export const ChannelMembersView = ({
           onMembersRemoved={(count) => {
             setMemberCount((currentCount) => currentCount - count);
           }}
+          removeMembers={isManagingMembers}
         />
       )}
     </div>

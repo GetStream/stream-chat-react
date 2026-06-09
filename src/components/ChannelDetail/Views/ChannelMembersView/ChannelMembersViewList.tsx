@@ -57,24 +57,24 @@ const membersPaginatorStateSelector = (state: PaginatorState<ChannelMemberRespon
 const MEMBERS_SEARCH_DEBOUNCE_MS = 300;
 
 export type ChannelMembersViewListProps = {
-  manageMembers?: boolean;
   onMemberSelect?: (member: ChannelMemberResponse) => void;
   onMembersRemoved?: (memberCount: number) => void;
+  removeMembers?: boolean;
 };
 
 const getMemberUserId = (member: ChannelMemberResponse) =>
   member.user?.id || member.user_id;
 
 export const ChannelMembersViewList = ({
-  manageMembers = false,
   onMemberSelect,
   onMembersRemoved,
+  removeMembers = false,
 }: ChannelMembersViewListProps) => {
   const { mutes } = useChatContext();
   const { t } = useTranslationContext();
   const { channel } = useChannelDetailContext();
   const canManageChannelMembers = canUpdateChannelMembers(channel);
-  const isManageMode = manageMembers && canManageChannelMembers;
+  const isRemoveMode = removeMembers && canManageChannelMembers;
   const fallbackMembers = useMemo(
     () => Object.values(channel.state?.members ?? {}),
     [channel],
@@ -104,7 +104,7 @@ export const ChannelMembersViewList = ({
   const [searchInput, setSearchInput] = useState('');
   const [isRemoving, setIsRemoving] = useState(false);
   const [selectedMemberUserIds, setSelectedMemberUserIds] = useState<string[]>([]);
-  const wasManagingMembersRef = useRef(manageMembers);
+  const wasManagingMembersRef = useRef(removeMembers);
 
   const resetMembersSearch = useCallback(() => {
     searchMembers.cancel();
@@ -125,21 +125,21 @@ export const ChannelMembersViewList = ({
   );
 
   useEffect(() => {
-    if (!isManageMode) {
+    if (!isRemoveMode) {
       setSelectedMemberUserIds([]);
       setIsRemoving(false);
     }
-  }, [isManageMode]);
+  }, [isRemoveMode]);
 
   useEffect(() => {
-    if (wasManagingMembersRef.current && !manageMembers) {
+    if (wasManagingMembersRef.current && !removeMembers) {
       resetMembersSearch();
       setSelectedMemberUserIds([]);
       setIsRemoving(false);
     }
 
-    wasManagingMembersRef.current = manageMembers;
-  }, [manageMembers, resetMembersSearch]);
+    wasManagingMembersRef.current = removeMembers;
+  }, [removeMembers, resetMembersSearch]);
 
   useEffect(() => {
     membersPaginator.next();
@@ -171,7 +171,7 @@ export const ChannelMembersViewList = ({
   }, []);
 
   const handleRemove = async () => {
-    if (!isManageMode || !selectedMemberUserIds.length || isRemoving) return;
+    if (!isRemoveMode || !selectedMemberUserIds.length || isRemoving) return;
 
     setIsRemoving(true);
     const memberCount = selectedMemberUserIds.length;
@@ -222,7 +222,7 @@ export const ChannelMembersViewList = ({
                 />
               );
 
-              if (isManageMode) {
+              if (isRemoveMode) {
                 const selected = selectedMemberUserIdSet.has(memberUserId);
 
                 return (
@@ -281,7 +281,7 @@ export const ChannelMembersViewList = ({
           )}
         </InfiniteScrollPaginator>
       </Prompt.Body>
-      {isManageMode && selectedMemberUserIds.length > 0 && (
+      {isRemoveMode && selectedMemberUserIds.length > 0 && (
         <Prompt.Footer>
           <Prompt.FooterControls>
             <Prompt.FooterControlsButtonPrimary

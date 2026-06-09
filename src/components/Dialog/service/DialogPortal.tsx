@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import type { PropsWithChildren } from 'react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useDialogIsOpen, useOpenedDialogCount } from '../hooks';
@@ -16,7 +17,15 @@ const shouldCloseOnOutsideClick = ({
   managerCloseOnClickOutside: boolean;
 }) => dialog.closeOnClickOutside ?? managerCloseOnClickOutside;
 
-export const DialogPortalDestination = () => {
+export type DialogPortalDestinationProps = {
+  captureOutsideClicks?: boolean;
+  className?: string;
+};
+
+export const DialogPortalDestination = ({
+  captureOutsideClicks,
+  className,
+}: DialogPortalDestinationProps) => {
   const { dialogManager } = useNearestDialogManagerContext() ?? {};
   const openedDialogCount = useOpenedDialogCount({ dialogManagerId: dialogManager?.id });
   const [destinationRoot, setDestinationRoot] = useState<HTMLDivElement | null>(null);
@@ -65,11 +74,14 @@ export const DialogPortalDestination = () => {
 
   return (
     <div
-      className={
-        isModalDialogManager
-          ? 'str-chat__dialog-overlay str-chat__dialog-overlay--modal'
-          : 'str-chat__dialog-overlay'
-      }
+      className={clsx(
+        'str-chat__dialog-overlay',
+        {
+          'str-chat__dialog-overlay--modal': isModalDialogManager,
+          'str-chat__dialog-overlay--with-outside-click-capture': captureOutsideClicks,
+        },
+        className,
+      )}
       data-str-chat__portal-id={dialogManager?.id}
       data-testid='str-chat__dialog-overlay'
       ref={setDestinationRoot}
