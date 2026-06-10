@@ -425,7 +425,6 @@ describe('MediaRecorderController', () => {
       await controller.start();
       controller.pause();
       const recorder = controller.mediaRecorder as unknown as MediaRecorderMockType;
-      controller.recordingState.next(MediaRecordingState.PAUSED);
       recorder.state = 'inactive';
       recorder.resume.mockImplementation(() => {
         if (recorder.state !== 'paused') {
