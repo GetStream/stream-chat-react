@@ -364,6 +364,32 @@ describe('MediaRecorderController', () => {
       expect(controller.recordedChunkDurations).toHaveLength(0);
       expect(controller.recordingState.value).toBe(recordingState);
     });
+
+    // Reproduces the iOS Safari crash reported in production: tapping stop and then
+    // immediately pause leaves the native MediaRecorder in the 'inactive' state while
+    // the controller's recordingState subject can still read RECORDING. Calling
+    // pause() then throws "InvalidStateError: The MediaRecorder's state cannot be
+    // inactive".
+    it('does not pause the native recorder when its state is inactive', async () => {
+      const controller = new MediaRecorderController();
+      await controller.start();
+      const recorder = controller.mediaRecorder as unknown as MediaRecorderMockType;
+      // The native recorder went inactive (e.g. the stop button's native stop() or an
+      // interruption) without the controller's recordingState subject transitioning.
+      recorder.state = 'inactive';
+      recorder.pause.mockImplementation(() => {
+        if (recorder.state === 'inactive') {
+          throw new DOMException(
+            "The MediaRecorder's state cannot be inactive",
+            'InvalidStateError',
+          );
+        }
+        recorder.state = 'paused';
+      });
+
+      expect(() => controller.pause()).not.toThrow();
+      expect(recorder.pause).not.toHaveBeenCalled();
+    });
   });
 
   describe('resume', () => {
@@ -390,6 +416,29 @@ describe('MediaRecorderController', () => {
       controller.resume();
       expect(controller.recordedChunkDurations).toHaveLength(0);
       expect(controller.recordingState.value).toBe(recordingState);
+    });
+
+    // Symmetric to the pause() crash: resuming a recorder that has gone inactive
+    // throws "InvalidStateError" because resume() is only valid in the 'paused' state.
+    it('does not resume the native recorder when its state is inactive', async () => {
+      const controller = new MediaRecorderController();
+      await controller.start();
+      controller.pause();
+      const recorder = controller.mediaRecorder as unknown as MediaRecorderMockType;
+      controller.recordingState.next(MediaRecordingState.PAUSED);
+      recorder.state = 'inactive';
+      recorder.resume.mockImplementation(() => {
+        if (recorder.state !== 'paused') {
+          throw new DOMException(
+            "The MediaRecorder's state cannot be inactive",
+            'InvalidStateError',
+          );
+        }
+        recorder.state = 'recording';
+      });
+
+      expect(() => controller.resume()).not.toThrow();
+      expect(recorder.resume).not.toHaveBeenCalled();
     });
   });
 
