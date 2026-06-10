@@ -4,8 +4,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useChatContext, useTranslationContext } from '../../../../context';
 import { useStateStore } from '../../../../store';
 import { Avatar } from '../../../Avatar';
-import { Checkbox, TextInput } from '../../../Form';
-import { IconMute, IconSearch } from '../../../Icons';
+import { Checkbox } from '../../../Form';
+import { IconMute } from '../../../Icons';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { ListItemLayout } from '../../../ListItemLayout';
 import { Prompt } from '../../../Dialog';
@@ -16,23 +16,25 @@ import {
   getUserDisplayName,
 } from './ChannelMembersView.utils';
 import { useNotificationApi } from '../../../Notifications';
+import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
+import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
+import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 
-export type ChannelMembersViewSearchProps = {
+export type ChannelMembersAddViewProps = {
   onMembersAdded: (memberCount: number) => void;
   searchSource?: UserSearchSource;
 };
 
 const USER_SEARCH_PAGE_SIZE = 30;
 
-const searchSourceStateSelector = (state: SearchSourceState<UserResponse>) => ({
-  isLoading: state.isLoading,
+const searchSourceItemsStateSelector = (state: SearchSourceState<UserResponse>) => ({
   users: state.items,
 });
 
-export const ChannelMembersViewSearch = ({
+export const ChannelMembersAddView = ({
   onMembersAdded,
   searchSource,
-}: ChannelMembersViewSearchProps) => {
+}: ChannelMembersAddViewProps) => {
   const { client, mutes } = useChatContext();
   const { t } = useTranslationContext();
   const { channel } = useChannelDetailContext();
@@ -48,15 +50,16 @@ export const ChannelMembersViewSearch = ({
       new UserSearchSource(client, {
         allowEmptySearchString: true,
         pageSize: USER_SEARCH_PAGE_SIZE,
+        resetOnNewSearchQuery: false,
       });
 
     source.activate();
     return source;
   }, [client, searchSource]);
 
-  const { isLoading, users: searchUsers } = useStateStore(
+  const { users: searchUsers } = useStateStore(
     userSearchSource.state,
-    searchSourceStateSelector,
+    searchSourceItemsStateSelector,
   );
 
   const users = useMemo(
@@ -65,7 +68,6 @@ export const ChannelMembersViewSearch = ({
   );
 
   const [isSaving, setIsSaving] = useState(false);
-  const [searchInput, setSearchInput] = useState('');
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
   useEffect(() => () => userSearchSource.cancelScheduledQuery(), [userSearchSource]);
@@ -90,10 +92,8 @@ export const ChannelMembersViewSearch = ({
   );
 
   const handleSearchChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const { value } = event.target;
-      setSearchInput(value);
-      userSearchSource.search(value);
+    (query: string) => {
+      userSearchSource.search(query);
     },
     [userSearchSource],
   );
@@ -135,21 +135,10 @@ export const ChannelMembersViewSearch = ({
     }
   };
 
-  const emptyStateText = isLoading ? t('Searching...') : t('No user found');
-
   return (
     <>
       <Prompt.Body className='str-chat__channel-members-view__body'>
-        <TextInput
-          aria-label={t('Search')}
-          autoFocus
-          className='str-chat__channel-detail__channel-members-view__search-input'
-          leading={<IconSearch />}
-          onChange={handleSearchChange}
-          placeholder={t('Search')}
-          type='search'
-          value={searchInput}
-        />
+        <ChannelDetailSearchInput autoFocus onSearchChange={handleSearchChange} />
         <InfiniteScrollPaginator
           className='str-chat__channel-detail__channel-members-view__list'
           listenToScroll={loadNextPageOnScroll}
@@ -208,11 +197,9 @@ export const ChannelMembersViewSearch = ({
               );
             })
           ) : (
-            <div className='str-chat__channel-detail__channel-members-view__empty-state'>
-              <IconSearch />
-              <span>{emptyStateText}</span>
-            </div>
+            <ChannelDetailEmptyList>{t('No user found')}</ChannelDetailEmptyList>
           )}
+          <ChannelDetailListLoadingIndicator searchSource={userSearchSource} />
         </InfiniteScrollPaginator>
       </Prompt.Body>
       {canManageChannelMembers && selectedUserIds.length > 0 && (

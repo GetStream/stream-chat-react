@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useTranslationContext } from '../../../../context';
-import { TextInput } from '../../../Form';
-import { IconSearch } from '../../../Icons';
+import { useTranslationContext } from '../../context';
+import { TextInput } from '../Form';
+import { IconSearch } from '../Icons';
 
-export type ChannelMembersViewSearchInputProps = {
+export type ChannelDetailSearchInputProps = {
   autoFocus?: boolean;
   onSearchChange: (query: string) => void;
   resetKey?: number;
 };
 
-export const ChannelMembersViewSearchInput = React.memo(
-  ({ autoFocus, onSearchChange, resetKey }: ChannelMembersViewSearchInputProps) => {
+export const ChannelDetailSearchInput = React.memo(
+  ({ autoFocus, onSearchChange, resetKey }: ChannelDetailSearchInputProps) => {
     const { t } = useTranslationContext();
     const [searchInput, setSearchInput] = useState('');
 
@@ -32,7 +32,7 @@ export const ChannelMembersViewSearchInput = React.memo(
       <TextInput
         aria-label={t('Search')}
         autoFocus={autoFocus}
-        className='str-chat__channel-detail__channel-members-view__search-input'
+        className='str-chat__channel-detail__search-input'
         leading={<IconSearch />}
         onChange={handleSearchChange}
         placeholder={t('Search')}
@@ -43,4 +43,4 @@ export const ChannelMembersViewSearchInput = React.memo(
   },
 );
 
-ChannelMembersViewSearchInput.displayName = 'ChannelMembersViewSearchInput';
+ChannelDetailSearchInput.displayName = 'ChannelDetailSearchInput';

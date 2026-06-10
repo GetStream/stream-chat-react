@@ -4,44 +4,36 @@ import type { ChannelMemberResponse } from 'stream-chat';
 
 import { useChatContext, useTranslationContext } from '../../../../../context';
 import { useStateStore } from '../../../../../store';
-import { ChannelMembersViewList } from '../ChannelMembersViewList';
+import { ChannelMembersRemoveView } from '../ChannelMembersRemoveView';
 import { createChannel, getSelectableMemberButton, renderWithChannel } from './testUtils';
 
 const mocks = vi.hoisted(() => ({
-  paginatorCancelScheduledQuery: vi.fn(),
-  paginatorNext: vi.fn(),
+  searchSourceActivate: vi.fn(),
+  searchSourceCancelScheduledQuery: vi.fn(),
+  searchSourceResetState: vi.fn(),
+  searchSourceSearch: vi.fn(),
 }));
 
 vi.mock('stream-chat', async (importOriginal) => {
   const actual = await importOriginal<typeof import('stream-chat')>();
 
-  class ChannelMembersPaginator {
-    filters: unknown;
+  class ChannelMemberSearchSource {
     state = {};
 
-    next = mocks.paginatorNext;
+    activate = mocks.searchSourceActivate;
 
-    cancelScheduledQuery = mocks.paginatorCancelScheduledQuery;
+    search = mocks.searchSourceSearch;
+
+    resetState = mocks.searchSourceResetState;
+
+    cancelScheduledQuery = mocks.searchSourceCancelScheduledQuery;
   }
 
   return {
     ...actual,
-    ChannelMembersPaginator,
+    ChannelMemberSearchSource,
   };
 });
-
-vi.mock('lodash.debounce', () => ({
-  default: (fn: (...args: unknown[]) => unknown) => {
-    const debounced = Object.assign(
-      vi.fn((...args: unknown[]) => fn(...args)),
-      {
-        cancel: () => undefined,
-      },
-    );
-    vi.spyOn(debounced, 'cancel').mockImplementation();
-    return debounced;
-  },
-}));
 
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
@@ -73,7 +65,6 @@ const members: ChannelMemberResponse[] = [
     user_id: 'user-1',
   },
   {
-    channel_role: 'admin',
     created_at: '2026-01-01T00:00:00.000000000Z',
     updated_at: '2026-01-01T00:00:00.000000000Z',
     user: { id: 'user-2', name: 'Bob' },
@@ -81,7 +72,7 @@ const members: ChannelMemberResponse[] = [
   },
 ];
 
-describe('ChannelMembersViewList', () => {
+describe('ChannelMembersRemoveView', () => {
   const onMembersRemoved = vi.fn();
 
   beforeEach(() => {
@@ -104,23 +95,11 @@ describe('ChannelMembersViewList', () => {
     });
   });
 
-  it('renders browse-only rows when removeMembers is disabled', () => {
-    renderWithChannel(<ChannelMembersViewList />);
-
-    expect(screen.getByText('Alice')).toBeInTheDocument();
-    expect(screen.getByText('Bob')).toBeInTheDocument();
-    expect(screen.getByText('Admin')).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Alice' })).not.toBeInTheDocument();
-    expect(
-      document.querySelector('.str-chat__channel-detail__channel-members-view__checkbox'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('shows selectable rows and remove footer when removeMembers and permission are granted', async () => {
+  it('shows selectable rows and remove footer when permission is granted', async () => {
     const channel = createChannel({ ownCapabilities: ['update-channel-members'] });
 
     renderWithChannel(
-      <ChannelMembersViewList onMembersRemoved={onMembersRemoved} removeMembers />,
+      <ChannelMembersRemoveView onMembersRemoved={onMembersRemoved} />,
       channel,
     );
 
@@ -142,11 +121,11 @@ describe('ChannelMembersViewList', () => {
     const channel = createChannel({ ownCapabilities: ['update-channel-members'] });
 
     renderWithChannel(
-      <ChannelMembersViewList onMembersRemoved={onMembersRemoved} removeMembers />,
+      <ChannelMembersRemoveView onMembersRemoved={onMembersRemoved} />,
       channel,
     );
 
-    mocks.paginatorNext.mockClear();
+    mocks.searchSourceSearch.mockClear();
 
     const searchInput = screen.getByRole('searchbox', { name: 'Search' });
     fireEvent.change(searchInput, { target: { value: 'ali' } });
@@ -159,13 +138,14 @@ describe('ChannelMembersViewList', () => {
     await waitFor(() => {
       expect(channel.removeMembers).toHaveBeenCalledWith(['user-1']);
       expect(searchInput).toHaveValue('');
-      expect(mocks.paginatorNext).toHaveBeenCalled();
+      expect(mocks.searchSourceResetState).toHaveBeenCalled();
+      expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
     });
   });
 
-  it('does not show selection UI when removeMembers is enabled without permission', () => {
+  it('falls back to browse rows without permission', () => {
     renderWithChannel(
-      <ChannelMembersViewList onMembersRemoved={onMembersRemoved} removeMembers />,
+      <ChannelMembersRemoveView onMembersRemoved={onMembersRemoved} />,
       createChannel({ ownCapabilities: [] }),
     );
 
@@ -177,16 +157,5 @@ describe('ChannelMembersViewList', () => {
     expect(
       screen.queryByRole('button', { name: /Remove {{ count }} members/ }),
     ).not.toBeInTheDocument();
-  });
-
-  it('falls back to channel state members when paginator has no items', () => {
-    vi.mocked(useStateStore).mockReturnValue({
-      isLoading: false,
-      members: null,
-    });
-
-    renderWithChannel(<ChannelMembersViewList />);
-
-    expect(screen.getByText('Alice')).toBeInTheDocument();
   });
 });

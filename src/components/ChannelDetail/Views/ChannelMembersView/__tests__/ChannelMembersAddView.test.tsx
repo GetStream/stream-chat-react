@@ -4,7 +4,7 @@ import type { UserResponse } from 'stream-chat';
 
 import { useChatContext, useTranslationContext } from '../../../../../context';
 import { useStateStore } from '../../../../../store';
-import { ChannelMembersViewSearch } from '../ChannelMembersViewSearch';
+import { ChannelMembersAddView } from '../ChannelMembersAddView';
 import {
   createChannel,
   createUserSearchSource,
@@ -12,6 +12,10 @@ import {
   querySelectableMemberButton,
   renderWithChannel,
 } from './testUtils';
+
+const mocks = vi.hoisted(() => ({
+  infiniteScrollPaginatorRenderCount: 0,
+}));
 
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
@@ -23,9 +27,10 @@ vi.mock('../../../../Notifications', () => ({
 }));
 
 vi.mock('../../../../InfiniteScrollPaginator/InfiniteScrollPaginator', () => ({
-  InfiniteScrollPaginator: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid='infinite-scroll-paginator'>{children}</div>
-  ),
+  InfiniteScrollPaginator: ({ children }: { children: React.ReactNode }) => {
+    mocks.infiniteScrollPaginatorRenderCount += 1;
+    return <div data-testid='infinite-scroll-paginator'>{children}</div>;
+  },
 }));
 
 vi.mock('../../../../Dialog', () => ({
@@ -46,11 +51,12 @@ const searchUsers: UserResponse[] = [
   { id: 'user-3', name: 'Carol' },
 ];
 
-describe('ChannelMembersViewSearch', () => {
+describe('ChannelMembersAddView', () => {
   const onMembersAdded = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.infiniteScrollPaginatorRenderCount = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
       t: (key: string, options?: { count?: number }) =>
@@ -72,7 +78,7 @@ describe('ChannelMembersViewSearch', () => {
     const { searchSource } = createUserSearchSource();
 
     renderWithChannel(
-      <ChannelMembersViewSearch
+      <ChannelMembersAddView
         onMembersAdded={onMembersAdded}
         searchSource={searchSource}
       />,
@@ -92,7 +98,7 @@ describe('ChannelMembersViewSearch', () => {
     const { searchSource } = createUserSearchSource();
 
     renderWithChannel(
-      <ChannelMembersViewSearch
+      <ChannelMembersAddView
         onMembersAdded={onMembersAdded}
         searchSource={searchSource}
       />,
@@ -119,7 +125,7 @@ describe('ChannelMembersViewSearch', () => {
     const { searchSource } = createUserSearchSource();
 
     renderWithChannel(
-      <ChannelMembersViewSearch
+      <ChannelMembersAddView
         onMembersAdded={onMembersAdded}
         searchSource={searchSource}
       />,
@@ -140,7 +146,7 @@ describe('ChannelMembersViewSearch', () => {
     const { search, searchSource } = createUserSearchSource();
 
     renderWithChannel(
-      <ChannelMembersViewSearch
+      <ChannelMembersAddView
         onMembersAdded={onMembersAdded}
         searchSource={searchSource}
       />,
@@ -149,5 +155,21 @@ describe('ChannelMembersViewSearch', () => {
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'car' } });
 
     expect(search).toHaveBeenCalledWith('car');
+  });
+
+  it('does not re-render user results while typing before source state changes', () => {
+    const { searchSource } = createUserSearchSource();
+
+    renderWithChannel(
+      <ChannelMembersAddView
+        onMembersAdded={onMembersAdded}
+        searchSource={searchSource}
+      />,
+    );
+
+    const renderCount = mocks.infiniteScrollPaginatorRenderCount;
+    fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'car' } });
+
+    expect(mocks.infiniteScrollPaginatorRenderCount).toBe(renderCount);
   });
 });

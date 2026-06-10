@@ -4,11 +4,10 @@ import {
   type AvatarWithChannelDetailProps,
   ChannelDetail,
   type ChannelDetailProps,
-  ChannelManagementNavButton,
-  ChannelManagementView,
-  ChannelMembersNavButton,
   ChannelMembersView,
+  defaultChannelDetailSections,
   type SectionNavigatorSection,
+  type SectionNavigatorSectionContentProps,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
@@ -22,18 +21,16 @@ const ConfiguredChannelDetail = (props: ChannelDetailProps) => {
   );
   const sections = useMemo<SectionNavigatorSection[]>(
     () => [
-      {
-        id: 'channel-info',
-        NavButton: ChannelManagementNavButton,
-        SectionContent: ChannelManagementView,
-      },
-      {
-        id: 'channel-members',
-        NavButton: ChannelMembersNavButton,
-        SectionContent: (sectionProps) => (
-          <ChannelMembersView {...sectionProps} headerActionSet={headerActionSet} />
-        ),
-      },
+      ...defaultChannelDetailSections.map((section) =>
+        section.id !== 'channel-members'
+          ? section
+          : {
+              ...section,
+              SectionContent: (sectionProps: SectionNavigatorSectionContentProps) => (
+                <ChannelMembersView {...sectionProps} headerActionSet={headerActionSet} />
+              ),
+            },
+      ),
     ],
     [headerActionSet],
   );

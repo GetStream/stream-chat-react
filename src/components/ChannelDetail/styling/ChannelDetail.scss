@@ -31,3 +31,13 @@
   gap: var(--str-chat__spacing-md);
   padding: var(--str-chat__spacing-xl);
 }
+
+.str-chat__channel-detail__search-input {
+  flex-shrink: 0;
+  width: 100%;
+  margin-bottom: var(--str-chat__spacing-md);
+
+  .str-chat__form-text-input__wrapper--outline {
+    border-radius: var(--str-chat__radius-max);
+  }
+}

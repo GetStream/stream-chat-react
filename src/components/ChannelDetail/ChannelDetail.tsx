@@ -11,8 +11,9 @@ import {
 import { ChannelDetailProvider } from './ChannelDetailContext';
 import { ChannelManagementView } from './Views/ChannelManagementView';
 import { ChannelMembersView } from './Views/ChannelMembersView';
+import { PinnedMessagesView } from './Views/PinnedMessagesView';
 import { Prompt } from '../Dialog';
-import { IconInfo, IconUser } from '../Icons';
+import { IconInfo, IconPin, IconUser } from '../Icons';
 import { ListItemLayout } from '../ListItemLayout';
 
 const ChannelDetailNavButtonClassName = 'str-chat__channel-detail__nav-button';
@@ -23,6 +24,10 @@ const ChannelManagementNavButtonIcon = () => (
 
 const ChannelMembersNavButtonIcon = () => (
   <IconUser className='str-chat__channel-detail__action-icon' />
+);
+
+const PinnedMessagesNavButtonIcon = () => (
+  <IconPin className='str-chat__channel-detail__action-icon' />
 );
 
 export const ChannelManagementNavButton = ({
@@ -73,7 +78,31 @@ export const ChannelMembersNavButton = ({
   );
 };
 
-const defaultSections: SectionNavigatorSection[] = [
+export const PinnedMessagesNavButton = ({
+  select,
+  selected,
+}: SectionNavigatorNavButtonProps) => {
+  const rootProps = useMemo(
+    () => ({
+      'aria-current': selected ? ('page' as const) : undefined,
+      className: ChannelDetailNavButtonClassName,
+      onClick: select,
+    }),
+    [select, selected],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingIcon={PinnedMessagesNavButtonIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      selected={selected}
+      title='Pinned messages'
+    />
+  );
+};
+
+export const defaultChannelDetailSections: SectionNavigatorSection[] = [
   {
     id: 'channel-info',
     NavButton: ChannelManagementNavButton,
@@ -83,6 +112,11 @@ const defaultSections: SectionNavigatorSection[] = [
     id: 'channel-members',
     NavButton: ChannelMembersNavButton,
     SectionContent: ChannelMembersView,
+  },
+  {
+    id: 'pinned-messages',
+    NavButton: PinnedMessagesNavButton,
+    SectionContent: PinnedMessagesView,
   },
 ];
 
@@ -94,7 +128,7 @@ export type ChannelDetailProps = Omit<SectionNavigatorProps, 'sections'> & {
 export const ChannelDetail = ({
   channel,
   className,
-  sections = defaultSections,
+  sections = defaultChannelDetailSections,
   ...props
 }: ChannelDetailProps) => (
   <ChannelDetailProvider channel={channel}>

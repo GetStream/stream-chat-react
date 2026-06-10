@@ -12,9 +12,9 @@ import {
   getMemberUserId,
   getUserDisplayName,
 } from './ChannelMembersView.utils';
-import { ChannelMembersViewEmptyList } from './ChannelMembersViewEmptyList';
-import { ChannelMembersViewListFooter } from './ChannelMembersViewListFooter';
-import { ChannelMembersViewSearchInput } from './ChannelMembersViewSearchInput';
+import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
+import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
+import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { useChannelMembersSearch } from './useChannelMembersSearch';
 
 const getMemberRoleTranslation = (
@@ -68,7 +68,7 @@ export const ChannelMembersBrowseView = ({
 
   return (
     <Prompt.Body className='str-chat__channel-members-view__body'>
-      <ChannelMembersViewSearchInput
+      <ChannelDetailSearchInput
         onSearchChange={handleSearchChange}
         resetKey={searchInputResetKey}
       />
@@ -123,9 +123,9 @@ export const ChannelMembersBrowseView = ({
             );
           })
         ) : (
-          <ChannelMembersViewEmptyList />
+          <ChannelDetailEmptyList>{t('No member found')}</ChannelDetailEmptyList>
         )}
-        <ChannelMembersViewListFooter searchSource={membersSearchSource} />
+        <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />
       </InfiniteScrollPaginator>
     </Prompt.Body>
   );
