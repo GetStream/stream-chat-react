@@ -5,6 +5,9 @@ export const CHANNEL_MEMBERS_QUERY_LIMIT = 100;
 export const getMemberDisplayName = (member: ChannelMemberResponse) =>
   getUserDisplayName(member.user) || member.user_id || '';
 
+export const getMemberUserId = (member: ChannelMemberResponse) =>
+  member.user?.id || member.user_id;
+
 export const getUserDisplayName = (user?: UserResponse) =>
   user?.name || user?.username || user?.id || '';
 

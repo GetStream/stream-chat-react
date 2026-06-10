@@ -11,8 +11,9 @@ import {
   defaultChannelMembersHeaderActionSet,
   DefaultHeaderActions,
 } from './ChannelMembersHeaderActions.defaults';
-import { ChannelMembersViewList } from './ChannelMembersViewList';
-import { ChannelMembersViewSearch } from './ChannelMembersViewSearch';
+import { ChannelMembersAddView } from './ChannelMembersAddView';
+import { ChannelMembersBrowseView } from './ChannelMembersBrowseView';
+import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
 import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
 
 export type ChannelMembersHeaderActionsProps = {
@@ -51,7 +52,7 @@ export const ChannelMembersView = ({
 
   const isAddingMember = mode === 'add';
   const isManagingMembers = mode === 'remove';
-  const isViewingMemberDetail = !!selectedMember;
+  const isViewingMemberDetail = mode === 'memberDetail';
   const isAlternateMode = isAddingMember || isManagingMembers || isViewingMemberDetail;
 
   useEffect(() => {
@@ -72,6 +73,8 @@ export const ChannelMembersView = ({
       setSelectedMember(undefined);
     }
   }, []);
+
+  const goBack = useCallback(() => setViewMode('browse'), [setViewMode]);
 
   const controller = useMemo<ChannelMembersViewController>(
     () => ({
@@ -104,11 +107,7 @@ export const ChannelMembersView = ({
 
   if (isViewingMemberDetail && selectedMember) {
     return (
-      <ChannelMemberDetail
-        layout={layout}
-        member={selectedMember}
-        onBack={() => setViewMode('browse')}
-      />
+      <ChannelMemberDetail layout={layout} member={selectedMember} onBack={goBack} />
     );
   }
 
@@ -118,41 +117,35 @@ export const ChannelMembersView = ({
         close={close}
         description={isAlternateMode ? undefined : t('Browse channel members')}
         goBack={
-          isAddingMember
-            ? () => {
-                setViewMode('browse');
-              }
-            : isViewingMemberDetail
-              ? () => {
-                  setViewMode('browse');
-                }
-              : isManagingMembers
-                ? () => setViewMode('browse')
-                : undefined
+          isAddingMember || isViewingMemberDetail || isManagingMembers
+            ? goBack
+            : undefined
         }
         title={headerTitle}
         TrailingContent={HeaderTrailingActions}
       />
       {isAddingMember ? (
-        <ChannelMembersViewSearch
+        <ChannelMembersAddView
           onMembersAdded={(count) => {
             setMemberCount((currentCount) => currentCount + count);
             setMembersAddedCount(count);
             setMembersRefreshKey((currentKey) => currentKey + 1);
-            setViewMode('browse');
+            goBack();
+          }}
+        />
+      ) : isManagingMembers ? (
+        <ChannelMembersRemoveView
+          onMembersRemoved={(count) => {
+            setMemberCount((currentCount) => currentCount - count);
           }}
         />
       ) : (
-        <ChannelMembersViewList
+        <ChannelMembersBrowseView
           key={membersRefreshKey}
           onMemberSelect={(member) => {
             setSelectedMember(member);
             setViewMode('memberDetail');
           }}
-          onMembersRemoved={(count) => {
-            setMemberCount((currentCount) => currentCount - count);
-          }}
-          removeMembers={isManagingMembers}
         />
       )}
     </div>

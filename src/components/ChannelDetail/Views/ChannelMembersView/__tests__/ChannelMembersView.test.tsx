@@ -12,13 +12,30 @@ import { createChannel, renderWithChannel } from './testUtils';
 
 vi.mock('../../../../../context');
 
-vi.mock('../ChannelMembersViewSearch', () => ({
-  ChannelMembersViewSearch: ({
+vi.mock('../../ChannelMemberDetailView', () => ({
+  ChannelMemberDetail: ({
+    member,
+    onBack,
+  }: {
+    member?: { user?: { name?: string }; user_id?: string };
+    onBack?: () => void;
+  }) => (
+    <div data-testid='channel-member-detail-view'>
+      <span>{member?.user?.name ?? member?.user_id}</span>
+      <button onClick={onBack} type='button'>
+        Mock detail back
+      </button>
+    </div>
+  ),
+}));
+
+vi.mock('../ChannelMembersAddView', () => ({
+  ChannelMembersAddView: ({
     onMembersAdded,
   }: {
     onMembersAdded: (count: number) => void;
   }) => (
-    <div data-testid='channel-members-view-search'>
+    <div data-testid='channel-members-add-view'>
       <button onClick={() => onMembersAdded(1)} type='button'>
         Mock add members
       </button>
@@ -26,20 +43,42 @@ vi.mock('../ChannelMembersViewSearch', () => ({
   ),
 }));
 
-vi.mock('../ChannelMembersViewList', () => ({
-  ChannelMembersViewList: ({
+vi.mock('../ChannelMembersBrowseView', () => ({
+  ChannelMembersBrowseView: ({
+    onMemberSelect,
+  }: {
+    onMemberSelect?: (member: {
+      user: { id: string; name: string };
+      user_id: string;
+    }) => void;
+  }) => (
+    <div data-testid='channel-members-browse-view'>
+      Mock browse members
+      <button
+        onClick={() =>
+          onMemberSelect?.({
+            user: { id: 'user-1', name: 'Alice' },
+            user_id: 'user-1',
+          })
+        }
+        type='button'
+      >
+        Mock select member
+      </button>
+    </div>
+  ),
+}));
+
+vi.mock('../ChannelMembersRemoveView', () => ({
+  ChannelMembersRemoveView: ({
     onMembersRemoved,
-    removeMembers,
   }: {
     onMembersRemoved?: (count: number) => void;
-    removeMembers?: boolean;
   }) => (
-    <div data-manage-members={removeMembers} data-testid='channel-members-view-list'>
-      {removeMembers && (
-        <button onClick={() => onMembersRemoved?.(1)} type='button'>
-          Mock remove members
-        </button>
-      )}
+    <div data-testid='channel-members-remove-view'>
+      <button onClick={() => onMembersRemoved?.(1)} type='button'>
+        Mock remove members
+      </button>
     </div>
   ),
 }));
@@ -181,7 +220,7 @@ describe('ChannelMembersView', () => {
     expect(
       screen.queryByRole('button', { name: 'Remove channel members' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId('channel-members-view-list')).toBeInTheDocument();
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
   });
 
   it('hides Add button without update-channel-members capability', () => {
@@ -190,7 +229,7 @@ describe('ChannelMembersView', () => {
     expect(
       screen.queryByRole('button', { name: 'Add channel members' }),
     ).not.toBeInTheDocument();
-    expect(screen.getByTestId('channel-members-view-list')).toBeInTheDocument();
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
   });
 
   it('switches to add-member search mode from the header action', () => {
@@ -198,8 +237,8 @@ describe('ChannelMembersView', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Add channel members' }));
 
-    expect(screen.getByTestId('channel-members-view-search')).toBeInTheDocument();
-    expect(screen.queryByTestId('channel-members-view-list')).not.toBeInTheDocument();
+    expect(screen.getByTestId('channel-members-add-view')).toBeInTheDocument();
+    expect(screen.queryByTestId('channel-members-browse-view')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Add members' })).toBeInTheDocument();
   });
 
@@ -241,10 +280,28 @@ describe('ChannelMembersView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Add channel members' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mock add members' }));
 
-    expect(screen.getByTestId('channel-members-view-list')).toBeInTheDocument();
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: '{{ count }} members:3' }),
     ).toBeInTheDocument();
+  });
+
+  it('renders member detail from ChannelMembersView after browse member selection', () => {
+    renderWithChannel(<ChannelMembersView />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock select member' }));
+
+    expect(screen.getByTestId('channel-member-detail-view')).toHaveTextContent('Alice');
+    expect(screen.queryByTestId('channel-members-browse-view')).not.toBeInTheDocument();
+  });
+
+  it('returns to browse mode from member detail', () => {
+    renderWithChannel(<ChannelMembersView />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mock select member' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mock detail back' }));
+
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
   });
 
   it('switches to manage-members mode via custom HeaderActions', () => {
@@ -257,10 +314,7 @@ describe('ChannelMembersView', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
 
-    expect(screen.getByTestId('channel-members-view-list')).toHaveAttribute(
-      'data-manage-members',
-      'true',
-    );
+    expect(screen.getByTestId('channel-members-remove-view')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Manage members' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
     expect(
@@ -282,10 +336,7 @@ describe('ChannelMembersView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
     fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
 
-    expect(screen.getByTestId('channel-members-view-list')).toHaveAttribute(
-      'data-manage-members',
-      'false',
-    );
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: '{{ count }} members:2' }),
     ).toBeInTheDocument();
@@ -308,10 +359,7 @@ describe('ChannelMembersView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
     fireEvent.click(screen.getByRole('button', { name: 'Mock remove members' }));
 
-    expect(screen.getByTestId('channel-members-view-list')).toHaveAttribute(
-      'data-manage-members',
-      'true',
-    );
+    expect(screen.getByTestId('channel-members-remove-view')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Manage members' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
     expect(

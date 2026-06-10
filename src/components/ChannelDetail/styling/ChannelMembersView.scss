@@ -82,6 +82,11 @@
   gap: var(--str-chat__spacing-sm);
   color: var(--str-chat__text-secondary);
   font: var(--str-chat__font-body);
+
+  svg {
+    height: 32px;
+    width: 32px;
+  }
 }
 
 .str-chat__channel-detail__channel-members-view__toast {
