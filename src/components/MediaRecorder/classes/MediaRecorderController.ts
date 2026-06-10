@@ -310,6 +310,10 @@ export class MediaRecorderController {
 
   pause = () => {
     if (this.recordingState.value !== MediaRecordingState.RECORDING) return;
+    // The native recorder can transition to 'inactive' on its own (e.g. iOS Safari
+    // interruptions or a preceding stop) while recordingState still reads RECORDING.
+    // Calling pause() on a non-recording recorder throws InvalidStateError.
+    if (this.mediaRecorder?.state !== 'recording') return;
     if (this.startTime) {
       this.recordedChunkDurations.push(new Date().getTime() - this.startTime);
       this.startTime = undefined;
@@ -321,6 +325,9 @@ export class MediaRecorderController {
 
   resume = () => {
     if (this.recordingState.value !== MediaRecordingState.PAUSED) return;
+    // resume() is only valid on a 'paused' recorder; the native recorder may have gone
+    // inactive while recordingState still reads PAUSED, which would throw InvalidStateError.
+    if (this.mediaRecorder?.state !== 'paused') return;
     this.startTime = new Date().getTime();
     this.mediaRecorder?.resume();
     this.amplitudeRecorder?.start();
