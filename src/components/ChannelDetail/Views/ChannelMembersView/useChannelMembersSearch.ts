@@ -23,6 +23,10 @@ export const useChannelMembersSearch = () => {
     () => Object.values(channel.state?.members ?? {}),
     [channel],
   );
+  // Skip activating/searching only when the server explicitly reports zero
+  // members. `member_count` being undefined is treated as "has members" so we
+  // never suppress loading on incomplete channel data.
+  const hasMembers = channel.data?.member_count !== 0;
   const membersSearchSource = useMemo(() => {
     const source = new ChannelMemberSearchSource(channel, {
       allowEmptySearchString: true,
@@ -31,9 +35,9 @@ export const useChannelMembersSearch = () => {
       resetOnNewSearchQuery: false,
     });
 
-    source.activate();
+    if (hasMembers) source.activate();
     return source;
-  }, [channel]);
+  }, [channel, hasMembers]);
   const { members } = useStateStore(
     membersSearchSource.state,
     membersSearchSourceItemsStateSelector,
@@ -56,8 +60,9 @@ export const useChannelMembersSearch = () => {
   );
 
   useEffect(() => {
+    if (!hasMembers) return;
     void membersSearchSource.search('');
-  }, [membersSearchSource]);
+  }, [hasMembers, membersSearchSource]);
 
   useEffect(
     () => () => {
@@ -69,6 +74,7 @@ export const useChannelMembersSearch = () => {
   return {
     displayedMembers: members ?? fallbackMembers,
     handleSearchChange,
+    hasMembers,
     membersSearchSource,
     resetMembersSearch,
     searchInputResetKey,

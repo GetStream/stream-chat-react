@@ -2,5 +2,7 @@ export * from './ChannelDetail';
 export * from './ChannelDetailContext';
 export * from './Views/ChannelManagementView/ChannelManagementView';
 export * from './Views/ChannelManagementView/ChannelManagementActions.defaults';
+export * from './Views/ChannelFilesView';
+export * from './Views/ChannelMediaView';
 export * from './Views/ChannelMembersView';
 export * from './Views/PinnedMessagesView';

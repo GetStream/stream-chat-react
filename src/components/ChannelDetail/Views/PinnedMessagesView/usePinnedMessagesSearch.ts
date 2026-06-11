@@ -30,6 +30,9 @@ export const usePinnedMessagesSearch = () => {
       ) ?? [],
     [channel],
   );
+  // When the channel has no pinned messages, there is nothing to search for -
+  // skip activating/searching the source entirely.
+  const hasPinnedMessages = fallbackPinnedMessages.length > 0;
   const pinnedMessagesSearchSource = useMemo(() => {
     const source = new MessageSearchSource(
       client,
@@ -58,10 +61,10 @@ export const usePinnedMessagesSearch = () => {
 
     source.messageSearchChannelFilters = { cid: channel.cid };
     source.messageSearchFilters = { pinned: true };
-    source.activate();
+    if (hasPinnedMessages) source.activate();
 
     return source;
-  }, [channel.cid, client]);
+  }, [channel.cid, client, hasPinnedMessages]);
   const { messages } = useStateStore(
     pinnedMessagesSearchSource.state,
     pinnedMessagesSearchSourceItemsStateSelector,
@@ -95,6 +98,7 @@ export const usePinnedMessagesSearch = () => {
       MessageResponse | LocalMessage
     >,
     handleSearchChange,
+    hasPinnedMessages,
     hasSearchResultsLoaded: Array.isArray(messages),
     pinnedMessagesSearchSource,
   };

@@ -58,6 +58,7 @@ export const ChannelMembersBrowseView = ({
   const {
     displayedMembers,
     handleSearchChange,
+    hasMembers,
     membersSearchSource,
     searchInputResetKey,
   } = useChannelMembersSearch();
@@ -68,13 +69,15 @@ export const ChannelMembersBrowseView = ({
 
   return (
     <Prompt.Body className='str-chat__channel-members-view__body'>
-      <ChannelDetailSearchInput
-        onSearchChange={handleSearchChange}
-        resetKey={searchInputResetKey}
-      />
+      {hasMembers && (
+        <ChannelDetailSearchInput
+          onSearchChange={handleSearchChange}
+          resetKey={searchInputResetKey}
+        />
+      )}
       <InfiniteScrollPaginator
         className='str-chat__channel-detail__channel-members-view__list'
-        loadNextOnScrollToBottom={membersSearchSource.search}
+        loadNextOnScrollToBottom={hasMembers ? membersSearchSource.search : undefined}
       >
         {displayedMembers.length > 0 ? (
           displayedMembers.map((member) => {

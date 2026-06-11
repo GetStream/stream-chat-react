@@ -115,5 +115,6 @@
   .str-chat__list-item-layout__description,
   .str-chat__list-item-layout__title {
     @include utils.ellipsis-text;
+    max-width: 100%;
   }
 }

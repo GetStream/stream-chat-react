@@ -1,0 +1,115 @@
+@use '../../../styling/utils';
+
+.str-chat__channel-detail__files-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.str-chat__channel-detail__files-view__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  /* Let the month separators span edge-to-edge; the file groups are padded instead. */
+  padding-inline: 0;
+}
+
+.str-chat__channel-detail__files-view__empty-state {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--str-chat__spacing-sm);
+  width: 100%;
+  padding-block: var(--str-chat__spacing-3xl);
+  padding-inline: var(--str-chat__spacing-md);
+  text-align: center;
+}
+
+.str-chat__channel-detail__files-view__empty-state__icon {
+  width: 32px;
+  height: 32px;
+  color: var(--str-chat__text-tertiary);
+}
+
+.str-chat__channel-detail__files-view__empty-state__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--str-chat__spacing-xxs);
+  width: 100%;
+}
+
+.str-chat__channel-detail__files-view__empty-state__title,
+.str-chat__channel-detail__files-view__empty-state__description {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.str-chat__channel-detail__files-view__empty-state__title {
+  color: var(--str-chat__text-primary);
+  font: var(--str-chat__font-caption-emphasis);
+}
+
+.str-chat__channel-detail__files-view__empty-state__description {
+  max-width: 200px;
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-caption-default);
+}
+
+.str-chat__channel-detail__files-view__list {
+  @include utils.hide-scrollbar;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  .str-chat__infinite-scroll-paginator__content {
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+}
+
+.str-chat__channel-detail__files-view__section {
+  display: flex;
+  flex-direction: column;
+}
+
+.str-chat__channel-detail__files-view__section-header {
+  padding-block: var(--str-chat__spacing-xs);
+  padding-inline: var(--str-chat__spacing-xs);
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-caption-emphasis);
+  background: var(--str-chat__background-core-surface-subtle);
+}
+
+.str-chat__channel-detail__files-view__section-items {
+  display: flex;
+  flex-direction: column;
+  padding-inline: var(--str-chat__spacing-xs);
+}
+
+.str-chat__list-item-layout.str-chat__channel-detail__files-view__list-item {
+  width: 100%;
+  text-align: start;
+  color: inherit;
+  text-decoration: none;
+}
+
+.str-chat__channel-detail__files-view__list-item__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.str-chat__channel-detail__files-view__list-item__size {
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-caption-default);
+}

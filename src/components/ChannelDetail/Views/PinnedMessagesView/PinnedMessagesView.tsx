@@ -81,6 +81,7 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
   const {
     displayedMessages,
     handleSearchChange,
+    hasPinnedMessages,
     hasSearchResultsLoaded,
     pinnedMessagesSearchSource,
   } = usePinnedMessagesSearch();
@@ -93,10 +94,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
         title={t('Pinned messages')}
       />
       <Prompt.Body className='str-chat__channel-detail__pinned-messages-view__body'>
-        <ChannelDetailSearchInput onSearchChange={handleSearchChange} />
+        {hasPinnedMessages && (
+          <ChannelDetailSearchInput onSearchChange={handleSearchChange} />
+        )}
         <InfiniteScrollPaginator
           className='str-chat__channel-detail__pinned-messages-view__list'
-          loadNextOnScrollToBottom={pinnedMessagesSearchSource.search}
+          loadNextOnScrollToBottom={
+            hasPinnedMessages ? pinnedMessagesSearchSource.search : undefined
+          }
         >
           {displayedMessages.length > 0 ? (
             displayedMessages.map((message) => {

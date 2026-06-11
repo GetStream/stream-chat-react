@@ -251,4 +251,15 @@ describe('PinnedMessagesView', () => {
     expect(screen.getByText('No pinned messages')).toBeInTheDocument();
     expect(screen.getByText('Pin a message to see it here')).toBeInTheDocument();
   });
+
+  it('does not activate or search when there are no pinned messages', () => {
+    renderWithChannel(
+      <PinnedMessagesView layout='tabs' />,
+      createChannel({ pinnedMessages: [] }),
+    );
+
+    expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
+    expect(mocks.searchSourceActivate).not.toHaveBeenCalled();
+    expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
+  });
 });

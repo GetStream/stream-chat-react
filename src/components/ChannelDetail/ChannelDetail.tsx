@@ -9,11 +9,13 @@ import {
   type SectionNavigatorSection,
 } from '../SectionNavigator';
 import { ChannelDetailProvider } from './ChannelDetailContext';
+import { ChannelFilesView } from './Views/ChannelFilesView';
 import { ChannelManagementView } from './Views/ChannelManagementView';
+import { ChannelMediaView } from './Views/ChannelMediaView';
 import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
 import { Prompt } from '../Dialog';
-import { IconInfo, IconPin, IconUser } from '../Icons';
+import { IconFolder, IconImage, IconInfo, IconPin, IconUser } from '../Icons';
 import { ListItemLayout } from '../ListItemLayout';
 
 const ChannelDetailNavButtonClassName = 'str-chat__channel-detail__nav-button';
@@ -28,6 +30,14 @@ const ChannelMembersNavButtonIcon = () => (
 
 const PinnedMessagesNavButtonIcon = () => (
   <IconPin className='str-chat__channel-detail__action-icon' />
+);
+
+const ChannelMediaNavButtonIcon = () => (
+  <IconImage className='str-chat__channel-detail__action-icon' />
+);
+
+const ChannelFilesNavButtonIcon = () => (
+  <IconFolder className='str-chat__channel-detail__action-icon' />
 );
 
 export const ChannelManagementNavButton = ({
@@ -102,6 +112,54 @@ export const PinnedMessagesNavButton = ({
   );
 };
 
+export const ChannelMediaNavButton = ({
+  select,
+  selected,
+}: SectionNavigatorNavButtonProps) => {
+  const rootProps = useMemo(
+    () => ({
+      'aria-current': selected ? ('page' as const) : undefined,
+      className: ChannelDetailNavButtonClassName,
+      onClick: select,
+    }),
+    [select, selected],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingIcon={ChannelMediaNavButtonIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      selected={selected}
+      title='Photos & videos'
+    />
+  );
+};
+
+export const ChannelFilesNavButton = ({
+  select,
+  selected,
+}: SectionNavigatorNavButtonProps) => {
+  const rootProps = useMemo(
+    () => ({
+      'aria-current': selected ? ('page' as const) : undefined,
+      className: ChannelDetailNavButtonClassName,
+      onClick: select,
+    }),
+    [select, selected],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingIcon={ChannelFilesNavButtonIcon}
+      RootElement='button'
+      rootProps={rootProps}
+      selected={selected}
+      title='Files'
+    />
+  );
+};
+
 export const defaultChannelDetailSections: SectionNavigatorSection[] = [
   {
     id: 'channel-info',
@@ -117,6 +175,16 @@ export const defaultChannelDetailSections: SectionNavigatorSection[] = [
     id: 'pinned-messages',
     NavButton: PinnedMessagesNavButton,
     SectionContent: PinnedMessagesView,
+  },
+  {
+    id: 'channel-media',
+    NavButton: ChannelMediaNavButton,
+    SectionContent: ChannelMediaView,
+  },
+  {
+    id: 'channel-files',
+    NavButton: ChannelFilesNavButton,
+    SectionContent: ChannelFilesView,
   },
 ];
 
