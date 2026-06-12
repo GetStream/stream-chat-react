@@ -13,6 +13,7 @@ layer(stream-app-overrides);
 @import url('./AccessibilityNavigation/ReturnToSkipNavigation.scss')
 layer(stream-app-overrides);
 @import url('stream-chat-react/dist/css/emoji-picker.css') layer(stream-new-plugins);
+@import url('stream-chat-react/dist/css/channel-detail.css') layer(stream-new-plugins);
 
 :root {
   font-synthesis: none;

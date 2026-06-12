@@ -1,7 +1,8 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { GlobalModal } from '../GlobalModal';
+import { ContextMenu, ContextMenuButton, useDialogOnNearestManager } from '../../Dialog';
 import {
   ChatProvider,
   ComponentProvider,
@@ -47,6 +48,34 @@ const ModalContent = ({
     {children}
   </div>
 );
+
+const ModalContextMenu = () => {
+  const [referenceElement, setReferenceElement] =
+    React.useState<HTMLButtonElement | null>(null);
+  const { dialog, dialogManager } = useDialogOnNearestManager({
+    id: 'modal-context-menu',
+  });
+
+  return (
+    <>
+      <button onClick={() => dialog.open()} ref={setReferenceElement} type='button'>
+        Open context menu
+      </button>
+      <ContextMenu
+        aria-label='Modal context menu'
+        dialogManagerId={dialogManager?.id}
+        id={dialog.id}
+        onClose={dialog.close}
+        placement='bottom-start'
+        referenceElement={referenceElement}
+        tabIndex={-1}
+        trapFocus
+      >
+        <ContextMenuButton>Menu action</ContextMenuButton>
+      </ContextMenu>
+    </>
+  );
+};
 
 const renderStackedModals = ({
   childOnClose = vi.fn(),
@@ -355,6 +384,50 @@ describe('GlobalModal', () => {
     expect(dialog).toHaveAttribute('aria-describedby', 'modal-description');
   });
 
+  it('forwards dialogRootProps to the dialog surface', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Modal label',
+        children: <ModalContent text={textContent} />,
+        dialogRootProps: {
+          className: 'custom-dialog',
+          'data-testid': 'dialog-root',
+        },
+        open: true,
+      },
+    });
+
+    const dialog = screen.getByRole('dialog', { name: 'Modal label' });
+
+    expect(dialog).toBe(screen.getByTestId('dialog-root'));
+    expect(dialog).toHaveClass('str-chat__modal__dialog');
+    expect(dialog).toHaveClass('custom-dialog');
+  });
+
+  it('lets dialogRootProps onKeyDown prevent the internal escape close', () => {
+    const onClose = vi.fn();
+    const onKeyDown = vi.fn((event: React.KeyboardEvent<HTMLDivElement>) => {
+      event.preventDefault();
+    });
+
+    renderComponent({
+      props: {
+        'aria-label': 'Modal label',
+        children: <ModalContent text={textContent} />,
+        dialogRootProps: { onKeyDown },
+        onClose,
+        open: true,
+      },
+    });
+
+    fireEvent.keyDown(screen.getByRole('dialog', { name: 'Modal label' }), {
+      key: 'Escape',
+    });
+
+    expect(onKeyDown).toHaveBeenCalledTimes(1);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('falls back to aria-label when aria-labelledby is not provided', () => {
     renderComponent({
       props: {
@@ -529,6 +602,48 @@ describe('GlobalModal', () => {
     const dialog = screen.getByRole('alertdialog', { name: 'Delete confirmation' });
     expect(dialog).toHaveClass('str-chat__modal__dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
+  });
+
+  it('closes a context menu rendered above the modal without closing or demoting the modal', async () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Modal with context menu',
+        children: (
+          <ModalContent text={textContent}>
+            <ModalContextMenu />
+          </ModalContent>
+        ),
+        open: true,
+      },
+    });
+
+    const modal = screen.getByRole('dialog', { name: 'Modal with context menu' });
+    expect(modal).toHaveAttribute('aria-modal', 'true');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open context menu' }));
+
+    expect(
+      await screen.findByRole('menu', { name: 'Modal context menu' }),
+    ).toBeInTheDocument();
+    expect(modal).toHaveAttribute('aria-modal', 'true');
+    expect(modal).not.toHaveAttribute('inert');
+
+    const floatingOverlay = document.querySelector(
+      '.str-chat__modal__floating-dialog-overlay',
+    );
+    expect(floatingOverlay).toBeInTheDocument();
+
+    fireEvent.click(floatingOverlay as Element);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('menu', { name: 'Modal context menu' }),
+      ).not.toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByRole('dialog', { name: 'Modal with context menu' }),
+    ).toHaveAttribute('aria-modal', 'true');
   });
 
   it('has no accessibility violations for modal semantics', async () => {

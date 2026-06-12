@@ -2,7 +2,6 @@ import { useCallback } from 'react';
 
 import type { Notification, NotificationAction, NotificationSeverity } from 'stream-chat';
 
-import { modalDialogId } from '../../Dialog';
 import { useChatContext, useModalDialogManager } from '../../../context';
 import { useStateStore } from '../../../store';
 import {
@@ -14,8 +13,13 @@ import { useNotificationTarget } from './useNotificationTarget';
 
 import type { DialogManagerState } from '../../Dialog/service/DialogManager';
 
-const modalDialogIsOpenSelector = ({ dialogsById }: DialogManagerState) => ({
-  isOpen: !!dialogsById[modalDialogId]?.isOpen,
+const modalDialogManagerStateSelector = ({
+  dialogsById,
+  openedDialogIds,
+}: DialogManagerState) => ({
+  hasOpenDialog: openedDialogIds
+    ? openedDialogIds.length > 0
+    : Object.values(dialogsById).some((dialog) => dialog.isOpen),
 });
 
 /** Tag used for full-width system banners (e.g. connection status). Excluded from `NotificationList` by default. */
@@ -89,11 +93,11 @@ const getTargetTags = (
   targetPanels: NotificationTargetPanel[] | undefined,
   inferredPanel: NotificationTargetPanel | undefined,
   tags: string[] | undefined,
-  modalIsOpen: boolean,
+  modalManagerHasOpenDialog: boolean,
 ) => {
   if (targetPanels) {
     const effectiveTargetPanels =
-      modalIsOpen && targetPanels.length > 0
+      modalManagerHasOpenDialog && targetPanels.length > 0
         ? [...targetPanels, 'modal' as const]
         : targetPanels;
 
@@ -102,7 +106,7 @@ const getTargetTags = (
     );
   }
 
-  if (modalIsOpen) {
+  if (modalManagerHasOpenDialog) {
     return Array.from(
       new Set([
         ...(inferredPanel ? [getNotificationTargetTag(inferredPanel)] : []),
@@ -136,8 +140,9 @@ export const useNotificationApi = (): NotificationApi => {
   const { client } = useChatContext();
   const inferredPanel = useNotificationTarget();
   const modalDialogManager = useModalDialogManager();
-  const modalIsOpen =
-    useStateStore(modalDialogManager?.state, modalDialogIsOpenSelector)?.isOpen ?? false;
+  const modalManagerHasOpenDialog =
+    useStateStore(modalDialogManager?.state, modalDialogManagerStateSelector)
+      ?.hasOpenDialog ?? false;
 
   const addNotification: AddNotification = useCallback(
     ({
@@ -157,7 +162,7 @@ export const useNotificationApi = (): NotificationApi => {
         targetPanels,
         inferredPanel,
         tags,
-        modalIsOpen,
+        modalManagerHasOpenDialog,
       );
       const resolvedType = getTypeFromIncident({ incident, severity, type });
       const origin = context ? { context, emitter } : { emitter };
@@ -177,7 +182,7 @@ export const useNotificationApi = (): NotificationApi => {
         origin,
       });
     },
-    [client, inferredPanel, modalIsOpen],
+    [client, inferredPanel, modalManagerHasOpenDialog],
   );
 
   const addSystemNotification: AddSystemNotification = useCallback(

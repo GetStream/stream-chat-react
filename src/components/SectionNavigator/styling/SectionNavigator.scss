@@ -1,0 +1,131 @@
+@use '../../../styling/utils';
+
+.str-chat__section-navigator {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.str-chat__section-navigator--inline {
+  .str-chat__prompt__header {
+    padding: var(--str-chat__spacing-md);
+  }
+}
+
+.str-chat__section-navigator__navigation {
+  @include utils.hide-scrollbar(y);
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: 0;
+  padding: var(--str-chat__spacing-xxs);
+  border-right: 1px solid var(--str-chat__border-core-subtle);
+  width: 200px;
+  align-self: stretch;
+}
+
+.str-chat__section-navigator__navigation-item {
+  min-width: 0;
+  width: 100%;
+  padding: var(--str-chat__spacing-xxxs);
+
+  .str-chat__section-navigator__navigation-item__nav-button {
+    padding-block: var(--str-chat__spacing-xs);
+  }
+}
+
+.str-chat__section-navigator__content {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.str-chat__section-navigator__header-menu-button {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.str-chat__prompt__header--withDescription
+  .str-chat__section-navigator__header-menu-button {
+  align-self: flex-start;
+}
+
+.str-chat__section-navigator__navigation-overlay {
+  --str-chat__navigation-drawer-transition-duration: 280ms;
+  --str-chat__navigation-drawer-transition-easing: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+
+  // Closed state: the overlay stays mounted so the drawer can animate out, but
+  // it is non-interactive and removed from the a11y/tab order. `visibility` is
+  // transitioned with a delay equal to the slide duration so the drawer remains
+  // visible while it slides away, then hides once the animation completes.
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear var(--str-chat__navigation-drawer-transition-duration);
+}
+
+.str-chat__section-navigator__navigation-overlay--open {
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+.str-chat__section-navigator__navigation-scrim {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--str-chat__overlay-color, rgb(0 0 0 / 50%));
+  backdrop-filter: blur(25px);
+  opacity: 0;
+  transition: opacity var(--str-chat__navigation-drawer-transition-duration)
+    var(--str-chat__navigation-drawer-transition-easing);
+
+  .str-chat__section-navigator__navigation-overlay--open & {
+    opacity: 1;
+  }
+}
+
+.str-chat__section-navigator__navigation-drawer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  width: 75%;
+  max-width: 280px;
+  height: 100%;
+  background: var(--str-chat__background-core-elevation-1, #fff);
+  box-shadow: 0 4px 16px rgb(0 0 0 / 8%);
+  transform: translateX(-100%);
+  transition: transform var(--str-chat__navigation-drawer-transition-duration)
+    var(--str-chat__navigation-drawer-transition-easing);
+  will-change: transform;
+
+  .str-chat__section-navigator__navigation-overlay--open & {
+    transform: translateX(0);
+  }
+
+  .str-chat__section-navigator__navigation {
+    flex: 1;
+    width: 100%;
+    border-right: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .str-chat__section-navigator__navigation-scrim,
+  .str-chat__section-navigator__navigation-drawer {
+    transition: none;
+  }
+}

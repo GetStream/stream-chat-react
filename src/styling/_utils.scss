@@ -131,3 +131,26 @@
     max-width: 100%;
   }
 }
+
+@mixin hide-scrollbar($axis: both) {
+  @if $axis == x {
+    overflow-x: auto;
+    overflow-y: hidden;
+  } @else if $axis == y {
+    overflow-y: auto;
+    overflow-x: hidden;
+  } @else {
+    overflow: auto;
+  }
+
+  // Firefox
+  scrollbar-width: none;
+
+  // IE and old Edge
+  -ms-overflow-style: none;
+
+  // Chrome, Safari, Opera
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

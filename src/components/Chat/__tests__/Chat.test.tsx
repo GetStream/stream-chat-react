@@ -8,6 +8,7 @@ import { Chat } from '..';
 import { ChatContext, ComponentProvider, TranslationContext } from '../../../context';
 import type { ChatContextValue } from '../../../context';
 import { useNotificationConfigurationContext } from '../../Notifications';
+import { GlobalModal } from '../../Modal';
 import { Streami18n } from '../../../i18n';
 import type { Notification } from 'stream-chat';
 import type { Mute } from 'stream-chat';
@@ -84,6 +85,40 @@ describe('Chat', () => {
         false,
       );
       expect(displayFilter({ notification: modalNotification, panel: 'modal' })).toBe(
+        true,
+      );
+    });
+  });
+
+  it('routes notifications to the modal panel when a generated-id GlobalModal is open', async () => {
+    let displayFilter: ReturnType<
+      typeof useNotificationConfigurationContext
+    >['displayFilter'];
+
+    await act(() => {
+      render(
+        <Chat client={chatClient}>
+          <ComponentProvider value={{ NotificationList: () => null }}>
+            <GlobalModal aria-label='Test modal' open>
+              Modal content
+            </GlobalModal>
+          </ComponentProvider>
+          <NotificationDisplayFilterConsumer
+            fn={(filter) => {
+              displayFilter = filter;
+            }}
+          />
+        </Chat>,
+      );
+    });
+
+    await waitFor(() => {
+      const channelNotification = notification(['target:channel']);
+
+      expect(displayFilter({ notification: channelNotification, panel: 'channel' })).toBe(
+        false,
+      );
+      expect(displayFilter({ notification: channelNotification, panel: 'modal' })).toBe(
         true,
       );
     });

@@ -74,10 +74,12 @@ function generateMimeTypeToIconMap<Props>({
 function generateGeneralTypeToIconMap<Props>({
   FileAltIcon,
   FileAudioIcon,
+  FileFallbackIcon,
   FileVideoIcon,
-}: Pick<IconComponents<Props>, GeneralContentTypeComponent>) {
+}: Pick<IconComponents<Props>, GeneralContentTypeComponent | 'FileFallbackIcon'>) {
   return {
     'audio/': FileAudioIcon,
+    'image/': FileFallbackIcon,
     'text/': FileAltIcon,
     'video/': FileVideoIcon,
   };
@@ -103,6 +105,7 @@ export const iconMap: IconMap = {
     ...generateGeneralTypeToIconMap<BaseFileIconProps>({
       FileAltIcon: fileIconSet.FileFallbackIcon,
       FileAudioIcon: fileIconSet.FileAudioIcon,
+      FileFallbackIcon: fileIconSet.FileFallbackIcon,
       FileVideoIcon: fileIconSet.FileVideoIcon,
     }),
     fallback: fileIconSet.FileFallbackIcon,

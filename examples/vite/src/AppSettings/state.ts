@@ -30,6 +30,23 @@ export type MessageActionsSettingsState = {
   };
 };
 
+export type ChannelMembersHeaderActionForm = 'menu' | 'quick';
+export type ChannelMembersHeaderActionId = 'addMembers' | 'removeMembers';
+
+export type ChannelDetailSettingsState = {
+  modal: {
+    channelMembersView: {
+      headerActions: Record<
+        ChannelMembersHeaderActionId,
+        {
+          enabled: boolean;
+          form: ChannelMembersHeaderActionForm;
+        }
+      >;
+    };
+  };
+};
+
 export const LEFT_PANEL_MIN_WIDTH = 260;
 export const THREAD_PANEL_MIN_WIDTH = 260;
 
@@ -53,6 +70,7 @@ export type MessageListSettingsState = {
 };
 
 export type AppSettingsState = {
+  channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
@@ -79,6 +97,22 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 const defaultAppSettingsState: AppSettingsState = {
+  channelDetail: {
+    modal: {
+      channelMembersView: {
+        headerActions: {
+          addMembers: {
+            enabled: true,
+            form: 'quick',
+          },
+          removeMembers: {
+            enabled: false,
+            form: 'menu',
+          },
+        },
+      },
+    },
+  },
   chatView: {
     iconOnly: true,
   },

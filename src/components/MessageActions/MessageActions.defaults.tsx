@@ -665,7 +665,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <MessageActionsMenuItemButton
-          aria-label={isBlocked ? t('aria/Unblock User') : t('aria/Block User')}
+          aria-label={isBlocked ? t('Unblock') : t('aria/Block User')}
           className={clsx(msgActionsBoxButtonClassName)}
           Icon={isBlocked ? IconUserCheck : IconNoSign}
           onClick={() => {
@@ -677,7 +677,7 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {isBlocked ? t('Unblock User') : t('Block User')}
+          {isBlocked ? t('Unblock') : t('Block User')}
         </MessageActionsMenuItemButton>
       );
     },
