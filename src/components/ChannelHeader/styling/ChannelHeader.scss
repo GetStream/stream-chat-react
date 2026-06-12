@@ -25,17 +25,6 @@
     min-width: 0;
   }
 
-  .str-chat__channel-header__avatar-button {
-    appearance: none;
-    background: none;
-    border: 0;
-    border-radius: 50%;
-    color: inherit;
-    cursor: pointer;
-    display: flex;
-    padding: 0;
-  }
-
   .str-chat__channel-header__data__title,
   .str-chat__channel-header__data__subtitle {
     @include utils.ellipsis-text;

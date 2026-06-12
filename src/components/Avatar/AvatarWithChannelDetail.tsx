@@ -6,10 +6,7 @@ import {
   useComponentContext,
   useTranslationContext,
 } from '../../context';
-import {
-  type ChannelAvatarProps,
-  ChannelAvatar as DefaultChannelAvatar,
-} from '../Avatar';
+import { type ChannelAvatarProps, ChannelAvatar as DefaultChannelAvatar } from './index';
 import {
   type ChannelDetailProps,
   ChannelDetail as DefaultChannelDetail,
@@ -48,13 +45,16 @@ export const AvatarWithChannelDetail = ({
     <>
       <button
         aria-label={t('aria/Open channel details')}
-        className='str-chat__channel-header__avatar-button'
+        className='str-chat__avatar-with-channel-detail-button'
         onClick={openModal}
         type='button'
       >
         <AvatarComponent
           {...avatarProps}
-          className={clsx('str-chat__channel-header__avatar-button-avatar', className)}
+          className={clsx(
+            'str-chat__avatar-with-channel-detail-button__avatar',
+            className,
+          )}
         />
       </button>
       <Modal

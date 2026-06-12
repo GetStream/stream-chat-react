@@ -65,14 +65,9 @@ export const ChannelManagementInfoBody = ({
   const otherMemberUserId = useMemo(() => {
     if (!resolvedIsDmChannel) return;
 
-    return (
-      Object.values(channel.state?.members ?? {}).find(
-        (member) => member.user?.id && member.user.id !== client.user?.id,
-      )?.user?.id ??
-      channel.data?.members?.find(
-        (member) => member.user?.id && member.user.id !== client.user?.id,
-      )?.user?.id
-    );
+    return Object.values(channel.state?.members ?? {}).find(
+      (member) => member.user?.id && member.user.id !== client.user?.id,
+    )?.user?.id;
   }, [channel, client.user?.id, resolvedIsDmChannel]);
   const isOnline = useChannelHasMembersOnline({ channel });
   const { muted: channelMuted } = useIsChannelMuted(channel);
