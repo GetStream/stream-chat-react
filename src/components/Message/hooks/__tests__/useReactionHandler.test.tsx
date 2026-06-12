@@ -7,6 +7,8 @@ import { reactionHandlerWarning, useReactionHandler } from '../useReactionHandle
 import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
 import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../../context/ChatContext';
+import { ComponentProvider } from '../../../../context/ComponentContext';
+import { emojiToUnicode } from '../../../Reactions/reactionOptions';
 import {
   generateChannel,
   generateMessage,
@@ -30,12 +32,14 @@ async function renderUseReactionHandlerHook(
   params: {
     channelContextProps?: Record<string, unknown>;
     channelStateContextOverrides?: Record<string, unknown>;
+    componentContext?: Record<string, unknown>;
     message?: LocalMessage | null;
   } = {},
 ) {
   const {
     channelContextProps = {},
     channelStateContextOverrides = {},
+    componentContext = {},
     message = generateMessage(),
   } = params;
 
@@ -58,7 +62,7 @@ async function renderUseReactionHandlerHook(
         })}
       >
         <ChannelActionProvider value={mockChannelActionContext({ updateMessage })}>
-          {children}
+          <ComponentProvider value={componentContext}>{children}</ComponentProvider>
         </ChannelActionProvider>
       </ChannelStateProvider>
     </ChatProvider>
@@ -103,13 +107,56 @@ describe('useReactionHandler custom hook', () => {
     expect(deleteReaction).toHaveBeenCalledWith(message.id, reaction.type);
   });
 
-  it('should send reaction', async () => {
-    const reaction = generateReaction({ user: bob });
+  it('should send reaction with emoji_code derived from the default reaction options', async () => {
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
-    await handleReaction(reaction.type);
+    await handleReaction('love');
     expect(sendReaction).toHaveBeenCalledWith(message.id, {
-      type: reaction.type,
+      emoji_code: '❤️',
+      type: 'love',
+    });
+  });
+
+  it('should send reaction without emoji_code when the type has no unicode', async () => {
+    const message = generateMessage({ own_reactions: [] });
+    const handleReaction = await renderUseReactionHandlerHook({ message });
+    await handleReaction('unsupported-reaction-type');
+    expect(sendReaction).toHaveBeenCalledWith(message.id, {
+      type: 'unsupported-reaction-type',
+    });
+  });
+
+  it('should derive emoji_code from custom reaction options provided via context', async () => {
+    const message = generateMessage({ own_reactions: [] });
+    const handleReaction = await renderUseReactionHandlerHook({
+      componentContext: {
+        reactionOptions: {
+          quick: {
+            rocket: {
+              Component: () => null,
+              name: 'Rocket',
+              unicode: emojiToUnicode('🚀'),
+            },
+          },
+        },
+      },
+      message,
+    });
+    await handleReaction('rocket');
+    expect(sendReaction).toHaveBeenCalledWith(message.id, {
+      emoji_code: '🚀',
+      type: 'rocket',
+    });
+  });
+
+  it('should stamp emoji_code on the optimistic reaction preview', async () => {
+    const message = generateMessage({ own_reactions: [] });
+    const handleReaction = await renderUseReactionHandlerHook({ message });
+    await handleReaction('love');
+    const optimisticMessage = updateMessage.mock.calls[0][0];
+    expect(optimisticMessage.latest_reactions[0]).toMatchObject({
+      emoji_code: '❤️',
+      type: 'love',
     });
   });
 

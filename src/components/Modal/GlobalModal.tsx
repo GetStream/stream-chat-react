@@ -139,7 +139,7 @@ export const GlobalModal = ({
     maybeClose('escape', event);
   };
 
-  // Sync open prop → dialog state.
+  // Sync open prop to dialog state.
   // closingRef blocks re-open when we just closed and parent hasn't set open=false yet.
   useEffect(() => {
     if (!open) {
