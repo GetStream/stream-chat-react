@@ -28,7 +28,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100%;
-    padding-inline: calc(var(--str-chat__spacing-xs) + var(--str-chat__spacing-xxs));
+    padding-inline: var(--str-chat__spacing-xs);
     padding-block: var(--str-chat__spacing-xxs);
   }
 }
@@ -39,11 +39,6 @@
       padding-inline: var(--str-chat__spacing-xxs);
     }
   }
-}
-
-.str-chat__list-item-layout.str-chat__channel-detail__pinned-messages-view__list-item {
-  width: 100%;
-  text-align: start;
 }
 
 .str-chat__channel-detail__pinned-messages-view__list-item__message-preview {

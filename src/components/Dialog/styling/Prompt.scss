@@ -11,41 +11,55 @@
 .str-chat__prompt__header {
   display: flex;
   flex-shrink: 0;
-  align-items: baseline;
-  gap: var(--str-chat__spacing-sm);
+  align-items: center;
+  gap: var(--str-chat__spacing-md);
   width: 100%;
   padding: var(--str-chat__spacing-xl);
 
+  /* Default (no description): a single flex row. `align-items: center`
+     vertically centers the leading slot, back button, title and trailing
+     controls against one another regardless of their individual heights — so
+     the first-row alignment never depends on the controls sharing a height. */
   .str-chat__prompt__header__title-group {
     display: flex;
+    align-items: center;
     gap: var(--str-chat__spacing-xxs);
-    padding-block: var(--str-chat__spacing-xs);
     flex: 1;
     min-width: 0;
   }
 
-  &.str-chat__prompt__header--withGoBack .str-chat__prompt__header__title-group {
-    align-items: center;
-  }
-
-  &.str-chat__prompt__header--withDescription .str-chat__prompt__header__title-group {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  &.str-chat__prompt__header--withGoBack.str-chat__prompt__header--withDescription
-    .str-chat__prompt__header__title-group {
+  /* With a description the header becomes a grid. Every first-row item
+     (leading slot, back button, title, trailing controls) is placed on the
+     first grid row and centered via `align-items: center`, while the
+     description occupies a second row aligned under the title. Centering stays
+     robust because the row height is driven by the tallest control and all
+     items center within it — no pixel/padding matching required. The
+     title-group is flattened with `display: contents` so its children become
+     direct grid items. */
+  &.str-chat__prompt__header--withDescription {
     display: grid;
-    grid-template-columns: auto 1fr;
     align-items: center;
+    gap: 0;
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
     grid-template-areas:
-      'goBack title'
-      '.      description';
+      'leading goBack title       trailing'
+      '.       .      description .';
+
+    .str-chat__prompt__header__title-group {
+      display: contents;
+    }
+
+    /* Inter-item spacing is applied as margins (rather than grid gaps) so that
+       absent leading/back-button columns collapse without leaving phantom
+       gaps before the title. */
+    .str-chat__prompt__header__leading-content {
+      grid-area: leading;
+      margin-inline-end: var(--str-chat__spacing-md);
+    }
 
     .str-chat__prompt__header__go-back-button {
       grid-area: goBack;
-      justify-self: start;
-      align-self: center;
+      margin-inline-end: var(--str-chat__spacing-xxs);
     }
 
     .str-chat__prompt__header__title {
@@ -55,15 +69,22 @@
     .str-chat__prompt__header__description {
       grid-area: description;
     }
+
+    .str-chat__prompt__header__trailing-content {
+      grid-area: trailing;
+      margin-inline-start: var(--str-chat__spacing-md);
+    }
   }
 
   .str-chat__prompt__header__title {
     margin: 0;
+    padding-block: var(--str-chat__spacing-xs);
     font: var(--str-chat__font-heading-sm);
     color: var(--str-chat__text-primary);
   }
 
   .str-chat__prompt__header__description {
+    padding-block: var(--str-chat__spacing-xxxs);
     font: var(--str-chat__font-caption-default);
     color: var(--str-chat__text-secondary);
   }
@@ -71,6 +92,7 @@
   .str-chat__prompt__header__leading-content,
   .str-chat__prompt__header__trailing-content {
     display: flex;
+    flex-shrink: 0;
     gap: var(--str-chat__spacing-xs);
     align-items: center;
   }

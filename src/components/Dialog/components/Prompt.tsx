@@ -49,7 +49,11 @@ const PromptHeader = ({
         'str-chat__prompt__header--withGoBack': goBack,
       })}
     >
-      {LeadingContent && <LeadingContent />}
+      {LeadingContent && (
+        <div className='str-chat__prompt__header__leading-content'>
+          <LeadingContent />
+        </div>
+      )}
       <div className={clsx('str-chat__prompt__header__title-group')}>
         {goBack && (
           <Button

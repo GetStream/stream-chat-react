@@ -1,7 +1,14 @@
-.str-chat__channel-detail__channel-member-detail-view__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--str-chat__spacing-2xl);
+.str-chat__channel-detail {
+  .str-chat__channel-detail__channel-member-detail-view__body {
+    gap: var(--str-chat__spacing-2xl);
+    padding: 0 var(--str-chat__spacing-xl) var(--str-chat__spacing-2xl);
+  }
+}
+
+.str-chat__channel-detail--inline {
+  .str-chat__channel-detail__channel-member-detail-view__body {
+    padding: var(--str-chat__spacing-2xl) var(--str-chat__spacing-md);
+  }
 }
 
 .str-chat__channel-detail__channel-member-detail-view__profile {
@@ -33,11 +40,13 @@
 }
 
 .str-chat__channel-detail__channel-member-detail-view__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--str-chat__spacing-xxs);
   width: 100%;
   border-radius: var(--str-chat__radius-lg);
   background-color: var(--str-chat__surface-card);
   padding-block: var(--str-chat__spacing-xs);
-  padding-inline: var(--str-chat__spacing-xxs);
 }
 
 .str-chat__channel-member-detail-action {
