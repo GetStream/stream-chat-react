@@ -1,7 +1,7 @@
 import {
   type ChannelMembersHeaderActionItem,
   DefaultChannelMembersHeaderActions,
-} from 'stream-chat-react';
+} from 'stream-chat-react/channel-detail';
 
 import type {
   ChannelDetailSettingsState,

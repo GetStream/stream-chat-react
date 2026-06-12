@@ -7,7 +7,6 @@ export * from './Badge';
 export * from './BaseImage';
 export * from './Button';
 export * from './Channel';
-export * from './ChannelDetail';
 export * from './ChannelHeader';
 export * from './ChannelList';
 export * from './ChannelListItem';
