@@ -1,10 +1,11 @@
 .str-chat__channel-detail {
   display: flex;
   flex-direction: column;
-  width: min(800px, calc(100vw - (2 * var(--str-chat__spacing-lg, 24px))));
+  width: min(800px, calc(100vw - (2 * var(--str-chat__spacing-lg))));
   max-width: 100%;
-  height: 100%;
+  height: min(640px, calc(100vh - (2 * var(--str-chat__spacing-lg))));
   min-height: 0;
+  overflow: hidden;
 
   .str-chat__section-navigator {
     min-height: 0;
@@ -18,6 +19,37 @@
 
   .str-chat__prompt__header__description {
     display: none;
+  }
+
+  .str-chat__prompt__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-md);
+    padding: 0;
+  }
+}
+
+.str-chat__channel-detail--inline {
+  width: 100dvw;
+  height: 100dvh;
+  max-width: none;
+  border-radius: 0;
+  box-shadow: none;
+
+  .str-chat__channel-detail__search-input {
+    padding-inline: var(--str-chat__spacing-md);
+  }
+
+  .str-chat__prompt__footer {
+    padding: var(--str-chat__spacing-md);
+
+    .str-chat__prompt__footer__controls {
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
   }
 }
 
@@ -35,7 +67,8 @@
 .str-chat__channel-detail__search-input {
   flex-shrink: 0;
   width: 100%;
-  margin-bottom: var(--str-chat__spacing-md);
+  padding-inline: var(--str-chat__spacing-xl);
+  padding-block: var(--str-chat__spacing-xxxs);
 
   .str-chat__form-text-input__wrapper--outline {
     border-radius: var(--str-chat__radius-max);

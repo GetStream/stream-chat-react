@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
 import { useModalContext, useTranslationContext } from '../../../../context';
-import { Prompt } from '../../../Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetailView';
 import {
@@ -14,7 +13,10 @@ import {
 import { ChannelMembersAddView } from './ChannelMembersAddView';
 import { ChannelMembersBrowseView } from './ChannelMembersBrowseView';
 import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
-import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import {
+  SectionNavigatorHeader,
+  type SectionNavigatorSectionContentProps,
+} from '../../../SectionNavigator';
 
 export type ChannelMembersHeaderActionsProps = {
   controller: ChannelMembersViewController;
@@ -113,7 +115,7 @@ export const ChannelMembersView = ({
 
   return (
     <div className='str-chat__channel-detail__channel-members-view'>
-      <Prompt.Header
+      <SectionNavigatorHeader
         close={close}
         description={isAlternateMode ? undefined : t('Browse channel members')}
         goBack={

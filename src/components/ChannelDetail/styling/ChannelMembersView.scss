@@ -33,8 +33,18 @@
   .str-chat__infinite-scroll-paginator__content {
     display: flex;
     flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
     min-height: 100%;
-    padding: var(--str-chat__spacing-xxs);
+    padding-inline: calc(var(--str-chat__spacing-xs) + var(--str-chat__spacing-xxs));
+    padding-block: var(--str-chat__spacing-xxs);
+  }
+}
+
+.str-chat__channel-detail--inline {
+  .str-chat__channel-detail__channel-members-view__list {
+    .str-chat__infinite-scroll-paginator__content {
+      padding-inline: var(--str-chat__spacing-xxs);
+    }
   }
 }
 

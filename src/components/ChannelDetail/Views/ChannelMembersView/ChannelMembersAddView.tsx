@@ -28,6 +28,7 @@ export type ChannelMembersAddViewProps = {
 const USER_SEARCH_PAGE_SIZE = 30;
 
 const searchSourceItemsStateSelector = (state: SearchSourceState<UserResponse>) => ({
+  isLoading: state.isLoading,
   users: state.items,
 });
 
@@ -57,7 +58,7 @@ export const ChannelMembersAddView = ({
     return source;
   }, [client, searchSource]);
 
-  const { users: searchUsers } = useStateStore(
+  const { isLoading, users: searchUsers } = useStateStore(
     userSearchSource.state,
     searchSourceItemsStateSelector,
   );
@@ -196,10 +197,12 @@ export const ChannelMembersAddView = ({
                 />
               );
             })
-          ) : (
+          ) : !isLoading && users ? (
             <ChannelDetailEmptyList>{t('No user found')}</ChannelDetailEmptyList>
+          ) : null}
+          {isLoading && (
+            <ChannelDetailListLoadingIndicator searchSource={userSearchSource} />
           )}
-          <ChannelDetailListLoadingIndicator searchSource={userSearchSource} />
         </InfiniteScrollPaginator>
       </Prompt.Body>
       {canManageChannelMembers && selectedUserIds.length > 0 && (

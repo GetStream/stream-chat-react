@@ -45,15 +45,12 @@ const PromptHeader = ({
   return (
     <div
       className={clsx('str-chat__prompt__header', className, {
+        'str-chat__prompt__header--withDescription': hasDescription,
         'str-chat__prompt__header--withGoBack': goBack,
       })}
     >
       {LeadingContent && <LeadingContent />}
-      <div
-        className={clsx('str-chat__prompt__header__title-group', {
-          'str-chat__prompt__header__title-group--withDescription': hasDescription,
-        })}
-      >
+      <div className={clsx('str-chat__prompt__header__title-group')}>
         {goBack && (
           <Button
             appearance='ghost'

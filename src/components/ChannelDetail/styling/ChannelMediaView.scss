@@ -72,7 +72,20 @@
     display: flex;
     flex-direction: column;
     min-height: 100%;
+    padding-inline: var(--str-chat__spacing-xl);
     padding-block: var(--str-chat__spacing-xxs);
+  }
+}
+
+.str-chat__channel-detail--inline {
+  .str-chat__channel-detail__media-view__grid {
+    .str-chat__infinite-scroll-paginator__content {
+      padding: 0;
+
+      .str-chat__channel-detail__media-view__grid__items {
+        gap: var(--str-chat__spacing-xxxs);
+      }
+    }
   }
 }
 

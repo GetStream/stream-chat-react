@@ -1,4 +1,4 @@
-import { Prompt } from 'stream-chat-react';
+import { Prompt, SectionNavigatorHeader } from 'stream-chat-react';
 import { type ComponentProps } from 'react';
 import clsx from 'clsx';
 
@@ -13,7 +13,7 @@ export const SettingsTabLayoutHeader = ({
   description,
   title,
 }: SettingsTabHeaderProps) => (
-  <Prompt.Header
+  <SectionNavigatorHeader
     className='app__settings-modal__tab-header'
     close={close}
     description={description}
@@ -22,5 +22,5 @@ export const SettingsTabLayoutHeader = ({
 );
 
 export const SettingsTabBody = ({ className, ...props }: ComponentProps<'div'>) => (
-  <div {...props} className={clsx('app__settings-modal__tab-body', className)} />
+  <Prompt.Body {...props} className={clsx('app__settings-modal__tab-body', className)} />
 );

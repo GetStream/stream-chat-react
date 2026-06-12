@@ -7,7 +7,10 @@ import { Prompt } from '../../../Dialog';
 import { FileIcon } from '../../../FileIcon';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { ListItemLayout } from '../../../ListItemLayout';
-import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import {
+  SectionNavigatorHeader,
+  type SectionNavigatorSectionContentProps,
+} from '../../../SectionNavigator';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { ChannelFilesEmptyList } from './ChannelFilesEmptyList';
 import type { ChannelFileItem } from './ChannelFilesView.utils';
@@ -89,7 +92,7 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
 
   return (
     <div className='str-chat__channel-detail__files-view'>
-      <Prompt.Header close={close} title={t('Files')} />
+      <SectionNavigatorHeader close={close} title={t('Files')} />
       <Prompt.Body className='str-chat__channel-detail__files-view__body'>
         <InfiniteScrollPaginator
           className='str-chat__channel-detail__files-view__list'

@@ -7,7 +7,10 @@ import {
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
-import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import {
+  SectionNavigatorHeader,
+  type SectionNavigatorSectionContentProps,
+} from '../../../SectionNavigator';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../../Avatar';
 import { Prompt } from '../../../Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
@@ -80,7 +83,11 @@ export const ChannelMemberDetail = ({
   if (!actionContextValue) {
     return (
       <div className='str-chat__channel-detail__channel-member-detail-view'>
-        <Prompt.Header close={close} goBack={onBack} title={t('Member detail')} />
+        <SectionNavigatorHeader
+          close={close}
+          goBack={onBack}
+          title={t('Member detail')}
+        />
         <Prompt.Body className='str-chat__channel-detail__channel-member-detail-view__body'>
           <div className='str-chat__channel-detail__channel-member-detail-view__empty-state'>
             {t('Member not found')}
@@ -124,7 +131,7 @@ const ChannelMemberDetailContent = ({
 
   return (
     <div className='str-chat__channel-detail__channel-member-detail-view'>
-      <Prompt.Header close={close} goBack={onBack} title={t('Member detail')} />
+      <SectionNavigatorHeader close={close} goBack={onBack} title={t('Member detail')} />
       <Prompt.Body className='str-chat__channel-detail__channel-member-detail-view__body'>
         <div className='str-chat__channel-detail__channel-member-detail-view__profile'>
           <Avatar

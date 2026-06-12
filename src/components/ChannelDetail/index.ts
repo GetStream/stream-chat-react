@@ -1,5 +1,6 @@
 export * from './ChannelDetail';
 export * from './ChannelDetailContext';
+export * from './ChannelDetailNavButton';
 export * from './Views/ChannelManagementView/ChannelManagementView';
 export * from './Views/ChannelManagementView/ChannelManagementActions.defaults';
 export * from './Views/ChannelFilesView';

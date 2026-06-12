@@ -31,6 +31,7 @@ export const ChannelDetailSearchInput = React.memo(
     return (
       <TextInput
         aria-label={t('Search')}
+        autoComplete='off'
         autoFocus={autoFocus}
         className='str-chat__channel-detail__search-input'
         leading={<IconSearch />}

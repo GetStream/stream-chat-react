@@ -1,7 +1,5 @@
 import {
   type Attachment,
-  isAudioAttachment,
-  isFileAttachment,
   isScrapedContent,
   type LocalMessage,
   type MessageResponse,
@@ -13,6 +11,8 @@ import { isDate } from '../../../../i18n/utils';
 export const FILE_ATTACHMENT_TYPES = ['file', 'audio'] as const;
 
 export type ChannelFileAttachmentType = (typeof FILE_ATTACHMENT_TYPES)[number];
+
+const FILE_ATTACHMENT_TYPE_SET = new Set<string>(FILE_ATTACHMENT_TYPES);
 
 export type ChannelFileItem = {
   /** Raw attachment to render (no transformation applied). */
@@ -38,8 +38,9 @@ const normalizeTimestamp = (timestamp?: string | Date) => {
 };
 
 const isChannelFileAttachment = (attachment: Attachment) =>
-  (!isScrapedContent(attachment) && isFileAttachment(attachment)) ||
-  isAudioAttachment(attachment);
+  !isScrapedContent(attachment) &&
+  !!attachment.type &&
+  FILE_ATTACHMENT_TYPE_SET.has(attachment.type);
 
 const byCreatedAtDesc = (a: ChannelFileItem, b: ChannelFileItem) =>
   (b.createdAt ?? '').localeCompare(a.createdAt ?? '');

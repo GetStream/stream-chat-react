@@ -142,7 +142,7 @@ describe('PinnedMessagesView', () => {
 
     vi.mocked(useTranslationContext).mockReturnValue({
       t: (key: string, options?: { timestamp?: Date }) => {
-        if (key === 'timestamp/ChannelPreviewTimestamp') {
+        if (key === 'timestamp/ChannelDetailPinnedMessageTimestamp') {
           return options?.timestamp?.toISOString() ?? key;
         }
         return key;

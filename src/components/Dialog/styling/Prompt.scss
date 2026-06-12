@@ -2,13 +2,17 @@
 
 .str-chat__prompt {
   @include utils.modal;
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  min-height: 0;
 }
 
 .str-chat__prompt__header {
   display: flex;
+  flex-shrink: 0;
   align-items: baseline;
-  gap: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+  gap: var(--str-chat__spacing-sm);
   width: 100%;
   padding: var(--str-chat__spacing-xl);
 
@@ -20,15 +24,17 @@
     min-width: 0;
   }
 
-  .str-chat__prompt__header__title-group.str-chat__prompt__header__title-group--withDescription {
-    flex-direction: column;
-  }
   &.str-chat__prompt__header--withGoBack .str-chat__prompt__header__title-group {
     align-items: center;
   }
 
-  &.str-chat__prompt__header--withGoBack
-    .str-chat__prompt__header__title-group.str-chat__prompt__header__title-group--withDescription {
+  &.str-chat__prompt__header--withDescription .str-chat__prompt__header__title-group {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  &.str-chat__prompt__header--withGoBack.str-chat__prompt__header--withDescription
+    .str-chat__prompt__header__title-group {
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: center;
@@ -80,6 +86,10 @@
 }
 
 .str-chat__prompt__body {
+  /* Expand into the space left by the header/footer, but never overflow the
+     prompt — content scrolls within instead of pushing the prompt taller. */
+  flex: 1 1 auto;
+  min-height: 0;
   /* Vertical padding so focus rings (e.g. TextInput wrapper box-shadow) are not clipped by scrollable-y */
   padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xl);
   @include utils.scrollable-y;
@@ -87,6 +97,7 @@
 
 .str-chat__prompt__footer {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: flex-end;
   width: 100%;

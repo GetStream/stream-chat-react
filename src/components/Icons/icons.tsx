@@ -450,6 +450,18 @@ export const IconMore = createIcon(
   </>,
 );
 
+export const IconMenu = createIcon(
+  'IconMenu',
+  <path
+    d='M3.125 5H16.875M3.125 10H16.875M3.125 15H16.875'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);
+
 // was: IconDotGrid2x3
 export const IconReorder = createIcon(
   'IconReorder',

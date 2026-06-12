@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import React, {
+  type ComponentProps,
   type ComponentType,
   createContext,
   type HTMLAttributes,
@@ -26,7 +27,7 @@ export type SectionNavigatorSectionContentProps = {
   layout: SectionNavigatorLayout;
 };
 
-export type SectionNavigatorNavButtonProps = {
+export type SectionNavigatorNavButtonProps = ComponentProps<'button'> & {
   sectionId: string;
   selected: boolean;
   select: () => void;
@@ -53,6 +54,12 @@ export type SectionNavigatorContextValue = {
   history: SectionNavigatorRoute[];
   historyPop: () => void;
   historyPush: (route: SectionNavigatorRoute) => void;
+  /** Whether the navigation drawer overlay is currently open (inline layout only). */
+  isNavigationOpen: boolean;
+  /** Opens the navigation drawer overlay (inline layout). */
+  openNavigation: () => void;
+  /** Closes the navigation drawer overlay (inline layout). */
+  closeNavigation: () => void;
 };
 
 export type SectionNavigatorProps = HTMLAttributes<HTMLDivElement> & {
@@ -61,6 +68,8 @@ export type SectionNavigatorProps = HTMLAttributes<HTMLDivElement> & {
   defaultLayout?: SectionNavigatorLayout;
   initialHistory?: SectionNavigatorRoute[];
   layout?: SectionNavigatorLayout;
+  /** Called whenever the resolved layout changes (and once on mount). */
+  onLayoutChange?: (layout: SectionNavigatorLayout) => void;
   tabsLayoutMinWidth?: number;
 };
 
@@ -94,10 +103,13 @@ const defaultCreateLayoutObserver: SectionNavigatorLayoutObserverFactory = ({
 };
 
 const defaultSectionNavigatorContextValue: SectionNavigatorContextValue = {
+  closeNavigation: () => undefined,
   history: [],
   historyPop: () => undefined,
   historyPush: () => undefined,
+  isNavigationOpen: false,
   layout: SECTION_NAVIGATOR_LAYOUT.tabs,
+  openNavigation: () => undefined,
 };
 
 const SectionNavigatorContext = createContext<SectionNavigatorContextValue>(
@@ -114,6 +126,7 @@ export const SectionNavigator = ({
   defaultLayout = SECTION_NAVIGATOR_LAYOUT.tabs,
   initialHistory,
   layout: controlledLayout,
+  onLayoutChange,
   sections,
   tabsLayoutMinWidth = DEFAULT_TABS_LAYOUT_MIN_WIDTH,
   ...props
@@ -124,12 +137,16 @@ export const SectionNavigator = ({
   const [history, setHistory] = useState<SectionNavigatorRoute[]>(
     () => initialHistory ?? (sections[0] ? [{ id: sections[0].id }] : []),
   );
+  const [isNavigationOpen, setIsNavigationOpen] = useState(false);
   const layout = controlledLayout ?? internalLayout;
   const currentRoute = getCurrentRoute(history);
   const currentSection = sections.find((section) => section.id === currentRoute?.id);
   const activeSection = currentSection ?? sections[0];
   const isInlineLayout = layout === SECTION_NAVIGATOR_LAYOUT.inline;
-  const showNavigation = !isInlineLayout || !currentSection;
+  const showDockedNavigation = !isInlineLayout || !currentSection;
+
+  const openNavigation = useCallback(() => setIsNavigationOpen(true), []);
+  const closeNavigation = useCallback(() => setIsNavigationOpen(false), []);
 
   const historyPush = useCallback(
     (route: SectionNavigatorRoute) => {
@@ -148,6 +165,27 @@ export const SectionNavigator = ({
   const historyPop = useCallback(() => {
     setHistory((history) => (history.length > 1 ? history.slice(0, -1) : history));
   }, []);
+
+  // The drawer overlay only exists in inline layout; close it whenever we leave
+  // inline so it cannot linger after a resize to a wider layout.
+  useEffect(() => {
+    if (!isInlineLayout) setIsNavigationOpen(false);
+  }, [isInlineLayout]);
+
+  useEffect(() => {
+    if (!isNavigationOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeNavigation();
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [closeNavigation, isNavigationOpen]);
+
+  useEffect(() => {
+    onLayoutChange?.(layout);
+  }, [layout, onLayoutChange]);
 
   useEffect(() => {
     if (controlledLayout) return;
@@ -177,48 +215,82 @@ export const SectionNavigator = ({
 
   const contextValue = useMemo<SectionNavigatorContextValue>(
     () => ({
+      closeNavigation,
       history,
       historyPop,
       historyPush,
+      isNavigationOpen,
       layout,
+      openNavigation,
     }),
-    [history, historyPop, historyPush, layout],
+    [
+      closeNavigation,
+      history,
+      historyPop,
+      historyPush,
+      isNavigationOpen,
+      layout,
+      openNavigation,
+    ],
   );
 
   const Content = activeSection?.SectionContent;
 
+  const navigation = (
+    <div className='str-chat__section-navigator__navigation'>
+      {sections.map((section) => {
+        const NavButton = section.NavButton;
+        const selected = activeSection?.id === section.id;
+
+        return (
+          <div className='str-chat__section-navigator__navigation-item' key={section.id}>
+            <NavButton
+              className='str-chat__section-navigator__navigation-item__nav-button'
+              sectionId={section.id}
+              select={() => {
+                historyPush({ id: section.id });
+                closeNavigation();
+              }}
+              selected={selected}
+            />
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
     <SectionNavigatorContext.Provider value={contextValue}>
       <div
-        className={clsx('str-chat__section-navigator', className)}
+        className={clsx('str-chat__section-navigator', className, {
+          'str-chat__section-navigator--inline': isInlineLayout,
+        })}
         data-layout={layout}
         ref={rootRef}
         {...props}
       >
-        {showNavigation && (
-          <div className='str-chat__section-navigator__navigation'>
-            {sections.map((section) => {
-              const NavButton = section.NavButton;
-              const selected = activeSection?.id === section.id;
-
-              return (
-                <div
-                  className='str-chat__section-navigator__navigation-item'
-                  key={section.id}
-                >
-                  <NavButton
-                    sectionId={section.id}
-                    select={() => historyPush({ id: section.id })}
-                    selected={selected}
-                  />
-                </div>
-              );
-            })}
-          </div>
-        )}
+        {showDockedNavigation && navigation}
         {Content && (
           <div className='str-chat__section-navigator__content'>
             <Content layout={layout} />
+          </div>
+        )}
+        {isInlineLayout && (
+          <div
+            className={clsx('str-chat__section-navigator__navigation-overlay', {
+              'str-chat__section-navigator__navigation-overlay--open': isNavigationOpen,
+            })}
+          >
+            <button
+              aria-hidden
+              className='str-chat__section-navigator__navigation-scrim'
+              onClick={closeNavigation}
+              tabIndex={-1}
+              type='button'
+            />
+            <div className='str-chat__section-navigator__navigation-drawer'>
+              {navigation}
+            </div>
           </div>
         )}
       </div>

@@ -375,12 +375,12 @@ describe('ChannelManagementView', () => {
       expect(screen.getByPlaceholderText('Group name')).toBeInTheDocument();
     });
 
-    it('keeps the save button disabled until something changes', () => {
+    it('only renders the save button once something changes', () => {
       renderChannelManagementView();
 
       enterEditMode();
 
-      expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
 
       setName('Renamed channel');
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();

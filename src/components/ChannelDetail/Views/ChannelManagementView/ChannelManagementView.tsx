@@ -14,7 +14,10 @@ import {
   useTranslationContext,
 } from '../../../../context';
 import { isDmChannel } from '../../../../utils';
-import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import {
+  SectionNavigatorHeader,
+  type SectionNavigatorSectionContentProps,
+} from '../../../SectionNavigator';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../../Avatar';
 import { useChannelPreviewInfo, useIsUserMuted } from '../../../ChannelListItem';
 import { IconCheckmark, IconMute, IconPin } from '../../../Icons';
@@ -160,10 +163,14 @@ const useChannelManagementEditForm = ({
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
-  const { displayImage, displayTitle } = useChannelPreviewInfo({ channel });
+  const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
+    channel,
+  });
   const { addNotification } = useNotificationApi();
 
   const resolvedIsDmChannel = isDmChannel({ channel, ownUserId: client.user?.id });
+  const hasMembersOnline = useChannelHasMembersOnline({ channel });
+  const isOnline = resolvedIsDmChannel ? hasMembersOnline : undefined;
   const nameLabel = resolvedIsDmChannel ? t('Contact name') : t('Group name');
 
   const initialName = channel.data?.name ?? '';
@@ -286,11 +293,13 @@ const useChannelManagementEditForm = ({
     canSubmit,
     displayTitle,
     fileInputRef,
+    groupChannelDisplayInfo,
     handleDeleteImage,
     handleFileChange,
     handleOpenFilePicker,
     handleSubmit,
     hasAvatarImage: !!previewImageUrl,
+    isOnline,
     name,
     nameLabel,
     previewImageUrl,
@@ -306,11 +315,13 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
     canSubmit,
     displayTitle,
     fileInputRef,
+    groupChannelDisplayInfo,
     handleDeleteImage,
     handleFileChange,
     handleOpenFilePicker,
     handleSubmit,
     hasAvatarImage,
+    isOnline,
     name,
     nameLabel,
     previewImageUrl,
@@ -327,8 +338,9 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
       <Prompt.Body className='str-chat__channel-detail__channel-management-view__body'>
         <div className='str-chat__channel-detail__channel-management-view__avatar-row'>
           <Avatar
-            displayMembers={undefined}
+            displayMembers={groupChannelDisplayInfo.members}
             imageUrl={previewImageUrl}
+            isOnline={isOnline}
             size='2xl'
             userName={trimmedName || displayTitle}
           />
@@ -378,14 +390,15 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
 
       <Prompt.Footer className='str-chat__channel-detail__channel-management-view__footer'>
         <Prompt.FooterControls>
-          <Prompt.FooterControlsButtonPrimary
-            className='str-chat__channel-detail__channel-management-view__footer__save-button'
-            disabled={!canSubmit}
-            type='submit'
-          >
-            <IconCheckmark />
-            {t('Save')}
-          </Prompt.FooterControlsButtonPrimary>
+          {canSubmit && (
+            <Prompt.FooterControlsButtonPrimary
+              className='str-chat__channel-detail__channel-management-view__footer__save-button'
+              type='submit'
+            >
+              <IconCheckmark />
+              {t('Save')}
+            </Prompt.FooterControlsButtonPrimary>
+          )}
         </Prompt.FooterControls>
       </Prompt.Footer>
     </form>
@@ -441,7 +454,7 @@ export const ChannelManagementView = ({
 
   return (
     <div className='str-chat__channel-detail__channel-management-view'>
-      <Prompt.Header
+      <SectionNavigatorHeader
         close={close}
         description={isEditing ? undefined : t('Manage channel')}
         goBack={isEditing ? () => setIsEditing(false) : undefined}

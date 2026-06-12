@@ -1,13 +1,16 @@
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { useState } from 'react';
 import type { Channel } from 'stream-chat';
 
 import {
+  SECTION_NAVIGATOR_LAYOUT,
   SectionNavigator,
+  type SectionNavigatorLayout,
   type SectionNavigatorNavButtonProps,
   type SectionNavigatorProps,
   type SectionNavigatorSection,
 } from '../SectionNavigator';
+import { ChannelDetailNavButton } from './ChannelDetailNavButton';
 import { ChannelDetailProvider } from './ChannelDetailContext';
 import { ChannelFilesView } from './Views/ChannelFilesView';
 import { ChannelManagementView } from './Views/ChannelManagementView';
@@ -16,9 +19,6 @@ import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
 import { Prompt } from '../Dialog';
 import { IconFolder, IconImage, IconInfo, IconPin, IconUser } from '../Icons';
-import { ListItemLayout } from '../ListItemLayout';
-
-const ChannelDetailNavButtonClassName = 'str-chat__channel-detail__nav-button';
 
 const ChannelManagementNavButtonIcon = () => (
   <IconInfo className='str-chat__channel-detail__action-icon' />
@@ -40,125 +40,45 @@ const ChannelFilesNavButtonIcon = () => (
   <IconFolder className='str-chat__channel-detail__action-icon' />
 );
 
-export const ChannelManagementNavButton = ({
-  select,
-  selected,
-}: SectionNavigatorNavButtonProps) => {
-  const rootProps = useMemo(
-    () => ({
-      'aria-current': selected ? ('page' as const) : undefined,
-      className: ChannelDetailNavButtonClassName,
-      onClick: select,
-    }),
-    [select, selected],
-  );
+export const ChannelManagementNavButton = (props: SectionNavigatorNavButtonProps) => (
+  <ChannelDetailNavButton
+    {...props}
+    LeadingIcon={ChannelManagementNavButtonIcon}
+    title='Channel info'
+  />
+);
 
-  return (
-    <ListItemLayout
-      LeadingIcon={ChannelManagementNavButtonIcon}
-      RootElement='button'
-      rootProps={rootProps}
-      selected={selected}
-      title='Channel info'
-    />
-  );
-};
+export const ChannelMembersNavButton = (props: SectionNavigatorNavButtonProps) => (
+  <ChannelDetailNavButton
+    {...props}
+    LeadingIcon={ChannelMembersNavButtonIcon}
+    title='Members'
+  />
+);
 
-export const ChannelMembersNavButton = ({
-  select,
-  selected,
-}: SectionNavigatorNavButtonProps) => {
-  const rootProps = useMemo(
-    () => ({
-      'aria-current': selected ? ('page' as const) : undefined,
-      className: ChannelDetailNavButtonClassName,
-      onClick: select,
-    }),
-    [select, selected],
-  );
+export const PinnedMessagesNavButton = (props: SectionNavigatorNavButtonProps) => (
+  <ChannelDetailNavButton
+    {...props}
+    LeadingIcon={PinnedMessagesNavButtonIcon}
+    title='Pinned messages'
+  />
+);
 
-  return (
-    <ListItemLayout
-      LeadingIcon={ChannelMembersNavButtonIcon}
-      RootElement='button'
-      rootProps={rootProps}
-      selected={selected}
-      title='Members'
-    />
-  );
-};
+export const ChannelMediaNavButton = (props: SectionNavigatorNavButtonProps) => (
+  <ChannelDetailNavButton
+    {...props}
+    LeadingIcon={ChannelMediaNavButtonIcon}
+    title='Photos & videos'
+  />
+);
 
-export const PinnedMessagesNavButton = ({
-  select,
-  selected,
-}: SectionNavigatorNavButtonProps) => {
-  const rootProps = useMemo(
-    () => ({
-      'aria-current': selected ? ('page' as const) : undefined,
-      className: ChannelDetailNavButtonClassName,
-      onClick: select,
-    }),
-    [select, selected],
-  );
-
-  return (
-    <ListItemLayout
-      LeadingIcon={PinnedMessagesNavButtonIcon}
-      RootElement='button'
-      rootProps={rootProps}
-      selected={selected}
-      title='Pinned messages'
-    />
-  );
-};
-
-export const ChannelMediaNavButton = ({
-  select,
-  selected,
-}: SectionNavigatorNavButtonProps) => {
-  const rootProps = useMemo(
-    () => ({
-      'aria-current': selected ? ('page' as const) : undefined,
-      className: ChannelDetailNavButtonClassName,
-      onClick: select,
-    }),
-    [select, selected],
-  );
-
-  return (
-    <ListItemLayout
-      LeadingIcon={ChannelMediaNavButtonIcon}
-      RootElement='button'
-      rootProps={rootProps}
-      selected={selected}
-      title='Photos & videos'
-    />
-  );
-};
-
-export const ChannelFilesNavButton = ({
-  select,
-  selected,
-}: SectionNavigatorNavButtonProps) => {
-  const rootProps = useMemo(
-    () => ({
-      'aria-current': selected ? ('page' as const) : undefined,
-      className: ChannelDetailNavButtonClassName,
-      onClick: select,
-    }),
-    [select, selected],
-  );
-
-  return (
-    <ListItemLayout
-      LeadingIcon={ChannelFilesNavButtonIcon}
-      RootElement='button'
-      rootProps={rootProps}
-      selected={selected}
-      title='Files'
-    />
-  );
-};
+export const ChannelFilesNavButton = (props: SectionNavigatorNavButtonProps) => (
+  <ChannelDetailNavButton
+    {...props}
+    LeadingIcon={ChannelFilesNavButtonIcon}
+    title='Files'
+  />
+);
 
 export const defaultChannelDetailSections: SectionNavigatorSection[] = [
   {
@@ -196,12 +116,31 @@ export type ChannelDetailProps = Omit<SectionNavigatorProps, 'sections'> & {
 export const ChannelDetail = ({
   channel,
   className,
+  defaultLayout = SECTION_NAVIGATOR_LAYOUT.tabs,
   sections = defaultChannelDetailSections,
   ...props
-}: ChannelDetailProps) => (
-  <ChannelDetailProvider channel={channel}>
-    <Prompt.Root className={clsx('str-chat__channel-detail', className)}>
-      <SectionNavigator {...props} sections={sections} />
-    </Prompt.Root>
-  </ChannelDetailProvider>
-);
+}: ChannelDetailProps) => {
+  const [layout, setLayout] = useState<SectionNavigatorLayout>(defaultLayout);
+
+  return (
+    <ChannelDetailProvider channel={channel}>
+      <Prompt.Root
+        className={clsx(
+          'str-chat__channel-detail',
+          {
+            'str-chat__channel-detail--inline':
+              layout === SECTION_NAVIGATOR_LAYOUT.inline,
+          },
+          className,
+        )}
+      >
+        <SectionNavigator
+          {...props}
+          defaultLayout={defaultLayout}
+          onLayoutChange={setLayout}
+          sections={sections}
+        />
+      </Prompt.Root>
+    </ChannelDetailProvider>
+  );
+};

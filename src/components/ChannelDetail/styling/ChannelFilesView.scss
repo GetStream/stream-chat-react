@@ -12,8 +12,6 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  /* Let the month separators span edge-to-edge; the file groups are padded instead. */
-  padding-inline: 0;
 }
 
 .str-chat__channel-detail__files-view__empty-state {
@@ -94,6 +92,12 @@
   display: flex;
   flex-direction: column;
   padding-inline: var(--str-chat__spacing-xs);
+}
+
+.str-chat__channel-detail--inline {
+  .str-chat__channel-detail__files-view__section-items {
+    padding-inline: var(--str-chat__spacing-xxs);
+  }
 }
 
 .str-chat__list-item-layout.str-chat__channel-detail__files-view__list-item {

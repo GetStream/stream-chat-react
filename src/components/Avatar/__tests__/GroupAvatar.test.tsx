@@ -192,6 +192,21 @@ describe('ChannelAvatar', () => {
     expect(getByTestId('group-avatar')).toBeInTheDocument();
   });
 
+  it('should prefer channel imageUrl over displayMembers', () => {
+    const { getByTestId, getByTitle, queryByTestId } = render(
+      <ChannelAvatar
+        displayMembers={[member1, member2]}
+        imageUrl='channel.png'
+        size='xl'
+        userName='General'
+      />,
+    );
+    expect(getByTestId('avatar')).toBeInTheDocument();
+    expect(getByTestId('avatar-img')).toHaveAttribute('src', 'channel.png');
+    expect(getByTitle('General')).toBeInTheDocument();
+    expect(queryByTestId('group-avatar')).not.toBeInTheDocument();
+  });
+
   it('should pass overflowCount to GroupAvatar', () => {
     const { getByTestId } = render(
       <ChannelAvatar

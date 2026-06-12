@@ -27,6 +27,8 @@ import {
   IconSun,
   IconTextDirection,
 } from '../icons.tsx';
+import { SECTION_NAVIGATOR_LAYOUT, SectionNavigatorLayout } from '../../../../src';
+import clsx from 'clsx';
 
 type TabId =
   | 'channelDetail'
@@ -175,6 +177,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
     () => createSettingsSections(closeSettingsModal),
     [closeSettingsModal],
   );
+  const [layout, setLayout] = useState<SectionNavigatorLayout | undefined>();
 
   return (
     <div className='app__settings-group'>
@@ -189,11 +192,15 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         text='Settings'
       />
       <GlobalModal onClose={closeSettingsModal} open={open}>
-        <div className='app__settings-modal'>
+        <div
+          className={clsx('app__settings-modal', {
+            'app__settings-modal--inline': layout === SECTION_NAVIGATOR_LAYOUT.inline,
+          })}
+        >
           <SectionNavigator
             className='app__settings-modal__body'
-            layout='tabs'
             sections={settingsSections}
+            onLayoutChange={setLayout}
           />
         </div>
       </GlobalModal>

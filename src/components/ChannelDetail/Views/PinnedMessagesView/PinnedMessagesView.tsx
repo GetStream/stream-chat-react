@@ -12,7 +12,10 @@ import { Avatar } from '../../../Avatar';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { ListItemLayout } from '../../../ListItemLayout';
 import { Prompt } from '../../../Dialog';
-import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import {
+  SectionNavigatorHeader,
+  type SectionNavigatorSectionContentProps,
+} from '../../../SectionNavigator';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
@@ -52,7 +55,7 @@ const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey: 'timestamp/ChannelPreviewTimestamp',
+        timestampTranslationKey: 'timestamp/ChannelDetailPinnedMessageTimestamp',
       }),
     [normalizedTimestamp, t, tDateTimeParser],
   );
@@ -88,7 +91,7 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
 
   return (
     <div className='str-chat__channel-detail__pinned-messages-view'>
-      <Prompt.Header
+      <SectionNavigatorHeader
         close={close}
         description={t('Browse pinned messages')}
         title={t('Pinned messages')}

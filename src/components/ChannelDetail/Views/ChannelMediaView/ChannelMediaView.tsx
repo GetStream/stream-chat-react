@@ -15,7 +15,10 @@ import { Gallery as DefaultGallery, GalleryUI } from '../../../Gallery';
 import { IconImage, IconVideoFill } from '../../../Icons';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { GlobalModal } from '../../../Modal';
-import type { SectionNavigatorSectionContentProps } from '../../../SectionNavigator';
+import {
+  SectionNavigatorHeader,
+  type SectionNavigatorSectionContentProps,
+} from '../../../SectionNavigator';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 import { ChannelMediaEmptyList } from './ChannelMediaEmptyList';
@@ -119,7 +122,7 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = () =
 
   return (
     <div className='str-chat__channel-detail__media-view'>
-      <Prompt.Header close={close} title={t('Photos & videos')} />
+      <SectionNavigatorHeader close={close} title={t('Photos & videos')} />
       <Prompt.Body className='str-chat__channel-detail__media-view__body'>
         <InfiniteScrollPaginator
           className='str-chat__channel-detail__media-view__grid'

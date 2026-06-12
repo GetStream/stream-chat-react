@@ -36,6 +36,29 @@ const createContent = (label: string) => {
   return Content;
 };
 
+const createDrawerContent = (label: string) => {
+  const Content = () => {
+    const { closeNavigation, isNavigationOpen, layout, openNavigation } =
+      useSectionNavigatorContext();
+
+    return (
+      <div>
+        <span>{`${label} content`}</span>
+        <span>{`layout ${layout}`}</span>
+        <span>{`open ${isNavigationOpen}`}</span>
+        <button onClick={openNavigation} type='button'>
+          Open menu
+        </button>
+        <button onClick={closeNavigation} type='button'>
+          Close menu
+        </button>
+      </div>
+    );
+  };
+
+  return Content;
+};
+
 const sections: SectionNavigatorSection[] = [
   {
     id: 'media',
@@ -46,6 +69,19 @@ const sections: SectionNavigatorSection[] = [
     id: 'files',
     NavButton: createNavButton('Files nav'),
     SectionContent: createContent('Files'),
+  },
+];
+
+const drawerSections: SectionNavigatorSection[] = [
+  {
+    id: 'media',
+    NavButton: createNavButton('Media nav'),
+    SectionContent: createDrawerContent('Media'),
+  },
+  {
+    id: 'files',
+    NavButton: createNavButton('Files nav'),
+    SectionContent: createDrawerContent('Files'),
   },
 ];
 
@@ -90,16 +126,22 @@ describe('SectionNavigator', () => {
   });
 
   it('renders the first section content by default in inline layout', () => {
-    render(<SectionNavigator layout='inline' sections={sections} />);
+    const { container } = render(
+      <SectionNavigator layout='inline' sections={sections} />,
+    );
 
-    expect(screen.queryByText('Media nav')).not.toBeInTheDocument();
-    expect(screen.queryByText('Files nav')).not.toBeInTheDocument();
+    expect(container.querySelector('.str-chat__section-navigator')).toHaveAttribute(
+      'data-layout',
+      'inline',
+    );
     expect(screen.getByText('Media content inline')).toBeInTheDocument();
     expect(screen.getByText('history length 1')).toBeInTheDocument();
   });
 
   it('pops back to the previous content in inline layout', () => {
-    const { rerender } = render(<SectionNavigator layout='inline' sections={sections} />);
+    const { container, rerender } = render(
+      <SectionNavigator layout='inline' sections={sections} />,
+    );
 
     fireEvent.click(screen.getByText('Back'));
 
@@ -119,10 +161,84 @@ describe('SectionNavigator', () => {
 
     fireEvent.click(screen.getByText('Back'));
 
-    expect(screen.queryByText('Media nav')).not.toBeInTheDocument();
-    expect(screen.queryByText('Files nav')).not.toBeInTheDocument();
+    expect(container.querySelector('.str-chat__section-navigator')).toHaveAttribute(
+      'data-layout',
+      'inline',
+    );
     expect(screen.queryByText('Files content inline')).not.toBeInTheDocument();
     expect(screen.getByText('Media content inline')).toBeInTheDocument();
+  });
+
+  it('exposes a docked navigation in tabs layout and never opens the drawer overlay', () => {
+    const { container } = render(
+      <SectionNavigator layout='tabs' sections={drawerSections} />,
+    );
+
+    expect(screen.getByText('layout tabs')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Open menu'));
+
+    expect(
+      container.querySelector('.str-chat__section-navigator__navigation-overlay'),
+    ).not.toBeInTheDocument();
+  });
+
+  const OVERLAY_SELECTOR = '.str-chat__section-navigator__navigation-overlay';
+  const OVERLAY_OPEN_CLASS = 'str-chat__section-navigator__navigation-overlay--open';
+
+  it('opens a navigation drawer overlay in inline layout and closes it on selection', () => {
+    const { container } = render(
+      <SectionNavigator layout='inline' sections={drawerSections} />,
+    );
+    const overlay = () => container.querySelector(OVERLAY_SELECTOR);
+
+    expect(screen.getByText('layout inline')).toBeInTheDocument();
+    // The overlay stays mounted in inline layout so it can animate; closed
+    // state is signalled by the absence of the `--open` modifier.
+    expect(overlay()).toBeInTheDocument();
+    expect(overlay()).not.toHaveClass(OVERLAY_OPEN_CLASS);
+
+    fireEvent.click(screen.getByText('Open menu'));
+
+    expect(overlay()).toHaveClass(OVERLAY_OPEN_CLASS);
+    expect(screen.getByText('Media nav')).toBeInTheDocument();
+    expect(screen.getByText('Files nav')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText('Files nav'));
+
+    expect(screen.getByText('Files content')).toBeInTheDocument();
+    expect(overlay()).not.toHaveClass(OVERLAY_OPEN_CLASS);
+  });
+
+  it('closes the navigation drawer when the scrim is clicked', () => {
+    const { container } = render(
+      <SectionNavigator layout='inline' sections={drawerSections} />,
+    );
+    const overlay = () => container.querySelector(OVERLAY_SELECTOR);
+
+    fireEvent.click(screen.getByText('Open menu'));
+    expect(overlay()).toHaveClass(OVERLAY_OPEN_CLASS);
+
+    const scrim = container.querySelector(
+      '.str-chat__section-navigator__navigation-scrim',
+    );
+    fireEvent.click(scrim as Element);
+
+    expect(overlay()).not.toHaveClass(OVERLAY_OPEN_CLASS);
+  });
+
+  it('closes the navigation drawer on Escape', () => {
+    const { container } = render(
+      <SectionNavigator layout='inline' sections={drawerSections} />,
+    );
+    const overlay = () => container.querySelector(OVERLAY_SELECTOR);
+
+    fireEvent.click(screen.getByText('Open menu'));
+    expect(overlay()).toHaveClass(OVERLAY_OPEN_CLASS);
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+
+    expect(overlay()).not.toHaveClass(OVERLAY_OPEN_CLASS);
   });
 
   it('lets a custom layout observer set the layout', () => {
@@ -130,7 +246,7 @@ describe('SectionNavigator', () => {
       setLayout('inline');
     });
 
-    render(
+    const { container } = render(
       <SectionNavigator
         createLayoutObserver={createLayoutObserver}
         sections={sections}
@@ -141,7 +257,10 @@ describe('SectionNavigator', () => {
     expect(createLayoutObserver).toHaveBeenCalledWith(
       expect.objectContaining({ tabsLayoutMinWidth: 720 }),
     );
-    expect(screen.queryByText('Media nav')).not.toBeInTheDocument();
+    expect(container.querySelector('.str-chat__section-navigator')).toHaveAttribute(
+      'data-layout',
+      'inline',
+    );
     expect(screen.getByText('Media content inline')).toBeInTheDocument();
   });
 
@@ -156,13 +275,14 @@ describe('SectionNavigator', () => {
   });
 
   it('ignores zero-width observer entries before applying the resolved layout', () => {
-    render(
+    const { container } = render(
       <div data-testid='observer-parent'>
         <SectionNavigator sections={sections} />
       </div>,
     );
+    const root = () => container.querySelector('.str-chat__section-navigator');
 
-    expect(screen.getByText('Media nav')).toBeInTheDocument();
+    expect(root()).toHaveAttribute('data-layout', 'tabs');
 
     act(() => {
       resizeObserverCallback?.(
@@ -171,7 +291,7 @@ describe('SectionNavigator', () => {
       );
     });
 
-    expect(screen.getByText('Media nav')).toBeInTheDocument();
+    expect(root()).toHaveAttribute('data-layout', 'tabs');
 
     act(() => {
       resizeObserverCallback?.(
@@ -180,7 +300,7 @@ describe('SectionNavigator', () => {
       );
     });
 
-    expect(screen.queryByText('Media nav')).not.toBeInTheDocument();
+    expect(root()).toHaveAttribute('data-layout', 'inline');
 
     act(() => {
       resizeObserverCallback?.(
@@ -189,15 +309,16 @@ describe('SectionNavigator', () => {
       );
     });
 
-    expect(screen.getByText('Media nav')).toBeInTheDocument();
+    expect(root()).toHaveAttribute('data-layout', 'tabs');
   });
 
   it('uses tabsLayoutMinWidth to resolve the default observer layout', () => {
-    render(
+    const { container } = render(
       <div data-testid='observer-parent'>
         <SectionNavigator sections={sections} tabsLayoutMinWidth={800} />
       </div>,
     );
+    const root = () => container.querySelector('.str-chat__section-navigator');
 
     act(() => {
       resizeObserverCallback?.(
@@ -206,7 +327,7 @@ describe('SectionNavigator', () => {
       );
     });
 
-    expect(screen.queryByText('Media nav')).not.toBeInTheDocument();
+    expect(root()).toHaveAttribute('data-layout', 'inline');
 
     act(() => {
       resizeObserverCallback?.(
@@ -215,6 +336,6 @@ describe('SectionNavigator', () => {
       );
     });
 
-    expect(screen.getByText('Media nav')).toBeInTheDocument();
+    expect(root()).toHaveAttribute('data-layout', 'tabs');
   });
 });

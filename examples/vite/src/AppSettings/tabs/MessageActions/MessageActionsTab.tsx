@@ -42,9 +42,8 @@ export const MessageActionsTab = ({ close }: MessageActionsTabProps) => {
                 },
               })
             }
-          >
-            Enabled option configuration
-          </SwitchField>
+            title='Enabled option configuration'
+          />
           <div className='app__settings-modal__field-comment'>
             It enables to configure delete request params in the Delete Message Alert like
             <strong>&ldquo;Delete only for me&rdquo;</strong>,{' '}
@@ -68,9 +67,8 @@ export const MessageActionsTab = ({ close }: MessageActionsTabProps) => {
                 },
               })
             }
-          >
-            Mark own messages as unread too
-          </SwitchField>
+            title='Mark own messages as unread too'
+          />
         </div>
 
         <div className='app__settings-modal__field'>
@@ -89,9 +87,8 @@ export const MessageActionsTab = ({ close }: MessageActionsTabProps) => {
                 },
               })
             }
-          >
-            Show JSON viewer action in the message actions menu
-          </SwitchField>
+            title='Show JSON viewer action in the message actions menu'
+          />
         </div>
       </SettingsTabBody>
     </div>

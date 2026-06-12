@@ -730,6 +730,7 @@
   .app__notification-dialog__duration-controls {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
 
     .str-chat__form-input-field {
@@ -968,13 +969,11 @@
     height: min(80vh, 760px);
     background: var(--str-chat__background-core-elevation-2);
     color: var(--str-chat__text-primary);
-    border: 1px solid var(--str-chat__border-core-default);
     border-radius: 14px;
+    overflow: hidden;
   }
 
   .app__settings-modal__body {
-    display: grid;
-    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
     min-height: 0;
     height: 100%;
   }
@@ -1047,7 +1046,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--str-chat__spacing-xl);
-    padding-inline: var(--str-chat__spacing-xl);
   }
 
   .app__settings-modal__field {
@@ -1153,14 +1151,6 @@
       flex-direction: column;
     }
 
-    .app__settings-modal {
-      width: min(92vw, 680px);
-    }
-
-    .app__settings-modal__body {
-      grid-template-columns: minmax(140px, 180px) minmax(0, 1fr);
-    }
-
     .app__settings-modal__body .str-chat__section-navigator__navigation {
       border-bottom: 0;
       display: block;
@@ -1168,6 +1158,22 @@
       padding: 10px;
       overflow-y: auto;
       overflow-x: hidden;
+    }
+  }
+
+  .app__settings-modal--inline {
+    width: 100dvw;
+    height: 100dvh;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+
+    .app__settings-modal__tab-header {
+      padding: var(--str-chat__spacing-xs);
+    }
+
+    .app__settings-modal__tab-body {
+      padding: var(--str-chat__spacing-lg);
     }
   }
 }
