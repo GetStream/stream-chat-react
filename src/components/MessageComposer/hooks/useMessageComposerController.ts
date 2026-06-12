@@ -6,7 +6,7 @@ import { useLegacyThreadContext } from '../../Thread';
 
 export const useMessageComposerController = () => {
   const { client } = useChatContext();
-  const { messageComposerFixedSizeQueue: queueCache } = client;
+  const { messageComposerCache: queueCache } = client;
   const { channel } = useChannelStateContext();
   const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
