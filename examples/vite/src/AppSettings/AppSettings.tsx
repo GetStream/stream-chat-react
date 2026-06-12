@@ -1,4 +1,5 @@
 import { type ComponentType, useCallback, useMemo, useState } from 'react';
+import type { SectionNavigatorLayout } from 'stream-chat-react';
 import {
   Button,
   ChatViewSelectorButton,
@@ -7,6 +8,7 @@ import {
   IconEmoji,
   IconMessageBubble,
   IconMessageBubbles,
+  SECTION_NAVIGATOR_LAYOUT,
   SectionNavigator,
   type SectionNavigatorNavButtonProps,
   type SectionNavigatorSection,
@@ -27,7 +29,6 @@ import {
   IconSun,
   IconTextDirection,
 } from '../icons.tsx';
-import { SECTION_NAVIGATOR_LAYOUT, SectionNavigatorLayout } from '../../../../src';
 import clsx from 'clsx';
 
 type TabId =
