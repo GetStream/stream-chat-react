@@ -4,7 +4,11 @@ import { messageHasAttachments, messageTextHasEmojisOnly } from './utils';
 import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { MessageContextValue } from '../../context';
-import { useMessageContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { renderText as defaultRenderText } from './renderText';
 import { getRenderTextMentionEntities } from './renderText/rehypePlugins';
@@ -41,6 +45,7 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
   const { t, userLanguage } = useTranslationContext('MessageText');
+  const { channelCapabilities = {} } = useChannelStateContext('MessageText');
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
   const messageContextId = useStableId();
@@ -71,9 +76,16 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const messageText = useMemo(
     () =>
       renderText(messageTextToRender, message.mentioned_users, {
+        channelCapabilities,
         messageMentionEntities: renderTextMentionEntities,
       }),
-    [message.mentioned_users, messageTextToRender, renderText, renderTextMentionEntities],
+    [
+      channelCapabilities,
+      message.mentioned_users,
+      messageTextToRender,
+      renderText,
+      renderTextMentionEntities,
+    ],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';

@@ -99,7 +99,14 @@ const mockedChannelData = generateChannel(
   fromPartial<GenerateChannelOptions>({
     channel: {
       id: 'general',
-      own_capabilities: ['send-poll', 'upload-file'],
+      own_capabilities: [
+        'notify-channel',
+        'notify-group',
+        'notify-here',
+        'notify-role',
+        'send-poll',
+        'upload-file',
+      ],
       type: 'messaging',
     },
     members: [generateMember({ user }), generateMember({ user: mentionUser })],
