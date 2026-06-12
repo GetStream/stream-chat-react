@@ -2,14 +2,18 @@ import React from 'react';
 import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import { find } from 'linkifyjs';
 import remarkGfm from 'remark-gfm';
-import type { ComponentType, JSX } from 'react';
+import type { ComponentType, JSX, ReactNode } from 'react';
 import type { Options } from 'react-markdown';
 import type { UserResponse } from 'stream-chat';
 import type { PluggableList } from 'unified'; // A sub-dependency of react-markdown. The type is not declared or re-exported from anywhere else
 
 import { Anchor, Emoji, Mention } from './componentRenderers';
 import { detectHttp, matchMarkdownLinks, messageCodeBlocks } from './regex';
-import { emojiMarkdownPlugin, mentionsMarkdownPlugin } from './rehypePlugins';
+import {
+  createMentionPluginAndDisplayTextSet,
+  emojiMarkdownPlugin,
+  getRenderTextMentionEntities,
+} from './rehypePlugins';
 import {
   htmlToTextPlugin,
   imageToLink,
@@ -17,7 +21,9 @@ import {
   plusPlusToEmphasis,
 } from './remarkPlugins';
 import { ErrorBoundary } from '../../UtilityComponents';
-import type { MentionProps } from './componentRenderers';
+import type { MentionProps } from './componentRenderers/Mention';
+import type { RenderTextMentionEntity } from './rehypePlugins';
+import { filterRenderTextMentionEntitiesByChannelCapabilities } from '../../../utils/mentionCapabilities';
 
 export type RenderTextPluginConfigurator = (
   defaultPlugins: PluggableList,
@@ -98,24 +104,59 @@ export type RenderTextOptions = {
     }>;
   getRehypePlugins?: RenderTextPluginConfigurator;
   getRemarkPlugins?: RenderTextPluginConfigurator;
+  /**
+   * Additive mention metadata for rendered message text.
+   *
+   * Prefer this over the deprecated `mentionedUsers` argument. Use it whenever
+   * the message contains mention kinds beyond direct-user mentions
+   * (for example `@channel`, `@here`, roles, or user groups) and `renderText`
+   * needs the exact mention entities that should be highlighted in the rendered
+   * markdown output.
+   */
+  messageMentionEntities?: RenderTextMentionEntity[];
+  /** Channel capabilities used to gate mention highlighting. */
+  channelCapabilities?: Record<string, boolean>;
 };
 
-export const renderText = (
+export type RenderTextFunction = (
   text?: string,
+  /**
+   * @deprecated Pass mention metadata through `options.messageMentionEntities`
+   * instead. This argument only supports direct-user mentions. Will be removed in next major version.
+   */
+  mentionedUsers?: UserResponse[],
+  options?: RenderTextOptions,
+) => ReactNode;
+
+export function renderText(
+  text?: string,
+  /**
+   * @deprecated Pass mention metadata through `options.messageMentionEntities`
+   * instead. This argument only supports direct-user mentions.
+   */
   mentionedUsers?: UserResponse[],
   {
     allowedTagNames = defaultAllowedTagNames,
+    channelCapabilities,
     customMarkDownRenderers,
     getRehypePlugins = getPluginsForward,
     getRemarkPlugins = getPluginsForward,
+    messageMentionEntities,
   }: RenderTextOptions = {},
-) => {
+) {
   // take the @ mentions and turn them into markdown?
   // translate links
   if (!text) return null;
   if (text.trim().length === 1) return <>{text}</>;
 
   let newText = text;
+  const renderTextMentionEntities = filterRenderTextMentionEntitiesByChannelCapabilities(
+    messageMentionEntities ??
+      getRenderTextMentionEntities({ mentioned_users: mentionedUsers }),
+    channelCapabilities ?? {},
+  );
+  const { mentionDisplayTextSet, plugin: mentionsPlugin } =
+    createMentionPluginAndDisplayTextSet(renderTextMentionEntities);
   const markdownLinks = matchMarkdownLinks(newText);
   const codeBlocks = messageCodeBlocks(newText);
 
@@ -143,12 +184,12 @@ export const renderText = (
 
     try {
       // special case for mentions:
-      // it could happen that a user's name matches with an e-mail format pattern.
+      // it could happen that a mention display text matches with an e-mail-like pattern.
       // in that case, we check whether the found e-mail is actually a mention
       // by naively checking for an existence of @ sign in front of it.
-      if (type === 'email' && mentionedUsers) {
-        const emailMatchesWithName = mentionedUsers.find((u) => u.name === value);
-        if (emailMatchesWithName) {
+      if (type === 'email') {
+        const mentionDisplayText = `@${value}`;
+        if (mentionDisplayTextSet.has(mentionDisplayText)) {
           // FIXME: breaks if the mention symbol is not '@'
           const isMention = newText.charAt(start - 1) === '@';
           // in case of mention, we leave the match in its original form,
@@ -180,8 +221,8 @@ export const renderText = (
   ];
   const rehypePlugins: PluggableList = [emojiMarkdownPlugin];
 
-  if (mentionedUsers?.length) {
-    rehypePlugins.push(mentionsMarkdownPlugin(mentionedUsers));
+  if (renderTextMentionEntities.length) {
+    rehypePlugins.push(mentionsPlugin);
   }
 
   return (
@@ -202,4 +243,4 @@ export const renderText = (
       </ReactMarkdown>
     </ErrorBoundary>
   );
-};
+}

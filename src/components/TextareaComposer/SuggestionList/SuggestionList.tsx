@@ -12,10 +12,9 @@ import type { CommandItemProps } from './CommandItem';
 import { CommandItem } from './CommandItem';
 import type { EmoticonItemProps } from './EmoticonItem';
 import { EmoticonItem } from './EmoticonItem';
+import { MentionItem } from './MentionItem';
 import type { SuggestionListItemComponentProps } from './SuggestionListItem';
 import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionListItem';
-import type { UserItemProps } from './UserItem';
-import { UserItem } from './UserItem';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { useStateStore } from '../../../store';
@@ -30,6 +29,7 @@ import {
 } from '../../MessageComposer/hooks';
 import { useTranslationContext } from '../../../context';
 import type {
+  MentionSuggestion,
   SearchSourceState,
   TextComposerState,
   TextComposerSuggestion,
@@ -75,7 +75,7 @@ export const defaultComponents: Record<
     <EmoticonItem {...props} entity={props.entity as EmoticonItemProps['entity']} />
   ),
   '@': (props: SuggestionListItemComponentProps) => (
-    <UserItem {...props} entity={props.entity as UserItemProps['entity']} />
+    <MentionItem {...props} entity={props.entity as MentionSuggestion} />
   ),
 } as const;
 
@@ -220,13 +220,14 @@ export const SuggestionList = ({
   if (!suggestions || !items?.length || !component || !hasEnabledCommandSuggestions)
     return null;
 
+  // todo: remove the legacyUserSuggestionsLabel check with the next major release. It was introduced for backwards compatibility.
   const suggestionMenuLabel =
     suggestions.searchSource.type === 'commands'
       ? t('aria/Command Suggestions')
       : suggestions.searchSource.type === 'emojis'
         ? t('aria/Emoji Suggestions')
         : suggestions.searchSource.type === 'mentions'
-          ? t('aria/User Suggestions')
+          ? t('aria/Mention Suggestions')
           : t('aria/Suggestions');
 
   return (

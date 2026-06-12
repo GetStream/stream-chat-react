@@ -4,9 +4,14 @@ import { messageHasAttachments, messageTextHasEmojisOnly } from './utils';
 import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { MessageContextValue } from '../../context';
-import { useMessageContext, useTranslationContext } from '../../context';
+import {
+  useChannelStateContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { renderText as defaultRenderText } from './renderText';
+import { getRenderTextMentionEntities } from './renderText/rehypePlugins';
 
 import type { LocalMessage } from 'stream-chat';
 import { getTranslatedMessageText } from '../../context/MessageTranslationViewContext';
@@ -40,6 +45,7 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
   const { t, userLanguage } = useTranslationContext('MessageText');
+  const { channelCapabilities = {} } = useChannelStateContext('MessageText');
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
   const messageContextId = useStableId();
@@ -49,17 +55,44 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     translationView === 'original'
       ? message.text
       : getTranslatedMessageText({ language: userLanguage, message }) || message.text;
+  const renderTextMentionEntities = useMemo(
+    () =>
+      getRenderTextMentionEntities({
+        mentioned_channel: message.mentioned_channel,
+        mentioned_groups: message.mentioned_groups,
+        mentioned_here: message.mentioned_here,
+        mentioned_roles: message.mentioned_roles,
+        mentioned_users: message.mentioned_users,
+      }),
+    [
+      message.mentioned_channel,
+      message.mentioned_groups,
+      message.mentioned_here,
+      message.mentioned_roles,
+      message.mentioned_users,
+    ],
+  );
 
   const messageText = useMemo(
-    () => renderText(messageTextToRender, message.mentioned_users),
-    [message.mentioned_users, messageTextToRender, renderText],
+    () =>
+      renderText(messageTextToRender, message.mentioned_users, {
+        channelCapabilities,
+        messageMentionEntities: renderTextMentionEntities,
+      }),
+    [
+      channelCapabilities,
+      message.mentioned_users,
+      messageTextToRender,
+      renderText,
+      renderTextMentionEntities,
+    ],
   );
 
   const wrapperClass = customWrapperClass || 'str-chat__message-text';
   const innerClass = customInnerClass;
-  const hasMentionedUsers = Boolean(message.mentioned_users?.length);
+  const hasMentions = Boolean(renderTextMentionEntities.length);
   const isMentionsInteractionEnabled =
-    hasMentionedUsers && typeof onMentionsClickMessage === 'function';
+    hasMentions && typeof onMentionsClickMessage === 'function';
   const senderName = message.user?.name;
   const messageContext = senderName
     ? t('aria/Message from {{ user }},', { user: senderName })

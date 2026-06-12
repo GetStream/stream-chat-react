@@ -187,15 +187,16 @@ export const TextareaComposer = ({
         const loadedItems = textComposer.suggestions.searchSource.items;
         if (event.key === 'Enter') {
           event.preventDefault();
-          textComposer.handleSelect(loadedItems[focusedItemIndex]);
+          const selectedItem = loadedItems[focusedItemIndex];
+          if (selectedItem) {
+            textComposer.handleSelect(selectedItem);
+          }
         }
         if (event.key === 'ArrowUp') {
           event.preventDefault();
           setFocusedItemIndex((prev) => {
             let nextIndex = prev - 1;
-            if (suggestions?.searchSource.hasNext) {
-              nextIndex = prev;
-            } else if (nextIndex < 0) {
+            if (nextIndex < 0) {
               nextIndex = loadedItems.length - 1;
             }
             return nextIndex;
@@ -205,9 +206,7 @@ export const TextareaComposer = ({
           event.preventDefault();
           setFocusedItemIndex((prev) => {
             let nextIndex = prev + 1;
-            if (suggestions?.searchSource.hasNext) {
-              nextIndex = prev;
-            } else if (nextIndex >= loadedItems.length) {
+            if (nextIndex >= loadedItems.length) {
               nextIndex = 0;
             }
 
@@ -239,7 +238,6 @@ export const TextareaComposer = ({
       messageComposer,
       onKeyDown,
       shouldSubmit,
-      suggestions,
       textComposer,
       textareaRef,
     ],
@@ -272,6 +270,15 @@ export const TextareaComposer = ({
       setFocusedItemIndex(0);
     }
   }, [textComposer.suggestions]);
+
+  useEffect(() => {
+    const suggestionItems = suggestions?.searchSource.items;
+    if (!suggestionItems?.length) return;
+
+    setFocusedItemIndex((prev) =>
+      prev >= suggestionItems.length ? suggestionItems.length - 1 : prev,
+    );
+  }, [suggestions?.searchSource.items]);
 
   useEffect(() => {
     const textareaIsFocused = textareaRef.current?.matches(':focus');

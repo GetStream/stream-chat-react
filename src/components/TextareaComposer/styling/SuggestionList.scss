@@ -1,4 +1,5 @@
 @use '../../../styling/utils';
+@use '../../../styling/variables/fonts';
 
 .str-chat {
   .str-chat__suggestion-list {
@@ -10,5 +11,52 @@
     .str-chat__suggestion-list-item--selected {
       background-color: var(--str-chat__dialog-menu-button-hover-background-color);
     }
+  }
+
+  .str-chat__suggestion-list__mention {
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+
+    .str-chat__list-item-layout__leading-icon {
+      align-items: center;
+      background: var(--str-chat__background-core-surface-subtle);
+      border: 1px solid var(--str-chat__border-core-subtle);
+      border-radius: var(--str-chat__radius-max);
+      color: var(--str-chat__text-secondary);
+      justify-content: center;
+      padding: var(--str-chat__spacing-xs);
+
+      .str-chat__icon {
+        stroke-width: 1.2px;
+      }
+    }
+  }
+
+  .str-chat__suggestion-list__item-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .str-chat__suggestion-list__item-title {
+    @include fonts.text-caption-default;
+    @include utils.ellipsis-text;
+
+    text-align: start;
+    min-width: 0;
+  }
+
+  .str-chat__list-item-layout__title.str-chat__suggestion-list__mention-item-title {
+    font: var(--str-chat__font-body-default);
+  }
+
+  .str-chat__suggestion-list__item-details {
+    @include fonts.text-metadata-default;
+    @include utils.ellipsis-text;
+
+    color: var(--str-chat__text-tertiary);
+    text-align: start;
+    min-width: 0;
   }
 }
