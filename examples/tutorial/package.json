@@ -16,7 +16,7 @@
     "emoji-mart": "^5.6.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "stream-chat": "^9.44.2",
+    "stream-chat": "^9.45.6",
     "stream-chat-react": "workspace:^"
   },
   "devDependencies": {
