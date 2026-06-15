@@ -46,10 +46,10 @@ const toError = (error: unknown) =>
 const getDisplayName = (name?: string, fallback?: string) => name || fallback || '';
 
 const BlockUserActionIcon = () => (
-  <IconNoSign className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
+  <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
 );
 const DeleteChatActionIcon = () => (
-  <IconDelete className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
+  <IconDelete className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
 );
 const MuteActionIcon = () => (
   <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
@@ -58,7 +58,7 @@ const MutedActionIcon = () => (
   <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
 );
 const LeaveChannelActionIcon = () => (
-  <IconLeave className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
+  <IconLeave className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
 );
 
 const channelManagementViewActionClassName = 'str-chat__channel-management-view-action';

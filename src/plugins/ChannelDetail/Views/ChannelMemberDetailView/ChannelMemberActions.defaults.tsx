@@ -93,11 +93,11 @@ const SendDirectMessageActionIcon = () => (
 );
 
 const BlockUserActionIcon = () => (
-  <IconNoSign className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
+  <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
 );
 
 const RemoveUserActionIcon = () => (
-  <IconUserRemove className='.str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--remove-user' />
+  <IconUserRemove className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--remove-user' />
 );
 
 const channelMemberDetailActionClassName = 'str-chat__channel-member-detail-action';

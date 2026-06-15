@@ -27,6 +27,10 @@
     gap: var(--str-chat__spacing-md);
     padding: 0;
   }
+
+  .str-chat__icon--destructive {
+    color: var(--str-chat__accent-error);
+  }
 }
 
 .str-chat__channel-detail--inline {

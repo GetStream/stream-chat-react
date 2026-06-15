@@ -53,10 +53,6 @@
   text-transform: capitalize;
 }
 
-.str-chat__channel-detail__action-icon--remove-user {
-  color: var(--str-chat__accent-error);
-}
-
 .str-chat__channel-member-confirmation-alert {
   min-width: min(304px, calc(100vw - 32px));
   max-width: min(304px, calc(100vw - 32px));
