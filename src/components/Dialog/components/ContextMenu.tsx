@@ -7,7 +7,6 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
@@ -21,6 +20,7 @@ import { DialogAnchor, useDialogAnchor } from '../service/DialogAnchor';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
 import { VisuallyHidden } from '../../VisuallyHidden';
+import { useStableId } from '../../UtilityComponents/useStableId';
 
 /**
  * ContextMenu module
@@ -369,8 +369,8 @@ export const ContextMenuBackButton = ({
   ...props
 }: ComponentProps<'button'>) => {
   const { t } = useTranslationContext();
-  const generatedBackNavigationLabelId = useId();
-  const generatedVisibleLabelId = useId();
+  const generatedBackNavigationLabelId = useStableId();
+  const generatedVisibleLabelId = useStableId();
   const resolvedAriaLabel = ariaLabel ?? t('aria/Back to parent menu button');
   const resolvedAriaLabelledBy =
     ariaLabelledBy ?? `${generatedVisibleLabelId} ${generatedBackNavigationLabelId}`;

@@ -90,17 +90,28 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
     ).length;
   }, [isSupportedReaction, reactionGroups]);
 
-  const getLatestReactedUserNames = useCallback(
-    (reactionType?: string) =>
-      latestReactions?.flatMap((reaction) => {
-        if (reactionType && reactionType === reaction.type) {
-          const username = reaction.user?.name || reaction.user?.id;
-          return username ? [username] : [];
-        }
-        return [];
-      }) ?? [],
-    [latestReactions],
-  );
+  // Group the reacting user names by reaction type in a single pass, so each
+  // reaction group can look its names up in O(1) instead of re-scanning the
+  // whole `latestReactions` array per type (previously O(types × reactions)).
+  const latestReactedUserNamesByType = useMemo(() => {
+    const namesByType = new Map<string, string[]>();
+    if (!latestReactions) return namesByType;
+
+    for (const reaction of latestReactions) {
+      if (!reaction.type) continue;
+      const username = reaction.user?.name || reaction.user?.id;
+      if (!username) continue;
+
+      const existing = namesByType.get(reaction.type);
+      if (existing) {
+        existing.push(username);
+      } else {
+        namesByType.set(reaction.type, [username]);
+      }
+    }
+
+    return namesByType;
+  }, [latestReactions]);
 
   const existingReactions: ReactionSummary[] = useMemo(() => {
     if (!reactionGroups) {
@@ -113,7 +124,8 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
           return [];
         }
 
-        const latestReactedUserNames = getLatestReactedUserNames(reactionType);
+        const latestReactedUserNames =
+          latestReactedUserNamesByType.get(reactionType) ?? [];
 
         return [
           {
@@ -133,7 +145,7 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
     return unsortedReactions.sort(sortReactions);
   }, [
     getEmojiByReactionType,
-    getLatestReactedUserNames,
+    latestReactedUserNamesByType,
     isOwnReaction,
     isSupportedReaction,
     reactionGroups,

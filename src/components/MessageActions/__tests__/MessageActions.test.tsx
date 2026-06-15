@@ -344,11 +344,16 @@ describe('<MessageActions />', () => {
       });
 
       const dialog = screen.getByRole('alertdialog', { name: 'Delete message' });
-      expect(dialog).toHaveAttribute('aria-labelledby', 'modal-dialog-title');
-      expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
-      expect(
-        screen.getByText('Are you sure you want to delete this message?'),
-      ).toHaveAttribute('id', 'modal-dialog-description');
+      const labelledBy = dialog.getAttribute('aria-labelledby');
+      const describedBy = dialog.getAttribute('aria-describedby');
+      expect(labelledBy).toBeTruthy();
+      expect(describedBy).toBeTruthy();
+      expect(document.getElementById(labelledBy ?? '')).toHaveTextContent(
+        'Delete message',
+      );
+      expect(document.getElementById(describedBy ?? '')).toHaveTextContent(
+        'Are you sure you want to delete this message?',
+      );
     });
 
     it('should include Edit in dropdown actions when user has edit capability', async () => {

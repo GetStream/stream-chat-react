@@ -48,7 +48,7 @@ const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 const translationContext = fromPartial<TranslationContextValue>({
   t: ((value: string) => value) as TranslationContextValue['t'],
-  tDateTimeParser: ((value: string | number | Date) =>
+  tDateTimeParser: ((value: string) =>
     value.toString()) as TranslationContextValue['tDateTimeParser'],
 });
 

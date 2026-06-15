@@ -49,8 +49,8 @@ export const useDialogOnNearestManager = ({ id }: Pick<UseDialogParams, 'id'>) =
 
 export const modalDialogId = 'modal-dialog' as const;
 
-export const useModalDialog = () =>
-  useDialog({ dialogManagerId: modalDialogManagerId, id: modalDialogId });
+export const useModalDialog = (id: string = modalDialogId) =>
+  useDialog({ dialogManagerId: modalDialogManagerId, id });
 
 export const useDialogIsOpen = (id: string, dialogManagerId?: string) => {
   const { dialogManager } = useDialogManager({ dialogManagerId });
@@ -61,14 +61,25 @@ export const useDialogIsOpen = (id: string, dialogManagerId?: string) => {
   return useStateStore(dialogManager.state, dialogIsOpenSelector).isOpen;
 };
 
-export const useModalDialogIsOpen = () =>
-  useDialogIsOpen(modalDialogId, modalDialogManagerId);
+export const useModalDialogIsOpen = (id: string = modalDialogId) =>
+  useDialogIsOpen(id, modalDialogManagerId);
+
+export const useDialogIsTopmost = (id: string, dialogManagerId?: string) => {
+  const { dialogManager } = useDialogManager({ dialogManagerId });
+  const dialogIsTopmostSelector = useCallback(
+    ({ openedDialogIds }: DialogManagerState) => ({
+      isTopmost: openedDialogIds[openedDialogIds.length - 1] === id,
+    }),
+    [id],
+  );
+  return useStateStore(dialogManager.state, dialogIsTopmostSelector).isTopmost;
+};
+
+export const useModalDialogIsTopmost = (id: string = modalDialogId) =>
+  useDialogIsTopmost(id, modalDialogManagerId);
 
 const openedDialogCountSelector = (nextValue: DialogManagerState) => ({
-  openedDialogCount: Object.values(nextValue.dialogsById).reduce((count, dialog) => {
-    if (dialog.isOpen) return count + 1;
-    return count;
-  }, 0),
+  openedDialogCount: nextValue.openedDialogIds.length,
 });
 
 export const useOpenedDialogCount = ({

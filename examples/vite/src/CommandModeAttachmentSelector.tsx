@@ -1,7 +1,7 @@
 import type { TextComposerState } from 'stream-chat';
 import {
-  AttachmentSelector as DefaultAttachmentSelector,
   type AttachmentSelectorProps,
+  AttachmentSelector as DefaultAttachmentSelector,
   useMessageComposerController,
   useStateStore,
 } from 'stream-chat-react';

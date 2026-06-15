@@ -35,6 +35,7 @@ type Dialogs = Record<DialogId, Dialog>;
 
 export type DialogManagerState = {
   dialogsById: Dialogs;
+  openedDialogIds: DialogId[];
 };
 
 /**
@@ -53,6 +54,7 @@ export class DialogManager {
   id: string;
   state = new StateStore<DialogManagerState>({
     dialogsById: {},
+    openedDialogIds: [],
   });
 
   constructor({ closeOnClickOutside = true, id }: DialogManagerOptions = {}) {
@@ -61,13 +63,7 @@ export class DialogManager {
   }
 
   get openDialogCount() {
-    return Object.values(this.state.getLatestValue().dialogsById).reduce(
-      (count, dialog) => {
-        if (dialog.isOpen) return count + 1;
-        return count;
-      },
-      0,
-    );
+    return this.state.getLatestValue().openedDialogIds.length;
   }
 
   get(id: DialogId): Dialog | undefined {
@@ -116,6 +112,9 @@ export class DialogManager {
             removalTimeout: undefined,
           },
         },
+        openedDialogIds: current.dialogsById[id]?.isOpen
+          ? [...current.openedDialogIds.filter((dialogId) => dialogId !== id), id]
+          : current.openedDialogIds,
       }));
     }
 
@@ -131,6 +130,10 @@ export class DialogManager {
     this.state.next((current) => ({
       ...current,
       dialogsById: { ...current.dialogsById, [dialog.id]: { ...dialog, isOpen: true } },
+      openedDialogIds: [
+        ...current.openedDialogIds.filter((dialogId) => dialogId !== dialog.id),
+        dialog.id,
+      ],
     }));
   }
 
@@ -140,6 +143,7 @@ export class DialogManager {
     this.state.next((current) => ({
       ...current,
       dialogsById: { ...current.dialogsById, [dialog.id]: { ...dialog, isOpen: false } },
+      openedDialogIds: current.openedDialogIds.filter((dialogId) => dialogId !== id),
     }));
   }
 
@@ -171,6 +175,7 @@ export class DialogManager {
       return {
         ...current,
         dialogsById: newDialogs,
+        openedDialogIds: current.openedDialogIds.filter((dialogId) => dialogId !== id),
       };
     });
   };
@@ -198,6 +203,7 @@ export class DialogManager {
           }, 16),
         },
       },
+      openedDialogIds: current.openedDialogIds.filter((dialogId) => dialogId !== id),
     }));
   }
 
@@ -219,6 +225,9 @@ export class DialogManager {
           removalTimeout: undefined,
         },
       },
+      openedDialogIds: current.dialogsById[id]?.isOpen
+        ? [...current.openedDialogIds.filter((dialogId) => dialogId !== id), id]
+        : current.openedDialogIds,
     }));
   }
 }

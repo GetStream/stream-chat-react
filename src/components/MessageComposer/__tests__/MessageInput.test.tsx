@@ -1244,11 +1244,21 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
+    // The suggestion list also contains broadcast mentions (e.g. @channel, @here)
+    // injected by the SDK, so assert every mentionable member is listed rather
+    // than matching the raw item count.
+    const mentionableMembers = Object.values(customChannel.state.members)
+      .map((member) => member.user)
+      .filter((mentionUser) => mentionUser && mentionUser.id !== customClient.userID);
+
     await waitFor(() => {
-      const usernameList = document.querySelectorAll('.str-chat__suggestion-list-item');
-      expect(usernameList).toHaveLength(
-        Object.keys(customChannel.state.members).length - 1, // remove own user
-      );
+      mentionableMembers.forEach((mentionableUser) => {
+        expect(
+          document.querySelector(
+            `.str-chat__suggestion-list-item[title="${mentionableUser.name ?? mentionableUser.id}"]`,
+          ),
+        ).toBeInTheDocument();
+      });
     });
     Element.prototype.scrollIntoView = scrollIntoView;
   });
@@ -1275,14 +1285,18 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
+    // The suggestion list also contains broadcast mentions (e.g. @channel, @here),
+    // so target the user suggestion explicitly instead of the first item.
     await waitFor(() => {
       expect(
-        document.querySelectorAll('.str-chat__suggestion-list-item').length,
-      ).toBeGreaterThan(0);
+        document.querySelector(`.str-chat__suggestion-list-item[title="${mentionName}"]`),
+      ).toBeInTheDocument();
     });
-    const firstItem = document.querySelectorAll('.str-chat__suggestion-list-item')[0];
+    const userItem = document.querySelector(
+      `.str-chat__suggestion-list-item[title="${mentionName}"]`,
+    ) as HTMLElement;
     await act(async () => {
-      await fireEvent.click(firstItem);
+      await fireEvent.click(userItem);
     });
 
     await act(() => submit());

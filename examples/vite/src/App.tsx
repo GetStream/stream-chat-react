@@ -75,15 +75,21 @@ const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
 init({ data });
 
-const parseUserIdFromToken = (token: string) => {
-  const [, payload] = token.split('.');
+const parseUserIdFromToken = (token: string): string | undefined => {
+  try {
+    const [, payload] = token.split('.');
 
-  if (!payload) throw new Error('Token is missing');
+    if (!payload) return undefined;
 
-  return JSON.parse(atob(payload))?.user_id;
+    return JSON.parse(atob(payload))?.user_id;
+  } catch {
+    return undefined;
+  }
 };
 
-const apiKey = import.meta.env.VITE_STREAM_API_KEY;
+const apiKey =
+  new URLSearchParams(window.location.search).get('api_key') ||
+  import.meta.env.VITE_STREAM_API_KEY;
 const token =
   new URLSearchParams(window.location.search).get('token') ||
   import.meta.env.VITE_USER_TOKEN;
@@ -114,6 +120,7 @@ const useUser = () => {
   const userId = useMemo(
     () =>
       searchParams.get('user_id') ||
+      (token ? parseUserIdFromToken(token) : undefined) ||
       import.meta.env.VITE_USER_ID ||
       localStorage.getItem('user_id') ||
       humanId({ separator: '_', capitalize: false }),

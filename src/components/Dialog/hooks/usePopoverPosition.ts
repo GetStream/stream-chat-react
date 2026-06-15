@@ -1,5 +1,6 @@
 import {
   autoPlacement,
+  type AutoPlacementOptions,
   autoUpdate,
   flip as flipMw,
   offset as offsetMw,
@@ -8,7 +9,6 @@ import {
   size as sizeMw,
   useFloating,
 } from '@floating-ui/react';
-import type { AutoPlacementOptions } from '@floating-ui/core';
 
 const hasResizeObserver = typeof window !== 'undefined' && 'ResizeObserver' in window;
 

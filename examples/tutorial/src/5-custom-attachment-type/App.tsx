@@ -93,9 +93,7 @@ const App = () => {
       await channel.watch();
 
       const hasProductMessage = channel.state.messages.some((message) =>
-        message.attachments?.some(
-          (attachment) => 'type' in attachment && attachment.type === 'product',
-        ),
+        message.attachments?.some(isProductAttachment),
       );
 
       if (!hasProductMessage) {

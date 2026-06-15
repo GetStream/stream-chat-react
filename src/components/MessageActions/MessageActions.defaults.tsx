@@ -8,7 +8,6 @@ import {
   IconBellOff,
   IconBookmark,
   IconBookmarkRemove,
-  IconChevronLeft,
   IconCopy,
   IconDelete,
   IconDownload,
@@ -41,10 +40,9 @@ import {
   useTranslationContext,
 } from '../../context';
 import { RemindMeSubmenu, RemindMeSubmenuHeader } from './RemindMeSubmenu';
+import { DownloadSubmenu, DownloadSubmenuHeader } from './DownloadSubmenu';
 import {
-  ContextMenuBackButton,
   ContextMenuButton,
-  ContextMenuHeader,
   DialogAnchor,
   useContextMenuContext,
   useDialogIsOpen,
@@ -54,11 +52,7 @@ import { MessageActions, type MessageActionSetItem } from './MessageActions';
 import { QuickMessageActionsButton } from './QuickMessageActionButton';
 import clsx from 'clsx';
 import { DeleteMessageAlert } from './DeleteMessageAlert';
-import {
-  downloadAllAttachments,
-  downloadAttachment,
-  isDownloadableAttachment,
-} from './downloadUtils';
+import { downloadAttachment, isDownloadableAttachment } from './downloadUtils';
 
 const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
@@ -200,62 +194,6 @@ const DefaultMessageActionComponents = {
       );
 
       if (!downloadableAttachments.length) return null;
-
-      const DownloadSubmenuHeader = () => {
-        const { returnToParentMenu: goBack } = useContextMenuContext();
-        const { t: translate } = useTranslationContext();
-        return (
-          <ContextMenuHeader>
-            <ContextMenuBackButton onClick={goBack}>
-              <IconChevronLeft />
-              <span>{translate('Download Attachment')}</span>
-            </ContextMenuBackButton>
-          </ContextMenuHeader>
-        );
-      };
-
-      const DownloadSubmenu = () => (
-        <div className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'>
-          {downloadableAttachments.map((attachment, index) => {
-            const fileName = attachment.localMetadata?.file?.name ?? attachment.title;
-            const downloadLabelTemplate = fileName
-              ? t('Download {{ fileName }}', { fileName })
-              : t('Download attachment {{ number }}', { number: index + 1 });
-            const downloadLabel = fileName
-              ? downloadLabelTemplate.replace('{{ fileName }}', fileName)
-              : downloadLabelTemplate.replace('{{ number }}', `${index + 1}`);
-
-            return (
-              <MessageActionsMenuItemButton
-                className={msgActionsBoxButtonClassName}
-                Icon={IconDownload}
-                key={
-                  attachment.localMetadata?.id ??
-                  attachment.asset_url ??
-                  attachment.image_url ??
-                  `${fileName}-${index}`
-                }
-                onClick={() => {
-                  void downloadAttachment(attachment);
-                  closeMenu();
-                }}
-              >
-                {downloadLabel}
-              </MessageActionsMenuItemButton>
-            );
-          })}
-          <MessageActionsMenuItemButton
-            className={msgActionsBoxButtonClassName}
-            Icon={IconDownload}
-            onClick={() => {
-              void downloadAllAttachments(downloadableAttachments);
-              closeMenu();
-            }}
-          >
-            {t('Download All')}
-          </MessageActionsMenuItemButton>
-        </div>
-      );
 
       return (
         <MessageActionsMenuItemButton

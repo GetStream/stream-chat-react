@@ -73,6 +73,40 @@ describe('DialogManager', () => {
     expect(dialogManager.openDialogCount).toBe(1);
   });
 
+  it('tracks opened dialogs in stack order', () => {
+    const dialogManager = new DialogManager();
+
+    dialogManager.open({ id: 'first-dialog' });
+    dialogManager.open({ id: 'second-dialog' });
+    dialogManager.open({ id: 'third-dialog' });
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'first-dialog',
+      'second-dialog',
+      'third-dialog',
+    ]);
+    expect(dialogManager.openDialogCount).toBe(3);
+
+    dialogManager.close('third-dialog');
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'first-dialog',
+      'second-dialog',
+    ]);
+    expect(dialogManager.openDialogCount).toBe(2);
+  });
+
+  it('keeps only the target dialog in the stack when opening with closeRest', () => {
+    const dialogManager = new DialogManager();
+
+    dialogManager.open({ id: 'first-dialog' });
+    dialogManager.open({ id: 'second-dialog' });
+    dialogManager.open({ id: dialogId }, true);
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([dialogId]);
+    expect(dialogManager.openDialogCount).toBe(1);
+  });
+
   it('opens existing dialog', () => {
     const dialogManager = new DialogManager();
     dialogManager.getOrCreate({ id: dialogId });
@@ -154,6 +188,17 @@ describe('DialogManager', () => {
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
   });
 
+  it('removes a dialog from the open stack', () => {
+    const dialogManager = new DialogManager();
+
+    dialogManager.open({ id: 'first-dialog' });
+    dialogManager.open({ id: dialogId });
+    dialogManager.remove('first-dialog');
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([dialogId]);
+    expect(dialogManager.openDialogCount).toBe(1);
+  });
+
   it('handles attempt to remove non-existent dialog', () => {
     const dialogManager = new DialogManager();
     dialogManager.getOrCreate({ id: dialogId });
@@ -177,6 +222,22 @@ describe('DialogManager', () => {
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(0);
   });
 
+  it('removes a dialog from the open stack as soon as it is marked for removal', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'underlying-dialog' });
+    dialogManager.open({ id: dialogId });
+    dialogManager.markForRemoval(dialogId);
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'underlying-dialog',
+    ]);
+    expect(dialogManager.openDialogCount).toBe(1);
+
+    vi.runAllTimers();
+  });
+
   it('cancels dialog removal if it is referenced again quickly', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
 
@@ -190,5 +251,27 @@ describe('DialogManager', () => {
 
     expect(dialogManager.openDialogCount).toBe(1);
     expect(Object.keys(dialogManager.state.getLatestValue().dialogsById)).toHaveLength(1);
+  });
+
+  it('restores an open dialog to the stack when pending removal is cancelled', () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const dialogManager = new DialogManager();
+    dialogManager.open({ id: 'underlying-dialog' });
+    dialogManager.open({ id: dialogId });
+    dialogManager.markForRemoval(dialogId);
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'underlying-dialog',
+    ]);
+
+    dialogManager.getOrCreate({ id: dialogId });
+
+    expect(dialogManager.state.getLatestValue().openedDialogIds).toEqual([
+      'underlying-dialog',
+      dialogId,
+    ]);
+
+    vi.runAllTimers();
   });
 });

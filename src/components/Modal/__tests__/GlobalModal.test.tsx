@@ -2,17 +2,35 @@ import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { GlobalModal } from '../GlobalModal';
-import { ChatProvider, ModalDialogManagerProvider } from '../../../context';
+import {
+  ChatProvider,
+  ComponentProvider,
+  ModalDialogManagerProvider,
+} from '../../../context';
 import { mockChatContext } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
 
+import type { NotificationListProps } from '../../Notifications';
+
 const OVERLAY_SELECTOR = '.str-chat__modal';
-const renderComponent = ({ props }: any = {}) =>
+
+const NoopNotificationList: React.ComponentType<NotificationListProps> = () => null;
+const renderComponent = ({
+  components,
+  props,
+}: {
+  components?: React.ComponentProps<typeof ComponentProvider>['value'];
+  props?: React.ComponentProps<typeof GlobalModal>;
+} = {}) =>
   render(
     <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
-      <ModalDialogManagerProvider>
-        <GlobalModal {...props} />
-      </ModalDialogManagerProvider>
+      <ComponentProvider
+        value={{ NotificationList: NoopNotificationList, ...components }}
+      >
+        <ModalDialogManagerProvider>
+          <GlobalModal open={false} {...props} />
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
     </ChatProvider>,
   );
 
@@ -29,6 +47,81 @@ const ModalContent = ({
     {children}
   </div>
 );
+
+const renderStackedModals = ({
+  childOnClose = vi.fn(),
+  parentOnClose = vi.fn(),
+}: {
+  childOnClose?: () => void;
+  parentOnClose?: () => void;
+} = {}) =>
+  render(
+    <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
+      <ComponentProvider value={{ NotificationList: NoopNotificationList }}>
+        <ModalDialogManagerProvider>
+          <GlobalModal aria-label='Parent modal' onClose={parentOnClose} open>
+            <ModalContent text='Parent content' />
+            <GlobalModal
+              aria-label='Child modal'
+              onClose={childOnClose}
+              open
+              role='alertdialog'
+            >
+              <ModalContent text='Child content' />
+            </GlobalModal>
+          </GlobalModal>
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
+    </ChatProvider>,
+  );
+
+const RemovableChildModalFixture = () => {
+  const [showChild, setShowChild] = React.useState(true);
+
+  return (
+    <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
+      <ComponentProvider value={{ NotificationList: NoopNotificationList }}>
+        <ModalDialogManagerProvider>
+          <GlobalModal aria-label='Parent modal' open>
+            <ModalContent text='Parent content' />
+            {showChild && (
+              <GlobalModal aria-label='Child modal' open role='alertdialog'>
+                <ModalContent text='Child content'>
+                  <button onClick={() => setShowChild(false)} type='button'>
+                    Remove child modal
+                  </button>
+                </ModalContent>
+              </GlobalModal>
+            )}
+          </GlobalModal>
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
+    </ChatProvider>
+  );
+};
+
+const CloseChildModalFixture = () => {
+  const [childOpen, setChildOpen] = React.useState(true);
+
+  return (
+    <ChatProvider value={mockChatContext({ theme: 'messaging light' })}>
+      <ComponentProvider value={{ NotificationList: NoopNotificationList }}>
+        <ModalDialogManagerProvider>
+          <GlobalModal aria-label='Parent modal' open>
+            <ModalContent text='Parent content' />
+            <GlobalModal aria-label='Child modal' open={childOpen} role='alertdialog'>
+              <ModalContent text='Child content'>
+                <button onClick={() => setChildOpen(false)} type='button'>
+                  Close child modal
+                </button>
+              </ModalContent>
+            </GlobalModal>
+          </GlobalModal>
+        </ModalDialogManagerProvider>
+      </ComponentProvider>
+    </ChatProvider>
+  );
+};
 
 const OverlayCloseButton = React.forwardRef<
   HTMLButtonElement,
@@ -65,6 +158,34 @@ describe('GlobalModal', () => {
     });
 
     expect(queryByText(textContent)).toBeInTheDocument();
+  });
+
+  it('renders notifications relative to the modal overlay', () => {
+    const ModalNotificationList = ({
+      className,
+      panel,
+      verticalAlignment,
+    }: NotificationListProps) => (
+      <div
+        className={className}
+        data-panel={panel}
+        data-testid='modal-notification-list'
+        data-vertical-alignment={verticalAlignment}
+      />
+    );
+
+    renderComponent({
+      components: { NotificationList: ModalNotificationList },
+      props: { children: <ModalContent text={textContent} />, open: true },
+    });
+
+    const notificationList = screen.getByTestId('modal-notification-list');
+
+    expect(notificationList).toHaveClass('str-chat__modal__notification-list');
+    expect(notificationList).toHaveAttribute('data-panel', 'modal');
+    expect(notificationList).toHaveAttribute('data-vertical-alignment', 'top');
+    expect(document.querySelector(OVERLAY_SELECTOR)).toContainElement(notificationList);
+    expect(screen.getByRole('dialog')).not.toContainElement(notificationList);
   });
 
   it('should call the onClose prop function if the escape key is pressed', () => {
@@ -229,7 +350,7 @@ describe('GlobalModal', () => {
     const dialog = screen.getByRole('dialog');
     expect(dialog).toHaveClass('str-chat__modal__dialog');
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(dialog).toHaveAttribute('tabindex', '-1');
+    expect(dialog).toHaveAttribute('tabindex', '0');
     expect(dialog).toHaveAttribute('aria-labelledby', 'modal-title');
     expect(dialog).toHaveAttribute('aria-describedby', 'modal-description');
   });
@@ -253,15 +374,16 @@ describe('GlobalModal', () => {
       props: {
         children: (
           <ModalContent text={textContent}>
-            <h2 id='modal-dialog-title'>Autogenerated title target</h2>
+            <h2 id='custom-modal-title'>Autogenerated title target</h2>
           </ModalContent>
         ),
+        dialogId: 'custom-modal',
         open: true,
       },
     });
 
     const dialog = screen.getByRole('dialog', { name: 'Autogenerated title target' });
-    expect(dialog).toHaveAttribute('aria-labelledby', 'modal-dialog-title');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'custom-modal-title');
     expect(dialog).not.toHaveAttribute('aria-label');
   });
 
@@ -270,17 +392,18 @@ describe('GlobalModal', () => {
       props: {
         children: (
           <ModalContent text={textContent}>
-            <h2 id='modal-dialog-title'>Create poll</h2>
-            <p id='modal-dialog-description'>Create poll description</p>
+            <h2 id='custom-modal-title'>Create poll</h2>
+            <p id='custom-modal-description'>Create poll description</p>
           </ModalContent>
         ),
+        dialogId: 'custom-modal',
         open: true,
       },
     });
 
     const dialog = screen.getByRole('dialog', { name: 'Create poll' });
-    expect(dialog).toHaveAttribute('aria-labelledby', 'modal-dialog-title');
-    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'custom-modal-title');
+    expect(dialog).toHaveAttribute('aria-describedby', 'custom-modal-description');
   });
 
   it('autowires aria-describedby for alertdialog when not explicitly provided', () => {
@@ -288,18 +411,109 @@ describe('GlobalModal', () => {
       props: {
         children: (
           <ModalContent text={textContent}>
-            <h2 id='modal-dialog-title'>Delete message</h2>
-            <p id='modal-dialog-description'>Are you sure?</p>
+            <h2 id='delete-message-alert-title'>Delete message</h2>
+            <p id='delete-message-alert-description'>Are you sure?</p>
           </ModalContent>
         ),
+        dialogId: 'delete-message-alert',
         open: true,
         role: 'alertdialog',
       },
     });
 
     const dialog = screen.getByRole('alertdialog', { name: 'Delete message' });
-    expect(dialog).toHaveAttribute('aria-labelledby', 'modal-dialog-title');
-    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+    expect(dialog).toHaveAttribute('aria-labelledby', 'delete-message-alert-title');
+    expect(dialog).toHaveAttribute(
+      'aria-describedby',
+      'delete-message-alert-description',
+    );
+  });
+
+  it('supports rendering an alertdialog above an existing modal', () => {
+    renderStackedModals();
+
+    const parentModal = screen.getByRole('dialog', { name: 'Parent modal' });
+    const childModal = screen.getByRole('alertdialog', { name: 'Child modal' });
+
+    expect(parentModal).toBeInTheDocument();
+    expect(parentModal).not.toHaveAttribute('aria-modal');
+    expect(parentModal).toHaveAttribute('inert');
+    expect(parentModal).toHaveAttribute('tabindex', '-1');
+    expect(childModal).toBeInTheDocument();
+    expect(childModal).toHaveAttribute('aria-modal', 'true');
+    expect(childModal).not.toHaveAttribute('inert');
+    expect(childModal).toHaveAttribute('tabindex', '0');
+  });
+
+  it('only closes the topmost modal on Escape', () => {
+    const childOnClose = vi.fn();
+    const parentOnClose = vi.fn();
+
+    renderStackedModals({ childOnClose, parentOnClose });
+
+    fireEvent.keyDown(screen.getByRole('dialog', { name: 'Parent modal' }), {
+      key: 'Escape',
+    });
+    expect(parentOnClose).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(screen.getByRole('alertdialog', { name: 'Child modal' }), {
+      key: 'Escape',
+    });
+    expect(childOnClose).toHaveBeenCalledTimes(1);
+    expect(parentOnClose).not.toHaveBeenCalled();
+  });
+
+  it('restores interactivity to the underlying modal after the topmost modal closes', () => {
+    const childOnClose = vi.fn();
+    const parentOnClose = vi.fn();
+
+    renderStackedModals({ childOnClose, parentOnClose });
+
+    const parentModal = screen.getByRole('dialog', { name: 'Parent modal' });
+    const childModal = screen.getByRole('alertdialog', { name: 'Child modal' });
+
+    fireEvent.keyDown(childModal, { key: 'Escape' });
+
+    expect(childOnClose).toHaveBeenCalledTimes(1);
+    expect(parentModal).toHaveAttribute('aria-modal', 'true');
+    expect(parentModal).not.toHaveAttribute('inert');
+    expect(parentModal).toHaveAttribute('tabindex', '0');
+
+    fireEvent.keyDown(parentModal, { key: 'Escape' });
+
+    expect(parentOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('restores topmost state to the underlying modal after the topmost modal is removed', () => {
+    render(<RemovableChildModalFixture />);
+
+    const parentModal = screen.getByRole('dialog', { name: 'Parent modal' });
+    expect(parentModal).toHaveAttribute('tabindex', '-1');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove child modal' }));
+
+    expect(
+      screen.queryByRole('alertdialog', { name: 'Child modal' }),
+    ).not.toBeInTheDocument();
+    expect(parentModal).toHaveAttribute('aria-modal', 'true');
+    expect(parentModal).not.toHaveAttribute('inert');
+    expect(parentModal).toHaveAttribute('tabindex', '0');
+  });
+
+  it('restores topmost state to the underlying modal after the topmost modal open prop becomes false', () => {
+    render(<CloseChildModalFixture />);
+
+    const parentModal = screen.getByRole('dialog', { name: 'Parent modal' });
+    expect(parentModal).toHaveAttribute('tabindex', '-1');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Close child modal' }));
+
+    expect(
+      screen.queryByRole('alertdialog', { name: 'Child modal' }),
+    ).not.toBeInTheDocument();
+    expect(parentModal).toHaveAttribute('aria-modal', 'true');
+    expect(parentModal).not.toHaveAttribute('inert');
+    expect(parentModal).toHaveAttribute('tabindex', '0');
   });
 
   it('forwards alertdialog role when explicitly provided', () => {
