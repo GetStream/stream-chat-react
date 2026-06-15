@@ -151,6 +151,7 @@ const useChannelManagementActionFilterState = () => {
   return {
     canBlockUser:
       isDmChannelWithOtherUser && ownCapabilities?.includes('ban-channel-members'),
+    canDeleteChat: ownCapabilities?.includes('delete-channel'),
     canLeaveChannel: isGroupChannel && ownCapabilities?.includes('leave-channel'),
     canMuteChannel: ownCapabilities?.includes('mute-channel'),
     canMuteUser: isDmChannelWithOtherUser,
@@ -160,7 +161,7 @@ const useChannelManagementActionFilterState = () => {
 export const useBaseChannelManagementActionSetFilter = (
   channelManagementActionSet: ChannelManagementActionItem[],
 ) => {
-  const { canBlockUser, canLeaveChannel, canMuteChannel, canMuteUser } =
+  const { canBlockUser, canDeleteChat, canLeaveChannel, canMuteChannel, canMuteUser } =
     useChannelManagementActionFilterState();
 
   return useMemo(
@@ -169,6 +170,8 @@ export const useBaseChannelManagementActionSetFilter = (
         switch (action.type) {
           case 'blockUser':
             return canBlockUser;
+          case 'deleteChat':
+            return canDeleteChat;
           case 'muteChannel':
             return canMuteChannel;
           case 'muteUser':
@@ -181,6 +184,7 @@ export const useBaseChannelManagementActionSetFilter = (
       }),
     [
       canBlockUser,
+      canDeleteChat,
       canLeaveChannel,
       canMuteChannel,
       canMuteUser,

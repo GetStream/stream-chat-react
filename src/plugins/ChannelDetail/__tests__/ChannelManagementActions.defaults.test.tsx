@@ -192,6 +192,7 @@ describe('DefaultChannelManagementActions', () => {
     ];
     mocks.channel.data.own_capabilities = [
       'ban-channel-members',
+      'delete-channel',
       'leave-channel',
       'mute-channel',
     ];
@@ -423,12 +424,7 @@ describe('DefaultChannelManagementActions', () => {
 
     renderPermissionProbe();
 
-    expect(getRenderedActionTypes()).toEqual([
-      'muteChannel',
-      'muteUser',
-      'blockUser',
-      'deleteChat',
-    ]);
+    expect(getRenderedActionTypes()).toEqual(['muteChannel', 'muteUser', 'blockUser']);
   });
 
   it('filters group actions by channel capabilities', () => {
@@ -459,6 +455,14 @@ describe('DefaultChannelManagementActions', () => {
 
     renderPermissionProbe();
 
-    expect(getRenderedActionTypes()).toEqual(['deleteChat']);
+    expect(getRenderedActionTypes()).toEqual([]);
+  });
+
+  it('hides delete chat when delete-channel capability is missing', () => {
+    mocks.channel.data.own_capabilities = ['ban-channel-members', 'mute-channel'];
+
+    renderPermissionProbe();
+
+    expect(getRenderedActionTypes()).not.toContain('deleteChat');
   });
 });
