@@ -8,6 +8,10 @@
     overflow-y: auto;
     scrollbar-width: none;
 
+    &.str-chat__context-menu {
+      padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-none);
+    }
+
     .str-chat__suggestion-list-item--selected {
       background-color: var(--str-chat__dialog-menu-button-hover-background-color);
     }

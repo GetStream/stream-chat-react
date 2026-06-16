@@ -54,44 +54,49 @@ export const ListItemLayout = <RootElement extends ListItemLayoutRootElement = '
   TrailingIcon,
   TrailingSlot,
 }: ListItemLayoutProps<RootElement>) => {
-  const RootComponent = (RootElement ?? 'div') as ElementType<
+  // The inner container is the interactive element (button/anchor). The outer
+  // wrapper is a plain spacing buffer so the container's focus ring (2px offset)
+  // never overlaps adjacent items or gets clipped by an overflow ancestor.
+  const ContainerComponent = (RootElement ?? 'div') as ElementType<
     HTMLAttributes<HTMLElement>
   >;
-  const resolvedRootProps = {
-    ...(RootComponent === 'button' ? { type: 'button' } : undefined),
+  const containerProps = {
+    ...(ContainerComponent === 'button' ? { type: 'button' } : undefined),
     ...rootProps,
     className: clsx(
-      'str-chat__list-item-layout',
+      'str-chat__list-item-layout__container',
       rootProps?.className,
-      destructive && 'str-chat__list-item-layout--destructive',
-      selected && 'str-chat__list-item-layout--selected',
+      destructive && 'str-chat__list-item-layout__container--destructive',
+      selected && 'str-chat__list-item-layout__container--selected',
     ),
   } as HTMLAttributes<HTMLElement>;
 
   return (
-    <RootComponent {...resolvedRootProps}>
-      {LeadingIcon && (
-        <div className='str-chat__list-item-layout__leading-icon'>
-          <LeadingIcon />
-        </div>
-      )}
-      {LeadingSlot && <LeadingSlot />}
-      <ContentSlot
-        className={contentClassName}
-        description={description}
-        descriptionClassName={descriptionClassName}
-        subtitle={subtitle}
-        subtitleClassName={subtitleClassName}
-        title={title}
-        titleClassName={titleClassName}
-      />
-      {TrailingIcon && (
-        <div className='str-chat__list-item-layout__trailing-icon'>
-          <TrailingIcon />
-        </div>
-      )}
-      {TrailingSlot && <TrailingSlot />}
-    </RootComponent>
+    <div className='str-chat__list-item-layout'>
+      <ContainerComponent {...containerProps}>
+        {LeadingIcon && (
+          <div className='str-chat__list-item-layout__leading-icon'>
+            <LeadingIcon />
+          </div>
+        )}
+        {LeadingSlot && <LeadingSlot />}
+        <ContentSlot
+          className={contentClassName}
+          description={description}
+          descriptionClassName={descriptionClassName}
+          subtitle={subtitle}
+          subtitleClassName={subtitleClassName}
+          title={title}
+          titleClassName={titleClassName}
+        />
+        {TrailingIcon && (
+          <div className='str-chat__list-item-layout__trailing-icon'>
+            <TrailingIcon />
+          </div>
+        )}
+        {TrailingSlot && <TrailingSlot />}
+      </ContainerComponent>
+    </div>
   );
 };
 

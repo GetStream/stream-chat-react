@@ -1,42 +1,32 @@
 @use '../../../styling/utils';
 
 .str-chat__list-item-layout {
-  --list-item-padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
-
+  // Outer wrapper: a plain spacing buffer around the interactive container so
+  // the container's focus ring (2px offset) clears neighbouring items and any
+  // overflow/scroll ancestor. Carries the row's minimum height.
   display: flex;
-  align-items: center;
-  gap: var(--str-chat__spacing-sm);
-  text-align: start;
-  padding: var(--list-item-padding);
+  align-items: stretch;
   width: 100%;
   min-width: 0;
-  border-radius: var(--str-chat__radius-md);
+  padding-inline: var(--str-chat__spacing-xxs);
 
-  &.str-chat__list-item-layout--selected {
-    background-color: var(--str-chat__background-utility-selected);
+  .str-chat__list-item-layout__container {
+    --list-item-padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    min-width: 0;
+    text-align: start;
+    padding: var(--list-item-padding);
+    border-radius: var(--str-chat__radius-md);
   }
 
-  &.str-chat__list-item-layout--destructive {
-    color: var(--str-chat__accent-error);
-
-    .str-chat__list-item-layout__title,
-    .str-chat__list-item-layout__subtitle,
-    .str-chat__list-item-layout__description {
-      color: var(--str-chat__accent-error);
-    }
-  }
-
-  &:disabled {
-    color: var(--str-chat__text-disabled);
-
-    .str-chat__list-item-layout__title,
-    .str-chat__list-item-layout__subtitle,
-    .str-chat__list-item-layout__description {
-      color: var(--str-chat__text-disabled);
-    }
-  }
-
-  &:is(button) {
+  // Interactive baseline. `:where(button)` keeps this reset at the same low
+  // specificity as the bare container class so the state rules below (selected,
+  // destructive, disabled) reliably win — `:is(button)` would add element
+  // specificity and let `button-reset`'s `background: none` clobber them.
+  .str-chat__list-item-layout__container:where(button) {
     @include utils.button-reset;
     padding: var(--list-item-padding);
     cursor: pointer;
@@ -51,6 +41,35 @@
 
     &:focus:not(:disabled) {
       @include utils.focusable;
+    }
+  }
+
+  .str-chat__list-item-layout__container.str-chat__form__switch-field {
+    padding: var(--list-item-padding);
+  }
+
+  .str-chat__list-item-layout__container--selected {
+    background-color: var(--str-chat__background-utility-selected);
+  }
+
+  .str-chat__list-item-layout__container--destructive {
+    color: var(--str-chat__accent-error);
+
+    .str-chat__icon,
+    .str-chat__list-item-layout__title,
+    .str-chat__list-item-layout__subtitle,
+    .str-chat__list-item-layout__description {
+      color: var(--str-chat__accent-error);
+    }
+  }
+
+  .str-chat__list-item-layout__container:disabled {
+    color: var(--str-chat__text-disabled);
+
+    .str-chat__list-item-layout__title,
+    .str-chat__list-item-layout__subtitle,
+    .str-chat__list-item-layout__description {
+      color: var(--str-chat__text-disabled);
     }
   }
 
@@ -111,5 +130,6 @@
   .str-chat__list-item-layout__description,
   .str-chat__list-item-layout__title {
     @include utils.ellipsis-text;
+    max-width: 100%;
   }
 }

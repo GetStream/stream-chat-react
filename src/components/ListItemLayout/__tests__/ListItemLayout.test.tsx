@@ -24,6 +24,9 @@ describe('ListItemLayout', () => {
     );
 
     const root = container.firstElementChild;
+    const itemContainer = container.querySelector(
+      '.str-chat__list-item-layout__container',
+    );
     const content = container.querySelector('.str-chat__list-item-layout__content');
     const title = container.querySelector('.str-chat__list-item-layout__title');
     const subtitle = container.querySelector('.str-chat__list-item-layout__subtitle');
@@ -32,7 +35,8 @@ describe('ListItemLayout', () => {
     );
 
     expect(root).toHaveClass('str-chat__list-item-layout');
-    expect(root).toHaveClass('str-chat__list-item-layout--selected');
+    expect(itemContainer).toHaveClass('str-chat__list-item-layout__container');
+    expect(itemContainer).toHaveClass('str-chat__list-item-layout__container--selected');
     expect(content).toHaveClass('custom-content');
     expect(content).toHaveClass('str-chat__list-item-layout__content--withTitle');
     expect(content).toHaveClass('str-chat__list-item-layout__content--withSubtitle');
