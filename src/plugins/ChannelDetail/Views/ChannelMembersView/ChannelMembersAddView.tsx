@@ -43,7 +43,7 @@ export const ChannelMembersAddView = ({
   const { addNotification } = useNotificationApi();
 
   const memberUserIds = useMemo(() => getChannelMemberUserIds(channel), [channel]);
-  const excludedMemberIds = useMemo(() => new Set(memberUserIds), [memberUserIds]);
+  const memberIdSet = useMemo(() => new Set(memberUserIds), [memberUserIds]);
 
   const userSearchSource = useMemo(() => {
     const source =
@@ -58,14 +58,9 @@ export const ChannelMembersAddView = ({
     return source;
   }, [client, searchSource]);
 
-  const { isLoading, users: searchUsers } = useStateStore(
+  const { isLoading, users } = useStateStore(
     userSearchSource.state,
     searchSourceItemsStateSelector,
-  );
-
-  const users = useMemo(
-    () => searchUsers?.filter((user) => !excludedMemberIds.has(user.id)),
-    [excludedMemberIds, searchUsers],
   );
 
   const [isSaving, setIsSaving] = useState(false);
@@ -149,6 +144,7 @@ export const ChannelMembersAddView = ({
             users.map((user) => {
               const displayName = getUserDisplayName(user);
               const isMuted = mutedUserIdSet.has(user.id);
+              const isMember = memberIdSet.has(user.id);
               const avatar = (
                 <Avatar
                   imageUrl={user.image}
@@ -157,8 +153,16 @@ export const ChannelMembersAddView = ({
                   userName={displayName}
                 />
               );
+              const muteTrailingSlot = isMuted
+                ? () => (
+                    <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
+                  )
+                : undefined;
 
-              if (canManageChannelMembers) {
+              // Only non-members can be selected for adding. Existing members are
+              // listed (and flagged below) but render as a non-actionable row, like
+              // the read-only no-permission case.
+              if (canManageChannelMembers && !isMember) {
                 const selected = selectedUserIdSet.has(user.id);
 
                 return (
@@ -186,14 +190,9 @@ export const ChannelMembersAddView = ({
                     className:
                       'str-chat__channel-detail__channel-members-view__list-item',
                   }}
+                  subtitle={isMember ? t('Already a member') : undefined}
                   title={displayName}
-                  TrailingSlot={
-                    isMuted
-                      ? () => (
-                          <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
-                        )
-                      : undefined
-                  }
+                  TrailingSlot={muteTrailingSlot}
                 />
               );
             })

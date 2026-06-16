@@ -77,7 +77,7 @@ describe('ChannelMembersAddView', () => {
     });
   });
 
-  it('excludes existing channel members from search results', () => {
+  it('lists existing channel members as non-selectable and flags them', () => {
     const { searchSource } = createUserSearchSource();
 
     renderWithChannel(
@@ -92,7 +92,11 @@ describe('ChannelMembersAddView', () => {
       }),
     );
 
+    // Non-members remain selectable.
     expect(getSelectableMemberButton('Carol')).toBeInTheDocument();
+    // Existing members are shown, flagged, and not selectable.
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('Already a member')).toBeInTheDocument();
     expect(querySelectableMemberButton('Bob')).toBeNull();
   });
 
@@ -107,6 +111,9 @@ describe('ChannelMembersAddView', () => {
       />,
       channel,
     );
+
+    // Non-members are not flagged as members.
+    expect(screen.queryByText('Already a member')).not.toBeInTheDocument();
 
     fireEvent.click(getSelectableMemberButton('Bob'));
     fireEvent.click(getSelectableMemberButton('Carol'));
