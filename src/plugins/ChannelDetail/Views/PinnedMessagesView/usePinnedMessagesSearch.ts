@@ -7,11 +7,17 @@ import {
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { useChatContext } from '../../../../context';
+import { isDate } from '../../../../i18n/utils';
 import { useStateStore } from '../../../../store';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 
 const PINNED_MESSAGES_SEARCH_PAGE_SIZE = 30;
 const PINNED_MESSAGES_SEARCH_DEBOUNCE_MS = 300;
+
+const normalizeTimestamp = (timestamp?: string | Date) => {
+  if (!timestamp) return '';
+  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
+};
 
 const pinnedMessagesSearchSourceItemsStateSelector = (
   state: SearchSourceState<MessageResponse>,
@@ -25,9 +31,9 @@ export const usePinnedMessagesSearch = () => {
   const fallbackPinnedMessages = useMemo(
     // sort descending by creation date
     () =>
-      channel.state?.pinnedMessages?.sort(
-        (a, b) => b.created_at.getTime() - a.created_at.getTime(),
-      ) ?? [],
+      [...(channel.state?.pinnedMessages ?? [])].sort((a, b) =>
+        normalizeTimestamp(b.created_at).localeCompare(normalizeTimestamp(a.created_at)),
+      ),
     [channel],
   );
   // When the channel has no pinned messages, there is nothing to search for -

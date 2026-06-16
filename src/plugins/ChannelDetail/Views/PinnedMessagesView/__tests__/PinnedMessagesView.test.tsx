@@ -265,4 +265,71 @@ describe('PinnedMessagesView', () => {
     expect(mocks.searchSourceActivate).not.toHaveBeenCalled();
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
   });
+
+  const getRenderedMessageOrder = () =>
+    screen
+      .getAllByRole('button')
+      .map((button) =>
+        button.querySelector(
+          '.str-chat__channel-detail__pinned-messages-view__list-item__date',
+        ),
+      )
+      .filter((date): date is Element => date !== null)
+      .map((date) => date.getAttribute('datetime'));
+
+  it('renders fallback pinned messages sorted by created_at descending', () => {
+    // source order is ascending (oldest first); the view must show newest first
+    renderWithChannel(<PinnedMessagesView layout='tabs' />);
+
+    expect(getRenderedMessageOrder()).toEqual([
+      '2026-01-02T15:53:00.000Z',
+      '2026-01-01T15:53:00.000Z',
+    ]);
+  });
+
+  it('does not mutate the source pinnedMessages array while sorting', () => {
+    const sourcePinnedMessages = [...pinnedMessages];
+
+    renderWithChannel(
+      <PinnedMessagesView layout='tabs' />,
+      createChannel({ pinnedMessages: sourcePinnedMessages }),
+    );
+
+    expect(sourcePinnedMessages).toEqual(pinnedMessages);
+    expect(sourcePinnedMessages[0].id).toBe('message-1');
+    expect(sourcePinnedMessages[1].id).toBe('message-2');
+  });
+
+  it('sorts correctly when created_at is a string rather than a Date', () => {
+    const stringTimestampMessages = [
+      fromPartial<LocalMessage>({
+        cid: 'messaging:test-channel',
+        created_at: '2026-03-01T10:00:00.000Z' as unknown as Date,
+        id: 'string-1',
+        pinned: true,
+        text: 'Older string message',
+        type: 'regular',
+        user: { id: 'user-1', name: 'Alice' },
+      }),
+      fromPartial<LocalMessage>({
+        cid: 'messaging:test-channel',
+        created_at: '2026-03-05T10:00:00.000Z' as unknown as Date,
+        id: 'string-2',
+        pinned: true,
+        text: 'Newer string message',
+        type: 'regular',
+        user: { id: 'user-2', name: 'Bob' },
+      }),
+    ];
+
+    renderWithChannel(
+      <PinnedMessagesView layout='tabs' />,
+      createChannel({ pinnedMessages: stringTimestampMessages }),
+    );
+
+    expect(getRenderedMessageOrder()).toEqual([
+      '2026-03-05T10:00:00.000Z',
+      '2026-03-01T10:00:00.000Z',
+    ]);
+  });
 });
