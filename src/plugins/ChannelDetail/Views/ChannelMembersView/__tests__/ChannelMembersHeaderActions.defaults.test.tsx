@@ -11,10 +11,12 @@ import {
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import {
   type ChannelMembersHeaderActionItem,
+  DefaultChannelMembersHeaderActions,
+  defaultChannelMembersHeaderActionSet,
   DefaultHeaderActions,
 } from '../ChannelMembersHeaderActions.defaults';
 import type {
-  ChannelMembersViewController,
+  ChannelMembersModeController,
   ChannelMembersViewMode,
 } from '../ChannelMembersView';
 
@@ -62,9 +64,9 @@ const createChannel = (ownCapabilities: string[] = ['update-channel-members']) =
 const renderWithChannel = (ui: React.ReactElement, channel: Channel = createChannel()) =>
   render(<ChannelDetailProvider channel={channel}>{ui}</ChannelDetailProvider>);
 
-const createController = (
+const createModeController = (
   mode: ChannelMembersViewMode = 'browse',
-): ChannelMembersViewController => ({
+): ChannelMembersModeController => ({
   mode,
   setMode: vi.fn(),
 });
@@ -81,18 +83,19 @@ describe('ChannelMembersHeaderActions.defaults', () => {
     );
   });
 
-  it('renders quick variant for single action when available', () => {
+  it('renders a quick action inline without a menu trigger', () => {
     const actionSet: ChannelMembersHeaderActionItem[] = [
       {
-        quick: () => <span>Quick Add</span>,
+        component: () => <span>Quick Add</span>,
+        placement: 'quick',
         type: 'addMembers',
       },
     ];
 
     renderWithChannel(
       <DefaultHeaderActions
-        controller={createController()}
         headerActionSet={actionSet}
+        modeController={createModeController()}
       />,
     );
 
@@ -102,18 +105,19 @@ describe('ChannelMembersHeaderActions.defaults', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders menu fallback for single action without quick variant', () => {
+  it('renders a menu action behind the actions trigger', () => {
     const actionSet: ChannelMembersHeaderActionItem[] = [
       {
-        menu: () => <span>Menu Add</span>,
+        component: () => <span>Menu Add</span>,
+        placement: 'menu',
         type: 'addMembers',
       },
     ];
 
     renderWithChannel(
       <DefaultHeaderActions
-        controller={createController()}
         headerActionSet={actionSet}
+        modeController={createModeController()}
       />,
     );
 
@@ -123,35 +127,39 @@ describe('ChannelMembersHeaderActions.defaults', () => {
     expect(screen.getByText('Menu Add')).toBeInTheDocument();
   });
 
-  it('prefers menu variants when multiple actions exist', () => {
+  it('renders quick actions inline and menu actions in the menu', () => {
     const actionSet: ChannelMembersHeaderActionItem[] = [
       {
-        menu: () => <span>Menu Add</span>,
-        quick: () => <span>Quick Add</span>,
+        component: () => <span>Quick Add</span>,
+        placement: 'quick',
         type: 'addMembers',
       },
       {
-        menu: () => <span>Menu Manage</span>,
+        component: () => <span>Menu Manage</span>,
+        placement: 'menu',
         type: 'removeMembers',
       },
     ];
 
     renderWithChannel(
       <DefaultHeaderActions
-        controller={createController()}
         headerActionSet={actionSet}
+        modeController={createModeController()}
       />,
     );
 
-    expect(screen.getByText('Menu Add')).toBeInTheDocument();
+    expect(screen.getByText('Quick Add')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Open members actions' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('Menu Manage')).toBeInTheDocument();
-    expect(screen.queryByText('Quick Add')).not.toBeInTheDocument();
   });
 
   it('uses custom menu trigger component when provided', () => {
     const actionSet: ChannelMembersHeaderActionItem[] = [
       {
-        menu: () => <span>Menu Add</span>,
+        component: () => <span>Menu Add</span>,
+        placement: 'menu',
         type: 'addMembers',
       },
     ];
@@ -174,9 +182,9 @@ describe('ChannelMembersHeaderActions.defaults', () => {
 
     renderWithChannel(
       <DefaultHeaderActions
-        controller={createController()}
         headerActionSet={actionSet}
         HeaderActionsMenuTrigger={CustomTrigger}
+        modeController={createModeController()}
       />,
     );
 
@@ -185,22 +193,115 @@ describe('ChannelMembersHeaderActions.defaults', () => {
     ).toBeInTheDocument();
   });
 
-  it('filters actions out when update-channel-members capability is missing', () => {
+  it('hides the addMembers action when the member-management capability is missing', () => {
     const actionSet: ChannelMembersHeaderActionItem[] = [
       {
-        quick: () => <span>Quick Add</span>,
+        component: () => <span>Quick Add</span>,
+        placement: 'quick',
         type: 'addMembers',
       },
     ];
 
     renderWithChannel(
       <DefaultHeaderActions
-        controller={createController()}
         headerActionSet={actionSet}
+        modeController={createModeController()}
       />,
       createChannel([]),
     );
 
     expect(screen.queryByText('Quick Add')).not.toBeInTheDocument();
+  });
+
+  it('shows the addMembers action when the member-management capability is present', () => {
+    const actionSet: ChannelMembersHeaderActionItem[] = [
+      {
+        component: () => <span>Quick Add</span>,
+        placement: 'quick',
+        type: 'addMembers',
+      },
+    ];
+
+    renderWithChannel(
+      <DefaultHeaderActions
+        headerActionSet={actionSet}
+        modeController={createModeController()}
+      />,
+      createChannel(['update-channel-members']),
+    );
+
+    expect(screen.getByText('Quick Add')).toBeInTheDocument();
+  });
+
+  it('shows a non-member action regardless of the member-management capability', () => {
+    const actionSet: ChannelMembersHeaderActionItem[] = [
+      {
+        component: () => <span>Custom Action</span>,
+        placement: 'quick',
+        type: 'customAction',
+      },
+    ];
+
+    renderWithChannel(
+      <DefaultHeaderActions
+        headerActionSet={actionSet}
+        modeController={createModeController()}
+      />,
+      createChannel([]),
+    );
+
+    expect(screen.getByText('Custom Action')).toBeInTheDocument();
+  });
+
+  it('hides an app-defined action when its own filter returns false', () => {
+    const actionSet: ChannelMembersHeaderActionItem[] = [
+      {
+        component: () => <span>Custom Action</span>,
+        filter: () => false,
+        placement: 'quick',
+        type: 'customAction',
+      },
+    ];
+
+    renderWithChannel(
+      <DefaultHeaderActions
+        headerActionSet={actionSet}
+        modeController={createModeController()}
+      />,
+    );
+
+    expect(screen.queryByText('Custom Action')).not.toBeInTheDocument();
+  });
+
+  it('passes the channel to an app-defined filter', () => {
+    const filter = vi.fn(() => true);
+    const channel = createChannel(['update-channel-members']);
+
+    renderWithChannel(
+      <DefaultHeaderActions
+        headerActionSet={[
+          {
+            component: () => <span>Custom Action</span>,
+            filter,
+            placement: 'quick',
+            type: 'customAction',
+          },
+        ]}
+        modeController={createModeController()}
+      />,
+      channel,
+    );
+
+    expect(filter).toHaveBeenCalledWith({ channel });
+  });
+
+  it('ships no bulk member-removal surface', () => {
+    expect(
+      defaultChannelMembersHeaderActionSet.some(
+        (action) => action.type === 'removeMembers',
+      ),
+    ).toBe(false);
+    expect(DefaultChannelMembersHeaderActions).not.toHaveProperty('RemoveMembers');
+    expect(DefaultChannelMembersHeaderActions).not.toHaveProperty('RemoveMembersMenu');
   });
 });

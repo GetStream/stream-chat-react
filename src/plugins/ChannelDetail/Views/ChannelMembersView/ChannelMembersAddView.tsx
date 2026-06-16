@@ -15,13 +15,13 @@ import {
   getChannelMemberUserIds,
   getUserDisplayName,
 } from './ChannelMembersView.utils';
+import type { ChannelMembersModeViewProps } from './ChannelMembersView';
 import { useNotificationApi } from '../../../../components/Notifications';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 
-export type ChannelMembersAddViewProps = {
-  onMembersAdded: (memberCount: number) => void;
+export type ChannelMembersAddViewProps = ChannelMembersModeViewProps & {
   searchSource?: UserSearchSource;
 };
 
@@ -33,7 +33,7 @@ const searchSourceItemsStateSelector = (state: SearchSourceState<UserResponse>) 
 });
 
 export const ChannelMembersAddView = ({
-  onMembersAdded,
+  modeController,
   searchSource,
 }: ChannelMembersAddViewProps) => {
   const { client, mutes } = useChatContext();
@@ -115,7 +115,6 @@ export const ChannelMembersAddView = ({
     setIsSaving(true);
     try {
       await channel.addMembers(selectedUserIds);
-      onMembersAdded(selectedUserIds.length);
       addNotification({
         context: { channel },
         emitter: 'ChannelMembersView',
@@ -123,6 +122,7 @@ export const ChannelMembersAddView = ({
         severity: 'success',
         type: 'api:channel:addMembers:success',
       });
+      modeController.setMode('browse');
     } catch (error) {
       setIsSaving(false);
       addNotification({

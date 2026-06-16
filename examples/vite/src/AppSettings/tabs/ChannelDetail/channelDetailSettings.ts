@@ -7,6 +7,10 @@ import type {
   ChannelDetailSettingsState,
   ChannelMembersHeaderActionId,
 } from '../../state';
+import {
+  RemoveMembersHeaderAction,
+  RemoveMembersMenuAction,
+} from './removeMembersHeaderActions';
 
 export const channelMembersHeaderActionLabels: Record<
   ChannelMembersHeaderActionId,
@@ -15,6 +19,11 @@ export const channelMembersHeaderActionLabels: Record<
   addMembers: 'Add members',
   removeMembers: 'Remove members',
 };
+
+// Bulk removal is an app-defined action, so the app owns its permission check.
+// (The SDK gates its own `addMembers` action internally.)
+const canRemoveMembers: ChannelMembersHeaderActionItem['filter'] = ({ channel }) =>
+  channel.data?.own_capabilities?.includes('update-channel-members') ?? false;
 
 export const getChannelMembersHeaderActionSet = (
   channelDetail: ChannelDetailSettingsState,
@@ -29,30 +38,23 @@ export const getChannelMembersHeaderActionSet = (
 
     switch (type) {
       case 'addMembers':
-        actionSet.push(
-          action.form === 'quick'
-            ? {
-                quick: DefaultChannelMembersHeaderActions.AddMembers,
-                type,
-              }
-            : {
-                menu: DefaultChannelMembersHeaderActions.AddMembersMenu,
-                type,
-              },
-        );
+        actionSet.push({
+          component:
+            action.form === 'quick'
+              ? DefaultChannelMembersHeaderActions.AddMembers
+              : DefaultChannelMembersHeaderActions.AddMembersMenu,
+          placement: action.form,
+          type,
+        });
         break;
       case 'removeMembers':
-        actionSet.push(
-          action.form === 'quick'
-            ? {
-                quick: DefaultChannelMembersHeaderActions.RemoveMembers,
-                type,
-              }
-            : {
-                menu: DefaultChannelMembersHeaderActions.RemoveMembersMenu,
-                type,
-              },
-        );
+        actionSet.push({
+          component:
+            action.form === 'quick' ? RemoveMembersHeaderAction : RemoveMembersMenuAction,
+          filter: canRemoveMembers,
+          placement: action.form,
+          type,
+        });
         break;
       default:
         break;

@@ -68,4 +68,19 @@ describe('SectionNavigatorHeader', () => {
     expect(screen.getByText('Member detail')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Open menu' })).not.toBeInTheDocument();
   });
+
+  it('derives the close button label from a string title', () => {
+    render(<SectionNavigatorHeader close={vi.fn()} title='Files' />);
+
+    expect(
+      screen.getByRole('button', { name: 'Close prompt: {{ title }}' }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders a ReactNode title and falls back to a generic close label', () => {
+    render(<SectionNavigatorHeader close={vi.fn()} title={<span>Custom title</span>} />);
+
+    expect(screen.getByText('Custom title')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
+  });
 });

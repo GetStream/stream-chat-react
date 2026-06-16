@@ -6,9 +6,16 @@ import {
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
-import { ChannelMembersView } from '../ChannelMembersView';
+import {
+  type ChannelMembersModeViewProps,
+  ChannelMembersView,
+  type ChannelMembersViewModes,
+} from '../ChannelMembersView';
 import type { ChannelMembersHeaderActionItem } from '../ChannelMembersHeaderActions.defaults';
+import { useChannelMemberCount } from '../useChannelMemberCount';
 import { createChannel, renderWithChannel } from './testUtils';
+
+vi.mock('../useChannelMemberCount');
 
 vi.mock('../../../../../context');
 
@@ -30,13 +37,9 @@ vi.mock('../../ChannelMemberDetailView', () => ({
 }));
 
 vi.mock('../ChannelMembersAddView', () => ({
-  ChannelMembersAddView: ({
-    onMembersAdded,
-  }: {
-    onMembersAdded: (count: number) => void;
-  }) => (
+  ChannelMembersAddView: ({ modeController }: ChannelMembersModeViewProps) => (
     <div data-testid='channel-members-add-view'>
-      <button onClick={() => onMembersAdded(1)} type='button'>
+      <button onClick={() => modeController.setMode('browse')} type='button'>
         Mock add members
       </button>
     </div>
@@ -64,20 +67,6 @@ vi.mock('../ChannelMembersBrowseView', () => ({
         type='button'
       >
         Mock select member
-      </button>
-    </div>
-  ),
-}));
-
-vi.mock('../ChannelMembersRemoveView', () => ({
-  ChannelMembersRemoveView: ({
-    onMembersRemoved,
-  }: {
-    onMembersRemoved?: (count: number) => void;
-  }) => (
-    <div data-testid='channel-members-remove-view'>
-      <button onClick={() => onMembersRemoved?.(1)} type='button'>
-        Mock remove members
       </button>
     </div>
   ),
@@ -142,29 +131,50 @@ vi.mock('../../../../../components/Dialog', () => ({
   }),
 }));
 
+// Test double for an app-injected custom mode. Its button exercises the
+// modeController the SDK hands to every custom mode.
+const MockCustomModeView = ({ modeController }: ChannelMembersModeViewProps) => (
+  <div data-testid='channel-members-remove-view'>
+    <button onClick={() => modeController.setMode('browse')} type='button'>
+      Mock done removing
+    </button>
+  </div>
+);
+
+const MockCustomModeTitle = () => <>Manage members</>;
+
+const customModeViews: ChannelMembersViewModes = {
+  remove: {
+    Body: MockCustomModeView,
+    Title: MockCustomModeTitle,
+  },
+};
+
 describe('ChannelMembersView', () => {
   const close = vi.fn();
   const customHeaderActionSet: ChannelMembersHeaderActionItem[] = [
     {
-      menu: () => null,
+      component: () => null,
+      placement: 'menu',
       type: 'removeMembers',
     },
     {
-      quick: () => null,
+      component: () => null,
+      placement: 'quick',
       type: 'addMembers',
     },
   ];
   const CustomHeaderActions = ({
-    controller,
     headerActionSet,
+    modeController,
   }: {
-    controller: {
-      mode: 'add' | 'browse' | 'remove' | 'memberDetail';
-      setMode: (mode: 'add' | 'browse' | 'remove' | 'memberDetail') => void;
+    modeController: {
+      mode: string;
+      setMode: (mode: string) => void;
     };
     headerActionSet: ChannelMembersHeaderActionItem[];
   }) => {
-    if (controller.mode !== 'browse') return null;
+    if (modeController.mode !== 'browse') return null;
 
     const hasManageAction = headerActionSet.some(
       (action) => action.type === 'removeMembers',
@@ -176,7 +186,7 @@ describe('ChannelMembersView', () => {
         {hasManageAction && (
           <button
             aria-label='Remove channel members'
-            onClick={() => controller.setMode('remove')}
+            onClick={() => modeController.setMode('remove')}
             type='button'
           >
             Remove
@@ -185,7 +195,7 @@ describe('ChannelMembersView', () => {
         {hasAddAction && (
           <button
             aria-label='Add channel members'
-            onClick={() => controller.setMode('add')}
+            onClick={() => modeController.setMode('add')}
             type='button'
           >
             Add
@@ -209,6 +219,7 @@ describe('ChannelMembersView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
+    vi.mocked(useChannelMemberCount).mockReturnValue(2);
   });
 
   it('shows only Add button by default when update-channel-members capability is granted', () => {
@@ -244,15 +255,15 @@ describe('ChannelMembersView', () => {
 
   it('does not render header trailing actions outside browse mode', () => {
     const AlwaysRenderingHeaderActions = ({
-      controller,
+      modeController,
     }: {
-      controller: {
+      modeController: {
         setMode: (mode: 'add') => void;
       };
     }) => (
       <button
         aria-label='Always visible header action'
-        onClick={() => controller.setMode('add')}
+        onClick={() => modeController.setMode('add')}
         type='button'
       >
         Always visible
@@ -281,9 +292,6 @@ describe('ChannelMembersView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mock add members' }));
 
     expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: '{{ count }} members:3' }),
-    ).toBeInTheDocument();
   });
 
   it('renders member detail from ChannelMembersView after browse member selection', () => {
@@ -304,11 +312,12 @@ describe('ChannelMembersView', () => {
     expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
   });
 
-  it('switches to manage-members mode via custom HeaderActions', () => {
+  it('renders an injected custom mode view with its title and back button', () => {
     renderWithChannel(
       <ChannelMembersView
         HeaderActions={CustomHeaderActions}
         headerActionSet={customHeaderActionSet}
+        modeViews={customModeViews}
       />,
     );
 
@@ -325,11 +334,12 @@ describe('ChannelMembersView', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('returns to browse mode from manage mode via go back', () => {
+  it('returns to browse mode from a custom mode via go back', () => {
     renderWithChannel(
       <ChannelMembersView
         HeaderActions={CustomHeaderActions}
         headerActionSet={customHeaderActionSet}
+        modeViews={customModeViews}
       />,
     );
 
@@ -348,7 +358,22 @@ describe('ChannelMembersView', () => {
     ).toBeInTheDocument();
   });
 
-  it('stays in manage mode after members are removed', () => {
+  it('lets a custom mode navigate back to browse via the modeController', () => {
+    renderWithChannel(
+      <ChannelMembersView
+        HeaderActions={CustomHeaderActions}
+        headerActionSet={customHeaderActionSet}
+        modeViews={customModeViews}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mock done removing' }));
+
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
+  });
+
+  it('falls back to browse when an active mode has no descriptor', () => {
     renderWithChannel(
       <ChannelMembersView
         HeaderActions={CustomHeaderActions}
@@ -357,20 +382,16 @@ describe('ChannelMembersView', () => {
     );
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove channel members' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Mock remove members' }));
 
-    expect(screen.getByTestId('channel-members-remove-view')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Manage members' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Go back' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Add channel members' }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
+    expect(screen.queryByTestId('channel-members-remove-view')).not.toBeInTheDocument();
   });
 
-  it('renders menu fallback for a single menu-only header action', () => {
+  it('renders a single menu-placed header action behind the trigger', () => {
     const menuOnlyActionSet: ChannelMembersHeaderActionItem[] = [
       {
-        menu: () => <span>Menu only action</span>,
+        component: () => <span>Menu only action</span>,
+        placement: 'menu',
         type: 'addMembers',
       },
     ];
@@ -383,15 +404,16 @@ describe('ChannelMembersView', () => {
     expect(screen.getByText('Menu only action')).toBeInTheDocument();
   });
 
-  it('prefers menu rendering when multiple actions provide menu variants', () => {
+  it('renders quick-placed actions inline and menu-placed actions in the menu', () => {
     const mixedActionSet: ChannelMembersHeaderActionItem[] = [
       {
-        menu: () => <span>Menu add action</span>,
-        quick: () => <span>Quick add action</span>,
+        component: () => <span>Quick add action</span>,
+        placement: 'quick',
         type: 'addMembers',
       },
       {
-        menu: () => <span>Menu manage action</span>,
+        component: () => <span>Menu manage action</span>,
+        placement: 'menu',
         type: 'removeMembers',
       },
     ];
@@ -401,15 +423,15 @@ describe('ChannelMembersView', () => {
     expect(
       screen.getByRole('button', { name: 'Open members actions' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('Menu add action')).toBeInTheDocument();
+    expect(screen.getByText('Quick add action')).toBeInTheDocument();
     expect(screen.getByText('Menu manage action')).toBeInTheDocument();
-    expect(screen.queryByText('Quick add action')).not.toBeInTheDocument();
   });
 
   it('uses custom menu trigger component for default header actions', () => {
     const menuOnlyActionSet: ChannelMembersHeaderActionItem[] = [
       {
-        menu: () => <span>Menu only action</span>,
+        component: () => <span>Menu only action</span>,
+        placement: 'menu',
         type: 'addMembers',
       },
     ];

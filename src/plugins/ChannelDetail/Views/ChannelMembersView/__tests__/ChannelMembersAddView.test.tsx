@@ -55,7 +55,7 @@ const searchUsers: UserResponse[] = [
 ];
 
 describe('ChannelMembersAddView', () => {
-  const onMembersAdded = vi.fn();
+  const setMode = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -82,7 +82,7 @@ describe('ChannelMembersAddView', () => {
 
     renderWithChannel(
       <ChannelMembersAddView
-        onMembersAdded={onMembersAdded}
+        modeController={{ mode: 'add', setMode }}
         searchSource={searchSource}
       />,
       createChannel({
@@ -102,7 +102,7 @@ describe('ChannelMembersAddView', () => {
 
     renderWithChannel(
       <ChannelMembersAddView
-        onMembersAdded={onMembersAdded}
+        modeController={{ mode: 'add', setMode }}
         searchSource={searchSource}
       />,
       channel,
@@ -119,7 +119,7 @@ describe('ChannelMembersAddView', () => {
 
     await waitFor(() => {
       expect(channel.addMembers).toHaveBeenCalledWith(['user-2', 'user-3']);
-      expect(onMembersAdded).toHaveBeenCalledWith(2);
+      expect(setMode).toHaveBeenCalledWith('browse');
     });
   });
 
@@ -129,7 +129,7 @@ describe('ChannelMembersAddView', () => {
 
     renderWithChannel(
       <ChannelMembersAddView
-        onMembersAdded={onMembersAdded}
+        modeController={{ mode: 'add', setMode }}
         searchSource={searchSource}
       />,
       channel,
@@ -150,7 +150,7 @@ describe('ChannelMembersAddView', () => {
 
     renderWithChannel(
       <ChannelMembersAddView
-        onMembersAdded={onMembersAdded}
+        modeController={{ mode: 'add', setMode }}
         searchSource={searchSource}
       />,
     );
@@ -165,7 +165,7 @@ describe('ChannelMembersAddView', () => {
 
     renderWithChannel(
       <ChannelMembersAddView
-        onMembersAdded={onMembersAdded}
+        modeController={{ mode: 'add', setMode }}
         searchSource={searchSource}
       />,
     );

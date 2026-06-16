@@ -1,3 +1,4 @@
+import type { Channel } from 'stream-chat';
 import React, { useMemo, useState } from 'react';
 
 import { useComponentContext, useTranslationContext } from '../../../../context';
@@ -12,67 +13,71 @@ import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { canUpdateChannelMembers } from './ChannelMembersView.utils';
 import type {
   ChannelMembersHeaderActionsProps,
-  ChannelMembersViewController,
+  ChannelMembersModeController,
 } from './ChannelMembersView';
-import { IconUserAdd, IconUserRemove } from '../../../../components/Icons';
+import { IconUserAdd } from '../../../../components/Icons';
 
-export type ChannelMembersHeaderActionType =
-  | 'addMembers'
-  | 'removeMembers'
-  | (string & {});
+export type ChannelMembersHeaderActionType = 'addMembers' | (string & {});
 
 export type ChannelMembersHeaderActionComponentProps = {
   closeMenu?: () => void;
-  controller: ChannelMembersViewController;
+  modeController: ChannelMembersModeController;
 };
+
+/** Where a header action renders: inline (`quick`) or inside the actions menu. */
+export type ChannelMembersHeaderActionPlacement = 'quick' | 'menu';
 
 export type ChannelMembersHeaderActionItem = {
+  component: React.ComponentType<ChannelMembersHeaderActionComponentProps>;
+  placement: ChannelMembersHeaderActionPlacement;
   type: ChannelMembersHeaderActionType;
-  quick?: React.ComponentType<ChannelMembersHeaderActionComponentProps>;
-  menu?: React.ComponentType<ChannelMembersHeaderActionComponentProps>;
+  /**
+   * Optional visibility gate for app-defined actions. Apps that add their own
+   * actions are responsible for their permission checks here (the predicate
+   * receives the `channel` so it can read `own_capabilities`). The SDK's own
+   * actions are gated internally and do not rely on this.
+   */
+  filter?: (ctx: { channel: Channel }) => boolean;
 };
 
-const useChannelMembersHeaderActionFilterState = () => {
-  const { channel } = useChannelDetailContext();
-
-  return {
-    canManageChannelMembers: canUpdateChannelMembers(channel),
-  };
-};
-
+/**
+ * First-pass filter applied by {@link DefaultHeaderActions}. The SDK's own
+ * actions are gated internally by capability — `addMembers` requires
+ * `update-channel-members`; any other action is shown by default. App-defined
+ * actions may further narrow visibility via their own `filter` predicate (which
+ * is what an app should use to gate, e.g., a custom member-removal action).
+ */
 export const useBaseChannelMembersHeaderActionSetFilter = (
   channelMembersHeaderActionSet: ChannelMembersHeaderActionItem[],
 ) => {
-  const { canManageChannelMembers } = useChannelMembersHeaderActionFilterState();
+  const { channel } = useChannelDetailContext();
+  const canManageChannelMembers = canUpdateChannelMembers(channel);
 
   return useMemo(
     () =>
       channelMembersHeaderActionSet.filter((action) => {
-        switch (action.type) {
-          case 'addMembers':
-          case 'removeMembers':
-            return canManageChannelMembers;
-          default:
-            return true;
-        }
+        const allowedByCapability =
+          action.type !== 'addMembers' || canManageChannelMembers;
+
+        return allowedByCapability && (action.filter?.({ channel }) ?? true);
       }),
-    [canManageChannelMembers, channelMembersHeaderActionSet],
+    [canManageChannelMembers, channel, channelMembersHeaderActionSet],
   );
 };
 
 const AddMembersHeaderAction = ({
-  controller,
+  modeController,
 }: ChannelMembersHeaderActionComponentProps) => {
   const { t } = useTranslationContext();
 
-  if (controller.mode !== 'browse') return null;
+  if (modeController.mode !== 'browse') return null;
 
   return (
     <Button
       appearance='outline'
       aria-label={t('Add channel members')}
       className='str-chat__channel-detail__channel-members-view__add-button'
-      onClick={() => controller.setMode('add')}
+      onClick={() => modeController.setMode('add')}
       size='md'
       variant='secondary'
     >
@@ -83,18 +88,18 @@ const AddMembersHeaderAction = ({
 
 const AddMembersMenuAction = ({
   closeMenu,
-  controller,
+  modeController,
 }: ChannelMembersHeaderActionComponentProps) => {
   const { t } = useTranslationContext();
 
-  if (controller.mode !== 'browse') return null;
+  if (modeController.mode !== 'browse') return null;
 
   return (
     <ContextMenuButton
       aria-label={t('Add channel members')}
       Icon={IconUserAdd}
       onClick={() => {
-        controller.setMode('add');
+        modeController.setMode('add');
         closeMenu?.();
       }}
     >
@@ -103,59 +108,15 @@ const AddMembersMenuAction = ({
   );
 };
 
-const RemoveMembersHeaderAction = ({
-  controller,
-}: ChannelMembersHeaderActionComponentProps) => {
-  const { t } = useTranslationContext();
-
-  if (controller.mode !== 'browse') return null;
-
-  return (
-    <Button
-      appearance='outline'
-      aria-label={t('Remove channel members')}
-      className='str-chat__channel-detail__channel-members-view__remove-button'
-      onClick={() => controller.setMode('remove')}
-      size='md'
-      variant='secondary'
-    >
-      {t('Remove')}
-    </Button>
-  );
-};
-
-const RemoveMembersMenuAction = ({
-  closeMenu,
-  controller,
-}: ChannelMembersHeaderActionComponentProps) => {
-  const { t } = useTranslationContext();
-
-  if (controller.mode !== 'browse') return null;
-
-  return (
-    <ContextMenuButton
-      aria-label={t('Remove channel members')}
-      Icon={IconUserRemove}
-      onClick={() => {
-        controller.setMode('remove');
-        closeMenu?.();
-      }}
-    >
-      {t('Remove')}
-    </ContextMenuButton>
-  );
-};
-
 export const DefaultChannelMembersHeaderActions = {
   AddMembers: AddMembersHeaderAction,
   AddMembersMenu: AddMembersMenuAction,
-  RemoveMembers: RemoveMembersHeaderAction,
-  RemoveMembersMenu: RemoveMembersMenuAction,
 };
 
 export const defaultChannelMembersHeaderActionSet: ChannelMembersHeaderActionItem[] = [
   {
-    quick: DefaultChannelMembersHeaderActions.AddMembers,
+    component: DefaultChannelMembersHeaderActions.AddMembers,
+    placement: 'quick',
     type: 'addMembers',
   },
 ];
@@ -191,9 +152,9 @@ const getHeaderActionsDialogId = (channelId?: string) =>
   `channel-members-header-actions-${channelId ?? 'unknown'}`;
 
 export const DefaultHeaderActions = ({
-  controller,
   headerActionSet,
   HeaderActionsMenuTrigger = DefaultHeaderActionsMenuTrigger,
+  modeController,
 }: ChannelMembersHeaderActionsProps) => {
   const { ContextMenu: ContextMenuComponent = ContextMenu } = useComponentContext();
   const { channel } = useChannelDetailContext();
@@ -208,30 +169,16 @@ export const DefaultHeaderActions = ({
 
   if (!actions.length) return null;
 
-  const quickActions = actions.filter((action) => !!action.quick);
-  const menuActions = actions.filter((action) => !!action.menu);
-  const shouldRenderSingleQuickAction = actions.length === 1 && quickActions.length === 1;
-  const shouldRenderMenu =
-    (actions.length === 1 && !shouldRenderSingleQuickAction && menuActions.length > 0) ||
-    (actions.length > 1 && menuActions.length > 0);
-  const quickActionsOutsideMenu = shouldRenderSingleQuickAction
-    ? []
-    : shouldRenderMenu
-      ? quickActions.filter((action) => !action.menu)
-      : quickActions;
+  const quickActions = actions.filter((action) => action.placement === 'quick');
+  const menuActions = actions.filter((action) => action.placement === 'menu');
 
   return (
     <div className='str-chat__channel-detail__channel-members-view__header-actions'>
-      {shouldRenderSingleQuickAction &&
-        quickActions.map(({ quick: QuickComponent, type }) =>
-          QuickComponent ? <QuickComponent controller={controller} key={type} /> : null,
-        )}
+      {quickActions.map(({ component: QuickComponent, type }) => (
+        <QuickComponent key={type} modeController={modeController} />
+      ))}
 
-      {quickActionsOutsideMenu.map(({ quick: QuickComponent, type }) =>
-        QuickComponent ? <QuickComponent controller={controller} key={type} /> : null,
-      )}
-
-      {shouldRenderMenu && (
+      {menuActions.length > 0 && (
         <>
           <HeaderActionsMenuTrigger
             aria-expanded={dialogIsOpen}
@@ -251,15 +198,13 @@ export const DefaultHeaderActions = ({
             tabIndex={-1}
             trapFocus
           >
-            {menuActions.map(({ menu: MenuComponent, type }) =>
-              MenuComponent ? (
-                <MenuComponent
-                  closeMenu={() => dialog.close()}
-                  controller={controller}
-                  key={type}
-                />
-              ) : null,
-            )}
+            {menuActions.map(({ component: MenuComponent, type }) => (
+              <MenuComponent
+                closeMenu={() => dialog.close()}
+                key={type}
+                modeController={modeController}
+              />
+            ))}
           </ContextMenuComponent>
         </>
       )}

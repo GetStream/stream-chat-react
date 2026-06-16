@@ -12,7 +12,7 @@ const PromptRoot = ({ children, className, ...props }: ComponentProps<'div'>) =>
 );
 
 export type PromptHeaderProps = {
-  title: string;
+  title: React.ReactNode;
   className?: string;
   close?: () => void;
   description?: string;
@@ -84,7 +84,11 @@ const PromptHeader = ({
             <Button
               appearance='ghost'
               aria-describedby={hasDescription ? resolvedDescriptionId : undefined}
-              aria-label={t('Close prompt: {{ title }}', { title })}
+              aria-label={
+                typeof title === 'string'
+                  ? t('Close prompt: {{ title }}', { title })
+                  : t('Close')
+              }
               circular
               className='str-chat__prompt__header__close-button'
               onClick={close}
