@@ -273,6 +273,41 @@ describe(`renderText`, () => {
     expect(container).toHaveTextContent('Hello @channel and @admin');
   });
 
+  it.each([
+    [
+      'channel',
+      'Hello @channel',
+      { id: 'channel', mentionType: 'channel' as const, name: 'channel' },
+    ],
+    ['here', 'Hello @here', { id: 'here', mentionType: 'here' as const, name: 'here' }],
+    [
+      'role',
+      'Hello @admin',
+      { id: 'admin', mentionType: 'role' as const, name: 'admin' },
+    ],
+    [
+      'user_group',
+      'Hello @Backend Team',
+      {
+        id: 'backend-team',
+        mentionType: 'user_group' as const,
+        name: 'Backend Team',
+      },
+    ],
+  ])(
+    'does not render a mention tag for %s mentions without matching channel capabilities',
+    (_, text, mentionEntity) => {
+      const Markdown = renderText(text, undefined, {
+        channelCapabilities: {},
+        messageMentionEntities: [mentionEntity],
+      });
+      const { container } = render(Markdown);
+
+      expect(container.querySelector('.str-chat__message-mention')).toBeNull();
+      expect(container).toHaveTextContent(text);
+    },
+  );
+
   it('renders non-user mentions through the unified mention node contract', () => {
     const CustomMention = (props) => (
       <span
