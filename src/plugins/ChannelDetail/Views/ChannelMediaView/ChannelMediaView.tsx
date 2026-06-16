@@ -21,7 +21,7 @@ import { GlobalModal } from '../../../../components/Modal';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
-} from '../../../../components/SectionNavigator';
+} from '../../SectionNavigator';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 import { ChannelMediaEmptyList } from './ChannelMediaEmptyList';

@@ -1,4 +1,5 @@
-import { Prompt, SectionNavigatorHeader } from 'stream-chat-react';
+import { Prompt } from 'stream-chat-react';
+import { SectionNavigatorHeader } from 'stream-chat-react/channel-detail';
 import { type ComponentProps } from 'react';
 import clsx from 'clsx';
 

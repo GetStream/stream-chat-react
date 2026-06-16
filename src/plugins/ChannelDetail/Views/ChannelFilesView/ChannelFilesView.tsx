@@ -10,7 +10,7 @@ import { ListItemLayout } from '../../../../components/ListItemLayout';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
-} from '../../../../components/SectionNavigator';
+} from '../../SectionNavigator';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { ChannelFilesEmptyList } from './ChannelFilesEmptyList';
 import type { ChannelFileItem } from './ChannelFilesView.utils';

@@ -9,7 +9,7 @@ import {
   type SectionNavigatorNavButtonProps,
   type SectionNavigatorProps,
   type SectionNavigatorSection,
-} from '../../components/SectionNavigator';
+} from './SectionNavigator';
 import { ChannelDetailNavButton } from './ChannelDetailNavButton';
 import { ChannelDetailProvider } from './ChannelDetailContext';
 import { ChannelFilesView } from './Views/ChannelFilesView';

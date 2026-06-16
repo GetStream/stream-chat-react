@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 
 import { SECTION_NAVIGATOR_LAYOUT, useSectionNavigatorContext } from './SectionNavigator';
-import { useTranslationContext } from '../../context';
-import { Button } from '../Button';
-import { Prompt, type PromptHeaderProps } from '../Dialog';
-import { IconMenu } from '../Icons';
+import { useTranslationContext } from '../../../context';
+import { Button } from '../../../components/Button';
+import { Prompt, type PromptHeaderProps } from '../../../components/Dialog';
+import { IconMenu } from '../../../components/Icons';
 
 export type SectionNavigatorHeaderProps = Omit<PromptHeaderProps, 'LeadingContent'>;
 

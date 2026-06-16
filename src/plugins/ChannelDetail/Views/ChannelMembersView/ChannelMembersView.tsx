@@ -16,7 +16,7 @@ import { useChannelMemberCount } from './useChannelMemberCount';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
-} from '../../../../components/SectionNavigator';
+} from '../../SectionNavigator';
 
 export type ChannelMembersHeaderActionsProps = {
   modeController: ChannelMembersModeController;

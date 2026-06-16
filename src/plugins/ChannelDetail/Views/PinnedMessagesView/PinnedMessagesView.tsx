@@ -15,7 +15,7 @@ import { Prompt } from '../../../../components/Dialog';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
-} from '../../../../components/SectionNavigator';
+} from '../../SectionNavigator';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
 import { getUserDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';

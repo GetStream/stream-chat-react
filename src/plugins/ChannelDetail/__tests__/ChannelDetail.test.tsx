@@ -4,7 +4,7 @@ import { afterEach, beforeEach, vi } from 'vitest';
 import type { Channel } from 'stream-chat';
 
 import { ChannelDetail } from '../ChannelDetail';
-import type { SectionNavigatorSection } from '../../../components/SectionNavigator';
+import type { SectionNavigatorSection } from '../SectionNavigator';
 
 const sections: SectionNavigatorSection[] = [
   {

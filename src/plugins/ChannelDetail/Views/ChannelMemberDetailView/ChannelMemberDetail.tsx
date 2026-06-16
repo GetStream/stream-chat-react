@@ -10,7 +10,7 @@ import {
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
-} from '../../../../components/SectionNavigator';
+} from '../../SectionNavigator';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../../../components/Avatar';
 import { Prompt } from '../../../../components/Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';

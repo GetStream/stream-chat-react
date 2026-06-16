@@ -1,6 +1,6 @@
 import React, { type ComponentType, useMemo } from 'react';
 
-import type { SectionNavigatorNavButtonProps } from '../../components/SectionNavigator';
+import type { SectionNavigatorNavButtonProps } from './SectionNavigator';
 import { ListItemLayout } from '../../components/ListItemLayout';
 import clsx from 'clsx';
 

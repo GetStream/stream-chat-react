@@ -17,7 +17,7 @@ import { isDmChannel } from '../../../../utils';
 import {
   SectionNavigatorHeader,
   type SectionNavigatorSectionContentProps,
-} from '../../../../components/SectionNavigator';
+} from '../../SectionNavigator';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../../../components/Avatar';
 import {
   useChannelPreviewInfo,

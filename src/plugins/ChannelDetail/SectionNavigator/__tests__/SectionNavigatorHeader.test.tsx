@@ -9,8 +9,8 @@ const mocks = vi.hoisted(() => ({
   openNavigation: vi.fn(),
 }));
 
-vi.mock('../../../context', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../../context')>();
+vi.mock('../../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../../context')>();
 
   return {
     ...actual,

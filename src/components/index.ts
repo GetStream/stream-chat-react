@@ -38,7 +38,6 @@ export * from './Notifications';
 export * from './Poll';
 export * from './Reactions';
 export * from './SafeAnchor';
-export * from './SectionNavigator';
 export * from './TextareaComposer';
 export * from './Thread';
 export * from './Threads';

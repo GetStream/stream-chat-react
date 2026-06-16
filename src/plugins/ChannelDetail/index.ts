@@ -5,6 +5,7 @@ export * from './ChannelDetailEmptyList';
 export * from './ChannelDetailListLoadingIndicator';
 export * from './ChannelDetailNavButton';
 export * from './ChannelDetailSearchInput';
+export * from './SectionNavigator';
 export * from './Views/ChannelManagementView/ChannelManagementView';
 export * from './Views/ChannelManagementView/ChannelManagementActions.defaults';
 export * from './Views/ChannelFilesView';

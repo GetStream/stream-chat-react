@@ -1,5 +1,4 @@
 import { type ComponentType, useCallback, useMemo, useState } from 'react';
-import type { SectionNavigatorLayout } from 'stream-chat-react';
 import {
   Button,
   ChatViewSelectorButton,
@@ -8,11 +7,14 @@ import {
   IconEmoji,
   IconMessageBubble,
   IconMessageBubbles,
+} from 'stream-chat-react';
+import {
   SECTION_NAVIGATOR_LAYOUT,
   SectionNavigator,
+  type SectionNavigatorLayout,
   type SectionNavigatorNavButtonProps,
   type SectionNavigatorSection,
-} from 'stream-chat-react';
+} from 'stream-chat-react/channel-detail';
 
 import { ActionsMenu } from './ActionsMenu';
 import { ChannelDetailTab } from './tabs/ChannelDetail';
