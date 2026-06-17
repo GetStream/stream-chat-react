@@ -42,7 +42,7 @@ export const useMessageComposerController = () => {
     } else {
       return channel.messageComposer;
     }
-  }, [cachedParentMessage, channel.messageComposer, client, queueCache, threadInstance]);
+  }, [cachedParentMessage, channel, client, threadInstance]);
 
   if (
     (['legacy_thread', 'message'] as MessageComposerController['contextType'][]).includes(
