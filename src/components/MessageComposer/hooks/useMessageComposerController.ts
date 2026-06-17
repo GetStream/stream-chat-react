@@ -1,16 +1,12 @@
 import { useEffect, useMemo } from 'react';
-import {
-  FixedSizeQueueCache,
-  MessageComposer as MessageComposerController,
-} from 'stream-chat';
+import { MessageComposer as MessageComposerController } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
 import { useChannelStateContext, useChatContext } from '../../../context';
 import { useLegacyThreadContext } from '../../Thread';
 
-const queueCache = new FixedSizeQueueCache<string, MessageComposerController>(64);
-
 export const useMessageComposerController = () => {
   const { client } = useChatContext();
+  const { messageComposerCache: queueCache } = client;
   const { channel } = useChannelStateContext();
   const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
@@ -46,7 +42,7 @@ export const useMessageComposerController = () => {
     } else {
       return channel.messageComposer;
     }
-  }, [cachedParentMessage, channel, client, threadInstance]);
+  }, [cachedParentMessage, channel, client, queueCache, threadInstance]);
 
   if (
     (['legacy_thread', 'message'] as MessageComposerController['contextType'][]).includes(

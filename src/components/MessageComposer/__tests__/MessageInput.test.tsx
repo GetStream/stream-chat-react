@@ -1244,11 +1244,13 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
+    // stream-chat >= 9.45 prepends the built-in `@channel` and `@here` special
+    // mentions to the suggestion list, on top of the channel members.
+    const builtInMentionsCount = 2;
+    const memberMentionsCount = Object.keys(customChannel.state.members).length - 1; // remove own user
     await waitFor(() => {
       const usernameList = document.querySelectorAll('.str-chat__suggestion-list-item');
-      expect(usernameList).toHaveLength(
-        Object.keys(customChannel.state.members).length - 1, // remove own user
-      );
+      expect(usernameList).toHaveLength(memberMentionsCount + builtInMentionsCount);
     });
     Element.prototype.scrollIntoView = scrollIntoView;
   });
@@ -1280,9 +1282,12 @@ describe(`MessageInputFlat`, () => {
         document.querySelectorAll('.str-chat__suggestion-list-item').length,
       ).toBeGreaterThan(0);
     });
-    const firstItem = document.querySelectorAll('.str-chat__suggestion-list-item')[0];
+    // The suggestion list also contains the built-in `@channel` / `@here` special
+    // mentions (stream-chat >= 9.45), so select the user's suggestion explicitly
+    // instead of relying on it being the first item.
+    const userItem = screen.getByText(mentionName);
     await act(async () => {
-      await fireEvent.click(firstItem);
+      await fireEvent.click(userItem);
     });
 
     await act(() => submit());
