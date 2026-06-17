@@ -185,6 +185,12 @@ describe('ChannelFilesView', () => {
     expect(mocks.searchSourceActivate).toHaveBeenCalled();
   });
 
+  it('loads the first page on mount without waiting for a scroll event', () => {
+    renderView();
+
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
+  });
+
   it('renders a list item per file/audio attachment, ignoring image/video attachments', () => {
     renderView();
 

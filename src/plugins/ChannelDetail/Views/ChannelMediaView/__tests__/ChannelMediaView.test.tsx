@@ -158,6 +158,12 @@ describe('ChannelMediaView', () => {
     expect(mocks.searchSourceActivate).toHaveBeenCalled();
   });
 
+  it('loads the first page on mount without waiting for a scroll event', () => {
+    renderView();
+
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
+  });
+
   it('renders a media item per image/video attachment with avatar and video duration badge', () => {
     renderView();
 

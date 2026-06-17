@@ -50,6 +50,10 @@ export const useChannelMediaSearch = () => {
     [messages],
   );
 
+  useEffect(() => {
+    void channelMediaSearchSource.search('');
+  }, [channelMediaSearchSource]);
+
   useEffect(
     () => () => {
       channelMediaSearchSource.cancelScheduledQuery();
