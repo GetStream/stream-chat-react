@@ -10,11 +10,8 @@ import { InfiniteScrollPaginator } from '../../../../components/InfiniteScrollPa
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { Prompt } from '../../../../components/Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
-import {
-  canUpdateChannelMembers,
-  getChannelMemberUserIds,
-  getUserDisplayName,
-} from './ChannelMembersView.utils';
+import { canUpdateChannelMembers, getUserDisplayName } from './ChannelMembersView.utils';
+import { useChannelMemberIds } from './useChannelMemberIds';
 import type { ChannelMembersModeViewProps } from './ChannelMembersView';
 import { useNotificationApi } from '../../../../components/Notifications';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
@@ -42,7 +39,7 @@ export const ChannelMembersAddView = ({
   const canManageChannelMembers = canUpdateChannelMembers(channel);
   const { addNotification } = useNotificationApi();
 
-  const memberUserIds = useMemo(() => getChannelMemberUserIds(channel), [channel]);
+  const memberUserIds = useChannelMemberIds(channel);
   const memberIdSet = useMemo(() => new Set(memberUserIds), [memberUserIds]);
 
   const userSearchSource = useMemo(() => {
@@ -117,6 +114,8 @@ export const ChannelMembersAddView = ({
         severity: 'success',
         type: 'api:channel:addMembers:success',
       });
+      setSelectedUserIds([]);
+      setIsSaving(false);
       modeController.setMode('browse');
     } catch (error) {
       setIsSaving(false);

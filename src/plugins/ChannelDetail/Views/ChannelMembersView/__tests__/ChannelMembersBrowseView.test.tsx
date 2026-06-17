@@ -5,7 +5,7 @@ import type { ChannelMemberResponse } from 'stream-chat';
 import { useChatContext, useTranslationContext } from '../../../../../context';
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
-import { renderWithChannel } from './testUtils';
+import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
 
 const mocks = vi.hoisted(() => ({
   infiniteScrollPaginatorRenderCount: 0,
@@ -146,6 +146,29 @@ describe('ChannelMembersBrowseView', () => {
     });
 
     expect(mocks.infiniteScrollPaginatorRenderCount).toBe(renderCount);
+  });
+
+  it('activates the members list once the channel gains its first member', () => {
+    const channel = createChannel({ memberCount: 0, members: {} });
+
+    renderWithChannel(<ChannelMembersBrowseView />, channel);
+
+    // No members yet: the search input is suppressed and nothing is queried.
+    expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
+    expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
+
+    // A member joins; the count is tracked reactively, so the list activates
+    // without a remount.
+    channel.data!.member_count = 1;
+    channel.state.members['user-1'] = {
+      user: { id: 'user-1', name: 'Alice' },
+      user_id: 'user-1',
+    };
+    emitChannelEvent(channel, 'member.added');
+
+    expect(screen.getByRole('searchbox', { name: 'Search' })).toBeInTheDocument();
+    expect(mocks.searchSourceActivate).toHaveBeenCalled();
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
   });
 
   it('falls back to channel state members when the search source has no items', () => {

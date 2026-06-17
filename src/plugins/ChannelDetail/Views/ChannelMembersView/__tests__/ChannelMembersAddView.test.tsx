@@ -8,6 +8,7 @@ import { ChannelMembersAddView } from '../ChannelMembersAddView';
 import {
   createChannel,
   createUserSearchSource,
+  emitChannelEvent,
   getSelectableMemberButton,
   querySelectableMemberButton,
   renderWithChannel,
@@ -128,6 +129,63 @@ describe('ChannelMembersAddView', () => {
       expect(channel.addMembers).toHaveBeenCalledWith(['user-2', 'user-3']);
       expect(setMode).toHaveBeenCalledWith('browse');
     });
+  });
+
+  it('reactively flags a user as a member after a member.added event', () => {
+    const { searchSource } = createUserSearchSource();
+    const channel = createChannel({
+      members: {
+        'user-1': { user: { id: 'user-1', name: 'Alice' }, user_id: 'user-1' },
+      },
+    });
+
+    renderWithChannel(
+      <ChannelMembersAddView
+        modeController={{ mode: 'add', setMode }}
+        searchSource={searchSource}
+      />,
+      channel,
+    );
+
+    // Bob starts selectable and is not flagged as a member.
+    expect(getSelectableMemberButton('Bob')).toBeInTheDocument();
+    expect(screen.queryByText('Already a member')).not.toBeInTheDocument();
+
+    // Bob joins the channel; the view reflects it without a remount.
+    channel.state.members['user-2'] = {
+      user: { id: 'user-2', name: 'Bob' },
+      user_id: 'user-2',
+    };
+    emitChannelEvent(channel, 'member.added');
+
+    expect(screen.getByText('Already a member')).toBeInTheDocument();
+    expect(querySelectableMemberButton('Bob')).toBeNull();
+  });
+
+  it('clears the selection (and add footer) after a successful add', async () => {
+    const channel = createChannel({ ownCapabilities: ['update-channel-members'] });
+    const { searchSource } = createUserSearchSource();
+
+    renderWithChannel(
+      <ChannelMembersAddView
+        modeController={{ mode: 'add', setMode }}
+        searchSource={searchSource}
+      />,
+      channel,
+    );
+
+    fireEvent.click(getSelectableMemberButton('Bob'));
+    expect(
+      screen.getByRole('button', { name: /Add {{ count }} members/ }),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Add {{ count }} members/ }));
+
+    await waitFor(() => expect(channel.addMembers).toHaveBeenCalledWith(['user-2']));
+
+    expect(
+      screen.queryByRole('button', { name: /Add {{ count }} members/ }),
+    ).not.toBeInTheDocument();
   });
 
   it('does not show selection UI or add footer without update-channel-members', () => {
