@@ -7,17 +7,12 @@ import {
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { useChatContext } from '../../../../context';
-import { isDate } from '../../../../i18n/utils';
 import { useStateStore } from '../../../../store';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
+import { usePinnedMessagesCount } from './usePinnedMessagesCount';
 
 const PINNED_MESSAGES_SEARCH_PAGE_SIZE = 30;
 const PINNED_MESSAGES_SEARCH_DEBOUNCE_MS = 300;
-
-const normalizeTimestamp = (timestamp?: string | Date) => {
-  if (!timestamp) return '';
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
-};
 
 const pinnedMessagesSearchSourceItemsStateSelector = (
   state: SearchSourceState<MessageResponse>,
@@ -25,65 +20,89 @@ const pinnedMessagesSearchSourceItemsStateSelector = (
   messages: state.items,
 });
 
-export const usePinnedMessagesSearch = () => {
+export type UsePinnedMessagesSearchParams = {
+  /**
+   * Custom message search source for pinned messages. When provided it is used
+   * as-is — its filters and sort are respected, never overridden.
+   */
+  searchSource?: MessageSearchSource;
+};
+
+export const usePinnedMessagesSearch = ({
+  searchSource,
+}: UsePinnedMessagesSearchParams = {}) => {
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
-  const fallbackPinnedMessages = useMemo(
-    // sort descending by creation date
-    () =>
-      [...(channel.state?.pinnedMessages ?? [])].sort((a, b) =>
-        normalizeTimestamp(b.created_at).localeCompare(normalizeTimestamp(a.created_at)),
-      ),
-    [channel],
-  );
-  // When the channel has no pinned messages, there is nothing to search for -
-  // skip activating/searching the source entirely.
-  const hasPinnedMessages = fallbackPinnedMessages.length > 0;
   const pinnedMessagesSearchSource = useMemo(() => {
-    const source = new MessageSearchSource(
-      client,
-      {
-        allowEmptySearchString: true,
-        debounceMs: PINNED_MESSAGES_SEARCH_DEBOUNCE_MS,
-        pageSize: PINNED_MESSAGES_SEARCH_PAGE_SIZE,
-        resetOnNewSearchQuery: false,
-      },
-      {
-        messageSearch: {
-          initialFilterConfig: {
-            text: {
-              enabled: true,
-              generate: ({ searchQuery }) =>
-                searchQuery
-                  ? {
-                      text: { $autocomplete: searchQuery },
-                    }
-                  : null,
+    const source =
+      searchSource ??
+      new MessageSearchSource(
+        client,
+        {
+          allowEmptySearchString: true,
+          debounceMs: PINNED_MESSAGES_SEARCH_DEBOUNCE_MS,
+          pageSize: PINNED_MESSAGES_SEARCH_PAGE_SIZE,
+          resetOnNewSearchQuery: false,
+        },
+        {
+          messageSearch: {
+            initialFilterConfig: {
+              text: {
+                enabled: true,
+                generate: ({ searchQuery }) =>
+                  searchQuery
+                    ? {
+                        text: { $autocomplete: searchQuery },
+                      }
+                    : null,
+              },
             },
           },
         },
-      },
-    );
+      );
 
-    source.messageSearchChannelFilters = { cid: channel.cid };
-    source.messageSearchFilters = { pinned: true };
-    if (hasPinnedMessages) source.activate();
+    // Only configure a source we own; a provided source keeps its own filters
+    // and sort.
+    if (!searchSource) {
+      source.messageSearchChannelFilters = { cid: channel.cid };
+      source.messageSearchFilters = { pinned: true };
+    }
+    source.activate();
 
     return source;
-  }, [channel.cid, client, hasPinnedMessages]);
+  }, [channel.cid, client, searchSource]);
+
   const { messages } = useStateStore(
     pinnedMessagesSearchSource.state,
     pinnedMessagesSearchSourceItemsStateSelector,
   );
+
+  // Query-independent flag, reactive to pin/unpin. The search source is the sole
+  // source of the displayed list, but it does not know whether the channel has
+  // pinned messages until a query resolves; this gates the search input, the
+  // initial load and the empty-state choice (the channel can have pinned messages
+  // that the current query matches none of).
+  const hasPinnedMessages = usePinnedMessagesCount(channel) > 0;
+
+  // The list is loaded and paginated entirely by the search source. Load the
+  // first page once the channel is known to have pinned messages — gating on
+  // hasPinnedMessages also loads page one when the channel gains its first pin
+  // during the session.
+  useEffect(() => {
+    if (!hasPinnedMessages) return;
+    void pinnedMessagesSearchSource.search('');
+  }, [hasPinnedMessages, pinnedMessagesSearchSource]);
 
   const handleSearchChange = useCallback(
     (query: string) => {
       const trimmedQuery = query.trim();
 
       if (!trimmedQuery) {
+        // Clearing the query reloads the full pinned list from its first page.
         pinnedMessagesSearchSource.cancelScheduledQuery();
         pinnedMessagesSearchSource.resetState();
         pinnedMessagesSearchSource.activate();
+        void pinnedMessagesSearchSource.search('');
         return;
       }
 
@@ -100,9 +119,7 @@ export const usePinnedMessagesSearch = () => {
   );
 
   return {
-    displayedMessages: (messages ?? fallbackPinnedMessages) as Array<
-      MessageResponse | LocalMessage
-    >,
+    displayedMessages: (messages ?? []) as Array<MessageResponse | LocalMessage>,
     handleSearchChange,
     hasPinnedMessages,
     hasSearchResultsLoaded: Array.isArray(messages),

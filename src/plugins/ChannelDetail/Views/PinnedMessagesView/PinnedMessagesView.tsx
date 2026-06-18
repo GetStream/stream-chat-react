@@ -1,4 +1,4 @@
-import type { LocalMessage, MessageResponse } from 'stream-chat';
+import type { LocalMessage, MessageResponse, MessageSearchSource } from 'stream-chat';
 import React, { useMemo } from 'react';
 
 import {
@@ -72,9 +72,14 @@ const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
   );
 };
 
-export type PinnedMessagesViewProps = SectionNavigatorSectionContentProps;
+export type PinnedMessagesViewProps = SectionNavigatorSectionContentProps & {
+  /** Custom message search source for pinned messages. */
+  searchSource?: MessageSearchSource;
+};
 
-export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = () => {
+export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = ({
+  searchSource,
+}) => {
   const { setActiveChannel } = useChatContext();
   const { t } = useTranslationContext();
   const { close } = useModalContext();
@@ -87,7 +92,7 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     hasPinnedMessages,
     hasSearchResultsLoaded,
     pinnedMessagesSearchSource,
-  } = usePinnedMessagesSearch();
+  } = usePinnedMessagesSearch({ searchSource });
 
   return (
     <div className='str-chat__channel-detail__pinned-messages-view'>
@@ -137,11 +142,11 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
                 />
               );
             })
+          ) : !hasPinnedMessages ? (
+            <PinnedMessagesEmptyList />
           ) : hasSearchResultsLoaded ? (
             <ChannelDetailEmptyList>{t('No messages found')}</ChannelDetailEmptyList>
-          ) : (
-            <PinnedMessagesEmptyList />
-          )}
+          ) : null}
           <ChannelDetailListLoadingIndicator searchSource={pinnedMessagesSearchSource} />
         </InfiniteScrollPaginator>
       </Prompt.Body>

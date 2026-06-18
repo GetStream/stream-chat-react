@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import type { Channel, LocalMessage } from 'stream-chat';
+import type { Channel, LocalMessage, MessageSearchSource } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
@@ -120,20 +120,56 @@ const pinnedMessages: LocalMessage[] = [
   }),
 ];
 
+type ChannelEventHandler = (event?: unknown) => void;
+
+const channelEventHandlers = new WeakMap<
+  Channel,
+  Record<string, ChannelEventHandler[]>
+>();
+
+const emitChannelEvent = (channel: Channel, event: string) =>
+  act(() => {
+    channelEventHandlers.get(channel)?.[event]?.forEach((handler) => handler());
+  });
+
 const createChannel = (
   overrides: {
     pinnedMessages?: Channel['state']['pinnedMessages'];
   } = {},
-) =>
-  fromPartial<Channel>({
+) => {
+  const handlers: Record<string, ChannelEventHandler[]> = {};
+
+  const channel = fromPartial<Channel>({
     cid: 'messaging:test-channel',
+    on: vi.fn((event: string, handler: ChannelEventHandler) => {
+      (handlers[event] = handlers[event] ?? []).push(handler);
+      return { unsubscribe: vi.fn() };
+    }),
     state: {
       pinnedMessages: overrides.pinnedMessages ?? pinnedMessages,
     },
   });
 
+  channelEventHandlers.set(channel, handlers);
+
+  return channel;
+};
+
 const renderWithChannel = (ui: React.ReactElement, channel: Channel = createChannel()) =>
   render(<ChannelDetailProvider channel={channel}>{ui}</ChannelDetailProvider>);
+
+// Sets the search source's reactive state, consumed by the hook (messages) and
+// the loading indicator (hasNextPage/isLoading). `messages: undefined` models
+// "first page not loaded yet".
+const mockSearchSourceState = (
+  state: { hasNextPage?: boolean; isLoading?: boolean; messages?: unknown } = {},
+) =>
+  vi.mocked(useStateStore).mockReturnValue({
+    hasNextPage: false,
+    isLoading: false,
+    messages: undefined,
+    ...state,
+  });
 
 describe('PinnedMessagesView', () => {
   beforeEach(() => {
@@ -165,29 +201,13 @@ describe('PinnedMessagesView', () => {
       jumpToMessage: vi.fn(),
     } as unknown as ReturnType<typeof useChannelActionContext>);
 
-    vi.mocked(useStateStore).mockReturnValue({
-      hasNextPage: false,
-      isLoading: false,
-      messages: undefined,
-    });
-  });
-
-  it('renders pinned messages from channel state before a search is loaded', () => {
-    renderWithChannel(<PinnedMessagesView layout='tabs' />);
-
-    expect(screen.getByRole('heading', { name: 'Pinned messages' })).toBeInTheDocument();
-    expect(screen.getByText('Alice')).toBeInTheDocument();
-    expect(
-      screen.getByText('Release timeline: Code freeze March 18'),
-    ).toBeInTheDocument();
-    expect(screen.getByText('Bob')).toBeInTheDocument();
-    expect(screen.getByText('Roadmap.pdf')).toBeInTheDocument();
-    expect(screen.getByText('2026-01-01T15:53:00.000Z')).toBeInTheDocument();
+    mockSearchSourceState();
   });
 
   it('configures MessageSearchSource for pinned messages in the current channel', () => {
     renderWithChannel(<PinnedMessagesView layout='tabs' />);
 
+    expect(screen.getByRole('heading', { name: 'Pinned messages' })).toBeInTheDocument();
     expect(mocks.searchSourceOptions[0]).toMatchObject({
       debounceMs: 300,
       pageSize: 30,
@@ -206,6 +226,25 @@ describe('PinnedMessagesView', () => {
     });
   });
 
+  it('loads the first page on mount when the channel has pinned messages', () => {
+    renderWithChannel(<PinnedMessagesView layout='tabs' />);
+
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
+  });
+
+  it('renders the messages provided by the search source', () => {
+    mockSearchSourceState({ messages: pinnedMessages });
+
+    renderWithChannel(<PinnedMessagesView layout='tabs' />);
+
+    expect(screen.getByText('Alice')).toBeInTheDocument();
+    expect(
+      screen.getByText('Release timeline: Code freeze March 18'),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.getByText('Roadmap.pdf')).toBeInTheDocument();
+  });
+
   it('searches pinned messages with the trimmed query', () => {
     renderWithChannel(<PinnedMessagesView layout='tabs' />);
 
@@ -216,7 +255,7 @@ describe('PinnedMessagesView', () => {
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith('release');
   });
 
-  it('resets to channel pinned messages without issuing an empty message search', () => {
+  it('reloads the full pinned list when the query is cleared', () => {
     renderWithChannel(<PinnedMessagesView layout='tabs' />);
 
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search' }), {
@@ -231,10 +270,10 @@ describe('PinnedMessagesView', () => {
     expect(mocks.searchSourceCancelScheduledQuery).toHaveBeenCalled();
     expect(mocks.searchSourceResetState).toHaveBeenCalled();
     expect(mocks.searchSourceActivate).toHaveBeenCalled();
-    expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
   });
 
-  it('does not re-render pinned message results while typing before source state changes', () => {
+  it('does not re-render results while typing before source state changes', () => {
     renderWithChannel(<PinnedMessagesView layout='tabs' />);
 
     const renderCount = mocks.infiniteScrollPaginatorRenderCount;
@@ -245,7 +284,7 @@ describe('PinnedMessagesView', () => {
     expect(mocks.infiniteScrollPaginatorRenderCount).toBe(renderCount);
   });
 
-  it('renders an empty state when there are no pinned messages', () => {
+  it('renders the empty state when there are no pinned messages', () => {
     renderWithChannel(
       <PinnedMessagesView layout='tabs' />,
       createChannel({ pinnedMessages: [] }),
@@ -255,81 +294,67 @@ describe('PinnedMessagesView', () => {
     expect(screen.getByText('Pin a message to see it here')).toBeInTheDocument();
   });
 
-  it('does not activate or search when there are no pinned messages', () => {
+  it('does not render the search input or issue a query when there are no pinned messages', () => {
     renderWithChannel(
       <PinnedMessagesView layout='tabs' />,
       createChannel({ pinnedMessages: [] }),
     );
 
     expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
-    expect(mocks.searchSourceActivate).not.toHaveBeenCalled();
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
   });
 
-  const getRenderedMessageOrder = () =>
-    screen
-      .getAllByRole('button')
-      .map((button) =>
-        button.querySelector(
-          '.str-chat__channel-detail__pinned-messages-view__list-item__date',
-        ),
-      )
-      .filter((date): date is Element => date !== null)
-      .map((date) => date.getAttribute('datetime'));
+  it('shows "No messages found" when a search returns no results', () => {
+    mockSearchSourceState({ messages: [] });
 
-  it('renders fallback pinned messages sorted by created_at descending', () => {
-    // source order is ascending (oldest first); the view must show newest first
     renderWithChannel(<PinnedMessagesView layout='tabs' />);
 
-    expect(getRenderedMessageOrder()).toEqual([
-      '2026-01-02T15:53:00.000Z',
-      '2026-01-01T15:53:00.000Z',
-    ]);
+    expect(screen.getByText('No messages found')).toBeInTheDocument();
+    expect(screen.queryByText('No pinned messages')).not.toBeInTheDocument();
   });
 
-  it('does not mutate the source pinnedMessages array while sorting', () => {
-    const sourcePinnedMessages = [...pinnedMessages];
+  it('does not show the no-pins empty state while the first page is loading', () => {
+    // Channel has pins, but the search source has not resolved a page yet.
+    mockSearchSourceState({ messages: undefined });
 
-    renderWithChannel(
-      <PinnedMessagesView layout='tabs' />,
-      createChannel({ pinnedMessages: sourcePinnedMessages }),
-    );
+    renderWithChannel(<PinnedMessagesView layout='tabs' />);
 
-    expect(sourcePinnedMessages).toEqual(pinnedMessages);
-    expect(sourcePinnedMessages[0].id).toBe('message-1');
-    expect(sourcePinnedMessages[1].id).toBe('message-2');
+    expect(screen.getByRole('searchbox', { name: 'Search' })).toBeInTheDocument();
+    expect(screen.queryByText('No pinned messages')).not.toBeInTheDocument();
+    expect(screen.queryByText('No messages found')).not.toBeInTheDocument();
   });
 
-  it('sorts correctly when created_at is a string rather than a Date', () => {
-    const stringTimestampMessages = [
-      fromPartial<LocalMessage>({
-        cid: 'messaging:test-channel',
-        created_at: '2026-03-01T10:00:00.000Z' as unknown as Date,
-        id: 'string-1',
-        pinned: true,
-        text: 'Older string message',
-        type: 'regular',
-        user: { id: 'user-1', name: 'Alice' },
-      }),
-      fromPartial<LocalMessage>({
-        cid: 'messaging:test-channel',
-        created_at: '2026-03-05T10:00:00.000Z' as unknown as Date,
-        id: 'string-2',
-        pinned: true,
-        text: 'Newer string message',
-        type: 'regular',
-        user: { id: 'user-2', name: 'Bob' },
-      }),
-    ];
+  it('shows the search input and loads once a message is pinned during the session', () => {
+    const channel = createChannel({ pinnedMessages: [] });
+
+    renderWithChannel(<PinnedMessagesView layout='tabs' />, channel);
+
+    // No pinned messages yet: the search input is suppressed and nothing loads.
+    expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
+    expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
+
+    // A message is pinned; the view reacts without a remount.
+    channel.state.pinnedMessages = pinnedMessages;
+    emitChannelEvent(channel, 'message.updated');
+
+    expect(screen.getByRole('searchbox', { name: 'Search' })).toBeInTheDocument();
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
+  });
+
+  it('uses a provided custom search source instead of creating one', () => {
+    const customSearchSource = fromPartial<MessageSearchSource>({
+      activate: vi.fn(),
+      cancelScheduledQuery: vi.fn(),
+      search: vi.fn(),
+      state: {},
+    });
 
     renderWithChannel(
-      <PinnedMessagesView layout='tabs' />,
-      createChannel({ pinnedMessages: stringTimestampMessages }),
+      <PinnedMessagesView layout='tabs' searchSource={customSearchSource} />,
     );
 
-    expect(getRenderedMessageOrder()).toEqual([
-      '2026-03-05T10:00:00.000Z',
-      '2026-03-01T10:00:00.000Z',
-    ]);
+    // No own source is constructed, and the provided one drives the first load.
+    expect(mocks.searchSourceInstances).toHaveLength(0);
+    expect(customSearchSource.search).toHaveBeenCalledWith('');
   });
 });
