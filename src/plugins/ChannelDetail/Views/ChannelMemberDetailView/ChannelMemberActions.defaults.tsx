@@ -303,7 +303,10 @@ const UserMuteAction = () => {
             }),
           )
           .catch((error) => {
-            setOptimisticUserMuted(true);
+            // Reconcile to the truth source rather than a hard-coded value: with
+            // the debounced request, optimistic state may have flipped multiple
+            // times, so a fixed boolean can land on the wrong state.
+            setOptimisticUserMuted(userMuted);
             return addNotification({
               context: { channel },
               emitter: 'ChannelMemberDetail',
@@ -327,7 +330,7 @@ const UserMuteAction = () => {
           }),
         )
         .catch((error) => {
-          setOptimisticUserMuted(false);
+          setOptimisticUserMuted(userMuted);
           return addNotification({
             context: { channel },
             emitter: 'ChannelMemberDetail',

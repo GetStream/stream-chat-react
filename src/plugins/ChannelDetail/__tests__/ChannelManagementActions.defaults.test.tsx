@@ -274,6 +274,46 @@ describe('DefaultChannelManagementActions', () => {
     );
   });
 
+  it('reconciles channel mute to the truth source after a coalesced failed toggle', async () => {
+    mocks.unmute.mockRejectedValueOnce(new Error('unmute failed'));
+
+    renderAction(<DefaultChannelManagementActions.MuteChannel />);
+
+    // Rapid mute then unmute: the 1000ms debounce coalesces to a single unmute
+    // request (the last call wins).
+    fireEvent.click(screen.getByRole('button', { name: 'Mute chat' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Unmute chat' }));
+
+    await advanceDebounce();
+
+    expect(mocks.unmute).toHaveBeenCalledTimes(1);
+    expect(mocks.mute).not.toHaveBeenCalled();
+    // The channel was never muted; reconciling to channelMuted (not a hard-coded
+    // `true`) keeps the optimistic state correct after the failure.
+    expect(screen.getByRole('button', { name: 'Mute chat' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
+  it('reconciles user mute to the truth source after a coalesced failed toggle', async () => {
+    mocks.unmuteUser.mockRejectedValueOnce(new Error('unmute failed'));
+
+    renderAction(<DefaultChannelManagementActions.MuteUser />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mute user' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Unmute user' }));
+
+    await advanceDebounce();
+
+    expect(mocks.unmuteUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.muteUser).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Mute user' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
+  });
+
   it('keeps the pending user mute request after the optimistic rerender', async () => {
     mocks.muteUser.mockResolvedValueOnce(undefined);
     mocks.useStableTranslationFunction = false;
