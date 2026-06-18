@@ -8,7 +8,8 @@
     overflow-y: auto;
     scrollbar-width: none;
 
-    &.str-chat__context-menu .str-chat__list-item-layout:has(.str-chat__suggestion-list__mention) {
+    &.str-chat__context-menu
+      .str-chat__list-item-layout:has(.str-chat__suggestion-list__mention) {
       padding: var(--str-chat__spacing-none);
     }
 

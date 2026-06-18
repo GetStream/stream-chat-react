@@ -48,12 +48,6 @@ const quotedMessageTextTestId = 'quoted-message-text';
 const quotedText = 'X';
 const alice = generateUser({ name: 'alice' });
 const jumpToMessageMock = vi.fn();
-const allMentionCapabilities = {
-  'notify-channel': true,
-  'notify-group': true,
-  'notify-here': true,
-  'notify-role': true,
-};
 
 async function renderQuotedMessage({
   channelCapabilitiesOverrides = {},
@@ -156,7 +150,6 @@ describe('QuotedMessage', () => {
   it('renders built-in, role, and user-group mentions inside quoted message text', async () => {
     const messageText = 'hey @channel @here @admin @Backend Team';
     const { container, findByText } = await renderQuotedMessage({
-      channelCapabilitiesOverrides: allMentionCapabilities,
       customProps: {
         message: {
           quoted_message: {

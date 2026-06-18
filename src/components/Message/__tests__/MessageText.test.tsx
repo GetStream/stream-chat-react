@@ -65,13 +65,6 @@ const defaultProps = {
   message: generateMessage(),
   threadList: false,
 };
-const allMentionCapabilities = {
-  'notify-channel': true,
-  'notify-group': true,
-  'notify-here': true,
-  'notify-role': true,
-};
-
 const translate = (key: string, options?: Record<string, string>) =>
   key.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token: string) => options?.[token] ?? '');
 
@@ -430,7 +423,6 @@ describe('<MessageText />', () => {
       text,
     });
     const { container, getByTestId, getByText } = await renderMessageText({
-      channelCapabilitiesOverrides: allMentionCapabilities,
       customProps: { message },
     });
 

@@ -329,7 +329,7 @@ export const QuotedMessagePreviewUI = ({
 }: QuotedMessagePreviewUIProps) => {
   const { client } = useChatContext();
   const { t, userLanguage } = useTranslationContext();
-  const { channelCapabilities = {}, giphyVersion: giphyVersionName = 'fixed_height' } =
+  const { giphyVersion: giphyVersionName = 'fixed_height' } =
     useChannelStateContext('QuotedMessagePreview');
 
   const quotedMessageText = useMemo(
@@ -407,7 +407,6 @@ export const QuotedMessagePreviewUI = ({
       }
     } else if (renderText) {
       renderedText = renderText(quotedMessageText, quotedMessage?.mentioned_users, {
-        channelCapabilities,
         messageMentionEntities: quotedMessageMentionEntities,
       });
     } else {
@@ -421,7 +420,6 @@ export const QuotedMessagePreviewUI = ({
     };
   }, [
     giphyVersionName,
-    channelCapabilities,
     quotedMessage,
     quotedMessageMentionEntities,
     quotedMessageText,

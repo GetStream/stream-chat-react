@@ -66,7 +66,6 @@ describe(`renderText`, () => {
 
   it('handles the special case where role name matches an e-mail pattern', () => {
     const Markdown = renderText('Hello @support@example.com', undefined, {
-      channelCapabilities: { 'notify-role': true },
       messageMentionEntities: [
         {
           id: 'support@example.com',
@@ -94,7 +93,6 @@ describe(`renderText`, () => {
 
   it('handles the special case where user-group name matches an e-mail pattern', () => {
     const Markdown = renderText('Hello @backend@stream.io', undefined, {
-      channelCapabilities: { 'notify-group': true },
       messageMentionEntities: [
         {
           id: 'backend-team',
@@ -122,7 +120,6 @@ describe(`renderText`, () => {
 
   it('wraps user-group mentions by id even when the entity also has a name', () => {
     const Markdown = renderText('Hello @backend-team', undefined, {
-      channelCapabilities: { 'notify-group': true },
       messageMentionEntities: [
         {
           id: 'backend-team',
@@ -150,7 +147,6 @@ describe(`renderText`, () => {
 
   it('wraps multi-word mention names without consuming following text', () => {
     const Markdown = renderText('Hello @React support hey', undefined, {
-      channelCapabilities: { 'notify-group': true },
       messageMentionEntities: [
         {
           id: 'react-support',
@@ -179,7 +175,6 @@ describe(`renderText`, () => {
 
   it('does not match a multi-word mention name as a prefix of a longer token', () => {
     const Markdown = renderText('Hello @React supportive hey', undefined, {
-      channelCapabilities: { 'notify-group': true },
       messageMentionEntities: [
         {
           id: 'react-support',
@@ -246,34 +241,12 @@ describe(`renderText`, () => {
     `);
   });
 
-  it('does not highlight broadcast mentions without matching channel capabilities', () => {
-    const CustomMention = (props) => (
-      <span data-node-mentioned-entity-type={props.node.mentionedEntity.mentionType}>
-        {props.children}
-      </span>
-    );
-    const Markdown = renderText('Hello @channel and @admin', undefined, {
-      channelCapabilities: { 'notify-role': true },
-      customMarkDownRenderers: {
-        mention: CustomMention,
-      },
-      messageMentionEntities: [
-        { id: 'channel', mentionType: 'channel', name: 'channel' },
-        { id: 'admin', mentionType: 'role', name: 'admin' },
-      ],
-    });
-    const { container } = render(Markdown);
-
-    expect(
-      container.querySelector('[data-node-mentioned-entity-type="channel"]'),
-    ).toBeNull();
-    expect(
-      container.querySelector('[data-node-mentioned-entity-type="role"]'),
-    ).not.toBeNull();
-    expect(container).toHaveTextContent('Hello @channel and @admin');
-  });
-
   it.each([
+    [
+      'user',
+      'Hello @alice',
+      { id: 'alice', mentionType: 'user' as const, name: 'alice' },
+    ],
     [
       'channel',
       'Hello @channel',
@@ -295,15 +268,14 @@ describe(`renderText`, () => {
       },
     ],
   ])(
-    'does not render a mention tag for %s mentions without matching channel capabilities',
+    'renders a mention tag for %s mentions regardless of channel capabilities',
     (_, text, mentionEntity) => {
       const Markdown = renderText(text, undefined, {
-        channelCapabilities: {},
         messageMentionEntities: [mentionEntity],
       });
       const { container } = render(Markdown);
 
-      expect(container.querySelector('.str-chat__message-mention')).toBeNull();
+      expect(container.querySelector('.str-chat__message-mention')).not.toBeNull();
       expect(container).toHaveTextContent(text);
     },
   );
@@ -319,10 +291,6 @@ describe(`renderText`, () => {
       </span>
     );
     const Markdown = renderText('Hello @channel and @admin', undefined, {
-      channelCapabilities: {
-        'notify-channel': true,
-        'notify-role': true,
-      },
       customMarkDownRenderers: {
         mention: CustomMention,
       },

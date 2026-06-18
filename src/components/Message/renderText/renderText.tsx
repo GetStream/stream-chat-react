@@ -23,7 +23,6 @@ import {
 import { ErrorBoundary } from '../../UtilityComponents';
 import type { MentionProps } from './componentRenderers/Mention';
 import type { RenderTextMentionEntity } from './rehypePlugins';
-import { filterRenderTextMentionEntitiesByChannelCapabilities } from '../../../utils/mentionCapabilities';
 
 export type RenderTextPluginConfigurator = (
   defaultPlugins: PluggableList,
@@ -114,8 +113,6 @@ export type RenderTextOptions = {
    * markdown output.
    */
   messageMentionEntities?: RenderTextMentionEntity[];
-  /** Channel capabilities used to gate mention highlighting. */
-  channelCapabilities?: Record<string, boolean>;
 };
 
 export type RenderTextFunction = (
@@ -137,7 +134,6 @@ export function renderText(
   mentionedUsers?: UserResponse[],
   {
     allowedTagNames = defaultAllowedTagNames,
-    channelCapabilities,
     customMarkDownRenderers,
     getRehypePlugins = getPluginsForward,
     getRemarkPlugins = getPluginsForward,
@@ -150,11 +146,9 @@ export function renderText(
   if (text.trim().length === 1) return <>{text}</>;
 
   let newText = text;
-  const renderTextMentionEntities = filterRenderTextMentionEntitiesByChannelCapabilities(
+  const renderTextMentionEntities =
     messageMentionEntities ??
-      getRenderTextMentionEntities({ mentioned_users: mentionedUsers }),
-    channelCapabilities ?? {},
-  );
+    getRenderTextMentionEntities({ mentioned_users: mentionedUsers });
   const { mentionDisplayTextSet, plugin: mentionsPlugin } =
     createMentionPluginAndDisplayTextSet(renderTextMentionEntities);
   const markdownLinks = matchMarkdownLinks(newText);
