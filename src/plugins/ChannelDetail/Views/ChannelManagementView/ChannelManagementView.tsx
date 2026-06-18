@@ -171,8 +171,10 @@ const useChannelManagementEditForm = ({
   const isOnline = resolvedIsDmChannel ? hasMembersOnline : undefined;
   const nameLabel = resolvedIsDmChannel ? t('Contact name') : t('Group name');
 
-  const initialName = channel.data?.name ?? '';
-  const [name, setName] = useState(initialName);
+  // Dirty-tracking baseline; advanced to the saved value on success so the form
+  // is no longer considered dirty (and the Save button hides) after a write.
+  const [baselineName, setBaselineName] = useState(channel.data?.name ?? '');
+  const [name, setName] = useState(baselineName);
   // null = keep current avatar, File = replace it, 'removed' = clear it
   const [imageEdit, setImageEdit] = useState<File | 'removed' | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -198,7 +200,7 @@ const useChannelManagementEditForm = ({
     objectUrl ?? (imageEdit === 'removed' ? undefined : displayImage);
 
   const trimmedName = name.trim();
-  const nameChanged = trimmedName !== initialName.trim();
+  const nameChanged = trimmedName !== baselineName.trim();
   const imageChanged = imageEdit !== null;
   const hasChanges = (trimmedName.length > 0 && nameChanged) || imageChanged;
   const canSubmit = trimmedName.length > 0 && !isSaving && hasChanges;
@@ -243,7 +245,10 @@ const useChannelManagementEditForm = ({
         });
         if (payload) await channel.updatePartial(payload);
 
+        // Clear the dirty state so an identical re-save isn't offered.
         setImageEdit(null);
+        setBaselineName(trimmedName);
+        setName(trimmedName);
 
         addNotification({
           duration: 3000,

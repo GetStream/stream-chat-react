@@ -447,5 +447,23 @@ describe('ChannelManagementView', () => {
       setName('Renamed channel');
       expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
     });
+
+    it('hides the save button after a successful save (resets the dirty baseline)', async () => {
+      renderChannelManagementView();
+
+      enterEditMode();
+      setName('Renamed channel');
+      save();
+
+      await waitFor(() =>
+        expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
+          set: { name: 'Renamed channel' },
+        }),
+      );
+
+      // The renamed value is now the baseline, so there are no unsaved changes
+      // left and an identical re-save is not offered.
+      expect(screen.queryByRole('button', { name: 'Save' })).not.toBeInTheDocument();
+    });
   });
 });
