@@ -58,6 +58,15 @@ const createAction = (type: string, label: string) => ({
   type,
 });
 
+const otherMember = fromPartial<ChannelMemberResponse>({
+  user: {
+    id: 'user-2',
+    last_active: '2026-01-01T00:00:00.000000000Z',
+    name: 'Bob',
+  },
+  user_id: 'user-2',
+});
+
 describe('ChannelMemberDetail', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -81,22 +90,17 @@ describe('ChannelMemberDetail', () => {
     );
   });
 
-  it('uses fallback member from channel state when member prop is not provided', () => {
+  it("renders the provided member's details", () => {
     renderWithChannel(
-      <ChannelMemberDetail channelMemberActionSet={[]} layout='inline' />,
+      <ChannelMemberDetail
+        channelMemberActionSet={[]}
+        layout='inline'
+        member={otherMember}
+      />,
     );
 
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.getByText('Member detail')).toBeInTheDocument();
-  });
-
-  it('renders empty state when no member is available', () => {
-    renderWithChannel(
-      <ChannelMemberDetail layout='inline' />,
-      createChannel({ members: {} }),
-    );
-
-    expect(screen.getByText('Member not found')).toBeInTheDocument();
   });
 
   it('filters actions by capabilities for another member', () => {
@@ -108,7 +112,11 @@ describe('ChannelMemberDetail', () => {
     ];
 
     renderWithChannel(
-      <ChannelMemberDetail channelMemberActionSet={actionSet} layout='inline' />,
+      <ChannelMemberDetail
+        channelMemberActionSet={actionSet}
+        layout='inline'
+        member={otherMember}
+      />,
       createChannel({ ownCapabilities: ['ban-channel-members'] }),
     );
 
@@ -127,7 +135,11 @@ describe('ChannelMemberDetail', () => {
     ];
 
     renderWithChannel(
-      <ChannelMemberDetail channelMemberActionSet={actionSet} layout='inline' />,
+      <ChannelMemberDetail
+        channelMemberActionSet={actionSet}
+        layout='inline'
+        member={otherMember}
+      />,
       createChannel({ ownCapabilities: [] }),
     );
 

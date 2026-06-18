@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
 import {
-  useChatContext,
   useComponentContext,
   useModalContext,
   useTranslationContext,
@@ -13,7 +12,6 @@ import {
 } from '../../SectionNavigator';
 import { ChannelAvatar as DefaultChannelAvatar } from '../../../../components/Avatar';
 import { Prompt } from '../../../../components/Dialog';
-import { useChannelDetailContext } from '../../ChannelDetailContext';
 import {
   type ChannelMemberActionItem,
   ChannelMemberActionProvider,
@@ -24,8 +22,10 @@ import {
 import { getMemberDisplayName } from '../ChannelMembersView/ChannelMembersView.utils';
 
 export type ChannelMemberDetailProps = SectionNavigatorSectionContentProps & {
+  /** The member whose details are shown. Required — the view is always opened
+   * for a specific, selected member. */
+  member: ChannelMemberResponse;
   channelMemberActionSet?: ChannelMemberActionItem[];
-  member?: ChannelMemberResponse;
   onBack?: () => void;
 };
 
@@ -51,47 +51,19 @@ export const ChannelMemberDetail = ({
   member,
   onBack,
 }: ChannelMemberDetailProps) => {
-  const { client } = useChatContext();
-  const { channel } = useChannelDetailContext();
-  const { close } = useModalContext();
   const { t } = useTranslationContext();
 
-  const fallbackMember = Object.values(channel.state.members ?? {}).find(
-    (stateMember) => stateMember.user?.id !== client.user?.id,
-  );
-  const resolvedMember = member ?? fallbackMember;
-
-  const memberDisplayName = resolvedMember ? getMemberDisplayName(resolvedMember) : '';
-  const memberStatusText = getPresenceStatusText(resolvedMember?.user, t);
+  const memberDisplayName = getMemberDisplayName(member);
+  const memberStatusText = getPresenceStatusText(member.user, t);
 
   const actionContextValue = useMemo(
-    () =>
-      resolvedMember
-        ? {
-            member: resolvedMember,
-            memberDisplayName,
-            targetUserId: resolvedMember.user?.id || resolvedMember.user_id,
-          }
-        : undefined,
-    [memberDisplayName, resolvedMember],
+    () => ({
+      member,
+      memberDisplayName,
+      targetUserId: member.user?.id || member.user_id,
+    }),
+    [member, memberDisplayName],
   );
-
-  if (!actionContextValue) {
-    return (
-      <div className='str-chat__channel-detail__channel-member-detail-view'>
-        <SectionNavigatorHeader
-          close={close}
-          goBack={onBack}
-          title={t('Member detail')}
-        />
-        <Prompt.Body className='str-chat__channel-detail__channel-member-detail-view__body'>
-          <div className='str-chat__channel-detail__channel-member-detail-view__empty-state'>
-            {t('Member not found')}
-          </div>
-        </Prompt.Body>
-      </div>
-    );
-  }
 
   return (
     <ChannelMemberActionProvider value={actionContextValue}>
