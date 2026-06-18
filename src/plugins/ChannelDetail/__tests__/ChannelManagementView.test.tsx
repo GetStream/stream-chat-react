@@ -172,6 +172,7 @@ describe('ChannelManagementView', () => {
     mocks.channel.updatePartial.mockResolvedValue({});
     mocks.channel.data.name = 'Test channel';
     mocks.channel.data.member_count = 2;
+    mocks.channel.data.own_capabilities = ['update-channel'];
     mocks.displayImage = undefined;
     mocks.mutes = [];
   });
@@ -209,6 +210,66 @@ describe('ChannelManagementView', () => {
 
     expect(screen.getByTestId('custom-edit-mode')).toBeInTheDocument();
     expect(EditModeComponent).toHaveBeenCalledWith({ uploadImage: undefined }, undefined);
+  });
+
+  it('resets to view mode when the channel changes', () => {
+    const ViewModeComponent = () => <div data-testid='custom-view-mode' />;
+    const EditModeComponent = () => <div data-testid='custom-edit-mode' />;
+    const channelA = { ...mocks.channel, cid: 'messaging:a' };
+    const channelB = { ...mocks.channel, cid: 'messaging:b' };
+
+    const renderForChannel = (channel: typeof channelA) => (
+      <ChannelDetailProvider channel={channel as unknown as Channel}>
+        <ChannelManagementView
+          channelManagementActionSet={[]}
+          EditModeComponent={EditModeComponent}
+          layout='tabs'
+          ViewModeComponent={ViewModeComponent}
+        />
+      </ChannelDetailProvider>
+    );
+
+    const { rerender } = render(renderForChannel(channelA));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit chat data' }));
+    expect(screen.getByTestId('custom-edit-mode')).toBeInTheDocument();
+
+    rerender(renderForChannel(channelB));
+
+    expect(screen.getByTestId('custom-view-mode')).toBeInTheDocument();
+    expect(screen.queryByTestId('custom-edit-mode')).not.toBeInTheDocument();
+  });
+
+  it('drops out of edit mode when the edit capability is revoked', () => {
+    const ViewModeComponent = () => <div data-testid='custom-view-mode' />;
+    const EditModeComponent = () => <div data-testid='custom-edit-mode' />;
+
+    const { rerender } = renderChannelManagementView({
+      EditModeComponent,
+      ViewModeComponent,
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Edit chat data' }));
+    expect(screen.getByTestId('custom-edit-mode')).toBeInTheDocument();
+
+    // Capability revoked (e.g. via a channel.updated event).
+    mocks.channel.data.own_capabilities = [];
+    rerender(
+      <ChannelDetailProvider channel={mocks.channel as unknown as Channel}>
+        <ChannelManagementView
+          channelManagementActionSet={[]}
+          EditModeComponent={EditModeComponent}
+          layout='tabs'
+          ViewModeComponent={ViewModeComponent}
+        />
+      </ChannelDetailProvider>,
+    );
+
+    expect(screen.getByTestId('custom-view-mode')).toBeInTheDocument();
+    expect(screen.queryByTestId('custom-edit-mode')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Edit chat data' }),
+    ).not.toBeInTheDocument();
   });
 
   it('uses custom image upload callback when saving a new image', async () => {

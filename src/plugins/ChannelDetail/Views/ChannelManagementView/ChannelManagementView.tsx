@@ -420,6 +420,13 @@ export const ChannelManagementView = ({
   const actions = useBaseChannelManagementActionSetFilter(channelManagementActionSet);
   const [isEditing, setIsEditing] = useState(false);
   const canEditChannel = channel.data?.own_capabilities?.includes('update-channel');
+  // Edit mode requires the capability: revoking it (or swapping channels) must
+  // drop back to view mode so the form cannot keep editing/submitting.
+  const isEditMode = isEditing && canEditChannel;
+
+  useEffect(() => {
+    setIsEditing(false);
+  }, [channel.cid]);
 
   const EditChannelButton = useMemo(
     () =>
@@ -442,7 +449,7 @@ export const ChannelManagementView = ({
     [t],
   );
 
-  const headerTitle = isEditing
+  const headerTitle = isEditMode
     ? resolvedIsDmChannel
       ? t('Edit contact')
       : t('Edit group')
@@ -454,12 +461,12 @@ export const ChannelManagementView = ({
     <div className='str-chat__channel-detail__channel-management-view'>
       <SectionNavigatorHeader
         close={close}
-        description={isEditing ? undefined : t('Manage channel')}
-        goBack={isEditing ? () => setIsEditing(false) : undefined}
+        description={isEditMode ? undefined : t('Manage channel')}
+        goBack={isEditMode ? () => setIsEditing(false) : undefined}
         title={headerTitle}
-        TrailingContent={!isEditing && canEditChannel ? EditChannelButton : undefined}
+        TrailingContent={!isEditMode && canEditChannel ? EditChannelButton : undefined}
       />
-      {isEditing ? (
+      {isEditMode ? (
         <EditModeComponent uploadImage={uploadImage} />
       ) : (
         <ViewModeComponent actions={actions} />
