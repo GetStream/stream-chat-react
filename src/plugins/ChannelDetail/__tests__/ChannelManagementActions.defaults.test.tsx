@@ -427,6 +427,20 @@ describe('DefaultChannelManagementActions', () => {
     expect(getRenderedActionTypes()).toEqual(['muteChannel', 'muteUser', 'blockUser']);
   });
 
+  it('hides DM user actions when the other member is not yet loaded', () => {
+    mocks.channel.data.own_capabilities = ['ban-channel-members', 'mute-channel'];
+    // Still a DM (member_count 2 + own user present), but the other member has
+    // not loaded yet, so muteUser/blockUser must not be enabled.
+    mocks.channel.data.members = [{ user: { id: 'own-user' } }];
+    mocks.channel.state.members = {
+      'own-user': { user: { id: 'own-user' } },
+    };
+
+    renderPermissionProbe();
+
+    expect(getRenderedActionTypes()).toEqual(['muteChannel']);
+  });
+
   it('filters group actions by channel capabilities', () => {
     mocks.channel.data.member_count = 3;
     mocks.channel.data.members = [

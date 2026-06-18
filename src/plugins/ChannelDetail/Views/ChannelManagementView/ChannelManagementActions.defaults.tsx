@@ -145,8 +145,7 @@ const useChannelManagementActionFilterState = () => {
   });
   const isGroupChannel = !resolvedIsDmChannel;
   const ownCapabilities = channel.data?.own_capabilities;
-  const isDmChannelWithOtherUser =
-    resolvedIsDmChannel && otherMember?.user?.id !== client.user?.id;
+  const isDmChannelWithOtherUser = resolvedIsDmChannel && !!otherMember;
 
   return {
     canBlockUser:

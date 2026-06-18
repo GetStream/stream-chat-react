@@ -12,6 +12,8 @@ export const isDmChannel = ({
     memberCount === 1 ||
     (memberCount === 2 &&
       !!ownUserId &&
-      Object.values(channel.state?.members).some(({ user }) => user?.id === ownUserId))
+      Object.values(channel.state?.members ?? {}).some(
+        ({ user }) => user?.id === ownUserId,
+      ))
   );
 };

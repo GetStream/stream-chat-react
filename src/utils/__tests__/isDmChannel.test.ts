@@ -30,6 +30,16 @@ describe('isDmChannel', () => {
     ).toBe(true);
   });
 
+  it('does not throw when channel state members are not loaded', () => {
+    const channel = fromPartial<Channel>({
+      data: { member_count: 2 },
+      state: {},
+    });
+
+    expect(() => isDmChannel({ channel, ownUserId: 'user-1' })).not.toThrow();
+    expect(isDmChannel({ channel, ownUserId: 'user-1' })).toBe(false);
+  });
+
   it('returns false for group channels', () => {
     const members = fromPartial<ChannelState['members']>({
       'user-1': { user: { id: 'user-1' } },
