@@ -67,7 +67,6 @@ export const usePinnedMessagesSearch = ({
       source.messageSearchChannelFilters = { cid: channel.cid };
       source.messageSearchFilters = { pinned: true };
     }
-    source.activate();
 
     return source;
   }, [channel.cid, client, searchSource]);
@@ -76,6 +75,14 @@ export const usePinnedMessagesSearch = ({
     pinnedMessagesSearchSource.state,
     pinnedMessagesSearchSourceItemsStateSelector,
   );
+
+  useEffect(() => {
+    pinnedMessagesSearchSource.activate();
+
+    return () => {
+      pinnedMessagesSearchSource.cancelScheduledQuery();
+    };
+  }, [pinnedMessagesSearchSource]);
 
   // Query-independent flag, reactive to pin/unpin. The search source is the sole
   // source of the displayed list, but it does not know whether the channel has
@@ -107,13 +114,6 @@ export const usePinnedMessagesSearch = ({
       }
 
       pinnedMessagesSearchSource.search(trimmedQuery);
-    },
-    [pinnedMessagesSearchSource],
-  );
-
-  useEffect(
-    () => () => {
-      pinnedMessagesSearchSource.cancelScheduledQuery();
     },
     [pinnedMessagesSearchSource],
   );

@@ -42,18 +42,16 @@ export const ChannelMembersAddView = ({
   const memberUserIds = useChannelMemberIds(channel);
   const memberIdSet = useMemo(() => new Set(memberUserIds), [memberUserIds]);
 
-  const userSearchSource = useMemo(() => {
-    const source =
+  const userSearchSource = useMemo(
+    () =>
       searchSource ??
       new UserSearchSource(client, {
         allowEmptySearchString: true,
         pageSize: USER_SEARCH_PAGE_SIZE,
         resetOnNewSearchQuery: false,
-      });
-
-    source.activate();
-    return source;
-  }, [client, searchSource]);
+      }),
+    [client, searchSource],
+  );
 
   const { isLoading, users } = useStateStore(
     userSearchSource.state,
@@ -63,10 +61,11 @@ export const ChannelMembersAddView = ({
   const [isSaving, setIsSaving] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
 
-  useEffect(() => () => userSearchSource.cancelScheduledQuery(), [userSearchSource]);
-
   useEffect(() => {
+    userSearchSource.activate();
     userSearchSource.search('');
+
+    return () => userSearchSource.cancelScheduledQuery();
   }, [userSearchSource]);
 
   const loadNextPageOnScroll = useCallback(

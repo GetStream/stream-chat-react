@@ -35,7 +35,6 @@ export const useChannelMediaSearch = () => {
     source.messageSearchFilters = {
       'attachments.type': { $in: [...MEDIA_ATTACHMENT_TYPES] },
     };
-    source.activate();
 
     return source;
   }, [channel.cid, client]);
@@ -51,15 +50,13 @@ export const useChannelMediaSearch = () => {
   );
 
   useEffect(() => {
+    channelMediaSearchSource.activate();
     void channelMediaSearchSource.search('');
-  }, [channelMediaSearchSource]);
 
-  useEffect(
-    () => () => {
+    return () => {
       channelMediaSearchSource.cancelScheduledQuery();
-    },
-    [channelMediaSearchSource],
-  );
+    };
+  }, [channelMediaSearchSource]);
 
   return {
     channelMediaSearchSource,
