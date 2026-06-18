@@ -1,9 +1,5 @@
 import { useMemo } from 'react';
-import {
-  type SectionNavigatorSection,
-  type SectionNavigatorSectionContentProps,
-  useTranslationContext,
-} from 'stream-chat-react';
+import { useTranslationContext } from 'stream-chat-react';
 import {
   AvatarWithChannelDetail,
   type AvatarWithChannelDetailProps,
@@ -12,6 +8,8 @@ import {
   ChannelMembersView,
   type ChannelMembersViewModes,
   defaultChannelDetailSections,
+  type SectionNavigatorSection,
+  type SectionNavigatorSectionContentProps,
 } from 'stream-chat-react/channel-detail';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
