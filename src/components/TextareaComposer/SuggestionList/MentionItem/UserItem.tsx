@@ -49,6 +49,7 @@ export const UserItem = ({ entity, focused, ...buttonProps }: UserItemProps) => 
           'str-chat__context-menu__button',
           'str-chat__user-context-menu__button',
           buttonProps.className,
+          'str-chat__suggestion-list__mention',
         ),
         role: buttonProps.role ?? 'menuitem',
         title: titleAttribute,
