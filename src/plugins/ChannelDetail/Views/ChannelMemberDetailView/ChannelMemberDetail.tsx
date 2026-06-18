@@ -56,12 +56,8 @@ export const ChannelMemberDetail = ({
   const { close } = useModalContext();
   const { t } = useTranslationContext();
 
-  const fallbackMember = useMemo(
-    () =>
-      Object.values(channel.state.members ?? {}).find(
-        (stateMember) => stateMember.user?.id !== client.user?.id,
-      ),
-    [channel, client.user?.id],
+  const fallbackMember = Object.values(channel.state.members ?? {}).find(
+    (stateMember) => stateMember.user?.id !== client.user?.id,
   );
   const resolvedMember = member ?? fallbackMember;
 
