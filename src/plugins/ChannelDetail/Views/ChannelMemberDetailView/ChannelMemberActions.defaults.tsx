@@ -168,10 +168,9 @@ const useChannelMemberActionFilterState = () => {
   const isCurrentUser = targetUserId === client.user?.id;
 
   return {
-    canBlockUser:
-      !isCurrentUser &&
-      !!targetUserId &&
-      ownCapabilities?.includes('ban-channel-members'),
+    // Blocking is a personal, per-user action (client.blockUser/unBlockUser),
+    // independent of channel moderation capabilities like 'ban-channel-members'.
+    canBlockUser: !isCurrentUser && !!targetUserId,
     canMuteUser: !isCurrentUser && !!targetUserId,
     canRemoveUser:
       !isCurrentUser &&

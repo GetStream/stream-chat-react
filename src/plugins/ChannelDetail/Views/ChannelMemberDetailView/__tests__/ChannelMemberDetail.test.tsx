@@ -118,6 +118,27 @@ describe('ChannelMemberDetail', () => {
     expect(screen.queryByText('Remove')).not.toBeInTheDocument();
   });
 
+  it('shows personal actions (block, mute) without channel moderation capabilities', () => {
+    const actionSet = [
+      createAction('sendMessage', 'Send'),
+      createAction('muteUser', 'Mute'),
+      createAction('blockUser', 'Block'),
+      createAction('removeUser', 'Remove'),
+    ];
+
+    renderWithChannel(
+      <ChannelMemberDetail channelMemberActionSet={actionSet} layout='inline' />,
+      createChannel({ ownCapabilities: [] }),
+    );
+
+    // Blocking and muting are per-user actions, not gated on channel capabilities.
+    expect(screen.getByText('Block')).toBeInTheDocument();
+    expect(screen.getByText('Mute')).toBeInTheDocument();
+    expect(screen.getByText('Send')).toBeInTheDocument();
+    // Removing a member still requires the update-channel-members capability.
+    expect(screen.queryByText('Remove')).not.toBeInTheDocument();
+  });
+
   it('hides member actions when viewing current user details', () => {
     const ownMember = fromPartial<ChannelMemberResponse>({
       user: { id: 'user-me', name: 'Me' },
