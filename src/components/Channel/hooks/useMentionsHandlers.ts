@@ -1,10 +1,15 @@
 import type React from 'react';
 import { useCallback } from 'react';
-import type { UserResponse } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 
 export type OnMentionAction = (
   event: React.BaseSyntheticEvent,
+  /**
+   * @deprecated Use the third `message` argument to access mention metadata instead.
+   * FIXME: Remove this argument in the next major release.
+   */
   user?: UserResponse,
+  message?: LocalMessage,
 ) => void;
 
 export const useMentionsHandlers = (
@@ -12,7 +17,11 @@ export const useMentionsHandlers = (
   onMentionsClick?: OnMentionAction,
 ) =>
   useCallback(
-    (event: React.BaseSyntheticEvent, mentioned_users: UserResponse[]) => {
+    (
+      event: React.BaseSyntheticEvent,
+      mentioned_users: UserResponse[],
+      message?: LocalMessage,
+    ) => {
       if (
         (!onMentionsHover && !onMentionsClick) ||
         !(event.target instanceof HTMLElement)
@@ -34,7 +43,11 @@ export const useMentionsHandlers = (
           typeof onMentionsHover === 'function' &&
           event.type === 'mouseover'
         ) {
-          onMentionsHover(event, user);
+          if (message) {
+            onMentionsHover(event, user, message);
+          } else {
+            onMentionsHover(event, user);
+          }
         }
 
         if (
@@ -42,7 +55,11 @@ export const useMentionsHandlers = (
           event.type === 'click' &&
           typeof onMentionsClick === 'function'
         ) {
-          onMentionsClick(event, user);
+          if (message) {
+            onMentionsClick(event, user, message);
+          } else {
+            onMentionsClick(event, user);
+          }
         }
       }
     },

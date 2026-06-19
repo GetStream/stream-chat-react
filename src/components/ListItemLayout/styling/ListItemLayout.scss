@@ -1,0 +1,135 @@
+@use '../../../styling/utils';
+
+.str-chat__list-item-layout {
+  // Outer wrapper: a plain spacing buffer around the interactive container so
+  // the container's focus ring (2px offset) clears neighbouring items and any
+  // overflow/scroll ancestor. Carries the row's minimum height.
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  padding-inline: var(--str-chat__spacing-xxs);
+
+  .str-chat__list-item-layout__container {
+    --list-item-padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    min-width: 0;
+    text-align: start;
+    padding: var(--list-item-padding);
+    border-radius: var(--str-chat__radius-md);
+  }
+
+  // Interactive baseline. `:where(button)` keeps this reset at the same low
+  // specificity as the bare container class so the state rules below (selected,
+  // destructive, disabled) reliably win — `:is(button)` would add element
+  // specificity and let `button-reset`'s `background: none` clobber them.
+  .str-chat__list-item-layout__container:where(button) {
+    @include utils.button-reset;
+    padding: var(--list-item-padding);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background: var(--str-chat__background-utility-hover);
+    }
+
+    &:active:not(:disabled) {
+      background-color: var(--str-chat__background-utility-pressed);
+    }
+
+    &:focus:not(:disabled) {
+      @include utils.focusable;
+    }
+  }
+
+  .str-chat__list-item-layout__container.str-chat__form__switch-field {
+    padding: var(--list-item-padding);
+  }
+
+  .str-chat__list-item-layout__container--selected {
+    background-color: var(--str-chat__background-utility-selected);
+  }
+
+  .str-chat__list-item-layout__container--destructive {
+    color: var(--str-chat__accent-error);
+
+    .str-chat__icon,
+    .str-chat__list-item-layout__title,
+    .str-chat__list-item-layout__subtitle,
+    .str-chat__list-item-layout__description {
+      color: var(--str-chat__accent-error);
+    }
+  }
+
+  .str-chat__list-item-layout__container:disabled {
+    color: var(--str-chat__text-disabled);
+
+    .str-chat__list-item-layout__title,
+    .str-chat__list-item-layout__subtitle,
+    .str-chat__list-item-layout__description {
+      color: var(--str-chat__text-disabled);
+    }
+  }
+
+  .str-chat__list-item-layout__content {
+    flex: 1;
+    display: grid;
+    align-items: start;
+    grid-template-areas:
+      'title'
+      'description';
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .str-chat__list-item-layout__content--withSubtitle {
+    grid-template-areas:
+      'title description'
+      'subtitle description';
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--str-chat__spacing-sm);
+  }
+
+  .str-chat__list-item-layout__leading-icon,
+  .str-chat__list-item-layout__trailing-icon {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .str-chat__list-item-layout__description,
+  .str-chat__list-item-layout__title {
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .str-chat__list-item-layout__subtitle {
+    font: var(--str-chat__font-metadata-default);
+  }
+
+  .str-chat__list-item-layout__title {
+    color: var(--str-chat__text-primary);
+    grid-area: title;
+  }
+
+  .str-chat__list-item-layout__subtitle,
+  .str-chat__list-item-layout__description {
+    color: var(--str-chat__text-tertiary);
+  }
+
+  .str-chat__list-item-layout__subtitle {
+    grid-area: subtitle;
+  }
+
+  .str-chat__list-item-layout__description {
+    grid-area: description;
+  }
+
+  .str-chat__list-item-layout__subtitle,
+  .str-chat__list-item-layout__description,
+  .str-chat__list-item-layout__title {
+    @include utils.ellipsis-text;
+    max-width: 100%;
+  }
+}

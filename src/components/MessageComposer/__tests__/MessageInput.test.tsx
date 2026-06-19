@@ -7,8 +7,10 @@ import type {
   LinkPreviewsManagerState,
   LocalAttachment,
   LocalMessage,
+  SearchSourceState,
   SendFileAPIResponse,
   StreamChat,
+  TextComposerSuggestion,
   UserResponse,
 } from 'stream-chat';
 import { LinkPreviewStatus, SearchController } from 'stream-chat';
@@ -97,7 +99,14 @@ const mockedChannelData = generateChannel(
   fromPartial<GenerateChannelOptions>({
     channel: {
       id: 'general',
-      own_capabilities: ['send-poll', 'upload-file'],
+      own_capabilities: [
+        'notify-channel',
+        'notify-group',
+        'notify-here',
+        'notify-role',
+        'send-poll',
+        'upload-file',
+      ],
       type: 'messaging',
     },
     members: [generateMember({ user }), generateMember({ user: mentionUser })],
@@ -1227,6 +1236,10 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
+    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'queryUserGroups').mockResolvedValue(
+      fromPartial({ user_groups: [] }),
+    );
     await renderComponent({
       customChannel,
       customClient,
@@ -1244,14 +1257,132 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
-    // stream-chat >= 9.45 prepends the built-in `@channel` and `@here` special
-    // mentions to the suggestion list, on top of the channel members.
-    const builtInMentionsCount = 2;
-    const memberMentionsCount = Object.keys(customChannel.state.members).length - 1; // remove own user
     await waitFor(() => {
       const usernameList = document.querySelectorAll('.str-chat__suggestion-list-item');
-      expect(usernameList).toHaveLength(memberMentionsCount + builtInMentionsCount);
+      expect(usernameList).toHaveLength(
+        Object.keys(customChannel.state.members).length + 1, // remove own user, add @channel and @here
+      );
     });
+    Element.prototype.scrollIntoView = scrollIntoView;
+  });
+
+  it('should render mixed mention suggestions on @ open with the mention suggestions fallback label', async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
+    const { customChannel, customClient } = await setup();
+    vi.spyOn(customClient, 'listRoles').mockResolvedValue(
+      fromPartial({ roles: ['admin'] }),
+    );
+    vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
+      fromPartial({
+        user_groups: [{ id: 'backend-team', name: 'Backend Team' }],
+      }),
+    );
+
+    const { container } = await renderComponent({
+      customChannel,
+      customClient,
+      customUser: generateUser(),
+    });
+    const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+
+    await act(async () => {
+      await fireEvent.change(formElement, {
+        target: {
+          selectionEnd: 1,
+          selectionStart: 1,
+          value: '@',
+        },
+      });
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('.str-chat__suggestion-list')).toHaveAttribute(
+        'aria-label',
+        'aria/Mention Suggestions',
+      );
+      expect(
+        container.querySelectorAll('.str-chat__suggestion-list-item').length,
+      ).toBeGreaterThanOrEqual(3);
+      expect(screen.getByText(mentionName)).toBeInTheDocument();
+      expect(screen.getByText('@channel')).toBeInTheDocument();
+      expect(screen.getByText('@here')).toBeInTheDocument();
+    });
+
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+    Element.prototype.scrollIntoView = scrollIntoView;
+  });
+
+  it('should support keyboard selection for non-user mention items even when search source has next page', async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
+    const { customChannel, customClient } = await setup({
+      channelData: fromPartial<GenerateChannelOptions>({
+        members: [generateMember({ user })],
+      }),
+    });
+    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
+
+    await renderComponent({
+      customChannel,
+      customClient,
+      customUser: generateUser(),
+    });
+
+    const formElement = await screen.findByPlaceholderText(inputPlaceholder);
+    await act(async () => {
+      await fireEvent.change(formElement, {
+        target: {
+          selectionEnd: 1,
+          selectionStart: 1,
+          value: '@',
+        },
+      });
+    });
+
+    const searchSource =
+      customChannel.messageComposer.textComposer.suggestions?.searchSource;
+    expect(searchSource).toBeDefined();
+
+    const nonUserMentionSuggestions: TextComposerSuggestion[] = [
+      {
+        id: 'channel',
+        mentionType: 'channel',
+        name: 'channel',
+        tokenizedDisplayName: { parts: ['channel'], token: '' },
+      },
+      {
+        id: 'here',
+        mentionType: 'here',
+        name: 'here',
+        tokenizedDisplayName: { parts: ['here'], token: '' },
+      },
+    ];
+
+    await act(() => {
+      searchSource?.state.partialNext({
+        hasNext: true,
+        items: nonUserMentionSuggestions,
+      } satisfies Partial<SearchSourceState<TextComposerSuggestion>>);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('@channel')).toBeInTheDocument();
+      expect(screen.getByText('@here')).toBeInTheDocument();
+    });
+
+    await act(async () => {
+      await fireEvent.keyDown(formElement, { key: 'ArrowDown' });
+      await fireEvent.keyDown(formElement, { key: 'Enter' });
+    });
+
+    await waitFor(() => {
+      expect(formElement).toHaveValue('@here ');
+    });
+
     Element.prototype.scrollIntoView = scrollIntoView;
   });
 
@@ -1260,6 +1391,10 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
+    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'queryUserGroups').mockResolvedValue(
+      fromPartial({ user_groups: [] }),
+    );
     const { container, submit } = await renderComponent({
       customChannel,
       customClient,
@@ -1282,12 +1417,10 @@ describe(`MessageInputFlat`, () => {
         document.querySelectorAll('.str-chat__suggestion-list-item').length,
       ).toBeGreaterThan(0);
     });
-    // The suggestion list also contains the built-in `@channel` / `@here` special
-    // mentions (stream-chat >= 9.45), so select the user's suggestion explicitly
-    // instead of relying on it being the first item.
-    const userItem = screen.getByText(mentionName);
+    const mentionItem = screen.getByText(mentionName).closest('button');
+    expect(mentionItem).toBeTruthy();
     await act(async () => {
-      await fireEvent.click(userItem);
+      await fireEvent.click(mentionItem!);
     });
 
     await act(() => submit());

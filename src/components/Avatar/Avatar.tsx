@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, {
   type ComponentPropsWithoutRef,
+  type ComponentType,
   useEffect,
   useMemo,
   useState,
@@ -8,6 +9,8 @@ import React, {
 import { IconUser } from '../Icons';
 
 export type AvatarProps = {
+  /** Custom icon rendered when there is no image and no initials */
+  FallbackIcon?: ComponentType<ComponentPropsWithoutRef<'svg'>>;
   /** URL of the avatar image */
   imageUrl?: string;
   /** Name of the user, used for avatar image alt text and title fallback */
@@ -43,6 +46,7 @@ const getInitials = (name?: string) => {
  */
 export const Avatar = ({
   className,
+  FallbackIcon = IconUser,
   imageUrl,
   isOnline,
   size,
@@ -104,7 +108,7 @@ export const Avatar = ({
               {sizeAwareInitials}
             </div>
           )}
-          {!sizeAwareInitials.length && <IconUser />}
+          {!sizeAwareInitials.length && <FallbackIcon />}
         </>
       )}
     </div>

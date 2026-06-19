@@ -14,6 +14,33 @@
     font: var(--str-chat__font-heading-xs);
     text-transform: capitalize;
 
+    &.str-chat__theme-inverse {
+      --str-chat__button-primary-text: var(
+        --str-chat__button-primary-text-on-dark,
+        var(--str-chat__button-primary-text)
+      );
+      --str-chat__button-primary-border: var(
+        --str-chat__button-primary-border-on-dark,
+        var(--str-chat__button-primary-border)
+      );
+      --str-chat__button-secondary-text: var(
+        --str-chat__button-secondary-text-on-dark,
+        var(--str-chat__button-secondary-text)
+      );
+      --str-chat__button-secondary-border: var(
+        --str-chat__button-secondary-border-on-dark,
+        var(--str-chat__button-secondary-border)
+      );
+      --str-chat__button-destructive-text: var(
+        --str-chat__button-destructive-text-on-dark,
+        var(--str-chat__button-destructive-text)
+      );
+      --str-chat__button-destructive-border: var(
+        --str-chat__button-destructive-border-on-dark,
+        var(--str-chat__button-destructive-border)
+      );
+    }
+
     &.str-chat__button--solid {
       &.str-chat__button--primary {
         background-color: var(--str-chat__button-primary-bg);

@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
 
 import type { UserEventHandler } from './hooks';
@@ -9,7 +8,7 @@ import type { ReactionsComparator } from '../Reactions/types';
 import type { ChannelActionContextValue } from '../../context/ChannelActionContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
-import type { RenderTextOptions } from './renderText';
+import type { RenderTextFunction } from './renderText';
 
 export type ReactEventHandler = (event: React.BaseSyntheticEvent) => Promise<void> | void;
 
@@ -72,11 +71,7 @@ export type MessageProps = {
    */
   showAvatar?: boolean | 'incoming' | 'outgoing';
   /** Custom function to render message text content, defaults to the renderText function: [utils](https://github.com/GetStream/stream-chat-react/blob/master/src/utils.ts) */
-  renderText?: (
-    text?: string,
-    mentioned_users?: UserResponse[],
-    options?: RenderTextOptions,
-  ) => ReactNode;
+  renderText?: RenderTextFunction;
   /** Custom retry send message handler to override default in [ChannelActionContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_action_context/) */
   retrySendMessage?: ChannelActionContextValue['retrySendMessage'];
   /** Keep track of read receipts for each message sent by the user. When disabled, only the last own message delivery / read status is rendered. */

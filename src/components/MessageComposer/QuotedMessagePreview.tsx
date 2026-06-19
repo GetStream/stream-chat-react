@@ -48,6 +48,7 @@ import clsx from 'clsx';
 import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
+import { getRenderTextMentionEntities } from '../Message/renderText/rehypePlugins';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,
@@ -337,6 +338,23 @@ export const QuotedMessagePreviewUI = ({
       quotedMessage?.text,
     [quotedMessage?.i18n, quotedMessage?.text, userLanguage],
   );
+  const quotedMessageMentionEntities = useMemo(
+    () =>
+      getRenderTextMentionEntities({
+        mentioned_channel: quotedMessage?.mentioned_channel,
+        mentioned_groups: quotedMessage?.mentioned_groups,
+        mentioned_here: quotedMessage?.mentioned_here,
+        mentioned_roles: quotedMessage?.mentioned_roles,
+        mentioned_users: quotedMessage?.mentioned_users,
+      }),
+    [
+      quotedMessage?.mentioned_channel,
+      quotedMessage?.mentioned_groups,
+      quotedMessage?.mentioned_here,
+      quotedMessage?.mentioned_roles,
+      quotedMessage?.mentioned_users,
+    ],
+  );
 
   const { AttachmentIcon, PreviewImage, renderedText } = useMemo(() => {
     if (!quotedMessage) return { AttachmentIcon: NullAttachmentIcon, renderedText: null };
@@ -388,7 +406,9 @@ export const QuotedMessagePreviewUI = ({
               });
       }
     } else if (renderText) {
-      renderedText = renderText(quotedMessageText, quotedMessage?.mentioned_users);
+      renderedText = renderText(quotedMessageText, quotedMessage?.mentioned_users, {
+        messageMentionEntities: quotedMessageMentionEntities,
+      });
     } else {
       renderedText = quotedMessageText;
     }
@@ -398,7 +418,14 @@ export const QuotedMessagePreviewUI = ({
       PreviewImage,
       renderedText,
     };
-  }, [giphyVersionName, quotedMessage, quotedMessageText, renderText, t]);
+  }, [
+    giphyVersionName,
+    quotedMessage,
+    quotedMessageMentionEntities,
+    quotedMessageText,
+    renderText,
+    t,
+  ]);
 
   const isOwnMessage = client.user?.id === quotedMessage?.user?.id;
   const isInteractive = !!onClick;
