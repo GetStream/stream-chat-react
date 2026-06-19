@@ -61,7 +61,7 @@ export const toChannelMediaItems = (
       items.push({
         durationSeconds:
           typeof attachment.duration === 'number' ? attachment.duration : undefined,
-        galleryItem: { ...descriptor },
+        galleryItem: descriptor,
         id: `${message.id}-${index}`,
         type,
         user: message.user ?? undefined,
