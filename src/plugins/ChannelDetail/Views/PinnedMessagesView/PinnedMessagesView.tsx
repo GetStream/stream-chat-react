@@ -1,5 +1,5 @@
 import type { LocalMessage, MessageResponse, MessageSearchSource } from 'stream-chat';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import {
   useChannelActionContext,
@@ -72,6 +72,53 @@ const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
   );
 };
 
+const PinnedMessagesViewItem = ({
+  message,
+  onSelect,
+}: {
+  message: PinnedMessage;
+  onSelect: (message: PinnedMessage) => void;
+}) => {
+  const { t } = useTranslationContext();
+  const displayName = getUserDisplayName(message.user ?? undefined);
+
+  const LeadingSlot = useMemo(
+    () =>
+      function MessageAuthorAvatar() {
+        return <Avatar imageUrl={message.user?.image} size='md' userName={displayName} />;
+      },
+    [displayName, message.user?.image],
+  );
+
+  const TrailingSlot = useMemo(
+    () =>
+      function MessageDate() {
+        return <PinnedMessageDate message={message} />;
+      },
+    [message],
+  );
+
+  const rootProps = useMemo(
+    () => ({
+      className: 'str-chat__channel-detail__pinned-messages-view__list-item',
+      onClick: () => onSelect(message),
+    }),
+    [message, onSelect],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingSlot={LeadingSlot}
+      RootElement='button'
+      rootProps={rootProps}
+      subtitle={getPinnedMessagePreview(message, t)}
+      subtitleClassName='str-chat__channel-detail__pinned-messages-view__list-item__message-preview'
+      title={displayName}
+      TrailingSlot={TrailingSlot}
+    />
+  );
+};
+
 export type PinnedMessagesViewProps = SectionNavigatorSectionContentProps & {
   /** Custom message search source for pinned messages. */
   searchSource?: MessageSearchSource;
@@ -94,6 +141,15 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     pinnedMessagesSearchSource,
   } = usePinnedMessagesSearch({ searchSource });
 
+  const handleSelectMessage = useCallback(
+    (message: PinnedMessage) => {
+      setActiveChannel(channel);
+      jumpToMessage(message.id);
+      close();
+    },
+    [channel, close, jumpToMessage, setActiveChannel],
+  );
+
   return (
     <div className='str-chat__channel-detail__pinned-messages-view'>
       <SectionNavigatorHeader
@@ -112,36 +168,13 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
           }
         >
           {displayedMessages.length > 0 ? (
-            displayedMessages.map((message) => {
-              const displayName = getUserDisplayName(message.user ?? undefined);
-
-              return (
-                <ListItemLayout
-                  key={message.id}
-                  LeadingSlot={() => (
-                    <Avatar
-                      imageUrl={message.user?.image}
-                      size='md'
-                      userName={displayName}
-                    />
-                  )}
-                  RootElement='button'
-                  rootProps={{
-                    className:
-                      'str-chat__channel-detail__pinned-messages-view__list-item',
-                    onClick: () => {
-                      setActiveChannel(channel);
-                      jumpToMessage(message.id);
-                      close();
-                    },
-                  }}
-                  subtitle={getPinnedMessagePreview(message, t)}
-                  subtitleClassName='str-chat__channel-detail__pinned-messages-view__list-item__message-preview'
-                  title={displayName}
-                  TrailingSlot={() => <PinnedMessageDate message={message} />}
-                />
-              );
-            })
+            displayedMessages.map((message) => (
+              <PinnedMessagesViewItem
+                key={message.id}
+                message={message}
+                onSelect={handleSelectMessage}
+              />
+            ))
           ) : !hasPinnedMessages ? (
             <PinnedMessagesEmptyList />
           ) : hasSearchResultsLoaded ? (

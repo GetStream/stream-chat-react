@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useModalContext, useTranslationContext } from '../../../../context';
 import { getDateString } from '../../../../i18n/utils';
@@ -40,46 +40,53 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
   const fileName = getAttachmentFileName(attachment);
   const assetUrl = attachment.asset_url;
 
-  const FileListItemIcon = () => (
-    <FileIcon
-      className='str-chat__channel-detail__files-view__list-item__icon'
-      fileName={fileName}
-      mimeType={attachment.mime_type}
-      size='md'
-    />
+  const LeadingSlot = useMemo(
+    () =>
+      function FileListItemIcon() {
+        return (
+          <FileIcon
+            className='str-chat__channel-detail__files-view__list-item__icon'
+            fileName={fileName}
+            mimeType={attachment.mime_type}
+            size='md'
+          />
+        );
+      },
+    [attachment.mime_type, fileName],
   );
 
-  const sharedProps = {
-    LeadingSlot: FileListItemIcon,
-    subtitle: <FileSizeIndicator fileSize={attachment.file_size} />,
-    subtitleClassName: 'str-chat__channel-detail__files-view__list-item__size',
-    title: fileName,
-    titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
-  };
+  const sharedProps = useMemo(
+    () => ({
+      LeadingSlot,
+      subtitle: <FileSizeIndicator fileSize={attachment.file_size} />,
+      subtitleClassName: 'str-chat__channel-detail__files-view__list-item__size',
+      title: fileName,
+      titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
+    }),
+    [attachment.file_size, fileName, LeadingSlot],
+  );
+
+  const linkRootProps = useMemo(
+    () => ({
+      className: 'str-chat__channel-detail__files-view__list-item',
+      download: fileName || undefined,
+      href: assetUrl,
+      rel: 'noopener noreferrer',
+      target: '_blank',
+    }),
+    [assetUrl, fileName],
+  );
+
+  const divRootProps = useMemo(
+    () => ({ className: 'str-chat__channel-detail__files-view__list-item' }),
+    [],
+  );
 
   if (assetUrl) {
-    return (
-      <ListItemLayout
-        {...sharedProps}
-        RootElement='a'
-        rootProps={{
-          className: 'str-chat__channel-detail__files-view__list-item',
-          download: fileName || undefined,
-          href: assetUrl,
-          rel: 'noopener noreferrer',
-          target: '_blank',
-        }}
-      />
-    );
+    return <ListItemLayout {...sharedProps} RootElement='a' rootProps={linkRootProps} />;
   }
 
-  return (
-    <ListItemLayout
-      {...sharedProps}
-      RootElement='div'
-      rootProps={{ className: 'str-chat__channel-detail__files-view__list-item' }}
-    />
-  );
+  return <ListItemLayout {...sharedProps} RootElement='div' rootProps={divRootProps} />;
 };
 
 export type ChannelFilesViewProps = SectionNavigatorSectionContentProps;

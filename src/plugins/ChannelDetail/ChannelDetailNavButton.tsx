@@ -1,4 +1,4 @@
-import React, { type ComponentType, useMemo } from 'react';
+import React, { type ComponentType } from 'react';
 
 import type { SectionNavigatorNavButtonProps } from './SectionNavigator';
 import { ListItemLayout } from '../../components/ListItemLayout';
@@ -23,24 +23,17 @@ export const ChannelDetailNavButton = ({
   selected,
   title,
   ...props
-}: ChannelDetailNavButtonProps) => {
-  const rootProps = useMemo(
-    () => ({
+}: ChannelDetailNavButtonProps) => (
+  <ListItemLayout
+    LeadingIcon={LeadingIcon}
+    RootElement='button'
+    rootProps={{
       ...props,
       'aria-current': selected ? ('page' as const) : undefined,
       className: clsx('str-chat__channel-detail__nav-button', className),
       onClick: select,
-    }),
-    [className, props, select, selected],
-  );
-
-  return (
-    <ListItemLayout
-      LeadingIcon={LeadingIcon}
-      RootElement='button'
-      rootProps={rootProps}
-      selected={selected}
-      title={title}
-    />
-  );
-};
+    }}
+    selected={selected}
+    title={title}
+  />
+);

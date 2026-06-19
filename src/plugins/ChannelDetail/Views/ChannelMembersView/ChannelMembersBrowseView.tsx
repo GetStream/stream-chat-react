@@ -46,6 +46,77 @@ const getPresenceStatusText = (
   return t('Offline');
 };
 
+const ChannelMembersBrowseViewItem = ({
+  isMuted,
+  member,
+  onMemberSelect,
+}: {
+  isMuted: boolean;
+  member: ChannelMemberResponse;
+  onMemberSelect?: (member: ChannelMemberResponse) => void;
+}) => {
+  const { t } = useTranslationContext();
+  const user = member.user;
+  const displayName = getMemberDisplayName(member);
+  const roleTranslation = getMemberRoleTranslation(member, t);
+
+  const LeadingSlot = useMemo(
+    () =>
+      function MemberAvatar() {
+        return (
+          <Avatar
+            imageUrl={user?.image}
+            isOnline={user?.online}
+            size='md'
+            userName={getUserDisplayName(user)}
+          />
+        );
+      },
+    [user],
+  );
+
+  const TrailingSlot = useMemo(
+    () =>
+      function MemberTrailingSlot() {
+        return (
+          <div className='str-chat__channel-detail__channel-members-view__list-item__trailing-slot'>
+            {roleTranslation ? (
+              <span className='str-chat__channel-detail__channel-members-view__role-label'>
+                {roleTranslation}
+              </span>
+            ) : null}
+            {isMuted ? (
+              <IconMute className='str-chat__channel-detail__channel-members-view__list-item__indicator-icon str-chat__channel-detail__channel-members-view__list-item__indicator-icon--mute' />
+            ) : null}
+          </div>
+        );
+      },
+    [isMuted, roleTranslation],
+  );
+
+  const rootProps = useMemo(
+    () => ({
+      'aria-label': t('View member details for {{ member }}', {
+        member: displayName,
+      }),
+      className: 'str-chat__channel-detail__channel-members-view__list-item',
+      onClick: () => onMemberSelect?.(member),
+    }),
+    [displayName, member, onMemberSelect, t],
+  );
+
+  return (
+    <ListItemLayout
+      LeadingSlot={LeadingSlot}
+      RootElement='button'
+      rootProps={rootProps}
+      subtitle={getPresenceStatusText(user, t)}
+      title={displayName}
+      TrailingSlot={TrailingSlot}
+    />
+  );
+};
+
 export type ChannelMembersBrowseViewProps = {
   onMemberSelect?: (member: ChannelMemberResponse) => void;
 };
@@ -84,44 +155,12 @@ export const ChannelMembersBrowseView = ({
             const memberUserId = getMemberUserId(member);
             if (!memberUserId) return null;
 
-            const user = member.user;
-            const displayName = getMemberDisplayName(member);
-            const roleTranslation = getMemberRoleTranslation(member, t);
-            const isMuted = mutedUserIdSet.has(memberUserId);
-
             return (
-              <ListItemLayout
+              <ChannelMembersBrowseViewItem
+                isMuted={mutedUserIdSet.has(memberUserId)}
                 key={memberUserId}
-                LeadingSlot={() => (
-                  <Avatar
-                    imageUrl={user?.image}
-                    isOnline={user?.online}
-                    size='md'
-                    userName={getUserDisplayName(user)}
-                  />
-                )}
-                RootElement='button'
-                rootProps={{
-                  'aria-label': t('View member details for {{ member }}', {
-                    member: displayName,
-                  }),
-                  className: 'str-chat__channel-detail__channel-members-view__list-item',
-                  onClick: () => onMemberSelect?.(member),
-                }}
-                subtitle={getPresenceStatusText(user, t)}
-                title={displayName}
-                TrailingSlot={() => (
-                  <div className='str-chat__channel-detail__channel-members-view__list-item__trailing-slot'>
-                    {roleTranslation ? (
-                      <span className='str-chat__channel-detail__channel-members-view__role-label'>
-                        {roleTranslation}
-                      </span>
-                    ) : null}
-                    {isMuted ? (
-                      <IconMute className='str-chat__channel-detail__channel-members-view__list-item__indicator-icon str-chat__channel-detail__channel-members-view__list-item__indicator-icon--mute' />
-                    ) : null}
-                  </div>
-                )}
+                member={member}
+                onMemberSelect={onMemberSelect}
               />
             );
           })

@@ -290,6 +290,7 @@ const ChannelMuteAction = () => {
     }),
     [optimisticChannelMuted, toggleOptimisticChannelMute],
   );
+
   const TrailingSlot = useMemo(() => {
     function ChannelMuteSwitch() {
       return <Switch on={optimisticChannelMuted} presentation />;

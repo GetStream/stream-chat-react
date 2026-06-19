@@ -29,6 +29,90 @@ const searchSourceItemsStateSelector = (state: SearchSourceState<UserResponse>) 
   users: state.items,
 });
 
+const MuteIndicator = () => (
+  <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
+);
+
+const readOnlyRootProps = {
+  className: 'str-chat__channel-detail__channel-members-view__list-item',
+};
+
+const ChannelMembersAddViewItem = ({
+  canManageChannelMembers,
+  isMember,
+  isMuted,
+  isSelected,
+  toggleSelectedUser,
+  user,
+}: {
+  canManageChannelMembers: boolean;
+  isMember: boolean;
+  isMuted: boolean;
+  isSelected: boolean;
+  toggleSelectedUser: (userId: string) => void;
+  user: UserResponse;
+}) => {
+  const { t } = useTranslationContext();
+  const displayName = getUserDisplayName(user);
+
+  const LeadingSlot = useMemo(
+    () =>
+      function MemberAvatar() {
+        return (
+          <Avatar
+            imageUrl={user.image}
+            isOnline={user.online}
+            size='md'
+            userName={displayName}
+          />
+        );
+      },
+    [displayName, user.image, user.online],
+  );
+
+  const SelectableTrailingSlot = useMemo(
+    () =>
+      function SelectCheckbox() {
+        return <Checkbox aria-hidden checked={isSelected} />;
+      },
+    [isSelected],
+  );
+
+  const selectableRootProps = useMemo(
+    () => ({
+      'aria-pressed': isSelected,
+      className: 'str-chat__channel-detail__channel-members-view__list-item',
+      onClick: () => toggleSelectedUser(user.id),
+    }),
+    [isSelected, toggleSelectedUser, user.id],
+  );
+
+  // Only non-members can be selected for adding. Existing members are
+  // listed (and flagged below) but render as a non-actionable row, like
+  // the read-only no-permission case.
+  if (canManageChannelMembers && !isMember) {
+    return (
+      <ListItemLayout
+        LeadingSlot={LeadingSlot}
+        RootElement='button'
+        rootProps={selectableRootProps}
+        title={displayName}
+        TrailingSlot={SelectableTrailingSlot}
+      />
+    );
+  }
+
+  return (
+    <ListItemLayout
+      LeadingSlot={LeadingSlot}
+      rootProps={readOnlyRootProps}
+      subtitle={isMember ? t('Already a member') : undefined}
+      title={displayName}
+      TrailingSlot={isMuted ? MuteIndicator : undefined}
+    />
+  );
+};
+
 export const ChannelMembersAddView = ({
   modeController,
   searchSource,
@@ -139,61 +223,17 @@ export const ChannelMembersAddView = ({
           threshold={40}
         >
           {users && users.length > 0 ? (
-            users.map((user) => {
-              const displayName = getUserDisplayName(user);
-              const isMuted = mutedUserIdSet.has(user.id);
-              const isMember = memberIdSet.has(user.id);
-              const avatar = (
-                <Avatar
-                  imageUrl={user.image}
-                  isOnline={user.online}
-                  size='md'
-                  userName={displayName}
-                />
-              );
-              const muteTrailingSlot = isMuted
-                ? () => (
-                    <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
-                  )
-                : undefined;
-
-              // Only non-members can be selected for adding. Existing members are
-              // listed (and flagged below) but render as a non-actionable row, like
-              // the read-only no-permission case.
-              if (canManageChannelMembers && !isMember) {
-                const selected = selectedUserIdSet.has(user.id);
-
-                return (
-                  <ListItemLayout
-                    key={user.id}
-                    LeadingSlot={() => avatar}
-                    RootElement='button'
-                    rootProps={{
-                      'aria-pressed': selected,
-                      className:
-                        'str-chat__channel-detail__channel-members-view__list-item',
-                      onClick: () => toggleSelectedUser(user.id),
-                    }}
-                    title={displayName}
-                    TrailingSlot={() => <Checkbox aria-hidden checked={selected} />}
-                  />
-                );
-              }
-
-              return (
-                <ListItemLayout
-                  key={user.id}
-                  LeadingSlot={() => avatar}
-                  rootProps={{
-                    className:
-                      'str-chat__channel-detail__channel-members-view__list-item',
-                  }}
-                  subtitle={isMember ? t('Already a member') : undefined}
-                  title={displayName}
-                  TrailingSlot={muteTrailingSlot}
-                />
-              );
-            })
+            users.map((user) => (
+              <ChannelMembersAddViewItem
+                canManageChannelMembers={canManageChannelMembers}
+                isMember={memberIdSet.has(user.id)}
+                isMuted={mutedUserIdSet.has(user.id)}
+                isSelected={selectedUserIdSet.has(user.id)}
+                key={user.id}
+                toggleSelectedUser={toggleSelectedUser}
+                user={user}
+              />
+            ))
           ) : !isLoading && users ? (
             <ChannelDetailEmptyList>{t('No user found')}</ChannelDetailEmptyList>
           ) : null}
