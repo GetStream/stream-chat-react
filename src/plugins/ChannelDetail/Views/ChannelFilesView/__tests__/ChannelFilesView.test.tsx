@@ -51,14 +51,51 @@ vi.mock('stream-chat', async (importOriginal) => {
 vi.mock('../../../../../context');
 vi.mock('../../../../../store');
 
-vi.mock(
-  '../../../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator',
-  () => ({
-    InfiniteScrollPaginator: ({ children }: { children: React.ReactNode }) => (
-      <div data-testid='infinite-scroll-paginator'>{children}</div>
-    ),
-  }),
-);
+// Render react-virtuoso's GroupedVirtuoso synchronously: jsdom has no layout,
+// so the real component would window down to zero items. The stub renders each
+// group header followed by its items, plus the empty/footer slots.
+vi.mock('react-virtuoso', () => ({
+  GroupedVirtuoso: ({
+    components = {},
+    groupContent,
+    groupCounts = [],
+    itemContent,
+  }: {
+    components?: {
+      EmptyPlaceholder?: React.ComponentType;
+      Footer?: React.ComponentType;
+    };
+    groupContent: (groupIndex: number) => React.ReactNode;
+    groupCounts?: number[];
+    itemContent: (index: number, groupIndex: number) => React.ReactNode;
+  }) => {
+    const { EmptyPlaceholder, Footer } = components;
+    const totalItems = groupCounts.reduce((sum, count) => sum + count, 0);
+    // `itemContent` receives the flat item index (0-based across items,
+    // excluding group headers), mirroring GroupedVirtuoso.
+    let itemIndex = 0;
+    return (
+      <div data-testid='grouped-virtuoso'>
+        {totalItems === 0
+          ? EmptyPlaceholder && <EmptyPlaceholder />
+          : groupCounts.map((count, groupIndex) => (
+              <React.Fragment key={groupIndex}>
+                {groupContent(groupIndex)}
+                {Array.from({ length: count }, () => {
+                  const index = itemIndex++;
+                  return (
+                    <React.Fragment key={index}>
+                      {itemContent(index, groupIndex)}
+                    </React.Fragment>
+                  );
+                })}
+              </React.Fragment>
+            ))}
+        {Footer && <Footer />}
+      </div>
+    );
+  },
+}));
 
 vi.mock('../../../../../components/Dialog', () => ({
   Prompt: {

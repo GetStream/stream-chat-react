@@ -6,8 +6,8 @@ import { useStateStore } from '../../../../store';
 import { Avatar } from '../../../../components/Avatar';
 import { Checkbox } from '../../../../components/Form';
 import { IconMute } from '../../../../components/Icons';
-import { InfiniteScrollPaginator } from '../../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
+import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { canUpdateChannelMembers, getUserDisplayName } from './ChannelMembersView.utils';
@@ -28,6 +28,10 @@ const searchSourceItemsStateSelector = (state: SearchSourceState<UserResponse>) 
   isLoading: state.isLoading,
   users: state.items,
 });
+
+const EMPTY_USERS: UserResponse[] = [];
+
+const computeUserItemKey = (_: number, user: UserResponse) => user.id;
 
 const MuteIndicator = () => (
   <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
@@ -152,15 +156,6 @@ export const ChannelMembersAddView = ({
     return () => userSearchSource.cancelScheduledQuery();
   }, [userSearchSource]);
 
-  const loadNextPageOnScroll = useCallback(
-    (distanceFromBottom: number, distanceFromTop: number, threshold: number) => {
-      if (distanceFromTop > 0 && distanceFromBottom < threshold) {
-        userSearchSource.search();
-      }
-    },
-    [userSearchSource],
-  );
-
   const selectedUserIdSet = useMemo(() => new Set(selectedUserIds), [selectedUserIds]);
   const mutedUserIdSet = useMemo(
     () => new Set(mutes.map((mute) => mute.target.id)),
@@ -182,6 +177,45 @@ export const ChannelMembersAddView = ({
           : [...currentSelectedUserIds, userId],
       ),
     [],
+  );
+
+  const renderItem = useCallback(
+    (_: number, user: UserResponse) => (
+      <ChannelMembersAddViewItem
+        canManageChannelMembers={canManageChannelMembers}
+        isMember={memberIdSet.has(user.id)}
+        isMuted={mutedUserIdSet.has(user.id)}
+        isSelected={selectedUserIdSet.has(user.id)}
+        toggleSelectedUser={toggleSelectedUser}
+        user={user}
+      />
+    ),
+    [
+      canManageChannelMembers,
+      memberIdSet,
+      mutedUserIdSet,
+      selectedUserIdSet,
+      toggleSelectedUser,
+    ],
+  );
+
+  // Only show the "no results" copy once a query has resolved (`users` is an
+  // array); while the first page loads `users` is undefined and nothing shows.
+  const EmptyPlaceholder = useMemo(
+    () =>
+      function ChannelMembersAddEmptyPlaceholder() {
+        if (isLoading || !users) return null;
+        return <ChannelDetailEmptyList>{t('No user found')}</ChannelDetailEmptyList>;
+      },
+    [isLoading, t, users],
+  );
+
+  const Footer = useMemo(
+    () =>
+      function ChannelMembersAddListFooter() {
+        return <ChannelDetailListLoadingIndicator searchSource={userSearchSource} />;
+      },
+    [userSearchSource],
   );
 
   const handleSave = async () => {
@@ -217,30 +251,15 @@ export const ChannelMembersAddView = ({
     <>
       <Prompt.Body className='str-chat__channel-members-view__body'>
         <ChannelDetailSearchInput autoFocus onSearchChange={handleSearchChange} />
-        <InfiniteScrollPaginator
+        <VirtualizedList
           className='str-chat__channel-detail__channel-members-view__list'
-          listenToScroll={loadNextPageOnScroll}
-          threshold={40}
-        >
-          {users && users.length > 0 ? (
-            users.map((user) => (
-              <ChannelMembersAddViewItem
-                canManageChannelMembers={canManageChannelMembers}
-                isMember={memberIdSet.has(user.id)}
-                isMuted={mutedUserIdSet.has(user.id)}
-                isSelected={selectedUserIdSet.has(user.id)}
-                key={user.id}
-                toggleSelectedUser={toggleSelectedUser}
-                user={user}
-              />
-            ))
-          ) : !isLoading && users ? (
-            <ChannelDetailEmptyList>{t('No user found')}</ChannelDetailEmptyList>
-          ) : null}
-          {isLoading && (
-            <ChannelDetailListLoadingIndicator searchSource={userSearchSource} />
-          )}
-        </InfiniteScrollPaginator>
+          computeItemKey={computeUserItemKey}
+          data={users ?? EMPTY_USERS}
+          EmptyPlaceholder={EmptyPlaceholder}
+          Footer={Footer}
+          itemContent={renderItem}
+          loadNext={userSearchSource.search}
+        />
       </Prompt.Body>
       {canManageChannelMembers && selectedUserIds.length > 0 && (
         <Prompt.Footer>

@@ -1,11 +1,11 @@
 import type { ChannelMemberResponse } from 'stream-chat';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import { useChatContext, useTranslationContext } from '../../../../context';
 import { Avatar } from '../../../../components/Avatar';
 import { IconMute } from '../../../../components/Icons';
-import { InfiniteScrollPaginator } from '../../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
+import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
 import {
   getMemberDisplayName,
@@ -117,6 +117,9 @@ const ChannelMembersBrowseViewItem = ({
   );
 };
 
+const computeMemberItemKey = (_: number, member: ChannelMemberResponse) =>
+  getMemberUserId(member) as string;
+
 export type ChannelMembersBrowseViewProps = {
   onMemberSelect?: (member: ChannelMemberResponse) => void;
 };
@@ -138,6 +141,40 @@ export const ChannelMembersBrowseView = ({
     [mutes],
   );
 
+  // Only members with a resolvable user id are rendered; pre-filtering keeps the
+  // virtualized item renderer total in sync with what it can actually display.
+  const renderableMembers = useMemo(
+    () => displayedMembers.filter((member) => getMemberUserId(member)),
+    [displayedMembers],
+  );
+
+  const renderItem = useCallback(
+    (_: number, member: ChannelMemberResponse) => (
+      <ChannelMembersBrowseViewItem
+        isMuted={mutedUserIdSet.has(getMemberUserId(member) as string)}
+        member={member}
+        onMemberSelect={onMemberSelect}
+      />
+    ),
+    [mutedUserIdSet, onMemberSelect],
+  );
+
+  const EmptyPlaceholder = useMemo(
+    () =>
+      function ChannelMembersEmptyPlaceholder() {
+        return <ChannelDetailEmptyList>{t('No member found')}</ChannelDetailEmptyList>;
+      },
+    [t],
+  );
+
+  const Footer = useMemo(
+    () =>
+      function ChannelMembersListFooter() {
+        return <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />;
+      },
+    [membersSearchSource],
+  );
+
   return (
     <Prompt.Body className='str-chat__channel-members-view__body'>
       {hasMembers && (
@@ -146,29 +183,15 @@ export const ChannelMembersBrowseView = ({
           resetKey={searchInputResetKey}
         />
       )}
-      <InfiniteScrollPaginator
+      <VirtualizedList
         className='str-chat__channel-detail__channel-members-view__list'
-        loadNextOnScrollToBottom={hasMembers ? membersSearchSource.search : undefined}
-      >
-        {displayedMembers.length > 0 ? (
-          displayedMembers.map((member) => {
-            const memberUserId = getMemberUserId(member);
-            if (!memberUserId) return null;
-
-            return (
-              <ChannelMembersBrowseViewItem
-                isMuted={mutedUserIdSet.has(memberUserId)}
-                key={memberUserId}
-                member={member}
-                onMemberSelect={onMemberSelect}
-              />
-            );
-          })
-        ) : (
-          <ChannelDetailEmptyList>{t('No member found')}</ChannelDetailEmptyList>
-        )}
-        <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />
-      </InfiniteScrollPaginator>
+        computeItemKey={computeMemberItemKey}
+        data={renderableMembers}
+        EmptyPlaceholder={EmptyPlaceholder}
+        Footer={Footer}
+        itemContent={renderItem}
+        loadNext={hasMembers ? membersSearchSource.search : undefined}
+      />
     </Prompt.Body>
   );
 };

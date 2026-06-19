@@ -1,5 +1,3 @@
-@use '../../../styling/utils';
-
 .str-chat__channel-detail__files-view {
   display: flex;
   flex-direction: column;
@@ -58,26 +56,11 @@
   font: var(--str-chat__font-caption-default);
 }
 
-.str-chat__channel-detail__files-view__list {
-  @include utils.hide-scrollbar;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  max-height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-
-  .str-chat__infinite-scroll-paginator__content {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-  }
-}
-
-.str-chat__channel-detail__files-view__section {
-  display: flex;
-  flex-direction: column;
+.str-chat__channel-detail__files-view__group {
+  // react-virtuoso marks the group wrapper `position: sticky` but leaves
+  // `top: auto`; pin it to the scroller top so months hand off cleanly instead
+  // of overlapping.
+  top: 0;
 }
 
 .str-chat__channel-detail__files-view__section-header {
@@ -85,17 +68,17 @@
   padding-inline: var(--str-chat__spacing-xs);
   color: var(--str-chat__text-secondary);
   font: var(--str-chat__font-caption-emphasis);
+  // Sticky month headers scroll over the rows beneath them; the opaque
+  // background keeps the rows from showing through.
   background: var(--str-chat__background-core-surface-subtle);
 }
 
-.str-chat__channel-detail__files-view__section-items {
-  display: flex;
-  flex-direction: column;
+.str-chat__channel-detail__files-view__item {
   padding-inline: var(--str-chat__spacing-xs);
 }
 
 .str-chat__channel-detail--inline {
-  .str-chat__channel-detail__files-view__section-items {
+  .str-chat__channel-detail__files-view__item {
     padding-inline: var(--str-chat__spacing-xxs);
   }
 }

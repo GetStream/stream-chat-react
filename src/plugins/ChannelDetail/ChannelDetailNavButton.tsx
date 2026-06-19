@@ -19,6 +19,8 @@ export type ChannelDetailNavButtonProps = SectionNavigatorNavButtonProps & {
 export const ChannelDetailNavButton = ({
   className,
   LeadingIcon,
+  // Dropped so it is not forwarded onto the DOM <button> via `...props`.
+  sectionId: _sectionId, // eslint-disable-line @typescript-eslint/no-unused-vars
   select,
   selected,
   title,

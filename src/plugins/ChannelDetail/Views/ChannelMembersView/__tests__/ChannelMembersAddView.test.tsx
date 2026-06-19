@@ -15,7 +15,7 @@ import {
 } from './testUtils';
 
 const mocks = vi.hoisted(() => ({
-  infiniteScrollPaginatorRenderCount: 0,
+  virtuosoRenderCount: 0,
 }));
 
 vi.mock('../../../../../context');
@@ -27,15 +27,36 @@ vi.mock('../../../../../components/Notifications', () => ({
   }),
 }));
 
-vi.mock(
-  '../../../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator',
-  () => ({
-    InfiniteScrollPaginator: ({ children }: { children: React.ReactNode }) => {
-      mocks.infiniteScrollPaginatorRenderCount += 1;
-      return <div data-testid='infinite-scroll-paginator'>{children}</div>;
-    },
-  }),
-);
+// Render react-virtuoso synchronously: jsdom has no layout, so the real
+// component would window down to zero items. The stub renders every item plus
+// the empty/footer slots so behavior assertions still hold.
+vi.mock('react-virtuoso', () => ({
+  Virtuoso: ({
+    components = {},
+    data = [],
+    itemContent,
+  }: {
+    components?: {
+      EmptyPlaceholder?: React.ComponentType;
+      Footer?: React.ComponentType;
+    };
+    data?: unknown[];
+    itemContent: (index: number, item: unknown) => React.ReactNode;
+  }) => {
+    mocks.virtuosoRenderCount += 1;
+    const { EmptyPlaceholder, Footer } = components;
+    return (
+      <div data-testid='virtuoso'>
+        {data.length === 0
+          ? EmptyPlaceholder && <EmptyPlaceholder />
+          : data.map((item, index) => (
+              <React.Fragment key={index}>{itemContent(index, item)}</React.Fragment>
+            ))}
+        {Footer && <Footer />}
+      </div>
+    );
+  },
+}));
 
 vi.mock('../../../../../components/Dialog', () => ({
   Prompt: {
@@ -60,7 +81,7 @@ describe('ChannelMembersAddView', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.infiniteScrollPaginatorRenderCount = 0;
+    mocks.virtuosoRenderCount = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
       t: (key: string, options?: { count?: number }) =>
@@ -235,9 +256,9 @@ describe('ChannelMembersAddView', () => {
       />,
     );
 
-    const renderCount = mocks.infiniteScrollPaginatorRenderCount;
+    const renderCount = mocks.virtuosoRenderCount;
     fireEvent.change(screen.getByRole('searchbox'), { target: { value: 'car' } });
 
-    expect(mocks.infiniteScrollPaginatorRenderCount).toBe(renderCount);
+    expect(mocks.virtuosoRenderCount).toBe(renderCount);
   });
 });

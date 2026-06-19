@@ -9,7 +9,7 @@ import { useEffect, useMemo } from 'react';
 import { useChatContext } from '../../../../context';
 import { useStateStore } from '../../../../store';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
-import { FILE_ATTACHMENT_TYPES, toChannelFileGroups } from './ChannelFilesView.utils';
+import { FILE_ATTACHMENT_TYPES, toChannelFileSections } from './ChannelFilesView.utils';
 
 const CHANNEL_FILES_SEARCH_PAGE_SIZE = 30;
 
@@ -44,8 +44,9 @@ export const useChannelFilesSearch = () => {
     channelFilesSearchSourceStateSelector,
   );
 
-  const fileGroups = useMemo(
-    () => toChannelFileGroups((messages ?? []) as Array<MessageResponse | LocalMessage>),
+  const { groupCounts, items, sections } = useMemo(
+    () =>
+      toChannelFileSections((messages ?? []) as Array<MessageResponse | LocalMessage>),
     [messages],
   );
 
@@ -60,8 +61,10 @@ export const useChannelFilesSearch = () => {
 
   return {
     channelFilesSearchSource,
-    fileGroups,
+    fileItems: items,
+    groupCounts,
     hasResultsLoaded: Array.isArray(messages),
     isLoading,
+    sections,
   };
 };

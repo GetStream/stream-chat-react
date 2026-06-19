@@ -1,5 +1,3 @@
-@use '../../../styling/utils';
-
 .str-chat__channel-detail__pinned-messages-view {
   display: flex;
   flex-direction: column;
@@ -15,19 +13,8 @@
 }
 
 .str-chat__channel-detail__pinned-messages-view__list {
-  @include utils.hide-scrollbar;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  max-height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-
-  .str-chat__infinite-scroll-paginator__content {
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
+  // Scroll/height/scrollbar handling lives on the shared `.str-chat__virtualized-list`.
+  .str-chat__virtualized-list__content {
     padding-inline: var(--str-chat__spacing-xs);
     padding-block: var(--str-chat__spacing-xxs);
   }
@@ -35,7 +22,7 @@
 
 .str-chat__channel-detail--inline {
   .str-chat__channel-detail__pinned-messages-view__list {
-    .str-chat__infinite-scroll-paginator__content {
+    .str-chat__virtualized-list__content {
       padding-inline: var(--str-chat__spacing-xxs);
     }
   }

@@ -9,8 +9,8 @@ import {
 } from '../../../../context';
 import { getDateString, isDate } from '../../../../i18n/utils';
 import { Avatar } from '../../../../components/Avatar';
-import { InfiniteScrollPaginator } from '../../../../components/InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
+import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
 import {
   SectionNavigatorHeader,
@@ -25,6 +25,8 @@ import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
 
 type PinnedMessage = MessageResponse | LocalMessage;
+
+const computeItemKey = (_: number, message: PinnedMessage) => message.id;
 
 const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) => {
   if (!timestamp) return undefined;
@@ -150,6 +152,36 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     [channel, close, jumpToMessage, setActiveChannel],
   );
 
+  const renderItem = useCallback(
+    (_: number, message: PinnedMessage) => (
+      <PinnedMessagesViewItem message={message} onSelect={handleSelectMessage} />
+    ),
+    [handleSelectMessage],
+  );
+
+  const EmptyPlaceholder = useMemo(
+    () =>
+      function PinnedMessagesEmptyPlaceholder() {
+        if (!hasPinnedMessages) return <PinnedMessagesEmptyList />;
+        if (hasSearchResultsLoaded)
+          return (
+            <ChannelDetailEmptyList>{t('No messages found')}</ChannelDetailEmptyList>
+          );
+        return null;
+      },
+    [hasPinnedMessages, hasSearchResultsLoaded, t],
+  );
+
+  const Footer = useMemo(
+    () =>
+      function PinnedMessagesListFooter() {
+        return (
+          <ChannelDetailListLoadingIndicator searchSource={pinnedMessagesSearchSource} />
+        );
+      },
+    [pinnedMessagesSearchSource],
+  );
+
   return (
     <div className='str-chat__channel-detail__pinned-messages-view'>
       <SectionNavigatorHeader
@@ -161,27 +193,15 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
         {hasPinnedMessages && (
           <ChannelDetailSearchInput onSearchChange={handleSearchChange} />
         )}
-        <InfiniteScrollPaginator
+        <VirtualizedList
           className='str-chat__channel-detail__pinned-messages-view__list'
-          loadNextOnScrollToBottom={
-            hasPinnedMessages ? pinnedMessagesSearchSource.search : undefined
-          }
-        >
-          {displayedMessages.length > 0 ? (
-            displayedMessages.map((message) => (
-              <PinnedMessagesViewItem
-                key={message.id}
-                message={message}
-                onSelect={handleSelectMessage}
-              />
-            ))
-          ) : !hasPinnedMessages ? (
-            <PinnedMessagesEmptyList />
-          ) : hasSearchResultsLoaded ? (
-            <ChannelDetailEmptyList>{t('No messages found')}</ChannelDetailEmptyList>
-          ) : null}
-          <ChannelDetailListLoadingIndicator searchSource={pinnedMessagesSearchSource} />
-        </InfiniteScrollPaginator>
+          computeItemKey={computeItemKey}
+          data={displayedMessages}
+          EmptyPlaceholder={EmptyPlaceholder}
+          Footer={Footer}
+          itemContent={renderItem}
+          loadNext={hasPinnedMessages ? pinnedMessagesSearchSource.search : undefined}
+        />
       </Prompt.Body>
     </div>
   );

@@ -23,13 +23,23 @@ export type ChannelFileItem = {
   createdAt?: string;
 };
 
-export type ChannelFileGroup = {
-  /** Items belonging to the same month/year. */
-  items: ChannelFileItem[];
+export type ChannelFileSection = {
   /** Stable grouping key (`YYYY-MM` or `unknown`). */
   key: string;
   /** Representative timestamp used to render the section header. */
   timestamp?: string;
+};
+
+export type ChannelFileSections = {
+  /**
+   * Item counts per section, aligned 1:1 with `sections`. Maps directly onto
+   * GroupedVirtuoso's `groupCounts`; `sum(groupCounts) === items.length`.
+   */
+  groupCounts: number[];
+  /** Flat list of items in display order, grouped contiguously by section. */
+  items: ChannelFileItem[];
+  /** Section headers (month/year), aligned 1:1 with `groupCounts`. */
+  sections: ChannelFileSection[];
 };
 
 const normalizeTimestamp = (timestamp?: string | Date) => {
@@ -46,16 +56,18 @@ const byCreatedAtDesc = (a: ChannelFileItem, b: ChannelFileItem) =>
   (b.createdAt ?? '').localeCompare(a.createdAt ?? '');
 
 /**
- * Flattens messages into file/audio attachment items grouped into descending
+ * Flattens messages into file/audio attachment items organized into descending
  * month/year sections (newest first), in a single pass over the attachments.
  *
- * The raw attachment is kept untransformed; only the carrying message timestamp
- * is captured for the month sections.
+ * The result is shaped for GroupedVirtuoso: a single flat `items` array (items
+ * grouped contiguously by section) plus `groupCounts`/`sections` aligned with
+ * it, so the view never has to re-flatten. The raw attachment is kept
+ * untransformed; only the carrying message timestamp is captured for headers.
  */
-export const toChannelFileGroups = (
+export const toChannelFileSections = (
   messages: Array<MessageResponse | LocalMessage>,
-): ChannelFileGroup[] => {
-  const groups: ChannelFileGroup[] = [];
+): ChannelFileSections => {
+  const groups: Array<ChannelFileSection & { items: ChannelFileItem[] }> = [];
   const groupIndexByKey = new Map<string, number>();
 
   messages.forEach((message) => {
@@ -87,5 +99,9 @@ export const toChannelFileGroups = (
   });
   groups.sort((a, b) => (b.timestamp ?? '').localeCompare(a.timestamp ?? ''));
 
-  return groups;
+  return {
+    groupCounts: groups.map((group) => group.items.length),
+    items: groups.flatMap((group) => group.items),
+    sections: groups.map(({ key, timestamp }) => ({ key, timestamp })),
+  };
 };
