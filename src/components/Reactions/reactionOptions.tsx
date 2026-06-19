@@ -48,6 +48,7 @@ export const mapEmojiMartData = (
     newMap[unicode] = {
       Component: () => <>{nativeEmoji}</>,
       name: emojiData.name,
+      unicode,
     };
   }
 
@@ -111,3 +112,25 @@ export const getHasExtendedReactions = (reactionOptions: ReactionOptions) =>
   !Array.isArray(reactionOptions) &&
   typeof reactionOptions.extended !== 'undefined' &&
   Object.keys(reactionOptions.extended).length > 0;
+
+/**
+ * Resolves the native emoji character (e.g. "👍") for a given reaction type from
+ * the configured reaction options. The value is used as the `emoji_code` sent
+ * with a reaction so that push notifications can render the emoji.
+ *
+ * Returns `undefined` when no `unicode` is available for the type (e.g. legacy
+ * array reaction options or custom options that omit `unicode`).
+ */
+export const getEmojiCodeByReactionType = (
+  reactionOptions: ReactionOptions,
+  reactionType: string,
+): string | undefined => {
+  // Legacy array reaction options carry no unicode data.
+  if (Array.isArray(reactionOptions)) return undefined;
+
+  const unicode =
+    reactionOptions.quick[reactionType]?.unicode ??
+    reactionOptions.extended?.[reactionType]?.unicode;
+
+  return unicode ? unicodeToEmoji(unicode) : undefined;
+};
