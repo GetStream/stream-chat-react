@@ -1226,7 +1226,21 @@ describe(`MessageInputFlat`, () => {
     const scrollIntoView = Element.prototype.scrollIntoView;
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
-    const { customChannel, customClient } = await setup();
+    // The built-in `@channel` and `@here` special mentions are gated behind the
+    // `notify-channel` / `notify-here` own-capabilities (see
+    // getAllowedMentionTypesFromCapabilities in stream-chat), so grant them here.
+    const { customChannel, customClient } = await setup({
+      channelData: generateChannel(
+        fromPartial<GenerateChannelOptions>({
+          channel: {
+            id: 'general',
+            own_capabilities: ['notify-channel', 'notify-here'],
+            type: 'messaging',
+          },
+          members: [generateMember({ user }), generateMember({ user: mentionUser })],
+        }),
+      ),
+    });
     await renderComponent({
       customChannel,
       customClient,
@@ -1244,8 +1258,8 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
-    // stream-chat >= 9.45 prepends the built-in `@channel` and `@here` special
-    // mentions to the suggestion list, on top of the channel members.
+    // `@channel` and `@here` are prepended to the suggestion list on top of the
+    // channel members once the corresponding capabilities are granted.
     const builtInMentionsCount = 2;
     const memberMentionsCount = Object.keys(customChannel.state.members).length - 1; // remove own user
     await waitFor(() => {
