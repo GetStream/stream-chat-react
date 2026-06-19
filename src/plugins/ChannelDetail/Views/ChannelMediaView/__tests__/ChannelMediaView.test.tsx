@@ -30,9 +30,11 @@ vi.mock('stream-chat', async (importOriginal) => {
   class MessageSearchSource {
     messageSearchChannelFilters?: unknown;
     messageSearchFilters?: unknown;
+    pageSize: number;
     state = {};
 
-    constructor(_client: unknown, options: unknown) {
+    constructor(_client: unknown, options: { pageSize: number }) {
+      this.pageSize = options.pageSize;
       mocks.searchSourceOptions.push(options);
       mocks.searchSourceInstances.push(this);
     }
@@ -137,7 +139,7 @@ describe('ChannelMediaView', () => {
     } as unknown as ReturnType<typeof useComponentContext>);
 
     vi.mocked(useStateStore).mockReturnValue({
-      hasNextPage: false,
+      hasNext: false,
       isLoading: false,
       messages,
     });
@@ -189,7 +191,7 @@ describe('ChannelMediaView', () => {
 
   it('renders an empty state once results load with no media', () => {
     vi.mocked(useStateStore).mockReturnValue({
-      hasNextPage: false,
+      hasNext: false,
       isLoading: false,
       messages: [],
     });
@@ -198,5 +200,93 @@ describe('ChannelMediaView', () => {
 
     expect(screen.getByText('No photos or videos')).toBeInTheDocument();
     expect(screen.getByText('Share a photo or video to see it here')).toBeInTheDocument();
+  });
+
+  const buildImageMessages = (count: number): MessageResponse[] =>
+    Array.from({ length: count }, (_, index) => ({
+      attachments: [
+        {
+          image_url: `https://cdn.test/image-${index}.png`,
+          title: `image-${index}`,
+          type: 'image',
+        },
+      ],
+      cid: 'messaging:test-channel',
+      created_at: '2026-01-01T15:53:00.000Z',
+      id: `message-${index}`,
+      type: 'regular',
+      updated_at: '2026-01-01T15:53:00.000Z',
+      user: { id: 'user-1', name: 'Alice' },
+    }));
+
+  const getMediaItems = () =>
+    screen
+      .getAllByRole('button')
+      .filter((button) =>
+        button.className.includes('str-chat__channel-detail__media-view__item'),
+      );
+
+  it('hides the pagination control for a single page of media', () => {
+    vi.mocked(useStateStore).mockReturnValue({
+      hasNext: false,
+      isLoading: false,
+      messages: buildImageMessages(30),
+    });
+
+    renderView();
+
+    expect(getMediaItems()).toHaveLength(30);
+    expect(screen.queryByRole('button', { name: 'aria/Previous page' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'aria/Next page' })).toBeNull();
+  });
+
+  it('paginates 30 items per page through the previous/next buttons', () => {
+    vi.mocked(useStateStore).mockReturnValue({
+      hasNext: false,
+      isLoading: false,
+      messages: buildImageMessages(35),
+    });
+
+    renderView();
+
+    // First page: 30 items, previous disabled, next enabled.
+    expect(getMediaItems()).toHaveLength(30);
+    const previous = screen.getByRole('button', { name: 'aria/Previous page' });
+    const next = screen.getByRole('button', { name: 'aria/Next page' });
+    expect(previous).toBeDisabled();
+    expect(next).toBeEnabled();
+
+    fireEvent.click(next);
+
+    // Last page: remaining 5 items, next disabled, previous enabled.
+    expect(getMediaItems()).toHaveLength(5);
+    expect(next).toBeDisabled();
+    expect(previous).toBeEnabled();
+
+    fireEvent.click(previous);
+
+    expect(getMediaItems()).toHaveLength(30);
+    expect(previous).toBeDisabled();
+  });
+
+  it('only triggers source pagination when advancing past the loaded items', () => {
+    vi.mocked(useStateStore).mockReturnValue({
+      hasNext: true,
+      isLoading: false,
+      messages: buildImageMessages(30),
+    });
+
+    renderView();
+
+    // First page is full and the source has more, so next stays enabled.
+    const next = screen.getByRole('button', { name: 'aria/Next page' });
+    expect(next).toBeEnabled();
+
+    mocks.searchSourceSearch.mockClear();
+    fireEvent.click(next);
+
+    // Advancing past the loaded 30 items fetches the next page from the source.
+    expect(mocks.searchSourceSearch).toHaveBeenCalledTimes(1);
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith();
   });
 });

@@ -16,6 +16,7 @@ const CHANNEL_MEDIA_SEARCH_PAGE_SIZE = 30;
 const channelMediaSearchSourceItemsStateSelector = (
   state: SearchSourceState<MessageResponse>,
 ) => ({
+  hasNext: state.hasNext,
   isLoading: state.isLoading,
   messages: state.items,
 });
@@ -39,7 +40,7 @@ export const useChannelMediaSearch = () => {
     return source;
   }, [channel.cid, client]);
 
-  const { isLoading, messages } = useStateStore(
+  const { hasNext, isLoading, messages } = useStateStore(
     channelMediaSearchSource.state,
     channelMediaSearchSourceItemsStateSelector,
   );
@@ -60,8 +61,10 @@ export const useChannelMediaSearch = () => {
 
   return {
     channelMediaSearchSource,
+    hasNext: Boolean(hasNext),
     hasResultsLoaded: Array.isArray(messages),
     isLoading,
     mediaItems,
+    pageSize: channelMediaSearchSource.pageSize,
   };
 };

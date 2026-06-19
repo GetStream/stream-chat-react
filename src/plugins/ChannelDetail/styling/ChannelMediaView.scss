@@ -68,7 +68,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 
-  .str-chat__infinite-scroll-paginator__content {
+  .str-chat__channel-detail__media-view__grid__content {
     display: flex;
     flex-direction: column;
     min-height: 100%;
@@ -79,13 +79,36 @@
 
 .str-chat__channel-detail--inline {
   .str-chat__channel-detail__media-view__grid {
-    .str-chat__infinite-scroll-paginator__content {
+    .str-chat__channel-detail__media-view__grid__content {
       padding: 0;
 
       .str-chat__channel-detail__media-view__grid__items {
         gap: var(--str-chat__spacing-xxxs);
       }
     }
+  }
+}
+
+.str-chat__channel-detail__media-view__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // Pin to the bottom of the grid viewport while items don't fill it; the auto
+  // margin collapses once items overflow, so the control scrolls with content.
+  margin-block-start: auto;
+  gap: var(--str-chat__spacing-md);
+  padding-block: var(--str-chat__spacing-xl);
+}
+
+.str-chat__channel-detail__media-view__pagination__button {
+  .str-chat__icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  &:disabled {
+    color: var(--str-chat__text-tertiary);
+    cursor: default;
   }
 }
 
