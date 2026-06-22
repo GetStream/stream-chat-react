@@ -33,6 +33,12 @@ import type { ChannelMediaItem } from './ChannelMediaView.utils';
 import { useChannelMediaSearch } from './useChannelMediaSearch';
 import { Button } from '../../../../components';
 
+// Default items rendered per grid page (5 columns x 6 rows). Overridable via the
+// `itemsPerPage` prop. Intentionally decoupled from the search source's message
+// page size: a message carries a variable number of attachments, so message
+// pages and attachment pages don't align.
+const DEFAULT_CHANNEL_MEDIA_ITEMS_PER_PAGE = 30;
+
 type ChannelMediaGridItemProps = {
   BaseImage: React.ComponentType<BaseImageProps>;
   item: ChannelMediaItem;
@@ -143,9 +149,14 @@ const ChannelMediaPagination = ({
   );
 };
 
-export type ChannelMediaViewProps = SectionNavigatorSectionContentProps;
+export type ChannelMediaViewProps = SectionNavigatorSectionContentProps & {
+  /** Number of media items rendered per grid page. Defaults to 30. */
+  itemsPerPage?: number;
+};
 
-export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = () => {
+export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
+  itemsPerPage = DEFAULT_CHANNEL_MEDIA_ITEMS_PER_PAGE,
+}) => {
   const { t } = useTranslationContext();
   const { close } = useModalContext();
   const {
@@ -153,21 +164,16 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = () =
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
-  const {
-    channelMediaSearchSource,
-    hasNext,
-    hasResultsLoaded,
-    isLoading,
-    mediaItems,
-    pageSize,
-  } = useChannelMediaSearch();
+  const { channelMediaSearchSource, hasNext, hasResultsLoaded, isLoading, mediaItems } =
+    useChannelMediaSearch();
 
   const [viewerOpen, setViewerOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [page, setPage] = useState(0);
   const gridRef = useRef<HTMLDivElement>(null);
-  // Set when "Next" needs more items than are loaded; resolved by the effect
-  // below once a search settles, keeping fetches button-triggered only.
+  // Set when "Next" reached a page that isn't loaded yet; the fill effect below
+  // advances to it once the fetched attachments land, keeping fetches triggered
+  // only by the button (or the initial mount load).
   const pendingNextRef = useRef(false);
 
   const galleryItems = useMemo(
@@ -175,16 +181,16 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = () =
     [mediaItems],
   );
 
-  const pageStart = page * pageSize;
+  const pageStart = page * itemsPerPage;
   const pageItems = useMemo(
-    () => mediaItems.slice(pageStart, pageStart + pageSize),
-    [mediaItems, pageSize, pageStart],
+    () => mediaItems.slice(pageStart, pageStart + itemsPerPage),
+    [mediaItems, itemsPerPage, pageStart],
   );
 
   // More items already loaded beyond this page, or the source can fetch more.
-  const canGoNext = mediaItems.length > pageStart + pageSize || hasNext;
+  const canGoNext = mediaItems.length > pageStart + itemsPerPage || hasNext;
   const showPagination =
-    mediaItems.length > pageSize || (mediaItems.length > 0 && hasNext);
+    mediaItems.length > itemsPerPage || (mediaItems.length > 0 && hasNext);
 
   const openViewer = useCallback((index: number) => {
     setSelectedIndex(index);
@@ -201,31 +207,57 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = () =
   }, []);
 
   const goToNextPage = useCallback(() => {
-    const nextPageStart = (page + 1) * pageSize;
+    const nextPageStart = (page + 1) * itemsPerPage;
     if (mediaItems.length > nextPageStart) {
+      // The next page is already backed by loaded attachments — advance now.
       setPage(page + 1);
     } else if (hasNext) {
-      // Defer advancing until the freshly fetched page lands (see effect below).
+      // The next page isn't loaded yet. Request more and let the fill effect
+      // advance once enough attachments arrive. Only a ref changes here (no
+      // re-render), so the fetch fires exactly once per click.
       pendingNextRef.current = true;
       void channelMediaSearchSource.search();
     }
-  }, [channelMediaSearchSource, hasNext, mediaItems.length, page, pageSize]);
+  }, [channelMediaSearchSource, hasNext, itemsPerPage, mediaItems.length, page]);
 
-  // Resolve a deferred "Next": once a search settles, advance to the page now
-  // backed by data, or keep pulling if the source returned too few items.
+  // Forward-fill loop. Because a message yields a variable number of
+  // attachments, one fetch may not fill a grid page (and the very first page
+  // can arrive short). Keep pulling message pages until the visible page is
+  // full or the channel is exhausted; nothing is ever discarded, so paging to
+  // the end always reveals every attachment. Also resolves a pending "Next" by
+  // advancing once its target page has data.
   useEffect(() => {
-    if (!pendingNextRef.current || isLoading) return;
+    if (isLoading) return;
 
-    const nextPageStart = (page + 1) * pageSize;
-    if (mediaItems.length > nextPageStart) {
-      pendingNextRef.current = false;
-      setPage((current) => current + 1);
-    } else if (hasNext) {
+    if (pendingNextRef.current) {
+      const nextPageStart = (page + 1) * itemsPerPage;
+      if (mediaItems.length > nextPageStart) {
+        pendingNextRef.current = false;
+        setPage((current) => current + 1);
+        return;
+      }
+      if (!hasNext) {
+        pendingNextRef.current = false;
+        return;
+      }
       void channelMediaSearchSource.search();
-    } else {
-      pendingNextRef.current = false;
+      return;
     }
-  }, [channelMediaSearchSource, hasNext, isLoading, mediaItems.length, page, pageSize]);
+
+    // Top up the visible page (covers the first page on mount).
+    const need = pageStart + itemsPerPage;
+    if (mediaItems.length < need && hasNext) {
+      void channelMediaSearchSource.search();
+    }
+  }, [
+    channelMediaSearchSource,
+    hasNext,
+    isLoading,
+    itemsPerPage,
+    mediaItems.length,
+    page,
+    pageStart,
+  ]);
 
   // Each page replaces the previous one, so reset the grid scroll on change.
   useEffect(() => {

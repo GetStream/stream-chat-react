@@ -65,6 +65,5 @@ export const useChannelMediaSearch = () => {
     hasResultsLoaded: Array.isArray(messages),
     isLoading,
     mediaItems,
-    pageSize: channelMediaSearchSource.pageSize,
   };
 };

@@ -289,4 +289,59 @@ describe('ChannelMediaView', () => {
     expect(mocks.searchSourceSearch).toHaveBeenCalledTimes(1);
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith();
   });
+
+  it('tops up a short first page when more attachments can be fetched', () => {
+    // 30 messages with one attachment each would normally fill a page, but here
+    // only 12 attachments are loaded so far while the source reports more.
+    vi.mocked(useStateStore).mockReturnValue({
+      hasNext: true,
+      isLoading: false,
+      messages: buildImageMessages(12),
+    });
+
+    renderView();
+
+    // The initial empty-string search loads page one; the short first page then
+    // pulls the next message page (loadNext, no search string) to fill itself.
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith();
+  });
+
+  it('does not fetch beyond a full first page', () => {
+    vi.mocked(useStateStore).mockReturnValue({
+      hasNext: true,
+      isLoading: false,
+      messages: buildImageMessages(30),
+    });
+
+    renderView();
+
+    // A full page is loaded, so no loadNext fires until the user navigates.
+    expect(mocks.searchSourceSearch).not.toHaveBeenCalledWith();
+    expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
+  });
+
+  it('respects the itemsPerPage prop for the grid page size', () => {
+    vi.mocked(useStateStore).mockReturnValue({
+      hasNext: false,
+      isLoading: false,
+      messages: buildImageMessages(35),
+    });
+
+    render(
+      <ChannelDetailProvider channel={channel}>
+        <ChannelMediaView itemsPerPage={10} layout='tabs' />
+      </ChannelDetailProvider>,
+    );
+
+    // First page shows 10 (not the default 30); 35 items spread across 4 pages.
+    expect(getMediaItems()).toHaveLength(10);
+    expect(screen.getByRole('button', { name: 'aria/Previous page' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'aria/Next page' })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'aria/Next page' }));
+
+    expect(getMediaItems()).toHaveLength(10);
+    expect(screen.getByRole('button', { name: 'aria/Previous page' })).toBeEnabled();
+  });
 });
