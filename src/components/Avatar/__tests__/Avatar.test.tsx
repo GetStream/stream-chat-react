@@ -4,6 +4,7 @@ import { cleanup, fireEvent, render } from '@testing-library/react';
 
 import { axe } from '../../../../axe-helper';
 import { Avatar } from '../Avatar';
+import { IconMegaphone } from '../../Icons';
 
 const AVATAR_ROOT_TEST_ID = 'avatar';
 const AVATAR_FALLBACK_TEST_ID = 'avatar-fallback';
@@ -63,6 +64,13 @@ describe('Avatar', () => {
     );
     expect(queryByTestId(AVATAR_IMG_TEST_ID)).not.toBeInTheDocument();
     expect(getByTestId(AVATAR_FALLBACK_TEST_ID)).toHaveTextContent('fS');
+  });
+
+  it('should render a custom fallback icon when provided and no initials are available', () => {
+    const { getByTestId } = render(<Avatar FallbackIcon={IconMegaphone} size='md' />);
+    const root = getByTestId(AVATAR_ROOT_TEST_ID);
+
+    expect(root.querySelector('.str-chat__icon--megaphone')).toBeInTheDocument();
   });
 
   it('should call onClick prop on user click', () => {

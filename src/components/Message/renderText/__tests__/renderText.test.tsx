@@ -2,6 +2,7 @@ import React from 'react';
 import { findAndReplace } from 'hast-util-find-and-replace';
 import { u } from 'unist-builder';
 import { render, screen } from '@testing-library/react';
+import { mentionsMarkdownPlugin } from '../rehypePlugins';
 import {
   htmlToTextPlugin,
   imageToLink,
@@ -63,11 +64,141 @@ describe(`renderText`, () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('handles the special case where role name matches an e-mail pattern', () => {
+    const Markdown = renderText('Hello @support@example.com', undefined, {
+      messageMentionEntities: [
+        {
+          id: 'support@example.com',
+          mentionType: 'role',
+          name: 'support@example.com',
+        },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            class="str-chat__message-mention"
+            data-mention-id="support@example.com"
+            data-mention-type="role"
+          >
+            @support@example.com
+          </span>
+        </p>
+      </div>
+    `);
+  });
+
+  it('handles the special case where user-group name matches an e-mail pattern', () => {
+    const Markdown = renderText('Hello @backend@stream.io', undefined, {
+      messageMentionEntities: [
+        {
+          id: 'backend-team',
+          mentionType: 'user_group',
+          name: 'backend@stream.io',
+        },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            class="str-chat__message-mention"
+            data-mention-id="backend-team"
+            data-mention-type="user_group"
+          >
+            @backend@stream.io
+          </span>
+        </p>
+      </div>
+    `);
+  });
+
+  it('wraps user-group mentions by id even when the entity also has a name', () => {
+    const Markdown = renderText('Hello @backend-team', undefined, {
+      messageMentionEntities: [
+        {
+          id: 'backend-team',
+          mentionType: 'user_group',
+          name: 'Backend Team',
+        },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            class="str-chat__message-mention"
+            data-mention-id="backend-team"
+            data-mention-type="user_group"
+          >
+            @backend-team
+          </span>
+        </p>
+      </div>
+    `);
+  });
+
+  it('wraps multi-word mention names without consuming following text', () => {
+    const Markdown = renderText('Hello @React support hey', undefined, {
+      messageMentionEntities: [
+        {
+          id: 'react-support',
+          mentionType: 'user_group',
+          name: 'React support',
+        },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            class="str-chat__message-mention"
+            data-mention-id="react-support"
+            data-mention-type="user_group"
+          >
+            @React support
+          </span>
+           hey
+        </p>
+      </div>
+    `);
+  });
+
+  it('does not match a multi-word mention name as a prefix of a longer token', () => {
+    const Markdown = renderText('Hello @React supportive hey', undefined, {
+      messageMentionEntities: [
+        {
+          id: 'react-support',
+          mentionType: 'user_group',
+          name: 'React support',
+        },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello @React supportive hey
+        </p>
+      </div>
+    `);
+  });
+
   it('renders custom mention', () => {
     const CustomMention = (props) => (
       <span
         className='my-mention'
-        data-node-mentioned-user-id={props.node.mentionedUser.id}
+        data-node-mentioned-entity-id={props.node.mentionedEntity.id}
+        data-node-mentioned-user-id={props.node.mentionedUser?.id}
       >
         {props.children}
       </span>
@@ -83,6 +214,112 @@ describe(`renderText`, () => {
     );
     const { container } = render(Markdown);
     expect(container).toMatchSnapshot();
+  });
+
+  it('keeps the exported mentionsMarkdownPlugin backward compatible for UserResponse arrays', () => {
+    const Markdown = renderText('Hello @alice', undefined, {
+      getRehypePlugins: (defaultPlugins) => [
+        mentionsMarkdownPlugin([{ id: 'alice-id', name: 'alice' }]),
+        ...defaultPlugins,
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            class="str-chat__message-mention"
+            data-mention-id="alice-id"
+            data-mention-type="user"
+            data-user-id="alice-id"
+          >
+            @alice
+          </span>
+        </p>
+      </div>
+    `);
+  });
+
+  it.each([
+    [
+      'user',
+      'Hello @alice',
+      { id: 'alice', mentionType: 'user' as const, name: 'alice' },
+    ],
+    [
+      'channel',
+      'Hello @channel',
+      { id: 'channel', mentionType: 'channel' as const, name: 'channel' },
+    ],
+    ['here', 'Hello @here', { id: 'here', mentionType: 'here' as const, name: 'here' }],
+    [
+      'role',
+      'Hello @admin',
+      { id: 'admin', mentionType: 'role' as const, name: 'admin' },
+    ],
+    [
+      'user_group',
+      'Hello @Backend Team',
+      {
+        id: 'backend-team',
+        mentionType: 'user_group' as const,
+        name: 'Backend Team',
+      },
+    ],
+  ])(
+    'renders a mention tag for %s mentions regardless of channel capabilities',
+    (_, text, mentionEntity) => {
+      const Markdown = renderText(text, undefined, {
+        messageMentionEntities: [mentionEntity],
+      });
+      const { container } = render(Markdown);
+
+      expect(container.querySelector('.str-chat__message-mention')).not.toBeNull();
+      expect(container).toHaveTextContent(text);
+    },
+  );
+
+  it('renders non-user mentions through the unified mention node contract', () => {
+    const CustomMention = (props) => (
+      <span
+        data-node-mentioned-entity-id={props.node.mentionedEntity.id}
+        data-node-mentioned-entity-type={props.node.mentionedEntity.mentionType}
+        data-node-mentioned-user-id={props.node.mentionedUser?.id}
+      >
+        {props.children}
+      </span>
+    );
+    const Markdown = renderText('Hello @channel and @admin', undefined, {
+      customMarkDownRenderers: {
+        mention: CustomMention,
+      },
+      messageMentionEntities: [
+        { id: 'channel', mentionType: 'channel', name: 'channel' },
+        { id: 'admin', mentionType: 'role', name: 'admin' },
+      ],
+    });
+    const { container } = render(Markdown);
+    expect(container).toMatchInlineSnapshot(`
+      <div>
+        <p>
+          Hello 
+          <span
+            data-node-mentioned-entity-id="channel"
+            data-node-mentioned-entity-type="channel"
+          >
+            @channel
+          </span>
+           and 
+          <span
+            data-node-mentioned-entity-id="admin"
+            data-node-mentioned-entity-type="role"
+          >
+            @admin
+          </span>
+        </p>
+      </div>
+    `);
   });
 
   it('renders standard markdown text', () => {
@@ -142,6 +379,8 @@ describe(`renderText`, () => {
         <p>
           <span
             class="str-chat__message-mention"
+            data-mention-id="id-username@email.com"
+            data-mention-type="user"
             data-user-id="id-username@email.com"
           >
             @username@email.com
@@ -219,6 +458,8 @@ describe(`renderText`, () => {
         <p>
           <span
             class="str-chat__message-mention"
+            data-mention-id="id-username@email.com"
+            data-mention-type="user"
             data-user-id="id-username@email.com"
           >
             #

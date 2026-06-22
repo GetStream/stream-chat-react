@@ -350,7 +350,11 @@ describe('<Message /> component', () => {
     });
 
     context.onMentionsClickMessage(mouseEventMock);
-    expect(onMentionsClick).toHaveBeenCalledWith(mouseEventMock, message.mentioned_users);
+    expect(onMentionsClick).toHaveBeenCalledWith(
+      mouseEventMock,
+      message.mentioned_users,
+      message,
+    );
   });
 
   it('should trigger channel mentions hover on mentions hover', async () => {
@@ -367,7 +371,11 @@ describe('<Message /> component', () => {
     });
 
     context.onMentionsHoverMessage(mouseEventMock);
-    expect(onMentionsHover).toHaveBeenCalledWith(mouseEventMock, message.mentioned_users);
+    expect(onMentionsHover).toHaveBeenCalledWith(
+      mouseEventMock,
+      message.mentioned_users,
+      message,
+    );
   });
 
   it('should trigger channel onUserClick handler when a user element is clicked', async () => {
