@@ -50,9 +50,14 @@ export const useChannelPreviewInfo = (props: ChannelPreviewInfoParams) => {
     };
 
     updateInfo();
-    client.on('user.updated', updateInfo);
+    const { unsubscribe: unsubscribeChannelUpdated } = channel.on(
+      'channel.updated',
+      updateInfo,
+    );
+    const { unsubscribe: unsubscribeUserUpdated } = client.on('user.updated', updateInfo);
     return () => {
-      client.off('user.updated', updateInfo);
+      unsubscribeChannelUpdated();
+      unsubscribeUserUpdated();
     };
   }, [channel, channel?.data, client, overrideImage]);
 

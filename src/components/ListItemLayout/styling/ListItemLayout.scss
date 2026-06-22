@@ -12,6 +12,7 @@
 
   .str-chat__list-item-layout__container {
     --list-item-padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+
     display: flex;
     flex: 1;
     align-items: center;
@@ -28,6 +29,7 @@
   // specificity and let `button-reset`'s `background: none` clobber them.
   .str-chat__list-item-layout__container:where(button) {
     @include utils.button-reset;
+
     padding: var(--list-item-padding);
     cursor: pointer;
 
@@ -130,6 +132,7 @@
   .str-chat__list-item-layout__description,
   .str-chat__list-item-layout__title {
     @include utils.ellipsis-text;
+
     max-width: 100%;
   }
 }

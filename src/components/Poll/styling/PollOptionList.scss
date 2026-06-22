@@ -1,5 +1,3 @@
-$poll-checkmark-size: var(--str-chat__size-24);
-
 .str-chat__poll-option-list {
   display: flex;
   flex-direction: column;
@@ -18,25 +16,6 @@ $poll-checkmark-size: var(--str-chat__size-24);
       &:hover {
         cursor: pointer;
       }
-    }
-
-    .str-chat__checkmark {
-      grid-column: 1;
-      grid-row: span 2;
-      height: $poll-checkmark-size;
-      width: $poll-checkmark-size;
-      border-radius: var(--str-chat__radius-max);
-      border: 1px solid
-        var(--chat-border-on-chat, var(--str-chat__chat-border-on-chat-incoming));
-    }
-
-    .str-chat__checkmark--checked {
-      background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiPjxwYXRoIGZpbGw9IiNmZmYiIGQ9Im00IDkuNC00LTRMMS40IDQgNCA2LjYgMTAuNiAwIDEyIDEuNGwtOCA4WiIvPjwvc3ZnPg==');
-      background-repeat: no-repeat;
-      background-position: center;
-      background-size: 11px 10px;
-      background-color: var(--str-chat__control-radio-check-bg-selected);
-      border: none;
     }
 
     .str-chat__poll-option-data {

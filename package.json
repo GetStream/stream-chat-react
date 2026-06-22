@@ -22,6 +22,12 @@
       "require": "./dist/cjs/index.js",
       "default": "./dist/cjs/index.js"
     },
+    "./channel-detail": {
+      "types": "./dist/types/plugins/ChannelDetail/index.d.ts",
+      "import": "./dist/es/channel-detail.mjs",
+      "require": "./dist/cjs/channel-detail.js",
+      "default": "./dist/cjs/channel-detail.js"
+    },
     "./emojis": {
       "types": "./dist/types/plugins/Emojis/index.d.ts",
       "import": "./dist/es/emojis.mjs",
@@ -43,6 +49,9 @@
   },
   "typesVersions": {
     "*": {
+      "channel-detail": [
+        "./dist/types/plugins/ChannelDetail/index.d.ts"
+      ],
       "emojis": [
         "./dist/types/plugins/Emojis/index.d.ts"
       ],
@@ -182,7 +191,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && concurrently 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
-    "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css; cp -r src/styling/assets dist/css/assets",
+    "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css; cp -r src/styling/assets dist/css/assets",
     "build-translations": "i18next-cli extract",
     "coverage": "vitest run --coverage",
     "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",

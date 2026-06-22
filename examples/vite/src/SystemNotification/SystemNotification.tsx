@@ -6,13 +6,13 @@ import {
   IconCheckmark,
   IconExclamationCircleFill,
   IconExclamationTriangleFill,
+  IconInfo,
   IconLoading,
   useSystemNotifications,
 } from 'stream-chat-react';
-import { IconInfoCircle } from '../icons.tsx';
 const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
   error: IconExclamationCircleFill,
-  info: IconInfoCircle,
+  info: IconInfo,
   loading: IconLoading,
   success: IconCheckmark,
   warning: IconExclamationTriangleFill,

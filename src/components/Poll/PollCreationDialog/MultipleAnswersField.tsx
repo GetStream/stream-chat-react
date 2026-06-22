@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import React, { useMemo, useRef, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
@@ -37,7 +36,7 @@ export const MultipleAnswersField = () => {
   const voteLimitSwitchLabelId = `${voteLimitSwitchId}-label`;
 
   return (
-    <div className={clsx('str-chat__form__switch-fieldset', {})}>
+    <div className='str-chat__form__switch-fieldset'>
       <SwitchField
         checked={multipleVotesEnabled}
         description={t('Select more than one option')}

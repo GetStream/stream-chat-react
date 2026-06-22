@@ -127,9 +127,9 @@ const cooldown = 30;
 const filename = 'some.txt';
 const fileUploadUrl = 'http://www.getstream.io'; // real url, because ImageAttachmentPreview will try to load the image
 
-const getImage = () => new File(['content'], filename, { type: 'image/png' });
+const getImage = () => new File(['SectionContent'], filename, { type: 'image/png' });
 const getFile = (name = filename): File =>
-  new File(['content'], name, { type: 'text/plain' });
+  new File(['SectionContent'], name, { type: 'text/plain' });
 
 // Polyfill DOMRect for jsdom
 if (typeof globalThis.DOMRect === 'undefined') {

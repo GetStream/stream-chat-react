@@ -58,6 +58,9 @@ vi.mock('../../ChatView', () => ({
     setActiveChatView: vi.fn(),
   })),
 }));
+vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
+  useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
+}));
 
 let chatClient: StreamChat;
 const alice = generateUser({ id: 'alice', name: 'alice' });

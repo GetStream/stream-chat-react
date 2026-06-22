@@ -28,10 +28,10 @@ export function mimeTypeToIcon(mimeType?: string) {
   const icon = theMap[mimeType];
   if (icon) return icon;
 
-  if (mimeType.startsWith('audio/')) return theMap['audio/'];
-  if (mimeType.startsWith('video/')) return theMap['video/'];
-  if (mimeType.startsWith('image/')) return theMap['image/'];
-  if (mimeType.startsWith('text/')) return theMap['text/'];
+  if (mimeType.startsWith('audio/')) return theMap['audio/'] ?? theMap.fallback;
+  if (mimeType.startsWith('video/')) return theMap['video/'] ?? theMap.fallback;
+  if (mimeType.startsWith('image/')) return theMap['image/'] ?? theMap.fallback;
+  if (mimeType.startsWith('text/')) return theMap['text/'] ?? theMap.fallback;
 
   return theMap.fallback;
 }

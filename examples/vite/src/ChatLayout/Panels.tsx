@@ -24,6 +24,7 @@ import {
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
+import { ConfiguredAvatarWithChannelDetail } from './ConfiguredChannelDetail.tsx';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
@@ -75,7 +76,7 @@ const ResponsiveChannelPanels = () => {
     >
       <WithDragAndDropUpload className='app-chat-view__channel-main'>
         <Window>
-          <ChannelHeader Avatar={ChannelAvatar} />
+          <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
           <div className='app-chat-view__channel-body'>
             {messageListType === 'virtualized' ? (
               <VirtualizedMessageList returnAllReadData shouldGroupByUser />

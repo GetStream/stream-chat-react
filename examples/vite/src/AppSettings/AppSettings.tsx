@@ -1,4 +1,4 @@
-import React, { type ComponentType, useState } from 'react';
+import { type ComponentType, useCallback, useMemo, useState } from 'react';
 import {
   Button,
   ChatViewSelectorButton,
@@ -6,9 +6,18 @@ import {
   IconBell,
   IconEmoji,
   IconMessageBubble,
+  IconMessageBubbles,
 } from 'stream-chat-react';
+import {
+  SECTION_NAVIGATOR_LAYOUT,
+  SectionNavigator,
+  type SectionNavigatorLayout,
+  type SectionNavigatorNavButtonProps,
+  type SectionNavigatorSection,
+} from 'stream-chat-react/channel-detail';
 
 import { ActionsMenu } from './ActionsMenu';
+import { ChannelDetailTab } from './tabs/ChannelDetail';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
@@ -22,16 +31,93 @@ import {
   IconSun,
   IconTextDirection,
 } from '../icons.tsx';
+import clsx from 'clsx';
 
-type TabId = 'general' | 'messageActions' | 'notifications' | 'reactions' | 'sidebar';
+type TabId =
+  | 'channelDetail'
+  | 'general'
+  | 'messageActions'
+  | 'notifications'
+  | 'reactions'
+  | 'sidebar';
 
-const tabConfig: { Icon: ComponentType; id: TabId; title: string }[] = [
-  { Icon: IconGear, id: 'general', title: 'General' },
-  { Icon: IconMessageBubble, id: 'messageActions', title: 'Message Actions' },
-  { Icon: IconBell, id: 'notifications', title: 'Notifications' },
-  { Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
-  { Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
+type SettingsSectionConfig = {
+  Content: ComponentType<SettingsTabContentProps>;
+  Icon: ComponentType;
+  id: TabId;
+  title: string;
+};
+
+type SettingsTabContentProps = {
+  close: () => void;
+};
+
+const settingsSectionConfig: SettingsSectionConfig[] = [
+  { Content: GeneralTab, Icon: IconGear, id: 'general', title: 'General' },
+  {
+    Content: ChannelDetailTab,
+    Icon: IconMessageBubbles,
+    id: 'channelDetail',
+    title: 'Channel Detail',
+  },
+  {
+    Content: MessageActionsTab,
+    Icon: IconMessageBubble,
+    id: 'messageActions',
+    title: 'Message Actions',
+  },
+  {
+    Content: NotificationsTab,
+    Icon: IconBell,
+    id: 'notifications',
+    title: 'Notifications',
+  },
+  { Content: SidebarTab, Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
+  { Content: ReactionsTab, Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
 ];
+
+const createSettingsNavButton = ({
+  Icon,
+  id,
+  title,
+}: Pick<SettingsSectionConfig, 'Icon' | 'id' | 'title'>) => {
+  const SettingsNavButton = ({ select, selected }: SectionNavigatorNavButtonProps) => (
+    <Button
+      aria-selected={selected}
+      className={`app__settings-modal__tab str-chat__button--ghost str-chat__button--secondary str-chat__button--size-lg ${
+        selected ? 'app__settings-modal__tab--active' : ''
+      }`}
+      onClick={select}
+      role='tab'
+    >
+      <Icon />
+      {title}
+    </Button>
+  );
+  SettingsNavButton.displayName = `${id}SettingsNavButton`;
+
+  return SettingsNavButton;
+};
+
+const createSettingsSectionContent = ({
+  close,
+  Content,
+  id,
+}: Pick<SettingsSectionConfig, 'Content' | 'id'> & {
+  close: () => void;
+}) => {
+  const SettingsSectionContent = () => <Content close={close} />;
+  SettingsSectionContent.displayName = `${id}SettingsSectionContent`;
+
+  return SettingsSectionContent;
+};
+
+const createSettingsSections = (close: () => void): SectionNavigatorSection[] =>
+  settingsSectionConfig.map(({ Content, Icon, id, title }) => ({
+    id,
+    NavButton: createSettingsNavButton({ Icon, id, title }),
+    SectionContent: createSettingsSectionContent({ close, Content, id }),
+  }));
 
 const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const {
@@ -88,8 +174,13 @@ const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 };
 
 export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
-  const [activeTab, setActiveTab] = useState<TabId>('general');
   const [open, setOpen] = useState(false);
+  const closeSettingsModal = useCallback(() => setOpen(false), []);
+  const settingsSections = useMemo(
+    () => createSettingsSections(closeSettingsModal),
+    [closeSettingsModal],
+  );
+  const [layout, setLayout] = useState<SectionNavigatorLayout | undefined>();
 
   return (
     <div className='app__settings-group'>
@@ -103,46 +194,17 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         onClick={() => setOpen(true)}
         text='Settings'
       />
-      <GlobalModal onClose={() => setOpen(false)} open={open}>
-        <div className='app__settings-modal'>
-          <header className='app__settings-modal__header'>
-            <IconGear />
-            Settings
-          </header>
-          <div className='app__settings-modal__body'>
-            <nav
-              aria-label='Settings sections'
-              className='app__settings-modal__tabs'
-              role='tablist'
-            >
-              {tabConfig.map(({ Icon, id, title }) => (
-                <Button
-                  aria-controls={`${id}-content`}
-                  aria-selected={activeTab === id}
-                  className={`app__settings-modal__tab str-chat__button--ghost str-chat__button--secondary str-chat__button--size-lg ${
-                    activeTab === id ? 'app__settings-modal__tab--active' : ''
-                  }`}
-                  key={id}
-                  onClick={() => setActiveTab(id)}
-                  role='tab'
-                >
-                  <Icon />
-                  {title}
-                </Button>
-              ))}
-            </nav>
-            <section
-              className='app__settings-modal__content'
-              id={`${activeTab}-content`}
-              role='tabpanel'
-            >
-              {activeTab === 'general' && <GeneralTab />}
-              {activeTab === 'messageActions' && <MessageActionsTab />}
-              {activeTab === 'notifications' && <NotificationsTab />}
-              {activeTab === 'sidebar' && <SidebarTab />}
-              {activeTab === 'reactions' && <ReactionsTab />}
-            </section>
-          </div>
+      <GlobalModal onClose={closeSettingsModal} open={open}>
+        <div
+          className={clsx('app__settings-modal', {
+            'app__settings-modal--inline': layout === SECTION_NAVIGATOR_LAYOUT.inline,
+          })}
+        >
+          <SectionNavigator
+            className='app__settings-modal__body'
+            sections={settingsSections}
+            onLayoutChange={setLayout}
+          />
         </div>
       </GlobalModal>
     </div>

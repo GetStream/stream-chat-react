@@ -12,6 +12,7 @@ import { FocusScope } from '@react-aria/focus';
 
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
+  DialogManagerProvider,
   ModalContextProvider,
   modalDialogManagerId,
   useChatContext,
@@ -41,6 +42,11 @@ export type ModalProps = {
   className?: string;
   /** Optional stable id for this modal instance. Generated automatically when omitted. */
   dialogId?: string;
+  /** Properties forwarded to the root div within which the dialog content is rendered */
+  dialogRootProps?: Omit<
+    ComponentProps<'div'>,
+    'aria-label' | 'aria-labelledby' | 'aria-describedby' | 'role'
+  >;
   /** Accessible label for the modal dialog. Ignored when aria-labelledby is provided. */
   'aria-label'?: string;
   /** ID of the element that labels the modal dialog. */
@@ -65,6 +71,7 @@ export const GlobalModal = ({
   className,
   CloseButtonOnOverlay,
   dialogId,
+  dialogRootProps,
   onClose,
   onCloseAttempt,
   open,
@@ -80,6 +87,11 @@ export const GlobalModal = ({
   const closingRef = useRef(false);
   const { theme } = useChatContext();
   const { NotificationList = DefaultNotificationList } = useComponentContext();
+  const {
+    className: dialogRootClassName,
+    onKeyDown: dialogRootOnKeyDown,
+    ...dialogRootPropsRest
+  } = dialogRootProps ?? {};
   const dialogLabelingBaseId = dialog.id;
   const resolvedModalAriaProps = useResolvedModalAriaProps({
     ariaDescribedby,
@@ -122,6 +134,7 @@ export const GlobalModal = ({
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    dialogRootOnKeyDown?.(event);
     if (event.defaultPrevented || event.key !== 'Escape' || !isTopmost) return;
     maybeClose('escape', event);
   };
@@ -158,17 +171,26 @@ export const GlobalModal = ({
         >
           <FocusScope autoFocus={isTopmost} contain={isTopmost} restoreFocus>
             <div
+              {...dialogRootPropsRest}
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
               aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
               aria-modal={isTopmost ? 'true' : undefined}
-              className='str-chat__modal__dialog'
+              className={clsx('str-chat__modal__dialog', dialogRootClassName)}
               inert={isTopmost ? undefined : true}
               onKeyDown={handleDialogKeyDown}
               role={role}
               tabIndex={isTopmost ? 0 : -1}
             >
-              {children}
+              <DialogManagerProvider
+                id={`${resolvedDialogId}-floating-dialog-manager`}
+                portalDestinationProps={{
+                  captureOutsideClicks: true,
+                  className: 'str-chat__modal__floating-dialog-overlay',
+                }}
+              >
+                {children}
+              </DialogManagerProvider>
             </div>
           </FocusScope>
           <NotificationList

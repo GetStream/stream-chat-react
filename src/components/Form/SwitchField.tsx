@@ -120,27 +120,41 @@ export const SwitchField = ({
     </div>
   );
 };
-
 export type SwitchProps = Omit<ComponentProps<'input'>, 'type'> & {
   on?: boolean;
   onSwitchClick?: MouseEventHandler<HTMLDivElement>;
+  /**
+   * Renders the switch as a visual-only indicator when another element owns interaction.
+   * Example: a button row with a trailing switch indicator must not render an input inside the button.
+   */
+  presentation?: boolean;
   switchRef?: React.RefObject<HTMLInputElement | null>;
 };
 
-const Switch = ({ className, on, onSwitchClick, switchRef, ...props }: SwitchProps) => (
+export const Switch = ({
+  className,
+  on,
+  onSwitchClick,
+  presentation,
+  switchRef,
+  ...props
+}: SwitchProps) => (
   <div
+    aria-hidden={presentation ? true : undefined}
     className={clsx('str-chat__form__switch-field__switch', {
       'str-chat__form__switch-field__switch--on': on,
     })}
-    onClick={onSwitchClick}
+    onClick={presentation ? undefined : onSwitchClick}
   >
-    <input
-      {...props}
-      className={clsx('str-chat__form__switch-field__input', className)}
-      ref={switchRef}
-      role='switch'
-      type='checkbox'
-    />
+    {!presentation && (
+      <input
+        {...props}
+        className={clsx('str-chat__form__switch-field__input', className)}
+        ref={switchRef}
+        role='switch'
+        type='checkbox'
+      />
+    )}
     <span className='str-chat__form__switch-field__switch-handle' />
   </div>
 );
