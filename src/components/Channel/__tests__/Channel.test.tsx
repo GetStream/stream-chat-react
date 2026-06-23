@@ -658,7 +658,11 @@ describe('Channel', () => {
     vi.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
     const result = await renderComponent({ channel, chatClient });
 
-    await waitFor(() => expect(result.asFragment()).toMatchSnapshot());
+    // Wait for the loading state to settle, then snapshot ONCE. Calling
+    // toMatchSnapshot() inside waitFor() writes a new numbered snapshot on every
+    // retry, which fails under --ci.
+    await waitFor(() => expect(result.getByText('Loading channel')).toBeInTheDocument());
+    expect(result.asFragment()).toMatchSnapshot();
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {

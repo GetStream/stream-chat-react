@@ -16,6 +16,7 @@ import type { SuggestionListItemComponentProps } from './SuggestionListItem';
 import { SuggestionListItem as DefaultSuggestionListItem } from './SuggestionListItem';
 import type { UserItemProps } from './UserItem';
 import { UserItem } from './UserItem';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { useStateStore } from '../../../store';
@@ -88,6 +89,7 @@ export const SuggestionList = ({
   suggestionItemComponents = defaultComponents,
 }: SuggestionListProps) => {
   const { t } = useTranslationContext();
+  const { announceInteraction } = useInteractionAnnouncements();
   const {
     AutocompleteSuggestionItem = DefaultSuggestionListItem,
     ContextMenu: ContextMenuComponent = ContextMenu,
@@ -217,17 +219,44 @@ export const SuggestionList = ({
     virtualCaretReference,
   ]);
 
-  if (!suggestions || !items?.length || !component || !hasEnabledCommandSuggestions)
-    return null;
+  const showSuggestionsList = !!(
+    suggestions &&
+    items?.length &&
+    component &&
+    hasEnabledCommandSuggestions
+  );
+  const shownCount = showSuggestionsList ? (items?.length ?? 0) : 0;
 
-  const suggestionMenuLabel =
-    suggestions.searchSource.type === 'commands'
-      ? t('aria/Command Suggestions')
-      : suggestions.searchSource.type === 'emojis'
-        ? t('aria/Emoji Suggestions')
-        : suggestions.searchSource.type === 'mentions'
-          ? t('aria/User Suggestions')
-          : t('aria/Suggestions');
+  // A single localized label per suggestion type, used BOTH as the menu's aria-label and in
+  // the count announcement ("5 Command Suggestions") — one source of truth, no second key.
+  const suggestionMenuLabel = useMemo(() => {
+    switch (suggestions?.searchSource.type) {
+      case 'commands':
+        return t('aria/Command Suggestions');
+      case 'emojis':
+        return t('aria/Emoji Suggestions');
+      case 'mentions':
+        return t('aria/User Suggestions');
+      default:
+        return t('aria/Suggestions');
+    }
+  }, [suggestions?.searchSource.type, t]);
+
+  // Announce the visible result count to assistive technology whenever the menu
+  // appears or the result set changes as the query filters. The count is read via
+  // `announceInteraction('suggestions.count')`, which is itself debounced (300ms)
+  // and dedups an unchanged announcement in `useInteractionAnnouncements` — so no extra
+  // throttling/dedup is needed here. We deliberately do not announce while the list
+  // is hidden (count 0 / closed).
+  useEffect(() => {
+    if (!showSuggestionsList) return;
+    announceInteraction('suggestions.count', {
+      count: shownCount,
+      suggestionsLabel: suggestionMenuLabel,
+    });
+  }, [announceInteraction, showSuggestionsList, shownCount, suggestionMenuLabel]);
+
+  if (!showSuggestionsList) return null;
 
   return (
     <div

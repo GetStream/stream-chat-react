@@ -18,7 +18,7 @@ export const useAriaLiveAnnouncer = () => {
 
   if (!contextValue) {
     console.warn(
-      'The useAriaLiveAnnouncer hook was called outside of the AriaLiveRegion provider.',
+      'The useAriaLiveAnnouncer hook was called outside of an AriaLiveAnnouncerProvider.',
     );
 
     return noopAnnounce;

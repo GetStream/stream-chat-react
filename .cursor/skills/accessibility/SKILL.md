@@ -22,7 +22,7 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
   - `specs/wcag-compliance/decisions.md` (append-only decision log)
   - `specs/wcag-compliance/plan.md` and `specs/wcag-compliance/state.json` (task tracking)
 - **Shared a11y primitives**
-  - `src/components/Accessibility/` (`AriaLiveRegion`, announcer hooks, notification announcer)
+  - `src/components/Accessibility/` — `AriaLiveAnnouncerProvider` + `AriaLiveOutlet` (one announcer per `Chat`; outlets render the live region, innermost/highest-`layer` wins so modal-scoped outlets take over), `useAriaLiveAnnouncer`, `useInteractionAnnouncements` (typed announcement vocabulary), `useFocusReturn` (generic capture-before-steal / restore-on-finish focus restoration), `useInertWhenHidden`, `scheduling/` (debounce/queue policies), notification announcer
   - `src/components/VisuallyHidden/`
 - **Global reduced-motion/focus behavior styles**
   - `src/styling/accessibility.scss`
@@ -66,15 +66,28 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 ### 3) Live regions and announcements
 
 - Prefer centralized announcers over ad-hoc `aria-live` scattered across components:
-  - `AriaLiveRegion` + `useAriaLiveAnnouncer`
-  - `NotificationAnnouncer`
+  - `useAriaLiveAnnouncer` (the one sink; provided by `AriaLiveAnnouncerProvider`, rendered by `AriaLiveOutlet`)
+  - `useInteractionAnnouncements` for the typed, intention-revealing vocabulary (`announceInteraction('giphy.sent')`, etc.)
+  - `NotificationAnnouncer` (routes through the same sink)
 - Use `polite` for non-urgent updates; `assertive` for urgent/error updates.
-- For repeated announcements, clear then set message (small delay) to force re-announcement.
+- The announcer is the **decoupled channel ONLY** — see the focus-coupled rule below. It is the right tool when something changes and focus does NOT move to it (incoming messages, filtered result counts while focus stays in the input, confirmations where focus returns elsewhere).
+- For repeated announcements, the announcer appends a fresh node per call (no clear-then-set dance needed); for rapidly-updating streams use a `scheduling/` debounce, not raw spam.
 - For modals, do not use live regions for static body content; rely on correct dialog semantics + focus management.
-- **`aria-modal="true"` suppresses live regions outside its subtree.** VoiceOver (and most ATs) ignore live regions that are not descendants of the active `aria-modal` container. Live regions portalled to `document.body` are therefore swallowed when a modal is open. When announcing inside a modal dialog, mount the live region inside the dialog subtree. Do not "fix" missing announcements by escalating polite -> assertive; if the region is outside the modal, no priority will save it.
-- **Do not double-announce a state change that already moves focus.** When an action (reorder, tab switch, step navigation) shifts DOM focus to a new control, the screen reader will already speak that control's accessible name. Emitting a parallel live-region message for the same event causes overlap or interruption. Pick one channel:
-  - focus moves -> encode the new state in the focused control's `aria-label` (dynamic label rides the native focus announcement)
-  - focus does not move (pickup, drop, async state changes) -> use a live-region announcement
+- **`aria-modal="true"` suppresses live regions outside its subtree.** VoiceOver (and most ATs) ignore live regions that are not descendants of the active `aria-modal` container. The unified announcer handles this with a stack of `AriaLiveOutlet`s: mount an `<AriaLiveOutlet layer={1} />` inside the modal subtree (the `Modal`/`Dialog` components already do) and the provider renders into it while the modal is open. Do not "fix" missing announcements by escalating polite -> assertive; if the region is outside the modal, no priority will save it.
+
+#### Focus-coupled vs decoupled — choose the channel by whether focus moves
+
+This is the single most important announcement decision. Every "tell the screen reader something" need is one of two kinds; using the wrong channel produces a race (the announcement is dropped) or duplicate/overlapping speech.
+
+- **Focus moves to / into the thing being announced** (a control auto-focuses; a surface appears and takes focus; reorder/tab/step navigation shifts focus): the screen reader already speaks the focused control on the focus event. Encode the message in the **focused control's accessible name/description** — dynamic `aria-label`, or `aria-labelledby` + `aria-describedby` on the control or its enclosing labelled group. Do NOT also fire a live-region message; it races with the focus event and is dropped.
+- **Focus does NOT move** (incoming message, async state change, a count updating while focus stays in the field, pickup/drop where focus is unchanged, a confirmation where focus returns to a _different_ element): use the **live-region announcer**.
+
+**A transient surface that appears AND auto-focuses a control is focus-coupled.** (Giphy preview auto-focusing "Send"; a popover/dialog moving focus inside.) Put the surface's purpose + visibility scope + available actions on the focused control or its enclosing `role="group"`/`region`/`dialog` via `aria-label`/`aria-labelledby` + `aria-describedby` — so focusing "Send" reads e.g. "Send, button, Giphy preview — only visible to you. 3 actions: Send, Shuffle, Cancel." A polite live-region announcement here is preempted by the focus event and never heard.
+
+**Positional context ("list N items", "tab panel") comes from ancestor containers, not the control's name — an `aria-label` on the control alone cannot remove it.** A transient action surface rendered inside a semantic container (message `<ul>`, tabpanel) inherits that container's role + set size in focus announcements. Two things help:
+
+- **A labelled grouping immediately around the controls** (`role="group"`/`region` + `aria-label`) becomes the nearest named container, so AT announces THAT instead of the outer list/tabpanel. Verified on VoiceOver for the giphy preview: wrapping Send/Shuffle/Cancel in `role="group"` aria-label "Giphy actions" stopped the "list, N items" leak without moving the DOM. Often sufficient; confirm per screen reader (NVDA may differ).
+- **Placement** is the guaranteed fix: render the surface **outside** the container (a sibling of the `<ul>`), as `VirtualizedMessageList` does for the giphy preview. Use this if a labelled grouping doesn't suppress the leak in your target SRs or restructuring is cheap.
 
 ### 4) Focus management
 
@@ -168,8 +181,10 @@ Recommended:
 - Using live regions to force modal text announcement instead of fixing dialog semantics.
 - Using placeholders as the only field label, or combining a visible label with a redundant placeholder that causes extra screen-reader chatter without adding meaning.
 - Treating repeated VoiceOver dialog/group announcements as proof that app markup is wrong before checking whether descendant controls are actually inheriting dialog descriptions.
-- Live region rendered outside the active `aria-modal="true"` subtree (for example portalled to `document.body`) — the announcements are silently dropped. Mount the live region inside the modal subtree.
-- Emitting a live-region message for an action that also shifts focus — causes overlapping announcements. Encode the new state in the focused control's `aria-label` instead.
+- Live region rendered outside the active `aria-modal="true"` subtree (for example portalled to `document.body`) — the announcements are silently dropped. Ensure an `AriaLiveOutlet` (layer above the root) is mounted inside the modal subtree.
+- Emitting a live-region message for an action that also shifts focus — causes overlapping announcements / the message is dropped. Encode the new state in the focused control's `aria-label`/`aria-describedby` instead.
+- Announcing a transient surface that appears AND auto-focuses a control (giphy preview auto-focusing Send, a popover moving focus inside) via the live-region announcer — the focus event preempts it and it is never heard. Describe the focused control or its enclosing labelled group instead.
+- Trying to remove inherited container context ("list N items", "tab panel") from a transient surface with an `aria-label` on the control — the name changes but the ancestor's positional context remains. Render the surface outside the container (sibling of the `<ul>`/tabpanel).
 - Remounting the focused control to "reset" its accessible name; this drops focus to `<body>` and breaks keyboard flows. Update attributes on the existing node.
 - Moving focus to a sibling (text input, container) when activating a per-row keyboard mode (reorder, edit, etc.). The activating control must keep focus until the mode ends.
 - Reaching for `aria-activedescendant` to fix VoiceOver tracking on Chrome instead of moving real DOM focus.

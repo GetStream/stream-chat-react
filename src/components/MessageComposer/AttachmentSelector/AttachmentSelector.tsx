@@ -37,6 +37,9 @@ import {
   useAttachmentSelectorContext,
 } from '../../../context/AttachmentSelectorContext';
 import { useStableId } from '../../UtilityComponents/useStableId';
+import { useInertWhenHidden } from '../../Accessibility';
+import { useStateStore } from '../../../store';
+import type { TextComposerState } from 'stream-chat';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import {
@@ -52,6 +55,8 @@ import {
   CommandsMenuClassName,
   CommandsSubmenuHeader,
 } from './CommandsMenu';
+
+const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
 
 const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -104,6 +109,14 @@ export const SimpleAttachmentSelector = ({
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
   const id = useStableId();
   const isCooldownActive = useIsCooldownActive();
+  const messageComposer = useMessageComposerController();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
+  // Visually hidden via a CSS transition while a command is active; keep it out
+  // of the a11y tree and tab order without setting `display: none`.
+  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
 
   useEffect(() => {
     if (!buttonElement) return;
@@ -121,7 +134,7 @@ export const SimpleAttachmentSelector = ({
   if (!channelCapabilities['upload-file']) return null;
 
   return (
-    <div className='str-chat__attachment-selector'>
+    <div className='str-chat__attachment-selector' {...inertProps}>
       <AttachmentSelectorButton
         {...buttonProps}
         aria-label={t('aria/Open Attachment Selector')}
@@ -333,6 +346,14 @@ export const AttachmentSelector = ({
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
+  // The selector is visually hidden via a CSS transition while a command is
+  // active; keep it out of the a11y tree and tab order without setting
+  // `display: none` (which would break the transition).
+  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
   const menuDialogId = `attachment-actions-menu${messageComposer.threadId ? '-thread' : ''}`;
@@ -405,7 +426,7 @@ export const AttachmentSelector = ({
   const modalIsOpen = !!ModalContent;
   return (
     <AttachmentSelectorContextProvider value={{ fileInput }}>
-      <div className='str-chat__attachment-selector'>
+      <div className='str-chat__attachment-selector' {...inertProps}>
         {channelCapabilities['upload-file'] && <UploadFileInput ref={setFileInput} />}
         <AttachmentSelectorButton
           {...buttonProps}

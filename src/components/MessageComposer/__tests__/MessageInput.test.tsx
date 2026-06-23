@@ -27,6 +27,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
+import { AriaLiveAnnouncerProvider, AriaLiveOutlet } from '../../Accessibility';
 import { Channel } from '../../Channel/Channel';
 import type { MessageActionsProps } from '../../MessageActions';
 import { MessageActions } from '../../MessageActions';
@@ -272,22 +273,26 @@ const renderComponent = async ({
             ...chatContextOverrides,
           })}
         >
-          <DialogManagerProvider id='message-input-test-dialog-manager'>
-            <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-              <MessageProvider
-                value={fromPartial<MessageContextValue>({
-                  ...defaultMessageContextValue,
-                  ...messageContextOverrides,
-                })}
-              >
-                <MessageActions
-                  disableBaseMessageActionSetFilter
-                  {...messageActionsProps}
-                />
-              </MessageProvider>
-              <MessageComposer {...messageInputProps} />
-            </Channel>
-          </DialogManagerProvider>
+          <AriaLiveAnnouncerProvider>
+            {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
+            <AriaLiveOutlet />
+            <DialogManagerProvider id='message-input-test-dialog-manager'>
+              <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+                <MessageProvider
+                  value={fromPartial<MessageContextValue>({
+                    ...defaultMessageContextValue,
+                    ...messageContextOverrides,
+                  })}
+                >
+                  <MessageActions
+                    disableBaseMessageActionSetFilter
+                    {...messageActionsProps}
+                  />
+                </MessageProvider>
+                <MessageComposer {...messageInputProps} />
+              </Channel>
+            </DialogManagerProvider>
+          </AriaLiveAnnouncerProvider>
         </ChatProvider>
       </WithComponents>,
     );
@@ -1396,6 +1401,107 @@ describe(`MessageInputFlat`, () => {
       expect(getPoliteLiveRegion()).toHaveTextContent('');
 
       decoyButton.remove();
+    });
+  });
+
+  describe('Composer textarea accessible name', () => {
+    const getPoliteLiveRegion = () =>
+      screen.getByTestId('str-chat__aria-live-region--polite');
+
+    // The harness uses a raw ChatProvider (no TranslationProvider), so the
+    // default translator returns i18n keys verbatim without interpolation.
+    const STABLE_LABEL = 'aria/Message input';
+    const USER_SELECTED = 'aria/User selected: {{ user }}';
+
+    // RW13: the textarea must name itself explicitly so it never inherits an
+    // ancestor name (e.g. the ChatView "Channels, tab panel").
+    it('exposes the placeholder as an explicit aria-label while empty', async () => {
+      await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      expect(input).toHaveAttribute('aria-label', inputPlaceholder);
+    });
+
+    // RW10: once the field has content the accessible name must NOT be the
+    // (potentially stale/templated) placeholder, but a stable label.
+    it('switches to a stable explicit aria-label once the field has content', async () => {
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setText('hello world');
+      });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-label', STABLE_LABEL);
+      });
+      // and never the placeholder while content exists
+      expect(input).not.toHaveAttribute('aria-label', inputPlaceholder);
+    });
+
+    // RW10: the command-specific placeholder template must not become the
+    // accessible name once real content is present.
+    it('does not use the command placeholder template as the name when content exists', async () => {
+      const giphyCommand = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+        channel.messageComposer.textComposer.setText('a gif query');
+      });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-label', STABLE_LABEL);
+      });
+      expect(input).not.toHaveAttribute('aria-label', 'Search GIFs');
+    });
+
+    // RW10: announce a one-shot selection confirmation when a user is picked.
+    it('announces a confirmation once when a user mention is selected', async () => {
+      const { channel } = await renderComponent();
+      await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
+      });
+
+      await waitFor(() => {
+        expect(getPoliteLiveRegion()).toHaveTextContent(USER_SELECTED);
+      });
+    });
+
+    // RW10: unrelated state changes must not re-fire the selection announcement.
+    it('does not re-announce a selection on subsequent unrelated state changes', async () => {
+      const { channel } = await renderComponent();
+      await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
+      });
+
+      await waitFor(() => {
+        expect(getPoliteLiveRegion()).toHaveTextContent(USER_SELECTED);
+      });
+
+      // A text-only change must not re-announce the selection.
+      await act(() => {
+        channel.messageComposer.textComposer.setText('@mention-name typing more');
+      });
+
+      // Re-upserting the SAME user (already present) must not re-announce.
+      await act(() => {
+        channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
+      });
+
+      // exactly one occurrence — no double announce
+      const occurrences = getPoliteLiveRegion().textContent?.match(
+        new RegExp(USER_SELECTED.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+      );
+      expect(occurrences).toHaveLength(1);
     });
   });
 

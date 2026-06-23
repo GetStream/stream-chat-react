@@ -831,4 +831,82 @@ describe('SimpleAttachmentSelector', () => {
     ).toBeInTheDocument();
     expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
   });
+
+  describe('command-active inert behavior', () => {
+    const giphyCommand = fromPartial<CommandResponse>({
+      args: 'giphy-command-args',
+      description: 'giphy-command-description',
+      name: 'giphy',
+    });
+
+    const EmojiPicker = () => <button data-testid='emoji-picker-button'>emoji</button>;
+
+    const getAttachmentSelectorRoot = () =>
+      document.querySelector('.str-chat__attachment-selector');
+    const getAdditionalActions = () =>
+      document.querySelector('.str-chat__message-composer__additional-actions');
+
+    it('does not apply inert/aria-hidden/tabindex while no command is active', async () => {
+      await renderComponent({ componentContext: { EmojiPicker } });
+
+      const selector = getAttachmentSelectorRoot();
+      const additionalActions = getAdditionalActions();
+
+      [selector, additionalActions].forEach((el) => {
+        expect(el).not.toHaveAttribute('inert');
+        expect(el).not.toHaveAttribute('aria-hidden');
+        expect(el).not.toHaveAttribute('tabindex');
+        // never display:none — the CSS transition handles visual hiding.
+        expect(el).not.toHaveAttribute('hidden');
+      });
+    });
+
+    it('removes both controls from the a11y tree and tab order when a command activates', async () => {
+      const { channel } = await renderComponent({ componentContext: { EmojiPicker } });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        const selector = getAttachmentSelectorRoot();
+        const additionalActions = getAdditionalActions();
+
+        [selector, additionalActions].forEach((el) => {
+          expect(el).toHaveAttribute('aria-hidden', 'true');
+          expect(el).toHaveAttribute('tabindex', '-1');
+          expect(el).toHaveAttribute('inert');
+          // visual hiding is CSS-only; the `hidden` attribute must NOT be set.
+          expect(el).not.toHaveAttribute('hidden');
+        });
+      });
+    });
+
+    it('restores both controls when the command is cleared', async () => {
+      const { channel } = await renderComponent({ componentContext: { EmojiPicker } });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        expect(getAttachmentSelectorRoot()).toHaveAttribute('inert');
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(undefined);
+      });
+
+      await waitFor(() => {
+        const selector = getAttachmentSelectorRoot();
+        const additionalActions = getAdditionalActions();
+
+        [selector, additionalActions].forEach((el) => {
+          expect(el).not.toHaveAttribute('inert');
+          expect(el).not.toHaveAttribute('aria-hidden');
+          expect(el).not.toHaveAttribute('tabindex');
+        });
+      });
+    });
+  });
 });

@@ -20,11 +20,15 @@ import type {
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
-import { useComponentContext, useMessageComposerContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
-import { AriaLiveRegion, useAriaLiveAnnouncer } from '../Accessibility';
+import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -73,17 +77,15 @@ export type TextareaComposerProps = Omit<
 };
 
 /**
- * Wraps the textarea body in a local `AriaLiveRegion` so the inner component
- * can announce composer-mode changes (e.g. activating the `/giphy` command)
- * via `useAriaLiveAnnouncer`. Inline mode is used so the live region also
- * works when the composer is rendered inside an `aria-modal` dialog – most
- * assistive technologies suppress live regions outside an active modal
- * subtree, so a portalled region would be missed in that case.
+ * Announces composer-mode changes (e.g. activating the `/giphy` command) via
+ * `useAriaLiveAnnouncer`. The live region itself is provided by the nearest
+ * {@link AriaLiveOutlet} – the root outlet mounted at `Chat`, or a modal outlet
+ * when the composer is rendered inside an `aria-modal` dialog (assistive
+ * technologies suppress live regions outside an active modal subtree, so the
+ * modal outlet ensures announcements land inside the active scope).
  */
 export const TextareaComposer = (props: TextareaComposerProps) => (
-  <AriaLiveRegion inline>
-    <TextareaComposerWithLiveAnnouncements {...props} />
-  </AriaLiveRegion>
+  <TextareaComposerWithLiveAnnouncements {...props} />
 );
 
 const TextareaComposerWithLiveAnnouncements = ({
@@ -115,8 +117,10 @@ const TextareaComposerWithLiveAnnouncements = ({
   } = useMessageComposerContext();
   const cooldownRemaining = useCooldownRemaining();
 
+  const { t } = useTranslationContext('TextareaComposer');
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
   const announce = useAriaLiveAnnouncer();
+  const { announceInteraction } = useInteractionAnnouncements();
 
   const maxRows = maxRowsProp ?? maxRowsContext ?? 10;
   const minRows = minRowsProp ?? minRowsContext;
@@ -129,6 +133,16 @@ const TextareaComposerWithLiveAnnouncements = ({
     textComposer.state,
     textComposerStateSelector,
   );
+  // Explicit, stable accessible name for the textarea. Naming the field explicitly
+  // prevents it from inheriting an unrelated name from an ancestor (e.g. the
+  // "Channels, tab panel" of the ChatView tabpanel) via accessible-name computation.
+  // While the field is empty we expose the visible placeholder as the name so the
+  // announced name matches what the user sees. Once the field has content we switch
+  // to a stable label instead of the placeholder, which may be a command-specific
+  // template (e.g. mention/command args) that would otherwise be re-announced as a
+  // stale name even though the field already holds real content.
+  const ariaLabel = text ? t('aria/Message input') : placeholder;
+
   // react-textarea-autosize can measure placeholder content as multi-line in narrow layouts,
   // producing an inflated initial height (e.g. 2 rows) before the user types.
   // Clamp to a single row only while empty unless the integrator explicitly set minRows.
@@ -336,6 +350,33 @@ const TextareaComposerWithLiveAnnouncements = ({
     };
   }, [announce, textComposer.state, textareaRef]);
 
+  // Announce a one-shot confirmation when a user is picked from the @-mention
+  // autocomplete. Fire only when a *new* user is appended, so unrelated state
+  // changes (text edits, command activation, removing a mention) do not re-trigger.
+  //
+  // Dedupe against a component-instance ref rather than `subscribeWithSelector`'s
+  // per-call `previous`: the listener can be invoked more than once for a single
+  // selection, and `previous` is per-invocation, so two calls both see growth and
+  // announce twice. The shared ref makes the second call observe the already-updated
+  // count and skip — at most one announcement per selection.
+  const lastMentionCountRef = useRef<number | null>(null);
+  useEffect(() => {
+    lastMentionCountRef.current =
+      textComposer.state.getLatestValue().mentionedUsers?.length ?? 0;
+    const unsubscribe = textComposer.state.subscribeWithSelector(
+      (state) => ({ mentionedUsers: state.mentionedUsers }),
+      ({ mentionedUsers }) => {
+        const previousCount = lastMentionCountRef.current ?? mentionedUsers.length;
+        lastMentionCountRef.current = mentionedUsers.length;
+        if (mentionedUsers.length <= previousCount) return;
+        const addedUser = mentionedUsers[mentionedUsers.length - 1];
+        if (!addedUser) return;
+        announceInteraction('user.selected', { user: addedUser.name ?? addedUser.id });
+      },
+    );
+    return unsubscribe;
+  }, [announceInteraction, textComposer.state]);
+
   useLayoutEffect(() => {
     /**
      * It is important to perform set text and after that the range
@@ -373,7 +414,7 @@ const TextareaComposerWithLiveAnnouncements = ({
     >
       <Textarea
         {...{ ...additionalTextareaProps, ...restTextareaProps }}
-        aria-label={placeholder}
+        aria-label={ariaLabel}
         className={clsx(
           'rta__textarea',
           'str-chat__textarea__textarea str-chat__message-textarea',

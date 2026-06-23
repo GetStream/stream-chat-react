@@ -8,7 +8,7 @@ import type { PollComposerOption, PollComposerState } from 'stream-chat';
 import { IconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
-import { AriaLiveRegion, useAriaLiveAnnouncer } from '../../Accessibility';
+import { useAriaLiveAnnouncer } from '../../Accessibility';
 import { PollOptionReorderHandle } from './PollOptionReorderHandle';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
@@ -16,17 +16,12 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
   options: state.data.options,
 });
 
-export const OptionFieldSet = () => (
-  // Render the live region inline so it stays inside the `aria-modal="true"`
-  // poll-creation dialog subtree. VoiceOver and other screen readers suppress
-  // live regions outside an active aria-modal container, which is why portalling
-  // to `document.body` swallowed the pickup/move/drop announcements here.
-  <AriaLiveRegion inline>
-    <OptionFieldSetContent />
-  </AriaLiveRegion>
-);
-
-const OptionFieldSetContent = () => {
+// Reorder pickup/move/drop announcements are emitted via `useAriaLiveAnnouncer`
+// and rendered by the modal {@link AriaLiveOutlet} that the poll-creation dialog
+// mounts (the Modal/Dialog system renders an outlet inside the active
+// `aria-modal` subtree). Screen readers suppress live regions outside an active
+// aria-modal container, so the modal outlet keeps these announcements in scope.
+export const OptionFieldSet = () => {
   const { pollComposer } = useMessageComposerController();
   const { errors, options } = useStateStore(
     pollComposer.state,

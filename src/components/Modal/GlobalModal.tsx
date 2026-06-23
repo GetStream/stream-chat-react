@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
+import { AriaLiveOutlet } from '../Accessibility';
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
   ModalContextProvider,
@@ -208,6 +209,10 @@ export const GlobalModal = ({
               tabIndex={isTopmost ? 0 : -1}
             >
               {children}
+              {/* Render the live-region outlet inside the active modal subtree
+                  (only the topmost dialog carries `aria-modal`) so announcements
+                  are not suppressed by assistive technologies. */}
+              {isTopmost && <AriaLiveOutlet layer={1} />}
             </div>
           </FocusScope>
           <NotificationList

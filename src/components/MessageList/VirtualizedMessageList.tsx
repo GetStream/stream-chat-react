@@ -78,7 +78,7 @@ import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 import { useReducedMotionPreference } from './hooks/useReducedMotionPreference';
-import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
+import { useIncomingMessageAnnouncements } from '../Accessibility';
 
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
@@ -749,25 +749,23 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const messages = props.messages || contextMessages;
 
   return (
-    <AriaLiveRegion>
-      <VirtualizedMessageListWithContext
-        channel={channel}
-        channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
-        hasMore={!!hasMore}
-        hasMoreNewer={!!hasMoreNewer}
-        highlightedMessageId={highlightedMessageId}
-        jumpToLatestMessage={jumpToLatestMessage}
-        loadingMore={!!loadingMore}
-        loadingMoreNewer={!!loadingMoreNewer}
-        loadMore={loadMore}
-        loadMoreNewer={loadMoreNewer}
-        messages={messages}
-        notifications={notifications}
-        read={read}
-        suppressAutoscroll={suppressAutoscroll}
-        thread={thread}
-        {...props}
-      />
-    </AriaLiveRegion>
+    <VirtualizedMessageListWithContext
+      channel={channel}
+      channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
+      hasMore={!!hasMore}
+      hasMoreNewer={!!hasMoreNewer}
+      highlightedMessageId={highlightedMessageId}
+      jumpToLatestMessage={jumpToLatestMessage}
+      loadingMore={!!loadingMore}
+      loadingMoreNewer={!!loadingMoreNewer}
+      loadMore={loadMore}
+      loadMoreNewer={loadMoreNewer}
+      messages={messages}
+      notifications={notifications}
+      read={read}
+      suppressAutoscroll={suppressAutoscroll}
+      thread={thread}
+      {...props}
+    />
   );
 }
