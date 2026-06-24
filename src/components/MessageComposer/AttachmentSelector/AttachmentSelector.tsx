@@ -452,7 +452,6 @@ export const AttachmentSelector = ({
           placement='top-start'
           referenceElement={menuButtonRef.current}
           tabIndex={-1}
-          trapFocus
         >
           {contextMenuItems}
         </ContextMenuComponent>
