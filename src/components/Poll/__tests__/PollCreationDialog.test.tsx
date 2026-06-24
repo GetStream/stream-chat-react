@@ -668,6 +668,53 @@ describe('PollCreationDialog', () => {
     expect(close).toHaveBeenCalledTimes(1);
   });
 
+  it('returns focus to the composer input after a successful send', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+
+    const composerTextarea = document.createElement('textarea');
+    document.body.appendChild(composerTextarea);
+    const textareaRef = { current: composerTextarea };
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <MessageComposerContextProvider
+              value={fromPartial<MessageComposerContextValue>({
+                handleSubmit,
+                textareaRef,
+              })}
+            >
+              <PollCreationDialog close={close} />
+            </MessageComposerContextProvider>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(composerTextarea).toHaveFocus();
+    });
+
+    composerTextarea.remove();
+  });
+
   it('closes the form on cancel', async () => {
     await renderComponent();
 

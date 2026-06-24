@@ -15,7 +15,7 @@ export const PollCreationDialogControls = ({
   close,
 }: PollCreationDialogControlsProps) => {
   const { t } = useTranslationContext('PollCreationDialogControls');
-  const { handleSubmit: handleSubmitMessage } = useMessageComposerContext();
+  const { handleSubmit: handleSubmitMessage, textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const canCreatePoll = useCanCreatePoll();
   const { addNotification } = useNotificationApi();
@@ -49,6 +49,7 @@ export const PollCreationDialogControls = ({
                 severity: 'success',
                 type: 'api:poll:create:success',
               });
+              requestAnimationFrame(() => textareaRef?.current?.focus());
             } catch {
               // createPoll() in stream-chat-js already publishes an
               // `api:poll:create:failed` notification (with the underlying error
