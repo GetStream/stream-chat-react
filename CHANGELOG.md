@@ -1,3 +1,9 @@
+## [13.14.6](https://github.com/GetStream/stream-chat-react/compare/v13.14.5...v13.14.6) (2026-06-24)
+
+### Bug Fixes
+
+* **MediaRecorder:** guard pause/resume against inactive recorder to prevent InvalidStateError ([#3217](https://github.com/GetStream/stream-chat-react/issues/3217)) ([4288107](https://github.com/GetStream/stream-chat-react/commit/4288107e03853ce65655ccf5249d25bf75d5e4df))
+
 ## [13.14.5](https://github.com/GetStream/stream-chat-react/compare/v13.14.4...v13.14.5) (2026-05-04)
 
 ### Bug Fixes
