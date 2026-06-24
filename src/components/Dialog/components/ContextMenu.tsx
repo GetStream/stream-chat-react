@@ -150,7 +150,10 @@ export const UserContextMenuButton = ({
     role={role}
     type='button'
   >
-    <Avatar imageUrl={imageUrl} size='sm' userName={userName} />
+    {/* The avatar is decorative here: the button already carries the user's name as its
+        label, so exposing the avatar (its fallback initials, title, and role="button")
+        to assistive tech only adds noise to the option's accessible name. */}
+    <Avatar aria-hidden imageUrl={imageUrl} size='sm' userName={userName} />
     <div className='str-chat__context-menu__button__label'>{children ?? userName}</div>
   </button>
 );

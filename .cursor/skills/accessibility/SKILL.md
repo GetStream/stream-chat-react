@@ -62,6 +62,19 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - Menus/listboxes/tabs:
   - use role-appropriate child roles (`menu`/`menuitem`, `listbox`/`option`, `tablist`/`tab`/`tabpanel`)
   - keep role/attribute combinations valid (example: `menuitemradio` with `aria-checked`)
+  - when a role-bearing parent (`listbox`/`menu`) is separated from its children by layout/scroll wrappers, mark the in-between wrappers `role="presentation"` so the parent→child ownership stays valid (axe `aria-required-children`). A role-less generic `<div>` is already transparent; only elements with a conflicting role need `presentation`.
+- **Autocomplete on a text field (combobox/listbox):** keep real DOM focus in the input and expose the popup as a `listbox` of `option`s; track the highlighted option with `aria-activedescendant` on the input (+ `aria-autocomplete="list"`, `aria-controls` → the listbox). This is the supported way to get per-option announcements on arrow navigation. **Do NOT put `role="combobox"` or `aria-expanded` on a `<textarea>`** — both are invalid on a textarea (axe `aria-allowed-role`; `aria-expanded` unsupported on the implicit `textbox`); the `aria-activedescendant` pattern is the textbox-valid equivalent. Set `aria-controls`/`aria-activedescendant` only while the popup is rendered so they never reference a missing element. **Gate `aria-activedescendant` on actual keyboard navigation** (set on Arrow keys, clear on text change): filtering resets the highlight to the first option every keystroke, and an always-on active descendant makes VoiceOver re-read that first option on each character. **Hide decorative content inside options** (e.g. an avatar's fallback initials) with `aria-hidden` so the option's accessible name is just the meaningful label. (Implemented for the composer suggestions — `TextareaComposer` + `SuggestionList`, RW9b.)
+
+#### Text inputs & textareas (screen-reader hints, typing echo, and churn)
+
+Screen readers add their own verbosity around editable fields that the app **cannot and should not** try to suppress:
+
+- VoiceOver speaks a **control hint** on focus ("You are currently on a text area, inside web content. To exit this area…") and a **typing echo** (re-reads characters/words as you type). These are **user verbosity settings** (VO Utility → Verbosity → Hints / Typing Echo), fire on every web `<textarea>`/contenteditable, and have **no ARIA/markup off-switch**. Treat them as expected behavior, **not a bug** — do not change the field's role/semantics to dodge them (that breaks the field for AT and is worse than the hint).
+- What the app DOES control is **how often the SR re-evaluates the focused field**. Every one of these adds an extra (re)announcement on top of the SR's baseline, so for any composer/text input:
+  - **Stable explicit accessible name** — name the field explicitly so it never inherits an ancestor's name, and do not swap the name once it has content (a templated placeholder re-announces as a stale name).
+  - **No per-keystroke ARIA churn** — keep `aria-controls`/`aria-activedescendant`/`aria-describedby` stable while focused; toggling any of them re-triggers the field announcement. In particular, keep `aria-controls` stable across an async results reload (don't drop it while `isLoading` flickers the item list — keep the popup mounted with the prior results until new ones arrive).
+  - **No gratuitous `focus()` / `value` / `setSelectionRange` rewrites** on the focused field — each forces the SR to re-read it. Only mutate on genuine user intent.
+  - **Supplementary hints via a stable `aria-describedby`** node (read once on focus), never a live region wired to the field (which would re-announce on change).
 
 ### 3) Live regions and announcements
 
@@ -111,7 +124,7 @@ When a list supports drag-and-drop reordering, provide a keyboard equivalent dri
 - **Do not move focus to a sibling input** (the row's text field, the container, etc.) on activation. The handle owns the keyboard mode for its full lifecycle.
 - **Encode the new position in the active handle's `aria-label`.** While picked up, expand the label to include item identity, current position, and total (`Reorder "{name}" at position {n} of {total}`). When focus shifts to the handle at the new position after ArrowUp/Down, the native focus announcement carries the move information — no parallel live-region message needed.
 - **Use live-region announcements only for pickup and drop**, where focus does not shift. These are the events the dynamic `aria-label` cannot cover.
-- **`aria-activedescendant` is not a substitute for moving real DOM focus** in this pattern on Chrome + VoiceOver. It is unreliable for tracking moves; prefer real focus management.
+- **`aria-activedescendant` is not a substitute for moving real DOM focus** in this pattern on Chrome + VoiceOver. It is unreliable for tracking moves; prefer real focus management. (Scope: this caveat is about **drag-to-reorder move-tracking**. `aria-activedescendant` is still the correct, supported mechanism for **combobox/listbox autocomplete option focus**, where DOM focus deliberately stays in the input — see the autocomplete note below.)
 
 ### 6) Motion preferences
 

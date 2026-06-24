@@ -20,6 +20,7 @@ import { useInteractionAnnouncements } from '../../Accessibility';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { useStateStore } from '../../../store';
+import { useStableId } from '../../UtilityComponents/useStableId';
 import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
 import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
 import { ContextMenu } from '../../Dialog';
@@ -51,6 +52,13 @@ export type SuggestionListProps = Partial<{
   closeOnClickOutside?: boolean;
   containerClassName?: string;
   focusedItemIndex: number;
+  /**
+   * Id applied to the listbox element. The controlling combobox (the composer textarea)
+   * points its `aria-controls`/`aria-activedescendant` at this id and at the derived
+   * per-option ids (`{listboxId}-option-{index}`), so the value must be shared between
+   * the textarea and this list. When omitted, a stable id is generated locally.
+   */
+  listboxId?: string;
   setFocusedItemIndex: (index: number) => void;
 }>;
 
@@ -80,15 +88,33 @@ export const defaultComponents: Record<
   ),
 } as const;
 
+/**
+ * Whether the suggestion listbox should be considered shown for a given source.
+ * For command suggestions the list is suppressed when every command is disabled.
+ * Shared with {@link TextareaComposer} so the textarea's `aria-controls`/
+ * `aria-activedescendant` are only set while the listbox is actually rendered
+ * (otherwise they would reference a non-existent element).
+ */
+export const hasEnabledCommandSuggestions = ({
+  commands,
+  type,
+}: {
+  commands: Array<{ enabled?: boolean }>;
+  type?: string;
+}) => type !== 'commands' || commands.some((command) => command.enabled);
+
 export const SuggestionList = ({
   className,
   closeOnClickOutside = true,
   containerClassName,
   focusedItemIndex,
+  listboxId,
   setFocusedItemIndex,
   suggestionItemComponents = defaultComponents,
 }: SuggestionListProps) => {
   const { t } = useTranslationContext();
+  const generatedListboxId = useStableId();
+  const resolvedListboxId = listboxId ?? generatedListboxId;
   const { announceInteraction } = useInteractionAnnouncements();
   const {
     AutocompleteSuggestionItem = DefaultSuggestionListItem,
@@ -104,10 +130,9 @@ export const SuggestionList = ({
   );
   const { items } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
-  const hasEnabledCommandSuggestions = useMemo(
+  const commandSuggestionsEnabled = useMemo(
     () =>
-      suggestions?.searchSource.type !== 'commands' ||
-      commands.some(({ enabled }) => enabled),
+      hasEnabledCommandSuggestions({ commands, type: suggestions?.searchSource.type }),
     [commands, suggestions?.searchSource.type],
   );
 
@@ -146,11 +171,14 @@ export const SuggestionList = ({
       const Item: ContextMenuItemComponent = ({ ...props }: ContextMenuItemProps) => (
         <AutocompleteSuggestionItem
           {...props}
+          aria-selected={focusedItemIndex === i}
           component={component}
           focused={focusedItemIndex === i}
+          id={`${resolvedListboxId}-option-${i}`}
           item={item}
           key={item.id.toString()}
           onMouseEnter={() => setFocusedItemIndex?.(i)}
+          role='option'
         />
       );
       return Item;
@@ -159,6 +187,7 @@ export const SuggestionList = ({
     items,
     component,
     focusedItemIndex,
+    resolvedListboxId,
     setFocusedItemIndex,
     AutocompleteSuggestionItem,
     suggestions?.searchSource.type,
@@ -167,7 +196,9 @@ export const SuggestionList = ({
   const ItemsWrapper = useCallback(
     ({ children }: React.ComponentProps<'div'>) => (
       <InfiniteScrollPaginator
+        contentProps={{ role: 'presentation' }}
         loadNextOnScrollToBottom={suggestions?.searchSource.search}
+        role='presentation'
         threshold={100}
       >
         {children}
@@ -223,17 +254,18 @@ export const SuggestionList = ({
     suggestions &&
     items?.length &&
     component &&
-    hasEnabledCommandSuggestions
+    commandSuggestionsEnabled
   );
-  const shownCount = showSuggestionsList ? (items?.length ?? 0) : 0;
-
-  // A single localized label per suggestion type, used BOTH as the menu's aria-label and in
-  // the count announcement ("5 Command Suggestions") — one source of truth, no second key.
+  // A single localized label per suggestion type, used BOTH as the listbox's aria-label and
+  // in the count announcement ("5 Command Suggestions") — one source of truth, no second key.
+  // NOTE: the type strings must match the SDK search-source `type` values exactly — `commands`
+  // and `mentions` are plural, but the emoji source (EmojiSearchSource) uses the singular
+  // `emoji`. A mismatch silently falls through to the generic "Suggestions" label.
   const suggestionMenuLabel = useMemo(() => {
     switch (suggestions?.searchSource.type) {
       case 'commands':
         return t('aria/Command Suggestions');
-      case 'emojis':
+      case 'emoji':
         return t('aria/Emoji Suggestions');
       case 'mentions':
         return t('aria/User Suggestions');
@@ -242,26 +274,31 @@ export const SuggestionList = ({
     }
   }, [suggestions?.searchSource.type, t]);
 
-  // Announce the visible result count to assistive technology whenever the menu
-  // appears or the result set changes as the query filters. The count is read via
-  // `announceInteraction('suggestions.count')`, which is itself debounced (300ms)
-  // and dedups an unchanged announcement in `useInteractionAnnouncements` — so no extra
-  // throttling/dedup is needed here. We deliberately do not announce while the list
-  // is hidden (count 0 / closed).
+  // Announce the visible result count to assistive technology whenever the menu appears or the
+  // result set changes as the query filters. We depend on `items` (not just its length) so the
+  // count re-announces on every genuine re-filter even when the number is unchanged — e.g. emoji
+  // results are capped at a constant N, so without this the user would type and hear nothing
+  // after the first announcement. `announceInteraction('suggestions.count')` debounces (300ms),
+  // so continuous typing collapses to a single announcement once the user pauses; it no longer
+  // dedupes unchanged values (that policy moved here, where "did the results actually change?"
+  // is knowable). We deliberately do not announce while the list is hidden (count 0 / closed).
   useEffect(() => {
     if (!showSuggestionsList) return;
     announceInteraction('suggestions.count', {
-      count: shownCount,
+      count: items?.length ?? 0,
       suggestionsLabel: suggestionMenuLabel,
     });
-  }, [announceInteraction, showSuggestionsList, shownCount, suggestionMenuLabel]);
+  }, [announceInteraction, items, showSuggestionsList, suggestionMenuLabel]);
 
   if (!showSuggestionsList) return null;
 
   return (
     <div
+      aria-label={suggestionMenuLabel}
       className={clsx('str-chat__suggestion-list-container', containerClassName)}
+      id={resolvedListboxId}
       ref={setContainer}
+      role='listbox'
       style={{
         left: x ?? 0,
         position: strategy,
@@ -271,7 +308,6 @@ export const SuggestionList = ({
       }}
     >
       <ContextMenuComponent
-        aria-label={suggestionMenuLabel}
         className={clsx('str-chat__suggestion-list', className)}
         Header={
           suggestions.searchSource.type === 'commands' ? CommandsMenuHeader : undefined
@@ -281,6 +317,7 @@ export const SuggestionList = ({
         menuClassName={
           suggestions.searchSource.type === 'commands' ? CommandsMenuClassName : undefined
         }
+        role='presentation'
       />
     </div>
   );

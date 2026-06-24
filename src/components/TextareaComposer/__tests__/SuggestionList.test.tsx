@@ -173,12 +173,43 @@ describe('SuggestionList', () => {
     });
   });
 
+  // The SDK's EmojiSearchSource uses the singular `emoji` type (not `emojis`); the label
+  // switch must match it exactly or emoji suggestions fall back to the generic label.
+  it('re-announces on a re-filter even when the count is unchanged', () => {
+    const { rerender } = renderSuggestionList();
+    expect(announceInteractionMock).toHaveBeenCalledTimes(1);
+
+    // New results array, same count (3) — e.g. a capped result set as the query narrows.
+    fakeComposerState = buildState(3);
+    rerender(
+      <DialogManagerProvider>
+        <SuggestionList />
+      </DialogManagerProvider>,
+    );
+
+    // The count is re-announced so the user gets feedback the query was applied.
+    expect(announceInteractionMock).toHaveBeenCalledTimes(2);
+    expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
+      count: 3,
+      suggestionsLabel: 'aria/User Suggestions',
+    });
+  });
+
   it('passes the localized type for an emoji source', () => {
-    fakeComposerState = buildState(2, 'emojis');
+    fakeComposerState = buildState(2, 'emoji');
     renderSuggestionList();
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 2,
       suggestionsLabel: 'aria/Emoji Suggestions',
+    });
+  });
+
+  it('falls back to the generic label for an unknown source type', () => {
+    fakeComposerState = buildState(2, 'something-else');
+    renderSuggestionList();
+    expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
+      count: 2,
+      suggestionsLabel: 'aria/Suggestions',
     });
   });
 
@@ -190,14 +221,26 @@ describe('SuggestionList', () => {
     expect(announceInteractionMock).not.toHaveBeenCalled();
   });
 
-  it('exposes reachable menu/menuitem semantics and has no axe violations', async () => {
+  it('exposes listbox/option semantics with wired ids and has no axe violations', async () => {
     const { container } = renderSuggestionList();
 
-    const menu = container.querySelector('[role="menu"]');
-    expect(menu).toBeInTheDocument();
+    const listbox = container.querySelector('[role="listbox"]');
+    expect(listbox).toBeInTheDocument();
+    // The listbox carries the localized type label as its accessible name.
+    expect(listbox).toHaveAttribute('aria-label', 'aria/User Suggestions');
 
-    const menuItems = container.querySelectorAll('[role="menuitem"]');
-    expect(menuItems.length).toBe(3);
+    const options = container.querySelectorAll('[role="option"]');
+    expect(options.length).toBe(3);
+
+    // Every option id is derived from the listbox id as `{listboxId}-option-{index}`
+    // so the controlling combobox can target them via aria-activedescendant.
+    const listboxId = listbox?.getAttribute('id');
+    expect(listboxId).toBeTruthy();
+    options.forEach((option, index) => {
+      expect(option).toHaveAttribute('id', `${listboxId}-option-${index}`);
+      // No item is active in this harness (focusedItemIndex defaults to undefined).
+      expect(option).toHaveAttribute('aria-selected', 'false');
+    });
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

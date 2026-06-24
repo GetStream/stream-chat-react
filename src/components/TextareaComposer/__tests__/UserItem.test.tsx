@@ -31,6 +31,21 @@ describe('UserItem', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('hides the decorative avatar from assistive tech (no fallback-initials noise)', () => {
+    const { getByTestId } = render(
+      <div role='listbox'>
+        <UserItem
+          entity={{
+            name: 'Frits Sissing',
+            tokenizedDisplayName: { parts: ['Frits Sissin', 'g'], token: 'g' },
+          }}
+        />
+      </div>,
+    );
+    // The avatar (and its fallback initials) must not contribute to the option's name.
+    expect(getByTestId('avatar')).toHaveAttribute('aria-hidden', 'true');
+  });
+
   it('should render profile picture if provided', async () => {
     const { container, getByTestId } = render(
       <div role='menu'>

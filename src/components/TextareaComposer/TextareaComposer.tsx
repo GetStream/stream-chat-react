@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useCooldownRemaining } from '../MessageComposer/hooks/useCooldownRemaining';
+import { useMessageComposerCommands } from '../MessageComposer/hooks/useMessageComposerCommands';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import type {
   AttachmentManagerState,
@@ -26,7 +27,11 @@ import {
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
-import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
+import { useStableId } from '../UtilityComponents/useStableId';
+import {
+  SuggestionList as DefaultSuggestionList,
+  hasEnabledCommandSuggestions,
+} from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
 
@@ -165,16 +170,54 @@ const TextareaComposerWithLiveAnnouncements = ({
     attachmentManagerStateSelector,
   );
 
-  const { isLoadingItems } =
+  const { isLoadingItems, items } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [focusedItemIndex, setFocusedItemIndex] = useState(0);
+  // Whether the active option was reached via keyboard navigation (Arrow keys) within the
+  // current suggestion session. Filtering resets `focusedItemIndex` to 0 on every keystroke,
+  // so if we always exposed `aria-activedescendant` the screen reader would re-read the first
+  // option on each character typed. We therefore expose the active option to AT ONLY after the
+  // user actually navigates, and clear it again as soon as they type (see `changeHandler`).
+  // While typing, the debounced polite count ("N suggestions") conveys that results changed.
+  const [activeOptionFromKeyboard, setActiveOptionFromKeyboard] = useState(false);
+
+  // Autocomplete wiring. The suggestion list is exposed as a `listbox` whose active
+  // `option` this field tracks. We deliberately do NOT set `role="combobox"`/`aria-expanded`
+  // here: ARIA-in-HTML disallows the `combobox` role on a multiline `<textarea>` (and
+  // `aria-expanded` is not a supported attribute on the implicit `textbox` role), so axe
+  // rejects them. Instead we use the `aria-activedescendant` autocomplete pattern that IS
+  // valid on a textbox — `aria-autocomplete="list"` + `aria-controls` → the listbox +
+  // `aria-activedescendant` → the active option — which screen readers voice on navigation.
+  //
+  // `aria-controls` is set whenever the list is open (so the listbox is discoverable) but
+  // `aria-activedescendant` is set only once the user has navigated with the keyboard — so the
+  // SR announces an option on Arrow nav, not the auto-reset first option on every keystroke.
+  // Both never dangle: "open" mirrors the keyboard-navigation gate below (`suggestions` present
+  // + at least one loaded item), which is also what `SuggestionList` renders on. The shared
+  // `listboxId` is owned here because the relationship attributes live on the textarea; it is
+  // passed down to the list, which derives per-option ids as `{listboxId}-option-{index}`.
+  const listboxId = useStableId();
+  const commands = useMessageComposerCommands();
+  const suggestionsOpen = !!(
+    suggestions &&
+    items?.length &&
+    hasEnabledCommandSuggestions({ commands, type: suggestions?.searchSource.type })
+  );
+  const activeDescendantId =
+    suggestionsOpen && activeOptionFromKeyboard
+      ? `${listboxId}-option-${focusedItemIndex}`
+      : undefined;
 
   const [isComposing, setIsComposing] = useState(false);
 
   const changeHandler: ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (e) => {
+      // Typing re-filters the list and resets the highlight to the first item; stop exposing
+      // the active option to AT until the user navigates again, so the SR does not re-read the
+      // first option on every keystroke.
+      setActiveOptionFromKeyboard(false);
       if (onChange) {
         onChange(e);
         return;
@@ -221,6 +264,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         }
         if (event.key === 'ArrowUp') {
           event.preventDefault();
+          setActiveOptionFromKeyboard(true);
           setFocusedItemIndex((prev) => {
             let nextIndex = prev - 1;
             if (suggestions?.searchSource.hasNext) {
@@ -233,6 +277,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         }
         if (event.key === 'ArrowDown') {
           event.preventDefault();
+          setActiveOptionFromKeyboard(true);
           setFocusedItemIndex((prev) => {
             let nextIndex = prev + 1;
             if (suggestions?.searchSource.hasNext) {
@@ -414,6 +459,9 @@ const TextareaComposerWithLiveAnnouncements = ({
     >
       <Textarea
         {...{ ...additionalTextareaProps, ...restTextareaProps }}
+        aria-activedescendant={activeDescendantId}
+        aria-autocomplete='list'
+        aria-controls={suggestionsOpen ? listboxId : undefined}
         aria-label={ariaLabel}
         className={clsx(
           'rta__textarea',
@@ -444,6 +492,7 @@ const TextareaComposerWithLiveAnnouncements = ({
           className={listClassName}
           closeOnClickOutside={closeSuggestionsOnClickOutside}
           focusedItemIndex={focusedItemIndex}
+          listboxId={listboxId}
           setFocusedItemIndex={setFocusedItemIndex}
         />
       )}

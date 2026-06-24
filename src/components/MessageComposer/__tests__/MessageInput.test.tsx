@@ -1320,6 +1320,64 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
+  // RW9b: the composer textarea is wired to the suggestion list as an
+  // aria-activedescendant autocomplete (textarea cannot be role="combobox").
+  it('wires the textarea to the suggestion listbox via aria-controls/aria-activedescendant', async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      customChannel,
+      customClient,
+      customUser: generateUser(),
+    });
+
+    const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+    // Closed: no dangling references to a listbox that is not rendered.
+    expect(textarea).toHaveAttribute('aria-autocomplete', 'list');
+    expect(textarea).not.toHaveAttribute('aria-controls');
+    expect(textarea).not.toHaveAttribute('aria-activedescendant');
+
+    await act(async () => {
+      await fireEvent.change(textarea, {
+        target: { selectionEnd: 1, selectionStart: 1, value: '@' },
+      });
+    });
+
+    let listbox: HTMLElement;
+    await waitFor(() => {
+      listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+      expect(listbox).toBeInTheDocument();
+    });
+
+    // aria-controls points at the rendered listbox as soon as it opens.
+    const listboxId = listbox!.getAttribute('id');
+    expect(listboxId).toBeTruthy();
+    expect(textarea).toHaveAttribute('aria-controls', listboxId);
+
+    // No active option is advertised on mere filtering — otherwise the SR would re-read the
+    // auto-reset first option on every keystroke. It appears only once the user navigates.
+    expect(textarea).not.toHaveAttribute('aria-activedescendant');
+
+    await act(async () => {
+      await fireEvent.keyDown(textarea, { key: 'ArrowDown' });
+    });
+
+    // After Arrow navigation, aria-activedescendant references an option that exists in the
+    // listbox (so the SR voices it).
+    await waitFor(() => {
+      const activeDescendantId = textarea.getAttribute('aria-activedescendant');
+      expect(activeDescendantId).toBeTruthy();
+      expect(document.getElementById(activeDescendantId!)).toHaveAttribute(
+        'role',
+        'option',
+      );
+    });
+
+    Element.prototype.scrollIntoView = scrollIntoView;
+  });
+
   it('should override the default List component when SuggestionList is provided as a prop', async () => {
     const AutocompleteSuggestionList = () => (
       <div data-testid='suggestion-list'>Suggestion List</div>
@@ -1907,6 +1965,11 @@ describe(`MessageInputFlat`, () => {
           document.querySelector('.str-chat__suggestion-list'),
         ).not.toBeInTheDocument();
       });
+
+      // RW9b: with the listbox suppressed, the textarea must not advertise a
+      // dangling aria-controls/aria-activedescendant pointing at a missing element.
+      expect(textarea).not.toHaveAttribute('aria-controls');
+      expect(textarea).not.toHaveAttribute('aria-activedescendant');
 
       Element.prototype.scrollIntoView = scrollIntoView;
     });
