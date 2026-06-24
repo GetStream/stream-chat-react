@@ -1518,6 +1518,24 @@ describe(`MessageInputFlat`, () => {
       expect(input).not.toHaveAttribute('aria-label', 'Search GIFs');
     });
 
+    it('names the giphy GIF-search field by its own placeholder while empty', async () => {
+      const giphyCommand = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-label', 'Search GIFs');
+      });
+    });
+
     // RW10: announce a one-shot selection confirmation when a user is picked.
     it('announces a confirmation once when a user mention is selected', async () => {
       const { channel } = await renderComponent();

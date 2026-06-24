@@ -104,6 +104,11 @@ describe('PollCreationDialog', () => {
     expect(getSubmitPollButton()).toBeDisabled();
   });
 
+  it('gives the close button a concise accessible name', async () => {
+    await renderComponent();
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveAccessibleName('Close');
+  });
+
   it('updates name field', async () => {
     const text = 'Abc';
     await renderComponent();
