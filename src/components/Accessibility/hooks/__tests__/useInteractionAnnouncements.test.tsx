@@ -41,37 +41,53 @@ describe('useInteractionAnnouncements', () => {
   it('announces "Giphy sent" with polite priority', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('giphy.sent');
-    expect(announceMock).toHaveBeenCalledWith('Giphy sent', 'polite');
+    expect(announceMock).toHaveBeenCalledWith('Giphy sent', { priority: 'polite' });
   });
 
   it('announces "Giphy canceled" with polite priority', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('giphy.canceled');
-    expect(announceMock).toHaveBeenCalledWith('Giphy canceled', 'polite');
+    expect(announceMock).toHaveBeenCalledWith('Giphy canceled', { priority: 'polite' });
   });
 
   it('announces "Poll sent" with polite priority', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('poll.sent');
-    expect(announceMock).toHaveBeenCalledWith('Poll sent', 'polite');
+    expect(announceMock).toHaveBeenCalledWith('Poll sent', { priority: 'polite' });
+  });
+
+  it('announces the composed poll dialog open message — assertive and deduped', () => {
+    const { result } = renderHook(() => useInteractionAnnouncements());
+    result.current.announceInteraction('poll.dialogOpened');
+    // Open confirmation + the (reused) visible description + the Enter affordance, one utterance.
+    expect(announceMock).toHaveBeenCalledWith(
+      'Poll dialog opened. Create a question, add options, and configure poll settings. Press Enter to start typing.',
+      { dedupeMs: 1000, priority: 'assertive' },
+    );
   });
 
   it('interpolates the selected user with polite priority (immediate)', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('user.selected', { user: 'Alice' });
-    expect(announceMock).toHaveBeenCalledWith('User selected: Alice', 'polite');
+    expect(announceMock).toHaveBeenCalledWith('User selected: Alice', {
+      priority: 'polite',
+    });
   });
 
   it('announces a generic "giphy.shuffled" when no title is present', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('giphy.shuffled', {});
-    expect(announceMock).toHaveBeenCalledWith('Giphy image changed', 'polite');
+    expect(announceMock).toHaveBeenCalledWith('Giphy image changed', {
+      priority: 'polite',
+    });
   });
 
   it('includes the title in "giphy.shuffled" when present', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('giphy.shuffled', { title: 'cats' });
-    expect(announceMock).toHaveBeenCalledWith('Giphy image changed: cats', 'polite');
+    expect(announceMock).toHaveBeenCalledWith('Giphy image changed: cats', {
+      priority: 'polite',
+    });
   });
 
   describe('suggestions.count (debounced stream)', () => {
@@ -91,7 +107,7 @@ describe('useInteractionAnnouncements', () => {
       vi.advanceTimersByTime(500);
 
       expect(announceMock).toHaveBeenCalledTimes(1);
-      expect(announceMock).toHaveBeenCalledWith('2 suggestions', 'polite');
+      expect(announceMock).toHaveBeenCalledWith('2 suggestions', { priority: 'polite' });
     });
 
     it('names the suggestion list via the provided label', () => {
@@ -103,7 +119,9 @@ describe('useInteractionAnnouncements', () => {
       });
       vi.advanceTimersByTime(500);
 
-      expect(announceMock).toHaveBeenCalledWith('5 Command Suggestions', 'polite');
+      expect(announceMock).toHaveBeenCalledWith('5 Command Suggestions', {
+        priority: 'polite',
+      });
     });
 
     it('re-announces when only the label changes (same count)', () => {
@@ -121,8 +139,12 @@ describe('useInteractionAnnouncements', () => {
       vi.advanceTimersByTime(500);
 
       expect(announceMock).toHaveBeenCalledTimes(2);
-      expect(announceMock).toHaveBeenNthCalledWith(1, '3 Command Suggestions', 'polite');
-      expect(announceMock).toHaveBeenNthCalledWith(2, '3 User Suggestions', 'polite');
+      expect(announceMock).toHaveBeenNthCalledWith(1, '3 Command Suggestions', {
+        priority: 'polite',
+      });
+      expect(announceMock).toHaveBeenNthCalledWith(2, '3 User Suggestions', {
+        priority: 'polite',
+      });
     });
 
     it('coalesces rapid identical calls within one debounce window into a single announcement', () => {
@@ -133,7 +155,9 @@ describe('useInteractionAnnouncements', () => {
       result.current.announceInteraction('suggestions.count', { count: 3 });
       vi.advanceTimersByTime(500);
       expect(announceMock).toHaveBeenCalledTimes(1);
-      expect(announceMock).toHaveBeenLastCalledWith('3 suggestions', 'polite');
+      expect(announceMock).toHaveBeenLastCalledWith('3 suggestions', {
+        priority: 'polite',
+      });
     });
 
     it('re-announces an unchanged count once the previous announcement has settled', () => {
@@ -150,13 +174,15 @@ describe('useInteractionAnnouncements', () => {
       result.current.announceInteraction('suggestions.count', { count: 3 });
       vi.advanceTimersByTime(500);
       expect(announceMock).toHaveBeenCalledTimes(2);
-      expect(announceMock).toHaveBeenLastCalledWith('3 suggestions', 'polite');
+      expect(announceMock).toHaveBeenLastCalledWith('3 suggestions', {
+        priority: 'polite',
+      });
     });
 
     it('does not debounce discrete confirmations', () => {
       const { result } = renderHook(() => useInteractionAnnouncements());
       result.current.announceInteraction('giphy.sent');
-      expect(announceMock).toHaveBeenCalledWith('Giphy sent', 'polite');
+      expect(announceMock).toHaveBeenCalledWith('Giphy sent', { priority: 'polite' });
     });
 
     it('lets params.debounceMs override the registered default for a single call', () => {
@@ -174,7 +200,7 @@ describe('useInteractionAnnouncements', () => {
 
       vi.advanceTimersByTime(500);
       expect(announceMock).toHaveBeenCalledTimes(1);
-      expect(announceMock).toHaveBeenCalledWith('3 suggestions', 'polite');
+      expect(announceMock).toHaveBeenCalledWith('3 suggestions', { priority: 'polite' });
     });
 
     it('opts an otherwise-immediate interaction into debouncing via params.debounceMs', () => {
@@ -188,7 +214,9 @@ describe('useInteractionAnnouncements', () => {
       expect(announceMock).not.toHaveBeenCalled();
 
       vi.advanceTimersByTime(300);
-      expect(announceMock).toHaveBeenCalledWith('User selected: Alice', 'polite');
+      expect(announceMock).toHaveBeenCalledWith('User selected: Alice', {
+        priority: 'polite',
+      });
     });
   });
 });

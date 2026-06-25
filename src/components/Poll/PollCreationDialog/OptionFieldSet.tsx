@@ -103,7 +103,7 @@ export const OptionFieldSet = () => {
           'aria/Picked up "{{ option }}". Use arrow keys to reorder. Press Space or Tab to drop.',
           { option: labelForOption(option, idx + 1) },
         ),
-        'assertive',
+        { priority: 'assertive' },
       );
     },
     [announce, labelForOption, pollComposer, t],
@@ -123,7 +123,7 @@ export const OptionFieldSet = () => {
         option: labelForOption(option, idx + 1),
         position: idx + 1,
       }),
-      'assertive',
+      { priority: 'assertive' },
     );
   }, [activeOptionId, announce, labelForOption, pollComposer, t]);
 

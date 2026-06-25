@@ -25,6 +25,7 @@ export type InteractionAnnouncementParams = {
   'giphy.canceled': undefined;
   'giphy.sent': undefined;
   'giphy.shuffled': InteractionDeliveryOptions & { title?: string };
+  'poll.dialogOpened': undefined;
   'poll.sent': undefined;
   'suggestions.count': InteractionDeliveryOptions & {
     count: number;
@@ -58,6 +59,13 @@ const INTERACTION_MESSAGES: {
     params.title
       ? t('aria/Giphy image changed: {{ title }}', { title: params.title })
       : t('aria/Giphy image changed'),
+  // Spoken on poll-dialog open. Reuses the already-localized visible description for the middle
+  // clause (so the spoken and visible text stay consistent) and adds two short aria-only phrases:
+  // an explicit "opened" confirmation and the Enter affordance to step into the Question field.
+  'poll.dialogOpened': (t) =>
+    `${t('aria/Poll dialog opened')}. ${t(
+      'Create a question, add options, and configure poll settings',
+    )}. ${t('aria/Press Enter to start typing')}.`,
   'poll.sent': (t) => t('aria/Poll sent'),
   // Name the suggestion type by reusing the already-localized list label ("5 Command
   // Suggestions") so the user knows what the results are; fall back to the bare count when no
@@ -79,7 +87,21 @@ const INTERACTION_MESSAGES: {
  */
 const INTERACTION_PRIORITIES: Partial<
   Record<InteractionAnnouncementType, AriaLivePriority>
-> = {};
+> = {
+  // Assertive on open: a polite update fired around the dialog's focus-entry announcement is
+  // dropped; assertive interrupts and is spoken (VoiceOver demotes the aria-describedby hint).
+  'poll.dialogOpened': 'assertive',
+};
+
+/**
+ * Per-interaction dedupe window (ms): an identical message for this interaction is announced at
+ * most once per window (see {@link AriaLiveAnnounceOptions.dedupeMs}). List an interaction here
+ * only when the SAME open/mount can fire it more than once in quick succession — e.g. a mount
+ * effect double-invoked by React StrictMode (dev) — so the user does not hear a duplicate.
+ */
+const INTERACTION_DEDUPE_MS: Partial<Record<InteractionAnnouncementType, number>> = {
+  'poll.dialogOpened': 1000,
+};
 
 /**
  * Default per-interaction debounce delay (ms). Only list rapidly-updating streams where just the
@@ -158,7 +180,7 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
           (params as InteractionDeliveryOptions | undefined)?.debounceMs ??
           INTERACTION_DEBOUNCE_MS[interaction];
         if (debounceMs === undefined) {
-          announce(message, priority);
+          announce(message, { dedupeMs: INTERACTION_DEDUPE_MS[interaction], priority });
           return;
         }
 

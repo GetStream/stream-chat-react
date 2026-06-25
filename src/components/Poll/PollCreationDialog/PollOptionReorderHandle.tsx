@@ -110,7 +110,7 @@ export const PollOptionReorderHandle = ({
             t(
               'aria/Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.',
             ),
-            'assertive',
+            { priority: 'assertive' },
           );
           focusAnnouncementFrameRef.current = null;
         });

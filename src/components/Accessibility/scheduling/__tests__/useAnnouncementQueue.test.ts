@@ -13,7 +13,7 @@ describe('useAnnouncementQueue', () => {
     act(() => result.current.enqueue({ message: 'one', priority: 'polite' }));
 
     expect(announce).toHaveBeenCalledTimes(1);
-    expect(announce).toHaveBeenCalledWith('one', 'polite');
+    expect(announce).toHaveBeenCalledWith('one', { priority: 'polite' });
   });
 
   it('paces subsequent items by gapMs and preserves order', () => {
@@ -55,8 +55,8 @@ describe('useAnnouncementQueue', () => {
 
     act(() => vi.advanceTimersByTime(100));
 
-    expect(first).toHaveBeenCalledWith('a', undefined);
-    expect(second).toHaveBeenCalledWith('b', undefined);
+    expect(first).toHaveBeenCalledWith('a', { priority: undefined });
+    expect(second).toHaveBeenCalledWith('b', { priority: undefined });
   });
 
   it('stops announcing and clears pending timers after unmount', () => {

@@ -44,6 +44,14 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
   const timeoutByAnnouncementIdRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(
     new Map(),
   );
+  // Pending `delayMs` timers (announcements scheduled but not yet emitted). Tracked so they can
+  // be cleared on provider unmount; each call also returns a `cancel` that clears its own timer.
+  const delayTimersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
+  // Messages emitted within their `dedupeMs` window (message -> expiry timer). Used to suppress
+  // an identical repeat (e.g. a StrictMode-double-invoked effect) within the window.
+  const dedupeTimersByMessageRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
+    new Map(),
+  );
   // The exact text last rendered into a live region. Screen readers (notably VoiceOver)
   // suppress a live-region update whose text is identical to the previous one, so repeated
   // identical announcements (e.g. shuffling a Giphy, whose description is the constant search
@@ -66,8 +74,8 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
     timeoutByAnnouncementIdRef.current.delete(id);
   }, []);
 
-  const announce = useCallback<AriaLiveAnnounce>(
-    (message, priority = 'polite') => {
+  const emit = useCallback(
+    (message: string, priority: AriaLivePriority) => {
       const announcementId = nextAnnouncementIdRef.current++;
 
       // Append a (silent) zero-width space (U+200B) when the text would repeat the previous
@@ -98,13 +106,62 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
     [removeAnnouncement],
   );
 
+  const announce = useCallback<AriaLiveAnnounce>(
+    (message, options) => {
+      const { dedupeMs, delayMs, priority = 'polite' } = options ?? {};
+
+      // Emit, applying the dedupe window if requested. The check runs at EMIT time (not call
+      // time) so a delayed announcement that is cancelled before it fires never marks the message
+      // as seen — only an actually-emitted message opens the window.
+      const emitMessage = () => {
+        if (dedupeMs) {
+          const recent = dedupeTimersByMessageRef.current;
+          if (recent.has(message)) return; // identical message within the window — suppress
+          recent.set(
+            message,
+            setTimeout(() => recent.delete(message), dedupeMs),
+          );
+        }
+        emit(message, priority);
+      };
+
+      if (!delayMs) {
+        emitMessage();
+        return () => undefined;
+      }
+
+      const delayTimers = delayTimersRef.current;
+      const delayTimer = setTimeout(() => {
+        delayTimers.delete(delayTimer);
+        emitMessage();
+      }, delayMs);
+      delayTimers.add(delayTimer);
+
+      return () => {
+        clearTimeout(delayTimer);
+        delayTimers.delete(delayTimer);
+      };
+    },
+    [emit],
+  );
+
   useEffect(() => {
     const timeoutById = timeoutByAnnouncementIdRef.current;
+    const delayTimers = delayTimersRef.current;
+    const dedupeTimers = dedupeTimersByMessageRef.current;
     return () => {
       for (const timeout of timeoutById.values()) {
         clearTimeout(timeout);
       }
       timeoutById.clear();
+      for (const timeout of delayTimers) {
+        clearTimeout(timeout);
+      }
+      delayTimers.clear();
+      for (const timeout of dedupeTimers.values()) {
+        clearTimeout(timeout);
+      }
+      dedupeTimers.clear();
     };
   }, []);
 
@@ -119,15 +176,37 @@ export const AriaLiveAnnouncerProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   // Innermost wins: the highest layer, and among equal layers the most recently registered.
-  const activeOutletId = useMemo(() => {
+  const activeOutlet = useMemo(() => {
     let active: RegisteredOutlet | null = null;
     for (const outlet of outlets) {
       if (!active || outlet.layer >= active.layer) {
         active = outlet;
       }
     }
-    return active?.id ?? null;
+    return active;
   }, [outlets]);
+  const activeOutletId = activeOutlet?.id ?? null;
+
+  // Drop pending announcements when the active outlet falls back to a LOWER layer because a higher
+  // one unmounted (e.g. a modal dialog closed). The shared announcement state otherwise re-renders
+  // into the newly active (main) outlet and the screen reader re-announces it — so messages emitted
+  // inside a dialog (e.g. option-reorder pickup/move/drop) would be voiced again after the dialog
+  // is gone. We only clear on fall-back: when a HIGHER outlet MOUNTS (a dialog opening), the state
+  // must survive so an open-time announcement still renders in the now-active dialog outlet.
+  const previousActiveLayerRef = useRef(activeOutlet?.layer ?? -1);
+  useEffect(() => {
+    const currentLayer = activeOutlet?.layer ?? -1;
+    const previousLayer = previousActiveLayerRef.current;
+    previousActiveLayerRef.current = currentLayer;
+    if (currentLayer >= previousLayer) return;
+
+    for (const timeout of timeoutByAnnouncementIdRef.current.values()) {
+      clearTimeout(timeout);
+    }
+    timeoutByAnnouncementIdRef.current.clear();
+    lastRenderedMessageRef.current = '';
+    setAnnouncementsByPriority({ assertive: [], polite: [] });
+  }, [activeOutlet]);
 
   const announcerValue = useMemo(() => ({ announce }), [announce]);
   const outletValue = useMemo(

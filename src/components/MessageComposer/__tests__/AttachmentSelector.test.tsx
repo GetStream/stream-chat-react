@@ -509,9 +509,14 @@ describe('AttachmentSelector', () => {
     expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
+    // Initial focus lands on the dialog surface (so the SR announces the dialog identity before a
+    // field's focus could supersede it).
     await waitFor(() => {
-      expect(questionInput).toHaveFocus();
+      expect(dialog).toHaveFocus();
     });
+    // Enter on the surface steps into the dialog's default field (data-autofocus).
+    fireEvent.keyDown(dialog, { key: 'Enter' });
+    expect(questionInput).toHaveFocus();
     expect(questionInput).not.toHaveAttribute(
       'aria-describedby',
       expect.stringContaining('modal-dialog-description'),
@@ -528,6 +533,56 @@ describe('AttachmentSelector', () => {
     await waitFor(() => {
       expect(invokeButtonFocusSpy).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('on successful poll send, returns focus to the composer — not the attachment trigger', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { ...defaultChannelData, config: defaultConfig } }],
+    });
+    vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
+    vi.spyOn(client, 'createPoll').mockResolvedValue(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+
+    await renderComponent({ customChannel: channel, customClient: client });
+    const invokeButton = screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID);
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    fireEvent.click(menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`));
+    await waitFor(() =>
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument(),
+    );
+
+    // Fill the form so Send is enabled.
+    await act(async () => {
+      await fireEvent.change(screen.getByLabelText('Question'), {
+        target: { value: 'Q' },
+      });
+    });
+    await act(async () => {
+      await fireEvent.change(screen.getByPlaceholderText('Add an option'), {
+        target: { value: 'Opt' },
+      });
+    });
+    const sendButton = screen.getByRole('button', { name: /send poll/i });
+    await waitFor(() => expect(sendButton).toBeEnabled());
+
+    await act(async () => {
+      await fireEvent.click(sendButton);
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument(),
+    );
+    // The fix: focus lands on the composer textarea, and neither focus-restorer (react-aria's
+    // FocusScope nor AttachmentSelector's own trigger restore) blips focus back to the "+" trigger.
+    await waitFor(() => {
+      expect(document.activeElement?.tagName).toBe('TEXTAREA');
+    });
+    expect(invokeButton).not.toHaveFocus();
   });
 
   it('resets pollComposer state when the Poll dialog is opened', async () => {

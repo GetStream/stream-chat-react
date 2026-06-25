@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 
 import type { Notification, NotificationAction, NotificationSeverity } from 'stream-chat';
 
+import type { AriaLivePriority } from '../../Accessibility';
 import { modalDialogId } from '../../Dialog';
 import { useChatContext, useModalDialogManager } from '../../../context';
 import { useStateStore } from '../../../store';
@@ -38,6 +39,12 @@ export type NotificationIncidentDescriptor = {
 export type AddNotificationParams = {
   /** Optional interactive actions rendered by the notification component. */
   actions?: NotificationAction[];
+  /**
+   * Overrides the aria-live priority the notification is announced with. Defaults to severity-based
+   * (`error` → `assertive`, otherwise `polite`). Set `assertive` for a confirmation that should be
+   * heard promptly rather than queued behind a competing announcement (e.g. a focus change).
+   */
+  ariaLive?: AriaLivePriority;
   /** Arbitrary context metadata stored in `origin.context`. */
   context?: Record<string, unknown>;
   /** Duration in milliseconds after which the notification auto-dismisses. */
@@ -142,6 +149,7 @@ export const useNotificationApi = (): NotificationApi => {
   const addNotification: AddNotification = useCallback(
     ({
       actions,
+      ariaLive,
       context,
       duration,
       emitter,
@@ -166,6 +174,7 @@ export const useNotificationApi = (): NotificationApi => {
         ...(actions ? { actions } : {}),
         ...(typeof duration === 'number' ? { duration } : {}),
         ...(error ? { originalError: error } : {}),
+        ...(ariaLive ? { metadata: { ariaLive } } : {}),
         ...(notificationTags.length > 0 ? { tags: notificationTags } : {}),
         ...(severity ? { severity } : {}),
         ...(resolvedType ? { type: resolvedType } : {}),
@@ -183,6 +192,7 @@ export const useNotificationApi = (): NotificationApi => {
   const addSystemNotification: AddSystemNotification = useCallback(
     ({
       actions,
+      ariaLive,
       context,
       duration,
       emitter,
@@ -203,6 +213,7 @@ export const useNotificationApi = (): NotificationApi => {
         ...(actions ? { actions } : {}),
         ...(typeof duration === 'number' ? { duration } : {}),
         ...(error ? { originalError: error } : {}),
+        ...(ariaLive ? { metadata: { ariaLive } } : {}),
         ...(notificationTags.length > 0 ? { tags: notificationTags } : {}),
         ...(severity ? { severity } : {}),
         ...(resolvedType ? { type: resolvedType } : {}),

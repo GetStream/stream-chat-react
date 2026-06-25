@@ -199,6 +199,48 @@ describe('GlobalModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('moves focus to the [data-autofocus] field when Enter is pressed on the dialog surface', () => {
+    renderComponent({
+      props: {
+        children: (
+          <ModalContent text='content'>
+            <input data-autofocus data-testid='default-field' />
+          </ModalContent>
+        ),
+        initialFocusStrategy: 'dialog',
+        open: true,
+      },
+    });
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Enter', target: dialog });
+
+    expect(screen.getByTestId('default-field')).toHaveFocus();
+  });
+
+  it('ignores Enter that bubbles up from a control inside the dialog', () => {
+    renderComponent({
+      props: {
+        children: (
+          <ModalContent text='content'>
+            <input data-autofocus data-testid='default-field' />
+            <input data-testid='other-field' />
+          </ModalContent>
+        ),
+        initialFocusStrategy: 'dialog',
+        open: true,
+      },
+    });
+
+    const other = screen.getByTestId('other-field');
+    other.focus();
+    // Enter originating from another field must not yank focus to the default field.
+    fireEvent.keyDown(other, { key: 'Enter' });
+
+    expect(other).toHaveFocus();
+    expect(screen.getByTestId('default-field')).not.toHaveFocus();
+  });
+
   it('should remove the escape keydown event handler when unmounted', () => {
     const onClose = vi.fn();
     const { unmount } = renderComponent({

@@ -384,7 +384,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         const frame = window.requestAnimationFrame(() => {
           pendingFrames.delete(frame);
           const label = textareaRef.current?.placeholder;
-          if (label) announce(label, 'polite');
+          if (label) announce(label, { priority: 'polite' });
         });
         pendingFrames.add(frame);
       },

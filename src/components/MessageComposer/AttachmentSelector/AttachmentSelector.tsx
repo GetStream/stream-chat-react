@@ -392,8 +392,15 @@ export const AttachmentSelector = ({
     if (modalContentAction || !shouldRestoreFocusToTriggerRef.current) return;
 
     const frame = requestAnimationFrame(() => {
-      menuButtonRef.current?.focus();
       shouldRestoreFocusToTriggerRef.current = false;
+      // Only restore focus to the trigger if focus actually fell to <body> when the dialog closed
+      // (the cancel/escape case). If the dialog content purposefully moved focus elsewhere — e.g.
+      // the poll dialog returns focus to the composer on a successful send — leave it there. This
+      // mirrors react-aria FocusScope's own restore guard and prevents a focus blip through the
+      // trigger before the content's intended target.
+      const active = document.activeElement;
+      if (active && active !== document.body) return;
+      menuButtonRef.current?.focus();
     });
 
     return () => cancelAnimationFrame(frame);
@@ -465,9 +472,11 @@ export const AttachmentSelector = ({
               'str-chat__share-location-modal':
                 modalContentAction?.type === 'addLocation',
             })}
-            initialFocusStrategy={
-              modalContentAction?.type === 'createPoll' ? 'firstElement' : 'dialog'
-            }
+            // Focus the dialog surface on open (not a field): a field's focus would supersede the
+            // screen reader's dialog identity/description announcement. The user then presses Enter
+            // to step into the dialog's default field (see GlobalModal's `[data-autofocus]`
+            // handling).
+            initialFocusStrategy='dialog'
             onClose={closeModal}
             open={modalIsOpen}
           >

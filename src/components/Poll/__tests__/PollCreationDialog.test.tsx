@@ -109,6 +109,22 @@ describe('PollCreationDialog', () => {
     expect(screen.getByRole('button', { name: 'Close' })).toHaveAccessibleName('Close');
   });
 
+  // The dialog description is exposed via aria-describedby, which SRs treat as a (often-skipped)
+  // hint. On open we announce — assertively, so it is not dropped around the dialog's focus-entry
+  // announcement — an open confirmation + the description + the Enter affordance to step into the
+  // Question field (via the `poll.dialogOpened` interaction).
+  it('announces the dialog open confirmation, description, and Enter hint via the live region', async () => {
+    await renderComponent();
+    const assertiveRegion = screen.getByTestId('str-chat__aria-live-region--assertive');
+    await waitFor(
+      () =>
+        expect(getLatestLiveAnnouncement(assertiveRegion)).toBe(
+          'Poll dialog opened. Create a question, add options, and configure poll settings. Press Enter to start typing.',
+        ),
+      { timeout: 2000 },
+    );
+  });
+
   it('updates name field', async () => {
     const text = 'Abc';
     await renderComponent();

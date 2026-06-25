@@ -62,7 +62,7 @@ export const useDebouncedAnnounce = (
       if (existing !== undefined) clearTimeout(existing);
       const timerId = setTimeout(() => {
         timers.delete(key);
-        announceRef.current(message, priority);
+        announceRef.current(message, { priority });
       }, delayMs);
       timers.set(key, timerId);
     },

@@ -20,7 +20,7 @@ describe('useDebouncedAnnounce', () => {
     act(() => vi.advanceTimersByTime(300));
 
     expect(announce).toHaveBeenCalledTimes(1);
-    expect(announce).toHaveBeenCalledWith('three', 'assertive');
+    expect(announce).toHaveBeenCalledWith('three', { priority: 'assertive' });
   });
 
   it('debounces distinct keys independently, each with its own delay', () => {
@@ -35,12 +35,12 @@ describe('useDebouncedAnnounce', () => {
     // The shorter key fires first; the longer key is still pending.
     act(() => vi.advanceTimersByTime(200));
     expect(announce).toHaveBeenCalledTimes(1);
-    expect(announce).toHaveBeenCalledWith('fast', 'polite');
+    expect(announce).toHaveBeenCalledWith('fast', { priority: 'polite' });
 
     // Scheduling 'short' did not cancel 'long'.
     act(() => vi.advanceTimersByTime(300));
     expect(announce).toHaveBeenCalledTimes(2);
-    expect(announce).toHaveBeenLastCalledWith('slow', 'polite');
+    expect(announce).toHaveBeenLastCalledWith('slow', { priority: 'polite' });
   });
 
   it('cancel(key) cancels only that key', () => {
@@ -55,7 +55,7 @@ describe('useDebouncedAnnounce', () => {
     });
 
     expect(announce).toHaveBeenCalledTimes(1);
-    expect(announce).toHaveBeenCalledWith('b-msg', undefined);
+    expect(announce).toHaveBeenCalledWith('b-msg', { priority: undefined });
   });
 
   it('cancel() with no key cancels all pending announcements', () => {
@@ -85,7 +85,7 @@ describe('useDebouncedAnnounce', () => {
     act(() => vi.advanceTimersByTime(300));
 
     expect(first).not.toHaveBeenCalled();
-    expect(second).toHaveBeenCalledWith('msg', undefined);
+    expect(second).toHaveBeenCalledWith('msg', { priority: undefined });
   });
 
   it('clears all pending timers on unmount', () => {

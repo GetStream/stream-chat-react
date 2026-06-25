@@ -22,9 +22,12 @@ export const NameField = () => {
   );
 
   return (
+    // `data-autofocus` marks this as the dialog's default field. Initial focus stays on the dialog
+    // surface so the SR announces the dialog identity/description; pressing Enter on the surface
+    // then moves focus here (see GlobalModal's keydown handling) so the user can start typing.
     <TextInput
-      autoFocus
       className='str-chat__form__input-field__value'
+      data-autofocus
       error={!!error}
       errorMessage={
         error ? (

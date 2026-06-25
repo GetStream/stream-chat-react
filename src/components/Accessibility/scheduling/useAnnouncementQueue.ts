@@ -46,7 +46,7 @@ export const useAnnouncementQueue = (
     const next = queueRef.current.shift();
     if (!next) return;
 
-    announceRef.current(next.message, next.priority);
+    announceRef.current(next.message, { priority: next.priority });
 
     timerRef.current = setTimeout(() => {
       timerRef.current = null;

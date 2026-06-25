@@ -133,8 +133,25 @@ export const GlobalModal = ({
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.defaultPrevented || event.key !== 'Escape' || !isTopmost) return;
-    maybeClose('escape', event);
+    if (event.defaultPrevented || !isTopmost) return;
+
+    if (event.key === 'Escape') {
+      maybeClose('escape', event);
+      return;
+    }
+
+    // Initial focus lands on the dialog surface so the screen reader announces the dialog
+    // identity/description (a child field's focus would supersede that). Enter on the surface then
+    // steps the user into the dialog's declared default field (`[data-autofocus]`), so they can
+    // start interacting without hunting for it. `event.target === dialogRef.current` ensures we
+    // only react to Enter on the surface itself, never one bubbling up from a control inside.
+    if (event.key === 'Enter' && event.target === dialogRef.current) {
+      const target = dialogRef.current?.querySelector<HTMLElement>('[data-autofocus]');
+      if (target) {
+        event.preventDefault();
+        target.focus();
+      }
+    }
   };
 
   // Sync open prop to dialog state.
