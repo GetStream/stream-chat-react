@@ -2,7 +2,7 @@ export function escapeRegExp(text: string) {
   return text.replace(/[-[\]{}()*+?.,/\\^$|#]/g, '\\$&');
 }
 
-export const detectHttp = /(http(s?):\/\/)?(www\.)?/;
+export const detectHttp = /(http(s?):\/\/)?(www\.)?/i;
 
 // Regexes are hoisted to module scope so they are compiled once rather than on
 // every call. `codeRegex`/`regexMdLinks` are only used with `String#match`
