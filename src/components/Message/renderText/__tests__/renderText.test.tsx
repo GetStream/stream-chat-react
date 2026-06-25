@@ -28,6 +28,14 @@ describe(`renderText`, () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('linkifies a URL with an uppercase scheme like a lowercase one', () => {
+    const Markdown = renderText('see HTTPS://en.wikipedia.org/wiki/Apple');
+    render(Markdown);
+    const link = screen.getByRole('link', { name: 'en.wikipedia.org/wiki/Apple' });
+    expect(link).toHaveClass('str-chat__message-url-link');
+    expect(link).toHaveAttribute('href', 'HTTPS://en.wikipedia.org/wiki/Apple');
+  });
+
   it('handles the special case where user name matches to an e-mail pattern - 1', () => {
     const Markdown = renderText(
       'Hello @username@email.com, is username@email.com your @primary e-mail?',

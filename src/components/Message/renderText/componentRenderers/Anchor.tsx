@@ -4,7 +4,7 @@ import React from 'react';
 
 export const Anchor = ({ children, href }: ComponentProps<'a'>) => {
   const isEmail = href?.startsWith('mailto:');
-  const isUrl = href?.startsWith('http');
+  const isUrl = href?.toLowerCase().startsWith('http');
 
   if (!href || (!isEmail && !isUrl)) return <>{children}</>;
 
