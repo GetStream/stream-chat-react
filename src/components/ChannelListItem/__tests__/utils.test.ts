@@ -312,7 +312,7 @@ describe('ChannelPreview utils', () => {
         tDateTimeParser,
       });
 
-      expect(label).toBe('Empty room. There are no messages in this chat');
+      expect(label).toBe('Empty room. There are no messages in this chat.');
     });
 
     it('labels an own latest message with "You" and includes the delivery status', async () => {
