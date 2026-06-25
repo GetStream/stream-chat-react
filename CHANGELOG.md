@@ -1,3 +1,9 @@
+## [14.6.0](https://github.com/GetStream/stream-chat-react/compare/v14.5.0...v14.6.0) (2026-06-25)
+
+### Features
+
+* add ChannelDetail component ([#3221](https://github.com/GetStream/stream-chat-react/issues/3221)) ([2312d89](https://github.com/GetStream/stream-chat-react/commit/2312d8955eaf209118986f289e3b8655d21d29b6))
+
 ## [14.5.0](https://github.com/GetStream/stream-chat-react/compare/v14.4.1...v14.5.0) (2026-06-19)
 
 ### Bug Fixes
