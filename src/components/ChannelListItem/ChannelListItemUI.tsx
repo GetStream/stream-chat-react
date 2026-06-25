@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import clsx from 'clsx';
 
 import { ChannelListItemActionButtons as DefaultChannelListItemActionButtons } from './ChannelListItemActionButtons';
@@ -7,12 +7,18 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { IconMute, IconPin } from '../Icons';
-import { useComponentContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
+import { composeChannelListItemAccessibleLabel } from './utils.a11y';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 
 const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   const {
+    accessibleLabelConfig,
     active,
     channel,
     className: customClassName = '',
@@ -33,9 +39,52 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     Avatar = DefaultChannelAvatar,
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
   } = useComponentContext();
-  const { t } = useTranslationContext();
+  const { client, isMessageAIGenerated } = useChatContext('ChannelListItemUI');
+  const { t, tDateTimeParser, userLanguage } = useTranslationContext('ChannelListItemUI');
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
+
+  // Composed accessible name for the row. Built here (the overridable presentation component) so a
+  // `ComponentContext`-supplied `ChannelListItemUI` can configure it via `accessibleLabelConfig`.
+  const accessibleLabel = useMemo(
+    () =>
+      composeChannelListItemAccessibleLabel(
+        {
+          channel,
+          client,
+          displayTitle,
+          isMessageAIGenerated,
+          latestMessage: lastMessage,
+          messageDeliveryStatus,
+          selected: active,
+          t,
+          tDateTimeParser,
+          unreadCount: unread,
+          userLanguage,
+        },
+        accessibleLabelConfig,
+      ),
+    // `muted`/`pinned` are intentional recompute triggers: the parts read
+    // `channel.state` / channel mute & membership state (which ESLint can't see and which do not
+    // themselves trigger a re-render), so we key on the state ChannelListItem already tracks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [
+      accessibleLabelConfig,
+      active,
+      channel,
+      client,
+      displayTitle,
+      isMessageAIGenerated,
+      lastMessage,
+      messageDeliveryStatus,
+      muted,
+      pinned,
+      t,
+      tDateTimeParser,
+      unread,
+      userLanguage,
+    ],
+  );
 
   const avatarName =
     displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
@@ -54,9 +103,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   return (
     <div className='str-chat__channel-list-item-container'>
       <button
-        aria-label={t('aria/Select Channel: {{ channelName }}', {
-          channelName: displayTitle || '',
-        })}
+        aria-label={accessibleLabel}
         aria-selected={active}
         className={clsx(
           'str-chat__channel-list-item',
@@ -74,6 +121,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
         role='option'
       >
         <Avatar
+          aria-hidden='true'
           displayMembers={groupChannelDisplayInfo?.members}
           imageUrl={displayImage}
           size='xl'

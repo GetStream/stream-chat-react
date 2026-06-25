@@ -104,6 +104,27 @@ describe('ChannelPreviewMessenger', () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('composes the row aria-label from name + last message', () => {
+    render(renderComponent());
+    const button = screen.getByTestId(PREVIEW_TEST_ID);
+    const label = button.getAttribute('aria-label') ?? '';
+    // Channel display name leads; the label is more than just the name (last message etc.).
+    expect(label.startsWith('Channel name')).toBe(true);
+    expect(label.length).toBeGreaterThan('Channel name'.length);
+  });
+
+  it('lets accessibleLabelConfig override the composed aria-label', () => {
+    render(
+      renderComponent({
+        accessibleLabelConfig: { build: () => 'Custom row label' },
+      }),
+    );
+    expect(screen.getByTestId(PREVIEW_TEST_ID)).toHaveAttribute(
+      'aria-label',
+      'Custom row label',
+    );
+  });
+
   it('should call setActiveChannel on click', async () => {
     const setActiveChannel = vi.fn();
     const { container, getByTestId } = render(

@@ -10,12 +10,13 @@ exports[`ChannelPreviewMessenger > should render correctly 1`] = `
       class="str-chat__channel-list-item-container"
     >
       <button
-        aria-label="Select Channel: Channel name"
+        aria-label="Channel name. 10 unread message. There are no messages in this chat"
         class="str-chat__channel-list-item str-chat__channel-list-item--unread"
         data-testid="channel-list-item-button"
         role="option"
       >
         <div
+          aria-hidden="true"
           class="str-chat__avatar str-chat__avatar--multiple-letters str-chat__avatar--size-xl"
           data-testid="avatar"
           role="button"

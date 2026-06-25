@@ -7,6 +7,7 @@ import {
   generateImageAttachment,
   generateMember,
   generateMessage,
+  generateScrapedDataAttachment,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
@@ -19,7 +20,10 @@ import {
   getChannelDisplayImage,
   getGroupChannelDisplayInfo,
   getLatestMessagePreview,
+  getLatestMessagePreviewText,
 } from '../utils';
+import { composeChannelListItemAccessibleLabel } from '../utils.a11y';
+import { MessageDeliveryStatus } from '../hooks/useMessageDeliveryStatus';
 import { generateStaticLocationResponse } from '../../../mock-builders';
 import { render } from '@testing-library/react';
 
@@ -114,6 +118,310 @@ describe('ChannelPreview utils', () => {
       } else {
         expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
       }
+    });
+  });
+
+  describe('getLatestMessagePreviewText', () => {
+    it('returns a plain string for a deleted message', async () => {
+      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ deleted_at: new Date().toISOString() })],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, t)).toBe('Message deleted');
+    });
+
+    it('returns the raw message text (no markdown element) for a text message', async () => {
+      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const channel = await getQueriedChannelInstance(
+        generateChannel({ messages: [generateMessage({ text: 'hey there' })] }),
+      );
+      expect(getLatestMessagePreviewText(channel, t)).toBe('hey there');
+    });
+
+    it('strips markdown syntax so the announced text reads as words', async () => {
+      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({ text: '**bold** and _em_ and [link](https://x.test)' }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, t)).toBe('bold and em and link');
+    });
+
+    it('returns AI-generated text verbatim (not stripped), matching the display path', async () => {
+      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const channel = await getQueriedChannelInstance(
+        generateChannel({ messages: [generateMessage({ text: '**keep me**' })] }),
+      );
+      expect(getLatestMessagePreviewText(channel, t, 'en', () => true)).toBe(
+        '**keep me**',
+      );
+    });
+
+    // Non-text previews get a concise, announcement-specific phrasing (distinct from the visible
+    // preview). t here interpolates and drops the `aria/` prefix.
+    const tAria = ((key: string, opts?: Record<string, unknown>) => {
+      const interpolated = Object.entries(opts ?? {}).reduce(
+        (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+        key,
+      );
+      return interpolated.startsWith('aria/')
+        ? interpolated.replace('aria/', '')
+        : interpolated;
+    }) as TranslationContextValue['t'];
+
+    it('announces a poll by its question', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ poll: { name: 'Lunch spot?' }, text: '' })],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe('Poll: Lunch spot?');
+    });
+
+    it('announces an attachment-only message with a localized type label', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({ attachments: [generateImageAttachment({})], text: '' }),
+          ],
+        }),
+      );
+      // 'image' maps to the localized 'aria/image' label (here the mock yields "image").
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe('Attachment image');
+    });
+
+    it('maps a voice recording attachment to its localized label', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({ attachments: [{ type: 'voiceRecording' }], text: '' }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe(
+        'Attachment voice message',
+      );
+    });
+
+    it('falls back to a generic "Attachment" for an unknown attachment type', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({ attachments: [{ type: 'custom-widget' }], text: '' }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe('Attachment');
+    });
+
+    it('announces a link preview (OG attachment) with its title', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateScrapedDataAttachment({ title: 'Example Domain' })],
+              text: '',
+            }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe(
+        'Shared a link: Example Domain',
+      );
+    });
+
+    it('announces a link preview without a title generically', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateScrapedDataAttachment({ title: undefined })],
+              text: '',
+            }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe('Shared a link');
+    });
+
+    it('announces a shared location plainly', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [],
+              shared_location: generateStaticLocationResponse({}),
+              text: '',
+            }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe('Shared location');
+    });
+  });
+
+  describe('composeChannelListItemAccessibleLabel', () => {
+    // t mirrors the natural-language fallback: interpolate {{ name }} and drop the `aria/` prefix.
+    const t = ((key: string, opts?: Record<string, unknown>) => {
+      const interpolated = Object.entries(opts ?? {}).reduce(
+        (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+        key,
+      );
+      return interpolated.startsWith('aria/')
+        ? interpolated.replace('aria/', '')
+        : interpolated;
+    }) as TranslationContextValue['t'];
+    const tDateTimeParser = (() =>
+      'recently') as unknown as TranslationContextValue['tDateTimeParser'];
+
+    it('composes name, unread, sender + preview, and time in reading order', async () => {
+      const alice = generateUser({ id: 'alice', name: 'Alice' });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ text: 'hey there', user: alice })],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+        unreadCount: 3,
+      });
+
+      expect(label).toBe(
+        'Team chat. 3 unread message. Last message from Alice: hey there. Last activity: recently',
+      );
+    });
+
+    it('announces an empty channel has no messages', async () => {
+      const channel = await getQueriedChannelInstance(generateChannel());
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Empty room',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toBe('Empty room. There are no messages in this chat');
+    });
+
+    it('labels an own latest message with "You" and includes the delivery status', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ text: 'on my way', user: clientUser })],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        messageDeliveryStatus: MessageDeliveryStatus.READ,
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toContain('Last message from You: on my way');
+      expect(label).toContain('Delivery status: Read');
+      // No unread segment when unread is omitted/zero.
+      expect(label).not.toContain('unread');
+    });
+
+    it('honors a config: custom order, an overridden part, and a separator', async () => {
+      const alice = generateUser({ id: 'alice', name: 'Alice' });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ text: 'hey there', user: alice })],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel(
+        {
+          channel,
+          client: chatClient,
+          displayTitle: 'Team chat',
+          t,
+          tDateTimeParser,
+          unreadCount: 3,
+        },
+        {
+          order: ['name', 'unreadCount'],
+          parts: {
+            unreadCount: ({ unreadCount }) =>
+              unreadCount ? `${unreadCount} new` : undefined,
+          },
+          separator: ' — ',
+        },
+      );
+
+      expect(label).toBe('Team chat — 3 new');
+    });
+
+    it('honors a full build override', async () => {
+      const channel = await getQueriedChannelInstance(generateChannel());
+
+      const label = composeChannelListItemAccessibleLabel(
+        { channel, client: chatClient, displayTitle: 'Team chat', t, tDateTimeParser },
+        { build: ({ displayTitle }) => `Channel ${displayTitle}` },
+      );
+
+      expect(label).toBe('Channel Team chat');
+    });
+
+    it('omits the sender (no raw user id) when the last message author has no name', async () => {
+      const anon = generateUser({ id: 'anon-123', name: undefined });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [generateMessage({ text: 'hi there', user: anon })],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toContain('Last message: hi there');
+      expect(label).not.toContain('anon-123');
+    });
+
+    it('exposes latestMessage to parts', async () => {
+      const bob = generateUser({ id: 'bob', name: 'Bob' });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({ messages: [generateMessage({ text: 'x', user: bob })] }),
+      );
+      const latestMessage =
+        channel.state.latestMessages[channel.state.latestMessages.length - 1];
+
+      const label = composeChannelListItemAccessibleLabel(
+        {
+          channel,
+          client: chatClient,
+          displayTitle: 'C',
+          latestMessage,
+          t,
+          tDateTimeParser,
+        },
+        {
+          order: ['sender'],
+          parts: { sender: ({ latestMessage }) => latestMessage?.user?.name },
+        },
+      );
+
+      expect(label).toBe('Bob');
     });
   });
 
