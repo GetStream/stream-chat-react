@@ -43,10 +43,8 @@
     var(--str-chat__message-bubble-radius-group-bottom)
     var(--str-chat__message-bubble-radius-group-bottom)
     var(--str-chat__message-bubble-radius-tail);
-  // variable --chat-bg-typing-indicator has incorrect color value?
-  //background: var(--chat-bg-typing-indicator);
-  border: 1px solid var(--chat-bg);
-  background: var(--chat-bg);
+  border: 1px solid var(--str-chat__chat-bg-incoming);
+  background: var(--str-chat__chat-bg-incoming);
 }
 
 .str-chat__typing-indicator__dots {

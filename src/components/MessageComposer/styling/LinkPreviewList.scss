@@ -19,7 +19,7 @@
   gap: var(--str-chat__spacing-xs);
   padding-inline: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
   padding-block: var(--str-chat__spacing-xs);
-  background-color: var(--chat-bg);
+  background-color: var(--str-chat__chat-bg-outgoing);
   border-radius: var(--str-chat__message-bubble-radius-attachment);
 
   .str-chat__tooltip {
