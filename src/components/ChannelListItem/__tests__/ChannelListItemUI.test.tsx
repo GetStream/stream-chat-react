@@ -113,6 +113,21 @@ describe('ChannelPreviewMessenger', () => {
     expect(label.length).toBeGreaterThan('Channel name'.length);
   });
 
+  it('sets aria-selected only on the active row (not "false" on every other row)', () => {
+    const { rerender } = render(renderComponent({ active: true }));
+    expect(screen.getByTestId(PREVIEW_TEST_ID)).toHaveAttribute('aria-selected', 'true');
+
+    rerender(renderComponent({ active: false }));
+    expect(screen.getByTestId(PREVIEW_TEST_ID)).not.toHaveAttribute('aria-selected');
+  });
+
+  it('announces the active state in the active row aria-label', () => {
+    render(renderComponent({ active: true }));
+    expect(screen.getByTestId(PREVIEW_TEST_ID).getAttribute('aria-label')).toContain(
+      'Active',
+    );
+  });
+
   it('lets accessibleLabelConfig override the composed aria-label', () => {
     render(
       renderComponent({

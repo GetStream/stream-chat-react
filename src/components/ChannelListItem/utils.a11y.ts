@@ -11,6 +11,8 @@ import { getLatestMessagePreviewText } from './utils';
  * handed to each {@link ChannelListItemLabelPart}.
  */
 export type ChannelListItemLabelData = {
+  /** Whether the row is the active (currently open) channel. */
+  active?: boolean;
   /** The channel whose latest message is summarized. */
   channel: Channel;
   /** Client, used to detect whether the latest message is the current user's own. */
@@ -25,8 +27,6 @@ export type ChannelListItemLabelData = {
   latestMessage?: LocalMessage;
   /** Delivery/read status of the latest message when it is the current user's own. */
   messageDeliveryStatus?: MessageDeliveryStatus;
-  /** Whether the row is the selected/active channel. */
-  selected?: boolean;
   t: TranslationContextValue['t'];
   tDateTimeParser: TranslationContextValue['tDateTimeParser'];
   /** Unread count for the channel. */
@@ -41,10 +41,24 @@ export type ChannelListItemLabelPart = (
 
 /**
  * The default, named label parts. Each is independently overridable via
- * {@link ChannelListItemLabelConfig.parts}. Selected state is intentionally NOT a part — it is
- * conveyed by the row's `aria-selected`, so duplicating it here would double-announce it.
+ * {@link ChannelListItemLabelConfig.parts}. The active (currently open) state is announced here (not
+ * left to the row's `aria-selected` alone, which is not reliably spoken across screen readers for an
+ * option with a custom name); `aria-selected` is kept on the active row for listbox semantics.
  */
 export const defaultChannelListItemLabelParts = {
+  active: ({ active, t }) => (active ? t('aria/Active') : undefined),
+  // Announced alongside the last message text: the number of attachments. Link previews are
+  // excluded (the linkPreview part announces those). A single attachment with no text is skipped
+  // here because the lastMessage part already conveys it as "Attachment <type>".
+  attachments: ({ channel, latestMessage, t }) => {
+    const message =
+      latestMessage ??
+      channel.state.latestMessages[channel.state.latestMessages.length - 1];
+    const count =
+      message?.attachments?.filter((attachment) => !attachment.og_scrape_url).length ?? 0;
+    if (count === 0 || (count === 1 && !message?.text)) return undefined;
+    return t('aria/{{ count }} attachment', { count });
+  },
   deliveryStatus: ({ messageDeliveryStatus, t }) => {
     if (!messageDeliveryStatus) return undefined;
     const statusLabelByStatus: Record<MessageDeliveryStatus, string> = {
@@ -86,6 +100,16 @@ export const defaultChannelListItemLabelParts = {
         })
       : t('aria/Last message: {{ messagePreview }}', { messagePreview: preview });
   },
+  linkPreview: ({ channel, latestMessage, t }) => {
+    const message =
+      latestMessage ??
+      channel.state.latestMessages[channel.state.latestMessages.length - 1];
+    const link = message?.attachments?.find((attachment) => attachment.og_scrape_url);
+    if (!link) return undefined;
+    return link.title
+      ? t('aria/Shared a link with title: {{ linkTitle }}', { linkTitle: link.title })
+      : t('aria/Shared a link');
+  },
   name: ({ displayTitle }) => displayTitle || undefined,
   time: ({ channel, latestMessage, t, tDateTimeParser }) => {
     const createdAt = (
@@ -112,8 +136,11 @@ export const defaultChannelListItemLabelParts = {
 /** Default order the parts are assembled in (reading order). */
 export const DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER = [
   'name',
+  'active',
   'unreadCount',
   'lastMessage',
+  'attachments',
+  'linkPreview',
   'deliveryStatus',
   'time',
 ] as const;
@@ -155,7 +182,7 @@ export type ChannelListItemLabelConfig = {
  * - {@link ChannelListItemLabelConfig.order} decides which parts are included AND their sequence —
  *   **a part not listed in `order` is never rendered**, even if defined. Spread
  *   {@link DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER} to keep the defaults and insert your own.
- * - Each part receives {@link ChannelListItemLabelData}. `selected`/`unreadCount`/
+ * - Each part receives {@link ChannelListItemLabelData}. `active`/`unreadCount`/
  *   `messageDeliveryStatus`/`latestMessage` are passed directly; everything else (mute/pin state,
  *   `frozen`, member count, custom `channel.data`) is read off `channel`. Parts call `t`, so provide
  *   your own i18n keys (or return plain strings) — the SDK does not ship `Pinned`/`Muted`/`Frozen`

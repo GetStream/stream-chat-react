@@ -62,14 +62,11 @@ type LatestMessagePreviewKind =
   | 'command'
   | 'deleted'
   | 'empty'
-  | 'linkPreview'
   | 'location'
   | 'poll'
   | 'text';
 
 type LatestMessagePreviewParts = {
-  /** First attachment's type, for the `attachment` kind (e.g. "image", "video"). */
-  attachmentType?: string;
   /**
    * True only for the plain user-message-text branch — the one the display variant renders as
    * markdown (unless AI-generated). Every other branch (deleted/poll/attachment/etc.) is a
@@ -79,8 +76,6 @@ type LatestMessagePreviewParts = {
   /** What the latest message is, so consumers can phrase it (display vs. announcement) differently. */
   kind: LatestMessagePreviewKind;
   latestMessage?: LocalMessage;
-  /** OG title of the shared link, for the `linkPreview` kind. */
-  linkTitle?: string;
   /** Poll question, for the `poll` kind. */
   pollName?: string;
   /** The localized DISPLAY preview as a plain string. */
@@ -184,21 +179,7 @@ const getLatestMessagePreviewParts = (
   }
 
   if (latestMessage.attachments?.length) {
-    // A link preview is an attachment enriched with OpenGraph data (`og_scrape_url`).
-    const linkPreview = latestMessage.attachments.find(
-      (attachment) => attachment.og_scrape_url,
-    );
-    if (linkPreview) {
-      return {
-        isUserMessageText: false,
-        kind: 'linkPreview',
-        latestMessage,
-        linkTitle: linkPreview.title,
-        text: t('🏙 Attachment...'),
-      };
-    }
     return {
-      attachmentType: latestMessage.attachments[0]?.type,
       isUserMessageText: false,
       kind: 'attachment',
       latestMessage,
@@ -263,25 +244,21 @@ export const getLatestMessagePreviewText = (
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
 ): string => {
-  const {
-    attachmentType,
-    isUserMessageText,
-    kind,
-    latestMessage,
-    linkTitle,
-    pollName,
-    text,
-  } = getLatestMessagePreviewParts(channel, t, userLanguage);
+  const { isUserMessageText, kind, latestMessage, pollName, text } =
+    getLatestMessagePreviewParts(channel, t, userLanguage);
 
   switch (kind) {
     case 'poll':
       return t('aria/Poll: {{ pollName }}', { pollName: pollName ?? '' });
-    case 'linkPreview':
-      return linkTitle
-        ? t('aria/Shared a link: {{ linkTitle }}', { linkTitle })
-        : t('aria/Shared a link');
     case 'attachment': {
-      const typeLabel = getAttachmentTypeLabel(attachmentType, t);
+      // Link previews are announced separately (see the `linkPreview` label part); decide by the
+      // count of real attachments. Multiple → a generic phrase (the count is announced alongside);
+      // a single one → its localized type.
+      const realAttachments =
+        latestMessage?.attachments?.filter((attachment) => !attachment.og_scrape_url) ??
+        [];
+      if (realAttachments.length > 1) return t('aria/Message with attachments');
+      const typeLabel = getAttachmentTypeLabel(realAttachments[0]?.type, t);
       return typeLabel
         ? t('aria/Attachment {{ attachmentType }}', { attachmentType: typeLabel })
         : t('aria/Attachment');

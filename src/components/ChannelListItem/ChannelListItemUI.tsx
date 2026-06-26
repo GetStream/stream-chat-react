@@ -50,13 +50,13 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     () =>
       composeChannelListItemAccessibleLabel(
         {
+          active,
           channel,
           client,
           displayTitle,
           isMessageAIGenerated,
           latestMessage: lastMessage,
           messageDeliveryStatus,
-          selected: active,
           t,
           tDateTimeParser,
           unreadCount: unread,
@@ -104,7 +104,9 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     <div className='str-chat__channel-list-item-container'>
       <button
         aria-label={accessibleLabel}
-        aria-selected={active}
+        // Single-select list: set aria-selected only on the active row. Setting it (false) on every
+        // other row makes screen readers announce "not selected" on each one — noise.
+        aria-selected={active || undefined}
         className={clsx(
           'str-chat__channel-list-item',
           {

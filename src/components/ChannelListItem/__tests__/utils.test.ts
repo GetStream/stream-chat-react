@@ -195,6 +195,22 @@ describe('ChannelPreview utils', () => {
       expect(getLatestMessagePreviewText(channel, tAria)).toBe('Attachment image');
     });
 
+    it('announces multiple attachments generically (not the first type)', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateImageAttachment({}), generateImageAttachment({})],
+              text: '',
+            }),
+          ],
+        }),
+      );
+      expect(getLatestMessagePreviewText(channel, tAria)).toBe(
+        'Message with attachments',
+      );
+    });
+
     it('maps a voice recording attachment to its localized label', async () => {
       const channel = await getQueriedChannelInstance(
         generateChannel({
@@ -217,36 +233,6 @@ describe('ChannelPreview utils', () => {
         }),
       );
       expect(getLatestMessagePreviewText(channel, tAria)).toBe('Attachment');
-    });
-
-    it('announces a link preview (OG attachment) with its title', async () => {
-      const channel = await getQueriedChannelInstance(
-        generateChannel({
-          messages: [
-            generateMessage({
-              attachments: [generateScrapedDataAttachment({ title: 'Example Domain' })],
-              text: '',
-            }),
-          ],
-        }),
-      );
-      expect(getLatestMessagePreviewText(channel, tAria)).toBe(
-        'Shared a link: Example Domain',
-      );
-    });
-
-    it('announces a link preview without a title generically', async () => {
-      const channel = await getQueriedChannelInstance(
-        generateChannel({
-          messages: [
-            generateMessage({
-              attachments: [generateScrapedDataAttachment({ title: undefined })],
-              text: '',
-            }),
-          ],
-        }),
-      );
-      expect(getLatestMessagePreviewText(channel, tAria)).toBe('Shared a link');
     });
 
     it('announces a shared location plainly', async () => {
@@ -299,6 +285,35 @@ describe('ChannelPreview utils', () => {
       expect(label).toBe(
         'Team chat. 3 unread message. Last message from Alice: hey there. Last activity: recently',
       );
+    });
+
+    it('announces the active state right after the name', async () => {
+      const channel = await getQueriedChannelInstance(generateChannel());
+
+      const label = composeChannelListItemAccessibleLabel({
+        active: true,
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label.startsWith('Team chat. Active')).toBe(true);
+    });
+
+    it('omits the active state when not active', async () => {
+      const channel = await getQueriedChannelInstance(generateChannel());
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).not.toContain('Active');
     });
 
     it('announces an empty channel has no messages', async () => {
@@ -396,6 +411,157 @@ describe('ChannelPreview utils', () => {
 
       expect(label).toContain('Last message: hi there');
       expect(label).not.toContain('anon-123');
+    });
+
+    it('announces the attachment count alongside the last message text', async () => {
+      const alice = generateUser({ id: 'alice', name: 'Alice' });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateImageAttachment({}), generateImageAttachment({})],
+              text: 'look at these',
+              user: alice,
+            }),
+          ],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toContain('Last message from Alice: look at these');
+      // mock t does not pluralize, so it yields the base "{{ count }} attachment" → "2 attachment"
+      expect(label).toContain('2 attachment');
+    });
+
+    it('announces multiple attachments (no text) generically plus the count', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateImageAttachment({}), generateImageAttachment({})],
+              text: '',
+            }),
+          ],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toContain('Message with attachments');
+      expect(label).toContain('2 attachment');
+      // not the misleading single type
+      expect(label).not.toContain('Attachment image');
+    });
+
+    it('does not announce a redundant count for a single attachment with no text', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({ attachments: [generateImageAttachment({})], text: '' }),
+          ],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      // the single attachment is conveyed by the lastMessage part ("Attachment image"); no count
+      expect(label).toContain('Attachment image');
+      expect(label).not.toContain('1 attachment');
+    });
+
+    it('does not count a link preview as an attachment', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateScrapedDataAttachment({ title: 'Example Domain' })],
+              text: 'https://example.com',
+            }),
+          ],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toContain('Shared a link with title: Example Domain');
+      expect(label).not.toContain('attachment');
+    });
+
+    it('announces a link preview alongside the last message text', async () => {
+      const alice = generateUser({ id: 'alice', name: 'Alice' });
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateScrapedDataAttachment({ title: 'Example Domain' })],
+              // a pasted link keeps the URL as the message text
+              text: 'https://example.com',
+              user: alice,
+            }),
+          ],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      // The message text AND the link are both announced (link as its own segment after it).
+      expect(label).toContain('Last message from Alice: https://example.com');
+      expect(label).toContain('Shared a link with title: Example Domain');
+    });
+
+    it('announces a link preview without a title generically', async () => {
+      const channel = await getQueriedChannelInstance(
+        generateChannel({
+          messages: [
+            generateMessage({
+              attachments: [generateScrapedDataAttachment({ title: undefined })],
+              text: 'https://example.com',
+            }),
+          ],
+        }),
+      );
+
+      const label = composeChannelListItemAccessibleLabel({
+        channel,
+        client: chatClient,
+        displayTitle: 'Team chat',
+        t,
+        tDateTimeParser,
+      });
+
+      expect(label).toContain('Shared a link');
+      expect(label).not.toContain('Shared a link:');
     });
 
     it('exposes latestMessage to parts', async () => {
