@@ -104,6 +104,120 @@ describe('PollCreationDialog', () => {
     expect(getSubmitPollButton()).toBeDisabled();
   });
 
+  it('describes the reorder/remove affordance on each option field once a second option exists', async () => {
+    await renderComponent();
+    // Single option: no reorder/remove controls yet, so the field carries no such description.
+    expect(getOptionInput()).toHaveAccessibleDescription('');
+
+    // Typing into the only option auto-adds a second one, making the controls available.
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
+    });
+    await waitFor(() =>
+      expect(
+        screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length,
+      ).toBeGreaterThan(1),
+    );
+
+    // The affordance is attached to every option field's accessible description (aria-describedby),
+    // so it is read in sequence as part of the field read-out rather than via a swallowed live region.
+    screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).forEach((input) => {
+      expect(input).toHaveAccessibleDescription(
+        'This option can be reordered and removed.',
+      );
+    });
+  });
+
+  it('drops the option-field affordance description when the options drop back to one', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
+    });
+    await waitFor(() =>
+      expect(screen.getAllByRole('button', { name: /remove option/i }).length).toBe(2),
+    );
+
+    // Removing back to a single option removes the controls, so the description goes away too.
+    await act(async () => {
+      await fireEvent.click(screen.getAllByRole('button', { name: /remove option/i })[0]);
+    });
+    await waitFor(() =>
+      expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(1),
+    );
+    expect(getOptionInput()).toHaveAccessibleDescription('');
+  });
+
+  it('announces, once the option list settles, that the controls became available', async () => {
+    await renderComponent();
+    const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+
+    // Adding a second option makes the reorder/remove controls available.
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
+    });
+
+    // Announced via a polite live region, debounced until the option list has been idle for a beat
+    // (so it lands after the SR's typing echo / field re-read instead of being superseded by it).
+    await waitFor(
+      () =>
+        expect(getLatestLiveAnnouncement(politeRegion)).toBe(
+          'Options can now be reordered and removed.',
+        ),
+      { timeout: 3000 },
+    );
+  });
+
+  it('announces a removed option by its text value', async () => {
+    await renderComponent();
+    const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+
+    // Two named options so removing one still leaves the controls in place.
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+    await waitFor(() =>
+      expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(2),
+    );
+    await act(async () => {
+      await fireEvent.change(
+        screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER)[1],
+        { target: { value: 'Second option' } },
+      );
+    });
+    await waitFor(() =>
+      expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(3),
+    );
+
+    await act(async () => {
+      await fireEvent.click(screen.getAllByRole('button', { name: /remove option/i })[0]);
+    });
+
+    await waitFor(() =>
+      expect(getLatestLiveAnnouncement(politeRegion)).toBe('Removed option First option'),
+    );
+  });
+
+  it('announces switch settings being turned on and off', async () => {
+    await renderComponent();
+    const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+    const anonymousSwitch = screen.getByRole('switch', { name: /anonymous poll/i });
+
+    await act(async () => {
+      await fireEvent.click(anonymousSwitch);
+    });
+    await waitFor(() =>
+      expect(getLatestLiveAnnouncement(politeRegion)).toBe('Anonymous Poll enabled'),
+    );
+
+    await act(async () => {
+      await fireEvent.click(anonymousSwitch);
+    });
+    await waitFor(() =>
+      expect(getLatestLiveAnnouncement(politeRegion)).toBe('Anonymous Poll disabled'),
+    );
+  });
+
   it('gives the close button a concise accessible name', async () => {
     await renderComponent();
     expect(screen.getByRole('button', { name: 'Close' })).toHaveAccessibleName('Close');
@@ -283,7 +397,10 @@ describe('PollCreationDialog', () => {
       );
       expect(document.activeElement).toHaveAttribute('aria-pressed', 'true');
     });
-    expect(getLatestLiveAnnouncement(politeLiveRegion)).toBe('');
+    // The move itself emits no polite "moved to position" message (that info rides on the handle's
+    // aria-label). The only polite message present is the one-time controls-available announcement
+    // from when the second option appeared during setup — it must not mention a position.
+    expect(getLatestLiveAnnouncement(politeLiveRegion)).not.toMatch(/position/i);
 
     await act(async () => {
       await fireEvent.click(document.activeElement as HTMLElement);

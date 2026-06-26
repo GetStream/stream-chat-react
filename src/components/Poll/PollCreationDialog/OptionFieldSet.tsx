@@ -8,7 +8,9 @@ import type { PollComposerOption, PollComposerState } from 'stream-chat';
 import { IconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
-import { useAriaLiveAnnouncer } from '../../Accessibility';
+import { VisuallyHidden } from '../../VisuallyHidden';
+import { useStableId } from '../../UtilityComponents/useStableId';
+import { useAriaLiveAnnouncer, useSettledAnnouncement } from '../../Accessibility';
 import { PollOptionReorderHandle } from './PollOptionReorderHandle';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
@@ -73,11 +75,20 @@ export const OptionFieldSet = () => {
       );
 
       if (removedOptionIndex === -1) return;
-      nextOptions.splice(removedOptionIndex, 1);
+      const [removedOption] = nextOptions.splice(removedOptionIndex, 1);
 
       pollComposer.updateFields({
         options: nextOptions,
       });
+
+      // Confirm the removal, naming the option by its text (or its positional fallback). Polite so
+      // it queues behind the focus move to the next field (below) instead of interrupting it.
+      announce(
+        t('aria/Removed option {{ option }}', {
+          option: labelForOption(removedOption, removedOptionIndex + 1),
+        }),
+        { priority: 'polite' },
+      );
 
       if (activeOptionId === removedOptionId) {
         setActiveOptionId(null);
@@ -89,7 +100,7 @@ export const OptionFieldSet = () => {
         optionInputRefs.current[nextFocusedOptionIndex]?.focus();
       });
     },
-    [activeOptionId, pollComposer],
+    [activeOptionId, announce, labelForOption, pollComposer, t],
   );
 
   const handleActivate = useCallback(
@@ -162,81 +173,110 @@ export const OptionFieldSet = () => {
 
   const draggable = options.length > 1;
 
+  // The reorder handle and remove button only exist once there are 2+ options. Conveying that uses
+  // two complementary mechanisms:
+  //
+  // 1. A persistent affordance: each option input's `aria-describedby` points at the hidden text
+  //    below, so the description is part of the field's accessible name/description (read on focus,
+  //    and again whenever the screen reader re-reads the field). Correct in the a11y tree and read
+  //    by screen readers that voice descriptions (e.g. NVDA).
+  // 2. A spoken cue: VoiceOver does NOT reliably speak `aria-describedby` ("hints" are often delayed
+  //    or disabled), so additionally announce availability once via a polite live region. Announcing
+  //    it at the exact 1→2 moment fails — the screen reader re-reads the focused option field when
+  //    the list mutates, and that read-out supersedes any live message at any priority. So the cue
+  //    is deferred until the option list goes idle (keyed on `options`), landing in a calm moment.
+  //    See `useSettledAnnouncement`.
+  const optionsHintId = useStableId();
+
+  useSettledAnnouncement(announce, {
+    active: draggable,
+    message: t('aria/Options can now be reordered and removed.'),
+    settleKey: options,
+  });
+
   return (
-    <TextInputFieldSet
-      draggable={draggable}
-      label={t('Options')}
-      onSetNewOrder={onSetNewOrder}
-    >
-      {options.map((option, i) => {
-        const error = errors?.[option.id];
-        return (
-          <div
-            className={clsx('str-chat__form__input-field', {
-              'str-chat__form__input-field--draggable': draggable,
-              'str-chat__form__input-field--has-error': error,
-            })}
-            key={`option-row-${i}`}
-          >
-            <TextInput
-              className='str-chat__form__input-field__value'
-              error={!!error}
-              fieldMessagePlacement='inside'
-              id={option.id}
-              leading={
-                draggable ? (
-                  <PollOptionReorderHandle
-                    index={i}
-                    isActive={option.id === activeOptionId}
-                    onActivate={handleActivate}
-                    onDeselect={handleDeselect}
-                    onMove={handleMove}
-                    option={option}
-                    registerRef={registerHandleRef}
-                    totalOptionCount={options.length}
-                  />
-                ) : undefined
-              }
-              message={
-                error ? (
-                  <span data-testid='poll-option-input-field-error'>
-                    {knownValidationErrors[error] ?? t('Error')}
-                  </span>
-                ) : undefined
-              }
-              onBlur={() => {
-                pollComposer.handleFieldBlur('options');
-              }}
-              onChange={(e) => {
-                pollComposer.updateFields({
-                  options: { index: i, text: e.target.value },
-                });
-              }}
-              onKeyUp={(event) => {
-                const isFocusedLastOptionField = i === options.length - 1;
-                if (event.key === 'Enter' && !isFocusedLastOptionField) {
-                  optionInputRefs.current[i + 1]?.focus();
+    <>
+      <TextInputFieldSet
+        draggable={draggable}
+        label={t('Options')}
+        onSetNewOrder={onSetNewOrder}
+      >
+        {options.map((option, i) => {
+          const error = errors?.[option.id];
+          return (
+            <div
+              className={clsx('str-chat__form__input-field', {
+                'str-chat__form__input-field--draggable': draggable,
+                'str-chat__form__input-field--has-error': error,
+              })}
+              key={`option-row-${i}`}
+            >
+              <TextInput
+                aria-describedby={draggable ? optionsHintId : undefined}
+                className='str-chat__form__input-field__value'
+                error={!!error}
+                fieldMessagePlacement='inside'
+                id={option.id}
+                leading={
+                  draggable ? (
+                    <PollOptionReorderHandle
+                      index={i}
+                      isActive={option.id === activeOptionId}
+                      onActivate={handleActivate}
+                      onDeselect={handleDeselect}
+                      onMove={handleMove}
+                      option={option}
+                      registerRef={registerHandleRef}
+                      totalOptionCount={options.length}
+                    />
+                  ) : undefined
                 }
-              }}
-              placeholder={t('Add an option')}
-              ref={(element) => {
-                optionInputRefs.current[i] = element;
-              }}
-              trailing={
-                draggable ? (
-                  <RemoveOptionButton
-                    aria-label={t('aria/Remove option')}
-                    onClick={() => clearOption(option.id)}
-                  />
-                ) : undefined
-              }
-              type='text'
-              value={option.text}
-            />
-          </div>
-        );
-      })}
-    </TextInputFieldSet>
+                message={
+                  error ? (
+                    <span data-testid='poll-option-input-field-error'>
+                      {knownValidationErrors[error] ?? t('Error')}
+                    </span>
+                  ) : undefined
+                }
+                onBlur={() => {
+                  pollComposer.handleFieldBlur('options');
+                }}
+                onChange={(e) => {
+                  pollComposer.updateFields({
+                    options: { index: i, text: e.target.value },
+                  });
+                }}
+                onKeyUp={(event) => {
+                  const isFocusedLastOptionField = i === options.length - 1;
+                  if (event.key === 'Enter' && !isFocusedLastOptionField) {
+                    optionInputRefs.current[i + 1]?.focus();
+                  }
+                }}
+                placeholder={t('Add an option')}
+                ref={(element) => {
+                  optionInputRefs.current[i] = element;
+                }}
+                trailing={
+                  draggable ? (
+                    <RemoveOptionButton
+                      aria-label={t('aria/Remove option')}
+                      onClick={() => clearOption(option.id)}
+                    />
+                  ) : undefined
+                }
+                type='text'
+                value={option.text}
+              />
+            </div>
+          );
+        })}
+      </TextInputFieldSet>
+      {draggable && (
+        <VisuallyHidden id={optionsHintId}>
+          {t('aria/This option can be reordered and removed.')}
+        </VisuallyHidden>
+      )}
+    </>
   );
 };
 
