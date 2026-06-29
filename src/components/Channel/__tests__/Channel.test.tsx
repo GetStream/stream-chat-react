@@ -24,6 +24,7 @@ import { ChatProvider, useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import {
   dispatchChannelTruncatedEvent,
+  dispatchConnectionChangedEvent,
   generateChannel,
   generateFileAttachment,
   generateMember,
@@ -777,6 +778,47 @@ describe('Channel', () => {
     const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}));
     await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
+  });
+
+  describe('disconnected client (#2393)', () => {
+    it('does not crash rendering when the client disconnects while the channel is mounted', async () => {
+      let ctx: ChannelStateContextValue | undefined;
+      await renderComponent({ channel, chatClient }, (c) => {
+        ctx = c;
+      });
+
+      // the channel is initialized; the shared client then disconnects
+      channel.disconnected = true;
+
+      // a re-render that reads channel state must not throw
+      // (channel.lastRead() throws once the client is disconnected)
+      await act(async () => {
+        dispatchConnectionChangedEvent(chatClient, false);
+        await Promise.resolve();
+      });
+
+      expect(ctx).toBeDefined();
+      expect(ctx?.error).toBeNull();
+    });
+
+    it('does not paginate (query) when the client is disconnected', async () => {
+      let loadMore: ChannelActionContextValue['loadMore'] | undefined;
+      await renderComponent(
+        { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
+        (c) => {
+          loadMore = c.loadMore;
+        },
+      );
+
+      const querySpy = vi.spyOn(channel, 'query');
+      channel.disconnected = true;
+
+      await act(async () => {
+        await loadMore?.();
+      });
+
+      expect(querySpy).not.toHaveBeenCalled();
+    });
   });
 
   describe('Children that consume the contexts set in Channel', () => {
