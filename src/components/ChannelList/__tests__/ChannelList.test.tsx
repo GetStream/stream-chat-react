@@ -1469,6 +1469,120 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+
+      it('stops watching the channel it removes so later events cannot re-add it (#2599)', async () => {
+        const { getByRole } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        const removedChannel = chatClient.activeChannels[testChannel3.channel.cid];
+        expect(removedChannel).toBeDefined();
+        const stopWatchingSpy = vi
+          .spyOn(removedChannel, 'stopWatching')
+          .mockResolvedValue(fromPartial({}));
+
+        act(() =>
+          dispatchNotificationRemovedFromChannel(chatClient, testChannel3.channel),
+        );
+
+        expect(stopWatchingSpy).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('member.removed', () => {
+      const channelListProps = {
+        filters: {},
+        options: { limit: 25, message_limit: 25 },
+      };
+
+      const dispatchMemberRemoved = (channel: ChannelAPIResponse, userId?: string) =>
+        chatClient.dispatchEvent(
+          fromPartial<Event>({
+            channel_id: channel.channel.id,
+            channel_type: channel.channel.type,
+            cid: channel.channel.cid,
+            member: { user: { id: userId ?? chatClient.userID } },
+            type: 'member.removed',
+          }),
+        );
+
+      beforeEach(() => {
+        useMockedApis(chatClient, [
+          queryChannelsApi([testChannel1, testChannel2, testChannel3]),
+        ]);
+      });
+
+      it('removes the channel and stops watching it when the current user is removed (#2599)', async () => {
+        const { getByRole, getByTestId, queryByTestId } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+        expect(getByTestId(testChannel3.channel.id)).toBeInTheDocument();
+
+        const removedChannel = chatClient.activeChannels[testChannel3.channel.cid];
+        const stopWatchingSpy = vi
+          .spyOn(removedChannel, 'stopWatching')
+          .mockResolvedValue(fromPartial({}));
+
+        act(() => dispatchMemberRemoved(testChannel3));
+
+        await waitFor(() => {
+          expect(queryByTestId(testChannel3.channel.id)).not.toBeInTheDocument();
+        });
+        expect(stopWatchingSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('ignores member.removed for a different user', async () => {
+        const { getByRole, getByTestId } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        const otherChannel = chatClient.activeChannels[testChannel3.channel.cid];
+        const stopWatchingSpy = vi
+          .spyOn(otherChannel, 'stopWatching')
+          .mockResolvedValue(fromPartial({}));
+
+        act(() => dispatchMemberRemoved(testChannel3, 'someone-else'));
+
+        // channel must remain and must not be unwatched
+        expect(getByTestId(testChannel3.channel.id)).toBeInTheDocument();
+        expect(stopWatchingSpy).not.toHaveBeenCalled();
+      });
     });
 
     describe('channel.updated', () => {
