@@ -1254,6 +1254,56 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+
+      it('does not query (watch) the channel when allowNewMessagesFromUnfilteredChannels is false (#2441)', async () => {
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
+
+        const { getByRole, queryByTestId } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList
+                allowNewMessagesFromUnfilteredChannels={false}
+                filters={{}}
+                options={{
+                  limit: 25,
+                  message_limit: 25,
+                  presence: true,
+                  state: true,
+                  watch: true,
+                }}
+              />
+            </WithComponents>
+          </Chat>,
+        );
+
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        // getChannel() resolves `client.channel(type, id)` to this cached
+        // instance, so spying on its watch() reveals whether a queryChannel was
+        // issued for an unfiltered channel.
+        const unlistedChannel = chatClient.channel(
+          testChannel3.channel.type,
+          testChannel3.channel.id,
+        );
+        const watchSpy = vi
+          .spyOn(unlistedChannel, 'watch')
+          .mockResolvedValue(fromPartial({}));
+
+        await act(async () => {
+          dispatchNotificationMessageNewEvent(chatClient, testChannel3.channel);
+          await Promise.resolve();
+        });
+
+        expect(watchSpy).not.toHaveBeenCalled();
+        expect(queryByTestId(testChannel3.channel.id)).not.toBeInTheDocument();
+      });
     });
 
     describe('notification.added_to_channel', () => {
