@@ -27,9 +27,12 @@ export type InteractionAnnouncementParams = {
   'giphy.shuffled': InteractionDeliveryOptions & { title?: string };
   'poll.dialogOpened': undefined;
   'poll.sent': undefined;
-  'search.allResultsLoaded': undefined;
   'search.cleared': undefined;
-  'search.resultCount': InteractionDeliveryOptions & { count: number };
+  'search.resultCount': InteractionDeliveryOptions & {
+    /** Whether every active source is fully loaded — appends an "all results loaded" clause. */
+    allResultsLoaded?: boolean;
+    count: number;
+  };
   'suggestions.count': InteractionDeliveryOptions & {
     count: number;
     suggestionsLabel?: string;
@@ -70,15 +73,16 @@ const INTERACTION_MESSAGES: {
       'Create a question, add options, and configure poll settings',
     )}. ${t('aria/Press Enter to start typing')}.`,
   'poll.sent': (t) => t('aria/Poll sent'),
-  // Reuses the visible footer text so spoken and visible "end of list" stay consistent.
-  'search.allResultsLoaded': (t) => t('All results loaded'),
   'search.cleared': (t) => t('aria/Search cleared'),
   // The number of items currently listed in the search results; an empty result set is spelled out
-  // rather than announced as "0".
-  'search.resultCount': (t, params) =>
-    params.count > 0
-      ? t('aria/{{ count }} search results', { count: params.count })
-      : t('aria/No search results found'),
+  // rather than announced as "0". When the list is fully loaded, the end-of-list status is folded
+  // into THIS one announcement (reusing the visible footer's "All results loaded" text) instead of a
+  // competing second live-region message that would supersede the count.
+  'search.resultCount': (t, params) => {
+    if (params.count <= 0) return t('aria/No search results found');
+    const count = t('aria/{{ count }} search results', { count: params.count });
+    return params.allResultsLoaded ? `${count}. ${t('All results loaded')}` : count;
+  },
   // Name the suggestion type by reusing the already-localized list label ("5 Command
   // Suggestions") so the user knows what the results are; fall back to the bare count when no
   // label is given. Both literal keys are extracted.
@@ -130,14 +134,10 @@ const INTERACTION_DEDUPE_MS: Partial<Record<InteractionAnnouncementType, number>
  * SR's "speak typed words/characters" setting and field content — so tune if it still collides.
  */
 const INTERACTION_DEBOUNCE_MS: Partial<Record<InteractionAnnouncementType, number>> = {
-  // Defer the end-of-list status until the results have settled — fired immediately on the
-  // load-complete transition it is coalesced away by the screen reader reading the freshly rendered
-  // results (and by the `search.resultCount` update that lands ~1s later). The longer window puts it
-  // AFTER the count, so the user hears "N results" then "All results loaded" in a calm moment.
-  'search.allResultsLoaded': 1500,
   // Coalesce the result count as the query filters / results stream in, and let the screen reader's
   // typing echo finish first (same rationale as `suggestions.count`, slightly longer as search
-  // results can arrive over the network in bursts).
+  // results can arrive over the network in bursts). The end-of-list status rides along in this same
+  // message (see `search.resultCount` resolver), so there is no second announcement to compete.
   'search.resultCount': 1000,
   'suggestions.count': 500,
 };

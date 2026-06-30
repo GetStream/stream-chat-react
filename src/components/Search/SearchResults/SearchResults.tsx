@@ -34,8 +34,8 @@ export const SearchResults = () => {
   const resultsRef = useRef<HTMLDivElement | null>(null);
   const { onKeyDown } = useSearchResultsKeyboardNavigation(resultsRef);
   // Announce the number of listed results once the list settles (only while a query is in progress,
-  // not during presearch).
-  useAnnounceSearchResultCount(resultsRef, isActive && !!searchQuery);
+  // not during presearch); the end-of-list status rides along in that same announcement.
+  useAnnounceSearchResultCount(resultsRef, isActive && !!searchQuery, activeSources);
 
   return !isActive ? null : (
     <div
