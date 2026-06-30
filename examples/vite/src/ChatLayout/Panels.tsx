@@ -9,6 +9,7 @@ import {
   ChannelList,
   ChatView,
   type ChatViewSelectorEntry,
+  MessageComposerUI as DefaultMessageComposerUI,
   MessageComposer,
   MessageList,
   Thread,
@@ -192,6 +193,16 @@ export const ChannelsPanels = ({
   );
 };
 
+// Renders the "Back to quick navigation" return link above the thread's composer (the SDK renders
+// the thread composer internally, so we inject via the MessageComposerUI slot) — matching the
+// channel view, where the link sits right above <MessageComposer />.
+const ThreadMessageComposerUI = () => (
+  <>
+    <ReturnToSkipNavigation />
+    <DefaultMessageComposerUI />
+  </>
+);
+
 export const ThreadsPanels = ({
   iconOnly,
   itemSet,
@@ -226,8 +237,12 @@ export const ThreadsPanels = ({
         <div className='app-chat-view__threads-main'>
           <ChatView.ThreadAdapter>
             <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-              <WithComponents overrides={{ TypingIndicator }}>
-                <ReturnToSkipNavigation />
+              <WithComponents
+                overrides={{
+                  MessageComposerUI: ThreadMessageComposerUI,
+                  TypingIndicator,
+                }}
+              >
                 <Thread
                   additionalMessageComposerProps={{
                     additionalTextareaProps: {
