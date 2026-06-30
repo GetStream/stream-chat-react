@@ -2,10 +2,12 @@ import {
   type ComponentPropsWithoutRef,
   type ComponentPropsWithRef,
   forwardRef,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
 
+import { useFocusReturn } from '../Accessibility';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
 import { useChannelListItemContext } from './ChannelListItem';
@@ -23,18 +25,32 @@ import { ContextMenuButton, useDialogIsOpen, useDialogOnNearestManager } from '.
 import { useNotificationApi } from '../Notifications';
 import { ChannelListItemActionButtons } from './ChannelListItemActionButtons';
 
+// While an action request is in flight the button is `disabled`, which makes the browser drop the
+// focus it held. `useFocusReturn` reserves the button on activation; the effect below restores it
+// once `inProgress` flips back to false — and crucially it runs AFTER that re-render commits, so the
+// button is re-enabled (focusable) by then. Returns the reservation helpers to call from onClick.
+const useActionButtonFocusReturn = (inProgress: boolean) => {
+  const { reserve, restore } = useFocusReturn();
+  useEffect(() => {
+    if (!inProgress) restore();
+  }, [inProgress, restore]);
+  return reserve;
+};
+
 const useMuteActionButtonBehavior = () => {
   const { addNotification } = useNotificationApi();
   const { channel } = useChannelListItemContext();
   const { t } = useTranslationContext();
   const { muted: isMuted } = useIsChannelMuted(channel);
   const [inProgress, setInProgress] = useState(false);
+  const reserveFocusReturn = useActionButtonFocusReturn(inProgress);
 
   return {
     'aria-pressed': isMuted,
     disabled: inProgress,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
+      reserveFocusReturn({ target: e.currentTarget });
       try {
         setInProgress(true);
         if (isMuted) {
@@ -85,12 +101,14 @@ const useArchiveActionButtonBehavior = () => {
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
   const [inProgress, setInProgress] = useState(false);
+  const reserveFocusReturn = useActionButtonFocusReturn(inProgress);
 
   return {
     'aria-pressed': typeof membership.archived_at === 'string',
     disabled: inProgress,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
+      reserveFocusReturn({ target: e.currentTarget });
       try {
         setInProgress(true);
         if (membership.archived_at) {

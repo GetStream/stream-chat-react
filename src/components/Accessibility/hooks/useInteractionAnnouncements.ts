@@ -27,6 +27,9 @@ export type InteractionAnnouncementParams = {
   'giphy.shuffled': InteractionDeliveryOptions & { title?: string };
   'poll.dialogOpened': undefined;
   'poll.sent': undefined;
+  'search.allResultsLoaded': undefined;
+  'search.cleared': undefined;
+  'search.resultCount': InteractionDeliveryOptions & { count: number };
   'suggestions.count': InteractionDeliveryOptions & {
     count: number;
     suggestionsLabel?: string;
@@ -67,6 +70,15 @@ const INTERACTION_MESSAGES: {
       'Create a question, add options, and configure poll settings',
     )}. ${t('aria/Press Enter to start typing')}.`,
   'poll.sent': (t) => t('aria/Poll sent'),
+  // Reuses the visible footer text so spoken and visible "end of list" stay consistent.
+  'search.allResultsLoaded': (t) => t('All results loaded'),
+  'search.cleared': (t) => t('aria/Search cleared'),
+  // The number of items currently listed in the search results; an empty result set is spelled out
+  // rather than announced as "0".
+  'search.resultCount': (t, params) =>
+    params.count > 0
+      ? t('aria/{{ count }} search results', { count: params.count })
+      : t('aria/No search results found'),
   // Name the suggestion type by reusing the already-localized list label ("5 Command
   // Suggestions") so the user knows what the results are; fall back to the bare count when no
   // label is given. Both literal keys are extracted.
@@ -118,6 +130,15 @@ const INTERACTION_DEDUPE_MS: Partial<Record<InteractionAnnouncementType, number>
  * SR's "speak typed words/characters" setting and field content — so tune if it still collides.
  */
 const INTERACTION_DEBOUNCE_MS: Partial<Record<InteractionAnnouncementType, number>> = {
+  // Defer the end-of-list status until the results have settled — fired immediately on the
+  // load-complete transition it is coalesced away by the screen reader reading the freshly rendered
+  // results (and by the `search.resultCount` update that lands ~1s later). The longer window puts it
+  // AFTER the count, so the user hears "N results" then "All results loaded" in a calm moment.
+  'search.allResultsLoaded': 1500,
+  // Coalesce the result count as the query filters / results stream in, and let the screen reader's
+  // typing echo finish first (same rationale as `suggestions.count`, slightly longer as search
+  // results can arrive over the network in bursts).
+  'search.resultCount': 1000,
   'suggestions.count': 500,
 };
 
@@ -140,6 +161,13 @@ export type UseInteractionAnnouncementsValue = {
    * priority.
    */
   announceInteraction: AnnounceInteraction;
+  /**
+   * Cancel pending (debounced, not-yet-spoken) announcements: a single `interaction`, or all when
+   * omitted. Call this when the source of a debounced announcement is torn down (e.g. search exited)
+   * so a queued message is not spoken after its context is gone. An announcement already emitted into
+   * the live region cannot be recalled.
+   */
+  cancelInteraction: (interaction?: InteractionAnnouncementType) => void;
 };
 
 /**
@@ -156,7 +184,8 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
   // Per-interaction debounce: each type has its own timer + delay from INTERACTION_DEBOUNCE_MS,
   // so e.g. the typing-driven `suggestions.count` can wait longer (to clear the screen reader's
   // typing echo) without affecting any other debounced interaction.
-  const { announce: announceDebounced } = useDebouncedAnnounce(announce);
+  const { announce: announceDebounced, cancel: cancelDebounced } =
+    useDebouncedAnnounce(announce);
 
   return useMemo(
     () => ({
@@ -192,7 +221,9 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
         // The debounce window already collapses idle/rapid duplicates.
         announceDebounced(interaction, message, debounceMs, priority);
       },
+      cancelInteraction: (interaction?: InteractionAnnouncementType) =>
+        cancelDebounced(interaction),
     }),
-    [announce, announceDebounced, t],
+    [announce, announceDebounced, cancelDebounced, t],
   );
 };

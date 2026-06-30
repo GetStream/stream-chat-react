@@ -8,9 +8,14 @@ import type { ComponentContextValue, TranslationContextValue } from '../../../co
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
+const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
+
 vi.mock('../SearchSourceResultsContext');
 vi.mock('../../../context');
 vi.mock('../../../store');
+vi.mock('../../Accessibility', () => ({
+  useInteractionAnnouncements: () => ({ announceInteraction }),
+}));
 
 const SEARCH_FOOTER_TEST_ID = 'search-footer';
 
@@ -124,6 +129,28 @@ describe('SearchSourceResultListFooter', () => {
 
     expect(mockTranslate).toHaveBeenCalledWith('All results loaded');
     expect(screen.getByText('Translated All results loaded')).toBeInTheDocument();
+  });
+
+  it('announces "all results loaded" when a load completes with no next page', () => {
+    vi.mocked(useStateStore).mockReturnValue({ hasNext: false, isLoading: true });
+    const { rerender } = render(<SearchSourceResultListFooter />);
+    expect(announceInteraction).not.toHaveBeenCalled();
+
+    // Loading finishes and there is no next page → reached the end.
+    vi.mocked(useStateStore).mockReturnValue({ hasNext: false, isLoading: false });
+    rerender(<SearchSourceResultListFooter />);
+
+    expect(announceInteraction).toHaveBeenCalledWith('search.allResultsLoaded');
+  });
+
+  it('does not announce "all results loaded" when more results remain', () => {
+    vi.mocked(useStateStore).mockReturnValue({ hasNext: true, isLoading: true });
+    const { rerender } = render(<SearchSourceResultListFooter />);
+
+    vi.mocked(useStateStore).mockReturnValue({ hasNext: true, isLoading: false });
+    rerender(<SearchSourceResultListFooter />);
+
+    expect(announceInteraction).not.toHaveBeenCalled();
   });
 
   it('handles state updates correctly', () => {

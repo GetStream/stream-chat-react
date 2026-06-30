@@ -218,5 +218,26 @@ describe('useInteractionAnnouncements', () => {
         priority: 'polite',
       });
     });
+
+    it('cancelInteraction(type) drops that interaction’s pending announcement', () => {
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('suggestions.count', { count: 3 });
+      result.current.cancelInteraction('suggestions.count');
+
+      vi.advanceTimersByTime(500);
+      expect(announceMock).not.toHaveBeenCalled();
+    });
+
+    it('cancelInteraction() with no argument drops all pending announcements', () => {
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('suggestions.count', { count: 3 });
+      result.current.announceInteraction('search.resultCount', { count: 5 });
+      result.current.cancelInteraction();
+
+      vi.advanceTimersByTime(1500);
+      expect(announceMock).not.toHaveBeenCalled();
+    });
   });
 });

@@ -11,12 +11,17 @@ import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { axe } from '../../../../axe-helper';
 
+const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
+
 // Mock the hooks
 vi.mock('../SearchContext');
 vi.mock('../../../context');
 vi.mock('../../../store');
 vi.mock('../hooks', () => ({
   useSearchQueriesInProgress: vi.fn().mockReturnValue([]),
+}));
+vi.mock('../../Accessibility', () => ({
+  useInteractionAnnouncements: () => ({ announceInteraction }),
 }));
 
 const INPUT_TEST_ID = 'search-input';
@@ -99,6 +104,26 @@ describe('SearchBar', () => {
     expect(mockSearchController.search).toHaveBeenCalledWith('test');
   });
 
+  it('does not activate search merely on focus (WCAG 3.2.1)', () => {
+    render(<SearchBar />);
+
+    fireEvent.focus(screen.getByTestId('search-input'));
+
+    expect(mockSearchController.activate).not.toHaveBeenCalled();
+  });
+
+  it('activates search on typing, not on focus', () => {
+    render(<SearchBar />);
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.focus(input);
+    expect(mockSearchController.activate).not.toHaveBeenCalled();
+
+    fireEvent.change(input, { target: { value: 'a' } });
+    expect(mockSearchController.activate).toHaveBeenCalledTimes(1);
+    expect(mockSearchController.search).toHaveBeenCalledWith('a');
+  });
+
   it('clears search when input is emptied', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
@@ -141,6 +166,15 @@ describe('SearchBar', () => {
     expect(mockSearchController.clear).toHaveBeenCalledWith();
   });
 
+  it('announces that the search was cleared via the clear button', () => {
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    fireEvent.click(screen.getByTestId('clear-input-button'));
+
+    expect(announceInteraction).toHaveBeenCalledWith('search.cleared');
+  });
+
   it('shows cancel button when search is active', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
@@ -153,7 +187,7 @@ describe('SearchBar', () => {
     expect(screen.getByText('Cancel')).toBeInTheDocument();
   });
 
-  it('handles cancel button click', () => {
+  it('handles cancel button click and returns focus to the input', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: '',
@@ -164,6 +198,7 @@ describe('SearchBar', () => {
     fireEvent.click(screen.getByTestId('search-bar-button'));
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
+    expect(screen.getByTestId(INPUT_TEST_ID)).toHaveFocus();
   });
 
   it('handles escape key press', () => {
@@ -177,6 +212,7 @@ describe('SearchBar', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
+    expect(screen.getByTestId(INPUT_TEST_ID)).toHaveFocus();
   });
 
   it('handles blur when exitSearchOnInputBlur is true', () => {

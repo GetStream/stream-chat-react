@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { SearchControllerState } from 'stream-chat';
 
 import { SearchSourceResults as DefaultSourceSearchResults } from './SearchSourceResults';
 import { SearchResultsHeader as DefaultSearchResultsHeader } from './SearchResultsHeader';
 import { SearchResultsPresearch as DefaultSearchResultsPresearch } from './SearchResultsPresearch';
 import { useSearchContext } from '../SearchContext';
+import {
+  useAnnounceSearchResultCount,
+  useSearchResultsKeyboardNavigation,
+} from '../hooks';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 
@@ -27,8 +31,19 @@ export const SearchResults = () => {
     searchControllerStateSelector,
   );
 
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const { onKeyDown } = useSearchResultsKeyboardNavigation(resultsRef);
+  // Announce the number of listed results once the list settles (only while a query is in progress,
+  // not during presearch).
+  useAnnounceSearchResultCount(resultsRef, isActive && !!searchQuery);
+
   return !isActive ? null : (
-    <div aria-label={t('aria/Search results')} className='str-chat__search-results'>
+    <div
+      aria-label={t('aria/Search results')}
+      className='str-chat__search-results'
+      onKeyDown={onKeyDown}
+      ref={resultsRef}
+    >
       <SearchResultsHeader />
       {!searchQuery ? (
         <SearchResultsPresearch activeSources={activeSources} />

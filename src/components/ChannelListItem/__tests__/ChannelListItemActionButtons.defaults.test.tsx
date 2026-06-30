@@ -232,6 +232,37 @@ describe('ChannelListItemActionButtons defaults', () => {
         expect(muteButton).not.toBeDisabled();
       });
     });
+
+    it('keeps focus on the quick mute button after the request settles', async () => {
+      const { channel, client } = await setupTwoMemberGroupChannel();
+      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
+
+      act(() => {
+        render(
+          <Chat client={client}>
+            <ChannelListItem channel={channel} />
+          </Chat>,
+        );
+      });
+
+      const muteButton = screen.getByTestId('quick-action-mute');
+      muteButton.focus();
+      act(() => {
+        fireEvent.click(muteButton);
+      });
+
+      // While disabled mid-request the browser drops focus to <body>; simulate that loss.
+      await waitFor(() => expect(muteButton).toBeDisabled());
+      (document.activeElement as HTMLElement | null)?.blur();
+
+      act(() => {
+        p.resolve(fromPartial({}));
+      });
+
+      // Once the request settles and the button re-enables, focus is put back on it.
+      await waitFor(() => expect(muteButton).toHaveFocus());
+    });
   });
 
   // ---------- Block / Unblock ----------
@@ -782,6 +813,27 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
 
       expect(screen.getByTestId('channel-list-item-action-buttons')).toBeInTheDocument();
+    });
+
+    it('keeps the action buttons in the Tab order (also reachable via Arrow keys)', async () => {
+      const { channel, client } = await setupTwoMemberGroupChannel();
+
+      act(() => {
+        render(
+          <Chat client={client}>
+            <ChannelListItem channel={channel} />
+          </Chat>,
+        );
+      });
+
+      expect(screen.getByTestId('channel-list-item-dropdown-toggle')).not.toHaveAttribute(
+        'tabindex',
+        '-1',
+      );
+      expect(screen.getByTestId('quick-action-mute')).not.toHaveAttribute(
+        'tabindex',
+        '-1',
+      );
     });
 
     it('toggles dropdown menu open and closed', async () => {
