@@ -2,12 +2,10 @@ import {
   type ComponentPropsWithoutRef,
   type ComponentPropsWithRef,
   forwardRef,
-  useEffect,
   useMemo,
   useState,
 } from 'react';
 
-import { useFocusReturn } from '../Accessibility';
 import { useChatContext, useTranslationContext } from '../../context';
 import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
 import { useChannelListItemContext } from './ChannelListItem';
@@ -21,135 +19,158 @@ import {
   IconPin,
 } from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
-import { ContextMenuButton, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
+import {
+  ContextMenuButton,
+  useContextMenuContext,
+  useDialogIsOpen,
+  useDialogOnNearestManager,
+} from '../Dialog';
 import { useNotificationApi } from '../Notifications';
 import { ChannelListItemActionButtons } from './ChannelListItemActionButtons';
 
-// While an action request is in flight the button is `disabled`, which makes the browser drop the
-// focus it held. `useFocusReturn` reserves the button on activation; the effect below restores it
-// once `inProgress` flips back to false — and crucially it runs AFTER that re-render commits, so the
-// button is re-enabled (focusable) by then. Returns the reservation helpers to call from onClick.
-const useActionButtonFocusReturn = (inProgress: boolean) => {
-  const { reserve, restore } = useFocusReturn();
-  useEffect(() => {
-    if (!inProgress) restore();
-  }, [inProgress, restore]);
-  return reserve;
+type ChannelActionBehavior = {
+  'aria-pressed': boolean;
+  title: string;
+  toggle: () => Promise<void>;
 };
 
-const useMuteActionButtonBehavior = () => {
+// Core mute/unmute action — performs the API call and reports the result. No UI state: the placement
+// wrappers below own the busy/disabled affordance and the menu-close behavior.
+const useMuteAction = (): ChannelActionBehavior => {
   const { addNotification } = useNotificationApi();
   const { channel } = useChannelListItemContext();
   const { t } = useTranslationContext();
   const { muted: isMuted } = useIsChannelMuted(channel);
-  const [inProgress, setInProgress] = useState(false);
-  const reserveFocusReturn = useActionButtonFocusReturn(inProgress);
 
-  return {
-    'aria-pressed': isMuted,
-    disabled: inProgress,
-    onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      reserveFocusReturn({ target: e.currentTarget });
-      try {
-        setInProgress(true);
-        if (isMuted) {
-          await channel.unmute();
-          addNotification({
-            context: {
-              channel,
-            },
-            emitter: ChannelListItemActionButtons.name,
-            message: t('Channel unmuted'),
-            severity: 'success',
-            type: 'api:channel:unmute:success',
-          });
-        } else {
-          await channel.mute();
-          addNotification({
-            context: {
-              channel,
-            },
-            emitter: ChannelListItemActionButtons.name,
-            message: t('Channel muted'),
-            severity: 'success',
-            type: 'api:channel:mute:success',
-          });
-        }
-      } catch (error) {
+  const toggle = async () => {
+    try {
+      if (isMuted) {
+        await channel.unmute();
         addNotification({
-          context: {
-            channel,
-          },
+          context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          error: error instanceof Error ? error : new Error('An unknown error occurred'),
-          message: t('Failed to update channel mute status'),
-          severity: 'error',
-          type: 'api:channel:mute:failed',
+          message: t('Channel unmuted'),
+          severity: 'success',
+          type: 'api:channel:unmute:success',
         });
-      } finally {
-        setInProgress(false);
+      } else {
+        await channel.mute();
+        addNotification({
+          context: { channel },
+          emitter: ChannelListItemActionButtons.name,
+          message: t('Channel muted'),
+          severity: 'success',
+          type: 'api:channel:mute:success',
+        });
       }
-    },
-    title: isMuted ? t('Unmute') : t('Mute'),
-  } satisfies ComponentPropsWithoutRef<'button'>;
+    } catch (error) {
+      addNotification({
+        context: { channel },
+        emitter: ChannelListItemActionButtons.name,
+        error: error instanceof Error ? error : new Error('An unknown error occurred'),
+        message: t('Failed to update channel mute status'),
+        severity: 'error',
+        type: 'api:channel:mute:failed',
+      });
+    }
+  };
+
+  return { 'aria-pressed': isMuted, title: isMuted ? t('Unmute') : t('Mute'), toggle };
 };
 
-const useArchiveActionButtonBehavior = () => {
+// Core archive/unarchive action — performs the API call and reports the result.
+const useArchiveAction = (): ChannelActionBehavior => {
   const { channel } = useChannelListItemContext();
   const { addNotification } = useNotificationApi();
   const membership = useChannelMembershipState(channel);
   const { t } = useTranslationContext();
-  const [inProgress, setInProgress] = useState(false);
-  const reserveFocusReturn = useActionButtonFocusReturn(inProgress);
+
+  const toggle = async () => {
+    try {
+      if (membership.archived_at) {
+        await channel.unarchive();
+        addNotification({
+          context: { channel },
+          emitter: ChannelListItemActionButtons.name,
+          message: t('Channel unarchived'),
+          severity: 'success',
+          type: 'api:channel:unarchive:success',
+        });
+      } else {
+        await channel.archive();
+        addNotification({
+          context: { channel },
+          emitter: ChannelListItemActionButtons.name,
+          message: t('Channel archived'),
+          severity: 'success',
+          type: 'api:channel:archive:success',
+        });
+      }
+    } catch (error) {
+      addNotification({
+        context: { channel },
+        emitter: ChannelListItemActionButtons.name,
+        error: error instanceof Error ? error : new Error('An unknown error occurred'),
+        message: t('Failed to update channel archive status'),
+        severity: 'error',
+        type: 'api:channel:archive:failed',
+      });
+    }
+  };
 
   return {
     'aria-pressed': typeof membership.archived_at === 'string',
-    disabled: inProgress,
+    title: membership.archived_at ? t('Unarchive') : t('Archive'),
+    toggle,
+  };
+};
+
+// Quick (hover/focus-revealed) action button. Marks itself busy with `aria-disabled`/`aria-busy` —
+// NOT the native `disabled` attribute, which would blur the button and collapse its hover-revealed
+// row, leaving it un-focusable. Keeps focus and guards against re-activation while in flight.
+const useQuickActionButtonProps = ({
+  'aria-pressed': ariaPressed,
+  title,
+  toggle,
+}: ChannelActionBehavior) => {
+  const [inProgress, setInProgress] = useState(false);
+
+  return {
+    'aria-busy': inProgress || undefined,
+    'aria-disabled': inProgress || undefined,
+    'aria-pressed': ariaPressed,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      reserveFocusReturn({ target: e.currentTarget });
+      if (inProgress) return; // busy (aria-disabled): ignore re-activation while in flight
       try {
         setInProgress(true);
-        if (membership.archived_at) {
-          await channel.unarchive();
-          addNotification({
-            context: {
-              channel,
-            },
-            emitter: ChannelListItemActionButtons.name,
-            message: t('Channel unarchived'),
-            severity: 'success',
-            type: 'api:channel:unarchive:success',
-          });
-        } else {
-          await channel.archive();
-          addNotification({
-            context: {
-              channel,
-            },
-            emitter: ChannelListItemActionButtons.name,
-            message: t('Channel archived'),
-            severity: 'success',
-            type: 'api:channel:archive:success',
-          });
-        }
-      } catch (error) {
-        addNotification({
-          context: {
-            channel,
-          },
-          emitter: ChannelListItemActionButtons.name,
-          error: error instanceof Error ? error : new Error('An unknown error occurred'),
-          message: t('Failed to update channel archive status'),
-          severity: 'error',
-          type: 'api:channel:archive:failed',
-        });
+        await toggle();
       } finally {
         setInProgress(false);
       }
     },
-    title: membership.archived_at ? t('Unarchive') : t('Archive'),
+    title,
+  } satisfies ComponentPropsWithoutRef<'button'>;
+};
+
+// Dropdown menu item. Standard menu behavior: activating runs the action and closes the menu (which
+// returns focus to the toggle). The action runs in the background and reports via its notification,
+// so the item needs no busy/disabled state — it unmounts with the menu.
+const useDropdownActionButtonProps = ({
+  'aria-pressed': ariaPressed,
+  title,
+  toggle,
+}: ChannelActionBehavior) => {
+  const { closeMenu } = useContextMenuContext();
+
+  return {
+    'aria-pressed': ariaPressed,
+    onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      closeMenu();
+      void toggle();
+    },
+    title,
   } satisfies ComponentPropsWithoutRef<'button'>;
 };
 
@@ -166,7 +187,7 @@ type ChannelActionItem =
 const defaultComponents = {
   dropdown: {
     Archive() {
-      const behaviorProps = useArchiveActionButtonBehavior();
+      const behaviorProps = useDropdownActionButtonProps(useArchiveAction());
 
       return (
         <ContextMenuButton
@@ -306,7 +327,7 @@ const defaultComponents = {
       );
     },
     Mute() {
-      const behaviorProps = useMuteActionButtonBehavior();
+      const behaviorProps = useDropdownActionButtonProps(useMuteAction());
 
       return (
         <ContextMenuButton
@@ -393,7 +414,7 @@ const defaultComponents = {
   },
   quick: {
     Archive() {
-      const behaviorProps = useArchiveActionButtonBehavior();
+      const behaviorProps = useQuickActionButtonProps(useArchiveAction());
 
       return (
         <Button
@@ -410,7 +431,7 @@ const defaultComponents = {
       );
     },
     Mute() {
-      const behaviorProps = useMuteActionButtonBehavior();
+      const behaviorProps = useQuickActionButtonProps(useMuteAction());
 
       return (
         <Button

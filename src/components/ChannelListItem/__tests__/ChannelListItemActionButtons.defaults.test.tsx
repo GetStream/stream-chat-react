@@ -202,7 +202,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
     });
 
-    it('disables mute button while request is in progress', async () => {
+    it('marks the mute button busy via aria-disabled/aria-busy (not native disabled) while in flight', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
       const p = Promise.withResolvers<MuteChannelAPIResponse>();
       vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
@@ -221,19 +221,23 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
 
       await waitFor(() => {
-        expect(muteButton).toBeDisabled();
+        expect(muteButton).toHaveAttribute('aria-disabled', 'true');
+        expect(muteButton).toHaveAttribute('aria-busy', 'true');
       });
+      // Crucially NOT the native `disabled` attribute — that would blur the button.
+      expect(muteButton).not.toBeDisabled();
 
       act(() => {
         p.resolve(fromPartial({}));
       });
 
       await waitFor(() => {
-        expect(muteButton).not.toBeDisabled();
+        expect(muteButton).not.toHaveAttribute('aria-disabled');
+        expect(muteButton).not.toHaveAttribute('aria-busy');
       });
     });
 
-    it('keeps focus on the quick mute button after the request settles', async () => {
+    it('keeps focus on the quick mute button throughout the request (never blurs)', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
       const p = Promise.withResolvers<MuteChannelAPIResponse>();
       vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
@@ -252,16 +256,47 @@ describe('ChannelListItemActionButtons defaults', () => {
         fireEvent.click(muteButton);
       });
 
-      // While disabled mid-request the browser drops focus to <body>; simulate that loss.
-      await waitFor(() => expect(muteButton).toBeDisabled());
-      (document.activeElement as HTMLElement | null)?.blur();
+      // aria-disabled keeps the button in the focus order, so it never loses focus mid-request.
+      await waitFor(() => expect(muteButton).toHaveAttribute('aria-busy', 'true'));
+      expect(muteButton).toHaveFocus();
 
       act(() => {
         p.resolve(fromPartial({}));
       });
 
-      // Once the request settles and the button re-enables, focus is put back on it.
-      await waitFor(() => expect(muteButton).toHaveFocus());
+      await waitFor(() => expect(muteButton).not.toHaveAttribute('aria-busy'));
+      expect(muteButton).toHaveFocus();
+    });
+
+    it('ignores re-activation while a request is in flight', async () => {
+      const { channel, client } = await setupTwoMemberGroupChannel();
+      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      const muteSpy = vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
+
+      act(() => {
+        render(
+          <Chat client={client}>
+            <ChannelListItem channel={channel} />
+          </Chat>,
+        );
+      });
+
+      const muteButton = screen.getByTestId('quick-action-mute');
+      act(() => {
+        fireEvent.click(muteButton);
+      });
+      await waitFor(() => expect(muteButton).toHaveAttribute('aria-busy', 'true'));
+
+      // A second activation while busy must be ignored (guarded in onClick).
+      act(() => {
+        fireEvent.click(muteButton);
+      });
+      expect(muteSpy).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        p.resolve(fromPartial({}));
+      });
+      await waitFor(() => expect(muteButton).not.toHaveAttribute('aria-busy'));
     });
   });
 
@@ -466,6 +501,33 @@ describe('ChannelListItemActionButtons defaults', () => {
           }),
         );
       });
+    });
+
+    it('closes the dropdown menu when an action item is activated', async () => {
+      const { channel, client } = await setupTwoMemberGroupChannel();
+      vi.spyOn(channel, 'archive').mockResolvedValue(fromPartial({}));
+
+      act(() => {
+        render(
+          <Chat client={client}>
+            <ChannelListItem channel={channel} />
+          </Chat>,
+        );
+      });
+
+      openDropdownMenu();
+      expect(document.querySelector('.str-chat__context-menu')).toBeInTheDocument();
+
+      act(() => {
+        fireEvent.click(screen.getByTestId('dropdown-action-archive'));
+      });
+
+      // Unlike the quick action (which stays focused via aria-disabled), a dropdown item closes the
+      // menu on activation — the action still runs in the background.
+      await waitFor(() => {
+        expect(document.querySelector('.str-chat__context-menu')).not.toBeInTheDocument();
+      });
+      expect(channel.archive).toHaveBeenCalledTimes(1);
     });
 
     it('unarchives an archived channel from dropdown', async () => {
