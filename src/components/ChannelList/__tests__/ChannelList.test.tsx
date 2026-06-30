@@ -1469,6 +1469,47 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+
+      // Regression: #2599. Removing the current user from a channel must evict it
+      // from `client.activeChannels`. Otherwise the channel lingers there and, on
+      // reconnect, `recoverState()` re-watches it (`recoverStateOnReconnect` defaults
+      // to `true`, so `usePaginatedChannels` does not re-query and relies on core
+      // recovery) - channel events then resume and the list resurrects it. The
+      // eviction itself lives in stream-chat core (`StreamChat._handleClientEvent`);
+      // this test guards that the behaviour ChannelList depends on stays in place.
+      it('evicts the removed channel from client.activeChannels so reconnect cannot re-watch it (#2599)', async () => {
+        const { getByRole, getByTestId } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        const { cid } = testChannel3.channel;
+        const removedNode = getByTestId(testChannel3.channel.id);
+        // precondition: the loaded channel is tracked by the client
+        expect(chatClient.activeChannels[cid]).toBeDefined();
+
+        act(() =>
+          dispatchNotificationRemovedFromChannel(chatClient, testChannel3.channel),
+        );
+
+        await waitFor(() => {
+          expect(removedNode).not.toBeInTheDocument();
+        });
+        // the channel must no longer be tracked, otherwise `recoverState()` would
+        // re-watch it on the next reconnect and bring it back into the list
+        expect(chatClient.activeChannels[cid]).toBeUndefined();
+      });
     });
 
     describe('channel.updated', () => {
