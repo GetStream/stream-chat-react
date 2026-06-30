@@ -21,12 +21,12 @@ export const useIsChannelMuted = (channel: Channel) => {
   const [muted, setMuted] = useState(() => getMuteStatus(channel));
 
   useEffect(() => {
-    const handleEvent = () => setMuted(getMuteStatus(channel));
+    const handleEvent = () => {
+      setMuted(getMuteStatus(channel));
+    };
 
-    client.on('notification.channel_mutes_updated', handleEvent);
-    return () => client.off('notification.channel_mutes_updated', handleEvent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [muted]);
+    return client.on('notification.channel_mutes_updated', handleEvent).unsubscribe;
+  }, [channel, client]);
 
   return muted;
 };
