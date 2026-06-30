@@ -54,4 +54,25 @@ describe('useIsChannelMuted', () => {
 
     expect(result.current.muted).toBe(false);
   });
+
+  it('does not throw when an initialized channel has been disconnected', async () => {
+    const client = await getTestClientWithUser(clientUser);
+    const mockedChannel = generateChannel();
+    useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
+    const channel = client.channel('messaging', mockedChannel.channel.id);
+    await channel.watch();
+
+    expect(channel.initialized).toBe(true);
+    // Once the client is disconnected (e.g. client.disconnectUser()), the channel
+    // stays initialized but channel.muteStatus() -> channel.getClient() throws
+    // "You can't use a channel after client.disconnect() was called", crashing the
+    // ChannelListItem render unless we guard against it (#2393 failure class).
+    channel.disconnected = true;
+
+    const { result } = renderHook(() => useIsChannelMuted(channel), {
+      wrapper: createWrapper(client),
+    });
+
+    expect(result.current.muted).toBe(false);
+  });
 });

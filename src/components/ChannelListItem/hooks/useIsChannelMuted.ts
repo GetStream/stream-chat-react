@@ -5,13 +5,17 @@ import { useChatContext } from '../../../context/ChatContext';
 import type { Channel } from 'stream-chat';
 
 /**
- * `channel.muteStatus()` throws when the channel has not been initialized yet
- * (i.e. `.watch()`/`.query()` has not resolved). The ChannelList can briefly
- * hold such channels - e.g. a `message.new` for a channel that has not been
- * watched yet - so guard against it to avoid crashing the whole app (#2474).
+ * `channel.muteStatus()` throws in two cases:
+ * - the channel has not been initialized yet (i.e. `.watch()`/`.query()` has not
+ *   resolved) - the ChannelList can briefly hold such channels, e.g. a
+ *   `message.new` for a channel that has not been watched yet (#2474);
+ * - the channel is disconnected (e.g. after `client.disconnectUser()`), in which
+ *   case `channel.getClient()` throws even though the channel stays initialized
+ *   (#2393 failure class).
+ * Guard against both to avoid crashing the whole app.
  */
 const getMuteStatus = (channel: Channel) =>
-  channel.initialized
+  channel.initialized && !channel.disconnected
     ? channel.muteStatus()
     : { createdAt: null, expiresAt: null, muted: false };
 
