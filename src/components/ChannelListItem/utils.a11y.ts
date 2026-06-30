@@ -2,6 +2,13 @@ import type { Channel, LocalMessage, StreamChat } from 'stream-chat';
 
 import type { ChatContextValue } from '../../context';
 import type { TranslationContextValue } from '../../context/TranslationContext';
+import {
+  type AccessibleLabelConfig,
+  type AccessibleLabelPart,
+  activeLabelPart,
+  composeAccessibleLabel,
+  unreadCountLabelPart,
+} from '../../a11y/accessibleLabel';
 import { getDateString, isDate } from '../../i18n/utils';
 import { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { getLatestMessagePreviewText } from './utils';
@@ -35,9 +42,7 @@ export type ChannelListItemLabelData = {
 };
 
 /** Produces one segment of the accessible name; return `undefined`/empty to omit it. */
-export type ChannelListItemLabelPart = (
-  data: ChannelListItemLabelData,
-) => string | undefined;
+export type ChannelListItemLabelPart = AccessibleLabelPart<ChannelListItemLabelData>;
 
 /**
  * The default, named label parts. Each is independently overridable via
@@ -46,7 +51,7 @@ export type ChannelListItemLabelPart = (
  * option with a custom name); `aria-selected` is kept on the active row for listbox semantics.
  */
 export const defaultChannelListItemLabelParts = {
-  active: ({ active, t }) => (active ? t('aria/Active') : undefined),
+  active: activeLabelPart,
   // Announced alongside the last message text: the number of attachments. Link previews are
   // excluded (the linkPreview part announces those). A single attachment with no text is skipped
   // here because the lastMessage part already conveys it as "Attachment <type>".
@@ -127,10 +132,7 @@ export const defaultChannelListItemLabelParts = {
     // delivery-status segment).
     return when ? t('aria/Last activity: {{ time }}', { time: String(when) }) : undefined;
   },
-  unreadCount: ({ t, unreadCount }) =>
-    typeof unreadCount === 'number' && unreadCount > 0
-      ? t('aria/{{ count }} unread message', { count: unreadCount })
-      : undefined,
+  unreadCount: unreadCountLabelPart,
 } satisfies Record<string, ChannelListItemLabelPart>;
 
 /** Default order the parts are assembled in (reading order). */
@@ -145,16 +147,7 @@ export const DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER = [
   'time',
 ] as const;
 
-export type ChannelListItemLabelConfig = {
-  /** Full override — return the entire label; ignores `order`/`parts`/`separator`. */
-  build?: (data: ChannelListItemLabelData) => string;
-  /** Which parts to include, in what order. Defaults to {@link DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER}. */
-  order?: ReadonlyArray<string>;
-  /** Override or add individual part generators; merged over {@link defaultChannelListItemLabelParts}. */
-  parts?: Record<string, ChannelListItemLabelPart>;
-  /** Joiner between non-empty parts. Defaults to ". ". */
-  separator?: string;
-};
+export type ChannelListItemLabelConfig = AccessibleLabelConfig<ChannelListItemLabelData>;
 
 /**
  * Composes a single, coherent accessible name for a channel list row from named parts. The default
@@ -207,15 +200,10 @@ export type ChannelListItemLabelConfig = {
 export const composeChannelListItemAccessibleLabel = (
   data: ChannelListItemLabelData,
   config: ChannelListItemLabelConfig = {},
-): string => {
-  if (config.build) return config.build(data);
-  const parts: Record<string, ChannelListItemLabelPart> = {
-    ...defaultChannelListItemLabelParts,
-    ...config.parts,
-  };
-  const order = config.order ?? DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER;
-  return order
-    .map((key) => parts[key]?.(data))
-    .filter((value): value is string => !!value)
-    .join(config.separator ?? '. ');
-};
+): string =>
+  composeAccessibleLabel(
+    data,
+    defaultChannelListItemLabelParts,
+    DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER,
+    config,
+  );

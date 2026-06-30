@@ -12,17 +12,30 @@ import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
-import { SummarizedMessagePreview } from '../../SummarizedMessagePreview';
+import {
+  SummarizedMessagePreview,
+  useLatestMessagePreview,
+} from '../../SummarizedMessagePreview';
+import {
+  composeThreadListItemAccessibleLabel,
+  type ThreadListItemLabelConfig,
+} from './utils.a11y';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
+  /**
+   * Configures the row's composed accessible name (the `aria-label`). Override individual parts, the
+   * order, the separator, or supply a full `build`. See `composeThreadListItemAccessibleLabel`.
+   */
+  accessibleLabelConfig?: ThreadListItemLabelConfig;
   resetHighlighting?: () => void;
 };
 
 export const ThreadListItemUI = ({
+  accessibleLabelConfig,
   resetHighlighting,
   ...props
 }: ThreadListItemUIProps) => {
-  const { client } = useChatContext();
+  const { client, isMessageAIGenerated } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
 
@@ -51,9 +64,60 @@ export const ThreadListItemUI = ({
   } = useStateStore(thread.state, selector);
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
-  const { t } = useTranslationContext('ThreadListItemUI');
+  const { t, tDateTimeParser, userLanguage } = useTranslationContext('ThreadListItemUI');
 
   const { activeThread, setActiveThread } = useThreadsViewContext();
+
+  // Reuse the SAME preview the visible subtitle renders (text + sender, all message kinds), so the
+  // announced parent message matches what is shown.
+  const { senderName: parentMessageSender, text: parentMessagePreview } =
+    useLatestMessagePreview({
+      latestMessage: parentMessage,
+      participantCount: participants?.length,
+    });
+
+  const accessibleLabel = useMemo(
+    () =>
+      composeThreadListItemAccessibleLabel(
+        {
+          active: activeThread === thread,
+          channel,
+          client,
+          displayTitle: channelDisplayTitle,
+          isMessageAIGenerated,
+          latestReply,
+          parentMessage,
+          parentMessagePreview: parentMessage ? parentMessagePreview : undefined,
+          parentMessageSender: parentMessage ? parentMessageSender : undefined,
+          participantCount: participants?.length,
+          replyCount,
+          t,
+          tDateTimeParser,
+          unreadCount: ownUnreadMessageCount,
+          userLanguage,
+        },
+        accessibleLabelConfig,
+      ),
+    [
+      accessibleLabelConfig,
+      activeThread,
+      channel,
+      channelDisplayTitle,
+      client,
+      isMessageAIGenerated,
+      latestReply,
+      ownUnreadMessageCount,
+      parentMessage,
+      parentMessagePreview,
+      parentMessageSender,
+      participants,
+      replyCount,
+      t,
+      tDateTimeParser,
+      thread,
+      userLanguage,
+    ],
+  );
 
   const avatarProps: Partial<AvatarProps> | undefined = deletedAt
     ? undefined
@@ -88,6 +152,7 @@ export const ThreadListItemUI = ({
   return (
     <div className='str-chat__thread-list-item-container'>
       <button
+        aria-label={accessibleLabel}
         aria-selected={activeThread === thread}
         className={clsx('str-chat__thread-list-item', {
           'str-chat__thread-list-item--highlighted':
