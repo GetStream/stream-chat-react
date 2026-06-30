@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import type { Channel, Event, StreamChat } from 'stream-chat';
+import type { Channel, Event } from 'stream-chat';
 import type { Dispatch, SetStateAction } from 'react';
 
 import {
@@ -57,8 +57,6 @@ type HandleMemberUpdatedParameters = BaseParameters & {
   lockChannelOrder: boolean;
 } & Required<Pick<ChannelListProps, 'sort' | 'filters'>>;
 
-type HandleMemberRemovedParameters = BaseParameters;
-
 type HandleChannelDeletedParameters = BaseParameters & RepeatedParameters;
 
 type HandleChannelHiddenParameters = BaseParameters & RepeatedParameters;
@@ -87,24 +85,6 @@ const shared = ({
 
     return [...channels];
   });
-};
-
-/**
- * Stops watching a channel that has just been removed from the list. Without
- * this the client keeps watching the channel, so a later `message.new` /
- * `notification.message_new` re-adds it to the list until a hard refresh (#2599).
- */
-const stopWatchingRemovedChannel = (client: StreamChat, cid?: string) => {
-  if (!cid) return;
-
-  const channel = client.activeChannels[cid];
-
-  // Only channels that were actually watched need to be stopped; calling
-  // stopWatching() on an uninitialized channel would throw.
-  if (!channel?.initialized) return;
-
-  // The current user may already have been removed server-side, so ignore failures.
-  channel.stopWatching().catch(() => undefined);
 };
 
 export const useChannelListShapeDefaults = () => {
@@ -271,10 +251,8 @@ export const useChannelListShapeDefaults = () => {
       setChannels((channels) =>
         channels.filter((channel) => channel.cid !== event.channel?.cid),
       );
-
-      stopWatchingRemovedChannel(client, event.channel?.cid);
     },
-    [client],
+    [],
   );
 
   const handleMemberUpdated = useCallback(
@@ -345,21 +323,6 @@ export const useChannelListShapeDefaults = () => {
 
         return newChannels;
       });
-    },
-    [client],
-  );
-
-  const handleMemberRemoved = useCallback(
-    ({ event, setChannels }: HandleMemberRemovedParameters) => {
-      // React only when the current user is the member being removed; this event
-      // also fires when other members leave channels we are part of.
-      if (event.member?.user?.id !== client.userID) {
-        return;
-      }
-
-      setChannels((channels) => channels.filter((channel) => channel.cid !== event.cid));
-
-      stopWatchingRemovedChannel(client, event.cid);
     },
     [client],
   );
@@ -489,7 +452,6 @@ export const useChannelListShapeDefaults = () => {
       handleChannelTruncated,
       handleChannelUpdated,
       handleChannelVisible,
-      handleMemberRemoved,
       handleMemberUpdated,
       handleMessageNew,
       handleNotificationAddedToChannel,
@@ -503,7 +465,6 @@ export const useChannelListShapeDefaults = () => {
       handleChannelTruncated,
       handleChannelUpdated,
       handleChannelVisible,
-      handleMemberRemoved,
       handleMemberUpdated,
       handleMessageNew,
       handleNotificationAddedToChannel,
@@ -656,9 +617,6 @@ export const usePrepareShapeHandlers = ({
           setChannels,
           sort,
         });
-        break;
-      case 'member.removed':
-        defaults.handleMemberRemoved({ event, setChannels });
         break;
       default:
         break;
