@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import type { AriaLivePriority } from '../useAriaLiveAnnouncer';
 import { useAriaLiveAnnouncer } from '../useAriaLiveAnnouncer';
@@ -266,6 +266,13 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
   // typing echo) without affecting any other debounced interaction.
   const { announce: announceDebounced, cancel: cancelDebounced } =
     useDebouncedAnnounce(announce);
+  // Cancel fn of the still-pending provider-delayed emit per interaction. A second trigger of the
+  // same interaction within its delay window supersedes the first (so only the latest is spoken).
+  // NOT cleared on unmount on purpose — provider-delayed emits are designed to survive the caller
+  // unmounting (e.g. channel.opened fires after its list row is gone).
+  const pendingImmediateCancelsRef = useRef<
+    Partial<Record<InteractionAnnouncementType, () => void>>
+  >({});
 
   return useMemo(
     () => ({
@@ -295,7 +302,10 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
           const delayMs =
             (params as InteractionDeliveryOptions | undefined)?.delayMs ??
             INTERACTION_DELAY_MS[interaction];
-          announce(message, {
+          // Supersede a still-pending delayed emit of the same interaction so a rapid re-trigger
+          // (e.g. selecting a second channel within the 1500ms window) speaks only the latest.
+          pendingImmediateCancelsRef.current[interaction]?.();
+          pendingImmediateCancelsRef.current[interaction] = announce(message, {
             dedupeMs: INTERACTION_DEDUPE_MS[interaction],
             delayMs,
             priority,
@@ -311,8 +321,17 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
         // The debounce window already collapses idle/rapid duplicates.
         announceDebounced(interaction, message, debounceMs, priority);
       },
-      cancelInteraction: (interaction?: InteractionAnnouncementType) =>
-        cancelDebounced(interaction),
+      cancelInteraction: (interaction?: InteractionAnnouncementType) => {
+        cancelDebounced(interaction);
+        const pending = pendingImmediateCancelsRef.current;
+        if (interaction) {
+          pending[interaction]?.();
+          delete pending[interaction];
+        } else {
+          Object.values(pending).forEach((cancel) => cancel?.());
+          pendingImmediateCancelsRef.current = {};
+        }
+      },
     }),
     [announce, announceDebounced, cancelDebounced, t],
   );

@@ -133,6 +133,25 @@ describe('useInteractionAnnouncements', () => {
       });
     });
 
+    it('supersedes a still-pending delayed confirmation on rapid re-trigger', () => {
+      const cancelFirst = vi.fn();
+      // The first announce() returns its cancel fn; the provider (mocked here) hands it back.
+      announceMock.mockReturnValueOnce(cancelFirst);
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('channel.opened', { name: 'General' });
+      expect(cancelFirst).not.toHaveBeenCalled();
+
+      // A second selection within the delay window cancels the first pending emit, so only the
+      // latest confirmation is spoken.
+      result.current.announceInteraction('channel.opened', { name: 'Random' });
+      expect(cancelFirst).toHaveBeenCalledTimes(1);
+      expect(announceMock).toHaveBeenLastCalledWith('Opened channel: Random', {
+        delayMs: 1500,
+        priority: 'polite',
+      });
+    });
+
     it('announces the opened thread by its channel name, via the same provider delay', () => {
       const { result } = renderHook(() => useInteractionAnnouncements());
 
