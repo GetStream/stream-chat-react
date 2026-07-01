@@ -1,5 +1,5 @@
 import type { KeyboardEvent as ReactKeyboardEvent, RefObject } from 'react';
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
 import { getNextRovingFocusIndex } from '../a11yUtils';
 
@@ -57,6 +57,11 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
   scrollerRef,
   scrollIndexIntoView,
 }: VirtualizedListboxKeyboardNavigationParams<T>) => {
+  // Each roving key press bumps this. A deferred (post-scroll) focus chain captures the id at
+  // schedule time and bails once it is superseded, so a slower older scroll can't steal focus back
+  // to an outdated row after the user has pressed another key.
+  const latestFocusRequestRef = useRef(0);
+
   // Focus the option for `items[index]` if it is currently in the DOM. Returns whether it was found.
   const focusOptionAt = useCallback(
     (index: number) => {
@@ -73,9 +78,17 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
   );
 
   const focusOptionAfterRender = useCallback(
-    (index: number, attemptsLeft = MAX_FOCUS_ATTEMPTS_AFTER_SCROLL) => {
+    (
+      index: number,
+      requestId: number,
+      attemptsLeft = MAX_FOCUS_ATTEMPTS_AFTER_SCROLL,
+    ) => {
+      // A newer key press superseded this chain — stop so it can't steal focus back.
+      if (requestId !== latestFocusRequestRef.current) return;
       if (focusOptionAt(index) || attemptsLeft <= 0) return;
-      requestAnimationFrame(() => focusOptionAfterRender(index, attemptsLeft - 1));
+      requestAnimationFrame(() =>
+        focusOptionAfterRender(index, requestId, attemptsLeft - 1),
+      );
     },
     [focusOptionAt],
   );
@@ -100,11 +113,13 @@ export const useVirtualizedListboxKeyboardNavigation = <T>({
 
       event.preventDefault();
       event.stopPropagation();
+      // Supersede any still-pending off-window focus chain from a previous key press.
+      const requestId = ++latestFocusRequestRef.current;
       // Within the rendered window: focus right away (no scroll lag; native focus brings it fully
       // into view if it sat in the overscan). Otherwise scroll the row into existence, then focus it
       // once the list has painted it.
       if (focusOptionAt(nextIndex)) return;
-      scrollIndexIntoView(nextIndex, () => focusOptionAfterRender(nextIndex));
+      scrollIndexIntoView(nextIndex, () => focusOptionAfterRender(nextIndex, requestId));
     },
     [
       focusOptionAfterRender,
