@@ -505,8 +505,11 @@ describe('AttachmentSelector', () => {
 
     const dialog = screen.getByRole('dialog', { name: 'Create poll' });
     const questionInput = screen.getByLabelText('Question');
-    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
-    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
+    // The description id is per-instance (unique across stacked modals), so read it rather than
+    // hardcoding the shared base.
+    const descriptionId = dialog.getAttribute('aria-describedby');
+    expect(descriptionId).toMatch(/-description$/);
+    expect(document.getElementById(descriptionId!)).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
     // Initial focus lands on the dialog surface (so the SR announces the dialog identity before a
@@ -519,7 +522,7 @@ describe('AttachmentSelector', () => {
     expect(questionInput).toHaveFocus();
     expect(questionInput).not.toHaveAttribute(
       'aria-describedby',
-      expect.stringContaining('modal-dialog-description'),
+      expect.stringContaining(descriptionId!),
     );
     expect(screen.getByRole('button', { name: 'Close' })).not.toHaveAttribute(
       'aria-describedby',
@@ -622,8 +625,9 @@ describe('AttachmentSelector', () => {
     });
 
     const dialog = screen.getByRole('dialog', { name: /share location/i });
-    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
-    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
+    const descriptionId = dialog.getAttribute('aria-describedby');
+    expect(descriptionId).toMatch(/-description$/);
+    expect(document.getElementById(descriptionId!)).toHaveTextContent(
       'Select your current location and optionally enable live location sharing',
     );
     await waitFor(() => {
