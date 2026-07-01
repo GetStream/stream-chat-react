@@ -38,6 +38,7 @@ describe('SearchBar', () => {
   };
 
   const defaultProps = {
+    containerRef: { current: null },
     disabled: false,
     exitSearchOnInputBlur: false,
     filterButtonsContainerRef: { current: null },
@@ -215,21 +216,88 @@ describe('SearchBar', () => {
     expect(screen.getByTestId(INPUT_TEST_ID)).toHaveFocus();
   });
 
-  it('handles blur when exitSearchOnInputBlur is true', () => {
+  it('does not exit on blur when exitSearchOnInputBlur is false (default)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({ ...defaultProps, containerRef }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    containerRef.current = screen.getByTestId('search-bar');
+
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: outside });
+
+    expect(mockSearchController.exit).not.toHaveBeenCalled();
+    outside.remove();
+  });
+
+  it('exits search on blur when focus leaves the search widget, regardless of query text', () => {
+    const containerRef = { current: null as HTMLElement | null };
     vi.mocked(useSearchContext).mockReturnValue(
       fromPartial<SearchContextValue>({
         ...defaultProps,
+        containerRef,
         exitSearchOnInputBlur: true,
       }),
     );
+    // a query is present — the old `!currentTarget.value` guard would have suppressed the exit here
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
 
     render(<SearchBar />);
+    containerRef.current = screen.getByTestId('search-bar');
 
-    const input = screen.getByTestId('search-input');
-    fireEvent.focus(input);
-    fireEvent.blur(input);
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: outside });
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
+    outside.remove();
+  });
+
+  it('exits search on blur to a non-focusable target outside the widget (relatedTarget null)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        containerRef,
+        exitSearchOnInputBlur: true,
+      }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    containerRef.current = screen.getByTestId('search-bar');
+
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: null });
+
+    expect(mockSearchController.exit).toHaveBeenCalledWith();
+  });
+
+  it('does not exit search on blur when focus moves to a control within the widget (e.g. Cancel)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        containerRef,
+        exitSearchOnInputBlur: true,
+      }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: '' });
+
+    render(<SearchBar />);
+    // the container encloses the bar's controls (Cancel/clear), mirroring the real DOM
+    containerRef.current = screen.getByTestId('search-bar');
+
+    // focus moving TO the Cancel button (inside the widget) must not collapse search — it exits
+    // only on the button's own activation (WCAG 3.2.1)
+    fireEvent.blur(screen.getByTestId('search-input'), {
+      relatedTarget: screen.getByTestId('search-bar-button'),
+    });
+
+    expect(mockSearchController.exit).not.toHaveBeenCalled();
   });
 
   it('disables input when disabled prop is true', () => {

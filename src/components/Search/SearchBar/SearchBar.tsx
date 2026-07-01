@@ -19,15 +19,9 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 export const SearchBar = () => {
   const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
-  const {
-    disabled,
-    exitSearchOnInputBlur,
-    filterButtonsContainerRef,
-    placeholder,
-    searchController,
-  } = useSearchContext();
+  const { containerRef, disabled, exitSearchOnInputBlur, placeholder, searchController } =
+    useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
-  const clearButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const searchInputId = useStableId();
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
@@ -69,16 +63,15 @@ export const SearchBar = () => {
           data-testid='search-input'
           disabled={disabled}
           id={searchInputId}
-          onBlur={({ currentTarget, relatedTarget }) => {
-            if (
-              exitSearchOnInputBlur &&
-              // input is empty
-              !currentTarget.value &&
-              // clicking on filter buttons or clear button shouldn't trigger exit search on blur
-              !filterButtonsContainerRef.current?.contains(relatedTarget) &&
-              // clicking clear button shouldn't trigger exit search on blur
-              (!clearButtonRef.current || relatedTarget !== clearButtonRef.current)
-            ) {
+          onBlur={({ relatedTarget }) => {
+            // Exit search only when focus leaves the search widget entirely. Moving focus to a
+            // control inside it — the results list, the source filter buttons, the clear button,
+            // or the Cancel/exit button — is not "leaving search", so it must not collapse it (the
+            // Cancel button exits via its own activation, per WCAG 3.2.1). This matches the
+            // documented contract ("clear on every click outside the search") independent of
+            // whether the input currently holds a query — an empty input is not activated, so the
+            // previous value check only ever suppressed the exit while a query was present.
+            if (exitSearchOnInputBlur && !containerRef.current?.contains(relatedTarget)) {
               searchController.exit();
             }
           }}
@@ -111,7 +104,6 @@ export const SearchBar = () => {
               input?.focus();
               announceInteraction('search.cleared');
             }}
-            ref={clearButtonRef}
             size='xs'
             variant='secondary'
           >
