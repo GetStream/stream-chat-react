@@ -37,13 +37,13 @@ import type { Thread, ThreadManagerState } from 'stream-chat';
 export type ChatView = 'channels' | 'threads';
 
 /**
- * ChatView accessibility contract (WAI-ARIA Tabs):
- * 1) Selector container is role="tablist".
- * 2) Each selector button is role="tab", with id + aria-controls=<panel-id>.
- * 3) Each view container is role="tabpanel", with id + aria-labelledby=<tab-id>.
- * 4) Tab activation updates the active panel.
- * 5) Tabs are always tabbable (tabIndex=0), so users can reach both without
- *    arrow-key navigation.
+ * ChatView switches between two independent surfaces, not panels in a single
+ * WAI-ARIA Tabs widget. The selector is a navigation landmark
+ * (`role="navigation"`) holding one button per surface; the button for the
+ * surface currently shown is marked with `aria-current="true"` (the "current
+ * item in a set" — not `"page"`, since this SDK view may be embedded in a larger
+ * host UI that owns the page). View wrappers stay plain `<div>`s to avoid leaking
+ * ancestor context into descendants like the composer textarea.
  */
 type ChatViewContextValue = {
   activeChatView: ChatView;
@@ -93,18 +93,13 @@ export const ChatView = ({ children }: PropsWithChildren) => {
 
 const ChannelsView = ({ children }: PropsWithChildren) => {
   const { activeChatView } = useChatViewContext();
-  const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
+  const { chatViewPanelIds } = useChatViewA11yContext();
   const isActive = activeChatView === 'channels';
 
   if (!isActive) return null;
 
   return (
-    <div
-      aria-labelledby={chatViewTabIds.channels}
-      className='str-chat__chat-view__channels'
-      id={chatViewPanelIds.channels}
-      role='tabpanel'
-    >
+    <div className='str-chat__chat-view__channels' id={chatViewPanelIds.channels}>
       {children}
     </div>
   );
@@ -124,7 +119,7 @@ export const useThreadsViewContext = () => useContext(ThreadsViewContext);
 
 const ThreadsView = ({ children }: PropsWithChildren) => {
   const { activeChatView } = useChatViewContext();
-  const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
+  const { chatViewPanelIds } = useChatViewA11yContext();
   const [activeThread, setActiveThread] =
     useState<ThreadsViewContextValue['activeThread']>(undefined);
 
@@ -135,12 +130,7 @@ const ThreadsView = ({ children }: PropsWithChildren) => {
 
   return (
     <ThreadsViewContext.Provider value={value}>
-      <div
-        aria-labelledby={chatViewTabIds.threads}
-        className='str-chat__chat-view__threads'
-        id={chatViewPanelIds.threads}
-        role='tabpanel'
-      >
+      <div className='str-chat__chat-view__threads' id={chatViewPanelIds.threads}>
         {children}
       </div>
     </ThreadsViewContext.Provider>
@@ -244,9 +234,9 @@ export const ChatViewSelectorButton = ({
     <div className='str-chat__chat-view__selector-button-container'>
       <Button
         appearance='ghost'
+        aria-current={isActive || undefined}
         aria-label={props['aria-label'] ?? (shouldShowTooltip ? text : undefined)}
         className={clsx('str-chat__chat-view__selector-button', className)}
-        role='tab'
         variant='secondary'
         {...props}
       >
@@ -284,7 +274,6 @@ export const ChatViewChannelsSelectorButton = ({
   iconOnly = true,
 }: ChatViewSelectorItemProps) => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
-  const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
   const { t } = useTranslationContext();
 
   const isActive = activeChatView === 'channels';
@@ -292,16 +281,12 @@ export const ChatViewChannelsSelectorButton = ({
   return (
     <ChatViewSelectorButton
       ActiveIcon={IconMessageBubbleFill}
-      // tab -> tabpanel wiring
-      aria-controls={chatViewPanelIds.channels}
-      aria-selected={isActive}
+      aria-label={t('aria/Open channels view')}
       Icon={IconMessageBubble}
       iconOnly={iconOnly}
-      id={chatViewTabIds.channels}
       isActive={isActive}
       onClick={() => setActiveChatView('channels')}
       onPointerDown={() => setActiveChatView('channels')}
-      tabIndex={0}
       text={t('Channels')}
     />
   );
@@ -318,24 +303,25 @@ export const ChatViewThreadsSelectorButton = ({
     unreadThreadCount: 0,
   };
   const { activeChatView, setActiveChatView } = useChatViewContext();
-  const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
   const { t } = useTranslationContext();
 
   const isActive = activeChatView === 'threads';
+  const label =
+    unreadThreadCount > 0
+      ? t('aria/Open threads view with unread threads', {
+          count: unreadThreadCount,
+        })
+      : t('aria/Open threads view');
 
   return (
     <ChatViewSelectorButton
       ActiveIcon={IconThreadFill}
-      // tab -> tabpanel wiring
-      aria-controls={chatViewPanelIds.threads}
-      aria-selected={isActive}
+      aria-label={label}
       Icon={IconThread}
       iconOnly={iconOnly}
-      id={chatViewTabIds.threads}
       isActive={isActive}
       onClick={() => setActiveChatView('threads')}
       onPointerDown={() => setActiveChatView('threads')}
-      tabIndex={0}
       text={t('Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
@@ -376,10 +362,9 @@ const ChatViewSelector = ({
 
   return (
     <div
-      aria-label={t('aria/Chat view tabs')}
+      aria-label={t('aria/Chat view controls')}
       className='str-chat__chat-view__selector'
-      // WAI-ARIA Tabs pattern: tablist owns the tab controls.
-      role='tablist'
+      role='navigation'
     >
       {itemSet.map(({ Component, type }) => (
         <Component iconOnly={iconOnly} key={type} />

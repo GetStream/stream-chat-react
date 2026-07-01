@@ -11,12 +11,17 @@ import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { axe } from '../../../../axe-helper';
 
+const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
+
 // Mock the hooks
 vi.mock('../SearchContext');
 vi.mock('../../../context');
 vi.mock('../../../store');
 vi.mock('../hooks', () => ({
   useSearchQueriesInProgress: vi.fn().mockReturnValue([]),
+}));
+vi.mock('../../Accessibility', () => ({
+  useInteractionAnnouncements: () => ({ announceInteraction }),
 }));
 
 const INPUT_TEST_ID = 'search-input';
@@ -33,6 +38,7 @@ describe('SearchBar', () => {
   };
 
   const defaultProps = {
+    containerRef: { current: null },
     disabled: false,
     exitSearchOnInputBlur: false,
     filterButtonsContainerRef: { current: null },
@@ -99,6 +105,67 @@ describe('SearchBar', () => {
     expect(mockSearchController.search).toHaveBeenCalledWith('test');
   });
 
+  it('spreads inputProps onto the input (merging className) without overriding controlled props', () => {
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        inputProps: {
+          autoComplete: 'off',
+          className: 'custom-input',
+          'data-1p-ignore': true,
+          // A controlled prop the SDK owns — must NOT win over the component's own value.
+          type: 'password',
+        },
+      }),
+    );
+
+    render(<SearchBar />);
+
+    const input = screen.getByTestId('search-input');
+    // Integrator-supplied, non-conflicting props land on the element.
+    expect(input).toHaveAttribute('data-1p-ignore', 'true');
+    expect(input).toHaveAttribute('autocomplete', 'off');
+    // className is merged, not replaced.
+    expect(input).toHaveClass('str-chat__search-bar__input');
+    expect(input).toHaveClass('custom-input');
+    // The SDK's controlled prop wins.
+    expect(input).toHaveAttribute('type', 'text');
+  });
+
+  it('still handles input changes when inputProps are provided', () => {
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        inputProps: { 'data-1p-ignore': true },
+      }),
+    );
+
+    render(<SearchBar />);
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'hi' } });
+
+    expect(mockSearchController.search).toHaveBeenCalledWith('hi');
+  });
+
+  it('does not activate search merely on focus (WCAG 3.2.1)', () => {
+    render(<SearchBar />);
+
+    fireEvent.focus(screen.getByTestId('search-input'));
+
+    expect(mockSearchController.activate).not.toHaveBeenCalled();
+  });
+
+  it('activates search on typing, not on focus', () => {
+    render(<SearchBar />);
+
+    const input = screen.getByTestId('search-input');
+    fireEvent.focus(input);
+    expect(mockSearchController.activate).not.toHaveBeenCalled();
+
+    fireEvent.change(input, { target: { value: 'a' } });
+    expect(mockSearchController.activate).toHaveBeenCalledTimes(1);
+    expect(mockSearchController.search).toHaveBeenCalledWith('a');
+  });
+
   it('clears search when input is emptied', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
@@ -141,6 +208,15 @@ describe('SearchBar', () => {
     expect(mockSearchController.clear).toHaveBeenCalledWith();
   });
 
+  it('announces that the search was cleared via the clear button', () => {
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    fireEvent.click(screen.getByTestId('clear-input-button'));
+
+    expect(announceInteraction).toHaveBeenCalledWith('search.cleared');
+  });
+
   it('shows cancel button when search is active', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
@@ -153,7 +229,7 @@ describe('SearchBar', () => {
     expect(screen.getByText('Cancel')).toBeInTheDocument();
   });
 
-  it('handles cancel button click', () => {
+  it('handles cancel button click and returns focus to the input', () => {
     vi.mocked(useStateStore).mockReturnValue({
       isActive: true,
       searchQuery: '',
@@ -164,6 +240,7 @@ describe('SearchBar', () => {
     fireEvent.click(screen.getByTestId('search-bar-button'));
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
+    expect(screen.getByTestId(INPUT_TEST_ID)).toHaveFocus();
   });
 
   it('handles escape key press', () => {
@@ -177,23 +254,91 @@ describe('SearchBar', () => {
     fireEvent.keyDown(document, { key: 'Escape' });
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
+    expect(screen.getByTestId(INPUT_TEST_ID)).toHaveFocus();
   });
 
-  it('handles blur when exitSearchOnInputBlur is true', () => {
+  it('does not exit on blur when exitSearchOnInputBlur is false (default)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({ ...defaultProps, containerRef }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    containerRef.current = screen.getByTestId('search-bar');
+
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: outside });
+
+    expect(mockSearchController.exit).not.toHaveBeenCalled();
+    outside.remove();
+  });
+
+  it('exits search on blur when focus leaves the search widget, regardless of query text', () => {
+    const containerRef = { current: null as HTMLElement | null };
     vi.mocked(useSearchContext).mockReturnValue(
       fromPartial<SearchContextValue>({
         ...defaultProps,
+        containerRef,
         exitSearchOnInputBlur: true,
       }),
     );
+    // a query is present — the old `!currentTarget.value` guard would have suppressed the exit here
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
 
     render(<SearchBar />);
+    containerRef.current = screen.getByTestId('search-bar');
 
-    const input = screen.getByTestId('search-input');
-    fireEvent.focus(input);
-    fireEvent.blur(input);
+    const outside = document.createElement('button');
+    document.body.appendChild(outside);
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: outside });
 
     expect(mockSearchController.exit).toHaveBeenCalledWith();
+    outside.remove();
+  });
+
+  it('exits search on blur to a non-focusable target outside the widget (relatedTarget null)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        containerRef,
+        exitSearchOnInputBlur: true,
+      }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    containerRef.current = screen.getByTestId('search-bar');
+
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: null });
+
+    expect(mockSearchController.exit).toHaveBeenCalledWith();
+  });
+
+  it('does not exit search on blur when focus moves to a control within the widget (e.g. Cancel)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        containerRef,
+        exitSearchOnInputBlur: true,
+      }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: '' });
+
+    render(<SearchBar />);
+    // the container encloses the bar's controls (Cancel/clear), mirroring the real DOM
+    containerRef.current = screen.getByTestId('search-bar');
+
+    // focus moving TO the Cancel button (inside the widget) must not collapse search — it exits
+    // only on the button's own activation (WCAG 3.2.1)
+    fireEvent.blur(screen.getByTestId('search-input'), {
+      relatedTarget: screen.getByTestId('search-bar-button'),
+    });
+
+    expect(mockSearchController.exit).not.toHaveBeenCalled();
   });
 
   it('disables input when disabled prop is true', () => {

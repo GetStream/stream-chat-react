@@ -120,4 +120,23 @@ describe('Notification', () => {
     expect(assertiveMessage).toHaveAttribute('aria-live', 'assertive');
     expect(assertiveMessage).toHaveAttribute('role', 'alert');
   });
+
+  it('lets metadata.ariaLive override the severity-based live priority', () => {
+    render(
+      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+        <Notification
+          notification={{
+            ...baseNotification,
+            metadata: { ariaLive: 'assertive' },
+            severity: 'success',
+          }}
+        />
+      </TranslationProvider>,
+    );
+
+    // Severity 'success' would normally be polite/status; the override makes it assertive/alert.
+    const message = screen.getByText('Hello');
+    expect(message).toHaveAttribute('aria-live', 'assertive');
+    expect(message).toHaveAttribute('role', 'alert');
+  });
 });

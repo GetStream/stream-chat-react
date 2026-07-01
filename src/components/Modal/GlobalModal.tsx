@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { FocusScope } from '@react-aria/focus';
 
+import { AriaLiveOutlet } from '../Accessibility';
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
   DialogManagerProvider,
@@ -34,6 +35,7 @@ export type ModalCloseEvent =
   | React.MouseEvent<HTMLButtonElement | HTMLDivElement>;
 
 export type ModalCloseSource = 'overlay' | 'button' | 'escape';
+export type ModalInitialFocusStrategy = 'dialog' | 'firstElement';
 
 export type ModalProps = {
   /** If true, modal is opened or visible. */
@@ -55,6 +57,10 @@ export type ModalProps = {
   'aria-describedby'?: string;
   /** ARIA role for the modal dialog surface. */
   role?: 'alertdialog' | 'dialog';
+  /** Controls whether the dialog surface or the first focusable descendant receives initial focus. */
+  initialFocusStrategy?: ModalInitialFocusStrategy;
+  /** Resolves a custom initial focus element. When provided, it overrides `initialFocusStrategy` and falls back to the dialog surface when no element is returned. */
+  getInitialFocusElement?: (dialogElement: HTMLDivElement) => HTMLElement | null;
   /** If provided, the close button is rendered on overlay */
   CloseButtonOnOverlay?: ComponentType<ComponentProps<'button'>>;
   /** Callback handler for closing of modal. */
@@ -72,6 +78,8 @@ export const GlobalModal = ({
   CloseButtonOnOverlay,
   dialogId,
   dialogRootProps,
+  getInitialFocusElement,
+  initialFocusStrategy,
   onClose,
   onCloseAttempt,
   open,
@@ -83,6 +91,7 @@ export const GlobalModal = ({
   const isOpen = useModalDialogIsOpen(resolvedDialogId);
   const isTopmost = useModalDialogIsTopmost(resolvedDialogId);
   const overlayRef = useRef<HTMLDivElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const closingRef = useRef(false);
   const { theme } = useChatContext();
@@ -92,7 +101,9 @@ export const GlobalModal = ({
     onKeyDown: dialogRootOnKeyDown,
     ...dialogRootPropsRest
   } = dialogRootProps ?? {};
-  const dialogLabelingBaseId = dialog.id;
+  const dialogLabelingBaseId = dialogId ?? modalDialogId;
+  const resolvedInitialFocusStrategy: ModalInitialFocusStrategy =
+    initialFocusStrategy ?? 'firstElement';
   const resolvedModalAriaProps = useResolvedModalAriaProps({
     ariaDescribedby,
     ariaLabel,
@@ -135,8 +146,25 @@ export const GlobalModal = ({
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     dialogRootOnKeyDown?.(event);
-    if (event.defaultPrevented || event.key !== 'Escape' || !isTopmost) return;
-    maybeClose('escape', event);
+    if (event.defaultPrevented || !isTopmost) return;
+
+    if (event.key === 'Escape') {
+      maybeClose('escape', event);
+      return;
+    }
+
+    // Initial focus lands on the dialog surface so the screen reader announces the dialog
+    // identity/description (a child field's focus would supersede that). Enter on the surface then
+    // steps the user into the dialog's declared default field (`[data-autofocus]`), so they can
+    // start interacting without hunting for it. `event.target === dialogRef.current` ensures we
+    // only react to Enter on the surface itself, never one bubbling up from a control inside.
+    if (event.key === 'Enter' && event.target === dialogRef.current) {
+      const target = dialogRef.current?.querySelector<HTMLElement>('[data-autofocus]');
+      if (target) {
+        event.preventDefault();
+        target.focus();
+      }
+    }
   };
 
   // Sync open prop to dialog state.
@@ -154,6 +182,26 @@ export const GlobalModal = ({
     }
   }, [dialog, isOpen, open]);
 
+  useEffect(() => {
+    if (
+      !open ||
+      !isOpen ||
+      (!getInitialFocusElement && resolvedInitialFocusStrategy === 'firstElement')
+    )
+      return;
+
+    const frame = requestAnimationFrame(() => {
+      const dialogElement = dialogRef.current;
+      if (!dialogElement) return;
+
+      const target = getInitialFocusElement?.(dialogElement) ?? dialogElement;
+
+      target.focus();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [getInitialFocusElement, isOpen, open, resolvedInitialFocusStrategy]);
+
   if (!open || !isOpen) return null;
 
   return (
@@ -169,7 +217,15 @@ export const GlobalModal = ({
           onClick={handleOverlayClick}
           ref={overlayRef}
         >
-          <FocusScope autoFocus={isTopmost} contain={isTopmost} restoreFocus>
+          <FocusScope
+            autoFocus={
+              isTopmost &&
+              !getInitialFocusElement &&
+              resolvedInitialFocusStrategy === 'firstElement'
+            }
+            contain={isTopmost}
+            restoreFocus
+          >
             <div
               {...dialogRootPropsRest}
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
@@ -179,6 +235,7 @@ export const GlobalModal = ({
               className={clsx('str-chat__modal__dialog', dialogRootClassName)}
               inert={isTopmost ? undefined : true}
               onKeyDown={handleDialogKeyDown}
+              ref={dialogRef}
               role={role}
               tabIndex={isTopmost ? 0 : -1}
             >
@@ -190,6 +247,10 @@ export const GlobalModal = ({
                 }}
               >
                 {children}
+                {/* Render the live-region outlet inside the active modal subtree
+                  (only the topmost dialog carries `aria-modal`) so announcements
+                  are not suppressed by assistive technologies. */}
+                {isTopmost && <AriaLiveOutlet layer={1} />}
               </DialogManagerProvider>
             </div>
           </FocusScope>

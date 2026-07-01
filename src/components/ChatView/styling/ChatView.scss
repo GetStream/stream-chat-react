@@ -49,7 +49,7 @@
       background: transparent;
       color: var(--str-chat__text-tertiary);
 
-      &[aria-selected='true'] {
+      &[aria-current='true'] {
         color: var(--str-chat__text-primary);
         background: var(--str-chat__background-core-surface-default);
       }

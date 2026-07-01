@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useStableId } from '../../UtilityComponents/useStableId';
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { Button, IconSearch, IconXCircle, VisuallyHidden } from '../../../components';
@@ -17,15 +18,16 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 
 export const SearchBar = () => {
   const { t } = useTranslationContext();
+  const { announceInteraction } = useInteractionAnnouncements();
   const {
+    containerRef,
     disabled,
     exitSearchOnInputBlur,
-    filterButtonsContainerRef,
+    inputProps,
     placeholder,
     searchController,
   } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
-  const clearButtonRef = React.useRef<HTMLButtonElement | null>(null);
   const searchInputId = useStableId();
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
@@ -38,8 +40,10 @@ export const SearchBar = () => {
     if (!input) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        input.blur();
         searchController.exit();
+        // Keep focus on the search input (it no longer re-activates search on focus), so the user
+        // can keep navigating from a known place rather than having focus drop to the body.
+        input.focus();
       }
     };
 
@@ -61,31 +65,34 @@ export const SearchBar = () => {
         </label>
         <IconSearch />
         <input
-          className='str-chat__search-bar__input'
+          {...inputProps}
+          className={clsx('str-chat__search-bar__input', inputProps?.className)}
           data-testid='search-input'
           disabled={disabled}
           id={searchInputId}
-          onBlur={({ currentTarget, relatedTarget }) => {
-            if (
-              exitSearchOnInputBlur &&
-              // input is empty
-              !currentTarget.value &&
-              // clicking on filter buttons or clear button shouldn't trigger exit search on blur
-              !filterButtonsContainerRef.current?.contains(relatedTarget) &&
-              // clicking clear button shouldn't trigger exit search on blur
-              (!clearButtonRef.current || relatedTarget !== clearButtonRef.current)
-            ) {
+          onBlur={({ relatedTarget }) => {
+            // Exit search only when focus leaves the search widget entirely. Moving focus to a
+            // control inside it — the results list, the source filter buttons, the clear button,
+            // or the Cancel/exit button — is not "leaving search", so it must not collapse it (the
+            // Cancel button exits via its own activation, per WCAG 3.2.1). This matches the
+            // documented contract ("clear on every click outside the search") independent of
+            // whether the input currently holds a query — an empty input is not activated, so the
+            // previous value check only ever suppressed the exit while a query was present.
+            if (exitSearchOnInputBlur && !containerRef.current?.contains(relatedTarget)) {
               searchController.exit();
             }
           }}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+            // Activate search on user input — NOT on focus (WCAG 3.2.1: focusing a control must not
+            // change context). `search()` runs against the active sources, so activation has to
+            // happen here; `activate()` is idempotent once already active.
             if (event.target.value) {
+              searchController.activate();
               searchController.search(event.target.value);
-            } else if (!event.target.value) {
+            } else {
               searchController.clear();
             }
           }}
-          onFocus={searchController.activate}
           placeholder={placeholder ?? t('Search')}
           ref={setInput}
           type='text'
@@ -102,8 +109,8 @@ export const SearchBar = () => {
             onClick={() => {
               searchController.clear();
               input?.focus();
+              announceInteraction('search.cleared');
             }}
-            ref={clearButtonRef}
             size='xs'
             variant='secondary'
           >
@@ -118,8 +125,10 @@ export const SearchBar = () => {
           className='str-chat__search-bar__exit-search-button'
           data-testid='search-bar-button'
           onClick={() => {
-            input?.blur();
             searchController.exit();
+            // Return focus to the search input so navigation can continue from there (focusing it
+            // no longer re-activates search — see RW19).
+            input?.focus();
           }}
           size='sm'
           variant='secondary'

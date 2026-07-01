@@ -34,6 +34,9 @@ const getVoteLimitSwitch = () => {
   return el;
 };
 
+const getLatestLiveAnnouncement = (region: HTMLElement) =>
+  region.lastElementChild?.textContent ?? '';
+
 const getMaxVoteCountInput = () =>
   document.getElementById('max_votes_allowed') as HTMLInputElement | null;
 const NAME_INPUT_FIELD_ERROR_TEST_ID = 'poll-name-input-field-error';
@@ -101,6 +104,141 @@ describe('PollCreationDialog', () => {
     expect(getSubmitPollButton()).toBeDisabled();
   });
 
+  it('describes the reorder/remove affordance on each option field once a second option exists', async () => {
+    await renderComponent();
+    // Single option: no reorder/remove controls yet, so the field carries no such description.
+    expect(getOptionInput()).toHaveAccessibleDescription('');
+
+    // Typing into the only option auto-adds a second one, making the controls available.
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
+    });
+    await waitFor(() =>
+      expect(
+        screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length,
+      ).toBeGreaterThan(1),
+    );
+
+    // The affordance is attached to every option field's accessible description (aria-describedby),
+    // so it is read in sequence as part of the field read-out rather than via a swallowed live region.
+    screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).forEach((input) => {
+      expect(input).toHaveAccessibleDescription(
+        'This option can be reordered and removed.',
+      );
+    });
+  });
+
+  it('drops the option-field affordance description when the options drop back to one', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
+    });
+    await waitFor(() =>
+      expect(screen.getAllByRole('button', { name: /remove option/i }).length).toBe(2),
+    );
+
+    // Removing back to a single option removes the controls, so the description goes away too.
+    await act(async () => {
+      await fireEvent.click(screen.getAllByRole('button', { name: /remove option/i })[0]);
+    });
+    await waitFor(() =>
+      expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(1),
+    );
+    expect(getOptionInput()).toHaveAccessibleDescription('');
+  });
+
+  it('announces, once the option list settles, that the controls became available', async () => {
+    await renderComponent();
+    const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+
+    // Adding a second option makes the reorder/remove controls available.
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
+    });
+
+    // Announced via a polite live region, debounced until the option list has been idle for a beat
+    // (so it lands after the SR's typing echo / field re-read instead of being superseded by it).
+    await waitFor(
+      () =>
+        expect(getLatestLiveAnnouncement(politeRegion)).toBe(
+          'Options can now be reordered and removed.',
+        ),
+      { timeout: 3000 },
+    );
+  });
+
+  it('announces a removed option by its text value', async () => {
+    await renderComponent();
+    const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+
+    // Two named options so removing one still leaves the controls in place.
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+    await waitFor(() =>
+      expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(2),
+    );
+    await act(async () => {
+      await fireEvent.change(
+        screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER)[1],
+        { target: { value: 'Second option' } },
+      );
+    });
+    await waitFor(() =>
+      expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(3),
+    );
+
+    await act(async () => {
+      await fireEvent.click(screen.getAllByRole('button', { name: /remove option/i })[0]);
+    });
+
+    await waitFor(() =>
+      expect(getLatestLiveAnnouncement(politeRegion)).toBe('Removed option First option'),
+    );
+  });
+
+  it('announces switch settings being turned on and off', async () => {
+    await renderComponent();
+    const politeRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+    const anonymousSwitch = screen.getByRole('switch', { name: /anonymous poll/i });
+
+    await act(async () => {
+      await fireEvent.click(anonymousSwitch);
+    });
+    await waitFor(() =>
+      expect(getLatestLiveAnnouncement(politeRegion)).toBe('Anonymous Poll enabled'),
+    );
+
+    await act(async () => {
+      await fireEvent.click(anonymousSwitch);
+    });
+    await waitFor(() =>
+      expect(getLatestLiveAnnouncement(politeRegion)).toBe('Anonymous Poll disabled'),
+    );
+  });
+
+  it('gives the close button a concise accessible name', async () => {
+    await renderComponent();
+    expect(screen.getByRole('button', { name: 'Close' })).toHaveAccessibleName('Close');
+  });
+
+  // The dialog description is exposed via aria-describedby, which SRs treat as a (often-skipped)
+  // hint. On open we announce — assertively, so it is not dropped around the dialog's focus-entry
+  // announcement — an open confirmation + the description + the Enter affordance to step into the
+  // Question field (via the `poll.dialogOpened` interaction).
+  it('announces the dialog open confirmation, description, and Enter hint via the live region', async () => {
+    await renderComponent();
+    const assertiveRegion = screen.getByTestId('str-chat__aria-live-region--assertive');
+    await waitFor(
+      () =>
+        expect(getLatestLiveAnnouncement(assertiveRegion)).toBe(
+          'Poll dialog opened. Create a question, add options, and configure poll settings. Press Enter to start typing.',
+        ),
+      { timeout: 2000 },
+    );
+  });
+
   it('updates name field', async () => {
     const text = 'Abc';
     await renderComponent();
@@ -165,6 +303,147 @@ describe('PollCreationDialog', () => {
     expect(optionFields[1]).toHaveValue('');
     expect(screen.getByText(CANCEL_BUTTON_TEXT)).toBeEnabled();
     expect(getSubmitPollButton()).toBeDisabled();
+  });
+
+  it('renders a remove option button for every draggable option row', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const removeOptionButtons = screen.getAllByRole('button', { name: /remove option/i });
+    const reorderHandles = screen.getAllByRole('button', { name: /reorder option/i });
+
+    expect(removeOptionButtons).toHaveLength(reorderHandles.length);
+    for (const removeOptionButton of removeOptionButtons) {
+      expect(removeOptionButton).toBeInTheDocument();
+      expect(removeOptionButton.closest('[aria-hidden="true"]')).toBeNull();
+    }
+  });
+
+  it('focuses the next option input after removing a focused option', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const removeOptionButton = screen.getAllByRole('button', {
+      name: /remove option/i,
+    })[0];
+    removeOptionButton.focus();
+
+    expect(removeOptionButton).toHaveFocus();
+
+    await act(async () => {
+      await fireEvent.click(removeOptionButton);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDER)).toHaveFocus();
+    });
+  });
+
+  it('supports keyboard reorder mode from the drag handle', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const reorderHandle = screen.getByRole('button', { name: /reorder option 1/i });
+    const assertiveLiveRegion = screen.getByTestId(
+      'str-chat__aria-live-region--assertive',
+    );
+    const politeLiveRegion = screen.getByTestId('str-chat__aria-live-region--polite');
+    await act(() => {
+      reorderHandle.focus();
+    });
+
+    expect(reorderHandle).toHaveFocus();
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.',
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.click(reorderHandle);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Picked up "First option". Use arrow keys to reorder. Press Space or Tab to drop.',
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.keyDown(reorderHandle, { key: 'ArrowDown' });
+    });
+
+    const optionFields = screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER);
+    expect(optionFields[0]).toHaveValue('');
+    expect(optionFields[1]).toHaveValue('First option');
+    // Focus follows the moved option to its new row, and the active handle's
+    // aria-label embeds the option text + new position so VoiceOver's native
+    // focus announcement carries the move information without duplicating a
+    // live-region "moved to position" message.
+    await waitFor(() => {
+      expect(document.activeElement).toHaveAttribute(
+        'aria-label',
+        'Reorder "First option" at position 2 of 2',
+      );
+      expect(document.activeElement).toHaveAttribute('aria-pressed', 'true');
+    });
+    // The move itself emits no polite "moved to position" message (that info rides on the handle's
+    // aria-label). The only polite message present is the one-time controls-available announcement
+    // from when the second option appeared during setup — it must not mention a position.
+    expect(getLatestLiveAnnouncement(politeLiveRegion)).not.toMatch(/position/i);
+
+    await act(async () => {
+      await fireEvent.click(document.activeElement as HTMLElement);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Dropped "First option" at position 2.',
+      );
+    });
+  });
+
+  it('supports click activation for keyboard reorder mode', async () => {
+    await renderComponent();
+
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
+    });
+
+    const reorderHandle = screen.getByRole('button', { name: /reorder option 1/i });
+    const assertiveLiveRegion = screen.getByTestId(
+      'str-chat__aria-live-region--assertive',
+    );
+
+    await act(async () => {
+      await fireEvent.click(reorderHandle);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Picked up "First option". Use arrow keys to reorder. Press Space or Tab to drop.',
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.click(reorderHandle);
+    });
+
+    await waitFor(() => {
+      expect(getLatestLiveAnnouncement(assertiveLiveRegion)).toBe(
+        'Dropped "First option" at position 1.',
+      );
+    });
   });
 
   it('allows submission with at least one option and name', async () => {
@@ -396,9 +675,6 @@ describe('PollCreationDialog', () => {
     const createPollSpy = vi
       .spyOn(client, 'createPoll')
       .mockImplementationOnce(() => Promise.resolve(fromPartial({ poll })));
-    const initPollStateSpy = vi
-      .spyOn(channel.messageComposer.pollComposer, 'initState')
-      .mockImplementation(() => {});
 
     await act(async () => {
       await fireEvent.change(getNameInput(), { target: { value: formState.name } });
@@ -446,25 +722,178 @@ describe('PollCreationDialog', () => {
         expect.objectContaining(expectedPollPayload),
       );
       expect(close).toHaveBeenCalledTimes(1);
-      expect(initPollStateSpy).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('closes the form on cancel', async () => {
+  it('notifies on successful poll submission', async () => {
     const {
       channels: [channel],
       client,
     } = await initClientWithChannels({ customUser: user });
-    const initPollStateSpy = vi
-      .spyOn(channel.messageComposer.pollComposer, 'initState')
-      .mockImplementation(() => {});
-
     await renderComponent({ channel, client });
+    vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+    const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Poll sent',
+          options: expect.objectContaining({
+            severity: 'success',
+            type: 'api:poll:create:success',
+          }),
+        }),
+      );
+    });
+  });
+
+  it('does not emit success notification on poll submission failure', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
+    // createPoll() in stream-chat-js already publishes an
+    // `api:poll:create:failed` notification on failure, so the React side must
+    // not add its own error notification (avoids a duplicate). It also must
+    // not emit the success notification.
+    vi.spyOn(client, 'createPoll').mockRejectedValueOnce(new Error('create failed'));
+    const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Failed to create the poll',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:poll:create:failed',
+          }),
+        }),
+      );
+    });
+    const successCalls = addNotificationSpy.mock.calls.filter(
+      ([payload]) => payload?.message === 'Poll sent',
+    );
+    expect(successCalls).toHaveLength(0);
+    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('returns focus to the composer input after a successful send', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+
+    const composerTextarea = document.createElement('textarea');
+    document.body.appendChild(composerTextarea);
+    const textareaRef = { current: composerTextarea };
+
+    await act(() => {
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <MessageComposerContextProvider
+              value={fromPartial<MessageComposerContextValue>({
+                handleSubmit,
+                textareaRef,
+              })}
+            >
+              <PollCreationDialog close={close} />
+            </MessageComposerContextProvider>
+          </Channel>
+        </Chat>,
+      );
+    });
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(composerTextarea).toHaveFocus();
+    });
+
+    composerTextarea.remove();
+  });
+
+  it('closes the form on cancel', async () => {
+    await renderComponent();
 
     act(() => {
       fireEvent.click(screen.getByText(CANCEL_BUTTON_TEXT));
     });
     expect(close).toHaveBeenCalledTimes(1);
-    expect(initPollStateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('closes the form optimistically before createPoll resolves', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
+
+    let resolveCreatePoll: (value: unknown) => void = () => {};
+    const createPollPromise = new Promise((resolve) => {
+      resolveCreatePoll = resolve;
+    });
+    vi.spyOn(client, 'createPoll').mockImplementationOnce(
+      () => createPollPromise as ReturnType<StreamChat['createPoll']>,
+    );
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    expect(close).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).not.toHaveBeenCalled();
+
+    await act(async () => {
+      resolveCreatePoll(fromPartial({ poll: { id: 'pid' } }));
+      await createPollPromise;
+    });
+
+    await waitFor(() => {
+      expect(handleSubmit).toHaveBeenCalledTimes(1);
+    });
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });

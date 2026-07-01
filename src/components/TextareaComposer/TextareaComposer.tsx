@@ -12,6 +12,7 @@ import React, {
 } from 'react';
 import Textarea from 'react-textarea-autosize';
 import { useCooldownRemaining } from '../MessageComposer/hooks/useCooldownRemaining';
+import { useMessageComposerCommands } from '../MessageComposer/hooks/useMessageComposerCommands';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import type {
   AttachmentManagerState,
@@ -20,10 +21,19 @@ import type {
   SearchSourceState,
   TextComposerState,
 } from 'stream-chat';
-import { useComponentContext, useMessageComposerContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 import { useStateStore } from '../../store';
-import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
+import { useStableId } from '../UtilityComponents/useStableId';
+import {
+  SuggestionList as DefaultSuggestionList,
+  hasEnabledCommandSuggestions,
+} from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
+import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -71,7 +81,19 @@ export type TextareaComposerProps = Omit<
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
 };
 
-export const TextareaComposer = ({
+/**
+ * Announces composer-mode changes (e.g. activating the `/giphy` command) via
+ * `useAriaLiveAnnouncer`. The live region itself is provided by the nearest
+ * {@link AriaLiveOutlet} – the root outlet mounted at `Chat`, or a modal outlet
+ * when the composer is rendered inside an `aria-modal` dialog (assistive
+ * technologies suppress live regions outside an active modal subtree, so the
+ * modal outlet ensures announcements land inside the active scope).
+ */
+export const TextareaComposer = (props: TextareaComposerProps) => (
+  <TextareaComposerWithLiveAnnouncements {...props} />
+);
+
+const TextareaComposerWithLiveAnnouncements = ({
   className,
   closeSuggestionsOnClickOutside,
   containerClassName,
@@ -100,7 +122,10 @@ export const TextareaComposer = ({
   } = useMessageComposerContext();
   const cooldownRemaining = useCooldownRemaining();
 
+  const { t } = useTranslationContext('TextareaComposer');
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
+  const announce = useAriaLiveAnnouncer();
+  const { announceInteraction } = useInteractionAnnouncements();
 
   const maxRows = maxRowsProp ?? maxRowsContext ?? 10;
   const minRows = minRowsProp ?? minRowsContext;
@@ -113,6 +138,16 @@ export const TextareaComposer = ({
     textComposer.state,
     textComposerStateSelector,
   );
+  // Explicit, stable accessible name for the textarea. Naming the field explicitly
+  // prevents it from inheriting an unrelated name from an ancestor (e.g. the
+  // "Channels, tab panel" of the ChatView tabpanel) via accessible-name computation.
+  // While the field is empty we expose the visible placeholder as the name so the
+  // announced name matches what the user sees. Once the field has content we switch
+  // to a stable label instead of the placeholder, which may be a command-specific
+  // template (e.g. mention/command args) that would otherwise be re-announced as a
+  // stale name even though the field already holds real content.
+  const ariaLabel = text ? t('aria/Message input') : placeholder;
+
   // react-textarea-autosize can measure placeholder content as multi-line in narrow layouts,
   // producing an inflated initial height (e.g. 2 rows) before the user types.
   // Clamp to a single row only while empty unless the integrator explicitly set minRows.
@@ -135,16 +170,54 @@ export const TextareaComposer = ({
     attachmentManagerStateSelector,
   );
 
-  const { isLoadingItems } =
+  const { isLoadingItems, items } =
     useStateStore(suggestions?.searchSource.state, searchSourceStateSelector) ?? {};
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [focusedItemIndex, setFocusedItemIndex] = useState(0);
+  // Whether the active option was reached via keyboard navigation (Arrow keys) within the
+  // current suggestion session. Filtering resets `focusedItemIndex` to 0 on every keystroke,
+  // so if we always exposed `aria-activedescendant` the screen reader would re-read the first
+  // option on each character typed. We therefore expose the active option to AT ONLY after the
+  // user actually navigates, and clear it again as soon as they type (see `changeHandler`).
+  // While typing, the debounced polite count ("N suggestions") conveys that results changed.
+  const [activeOptionFromKeyboard, setActiveOptionFromKeyboard] = useState(false);
+
+  // Autocomplete wiring. The suggestion list is exposed as a `listbox` whose active
+  // `option` this field tracks. We deliberately do NOT set `role="combobox"`/`aria-expanded`
+  // here: ARIA-in-HTML disallows the `combobox` role on a multiline `<textarea>` (and
+  // `aria-expanded` is not a supported attribute on the implicit `textbox` role), so axe
+  // rejects them. Instead we use the `aria-activedescendant` autocomplete pattern that IS
+  // valid on a textbox — `aria-autocomplete="list"` + `aria-controls` → the listbox +
+  // `aria-activedescendant` → the active option — which screen readers voice on navigation.
+  //
+  // `aria-controls` is set whenever the list is open (so the listbox is discoverable) but
+  // `aria-activedescendant` is set only once the user has navigated with the keyboard — so the
+  // SR announces an option on Arrow nav, not the auto-reset first option on every keystroke.
+  // Both never dangle: "open" mirrors the keyboard-navigation gate below (`suggestions` present
+  // + at least one loaded item), which is also what `SuggestionList` renders on. The shared
+  // `listboxId` is owned here because the relationship attributes live on the textarea; it is
+  // passed down to the list, which derives per-option ids as `{listboxId}-option-{index}`.
+  const listboxId = useStableId();
+  const commands = useMessageComposerCommands();
+  const suggestionsOpen = !!(
+    suggestions &&
+    items?.length &&
+    hasEnabledCommandSuggestions({ commands, type: suggestions?.searchSource.type })
+  );
+  const activeDescendantId =
+    suggestionsOpen && activeOptionFromKeyboard
+      ? `${listboxId}-option-${focusedItemIndex}`
+      : undefined;
 
   const [isComposing, setIsComposing] = useState(false);
 
   const changeHandler: ChangeEventHandler<HTMLTextAreaElement> = useCallback(
     (e) => {
+      // Typing re-filters the list and resets the highlight to the first item; stop exposing
+      // the active option to AT until the user navigates again, so the SR does not re-read the
+      // first option on every keystroke.
+      setActiveOptionFromKeyboard(false);
       if (onChange) {
         onChange(e);
         return;
@@ -194,6 +267,7 @@ export const TextareaComposer = ({
         }
         if (event.key === 'ArrowUp') {
           event.preventDefault();
+          setActiveOptionFromKeyboard(true);
           setFocusedItemIndex((prev) => {
             let nextIndex = prev - 1;
             if (nextIndex < 0) {
@@ -204,6 +278,7 @@ export const TextareaComposer = ({
         }
         if (event.key === 'ArrowDown') {
           event.preventDefault();
+          setActiveOptionFromKeyboard(true);
           setFocusedItemIndex((prev) => {
             let nextIndex = prev + 1;
             if (nextIndex >= loadedItems.length) {
@@ -286,6 +361,74 @@ export const TextareaComposer = ({
     textareaRef.current.focus();
   }, [attachments, focus, quotedMessage, textareaRef]);
 
+  // Announce textarea-mode changes (e.g. activating the `/giphy` command) over
+  // the polite live region when the textarea is already focused at the moment
+  // the command activates.
+  //
+  // When focus is elsewhere (e.g. on a command menu item or a suggestion list
+  // item that calls `textareaRef.current.focus()` right after selecting the
+  // command), the subsequent focus shift to the textarea is what causes
+  // assistive tech to re-announce the field with its new accessible name –
+  // announcing here too would duplicate the message.
+  //
+  // We subscribe to the state store synchronously rather than via
+  // `useStateStore` + `useEffect` so that the `document.activeElement` check
+  // runs before any `focus()` call that follows `textComposer.handleSelect`
+  // inside the same event handler (e.g. mouse-click on a suggestion item).
+  //
+  // The announcement itself is deferred to `requestAnimationFrame` so the
+  // textarea DOM node already reflects the command-specific placeholder /
+  // `aria-label` produced by the React render that follows this state change.
+  useEffect(() => {
+    const pendingFrames = new Set<number>();
+    const unsubscribe = textComposer.state.subscribeWithSelector(
+      (state) => ({ commandName: state.command?.name ?? null }),
+      ({ commandName }, previous) => {
+        if (!previous) return;
+        if (!commandName || commandName === previous.commandName) return;
+        if (document.activeElement !== textareaRef.current) return;
+
+        const frame = window.requestAnimationFrame(() => {
+          pendingFrames.delete(frame);
+          const label = textareaRef.current?.placeholder;
+          if (label) announce(label, { priority: 'polite' });
+        });
+        pendingFrames.add(frame);
+      },
+    );
+    return () => {
+      unsubscribe();
+      pendingFrames.forEach(window.cancelAnimationFrame);
+    };
+  }, [announce, textComposer.state, textareaRef]);
+
+  // Announce a one-shot confirmation when a user is picked from the @-mention
+  // autocomplete. Fire only when a *new* user is appended, so unrelated state
+  // changes (text edits, command activation, removing a mention) do not re-trigger.
+  //
+  // Dedupe against a component-instance ref rather than `subscribeWithSelector`'s
+  // per-call `previous`: the listener can be invoked more than once for a single
+  // selection, and `previous` is per-invocation, so two calls both see growth and
+  // announce twice. The shared ref makes the second call observe the already-updated
+  // count and skip — at most one announcement per selection.
+  const lastMentionCountRef = useRef<number | null>(null);
+  useEffect(() => {
+    lastMentionCountRef.current =
+      textComposer.state.getLatestValue().mentionedUsers?.length ?? 0;
+    const unsubscribe = textComposer.state.subscribeWithSelector(
+      (state) => ({ mentionedUsers: state.mentionedUsers }),
+      ({ mentionedUsers }) => {
+        const previousCount = lastMentionCountRef.current ?? mentionedUsers.length;
+        lastMentionCountRef.current = mentionedUsers.length;
+        if (mentionedUsers.length <= previousCount) return;
+        const addedUser = mentionedUsers[mentionedUsers.length - 1];
+        if (!addedUser) return;
+        announceInteraction('user.selected', { user: addedUser.name ?? addedUser.id });
+      },
+    );
+    return unsubscribe;
+  }, [announceInteraction, textComposer.state]);
+
   useLayoutEffect(() => {
     /**
      * It is important to perform set text and after that the range
@@ -323,7 +466,10 @@ export const TextareaComposer = ({
     >
       <Textarea
         {...{ ...additionalTextareaProps, ...restTextareaProps }}
-        aria-label={placeholder}
+        aria-activedescendant={activeDescendantId}
+        aria-autocomplete='list'
+        aria-controls={suggestionsOpen ? listboxId : undefined}
+        aria-label={ariaLabel}
         className={clsx(
           'rta__textarea',
           'str-chat__textarea__textarea str-chat__message-textarea',
@@ -353,6 +499,7 @@ export const TextareaComposer = ({
           className={listClassName}
           closeOnClickOutside={closeSuggestionsOnClickOutside}
           focusedItemIndex={focusedItemIndex}
+          listboxId={listboxId}
           setFocusedItemIndex={setFocusedItemIndex}
         />
       )}

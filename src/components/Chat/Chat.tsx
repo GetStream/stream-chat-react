@@ -8,7 +8,11 @@ import {
   UserSearchSource,
 } from 'stream-chat';
 
-import { NotificationAnnouncer as DefaultNotificationAnnouncer } from '../Accessibility';
+import {
+  AriaLiveAnnouncerProvider,
+  AriaLiveOutlet,
+  NotificationAnnouncer as DefaultNotificationAnnouncer,
+} from '../Accessibility';
 import { useOpenedDialogCount } from '../Dialog';
 import {
   getNotificationTargetPanels,
@@ -166,15 +170,18 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
   return (
     <ChatProvider value={chatContextValue}>
       <TranslationProvider value={translators}>
-        <ModalDialogManagerProvider>
-          <ModalNotificationConfiguration
-            notificationDisplayFilter={notificationDisplayFilter}
-          >
-            <NetworkConnectionNotificationReporter />
-            <NotificationAnnouncer />
-            {children}
-          </ModalNotificationConfiguration>
-        </ModalDialogManagerProvider>
+        <AriaLiveAnnouncerProvider>
+          <ModalDialogManagerProvider>
+            <ModalNotificationConfiguration
+              notificationDisplayFilter={notificationDisplayFilter}
+            >
+              <NetworkConnectionNotificationReporter />
+              <NotificationAnnouncer />
+              {children}
+              <AriaLiveOutlet portal />
+            </ModalNotificationConfiguration>
+          </ModalDialogManagerProvider>
+        </AriaLiveAnnouncerProvider>
       </TranslationProvider>
     </ChatProvider>
   );

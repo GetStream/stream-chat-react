@@ -1476,7 +1476,9 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText('Download Attachment'));
       });
 
+      expect(screen.getAllByRole('menu')).toHaveLength(1);
       expect(screen.getByText('Download All')).toBeInTheDocument();
+      expect(screen.queryByText('Download Download Attachment')).not.toBeInTheDocument();
       expect(
         screen.getByText('Download bloom-and-harbor-cafe-menu-summer-2026.pdf'),
       ).toBeInTheDocument();
@@ -1541,9 +1543,38 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText('Download Attachment'));
       });
 
+      expect(screen.getAllByRole('menu')).toHaveLength(1);
       expect(screen.getByText('Download All')).toBeInTheDocument();
       expect(screen.getByText('Download first.pdf')).toBeInTheDocument();
       expect(screen.getByText('Download second.png')).toBeInTheDocument();
+    });
+
+    it('should fall back to numbered download labels when file name is missing', async () => {
+      const firstAttachment = generateFileAttachment({
+        asset_url: 'https://example.com/attachments/no-name-1.bin',
+      });
+      const secondAttachment = generateFileAttachment({
+        asset_url: 'https://example.com/attachments/no-name-2.bin',
+      });
+      delete firstAttachment.title;
+      delete secondAttachment.title;
+
+      const message = generateMessage({
+        attachments: [firstAttachment, secondAttachment],
+        user: alice,
+      });
+
+      await renderMessageActions({
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Download Attachment'));
+      });
+
+      expect(screen.getByText('Download attachment 1')).toBeInTheDocument();
+      expect(screen.getByText('Download attachment 2')).toBeInTheDocument();
     });
 
     it('should download all non-local attachments from download submenu', async () => {
@@ -1767,6 +1798,7 @@ describe('<MessageActions />', () => {
       await act(async () => {
         await fireEvent.click(remindMeButton);
       });
+      expect(screen.getAllByRole('menu')).toHaveLength(1);
       await act(async () => {
         await fireEvent.click(
           document.querySelector(

@@ -108,7 +108,7 @@ const renderComponent = async ({
       <MessageComposer {...messageInputProps} />
     );
 
-  let result: RenderResult;
+  let result: RenderResult = undefined as unknown as RenderResult;
   await act(() => {
     result = render(
       <ChatViewContext.Provider
@@ -144,7 +144,7 @@ const renderComponent = async ({
       </ChatViewContext.Provider>,
     );
   });
-  return result;
+  return { ...result, channel, client };
 };
 
 describe('AttachmentSelector', () => {
@@ -168,6 +168,21 @@ describe('AttachmentSelector', () => {
     expect(invokeButton).not.toHaveClass('str-chat__rotate45');
     expect(icon).toHaveClass('str-chat__prepare-rotate45');
     expect(icon).toHaveClass('str-chat__rotate45');
+  });
+
+  it('allows configuring trigger button props', async () => {
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector buttonProps={{ tabIndex: -1 }} />
+    );
+
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
   });
 
   it('renders with all the buttons if all the permissions are granted', async () => {
@@ -489,14 +504,25 @@ describe('AttachmentSelector', () => {
     });
 
     const dialog = screen.getByRole('dialog', { name: 'Create poll' });
-    const descriptionId = dialog.getAttribute('aria-describedby');
-    expect(descriptionId).toBeTruthy();
-    expect(document.getElementById(descriptionId ?? '')).toHaveTextContent(
+    const questionInput = screen.getByLabelText('Question');
+    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
       'Create a question, add options, and configure poll settings',
     );
-    expect(screen.getByPlaceholderText(/Ask a question/i)).toHaveAttribute(
+    // Initial focus lands on the dialog surface (so the SR announces the dialog identity before a
+    // field's focus could supersede it).
+    await waitFor(() => {
+      expect(dialog).toHaveFocus();
+    });
+    // Enter on the surface steps into the dialog's default field (data-autofocus).
+    fireEvent.keyDown(dialog, { key: 'Enter' });
+    expect(questionInput).toHaveFocus();
+    expect(questionInput).not.toHaveAttribute(
       'aria-describedby',
-      expect.stringContaining(descriptionId ?? ''),
+      expect.stringContaining('modal-dialog-description'),
+    );
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveAttribute(
+      'aria-describedby',
     );
 
     const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
@@ -509,7 +535,73 @@ describe('AttachmentSelector', () => {
     });
   });
 
-  it('opens share location dialog with description wired to initial close control', async () => {
+  it('on successful poll send, returns focus to the composer — not the attachment trigger', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { ...defaultChannelData, config: defaultConfig } }],
+    });
+    vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
+    vi.spyOn(client, 'createPoll').mockResolvedValue(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+
+    await renderComponent({ customChannel: channel, customClient: client });
+    const invokeButton = screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID);
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    fireEvent.click(menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`));
+    await waitFor(() =>
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument(),
+    );
+
+    // Fill the form so Send is enabled.
+    await act(async () => {
+      await fireEvent.change(screen.getByLabelText('Question'), {
+        target: { value: 'Q' },
+      });
+    });
+    await act(async () => {
+      await fireEvent.change(screen.getByPlaceholderText('Add an option'), {
+        target: { value: 'Opt' },
+      });
+    });
+    const sendButton = screen.getByRole('button', { name: /send poll/i });
+    await waitFor(() => expect(sendButton).toBeEnabled());
+
+    await act(async () => {
+      await fireEvent.click(sendButton);
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).not.toBeInTheDocument(),
+    );
+    // The fix: focus lands on the composer textarea, and neither focus-restorer (react-aria's
+    // FocusScope nor AttachmentSelector's own trigger restore) blips focus back to the "+" trigger.
+    await waitFor(() => {
+      expect(document.activeElement?.tagName).toBe('TEXTAREA');
+    });
+    expect(invokeButton).not.toHaveFocus();
+  });
+
+  it('resets pollComposer state when the Poll dialog is opened', async () => {
+    const { channel } = await renderComponent();
+    const initStateSpy = vi
+      .spyOn(channel.messageComposer.pollComposer, 'initState')
+      .mockImplementation(() => {});
+    await invokeMenu();
+    const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
+    const createPollButton = menu.querySelector(`.${CREATE_POLL_BUTTON_CLASS}`);
+    expect(initStateSpy).not.toHaveBeenCalled();
+    fireEvent.click(createPollButton);
+    await waitFor(() => {
+      expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument();
+    });
+    expect(initStateSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens share location dialog and focuses the dialog surface for announcement', async () => {
     (navigator as any).geolocation = {
       clearWatch: vi.fn(),
       getCurrentPosition: vi.fn(),
@@ -530,15 +622,16 @@ describe('AttachmentSelector', () => {
     });
 
     const dialog = screen.getByRole('dialog', { name: /share location/i });
-    const descriptionId = dialog.getAttribute('aria-describedby');
-    expect(descriptionId).toBeTruthy();
-    expect(document.getElementById(descriptionId ?? '')).toHaveTextContent(
+    expect(dialog).toHaveAttribute('aria-describedby', 'modal-dialog-description');
+    expect(document.getElementById('modal-dialog-description')).toHaveTextContent(
       'Select your current location and optionally enable live location sharing',
     );
-    const closePromptButton = document.querySelector(
-      '.str-chat__prompt__header__close-button',
-    ) as HTMLButtonElement | null;
-    expect(closePromptButton).toHaveAttribute('aria-describedby', descriptionId);
+    await waitFor(() => {
+      expect(dialog).toHaveFocus();
+    });
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveAttribute(
+      'aria-describedby',
+    );
 
     const invokeButtonFocusSpy = vi.spyOn(invokeButton, 'focus');
     fireEvent.keyDown(dialog, { key: 'Escape' });
@@ -694,6 +787,22 @@ describe('SimpleAttachmentSelector', () => {
     expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
 
+  it('allows configuring trigger button props', async () => {
+    const CustomAttachmentSelector = () => (
+      <AttachmentSelector buttonProps={{ tabIndex: -1 }} />
+    );
+
+    await renderComponent({
+      componentContext: { AttachmentSelector: CustomAttachmentSelector },
+      message,
+    });
+
+    expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
+  });
+
   it('does not render if missing "upload-file" capability', async () => {
     await renderComponent({
       channelStateContext: { channelCapabilities: { 'send-poll': true } },
@@ -776,5 +885,83 @@ describe('SimpleAttachmentSelector', () => {
       screen.getByTestId('customAttachmentSelectorInitiationButtonContents'),
     ).toBeInTheDocument();
     expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
+  });
+
+  describe('command-active inert behavior', () => {
+    const giphyCommand = fromPartial<CommandResponse>({
+      args: 'giphy-command-args',
+      description: 'giphy-command-description',
+      name: 'giphy',
+    });
+
+    const EmojiPicker = () => <button data-testid='emoji-picker-button'>emoji</button>;
+
+    const getAttachmentSelectorRoot = () =>
+      document.querySelector('.str-chat__attachment-selector');
+    const getAdditionalActions = () =>
+      document.querySelector('.str-chat__message-composer__additional-actions');
+
+    it('does not apply inert/aria-hidden/tabindex while no command is active', async () => {
+      await renderComponent({ componentContext: { EmojiPicker } });
+
+      const selector = getAttachmentSelectorRoot();
+      const additionalActions = getAdditionalActions();
+
+      [selector, additionalActions].forEach((el) => {
+        expect(el).not.toHaveAttribute('inert');
+        expect(el).not.toHaveAttribute('aria-hidden');
+        expect(el).not.toHaveAttribute('tabindex');
+        // never display:none — the CSS transition handles visual hiding.
+        expect(el).not.toHaveAttribute('hidden');
+      });
+    });
+
+    it('removes both controls from the a11y tree and tab order when a command activates', async () => {
+      const { channel } = await renderComponent({ componentContext: { EmojiPicker } });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        const selector = getAttachmentSelectorRoot();
+        const additionalActions = getAdditionalActions();
+
+        [selector, additionalActions].forEach((el) => {
+          expect(el).toHaveAttribute('aria-hidden', 'true');
+          expect(el).toHaveAttribute('tabindex', '-1');
+          expect(el).toHaveAttribute('inert');
+          // visual hiding is CSS-only; the `hidden` attribute must NOT be set.
+          expect(el).not.toHaveAttribute('hidden');
+        });
+      });
+    });
+
+    it('restores both controls when the command is cleared', async () => {
+      const { channel } = await renderComponent({ componentContext: { EmojiPicker } });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        expect(getAttachmentSelectorRoot()).toHaveAttribute('inert');
+      });
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(undefined);
+      });
+
+      await waitFor(() => {
+        const selector = getAttachmentSelectorRoot();
+        const additionalActions = getAdditionalActions();
+
+        [selector, additionalActions].forEach((el) => {
+          expect(el).not.toHaveAttribute('inert');
+          expect(el).not.toHaveAttribute('aria-hidden');
+          expect(el).not.toHaveAttribute('tabindex');
+        });
+      });
+    });
   });
 });

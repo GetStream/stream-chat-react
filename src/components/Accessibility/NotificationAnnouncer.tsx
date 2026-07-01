@@ -1,17 +1,11 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { Notification } from 'stream-chat';
 
+import { useAnnouncementQueue } from './scheduling';
+import { useAriaLiveAnnouncer } from './useAriaLiveAnnouncer';
+import type { AriaLivePriority } from './useAriaLiveAnnouncer';
 import { useNotifications } from '../Notifications';
-import { VisuallyHidden } from '../VisuallyHidden';
 import { useTranslationContext } from '../../context';
-
-type LivePriority = 'assertive' | 'polite';
-
-type QueuedAnnouncement = {
-  id: string;
-  message: string;
-  priority: LivePriority;
-};
 
 export type NotificationAnnouncementBuilderParams = {
   defaultMessage: string;
@@ -24,10 +18,7 @@ export type NotificationAnnouncementBuilder = (
 ) => string;
 export type NotificationAnnouncementFilter = (notification: Notification) => boolean;
 
-const ANNOUNCEMENT_CLEAR_DELAY_MS = 50;
-const ANNOUNCEMENT_QUEUE_GAP_MS = 120;
-
-const getAnnouncementPriority = (notification: Notification): LivePriority =>
+const getAnnouncementPriority = (notification: Notification): AriaLivePriority =>
   notification.severity === 'error' ? 'assertive' : 'polite';
 
 const getSeverityLabel = (notification: Notification) => {
@@ -55,39 +46,24 @@ const defaultBuildNotificationAnnouncement: NotificationAnnouncementBuilder = ({
 }) => defaultMessage;
 const defaultNotificationFilter: NotificationAnnouncementFilter = () => true;
 
+/**
+ * Announces app notifications to assistive technology. As of the announcer unification (F4)
+ * this renders no live region of its own — it routes new notifications through the shared
+ * `useAriaLiveAnnouncer` sink (so they land in the active `AriaLiveOutlet`, including inside an
+ * open modal) and paces them with {@link useAnnouncementQueue}. Must render inside an
+ * `AriaLiveAnnouncerProvider` (it does, via `Chat`).
+ */
 export const NotificationAnnouncer = ({
   buildNotificationAnnouncement = defaultBuildNotificationAnnouncement,
   notificationFilter = defaultNotificationFilter,
 }: NotificationAnnouncerProps) => {
   const { t } = useTranslationContext();
   const notifications = useNotifications();
-  const [announcementQueue, setAnnouncementQueue] = useState<QueuedAnnouncement[]>([]);
-  const [isAnnouncing, setIsAnnouncing] = useState(false);
-  const [politeAnnouncement, setPoliteAnnouncement] = useState('');
-  const [assertiveAnnouncement, setAssertiveAnnouncement] = useState('');
+  const announce = useAriaLiveAnnouncer();
+  const { enqueue } = useAnnouncementQueue(announce);
+
   const initializedRef = useRef(false);
   const seenNotificationIdsRef = useRef(new Set<string>());
-  const announceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const dequeueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearTimeouts = useCallback(() => {
-    if (announceTimeoutRef.current) {
-      clearTimeout(announceTimeoutRef.current);
-      announceTimeoutRef.current = null;
-    }
-
-    if (dequeueTimeoutRef.current) {
-      clearTimeout(dequeueTimeoutRef.current);
-      dequeueTimeoutRef.current = null;
-    }
-  }, []);
-
-  useEffect(
-    () => () => {
-      clearTimeouts();
-    },
-    [clearTimeouts],
-  );
 
   useEffect(() => {
     const visibleNotificationIds = new Set(notifications.map(({ id }) => id));
@@ -98,15 +74,12 @@ export const NotificationAnnouncer = ({
       }
     });
 
+    // Do not announce notifications already present on first render.
     if (!initializedRef.current) {
-      notifications.forEach(({ id }) => {
-        seenNotificationIdsRef.current.add(id);
-      });
+      notifications.forEach(({ id }) => seenNotificationIdsRef.current.add(id));
       initializedRef.current = true;
       return;
     }
-
-    const nextAnnouncements: QueuedAnnouncement[] = [];
 
     notifications.forEach((notification) => {
       if (seenNotificationIdsRef.current.has(notification.id)) return;
@@ -130,56 +103,12 @@ export const NotificationAnnouncer = ({
 
       if (!announcementMessage) return;
 
-      nextAnnouncements.push({
-        id: notification.id,
+      enqueue({
         message: announcementMessage,
         priority: getAnnouncementPriority(notification),
       });
     });
+  }, [buildNotificationAnnouncement, enqueue, notificationFilter, notifications, t]);
 
-    if (!nextAnnouncements.length) return;
-
-    setAnnouncementQueue((currentQueue) => [...currentQueue, ...nextAnnouncements]);
-  }, [buildNotificationAnnouncement, notificationFilter, notifications, t]);
-
-  useEffect(() => {
-    if (isAnnouncing) return;
-
-    const nextAnnouncement = announcementQueue[0];
-    if (!nextAnnouncement) return;
-
-    setIsAnnouncing(true);
-    clearTimeouts();
-    setPoliteAnnouncement('');
-    setAssertiveAnnouncement('');
-
-    announceTimeoutRef.current = setTimeout(() => {
-      if (nextAnnouncement.priority === 'assertive') {
-        setAssertiveAnnouncement(nextAnnouncement.message);
-      } else {
-        setPoliteAnnouncement(nextAnnouncement.message);
-      }
-
-      dequeueTimeoutRef.current = setTimeout(() => {
-        setAnnouncementQueue((currentQueue) =>
-          currentQueue.filter(({ id }) => id !== nextAnnouncement.id),
-        );
-        setIsAnnouncing(false);
-        dequeueTimeoutRef.current = null;
-      }, ANNOUNCEMENT_QUEUE_GAP_MS);
-
-      announceTimeoutRef.current = null;
-    }, ANNOUNCEMENT_CLEAR_DELAY_MS);
-  }, [announcementQueue, clearTimeouts, isAnnouncing]);
-
-  return (
-    <VisuallyHidden data-testid='notification-announcer'>
-      <div aria-atomic='true' aria-live='polite' role='status'>
-        {politeAnnouncement}
-      </div>
-      <div aria-atomic='true' aria-live='assertive' role='alert'>
-        {assertiveAnnouncement}
-      </div>
-    </VisuallyHidden>
-  );
+  return null;
 };

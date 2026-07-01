@@ -23,6 +23,13 @@ export type SearchProps = {
   disabled?: boolean;
   /** Clear the search state/results on every click outside the search input, defaults to `false` */
   exitSearchOnInputBlur?: boolean;
+  /**
+   * Extra props spread onto the search `<input>` element — e.g. to opt the field out of password
+   * managers (`data-1p-ignore`, `data-lpignore`, `autoComplete: 'off'`) or add `name`/`aria-*`
+   * attributes. The component's own controlled props (`value`, `onChange`, `onBlur`, `type`, `id`,
+   * `disabled`, `ref`) take precedence and cannot be overridden; `className` is merged.
+   */
+  inputProps?: React.ComponentPropsWithoutRef<'input'>;
   /** Custom placeholder text to be displayed in the search input */
   placeholder?: string;
 };
@@ -31,6 +38,7 @@ export const Search = ({
   directMessagingChannelType = 'messaging',
   disabled,
   exitSearchOnInputBlur = false,
+  inputProps,
   placeholder,
 }: SearchProps) => {
   const { SearchBar = DefaultSearchBar, SearchResults = DefaultSearchResults } =
@@ -53,6 +61,7 @@ export const Search = ({
         disabled,
         exitSearchOnInputBlur,
         filterButtonsContainerRef,
+        inputProps,
         placeholder,
         searchController,
       }}
