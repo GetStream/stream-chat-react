@@ -34,6 +34,8 @@ export type InteractionDeliveryOptions = { debounceMs?: number; delayMs?: number
 export type InteractionAnnouncementParams = {
   /** A channel was opened from the channel list. `name` is its display title. */
   'channel.opened': InteractionDeliveryOptions & { name: string };
+  /** A slash command was activated from the Instant Commands menu. `command` is its name. */
+  'command.selected': InteractionDeliveryOptions & { command: string };
   'giphy.canceled': undefined;
   'giphy.sent': undefined;
   'giphy.shuffled': InteractionDeliveryOptions & { title?: string };
@@ -78,6 +80,13 @@ const INTERACTION_MESSAGES: {
   // debounce) so it still fires when selecting the channel unmounts the list (mobile).
   'channel.opened': (t, params) =>
     t('aria/Opened channel: {{ name }}', { name: params.name }),
+  // Confirms which slash command was activated after picking it from the Instant Commands menu.
+  // Delayed (INTERACTION_DELAY_MS) for the same reason as the "opened" confirmations: selecting a
+  // command closes the menu and focuses the composer textarea (whose name changes, e.g. to
+  // "Search GIFs"), so the screen reader reads that focus first — this lands after it. A provider
+  // delay (not a debounce) because the menu that fired it unmounts on selection.
+  'command.selected': (t, params) =>
+    t('aria/Command activated: {{ command }}', { command: params.command }),
   'giphy.canceled': (t) => t('aria/Giphy canceled'),
   'giphy.sent': (t) => t('aria/Giphy sent'),
   // Giphy payloads rarely carry a human title, so include it only when present; otherwise a
@@ -182,6 +191,7 @@ const INTERACTION_DEBOUNCE_MS: Partial<Record<InteractionAnnouncementType, numbe
  */
 const INTERACTION_DELAY_MS: Partial<Record<InteractionAnnouncementType, number>> = {
   'channel.opened': 1500,
+  'command.selected': 1500,
   'thread.opened': 1500,
 };
 

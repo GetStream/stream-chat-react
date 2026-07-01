@@ -90,7 +90,7 @@ describe('useInteractionAnnouncements', () => {
     });
   });
 
-  describe('channel.opened / thread.opened (provider-delayed past the focus announcement)', () => {
+  describe('channel.opened / thread.opened / command.selected (provider-delayed past the focus announcement)', () => {
     it('announces the opened channel politely, via a provider delay (survives caller unmount)', () => {
       const { result } = renderHook(() => useInteractionAnnouncements());
 
@@ -111,6 +111,17 @@ describe('useInteractionAnnouncements', () => {
       result.current.announceInteraction('thread.opened', { name: 'General' });
 
       expect(announceMock).toHaveBeenCalledWith('Opened thread in General', {
+        delayMs: 1500,
+        priority: 'polite',
+      });
+    });
+
+    it('announces the activated command by name, via the same provider delay', () => {
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('command.selected', { command: 'giphy' });
+
+      expect(announceMock).toHaveBeenCalledWith('Command activated: giphy', {
         delayMs: 1500,
         priority: 'polite',
       });

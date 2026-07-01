@@ -17,6 +17,7 @@ import {
   IconUserAdd,
   IconUserRemove,
 } from '../../Icons';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
 
 const icons: Record<string, ComponentType> = {
@@ -35,7 +36,10 @@ export const CommandsSubmenuHeader = () => {
   const { returnToParentMenu } = useContextMenuContext();
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
-      <ContextMenuBackButton onClick={returnToParentMenu}>
+      <ContextMenuBackButton
+        aria-label={t('aria/Back to attachments')}
+        onClick={returnToParentMenu}
+      >
         <IconChevronLeft />
         <span>{t('Instant commands')}</span>
       </ContextMenuBackButton>
@@ -54,6 +58,7 @@ export const CommandsMenuHeader = () => {
 
 export const CommandsMenu = () => {
   const { closeMenu } = useContextMenuContext();
+  const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
   const commands = useMessageComposerCommands();
@@ -78,6 +83,7 @@ export const CommandsMenu = () => {
             closeMenu();
             // Defer the focus to the next frame so it wins over FocusScope's restore-to-attachment-selector-button behavior.
             requestAnimationFrame(() => textareaRef.current?.focus());
+            announceInteraction('command.selected', { command: command.name });
           }}
         />
       ))}
