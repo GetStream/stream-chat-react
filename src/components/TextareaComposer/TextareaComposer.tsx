@@ -31,6 +31,7 @@ import { useStableId } from '../UtilityComponents/useStableId';
 import {
   SuggestionList as DefaultSuggestionList,
   hasEnabledCommandSuggestions,
+  orderSuggestionItems,
 } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
@@ -257,7 +258,13 @@ const TextareaComposerWithLiveAnnouncements = ({
         textComposer.suggestions.searchSource.items?.length
       ) {
         if (event.key === 'Escape') return textComposer.closeSuggestions();
-        const loadedItems = textComposer.suggestions.searchSource.items;
+        // Use the SAME ordering the list renders (commands are sorted), so `focusedItemIndex` —
+        // which is set against the rendered/sorted list and drives `aria-activedescendant` — selects
+        // the option the screen reader announced, not a differently-ordered raw item.
+        const loadedItems = orderSuggestionItems(
+          textComposer.suggestions.searchSource.items,
+          textComposer.suggestions.searchSource.type,
+        );
         if (event.key === 'Enter') {
           event.preventDefault();
           const selectedItem = loadedItems[focusedItemIndex];

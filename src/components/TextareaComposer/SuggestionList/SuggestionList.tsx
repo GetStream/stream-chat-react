@@ -19,6 +19,7 @@ import { useInteractionAnnouncements } from '../../Accessibility';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { useStateStore } from '../../../store';
+import { orderSuggestionItems } from './utils';
 import { useStableId } from '../../UtilityComponents/useStableId';
 import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
 import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
@@ -159,14 +160,7 @@ export const SuggestionList = ({
 
   const contextMenuItems = useMemo<ContextMenuItemComponent[]>(() => {
     if (!component) return [];
-    const sortedItems =
-      suggestions?.searchSource.type === 'commands'
-        ? [...(items ?? [])].sort((a, b) =>
-            String((a as { name?: string }).name ?? '').localeCompare(
-              String((b as { name?: string }).name ?? ''),
-            ),
-          )
-        : (items ?? []);
+    const sortedItems = orderSuggestionItems(items, suggestions?.searchSource.type);
     return sortedItems.map((item, i) => {
       const Item: ContextMenuItemComponent = ({ ...props }: ContextMenuItemProps) => (
         <AutocompleteSuggestionItem
