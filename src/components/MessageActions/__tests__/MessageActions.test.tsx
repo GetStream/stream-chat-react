@@ -12,6 +12,7 @@ import {
   ComponentProvider,
   DialogManagerProvider,
   MessageProvider,
+  type TranslationContextValue,
   TranslationProvider,
 } from '../../../context';
 
@@ -77,6 +78,15 @@ const defaultMessageContextValue = {
   message: generateMessage(),
 };
 
+// Like the default mock `t` (strips the `aria/` namespace) but also interpolates `{{ param }}`
+// placeholders, so translated download labels ("Download attachment 1") render as real text.
+const interpolatingT = ((key: string, params: Record<string, unknown> = {}) =>
+  Object.entries(params).reduce(
+    (value, [name, arg]) =>
+      value.replace(new RegExp(`{{\\s*${name}\\s*}}`, 'g'), String(arg)),
+    key.split('/').pop() ?? key,
+  )) as TranslationContextValue['t'];
+
 const toggleOpenMessageActions = async (index = 0) => {
   await act(async () => {
     const buttons = screen.getAllByTestId(TOGGLE_ACTIONS_BUTTON_TEST_ID);
@@ -117,7 +127,9 @@ async function renderMessageActions({
                 updateMessage: vi.fn(),
               })}
             >
-              <TranslationProvider value={mockTranslationContextValue()}>
+              <TranslationProvider
+                value={mockTranslationContextValue({ t: interpolatingT })}
+              >
                 <ComponentProvider value={mockComponentContext()}>
                   <MessageProvider
                     value={mockMessageContext({
@@ -484,7 +496,9 @@ describe('<MessageActions />', () => {
                     updateMessage: vi.fn(),
                   })}
                 >
-                  <TranslationProvider value={mockTranslationContextValue()}>
+                  <TranslationProvider
+                    value={mockTranslationContextValue({ t: interpolatingT })}
+                  >
                     <ComponentProvider value={mockComponentContext()}>
                       <MessageProvider
                         value={mockMessageContext({
@@ -1886,7 +1900,9 @@ describe('<MessageActions />', () => {
                     updateMessage: vi.fn(),
                   })}
                 >
-                  <TranslationProvider value={mockTranslationContextValue()}>
+                  <TranslationProvider
+                    value={mockTranslationContextValue({ t: interpolatingT })}
+                  >
                     <ComponentProvider value={mockComponentContext()}>
                       <MessageProvider
                         value={mockMessageContext({

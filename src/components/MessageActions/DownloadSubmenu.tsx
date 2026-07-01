@@ -43,8 +43,8 @@ export const DownloadSubmenu = () => {
       {downloadableAttachments.map((attachment, index) => {
         const fileName = attachment.localMetadata?.file?.name ?? attachment.title;
         const label = fileName
-          ? `Download ${fileName}`
-          : `Download attachment ${index + 1}`;
+          ? t('Download {{ fileName }}', { fileName })
+          : t('Download attachment {{ number }}', { number: index + 1 });
 
         return (
           <ContextMenuButton
