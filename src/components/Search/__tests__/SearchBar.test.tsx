@@ -105,6 +105,47 @@ describe('SearchBar', () => {
     expect(mockSearchController.search).toHaveBeenCalledWith('test');
   });
 
+  it('spreads inputProps onto the input (merging className) without overriding controlled props', () => {
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        inputProps: {
+          autoComplete: 'off',
+          className: 'custom-input',
+          'data-1p-ignore': true,
+          // A controlled prop the SDK owns — must NOT win over the component's own value.
+          type: 'password',
+        },
+      }),
+    );
+
+    render(<SearchBar />);
+
+    const input = screen.getByTestId('search-input');
+    // Integrator-supplied, non-conflicting props land on the element.
+    expect(input).toHaveAttribute('data-1p-ignore', 'true');
+    expect(input).toHaveAttribute('autocomplete', 'off');
+    // className is merged, not replaced.
+    expect(input).toHaveClass('str-chat__search-bar__input');
+    expect(input).toHaveClass('custom-input');
+    // The SDK's controlled prop wins.
+    expect(input).toHaveAttribute('type', 'text');
+  });
+
+  it('still handles input changes when inputProps are provided', () => {
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        inputProps: { 'data-1p-ignore': true },
+      }),
+    );
+
+    render(<SearchBar />);
+    fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'hi' } });
+
+    expect(mockSearchController.search).toHaveBeenCalledWith('hi');
+  });
+
   it('does not activate search merely on focus (WCAG 3.2.1)', () => {
     render(<SearchBar />);
 

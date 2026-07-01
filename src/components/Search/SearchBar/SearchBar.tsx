@@ -19,8 +19,14 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 export const SearchBar = () => {
   const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
-  const { containerRef, disabled, exitSearchOnInputBlur, placeholder, searchController } =
-    useSearchContext();
+  const {
+    containerRef,
+    disabled,
+    exitSearchOnInputBlur,
+    inputProps,
+    placeholder,
+    searchController,
+  } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
   const searchInputId = useStableId();
 
@@ -59,7 +65,8 @@ export const SearchBar = () => {
         </label>
         <IconSearch />
         <input
-          className='str-chat__search-bar__input'
+          {...inputProps}
+          className={clsx('str-chat__search-bar__input', inputProps?.className)}
           data-testid='search-input'
           disabled={disabled}
           id={searchInputId}
