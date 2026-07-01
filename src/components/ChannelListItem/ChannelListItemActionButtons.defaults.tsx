@@ -3,6 +3,7 @@ import {
   type ComponentPropsWithRef,
   forwardRef,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -134,6 +135,11 @@ const useQuickActionButtonProps = ({
   title,
   toggle,
 }: ChannelActionBehavior) => {
+  // Ref latch flips synchronously in the handler so two clicks in the same tick (before the
+  // `setInProgress(true)` rerender commits) can't both call `toggle()` — the `aria-busy`/
+  // `aria-disabled` state only guards after the rerender, which is too late for non-idempotent
+  // actions (archive/leave/mute).
+  const inProgressRef = useRef(false);
   const [inProgress, setInProgress] = useState(false);
 
   return {
@@ -142,11 +148,13 @@ const useQuickActionButtonProps = ({
     'aria-pressed': ariaPressed,
     onClick: async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
-      if (inProgress) return; // busy (aria-disabled): ignore re-activation while in flight
+      if (inProgressRef.current) return; // busy: ignore re-activation while in flight
+      inProgressRef.current = true;
       try {
         setInProgress(true);
         await toggle();
       } finally {
+        inProgressRef.current = false;
         setInProgress(false);
       }
     },

@@ -298,6 +298,34 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
       await waitFor(() => expect(muteButton).not.toHaveAttribute('aria-busy'));
     });
+
+    it('collapses two same-tick activations into a single request', async () => {
+      const { channel, client } = await setupTwoMemberGroupChannel();
+      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      const muteSpy = vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
+
+      act(() => {
+        render(
+          <Chat client={client}>
+            <ChannelListItem channel={channel} />
+          </Chat>,
+        );
+      });
+
+      const muteButton = screen.getByTestId('quick-action-mute');
+      // Two clicks in the SAME tick, before the busy state commits — the ref latch must still
+      // collapse them into one toggle (the aria-disabled state guard commits too late).
+      act(() => {
+        fireEvent.click(muteButton);
+        fireEvent.click(muteButton);
+      });
+      expect(muteSpy).toHaveBeenCalledTimes(1);
+
+      act(() => {
+        p.resolve(fromPartial({}));
+      });
+      await waitFor(() => expect(muteButton).not.toHaveAttribute('aria-busy'));
+    });
   });
 
   // ---------- Block / Unblock ----------
