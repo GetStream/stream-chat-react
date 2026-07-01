@@ -20,7 +20,9 @@ export const CommandModeAttachmentSelector = (props: AttachmentSelectorProps) =>
       {...props}
       // In command mode, keyboard flow should stay in command controls + textarea.
       // Removing the attachment trigger from tab order avoids an irrelevant stop.
-      buttonProps={{ tabIndex: command ? -1 : undefined }}
+      // Spread any incoming buttonProps first so ARIA/data props aren't dropped when this override
+      // is wired globally via WithComponents.
+      buttonProps={{ ...props.buttonProps, tabIndex: command ? -1 : undefined }}
     />
   );
 };
