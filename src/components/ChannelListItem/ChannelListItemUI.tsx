@@ -7,6 +7,7 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { IconMute, IconPin } from '../Icons';
+import { useInteractionAnnouncements } from '../Accessibility';
 import {
   useChatContext,
   useComponentContext,
@@ -41,6 +42,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   } = useComponentContext();
   const { client, isMessageAIGenerated } = useChatContext('ChannelListItemUI');
   const { t, tDateTimeParser, userLanguage } = useTranslationContext('ChannelListItemUI');
+  const { announceInteraction } = useInteractionAnnouncements();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -94,6 +96,12 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
       customOnSelectChannel(e);
     } else if (setActiveChannel) {
       setActiveChannel(channel, watchers);
+      // Confirm the opened channel to assistive tech. Only when actually switching (not re-selecting
+      // the open one) and only via the default selection path — a custom `onSelect` owns its own
+      // feedback. Debounced in the registry so it lands after the composer's focus announcement.
+      if (!active && displayTitle) {
+        announceInteraction('channel.opened', { name: displayTitle });
+      }
     }
     if (channelPreviewButton?.current) {
       channelPreviewButton.current.blur();

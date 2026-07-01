@@ -12,9 +12,19 @@ type TranslateFn = ReturnType<typeof useTranslationContext>['t'];
  * These are not consumed by the message resolver — they only affect how the announcement is
  * delivered. `debounceMs` overrides that interaction's default debounce ({@link
  * INTERACTION_DEBOUNCE_MS}) for THIS call, and enables debouncing for an interaction that has no
- * default. Param-less (discrete) interactions are always immediate and do not accept overrides.
+ * default. `delayMs` overrides the default delay ({@link INTERACTION_DELAY_MS}) for the
+ * (non-debounced) immediate path. Param-less (discrete) interactions are always immediate and do
+ * not accept overrides.
+ *
+ * `debounceMs` vs `delayMs`: a debounce collapses rapid repeats on a per-call-site timer and is
+ * **cancelled if that call site unmounts** — right for a value that keeps changing in place (a
+ * result count). `delayMs` schedules a single deferred emit in the shared announcer PROVIDER, so it
+ * **survives the caller unmounting** — right for a one-shot confirmation whose origin (e.g. a list
+ * row) disappears on the very action being confirmed (opening a channel/thread hides the list on
+ * mobile). Both let the message land after a competing focus/typing read-out. `debounceMs` wins if
+ * both are given.
  */
-export type InteractionDeliveryOptions = { debounceMs?: number };
+export type InteractionDeliveryOptions = { debounceMs?: number; delayMs?: number };
 
 /**
  * Parameters accepted by each parameterized interaction announcement.
@@ -22,6 +32,8 @@ export type InteractionDeliveryOptions = { debounceMs?: number };
  * accept {@link InteractionDeliveryOptions} (e.g. a per-call `debounceMs`).
  */
 export type InteractionAnnouncementParams = {
+  /** A channel was opened from the channel list. `name` is its display title. */
+  'channel.opened': InteractionDeliveryOptions & { name: string };
   'giphy.canceled': undefined;
   'giphy.sent': undefined;
   'giphy.shuffled': InteractionDeliveryOptions & { title?: string };
@@ -37,6 +49,8 @@ export type InteractionAnnouncementParams = {
     count: number;
     suggestionsLabel?: string;
   };
+  /** A thread was opened from the thread list. `name` is its channel's display title. */
+  'thread.opened': InteractionDeliveryOptions & { name: string };
   'user.selected': InteractionDeliveryOptions & { user: string };
 };
 
@@ -57,6 +71,13 @@ const INTERACTION_MESSAGES: {
     params: InteractionAnnouncementParams[T],
   ) => string;
 } = {
+  // Confirms which channel was opened after selecting it from the list. Delayed (see
+  // INTERACTION_DELAY_MS) so it lands AFTER the screen reader's announcement of the newly-focused
+  // element (the message composer auto-focuses on channel change) rather than competing with — and
+  // being superseded by — that native focus read-out. A provider-managed delay (not a per-row
+  // debounce) so it still fires when selecting the channel unmounts the list (mobile).
+  'channel.opened': (t, params) =>
+    t('aria/Opened channel: {{ name }}', { name: params.name }),
   'giphy.canceled': (t) => t('aria/Giphy canceled'),
   'giphy.sent': (t) => t('aria/Giphy sent'),
   // Giphy payloads rarely carry a human title, so include it only when present; otherwise a
@@ -93,6 +114,11 @@ const INTERACTION_MESSAGES: {
           suggestionsLabel: params.suggestionsLabel,
         })
       : t('aria/{{ count }} suggestions', { count: params.count }),
+  // Confirms which thread was opened after selecting it from the list; `name` is the thread's
+  // channel display title. Delayed for the same reason as `channel.opened` (the thread composer
+  // auto-focuses on open, and its focus announcement would otherwise supersede this one).
+  'thread.opened': (t, params) =>
+    t('aria/Opened thread in {{ name }}', { name: params.name }),
   'user.selected': (t, params) =>
     t('aria/User selected: {{ user }}', { user: params.user }),
 };
@@ -140,6 +166,23 @@ const INTERACTION_DEBOUNCE_MS: Partial<Record<InteractionAnnouncementType, numbe
   // message (see `search.resultCount` resolver), so there is no second announcement to compete.
   'search.resultCount': 1000,
   'suggestions.count': 500,
+};
+
+/**
+ * Default per-interaction delay (ms) for the immediate (non-debounced) path — a single deferred
+ * emit scheduled in the announcer PROVIDER (see {@link AriaLiveAnnounceOptions.delayMs}), so it
+ * SURVIVES the calling component unmounting (unlike a debounce, whose timer is cleared on unmount).
+ *
+ * Opening a channel/thread moves focus to the (auto-focusing) message composer; the screen reader
+ * announces that newly-focused element first, and a live-region message emitted alongside it is
+ * superseded and dropped. The delay defers the confirmation past that focus read-out so it is spoken
+ * next, in a calm moment. It is a provider delay rather than a debounce specifically because
+ * selecting the item can unmount its list row (and the whole list, on mobile) — a per-row debounce
+ * would be cancelled mid-flight, swallowing the confirmation.
+ */
+const INTERACTION_DELAY_MS: Partial<Record<InteractionAnnouncementType, number>> = {
+  'channel.opened': 1500,
+  'thread.opened': 1500,
 };
 
 // Overloads enforce that parameterized interactions require their params and that
@@ -209,7 +252,17 @@ export const useInteractionAnnouncements = (): UseInteractionAnnouncementsValue 
           (params as InteractionDeliveryOptions | undefined)?.debounceMs ??
           INTERACTION_DEBOUNCE_MS[interaction];
         if (debounceMs === undefined) {
-          announce(message, { dedupeMs: INTERACTION_DEDUPE_MS[interaction], priority });
+          // Immediate path. `delayMs` (if any) is a provider-managed deferral that survives this
+          // call site unmounting — used by the "opened" confirmations, whose list row disappears on
+          // selection. `debounceMs` takes precedence over `delayMs` when both are set.
+          const delayMs =
+            (params as InteractionDeliveryOptions | undefined)?.delayMs ??
+            INTERACTION_DELAY_MS[interaction];
+          announce(message, {
+            dedupeMs: INTERACTION_DEDUPE_MS[interaction],
+            delayMs,
+            priority,
+          });
           return;
         }
 

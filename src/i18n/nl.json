@@ -141,6 +141,8 @@
   "aria/Open threads view": "Threadweergave openen",
   "aria/Open threads view with unread threads_one": "Threadweergave openen, {{ count }} ongelezen thread",
   "aria/Open threads view with unread threads_other": "Threadweergave openen, {{ count }} ongelezen threads",
+  "aria/Opened channel: {{ name }}": "Kanaal geopend: {{ name }}",
+  "aria/Opened thread in {{ name }}": "Thread geopend in {{ name }}",
   "aria/Option {{ position }}": "Optie {{ position }}",
   "aria/Options can now be reordered and removed.": "Opties kunnen nu worden herschikt en verwijderd.",
   "aria/Pause": "Pauzeren",

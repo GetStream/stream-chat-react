@@ -155,6 +155,8 @@
   "aria/Open threads view with unread threads_one": "Ouvrir la vue des fils, {{ count }} fil non lu",
   "aria/Open threads view with unread threads_many": "Ouvrir la vue des fils, {{ count }} fils non lus",
   "aria/Open threads view with unread threads_other": "Ouvrir la vue des fils, {{ count }} fils non lus",
+  "aria/Opened channel: {{ name }}": "Canal ouvert : {{ name }}",
+  "aria/Opened thread in {{ name }}": "Fil ouvert dans {{ name }}",
   "aria/Option {{ position }}": "Option {{ position }}",
   "aria/Options can now be reordered and removed.": "Les options peuvent désormais être réorganisées et supprimées.",
   "aria/Pause": "Pause",

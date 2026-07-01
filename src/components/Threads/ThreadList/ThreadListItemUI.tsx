@@ -6,6 +6,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import { useChannelPreviewInfo } from '../../ChannelListItem';
 import { useChatContext, useTranslationContext } from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
@@ -65,8 +66,19 @@ export const ThreadListItemUI = ({
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t, tDateTimeParser, userLanguage } = useTranslationContext('ThreadListItemUI');
+  const { announceInteraction } = useInteractionAnnouncements();
 
   const { activeThread, setActiveThread } = useThreadsViewContext();
+
+  const onSelectThread = useCallback(() => {
+    if (activeThread === thread) return;
+    setActiveThread(thread);
+    // Confirm the opened thread to assistive tech, debounced in the registry so it lands after the
+    // thread composer's focus announcement rather than competing with it.
+    if (channelDisplayTitle) {
+      announceInteraction('thread.opened', { name: channelDisplayTitle });
+    }
+  }, [activeThread, announceInteraction, channelDisplayTitle, setActiveThread, thread]);
 
   // Reuse the SAME preview the visible subtitle renders (text + sender, all message kinds), so the
   // announced parent message matches what is shown.
@@ -159,7 +171,7 @@ export const ThreadListItemUI = ({
             typeof resetHighlighting !== 'undefined',
         })}
         data-thread-id={thread.id}
-        onClick={() => setActiveThread(thread)}
+        onClick={onSelectThread}
         role='option'
         {...props}
       >

@@ -135,6 +135,8 @@
   "aria/Open threads view": "スレッドビューを開く",
   "aria/Open threads view with unread threads_one": "スレッドビューを開く、未読スレッド{{ count }}件",
   "aria/Open threads view with unread threads_other": "スレッドビューを開く、未読スレッド{{ count }}件",
+  "aria/Opened channel: {{ name }}": "チャンネルを開きました: {{ name }}",
+  "aria/Opened thread in {{ name }}": "{{ name }} でスレッドを開きました",
   "aria/Option {{ position }}": "オプション {{ position }}",
   "aria/Options can now be reordered and removed.": "選択肢の並べ替えと削除ができるようになりました。",
   "aria/Pause": "一時停止",

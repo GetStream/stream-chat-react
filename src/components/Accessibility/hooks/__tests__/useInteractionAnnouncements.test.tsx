@@ -90,6 +90,47 @@ describe('useInteractionAnnouncements', () => {
     });
   });
 
+  describe('channel.opened / thread.opened (provider-delayed past the focus announcement)', () => {
+    it('announces the opened channel politely, via a provider delay (survives caller unmount)', () => {
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('channel.opened', { name: 'General' });
+
+      // A single deferred emit is handed to the PROVIDER (delayMs) — not a per-call-site debounce —
+      // so it still fires after the list row that triggered it unmounts (e.g. on mobile). The
+      // delay lets it land after the composer's focus announcement instead of competing with it.
+      expect(announceMock).toHaveBeenCalledWith('Opened channel: General', {
+        delayMs: 1500,
+        priority: 'polite',
+      });
+    });
+
+    it('announces the opened thread by its channel name, via the same provider delay', () => {
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('thread.opened', { name: 'General' });
+
+      expect(announceMock).toHaveBeenCalledWith('Opened thread in General', {
+        delayMs: 1500,
+        priority: 'polite',
+      });
+    });
+
+    it('lets a call site override the delay', () => {
+      const { result } = renderHook(() => useInteractionAnnouncements());
+
+      result.current.announceInteraction('channel.opened', {
+        delayMs: 0,
+        name: 'General',
+      });
+
+      expect(announceMock).toHaveBeenCalledWith('Opened channel: General', {
+        delayMs: 0,
+        priority: 'polite',
+      });
+    });
+  });
+
   describe('suggestions.count (debounced stream)', () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => vi.useRealTimers());

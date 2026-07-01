@@ -135,6 +135,8 @@
   "aria/Open threads view": "스레드 보기 열기",
   "aria/Open threads view with unread threads_one": "스레드 보기 열기, 읽지 않은 스레드 {{ count }}개",
   "aria/Open threads view with unread threads_other": "스레드 보기 열기, 읽지 않은 스레드 {{ count }}개",
+  "aria/Opened channel: {{ name }}": "채널 열림: {{ name }}",
+  "aria/Opened thread in {{ name }}": "{{ name }}에서 스레드 열림",
   "aria/Option {{ position }}": "옵션 {{ position }}",
   "aria/Options can now be reordered and removed.": "이제 옵션의 순서를 변경하고 제거할 수 있습니다.",
   "aria/Pause": "일시정지",

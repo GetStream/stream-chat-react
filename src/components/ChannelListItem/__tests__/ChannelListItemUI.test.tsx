@@ -22,6 +22,18 @@ import {
   TranslationProvider,
 } from '../../../context';
 
+const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
+
+// Keep the rest of the Accessibility barrel real; only stub the announcer so we can assert calls
+// (and avoid a missing-provider warning since these tests render the item without a Chat root).
+vi.mock('../../Accessibility', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../Accessibility')>()),
+  useInteractionAnnouncements: () => ({
+    announceInteraction,
+    cancelInteraction: vi.fn(),
+  }),
+}));
+
 const PREVIEW_TEST_ID = 'channel-list-item-button';
 
 // Stub out ChannelListItemActionButtons to avoid needing ChannelListItemContext and DialogManager
@@ -95,6 +107,7 @@ describe('ChannelPreviewMessenger', () => {
   };
 
   beforeEach(async () => {
+    announceInteraction.mockClear();
     chatClient = await getTestClientWithUser(clientUser);
     await initializeChannel(generateChannel());
   });
@@ -177,6 +190,26 @@ describe('ChannelPreviewMessenger', () => {
     const previewButton = screen.queryByTestId(PREVIEW_TEST_ID);
     fireEvent.click(previewButton);
     expect(onSelect).toHaveBeenCalledTimes(1);
+  });
+
+  it('announces the opened channel to assistive tech on selection', () => {
+    render(renderComponent({ setActiveChannel: vi.fn() }));
+    fireEvent.click(screen.getByTestId(PREVIEW_TEST_ID));
+    expect(announceInteraction).toHaveBeenCalledWith('channel.opened', {
+      name: 'Channel name',
+    });
+  });
+
+  it('does not announce when re-selecting the already-active channel', () => {
+    render(renderComponent({ active: true, setActiveChannel: vi.fn() }));
+    fireEvent.click(screen.getByTestId(PREVIEW_TEST_ID));
+    expect(announceInteraction).not.toHaveBeenCalled();
+  });
+
+  it('does not announce on a custom onSelect (the custom handler owns its feedback)', () => {
+    render(renderComponent({ onSelect: vi.fn() }));
+    fireEvent.click(screen.getByTestId(PREVIEW_TEST_ID));
+    expect(announceInteraction).not.toHaveBeenCalled();
   });
 
   it('renders channel actions after the channel item so keyboard users can tab into them', () => {

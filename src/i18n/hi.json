@@ -141,6 +141,8 @@
   "aria/Open threads view": "थ्रेड व्यू खोलें",
   "aria/Open threads view with unread threads_one": "थ्रेड व्यू खोलें, {{ count }} अपठित थ्रेड",
   "aria/Open threads view with unread threads_other": "थ्रेड व्यू खोलें, {{ count }} अपठित थ्रेड",
+  "aria/Opened channel: {{ name }}": "चैनल खोला गया: {{ name }}",
+  "aria/Opened thread in {{ name }}": "{{ name }} में थ्रेड खोला गया",
   "aria/Option {{ position }}": "विकल्प {{ position }}",
   "aria/Options can now be reordered and removed.": "अब विकल्पों को पुनः क्रमित और हटाया जा सकता है।",
   "aria/Pause": "रोकें",

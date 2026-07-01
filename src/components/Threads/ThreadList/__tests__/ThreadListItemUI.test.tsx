@@ -1,8 +1,17 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { axe } from '../../../../../axe-helper';
 
 import { ThreadListItemUI } from '../ThreadListItemUI';
+
+const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
+
+vi.mock('../../../Accessibility', () => ({
+  useInteractionAnnouncements: () => ({
+    announceInteraction,
+    cancelInteraction: vi.fn(),
+  }),
+}));
 
 const mockUseChatContext = vi.fn();
 const mockUseTranslationContext = vi.fn();
@@ -157,6 +166,33 @@ describe('ThreadListItemUI', () => {
       'aria-label',
       'Custom thread label',
     );
+  });
+
+  it('opens the thread and announces it on selection', () => {
+    const setActiveThread = vi.fn();
+    mockUseThreadsViewContext.mockReturnValue({
+      activeThread: { id: 'thread-2' },
+      setActiveThread,
+    });
+
+    render(<ThreadListItemUI />);
+    fireEvent.click(screen.getByRole('option'));
+
+    expect(setActiveThread).toHaveBeenCalledWith(thread);
+    expect(announceInteraction).toHaveBeenCalledWith('thread.opened', {
+      name: 'General',
+    });
+  });
+
+  it('does not re-open or announce the already-active thread', () => {
+    const setActiveThread = vi.fn();
+    mockUseThreadsViewContext.mockReturnValue({ activeThread: thread, setActiveThread });
+
+    render(<ThreadListItemUI />);
+    fireEvent.click(screen.getByRole('option'));
+
+    expect(setActiveThread).not.toHaveBeenCalled();
+    expect(announceInteraction).not.toHaveBeenCalled();
   });
 
   it('passes axe checks in listbox context', async () => {

@@ -170,6 +170,8 @@
   "aria/Open threads view with unread threads_few": "Открыть вид веток, {{ count }} непрочитанные ветки",
   "aria/Open threads view with unread threads_many": "Открыть вид веток, {{ count }} непрочитанных веток",
   "aria/Open threads view with unread threads_other": "Открыть вид веток, {{ count }} непрочитанных веток",
+  "aria/Opened channel: {{ name }}": "Открыт канал: {{ name }}",
+  "aria/Opened thread in {{ name }}": "Открыт тред в {{ name }}",
   "aria/Option {{ position }}": "Вариант {{ position }}",
   "aria/Options can now be reordered and removed.": "Теперь варианты можно переупорядочивать и удалять.",
   "aria/Pause": "Пауза",

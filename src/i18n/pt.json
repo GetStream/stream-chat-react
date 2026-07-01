@@ -155,6 +155,8 @@
   "aria/Open threads view with unread threads_one": "Abrir visualização de tópicos, {{ count }} tópico não lido",
   "aria/Open threads view with unread threads_many": "Abrir visualização de tópicos, {{ count }} tópicos não lidos",
   "aria/Open threads view with unread threads_other": "Abrir visualização de tópicos, {{ count }} tópicos não lidos",
+  "aria/Opened channel: {{ name }}": "Canal aberto: {{ name }}",
+  "aria/Opened thread in {{ name }}": "Tópico aberto em {{ name }}",
   "aria/Option {{ position }}": "Opção {{ position }}",
   "aria/Options can now be reordered and removed.": "As opções agora podem ser reordenadas e removidas.",
   "aria/Pause": "Pausar",

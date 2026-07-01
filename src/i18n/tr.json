@@ -141,6 +141,8 @@
   "aria/Open threads view": "Konu görünümünü aç",
   "aria/Open threads view with unread threads_one": "Konu görünümünü aç, {{ count }} okunmamış konu",
   "aria/Open threads view with unread threads_other": "Konu görünümünü aç, {{ count }} okunmamış konu",
+  "aria/Opened channel: {{ name }}": "Kanal açıldı: {{ name }}",
+  "aria/Opened thread in {{ name }}": "{{ name }} içinde konu açıldı",
   "aria/Option {{ position }}": "Seçenek {{ position }}",
   "aria/Options can now be reordered and removed.": "Seçenekler artık yeniden sıralanabilir ve kaldırılabilir.",
   "aria/Pause": "Duraklat",
