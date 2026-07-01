@@ -188,6 +188,9 @@ export const GlobalModal = ({
     if (
       !open ||
       !isOpen ||
+      // Only the topmost modal may take initial focus; a non-topmost (inert) stacked modal must not
+      // pull focus behind the active one (mirrors the FocusScope/AriaLiveOutlet topmost gating).
+      !isTopmost ||
       (!getInitialFocusElement && resolvedInitialFocusStrategy === 'firstElement')
     )
       return;
@@ -202,7 +205,7 @@ export const GlobalModal = ({
     });
 
     return () => cancelAnimationFrame(frame);
-  }, [getInitialFocusElement, isOpen, open, resolvedInitialFocusStrategy]);
+  }, [getInitialFocusElement, isOpen, isTopmost, open, resolvedInitialFocusStrategy]);
 
   if (!open || !isOpen) return null;
 
