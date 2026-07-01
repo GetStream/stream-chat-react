@@ -245,19 +245,23 @@ describe('ChatView.Selector', () => {
     ).toEqual(['Channels', 'Threads']);
   });
 
-  it('renders a labelled control group with toggle buttons and only renders the active view container (no tab/tabpanel roles)', async () => {
+  it('exposes the selector as a navigation landmark whose current item is aria-current, and only renders the active view container (no tab/tabpanel roles)', async () => {
     await renderSelectorWithPanels();
 
-    const group = screen.getByRole('group', { name: 'Chat view controls' });
+    const nav = screen.getByRole('navigation', { name: 'Chat view controls' });
     const channelsButton = screen.getByRole('button', { name: 'Open channels view' });
     const threadsButton = screen.getByRole('button', { name: 'Open threads view' });
 
-    expect(group).toContainElement(channelsButton);
-    expect(group).toContainElement(threadsButton);
-    expect(channelsButton).toHaveAttribute('aria-pressed', 'true');
-    expect(threadsButton).toHaveAttribute('aria-pressed', 'false');
+    expect(nav).toContainElement(channelsButton);
+    expect(nav).toContainElement(threadsButton);
 
-    // No WAI-ARIA Tabs semantics anywhere.
+    // The current view's button is marked aria-current="true" (generic "current item" — not "page",
+    // since the SDK may be embedded in a larger host UI), not aria-pressed.
+    expect(channelsButton).toHaveAttribute('aria-current', 'true');
+    expect(threadsButton).not.toHaveAttribute('aria-current');
+    expect(channelsButton).not.toHaveAttribute('aria-pressed');
+
+    // No WAI-ARIA Tabs semantics anywhere (the finding's "announced as tab" is gone).
     expect(screen.queryByRole('tablist')).toBeNull();
     expect(screen.queryByRole('tab')).toBeNull();
     expect(screen.queryByRole('tabpanel')).toBeNull();
@@ -272,20 +276,33 @@ describe('ChatView.Selector', () => {
     expect(screen.queryByTestId('threads-panel-content')).toBeNull();
   });
 
-  it('updates aria-pressed when the active view changes', async () => {
+  it('does not expose the threads button icon/badge wrapper as a nested group', async () => {
+    // The threads button wraps its icon in UnreadCountBadge; that decorative wrapper must be
+    // aria-hidden so screen readers do not announce a stray "group" inside the button (the button
+    // is fully named by its aria-label, and the unread count rides in that label).
+    await renderSelectorWithPanels({ threadManagerState: { unreadThreadCount: 3 } });
+
+    const threadsButton = screen.getByRole('button', { name: /Open threads view/ });
+    const badge = threadsButton.querySelector('.str-chat__unread-count-badge-container');
+    expect(badge).toHaveAttribute('aria-hidden', 'true');
+    // No group is exposed within the selector's buttons.
+    expect(screen.queryByRole('group')).toBeNull();
+  });
+
+  it('moves aria-current when the active view changes', async () => {
     await renderSelectorWithPanels();
 
     const channelsButton = screen.getByRole('button', { name: 'Open channels view' });
     const threadsButton = screen.getByRole('button', { name: 'Open threads view' });
 
-    expect(channelsButton).toHaveAttribute('aria-pressed', 'true');
-    expect(threadsButton).toHaveAttribute('aria-pressed', 'false');
+    expect(channelsButton).toHaveAttribute('aria-current', 'true');
+    expect(threadsButton).not.toHaveAttribute('aria-current');
 
     fireEvent.click(threadsButton);
 
     await waitFor(() => {
-      expect(threadsButton).toHaveAttribute('aria-pressed', 'true');
-      expect(channelsButton).toHaveAttribute('aria-pressed', 'false');
+      expect(threadsButton).toHaveAttribute('aria-current', 'true');
+      expect(channelsButton).not.toHaveAttribute('aria-current');
       expect(screen.getByTestId('threads-panel-content')).toBeInTheDocument();
       expect(screen.queryByTestId('channels-panel-content')).toBeNull();
     });
@@ -312,7 +329,7 @@ describe('ChatView.Selector', () => {
     ).toBeInTheDocument();
   });
 
-  it('has no axe violations for control group + view markup', async () => {
+  it('has no axe violations for nav landmark + view markup', async () => {
     const { container } = await renderSelectorWithPanels();
 
     const results = await axe(container);

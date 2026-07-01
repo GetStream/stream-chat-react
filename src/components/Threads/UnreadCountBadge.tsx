@@ -10,7 +10,11 @@ export const UnreadCountBadge = ({
   count: number;
   position?: 'top-right' | 'bottom-right' | 'bottom-left' | 'top-left';
 }>) => (
-  <div className='str-chat__unread-count-badge-container'>
+  // Decorative, visual-only: the numeric badge duplicates a count that the consumer must expose via
+  // an accessible name (e.g. the threads selector button's aria-label already includes the unread
+  // count). Hidden from AT so the wrapper is not surfaced as a stray "group" around the button icon,
+  // and so the count is not announced twice.
+  <div aria-hidden='true' className='str-chat__unread-count-badge-container'>
     {children}
     {count > 0 && (
       <div

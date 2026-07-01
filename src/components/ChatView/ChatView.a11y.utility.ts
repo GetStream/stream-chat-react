@@ -2,8 +2,9 @@
  * ChatView is a top-level view switcher between two parallel, independent
  * surfaces (channels and threads). It is NOT a WAI-ARIA Tabs widget: each view
  * owns its own composer and message list and is not a panel of a single
- * composite widget. The selector is a labelled control group with toggle
- * buttons that mark the active surface via aria-pressed.
+ * composite widget. The selector is a navigation landmark (role="navigation")
+ * whose buttons mark the active surface via aria-current="true" (generic
+ * "current item"; not "page", since the SDK may be embedded in a larger host UI).
  *
  * The helper generates stable per-instance DOM ids for the view containers so
  * integrators (skip-links, programmatic focus) have predictable hooks even

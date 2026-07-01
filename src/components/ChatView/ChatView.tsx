@@ -38,8 +38,11 @@ export type ChatView = 'channels' | 'threads';
 
 /**
  * ChatView switches between two independent surfaces, not panels in a single
- * WAI-ARIA Tabs widget. The selector is a labelled group of toggle buttons
- * (`aria-pressed`), while view wrappers stay plain `<div>`s to avoid leaking
+ * WAI-ARIA Tabs widget. The selector is a navigation landmark
+ * (`role="navigation"`) holding one button per surface; the button for the
+ * surface currently shown is marked with `aria-current="true"` (the "current
+ * item in a set" — not `"page"`, since this SDK view may be embedded in a larger
+ * host UI that owns the page). View wrappers stay plain `<div>`s to avoid leaking
  * ancestor context into descendants like the composer textarea.
  */
 type ChatViewContextValue = {
@@ -231,8 +234,8 @@ export const ChatViewSelectorButton = ({
     <div className='str-chat__chat-view__selector-button-container'>
       <Button
         appearance='ghost'
+        aria-current={isActive || undefined}
         aria-label={props['aria-label'] ?? (shouldShowTooltip ? text : undefined)}
-        aria-pressed={isActive}
         className={clsx('str-chat__chat-view__selector-button', className)}
         variant='secondary'
         {...props}
@@ -361,7 +364,7 @@ const ChatViewSelector = ({
     <div
       aria-label={t('aria/Chat view controls')}
       className='str-chat__chat-view__selector'
-      role='group'
+      role='navigation'
     >
       {itemSet.map(({ Component, type }) => (
         <Component iconOnly={iconOnly} key={type} />
