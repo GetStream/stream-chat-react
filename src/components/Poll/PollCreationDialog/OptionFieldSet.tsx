@@ -257,7 +257,10 @@ export const OptionFieldSet = () => {
                 trailing={
                   draggable ? (
                     <RemoveOptionButton
-                      aria-label={t('aria/Remove option')}
+                      // Name each button by its option so SR users can tell the rows apart.
+                      aria-label={t('aria/Remove {{ option }}', {
+                        option: labelForOption(option, i + 1),
+                      })}
                       onClick={() => clearOption(option.id)}
                     />
                   ) : undefined

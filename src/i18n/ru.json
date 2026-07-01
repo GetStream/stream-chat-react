@@ -221,7 +221,7 @@
   "aria/Remind Me Message": "Напомнить мне",
   "aria/Remove attachment": "Удалить вложение",
   "aria/Remove location attachment": "Удалить вложение местоположения",
-  "aria/Remove option": "Удалить вариант",
+  "aria/Remove {{ option }}": "Удалить {{ option }}",
   "aria/Remove Reminder": "Удалить напоминание",
   "aria/Remove Save For Later": "Удалить «Сохранить на потом»",
   "aria/Removed option {{ option }}": "Вариант {{ option }} удалён",

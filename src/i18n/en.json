@@ -186,7 +186,7 @@
   "aria/Remind Me Message": "Remind Me Message",
   "aria/Remove attachment": "Remove attachment",
   "aria/Remove location attachment": "Remove location attachment",
-  "aria/Remove option": "Remove option",
+  "aria/Remove {{ option }}": "Remove {{ option }}",
   "aria/Remove Reminder": "Remove Reminder",
   "aria/Remove Save For Later": "Remove Save For Later",
   "aria/Removed option {{ option }}": "Removed option {{ option }}",

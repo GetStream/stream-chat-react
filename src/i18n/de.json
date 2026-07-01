@@ -186,7 +186,7 @@
   "aria/Remind Me Message": "Erinnern",
   "aria/Remove attachment": "Anhang entfernen",
   "aria/Remove location attachment": "Standortanhang entfernen",
-  "aria/Remove option": "Option entfernen",
+  "aria/Remove {{ option }}": "{{ option }} entfernen",
   "aria/Remove Reminder": "Erinnerung entfernen",
   "aria/Remove Save For Later": "„Später ansehen“ entfernen",
   "aria/Removed option {{ option }}": "Option {{ option }} entfernt",

@@ -186,7 +186,7 @@
   "aria/Remind Me Message": "Herinner mij",
   "aria/Remove attachment": "Bijlage verwijderen",
   "aria/Remove location attachment": "Locatie bijlage verwijderen",
-  "aria/Remove option": "Optie verwijderen",
+  "aria/Remove {{ option }}": "{{ option }} verwijderen",
   "aria/Remove Reminder": "Herinnering verwijderen",
   "aria/Remove Save For Later": "Verwijder 'Bewaren voor later'",
   "aria/Removed option {{ option }}": "Optie {{ option }} verwijderd",

@@ -135,12 +135,12 @@ describe('PollCreationDialog', () => {
       await fireEvent.change(getOptionInput(), { target: { value: 'First' } });
     });
     await waitFor(() =>
-      expect(screen.getAllByRole('button', { name: /remove option/i }).length).toBe(2),
+      expect(screen.getAllByRole('button', { name: /^remove /i }).length).toBe(2),
     );
 
     // Removing back to a single option removes the controls, so the description goes away too.
     await act(async () => {
-      await fireEvent.click(screen.getAllByRole('button', { name: /remove option/i })[0]);
+      await fireEvent.click(screen.getAllByRole('button', { name: /^remove /i })[0]);
     });
     await waitFor(() =>
       expect(screen.getAllByPlaceholderText(OPTION_FIELD_PLACEHOLDER).length).toBe(1),
@@ -190,7 +190,7 @@ describe('PollCreationDialog', () => {
     );
 
     await act(async () => {
-      await fireEvent.click(screen.getAllByRole('button', { name: /remove option/i })[0]);
+      await fireEvent.click(screen.getAllByRole('button', { name: /^remove /i })[0]);
     });
 
     await waitFor(() =>
@@ -312,7 +312,7 @@ describe('PollCreationDialog', () => {
       await fireEvent.change(getOptionInput(), { target: { value: 'First option' } });
     });
 
-    const removeOptionButtons = screen.getAllByRole('button', { name: /remove option/i });
+    const removeOptionButtons = screen.getAllByRole('button', { name: /^remove /i });
     const reorderHandles = screen.getAllByRole('button', { name: /reorder option/i });
 
     expect(removeOptionButtons).toHaveLength(reorderHandles.length);
@@ -330,7 +330,7 @@ describe('PollCreationDialog', () => {
     });
 
     const removeOptionButton = screen.getAllByRole('button', {
-      name: /remove option/i,
+      name: /^remove /i,
     })[0];
     removeOptionButton.focus();
 
