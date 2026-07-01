@@ -13,8 +13,13 @@ export const CHAT_SKIP_NAVIGATION_TARGET_ID = 'app-chat-skip-navigation';
 
 // The list skip-link should land on the FIRST item (a focusable role="option" button with a visible
 // focus ring), not on the listbox container — focusing a container gives no visual focus cue.
-const focusFirstListOption = (listTargetId: string) => {
-  document.querySelector<HTMLElement>(`#${listTargetId} [role="option"]`)?.focus();
+// Returns whether an option was actually focused: an empty/loading list has no `role="option"`, in
+// which case the caller must NOT preventDefault, letting SkipNavigation fall back to focusing the
+// list container (otherwise the link would be a dead end).
+const focusFirstListOption = (listTargetId: string): boolean => {
+  const option = document.querySelector<HTMLElement>(`#${listTargetId} [role="option"]`);
+  option?.focus();
+  return !!option;
 };
 
 const isLinkFor = (target: EventTarget | null, targetId: string) =>
@@ -107,8 +112,9 @@ export const ChatSkipNavigation = () => {
         // Other links fall through to SkipNavigation's default focus handling.
         onClick={(event) => {
           if (!listTargetId || !isLinkFor(event.currentTarget, listTargetId)) return;
-          event.preventDefault();
-          focusFirstListOption(listTargetId);
+          // Only take over when there is an option to focus; otherwise let SkipNavigation focus the
+          // list container so the link is never a dead end.
+          if (focusFirstListOption(listTargetId)) event.preventDefault();
         }}
         onKeyDown={(event) => {
           if (
@@ -117,8 +123,7 @@ export const ChatSkipNavigation = () => {
             !isActivationKey(event.key)
           )
             return;
-          event.preventDefault();
-          focusFirstListOption(listTargetId);
+          if (focusFirstListOption(listTargetId)) event.preventDefault();
         }}
         targetIds={targetIds}
       />
