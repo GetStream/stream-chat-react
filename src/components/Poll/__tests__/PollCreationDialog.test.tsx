@@ -801,6 +801,49 @@ describe('PollCreationDialog', () => {
     expect(close).toHaveBeenCalledTimes(1);
   });
 
+  it('surfaces a send failure when the poll is created but the message fails to send', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({ customUser: user });
+    await renderComponent({ channel, client });
+    // Poll creation succeeds, but sending the message rejects. createPoll's own
+    // self-notification does not cover this, so the React side must surface it
+    // (and must NOT emit the success notification).
+    vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
+      fromPartial({ poll: { id: 'pid' } }),
+    );
+    handleSubmit.mockRejectedValueOnce(new Error('send failed'));
+    const addNotificationSpy = vi.spyOn(client.notifications, 'add');
+
+    await act(async () => {
+      await fireEvent.change(getNameInput(), { target: { value: 'Q' } });
+    });
+    await act(async () => {
+      await fireEvent.change(getOptionInput(), { target: { value: 'Opt' } });
+    });
+    await act(async () => {
+      await fireEvent.click(getSubmitPollButton());
+    });
+
+    await waitFor(() => {
+      expect(addNotificationSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Send message request failed',
+          options: expect.objectContaining({
+            severity: 'error',
+            type: 'api:message:send:failed',
+          }),
+        }),
+      );
+    });
+    const successCalls = addNotificationSpy.mock.calls.filter(
+      ([payload]) => payload?.message === 'Poll sent',
+    );
+    expect(successCalls).toHaveLength(0);
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+  });
+
   it('returns focus to the composer input after a successful send', async () => {
     const {
       channels: [channel],
