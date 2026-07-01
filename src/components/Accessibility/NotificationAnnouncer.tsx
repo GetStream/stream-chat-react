@@ -47,11 +47,24 @@ const defaultBuildNotificationAnnouncement: NotificationAnnouncementBuilder = ({
 const defaultNotificationFilter: NotificationAnnouncementFilter = () => true;
 
 /**
- * Announces app notifications to assistive technology. As of the announcer unification (F4)
- * this renders no live region of its own — it routes new notifications through the shared
- * `useAriaLiveAnnouncer` sink (so they land in the active `AriaLiveOutlet`, including inside an
- * open modal) and paces them with {@link useAnnouncementQueue}. Must render inside an
- * `AriaLiveAnnouncerProvider` (it does, via `Chat`).
+ * Announces app notifications to assistive technology.
+ *
+ * As of the announcer unification this renders **no live region of its own** — it routes new
+ * notifications through the shared {@link useAriaLiveAnnouncer} sink (so they land in the active
+ * {@link AriaLiveOutlet}, including inside an open modal) and paces them with
+ * {@link useAnnouncementQueue}.
+ *
+ * ## Required context (contract)
+ * `NotificationAnnouncer` **must** be rendered inside an `AriaLiveAnnouncerProvider`. `Chat` mounts
+ * that provider (with a root, portalled `AriaLiveOutlet`), so the default component tree already
+ * satisfies this and no extra setup is needed.
+ *
+ * Rendered **without** a provider ancestor it mounts successfully but **announces nothing** —
+ * `useAriaLiveAnnouncer()` returns a no-op and logs a `console.warn` ("… called outside of an
+ * AriaLiveAnnouncerProvider"). This is intentional post-F4: the component no longer carries a
+ * fallback live region, so a single announcer owns all output and there are no duplicate/competing
+ * regions. If you render it outside `Chat`, wrap it in `AriaLiveAnnouncerProvider` + `AriaLiveOutlet`
+ * yourself.
  */
 export const NotificationAnnouncer = ({
   buildNotificationAnnouncement = defaultBuildNotificationAnnouncement,
