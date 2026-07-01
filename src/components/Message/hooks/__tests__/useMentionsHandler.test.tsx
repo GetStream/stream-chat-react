@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useMentionsHandler } from '../useMentionsHandler';
 
@@ -56,7 +57,11 @@ describe('useMentionsHandler custom hooks', () => {
     const message = generateMessage({ mentioned_users });
     const { onMentionsClick } = renderUseMentionsHandlerHook(message);
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
+    expect(onMentionsClickMock).toHaveBeenCalledWith(
+      mouseEventMock,
+      mentioned_users,
+      message,
+    );
   });
 
   it('should not call onMentionsClick when it is not defined', () => {
@@ -70,10 +75,37 @@ describe('useMentionsHandler custom hooks', () => {
   });
 
   it('should not call onMentionsClick when it message has no mentioned users set', () => {
-    const message = generateMessage({ mentioned_users: null });
+    const message = generateMessage({ mentioned_users: undefined });
     const { onMentionsClick } = renderUseMentionsHandlerHook(message);
     onMentionsClick(mouseEventMock);
     expect(onMentionsClickMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['channel mention', { mentioned_channel: true }],
+    ['here mention', { mentioned_here: true }],
+    ['role mention', { mentioned_roles: ['admin'] }],
+    [
+      'user-group mention',
+      {
+        mentioned_groups: [
+          fromPartial({
+            created_at: '2026-05-28T00:00:00.000Z',
+            id: 'backend-team',
+            name: 'Backend Team',
+            updated_at: '2026-05-28T00:00:00.000Z',
+          }),
+        ],
+      },
+    ],
+  ])('should call onMentionsClick with an empty user list for a %s', (_, mention) => {
+    const message = generateMessage({
+      ...mention,
+      mentioned_users: undefined,
+    });
+    const { onMentionsClick } = renderUseMentionsHandlerHook(message);
+    onMentionsClick(mouseEventMock);
+    expect(onMentionsClickMock).toHaveBeenCalledWith(mouseEventMock, [], message);
   });
 
   it("should call onMentionsHover with message's mentioned users when user hovers on a mention", () => {
@@ -83,7 +115,11 @@ describe('useMentionsHandler custom hooks', () => {
     const message = generateMessage({ mentioned_users });
     const { onMentionsHover } = renderUseMentionsHandlerHook(message);
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverMock).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
+    expect(onMentionsHoverMock).toHaveBeenCalledWith(
+      mouseEventMock,
+      mentioned_users,
+      message,
+    );
   });
 
   it('should not call onMentionsHover when it is not defined', () => {
@@ -102,7 +138,7 @@ describe('useMentionsHandler custom hooks', () => {
   });
 
   it('should not call onMentionsHover when message has no mentioned users set', () => {
-    const message = generateMessage({ mentioned_users: null });
+    const message = generateMessage({ mentioned_users: undefined });
     const { onMentionsHover } = renderUseMentionsHandlerHook(message);
     onMentionsHover(mouseEventMock);
     expect(onMentionsHoverMock).not.toHaveBeenCalled();
@@ -117,7 +153,11 @@ describe('useMentionsHandler custom hooks', () => {
       onMentionsHover: onMentionsHoverHandler,
     });
     onMentionsHover(mouseEventMock);
-    expect(onMentionsHoverHandler).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
+    expect(onMentionsHoverHandler).toHaveBeenCalledWith(
+      mouseEventMock,
+      mentioned_users,
+      message,
+    );
   });
 
   it('should call the custom mention click handler when one is set', () => {
@@ -129,6 +169,10 @@ describe('useMentionsHandler custom hooks', () => {
       onMentionsClick: onMentionsClickHandler,
     });
     onMentionsClick(mouseEventMock);
-    expect(onMentionsClickHandler).toHaveBeenCalledWith(mouseEventMock, mentioned_users);
+    expect(onMentionsClickHandler).toHaveBeenCalledWith(
+      mouseEventMock,
+      mentioned_users,
+      message,
+    );
   });
 });

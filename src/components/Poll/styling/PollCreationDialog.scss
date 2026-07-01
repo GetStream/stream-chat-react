@@ -21,6 +21,10 @@
     align-items: center;
   }
 
+  .str-chat__form__switch-field {
+    padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+  }
+
   .str-chat__form__input-field__value input,
   .str-chat__form__input-field__value.str-chat__form-text-input
     .str-chat__form-text-input__wrapper {

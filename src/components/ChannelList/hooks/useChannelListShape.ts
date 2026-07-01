@@ -163,6 +163,15 @@ export const useChannelListShapeDefaults = () => {
         return;
       }
 
+      // Bail out before querying the channel: if new messages from unfiltered
+      // channels are not allowed, this handler would discard the result anyway.
+      // Querying first issued a `channel.watch()` (queryChannel) for every
+      // `notification.message_new`, which could exhaust the rate limit when many
+      // such events arrive at once (#2441).
+      if (!allowNewMessagesFromUnfilteredChannels) {
+        return;
+      }
+
       const channel = await getChannel({
         client,
         id: event.channel.id,
@@ -171,10 +180,6 @@ export const useChannelListShapeDefaults = () => {
 
       const considerArchivedChannels = shouldConsiderArchivedChannels(filters);
       if (isChannelArchived(channel) && considerArchivedChannels && !filters.archived) {
-        return;
-      }
-
-      if (!allowNewMessagesFromUnfilteredChannels) {
         return;
       }
 

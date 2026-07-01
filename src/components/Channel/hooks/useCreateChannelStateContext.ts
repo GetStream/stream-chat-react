@@ -44,7 +44,11 @@ export const useCreateChannelStateContext = (
   } = value;
 
   const channelId = channel.cid;
-  const lastRead = channel.initialized && channel.lastRead()?.getTime();
+  // `channel.lastRead()` reaches `channel.getClient()`, which throws once the
+  // client has been disconnected. Guard against it so a disconnect while the
+  // channel is mounted does not crash the render (#2393).
+  const lastRead =
+    channel.initialized && !channel.disconnected && channel.lastRead()?.getTime();
   const membersLength = Object.keys(members || []).length;
   const notificationsLength = notifications.length;
   const readUsers = Object.values(read);

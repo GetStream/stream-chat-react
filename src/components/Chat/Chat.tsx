@@ -13,7 +13,7 @@ import {
   AriaLiveOutlet,
   NotificationAnnouncer as DefaultNotificationAnnouncer,
 } from '../Accessibility';
-import { useModalDialogIsOpen } from '../Dialog';
+import { useOpenedDialogCount } from '../Dialog';
 import {
   getNotificationTargetPanels,
   NotificationConfigurationProvider,
@@ -27,7 +27,11 @@ import type { CustomClasses } from '../../context/ChatContext';
 import { ChatProvider } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { TranslationProvider } from '../../context/TranslationContext';
-import { type MessageContextValue, ModalDialogManagerProvider } from '../../context';
+import {
+  type MessageContextValue,
+  modalDialogManagerId,
+  ModalDialogManagerProvider,
+} from '../../context';
 import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 
@@ -37,7 +41,7 @@ const NetworkConnectionNotificationReporter = () => {
 };
 
 const createDefaultNotificationDisplayFilter =
-  (modalIsOpen: boolean): NotificationDisplayFilter =>
+  (modalManagerHasOpenDialog: boolean): NotificationDisplayFilter =>
   ({ notification, panel }) => {
     const targetPanels = getNotificationTargetPanels(notification);
 
@@ -45,7 +49,7 @@ const createDefaultNotificationDisplayFilter =
       return panel === 'modal';
     }
 
-    if (!modalIsOpen) return true;
+    if (!modalManagerHasOpenDialog) return true;
 
     return panel === 'modal';
   };
@@ -56,11 +60,15 @@ const ModalNotificationConfiguration = ({
 }: PropsWithChildren<{
   notificationDisplayFilter?: NotificationDisplayFilter;
 }>) => {
-  const modalIsOpen = useModalDialogIsOpen();
+  const openedModalDialogCount = useOpenedDialogCount({
+    dialogManagerId: modalDialogManagerId,
+  });
+  const modalManagerHasOpenDialog = openedModalDialogCount > 0;
   const displayFilter = useMemo<NotificationDisplayFilter>(
     () =>
-      notificationDisplayFilter ?? createDefaultNotificationDisplayFilter(modalIsOpen),
-    [modalIsOpen, notificationDisplayFilter],
+      notificationDisplayFilter ??
+      createDefaultNotificationDisplayFilter(modalManagerHasOpenDialog),
+    [modalManagerHasOpenDialog, notificationDisplayFilter],
   );
 
   return (

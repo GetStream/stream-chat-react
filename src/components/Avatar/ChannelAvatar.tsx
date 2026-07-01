@@ -15,7 +15,9 @@ export const ChannelAvatar = ({
   ...sharedProps
 }: ChannelAvatarProps) => {
   const displayInfo = useMemo(() => {
-    if (displayMembers && displayMembers.length > 0) {
+    // Prefer the channel's own image; only derive the avatar from members when
+    // there is no channel imageUrl to display.
+    if (!imageUrl && displayMembers && displayMembers.length > 0) {
       return displayMembers;
     }
 

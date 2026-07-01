@@ -354,7 +354,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       openDropdownMenu();
 
       const unblockButton = screen.getByTestId('dropdown-action-ban');
-      expect(unblockButton).toHaveTextContent('Unblock User');
+      expect(unblockButton).toHaveTextContent('Unblock');
 
       act(() => {
         fireEvent.click(unblockButton);

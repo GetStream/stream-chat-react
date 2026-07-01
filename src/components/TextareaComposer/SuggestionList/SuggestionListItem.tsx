@@ -3,13 +3,13 @@ import { type ComponentProps, useRef } from 'react';
 import React, { useCallback, useLayoutEffect } from 'react';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import type { TextComposerSuggestion } from 'stream-chat';
-import type { UserItemProps } from './UserItem';
 import type { CommandItemProps } from './CommandItem';
 import type { EmoticonItemProps } from './EmoticonItem';
+import type { MentionItemProps } from './MentionItem';
 import { useMessageComposerContext } from '../../../context';
 
 export type DefaultSuggestionListItemEntity =
-  | UserItemProps['entity']
+  | MentionItemProps['entity']
   | CommandItemProps['entity']
   | EmoticonItemProps['entity'];
 

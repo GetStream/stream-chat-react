@@ -19,6 +19,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, './src/index.ts'),
+        'channel-detail': resolve(__dirname, './src/plugins/ChannelDetail/index.ts'),
         emojis: resolve(__dirname, './src/plugins/Emojis/index.ts'),
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
       },

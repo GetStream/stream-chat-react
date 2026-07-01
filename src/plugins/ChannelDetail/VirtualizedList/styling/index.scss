@@ -1,0 +1,21 @@
+@use '../../../../styling/utils';
+
+// Virtuoso needs a scroll container with a definite height. The list is a flex
+// child here; `flex: 1; min-height: 0` bounds it, and the scroller (which may be
+// this element itself or a nested child depending on the Virtuoso config)
+// inherits that height.
+.str-chat__virtualized-list {
+  flex: 1;
+  min-height: 0;
+
+  &[data-virtuoso-scroller='true'],
+  [data-virtuoso-scroller='true'] {
+    @include utils.hide-scrollbar;
+    height: 100% !important;
+    overscroll-behavior: contain;
+  }
+
+  [data-viewport-type='element'] {
+    height: 100% !important;
+  }
+}

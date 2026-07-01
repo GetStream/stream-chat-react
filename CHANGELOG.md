@@ -1,3 +1,25 @@
+## [14.6.0](https://github.com/GetStream/stream-chat-react/compare/v14.5.0...v14.6.0) (2026-06-25)
+
+### Features
+
+* add ChannelDetail component ([#3221](https://github.com/GetStream/stream-chat-react/issues/3221)) ([2312d89](https://github.com/GetStream/stream-chat-react/commit/2312d8955eaf209118986f289e3b8655d21d29b6))
+
+## [14.5.0](https://github.com/GetStream/stream-chat-react/compare/v14.4.1...v14.5.0) (2026-06-19)
+
+### Bug Fixes
+
+* **i18n:** localize message timestamps across all locales ([#3220](https://github.com/GetStream/stream-chat-react/issues/3220)) ([c1b65b6](https://github.com/GetStream/stream-chat-react/commit/c1b65b64f414b224ac8c067674bdeaaa17ff5af1))
+* **MediaRecorder:** guard pause/resume against inactive recorder to prevent InvalidStateError ([#3218](https://github.com/GetStream/stream-chat-react/issues/3218)) ([a7e9006](https://github.com/GetStream/stream-chat-react/commit/a7e9006d69a9e3b251ab6386ef62182712d87f65))
+* use client mandated composer queue ([#3222](https://github.com/GetStream/stream-chat-react/issues/3222)) ([57906bb](https://github.com/GetStream/stream-chat-react/commit/57906bb95560a3490ad15c30bad45faec6f14cc4))
+
+### Features
+
+* add enhanced mentions ([#3189](https://github.com/GetStream/stream-chat-react/issues/3189)) ([7172ebc](https://github.com/GetStream/stream-chat-react/commit/7172ebcbb1fb11bac06ac2cc1da92c61ad5a5940))
+
+### Refactors
+
+* **tutorial:** use isProductAttachment type guard instead of inline predicate ([#3213](https://github.com/GetStream/stream-chat-react/issues/3213)) ([0b95202](https://github.com/GetStream/stream-chat-react/commit/0b9520203ac442103ecafa1fa57f2014355e5e58))
+
 ## [14.4.1](https://github.com/GetStream/stream-chat-react/compare/v14.4.0...v14.4.1) (2026-06-05)
 
 ### Bug Fixes

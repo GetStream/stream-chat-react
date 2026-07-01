@@ -13,6 +13,7 @@ import { FocusScope } from '@react-aria/focus';
 import { AriaLiveOutlet } from '../Accessibility';
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import {
+  DialogManagerProvider,
   ModalContextProvider,
   modalDialogManagerId,
   useChatContext,
@@ -43,6 +44,11 @@ export type ModalProps = {
   className?: string;
   /** Optional stable id for this modal instance. Generated automatically when omitted. */
   dialogId?: string;
+  /** Properties forwarded to the root div within which the dialog content is rendered */
+  dialogRootProps?: Omit<
+    ComponentProps<'div'>,
+    'aria-label' | 'aria-labelledby' | 'aria-describedby' | 'role'
+  >;
   /** Accessible label for the modal dialog. Ignored when aria-labelledby is provided. */
   'aria-label'?: string;
   /** ID of the element that labels the modal dialog. */
@@ -71,6 +77,7 @@ export const GlobalModal = ({
   className,
   CloseButtonOnOverlay,
   dialogId,
+  dialogRootProps,
   getInitialFocusElement,
   initialFocusStrategy,
   onClose,
@@ -89,6 +96,11 @@ export const GlobalModal = ({
   const closingRef = useRef(false);
   const { theme } = useChatContext();
   const { NotificationList = DefaultNotificationList } = useComponentContext();
+  const {
+    className: dialogRootClassName,
+    onKeyDown: dialogRootOnKeyDown,
+    ...dialogRootPropsRest
+  } = dialogRootProps ?? {};
   const dialogLabelingBaseId = dialogId ?? modalDialogId;
   const resolvedInitialFocusStrategy: ModalInitialFocusStrategy =
     initialFocusStrategy ?? 'firstElement';
@@ -133,6 +145,7 @@ export const GlobalModal = ({
   };
 
   const handleDialogKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    dialogRootOnKeyDown?.(event);
     if (event.defaultPrevented || !isTopmost) return;
 
     if (event.key === 'Escape') {
@@ -214,22 +227,31 @@ export const GlobalModal = ({
             restoreFocus
           >
             <div
+              {...dialogRootPropsRest}
               aria-describedby={resolvedModalAriaProps['aria-describedby']}
               aria-label={resolvedModalAriaProps['aria-label']}
               aria-labelledby={resolvedModalAriaProps['aria-labelledby']}
               aria-modal={isTopmost ? 'true' : undefined}
-              className='str-chat__modal__dialog'
+              className={clsx('str-chat__modal__dialog', dialogRootClassName)}
               inert={isTopmost ? undefined : true}
               onKeyDown={handleDialogKeyDown}
               ref={dialogRef}
               role={role}
               tabIndex={isTopmost ? 0 : -1}
             >
-              {children}
-              {/* Render the live-region outlet inside the active modal subtree
+              <DialogManagerProvider
+                id={`${resolvedDialogId}-floating-dialog-manager`}
+                portalDestinationProps={{
+                  captureOutsideClicks: true,
+                  className: 'str-chat__modal__floating-dialog-overlay',
+                }}
+              >
+                {children}
+                {/* Render the live-region outlet inside the active modal subtree
                   (only the topmost dialog carries `aria-modal`) so announcements
                   are not suppressed by assistive technologies. */}
-              {isTopmost && <AriaLiveOutlet layer={1} />}
+                {isTopmost && <AriaLiveOutlet layer={1} />}
+              </DialogManagerProvider>
             </div>
           </FocusScope>
           <NotificationList

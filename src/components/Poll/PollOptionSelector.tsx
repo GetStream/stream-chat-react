@@ -12,6 +12,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
+import { Checkbox } from '../Form';
 
 type AmountBarProps = {
   amount: number;
@@ -28,14 +29,6 @@ export const AmountBar = ({ amount, className }: AmountBarProps) => (
         '--str-chat__amount-bar-fulfillment': amount + '%',
       } as React.CSSProperties
     }
-  />
-);
-
-export type CheckmarkProps = { checked?: boolean };
-
-export const Checkmark = ({ checked }: CheckmarkProps) => (
-  <div
-    className={clsx('str-chat__checkmark', { 'str-chat__checkmark--checked': checked })}
   />
 );
 
@@ -134,7 +127,7 @@ export const PollOptionSelector = ({
       role={isInteractive ? 'button' : undefined}
       tabIndex={isInteractive ? 0 : undefined}
     >
-      {canCastVote && <Checkmark checked={isSelected} />}
+      {canCastVote && <Checkbox checked={isSelected} />}
       <div className='str-chat__poll-option-data'>
         <p className='str-chat__poll-option-text'>{option.text}</p>
         <div className='str-chat__poll-option-votes'>

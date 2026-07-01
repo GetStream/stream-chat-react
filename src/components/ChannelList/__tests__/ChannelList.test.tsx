@@ -1255,6 +1255,56 @@ describe('ChannelList', () => {
         const results = await axe(container);
         expect(results).toHaveNoViolations();
       });
+
+      it('does not query (watch) the channel when allowNewMessagesFromUnfilteredChannels is false (#2441)', async () => {
+        useMockedApis(chatClient, [queryChannelsApi([testChannel1, testChannel2])]);
+
+        const { getByRole, queryByTestId } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList
+                allowNewMessagesFromUnfilteredChannels={false}
+                filters={{}}
+                options={{
+                  limit: 25,
+                  message_limit: 25,
+                  presence: true,
+                  state: true,
+                  watch: true,
+                }}
+              />
+            </WithComponents>
+          </Chat>,
+        );
+
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        // getChannel() resolves `client.channel(type, id)` to this cached
+        // instance, so spying on its watch() reveals whether a queryChannel was
+        // issued for an unfiltered channel.
+        const unlistedChannel = chatClient.channel(
+          testChannel3.channel.type,
+          testChannel3.channel.id,
+        );
+        const watchSpy = vi
+          .spyOn(unlistedChannel, 'watch')
+          .mockResolvedValue(fromPartial({}));
+
+        await act(async () => {
+          dispatchNotificationMessageNewEvent(chatClient, testChannel3.channel);
+          await Promise.resolve();
+        });
+
+        expect(watchSpy).not.toHaveBeenCalled();
+        expect(queryByTestId(testChannel3.channel.id)).not.toBeInTheDocument();
+      });
     });
 
     describe('notification.added_to_channel', () => {
@@ -1419,6 +1469,47 @@ describe('ChannelList', () => {
         });
         const results = await axe(container);
         expect(results).toHaveNoViolations();
+      });
+
+      // Regression: #2599. Removing the current user from a channel must evict it
+      // from `client.activeChannels`. Otherwise the channel lingers there and, on
+      // reconnect, `recoverState()` re-watches it (`recoverStateOnReconnect` defaults
+      // to `true`, so `usePaginatedChannels` does not re-query and relies on core
+      // recovery) - channel events then resume and the list resurrects it. The
+      // eviction itself lives in stream-chat core (`StreamChat._handleClientEvent`);
+      // this test guards that the behaviour ChannelList depends on stays in place.
+      it('evicts the removed channel from client.activeChannels so reconnect cannot re-watch it (#2599)', async () => {
+        const { getByRole, getByTestId } = await render(
+          <Chat client={chatClient}>
+            <WithComponents
+              overrides={{
+                ChannelListItemUI: ChannelPreviewComponent,
+                ChannelListUI: ChannelListComponent,
+              }}
+            >
+              <ChannelList {...channelListProps} />
+            </WithComponents>
+          </Chat>,
+        );
+        await waitFor(() => {
+          expect(getByRole('list')).toBeInTheDocument();
+        });
+
+        const { cid } = testChannel3.channel;
+        const removedNode = getByTestId(testChannel3.channel.id);
+        // precondition: the loaded channel is tracked by the client
+        expect(chatClient.activeChannels[cid]).toBeDefined();
+
+        act(() =>
+          dispatchNotificationRemovedFromChannel(chatClient, testChannel3.channel),
+        );
+
+        await waitFor(() => {
+          expect(removedNode).not.toBeInTheDocument();
+        });
+        // the channel must no longer be tracked, otherwise `recoverState()` would
+        // re-watch it on the next reconnect and bring it back into the list
+        expect(chatClient.activeChannels[cid]).toBeUndefined();
       });
     });
 
