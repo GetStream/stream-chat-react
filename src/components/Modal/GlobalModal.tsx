@@ -101,7 +101,9 @@ export const GlobalModal = ({
     onKeyDown: dialogRootOnKeyDown,
     ...dialogRootPropsRest
   } = dialogRootProps ?? {};
-  const dialogLabelingBaseId = dialogId ?? modalDialogId;
+  // Base for label/description ids must be unique per modal. `resolvedDialogId` already carries a
+  // per-instance suffix; the shared `modalDialogId` fallback would collide across stacked modals.
+  const dialogLabelingBaseId = resolvedDialogId;
   const resolvedInitialFocusStrategy: ModalInitialFocusStrategy =
     initialFocusStrategy ?? 'firstElement';
   const resolvedModalAriaProps = useResolvedModalAriaProps({
