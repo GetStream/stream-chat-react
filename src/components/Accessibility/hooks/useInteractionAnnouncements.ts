@@ -40,6 +40,14 @@ export type InteractionAnnouncementParams = {
   'giphy.sent': undefined;
   'giphy.shuffled': InteractionDeliveryOptions & { title?: string };
   'poll.dialogOpened': undefined;
+  /** A poll option was dropped at a new position during keyboard reorder. */
+  'poll.optionDropped': InteractionDeliveryOptions & {
+    option: string;
+    position: number;
+  };
+  /** A poll option was picked up to start a keyboard reorder. `option` is its text (or a fallback). */
+  'poll.optionPickedUp': InteractionDeliveryOptions & { option: string };
+  'poll.optionRemoved': InteractionDeliveryOptions & { option: string };
   'poll.sent': undefined;
   'search.cleared': undefined;
   'search.resultCount': InteractionDeliveryOptions & {
@@ -102,6 +110,22 @@ const INTERACTION_MESSAGES: {
     `${t('aria/Poll dialog opened')}. ${t(
       'Create a question, add options, and configure poll settings',
     )}. ${t('aria/Press Enter to start typing')}.`,
+  // Keyboard reorder pickup/drop. Assertive (see INTERACTION_PRIORITIES) — immediate drag feedback
+  // that must not be queued behind other polite messages.
+  'poll.optionDropped': (t, params) =>
+    t('aria/Dropped "{{ option }}" at position {{ position }}.', {
+      option: params.option,
+      position: params.position,
+    }),
+  'poll.optionPickedUp': (t, params) =>
+    t(
+      'aria/Picked up "{{ option }}". Use arrow keys to reorder. Press Space or Tab to drop.',
+      { option: params.option },
+    ),
+  // Confirms a poll option was removed, naming it by its text (or positional fallback). Polite so it
+  // queues behind the focus move to the next option field instead of interrupting it.
+  'poll.optionRemoved': (t, params) =>
+    t('aria/Removed option {{ option }}', { option: params.option }),
   'poll.sent': (t) => t('aria/Poll sent'),
   'search.cleared': (t) => t('aria/Search cleared'),
   // The number of items currently listed in the search results; an empty result set is spelled out
@@ -142,6 +166,9 @@ const INTERACTION_PRIORITIES: Partial<
   // Assertive on open: a polite update fired around the dialog's focus-entry announcement is
   // dropped; assertive interrupts and is spoken (VoiceOver demotes the aria-describedby hint).
   'poll.dialogOpened': 'assertive',
+  // Keyboard reorder feedback must be immediate (interrupt), not queued behind polite messages.
+  'poll.optionDropped': 'assertive',
+  'poll.optionPickedUp': 'assertive',
 };
 
 /**

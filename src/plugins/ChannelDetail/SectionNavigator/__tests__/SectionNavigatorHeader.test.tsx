@@ -69,15 +69,14 @@ describe('SectionNavigatorHeader', () => {
     expect(screen.queryByRole('button', { name: 'Open menu' })).not.toBeInTheDocument();
   });
 
-  it('derives the close button label from a string title', () => {
+  it('gives the close button a concise "Close" label for a string title', () => {
     render(<SectionNavigatorHeader close={vi.fn()} title='Files' />);
 
-    expect(
-      screen.getByRole('button', { name: 'Close prompt: {{ title }}' }),
-    ).toBeInTheDocument();
+    // The dialog is already named by its title (aria-labelledby), so the close button stays concise.
+    expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument();
   });
 
-  it('renders a ReactNode title and falls back to a generic close label', () => {
+  it('renders a ReactNode title with the same concise close label', () => {
     render(<SectionNavigatorHeader close={vi.fn()} title={<span>Custom title</span>} />);
 
     expect(screen.getByText('Custom title')).toBeInTheDocument();

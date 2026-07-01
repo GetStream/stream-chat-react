@@ -122,6 +122,10 @@ vi.mock('../../Dialog/hooks/usePopoverPosition', () => ({
 const buildState = (count: number, type = 'mentions') => {
   const items = Array.from({ length: count }, (_, i) => ({
     id: `id-${i}`,
+    // MentionItem dispatches on `mentionType` (user/role/user_group/channel/here) to its
+    // subcomponent; a user mention renders the option row. Without it the item falls through to
+    // SpecialMentionItem and no `[role="option"]` is emitted.
+    mentionType: 'user',
     name: `name-${i}`,
     tokenizedDisplayName: { parts: [`name-${i}`], token: 'name' },
   }));
@@ -148,7 +152,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'aria/User Suggestions', // mentions → localized type label (t mock returns the key)
+      suggestionsLabel: 'aria/Mention Suggestions', // mentions → localized type label (t mock returns the key)
     });
   });
 
@@ -157,7 +161,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'aria/User Suggestions',
+      suggestionsLabel: 'aria/Mention Suggestions',
     });
 
     fakeComposerState = buildState(1);
@@ -169,7 +173,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 1,
-      suggestionsLabel: 'aria/User Suggestions',
+      suggestionsLabel: 'aria/Mention Suggestions',
     });
   });
 
@@ -191,7 +195,7 @@ describe('SuggestionList', () => {
     expect(announceInteractionMock).toHaveBeenCalledTimes(2);
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'aria/User Suggestions',
+      suggestionsLabel: 'aria/Mention Suggestions',
     });
   });
 
@@ -227,7 +231,7 @@ describe('SuggestionList', () => {
     const listbox = container.querySelector('[role="listbox"]');
     expect(listbox).toBeInTheDocument();
     // The listbox carries the localized type label as its accessible name.
-    expect(listbox).toHaveAttribute('aria-label', 'aria/User Suggestions');
+    expect(listbox).toHaveAttribute('aria-label', 'aria/Mention Suggestions');
 
     const options = container.querySelectorAll('[role="option"]');
     expect(options.length).toBe(3);

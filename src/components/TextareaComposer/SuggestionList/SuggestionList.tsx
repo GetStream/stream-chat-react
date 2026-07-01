@@ -256,6 +256,7 @@ export const SuggestionList = ({
     component &&
     commandSuggestionsEnabled
   );
+
   // A single localized label per suggestion type, used BOTH as the listbox's aria-label and
   // in the count announcement ("5 Command Suggestions") — one source of truth, no second key.
   // NOTE: the type strings must match the SDK search-source `type` values exactly — `commands`
@@ -268,7 +269,7 @@ export const SuggestionList = ({
       case 'emoji':
         return t('aria/Emoji Suggestions');
       case 'mentions':
-        return t('aria/User Suggestions');
+        return t('aria/Mention Suggestions');
       default:
         return t('aria/Suggestions');
     }
@@ -291,16 +292,6 @@ export const SuggestionList = ({
   }, [announceInteraction, items, showSuggestionsList, suggestionMenuLabel]);
 
   if (!showSuggestionsList) return null;
-
-  // todo: remove the legacyUserSuggestionsLabel check with the next major release. It was introduced for backwards compatibility.
-  const suggestionMenuLabel =
-    suggestions.searchSource.type === 'commands'
-      ? t('aria/Command Suggestions')
-      : suggestions.searchSource.type === 'emojis'
-        ? t('aria/Emoji Suggestions')
-        : suggestions.searchSource.type === 'mentions'
-          ? t('aria/Mention Suggestions')
-          : t('aria/Suggestions');
 
   return (
     <div

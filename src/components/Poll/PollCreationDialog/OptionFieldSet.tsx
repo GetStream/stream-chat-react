@@ -10,7 +10,11 @@ import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
 import { VisuallyHidden } from '../../VisuallyHidden';
 import { useStableId } from '../../UtilityComponents/useStableId';
-import { useAriaLiveAnnouncer, useSettledAnnouncement } from '../../Accessibility';
+import {
+  useAriaLiveAnnouncer,
+  useInteractionAnnouncements,
+  useSettledAnnouncement,
+} from '../../Accessibility';
 import { PollOptionReorderHandle } from './PollOptionReorderHandle';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
@@ -18,11 +22,13 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
   options: state.data.options,
 });
 
-// Reorder pickup/move/drop announcements are emitted via `useAriaLiveAnnouncer`
-// and rendered by the modal {@link AriaLiveOutlet} that the poll-creation dialog
-// mounts (the Modal/Dialog system renders an outlet inside the active
-// `aria-modal` subtree). Screen readers suppress live regions outside an active
-// aria-modal container, so the modal outlet keeps these announcements in scope.
+// Option pickup/drop/removed confirmations go through the shared {@link useInteractionAnnouncements}
+// registry (poll.optionPickedUp / poll.optionDropped / poll.optionRemoved), while the one-shot
+// "controls are now available" cue uses {@link useSettledAnnouncement}. Both ultimately deliver via
+// `useAriaLiveAnnouncer`, which routes to the modal {@link AriaLiveOutlet} the poll-creation dialog
+// mounts (the Modal/Dialog system renders an outlet inside the active `aria-modal` subtree). Screen
+// readers suppress live regions outside an active aria-modal container, so the modal outlet keeps
+// these announcements in scope.
 export const OptionFieldSet = () => {
   const { pollComposer } = useMessageComposerController();
   const { errors, options } = useStateStore(
@@ -31,6 +37,7 @@ export const OptionFieldSet = () => {
   );
   const { t } = useTranslationContext('OptionFieldSet');
   const announce = useAriaLiveAnnouncer();
+  const { announceInteraction } = useInteractionAnnouncements();
   const optionInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const handleRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const pendingFocusIndexRef = useRef<number | null>(null);
@@ -81,14 +88,12 @@ export const OptionFieldSet = () => {
         options: nextOptions,
       });
 
-      // Confirm the removal, naming the option by its text (or its positional fallback). Polite so
-      // it queues behind the focus move to the next field (below) instead of interrupting it.
-      announce(
-        t('aria/Removed option {{ option }}', {
-          option: labelForOption(removedOption, removedOptionIndex + 1),
-        }),
-        { priority: 'polite' },
-      );
+      // Confirm the removal, naming the option by its text (or its positional fallback). The
+      // registry maps this to a polite message so it queues behind the focus move to the next field
+      // (below) instead of interrupting it.
+      announceInteraction('poll.optionRemoved', {
+        option: labelForOption(removedOption, removedOptionIndex + 1),
+      });
 
       if (activeOptionId === removedOptionId) {
         setActiveOptionId(null);
@@ -100,7 +105,7 @@ export const OptionFieldSet = () => {
         optionInputRefs.current[nextFocusedOptionIndex]?.focus();
       });
     },
-    [activeOptionId, announce, labelForOption, pollComposer, t],
+    [activeOptionId, announceInteraction, labelForOption, pollComposer],
   );
 
   const handleActivate = useCallback(
@@ -109,15 +114,11 @@ export const OptionFieldSet = () => {
       if (idx === -1) return;
       const option = pollComposer.options[idx];
       setActiveOptionId(optionId);
-      announce(
-        t(
-          'aria/Picked up "{{ option }}". Use arrow keys to reorder. Press Space or Tab to drop.',
-          { option: labelForOption(option, idx + 1) },
-        ),
-        { priority: 'assertive' },
-      );
+      announceInteraction('poll.optionPickedUp', {
+        option: labelForOption(option, idx + 1),
+      });
     },
-    [announce, labelForOption, pollComposer, t],
+    [announceInteraction, labelForOption, pollComposer],
   );
 
   const handleDeselect = useCallback(() => {
@@ -129,14 +130,11 @@ export const OptionFieldSet = () => {
 
     if (!option) return;
 
-    announce(
-      t('aria/Dropped "{{ option }}" at position {{ position }}.', {
-        option: labelForOption(option, idx + 1),
-        position: idx + 1,
-      }),
-      { priority: 'assertive' },
-    );
-  }, [activeOptionId, announce, labelForOption, pollComposer, t]);
+    announceInteraction('poll.optionDropped', {
+      option: labelForOption(option, idx + 1),
+      position: idx + 1,
+    });
+  }, [activeOptionId, announceInteraction, labelForOption, pollComposer]);
 
   const handleMove = useCallback(
     (direction: -1 | 1) => {

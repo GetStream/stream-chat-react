@@ -56,6 +56,34 @@ describe('useInteractionAnnouncements', () => {
     expect(announceMock).toHaveBeenCalledWith('Poll sent', { priority: 'polite' });
   });
 
+  it('announces a removed poll option by name with polite priority', () => {
+    const { result } = renderHook(() => useInteractionAnnouncements());
+    result.current.announceInteraction('poll.optionRemoved', { option: 'First option' });
+    expect(announceMock).toHaveBeenCalledWith('Removed option First option', {
+      priority: 'polite',
+    });
+  });
+
+  it('announces picking up a poll option assertively', () => {
+    const { result } = renderHook(() => useInteractionAnnouncements());
+    result.current.announceInteraction('poll.optionPickedUp', { option: 'First option' });
+    expect(announceMock).toHaveBeenCalledWith(
+      'Picked up "First option". Use arrow keys to reorder. Press Space or Tab to drop.',
+      { priority: 'assertive' },
+    );
+  });
+
+  it('announces dropping a poll option at its new position assertively', () => {
+    const { result } = renderHook(() => useInteractionAnnouncements());
+    result.current.announceInteraction('poll.optionDropped', {
+      option: 'First option',
+      position: 2,
+    });
+    expect(announceMock).toHaveBeenCalledWith('Dropped "First option" at position 2.', {
+      priority: 'assertive',
+    });
+  });
+
   it('announces the composed poll dialog open message — assertive and deduped', () => {
     const { result } = renderHook(() => useInteractionAnnouncements());
     result.current.announceInteraction('poll.dialogOpened');

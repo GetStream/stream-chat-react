@@ -31,7 +31,16 @@ export const UserItem = ({ entity, focused, ...buttonProps }: UserItemProps) => 
   const LeadingSlot = useMemo(
     () =>
       function UserItemAvatar() {
-        return <Avatar imageUrl={entity.image} size='md' userName={titleAttribute} />;
+        // Decorative: the option's accessible name already carries the user's name (title +
+        // tokenized display name), so the avatar's fallback initials/role would only add noise.
+        return (
+          <Avatar
+            aria-hidden
+            imageUrl={entity.image}
+            size='md'
+            userName={titleAttribute}
+          />
+        );
       },
     [entity.image, titleAttribute],
   );

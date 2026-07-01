@@ -1313,10 +1313,11 @@ describe(`MessageInputFlat`, () => {
     });
 
     await waitFor(() => {
-      expect(container.querySelector('.str-chat__suggestion-list')).toHaveAttribute(
-        'aria-label',
-        'aria/Mention Suggestions',
-      );
+      // The accessible name lives on the listbox container (role="listbox"), not the inner
+      // presentation element.
+      expect(
+        container.querySelector('.str-chat__suggestion-list-container'),
+      ).toHaveAttribute('aria-label', 'aria/Mention Suggestions');
       expect(
         container.querySelectorAll('.str-chat__suggestion-list-item').length,
       ).toBeGreaterThanOrEqual(3);
