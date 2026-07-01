@@ -276,15 +276,22 @@ describe('ChatView.Selector', () => {
     expect(screen.queryByTestId('threads-panel-content')).toBeNull();
   });
 
-  it('does not expose the threads button icon/badge wrapper as a nested group', async () => {
-    // The threads button wraps its icon in UnreadCountBadge; that decorative wrapper must be
-    // aria-hidden so screen readers do not announce a stray "group" inside the button (the button
-    // is fully named by its aria-label, and the unread count rides in that label).
+  it('hides only the numeric unread badge from AT, not the wrapper', async () => {
+    // The threads button wraps its icon in UnreadCountBadge. Only the numeric count is aria-hidden
+    // (it rides in the button's aria-label already, so it must not be announced twice); the wrapper
+    // stays in the a11y tree so it does not swallow arbitrary children. The plain wrapper div
+    // exposes no role, so no stray "group" is announced inside the button.
     await renderSelectorWithPanels({ threadManagerState: { unreadThreadCount: 3 } });
 
     const threadsButton = screen.getByRole('button', { name: /Open threads view/ });
-    const badge = threadsButton.querySelector('.str-chat__unread-count-badge-container');
-    expect(badge).toHaveAttribute('aria-hidden', 'true');
+    const wrapper = threadsButton.querySelector(
+      '.str-chat__unread-count-badge-container',
+    );
+    expect(wrapper).not.toHaveAttribute('aria-hidden');
+    expect(threadsButton.querySelector('.str-chat__unread-count-badge')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
     // No group is exposed within the selector's buttons.
     expect(screen.queryByRole('group')).toBeNull();
   });
