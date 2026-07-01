@@ -551,11 +551,14 @@ describe('ChannelListItemActionButtons defaults', () => {
       });
 
       // Unlike the quick action (which stays focused via aria-disabled), a dropdown item closes the
-      // menu on activation — the action still runs in the background.
+      // menu on activation — the action still runs in the background (deferred a frame), so wait for
+      // both the menu to close and the action to fire.
       await waitFor(() => {
         expect(document.querySelector('.str-chat__context-menu')).not.toBeInTheDocument();
       });
-      expect(channel.archive).toHaveBeenCalledTimes(1);
+      await waitFor(() => {
+        expect(channel.archive).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('unarchives an archived channel from dropdown', async () => {

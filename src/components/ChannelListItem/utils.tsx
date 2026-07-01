@@ -92,8 +92,12 @@ const getLatestMessagePreviewParts = (
   channel: Channel,
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
+  latestMessageArg?: LocalMessage,
 ): LatestMessagePreviewParts => {
+  // Prefer an explicitly supplied message so the preview stays consistent with the sender/status/
+  // time a caller derives from the same message; fall back to the channel's latest.
   const latestMessage =
+    latestMessageArg ??
     channel.state.latestMessages[channel.state.latestMessages.length - 1];
 
   const previewTextToRender =
@@ -243,9 +247,15 @@ export const getLatestMessagePreviewText = (
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
+  latestMessage?: LocalMessage,
 ): string => {
-  const { isUserMessageText, kind, latestMessage, pollName, text } =
-    getLatestMessagePreviewParts(channel, t, userLanguage);
+  const {
+    isUserMessageText,
+    kind,
+    latestMessage: resolvedLatestMessage,
+    pollName,
+    text,
+  } = getLatestMessagePreviewParts(channel, t, userLanguage, latestMessage);
 
   switch (kind) {
     case 'poll':
@@ -255,8 +265,9 @@ export const getLatestMessagePreviewText = (
       // count of real attachments. Multiple → a generic phrase (the count is announced alongside);
       // a single one → its localized type.
       const realAttachments =
-        latestMessage?.attachments?.filter((attachment) => !attachment.og_scrape_url) ??
-        [];
+        resolvedLatestMessage?.attachments?.filter(
+          (attachment) => !attachment.og_scrape_url,
+        ) ?? [];
       if (realAttachments.length > 1) return t('aria/Message with attachments');
       const typeLabel = getAttachmentTypeLabel(realAttachments[0]?.type, t);
       return typeLabel
@@ -269,9 +280,11 @@ export const getLatestMessagePreviewText = (
       // The visible preview says "Nothing yet..."; spell it out for assistive tech.
       return t('aria/There are no messages in this chat.');
     case 'text':
-      // `latestMessage` guard is redundant at runtime (isUserMessageText implies it) but narrows
-      // the optional type for `isMessageAIGenerated`.
-      return isUserMessageText && latestMessage && !isMessageAIGenerated?.(latestMessage)
+      // `resolvedLatestMessage` guard is redundant at runtime (isUserMessageText implies it) but
+      // narrows the optional type for `isMessageAIGenerated`.
+      return isUserMessageText &&
+        resolvedLatestMessage &&
+        !isMessageAIGenerated?.(resolvedLatestMessage)
         ? stripMarkdownToText(text)
         : text;
     default:
@@ -285,17 +298,20 @@ export const getLatestMessagePreview = (
   t: TranslationContextValue['t'],
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
+  latestMessage?: LocalMessage,
 ): ReactNode => {
-  const { isUserMessageText, latestMessage, text } = getLatestMessagePreviewParts(
-    channel,
-    t,
-    userLanguage,
-  );
+  const {
+    isUserMessageText,
+    latestMessage: resolvedLatestMessage,
+    text,
+  } = getLatestMessagePreviewParts(channel, t, userLanguage, latestMessage);
 
   // Only the plain user-message text is rendered as markdown — unless it is AI-generated, which is
-  // returned verbatim. Every other branch is a localized phrase used as-is. (`latestMessage` guard
-  // is redundant at runtime but narrows the optional type for `isMessageAIGenerated`.)
-  return isUserMessageText && latestMessage && !isMessageAIGenerated?.(latestMessage)
+  // returned verbatim. Every other branch is a localized phrase used as-is. (guard is redundant at
+  // runtime but narrows the optional type for `isMessageAIGenerated`.)
+  return isUserMessageText &&
+    resolvedLatestMessage &&
+    !isMessageAIGenerated?.(resolvedLatestMessage)
     ? renderPreviewText(text)
     : text;
 };

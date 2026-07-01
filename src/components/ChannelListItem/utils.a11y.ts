@@ -91,6 +91,9 @@ export const defaultChannelListItemLabelParts = {
       t,
       userLanguage,
       isMessageAIGenerated,
+      // Keep the announced preview text consistent with the sender/status/time derived from the
+      // same message (falls back to the channel's latest when not supplied).
+      latestMessage,
     );
     // Empty channel: announce there are no messages ("Nothing yet...").
     if (!message) return preview;
