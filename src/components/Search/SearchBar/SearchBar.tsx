@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useStableId } from '../../UtilityComponents/useStableId';
 import { useSearchContext } from '../SearchContext';
@@ -31,10 +31,28 @@ export const SearchBar = () => {
   const searchInputId = useStableId();
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
+  // Was the most recent pointerdown inside the search widget? Used to disambiguate a blur with a
+  // null `relatedTarget`: browsers report `null` both when focus genuinely leaves the widget AND
+  // when the user presses a non-focusable descendant (the search icon, wrapper padding). Only the
+  // former should collapse search.
+  const pointerDownInsideRef = useRef(false);
   const { isActive, searchQuery } = useStateStore(
     searchController.state,
     searchControllerStateSelector,
   );
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      pointerDownInsideRef.current = !!containerRef.current?.contains(
+        event.target as Node | null,
+      );
+    };
+    // Capture so it runs before the input's blur, regardless of where the press landed.
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+    };
+  }, [containerRef]);
 
   useEffect(() => {
     if (!input) return;
@@ -78,7 +96,14 @@ export const SearchBar = () => {
             // documented contract ("clear on every click outside the search") independent of
             // whether the input currently holds a query — an empty input is not activated, so the
             // previous value check only ever suppressed the exit while a query was present.
-            if (exitSearchOnInputBlur && !containerRef.current?.contains(relatedTarget)) {
+            if (!exitSearchOnInputBlur) return;
+            const focusMovedInside = !!containerRef.current?.contains(relatedTarget);
+            // A null relatedTarget also occurs when a non-focusable element inside the widget is
+            // pressed; the preceding pointerdown tells us it was an in-widget interaction, which
+            // must not collapse search.
+            const pressedInside = relatedTarget === null && pointerDownInsideRef.current;
+            pointerDownInsideRef.current = false;
+            if (!focusMovedInside && !pressedInside) {
               searchController.exit();
             }
           }}

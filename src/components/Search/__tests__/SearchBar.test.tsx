@@ -317,6 +317,29 @@ describe('SearchBar', () => {
     expect(mockSearchController.exit).toHaveBeenCalledWith();
   });
 
+  it('does not exit search on blur when a non-focusable element inside the widget is pressed (relatedTarget null after in-widget pointerdown)', () => {
+    const containerRef = { current: null as HTMLElement | null };
+    vi.mocked(useSearchContext).mockReturnValue(
+      fromPartial<SearchContextValue>({
+        ...defaultProps,
+        containerRef,
+        exitSearchOnInputBlur: true,
+      }),
+    );
+    vi.mocked(useStateStore).mockReturnValue({ isActive: true, searchQuery: 'test' });
+
+    render(<SearchBar />);
+    const bar = screen.getByTestId('search-bar');
+    containerRef.current = bar;
+
+    // Pressing a non-focusable descendant (e.g. the search icon) blurs the input with a null
+    // relatedTarget; the preceding pointerdown was inside, so search must stay open.
+    fireEvent.pointerDown(bar);
+    fireEvent.blur(screen.getByTestId('search-input'), { relatedTarget: null });
+
+    expect(mockSearchController.exit).not.toHaveBeenCalled();
+  });
+
   it('does not exit search on blur when focus moves to a control within the widget (e.g. Cancel)', () => {
     const containerRef = { current: null as HTMLElement | null };
     vi.mocked(useSearchContext).mockReturnValue(
