@@ -53,13 +53,20 @@ export const useChannelListKeyboardNavigation = (
   const getChannelOptions = () =>
     Array.from(listboxRef.current?.querySelectorAll<HTMLElement>(OPTION_SELECTOR) ?? []);
 
-  // Number of channel rows present when Load more was activated; the row at this index is the first
-  // item of the next page once it renders.
-  const pendingFocusIndexRef = useRef<number | null>(null);
+  // A pending "focus the first item of the next page" request. Rather than keying off the raw row
+  // COUNT (which a WebSocket-driven insert/reorder during the load window could satisfy with an
+  // unrelated row), we snapshot the pre-load rows: `boundary` is the last pre-load option (the new
+  // page is appended after it) and `preLoad` is the set of all pre-load option nodes (so a genuinely
+  // new row can be told apart from a reordered existing one). Rows are keyed by cid, so React keeps
+  // their DOM nodes stable across re-renders, making these references reliable identities.
+  const pendingFocusRef = useRef<{
+    boundary: HTMLElement | null;
+    preLoad: Set<HTMLElement>;
+  } | null>(null);
   const pendingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clearPendingFocus = () => {
-    pendingFocusIndexRef.current = null;
+    pendingFocusRef.current = null;
     if (pendingTimeoutRef.current) {
       clearTimeout(pendingTimeoutRef.current);
       pendingTimeoutRef.current = null;
@@ -70,21 +77,45 @@ export const useChannelListKeyboardNavigation = (
   const onClickCapture = (event: ReactMouseEvent<HTMLElement>) => {
     const target = event.target;
     if (!(target instanceof Element) || !target.closest(LOAD_MORE_SELECTOR)) return;
-    pendingFocusIndexRef.current = getChannelOptions().length;
+    const options = getChannelOptions();
+    pendingFocusRef.current = {
+      boundary: options[options.length - 1] ?? null,
+      preLoad: new Set(options),
+    };
     if (pendingTimeoutRef.current) clearTimeout(pendingTimeoutRef.current);
     pendingTimeoutRef.current = setTimeout(clearPendingFocus, LOAD_MORE_FOCUS_TIMEOUT_MS);
   };
 
-  // After the newly loaded items render (the list grows), focus the first item of the next page.
-  // Runs after every commit; cheap no-op unless a focus move is pending.
+  // After the newly loaded page renders, focus its first item. Runs after every commit; cheap no-op
+  // unless a focus move is pending. We look for the first option that is BOTH after the pre-load
+  // boundary AND was not present before load — so an unrelated row arriving over the WebSocket (which
+  // sorts above the boundary, and/or is not "after" it) does not trigger a stray focus move.
   useEffect(() => {
-    const pending = pendingFocusIndexRef.current;
-    if (pending === null) return;
+    const pending = pendingFocusRef.current;
+    if (!pending) return;
     const options = getChannelOptions();
-    if (options.length > pending) {
-      options[pending]?.focus();
-      clearPendingFocus();
+    // Empty list when Load more was pressed: the whole list is the new page — focus its first row.
+    if (!pending.boundary) {
+      if (options.length > 0) {
+        options[0].focus();
+        clearPendingFocus();
+      }
+      return;
     }
+    const boundaryIndex = options.indexOf(pending.boundary);
+    // Boundary row was removed (e.g. the user left that channel) — drop the request rather than
+    // guessing where the page starts.
+    if (boundaryIndex === -1) {
+      clearPendingFocus();
+      return;
+    }
+    const firstNewOption = options
+      .slice(boundaryIndex + 1)
+      .find((option) => !pending.preLoad.has(option));
+    // Nothing new after the boundary yet: keep waiting (within the timeout) for the page to render.
+    if (!firstNewOption) return;
+    firstNewOption.focus();
+    clearPendingFocus();
   });
 
   useEffect(() => () => clearPendingFocus(), []);

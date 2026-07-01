@@ -22,15 +22,31 @@ const Row = ({ id }: { id: number }) => (
 const Harness = ({
   initialCount = 3,
   loadMoreAddsCount = 2,
+  manualLoadMore = false,
   withLoadMore = false,
 }: {
   initialCount?: number;
   loadMoreAddsCount?: number;
+  // When true, the Load more button only arms the hook (no rows appended); page loading and an
+  // unrelated "WebSocket" prepend are driven by separate controls so a mid-window insert can be
+  // injected before the next page renders. Ids are stable so React keeps each row's DOM node.
+  manualLoadMore?: boolean;
   withLoadMore?: boolean;
 }) => {
-  const [count, setCount] = useState(initialCount);
+  const [ids, setIds] = useState(() => Array.from({ length: initialCount }, (_, i) => i));
+  const nextIdRef = useRef(initialCount);
+  const prevIdRef = useRef(-1);
   const listboxRef = useRef<HTMLDivElement>(null);
   const { onClickCapture, onKeyDown } = useChannelListKeyboardNavigation(listboxRef);
+
+  const appendPage = () =>
+    setIds((current) => [
+      ...current,
+      ...Array.from({ length: loadMoreAddsCount }, () => nextIdRef.current++),
+    ]);
+  const prependUnrelated = () => setIds((current) => [prevIdRef.current--, ...current]);
+  const removeLast = () => setIds((current) => current.slice(0, -1));
+
   return (
     <div
       aria-label='Channel list'
@@ -39,17 +55,30 @@ const Harness = ({
       ref={listboxRef}
       role='listbox'
     >
-      {Array.from({ length: count }, (_, index) => (
-        <Row id={index} key={index} />
+      {ids.map((id) => (
+        <Row id={id} key={id} />
       ))}
       {withLoadMore && (
         <button
           data-testid='load-more-button'
-          onClick={() => setCount((current) => current + loadMoreAddsCount)}
+          onClick={manualLoadMore ? undefined : appendPage}
           type='button'
         >
           Load more
         </button>
+      )}
+      {manualLoadMore && (
+        <>
+          <button data-testid='append-page' onClick={appendPage} type='button'>
+            Append page
+          </button>
+          <button data-testid='ws-prepend' onClick={prependUnrelated} type='button'>
+            WS insert
+          </button>
+          <button data-testid='remove-last' onClick={removeLast} type='button'>
+            Remove last
+          </button>
+        </>
       )}
     </div>
   );
@@ -155,5 +184,41 @@ describe('useChannelListKeyboardNavigation', () => {
     await waitFor(() => {
       expect(screen.getByTestId('option-3')).toHaveFocus();
     });
+  });
+
+  it('does not focus an unrelated row that arrives before the next page, then focuses the real first new row', async () => {
+    render(<Harness manualLoadMore withLoadMore />);
+
+    // Arm the focus move (Load more pressed) but the page has not loaded yet.
+    fireEvent.click(screen.getByTestId('load-more-button'));
+
+    // A channel arrives over the WebSocket and sorts to the top during the load window: the list
+    // grows, but this row is not the next page and must NOT receive focus.
+    fireEvent.click(screen.getByTestId('ws-prepend'));
+    await Promise.resolve();
+    expect(screen.getByTestId('option--1')).not.toHaveFocus();
+    expect(document.body).toHaveFocus();
+
+    // The real next page renders (appended after the pre-load boundary) → its first row is focused.
+    fireEvent.click(screen.getByTestId('append-page'));
+    await waitFor(() => {
+      expect(screen.getByTestId('option-3')).toHaveFocus();
+    });
+  });
+
+  it('drops the pending focus move when the pre-load boundary row is removed', async () => {
+    render(<Harness manualLoadMore withLoadMore />);
+
+    fireEvent.click(screen.getByTestId('load-more-button'));
+    // The boundary row (last pre-load option) is removed before the page arrives.
+    fireEvent.click(screen.getByTestId('remove-last'));
+    // The page then loads; with the boundary gone the request is dropped rather than guessing.
+    fireEvent.click(screen.getByTestId('append-page'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('option-3')).toBeInTheDocument();
+    });
+    expect(screen.getByTestId('option-3')).not.toHaveFocus();
+    expect(document.body).toHaveFocus();
   });
 });
