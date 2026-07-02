@@ -2,20 +2,18 @@ import { createTextComposerEmojiMiddleware } from '../textComposerEmojiMiddlewar
 
 // Minimal onChange harness: capture whatever state the handler completes/nexts with.
 const runOnChange = async (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   middleware: ReturnType<typeof createTextComposerEmojiMiddleware>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   state: any,
 ) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let output: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const complete = (next: any) => {
     output = next;
     return { state: next, status: 'complete' };
   };
   const forward = vi.fn(() => ({ status: 'forward' }));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const next = (nextState: any) => {
     output = nextState;
     return { state: nextState, status: 'next' };
@@ -25,7 +23,6 @@ const runOnChange = async (
     forward,
     next,
     state,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any);
   return { forward, output };
 };
@@ -67,7 +64,13 @@ describe('createTextComposerEmojiMiddleware', () => {
 
   it('accepts a custom EmojiSearchIndex override', async () => {
     const search = vi.fn().mockResolvedValue([
-      { emoticons: [], id: 'custom', name: 'Custom', native: '🦄', skins: [{ native: '🦄' }] },
+      {
+        emoticons: [],
+        id: 'custom',
+        name: 'Custom',
+        native: '🦄',
+        skins: [{ native: '🦄' }],
+      },
     ]);
     const middleware = createTextComposerEmojiMiddleware({ search });
     const { output } = await runOnChange(middleware, {

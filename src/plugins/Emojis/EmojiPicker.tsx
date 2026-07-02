@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import PickerImport from '@emoji-mart/react';
 
 import { useMessageComposerContext, useTranslationContext } from '../../context';
 import {
@@ -10,14 +9,7 @@ import {
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
-
-// @emoji-mart/react ships as CJS with the component on `exports.default`. Under
-// spec-strict ESM interop (e.g. Vite 8 / Rolldown, native Node ESM) a default
-// import yields the module namespace `{ default }` instead of the component,
-// which makes React throw "Element type is invalid ... got: object". Unwrap the
-// default defensively so it works regardless of interop.
-const Picker =
-  (PickerImport as unknown as { default?: typeof PickerImport }).default ?? PickerImport;
+import { EmojiPickerPanel } from './components';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -105,19 +97,18 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           ref={setPopperElement}
           style={{ left: x ?? 0, position: strategy, top: y ?? 0 }}
         >
-          <Picker
-            data={async () => (await import('@emoji-mart/data')).default}
-            onEmojiSelect={(e: { native: string }) => {
+          <EmojiPickerPanel
+            onEmojiSelect={(emoji) => {
               const textarea = textareaRef.current;
               if (!textarea) return;
-              textComposer.insertText({ text: e.native });
+              textComposer.insertText({ text: emoji.native });
               textarea.focus();
               if (props.closeOnEmojiSelect) {
                 setDisplayPicker(false);
               }
             }}
-            {...props.pickerProps}
-            style={{ ...pickerStyle, '--shadow': 'none' }}
+            style={pickerStyle}
+            theme={props.pickerProps?.theme}
           />
         </div>
       )}
