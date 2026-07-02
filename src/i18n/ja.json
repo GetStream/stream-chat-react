@@ -177,7 +177,7 @@
   "aria/Remind Me Message": "リマインダー",
   "aria/Remove attachment": "添付ファイルを削除",
   "aria/Remove location attachment": "位置情報の添付ファイルを削除",
-  "aria/Remove {{ option }}": "{{ option }} を削除",
+  "aria/Remove option: {{ option }}": "オプションを削除: {{ option }}",
   "aria/Remove Reminder": "リマインダーを削除",
   "aria/Remove Save For Later": "「後で見る」を削除",
   "aria/Removed option {{ option }}": "選択肢「{{ option }}」を削除しました",

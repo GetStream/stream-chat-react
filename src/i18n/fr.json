@@ -203,7 +203,7 @@
   "aria/Remind Me Message": "Me rappeler",
   "aria/Remove attachment": "Supprimer la pièce jointe",
   "aria/Remove location attachment": "Supprimer la pièce jointe d'emplacement",
-  "aria/Remove {{ option }}": "Supprimer {{ option }}",
+  "aria/Remove option: {{ option }}": "Supprimer l'option : {{ option }}",
   "aria/Remove Reminder": "Supprimer le rappel",
   "aria/Remove Save For Later": "Supprimer « Enregistrer pour plus tard »",
   "aria/Removed option {{ option }}": "Option {{ option }} supprimée",

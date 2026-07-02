@@ -177,7 +177,7 @@
   "aria/Remind Me Message": "알림 설정",
   "aria/Remove attachment": "첨부 파일 제거",
   "aria/Remove location attachment": "위치 첨부 파일 제거",
-  "aria/Remove {{ option }}": "{{ option }} 제거",
+  "aria/Remove option: {{ option }}": "옵션 제거: {{ option }}",
   "aria/Remove Reminder": "알림 제거",
   "aria/Remove Save For Later": "나중에 보기 제거",
   "aria/Removed option {{ option }}": "옵션 {{ option }}이(가) 제거되었습니다",

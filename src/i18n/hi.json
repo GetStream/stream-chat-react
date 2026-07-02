@@ -186,7 +186,7 @@
   "aria/Remind Me Message": "मुझे याद दिलाएं",
   "aria/Remove attachment": "संलग्नक हटाएं",
   "aria/Remove location attachment": "स्थान संलग्नक हटाएं",
-  "aria/Remove {{ option }}": "{{ option }} हटाएं",
+  "aria/Remove option: {{ option }}": "विकल्प हटाएं: {{ option }}",
   "aria/Remove Reminder": "अनुस्मारक हटाएं",
   "aria/Remove Save For Later": "बाद में देखें हटाएं",
   "aria/Removed option {{ option }}": "विकल्प {{ option }} हटाया गया",

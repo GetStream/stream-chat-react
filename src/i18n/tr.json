@@ -186,7 +186,7 @@
   "aria/Remind Me Message": "Hatırlat",
   "aria/Remove attachment": "Eki kaldır",
   "aria/Remove location attachment": "Konum ekini kaldır",
-  "aria/Remove {{ option }}": "{{ option }} kaldır",
+  "aria/Remove option: {{ option }}": "Seçeneği kaldır: {{ option }}",
   "aria/Remove Reminder": "Hatırlatıcıyı kaldır",
   "aria/Remove Save For Later": "Sonraya kaydet'i kaldır",
   "aria/Removed option {{ option }}": "{{ option }} seçeneği kaldırıldı",

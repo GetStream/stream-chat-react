@@ -203,7 +203,7 @@
   "aria/Remind Me Message": "Lembrar-me",
   "aria/Remove attachment": "Remover anexo",
   "aria/Remove location attachment": "Remover anexo de localização",
-  "aria/Remove {{ option }}": "Remover {{ option }}",
+  "aria/Remove option: {{ option }}": "Remover opção: {{ option }}",
   "aria/Remove Reminder": "Remover lembrete",
   "aria/Remove Save For Later": "Remover Salvar para depois",
   "aria/Removed option {{ option }}": "Opção {{ option }} removida",
