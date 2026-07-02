@@ -10,6 +10,8 @@ import {
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
 import { EmojiPickerPanel } from './components';
+import { useFrequentlyUsedEmoji } from './hooks/useFrequentlyUsedEmoji';
+import { useSkinTone } from './hooks/useSkinTone';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -60,6 +62,17 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { textareaRef } = useMessageComposerContext('EmojiPicker');
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
+  // Skin tone and frequently-used live here (not in the panel) so they survive the
+  // picker opening/closing — the panel below is mounted only while open.
+  const [skinTone, setSkinTone] = useSkinTone({
+    defaultSkinTone: props.defaultSkinTone,
+    onSkinToneChange: props.onSkinToneChange,
+    skinTone: props.skinTone,
+  });
+  const { frequentlyUsedIds, recordUse } = useFrequentlyUsedEmoji({
+    frequentlyUsedEmoji: props.frequentlyUsedEmoji,
+    onFrequentlyUsedChange: props.onFrequentlyUsedChange,
+  });
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -113,13 +126,13 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           style={{ left: x ?? 0, position: strategy, top: y ?? 0 }}
         >
           <EmojiPickerPanel
-            defaultSkinTone={props.defaultSkinTone}
-            frequentlyUsedEmoji={props.frequentlyUsedEmoji}
+            frequentlyUsedIds={frequentlyUsedIds}
             onClose={() => {
               setDisplayPicker(false);
               referenceElement?.focus();
             }}
             onEmojiSelect={(emoji) => {
+              recordUse(emoji.id);
               const textarea = textareaRef.current;
               if (!textarea) return;
               textComposer.insertText({ text: emoji.native });
@@ -128,9 +141,8 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
                 setDisplayPicker(false);
               }
             }}
-            onFrequentlyUsedChange={props.onFrequentlyUsedChange}
-            onSkinToneChange={props.onSkinToneChange}
-            skinTone={props.skinTone}
+            onSkinToneChange={setSkinTone}
+            skinToneIndex={skinTone}
             style={pickerStyle}
             theme={props.pickerProps?.theme}
           />

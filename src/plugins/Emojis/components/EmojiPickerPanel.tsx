@@ -13,9 +13,7 @@ import {
   EmojiPickerProvider,
 } from '../context/EmojiPickerContext';
 import { useEmojiPickerState } from '../hooks/useEmojiPickerState';
-import { useFrequentlyUsedEmoji } from '../hooks/useFrequentlyUsedEmoji';
 import { useGridKeyboardNav } from '../hooks/useGridKeyboardNav';
-import { useSkinTone } from '../hooks/useSkinTone';
 import { buildEmojiSearchData, runSearch } from '../search';
 import type { EmojiDataEmoji } from '../data';
 import { useTranslationContext } from '../../../context';
@@ -29,21 +27,23 @@ export type EmojiSelection = {
 export type EmojiPickerPanelProps = {
   onEmojiSelect: (emoji: EmojiSelection) => void;
   className?: string;
-  /** Uncontrolled initial skin tone index (0 = default, 1–5 = light → dark). */
-  defaultSkinTone?: number;
+  /**
+   * Ordered list of recently used emoji ids (most recent first), rendered as the
+   * "frequently used" section. This is a controlled value — the owner (EmojiPicker)
+   * holds it above the panel's mount so it survives the picker opening/closing.
+   */
+  frequentlyUsedIds?: string[];
   /** Called when the panel requests to close (e.g. the Escape key). */
   onClose?: () => void;
-  /** Controlled ordered list of recently used emoji ids (most recent first). */
-  frequentlyUsedEmoji?: string[];
-  /** Called with the updated recently-used list when an emoji is selected. */
-  onFrequentlyUsedChange?: (emojiIds: string[]) => void;
-  /** Called with the new skin tone index when it changes. */
+  /** Called with the new skin tone index when the user changes it. */
   onSkinToneChange?: (skinTone: number) => void;
-  /** Controlled skin tone index (0 = default, 1–5 = light → dark). */
-  skinTone?: number;
+  /** Active skin tone index (0 = default, 1–5 = light → dark). Controlled by the owner. */
+  skinToneIndex?: number;
   style?: CSSProperties;
   theme?: 'auto' | 'light' | 'dark';
 };
+
+const noop = () => undefined;
 
 const themeClassName = (theme: EmojiPickerPanelProps['theme']) => {
   if (theme === 'light') return 'str-chat__theme-light';
@@ -56,32 +56,25 @@ const themeClassName = (theme: EmojiPickerPanelProps['theme']) => {
  * The native React emoji picker panel that replaces emoji-mart's `<em-emoji-picker>`
  * web component. Loads the vendored dataset, renders search, category navigation,
  * the emoji grid, a preview and a skin-tone selector, and emits the resolved native
- * emoji on selection. Skin tone and frequently-used are integrator-managed props
- * (no browser storage in the SDK).
+ * emoji on selection.
+ *
+ * Skin tone and frequently-used are fully controlled (`skinToneIndex`,
+ * `frequentlyUsedIds`, `onSkinToneChange`): the panel is mounted only while the
+ * picker is open, so this session state is owned by the always-mounted `EmojiPicker`
+ * shell rather than held here.
  */
 export const EmojiPickerPanel = ({
   className,
-  defaultSkinTone,
-  frequentlyUsedEmoji,
+  frequentlyUsedIds = [],
   onClose,
   onEmojiSelect,
-  onFrequentlyUsedChange,
   onSkinToneChange,
-  skinTone,
+  skinToneIndex = 0,
   style,
   theme,
 }: EmojiPickerPanelProps) => {
   const { t } = useTranslationContext('EmojiPickerPanel');
   const { data } = useEmojiPickerState();
-  const [skinToneIndex, setSkinTone] = useSkinTone({
-    defaultSkinTone,
-    onSkinToneChange,
-    skinTone,
-  });
-  const { frequentlyUsedIds, recordUse } = useFrequentlyUsedEmoji({
-    frequentlyUsedEmoji,
-    onFrequentlyUsedChange,
-  });
   const [previewedEmoji, setPreviewedEmoji] = useState<EmojiDataEmoji | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState('');
@@ -123,10 +116,9 @@ export const EmojiPickerPanel = ({
     (emoji: EmojiDataEmoji) => {
       const native = emoji.skins[skinToneIndex]?.native ?? emoji.skins[0]?.native ?? '';
       if (!native) return;
-      recordUse(emoji.id);
       onEmojiSelect({ id: emoji.id, name: emoji.name, native });
     },
-    [onEmojiSelect, recordUse, skinToneIndex],
+    [onEmojiSelect, skinToneIndex],
   );
 
   const contextValue = useMemo<EmojiPickerContextValue>(
@@ -196,7 +188,10 @@ export const EmojiPickerPanel = ({
             </div>
             <div className='str-chat__emoji-picker__footer'>
               <PreviewPane emoji={previewedEmoji} />
-              <SkinToneSelector onSelect={setSkinTone} skinToneIndex={skinToneIndex} />
+              <SkinToneSelector
+                onSelect={onSkinToneChange ?? noop}
+                skinToneIndex={skinToneIndex}
+              />
             </div>
           </>
         ) : (
