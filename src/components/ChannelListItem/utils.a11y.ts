@@ -28,8 +28,9 @@ export type ChannelListItemLabelData = {
   displayTitle?: string;
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'];
   /**
-   * The channel's latest message. Convenience for parts (and to avoid re-deriving it); when
-   * omitted, parts fall back to `channel.state.latestMessages`.
+   * The channel's latest message. {@link composeChannelListItemAccessibleLabel} resolves this once
+   * (to the last entry of `channel.state.latestMessages` when omitted) and passes the SAME message
+   * to every part, so all segments (sender, preview, attachments, time) describe one message.
    */
   latestMessage?: LocalMessage;
   /** Delivery/read status of the latest message when it is the current user's own. */
@@ -55,13 +56,11 @@ export const defaultChannelListItemLabelParts = {
   // Announced alongside the last message text: the number of attachments. Link previews are
   // excluded (the linkPreview part announces those). A single attachment with no text is skipped
   // here because the lastMessage part already conveys it as "Attachment <type>".
-  attachments: ({ channel, latestMessage, t }) => {
-    const message =
-      latestMessage ??
-      channel.state.latestMessages[channel.state.latestMessages.length - 1];
+  attachments: ({ latestMessage, t }) => {
     const count =
-      message?.attachments?.filter((attachment) => !attachment.og_scrape_url).length ?? 0;
-    if (count === 0 || (count === 1 && !message?.text)) return undefined;
+      latestMessage?.attachments?.filter((attachment) => !attachment.og_scrape_url)
+        .length ?? 0;
+    if (count === 0 || (count === 1 && !latestMessage?.text)) return undefined;
     return t('aria/{{ count }} attachment', { count });
   },
   deliveryStatus: ({ messageDeliveryStatus, t }) => {
@@ -83,24 +82,21 @@ export const defaultChannelListItemLabelParts = {
     t,
     userLanguage,
   }) => {
-    const message =
-      latestMessage ??
-      channel.state.latestMessages[channel.state.latestMessages.length - 1];
     const preview = getLatestMessagePreviewText(
       channel,
       t,
       userLanguage,
       isMessageAIGenerated,
-      // Keep the announced preview text consistent with the sender/status/time derived from the
-      // same message (falls back to the channel's latest when not supplied).
+      // `latestMessage` is pre-resolved by the composer, so the announced preview describes the same
+      // message as the sender/status/time segments.
       latestMessage,
     );
     // Empty channel: announce there are no messages ("Nothing yet...").
-    if (!message) return preview;
-    const isOwn = !!client.userID && message.user?.id === client.userID;
+    if (!latestMessage) return preview;
+    const isOwn = !!client.userID && latestMessage.user?.id === client.userID;
     // Use the sender's name (or "You" for the current user). When the name is unknown we omit the
     // sender rather than reading out a raw user id.
-    const sender = isOwn ? t('You') : message.user?.name;
+    const sender = isOwn ? t('You') : latestMessage.user?.name;
     return sender
       ? t('aria/Last message from {{ sender }}: {{ messagePreview }}', {
           messagePreview: preview,
@@ -108,22 +104,18 @@ export const defaultChannelListItemLabelParts = {
         })
       : t('aria/Last message: {{ messagePreview }}', { messagePreview: preview });
   },
-  linkPreview: ({ channel, latestMessage, t }) => {
-    const message =
-      latestMessage ??
-      channel.state.latestMessages[channel.state.latestMessages.length - 1];
-    const link = message?.attachments?.find((attachment) => attachment.og_scrape_url);
+  linkPreview: ({ latestMessage, t }) => {
+    const link = latestMessage?.attachments?.find(
+      (attachment) => attachment.og_scrape_url,
+    );
     if (!link) return undefined;
     return link.title
       ? t('aria/Shared a link with title: {{ linkTitle }}', { linkTitle: link.title })
       : t('aria/Shared a link');
   },
   name: ({ displayTitle }) => displayTitle || undefined,
-  time: ({ channel, latestMessage, t, tDateTimeParser }) => {
-    const createdAt = (
-      latestMessage ??
-      channel.state.latestMessages[channel.state.latestMessages.length - 1]
-    )?.created_at;
+  time: ({ latestMessage, t, tDateTimeParser }) => {
+    const createdAt = latestMessage?.created_at;
     if (!createdAt || !isDate(createdAt)) return undefined;
     const when = getDateString({
       messageCreatedAt: createdAt.toISOString(),
@@ -179,10 +171,10 @@ export type ChannelListItemLabelConfig = AccessibleLabelConfig<ChannelListItemLa
  *   **a part not listed in `order` is never rendered**, even if defined. Spread
  *   {@link DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER} to keep the defaults and insert your own.
  * - Each part receives {@link ChannelListItemLabelData}. `active`/`unreadCount`/
- *   `messageDeliveryStatus`/`latestMessage` are passed directly; everything else (mute/pin state,
- *   `frozen`, member count, custom `channel.data`) is read off `channel`. Parts call `t`, so provide
- *   your own i18n keys (or return plain strings) — the SDK does not ship `Pinned`/`Muted`/`Frozen`
- *   strings.
+ *   `messageDeliveryStatus` are passed directly and `latestMessage` is pre-resolved by the composer
+ *   (see its doc); everything else (mute/pin state, `frozen`, member count, custom `channel.data`) is
+ *   read off `channel`. Parts call `t`, so provide your own i18n keys (or return plain strings) —
+ *   the SDK does not ship `Pinned`/`Muted`/`Frozen` strings.
  *
  * ```tsx
  * const accessibleLabelConfig: ChannelListItemLabelConfig = {
@@ -205,7 +197,15 @@ export const composeChannelListItemAccessibleLabel = (
   config: ChannelListItemLabelConfig = {},
 ): string =>
   composeAccessibleLabel(
-    data,
+    // Resolve the latest message ONCE here so every part is handed the same message (sender,
+    // preview, attachments, link, time all stay in sync) instead of each re-deriving the channel's
+    // latest — which only stayed consistent as long as the duplicated fallbacks matched.
+    {
+      ...data,
+      latestMessage:
+        data.latestMessage ??
+        data.channel.state.latestMessages[data.channel.state.latestMessages.length - 1],
+    },
     defaultChannelListItemLabelParts,
     DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER,
     config,
