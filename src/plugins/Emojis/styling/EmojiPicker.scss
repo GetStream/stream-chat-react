@@ -164,13 +164,21 @@ $emoji-picker-border-radius: 12px;
       }
     }
 
-    &__preview {
+    &__footer {
       display: flex;
       align-items: center;
       gap: var(--str-chat__spacing-sm);
       min-block-size: 2.75rem;
       padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
       border-block-start: 1px solid var(--str-chat__emoji-picker-border-color);
+    }
+
+    &__preview {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      gap: var(--str-chat__spacing-sm);
+      min-inline-size: 0;
 
       &-emoji {
         font-size: 1.5rem;
@@ -178,9 +186,45 @@ $emoji-picker-border-radius: 12px;
       }
 
       &-name {
+        overflow: hidden;
         color: var(--str-chat__emoji-picker-secondary-text-color);
+        white-space: nowrap;
+        text-overflow: ellipsis;
         text-transform: capitalize;
       }
+    }
+
+    &__skin-tones {
+      display: flex;
+      flex: none;
+      align-items: center;
+      gap: var(--str-chat__spacing-xxs);
+    }
+
+    &__skin-tone-toggle,
+    &__skin-tone {
+      @include utils.button-reset;
+      cursor: pointer;
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--str-chat__spacing-xxs);
+      border-radius: var(--str-chat__radius-4);
+      font-size: 1.25rem;
+      line-height: 1;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+
+    &__skin-tone--active {
+      background-color: var(--str-chat__emoji-picker-selected-background-color);
     }
 
     &__loading {

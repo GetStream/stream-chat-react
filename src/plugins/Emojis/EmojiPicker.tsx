@@ -28,6 +28,20 @@ export type EmojiPickerProps = {
    * Floating UI placement (default: 'top-end') for the picker popover
    */
   placement?: PopperLikePlacement;
+  /** Uncontrolled initial skin tone index (0 = default, 1–5 = light → dark). */
+  defaultSkinTone?: number;
+  /**
+   * Controlled ordered list of recently used emoji ids (most recent first). The SDK
+   * does not persist this — provide it (and `onFrequentlyUsedChange`) to control the
+   * "frequently used" section; otherwise it is tracked in memory for the session.
+   */
+  frequentlyUsedEmoji?: string[];
+  /** Called with the updated recently-used list when an emoji is selected. */
+  onFrequentlyUsedChange?: (emojiIds: string[]) => void;
+  /** Called with the new skin tone index when it changes. */
+  onSkinToneChange?: (skinTone: number) => void;
+  /** Controlled skin tone index (0 = default, 1–5 = light → dark). */
+  skinTone?: number;
 };
 
 const defaultButtonClassName = 'str-chat__emoji-picker-button';
@@ -98,6 +112,8 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           style={{ left: x ?? 0, position: strategy, top: y ?? 0 }}
         >
           <EmojiPickerPanel
+            defaultSkinTone={props.defaultSkinTone}
+            frequentlyUsedEmoji={props.frequentlyUsedEmoji}
             onEmojiSelect={(emoji) => {
               const textarea = textareaRef.current;
               if (!textarea) return;
@@ -107,6 +123,9 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
                 setDisplayPicker(false);
               }
             }}
+            onFrequentlyUsedChange={props.onFrequentlyUsedChange}
+            onSkinToneChange={props.onSkinToneChange}
+            skinTone={props.skinTone}
             style={pickerStyle}
             theme={props.pickerProps?.theme}
           />
