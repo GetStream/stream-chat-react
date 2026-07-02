@@ -1,14 +1,18 @@
 import { type CSSProperties, useCallback, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { CategoryNav } from './CategoryNav';
+import { EmojiButton } from './EmojiButton';
 import { EmojiGrid, type EmojiPickerCategory } from './EmojiGrid';
 import { EMOJI_CATEGORY_META } from './categories';
+import { EmptyResults } from './EmptyResults';
 import { PreviewPane } from './PreviewPane';
+import { SearchInput } from './SearchInput';
 import {
   type EmojiPickerContextValue,
   EmojiPickerProvider,
 } from '../context/EmojiPickerContext';
 import { useEmojiPickerState } from '../hooks/useEmojiPickerState';
+import { buildEmojiSearchData, runSearch } from '../search';
 import type { EmojiDataEmoji } from '../data';
 import { useTranslationContext } from '../../../context';
 
@@ -34,8 +38,8 @@ const themeClassName = (theme: EmojiPickerPanelProps['theme']) => {
 
 /**
  * The native React emoji picker panel that replaces emoji-mart's `<em-emoji-picker>`
- * web component. Loads the vendored dataset, renders the category navigation, emoji
- * grid and preview, and emits the resolved native emoji on selection.
+ * web component. Loads the vendored dataset, renders search, category navigation,
+ * the emoji grid and a preview, and emits the resolved native emoji on selection.
  */
 export const EmojiPickerPanel = ({
   className,
@@ -47,6 +51,7 @@ export const EmojiPickerPanel = ({
   const { data } = useEmojiPickerState();
   const [previewedEmoji, setPreviewedEmoji] = useState<EmojiDataEmoji | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
+  const [query, setQuery] = useState('');
   const gridContainerRef = useRef<HTMLDivElement>(null);
   const skinToneIndex = 0; // Wired to props in a later phase.
 
@@ -58,6 +63,17 @@ export const EmojiPickerPanel = ({
       label: t(EMOJI_CATEGORY_META[category.id]?.labelKey ?? category.id),
     }));
   }, [data, t]);
+
+  const searchIndex = useMemo(() => (data ? buildEmojiSearchData(data) : []), [data]);
+
+  // `null` when not searching; otherwise the (possibly empty) list of matches.
+  const searchedEmojis = useMemo<EmojiDataEmoji[] | null>(() => {
+    const trimmed = query.trim();
+    if (!trimmed || !data) return null;
+    return (runSearch(searchIndex, trimmed) ?? [])
+      .map((result) => data.emojis[result.id])
+      .filter(Boolean);
+  }, [data, query, searchIndex]);
 
   const onSelectEmoji = useCallback(
     (emoji: EmojiDataEmoji) => {
@@ -74,11 +90,17 @@ export const EmojiPickerPanel = ({
   );
 
   const handleNavigate = useCallback((categoryId: string) => {
+    setQuery(''); // navigating a category exits search
     setActiveCategoryId(categoryId);
-    gridContainerRef.current
-      ?.querySelector<HTMLElement>(`[data-category-id="${categoryId}"]`)
-      ?.scrollIntoView({ block: 'start' });
+    // Defer so the category view has re-rendered before we scroll to the section.
+    requestAnimationFrame(() => {
+      gridContainerRef.current
+        ?.querySelector<HTMLElement>(`[data-category-id="${categoryId}"]`)
+        ?.scrollIntoView({ block: 'start' });
+    });
   }, []);
+
+  const isSearching = searchedEmojis !== null;
 
   return (
     <EmojiPickerProvider value={contextValue}>
@@ -90,8 +112,9 @@ export const EmojiPickerPanel = ({
       >
         {data ? (
           <>
+            <SearchInput onChange={setQuery} value={query} />
             <CategoryNav
-              activeCategoryId={activeCategoryId}
+              activeCategoryId={isSearching ? undefined : activeCategoryId}
               categories={categories}
               onNavigate={handleNavigate}
             />
@@ -99,7 +122,21 @@ export const EmojiPickerPanel = ({
               className='str-chat__emoji-picker__grid-container'
               ref={gridContainerRef}
             >
-              <EmojiGrid categories={categories} />
+              {isSearching ? (
+                searchedEmojis.length ? (
+                  <div className='str-chat__emoji-picker__grid' role='grid'>
+                    <div className='str-chat__emoji-picker__category-emojis' role='row'>
+                      {searchedEmojis.map((emoji) => (
+                        <EmojiButton emoji={emoji} key={emoji.id} />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <EmptyResults />
+                )
+              ) : (
+                <EmojiGrid categories={categories} />
+              )}
             </div>
             <PreviewPane emoji={previewedEmoji} />
           </>
