@@ -36,6 +36,9 @@ jobs:
       - name: Validate CJS bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-cjs
 
+      - name: Validate ESM bundle with Node ${{ env.NODE_VERSION }}
+        run: yarn validate-esm
+
       - name: Validate translations
         run: yarn validate-translations
 

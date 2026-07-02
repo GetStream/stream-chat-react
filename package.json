@@ -212,6 +212,7 @@
     "types:tests": "tsc --project tsconfig.test.json --noEmit",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
+    "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
