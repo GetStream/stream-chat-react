@@ -21,7 +21,8 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
   .str-chat__message-textarea,
   .str-chat__message-text-inner *,
   .str-chat__emoji-item--entity,
-  .emoji-mart-emoji-native * {
+  .str-chat__emoji-picker__emoji,
+  .str-chat__emoji-picker__preview-emoji {
     font-family: ReplaceFlagEmojiPNG, var(--str-chat__font-family), sans-serif;
     font-display: swap;
   }
@@ -33,7 +34,8 @@ $emoji-flag-unicode-range: U+1F1E6-1F1FF;
     .str-chat__message-textarea,
     .str-chat__message-text-inner *,
     .str-chat__emoji-item--entity,
-    .emoji-mart-emoji-native * {
+    .str-chat__emoji-picker__emoji,
+    .str-chat__emoji-picker__preview-emoji {
       font-family: ReplaceFlagEmojiSVG, var(--str-chat__font-family), sans-serif;
       font-display: swap;
     }

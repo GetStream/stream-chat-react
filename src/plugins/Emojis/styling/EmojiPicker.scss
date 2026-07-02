@@ -1,11 +1,150 @@
-$emoji-picker-border-radius: 10px;
+@use '../../../styling/utils';
 
-.str-chat__message-textarea-emoji-picker-container {
-  border-radius: $emoji-picker-border-radius;
-  box-shadow: var(--str-chat__box-shadow-3);
-  overflow: hidden;
+$emoji-picker-border-radius: 12px;
 
-  em-emoji-picker {
-    --border-radius: #{$emoji-picker-border-radius};
+.str-chat {
+  .str-chat__message-textarea-emoji-picker-container {
+    border-radius: $emoji-picker-border-radius;
+    box-shadow: var(--str-chat__box-shadow-3);
+    overflow: hidden;
+  }
+
+  .str-chat__emoji-picker {
+    // Component tokens — resolved from semantic tokens so light/dark theming comes
+    // for free via the inherited `.str-chat__theme-*` ancestor.
+    --str-chat__emoji-picker-background-color: var(
+      --str-chat__background-core-surface-card
+    );
+    --str-chat__emoji-picker-text-color: var(--str-chat__text-primary);
+    --str-chat__emoji-picker-secondary-text-color: var(--str-chat__text-secondary);
+    --str-chat__emoji-picker-hover-background-color: var(
+      --str-chat__background-utility-hover
+    );
+    --str-chat__emoji-picker-selected-background-color: var(
+      --str-chat__background-utility-selected
+    );
+    --str-chat__emoji-picker-border-color: var(--str-chat__border-core-on-surface);
+    --str-chat__emoji-picker-width: 20rem;
+    --str-chat__emoji-picker-height: 22.5rem;
+    --str-chat__emoji-picker-emoji-size: 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+    inline-size: var(--str-chat__emoji-picker-width);
+    max-inline-size: 100%;
+    block-size: var(--str-chat__emoji-picker-height);
+    background-color: var(--str-chat__emoji-picker-background-color);
+    color: var(--str-chat__emoji-picker-text-color);
+    font: var(--str-chat__font-body-default);
+
+    &__category-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-xxs);
+      padding: var(--str-chat__spacing-xs);
+      border-block-end: 1px solid var(--str-chat__emoji-picker-border-color);
+    }
+
+    &__category-nav-button {
+      @include utils.button-reset;
+      cursor: pointer;
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      padding: var(--str-chat__spacing-xxs);
+      border-radius: var(--str-chat__radius-4);
+      font-size: 1.125rem;
+      line-height: 1;
+      opacity: 0.6;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+        opacity: 1;
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+
+      &--active {
+        background-color: var(--str-chat__emoji-picker-selected-background-color);
+        opacity: 1;
+      }
+    }
+
+    &__grid-container {
+      @include utils.scrollable-y;
+      flex: 1 1 auto;
+      padding-inline: var(--str-chat__spacing-xs);
+    }
+
+    &__category {
+      &-label {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 1;
+        padding-block: var(--str-chat__spacing-xs);
+        background-color: var(--str-chat__emoji-picker-background-color);
+        color: var(--str-chat__emoji-picker-secondary-text-color);
+        font: var(--str-chat__font-body-emphasis);
+        text-transform: capitalize;
+      }
+
+      &-emojis {
+        display: grid;
+        grid-template-columns: repeat(
+          auto-fill,
+          minmax(var(--str-chat__emoji-picker-emoji-size), 1fr)
+        );
+        gap: var(--str-chat__spacing-xxs);
+        padding-block-end: var(--str-chat__spacing-sm);
+      }
+    }
+
+    &__emoji {
+      @include utils.button-reset;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+      inline-size: 100%;
+      border-radius: var(--str-chat__radius-4);
+      font-size: var(--str-chat__emoji-picker-emoji-size);
+      line-height: 1;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+
+    &__preview {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-sm);
+      min-block-size: 2.75rem;
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+      border-block-start: 1px solid var(--str-chat__emoji-picker-border-color);
+
+      &-emoji {
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+
+      &-name {
+        color: var(--str-chat__emoji-picker-secondary-text-color);
+        text-transform: capitalize;
+      }
+    }
+
+    &__loading {
+      flex: 1 1 auto;
+      min-block-size: 12rem;
+    }
   }
 }
