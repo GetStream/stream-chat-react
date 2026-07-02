@@ -79,17 +79,3 @@ export const PublicChannelOverlay = () => {
     </div>
   );
 };
-
-export const PublicChannelComposerBanner = () => {
-  const { canJoin, isMember } = usePublicChannelState();
-
-  if (isMember || canJoin) return null;
-
-  return (
-    <div className='app-public-channel-composer-banner'>
-      <p className='app-public-channel-composer-banner__text'>
-        You can only view this conversation
-      </p>
-    </div>
-  );
-};
