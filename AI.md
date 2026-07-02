@@ -241,26 +241,29 @@ const CustomMessage = () => {
 
 **User intent**: "Add emoji picker and autocomplete"
 
+Emoji support is built into the SDK — no `emoji-mart` packages or `init()` call are
+required.
+
 **Steps**:
 
-1. Install emoji packages: `npm install emoji-mart @emoji-mart/react @emoji-mart/data`
-2. Initialize emoji data: `init({ data })` from `emoji-mart`
-3. Import `EmojiPicker` from `stream-chat-react/emojis`
-4. Pass `EmojiPicker` and `emojiSearchIndex={SearchIndex}` to `Channel`
+1. Import `EmojiPicker` from `stream-chat-react/emojis` and pass it to `Channel`.
+2. (Optional) For `:shortcode` autocomplete + emoticon replacement, register the
+   emoji middleware on the message composer's text composer with
+   `createTextComposerEmojiMiddleware()` (no argument — it uses the built-in index).
 
 ```tsx
 import { EmojiPicker } from 'stream-chat-react/emojis';
-import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data';
 
-init({ data });
-
-<Channel EmojiPicker={EmojiPicker} emojiSearchIndex={SearchIndex}>
-  {/* ... */}
-</Channel>;
+<Channel EmojiPicker={EmojiPicker}>{/* ... */}</Channel>;
 ```
 
-**Note**: For React 19, may need package.json overrides for `@emoji-mart/react`
+**Notes**:
+
+- Passing a custom `emojiSearchIndex` (including emoji-mart's `SearchIndex`) is
+  still supported for advanced use.
+- Skin tone and "frequently used" are integrator-managed props on `EmojiPicker`
+  (`skinTone`/`onSkinToneChange`, `frequentlyUsedEmoji`/`onFrequentlyUsedChange`);
+  the SDK does not persist them. See `examples/vite/` for a localStorage example.
 
 **Reference**: See `examples/tutorial/src/6-emoji-picker/`
 
@@ -365,9 +368,11 @@ body {
 
 **Solution**:
 
-- Ensure emoji packages are installed
-- Initialize with `init({ data })` before rendering
-- For React 19, add package.json overrides if needed
+- Ensure `EmojiPicker` from `stream-chat-react/emojis` is passed to `Channel` (or set
+  via `ComponentContext`)
+- Import the emoji picker CSS: `import 'stream-chat-react/css/emoji-picker.css'`
+- For `:shortcode` autocomplete, register `createTextComposerEmojiMiddleware()` on
+  the composer's text composer
 
 ## Resources
 
@@ -386,10 +391,8 @@ body {
   - `react`: ^19.0.0 || ^18.0.0 || ^17.0.0
   - `react-dom`: ^19.0.0 || ^18.0.0 || ^17.0.0
   - `stream-chat`: ^9.27.2
-- **Optional Dependencies** (for emoji support):
-  - `emoji-mart`: ^5.4.0
-  - `@emoji-mart/react`: ^1.1.0
-  - `@emoji-mart/data`: ^1.1.0
+- **Emoji support**: built in via the `stream-chat-react/emojis` entry point — no
+  `emoji-mart` packages required.
 
 ## Best Practices
 

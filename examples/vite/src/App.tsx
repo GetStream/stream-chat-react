@@ -1,4 +1,11 @@
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type {
   ChannelFilters,
   ChannelOptions,
@@ -33,8 +40,6 @@ import {
   WithComponents,
 } from 'stream-chat-react';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
-import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
@@ -72,8 +77,6 @@ import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
-init({ data });
-
 const parseUserIdFromToken = (token: string): string | undefined => {
   try {
     const [, payload] = token.split('.');
@@ -102,9 +105,21 @@ const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 // @ts-expect-error ai_generated isn't on LocalMessage's public type yet
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
 
+// A few extra reactions, built from emoji-mart-shaped data via `mapEmojiMartData`.
+const extendedReactionData = {
+  emojis: {
+    clap: { name: 'Clapping Hands', skins: [{ native: '👏' }] },
+    eyes: { name: 'Eyes', skins: [{ native: '👀' }] },
+    hundred: { name: 'Hundred Points', skins: [{ native: '💯' }] },
+    pray: { name: 'Folded Hands', skins: [{ native: '🙏' }] },
+    rocket: { name: 'Rocket', skins: [{ native: '🚀' }] },
+    tada: { name: 'Party Popper', skins: [{ native: '🎉' }] },
+  },
+};
+
 const newReactionOptions: ReactionOptions = {
   ...defaultReactionOptions,
-  extended: mapEmojiMartData(data),
+  extended: mapEmojiMartData(extendedReactionData),
 };
 
 const useUser = () => {
@@ -173,18 +188,55 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof MessageReacti
 
 const CustomChannelSearch = () => <Search exitSearchOnInputBlur />;
 
+// Demonstrates integrator-owned persistence of the picker's skin tone and
+// frequently-used emoji via localStorage. The SDK itself never touches storage —
+// it exposes these as controlled props so apps own where the state lives.
+const EMOJI_SKIN_TONE_KEY = 'vite-example/emoji-skin-tone';
+const EMOJI_FREQUENTLY_USED_KEY = 'vite-example/emoji-frequently-used';
+
+const readStored = <T,>(key: string, fallback: T): T => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const writeStored = (key: string, value: unknown) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+};
+
 const EmojiPickerWithCustomOptions = (
   props: React.ComponentProps<typeof EmojiPicker>,
 ) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
+  const [skinTone, setSkinTone] = useState(() => readStored(EMOJI_SKIN_TONE_KEY, 0));
+  const [frequentlyUsedEmoji, setFrequentlyUsedEmoji] = useState(() =>
+    readStored<string[]>(EMOJI_FREQUENTLY_USED_KEY, []),
+  );
 
   return (
     <EmojiPicker
       {...props}
+      frequentlyUsedEmoji={frequentlyUsedEmoji}
+      onFrequentlyUsedChange={(ids) => {
+        setFrequentlyUsedEmoji(ids);
+        writeStored(EMOJI_FREQUENTLY_USED_KEY, ids);
+      }}
+      onSkinToneChange={(tone) => {
+        setSkinTone(tone);
+        writeStored(EMOJI_SKIN_TONE_KEY, tone);
+      }}
       pickerProps={{
         ...props.pickerProps,
         theme: mode,
       }}
+      skinTone={skinTone}
     />
   );
 };
@@ -362,9 +414,7 @@ const App = () => {
       });
 
       composer.textComposer.middlewareExecutor.insert({
-        middleware: [
-          createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
-        ],
+        middleware: [createTextComposerEmojiMiddleware() as TextComposerMiddleware],
         position: { before: 'stream-io/text-composer/mentions-middleware' },
         unique: true,
       });
@@ -419,7 +469,6 @@ const App = () => {
   return (
     <WithComponents
       overrides={{
-        emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
         MessageReactions: CustomMessageReactions,

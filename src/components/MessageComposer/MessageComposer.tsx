@@ -49,7 +49,7 @@ export type MessageComposerProps = {
   audioRecordingConfig?: CustomAudioRecordingConfig;
   /** Controls whether the users will be provided with the UI to record voice messages. */
   audioRecordingEnabled?: boolean;
-  /** Mechanism to be used with autocomplete and text replace features of the `MessageComposer` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  /** Custom emoji search index for `MessageComposer` autocomplete and emoticon replacement. Optional — the SDK ships a built-in `defaultEmojiSearchIndex` (used by `createTextComposerEmojiMiddleware`); emoji-mart's `SearchIndex` also satisfies this interface. */
   emojiSearchIndex?: ComponentContextValue['emojiSearchIndex'];
   /** If true, focuses the text input on component mount */
   focus?: boolean;

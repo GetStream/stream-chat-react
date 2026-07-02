@@ -14,9 +14,6 @@ import {
 } from 'stream-chat-react';
 import { EmojiPicker } from 'stream-chat-react/emojis';
 
-import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data';
-
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
@@ -31,8 +28,6 @@ const filters: ChannelFilters = {
   type: 'messaging',
   members: { $in: [userId] },
 };
-
-init({ data });
 
 const App = () => {
   const [isReady, setIsReady] = useState(false);
@@ -72,7 +67,7 @@ const App = () => {
           <Window>
             <ChannelHeader />
             <MessageList />
-            <MessageComposer emojiSearchIndex={SearchIndex} />
+            <MessageComposer />
           </Window>
           <Thread />
         </Channel>

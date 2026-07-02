@@ -20,8 +20,9 @@ export type EmojiPickerProps = {
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
   /**
-   * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
-   * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
+   * Properties forwarded to the emoji picker panel. Only `theme`
+   * ('auto' | 'light' | 'dark') and `style` are honored; other keys are accepted
+   * for backwards compatibility (they were emoji-mart `Picker` options) but ignored.
    */
   pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
   /**
