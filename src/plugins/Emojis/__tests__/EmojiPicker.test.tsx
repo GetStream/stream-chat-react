@@ -103,3 +103,24 @@ describe('EmojiPicker session state', () => {
     expect(screen.getByTestId('frequently-used')).toHaveTextContent('rocket');
   });
 });
+
+describe('EmojiPicker pickerProps', () => {
+  it('warns about unsupported (emoji-mart) pickerProps, but not about theme/style', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const { unmount } = render(
+      <EmojiPicker
+        // @ts-expect-error emoji-mart Picker options are not supported and must be rejected by the type
+        pickerProps={{ perLine: 9, theme: 'dark' }}
+      />,
+    );
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('perLine'));
+    unmount();
+
+    warn.mockClear();
+    render(<EmojiPicker pickerProps={{ style: { width: 320 }, theme: 'light' }} />);
+    expect(warn).not.toHaveBeenCalled();
+
+    warn.mockRestore();
+  });
+});

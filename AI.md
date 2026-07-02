@@ -264,6 +264,11 @@ import { EmojiPicker } from 'stream-chat-react/emojis';
 - Skin tone and "frequently used" are integrator-managed props on `EmojiPicker`
   (`skinTone`/`onSkinToneChange`, `frequentlyUsedEmoji`/`onFrequentlyUsedChange`);
   the SDK does not persist them. See `examples/vite/` for a localStorage example.
+- `pickerProps` accepts only `theme` and `style`. emoji-mart `Picker` options
+  (`data`, `set`, `custom`, `categories`, `perLine`, `emojiVersion`, `locale`, …) are
+  no longer supported: the type rejects them and any passed via `as` casts are
+  ignored with a console warning. For custom reaction emoji use `mapEmojiMartData`;
+  for appearance use the `--str-chat__emoji-picker-*` CSS variables.
 
 **Reference**: See `examples/tutorial/src/6-emoji-picker/`
 

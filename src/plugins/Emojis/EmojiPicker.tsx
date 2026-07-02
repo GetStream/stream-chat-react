@@ -15,6 +15,19 @@ import { useSkinTone } from './hooks/useSkinTone';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
+/** The only `pickerProps` keys the built-in picker reads. */
+const SUPPORTED_PICKER_PROP_KEYS = ['style', 'theme'];
+
+export type EmojiPickerPassthroughProps = {
+  /** Inline styles applied to the picker panel root. */
+  style?: React.CSSProperties;
+  /**
+   * Color theme. 'auto' (default) inherits the ancestor SDK theme
+   * (`.str-chat__theme-*`); 'light' / 'dark' force the panel to that theme.
+   */
+  theme?: 'auto' | 'light' | 'dark';
+};
+
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
@@ -22,11 +35,15 @@ export type EmojiPickerProps = {
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
   /**
-   * Properties forwarded to the emoji picker panel. Only `theme`
-   * ('auto' | 'light' | 'dark') and `style` are honored; other keys are accepted
-   * for backwards compatibility (they were emoji-mart `Picker` options) but ignored.
+   * Presentation options for the picker panel — `theme` and `style` only.
+   *
+   * This is NOT emoji-mart's `Picker` prop bag: emoji-mart options (`data`, `set`,
+   * `custom`, `categories`, `perLine`, `emojiVersion`, `locale`, `previewPosition`,
+   * …) are not supported by the built-in picker. The type rejects them, and any that
+   * reach runtime (e.g. via `as` casts) are ignored with a console warning. See the
+   * emoji migration notes in `AI.md`.
    */
-  pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
+  pickerProps?: EmojiPickerPassthroughProps;
   /**
    * Floating UI placement (default: 'top-end') for the picker popover
    */
@@ -93,7 +110,22 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
   const { ButtonIconComponent = IconEmoji } = props;
-  const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
+  const pickerStyle = props.pickerProps?.style;
+
+  const pickerPropsKeys = Object.keys(props.pickerProps ?? {});
+  useEffect(() => {
+    const ignored = pickerPropsKeys.filter(
+      (key) => !SUPPORTED_PICKER_PROP_KEYS.includes(key),
+    );
+    if (ignored.length) {
+      console.warn(
+        `[stream-chat-react] EmojiPicker ignored unsupported pickerProps: ${ignored.join(', ')}. ` +
+          "Only 'theme' and 'style' are supported; emoji-mart Picker options are no longer available.",
+      );
+    }
+    // Re-check only when the set of provided keys changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pickerPropsKeys.join(',')]);
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
