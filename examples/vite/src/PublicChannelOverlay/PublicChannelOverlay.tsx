@@ -66,6 +66,7 @@ export const PublicChannelOverlay = () => {
         </div>
         <Button
           appearance='solid'
+          autoFocus
           className='app-public-channel-overlay__join-button'
           disabled={joining}
           onClick={handleJoin}

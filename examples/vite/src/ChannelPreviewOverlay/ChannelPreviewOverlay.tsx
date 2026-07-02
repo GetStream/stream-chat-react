@@ -69,6 +69,7 @@ export const ChannelPreviewOverlay = () => {
         {canJoin && (
           <Button
             appearance='solid'
+            autoFocus
             className='app-channel-preview-overlay__join-button'
             disabled={joining}
             onClick={handleJoin}
