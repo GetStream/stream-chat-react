@@ -54,6 +54,10 @@ export const useMarkRead = ({
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
 
+      // Thread replies that are not shown in the channel must not affect the
+      // main channel's unread UI state (count / notification).
+      if (!mainChannelUpdated) return;
+
       if (!isMessageListScrolledToBottom || wasMarkedUnread || document.hidden) {
         setChannelUnreadUiState((prev) => {
           const previousUnreadCount = prev?.unread_messages ?? 0;
@@ -71,7 +75,7 @@ export const useMarkRead = ({
             unread_messages: previousUnreadCount + 1,
           };
         });
-      } else if (mainChannelUpdated && shouldMarkRead()) {
+      } else if (shouldMarkRead()) {
         markRead();
       }
     };

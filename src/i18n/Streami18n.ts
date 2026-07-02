@@ -1,13 +1,13 @@
 import i18n from 'i18next';
 import Dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
-import updateLocale from 'dayjs/plugin/updateLocale';
-import LocalizedFormat from 'dayjs/plugin/localizedFormat';
-import localeData from 'dayjs/plugin/localeData';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import duration from 'dayjs/plugin/duration';
-import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
+import calendar from 'dayjs/plugin/calendar.js';
+import updateLocale from 'dayjs/plugin/updateLocale.js';
+import LocalizedFormat from 'dayjs/plugin/localizedFormat.js';
+import localeData from 'dayjs/plugin/localeData.js';
+import relativeTime from 'dayjs/plugin/relativeTime.js';
+import duration from 'dayjs/plugin/duration.js';
+import utc from 'dayjs/plugin/utc.js';
+import timezone from 'dayjs/plugin/timezone.js';
 import { NotificationTranslationTopic, TranslationBuilder } from './TranslationBuilder';
 import { defaultTranslatorFunction, predefinedFormatters } from './utils';
 
@@ -34,21 +34,21 @@ import {
   trTranslations,
 } from './translations';
 
-import 'dayjs/locale/de';
-import 'dayjs/locale/es';
-import 'dayjs/locale/fr';
-import 'dayjs/locale/hi';
-import 'dayjs/locale/it';
-import 'dayjs/locale/ja';
-import 'dayjs/locale/ko';
-import 'dayjs/locale/nl';
-import 'dayjs/locale/pt';
-import 'dayjs/locale/ru';
-import 'dayjs/locale/tr';
+import 'dayjs/locale/de.js';
+import 'dayjs/locale/es.js';
+import 'dayjs/locale/fr.js';
+import 'dayjs/locale/hi.js';
+import 'dayjs/locale/it.js';
+import 'dayjs/locale/ja.js';
+import 'dayjs/locale/ko.js';
+import 'dayjs/locale/nl.js';
+import 'dayjs/locale/pt.js';
+import 'dayjs/locale/ru.js';
+import 'dayjs/locale/tr.js';
 // These locale imports also set these locale globally.
 // So As a last step I am going to import english locale
 // to make sure I don't mess up language at other places in app.
-import 'dayjs/locale/en';
+import 'dayjs/locale/en.js';
 
 const defaultNS = 'translation';
 const defaultLng = 'en';
@@ -407,10 +407,8 @@ export type Streami18nOptions = {
  * ```js
  * import Dayjs from 'dayjs'
  *
- * import 'dayjs/locale/nl';
- * import 'dayjs/locale/it';
- * // or if you want to include all locales
- * import 'dayjs/min/locales';
+ * import 'dayjs/locale/nl.js';
+ * import 'dayjs/locale/it.js';
  *
  * const i18n = new Streami18n({
  *  language: 'nl',
@@ -745,7 +743,7 @@ export class Streami18n {
       this.logger(
         `Streami18n: registerTranslation(language, translation, customDayjsLocale) - ` +
           `Locale config for ${language} does not exist in Dayjs.` +
-          `Please import the locale file using "import 'dayjs/locale/${language}';" in your app or ` +
+          `Please import the locale file using "import 'dayjs/locale/${language}.js';" in your app or ` +
           `register the locale config with Streami18n using registerTranslation(language, translation, customDayjsLocale)`,
       );
     }
