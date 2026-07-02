@@ -2,7 +2,7 @@ import { type CSSProperties, useCallback, useMemo, useRef, useState } from 'reac
 import clsx from 'clsx';
 import { CategoryNav } from './CategoryNav';
 import { EmojiButton } from './EmojiButton';
-import { EmojiGrid, type EmojiPickerCategory } from './EmojiGrid';
+import { EmojiGrid, type EmojiGridHandle, type EmojiPickerCategory } from './EmojiGrid';
 import { EMOJI_CATEGORY_META } from './categories';
 import { EmptyResults } from './EmptyResults';
 import { PreviewPane } from './PreviewPane';
@@ -81,7 +81,7 @@ export const EmojiPickerPanel = ({
   const [previewedEmoji, setPreviewedEmoji] = useState<EmojiDataEmoji | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState('');
-  const gridContainerRef = useRef<HTMLDivElement>(null);
+  const emojiGridRef = useRef<EmojiGridHandle>(null);
 
   const baseCategories = useMemo<EmojiPickerCategory[]>(() => {
     if (!data) return [];
@@ -131,11 +131,9 @@ export const EmojiPickerPanel = ({
   const handleNavigate = useCallback((categoryId: string) => {
     setQuery(''); // navigating a category exits search
     setActiveCategoryId(categoryId);
-    // Defer so the category view has re-rendered before we scroll to the section.
+    // Defer so the (virtualized) category view has mounted before we scroll to it.
     requestAnimationFrame(() => {
-      gridContainerRef.current
-        ?.querySelector<HTMLElement>(`[data-category-id="${categoryId}"]`)
-        ?.scrollIntoView({ block: 'start' });
+      emojiGridRef.current?.scrollToCategory(categoryId);
     });
   }, []);
 
@@ -157,24 +155,27 @@ export const EmojiPickerPanel = ({
               categories={categories}
               onNavigate={handleNavigate}
             />
-            <div
-              className='str-chat__emoji-picker__grid-container'
-              ref={gridContainerRef}
-            >
+            <div className='str-chat__emoji-picker__body'>
               {isSearching ? (
                 searchedEmojis.length ? (
-                  <div className='str-chat__emoji-picker__grid' role='grid'>
-                    <div className='str-chat__emoji-picker__category-emojis' role='row'>
-                      {searchedEmojis.map((emoji) => (
-                        <EmojiButton emoji={emoji} key={emoji.id} />
-                      ))}
+                  <div className='str-chat__emoji-picker__grid-container'>
+                    <div className='str-chat__emoji-picker__grid' role='grid'>
+                      <div className='str-chat__emoji-picker__category-emojis' role='row'>
+                        {searchedEmojis.map((emoji) => (
+                          <EmojiButton emoji={emoji} key={emoji.id} />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <EmptyResults />
                 )
               ) : (
-                <EmojiGrid categories={categories} />
+                <EmojiGrid
+                  categories={categories}
+                  onActiveCategoryChange={setActiveCategoryId}
+                  ref={emojiGridRef}
+                />
               )}
             </div>
             <div className='str-chat__emoji-picker__footer'>

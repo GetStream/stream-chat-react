@@ -114,13 +114,20 @@ $emoji-picker-border-radius: 12px;
       }
     }
 
+    &__body {
+      flex: 1 1 auto;
+      min-block-size: 0;
+    }
+
     &__grid-container {
       @include utils.scrollable-y;
-      flex: 1 1 auto;
+      block-size: 100%;
       padding-inline: var(--str-chat__spacing-xs);
     }
 
     &__category {
+      padding-inline: var(--str-chat__spacing-xs);
+
       &-label {
         position: sticky;
         inset-block-start: 0;
