@@ -18,6 +18,7 @@ import type {
   EmojiSearchIndex,
   EmojiSearchIndexResult,
 } from '../../../components/MessageComposer';
+import { defaultEmojiSearchIndex } from '../search';
 
 export type EmojiSuggestion<T extends EmojiSearchIndexResult = EmojiSearchIndexResult> =
   TextComposerSuggestion<T>;
@@ -78,24 +79,25 @@ export type EmojiMiddleware<T extends EmojiSearchIndexResult = EmojiSearchIndexR
   >;
 
 /**
- * TextComposer middleware for mentions
+ * TextComposer middleware providing `:shortcode` emoji autocomplete and
+ * emoticon-to-emoji replacement (e.g. `:)` → 🙂).
+ *
  * Usage:
  *
- *  const textComposer = new TextComposer(options);
+ *  // uses the SDK's built-in emoji search index (no `emoji-mart` required)
+ *  textComposer.middlewareExecutor.insert({
+ *    middleware: [createTextComposerEmojiMiddleware()],
+ *  });
  *
- *  textComposer.use(new createTextComposerEmojiMiddleware(emojiSearchIndex, {
- *   minChars: 2
- *  }));
+ *  // or provide a custom EmojiSearchIndex / options
+ *  createTextComposerEmojiMiddleware(customEmojiSearchIndex, { minChars: 2 });
  *
- * @param emojiSearchIndex
- * @param {{
- *     minChars: number;
- *     trigger: string;
- *   }} options
+ * @param emojiSearchIndex Defaults to the SDK's built-in `defaultEmojiSearchIndex`.
+ * @param options `minChars` and `trigger` overrides.
  * @returns
  */
 export const createTextComposerEmojiMiddleware = (
-  emojiSearchIndex: EmojiSearchIndex,
+  emojiSearchIndex: EmojiSearchIndex = defaultEmojiSearchIndex,
   options?: Partial<TextComposerMiddlewareOptions>,
 ): EmojiMiddleware => {
   const finalOptions = mergeWith(DEFAULT_OPTIONS, options ?? {});
