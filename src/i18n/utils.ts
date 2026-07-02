@@ -1,5 +1,5 @@
 import Dayjs from 'dayjs';
-import type { Duration as DayjsDuration } from 'dayjs/plugin/duration';
+import type { Duration as DayjsDuration } from 'dayjs/plugin/duration.js';
 
 import type { TFunction } from 'i18next';
 import type { Moment } from 'moment-timezone';
