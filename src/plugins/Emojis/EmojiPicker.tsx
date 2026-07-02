@@ -114,6 +114,10 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           <EmojiPickerPanel
             defaultSkinTone={props.defaultSkinTone}
             frequentlyUsedEmoji={props.frequentlyUsedEmoji}
+            onClose={() => {
+              setDisplayPicker(false);
+              referenceElement?.focus();
+            }}
             onEmojiSelect={(emoji) => {
               const textarea = textareaRef.current;
               if (!textarea) return;

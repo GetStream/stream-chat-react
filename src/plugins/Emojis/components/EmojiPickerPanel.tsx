@@ -14,6 +14,7 @@ import {
 } from '../context/EmojiPickerContext';
 import { useEmojiPickerState } from '../hooks/useEmojiPickerState';
 import { useFrequentlyUsedEmoji } from '../hooks/useFrequentlyUsedEmoji';
+import { useGridKeyboardNav } from '../hooks/useGridKeyboardNav';
 import { useSkinTone } from '../hooks/useSkinTone';
 import { buildEmojiSearchData, runSearch } from '../search';
 import type { EmojiDataEmoji } from '../data';
@@ -30,6 +31,8 @@ export type EmojiPickerPanelProps = {
   className?: string;
   /** Uncontrolled initial skin tone index (0 = default, 1–5 = light → dark). */
   defaultSkinTone?: number;
+  /** Called when the panel requests to close (e.g. the Escape key). */
+  onClose?: () => void;
   /** Controlled ordered list of recently used emoji ids (most recent first). */
   frequentlyUsedEmoji?: string[];
   /** Called with the updated recently-used list when an emoji is selected. */
@@ -60,6 +63,7 @@ export const EmojiPickerPanel = ({
   className,
   defaultSkinTone,
   frequentlyUsedEmoji,
+  onClose,
   onEmojiSelect,
   onFrequentlyUsedChange,
   onSkinToneChange,
@@ -82,6 +86,8 @@ export const EmojiPickerPanel = ({
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState('');
   const emojiGridRef = useRef<EmojiGridHandle>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const { focusFirst, onKeyDown: onGridKeyDown } = useGridKeyboardNav(bodyRef);
 
   const baseCategories = useMemo<EmojiPickerCategory[]>(() => {
     if (!data) return [];
@@ -144,18 +150,28 @@ export const EmojiPickerPanel = ({
       <div
         aria-label={t('aria/Emoji picker')}
         className={clsx('str-chat__emoji-picker', themeClassName(theme), className)}
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') {
+            event.stopPropagation();
+            onClose?.();
+          }
+        }}
         role='dialog'
         style={style}
       >
         {data ? (
           <>
-            <SearchInput onChange={setQuery} value={query} />
+            <SearchInput onArrowDown={focusFirst} onChange={setQuery} value={query} />
             <CategoryNav
               activeCategoryId={isSearching ? undefined : activeCategoryId}
               categories={categories}
               onNavigate={handleNavigate}
             />
-            <div className='str-chat__emoji-picker__body'>
+            <div
+              className='str-chat__emoji-picker__body'
+              onKeyDown={onGridKeyDown}
+              ref={bodyRef}
+            >
               {isSearching ? (
                 searchedEmojis.length ? (
                   <div className='str-chat__emoji-picker__grid-container'>
