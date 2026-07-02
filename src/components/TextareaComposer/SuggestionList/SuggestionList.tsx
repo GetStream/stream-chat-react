@@ -19,7 +19,6 @@ import { useInteractionAnnouncements } from '../../Accessibility';
 import { useComponentContext } from '../../../context/ComponentContext';
 import { useMessageComposerContext } from '../../../context/MessageComposerContext';
 import { useStateStore } from '../../../store';
-import { orderSuggestionItems } from './utils';
 import { useStableId } from '../../UtilityComponents/useStableId';
 import { getTextareaCaretRect } from '../../../utils/getTextareaCaretRect';
 import type { ContextMenuItemComponent, ContextMenuItemProps } from '../../Dialog';
@@ -160,8 +159,11 @@ export const SuggestionList = ({
 
   const contextMenuItems = useMemo<ContextMenuItemComponent[]>(() => {
     if (!component) return [];
-    const sortedItems = orderSuggestionItems(items, suggestions?.searchSource.type);
-    return sortedItems.map((item, i) => {
+    // Render in the search source's own order — the SDK already orders results (commands by
+    // prefix-match relevance, then alphabetically), so we neither re-sort here nor in the composer's
+    // Enter handler; both index into the same `searchSource.items`, keeping the highlighted option
+    // and the inserted one in sync.
+    return (items ?? []).map((item, i) => {
       const Item: ContextMenuItemComponent = ({ ...props }: ContextMenuItemProps) => (
         <AutocompleteSuggestionItem
           {...props}
@@ -184,7 +186,6 @@ export const SuggestionList = ({
     resolvedListboxId,
     setFocusedItemIndex,
     AutocompleteSuggestionItem,
-    suggestions?.searchSource.type,
   ]);
 
   const ItemsWrapper = useCallback(

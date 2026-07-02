@@ -61,18 +61,13 @@ export const CommandsMenu = () => {
   const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
+  // Render commands in the channel config's own order (no client re-sort) — matches the composer's
+  // suggestion list, which likewise trusts the SDK's ordering.
   const commands = useMessageComposerCommands();
-  const sortedCommands = useMemo(
-    () =>
-      [...commands].sort((a, b) =>
-        (a.command.name ?? '').localeCompare(b.command.name ?? ''),
-      ),
-    [commands],
-  );
 
   return (
     <>
-      {sortedCommands.map(({ command, enabled }) => (
+      {commands.map(({ command, enabled }) => (
         <CommandContextMenuItem
           command={command}
           enabled={enabled}
