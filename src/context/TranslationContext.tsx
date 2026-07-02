@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import Dayjs from 'dayjs';
-import calendar from 'dayjs/plugin/calendar';
-import localizedFormat from 'dayjs/plugin/localizedFormat';
+import calendar from 'dayjs/plugin/calendar.js';
+import localizedFormat from 'dayjs/plugin/localizedFormat.js';
 import type { PropsWithChildren } from 'react';
 import type { TFunction } from 'i18next';
 import type { TranslationLanguages } from 'stream-chat';
