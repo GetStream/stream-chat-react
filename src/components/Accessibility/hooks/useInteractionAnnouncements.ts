@@ -32,6 +32,8 @@ export type InteractionDeliveryOptions = { debounceMs?: number; delayMs?: number
  * accept {@link InteractionDeliveryOptions} (e.g. a per-call `debounceMs`).
  */
 export type InteractionAnnouncementParams = {
+  /** Audio playback speed was changed via the playback-rate button. `rate` is the new multiplier. */
+  'audioPlayer.playbackRateChanged': InteractionDeliveryOptions & { rate: number };
   /** A channel was opened from the channel list. `name` is its display title. */
   'channel.opened': InteractionDeliveryOptions & { name: string };
   /** A slash command was activated from the Instant Commands menu. `command` is its name. */
@@ -88,6 +90,10 @@ const INTERACTION_MESSAGES: {
     params: InteractionAnnouncementParams[T],
   ) => string;
 } = {
+  // Confirms the new audio playback speed after the user cycles it with the playback-rate button.
+  // Reuses the existing (already-localized) button label so the spoken text matches the control.
+  'audioPlayer.playbackRateChanged': (t, params) =>
+    t('Playback speed {{ rate }}x', { rate: params.rate }),
   // Confirms which channel was opened after selecting it from the list. Delayed (see
   // INTERACTION_DELAY_MS) so it lands AFTER the screen reader's announcement of the newly-focused
   // element (the message composer auto-focuses on channel change) rather than competing with — and
@@ -193,6 +199,10 @@ const INTERACTION_PRIORITIES: Partial<
  * effect double-invoked by React StrictMode (dev) — so the user does not hear a duplicate.
  */
 const INTERACTION_DEDUPE_MS: Partial<Record<InteractionAnnouncementType, number>> = {
+  // The audio player is pooled: if the same asset is rendered by two widgets they share one player,
+  // so a single rate change fires this from both consumers. Dedupe collapses the identical message.
+  // (Cycling always lands on a different rate → different text, so this never swallows a real change.)
+  'audioPlayer.playbackRateChanged': 300,
   'poll.dialogOpened': 1000,
 };
 
