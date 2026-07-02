@@ -46,7 +46,15 @@ const createDefaultNotificationDisplayFilter =
     const targetPanels = getNotificationTargetPanels(notification);
 
     if (targetPanels.includes('modal')) {
-      return panel === 'modal';
+      // While a modal is open, keep modal-tagged notifications inside it (not behind it).
+      if (modalManagerHasOpenDialog) return panel === 'modal';
+      // The modal that emitted this notification has since closed — a common shape is a dialog that
+      // closes optimistically and only then emits a confirmation (e.g. "Poll sent"). Its `modal`
+      // NotificationList is already unmounted, so without a fallback the notification would be a
+      // dead letter (announced by the aria-live announcer, but rendered nowhere). Fall back to its
+      // other target panel(s): panel routing has already matched `panel` to one of the
+      // notification's targets, so any non-`modal` panel reaching here is a valid home.
+      return panel !== 'modal';
     }
 
     if (!modalManagerHasOpenDialog) return true;
