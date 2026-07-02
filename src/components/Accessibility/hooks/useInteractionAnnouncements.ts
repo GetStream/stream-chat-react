@@ -62,6 +62,13 @@ export type InteractionAnnouncementParams = {
   /** A thread was opened from the thread list. `name` is its channel's display title. */
   'thread.opened': InteractionDeliveryOptions & { name: string };
   'user.selected': InteractionDeliveryOptions & { user: string };
+  /** A finished voice recording was added to the composer (async multi-send: not sent yet). */
+  'voiceRecording.attached': undefined;
+  'voiceRecording.paused': undefined;
+  'voiceRecording.resumed': undefined;
+  /** A finished voice recording was sent immediately as a message. */
+  'voiceRecording.sent': undefined;
+  'voiceRecording.started': undefined;
 };
 
 export type InteractionAnnouncementType = keyof InteractionAnnouncementParams;
@@ -154,6 +161,14 @@ const INTERACTION_MESSAGES: {
     t('aria/Opened thread in {{ name }}', { name: params.name }),
   'user.selected': (t, params) =>
     t('aria/User selected: {{ user }}', { user: params.user }),
+  // Voice recorder lifecycle — discrete, immediate, polite confirmations. Cancellation is NOT here:
+  // it already emits an app notification ("Voice message deleted") announced by NotificationAnnouncer,
+  // and recording errors surface as error notifications; adding them here would double-announce.
+  'voiceRecording.attached': (t) => t('aria/Voice recording attached'),
+  'voiceRecording.paused': (t) => t('aria/Recording paused'),
+  'voiceRecording.resumed': (t) => t('aria/Recording resumed'),
+  'voiceRecording.sent': (t) => t('aria/Voice message sent'),
+  'voiceRecording.started': (t) => t('aria/Recording started'),
 };
 
 /**
