@@ -27,8 +27,16 @@ $emoji-picker-border-radius: 12px;
       --str-chat__background-utility-selected
     );
     --str-chat__emoji-picker-border-color: var(--str-chat__border-core-on-surface);
-    --str-chat__emoji-picker-width: 20rem;
-    --str-chat__emoji-picker-height: 22.5rem;
+    // Gentle hairline for the search/footer dividers (the default on-surface border is
+    // intentionally strong and reads as too heavy here).
+    --str-chat__emoji-picker-separator-color: var(--str-chat__border-core-subtle);
+    // A soft grey fill for the search field (the app background token is white).
+    --str-chat__emoji-picker-search-background-color: var(
+      --str-chat__background-utility-hover
+    );
+    --str-chat__emoji-picker-active-indicator-color: var(--str-chat__accent-primary);
+    --str-chat__emoji-picker-width: 22.5rem;
+    --str-chat__emoji-picker-height: 27.5rem;
     --str-chat__emoji-picker-emoji-size: 1.5rem;
 
     display: flex;
@@ -40,14 +48,26 @@ $emoji-picker-border-radius: 12px;
     color: var(--str-chat__emoji-picker-text-color);
     font: var(--str-chat__font-body-default);
 
+    // The whole row is styled as one filled search field, with the icon inside it.
     &__search {
       display: flex;
       align-items: center;
       gap: var(--str-chat__spacing-xs);
-      padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-sm) 0;
+      margin: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm)
+        var(--str-chat__spacing-sm);
+      padding-inline: var(--str-chat__spacing-xs);
+      min-block-size: 2rem;
+      border-radius: var(--str-chat__radius-8);
+      background-color: var(--str-chat__emoji-picker-search-background-color);
+
+      &:focus-within {
+        @include utils.focusable;
+      }
 
       .str-chat__icon {
         flex: none;
+        inline-size: 1rem;
+        block-size: 1rem;
         color: var(--str-chat__emoji-picker-secondary-text-color);
       }
     }
@@ -55,15 +75,21 @@ $emoji-picker-border-radius: 12px;
     &__search-input {
       flex: 1 1 auto;
       min-inline-size: 0;
-      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
-      border: 1px solid var(--str-chat__emoji-picker-border-color);
-      border-radius: var(--str-chat__radius-8);
-      background-color: var(--str-chat__background-core-surface-default);
+      border: none;
+      background: transparent;
       color: inherit;
       font: inherit;
+      font-size: 0.875rem;
+      line-height: 1.5;
 
+      // The filled field shows focus via `:focus-within`, so the input itself doesn't.
+      &:focus,
       &:focus-visible {
-        @include utils.focusable;
+        outline: none;
+      }
+
+      &::placeholder {
+        color: var(--str-chat__emoji-picker-secondary-text-color);
       }
     }
 
@@ -83,28 +109,28 @@ $emoji-picker-border-radius: 12px;
 
     &__category-nav {
       display: flex;
-      align-items: center;
+      align-items: stretch;
       gap: var(--str-chat__spacing-xxs);
-      padding: var(--str-chat__spacing-xs);
-      border-block-end: 1px solid var(--str-chat__emoji-picker-border-color);
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm) 0;
     }
 
     &__category-nav-button {
       @include utils.button-reset;
       cursor: pointer;
+      position: relative;
       display: flex;
       flex: 1 1 auto;
       align-items: center;
       justify-content: center;
-      padding: var(--str-chat__spacing-xxs);
-      border-radius: var(--str-chat__radius-4);
+      padding-block: var(--str-chat__spacing-xs);
       font-size: 1.125rem;
       line-height: 1;
-      opacity: 0.6;
+      // Muted tabs; the active one is emphasized with an underline bar (like
+      // emoji-mart) rather than a filled background.
+      opacity: 0.55;
 
       &:hover {
-        background-color: var(--str-chat__emoji-picker-hover-background-color);
-        opacity: 1;
+        opacity: 0.85;
       }
 
       &:focus-visible {
@@ -112,14 +138,24 @@ $emoji-picker-border-radius: 12px;
       }
 
       &--active {
-        background-color: var(--str-chat__emoji-picker-selected-background-color);
         opacity: 1;
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset-inline: 15%;
+          inset-block-end: 0;
+          block-size: 2px;
+          border-radius: 2px 2px 0 0;
+          background-color: var(--str-chat__emoji-picker-active-indicator-color);
+        }
       }
     }
 
     &__body {
       flex: 1 1 auto;
       min-block-size: 0;
+      border-block-start: 1px solid var(--str-chat__emoji-picker-separator-color);
     }
 
     &__grid-container {
@@ -135,21 +171,20 @@ $emoji-picker-border-radius: 12px;
         position: sticky;
         inset-block-start: 0;
         z-index: 1;
-        padding-block: var(--str-chat__spacing-xs);
+        padding-block: var(--str-chat__spacing-xs) var(--str-chat__spacing-xxs);
         background-color: var(--str-chat__emoji-picker-background-color);
         color: var(--str-chat__emoji-picker-secondary-text-color);
-        font: var(--str-chat__font-body-emphasis);
-        text-transform: capitalize;
+        font-size: 0.8125rem;
+        font-weight: 500;
       }
 
       &-emojis {
         display: grid;
-        grid-template-columns: repeat(
-          auto-fill,
-          minmax(var(--str-chat__emoji-picker-emoji-size), 1fr)
-        );
-        gap: var(--str-chat__spacing-xxs);
-        padding-block-end: var(--str-chat__spacing-sm);
+        // Cells are larger than the glyph and separated by a real gap so the grid
+        // breathes (roughly 9 per row at the default width) rather than packing tight.
+        grid-template-columns: repeat(auto-fill, minmax(1.75rem, 1fr));
+        gap: var(--str-chat__spacing-xs);
+        padding-block-end: var(--str-chat__spacing-xs);
       }
     }
 
@@ -180,7 +215,7 @@ $emoji-picker-border-radius: 12px;
       gap: var(--str-chat__spacing-sm);
       min-block-size: 2.75rem;
       padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
-      border-block-start: 1px solid var(--str-chat__emoji-picker-border-color);
+      border-block-start: 1px solid var(--str-chat__emoji-picker-separator-color);
     }
 
     &__preview {
@@ -200,7 +235,6 @@ $emoji-picker-border-radius: 12px;
         color: var(--str-chat__emoji-picker-secondary-text-color);
         white-space: nowrap;
         text-overflow: ellipsis;
-        text-transform: capitalize;
       }
     }
 

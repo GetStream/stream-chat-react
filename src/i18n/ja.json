@@ -636,5 +636,6 @@
   "Medium-Dark": "やや暗い",
   "Dark": "暗い",
   "Failed to load emojis": "絵文字を読み込めませんでした",
-  "Retry": "再試行"
+  "Retry": "再試行",
+  "Pick an emoji…": "絵文字を選択…"
 }

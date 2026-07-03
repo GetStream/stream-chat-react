@@ -649,5 +649,6 @@
   "Medium-Dark": "Mitteldunkel",
   "Dark": "Dunkel",
   "Failed to load emojis": "Emojis konnten nicht geladen werden",
-  "Retry": "Erneut versuchen"
+  "Retry": "Erneut versuchen",
+  "Pick an emoji…": "Emoji auswählen…"
 }

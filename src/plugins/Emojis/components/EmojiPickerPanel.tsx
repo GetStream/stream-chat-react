@@ -160,12 +160,12 @@ export const EmojiPickerPanel = ({
       >
         {data ? (
           <>
-            <SearchInput onArrowDown={focusFirst} onChange={setQuery} value={query} />
             <CategoryNav
               activeCategoryId={isSearching ? undefined : activeCategoryId}
               categories={categories}
               onNavigate={handleNavigate}
             />
+            <SearchInput onArrowDown={focusFirst} onChange={setQuery} value={query} />
             <div
               className='str-chat__emoji-picker__body'
               onKeyDown={onGridKeyDown}
