@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { SKIN_TONES } from './skinTones';
+import { MAX_SKIN_TONE_INDEX, SKIN_TONES } from './skinTones';
 import { useTranslationContext } from '../../../context';
 
 export type SkinToneSelectorProps = {
@@ -8,14 +8,38 @@ export type SkinToneSelectorProps = {
   skinToneIndex: number;
 };
 
+const ARROW_KEYS = ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End'];
+
 /**
- * Skin-tone picker rendered in the footer. Collapsed to the active tone; expands to
- * a radiogroup of all tones on activation.
+ * Skin-tone picker rendered in the footer. Collapsed to the active tone; expands to a
+ * WAI-ARIA radiogroup: focus moves onto the checked tone on open, a roving tabindex keeps
+ * one tone tab-reachable, arrow/Home/End keys move the selection (selection follows
+ * focus), and Escape collapses back to the toggle without closing the whole picker.
  */
 export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorProps) => {
   const { t } = useTranslationContext('EmojiPickerSkinTone');
   const [expanded, setExpanded] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const groupRef = useRef<HTMLDivElement>(null);
+  const returnFocusToToggle = useRef(false);
   const activeTone = SKIN_TONES[skinToneIndex] ?? SKIN_TONES[0];
+
+  const radios = () =>
+    Array.from(
+      groupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]') ?? [],
+    );
+
+  useEffect(() => {
+    if (expanded) {
+      // Move focus into the group, onto the checked tone, when it opens.
+      radios()[skinToneIndex]?.focus();
+    } else if (returnFocusToToggle.current) {
+      returnFocusToToggle.current = false;
+      toggleRef.current?.focus();
+    }
+    // Focus is managed on open/close only; arrow navigation focuses the target directly.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expanded]);
 
   if (!expanded) {
     return (
@@ -23,6 +47,7 @@ export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorPr
         aria-label={t('aria/Choose default skin tone')}
         className='str-chat__emoji-picker__skin-tone-toggle'
         onClick={() => setExpanded(true)}
+        ref={toggleRef}
         type='button'
       >
         <span aria-hidden='true'>{activeTone.glyph}</span>
@@ -30,10 +55,42 @@ export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorPr
     );
   }
 
+  const collapse = (returnFocus: boolean) => {
+    returnFocusToToggle.current = returnFocus;
+    setExpanded(false);
+  };
+
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      event.stopPropagation(); // collapse the group, not the whole picker
+      collapse(true);
+      return;
+    }
+    if (!ARROW_KEYS.includes(event.key)) return;
+    event.preventDefault();
+
+    let next = skinToneIndex;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      next = skinToneIndex >= MAX_SKIN_TONE_INDEX ? 0 : skinToneIndex + 1;
+    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      next = skinToneIndex <= 0 ? MAX_SKIN_TONE_INDEX : skinToneIndex - 1;
+    } else if (event.key === 'Home') {
+      next = 0;
+    } else if (event.key === 'End') {
+      next = MAX_SKIN_TONE_INDEX;
+    }
+
+    // All tones are mounted, so focus the target now; selection follows focus.
+    radios()[next]?.focus();
+    onSelect(next);
+  };
+
   return (
     <div
       aria-label={t('aria/Choose default skin tone')}
       className='str-chat__emoji-picker__skin-tones'
+      onKeyDown={onKeyDown}
+      ref={groupRef}
       role='radiogroup'
     >
       {SKIN_TONES.map((tone, index) => (
@@ -46,9 +103,10 @@ export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorPr
           key={tone.labelKey}
           onClick={() => {
             onSelect(index);
-            setExpanded(false);
+            collapse(true);
           }}
           role='radio'
+          tabIndex={index === skinToneIndex ? 0 : -1}
           type='button'
         >
           <span aria-hidden='true'>{tone.glyph}</span>

@@ -1,4 +1,4 @@
-import type { MouseEventHandler, ReactNode } from 'react';
+import type { AriaAttributes, MouseEventHandler, ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 // The panel is mounted only while the picker is open, so mock it to a controllable
@@ -51,6 +51,7 @@ vi.mock('../../../components', async () => {
         // Forward only the DOM-valid props the test needs; styling props are dropped.
         return (
           <button
+            aria-haspopup={props['aria-haspopup'] as AriaAttributes['aria-haspopup']}
             aria-label={props['aria-label'] as string | undefined}
             onClick={props.onClick as MouseEventHandler<HTMLButtonElement> | undefined}
             ref={ref}
@@ -120,6 +121,14 @@ describe('EmojiPicker session state', () => {
     // Selecting can't insert (no textarea), so it must not be recorded as "used".
     fireEvent.click(screen.getByText('select-rocket'));
     expect(screen.getByTestId('frequently-used').textContent).toBe('');
+  });
+
+  it('marks the toggle button as opening a dialog popup', () => {
+    render(<EmojiPicker />);
+    expect(screen.getByLabelText('aria/Emoji picker')).toHaveAttribute(
+      'aria-haspopup',
+      'dialog',
+    );
   });
 });
 
