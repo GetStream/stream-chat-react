@@ -1,4 +1,5 @@
 @use '../../../styling/utils';
+@use '../../../styling/light' as light;
 
 $emoji-picker-border-radius: 12px;
 
@@ -10,8 +11,10 @@ $emoji-picker-border-radius: 12px;
   }
 
   .str-chat__emoji-picker {
-    // Component tokens — resolved from semantic tokens so light/dark theming comes
-    // for free via the inherited `.str-chat__theme-*` ancestor.
+    // Component tokens — resolved from semantic tokens. With `theme='auto'` these
+    // inherit the ancestor `.str-chat__theme-*`; with a forced `theme` the semantic
+    // tokens are re-asserted on the panel below so the override wins regardless of
+    // the ancestor theme.
     --str-chat__emoji-picker-background-color: var(
       --str-chat__background-core-surface-card
     );
@@ -239,4 +242,21 @@ $emoji-picker-border-radius: 12px;
       min-block-size: 12rem;
     }
   }
+}
+
+// Forced light theme (`pickerProps.theme='light'`).
+//
+// The SDK's global theme rules (variable-tokens.scss) treat light as the `.str-chat`
+// default and apply dark via `.str-chat__theme-dark`; there is no rule that asserts
+// light values for a `.str-chat__theme-light` class. So a picker forced to light while
+// nested in a `.str-chat__theme-dark` ancestor would inherit the ancestor's dark tokens.
+// Re-assert the full light set on the forced-light panel so it wins over any inherited
+// theme — mirroring how variable-tokens.scss emits `light.variables` for the
+// `.str-chat__theme-dark .str-chat__theme-inverse` ("light inside dark") case.
+//
+// `theme='dark'` needs no equivalent block: the panel carries `.str-chat__theme-dark`,
+// which the global rule (always loaded via index.css) already matches. `theme='auto'`
+// intentionally inherits the ancestor theme.
+.str-chat__emoji-picker.str-chat__theme-light {
+  @include light.variables;
 }

@@ -45,7 +45,14 @@ export type EmojiPickerPanelProps = {
 
 const noop = () => undefined;
 
-const themeClassName = (theme: EmojiPickerPanelProps['theme']) => {
+/**
+ * Maps the `theme` prop to the class applied on the panel root. `light`/`dark` force
+ * an absolute theme (the forced-light case is backed by a full light-variable override
+ * in EmojiPicker.scss, since the SDK has no `.str-chat__theme-light` variable set);
+ * `auto`/undefined applies no class and inherits the ancestor `.str-chat__theme-*`.
+ * Exported for testing the class contract the theme CSS relies on.
+ */
+export const themeClassName = (theme: EmojiPickerPanelProps['theme']) => {
   if (theme === 'light') return 'str-chat__theme-light';
   if (theme === 'dark') return 'str-chat__theme-dark';
   // 'auto' (default): inherit the ancestor `.str-chat__theme-*`.
