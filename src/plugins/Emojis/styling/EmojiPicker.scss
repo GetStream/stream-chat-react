@@ -188,6 +188,15 @@ $emoji-picker-border-radius: 12px;
         gap: var(--str-chat__spacing-xs);
         padding-block-end: var(--str-chat__spacing-xs);
       }
+
+      // Pin the "frequently used" section to a single row. The panel caps its ids to
+      // FREQUENTLY_USED_LIMIT (see frequentlyUsed.ts) and these fixed columns match the
+      // default grid width, so it fills one aligned row and never wraps to a second as
+      // more emoji are used. (Uses the literal child class, not `&-emojis`, so the
+      // combinator doesn't re-expand the whole parent chain.)
+      &[data-category-id='frequent'] > .str-chat__emoji-picker__category-emojis {
+        grid-template-columns: repeat(9, minmax(0, 1fr));
+      }
     }
 
     &__emoji {
@@ -228,15 +237,32 @@ $emoji-picker-border-radius: 12px;
       min-inline-size: 0;
 
       &-emoji {
+        flex: none;
         font-size: 1.5rem;
         line-height: 1;
       }
 
+      // Name (prominent) stacked over the `:shortcode:` (muted), both truncated.
+      &-text {
+        display: flex;
+        flex-direction: column;
+        min-inline-size: 0;
+        line-height: 1.2;
+      }
+
       &-name {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.875rem;
+      }
+
+      &-shortcode {
         overflow: hidden;
         color: var(--str-chat__emoji-picker-secondary-text-color);
         white-space: nowrap;
         text-overflow: ellipsis;
+        font-size: 0.8125rem;
       }
     }
 

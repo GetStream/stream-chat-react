@@ -4,6 +4,7 @@ import { CategoryNav } from './CategoryNav';
 import { EmojiButton } from './EmojiButton';
 import { EmojiGrid, type EmojiGridHandle, type EmojiPickerCategory } from './EmojiGrid';
 import { EMOJI_CATEGORY_META } from './categories';
+import { resolveFrequentlyUsedEmoji } from './frequentlyUsed';
 import { EmptyResults } from './EmptyResults';
 import { PreviewPane } from './PreviewPane';
 import { SearchInput } from './SearchInput';
@@ -101,7 +102,9 @@ export const EmojiPickerPanel = ({
   const categories = useMemo<EmojiPickerCategory[]>(() => {
     if (!data || !frequentlyUsedIds.length) return baseCategories;
     const frequent: EmojiPickerCategory = {
-      emojis: frequentlyUsedIds.map((id) => data.emojis[id]).filter(Boolean),
+      // Capped to a single row (see resolveFrequentlyUsedEmoji + the frequent-section
+      // CSS) so the section never grows to multiple rows as more emoji are used.
+      emojis: resolveFrequentlyUsedEmoji(data, frequentlyUsedIds),
       id: 'frequent',
       label: t(EMOJI_CATEGORY_META.frequent.labelKey),
     };
