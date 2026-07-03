@@ -88,7 +88,6 @@ export const EmojiPickerPanel = ({
   const [query, setQuery] = useState('');
   const emojiGridRef = useRef<EmojiGridHandle>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const { focusFirst, onKeyDown: onGridKeyDown } = useGridKeyboardNav(bodyRef);
 
   const baseCategories = useMemo<EmojiPickerCategory[]>(() => {
     if (!data) return [];
@@ -110,6 +109,17 @@ export const EmojiPickerPanel = ({
     };
     return frequent.emojis.length ? [frequent, ...baseCategories] : baseCategories;
   }, [baseCategories, data, frequentlyUsedIds, t]);
+
+  const scrollToCategory = useCallback((categoryId: string) => {
+    emojiGridRef.current?.scrollToCategory(categoryId);
+  }, []);
+
+  // Keyboard nav can target a category that virtualization has unmounted; give it the
+  // category order + a way to scroll one into view so focus can traverse the whole set.
+  const { focusFirst, onKeyDown: onGridKeyDown } = useGridKeyboardNav(bodyRef, {
+    categories,
+    scrollToCategory,
+  });
 
   const searchIndex = useMemo(() => (data ? buildEmojiSearchData(data) : []), [data]);
 
