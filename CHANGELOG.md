@@ -1,3 +1,14 @@
+## [14.6.1](https://github.com/GetStream/stream-chat-react/compare/v14.6.0...v14.6.1) (2026-07-03)
+
+### Bug Fixes
+
+* bug bashing ChannelList + Channel ([#2474](https://github.com/GetStream/stream-chat-react/issues/2474), [#2441](https://github.com/GetStream/stream-chat-react/issues/2441), [#2393](https://github.com/GetStream/stream-chat-react/issues/2393)) ([#3227](https://github.com/GetStream/stream-chat-react/issues/3227)) ([f790520](https://github.com/GetStream/stream-chat-react/commit/f790520970f010bb04e5cdf27c815be62403ba2c)), closes [GetStream/stream-chat-js#1788](https://github.com/GetStream/stream-chat-js/issues/1788) [#2599](https://github.com/GetStream/stream-chat-react/issues/2599) [#2599](https://github.com/GetStream/stream-chat-react/issues/2599)
+* **i18n:** use .js extensions on dayjs subpath imports for valid Node ESM ([#3231](https://github.com/GetStream/stream-chat-react/issues/3231)) ([7663b18](https://github.com/GetStream/stream-chat-react/commit/7663b184a5ec2d4e4cf5170538aa22ef9162e765)), closes [#3188](https://github.com/GetStream/stream-chat-react/issues/3188) [#3188](https://github.com/GetStream/stream-chat-react/issues/3188)
+* **MessageList:** don't count thread replies toward channel unread UI state ([#3229](https://github.com/GetStream/stream-chat-react/issues/3229)) ([ca5ed16](https://github.com/GetStream/stream-chat-react/commit/ca5ed16e6afd9681a88cb22ce940151b0babb4ef))
+* **renderText:** recognize uppercase URL schemes ([#3226](https://github.com/GetStream/stream-chat-react/issues/3226)) ([21d57e3](https://github.com/GetStream/stream-chat-react/commit/21d57e3a613118df19628d3d67012f213173021a))
+* **renderText:** recognize uppercase URL schemes in message links ([6178513](https://github.com/GetStream/stream-chat-react/commit/61785139caacabf50a9cdaad354ede7ba49a8243))
+* return background colors to LinkPreviewCard and TypingIndicator ([a768e30](https://github.com/GetStream/stream-chat-react/commit/a768e30986338c474b6988b062884c71763dc5f7))
+
 ## [14.6.0](https://github.com/GetStream/stream-chat-react/compare/v14.5.0...v14.6.0) (2026-06-25)
 
 ### Features
