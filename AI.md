@@ -247,12 +247,16 @@ required.
 **Steps**:
 
 1. Import `EmojiPicker` from `stream-chat-react/emojis` and pass it to `Channel`.
-2. (Optional) For `:shortcode` autocomplete + emoticon replacement, register the
+2. Import the emoji picker's stylesheet: `import 'stream-chat-react/css/emoji-picker.css'`.
+   It is intentionally **not** part of `index.css` (so apps that don't use the picker
+   ship no emoji CSS); without it the picker panel renders unstyled.
+3. (Optional) For `:shortcode` autocomplete + emoticon replacement, register the
    emoji middleware on the message composer's text composer with
    `createTextComposerEmojiMiddleware()` (no argument — it uses the built-in index).
 
 ```tsx
 import { EmojiPicker } from 'stream-chat-react/emojis';
+import 'stream-chat-react/css/emoji-picker.css';
 
 <Channel EmojiPicker={EmojiPicker}>{/* ... */}</Channel>;
 ```
