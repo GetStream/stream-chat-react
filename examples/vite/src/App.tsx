@@ -29,7 +29,6 @@ import {
   ChatView,
   defaultReactionOptions,
   DialogManagerProvider,
-  mapEmojiMartData,
   MessageReactions,
   NotificationList,
   type NotificationListProps,
@@ -39,7 +38,11 @@ import {
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
-import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
+import {
+  createTextComposerEmojiMiddleware,
+  EmojiPicker,
+  loadDefaultExtendedReactionOptions,
+} from 'stream-chat-react/emojis';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
@@ -104,23 +107,6 @@ const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 // @ts-expect-error ai_generated isn't on LocalMessage's public type yet
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
-
-// A few extra reactions, built from emoji-mart-shaped data via `mapEmojiMartData`.
-const extendedReactionData = {
-  emojis: {
-    clap: { name: 'Clapping Hands', skins: [{ native: '👏' }] },
-    eyes: { name: 'Eyes', skins: [{ native: '👀' }] },
-    hundred: { name: 'Hundred Points', skins: [{ native: '💯' }] },
-    pray: { name: 'Folded Hands', skins: [{ native: '🙏' }] },
-    rocket: { name: 'Rocket', skins: [{ native: '🚀' }] },
-    tada: { name: 'Party Popper', skins: [{ native: '🎉' }] },
-  },
-};
-
-const newReactionOptions: ReactionOptions = {
-  ...defaultReactionOptions,
-  extended: mapEmojiMartData(extendedReactionData),
-};
 
 const useUser = () => {
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
@@ -271,6 +257,21 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
 
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
+  // Restore "react with any emoji": lazily load the full emoji set and expose it as the
+  // extended reaction options (the reaction selector's "+" list). The dataset loads on
+  // demand via the same code-split chunk the picker uses; until it resolves only the
+  // quick reactions show.
+  const [reactionOptions, setReactionOptions] =
+    useState<ReactionOptions>(defaultReactionOptions);
+  useEffect(() => {
+    let active = true;
+    loadDefaultExtendedReactionOptions().then((extended) => {
+      if (active) setReactionOptions({ ...defaultReactionOptions, extended });
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
   const chatView = useAppSettingsSelector((state) => state.chatView);
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
@@ -472,7 +473,7 @@ const App = () => {
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
         MessageReactions: CustomMessageReactions,
-        reactionOptions: newReactionOptions,
+        reactionOptions,
         Search: CustomChannelSearch,
         HeaderEndContent: SidebarToggle,
         HeaderStartContent: SidebarToggle,

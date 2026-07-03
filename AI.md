@@ -271,8 +271,29 @@ import 'stream-chat-react/css/emoji-picker.css';
 - `pickerProps` accepts only `theme` and `style`. emoji-mart `Picker` options
   (`data`, `set`, `custom`, `categories`, `perLine`, `emojiVersion`, `locale`, …) are
   no longer supported: the type rejects them and any passed via `as` casts are
-  ignored with a console warning. For custom reaction emoji use `mapEmojiMartData`;
-  for appearance use the `--str-chat__emoji-picker-*` CSS variables.
+  ignored with a console warning. For appearance use the `--str-chat__emoji-picker-*`
+  CSS variables.
+- To let users **react with any emoji** (the reaction selector's `+` button), fill
+  `reactionOptions.extended` with the full emoji set. It also gates display — a reaction
+  whose type isn't in `quick`/`extended` is not rendered. Load it lazily from the emojis
+  entry (the dataset is code-split, so this adds nothing to your initial bundle):
+
+  ```tsx
+  import { defaultReactionOptions, type ReactionOptions } from 'stream-chat-react';
+  import { loadDefaultExtendedReactionOptions } from 'stream-chat-react/emojis';
+
+  const [reactionOptions, setReactionOptions] =
+    useState<ReactionOptions>(defaultReactionOptions);
+  useEffect(() => {
+    loadDefaultExtendedReactionOptions().then((extended) =>
+      setReactionOptions({ ...defaultReactionOptions, extended }),
+    );
+  }, []);
+
+  <Channel reactionOptions={reactionOptions}>{/* ... */}</Channel>;
+  ```
+
+  For a curated subset instead, build the `extended` map yourself with `mapEmojiMartData`.
 
 **Reference**: See `examples/tutorial/src/6-emoji-picker/`
 
