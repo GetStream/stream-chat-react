@@ -647,5 +647,7 @@
   "Medium-Light": "Orta açık",
   "Medium": "Orta",
   "Medium-Dark": "Orta koyu",
-  "Dark": "Koyu"
+  "Dark": "Koyu",
+  "Failed to load emojis": "Emojiler yüklenemedi",
+  "Retry": "Yeniden dene"
 }

@@ -23,7 +23,9 @@ export const EmojiButton = memo(function EmojiButton({ emoji }: EmojiButtonProps
       onClick={() => onSelectEmoji(emoji)}
       onFocus={() => setPreviewedEmoji(emoji)}
       onMouseEnter={() => setPreviewedEmoji(emoji)}
-      role='gridcell'
+      // Native <button> semantics (not role='gridcell'): the category view is
+      // virtualized, so a valid grid/row/gridcell tree can't be guaranteed. Roving
+      // tabIndex still drives 2D arrow-key navigation (see useGridKeyboardNav).
       tabIndex={-1}
       type='button'
     >

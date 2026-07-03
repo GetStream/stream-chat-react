@@ -81,7 +81,7 @@ export const EmojiPickerPanel = ({
   theme,
 }: EmojiPickerPanelProps) => {
   const { t } = useTranslationContext('EmojiPickerPanel');
-  const { data } = useEmojiPickerState();
+  const { data, error, retry } = useEmojiPickerState();
   const [previewedEmoji, setPreviewedEmoji] = useState<EmojiDataEmoji | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState('');
@@ -174,8 +174,8 @@ export const EmojiPickerPanel = ({
               {isSearching ? (
                 searchedEmojis.length ? (
                   <div className='str-chat__emoji-picker__grid-container'>
-                    <div className='str-chat__emoji-picker__grid' role='grid'>
-                      <div className='str-chat__emoji-picker__category-emojis' role='row'>
+                    <div className='str-chat__emoji-picker__grid'>
+                      <div className='str-chat__emoji-picker__category-emojis'>
                         {searchedEmojis.map((emoji) => (
                           <EmojiButton emoji={emoji} key={emoji.id} />
                         ))}
@@ -201,6 +201,19 @@ export const EmojiPickerPanel = ({
               />
             </div>
           </>
+        ) : error ? (
+          <div className='str-chat__emoji-picker__error' role='alert'>
+            <p className='str-chat__emoji-picker__error-message'>
+              {t('Failed to load emojis')}
+            </p>
+            <button
+              className='str-chat__emoji-picker__error-retry'
+              onClick={retry}
+              type='button'
+            >
+              {t('Retry')}
+            </button>
+          </div>
         ) : (
           <div aria-busy='true' className='str-chat__emoji-picker__loading' />
         )}

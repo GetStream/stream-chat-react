@@ -3,17 +3,15 @@ import type {
   EmojiSearchIndexResult,
 } from '../../../components/MessageComposer';
 import { loadEmojiData } from '../data';
+import { memoizeAsyncWithReset } from '../memoizeAsyncWithReset';
 import { buildEmojiSearchData, type SearchableEmoji } from './buildEmojiSearchData';
 import { runSearch } from './search';
 
-let indexPromise: Promise<SearchableEmoji[]> | null = null;
-
-const getIndex = (): Promise<SearchableEmoji[]> => {
-  if (!indexPromise) {
-    indexPromise = loadEmojiData().then(buildEmojiSearchData);
-  }
-  return indexPromise;
-};
+// Memoized, but dropped on failure so a transient dataset-load error does not
+// permanently poison the shared search index used by the composer middleware.
+const getIndex = memoizeAsyncWithReset<SearchableEmoji[]>(() =>
+  loadEmojiData().then(buildEmojiSearchData),
+);
 
 const toResult = (emoji: SearchableEmoji): EmojiSearchIndexResult => ({
   emoticons: emoji.emoticons,

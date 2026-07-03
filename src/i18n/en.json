@@ -647,5 +647,7 @@
   "Medium-Light": "Medium-Light",
   "Medium": "Medium",
   "Medium-Dark": "Medium-Dark",
-  "Dark": "Dark"
+  "Dark": "Dark",
+  "Failed to load emojis": "Failed to load emojis",
+  "Retry": "Retry"
 }

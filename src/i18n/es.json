@@ -671,5 +671,7 @@
   "Medium-Light": "Medio claro",
   "Medium": "Medio",
   "Medium-Dark": "Medio oscuro",
-  "Dark": "Oscuro"
+  "Dark": "Oscuro",
+  "Failed to load emojis": "No se pudieron cargar los emojis",
+  "Retry": "Reintentar"
 }

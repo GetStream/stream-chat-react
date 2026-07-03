@@ -241,6 +241,37 @@ $emoji-picker-border-radius: 12px;
       flex: 1 1 auto;
       min-block-size: 12rem;
     }
+
+    &__error {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--str-chat__spacing-sm);
+      min-block-size: 12rem;
+      padding: var(--str-chat__spacing-md);
+      color: var(--str-chat__emoji-picker-secondary-text-color);
+      text-align: center;
+    }
+
+    &__error-retry {
+      @include utils.button-reset;
+      cursor: pointer;
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+      border: 1px solid var(--str-chat__emoji-picker-border-color);
+      border-radius: var(--str-chat__radius-8);
+      color: var(--str-chat__emoji-picker-text-color);
+      font: inherit;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
   }
 }
 

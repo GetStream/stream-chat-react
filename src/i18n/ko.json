@@ -634,5 +634,7 @@
   "Medium-Light": "중간 밝음",
   "Medium": "중간",
   "Medium-Dark": "중간 어두움",
-  "Dark": "어두움"
+  "Dark": "어두움",
+  "Failed to load emojis": "이모지를 불러오지 못했습니다",
+  "Retry": "다시 시도"
 }

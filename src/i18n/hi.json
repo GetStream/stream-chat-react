@@ -648,5 +648,7 @@
   "Medium-Light": "मध्यम-हल्का",
   "Medium": "मध्यम",
   "Medium-Dark": "मध्यम-गहरा",
-  "Dark": "गहरा"
+  "Dark": "गहरा",
+  "Failed to load emojis": "इमोजी लोड नहीं हो सके",
+  "Retry": "पुनः प्रयास करें"
 }

@@ -634,5 +634,7 @@
   "Medium-Light": "やや明るい",
   "Medium": "普通",
   "Medium-Dark": "やや暗い",
-  "Dark": "暗い"
+  "Dark": "暗い",
+  "Failed to load emojis": "絵文字を読み込めませんでした",
+  "Retry": "再試行"
 }

@@ -649,5 +649,7 @@
   "Medium-Light": "Middellicht",
   "Medium": "Middel",
   "Medium-Dark": "Middeldonker",
-  "Dark": "Donker"
+  "Dark": "Donker",
+  "Failed to load emojis": "Emoji's konden niet worden geladen",
+  "Retry": "Opnieuw proberen"
 }

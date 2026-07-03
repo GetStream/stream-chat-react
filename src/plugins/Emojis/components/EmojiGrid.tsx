@@ -27,7 +27,7 @@ const CategorySection = ({ category }: { category: EmojiPickerCategory }) => (
     <div className='str-chat__emoji-picker__category-label' role='presentation'>
       {category.label}
     </div>
-    <div className='str-chat__emoji-picker__category-emojis' role='row'>
+    <div className='str-chat__emoji-picker__category-emojis'>
       {category.emojis.map((emoji) => (
         <EmojiButton emoji={emoji} key={emoji.id} />
       ))}
