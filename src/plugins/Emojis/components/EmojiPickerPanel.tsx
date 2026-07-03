@@ -13,6 +13,7 @@ import {
   type EmojiPickerContextValue,
   EmojiPickerProvider,
 } from '../context/EmojiPickerContext';
+import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useEmojiPickerState } from '../hooks/useEmojiPickerState';
 import { useGridKeyboardNav } from '../hooks/useGridKeyboardNav';
 import { buildEmojiSearchData, runSearch } from '../search';
@@ -86,6 +87,9 @@ export const EmojiPickerPanel = ({
   const [previewedEmoji, setPreviewedEmoji] = useState<EmojiDataEmoji | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
   const [query, setQuery] = useState('');
+  // Debounce the query that drives the search so typing doesn't re-scan the index and
+  // re-render up to 90 result cells on every keystroke (clearing still exits at once).
+  const debouncedQuery = useDebouncedValue(query, 120);
   const emojiGridRef = useRef<EmojiGridHandle>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
@@ -123,14 +127,16 @@ export const EmojiPickerPanel = ({
 
   const searchIndex = useMemo(() => (data ? buildEmojiSearchData(data) : []), [data]);
 
-  // `null` when not searching; otherwise the (possibly empty) list of matches.
+  // `null` when not searching; otherwise the (possibly empty) list of matches. Clearing
+  // the field (empty live `query`) exits search immediately; a non-empty query is taken
+  // from the debounced value.
   const searchedEmojis = useMemo<EmojiDataEmoji[] | null>(() => {
-    const trimmed = query.trim();
+    const trimmed = query.trim() && debouncedQuery.trim();
     if (!trimmed || !data) return null;
     return (runSearch(searchIndex, trimmed) ?? [])
       .map((result) => data.emojis[result.id])
       .filter(Boolean);
-  }, [data, query, searchIndex]);
+  }, [data, debouncedQuery, query, searchIndex]);
 
   const onSelectEmoji = useCallback(
     (emoji: EmojiDataEmoji) => {

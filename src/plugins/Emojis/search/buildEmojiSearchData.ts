@@ -42,13 +42,22 @@ const buildHaystack = (emoji: EmojiDataEmoji): string => {
   return haystack;
 };
 
+// Cache the built index per data object. The dataset is loaded once (a memoized dynamic
+// import), so the picker panel and the composer middleware pass the same object here and
+// share a single ~1,900-entry build instead of computing it twice.
+const cache = new WeakMap<EmojiData, SearchableEmoji[]>();
+
 /**
- * Transforms the vendored emoji dataset into a flat, search-ready index. Pure and
- * side-effect free — the produced `search` haystack matches emoji-mart's format so
- * that ranking parity with `emoji-mart`'s `SearchIndex` is preserved.
+ * Transforms the vendored emoji dataset into a flat, search-ready index (memoized by the
+ * data object). Pure and side-effect free — the produced `search` haystack matches
+ * emoji-mart's format so that ranking parity with `emoji-mart`'s `SearchIndex` is
+ * preserved.
  */
-export const buildEmojiSearchData = (data: EmojiData): SearchableEmoji[] =>
-  Object.values(data.emojis).map((emoji) => ({
+export const buildEmojiSearchData = (data: EmojiData): SearchableEmoji[] => {
+  const cached = cache.get(data);
+  if (cached) return cached;
+
+  const built = Object.values(data.emojis).map((emoji) => ({
     emoticons: emoji.emoticons,
     id: emoji.id,
     name: emoji.name,
@@ -56,3 +65,6 @@ export const buildEmojiSearchData = (data: EmojiData): SearchableEmoji[] =>
     search: buildHaystack(emoji),
     skins: emoji.skins,
   }));
+  cache.set(data, built);
+  return built;
+};
