@@ -1,13 +1,12 @@
 import clsx from 'clsx';
 import React, { useEffect, useRef, useState } from 'react';
 
-import { useStableId } from '../../UtilityComponents/useStableId';
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { Button, IconSearch, IconXCircle, VisuallyHidden } from '../../../components';
+import { Button, IconSearch, IconXCircle } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -28,7 +27,6 @@ export const SearchBar = () => {
     searchController,
   } = useSearchContext();
   const queriesInProgress = useSearchQueriesInProgress(searchController);
-  const searchInputId = useStableId();
 
   const [input, setInput] = useState<HTMLInputElement | null>(null);
   // Was the most recent pointerdown inside the search widget? Used to disambiguate a blur with a
@@ -78,16 +76,13 @@ export const SearchBar = () => {
           'str-chat__search-bar__input-wrapper--active': isActive,
         })}
       >
-        <label htmlFor={searchInputId}>
-          <VisuallyHidden>{t('Search')}</VisuallyHidden>
-        </label>
         <IconSearch />
         <input
           {...inputProps}
+          aria-label={t('Search')}
           className={clsx('str-chat__search-bar__input', inputProps?.className)}
           data-testid='search-input'
           disabled={disabled}
-          id={searchInputId}
           onBlur={({ relatedTarget }) => {
             // Exit search only when focus leaves the search widget entirely. Moving focus to a
             // control inside it — the results list, the source filter buttons, the clear button,
