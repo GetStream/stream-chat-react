@@ -7,7 +7,7 @@ beforeAll(() => {
   Element.prototype.scrollIntoView = () => undefined;
 });
 
-type Category = { emojis: string[]; id: string };
+type Category = { emojis: { id: string }[]; id: string };
 
 /**
  * Mimics the virtualized grid: only `initialMounted` categories are in the DOM, and
@@ -33,7 +33,7 @@ const Harness = ({
         .filter((category) => mounted.includes(category.id))
         .map((category) => (
           <section data-category-id={category.id} key={category.id}>
-            {category.emojis.map((id) => (
+            {category.emojis.map(({ id }) => (
               <button
                 className='str-chat__emoji-picker__emoji'
                 data-emoji-id={id}
@@ -51,8 +51,8 @@ const Harness = ({
 };
 
 const categories: Category[] = [
-  { emojis: ['a1', 'a2', 'a3'], id: 'a' },
-  { emojis: ['b1', 'b2', 'b3'], id: 'b' },
+  { emojis: [{ id: 'a1' }, { id: 'a2' }, { id: 'a3' }], id: 'a' },
+  { emojis: [{ id: 'b1' }, { id: 'b2' }, { id: 'b3' }], id: 'b' },
 ];
 
 describe('useGridKeyboardNav across virtualization boundaries', () => {
