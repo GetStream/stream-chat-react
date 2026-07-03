@@ -55,7 +55,9 @@ $emoji-picker-border-radius: 12px;
       gap: var(--str-chat__spacing-xs);
       margin: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm)
         var(--str-chat__spacing-sm);
-      padding-inline: var(--str-chat__spacing-xs);
+      // No inline padding: the icon's inset already comes from the flex `gap` after
+      // the visually-hidden label (the first flex child). Adding padding here would
+      // stack on top of that gap and push the icon deeper into the field.
       min-block-size: 2rem;
       border-radius: var(--str-chat__radius-8);
       background-color: var(--str-chat__emoji-picker-search-background-color);
