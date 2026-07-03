@@ -33,9 +33,12 @@ describe('runSearch (against the vendored dataset)', () => {
   it('applies AND semantics across multiple words', () => {
     const results = runSearch(index, 'red heart') ?? [];
     expect(results.map((emoji) => emoji.id)).toContain('heart'); // "Red Heart"
-    // every returned emoji must have matched both words
+    // Every result matched BOTH words as comma-anchored tokens — mirroring runSearch's
+    // own `indexOf(",word")`, not a loose substring that a match like "tired" would pass.
     expect(
-      results.every((emoji) => /red/.test(emoji.search) && /heart/.test(emoji.search)),
+      results.every(
+        (emoji) => emoji.search.includes(',red') && emoji.search.includes(',heart'),
+      ),
     ).toBe(true);
   });
 
@@ -70,18 +73,20 @@ describe('runSearch (ranking details, synthetic data)', () => {
         skins: [{ native: '②', unified: '' }],
         version: 1,
       },
-      // both share the "tie" keyword at the same offset (equal-length ids)
+      // Equal-length names (and ids) so the shared "tie" keyword lands at the same
+      // haystack offset in both — giving an actual score tie that the id.localeCompare
+      // tie-break must resolve (otherwise score alone would decide the order).
       ccc: {
         id: 'ccc',
         keywords: ['tie'],
-        name: 'Third',
+        name: 'Cat',
         skins: [{ native: '③', unified: '' }],
         version: 1,
       },
       ddd: {
         id: 'ddd',
         keywords: ['tie'],
-        name: 'Fourth',
+        name: 'Dog',
         skins: [{ native: '④', unified: '' }],
         version: 1,
       },

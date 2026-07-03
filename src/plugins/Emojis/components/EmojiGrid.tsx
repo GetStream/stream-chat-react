@@ -46,6 +46,7 @@ export const EmojiGrid = forwardRef<EmojiGridHandle, EmojiGridProps>(function Em
   ref,
 ) {
   const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const atBottomRef = useRef(false);
 
   useImperativeHandle(
     ref,
@@ -60,10 +61,21 @@ export const EmojiGrid = forwardRef<EmojiGridHandle, EmojiGridProps>(function Em
 
   return (
     <Virtuoso
+      atBottomStateChange={(atBottom) => {
+        atBottomRef.current = atBottom;
+        // The last category is often short and never reaches the top of the viewport,
+        // so scroll-spy alone would never mark it active — pin it while at the bottom.
+        if (atBottom) {
+          const last = categories[categories.length - 1];
+          if (last) onActiveCategoryChange?.(last.id);
+        }
+      }}
       className='str-chat__emoji-picker__grid'
       data={categories}
       itemContent={(_index, category) => <CategorySection category={category} />}
       rangeChanged={({ startIndex }) => {
+        // While pinned at the bottom, atBottomStateChange owns the active category.
+        if (atBottomRef.current) return;
         const category = categories[startIndex];
         if (category) onActiveCategoryChange?.(category.id);
       }}
