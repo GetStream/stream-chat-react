@@ -3,6 +3,10 @@
     {
       "name": "master",
       "channel": "latest"
+    },
+    {
+      "name": "release-v15",
+      "prerelease": "rc"
     }
   ],
   "plugins": [
