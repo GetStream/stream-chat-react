@@ -173,7 +173,7 @@ const useChannelManagementEditForm = ({
 
   // Dirty-tracking baseline; advanced to the saved value on success so the form
   // is no longer considered dirty (and the Save button hides) after a write.
-  const [baselineName, setBaselineName] = useState(channel.data?.name ?? '');
+  const [baselineName, setBaselineName] = useState(channel.data?.custom?.name ?? '');
   const [name, setName] = useState(baselineName);
   // null = keep current avatar, File = replace it, 'removed' = clear it
   const [imageEdit, setImageEdit] = useState<File | 'removed' | null>(null);

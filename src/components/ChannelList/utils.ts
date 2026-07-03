@@ -1,4 +1,4 @@
-import type { Channel, ChannelSort, ChannelSortBase } from 'stream-chat';
+import type { Channel, ChannelSort } from 'stream-chat';
 
 import type { ChannelListProps } from './ChannelList';
 
@@ -101,33 +101,16 @@ export const extractSortValue = ({
   targetKey,
 }: {
   atIndex: number;
-  targetKey: keyof ChannelSortBase;
-  sort?: ChannelListProps['sort'];
+  targetKey: string;
+  sort?: ChannelSort;
 }) => {
   if (!sort) return null;
-  let option: null | ChannelSortBase = null;
 
-  if (Array.isArray(sort)) {
-    option = sort[atIndex] ?? null;
-  } else {
-    let index = 0;
-    for (const key in sort) {
-      if (index !== atIndex) {
-        index++;
-        continue;
-      }
+  const option = sort[atIndex] ?? null;
 
-      if (key !== targetKey) {
-        return null;
-      }
+  if (option?.field !== targetKey) return null;
 
-      option = sort;
-
-      break;
-    }
-  }
-
-  return option?.[targetKey] ?? null;
+  return option.direction ?? null;
 };
 
 /**
@@ -147,7 +130,7 @@ export const isChannelPinned = (channel: Channel) => {
 
   const membership = channel.state.membership;
 
-  return typeof membership.pinned_at === 'string';
+  return typeof membership?.pinned_at === 'string';
 };
 
 /**
@@ -158,5 +141,5 @@ export const isChannelArchived = (channel: Channel) => {
 
   const membership = channel.state.membership;
 
-  return typeof membership.archived_at === 'string';
+  return typeof membership?.archived_at === 'string';
 };

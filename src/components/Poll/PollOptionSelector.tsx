@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
+import type { PollOption, PollState, PollVote } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import {
@@ -38,7 +38,7 @@ type PollStateSelectorReturnValue = {
   maxVotedOptionIds: string[];
   ownVotesByOptionId: Record<string, PollVote>;
   vote_counts_by_option: Record<string, number>;
-  voting_visibility: VotingVisibility | undefined;
+  voting_visibility: string;
 };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   is_closed: nextValue.is_closed,

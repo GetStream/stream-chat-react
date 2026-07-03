@@ -24,12 +24,18 @@ export const MessageAlsoSentInChannelIndicator = () => {
   const queryParent = () =>
     channel
       .getClient()
-      .search({ cid: channel.cid }, { id: message.parent_id })
+      .search({
+        payload: {
+          filter_conditions: { cid: channel.cid },
+          message_filter_conditions: { id: message.parent_id },
+        },
+      })
       .then(({ results }) => {
         if (!results.length) {
           throw new Error('Thread has not been found');
         }
-        targetMessageRef.current = formatMessage(results[0].message);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        targetMessageRef.current = formatMessage(results[0].message!);
       })
       .catch((error: Error) => {
         addNotification({

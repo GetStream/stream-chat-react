@@ -70,6 +70,7 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
   const { attachment } = item;
   const fileName = getAttachmentFileName(attachment);
   const assetUrl = attachment.asset_url;
+  const { file_size, mime_type } = attachment.custom;
 
   const LeadingSlot = useMemo(
     () =>
@@ -78,23 +79,23 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
           <FileIcon
             className='str-chat__channel-detail__files-view__list-item__icon'
             fileName={fileName}
-            mimeType={attachment.mime_type}
+            mimeType={mime_type}
             size='md'
           />
         );
       },
-    [attachment.mime_type, fileName],
+    [mime_type, fileName],
   );
 
   const sharedProps = useMemo(
     () => ({
       LeadingSlot,
-      subtitle: <FileSizeIndicator fileSize={attachment.file_size} />,
+      subtitle: <FileSizeIndicator fileSize={file_size} />,
       subtitleClassName: 'str-chat__channel-detail__files-view__list-item__size',
       title: fileName,
       titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
     }),
-    [attachment.file_size, fileName, LeadingSlot],
+    [file_size, fileName, LeadingSlot],
   );
 
   const linkRootProps = useMemo(

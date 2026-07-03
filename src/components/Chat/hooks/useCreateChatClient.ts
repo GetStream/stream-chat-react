@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
-
 import { StreamChat } from 'stream-chat';
-
-import type {
-  OwnUserResponse,
-  StreamChatOptions,
-  TokenOrProvider,
-  UserResponse,
-} from 'stream-chat';
+import type { ClientUser, StreamChatOptions, TokenOrProvider } from 'stream-chat';
 
 /**
  * React hook to create, connect and return `StreamChat` client.
@@ -20,7 +13,7 @@ export const useCreateChatClient = ({
 }: {
   apiKey: string;
   tokenOrProvider: TokenOrProvider;
-  userData: OwnUserResponse | UserResponse;
+  userData: ClientUser;
   options?: StreamChatOptions;
 }) => {
   const [chatClient, setChatClient] = useState<StreamChat | null>(null);
@@ -33,7 +26,7 @@ export const useCreateChatClient = ({
   const [cachedOptions] = useState(options);
 
   useEffect(() => {
-    const client = new StreamChat(apiKey, undefined, cachedOptions);
+    const client = new StreamChat(apiKey, cachedOptions);
     let didUserConnectInterrupt = false;
 
     const connectionPromise = client

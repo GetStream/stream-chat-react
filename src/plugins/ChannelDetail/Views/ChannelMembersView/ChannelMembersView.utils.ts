@@ -9,7 +9,11 @@ export const getMemberUserId = (member: ChannelMemberResponse) =>
   member.user?.id || member.user_id;
 
 export const getUserDisplayName = (user?: UserResponse) =>
-  user?.name || user?.username || user?.id || '';
+  user?.name ||
+  // @ts-expect-error username is not typed
+  user?.custom.username ||
+  user?.id ||
+  '';
 
 export const getChannelMemberUserIds = (channel: Channel) =>
   Object.values(channel.state?.members ?? {})

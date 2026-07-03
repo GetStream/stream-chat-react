@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { Channel, Event, LocalMessage, UserResponse } from 'stream-chat';
+import type {
+  Channel,
+  EventHandler,
+  LocalMessage,
+  UserResponse,
+} from 'stream-chat';
 
 import { useChatContext } from '../../../context';
 
@@ -59,7 +64,7 @@ export const useMessageDeliveryStatus = ({
   }, [channel, client, isOwnMessage, lastMessage]);
 
   useEffect(() => {
-    const handleMessageNew = (event: Event) => {
+    const handleMessageNew: EventHandler<'message.new'> = (event) => {
       // the last message is not mine, so do not show the delivery status
       if (!isOwnMessage(event.message)) {
         return setMessageDeliveryStatus(undefined);
@@ -67,16 +72,16 @@ export const useMessageDeliveryStatus = ({
       return setMessageDeliveryStatus(MessageDeliveryStatus.SENT);
     };
 
-    channel.on('message.new', handleMessageNew);
+    const subscription = channel.on('message.new', handleMessageNew);
 
     return () => {
-      channel.off('message.new', handleMessageNew);
+      subscription.unsubscribe();
     };
   }, [channel, isOwnMessage]);
 
   useEffect(() => {
     if (!isOwnMessage(lastMessage)) return;
-    const handleMessageDelivered = (event: Event) => {
+    const handleMessageDelivered: EventHandler<'message.delivered'> = (event) => {
       if (
         event.user?.id !== client.user?.id &&
         lastMessage &&
@@ -85,17 +90,17 @@ export const useMessageDeliveryStatus = ({
         setMessageDeliveryStatus(MessageDeliveryStatus.DELIVERED);
     };
 
-    const handleMarkRead = (event: Event) => {
+    const handleMarkRead: EventHandler<'message.read'> = (event) => {
       if (event.user?.id !== client.user?.id)
         setMessageDeliveryStatus(MessageDeliveryStatus.READ);
     };
 
-    channel.on('message.delivered', handleMessageDelivered);
-    channel.on('message.read', handleMarkRead);
+    const deliveredSubscription = channel.on('message.delivered', handleMessageDelivered);
+    const readSubscription = channel.on('message.read', handleMarkRead);
 
     return () => {
-      channel.off('message.delivered', handleMessageDelivered);
-      channel.off('message.read', handleMarkRead);
+      deliveredSubscription.unsubscribe();
+      readSubscription.unsubscribe();
     };
   }, [channel, client, isOwnMessage, lastMessage]);
 

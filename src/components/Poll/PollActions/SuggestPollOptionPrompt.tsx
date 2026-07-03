@@ -46,7 +46,8 @@ export const SuggestPollOptionPrompt = () => {
 
   const onSubmit = useCallback(
     async (formValue: { optionText: string }) => {
-      await client.createPollOption(poll.id, {
+      await client.createPollOption({
+        poll_id: poll.id,
         text: formValue.optionText,
       });
       close();

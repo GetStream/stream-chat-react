@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import {
   FileSizeIndicator as DefaultFileSizeIndicator,
@@ -87,9 +87,8 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
  * Audio attachment with play/pause button and progress bar
  */
 export const Audio = (props: AudioProps) => {
-  const {
-    attachment: { asset_url, duration, file_size, mime_type, title },
-  } = props;
+  const { asset_url, custom, title } = props.attachment as VoiceRecordingAttachment;
+  const { duration, file_size, mime_type, waveform_data } = custom;
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
@@ -111,7 +110,7 @@ export const Audio = (props: AudioProps) => {
       `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
-    waveformData: props.attachment.waveform_data,
+    waveformData: waveform_data,
   });
 
   return audioPlayer ? <AudioAttachmentUI audioPlayer={audioPlayer} /> : null;

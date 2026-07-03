@@ -6,7 +6,7 @@ import type { PollOption, PollState } from 'stream-chat';
 type PollStateSelectorReturnValue = {
   enforce_unique_vote: boolean;
   is_closed: boolean | undefined;
-  max_votes_allowed: number;
+  max_votes_allowed: number | undefined;
   name: string;
   options: PollOption[];
 };

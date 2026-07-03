@@ -16,6 +16,7 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
   const { AttachmentFileIcon, FileSizeIndicator = DefaultFileSizeIndicator } =
     useComponentContext();
   const FileIconComponent = AttachmentFileIcon ?? FileIcon;
+  const { file_size, mime_type } = attachment.custom;
   return (
     <div
       className='str-chat__message-attachment-file--item'
@@ -24,7 +25,7 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
       <FileIconComponent
         className='str-chat__file-icon'
         fileName={attachment.title}
-        mimeType={attachment.mime_type}
+        mimeType={mime_type}
       />
       <div className='str-chat__message-attachment-file--item__info'>
         <div className='str-chat__message-attachment-file--item__first-row'>
@@ -36,7 +37,7 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
           </div>
         </div>
         <div className='str-chat__message-attachment-file--item__data'>
-          <FileSizeIndicator fileSize={attachment.file_size} />
+          <FileSizeIndicator fileSize={file_size} />
         </div>
       </div>
       <DownloadButton

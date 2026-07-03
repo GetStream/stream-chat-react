@@ -7,8 +7,7 @@ import type {
   ChannelFilters,
   ChannelOptions,
   ChannelSort,
-  ErrorFromResponse,
-  ParsedPredefinedFilterResponse,
+  StreamAPIError,
   StreamChat,
 } from 'stream-chat';
 
@@ -44,17 +43,6 @@ export type EffectiveQueryParams = {
   filters: ChannelFilters;
   sort: ChannelSort;
 };
-
-/**
- * The `predefined_filter` response carries sort as
- * `[{ field, direction }]`. `ChannelSort` expects `[{ field: direction }]`.
- */
-const mapPredefinedFilterSortToChannelSort = (
-  sort: NonNullable<ParsedPredefinedFilterResponse['sort']>,
-): ChannelSort =>
-  sort.map(({ direction = 1, field }) => ({
-    [field]: direction,
-  })) as ChannelSort;
 
 export const usePaginatedChannels = (
   client: StreamChat,
@@ -123,10 +111,12 @@ export const usePaginatedChannels = (
           ...options,
         };
 
-        const channelQueryResponse = await client.queryChannels(
-          filters,
-          sort || {},
-          newOptions,
+        const channelQueryResponse = await client.queryChannelsAndHydrate(
+          {
+            filter_conditions: filters,
+            sort: sort ?? [],
+            ...newOptions,
+          },
           { withResponse: true },
         );
 
@@ -147,7 +137,7 @@ export const usePaginatedChannels = (
           ? (predefinedFilter.filter as ChannelFilters)
           : undefined;
         const nextResponseSort = predefinedFilter?.sort
-          ? mapPredefinedFilterSortToChannelSort(predefinedFilter.sort)
+          ? predefinedFilter.sort
           : undefined;
 
         setResponseFilters(nextResponseFilters);
@@ -177,7 +167,7 @@ export const usePaginatedChannels = (
       });
 
       if (isFirstPage) {
-        setError(error as ErrorFromResponse<APIErrorResponse>);
+        setError(error as StreamAPIError<APIErrorResponse>);
       }
     }
 

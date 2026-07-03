@@ -79,11 +79,17 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
             await overrideSubmitHandler({
               cid: messageComposer.channel.cid,
               localMessage,
+              // @ts-expect-error OAPI misalignment
               message,
               sendOptions,
             });
           } else {
-            await sendMessage({ localMessage, message, options: sendOptions });
+            await sendMessage({
+              localMessage,
+              // @ts-expect-error OAPI misalignment
+              message,
+              options: sendOptions,
+            });
           }
           if (messageComposer.config.text.publishTypingEvents)
             await messageComposer.channel.stopTyping();

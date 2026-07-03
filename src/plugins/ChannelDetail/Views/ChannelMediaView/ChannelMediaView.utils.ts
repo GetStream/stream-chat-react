@@ -5,6 +5,7 @@ import {
   type LocalMessage,
   type MessageResponse,
   type UserResponse,
+  type VoiceRecordingAttachment,
 } from 'stream-chat';
 
 import { toBaseImageDescriptors } from '../../../../components/BaseImage';
@@ -58,9 +59,10 @@ export const toChannelMediaItems = (
           : Boolean(descriptor.imageUrl);
       if (!hasRenderableSource) return;
 
+      const attachmentDuration = (attachment as VoiceRecordingAttachment).custom.duration;
       items.push({
         durationSeconds:
-          typeof attachment.duration === 'number' ? attachment.duration : undefined,
+          typeof attachmentDuration === 'number' ? attachmentDuration : undefined,
         galleryItem: descriptor,
         id: `${message.id}-${index}`,
         type,

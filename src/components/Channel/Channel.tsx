@@ -350,10 +350,11 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
-    if (event.message) {
+    const message = (event as Extract<Event, { message?: unknown }>).message;
+    if (message) {
       dispatch({
         channel,
-        message: event.message,
+        message,
         type: 'updateThreadOnEvent',
       });
     }
@@ -761,7 +762,7 @@ const ChannelInner = (
                 await channel.query(
                   {
                     messages: {
-                      created_at_around: channelUnreadUiState.last_read.toISOString(),
+                      created_at_around: channelUnreadUiState.last_read,
                       limit: queryMessageLimit,
                     },
                   },
@@ -786,9 +787,8 @@ const ChannelInner = (
               );
               return;
             }
-            const firstMessageTimestamp = new Date(
-              firstMessageWithCreationDate.created_at as string,
-            ).getTime();
+            const firstMessageTimestamp =
+              firstMessageWithCreationDate.created_at.getTime();
             if (lastReadTimestamp < firstMessageTimestamp) {
               // whole channel is unread
               firstUnreadMessageId = firstMessageWithCreationDate.id;
@@ -876,7 +876,10 @@ const ChannelInner = (
       if (doDeleteMessageRequest) {
         deletedMessage = await doDeleteMessageRequest(message, options);
       } else {
-        const result = await client.deleteMessage(message.id, options);
+        const result = await client.deleteMessage({
+          id: message.id,
+          ...options,
+        });
         deletedMessage = result.message;
       }
 
@@ -911,7 +914,7 @@ const ChannelInner = (
       if (doSendMessageRequest) {
         messageResponse = await doSendMessageRequest(channel, message, options);
       } else {
-        messageResponse = await channel.sendMessage(message, options);
+        messageResponse = await channel.sendMessage({ message, ...options });
       }
 
       let existingMessage: LocalMessage | undefined = undefined;
@@ -1075,9 +1078,10 @@ const ChannelInner = (
     const oldestMessageId = oldMessages[0]?.id;
 
     try {
-      const queryResponse = await channel.getReplies(parentId, {
+      const queryResponse = await channel.getReplies({
         id_lt: oldestMessageId,
         limit,
+        parent_id: parentId,
       });
 
       const threadHasMoreMessages = hasMoreMessagesProbably(

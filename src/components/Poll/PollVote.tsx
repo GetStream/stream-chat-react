@@ -6,12 +6,12 @@ import { useChatContext, useTranslationContext } from '../../context';
 
 import type { PollVote as PollVoteType } from 'stream-chat';
 
-const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
+const PollVoteTimestamp = ({ timestamp }: { timestamp: Date | string }) => {
   const { t } = useTranslationContext();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
-  const timestampDate = new Date(timestamp);
+  const timestampDate = timestamp instanceof Date ? timestamp : new Date(timestamp);
   return (
     <div
       className='str-chat__poll-vote__timestamp'

@@ -45,14 +45,16 @@ export const AudioAttachmentPreview = ({
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
   const url = attachment.asset_url || previewUri;
+  const { duration, file_size, mime_type, waveform_data } =
+    (attachment as LocalVoiceRecordingAttachment).custom;
 
   const audioPlayer = useAudioPlayer({
-    fileSize: attachment.localMetadata.file?.size ?? attachment.file_size,
-    mimeType: attachment.localMetadata.file?.type ?? attachment.mime_type,
+    fileSize: attachment.localMetadata.file?.size ?? file_size,
+    mimeType: attachment.localMetadata.file?.type ?? mime_type,
     requester: attachment.localMetadata.id,
     src: url,
     title: attachment.title,
-    waveformData: attachment.waveform_data,
+    waveformData: waveform_data,
   });
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export const AudioAttachmentPreview = ({
   const { canPlayRecord, isPlaying, playbackRate, progressPercent, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
-  const resolvedDuration = audioPlayer?.durationSeconds ?? attachment.duration;
+  const resolvedDuration = audioPlayer?.durationSeconds ?? duration;
 
   const hasWaveform = !!audioPlayer?.waveformData?.length;
   const hasSizeLimitError = uploadPermissionCheck?.reason === 'size_limit';
