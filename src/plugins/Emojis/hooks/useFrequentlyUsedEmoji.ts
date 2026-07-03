@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
 export type UseFrequentlyUsedEmojiParams = {
   /** Controlled ordered list of recently used emoji ids (most recent first). */
@@ -23,16 +23,23 @@ export const useFrequentlyUsedEmoji = ({
   const isControlled = Array.isArray(frequentlyUsedEmoji);
   const frequentlyUsedIds = isControlled ? frequentlyUsedEmoji : internal;
 
+  // Mirror the current list into a ref so several recordUse calls fired before a
+  // re-render each build on the previous result rather than a stale closure/prop
+  // (otherwise the second synchronous select would drop the first).
+  const latestRef = useRef(frequentlyUsedIds);
+  latestRef.current = frequentlyUsedIds;
+
   const recordUse = useCallback(
     (emojiId: string) => {
       const next = [
         emojiId,
-        ...frequentlyUsedIds.filter((existing) => existing !== emojiId),
+        ...latestRef.current.filter((existing) => existing !== emojiId),
       ].slice(0, MAX_FREQUENTLY_USED);
+      latestRef.current = next;
       if (!isControlled) setInternal(next);
       onFrequentlyUsedChange?.(next);
     },
-    [frequentlyUsedIds, isControlled, onFrequentlyUsedChange],
+    [isControlled, onFrequentlyUsedChange],
   );
 
   return { frequentlyUsedIds, recordUse };

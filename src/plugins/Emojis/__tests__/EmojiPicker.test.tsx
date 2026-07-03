@@ -33,10 +33,13 @@ vi.mock('../components', () => ({
   ),
 }));
 
+// Mutable so a test can simulate "no textarea to insert into" (textareaRef.current null).
+const { textareaRef } = vi.hoisted(() => ({
+  textareaRef: { current: null as HTMLTextAreaElement | null },
+}));
+
 vi.mock('../../../context', () => ({
-  useMessageComposerContext: () => ({
-    textareaRef: { current: document.createElement('textarea') },
-  }),
+  useMessageComposerContext: () => ({ textareaRef }),
   useTranslationContext: () => ({ t: (key: string) => key }),
 }));
 
@@ -81,6 +84,10 @@ import { EmojiPicker } from '../EmojiPicker';
 
 const openPicker = () => fireEvent.click(screen.getByLabelText('aria/Emoji picker'));
 
+beforeEach(() => {
+  textareaRef.current = document.createElement('textarea');
+});
+
 describe('EmojiPicker session state', () => {
   it('keeps skin tone and frequently-used across close and reopen (incl. closeOnEmojiSelect)', () => {
     render(<EmojiPicker closeOnEmojiSelect />);
@@ -101,6 +108,18 @@ describe('EmojiPicker session state', () => {
     openPicker();
     expect(screen.getByTestId('skin-tone')).toHaveTextContent('4');
     expect(screen.getByTestId('frequently-used')).toHaveTextContent('rocket');
+  });
+
+  it('does not record a frequently-used emoji when there is no textarea to insert into', () => {
+    textareaRef.current = null;
+    render(<EmojiPicker />);
+
+    openPicker();
+    expect(screen.getByTestId('frequently-used').textContent).toBe('');
+
+    // Selecting can't insert (no textarea), so it must not be recorded as "used".
+    fireEvent.click(screen.getByText('select-rocket'));
+    expect(screen.getByTestId('frequently-used').textContent).toBe('');
   });
 });
 

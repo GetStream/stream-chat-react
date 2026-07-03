@@ -164,9 +164,10 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
               referenceElement?.focus();
             }}
             onEmojiSelect={(emoji) => {
-              recordUse(emoji.id);
               const textarea = textareaRef.current;
               if (!textarea) return;
+              // Record only once we know the emoji is actually being inserted.
+              recordUse(emoji.id);
               textComposer.insertText({ text: emoji.native });
               textarea.focus();
               if (props.closeOnEmojiSelect) {

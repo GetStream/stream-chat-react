@@ -82,4 +82,21 @@ describe('createTextComposerEmojiMiddleware', () => {
     expect(search).toHaveBeenCalled();
     expect(items[0]?.id).toBe('custom');
   });
+
+  it('does not leak options between calls (shared defaults are not mutated)', async () => {
+    // A call that overrides options must not change the defaults a later no-arg call
+    // sees. Previously `mergeWith(DEFAULT_OPTIONS, options)` mutated the shared constant.
+    createTextComposerEmojiMiddleware(undefined, { minChars: 3, trigger: ';' });
+
+    const withDefaults = createTextComposerEmojiMiddleware();
+    const { output } = await runOnChange(withDefaults, {
+      selection: { end: 4, start: 4 },
+      suggestions: undefined,
+      text: ':smi',
+    });
+
+    // Still the default ':' trigger — not the ';' leaked from the earlier call.
+    expect(output?.suggestions?.trigger).toBe(':');
+    expect(output?.suggestions?.query).toBe('smi');
+  });
 });

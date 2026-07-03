@@ -1,4 +1,3 @@
-import mergeWith from 'lodash.mergewith';
 import type {
   Middleware,
   SearchSourceOptions,
@@ -100,7 +99,9 @@ export const createTextComposerEmojiMiddleware = (
   emojiSearchIndex: EmojiSearchIndex = defaultEmojiSearchIndex,
   options?: Partial<TextComposerMiddlewareOptions>,
 ): EmojiMiddleware => {
-  const finalOptions = mergeWith(DEFAULT_OPTIONS, options ?? {});
+  // Spread into a fresh object — never mutate the shared module-level DEFAULT_OPTIONS
+  // (options are flat, so a shallow merge is exact).
+  const finalOptions = { ...DEFAULT_OPTIONS, ...options };
   const emojiSearchSource = new EmojiSearchSource(emojiSearchIndex);
   emojiSearchSource.activate();
 
