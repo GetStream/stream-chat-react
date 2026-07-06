@@ -36,4 +36,10 @@ describe('resolveFrequentlyUsedEmoji', () => {
 
     expect(result.map((emoji) => emoji.id)).toEqual(['e0', 'e1']);
   });
+
+  it('honors an explicit limit (perLine × maxFrequentRows)', () => {
+    const ids = Array.from({ length: 30 }, (_, i) => `e${i}`);
+
+    expect(resolveFrequentlyUsedEmoji(data, ids, 14)).toHaveLength(14);
+  });
 });

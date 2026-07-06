@@ -268,11 +268,28 @@ import 'stream-chat-react/css/emoji-picker.css';
 - Skin tone and "frequently used" are integrator-managed props on `EmojiPicker`
   (`skinTone`/`onSkinToneChange`, `frequentlyUsedEmoji`/`onFrequentlyUsedChange`);
   the SDK does not persist them. See `examples/vite/` for a localStorage example.
-- `pickerProps` accepts only `theme` and `style`. emoji-mart `Picker` options
-  (`data`, `set`, `custom`, `categories`, `perLine`, `emojiVersion`, `locale`, …) are
-  no longer supported: the type rejects them and any passed via `as` casts are
-  ignored with a console warning. For appearance use the `--str-chat__emoji-picker-*`
-  CSS variables.
+- `pickerProps` accepts a curated set of emoji-mart-compatible `Picker` options (plus
+  `theme` and `style`):
+  - **Layout**: `navPosition` / `previewPosition` (`'top' | 'bottom' | 'none'`),
+    `searchPosition` (`'sticky' | 'static' | 'none'`), `skinTonePosition`
+    (`'preview' | 'search' | 'none'`).
+  - **Grid & content**: `perLine` (default `9`), `categories` (filter + reorder;
+    `'frequent'` always prepends), `maxFrequentRows` (default `1`).
+  - **Filtering & polish**: `exceptEmojis`, `emojiVersion`, `noCountryFlags`,
+    `previewEmoji`, `noResultsEmoji`, `autoFocus`, `onClickOutside`.
+
+  Divergences from emoji-mart's defaults: `autoFocus` defaults to `true`; `emojiVersion`
+  is unfiltered by default (the bundled set 15); `previewEmoji` / `noResultsEmoji` default
+  to the SDK's placeholder / empty state; `noCountryFlags` is opt-in (no Windows
+  auto-detect); `categories` cannot reposition `'frequent'`.
+
+  Not supported (rejected by the type; ignored with a console warning at runtime): image
+  sets (`set`, `getSpritesheetURL`), `custom` emoji, `data`, `i18n` / `locale`,
+  `dynamicWidth`, `icons`, `categoryIcons`. Sizing knobs (`emojiSize`, `emojiButtonSize`,
+  …) are `--str-chat__emoji-picker-*` CSS variables, not props. Skin tone uses the
+  first-class `skinTone` / `defaultSkinTone` props (not emoji-mart's `skin`). Try these
+  live in the "Emoji Picker" settings tab of `examples/vite/`.
+
 - To let users **react with any emoji** (the reaction selector's `+` button), fill
   `reactionOptions.extended` with the full emoji set. It also gates display — a reaction
   whose type isn't in `quick`/`extended` is not rendered. Load it lazily from the emojis

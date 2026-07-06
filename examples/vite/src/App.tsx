@@ -201,6 +201,7 @@ const EmojiPickerWithCustomOptions = (
   props: React.ComponentProps<typeof EmojiPicker>,
 ) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
+  const emojiPicker = useAppSettingsSelector((state) => state.emojiPicker);
   const [skinTone, setSkinTone] = useState(() => readStored(EMOJI_SKIN_TONE_KEY, 0));
   const [frequentlyUsedEmoji, setFrequentlyUsedEmoji] = useState(() =>
     readStored<string[]>(EMOJI_FREQUENTLY_USED_KEY, []),
@@ -220,6 +221,7 @@ const EmojiPickerWithCustomOptions = (
       }}
       pickerProps={{
         ...props.pickerProps,
+        ...emojiPicker,
         theme: mode,
       }}
       skinTone={skinTone}

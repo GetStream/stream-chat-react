@@ -99,14 +99,36 @@ $emoji-picker-border-radius: 12px;
       flex: none;
     }
 
-    &__empty {
+    // Search + skin-tone selector share one row (only when skinTonePosition='search').
+    &__search-row {
       display: flex;
       align-items: center;
+
+      .str-chat__emoji-picker__search {
+        flex: 1 1 auto;
+      }
+
+      .str-chat__emoji-picker__skin-tone-toggle,
+      .str-chat__emoji-picker__skin-tones {
+        margin-inline-end: var(--str-chat__spacing-sm);
+      }
+    }
+
+    &__empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
+      gap: var(--str-chat__spacing-xs);
       min-block-size: 12rem;
       padding: var(--str-chat__spacing-md);
       color: var(--str-chat__emoji-picker-secondary-text-color);
       text-align: center;
+    }
+
+    &__empty-emoji {
+      font-size: 2rem;
+      line-height: 1;
     }
 
     &__category-nav {
@@ -182,9 +204,12 @@ $emoji-picker-border-radius: 12px;
 
       &-emojis {
         display: grid;
-        // Cells are larger than the glyph and separated by a real gap so the grid
-        // breathes (roughly 9 per row at the default width) rather than packing tight.
-        grid-template-columns: repeat(auto-fill, minmax(1.75rem, 1fr));
+        // Fixed column count driven by the `perLine` option (default 9); cells share the
+        // row evenly with a real gap so the grid breathes rather than packing tight.
+        grid-template-columns: repeat(
+          var(--str-chat__emoji-picker-per-line, 9),
+          minmax(0, 1fr)
+        );
         gap: var(--str-chat__spacing-xs);
         padding-block-end: var(--str-chat__spacing-xs);
       }
@@ -195,7 +220,10 @@ $emoji-picker-border-radius: 12px;
       // more emoji are used. (Uses the literal child class, not `&-emojis`, so the
       // combinator doesn't re-expand the whole parent chain.)
       &[data-category-id='frequent'] > .str-chat__emoji-picker__category-emojis {
-        grid-template-columns: repeat(9, minmax(0, 1fr));
+        grid-template-columns: repeat(
+          var(--str-chat__emoji-picker-per-line, 9),
+          minmax(0, 1fr)
+        );
       }
     }
 
@@ -227,6 +255,12 @@ $emoji-picker-border-radius: 12px;
       min-block-size: 2.75rem;
       padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
       border-block-start: 1px solid var(--str-chat__emoji-picker-separator-color);
+    }
+
+    // Preview positioned at the top: divider below it instead of above.
+    &__footer--top {
+      border-block-start: none;
+      border-block-end: 1px solid var(--str-chat__emoji-picker-separator-color);
     }
 
     &__preview {

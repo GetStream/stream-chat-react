@@ -11,6 +11,29 @@ export type ChatViewSettingsState = {
   iconOnly: boolean;
 };
 
+export type EmojiPickerSettingsState = {
+  autoFocus: boolean;
+  maxFrequentRows: number;
+  navPosition: 'top' | 'bottom' | 'none';
+  noCountryFlags: boolean;
+  perLine: number;
+  previewPosition: 'top' | 'bottom' | 'none';
+  searchPosition: 'sticky' | 'static' | 'none';
+  skinTonePosition: 'preview' | 'search' | 'none';
+};
+
+// Mirrors the SDK's EmojiPicker defaults; the settings tab resets to this.
+export const DEFAULT_EMOJI_PICKER_SETTINGS: EmojiPickerSettingsState = {
+  autoFocus: true,
+  maxFrequentRows: 1,
+  navPosition: 'top',
+  noCountryFlags: false,
+  perLine: 9,
+  previewPosition: 'bottom',
+  searchPosition: 'sticky',
+  skinTonePosition: 'preview',
+};
+
 export type ThemeSettingsState = {
   direction: 'ltr' | 'rtl';
   mode: 'dark' | 'light';
@@ -72,6 +95,7 @@ export type MessageListSettingsState = {
 export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
+  emojiPicker: EmojiPickerSettingsState;
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
@@ -116,6 +140,7 @@ const defaultAppSettingsState: AppSettingsState = {
   chatView: {
     iconOnly: true,
   },
+  emojiPicker: DEFAULT_EMOJI_PICKER_SETTINGS,
   messageActions: {
     customMessageActions: {
       delete: {

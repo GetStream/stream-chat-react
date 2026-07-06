@@ -18,6 +18,7 @@ import {
 
 import { ActionsMenu } from './ActionsMenu';
 import { ChannelDetailTab } from './tabs/ChannelDetail';
+import { EmojiPickerTab } from './tabs/EmojiPicker';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
@@ -35,6 +36,7 @@ import clsx from 'clsx';
 
 type TabId =
   | 'channelDetail'
+  | 'emojiPicker'
   | 'general'
   | 'messageActions'
   | 'notifications'
@@ -74,6 +76,12 @@ const settingsSectionConfig: SettingsSectionConfig[] = [
   },
   { Content: SidebarTab, Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
   { Content: ReactionsTab, Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
+  {
+    Content: EmojiPickerTab,
+    Icon: IconEmoji,
+    id: 'emojiPicker',
+    title: 'Emoji Picker',
+  },
 ];
 
 const createSettingsNavButton = ({

@@ -138,11 +138,11 @@ describe('EmojiPicker pickerProps', () => {
 
     const { unmount } = render(
       <EmojiPicker
-        // @ts-expect-error emoji-mart Picker options are not supported and must be rejected by the type
-        pickerProps={{ perLine: 9, theme: 'dark' }}
+        // @ts-expect-error emoji-mart-only Picker options (image sets) are not supported
+        pickerProps={{ set: 'apple', theme: 'dark' }}
       />,
     );
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('perLine'));
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('set'));
     unmount();
 
     warn.mockClear();
@@ -150,5 +150,22 @@ describe('EmojiPicker pickerProps', () => {
     expect(warn).not.toHaveBeenCalled();
 
     warn.mockRestore();
+  });
+
+  it('does not warn when only supported (curated) picker options are passed', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(
+      <EmojiPicker pickerProps={{ navPosition: 'bottom', perLine: 8, theme: 'light' }} />,
+    );
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('calls onClickOutside when a pointer press lands outside the open picker', () => {
+    const onClickOutside = vi.fn();
+    render(<EmojiPicker pickerProps={{ onClickOutside }} />);
+    openPicker();
+    fireEvent.pointerDown(document.body);
+    expect(onClickOutside).toHaveBeenCalledTimes(1);
   });
 });

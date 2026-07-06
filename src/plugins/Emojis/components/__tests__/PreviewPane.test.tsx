@@ -40,4 +40,18 @@ describe('PreviewPane', () => {
     expect(screen.getByText('Pick an emoji…')).toBeInTheDocument();
     expect(screen.queryByText(/^:.+:$/)).not.toBeInTheDocument();
   });
+
+  it('shows the configured resting emoji (previewEmoji) when nothing is hovered', () => {
+    render(
+      <EmojiPickerProvider
+        value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex: 0 }}
+      >
+        <PreviewPane emoji={null} placeholderEmoji={smile} />
+      </EmojiPickerProvider>,
+    );
+
+    expect(screen.getByText('Smiling Face')).toBeInTheDocument();
+    expect(screen.getByText(':smile:')).toBeInTheDocument();
+    expect(screen.queryByText('Pick an emoji…')).not.toBeInTheDocument();
+  });
 });

@@ -1010,6 +1010,8 @@
   .app__settings-modal__content-stack {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
   }
 
   .app__settings-modal__tab-header .str-chat__prompt__header__title {
@@ -1044,8 +1046,14 @@
 
   .app__settings-modal__tab-body {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     gap: var(--str-chat__spacing-xl);
+    min-height: 0;
+    // Tall tabs (e.g. Emoji Picker) would otherwise clip under the modal's
+    // `overflow: hidden`; scroll the body while the header stays put.
+    overflow-y: auto;
+    scrollbar-width: thin;
   }
 
   .app__settings-modal__field {
@@ -1075,6 +1083,42 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+  }
+
+  .app__settings-modal__reset-row {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  // Emoji Picker tab: controls on the left, a live preview on the right that stays in
+  // view (sticky) while the controls scroll. Wraps to a single column when too narrow.
+  .app__emoji-settings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--str-chat__spacing-xl);
+  }
+
+  .app__emoji-settings__controls {
+    display: flex;
+    flex: 1 1 300px;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xl);
+    min-width: 0;
+  }
+
+  .app__emoji-settings__preview {
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    position: sticky;
+    top: 0;
+
+    .str-chat__emoji-picker {
+      border: 1px solid var(--str-chat__border-core-default);
+      border-radius: 12px;
+    }
   }
 
   .app__settings-modal__action-list {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useMessageComposerContext, useTranslationContext } from '../../context';
 import {
@@ -12,21 +12,21 @@ import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useI
 import { EmojiPickerPanel } from './components';
 import { useFrequentlyUsedEmoji } from './hooks/useFrequentlyUsedEmoji';
 import { useSkinTone } from './hooks/useSkinTone';
+import {
+  type EmojiPickerPassthroughProps,
+  resolveEmojiPickerOptions,
+  warnUnsupportedPickerProps,
+} from './options';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
-/** The only `pickerProps` keys the built-in picker reads. */
-const SUPPORTED_PICKER_PROP_KEYS = ['style', 'theme'];
-
-export type EmojiPickerPassthroughProps = {
-  /** Inline styles applied to the picker panel root. */
-  style?: React.CSSProperties;
-  /**
-   * Color theme. 'auto' (default) inherits the ancestor SDK theme
-   * (`.str-chat__theme-*`); 'light' / 'dark' force the panel to that theme.
-   */
-  theme?: 'auto' | 'light' | 'dark';
-};
+export type {
+  EmojiPickerNavPosition,
+  EmojiPickerPassthroughProps,
+  EmojiPickerPreviewPosition,
+  EmojiPickerSearchPosition,
+  EmojiPickerSkinTonePosition,
+} from './options';
 
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
@@ -35,12 +35,16 @@ export type EmojiPickerProps = {
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
   /**
-   * Presentation options for the picker panel — `theme` and `style` only.
+   * Presentation + curated layout/behavior options for the picker panel, using
+   * emoji-mart-compatible names (`theme`, `style`, `perLine`, `navPosition`,
+   * `previewPosition`, `searchPosition`, `skinTonePosition`, `categories`,
+   * `exceptEmojis`, `emojiVersion`, `maxFrequentRows`, `noCountryFlags`,
+   * `previewEmoji`, `noResultsEmoji`, `autoFocus`, `onClickOutside`).
    *
-   * This is NOT emoji-mart's `Picker` prop bag: emoji-mart options (`data`, `set`,
-   * `custom`, `categories`, `perLine`, `emojiVersion`, `locale`, `previewPosition`,
-   * …) are not supported by the built-in picker. The type rejects them, and any that
-   * reach runtime (e.g. via `as` casts) are ignored with a console warning. See the
+   * Not every emoji-mart `Picker` option is supported: image sets (`set`,
+   * `getSpritesheetURL`), `custom` emoji, `data`, `i18n`/`locale`, `dynamicWidth`,
+   * `icons`, and `categoryIcons` are rejected by the type and ignored (with a console
+   * warning) at runtime; sizing knobs (`emojiSize`, …) are CSS tokens instead. See the
    * emoji migration notes in `AI.md`.
    */
   pickerProps?: EmojiPickerPassthroughProps;
@@ -111,18 +115,15 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { ButtonIconComponent = IconEmoji } = props;
   const pickerStyle = props.pickerProps?.style;
+  const options = resolveEmojiPickerOptions(props.pickerProps);
+  // Latest-ref so the click-outside listener isn't re-attached when the callback identity
+  // changes between renders.
+  const onClickOutsideRef = useRef(props.pickerProps?.onClickOutside);
+  onClickOutsideRef.current = props.pickerProps?.onClickOutside;
 
   const pickerPropsKeys = Object.keys(props.pickerProps ?? {});
   useEffect(() => {
-    const ignored = pickerPropsKeys.filter(
-      (key) => !SUPPORTED_PICKER_PROP_KEYS.includes(key),
-    );
-    if (ignored.length) {
-      console.warn(
-        `[stream-chat-react] EmojiPicker ignored unsupported pickerProps: ${ignored.join(', ')}. ` +
-          "Only 'theme' and 'style' are supported; emoji-mart Picker options are no longer available.",
-      );
-    }
+    warnUnsupportedPickerProps(props.pickerProps);
     // Re-check only when the set of provided keys changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickerPropsKeys.join(',')]);
@@ -142,6 +143,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         return;
       }
 
+      onClickOutsideRef.current?.();
       setDisplayPicker(false);
     };
 
@@ -175,6 +177,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
               }
             }}
             onSkinToneChange={setSkinTone}
+            options={options}
             skinToneIndex={skinTone}
             style={pickerStyle}
             theme={props.pickerProps?.theme}

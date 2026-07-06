@@ -111,3 +111,16 @@ describe('navigateGrid — multiple sections (category view)', () => {
     });
   });
 });
+
+// Column count is a parameter, so a non-default `perLine` navigates by that many cells
+// per row — the hook measures columns from layout at runtime and passes them here, which
+// is why the perLine option needs no keyboard-nav change.
+describe('navigateGrid — honors the column count (perLine parity)', () => {
+  it('ArrowDown moves by `columns` cells within a section', () => {
+    // 14 cells at 7 columns: row 0 = [0..6], row 1 = [7..13]; down from 0 → 7.
+    expect(navigateGrid([14], { index: 0, section: 0 }, 'ArrowDown', 7)).toEqual({
+      index: 7,
+      section: 0,
+    });
+  });
+});

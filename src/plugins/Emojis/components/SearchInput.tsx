@@ -6,6 +6,8 @@ import { useTranslationContext } from '../../../context';
 export type SearchInputProps = {
   onChange: (value: string) => void;
   value: string;
+  /** Focus the input on mount when the picker opens (default `true`). */
+  autoFocus?: boolean;
   /** Called when ArrowDown is pressed, to move focus into the emoji grid. */
   onArrowDown?: () => void;
 };
@@ -14,14 +16,19 @@ export type SearchInputProps = {
  * Search box for the emoji picker. Mirrors the SDK's SearchBar structure (icon +
  * labelled input + clear button) and receives focus when the picker opens.
  */
-export const SearchInput = ({ onArrowDown, onChange, value }: SearchInputProps) => {
+export const SearchInput = ({
+  autoFocus = true,
+  onArrowDown,
+  onChange,
+  value,
+}: SearchInputProps) => {
   const { t } = useTranslationContext('EmojiPickerSearchInput');
   const inputId = useStableId();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
 
   return (
     <div className='str-chat__emoji-picker__search'>
