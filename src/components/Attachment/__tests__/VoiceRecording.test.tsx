@@ -22,16 +22,24 @@ vi.mock('../../Notifications', () => ({
 }));
 
 // Capture interaction announcements (the tree here has no AriaLiveAnnouncerProvider).
+// Mock the module the announcement hook imports from directly — useAudioPlaybackChangeAnnouncements
+// pulls useInteractionAnnouncements via its relative path, not the Accessibility barrel, so mocking
+// the barrel would leave the real (no-op without a provider) hook in place.
 const { announceInteractionMock } = vi.hoisted(() => ({
   announceInteractionMock: vi.fn(),
 }));
-vi.mock('../../Accessibility', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../Accessibility')>()),
-  useInteractionAnnouncements: () => ({
-    announceInteraction: announceInteractionMock,
-    cancelInteraction: vi.fn(),
+vi.mock(
+  '../../Accessibility/hooks/useInteractionAnnouncements',
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import('../../Accessibility/hooks/useInteractionAnnouncements')
+    >()),
+    useInteractionAnnouncements: () => ({
+      announceInteraction: announceInteractionMock,
+      cancelInteraction: vi.fn(),
+    }),
   }),
-}));
+);
 
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
