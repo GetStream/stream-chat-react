@@ -1090,13 +1090,20 @@
     justify-content: flex-end;
   }
 
-  // Emoji Picker tab: controls on the left, a live preview on the right that stays in
-  // view (sticky) while the controls scroll. Wraps to a single column when too narrow.
+  // Emoji Picker tab: controls on the left, a live preview pinned on the right that
+  // stays in view (sticky) while the controls scroll, so config changes are immediately
+  // visible. Stacks into a single column only on narrow screens.
   .app__emoji-settings {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: flex-start;
     gap: var(--str-chat__spacing-xl);
+  }
+
+  @media (max-width: 768px) {
+    .app__emoji-settings {
+      flex-wrap: wrap;
+    }
   }
 
   .app__emoji-settings__controls {
