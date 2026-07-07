@@ -10089,6 +10089,7 @@ __metadata:
     lodash.mergewith: "npm:^4.6.2"
     lodash.throttle: "npm:^4.1.1"
     lodash.uniqby: "npm:^4.7.0"
+    mdast-util-to-string: "npm:^4.0.0"
     moment-timezone: "npm:^0.5.48"
     nanoid: "npm:^3.3.12"
     prettier: "npm:^3.8.3"
@@ -10101,11 +10102,13 @@ __metadata:
     react-textarea-autosize: "npm:^8.5.9"
     react-virtuoso: "npm:^2.19.1"
     remark-gfm: "npm:^4.0.1"
+    remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
     stream-chat: "npm:^9.49.0"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
+    unified: "npm:^11.0.5"
     unist-builder: "npm:^4.0.0"
     unist-util-visit: "npm:^5.1.0"
     use-sync-external-store: "npm:^1.6.0"
@@ -10921,7 +10924,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unified@npm:^11.0.0":
+"unified@npm:^11.0.0, unified@npm:^11.0.5":
   version: 11.0.5
   resolution: "unified@npm:11.0.5"
   dependencies:

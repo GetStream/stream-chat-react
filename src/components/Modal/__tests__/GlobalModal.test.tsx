@@ -228,6 +228,48 @@ describe('GlobalModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('moves focus to the [data-autofocus] field when Enter is pressed on the dialog surface', () => {
+    renderComponent({
+      props: {
+        children: (
+          <ModalContent text='content'>
+            <input data-autofocus data-testid='default-field' />
+          </ModalContent>
+        ),
+        initialFocusStrategy: 'dialog',
+        open: true,
+      },
+    });
+
+    const dialog = screen.getByRole('dialog');
+    fireEvent.keyDown(dialog, { key: 'Enter', target: dialog });
+
+    expect(screen.getByTestId('default-field')).toHaveFocus();
+  });
+
+  it('ignores Enter that bubbles up from a control inside the dialog', () => {
+    renderComponent({
+      props: {
+        children: (
+          <ModalContent text='content'>
+            <input data-autofocus data-testid='default-field' />
+            <input data-testid='other-field' />
+          </ModalContent>
+        ),
+        initialFocusStrategy: 'dialog',
+        open: true,
+      },
+    });
+
+    const other = screen.getByTestId('other-field');
+    other.focus();
+    // Enter originating from another field must not yank focus to the default field.
+    fireEvent.keyDown(other, { key: 'Enter' });
+
+    expect(other).toHaveFocus();
+    expect(screen.getByTestId('default-field')).not.toHaveFocus();
+  });
+
   it('should remove the escape keydown event handler when unmounted', () => {
     const onClose = vi.fn();
     const { unmount } = renderComponent({
@@ -657,5 +699,45 @@ describe('GlobalModal', () => {
 
     const results = await axe(document.body);
     expect(results).toHaveNoViolations();
+  });
+
+  it('can focus the dialog surface on open when requested', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Focused dialog',
+        children: <ModalContent text={textContent} />,
+        initialFocusStrategy: 'dialog',
+        open: true,
+      },
+    });
+
+    return waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Focused dialog' })).toHaveFocus();
+    });
+  });
+
+  it('can focus a custom element on open when requested', () => {
+    renderComponent({
+      props: {
+        'aria-label': 'Custom focused dialog',
+        children: (
+          <div className='str-chat__modal__inner'>
+            <button id='first-button' type='button'>
+              First
+            </button>
+            <button id='second-button' type='button'>
+              Second
+            </button>
+          </div>
+        ),
+        getInitialFocusElement: (dialogElement) =>
+          dialogElement.querySelector('#second-button'),
+        open: true,
+      },
+    });
+
+    return waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Second' })).toHaveFocus();
+    });
   });
 });

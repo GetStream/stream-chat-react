@@ -17,6 +17,7 @@ import {
   IconUserAdd,
   IconUserRemove,
 } from '../../Icons';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
 
 const icons: Record<string, ComponentType> = {
@@ -35,7 +36,10 @@ export const CommandsSubmenuHeader = () => {
   const { returnToParentMenu } = useContextMenuContext();
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
-      <ContextMenuBackButton onClick={returnToParentMenu}>
+      <ContextMenuBackButton
+        aria-label={t('aria/Back to attachments')}
+        onClick={returnToParentMenu}
+      >
         <IconChevronLeft />
         <span>{t('Instant commands')}</span>
       </ContextMenuBackButton>
@@ -54,20 +58,16 @@ export const CommandsMenuHeader = () => {
 
 export const CommandsMenu = () => {
   const { closeMenu } = useContextMenuContext();
+  const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
+  // Render commands in the channel config's own order (no client re-sort) — matches the composer's
+  // suggestion list, which likewise trusts the SDK's ordering.
   const commands = useMessageComposerCommands();
-  const sortedCommands = useMemo(
-    () =>
-      [...commands].sort((a, b) =>
-        (a.command.name ?? '').localeCompare(b.command.name ?? ''),
-      ),
-    [commands],
-  );
 
   return (
     <>
-      {sortedCommands.map(({ command, enabled }) => (
+      {commands.map(({ command, enabled }) => (
         <CommandContextMenuItem
           command={command}
           enabled={enabled}
@@ -78,6 +78,7 @@ export const CommandsMenu = () => {
             closeMenu();
             // Defer the focus to the next frame so it wins over FocusScope's restore-to-attachment-selector-button behavior.
             requestAnimationFrame(() => textareaRef.current?.focus());
+            announceInteraction('command.selected', { command: command.name });
           }}
         />
       ))}
@@ -134,9 +135,14 @@ export const CommandContextMenuItem = ({
     () => (args ? `/${command.name} ${args}` : `/${command.name}`),
     [args, command.name],
   );
+  const ariaLabel = useMemo(
+    () => (description ? `${description}, ${details}` : details),
+    [description, details],
+  );
 
   return (
     <ContextMenuButton
+      aria-label={ariaLabel}
       {...props}
       className={clsx('str-chat__context-menu__button--command', className)}
       details={details}
@@ -144,7 +150,6 @@ export const CommandContextMenuItem = ({
       Icon={icons[command.name]}
       key={command.name}
       label={command.name}
-      title={`${description} ${command.args}`}
     />
   );
 };

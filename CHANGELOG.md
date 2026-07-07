@@ -1,3 +1,9 @@
+## [14.7.0](https://github.com/GetStream/stream-chat-react/compare/v14.6.1...v14.7.0) (2026-07-06)
+
+### Features
+
+* allow to customize ChannelListHeader ([#3234](https://github.com/GetStream/stream-chat-react/issues/3234)) ([f9752d4](https://github.com/GetStream/stream-chat-react/commit/f9752d441468ab1d8c8d43e4df1638f3adc1f90e))
+
 ## [14.6.1](https://github.com/GetStream/stream-chat-react/compare/v14.6.0...v14.6.1) (2026-07-03)
 
 ### Bug Fixes

@@ -92,6 +92,23 @@ describe('useNotificationApi', () => {
     });
   });
 
+  it('threads an explicit ariaLive priority into notification metadata', () => {
+    const { result } = renderHook(() => useNotificationApi());
+
+    result.current.addNotification({
+      ariaLive: 'assertive',
+      emitter: 'PollCreationDialog',
+      message: 'Poll sent',
+      severity: 'success',
+    });
+
+    expect(add).toHaveBeenCalledWith({
+      message: 'Poll sent',
+      options: { metadata: { ariaLive: 'assertive' }, severity: 'success' },
+      origin: { emitter: 'PollCreationDialog' },
+    });
+  });
+
   it('adds inferred target panel tag when targetPanels is not provided', () => {
     mockedUseNotificationTarget.mockReturnValue('thread');
 

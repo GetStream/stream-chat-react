@@ -66,7 +66,7 @@ describe('EmojiPicker (deprecated emoji-mart)', () => {
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn.mock.calls[0][0]).toMatch(/deprecated/i);
     expect(warn.mock.calls[0][0]).toMatch(/StreamEmojiPicker/);
-    expect(warn.mock.calls[0][0]).toMatch(/v15/);
+    expect(warn.mock.calls[0][0]).toMatch(/next major version/i);
     unmount();
 
     warn.mockClear();

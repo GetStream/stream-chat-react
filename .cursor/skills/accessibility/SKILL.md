@@ -22,7 +22,7 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
   - `specs/wcag-compliance/decisions.md` (append-only decision log)
   - `specs/wcag-compliance/plan.md` and `specs/wcag-compliance/state.json` (task tracking)
 - **Shared a11y primitives**
-  - `src/components/Accessibility/` (`AriaLiveRegion`, announcer hooks, notification announcer)
+  - `src/components/Accessibility/` — `AriaLiveAnnouncerProvider` + `AriaLiveOutlet` (one announcer per `Chat`; outlets render the live region, innermost/highest-`layer` wins so modal-scoped outlets take over), `useAriaLiveAnnouncer`, `useInteractionAnnouncements` (typed announcement vocabulary), `useFocusReturn` (generic capture-before-steal / restore-on-finish focus restoration), `useInertWhenHidden`, `scheduling/` (debounce/queue policies), notification announcer
   - `src/components/VisuallyHidden/`
 - **Global reduced-motion/focus behavior styles**
   - `src/styling/accessibility.scss`
@@ -44,6 +44,10 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - For dialog surfaces:
   - provide `role` and `aria-modal` for modal behavior
   - wire `aria-labelledby` and `aria-describedby` to visible title/description nodes
+  - keep dialog title/description IDs on the dialog surface; do not reuse dialog-level `descriptionId` on descendant inputs/buttons just to make the dialog copy read again
+  - child controls should reference only control-specific help/error text via `aria-describedby`
+  - avoid attaching the dialog description to close buttons in prompt/modal headers
+  - when surrounding dialog context is already announced, prefer short close labels (for example existing `t('Close')`) over redundant labels like `Close dialog`
 - For images:
   - always render `alt` (`''` when decorative)
 
@@ -58,23 +62,71 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
 - Menus/listboxes/tabs:
   - use role-appropriate child roles (`menu`/`menuitem`, `listbox`/`option`, `tablist`/`tab`/`tabpanel`)
   - keep role/attribute combinations valid (example: `menuitemradio` with `aria-checked`)
+  - when a role-bearing parent (`listbox`/`menu`) is separated from its children by layout/scroll wrappers, mark the in-between wrappers `role="presentation"` so the parent→child ownership stays valid (axe `aria-required-children`). A role-less generic `<div>` is already transparent; only elements with a conflicting role need `presentation`.
+- **Autocomplete on a text field (combobox/listbox):** keep real DOM focus in the input and expose the popup as a `listbox` of `option`s; track the highlighted option with `aria-activedescendant` on the input (+ `aria-autocomplete="list"`, `aria-controls` → the listbox). This is the supported way to get per-option announcements on arrow navigation. **Do NOT put `role="combobox"` or `aria-expanded` on a `<textarea>`** — both are invalid on a textarea (axe `aria-allowed-role`; `aria-expanded` unsupported on the implicit `textbox`); the `aria-activedescendant` pattern is the textbox-valid equivalent. Set `aria-controls`/`aria-activedescendant` only while the popup is rendered so they never reference a missing element. **Gate `aria-activedescendant` on actual keyboard navigation** (set on Arrow keys, clear on text change): filtering resets the highlight to the first option every keystroke, and an always-on active descendant makes VoiceOver re-read that first option on each character. **Hide decorative content inside options** (e.g. an avatar's fallback initials) with `aria-hidden` so the option's accessible name is just the meaningful label. (Implemented for the composer suggestions — `TextareaComposer` + `SuggestionList`, RW9b.)
+
+#### Text inputs & textareas (screen-reader hints, typing echo, and churn)
+
+Screen readers add their own verbosity around editable fields that the app **cannot and should not** try to suppress:
+
+- VoiceOver speaks a **control hint** on focus ("You are currently on a text area, inside web content. To exit this area…") and a **typing echo** (re-reads characters/words as you type). These are **user verbosity settings** (VO Utility → Verbosity → Hints / Typing Echo), fire on every web `<textarea>`/contenteditable, and have **no ARIA/markup off-switch**. Treat them as expected behavior, **not a bug** — do not change the field's role/semantics to dodge them (that breaks the field for AT and is worse than the hint).
+- What the app DOES control is **how often the SR re-evaluates the focused field**. Every one of these adds an extra (re)announcement on top of the SR's baseline, so for any composer/text input:
+  - **Stable explicit accessible name** — name the field explicitly so it never inherits an ancestor's name, and do not swap the name once it has content (a templated placeholder re-announces as a stale name).
+  - **No per-keystroke ARIA churn** — keep `aria-controls`/`aria-activedescendant`/`aria-describedby` stable while focused; toggling any of them re-triggers the field announcement. In particular, keep `aria-controls` stable across an async results reload (don't drop it while `isLoading` flickers the item list — keep the popup mounted with the prior results until new ones arrive).
+  - **No gratuitous `focus()` / `value` / `setSelectionRange` rewrites** on the focused field — each forces the SR to re-read it. Only mutate on genuine user intent.
+  - **Supplementary hints via a stable `aria-describedby`** node (read once on focus), never a live region wired to the field (which would re-announce on change).
 
 ### 3) Live regions and announcements
 
 - Prefer centralized announcers over ad-hoc `aria-live` scattered across components:
-  - `AriaLiveRegion` + `useAriaLiveAnnouncer`
-  - `NotificationAnnouncer`
+  - `useAriaLiveAnnouncer` (the one sink; provided by `AriaLiveAnnouncerProvider`, rendered by `AriaLiveOutlet`)
+  - `useInteractionAnnouncements` for the typed, intention-revealing vocabulary (`announceInteraction('giphy.sent')`, etc.)
+  - `NotificationAnnouncer` (routes through the same sink)
 - Use `polite` for non-urgent updates; `assertive` for urgent/error updates.
-- For repeated announcements, clear then set message (small delay) to force re-announcement.
+- The announcer is the **decoupled channel ONLY** — see the focus-coupled rule below. It is the right tool when something changes and focus does NOT move to it (incoming messages, filtered result counts while focus stays in the input, confirmations where focus returns elsewhere).
+- For repeated announcements, the announcer appends a fresh node per call (no clear-then-set dance needed); for rapidly-updating streams use a `scheduling/` debounce, not raw spam.
 - For modals, do not use live regions for static body content; rely on correct dialog semantics + focus management.
+- **`aria-modal="true"` suppresses live regions outside its subtree.** VoiceOver (and most ATs) ignore live regions that are not descendants of the active `aria-modal` container. The unified announcer handles this with a stack of `AriaLiveOutlet`s: mount an `<AriaLiveOutlet layer={1} />` inside the modal subtree (the `Modal`/`Dialog` components already do) and the provider renders into it while the modal is open. Do not "fix" missing announcements by escalating polite -> assertive; if the region is outside the modal, no priority will save it.
+
+#### Focus-coupled vs decoupled — choose the channel by whether focus moves
+
+This is the single most important announcement decision. Every "tell the screen reader something" need is one of two kinds; using the wrong channel produces a race (the announcement is dropped) or duplicate/overlapping speech.
+
+- **Focus moves to / into the thing being announced** (a control auto-focuses; a surface appears and takes focus; reorder/tab/step navigation shifts focus): the screen reader already speaks the focused control on the focus event. Encode the message in the **focused control's accessible name/description** — dynamic `aria-label`, or `aria-labelledby` + `aria-describedby` on the control or its enclosing labelled group. Do NOT also fire a live-region message; it races with the focus event and is dropped.
+- **Focus does NOT move** (incoming message, async state change, a count updating while focus stays in the field, pickup/drop where focus is unchanged, a confirmation where focus returns to a _different_ element): use the **live-region announcer**.
+
+**A transient surface that appears AND auto-focuses a control is focus-coupled.** (Giphy preview auto-focusing "Send"; a popover/dialog moving focus inside.) Put the surface's purpose + visibility scope + available actions on the focused control or its enclosing `role="group"`/`region`/`dialog` via `aria-label`/`aria-labelledby` + `aria-describedby` — so focusing "Send" reads e.g. "Send, button, Giphy preview — only visible to you. 3 actions: Send, Shuffle, Cancel." A polite live-region announcement here is preempted by the focus event and never heard.
+
+**Positional context ("list N items", "tab panel") comes from ancestor containers, not the control's name — an `aria-label` on the control alone cannot remove it.** A transient action surface rendered inside a semantic container (message `<ul>`, tabpanel) inherits that container's role + set size in focus announcements. Two things help:
+
+- **A labelled grouping immediately around the controls** (`role="group"`/`region` + `aria-label`) becomes the nearest named container, so AT announces THAT instead of the outer list/tabpanel. Verified on VoiceOver for the giphy preview: wrapping Send/Shuffle/Cancel in `role="group"` aria-label "Giphy actions" stopped the "list, N items" leak without moving the DOM. Often sufficient; confirm per screen reader (NVDA may differ).
+- **Placement** is the guaranteed fix: render the surface **outside** the container (a sibling of the `<ul>`), as `VirtualizedMessageList` does for the giphy preview. Use this if a labelled grouping doesn't suppress the leak in your target SRs or restructuring is cheap.
 
 ### 4) Focus management
 
 - Maintain visible focus indicators (do not remove outlines without replacement).
 - When trapping focus in dialogs, ensure focus enters the dialog and is restored on close.
+- Initial dialog focus depends on dialog type:
+  - short task-oriented form dialogs: usually prefer the first meaningful control
+  - content-heavy or context-first dialogs: focusing the dialog container or a static heading with `tabIndex={-1}` can be appropriate
+  - destructive confirmation dialogs: prefer the least destructive action
+- Treat dialog-surface/title initial focus as an explicit tradeoff, not a universal default.
+- If using dialog-surface initial focus to improve announcement reliability, keep it opt-in for specific dialogs instead of changing all modals globally.
 - After closing transient dialogs/popovers, restore focus to the invoking trigger when expected.
 
-### 5) Motion preferences
+### 5) Keyboard reorder / drag-and-drop fallback
+
+When a list supports drag-and-drop reordering, provide a keyboard equivalent driven by a per-row toggle handle (Space picks up, ArrowUp/Down move, Space/Enter/Escape/Tab/blur drop):
+
+- **`aria-pressed` on the toggle handle** communicates picked-up state; do not invent a custom ARIA state.
+- **Focus follows the moved item.** After a move, focus belongs to the handle now at the item's new position — not on a static slot, the previous DOM node, or the list container. Otherwise sighted/keyboard and AT users diverge on what is "selected".
+- **Stable keys + persistent DOM nodes for the handle.** Key the row (or just the handle) so React does not unmount it across reorders. Unmounting the focused element drops focus to `<body>` and aborts the keyboard mode mid-press. A common approach is keying handles by row index and re-applying focus to that index after the array reorders, using a refs-by-index registry and `useLayoutEffect`.
+- **Do not move focus to a sibling input** (the row's text field, the container, etc.) on activation. The handle owns the keyboard mode for its full lifecycle.
+- **Encode the new position in the active handle's `aria-label`.** While picked up, expand the label to include item identity, current position, and total (`Reorder "{name}" at position {n} of {total}`). When focus shifts to the handle at the new position after ArrowUp/Down, the native focus announcement carries the move information — no parallel live-region message needed.
+- **Use live-region announcements only for pickup and drop**, where focus does not shift. These are the events the dynamic `aria-label` cannot cover.
+- **`aria-activedescendant` is not a substitute for moving real DOM focus** in this pattern on Chrome + VoiceOver. It is unreliable for tracking moves; prefer real focus management. (Scope: this caveat is about **drag-to-reorder move-tracking**. `aria-activedescendant` is still the correct, supported mechanism for **combobox/listbox autocomplete option focus**, where DOM focus deliberately stays in the input — see the autocomplete note below.)
+
+### 6) Motion preferences
 
 - Respect `prefers-reduced-motion` in both CSS and JS behavior:
   - CSS transitions/animations minimized in `accessibility.scss`
@@ -87,6 +139,15 @@ Use this skill whenever code changes can affect keyboard users, screen readers, 
   - never attach unsupported attributes to roles just to satisfy a visual state
 - `aria-hidden` is for decorative/non-essential content only, never for focusable controls.
 - Icon-only controls must carry an accessible name on the control element itself.
+
+## Screen Reader Dialog Quirks
+
+- macOS VoiceOver may re-announce ancestor dialog/group context (for example `dialog, 5 items`) when focus moves to controls inside a dialog.
+- This repeated container announcement is often screen-reader behavior, not necessarily a labeling bug in the app.
+- Distinguish between:
+  - expected container-context announcement from the screen reader
+  - actual label leakage caused by descendant `aria-describedby` / `aria-labelledby`
+- Fix leakage in code; do not try to fight VoiceOver container announcements with extra ARIA or live-region workarounds.
 
 ## i18n rules for accessibility text
 
@@ -101,11 +162,13 @@ Minimum:
 
 - unit tests for new keyboard/focus/semantics behavior in nearest `__tests__` folder
 - one `jest-axe` assertion for components where semantics changed
+- for modal changes, verify dialog-surface semantics (`role`, `aria-labelledby`, `aria-describedby`) and that descendant controls do not inherit dialog descriptions unless explicitly intended
 
 Recommended:
 
 - regression tests for:
   - Enter/Space activation
+  - initial focus target for dialogs that use custom open-focus behavior
   - role/state attributes
   - focus restore on close
   - reduced-motion behavior where logic branches in JS
@@ -129,3 +192,13 @@ Recommended:
 - Creating two focusable wrappers for one action path.
 - Introducing invalid role/attribute pairs (for example `aria-selected` on plain buttons).
 - Using live regions to force modal text announcement instead of fixing dialog semantics.
+- Using placeholders as the only field label, or combining a visible label with a redundant placeholder that causes extra screen-reader chatter without adding meaning.
+- Treating repeated VoiceOver dialog/group announcements as proof that app markup is wrong before checking whether descendant controls are actually inheriting dialog descriptions.
+- Live region rendered outside the active `aria-modal="true"` subtree (for example portalled to `document.body`) — the announcements are silently dropped. Ensure an `AriaLiveOutlet` (layer above the root) is mounted inside the modal subtree.
+- Emitting a live-region message for an action that also shifts focus — causes overlapping announcements / the message is dropped. Encode the new state in the focused control's `aria-label`/`aria-describedby` instead.
+- Announcing a transient surface that appears AND auto-focuses a control (giphy preview auto-focusing Send, a popover moving focus inside) via the live-region announcer — the focus event preempts it and it is never heard. Describe the focused control or its enclosing labelled group instead.
+- Trying to remove inherited container context ("list N items", "tab panel") from a transient surface with an `aria-label` on the control — the name changes but the ancestor's positional context remains. Render the surface outside the container (sibling of the `<ul>`/tabpanel).
+- Remounting the focused control to "reset" its accessible name; this drops focus to `<body>` and breaks keyboard flows. Update attributes on the existing node.
+- Moving focus to a sibling (text input, container) when activating a per-row keyboard mode (reorder, edit, etc.). The activating control must keep focus until the mode ends.
+- Reaching for `aria-activedescendant` to fix VoiceOver tracking on Chrome instead of moving real DOM focus.
+- Passing both an index and a derived position/label prop to a child component when one can be computed from the other — keep one source of truth, derive the rest in the child.

@@ -61,7 +61,7 @@ describe('Chat', () => {
     await waitFor(() => expect(screen.getByTestId('children')).toBeInTheDocument());
   });
 
-  it('keeps modal-targeted notifications exclusive to the modal panel by default', async () => {
+  it('keeps modal-targeted notifications exclusive to the modal panel while a modal is open', async () => {
     let displayFilter: ReturnType<
       typeof useNotificationConfigurationContext
     >['displayFilter'];
@@ -69,6 +69,11 @@ describe('Chat', () => {
     await act(() => {
       render(
         <Chat client={chatClient}>
+          <ComponentProvider value={{ NotificationList: () => null }}>
+            <GlobalModal aria-label='Test modal' open>
+              Modal content
+            </GlobalModal>
+          </ComponentProvider>
           <NotificationDisplayFilterConsumer
             fn={(filter) => {
               displayFilter = filter;
@@ -86,6 +91,38 @@ describe('Chat', () => {
       );
       expect(displayFilter({ notification: modalNotification, panel: 'modal' })).toBe(
         true,
+      );
+    });
+  });
+
+  it('falls back a modal-targeted notification to its non-modal panel once the modal has closed', async () => {
+    let displayFilter: ReturnType<
+      typeof useNotificationConfigurationContext
+    >['displayFilter'];
+
+    // No modal open: mirrors a dialog that closed optimistically before emitting its confirmation
+    // (e.g. "Poll sent"). The notification is still tagged `target:modal` from when the dialog was
+    // open, but its modal list is gone — it must fall back to its channel panel, not vanish.
+    await act(() => {
+      render(
+        <Chat client={chatClient}>
+          <NotificationDisplayFilterConsumer
+            fn={(filter) => {
+              displayFilter = filter;
+            }}
+          />
+        </Chat>,
+      );
+    });
+
+    await waitFor(() => {
+      const modalNotification = notification(['target:modal', 'target:channel']);
+
+      expect(displayFilter({ notification: modalNotification, panel: 'channel' })).toBe(
+        true,
+      );
+      expect(displayFilter({ notification: modalNotification, panel: 'modal' })).toBe(
+        false,
       );
     });
   });

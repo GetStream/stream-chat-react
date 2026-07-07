@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -17,8 +18,10 @@ import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import type { DialogAnchorProps } from '../service/DialogAnchor';
 import { DialogAnchor, useDialogAnchor } from '../service/DialogAnchor';
-import { useComponentContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
+import { VisuallyHidden } from '../../VisuallyHidden';
+import { useStableId } from '../../UtilityComponents/useStableId';
 
 /**
  * ContextMenu module
@@ -148,7 +151,10 @@ export const UserContextMenuButton = ({
     role={role}
     type='button'
   >
-    <Avatar imageUrl={imageUrl} size='sm' userName={userName} />
+    {/* The avatar is decorative here: the button already carries the user's name as its
+        label, so exposing the avatar (its fallback initials, title, and role="button")
+        to assistive tech only adds noise to the option's accessible name. */}
+    <Avatar aria-hidden imageUrl={imageUrl} size='sm' userName={userName} />
     <div className='str-chat__context-menu__button__label'>{children ?? userName}</div>
   </button>
 );
@@ -359,20 +365,42 @@ export const ContextMenuButton = (props: ContextMenuButtonProps) => {
 };
 
 export const ContextMenuBackButton = ({
+  'aria-label': ariaLabel,
+  'aria-labelledby': ariaLabelledBy,
   children,
   className,
   role = 'menuitem',
   ...props
-}: ComponentProps<'button'>) => (
-  <button
-    {...props}
-    className={clsx('str-chat__context-menu__back-button', className)}
-    role={role}
-    type='button'
-  >
-    {children}
-  </button>
-);
+}: ComponentProps<'button'>) => {
+  const { t } = useTranslationContext();
+  const generatedBackNavigationLabelId = useStableId();
+  const generatedVisibleLabelId = useStableId();
+  const resolvedAriaLabel = ariaLabel ?? t('aria/Back to parent menu button');
+  const resolvedAriaLabelledBy =
+    ariaLabelledBy ?? `${generatedVisibleLabelId} ${generatedBackNavigationLabelId}`;
+
+  return (
+    <button
+      {...props}
+      aria-labelledby={resolvedAriaLabelledBy}
+      className={clsx('str-chat__context-menu__back-button', className)}
+      role={role}
+      type='button'
+    >
+      {!ariaLabelledBy && (
+        <VisuallyHidden id={generatedBackNavigationLabelId}>
+          {resolvedAriaLabel}
+        </VisuallyHidden>
+      )}
+      <span
+        className='str-chat__context-menu__back-button__content'
+        id={generatedVisibleLabelId}
+      >
+        {children}
+      </span>
+    </button>
+  );
+};
 
 export const ContextMenuHeader = ({
   children,
@@ -498,6 +526,42 @@ const resolveContextMenuFocusRestoreTarget = ({
   return null;
 };
 
+const CONTEXT_MENU_HEADER_SELECTOR = '.str-chat__context-menu__header';
+
+/**
+ * Where focus should land when a submenu OPENS (forward navigation):
+ * - `'first-item'` (default): the first focusable item that is NOT in the header — i.e. the first
+ *   real menu option, skipping a back-button header — falling back to the very first item when the
+ *   body has none.
+ * - `'first'`: the first focusable item overall (the back-button header when present).
+ * - `'none'`: do not move focus on open.
+ */
+export type ContextMenuSubmenuInitialFocus = 'first' | 'first-item' | 'none';
+
+const resolveSubmenuInitialFocusTarget = ({
+  contextMenuRoot,
+  initialFocus,
+  itemSelector,
+}: {
+  contextMenuRoot: Element | null;
+  initialFocus: ContextMenuSubmenuInitialFocus;
+  itemSelector?: string;
+}): HTMLElement | null => {
+  if (initialFocus === 'none') return null;
+
+  const items = getVisibleContextMenuKeyboardNavigationItems(
+    contextMenuRoot,
+    itemSelector,
+  );
+  if (initialFocus === 'first') return items[0] ?? null;
+
+  // 'first-item': skip the header (e.g. the back button) and land on the first content item;
+  // fall back to the first item overall if the body has no focusable item.
+  return (
+    items.find((item) => !item.closest(CONTEXT_MENU_HEADER_SELECTOR)) ?? items[0] ?? null
+  );
+};
+
 export type ContextMenuKeyboardNavigation = {
   /**
    * CSS selector used to collect focusable menu items.
@@ -524,6 +588,11 @@ export const useContextMenuContext = () =>
 
 type ContextMenuLevel = {
   focusRestoreRequest?: ContextMenuFocusRestoreRequest;
+  /**
+   * Where focus lands when this level is opened as a submenu (forward navigation). Defaults to
+   * `'first-item'`. Ignored for the root level (its initial focus is the dialog's `autoFocus`).
+   */
+  initialFocus?: ContextMenuSubmenuInitialFocus;
   items?: ContextMenuItemComponent[];
   Submenu?: ContextMenuSubmenu;
   Header?: ContextMenuHeaderComponent;
@@ -532,6 +601,7 @@ type ContextMenuLevel = {
 };
 
 type ContextMenuBaseProps = ComponentPropsWithoutRef<'div'> & {
+  backButtonAriaLabel?: string;
   backLabel?: ReactNode;
   enableAnimations?: boolean;
   Header?: ContextMenuHeaderComponent;
@@ -582,7 +652,8 @@ export type ContextMenuContentProps = ContextMenuBaseProps & {
  */
 export function ContextMenuContent({
   anchorReferenceElement,
-  backLabel = 'Back',
+  backButtonAriaLabel,
+  backLabel,
   children,
   className,
   enableAnimations = true,
@@ -596,6 +667,14 @@ export function ContextMenuContent({
   transitionDirection,
   ...props
 }: ContextMenuContentProps) {
+  const { t } = useTranslationContext();
+  const resolvedBackLabel = backLabel ?? t('Back');
+  const {
+    ['aria-describedby']: rootAriaDescribedBy,
+    ['aria-label']: rootAriaLabel,
+    ['aria-labelledby']: rootAriaLabelledBy,
+    ...contextMenuRootProps
+  } = props;
   const rootLevel = useMemo<ContextMenuLevel>(
     () => ({
       Header,
@@ -609,7 +688,14 @@ export function ContextMenuContent({
   const [menuBodyAnimationKey, setMenuBodyAnimationKey] = useState(0);
   const contextMenuRootRef = useRef<HTMLDivElement | null>(null);
   const focusRestoreRequestRef = useRef<ContextMenuFocusRestoreRequest | null>(null);
+  // Where to place focus when the NEXT level opens (forward navigation). Symmetric to
+  // `focusRestoreRequestRef`, which handles returning to the parent (backward).
+  const pendingForwardFocusRef = useRef<ContextMenuSubmenuInitialFocus | null>(null);
   const activeMenu = menuStack[menuStack.length - 1];
+
+  const keyboardNavigationItemSelector =
+    keyboardNavigation?.itemSelector ??
+    DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR;
 
   const ActiveMenuItemsWrapper = activeMenu.ItemsWrapper ?? React.Fragment;
 
@@ -621,16 +707,23 @@ export function ContextMenuContent({
     ({
       focusReturnTarget,
       Header,
+      initialFocus = 'first-item',
       ItemsWrapper: SubmenuItemsWrapper,
       menuClassName,
       Submenu,
     }: ContextMenuOpenSubmenuParams) => {
+      // Record where focus should land in the opening submenu, so the level-change effect can move
+      // it there once the new level has rendered (mirrors the backward focus restore). Clear any
+      // backward request so the forward intent is what applies for this transition.
+      pendingForwardFocusRef.current = initialFocus;
+      focusRestoreRequestRef.current = null;
       const nextLevel: ContextMenuLevel = {
         focusRestoreRequest: createContextMenuFocusRestoreRequest({
           contextMenuRoot: contextMenuRootRef.current,
           focusReturnTarget,
         }),
         Header,
+        initialFocus,
         ItemsWrapper: SubmenuItemsWrapper ?? ItemsWrapper,
         menuClassName,
         Submenu,
@@ -645,6 +738,8 @@ export function ContextMenuContent({
       if (current.length <= 1) return current;
       focusRestoreRequestRef.current =
         current[current.length - 1]?.focusRestoreRequest ?? null;
+      // Clear any forward intent so the backward restore is what applies for this transition.
+      pendingForwardFocusRef.current = null;
       return current.slice(0, -1);
     });
   }, []);
@@ -660,18 +755,35 @@ export function ContextMenuContent({
     onMenuLevelChange?.(menuStack.length);
   }, [menuStack.length, onMenuLevelChange]);
 
-  useEffect(() => {
+  // Move focus on menu-level changes. Runs in a LAYOUT effect (before paint) and re-runs when the
+  // body remounts (`menuBodyAnimationKey`) — the body is remounted a step after the level changes
+  // to restart the enter animation, which removes the just-focused node. Re-applying focus in the
+  // same commit that mounts the new body keeps focus in the menu with no `<body>` flicker (a naive
+  // post-paint / single-rAF focus lands one frame before that remount and gets dropped). The
+  // request refs are NOT consumed here (so this re-run can re-apply); each transition
+  // (`openSubmenu`/`returnToParentMenu`) sets one ref and clears the other.
+  useLayoutEffect(() => {
     const focusRestoreRequest = focusRestoreRequestRef.current;
-    if (!focusRestoreRequest) return;
-    focusRestoreRequestRef.current = null;
+    const pendingForwardFocus = pendingForwardFocusRef.current;
+    if (!focusRestoreRequest && !pendingForwardFocus) return;
 
-    requestAnimationFrame(() => {
-      resolveContextMenuFocusRestoreTarget({
-        contextMenuRoot: contextMenuRootRef.current,
-        request: focusRestoreRequest,
-      })?.focus();
-    });
-  }, [menuStack.length]);
+    const contextMenuRoot = contextMenuRootRef.current;
+    // Backward (return to parent) restores the remembered element; it takes precedence.
+    const target = focusRestoreRequest
+      ? resolveContextMenuFocusRestoreTarget({
+          contextMenuRoot,
+          request: focusRestoreRequest,
+        })
+      : // Forward (submenu opened): move focus INTO the new level per its `initialFocus`, so it is
+        // not lost to <body> when the parent item that had focus unmounts.
+        resolveSubmenuInitialFocusTarget({
+          contextMenuRoot,
+          initialFocus: pendingForwardFocus as ContextMenuSubmenuInitialFocus,
+          itemSelector: keyboardNavigationItemSelector,
+        });
+
+    target?.focus();
+  }, [keyboardNavigationItemSelector, menuBodyAnimationKey, menuStack.length]);
 
   useEffect(() => {
     if (!transitionDirection) return;
@@ -691,16 +803,17 @@ export function ContextMenuContent({
     );
   }, []);
 
-  const rovingFocusKeyDownHandler = useMemo(() => {
-    const itemSelector =
-      keyboardNavigation?.itemSelector ??
-      DEFAULT_CONTEXT_MENU_KEYBOARD_NAVIGATION_ITEM_SELECTOR;
-
-    return createRovingFocusKeyDownHandler<HTMLElement>({
-      getItems: (event) =>
-        getVisibleContextMenuKeyboardNavigationItems(event.currentTarget, itemSelector),
-    });
-  }, [keyboardNavigation]);
+  const rovingFocusKeyDownHandler = useMemo(
+    () =>
+      createRovingFocusKeyDownHandler<HTMLElement>({
+        getItems: (event) =>
+          getVisibleContextMenuKeyboardNavigationItems(
+            event.currentTarget,
+            keyboardNavigationItemSelector,
+          ),
+      }),
+    [keyboardNavigationItemSelector],
+  );
 
   const escapeConsumedRef = useRef(false);
 
@@ -732,6 +845,7 @@ export function ContextMenuContent({
       event.stopPropagation();
     }
   }, []);
+  const isSubmenuLevel = menuStack.length > 1;
 
   return (
     <ContextMenuContext.Provider
@@ -745,20 +859,26 @@ export function ContextMenuContent({
       }}
     >
       <ContextMenuRoot
+        aria-describedby={isSubmenuLevel ? undefined : rootAriaDescribedBy}
+        aria-label={isSubmenuLevel ? t('aria/Submenu') : rootAriaLabel}
+        aria-labelledby={isSubmenuLevel ? undefined : rootAriaLabelledBy}
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}
         onKeyDownCapture={keyboardNavigationHandler}
         onKeyUpCapture={suppressEscapeKeyUp}
         ref={contextMenuRootRef}
-        {...props}
+        {...contextMenuRootProps}
       >
         {activeMenu.Header ? (
           <activeMenu.Header />
         ) : menuStack.length > 1 ? (
           <ContextMenuHeader>
-            <ContextMenuBackButton onClick={returnToParentMenu}>
+            <ContextMenuBackButton
+              aria-label={backButtonAriaLabel}
+              onClick={returnToParentMenu}
+            >
               <IconChevronLeft />
-              <span>{backLabel}</span>
+              <span>{resolvedBackLabel}</span>
             </ContextMenuBackButton>
           </ContextMenuHeader>
         ) : null}
@@ -915,6 +1035,11 @@ export const ContextMenu = (props: ContextMenuProps) => {
 
   if (isAnchored) {
     const {
+      ['aria-describedby']: ariaDescribedBy,
+      ['aria-label']: ariaLabel,
+      ['aria-labelledby']: ariaLabelledBy,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      backButtonAriaLabel: _bbal,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       backLabel: _b,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -935,9 +1060,13 @@ export const ContextMenu = (props: ContextMenuProps) => {
       role: _r,
       ...anchorDivProps
     } = menuProps;
+    const isSubmenuLevel = menuLevel > 1;
     return (
       <DialogAnchor
         allowFlip={allowFlip}
+        aria-describedby={isSubmenuLevel ? undefined : ariaDescribedBy}
+        aria-label={isSubmenuLevel ? undefined : ariaLabel}
+        aria-labelledby={isSubmenuLevel ? undefined : ariaLabelledBy}
         closeOnClickOutside={closeOnClickOutside}
         closeTransitionMs={closeTransitionMs}
         dialogManagerId={dialogManagerId}

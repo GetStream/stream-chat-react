@@ -49,6 +49,10 @@
   }
 }
 
+.str-chat__thread-list-item[aria-selected='true'] {
+  background-color: var(--str-chat__background-utility-selected);
+}
+
 .str-chat__thread-list-item__content {
   display: flex;
   flex-direction: column;

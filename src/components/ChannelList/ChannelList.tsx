@@ -39,7 +39,7 @@ import {
 import { moveChannelUpwards } from './utils';
 import type { TranslationContextValue } from '../../context/TranslationContext';
 import type { PaginatorProps } from '../../types/types';
-import { ChannelListHeader } from './ChannelListHeader';
+import { ChannelListHeader as DefaultChannelListHeader } from './ChannelListHeader';
 import { useStableId } from '../UtilityComponents/useStableId';
 
 const DEFAULT_FILTERS = {};
@@ -194,6 +194,7 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
     useImageFlagEmojisOnWindows,
   } = useChatContext('ChannelList');
   const {
+    ChannelListHeader = DefaultChannelListHeader,
     ChannelListUI = DefaultChannelListUI,
     NotificationList = DefaultNotificationList,
     Search = DefaultSearch,

@@ -3,8 +3,12 @@ import type { Action, Attachment } from 'stream-chat';
 
 import { useTranslationContext } from '../../context';
 
+import { useFocusReturn, useInteractionAnnouncements } from '../Accessibility';
+import { getGiphyDescriptiveTitle } from './giphyAccessibility';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import { Button } from '../Button';
+import { VisuallyHidden } from '../VisuallyHidden';
+import { useStableId } from '../UtilityComponents/useStableId';
 import clsx from 'clsx';
 
 export type AttachmentActionsProps = Attachment & {
@@ -29,15 +33,67 @@ export const defaultAttachmentActionsDefaultFocus: AttachmentActionsDefaultFocus
 };
 
 const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
-  const { actionHandler, actions, defaultFocusedActionValue, id, text } = props;
+  const {
+    actionHandler,
+    actions,
+    defaultFocusedActionValue,
+    giphy,
+    id,
+    image_url: imageUrl,
+    text,
+    thumb_url: thumbUrl,
+    title,
+    type,
+  } = props;
   const { t } = useTranslationContext('UnMemoizedAttachmentActions');
+  const { announceInteraction } = useInteractionAnnouncements();
+  const { reserve: reserveFocusReturn, restore: restoreFocusReturn } = useFocusReturn();
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  const isGiphy = type === 'giphy';
+  // The giphy preview auto-focuses its primary action, so its purpose + available actions are
+  // FOCUS-COUPLED: describe them on the focused control (aria-describedby) so the text rides
+  // the focus event. A live-region announcement here would be preempted by that same focus
+  // change and never heard. See `.cursor/skills/accessibility/SKILL.md` §3 (focus-coupled vs
+  // decoupled) and specs/a11y-react-web/decisions.md.
+  const giphyDescriptionId = useStableId();
+
+  // A human, non-URL title for this giphy (usually absent — see RW6), reused for both the
+  // preview description and the shuffle announcement.
+  const descriptiveTitle = isGiphy ? getGiphyDescriptiveTitle(title) : undefined;
+  // Identity used to detect the GIF changing on Shuffle. A giphy attachment carries the unique
+  // GIF URL in `giphy.original.url` / `thumb_url` (there is usually no `image_url`); both change
+  // on every shuffle, so the canonical GIF URL is the identity.
+  const giphyImageIdentity = isGiphy
+    ? (giphy?.original?.url ?? thumbUrl ?? imageUrl ?? null)
+    : null;
+  const previousGiphyImageRef = useRef<string | null>(null);
+  const giphyImageInitializedRef = useRef(false);
 
   const handleActionClick = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     name?: string,
     value?: string,
-  ) => actionHandler?.(name, value, event);
+  ) => {
+    actionHandler?.(name, value, event);
+
+    // For giphy actions, return focus to wherever it was before the preview stole it (the
+    // composer — but this code never names it; see useFocusReturn) and announce the outcome.
+    //
+    // Order matters: restore focus FIRST, then announce on the next frame. The screen reader
+    // speaks the focus change ("Message input") immediately and synchronously; a polite
+    // live-region message fired in the same tick races with it (and can be dropped). Deferring
+    // the announce to rAF makes the sequence deterministic — "Message input" then "Giphy sent" —
+    // and guarantees the confirmation is heard. The gap between the two utterances is governed
+    // by the screen reader's speech queue and is not controllable here. The rAF is intentionally
+    // NOT cancelled on unmount: the preview unmounts when the giphy is sent, but the announcer
+    // lives at the Chat root, so the confirmation must still fire.
+    if (isGiphy && (value === 'send' || value === 'cancel')) {
+      restoreFocusReturn();
+      const interaction = value === 'send' ? 'giphy.sent' : 'giphy.canceled';
+      requestAnimationFrame(() => announceInteraction(interaction));
+    }
+  };
 
   const knownActionText = useMemo<Record<string, string>>(
     () => ({
@@ -60,32 +116,83 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
     if (focusIndex === null) return;
     const button = buttonRefs.current[focusIndex];
     if (button && document.activeElement !== button) {
+      // Capture where focus is (e.g. the composer) BEFORE stealing it, so a terminal
+      // action can return focus there via restoreFocusReturn() — without this component
+      // knowing what that element is.
+      reserveFocusReturn();
       button.focus();
     }
-  }, [focusIndex]);
+  }, [focusIndex, reserveFocusReturn]);
+
+  // Shuffle swaps the GIF in place without moving focus (it stays on the Shuffle button), so
+  // this is a DECOUPLED change → announce it via the live region (no focus/rAF dance). Skip the
+  // initial mount: the preview's appearance is conveyed by the focused control's description
+  // (RW4a), not a live announcement.
+  useEffect(() => {
+    if (!isGiphy) return;
+    if (!giphyImageInitializedRef.current) {
+      giphyImageInitializedRef.current = true;
+      previousGiphyImageRef.current = giphyImageIdentity;
+      return;
+    }
+    if (giphyImageIdentity === previousGiphyImageRef.current) return;
+    previousGiphyImageRef.current = giphyImageIdentity;
+    // Giphy payloads rarely have a human title, so this usually announces just "Giphy image
+    // changed"; the title is included only when one genuinely exists.
+    announceInteraction('giphy.shuffled', { title: descriptiveTitle });
+  }, [announceInteraction, descriptiveTitle, giphyImageIdentity, isGiphy]);
+
+  const groupProps = isGiphy
+    ? { 'aria-label': t('aria/Giphy actions'), role: 'group' as const }
+    : {};
 
   return (
     <div className='str-chat__message-attachment-actions'>
-      <div className='str-chat__message-attachment-actions-form'>
+      <div className='str-chat__message-attachment-actions-form' {...groupProps}>
         <span>{text}</span>
-        {actions.map((action, index) => (
-          <Button
-            appearance='ghost'
-            className={clsx(
-              `str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`,
+        {actions.map((action, index) => {
+          const label = action.text
+            ? (knownActionText[action.text] ?? t(action.text))
+            : null;
+
+          return (
+            <Button
+              appearance='ghost'
+              // aria-describedby: the auto-focused primary action carries the preview
+              // description so it is spoken as part of the focus announcement (focus-coupled,
+              // not a live region).
+              aria-describedby={
+                isGiphy && action.value === defaultFocusedActionValue
+                  ? giphyDescriptionId
+                  : undefined
+              }
+              // aria-label: for giphy actions, give each button a self-contained accessible
+              // name so it is not announced with surrounding list/group context (e.g.
+              // "list 3 items") swallowing the actual action label. Non-giphy untouched.
+              aria-label={isGiphy ? (label ?? undefined) : undefined}
+              className={clsx(
+                `str-chat__message-attachment-actions-button str-chat__message-attachment-actions-button--${action.style}`,
+              )}
+              data-testid={`${action.name}`}
+              data-value={action.value}
+              key={`${id}-${action.value}`}
+              onClick={(event) => handleActionClick(event, action.name, action.value)}
+              ref={(element) => {
+                buttonRefs.current[index] = element;
+              }}
+              variant='secondary'
+            >
+              {label}
+            </Button>
+          );
+        })}
+        {isGiphy && (
+          <VisuallyHidden id={giphyDescriptionId}>
+            {t(
+              'aria/Giphy preview, only visible to you. Use the Send, Shuffle, or Cancel actions.',
             )}
-            data-testid={`${action.name}`}
-            data-value={action.value}
-            key={`${id}-${action.value}`}
-            onClick={(event) => handleActionClick(event, action.name, action.value)}
-            ref={(element) => {
-              buttonRefs.current[index] = element;
-            }}
-            variant='secondary'
-          >
-            {action.text ? (knownActionText[action.text] ?? t(action.text)) : null}
-          </Button>
-        ))}
+          </VisuallyHidden>
+        )}
       </div>
     </div>
   );

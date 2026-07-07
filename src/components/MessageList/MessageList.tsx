@@ -48,7 +48,7 @@ import {
   NotificationList as DefaultNotificationList,
   useNotificationTarget,
 } from '../Notifications';
-import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
+import { useIncomingMessageAnnouncements } from '../Accessibility';
 
 type MessageListWithContextProps = Omit<
   ChannelStateContextValue,
@@ -588,14 +588,12 @@ export const MessageList = (props: MessageListProps) => {
   } = useChannelStateContext('MessageList');
 
   return (
-    <AriaLiveRegion>
-      <MessageListWithContext
-        jumpToLatestMessage={jumpToLatestMessage}
-        loadMore={loadMore}
-        loadMoreNewer={loadMoreNewer}
-        {...restChannelStateContext}
-        {...props}
-      />
-    </AriaLiveRegion>
+    <MessageListWithContext
+      jumpToLatestMessage={jumpToLatestMessage}
+      loadMore={loadMore}
+      loadMoreNewer={loadMoreNewer}
+      {...restChannelStateContext}
+      {...props}
+    />
   );
 };

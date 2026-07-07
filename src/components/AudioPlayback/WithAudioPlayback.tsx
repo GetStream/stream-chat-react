@@ -1,5 +1,4 @@
-import React, { useContext, useState } from 'react';
-import { useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import type { AudioPlayerOptions } from './AudioPlayer';
 import type { AudioPlayerPoolState } from './AudioPlayerPool';
 import { AudioPlayerPool } from './AudioPlayerPool';
@@ -7,6 +6,7 @@ import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNoti
 import { useNotificationApi, useNotificationTarget } from '../Notifications';
 import { useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
+import { useAudioPlaybackChangeAnnouncements } from '../Accessibility/hooks/useAudioPlaybackChangeAnnouncements';
 
 export type WithAudioPlaybackProps = {
   children?: React.ReactNode;
@@ -86,6 +86,8 @@ export const useAudioPlayer = ({
           waveformData,
         })
       : undefined;
+
+  useAudioPlaybackChangeAnnouncements(audioPlayer);
 
   useEffect(() => {
     if (!audioPlayer) return;

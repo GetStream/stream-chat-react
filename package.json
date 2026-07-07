@@ -88,6 +88,7 @@
     "lodash.mergewith": "^4.6.2",
     "lodash.throttle": "^4.1.1",
     "lodash.uniqby": "^4.7.0",
+    "mdast-util-to-string": "^4.0.0",
     "nanoid": "^3.3.12",
     "react-dropzone": "^14.4.1",
     "react-fast-compare": "^3.2.2",
@@ -96,6 +97,8 @@
     "react-textarea-autosize": "^8.5.9",
     "react-virtuoso": "^2.19.1",
     "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
     "use-sync-external-store": "^1.6.0"

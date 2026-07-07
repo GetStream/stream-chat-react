@@ -132,6 +132,11 @@
       .str-chat__icon--chevron-right {
         transform: rotate(180deg);
       }
+
+      .str-chat__context-menu__back-button__content {
+        display: inline-flex;
+        align-items: center;
+      }
     }
 
     .str-chat__context-menu__body {

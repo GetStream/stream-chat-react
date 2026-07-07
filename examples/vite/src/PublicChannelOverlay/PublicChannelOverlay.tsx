@@ -66,6 +66,7 @@ export const PublicChannelOverlay = () => {
         </div>
         <Button
           appearance='solid'
+          autoFocus
           className='app-public-channel-overlay__join-button'
           disabled={joining}
           onClick={handleJoin}
@@ -75,20 +76,6 @@ export const PublicChannelOverlay = () => {
           {joining ? <LoadingIndicator /> : 'Join Group'}
         </Button>
       </div>
-    </div>
-  );
-};
-
-export const PublicChannelComposerBanner = () => {
-  const { canJoin, isMember } = usePublicChannelState();
-
-  if (isMember || canJoin) return null;
-
-  return (
-    <div className='app-public-channel-composer-banner'>
-      <p className='app-public-channel-composer-banner__text'>
-        You can only view this conversation
-      </p>
     </div>
   );
 };
