@@ -25,11 +25,11 @@ import {
   isVideoAttachment,
   isVoiceRecordingAttachment,
   type LocalMessage,
-  type LocalMessageBase,
   type MessageComposerState,
-  type PollResponse,
-  type SharedLocationResponse,
+  type PollResponseData,
+  type SharedLocationResponseData,
   type TranslationLanguages,
+  type VoiceRecordingAttachment,
 } from 'stream-chat';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context';
@@ -91,8 +91,8 @@ const getAttachmentType = (attachment: Attachment) => {
 
 type GroupedAttachments = Record<AttachmentType, Attachment[]> & {
   giphies: Attachment[];
-  locations: SharedLocationResponse[];
-  polls: PollResponse[];
+  locations: SharedLocationResponseData[];
+  polls: PollResponseData[];
   total: number;
 };
 
@@ -224,7 +224,10 @@ const getAttachmentIconWithType = (
       ...result,
       Icon: IconFile,
       PreviewImage: (
-        <FileIcon fileName={fileAttachment.title} mimeType={fileAttachment.mime_type} />
+        <FileIcon
+          fileName={fileAttachment.title}
+          mimeType={fileAttachment.custom.mime_type}
+        />
       ),
       previewType: 'file',
     };
@@ -311,7 +314,7 @@ export const QuotedMessagePreview = ({
 };
 
 type QuotedMessagePreviewUIProps = QuotedMessagePreviewProps & {
-  quotedMessage: LocalMessageBase;
+  quotedMessage: LocalMessage;
   authorLabel?: ReactNode;
   className?: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
@@ -378,8 +381,9 @@ export const QuotedMessagePreviewUI = ({
         {
           const voiceRecording = groupedAttachments.voiceRecordings[0];
           renderedText = t('Voice message {{ duration }}', {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            duration: displayDuration(voiceRecording!.duration),
+            duration: displayDuration(
+              (voiceRecording as VoiceRecordingAttachment).custom.duration,
+            ),
           });
         }
       } else if (previewType === 'giphy') {

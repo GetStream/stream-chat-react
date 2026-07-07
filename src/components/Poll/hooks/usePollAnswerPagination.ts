@@ -8,10 +8,10 @@ import { useCursorPaginator } from '../../InfiniteScrollPaginator/hooks/useCurso
 import { usePollContext } from '../../../context';
 
 import { useStateStore } from '../../../store';
-import type { PollAnswer, PollAnswersQueryParams, PollVote } from 'stream-chat';
+import type { PollAnswersQueryParams, PollVoteResponseData } from 'stream-chat';
 
 const paginationStateSelector = (
-  state: CursorPaginatorState<PollVote>,
+  state: CursorPaginatorState<PollVoteResponseData>,
 ): [Error | undefined, boolean, boolean] => [
   state.error,
   state.hasNextPage,
@@ -27,14 +27,14 @@ export const usePollAnswerPagination = ({
 }: UsePollAnswerPaginationParams = {}) => {
   const { poll } = usePollContext();
 
-  const paginationFn = useCallback<PaginationFn<PollAnswer>>(
+  const paginationFn = useCallback<PaginationFn<PollVoteResponseData>>(
     async (next) => {
       const { next: newNext, votes } = await poll.queryAnswers({
         filter: paginationParams?.filter,
         options: !next
           ? paginationParams?.options
           : { ...paginationParams?.options, next },
-        sort: { created_at: -1, ...paginationParams?.sort },
+        sort: [{ direction: -1, field: 'created_at' }, ...(paginationParams?.sort ?? [])],
       });
       return { items: votes, next: newNext };
     },
@@ -42,7 +42,10 @@ export const usePollAnswerPagination = ({
   );
 
   const { cursorPaginatorState, loadMore } = useCursorPaginator(paginationFn, true);
-  const answers = useManagePollVotesRealtime<PollAnswer>('answer', cursorPaginatorState);
+  const answers = useManagePollVotesRealtime<PollVoteResponseData>(
+    'answer',
+    cursorPaginatorState,
+  );
   const [error, hasNextPage, loading] = useStateStore(
     cursorPaginatorState,
     paginationStateSelector,

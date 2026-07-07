@@ -2,7 +2,7 @@ import { useChannelActionContext } from '../../../context/ChannelActionContext';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
 import { useChatContext } from '../../../context/ChatContext';
 
-import type { LocalMessage } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
 export const usePinHandler = (message: LocalMessage) => {
@@ -23,7 +23,7 @@ export const usePinHandler = (message: LocalMessage) => {
           ...message,
           pinned: true,
           pinned_at: new Date(),
-          pinned_by: client.user,
+          pinned_by: client.user as UserResponse | undefined,
         };
 
         updateMessage(optimisticMessage);
@@ -36,10 +36,10 @@ export const usePinHandler = (message: LocalMessage) => {
       try {
         const optimisticMessage = {
           ...message,
-          pin_expires: null,
+          pin_expires: undefined,
           pinned: false,
-          pinned_at: null,
-          pinned_by: null,
+          pinned_at: undefined,
+          pinned_by: undefined,
         };
 
         updateMessage(optimisticMessage);

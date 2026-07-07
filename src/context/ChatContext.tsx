@@ -1,6 +1,11 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
-import type { Channel, Mute, SearchController, StreamChat } from 'stream-chat';
+import type {
+  Channel,
+  SearchController,
+  StreamChat,
+  UserMuteResponse,
+} from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
 import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
@@ -28,7 +33,7 @@ export type ChatContextValue = {
   channelsQueryState: ChannelsQueryState;
   getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
-  mutes: Array<Mute>;
+  mutes: Array<UserMuteResponse>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;
   /**

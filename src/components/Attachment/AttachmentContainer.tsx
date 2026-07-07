@@ -9,13 +9,13 @@ import clsx from 'clsx';
 import type {
   Attachment,
   LocalAttachment,
-  SharedLocationResponse,
+  SharedLocationResponseData,
   VideoAttachment as VideoAttachmentType,
 } from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
-  isSharedLocationResponse,
+  isSharedLocationResponseData,
   isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
@@ -50,7 +50,7 @@ import { VideoAttachment } from './VideoAttachment';
 import type { AttachmentProps } from './Attachment';
 
 export type AttachmentContainerProps = {
-  attachment: Attachment | GalleryAttachment | SharedLocationResponse;
+  attachment: Attachment | GalleryAttachment | SharedLocationResponseData;
   componentType: AttachmentComponentType;
 };
 export const AttachmentWithinContainer = ({
@@ -61,7 +61,7 @@ export const AttachmentWithinContainer = ({
   const isGAT = isGalleryAttachmentType(attachment);
   let extra = '';
 
-  if (!isGAT && !isSharedLocationResponse(attachment)) {
+  if (!isGAT && !isSharedLocationResponseData(attachment)) {
     extra =
       componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
         ? 'no-image'

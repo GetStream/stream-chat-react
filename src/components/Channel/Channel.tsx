@@ -12,10 +12,10 @@ import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import type {
-  ChannelAPIResponse,
   ChannelMemberResponse,
   ChannelQueryOptions,
   ChannelState,
+  ChannelStateResponseFields,
   DeleteMessageOptions,
   Event,
   EventAPIResponse,
@@ -625,7 +625,7 @@ const ChannelInner = (
 
     const oldestID = oldestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse;
+    let queryResponse: ChannelStateResponseFields;
 
     try {
       queryResponse = await channel.query({
@@ -659,7 +659,7 @@ const ChannelInner = (
 
     const newestId = newestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse;
+    let queryResponse: ChannelStateResponseFields;
 
     try {
       queryResponse = await channel.query({

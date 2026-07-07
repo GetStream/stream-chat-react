@@ -4,7 +4,7 @@ import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useChatContext, useTranslationContext } from '../../context';
 
-import type { PollVote as PollVoteType } from 'stream-chat';
+import type { PollVoteResponseData as PollVoteType } from 'stream-chat';
 
 const PollVoteTimestamp = ({ timestamp }: { timestamp: Date | string }) => {
   const { t } = useTranslationContext();

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { isVoteAnswer } from 'stream-chat';
 import { useChatContext } from '../../../context';
-import type { EventPayload, PollAnswer, PollVote } from 'stream-chat';
+import type { EventPayload, PollVoteResponseData } from 'stream-chat';
 
 import type { CursorPaginatorStateStore } from '../../InfiniteScrollPaginator/hooks/useCursorPaginator';
 
-export function useManagePollVotesRealtime<T extends PollVote | PollAnswer = PollVote>(
+export function useManagePollVotesRealtime<T extends PollVoteResponseData = PollVoteResponseData>(
   managedVoteType: 'answer' | 'vote',
   cursorPaginatorState?: CursorPaginatorStateStore<T>,
   optionId?: string,

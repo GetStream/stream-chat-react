@@ -1,7 +1,7 @@
 import type {
   Channel,
   ChannelQueryOptions,
-  QueryChannelAPIResponse,
+  ChannelStateResponse,
   StreamChat,
 } from 'stream-chat';
 
@@ -11,7 +11,7 @@ import type {
  */
 const WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL: Record<
   string,
-  Promise<QueryChannelAPIResponse> | undefined
+  Promise<ChannelStateResponse> | undefined
 > = {};
 
 type GetChannelParams = {

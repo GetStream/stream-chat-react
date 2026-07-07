@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Attachment, SharedLocationResponse } from 'stream-chat';
+import type { Attachment, SharedLocationResponseData } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import * as linkify from 'linkifyjs';
 
@@ -44,18 +44,20 @@ export type RenderMediaProps = Omit<AttachmentProps, 'attachments'> & {
 };
 
 export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {
-  location: SharedLocationResponse;
+  location: SharedLocationResponseData;
 };
 
 // This identity function determines attachment type specific to React.
 // Once made sure other SDKs support the same logic, move to stream-chat-js
 export const isGalleryAttachmentType = (
-  attachment: Attachment | GalleryAttachment,
+  attachment: Attachment | GalleryAttachment | SharedLocationResponseData,
 ): attachment is GalleryAttachment =>
   Array.isArray((attachment as GalleryAttachment).items);
 
-export const isSvgAttachment = (attachment: Attachment) => {
-  const filename = attachment.fallback || '';
+export const isSvgAttachment = (
+  attachment: Attachment | GalleryAttachment | SharedLocationResponseData,
+) => {
+  const filename = (attachment as Attachment).fallback || '';
   return filename.toLowerCase().endsWith('.svg');
 };
 

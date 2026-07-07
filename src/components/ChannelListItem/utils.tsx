@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { Channel, LocalMessage, PollVote } from 'stream-chat';
+import type { Channel, LocalMessage, PollVoteResponseData } from 'stream-chat';
 import { toString as mdastToString } from 'mdast-util-to-string';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
@@ -44,8 +44,10 @@ const stripMarkdownToText = (text: string): string => {
   }
 };
 
-const getLatestPollVote = (latestVotesByOption: Record<string, PollVote[]>) => {
-  let latestVote: PollVote | undefined;
+const getLatestPollVote = (
+  latestVotesByOption: Record<string, PollVoteResponseData[]>,
+) => {
+  let latestVote: PollVoteResponseData | undefined;
   for (const optionVotes of Object.values(latestVotesByOption)) {
     optionVotes.forEach((vote) => {
       if (latestVote && new Date(latestVote.updated_at) >= new Date(vote.created_at))
@@ -141,7 +143,7 @@ const getLatestMessagePreviewParts = (
       };
     } else {
       const latestVote = getLatestPollVote(
-        poll.latest_votes_by_option as Record<string, PollVote[]>,
+        poll.latest_votes_by_option as Record<string, PollVoteResponseData[]>,
       );
       const option =
         latestVote && poll.options.find((opt) => opt.id === latestVote.option_id);

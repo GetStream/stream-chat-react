@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import uniqBy from 'lodash.uniqby';
 
 import type {
-  APIErrorResponse,
+  APIError,
   Channel,
   ChannelFilters,
   ChannelOptions,
@@ -167,7 +167,7 @@ export const usePaginatedChannels = (
       });
 
       if (isFirstPage) {
-        setError(error as StreamAPIError<APIErrorResponse>);
+        setError(error as StreamAPIError<APIError>);
       }
     }
 

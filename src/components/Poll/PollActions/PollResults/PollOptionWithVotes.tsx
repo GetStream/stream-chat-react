@@ -7,12 +7,12 @@ import {
   usePollContext,
   useTranslationContext,
 } from '../../../../context';
-import type { PollOption, PollState, PollVote } from 'stream-chat';
+import type { PollOption, PollState, PollVoteResponseData } from 'stream-chat';
 import { Button } from '../../../Button';
 import clsx from 'clsx';
 
 type PollStateSelectorReturnValue = {
-  latest_votes_by_option: Record<string, PollVote[]>;
+  latest_votes_by_option: Record<string, PollVoteResponseData[]>;
 };
 
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
