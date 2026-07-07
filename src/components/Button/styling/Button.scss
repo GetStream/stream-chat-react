@@ -57,7 +57,8 @@
         color: var(--str-chat__button-destructive-text-on-accent);
       }
 
-      &:disabled {
+      &:disabled,
+      &[aria-disabled='true'] {
         background-color: var(--str-chat__background-utility-disabled);
       }
     }
@@ -122,13 +123,21 @@
         @include utils.overlay-after(var(--str-chat__background-utility-selected));
       }
 
-      &:disabled {
+      &:disabled,
+      &[aria-disabled='true'] {
         color: var(--str-chat__text-disabled);
         cursor: default;
       }
+
+      // `aria-disabled` (unlike the native `disabled` attribute) keeps the element focusable, so a
+      // busy button retains focus; block pointer interaction the way `disabled` would.
+      &[aria-disabled='true'] {
+        pointer-events: none;
+      }
     }
 
-    &.str-chat__button--outline:disabled {
+    &.str-chat__button--outline:disabled,
+    &.str-chat__button--outline[aria-disabled='true'] {
       border-color: var(--str-chat__border-utility-disabled);
     }
 

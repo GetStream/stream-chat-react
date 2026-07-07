@@ -113,7 +113,7 @@ export const SkipNavigation = ({
     onClick?.(event);
     if (event.defaultPrevented) return;
 
-    // Move keyboard focus to the target element and keep hash-link fallback behavior.
+    event.preventDefault();
     focusTargetElement(targetId, focusCleanupRegistry);
   };
   const handleKeyDown = (

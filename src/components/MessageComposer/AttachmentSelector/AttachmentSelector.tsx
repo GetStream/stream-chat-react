@@ -37,6 +37,9 @@ import {
   useAttachmentSelectorContext,
 } from '../../../context/AttachmentSelectorContext';
 import { useStableId } from '../../UtilityComponents/useStableId';
+import { useInertWhenHidden } from '../../Accessibility';
+import { useStateStore } from '../../../store';
+import type { TextComposerState } from 'stream-chat';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
 import {
@@ -52,6 +55,8 @@ import {
   CommandsMenuClassName,
   CommandsSubmenuHeader,
 } from './CommandsMenu';
+
+const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
 
 const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -91,13 +96,27 @@ export const AttachmentSelectorButton = forwardRef<
   );
 });
 
-export const SimpleAttachmentSelector = () => {
+type SimpleAttachmentSelectorProps = {
+  buttonProps?: Omit<ButtonProps, 'onClick'>;
+};
+
+export const SimpleAttachmentSelector = ({
+  buttonProps,
+}: SimpleAttachmentSelectorProps = {}) => {
   const { channelCapabilities } = useChannelStateContext();
   const { t } = useTranslationContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
   const id = useStableId();
   const isCooldownActive = useIsCooldownActive();
+  const messageComposer = useMessageComposerController();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
+  // Visually hidden via a CSS transition while a command is active; keep it out
+  // of the a11y tree and tab order without setting `display: none`.
+  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
 
   useEffect(() => {
     if (!buttonElement) return;
@@ -115,8 +134,9 @@ export const SimpleAttachmentSelector = () => {
   if (!channelCapabilities['upload-file']) return null;
 
   return (
-    <div className='str-chat__attachment-selector'>
+    <div className='str-chat__attachment-selector' {...inertProps}>
       <AttachmentSelectorButton
+        {...buttonProps}
         aria-label={t('aria/Open Attachment Selector')}
         disabled={isCooldownActive}
         onClick={() => inputRef.current?.click()}
@@ -252,6 +272,7 @@ export const defaultAttachmentSelectorActionSet: AttachmentSelectorAction[] = [
 
 export type AttachmentSelectorProps = {
   attachmentSelectorActionSet?: AttachmentSelectorAction[];
+  buttonProps?: Omit<ButtonProps, 'onClick'>;
   getModalPortalDestination?: () => HTMLElement | null;
 };
 
@@ -316,6 +337,7 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
 
 export const AttachmentSelector = ({
   attachmentSelectorActionSet = defaultAttachmentSelectorActionSet,
+  buttonProps,
   getModalPortalDestination,
 }: AttachmentSelectorProps) => {
   const { t } = useTranslationContext();
@@ -324,6 +346,14 @@ export const AttachmentSelector = ({
   const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
+  // The selector is visually hidden via a CSS transition while a command is
+  // active; keep it out of the a11y tree and tab order without setting
+  // `display: none` (which would break the transition).
+  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
 
   const menuDialogId = `attachment-actions-menu${messageComposer.threadId ? '-thread' : ''}`;
@@ -339,9 +369,15 @@ export const AttachmentSelector = ({
     (actionType: AttachmentSelectorAction['type']) => {
       const action = actions.find((a) => a.type === actionType);
       if (!action?.ModalContent) return;
+      // Reset composer state when the dialog is opened (not on close), so every
+      // open starts from a fresh form without flashing cleared fields right
+      // before the modal unmounts on cancel/submit.
+      if (actionType === 'createPoll') {
+        messageComposer.pollComposer.initState();
+      }
       setModalContentActionAction(action);
     },
-    [actions],
+    [actions, messageComposer],
   );
 
   const closeModal = useCallback(() => {
@@ -356,8 +392,15 @@ export const AttachmentSelector = ({
     if (modalContentAction || !shouldRestoreFocusToTriggerRef.current) return;
 
     const frame = requestAnimationFrame(() => {
-      menuButtonRef.current?.focus();
       shouldRestoreFocusToTriggerRef.current = false;
+      // Only restore focus to the trigger if focus actually fell to <body> when the dialog closed
+      // (the cancel/escape case). If the dialog content purposefully moved focus elsewhere — e.g.
+      // the poll dialog returns focus to the composer on a successful send — leave it there. This
+      // mirrors react-aria FocusScope's own restore guard and prevents a focus blip through the
+      // trigger before the content's intended target.
+      const active = document.activeElement;
+      if (active && active !== document.body) return;
+      menuButtonRef.current?.focus();
     });
 
     return () => cancelAnimationFrame(frame);
@@ -384,15 +427,16 @@ export const AttachmentSelector = ({
   if (actions.length === 0) return null;
 
   if (actions.length === 1 && actions[0].type === 'uploadFile')
-    return <SimpleAttachmentSelector />;
+    return <SimpleAttachmentSelector buttonProps={buttonProps} />;
 
   const ModalContent = modalContentAction?.ModalContent;
   const modalIsOpen = !!ModalContent;
   return (
     <AttachmentSelectorContextProvider value={{ fileInput }}>
-      <div className='str-chat__attachment-selector'>
+      <div className='str-chat__attachment-selector' {...inertProps}>
         {channelCapabilities['upload-file'] && <UploadFileInput ref={setFileInput} />}
         <AttachmentSelectorButton
+          {...buttonProps}
           aria-expanded={menuDialogIsOpen}
           aria-haspopup='true'
           aria-label={t('aria/Open Attachment Selector')}
@@ -415,7 +459,6 @@ export const AttachmentSelector = ({
           placement='top-start'
           referenceElement={menuButtonRef.current}
           tabIndex={-1}
-          trapFocus
         >
           {contextMenuItems}
         </ContextMenuComponent>
@@ -429,6 +472,11 @@ export const AttachmentSelector = ({
               'str-chat__share-location-modal':
                 modalContentAction?.type === 'addLocation',
             })}
+            // Focus the dialog surface on open (not a field): a field's focus would supersede the
+            // screen reader's dialog identity/description announcement. The user then presses Enter
+            // to step into the dialog's default field (see GlobalModal's `[data-autofocus]`
+            // handling).
+            initialFocusStrategy='dialog'
             onClose={closeModal}
             open={modalIsOpen}
           >

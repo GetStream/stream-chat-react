@@ -58,7 +58,10 @@ describe('commandItem', () => {
       'button.str-chat__context-menu__button--command',
     );
     expect(button).toBeInTheDocument();
-    expect(button).toHaveAttribute('title', `${entity.description} ${entity.args}`);
+    expect(button).toHaveAttribute(
+      'aria-label',
+      `${entity.description}, /${entity.name} ${entity.args}`,
+    );
     expect(
       container.querySelector('.str-chat__context-menu__button__label'),
     ).toHaveTextContent(entity.name);

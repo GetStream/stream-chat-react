@@ -42,11 +42,7 @@ export const RemindMeSubmenu = () => {
   const { closeMenu } = useContextMenuContext();
   const { addNotification } = useNotificationApi();
   return (
-    <div
-      aria-label={t('aria/Remind Me Options')}
-      className='str-chat__message-actions-box__submenu'
-      role='menu'
-    >
+    <div className='str-chat__message-actions-box__submenu'>
       {client.reminders.scheduledOffsetsMs.map((offsetMs) => (
         <ContextMenuButton
           className='str-chat__message-actions-list-item-button'

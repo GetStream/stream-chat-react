@@ -3,6 +3,27 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import { SwitchField } from '../SwitchField';
 import { axe } from '../../../../axe-helper';
+import { AriaLiveAnnouncerContext } from '../../Accessibility';
+import { TranslationProvider } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
+
+const interpolatingT = ((key: string, options?: Record<string, unknown>) =>
+  Object.entries(options ?? {})
+    .reduce((value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)), key)
+    .replace(/^aria\//, '')) as TranslationContextValue['t'];
+
+const renderWithAnnouncer = (ui: React.ReactElement, announce = vi.fn()) => {
+  render(
+    <TranslationProvider
+      value={{ t: interpolatingT } as unknown as TranslationContextValue}
+    >
+      <AriaLiveAnnouncerContext.Provider value={{ announce }}>
+        {ui}
+      </AriaLiveAnnouncerContext.Provider>
+    </TranslationProvider>,
+  );
+  return announce;
+};
 
 describe('SwitchField', () => {
   it('renders a single switch control with switch semantics', () => {
@@ -84,6 +105,49 @@ describe('SwitchField', () => {
     const switchControl = screen.getByRole('switch', { name: 'Enable alerts' });
 
     expect(switchControl).toHaveAttribute('aria-labelledby', 'switch-child-label');
+  });
+
+  it('announces the on/off state change, naming the setting by its title', () => {
+    const announce = renderWithAnnouncer(
+      <SwitchField defaultChecked={false} id='notifications' title='Notifications' />,
+    );
+
+    const switchControl = screen.getByRole('switch', { name: 'Notifications' });
+
+    fireEvent.click(switchControl);
+    expect(announce).toHaveBeenLastCalledWith('Notifications enabled', {
+      priority: 'polite',
+    });
+
+    fireEvent.click(switchControl);
+    expect(announce).toHaveBeenLastCalledWith('Notifications disabled', {
+      priority: 'polite',
+    });
+  });
+
+  it('names the setting from the aria-labelledby target when there is no title', () => {
+    const announce = renderWithAnnouncer(
+      <SwitchField
+        aria-labelledby='vote-limit-label'
+        defaultChecked={false}
+        id='vote-limit'
+      >
+        <div id='vote-limit-label'>
+          <div className='str-chat__form__switch-field__label__text'>
+            Limit votes per person
+          </div>
+          <div className='str-chat__form__switch-field__label__description'>
+            Choose between 2 to 10 options
+          </div>
+        </div>
+      </SwitchField>,
+    );
+
+    fireEvent.click(screen.getByRole('switch'));
+    // The description must NOT leak into the announced name.
+    expect(announce).toHaveBeenLastCalledWith('Limit votes per person enabled', {
+      priority: 'polite',
+    });
   });
 
   it('does not auto-generate aria-labelledby from children without id', () => {

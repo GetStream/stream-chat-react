@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import type { ComputeItemKey, VirtuosoProps } from 'react-virtuoso';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import type { ComputeItemKey, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
 import type { Thread, ThreadManager, ThreadManagerState } from 'stream-chat';
 
+import { useVirtualizedListboxKeyboardNavigation } from '../../../a11y/hooks/useVirtualizedListboxKeyboardNavigation';
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
 import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from './ThreadListEmptyPlaceholder';
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
@@ -100,6 +101,25 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   const resetByThreadId = useThreadHighlighting(client.threads);
 
+  // Keyboard roving for the thread list (a `role="listbox"` of `role="option"` rows, no row actions
+  // → ArrowUp/Down/Home/End only). The list is virtualized, so only a window of rows exists in the
+  // DOM at a time; `useVirtualizedListboxKeyboardNavigation` indexes into the full `threads` array
+  // and drives Virtuoso's `scrollIntoView` to bring off-window rows into existence before focusing.
+  const virtuosoRef = useRef<VirtuosoHandle>(null);
+  const scrollerRef = useRef<HTMLElement | null>(null);
+
+  const scrollIndexIntoView = useCallback((index: number, onRendered: () => void) => {
+    virtuosoRef.current?.scrollIntoView({ done: onRendered, index });
+  }, []);
+
+  const { onKeyDown } = useVirtualizedListboxKeyboardNavigation({
+    getItemId: (thread) => thread.id,
+    itemIdAttribute: 'data-thread-id',
+    items: threads,
+    scrollerRef,
+    scrollIndexIntoView,
+  });
+
   useThreadList();
 
   if (isLoading && !threads.length) {
@@ -136,7 +156,14 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
             }}
           />
         )}
+        onKeyDown={(event) =>
+          onKeyDown(event as unknown as React.KeyboardEvent<HTMLElement>)
+        }
+        ref={virtuosoRef}
         role='listbox'
+        scrollerRef={(el) => {
+          scrollerRef.current = el instanceof HTMLElement ? el : null;
+        }}
         // TODO: handle visibility (for a button that scrolls to the unread thread)
         // itemsRendered={(items) => console.log({ items })}
         {...virtuosoProps}

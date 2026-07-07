@@ -29,6 +29,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
+import { AriaLiveAnnouncerProvider, AriaLiveOutlet } from '../../Accessibility';
 import { Channel } from '../../Channel/Channel';
 import type { MessageActionsProps } from '../../MessageActions';
 import { MessageActions } from '../../MessageActions';
@@ -281,22 +282,26 @@ const renderComponent = async ({
             ...chatContextOverrides,
           })}
         >
-          <DialogManagerProvider id='message-input-test-dialog-manager'>
-            <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-              <MessageProvider
-                value={fromPartial<MessageContextValue>({
-                  ...defaultMessageContextValue,
-                  ...messageContextOverrides,
-                })}
-              >
-                <MessageActions
-                  disableBaseMessageActionSetFilter
-                  {...messageActionsProps}
-                />
-              </MessageProvider>
-              <MessageComposer {...messageInputProps} />
-            </Channel>
-          </DialogManagerProvider>
+          <AriaLiveAnnouncerProvider>
+            {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
+            <AriaLiveOutlet />
+            <DialogManagerProvider id='message-input-test-dialog-manager'>
+              <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+                <MessageProvider
+                  value={fromPartial<MessageContextValue>({
+                    ...defaultMessageContextValue,
+                    ...messageContextOverrides,
+                  })}
+                >
+                  <MessageActions
+                    disableBaseMessageActionSetFilter
+                    {...messageActionsProps}
+                  />
+                </MessageProvider>
+                <MessageComposer {...messageInputProps} />
+              </Channel>
+            </DialogManagerProvider>
+          </AriaLiveAnnouncerProvider>
         </ChatProvider>
       </WithComponents>,
     );
@@ -1257,11 +1262,21 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
+    // The suggestion list also contains broadcast mentions (e.g. @channel, @here)
+    // injected by the SDK, so assert every mentionable member is listed rather
+    // than matching the raw item count.
+    const mentionableMembers = Object.values(customChannel.state.members)
+      .map((member) => member.user)
+      .filter((mentionUser) => mentionUser && mentionUser.id !== customClient.userID);
+
     await waitFor(() => {
-      const usernameList = document.querySelectorAll('.str-chat__suggestion-list-item');
-      expect(usernameList).toHaveLength(
-        Object.keys(customChannel.state.members).length + 1, // remove own user, add @channel and @here
-      );
+      mentionableMembers.forEach((mentionableUser) => {
+        expect(
+          document.querySelector(
+            `.str-chat__suggestion-list-item[title="${mentionableUser.name ?? mentionableUser.id}"]`,
+          ),
+        ).toBeInTheDocument();
+      });
     });
     Element.prototype.scrollIntoView = scrollIntoView;
   });
@@ -1298,10 +1313,11 @@ describe(`MessageInputFlat`, () => {
     });
 
     await waitFor(() => {
-      expect(container.querySelector('.str-chat__suggestion-list')).toHaveAttribute(
-        'aria-label',
-        'aria/Mention Suggestions',
-      );
+      // The accessible name lives on the listbox container (role="listbox"), not the inner
+      // presentation element.
+      expect(
+        container.querySelector('.str-chat__suggestion-list-container'),
+      ).toHaveAttribute('aria-label', 'aria/Mention Suggestions');
       expect(
         container.querySelectorAll('.str-chat__suggestion-list-item').length,
       ).toBeGreaterThanOrEqual(3);
@@ -1412,10 +1428,12 @@ describe(`MessageInputFlat`, () => {
       });
     });
 
+    // The suggestion list also contains broadcast mentions (e.g. @channel, @here),
+    // so target the user suggestion explicitly instead of the first item.
     await waitFor(() => {
       expect(
-        document.querySelectorAll('.str-chat__suggestion-list-item').length,
-      ).toBeGreaterThan(0);
+        document.querySelector(`.str-chat__suggestion-list-item[title="${mentionName}"]`),
+      ).toBeInTheDocument();
     });
     const mentionItem = screen.getByText(mentionName).closest('button');
     expect(mentionItem).toBeTruthy();
@@ -1437,6 +1455,64 @@ describe(`MessageInputFlat`, () => {
     Element.prototype.scrollIntoView = scrollIntoView;
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  // RW9b: the composer textarea is wired to the suggestion list as an
+  // aria-activedescendant autocomplete (textarea cannot be role="combobox").
+  it('wires the textarea to the suggestion listbox via aria-controls/aria-activedescendant', async () => {
+    const scrollIntoView = Element.prototype.scrollIntoView;
+    // eslint-disable-next-line vitest/prefer-spy-on
+    Element.prototype.scrollIntoView = vi.fn();
+    const { customChannel, customClient } = await setup();
+    await renderComponent({
+      customChannel,
+      customClient,
+      customUser: generateUser(),
+    });
+
+    const textarea = await screen.findByPlaceholderText(inputPlaceholder);
+    // Closed: no dangling references to a listbox that is not rendered.
+    expect(textarea).toHaveAttribute('aria-autocomplete', 'list');
+    expect(textarea).not.toHaveAttribute('aria-controls');
+    expect(textarea).not.toHaveAttribute('aria-activedescendant');
+
+    await act(async () => {
+      await fireEvent.change(textarea, {
+        target: { selectionEnd: 1, selectionStart: 1, value: '@' },
+      });
+    });
+
+    let listbox: HTMLElement;
+    await waitFor(() => {
+      listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+      expect(listbox).toBeInTheDocument();
+    });
+
+    // aria-controls points at the rendered listbox as soon as it opens.
+    const listboxId = listbox!.getAttribute('id');
+    expect(listboxId).toBeTruthy();
+    expect(textarea).toHaveAttribute('aria-controls', listboxId);
+
+    // No active option is advertised on mere filtering — otherwise the SR would re-read the
+    // auto-reset first option on every keystroke. It appears only once the user navigates.
+    expect(textarea).not.toHaveAttribute('aria-activedescendant');
+
+    await act(async () => {
+      await fireEvent.keyDown(textarea, { key: 'ArrowDown' });
+    });
+
+    // After Arrow navigation, aria-activedescendant references an option that exists in the
+    // listbox (so the SR voices it).
+    await waitFor(() => {
+      const activeDescendantId = textarea.getAttribute('aria-activedescendant');
+      expect(activeDescendantId).toBeTruthy();
+      expect(document.getElementById(activeDescendantId!)).toHaveAttribute(
+        'role',
+        'option',
+      );
+    });
+
+    Element.prototype.scrollIntoView = scrollIntoView;
   });
 
   it('should override the default List component when SuggestionList is provided as a prop', async () => {
@@ -1468,6 +1544,178 @@ describe(`MessageInputFlat`, () => {
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
+  });
+
+  describe('Command activation announcement', () => {
+    const giphyCommand = fromPartial<CommandResponse>({
+      args: 'giphy-command-args',
+      description: 'giphy-command-description',
+      name: 'giphy',
+    });
+
+    const getPoliteLiveRegion = () =>
+      screen.getByTestId('str-chat__aria-live-region--polite');
+
+    it('announces the new textarea label when the command activates while the textarea is focused', async () => {
+      const { channel } = await renderComponent();
+      const input = (await screen.findByPlaceholderText(
+        inputPlaceholder,
+      )) as HTMLTextAreaElement;
+
+      await act(() => {
+        input.focus();
+      });
+      expect(document.activeElement).toBe(input);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        expect(getPoliteLiveRegion()).toHaveTextContent('Search GIFs');
+      });
+    });
+
+    it('does not announce the new label when the command activates while focus is elsewhere', async () => {
+      const { channel } = await renderComponent();
+      await screen.findByPlaceholderText(inputPlaceholder);
+
+      const decoyButton = document.createElement('button');
+      decoyButton.textContent = 'decoy';
+      document.body.appendChild(decoyButton);
+      decoyButton.focus();
+      expect(document.activeElement).toBe(decoyButton);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+
+      expect(getPoliteLiveRegion()).toHaveTextContent('');
+
+      decoyButton.remove();
+    });
+  });
+
+  describe('Composer textarea accessible name', () => {
+    const getPoliteLiveRegion = () =>
+      screen.getByTestId('str-chat__aria-live-region--polite');
+
+    // The harness uses a raw ChatProvider (no TranslationProvider), so the
+    // default translator returns i18n keys verbatim without interpolation.
+    const STABLE_LABEL = 'aria/Message input';
+    const USER_SELECTED = 'aria/User selected: {{ user }}';
+
+    // RW13: the textarea must name itself explicitly so it never inherits an
+    // ancestor name (e.g. the ChatView "Channels, tab panel").
+    it('exposes the placeholder as an explicit aria-label while empty', async () => {
+      await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      expect(input).toHaveAttribute('aria-label', inputPlaceholder);
+    });
+
+    // RW10: once the field has content the accessible name must NOT be the
+    // (potentially stale/templated) placeholder, but a stable label.
+    it('switches to a stable explicit aria-label once the field has content', async () => {
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setText('hello world');
+      });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-label', STABLE_LABEL);
+      });
+      // and never the placeholder while content exists
+      expect(input).not.toHaveAttribute('aria-label', inputPlaceholder);
+    });
+
+    // RW10: the command-specific placeholder template must not become the
+    // accessible name once real content is present.
+    it('does not use the command placeholder template as the name when content exists', async () => {
+      const giphyCommand = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+        channel.messageComposer.textComposer.setText('a gif query');
+      });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-label', STABLE_LABEL);
+      });
+      expect(input).not.toHaveAttribute('aria-label', 'Search GIFs');
+    });
+
+    it('names the giphy GIF-search field by its own placeholder while empty', async () => {
+      const giphyCommand = fromPartial<CommandResponse>({
+        args: 'giphy-command-args',
+        description: 'giphy-command-description',
+        name: 'giphy',
+      });
+      const { channel } = await renderComponent();
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.setCommand(giphyCommand);
+      });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-label', 'Search GIFs');
+      });
+    });
+
+    // RW10: announce a one-shot selection confirmation when a user is picked.
+    it('announces a confirmation once when a user mention is selected', async () => {
+      const { channel } = await renderComponent();
+      await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
+      });
+
+      await waitFor(() => {
+        expect(getPoliteLiveRegion()).toHaveTextContent(USER_SELECTED);
+      });
+    });
+
+    // RW10: unrelated state changes must not re-fire the selection announcement.
+    it('does not re-announce a selection on subsequent unrelated state changes', async () => {
+      const { channel } = await renderComponent();
+      await screen.findByPlaceholderText(inputPlaceholder);
+
+      await act(() => {
+        channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
+      });
+
+      await waitFor(() => {
+        expect(getPoliteLiveRegion()).toHaveTextContent(USER_SELECTED);
+      });
+
+      // A text-only change must not re-announce the selection.
+      await act(() => {
+        channel.messageComposer.textComposer.setText('@mention-name typing more');
+      });
+
+      // Re-upserting the SAME user (already present) must not re-announce.
+      await act(() => {
+        channel.messageComposer.textComposer.upsertMentionedUser(mentionUser);
+      });
+
+      // exactly one occurrence — no double announce
+      const occurrences = getPoliteLiveRegion().textContent?.match(
+        new RegExp(USER_SELECTED.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'),
+      );
+      expect(occurrences).toHaveLength(1);
+    });
   });
 
   describe('Command dismissal', () => {
@@ -1872,6 +2120,11 @@ describe(`MessageInputFlat`, () => {
           document.querySelector('.str-chat__suggestion-list'),
         ).not.toBeInTheDocument();
       });
+
+      // RW9b: with the listbox suppressed, the textarea must not advertise a
+      // dangling aria-controls/aria-activedescendant pointing at a missing element.
+      expect(textarea).not.toHaveAttribute('aria-controls');
+      expect(textarea).not.toHaveAttribute('aria-activedescendant');
 
       Element.prototype.scrollIntoView = scrollIntoView;
     });

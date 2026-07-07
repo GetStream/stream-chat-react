@@ -14,7 +14,11 @@ const ContextMenuTestSubmenu = () => {
   );
 };
 
-const ContextMenuOpenSubmenuButton = () => {
+const ContextMenuOpenSubmenuButton = ({
+  initialFocus,
+}: {
+  initialFocus?: 'first' | 'first-item' | 'none';
+}) => {
   const { openSubmenu } = useContextMenuContext();
 
   return (
@@ -22,6 +26,7 @@ const ContextMenuOpenSubmenuButton = () => {
       onClick={(event) => {
         openSubmenu({
           focusReturnTarget: event.currentTarget,
+          initialFocus,
           Submenu: ContextMenuTestSubmenu,
         });
       }}
@@ -35,10 +40,14 @@ const ContextMenuFixture = ({
   hiddenItemBeforeSubmenuTrigger,
   hiddenItemIndex,
   includeSubmenuTrigger,
+  submenuInitialFocus,
+  trapFocus = true,
 }: {
   hiddenItemBeforeSubmenuTrigger?: boolean;
   hiddenItemIndex?: number;
   includeSubmenuTrigger?: boolean;
+  submenuInitialFocus?: 'first' | 'first-item' | 'none';
+  trapFocus?: boolean;
 }) => {
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -62,14 +71,16 @@ const ContextMenuFixture = ({
         placement='bottom-start'
         referenceElement={referenceElement}
         tabIndex={-1}
-        trapFocus
+        trapFocus={trapFocus}
       >
         {hiddenItemBeforeSubmenuTrigger && (
           <ContextMenuButton style={{ display: 'none' }}>
             Hidden before submenu trigger
           </ContextMenuButton>
         )}
-        {includeSubmenuTrigger && <ContextMenuOpenSubmenuButton />}
+        {includeSubmenuTrigger && (
+          <ContextMenuOpenSubmenuButton initialFocus={submenuInitialFocus} />
+        )}
         <ContextMenuButton
           style={hiddenItemIndex === 0 ? { display: 'none' } : undefined}
         >
@@ -227,6 +238,7 @@ describe('ContextMenu keyboard navigation', () => {
     parentItem.focus();
 
     fireEvent.click(parentItem);
+    expect(screen.getByRole('menu')).toHaveAttribute('aria-label', 'aria/Submenu');
 
     const submenuItems = screen.getAllByRole('menuitem') as HTMLButtonElement[];
     // The back button (rendered by default ContextMenuBackButton) should be
@@ -235,12 +247,72 @@ describe('ContextMenu keyboard navigation', () => {
       item.classList.contains('str-chat__context-menu__back-button'),
     );
     expect(backButton).toBeDefined();
+    expect(backButton).toHaveAccessibleName(/aria\/Back to parent menu/i);
 
     const submenuItem = screen.getByRole('menuitem', { name: 'Back from submenu' });
     submenuItem.focus();
 
     fireEvent.keyDown(submenuItem, { key: 'ArrowUp' });
     expect(backButton).toHaveFocus();
+  });
+
+  it('moves focus to the first content item when a submenu opens (default initialFocus)', async () => {
+    render(
+      <DialogManagerProvider>
+        <ContextMenuFixture includeSubmenuTrigger />
+      </DialogManagerProvider>,
+    );
+
+    await openMenu();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Open submenu' }));
+
+    // Forward navigation focuses the first NON-header item (the back-button header is skipped).
+    await waitFor(() =>
+      expect(screen.getByRole('menuitem', { name: 'Back from submenu' })).toHaveFocus(),
+    );
+  });
+
+  it('focuses the back-button header when initialFocus="first"', async () => {
+    render(
+      <DialogManagerProvider>
+        <ContextMenuFixture includeSubmenuTrigger submenuInitialFocus='first' />
+      </DialogManagerProvider>,
+    );
+
+    await openMenu();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Open submenu' }));
+
+    await waitFor(() => {
+      const backButton = (screen.getAllByRole('menuitem') as HTMLElement[]).find((item) =>
+        item.classList.contains('str-chat__context-menu__back-button'),
+      );
+      expect(backButton).toHaveFocus();
+    });
+  });
+
+  it('does not move focus into the submenu when initialFocus="none"', async () => {
+    render(
+      <DialogManagerProvider>
+        <ContextMenuFixture
+          includeSubmenuTrigger
+          submenuInitialFocus='none'
+          trapFocus={false}
+        />
+      </DialogManagerProvider>,
+    );
+
+    await openMenu();
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Open submenu' }));
+
+    // The submenu renders, but our forward-focus is opted out — focus falls to <body> (the parent
+    // trigger unmounted) rather than being placed on an item.
+    await screen.findByRole('menuitem', { name: 'Back from submenu' });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.getByRole('menuitem', { name: 'Back from submenu' })).not.toHaveFocus();
+    const backButton = (screen.getAllByRole('menuitem') as HTMLElement[]).find((item) =>
+      item.classList.contains('str-chat__context-menu__back-button'),
+    );
+    expect(backButton).not.toHaveFocus();
   });
 
   it('restores focus to parent item when returning from submenu', async () => {
