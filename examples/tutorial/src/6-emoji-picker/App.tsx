@@ -12,7 +12,7 @@ import {
   Window,
   WithComponents,
 } from 'stream-chat-react';
-import { EmojiPicker } from 'stream-chat-react/emojis';
+import { StreamEmojiPicker } from 'stream-chat-react/emojis';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
@@ -61,7 +61,7 @@ const App = () => {
 
   return (
     <Chat client={client}>
-      <WithComponents overrides={{ EmojiPicker }}>
+      <WithComponents overrides={{ EmojiPicker: StreamEmojiPicker }}>
         <ChannelList filters={filters} sort={sort} />
         <Channel>
           <Window>

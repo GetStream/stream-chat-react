@@ -1,16 +1,22 @@
-import { useState } from 'react';
+import EmojiMartPickerImport from '@emoji-mart/react';
+import { type ComponentType, useState } from 'react';
 import { Button } from 'stream-chat-react';
 import { EmojiPickerPanel, type EmojiSelection } from 'stream-chat-react/emojis';
 import {
   appSettingsStore,
   DEFAULT_EMOJI_PICKER_SETTINGS,
   type EmojiPickerSettingsState,
+  useAppSettingsSelector,
   useAppSettingsState,
 } from '../../state';
 import {
   SettingsTabBody,
   SettingsTabLayoutHeader,
 } from '../SettingsTabLayoutComponents.tsx';
+
+// @emoji-mart/react ships CJS-on-default; unwrap for strict-ESM (Vite 8) interop.
+const EmojiMart = ((EmojiMartPickerImport as { default?: unknown }).default ??
+  EmojiMartPickerImport) as ComponentType<Record<string, unknown>>;
 
 type EmojiPickerTabProps = {
   close: () => void;
@@ -66,8 +72,23 @@ const numberOptions = (values: number[]) =>
  * exercised too.
  */
 const EmojiPickerPreview = ({ options }: { options: EmojiPickerSettingsState }) => {
+  const { mode } = useAppSettingsSelector((state) => state.theme);
+  const { engine, ...pickerOptions } = options;
   const [skinTone, setSkinTone] = useState(0);
   const [frequentlyUsedIds, setFrequentlyUsedIds] = useState<string[]>([]);
+
+  // The deprecated emoji-mart picker renders inline too and honors the same
+  // emoji-mart-compatible option names, so the same controls drive both engines.
+  if (engine === 'emoji-mart') {
+    return (
+      <EmojiMart
+        {...pickerOptions}
+        data={async () => (await import('@emoji-mart/data')).default}
+        onEmojiSelect={() => undefined}
+        theme={mode}
+      />
+    );
+  }
 
   return (
     <EmojiPickerPanel
@@ -76,7 +97,7 @@ const EmojiPickerPreview = ({ options }: { options: EmojiPickerSettingsState }) 
         setFrequentlyUsedIds((ids) => [emoji.id, ...ids.filter((id) => id !== emoji.id)])
       }
       onSkinToneChange={setSkinTone}
-      options={{ ...options, exceptEmojis: [] }}
+      options={{ ...pickerOptions, exceptEmojis: [] }}
       skinToneIndex={skinTone}
     />
   );
@@ -97,7 +118,7 @@ export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
     <div className='app__settings-modal__content-stack'>
       <SettingsTabLayoutHeader
         close={close}
-        description='Configure the built-in EmojiPicker via pickerProps. The live preview and the composer’s picker both update instantly.'
+        description='Switch between the Stream (native) and deprecated emoji-mart pickers, and configure pickerProps. The live preview and the composer’s picker both update instantly.'
         title='Emoji Picker'
       />
 
@@ -117,6 +138,15 @@ export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
                 Reset to defaults
               </Button>
             </div>
+            <Field<EmojiPickerSettingsState['engine']>
+              label='Picker engine'
+              onSelect={(engine) => update({ engine })}
+              options={[
+                { label: 'Stream (native)', value: 'stream' },
+                { label: 'emoji-mart (deprecated)', value: 'emoji-mart' },
+              ]}
+              value={emojiPicker.engine}
+            />
             <Field<EmojiPickerSettingsState['navPosition']>
               label='Navigation position'
               onSelect={(navPosition) => update({ navPosition })}

@@ -42,6 +42,7 @@ import {
   createTextComposerEmojiMiddleware,
   EmojiPicker,
   loadDefaultExtendedReactionOptions,
+  StreamEmojiPicker,
 } from 'stream-chat-react/emojis';
 import { humanId } from 'human-id';
 
@@ -198,17 +199,25 @@ const writeStored = (key: string, value: unknown) => {
 };
 
 const EmojiPickerWithCustomOptions = (
-  props: React.ComponentProps<typeof EmojiPicker>,
+  props: React.ComponentProps<typeof StreamEmojiPicker>,
 ) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
-  const emojiPicker = useAppSettingsSelector((state) => state.emojiPicker);
+  const { engine, ...pickerOptions } = useAppSettingsSelector(
+    (state) => state.emojiPicker,
+  );
   const [skinTone, setSkinTone] = useState(() => readStored(EMOJI_SKIN_TONE_KEY, 0));
   const [frequentlyUsedEmoji, setFrequentlyUsedEmoji] = useState(() =>
     readStored<string[]>(EMOJI_FREQUENTLY_USED_KEY, []),
   );
 
+  // The deprecated emoji-mart picker self-manages skin tone + frequently-used and
+  // accepts the same emoji-mart-compatible option names, so it only needs pickerProps.
+  if (engine === 'emoji-mart') {
+    return <EmojiPicker pickerProps={{ ...pickerOptions, theme: mode }} />;
+  }
+
   return (
-    <EmojiPicker
+    <StreamEmojiPicker
       {...props}
       frequentlyUsedEmoji={frequentlyUsedEmoji}
       onFrequentlyUsedChange={(ids) => {
@@ -221,7 +230,7 @@ const EmojiPickerWithCustomOptions = (
       }}
       pickerProps={{
         ...props.pickerProps,
-        ...emojiPicker,
+        ...pickerOptions,
         theme: mode,
       }}
       skinTone={skinTone}

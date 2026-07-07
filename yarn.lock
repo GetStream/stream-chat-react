@@ -614,10 +614,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emoji-mart/data@npm:1.2.1":
+"@emoji-mart/data@npm:1.2.1, @emoji-mart/data@npm:^1.2.1":
   version: 1.2.1
   resolution: "@emoji-mart/data@npm:1.2.1"
   checksum: 10c0/6784b97bf49a0d3ff110d8447bbd3b0449fcbc497294be3d1c3a6cb1609308776895c7520200be604cbecaa5e172c76927e47f34419c72ba8a76fd4e5a53674b
+  languageName: node
+  linkType: hard
+
+"@emoji-mart/react@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@emoji-mart/react@npm:1.1.1"
+  peerDependencies:
+    emoji-mart: ^5.2
+    react: ^16.8 || ^17 || ^18
+  checksum: 10c0/88a9c8c24bbc5695f0ed2458734c9982c965a16db1999bc731c7cce77f9bf228f1871e899744f9a3f9fdd36a11db7ad6c0e049d710cb91c66c69a2cd4d2ee40a
   languageName: node
   linkType: hard
 
@@ -2079,6 +2089,8 @@ __metadata:
   resolution: "@stream-io/stream-chat-react-vite@workspace:examples/vite"
   dependencies:
     "@babel/core": "npm:^7.29.0"
+    "@emoji-mart/data": "npm:^1.2.1"
+    "@emoji-mart/react": "npm:^1.1.1"
     "@playwright/test": "npm:^1.60.0"
     "@types/react": "npm:^19.2.15"
     "@types/react-dom": "npm:^19.2.3"
@@ -2086,6 +2098,7 @@ __metadata:
     "@vitejs/plugin-react-swc": "npm:^4.3.1"
     babel-plugin-react-compiler: "npm:^1.0.0"
     clsx: "npm:^2.1.1"
+    emoji-mart: "npm:^5.6.0"
     human-id: "npm:^4.1.3"
     modern-normalize: "npm:^3.0.1"
     react: "npm:^19.2.6"
@@ -4237,6 +4250,13 @@ __metadata:
   version: 1.5.353
   resolution: "electron-to-chromium@npm:1.5.353"
   checksum: 10c0/a5481023e4056d8773b5ccd646906123d82f2821466b26b521b96c9645d0714c5be6a5af792ec8477b904a5fcfe3794bfc45d2acbf8b306f4693842fb85a7cd4
+  languageName: node
+  linkType: hard
+
+"emoji-mart@npm:^5.6.0":
+  version: 5.6.0
+  resolution: "emoji-mart@npm:5.6.0"
+  checksum: 10c0/23e68ab10984f101b696d8f8e103e553ffa8e4d644e9a315190a9657903f71b833db09aac51b05de20f33bb9eef5bc1425eecdb2437042b25aff2dad0231f029
   languageName: node
   linkType: hard
 
@@ -10021,6 +10041,7 @@ __metadata:
     "@commitlint/cli": "npm:^21.0.1"
     "@commitlint/config-conventional": "npm:^21.0.1"
     "@emoji-mart/data": "npm:1.2.1"
+    "@emoji-mart/react": "npm:^1.1.1"
     "@eslint/js": "npm:^9.39.4"
     "@floating-ui/react": "npm:^0.27.19"
     "@react-aria/focus": "npm:^3.22.0"
@@ -10048,6 +10069,7 @@ __metadata:
     concurrently: "npm:^9.2.1"
     conventional-changelog-conventionalcommits: "npm:^9.3.1"
     dayjs: "npm:^1.11.20"
+    emoji-mart: "npm:^5.6.0"
     emoji-regex: "npm:^9.2.2"
     eslint: "npm:^9.39.4"
     eslint-plugin-import: "npm:^2.32.0"
@@ -10092,6 +10114,9 @@ __metadata:
     vitest-axe: "npm:^0.1.0"
   peerDependencies:
     "@breezystack/lamejs": ^1.2.7
+    "@emoji-mart/data": ^1.1.0
+    "@emoji-mart/react": ^1.1.0
+    emoji-mart: ^5.4.0
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
@@ -10109,6 +10134,12 @@ __metadata:
       built: true
   peerDependenciesMeta:
     "@breezystack/lamejs":
+      optional: true
+    "@emoji-mart/data":
+      optional: true
+    "@emoji-mart/react":
+      optional: true
+    emoji-mart:
       optional: true
     modern-normalize:
       optional: true

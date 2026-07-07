@@ -1,57 +1,36 @@
-import type { AriaAttributes, MouseEventHandler, ReactNode } from 'react';
+import type { MouseEventHandler, ReactNode } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-// The panel is mounted only while the picker is open, so mock it to a controllable
-// stub. This lets us assert that the owner (EmojiPicker) preserves skin tone and
-// frequently-used across open/close — without depending on the real panel's
-// virtualized grid + async data load, which don't render reliably in jsdom.
-vi.mock('../components', () => ({
-  EmojiPickerPanel: ({
-    frequentlyUsedIds = [],
-    onEmojiSelect,
-    onSkinToneChange,
-    skinToneIndex = 0,
-  }: {
-    frequentlyUsedIds?: string[];
-    onEmojiSelect: (emoji: { id: string; name: string; native: string }) => void;
-    onSkinToneChange?: (skinTone: number) => void;
-    skinToneIndex?: number;
-  }) => (
-    <div data-testid='panel'>
-      <span data-testid='skin-tone'>{skinToneIndex}</span>
-      <span data-testid='frequently-used'>{frequentlyUsedIds.join(',')}</span>
-      <button onClick={() => onSkinToneChange?.(4)} type='button'>
-        set-skin
-      </button>
-      <button
-        onClick={() => onEmojiSelect({ id: 'rocket', name: 'Rocket', native: '🚀' })}
-        type='button'
-      >
-        select-rocket
+// Mock emoji-mart's Picker so jsdom doesn't render the real web component.
+vi.mock('@emoji-mart/react', () => ({
+  default: ({ onEmojiSelect }: { onEmojiSelect: (e: { native: string }) => void }) => (
+    <div data-testid='em-picker'>
+      <button onClick={() => onEmojiSelect({ native: '🚀' })} type='button'>
+        pick
       </button>
     </div>
   ),
 }));
+vi.mock('@emoji-mart/data', () => ({ default: {} }));
 
-// Mutable so a test can simulate "no textarea to insert into" (textareaRef.current null).
 const { textareaRef } = vi.hoisted(() => ({
-  textareaRef: { current: null as HTMLTextAreaElement | null },
+  textareaRef: {
+    current: document.createElement('textarea') as HTMLTextAreaElement | null,
+  },
 }));
+const insertText = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../context', () => ({
   useMessageComposerContext: () => ({ textareaRef }),
   useTranslationContext: () => ({ t: (key: string) => key }),
 }));
-
 vi.mock('../../../components', async () => {
   const { forwardRef } = await import('react');
   return {
     Button: forwardRef<HTMLButtonElement, Record<string, unknown>>(
       function Button(props, ref) {
-        // Forward only the DOM-valid props the test needs; styling props are dropped.
         return (
           <button
-            aria-haspopup={props['aria-haspopup'] as AriaAttributes['aria-haspopup']}
             aria-label={props['aria-label'] as string | undefined}
             onClick={props.onClick as MouseEventHandler<HTMLButtonElement> | undefined}
             ref={ref}
@@ -63,10 +42,9 @@ vi.mock('../../../components', async () => {
       },
     ),
     IconEmoji: () => <span>emoji</span>,
-    useMessageComposerController: () => ({ textComposer: { insertText: vi.fn() } }),
+    useMessageComposerController: () => ({ textComposer: { insertText } }),
   };
 });
-
 vi.mock('../../../components/Dialog/hooks/usePopoverPosition', () => ({
   usePopoverPosition: () => ({
     refs: { setFloating: vi.fn(), setReference: vi.fn() },
@@ -75,97 +53,34 @@ vi.mock('../../../components/Dialog/hooks/usePopoverPosition', () => ({
     y: 0,
   }),
 }));
-
 vi.mock('../../../components/MessageComposer/hooks/useIsCooldownActive', () => ({
   useIsCooldownActive: () => false,
 }));
 
-// Imported after the mocks so the mocked dependencies are in place.
 import { EmojiPicker } from '../EmojiPicker';
 
-const openPicker = () => fireEvent.click(screen.getByLabelText('aria/Emoji picker'));
-
-beforeEach(() => {
-  textareaRef.current = document.createElement('textarea');
-});
-
-describe('EmojiPicker session state', () => {
-  it('keeps skin tone and frequently-used across close and reopen (incl. closeOnEmojiSelect)', () => {
-    render(<EmojiPicker closeOnEmojiSelect />);
-
-    openPicker();
-    expect(screen.getByTestId('skin-tone')).toHaveTextContent('0');
-    expect(screen.getByTestId('frequently-used')).toHaveTextContent('');
-
-    // Change skin tone, then select an emoji — selecting closes the picker.
-    fireEvent.click(screen.getByText('set-skin'));
-    expect(screen.getByTestId('skin-tone')).toHaveTextContent('4');
-    fireEvent.click(screen.getByText('select-rocket'));
-
-    // Panel (and any state it might have held) is unmounted.
-    expect(screen.queryByTestId('panel')).not.toBeInTheDocument();
-
-    // Reopening shows the retained skin tone and the just-used emoji.
-    openPicker();
-    expect(screen.getByTestId('skin-tone')).toHaveTextContent('4');
-    expect(screen.getByTestId('frequently-used')).toHaveTextContent('rocket');
-  });
-
-  it('does not record a frequently-used emoji when there is no textarea to insert into', () => {
-    textareaRef.current = null;
-    render(<EmojiPicker />);
-
-    openPicker();
-    expect(screen.getByTestId('frequently-used').textContent).toBe('');
-
-    // Selecting can't insert (no textarea), so it must not be recorded as "used".
-    fireEvent.click(screen.getByText('select-rocket'));
-    expect(screen.getByTestId('frequently-used').textContent).toBe('');
-  });
-
-  it('marks the toggle button as opening a dialog popup', () => {
-    render(<EmojiPicker />);
-    expect(screen.getByLabelText('aria/Emoji picker')).toHaveAttribute(
-      'aria-haspopup',
-      'dialog',
-    );
-  });
-});
-
-describe('EmojiPicker pickerProps', () => {
-  it('warns about unsupported (emoji-mart) pickerProps, but not about theme/style', () => {
+describe('EmojiPicker (deprecated emoji-mart)', () => {
+  it('warns once about deprecation, naming the successor', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    const { unmount } = render(
-      <EmojiPicker
-        // @ts-expect-error emoji-mart-only Picker options (image sets) are not supported
-        pickerProps={{ set: 'apple', theme: 'dark' }}
-      />,
-    );
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('set'));
+    const { unmount } = render(<EmojiPicker />);
+    expect(warn).toHaveBeenCalledTimes(1);
+    expect(warn.mock.calls[0][0]).toMatch(/deprecated/i);
+    expect(warn.mock.calls[0][0]).toMatch(/StreamEmojiPicker/);
+    expect(warn.mock.calls[0][0]).toMatch(/v15/);
     unmount();
 
     warn.mockClear();
-    render(<EmojiPicker pickerProps={{ style: { width: 320 }, theme: 'light' }} />);
-    expect(warn).not.toHaveBeenCalled();
-
-    warn.mockRestore();
-  });
-
-  it('does not warn when only supported (curated) picker options are passed', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    render(
-      <EmojiPicker pickerProps={{ navPosition: 'bottom', perLine: 8, theme: 'light' }} />,
-    );
+    render(<EmojiPicker />); // module-level flag → no second warning
     expect(warn).not.toHaveBeenCalled();
     warn.mockRestore();
   });
 
-  it('calls onClickOutside when a pointer press lands outside the open picker', () => {
-    const onClickOutside = vi.fn();
-    render(<EmojiPicker pickerProps={{ onClickOutside }} />);
-    openPicker();
-    fireEvent.pointerDown(document.body);
-    expect(onClickOutside).toHaveBeenCalledTimes(1);
+  it('renders emoji-mart Picker when opened and inserts the chosen emoji', () => {
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    render(<EmojiPicker />);
+    fireEvent.click(screen.getByLabelText('aria/Emoji picker'));
+    expect(screen.getByTestId('em-picker')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('pick'));
+    expect(insertText).toHaveBeenCalledWith({ text: '🚀' });
   });
 });

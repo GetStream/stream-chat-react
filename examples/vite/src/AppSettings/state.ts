@@ -13,6 +13,7 @@ export type ChatViewSettingsState = {
 
 export type EmojiPickerSettingsState = {
   autoFocus: boolean;
+  engine: 'emoji-mart' | 'stream';
   maxFrequentRows: number;
   navPosition: 'top' | 'bottom' | 'none';
   noCountryFlags: boolean;
@@ -25,6 +26,7 @@ export type EmojiPickerSettingsState = {
 // Mirrors the SDK's EmojiPicker defaults; the settings tab resets to this.
 export const DEFAULT_EMOJI_PICKER_SETTINGS: EmojiPickerSettingsState = {
   autoFocus: true,
+  engine: 'stream',
   maxFrequentRows: 1,
   navPosition: 'top',
   noCountryFlags: false,

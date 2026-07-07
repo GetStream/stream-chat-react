@@ -105,6 +105,9 @@
   },
   "peerDependencies": {
     "@breezystack/lamejs": "^1.2.7",
+    "@emoji-mart/data": "^1.1.0",
+    "@emoji-mart/react": "^1.1.0",
+    "emoji-mart": "^5.4.0",
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
@@ -112,6 +115,15 @@
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
+      "optional": true
+    },
+    "@emoji-mart/data": {
+      "optional": true
+    },
+    "@emoji-mart/react": {
+      "optional": true
+    },
+    "emoji-mart": {
       "optional": true
     },
     "modern-normalize": {
@@ -129,6 +141,7 @@
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@emoji-mart/data": "1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@eslint/js": "^9.39.4",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
@@ -151,6 +164,7 @@
     "@vitest/eslint-plugin": "^1.6.20",
     "concurrently": "^9.2.1",
     "conventional-changelog-conventionalcommits": "^9.3.1",
+    "emoji-mart": "^5.6.0",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",

@@ -241,12 +241,18 @@ const CustomMessage = () => {
 
 **User intent**: "Add emoji picker and autocomplete"
 
-Emoji support is built into the SDK — no `emoji-mart` packages or `init()` call are
-required.
+Emoji support is built into the SDK — the **`StreamEmojiPicker`** needs no `emoji-mart`
+packages or `init()` call.
+
+> **Deprecation:** the `EmojiPicker` export from `stream-chat-react/emojis` is the legacy
+> **emoji-mart-backed** picker. It still works unchanged for backwards compatibility, but
+> is **deprecated and will be removed in v15** and logs a one-time console warning. New
+> integrations should use `StreamEmojiPicker`; existing emoji-mart integrations keep
+> working until you migrate (see _Migrating from emoji-mart_ below).
 
 **Steps**:
 
-1. Import `EmojiPicker` from `stream-chat-react/emojis` and pass it to `Channel`.
+1. Import `StreamEmojiPicker` from `stream-chat-react/emojis` and pass it to `Channel`.
 2. Import the emoji picker's stylesheet: `import 'stream-chat-react/css/emoji-picker.css'`.
    It is intentionally **not** part of `index.css` (so apps that don't use the picker
    ship no emoji CSS); without it the picker panel renders unstyled.
@@ -255,20 +261,20 @@ required.
    `createTextComposerEmojiMiddleware()` (no argument — it uses the built-in index).
 
 ```tsx
-import { EmojiPicker } from 'stream-chat-react/emojis';
+import { StreamEmojiPicker } from 'stream-chat-react/emojis';
 import 'stream-chat-react/css/emoji-picker.css';
 
-<Channel EmojiPicker={EmojiPicker}>{/* ... */}</Channel>;
+<Channel EmojiPicker={StreamEmojiPicker}>{/* ... */}</Channel>;
 ```
 
 **Notes**:
 
 - Passing a custom `emojiSearchIndex` (including emoji-mart's `SearchIndex`) is
   still supported for advanced use.
-- Skin tone and "frequently used" are integrator-managed props on `EmojiPicker`
+- On `StreamEmojiPicker`, skin tone and "frequently used" are integrator-managed props
   (`skinTone`/`onSkinToneChange`, `frequentlyUsedEmoji`/`onFrequentlyUsedChange`);
   the SDK does not persist them. See `examples/vite/` for a localStorage example.
-- `pickerProps` accepts a curated set of emoji-mart-compatible `Picker` options (plus
+- On `StreamEmojiPicker`, `pickerProps` accepts a curated set of emoji-mart-compatible `Picker` options (plus
   `theme` and `style`):
   - **Layout**: `navPosition` / `previewPosition` (`'top' | 'bottom' | 'none'`),
     `searchPosition` (`'sticky' | 'static' | 'none'`), `skinTonePosition`
@@ -311,6 +317,13 @@ import 'stream-chat-react/css/emoji-picker.css';
   ```
 
   For a curated subset instead, build the `extended` map yourself with `mapEmojiMartData`.
+
+- **Migrating from emoji-mart** (the deprecated `EmojiPicker`): swap `EmojiPicker` →
+  `StreamEmojiPicker`, then remove the `emoji-mart` / `@emoji-mart/react` /
+  `@emoji-mart/data` installs and any `init({ data })` call. The deprecated `EmojiPicker`
+  still accepts raw emoji-mart `pickerProps` (e.g. `set`, `emojiSize`); `StreamEmojiPicker`
+  uses the curated `pickerProps` above. Autocomplete (`createTextComposerEmojiMiddleware`)
+  and reactions (`mapEmojiMartData`) are engine-agnostic and need no changes.
 
 **Reference**: See `examples/tutorial/src/6-emoji-picker/`
 

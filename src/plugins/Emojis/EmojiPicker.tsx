@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import PickerImport from '@emoji-mart/react';
 
 import { useMessageComposerContext, useTranslationContext } from '../../context';
 import {
@@ -9,24 +10,19 @@ import {
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
-import { EmojiPickerPanel } from './components';
-import { useFrequentlyUsedEmoji } from './hooks/useFrequentlyUsedEmoji';
-import { useSkinTone } from './hooks/useSkinTone';
-import {
-  type EmojiPickerPassthroughProps,
-  resolveEmojiPickerOptions,
-  warnUnsupportedPickerProps,
-} from './options';
+
+// @emoji-mart/react ships as CJS with the component on `exports.default`. Under
+// spec-strict ESM interop (e.g. Vite 8 / Rolldown, native Node ESM) a default
+// import yields the module namespace `{ default }` instead of the component,
+// which makes React throw "Element type is invalid ... got: object". Unwrap the
+// default defensively so it works regardless of interop.
+const Picker =
+  (PickerImport as unknown as { default?: typeof PickerImport }).default ?? PickerImport;
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
-export type {
-  EmojiPickerNavPosition,
-  EmojiPickerPassthroughProps,
-  EmojiPickerPreviewPosition,
-  EmojiPickerSearchPosition,
-  EmojiPickerSkinTonePosition,
-} from './options';
+// Warn at most once per session that this engine is going away.
+let hasWarnedEmojiMartDeprecation = false;
 
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
@@ -35,37 +31,14 @@ export type EmojiPickerProps = {
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
   /**
-   * Presentation + curated layout/behavior options for the picker panel, using
-   * emoji-mart-compatible names (`theme`, `style`, `perLine`, `navPosition`,
-   * `previewPosition`, `searchPosition`, `skinTonePosition`, `categories`,
-   * `exceptEmojis`, `emojiVersion`, `maxFrequentRows`, `noCountryFlags`,
-   * `previewEmoji`, `noResultsEmoji`, `autoFocus`, `onClickOutside`).
-   *
-   * Not every emoji-mart `Picker` option is supported: image sets (`set`,
-   * `getSpritesheetURL`), `custom` emoji, `data`, `i18n`/`locale`, `dynamicWidth`,
-   * `icons`, and `categoryIcons` are rejected by the type and ignored (with a console
-   * warning) at runtime; sizing knobs (`emojiSize`, …) are CSS tokens instead. See the
-   * emoji migration notes in `AI.md`.
+   * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.6.0#options--props) to be
+   * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.6.0#-picker) component
    */
-  pickerProps?: EmojiPickerPassthroughProps;
+  pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
   /**
    * Floating UI placement (default: 'top-end') for the picker popover
    */
   placement?: PopperLikePlacement;
-  /** Uncontrolled initial skin tone index (0 = default, 1–5 = light → dark). */
-  defaultSkinTone?: number;
-  /**
-   * Controlled ordered list of recently used emoji ids (most recent first). The SDK
-   * does not persist this — provide it (and `onFrequentlyUsedChange`) to control the
-   * "frequently used" section; otherwise it is tracked in memory for the session.
-   */
-  frequentlyUsedEmoji?: string[];
-  /** Called with the updated recently-used list when an emoji is selected. */
-  onFrequentlyUsedChange?: (emojiIds: string[]) => void;
-  /** Called with the new skin tone index when it changes. */
-  onSkinToneChange?: (skinTone: number) => void;
-  /** Controlled skin tone index (0 = default, 1–5 = light → dark). */
-  skinTone?: number;
 };
 
 const defaultButtonClassName = 'str-chat__emoji-picker-button';
@@ -78,22 +51,16 @@ const classNames: Pick<
   wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
 
+/**
+ * @deprecated The emoji-mart-based `EmojiPicker` will be removed in v15. Switch to
+ * `StreamEmojiPicker` from `stream-chat-react/emojis`, which needs no emoji-mart
+ * packages. See the emoji section of `AI.md` for migration notes.
+ */
 export const EmojiPicker = (props: EmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
   const { textareaRef } = useMessageComposerContext('EmojiPicker');
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
-  // Skin tone and frequently-used live here (not in the panel) so they survive the
-  // picker opening/closing — the panel below is mounted only while open.
-  const [skinTone, setSkinTone] = useSkinTone({
-    defaultSkinTone: props.defaultSkinTone,
-    onSkinToneChange: props.onSkinToneChange,
-    skinTone: props.skinTone,
-  });
-  const { frequentlyUsedIds, recordUse } = useFrequentlyUsedEmoji({
-    frequentlyUsedEmoji: props.frequentlyUsedEmoji,
-    onFrequentlyUsedChange: props.onFrequentlyUsedChange,
-  });
   const [displayPicker, setDisplayPicker] = useState(false);
   const [referenceElement, setReferenceElement] = useState<HTMLButtonElement | null>(
     null,
@@ -105,6 +72,15 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   });
 
   useEffect(() => {
+    if (hasWarnedEmojiMartDeprecation) return;
+    hasWarnedEmojiMartDeprecation = true;
+    console.warn(
+      '[stream-chat-react] The `emoji-mart`-based `EmojiPicker` is deprecated and will be removed in the next major version. ' +
+        'Switch to `StreamEmojiPicker` from `stream-chat-react/emojis` as it offers the same functionality without 3rd party dependencies.',
+    );
+  }, []);
+
+  useEffect(() => {
     refs.setReference(referenceElement);
   }, [referenceElement, refs]);
   useEffect(() => {
@@ -114,19 +90,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
   const { ButtonIconComponent = IconEmoji } = props;
-  const pickerStyle = props.pickerProps?.style;
-  const options = resolveEmojiPickerOptions(props.pickerProps);
-  // Latest-ref so the click-outside listener isn't re-attached when the callback identity
-  // changes between renders.
-  const onClickOutsideRef = useRef(props.pickerProps?.onClickOutside);
-  onClickOutsideRef.current = props.pickerProps?.onClickOutside;
-
-  const pickerPropsKeys = Object.keys(props.pickerProps ?? {});
-  useEffect(() => {
-    warnUnsupportedPickerProps(props.pickerProps);
-    // Re-check only when the set of provided keys changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickerPropsKeys.join(',')]);
+  const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -143,7 +107,6 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         return;
       }
 
-      onClickOutsideRef.current?.();
       setDisplayPicker(false);
     };
 
@@ -159,35 +122,25 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
           ref={setPopperElement}
           style={{ left: x ?? 0, position: strategy, top: y ?? 0 }}
         >
-          <EmojiPickerPanel
-            frequentlyUsedIds={frequentlyUsedIds}
-            onClose={() => {
-              setDisplayPicker(false);
-              referenceElement?.focus();
-            }}
-            onEmojiSelect={(emoji) => {
+          <Picker
+            data={async () => (await import('@emoji-mart/data')).default}
+            onEmojiSelect={(e: { native: string }) => {
               const textarea = textareaRef.current;
               if (!textarea) return;
-              // Record only once we know the emoji is actually being inserted.
-              recordUse(emoji.id);
-              textComposer.insertText({ text: emoji.native });
+              textComposer.insertText({ text: e.native });
               textarea.focus();
               if (props.closeOnEmojiSelect) {
                 setDisplayPicker(false);
               }
             }}
-            onSkinToneChange={setSkinTone}
-            options={options}
-            skinToneIndex={skinTone}
-            style={pickerStyle}
-            theme={props.pickerProps?.theme}
+            {...props.pickerProps}
+            style={{ ...pickerStyle, '--shadow': 'none' }}
           />
         </div>
       )}
       <Button
         appearance='ghost'
         aria-expanded={displayPicker}
-        aria-haspopup='dialog'
         aria-label={t('aria/Emoji picker')}
         circular
         className={props.buttonClassName ?? defaultButtonClassName}
