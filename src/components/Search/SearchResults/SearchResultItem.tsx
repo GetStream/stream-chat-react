@@ -18,32 +18,51 @@ import { Timestamp } from '../../../components/Message/Timestamp';
 
 export type ChannelSearchResultItemProps = {
   item: Channel;
+  /** Overrides selection, exactly like `ChannelListItem`'s `onSelect`: when provided it runs
+   *  instead of the default (open the channel into a layout slot). */
+  onSelect?: (event: React.MouseEvent) => void;
 };
 
-export const ChannelSearchResultItem = ({ item }: ChannelSearchResultItemProps) => {
+export const ChannelSearchResultItem = ({
+  item,
+  onSelect,
+}: ChannelSearchResultItemProps) => {
   const { open } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
 
-  const onSelect = useCallback(() => {
-    open({ key: item.cid ?? undefined, kind: 'channel', source: item });
-    setChannels?.((channels) => uniqBy([item, ...channels], 'cid'));
-  }, [item, open, setChannels]);
+  const handleSelect = useCallback(
+    (event: React.MouseEvent) => {
+      if (onSelect) {
+        onSelect(event);
+        return;
+      }
+      // Default: open the channel into a layout slot. Slot/UX choices (e.g. ctrl/⌘-click to
+      // open beside the current channel) are left to the app via `onSelect`.
+      open({ key: item.cid ?? undefined, kind: 'channel', source: item });
+      setChannels?.((channels) => uniqBy([item, ...channels], 'cid'));
+    },
+    [item, open, setChannels, onSelect],
+  );
 
   return (
     <ChannelListItem
       channel={item}
       className='str-chat__search-result'
-      onSelect={onSelect}
+      onSelect={handleSelect}
     />
   );
 };
 
 export type ChannelByMessageSearchResultItemProps = {
   item: MessageResponse;
+  /** Overrides selection (see `ChannelSearchResultItem`); when provided it runs instead of the
+   *  default (jump to the message and open its channel). */
+  onSelect?: (event: React.MouseEvent) => void;
 };
 
 export const MessageSearchResultItem = ({
   item,
+  onSelect,
 }: ChannelByMessageSearchResultItemProps) => {
   const { client, searchController } = useChatContext();
   const { open } = useChatViewNavigation();
@@ -60,18 +79,25 @@ export const MessageSearchResultItem = ({
   // "the first channel slot".
   const channelOpenInSlot = useSlotForKey(channel?.cid ?? undefined);
 
-  const onSelect = useCallback(async () => {
-    if (!channel) return;
-    await channel.state.loadMessageIntoState(
-      item.id,
-      undefined,
-      DEFAULT_JUMP_TO_PAGE_SIZE,
-    );
-    // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
-    searchController._internalState.partialNext({ focusedMessage: item });
-    open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
-    setChannels?.((channels) => uniqBy([channel, ...channels], 'cid'));
-  }, [channel, item, open, searchController, setChannels]);
+  const handleSelect = useCallback(
+    async (event: React.MouseEvent) => {
+      if (onSelect) {
+        onSelect(event);
+        return;
+      }
+      if (!channel) return;
+      await channel.state.loadMessageIntoState(
+        item.id,
+        undefined,
+        DEFAULT_JUMP_TO_PAGE_SIZE,
+      );
+      // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
+      searchController._internalState.partialNext({ focusedMessage: item });
+      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+      setChannels?.((channels) => uniqBy([channel, ...channels], 'cid'));
+    },
+    [channel, item, open, searchController, setChannels, onSelect],
+  );
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const getLatestMessagePreview = useCallback(() => item.text!, [item]);
@@ -87,30 +113,42 @@ export const MessageSearchResultItem = ({
       channel={channel}
       className='str-chat__search-result'
       getLatestMessagePreview={getLatestMessagePreview}
-      onSelect={onSelect}
+      onSelect={handleSelect}
     />
   );
 };
 
 export type UserSearchResultItemProps = {
   item: User;
+  /** Overrides selection (see `ChannelSearchResultItem`); when provided it runs instead of the
+   *  default (open a direct-messaging channel with the user). */
+  onSelect?: (event: React.MouseEvent) => void;
 };
 
-export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
+export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemProps) => {
   const { client } = useChatContext();
   const { open } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
 
-  const onClick = useCallback(() => {
-    const newChannel = client.channel(directMessagingChannelType, {
-      members: [client.userID as string, item.id],
-    });
-    newChannel.watch();
-    open({ key: newChannel.cid ?? undefined, kind: 'channel', source: newChannel });
-    setChannels?.((channels) => uniqBy([newChannel, ...channels], 'cid'));
-  }, [client, item, open, setChannels, directMessagingChannelType]);
+  const onClick = useCallback(
+    (event: React.MouseEvent) => {
+      if (onSelect) {
+        onSelect(event);
+        return;
+      }
+      const newChannel = client.channel(directMessagingChannelType, {
+        members: [client.userID as string, item.id],
+      });
+      newChannel.watch();
+      // Default: open the DM channel into a layout slot. ctrl/⌘-click and other slot choices
+      // are left to the app via `onSelect`.
+      open({ key: newChannel.cid ?? undefined, kind: 'channel', source: newChannel });
+      setChannels?.((channels) => uniqBy([newChannel, ...channels], 'cid'));
+    },
+    [client, item, open, setChannels, directMessagingChannelType, onSelect],
+  );
 
   return (
     <div className='str-chat__search-result-container'>

@@ -15,7 +15,8 @@ import type { LocalMessage } from 'stream-chat';
 import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
 import { IconXmark } from '../Icons';
-import { useChatViewContext } from '../ChatView';
+import { useChatViewContext, useSlotForKind } from '../ChatView';
+import { useThreadSlotContext } from './ThreadSlotContext';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
@@ -83,6 +84,16 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   const channel = useChannel();
   const { HeaderStartContent } = useComponentContext();
   const { activeChatView } = useChatViewContext();
+  const activeThreadSlot = useSlotForKind('thread');
+  const threadSlot = useThreadSlotContext();
+  // A thread occupying a slot other than the view's first thread slot is a *secondary* thread
+  // (a 2nd thread opened beside the main one).
+  const isSecondaryThread =
+    !!threadSlot && !!activeThreadSlot && threadSlot !== activeThreadSlot;
+  // Show the close button for reply threads rendered in a side panel (any non-threads view)
+  // and for secondary threads in the threads view. It is hidden for the threads view's primary
+  // thread, which is the main panel — you switch views rather than close it.
+  const showCloseButton = activeChatView !== 'threads' || isSecondaryThread;
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const threadInstance = useThreadContext();
@@ -115,13 +126,11 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
           threadList
         />
       </div>
-      {/* The close button belongs to the in-channel reply thread (a side panel that is
-          closed/released). In the threads view the thread IS the main panel — you switch
-          views rather than close it — so it is hidden there. NB: master keyed this on
-          `!threadInstance` (its reply threads were message-based, not Thread instances);
-          the slot model opens reply threads as Thread instances, so that check would now
-          wrongly hide the button in the channels view — key on the active view instead. */}
-      {activeChatView !== 'threads' && (
+      {/* The close button releases the thread's slot, so it is shown for threads that live in
+          a closable side panel: reply threads in any non-threads view, and secondary threads
+          in the threads view. It is hidden for the threads view's primary thread (the main
+          panel) — see `showCloseButton` above. */}
+      {showCloseButton && (
         <div className='str-chat__thread-header__end'>
           <Button
             appearance='ghost'

@@ -336,6 +336,221 @@ describe('useChatViewNavigation', () => {
     );
   });
 
+  // Regression: opening two channels side-by-side (⌘/ctrl-click a channel in the list opens it
+  // into the secondary slot beside the primary channel). This relies on the layout holding two
+  // `channel` bindings in two slots at once. The second channel must open into an EXPLICIT slot
+  // — the default same-kind resolution would otherwise replace the channel already open — and
+  // doing so must leave the first channel's slot untouched.
+  it('keeps two channels bound side-by-side when the second opens into an explicit slot', () => {
+    const primaryChannel = makeChannel('messaging:primary');
+    const secondaryChannel = makeChannel('messaging:secondary');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: primaryChannel.cid ?? undefined,
+                kind: 'channel',
+                source: primaryChannel,
+              })
+            }
+            type='button'
+          >
+            open-primary
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(
+                {
+                  key: secondaryChannel.cid ?? undefined,
+                  kind: 'channel',
+                  source: secondaryChannel,
+                },
+                { slot: 'slot2' },
+              )
+            }
+            type='button'
+          >
+            open-secondary
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={2} minSlots={2}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-primary'));
+    fireEvent.click(screen.getByText('open-secondary'));
+
+    const state = viewState(capturedController);
+    const slot1Binding = getChatViewEntityBinding(state?.slotBindings.slot1);
+    const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
+
+    // Both channels stay bound at once — the second did not replace the first.
+    expect(slot1Binding?.kind).toBe('channel');
+    expect(slot1Binding?.source).toBe(primaryChannel);
+    expect(slot2Binding?.kind).toBe('channel');
+    expect(slot2Binding?.source).toBe(secondaryChannel);
+    expect(state?.activeView).toBe('channels');
+  });
+
+  // Regression: opening a reply thread while both slots are occupied by channels must NOT
+  // evict the primary (first) channel. The thread takes the last non-persistent slot, so the
+  // primary channel stays put. (Reported: the first channel disappeared when opening a thread
+  // with two channels open side-by-side.)
+  it('opens a thread into the last slot without evicting the primary channel', () => {
+    const primaryChannel = makeChannel('messaging:primary');
+    const secondaryChannel = makeChannel('messaging:secondary');
+    const thread = makeThread('thread-from-primary');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: primaryChannel.cid ?? undefined,
+                kind: 'channel',
+                source: primaryChannel,
+              })
+            }
+            type='button'
+          >
+            open-primary
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(
+                {
+                  key: secondaryChannel.cid ?? undefined,
+                  kind: 'channel',
+                  source: secondaryChannel,
+                },
+                { slot: 'slot2' },
+              )
+            }
+            type='button'
+          >
+            open-secondary
+          </button>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: thread.id ?? undefined,
+                kind: 'thread',
+                source: thread,
+              })
+            }
+            type='button'
+          >
+            open-thread
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={2} minSlots={2}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-primary'));
+    fireEvent.click(screen.getByText('open-secondary'));
+    fireEvent.click(screen.getByText('open-thread'));
+
+    const state = viewState(capturedController);
+    const slot1Binding = getChatViewEntityBinding(state?.slotBindings.slot1);
+    const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
+
+    // Primary channel stays put in slot1; the thread replaced the 2nd channel in slot2.
+    expect(slot1Binding?.kind).toBe('channel');
+    expect(slot1Binding?.source).toBe(primaryChannel);
+    expect(slot2Binding?.kind).toBe('thread');
+    expect(slot2Binding?.source).toBe(thread);
+  });
+
+  // Regression: `open(binding, { additive: true })` — used by ctrl/⌘-click on channel-list and
+  // search results — opens beside the current channel instead of replacing it. Without
+  // `additive`, a same-kind open resolves to the occupied primary slot and replaces it; with
+  // `additive` it must skip that and land in the free secondary slot.
+  it('opens additively into the secondary slot without replacing the primary channel', () => {
+    const primaryChannel = makeChannel('messaging:primary');
+    const secondaryChannel = makeChannel('messaging:secondary');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: primaryChannel.cid ?? undefined,
+                kind: 'channel',
+                source: primaryChannel,
+              })
+            }
+            type='button'
+          >
+            open-primary
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(
+                {
+                  key: secondaryChannel.cid ?? undefined,
+                  kind: 'channel',
+                  source: secondaryChannel,
+                },
+                { additive: true },
+              )
+            }
+            type='button'
+          >
+            open-additive
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={2} minSlots={2}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-primary'));
+    fireEvent.click(screen.getByText('open-additive'));
+
+    const state = viewState(capturedController);
+    const slot1Binding = getChatViewEntityBinding(state?.slotBindings.slot1);
+    const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
+
+    // The additive open landed in the free secondary slot; the primary is untouched.
+    expect(slot1Binding?.source).toBe(primaryChannel);
+    expect(slot2Binding?.source).toBe(secondaryChannel);
+  });
+
   it('opens channel and thread into configured slotNames in order', () => {
     const channel = makeChannel('messaging:expand-named');
     const thread = makeThread('thread-expand-named');

@@ -83,7 +83,7 @@ const getAppLayoutElement = (element?: HTMLElement | null) => {
 
 const setPanelWidthCssVariable = (
   appLayoutElement: HTMLDivElement,
-  cssVariableName: '--app-left-panel-width' | '--app-thread-panel-width',
+  cssVariableName: '--app-left-panel-width' | '--app-secondary-panel-width',
   width: number,
 ) => {
   appLayoutElement.style.setProperty(cssVariableName, `${width}px`);
@@ -125,7 +125,7 @@ export const PanelLayoutStyleSync = ({
     );
     setPanelWidthCssVariable(
       layoutElement,
-      '--app-thread-panel-width',
+      '--app-secondary-panel-width',
       panelLayout.threadPanel.width,
     );
   }, [layoutRef, panelLayout]);
@@ -368,7 +368,7 @@ export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
       const isRtl = getComputedStyle(appLayoutElement).direction === 'rtl';
 
       beginHorizontalResize({
-        bodyClassName: 'app-chat-resizing-thread',
+        bodyClassName: 'app-chat-resizing-secondary',
         handle: event.currentTarget,
         onMove: (pointerEvent) => {
           const nextWidth = isRtl
@@ -378,7 +378,11 @@ export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
           const width = clamp(nextWidth, THREAD_PANEL_MIN_WIDTH, maxWidth);
 
           dragState.width = width;
-          setPanelWidthCssVariable(appLayoutElement, '--app-thread-panel-width', width);
+          setPanelWidthCssVariable(
+            appLayoutElement,
+            '--app-secondary-panel-width',
+            width,
+          );
         },
         onStop: () => {
           const previousWidth = threadPanelWidthRef.current;
@@ -402,8 +406,8 @@ export const ThreadResizeHandle = ({ isOpen }: { isOpen: boolean }) => {
 
   return (
     <PanelResizeHandle
-      className={clsx('app-chat-resize-handle--thread', {
-        'app-chat-resize-handle--thread-hidden': !isOpen,
+      className={clsx('app-chat-resize-handle--secondary', {
+        'app-chat-resize-handle--secondary-hidden': !isOpen,
       })}
       onPointerDown={handlePointerDown}
     />

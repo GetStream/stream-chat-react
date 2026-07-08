@@ -58,6 +58,7 @@ const renderComponent = async ({
   channelSearchData,
   chatContext,
   customClient,
+  itemProps,
   messageResponseData,
   SearchResultItemComponent,
   userData,
@@ -102,7 +103,7 @@ const renderComponent = async ({
             <SearchContextProvider
               value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
             >
-              <SearchResultItemComponent item={item} />
+              <SearchResultItemComponent item={item} {...itemProps} />
             </SearchContextProvider>
           </ChannelListContextProvider>
         </DialogManagerProvider>
@@ -135,6 +136,21 @@ describe('SearchResultItem Components', () => {
       expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
       expect(mockOpen.mock.calls[0][0].source.id).toBe(channelSearchData.channel.id);
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs a custom onSelect instead of the default open', async () => {
+      const channelSearchData = generateChannel();
+      const onSelect = vi.fn();
+      await renderComponent({
+        channelSearchData,
+        itemProps: { onSelect },
+        SearchResultItemComponent,
+      });
+
+      fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(mockOpen).not.toHaveBeenCalled();
     });
   });
 
@@ -207,7 +223,23 @@ describe('SearchResultItem Components', () => {
       await act(() => {
         fireEvent.click(screen.getByRole('option'));
       });
+      expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs a custom onSelect instead of the default DM open', async () => {
+      const onSelect = vi.fn();
+      await renderComponent({
+        itemProps: { onSelect },
+        SearchResultItemComponent,
+        userData: user,
+      });
+
+      await act(() => {
+        fireEvent.click(screen.getByRole('option'));
+      });
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(mockOpen).not.toHaveBeenCalled();
     });
 
     it('uses user id when name is not available', async () => {

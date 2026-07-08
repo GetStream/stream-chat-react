@@ -55,11 +55,13 @@ const resolveGeneratedSlots = (slotCount: number): SlotName[] =>
 // the resolver returns undefined and `openInLayout` rejects rather than
 // destroying a list.
 const resolveDefaultTargetSlot = ({
+  additive,
   isPersistentSlot,
   kind,
   requestedSlot,
   runtime,
 }: {
+  additive?: boolean;
   isPersistentSlot: (slot: SlotName) => boolean;
   kind: ChatViewEntityBinding['kind'];
   requestedSlot?: SlotName;
@@ -76,11 +78,23 @@ const resolveDefaultTargetSlot = ({
     (slot) => !runtime.slotBindings[slot] && !isPersistentSlot(slot),
   );
   const firstFree = runtime.availableSlots.find((slot) => !runtime.slotBindings[slot]);
-  const firstNonPersistent = runtime.availableSlots.find(
-    (slot) => !isPersistentSlot(slot),
-  );
+  // When every slot is occupied, evict the LAST non-persistent slot rather than the first.
+  // Slots run primary -> secondary, so the first slot holds the anchor content (e.g. the main
+  // channel); a newly-opened panel — a reply thread opened while a 2nd channel occupies the
+  // secondary slot, say — should replace the most-recent secondary panel, never make the
+  // primary disappear.
+  const lastNonPersistent = [...runtime.availableSlots]
+    .reverse()
+    .find((slot) => !isPersistentSlot(slot));
 
-  return sameKind ?? firstFreeNonPersistent ?? firstFree ?? firstNonPersistent;
+  // `additive` opens *beside* existing content (ctrl/⌘-click): skip the same-kind slot, which
+  // would replace the current primary, and prefer a free/secondary slot instead. In a
+  // single-slot layout it falls through to that slot, so it degrades to a normal open.
+  if (additive) {
+    return firstFreeNonPersistent ?? firstFree ?? lastNonPersistent;
+  }
+
+  return sameKind ?? firstFreeNonPersistent ?? firstFree ?? lastNonPersistent;
 };
 
 export type OpenThreadTarget =
@@ -108,17 +122,57 @@ export const createThreadEntityBinding = (
   return { key: thread.id ?? undefined, kind: 'thread', source: thread };
 };
 
+/** Options for {@link ChatViewNavigation.open}. */
+export type ChatViewOpenOptions = {
+  /**
+   * Open *beside* existing content instead of replacing it.
+   *
+   * By default `open` reuses the slot that already holds the binding's `kind` (so selecting a
+   * channel replaces the current channel). With `additive: true` the resolver skips that
+   * same-kind slot and instead targets the first free non-persistent slot — falling back to the
+   * last non-persistent slot when every slot is occupied. The effect is that the entity opens in
+   * a *secondary* slot next to the current one (e.g. ctrl/⌘-click a channel to open a 2nd channel
+   * side-by-side, or a search result beside the open channel).
+   *
+   * In a single-slot layout there is no secondary slot to open into, so it falls back to that
+   * one slot and behaves like a normal open. Ignored when an explicit `slot` is provided.
+   *
+   * @default false
+   */
+  additive?: boolean;
+  /**
+   * Bind into this specific slot, when it exists in the target view's layout. Takes precedence
+   * over `additive` and over the default kind-based slot resolution. Ignored (falls back to the
+   * default resolution) when the named slot is not part of the active layout.
+   */
+  slot?: SlotName;
+};
+
 export type ChatViewNavigation = {
   /** Release the binding held by `slot`. No-op for empty or persistent slots. */
   close: (slot: SlotName) => void;
   /** Hide `slot` without releasing its binding (subtree stays mounted). */
   hide: (slot: SlotName) => void;
   /**
-   * Resolve a target slot for `binding` and bind it there. If no slot is
-   * available the call is a rejected no-op (no view switch, no teardown).
+   * Resolve a target slot for `binding` and bind it there, switching to the binding kind's view
+   * first if needed (e.g. a `channel` binding activates the channels view).
+   *
+   * Slot resolution, in order:
+   * 1. `options.slot`, if that slot exists in the target view's layout;
+   * 2. otherwise, unless `options.additive` is set, the slot already holding this `kind`
+   *    (replacing its content);
+   * 3. the first free non-persistent slot;
+   * 4. the first free slot;
+   * 5. the last non-persistent slot (evicting a secondary panel — never the primary).
+   *
+   * See {@link ChatViewOpenOptions.additive} for opening *beside* current content instead of
+   * replacing.
+   *
+   * Returns an {@link OpenResult}; if no slot can be resolved the call is a rejected no-op — no
+   * view switch and no dependent-slot teardown, so a rejected open never leaves a partial state.
    */
-  open: (binding: ChatViewEntityBinding, options?: { slot?: SlotName }) => OpenResult;
-  /** Switch the active view (channels/threads). */
+  open: (binding: ChatViewEntityBinding, options?: ChatViewOpenOptions) => OpenResult;
+  /** Switch the active view (channels/threads); optionally focus a specific `slot`. */
   openView: (view: ChatView, options?: { slot?: SlotName }) => void;
   /** Reveal a previously hidden `slot`. */
   unhide: (slot: SlotName) => void;
@@ -218,20 +272,28 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
     };
 
     const resolveTargetSlot = ({
+      additive,
       kind,
       requestedSlot,
       runtime,
       view,
     }: {
+      additive?: boolean;
       kind: ChatViewEntityBinding['kind'];
       requestedSlot?: SlotName;
       runtime: ViewSlotRuntime;
       view: ChatView;
     }) => {
       // Preserve the public per-view resolver extension point (keyed on the
-      // channel/thread actions) for the kinds that have one.
+      // channel/thread actions) for the kinds that have one. `additive` (open beside) skips it
+      // and uses the default resolver, which is where the "prefer a free/secondary slot" logic
+      // lives.
       const action =
-        kind === 'channel' ? 'openChannel' : kind === 'thread' ? 'openThread' : undefined;
+        !additive && kind === 'channel'
+          ? 'openChannel'
+          : !additive && kind === 'thread'
+            ? 'openThread'
+            : undefined;
       if (action) {
         const args: ResolveViewActionTargetSlotArgs = {
           action,
@@ -251,6 +313,7 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       return materializeTargetSlot(
         runtime,
         resolveDefaultTargetSlot({
+          additive,
           isPersistentSlot: makeIsPersistentSlot(runtime),
           kind,
           requestedSlot,
@@ -274,6 +337,7 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       const targetView = kindView ?? activeView;
       const runtime = buildRuntimeForView(targetView);
       const targetSlot = resolveTargetSlot({
+        additive: options?.additive,
         kind: binding.kind,
         requestedSlot: options?.slot,
         runtime,

@@ -33,6 +33,7 @@ vi.mock('../../Threads', () => ({
 
 vi.mock('../../ChatView', () => ({
   useChatViewContext: vi.fn(() => ({ activeChatView: 'channels' })),
+  useSlotForKind: vi.fn(() => undefined),
 }));
 
 import { useChannelPreviewInfo } from '../../ChannelListItem/hooks/useChannelPreviewInfo';

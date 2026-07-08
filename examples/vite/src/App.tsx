@@ -41,6 +41,8 @@ import {
   CHANNEL_THREAD_SLOT,
   DESKTOP_LAYOUT_BREAKPOINT,
   MAIN_CHANNEL_SLOT,
+  MAIN_THREAD_SLOT,
+  OPTIONAL_THREAD_SLOT,
 } from './ChatLayout/constants.ts';
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
@@ -222,7 +224,7 @@ const globalDialogManager = 'globalDialogManager';
 // view holds a primary + an optional (ctrl/⌘-click) thread slot.
 const chatViewLayouts = [
   { id: 'channels' as const, slots: [MAIN_CHANNEL_SLOT, CHANNEL_THREAD_SLOT] },
-  { id: 'threads' as const, slots: ['main-thread', 'optional-thread'] },
+  { id: 'threads' as const, slots: [MAIN_THREAD_SLOT, OPTIONAL_THREAD_SLOT] },
 ];
 
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
@@ -393,7 +395,7 @@ const App = () => {
     () =>
       ({
         '--app-left-panel-width': `${initialPanelLayout.leftPanel.width}px`,
-        '--app-thread-panel-width': `${initialPanelLayout.threadPanel.width}px`,
+        '--app-secondary-panel-width': `${initialPanelLayout.threadPanel.width}px`,
       }) as CSSProperties,
     [initialPanelLayout.leftPanel.width, initialPanelLayout.threadPanel.width],
   );

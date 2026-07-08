@@ -39,7 +39,7 @@ body {
 @layer stream-overrides {
   .app-chat-layout {
     --app-left-panel-width: 360px;
-    --app-thread-panel-width: 360px;
+    --app-secondary-panel-width: 360px;
 
     display: flex;
     flex: 1 1 auto;
@@ -74,17 +74,17 @@ body {
     .str-chat__channel-list,
   body.app-chat-resizing-sidebar[data-app-sidebar-resize-state='expanded']
     .str-chat__thread-list-container,
-  body.app-chat-resizing-thread .app-chat-resize-handle--thread,
-  body.app-chat-resizing-thread .app-chat-thread-panel,
-  body.app-chat-resizing-thread
+  body.app-chat-resizing-secondary .app-chat-resize-handle--secondary,
+  body.app-chat-resizing-secondary .app-chat-secondary-panel,
+  body.app-chat-resizing-secondary
     .str-chat__chat-view__channels
     .str-chat__container
     > .str-chat__dropzone-root--thread,
-  body.app-chat-resizing-thread
+  body.app-chat-resizing-secondary
     .str-chat__chat-view__channels
     .str-chat__container
     > .str-chat__thread-container,
-  body.app-chat-resizing-thread
+  body.app-chat-resizing-secondary
     .str-chat__chat-view__channels
     .str-chat__container
     > .str-chat__dropzone-root--thread
@@ -124,12 +124,24 @@ body {
     z-index: 1;
   }
 
-  .app-chat-view__channels-layout > .str-chat__channel,
+  /* The channels view's content row (`.app-chat-view__channel-content`) is the layout's main
+     flex child; its own columns — the primary channel (`.app-chat-view__channel-main`) and the
+     secondary panel (`.app-chat-secondary-panel`) — are sized by the rules further down. Each
+     column element is now a <Channel> (or the thread dropzone) carrying that column class, so
+     the channel and thread are siblings rather than one nested inside the other. */
   .app-chat-view__threads-main {
     display: flex;
     flex: 1 1 auto;
     min-width: 0;
     height: 100%;
+  }
+
+  /* Each column (main channel / 2nd channel) wraps a <Channel>; let its root fill the column
+     so the channel’s own message panel stretches edge to edge. */
+  .app-chat-view__channel-main > .str-chat__channel,
+  .app-chat-secondary-panel > .str-chat__channel {
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .app-chat-view__channel-content,
@@ -148,10 +160,41 @@ body {
     min-height: 0;
   }
 
-  .app-chat-view__threads-main > * {
+  /* Threads view mirrors the channels view: the primary thread (and the empty-state
+     placeholder) fill the main column; an optional 2nd thread sits in the resizable secondary
+     column beside it, behind a resize handle. Only the primary/placeholder grow — the handle
+     and secondary panel keep their own widths. */
+  .app-chat-view__threads-main > .str-chat__dropzone-root--thread,
+  .app-chat-view__threads-main > .str-chat__thread-container {
     flex: 1 1 auto;
     min-width: 0;
     height: 100%;
+  }
+
+  .app-chat-view__threads-main
+    > .app-chat-resize-handle--secondary
+    + .app-chat-secondary-panel.app-chat-secondary-panel--open {
+    flex: 0 0 max(var(--app-secondary-panel-width), 360px);
+    width: max(var(--app-secondary-panel-width), 360px);
+    max-width: max(var(--app-secondary-panel-width), 360px);
+    min-width: 360px;
+  }
+
+  @media (max-width: 767px) {
+    /* The resize handle is hidden globally on mobile; when a 2nd thread is open show it
+       full-width and collapse the primary (one panel at a time, like the channels view). */
+    .app-chat-view__threads-main--secondary-open > .str-chat__dropzone-root--thread {
+      display: none;
+    }
+
+    .app-chat-view__threads-main--secondary-open
+      > .app-chat-resize-handle--secondary
+      + .app-chat-secondary-panel.app-chat-secondary-panel--open {
+      flex: 1 1 auto;
+      width: 100%;
+      max-width: none;
+      min-width: 0;
+    }
   }
 
   .app-chat-resize-handle {
@@ -186,7 +229,7 @@ body {
     background: transparent;
   }
 
-  .app-chat-resize-handle--thread {
+  .app-chat-resize-handle--secondary {
     transition:
       flex-basis var(--str-chat__channel-list-transition-duration, 180ms)
         var(--str-chat__channel-list-transition-easing, ease),
@@ -198,7 +241,7 @@ body {
         var(--str-chat__channel-list-transition-easing, ease);
   }
 
-  .app-chat-resize-handle--thread-hidden {
+  .app-chat-resize-handle--secondary-hidden {
     flex: 0 0 0;
     width: 0;
     min-width: 0;
@@ -207,7 +250,7 @@ body {
     pointer-events: none;
   }
 
-  .app-chat-thread-panel {
+  .app-chat-secondary-panel {
     background: var(--str-chat__secondary-background-color);
     display: flex;
     flex-direction: column;
@@ -241,7 +284,7 @@ body {
     }
 
     .app-chat-view__channel-content
-      > .app-chat-thread-panel:not(.app-chat-thread-panel--open) {
+      > .app-chat-secondary-panel:not(.app-chat-secondary-panel--open) {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
@@ -254,7 +297,8 @@ body {
       );
     }
 
-    .app-chat-view__channel-content > .app-chat-thread-panel.app-chat-thread-panel--open {
+    .app-chat-view__channel-content
+      > .app-chat-secondary-panel.app-chat-secondary-panel--open {
       flex: 1 1 auto;
       min-width: 0;
       width: 100%;
@@ -434,15 +478,15 @@ body {
             var(--str-chat__channel-list-transition-easing, ease);
       }
 
-      &.app-chat-view__channel-content--thread-open > .app-chat-view__channel-main {
+      &.app-chat-view__channel-content--secondary-open > .app-chat-view__channel-main {
         /* With thread open, give the thread its reserved width first,
            then let the main panel take whatever space is left. */
-        flex-basis: max(0px, calc(100% - max(var(--app-thread-panel-width), 360px)));
-        max-width: max(0px, calc(100% - max(var(--app-thread-panel-width), 360px)));
+        flex-basis: max(0px, calc(100% - max(var(--app-secondary-panel-width), 360px)));
+        max-width: max(0px, calc(100% - max(var(--app-secondary-panel-width), 360px)));
         min-width: 360px;
       }
 
-      > .app-chat-resize-handle--thread + .app-chat-thread-panel {
+      > .app-chat-resize-handle--secondary + .app-chat-secondary-panel {
         flex: 0 0 0;
         width: 0;
         min-width: 0;
@@ -468,11 +512,11 @@ body {
             var(--str-chat__channel-list-transition-easing, ease);
       }
 
-      > .app-chat-resize-handle--thread
-        + .app-chat-thread-panel.app-chat-thread-panel--open {
-        flex: 0 0 max(var(--app-thread-panel-width), 360px);
-        width: max(var(--app-thread-panel-width), 360px);
-        max-width: max(var(--app-thread-panel-width), 360px);
+      > .app-chat-resize-handle--secondary
+        + .app-chat-secondary-panel.app-chat-secondary-panel--open {
+        flex: 0 0 max(var(--app-secondary-panel-width), 360px);
+        width: max(var(--app-secondary-panel-width), 360px);
+        max-width: max(var(--app-secondary-panel-width), 360px);
         min-width: 360px;
         margin-inline-start: auto;
         opacity: 1;
@@ -482,16 +526,16 @@ body {
     }
 
     .app-chat-view__channel-content
-      > .app-chat-resize-handle--thread
-      + .app-chat-thread-panel
+      > .app-chat-resize-handle--secondary
+      + .app-chat-secondary-panel
       .str-chat__dropzone-root--thread,
     .app-chat-view__channel-content
-      > .app-chat-resize-handle--thread
-      + .app-chat-thread-panel
+      > .app-chat-resize-handle--secondary
+      + .app-chat-secondary-panel
       .str-chat__thread-container,
     .app-chat-view__channel-content
-      > .app-chat-resize-handle--thread
-      + .app-chat-thread-panel
+      > .app-chat-resize-handle--secondary
+      + .app-chat-secondary-panel
       .str-chat__dropzone-root--thread
       .str-chat__thread-container {
       width: 100%;
@@ -500,7 +544,9 @@ body {
     }
 
     /* Hide thread's own start border when resize handle provides the separator */
-    .app-chat-resize-handle--thread + .app-chat-thread-panel .str-chat__thread-container {
+    .app-chat-resize-handle--secondary
+      + .app-chat-secondary-panel
+      .str-chat__thread-container {
       --str-chat__thread-border-inline-start: none;
     }
 
@@ -510,7 +556,7 @@ body {
       .app-chat-view__channels-layout:not(
           .app-chat-view__channels-layout--sidebar-collapsed
         )
-        .app-chat-view__channel-content--thread-open
+        .app-chat-view__channel-content--secondary-open
         > .app-chat-view__channel-main {
         flex: 0 0 0;
         width: 0;
@@ -526,8 +572,8 @@ body {
       .app-chat-view__channels-layout:not(
           .app-chat-view__channels-layout--sidebar-collapsed
         )
-        .app-chat-view__channel-content--thread-open
-        > .app-chat-resize-handle--thread {
+        .app-chat-view__channel-content--secondary-open
+        > .app-chat-resize-handle--secondary {
         flex: 0 0 0;
         width: 0;
         min-width: 0;
@@ -539,8 +585,8 @@ body {
       .app-chat-view__channels-layout:not(
           .app-chat-view__channels-layout--sidebar-collapsed
         )
-        .app-chat-view__channel-content--thread-open
-        > .app-chat-thread-panel.app-chat-thread-panel--open {
+        .app-chat-view__channel-content--secondary-open
+        > .app-chat-secondary-panel.app-chat-secondary-panel--open {
         flex: 1 1 auto;
         width: auto;
         min-width: 360px;
@@ -551,14 +597,14 @@ body {
   }
 
   @container (max-width: 860px) {
-    .app-chat-resize-handle--thread {
+    .app-chat-resize-handle--secondary {
       display: none;
     }
 
     .str-chat__chat-view__channels
-      .str-chat__container:has(.app-chat-resize-handle--thread)
-      > .app-chat-resize-handle--thread
-      + .app-chat-thread-panel.app-chat-thread-panel--open,
+      .str-chat__container:has(.app-chat-resize-handle--secondary)
+      > .app-chat-resize-handle--secondary
+      + .app-chat-secondary-panel.app-chat-secondary-panel--open,
     .str-chat__thread-container {
       flex: 1 1 auto;
       width: 100%;
@@ -666,7 +712,7 @@ body {
       display: none;
     }
 
-    .app-chat-view__channel-content--thread-open .app-chat-view__channel-main {
+    .app-chat-view__channel-content--secondary-open .app-chat-view__channel-main {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
@@ -678,7 +724,7 @@ body {
       );
     }
 
-    .app-chat-view__channel-content--thread-open > .app-chat-resize-handle--thread {
+    .app-chat-view__channel-content--secondary-open > .app-chat-resize-handle--secondary {
       flex: 0 0 0;
       width: 0;
       min-width: 0;
@@ -687,8 +733,8 @@ body {
       pointer-events: none;
     }
 
-    .app-chat-view__channel-content--thread-open
-      > .app-chat-thread-panel.app-chat-thread-panel--open {
+    .app-chat-view__channel-content--secondary-open
+      > .app-chat-secondary-panel.app-chat-secondary-panel--open {
       flex: 1 1 auto;
       min-width: 0;
       width: 100%;
