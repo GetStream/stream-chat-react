@@ -12,6 +12,12 @@ on:
 
 env:
   BUILD_CACHE_KEY: ${{ github.sha }}-dist
+
+permissions:
+  actions: write
+  contents: read
+  pull-requests: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
