@@ -12,7 +12,7 @@ env:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   compressed-size:

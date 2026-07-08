@@ -14,7 +14,6 @@ env:
   BUILD_CACHE_KEY: ${{ github.sha }}-dist
 
 permissions:
-  actions: write
   contents: read
   pull-requests: read
 
@@ -31,6 +30,9 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
     name: Build & Validate
     steps:
       - uses: actions/checkout@v6
