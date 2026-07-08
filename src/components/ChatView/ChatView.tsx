@@ -107,7 +107,7 @@ export type ChatViewProps = PropsWithChildren<{
    */
   dialogManagerId?: string;
   duplicateEntityPolicy?: DuplicateEntityPolicy;
-  entityInferers?: ChatViewEntityInferer[];
+  entityInferrers?: ChatViewEntityInferer[];
   layout?: ChatViewBuiltinLayout;
   layoutController?: LayoutController;
   /** Declarative layout descriptors (D7). Defaults to the built-in channels/threads. */
@@ -320,7 +320,7 @@ export const ChatView = ({
   children,
   dialogManagerId,
   duplicateEntityPolicy,
-  entityInferers = [],
+  entityInferrers = [],
   layout,
   layoutController,
   layouts: layoutsProp,
@@ -442,7 +442,7 @@ export const ChatView = ({
     () => ({
       activeChatView: activeView,
       activeView,
-      entityInferers,
+      entityInferers: entityInferrers,
       layoutController: effectiveLayoutController,
       registerViewActionSlotResolvers,
       resolveActionTargetSlot,
@@ -451,7 +451,7 @@ export const ChatView = ({
     [
       activeView,
       effectiveLayoutController,
-      entityInferers,
+      entityInferrers,
       registerViewActionSlotResolvers,
       resolveActionTargetSlot,
       setActiveView,

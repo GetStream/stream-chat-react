@@ -22,7 +22,7 @@ exports[`VirtualizedMessageList > should render the list without any message 1`]
     id="str-chat__channel"
   >
     <div
-      class="str-chat__container"
+      class="str-chat__main-panel"
     >
       <div
         class="str-chat__main-panel-inner str-chat__message-list-main-panel"

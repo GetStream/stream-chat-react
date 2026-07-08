@@ -75,20 +75,7 @@ body {
   body.app-chat-resizing-sidebar[data-app-sidebar-resize-state='expanded']
     .str-chat__thread-list-container,
   body.app-chat-resizing-secondary .app-chat-resize-handle--secondary,
-  body.app-chat-resizing-secondary .app-chat-secondary-panel,
-  body.app-chat-resizing-secondary
-    .str-chat__chat-view__channels
-    .str-chat__container
-    > .str-chat__dropzone-root--thread,
-  body.app-chat-resizing-secondary
-    .str-chat__chat-view__channels
-    .str-chat__container
-    > .str-chat__thread-container,
-  body.app-chat-resizing-secondary
-    .str-chat__chat-view__channels
-    .str-chat__container
-    > .str-chat__dropzone-root--thread
-    .str-chat__thread-container {
+  body.app-chat-resizing-secondary .app-chat-secondary-panel {
     transition: none !important;
   }
 
@@ -602,7 +589,7 @@ body {
     }
 
     .str-chat__chat-view__channels
-      .str-chat__container:has(.app-chat-resize-handle--secondary)
+      .app-chat-view__channel-content
       > .app-chat-resize-handle--secondary
       + .app-chat-secondary-panel.app-chat-secondary-panel--open,
     .str-chat__thread-container {

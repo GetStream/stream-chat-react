@@ -11,7 +11,6 @@ import {
   Thread,
   useCreateChatClient,
   useSlotChannels,
-  Window,
   WithComponents,
 } from 'stream-chat-react';
 import { EmojiPicker } from 'stream-chat-react/emojis';
@@ -41,11 +40,9 @@ const ChannelsWorkspace = () => {
       <ChannelNavigation />
       {channelSlots.map(({ channel, slot }) => (
         <Channel channel={channel} key={slot}>
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageComposer emojiSearchIndex={SearchIndex} />
-          </Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageComposer emojiSearchIndex={SearchIndex} />
           <Thread />
         </Channel>
       ))}

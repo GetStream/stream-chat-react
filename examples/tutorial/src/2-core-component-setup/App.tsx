@@ -9,7 +9,6 @@ import {
   MessageList,
   Thread,
   useCreateChatClient,
-  Window,
 } from 'stream-chat-react';
 
 import 'stream-chat-react/dist/css/index.css';
@@ -47,11 +46,9 @@ const App = () => {
   return (
     <Chat client={client}>
       <Channel channel={channel}>
-        <Window>
-          <ChannelHeader />
-          <MessageList />
-          <MessageComposer />
-        </Window>
+        <ChannelHeader />
+        <MessageList />
+        <MessageComposer />
         <Thread />
       </Channel>
     </Chat>

@@ -78,7 +78,7 @@ Primary spec for this plan:
 **Scope:**
 
 - Integrate controller into `ChatView` provider.
-- Add new props: `maxSlots`, `resolveTargetSlot`, `duplicateEntityPolicy`, `resolveDuplicateEntity`, optional `entityInferers`, optional external `layoutController`.
+- Add new props: `maxSlots`, `resolveTargetSlot`, `duplicateEntityPolicy`, `resolveDuplicateEntity`, optional `entityInferrers`, optional external `layoutController`.
 - Expose `layoutController` via `useChatViewContext`.
 - Keep existing `activeChatView` compatibility path (alias/mapping to `activeView`) or provide migration shim.
 - Wire default resolver fallback when `resolveTargetSlot` is absent.

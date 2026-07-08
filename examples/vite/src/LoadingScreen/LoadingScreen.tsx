@@ -57,13 +57,9 @@ export const LoadingScreen = ({
               </div>
             </div>
             <div className='str-chat__channel'>
-              <div className='str-chat__container'>
-                <div className='str-chat__main-panel'>
-                  <div className='str-chat__main-panel-inner'>
-                    <div className='str-chat__window app-loading-screen__window'>
-                      <LoadingChannel />
-                    </div>
-                  </div>
+              <div className='str-chat__main-panel-inner'>
+                <div className='str-chat__window app-loading-screen__window'>
+                  <LoadingChannel />
                 </div>
               </div>
             </div>

@@ -38,7 +38,6 @@ import {
   useSlotChannel,
   useSlotThread,
   VirtualizedMessageList,
-  Window,
   WithComponents,
   WithDragAndDropUpload,
 } from 'stream-chat-react';
@@ -63,6 +62,11 @@ export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
 export const CHANNEL_LIST_TARGET_ID = 'app-channel-list';
 export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
   '[id^="str-chat__chat-view-"][id$="-tab-channels"]';
+
+// Whether the app-settings "message list" toggle is set to the virtualized list. Read the same
+// way everywhere so every channel and thread honors the setting (not just the primary channel).
+const useVirtualizedMessageList = () =>
+  useAppSettingsSelector((s) => s.messageList).type === 'virtualized';
 
 // Shared sidebar overlay: the view selector (nav rail) + the view-specific list. Extracted
 // so the selector isn't duplicated across the channels/threads panels. (It still renders
@@ -156,6 +160,7 @@ const SplitAwareSearchResultList = (props: SearchSourceResultListProps) => (
 // <Thread>, and `useActiveThread` activates/deactivates it with window focus.
 const ChannelThreadPanel = ({ thread }: { thread?: ThreadType }) => {
   const isOpen = !!thread;
+  const virtualized = useVirtualizedMessageList();
   useActiveThread({ activeThread: thread });
 
   const panelClassName = clsx(
@@ -178,7 +183,7 @@ const ChannelThreadPanel = ({ thread }: { thread?: ThreadType }) => {
                 audioRecordingEnabled: true,
                 asyncMessagesMultiSendEnabled: true,
               }}
-              virtualized
+              virtualized={virtualized}
             />
           </WithDragAndDropUpload>
         </ThreadProvider>
@@ -213,32 +218,40 @@ const SecondaryChannelCloseButton = () => {
 // The secondary channels-view slot can hold a 2nd channel (ctrl/⌘-click a channel in the
 // list) opened side-by-side, in the same spot the reply thread uses. It renders a full
 // channel in that column; the close affordance is added to its header via HeaderStartContent.
-const SecondChannelPanel = ({ channel }: { channel: StreamChannel }) => (
-  <>
-    <ThreadResizeHandle isOpen />
-    {/* The secondary column wrapper carries `.app-chat-secondary-panel` (the same column the
-        reply thread uses) so the 2nd channel renders side-by-side with the primary channel.
-        Its own <Channel> lives inside — a sibling of the primary channel, not nested in it —
-        with the dropzone inside the <Channel> so WithDragAndDropUpload's `useChannel`
-        resolves this channel. HeaderStartContent is overridden (scoped to this channel only)
-        to drop a close button into the channel header. */}
-    <div className='app-chat-secondary-panel app-chat-secondary-panel--open'>
-      <Channel channel={channel}>
-        <WithComponents overrides={{ HeaderStartContent: SecondaryChannelCloseButton }}>
-          <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-            <Window>
+const SecondChannelPanel = ({ channel }: { channel: StreamChannel }) => {
+  const virtualized = useVirtualizedMessageList();
+
+  return (
+    <>
+      <ThreadResizeHandle isOpen />
+      {/* The secondary column wrapper carries `.app-chat-secondary-panel` (the same column the
+          reply thread uses) so the 2nd channel renders side-by-side with the primary channel.
+          Its own <Channel> lives inside — a sibling of the primary channel, not nested in it —
+          with the dropzone inside the <Channel> so WithDragAndDropUpload's `useChannel`
+          resolves this channel. HeaderStartContent is overridden (scoped to this channel only)
+          to drop a close button into the channel header. */}
+      <div className='app-chat-secondary-panel app-chat-secondary-panel--open'>
+        <Channel channel={channel}>
+          <WithComponents overrides={{ HeaderStartContent: SecondaryChannelCloseButton }}>
+            {/* `.str-chat__channel` is the content column itself now, so the content
+                (header + body) goes straight inside the dropzone. */}
+            <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
               <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
               <div className='app-chat-view__channel-body'>
-                <MessageList returnAllReadData />
+                {virtualized ? (
+                  <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+                ) : (
+                  <MessageList returnAllReadData />
+                )}
                 <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
               </div>
-            </Window>
-          </WithDragAndDropUpload>
-        </WithComponents>
-      </Channel>
-    </div>
-  </>
-);
+            </WithDragAndDropUpload>
+          </WithComponents>
+        </Channel>
+      </div>
+    </>
+  );
+};
 
 const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel }) => {
   // The channel and the thread each occupy their OWN slot and render as siblings here: the
@@ -248,7 +261,7 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
   const sideChannel = useSlotChannel({ slot: CHANNEL_THREAD_SLOT });
   const replyThread = useSlotThread({ slot: CHANNEL_THREAD_SLOT });
   const isSideOpen = !!sideChannel || !!replyThread;
-  const { type: messageListType } = useAppSettingsSelector((s) => s.messageList);
+  const virtualized = useVirtualizedMessageList();
 
   return (
     <div
@@ -263,27 +276,25 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
         <div className='app-chat-view__channel-main'>
           <Channel channel={mainChannel}>
             <WithDragAndDropUpload>
-              <Window>
-                <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
-                <div className='app-chat-view__channel-body'>
-                  {messageListType === 'virtualized' ? (
-                    <VirtualizedMessageList returnAllReadData shouldGroupByUser />
-                  ) : (
-                    <MessageList returnAllReadData />
-                  )}
-                  <ReturnToSkipNavigation />
-                  <AIStateIndicator />
-                  <MessageComposer
-                    additionalTextareaProps={{
-                      id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-                    }}
-                    asyncMessagesMultiSendEnabled
-                    audioRecordingEnabled
-                    maxRows={10}
-                  />
-                  <ChannelPreviewOverlay />
-                </div>
-              </Window>
+              <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
+              <div className='app-chat-view__channel-body'>
+                {virtualized ? (
+                  <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+                ) : (
+                  <MessageList returnAllReadData />
+                )}
+                <ReturnToSkipNavigation />
+                <AIStateIndicator />
+                <MessageComposer
+                  additionalTextareaProps={{
+                    id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+                  }}
+                  asyncMessagesMultiSendEnabled
+                  audioRecordingEnabled
+                  maxRows={10}
+                />
+                <ChannelPreviewOverlay />
+              </div>
             </WithDragAndDropUpload>
           </Channel>
         </div>
@@ -361,6 +372,7 @@ export const ChannelsPanels = ({
 // ThreadProvider + slot context (so the header's close button knows which slot it releases),
 // and `useActiveThread` keeps the thread activated/deactivated with window focus.
 const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
+  const virtualized = useVirtualizedMessageList();
   useActiveThread({ activeThread: thread });
 
   return (
@@ -373,7 +385,7 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
               audioRecordingEnabled: true,
               asyncMessagesMultiSendEnabled: true,
             }}
-            virtualized
+            virtualized={virtualized}
           />
         </WithComponents>
       </WithDragAndDropUpload>
@@ -386,6 +398,7 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
 // `ThreadSlot` binds it to OPTIONAL_THREAD_SLOT, which is why its ThreadHeader shows the
 // built-in close button (end content) — the same header the channels-view reply thread uses.
 const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
+  const virtualized = useVirtualizedMessageList();
   useActiveThread({ activeThread: thread });
 
   return (
@@ -399,7 +412,7 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
                 audioRecordingEnabled: true,
                 asyncMessagesMultiSendEnabled: true,
               }}
-              virtualized
+              virtualized={virtualized}
             />
           </WithComponents>
         </WithDragAndDropUpload>

@@ -278,11 +278,7 @@ const App = () => {
       return true;
     }
 
-    if ((!channelsView && hasSelectedThread) || hasSelectedThread) {
-      return false;
-    }
-
-    return true;
+    return !((!channelsView && hasSelectedThread) || hasSelectedThread);
   }, [
     initialChannelId,
     initialChatView,
@@ -487,9 +483,6 @@ const App = () => {
                 iconOnly={chatView.iconOnly}
                 layoutRef={appLayoutRef}
               />
-              {/* ChatView hosts the dialog manager inside its own `.str-chat` root, so
-                  view-content dialogs (context menus, member actions) are correctly scoped
-                  and styled — no external provider/wrapper needed. */}
               <ChatView
                 dialogManagerId={globalDialogManager}
                 layouts={chatViewLayouts}

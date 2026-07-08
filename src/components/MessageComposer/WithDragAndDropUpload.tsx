@@ -48,12 +48,9 @@ const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => (
  * ```tsx
  * <Channel>
  *  <WithDragAndDropUpload component="section" className="message-list-dnd-wrapper">
- *    <Window>
- *      <MessageList />
- *      <MessageComposer />
- *    </Window>
+ *    <MessageList />
+ *    <MessageComposer />
  *  </WithDragAndDropUpload>
- *  <Thread />
  * <Channel>
  * ```
  */

@@ -34,7 +34,6 @@ import {
 } from '../../constants/limits';
 
 import {
-  getChatContainerClass,
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
@@ -169,10 +168,9 @@ const ChannelInner = (
   const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
     useComponentContext();
 
-  const { client, customClasses, latestMessageDatesByChannels, searchController } =
+  const { client, latestMessageDatesByChannels, searchController } =
     useChatContext('Channel');
   const { t } = useTranslationContext('Channel');
-  const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
   const channelConfig = useChannelConfig({ cid: channel.cid });
@@ -437,8 +435,13 @@ const ChannelInner = (
   return (
     <ChannelContainer className={windowsEmojiClass}>
       <ChannelInstanceProvider value={{ channel }}>
+        {/* `.str-chat__channel` (rendered by ChannelContainer above) is itself the channel's
+            main content column — a flex column that fills its parent. Children (header,
+            message list, composer) render directly inside it; there is no separate
+            `.str-chat__container` / `.str-chat__main-panel` wrapper anymore (the classic
+            side-by-side Thread is a slot now, not a nested child). */}
         <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-          <div className={clsx(chatContainerClass)}>{children}</div>
+          {children}
         </WithAudioPlayback>
       </ChannelInstanceProvider>
     </ChannelContainer>

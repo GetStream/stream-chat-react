@@ -58,7 +58,9 @@
   }
 }
 
-.str-chat__main-panel {
+/* Scoped to the channel's main list (`.str-chat__channel`), not thread lists (which render
+   under `.str-chat__thread-container`). */
+.str-chat__channel {
   .str-chat__ul {
     .str-chat__li:first-of-type {
       padding-top: 4.5rem;

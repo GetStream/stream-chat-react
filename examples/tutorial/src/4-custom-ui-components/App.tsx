@@ -15,7 +15,6 @@ import {
   useCreateChatClient,
   useMessageContext,
   useSlotChannels,
-  Window,
   WithComponents,
 } from 'stream-chat-react';
 
@@ -113,11 +112,9 @@ const ChannelsWorkspace = () => {
       <ChannelNavigation />
       {channelSlots.map(({ channel, slot }) => (
         <Channel channel={channel} key={slot}>
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageComposer />
-          </Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageComposer />
           <Thread />
         </Channel>
       ))}
