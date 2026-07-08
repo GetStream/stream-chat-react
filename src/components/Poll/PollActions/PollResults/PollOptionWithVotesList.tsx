@@ -3,11 +3,11 @@ import { PollVoteListing } from '../../PollVote';
 import { usePollOptionVotesPagination } from '../../hooks';
 import { LoadingIndicator } from '../../../Loading';
 import { InfiniteScrollPaginator } from '../../../InfiniteScrollPaginator/InfiniteScrollPaginator';
-import type { PollOption, PollOptionVotesQueryParams } from 'stream-chat';
+import type { PollOptionResponseData, PollOptionVotesQueryParams } from 'stream-chat';
 import { PollOptionWithVotesHeader } from './PollOptionWithVotesHeader';
 
 export type PollOptionWithVotesListProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   optionOrderNumber: number;
 };
 

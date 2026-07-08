@@ -12,8 +12,8 @@ import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import type {
+  ChannelGetOrCreateRequest,
   ChannelMemberResponse,
-  ChannelQueryOptions,
   ChannelState,
   ChannelStateResponseFields,
   DeleteMessageOptions,
@@ -21,7 +21,7 @@ import type {
   EventAPIResponse,
   GiphyVersions,
   LocalMessage,
-  Message,
+  MessageRequest,
   MessageResponse,
   SendMessageAPIResponse,
   SendMessageOptions,
@@ -102,7 +102,7 @@ export type ChannelProps = {
    * If the channel instance has already been initialized (channel has been queried),
    * then the channel query will be skipped and channelQueryOptions will not be applied.
    */
-  channelQueryOptions?: ChannelQueryOptions;
+  channelQueryOptions?: ChannelGetOrCreateRequest;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
   doDeleteMessageRequest?: (
     message: LocalMessage,
@@ -116,7 +116,7 @@ export type ChannelProps = {
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channel: StreamChannel,
-    message: Message,
+    message: MessageRequest,
     options?: SendMessageOptions,
   ) => ReturnType<StreamChannel['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
@@ -905,7 +905,7 @@ const ChannelInner = (
     options,
   }: {
     localMessage: LocalMessage;
-    message: Message;
+    message: MessageRequest;
     options?: SendMessageOptions;
   }) => {
     try {
@@ -987,7 +987,7 @@ const ChannelInner = (
     options,
   }: {
     localMessage: LocalMessage;
-    message: Message;
+    message: MessageRequest;
     options?: SendMessageOptions;
   }) => {
     channel.state.filterErrorMessages();

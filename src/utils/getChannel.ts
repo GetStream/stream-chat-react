@@ -1,6 +1,6 @@
 import type {
   Channel,
-  ChannelQueryOptions,
+  ChannelGetOrCreateRequest,
   ChannelStateResponse,
   StreamChat,
 } from 'stream-chat';
@@ -19,7 +19,7 @@ type GetChannelParams = {
   channel?: Channel;
   id?: string;
   members?: string[];
-  options?: ChannelQueryOptions;
+  options?: ChannelGetOrCreateRequest;
   type?: string;
 };
 /**

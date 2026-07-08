@@ -7,7 +7,11 @@ import {
   usePollContext,
   useTranslationContext,
 } from '../../../../context';
-import type { PollOption, PollState, PollVoteResponseData } from 'stream-chat';
+import type {
+  PollOptionResponseData,
+  PollState,
+  PollVoteResponseData,
+} from 'stream-chat';
 import { Button } from '../../../Button';
 import clsx from 'clsx';
 
@@ -20,7 +24,7 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export type PollOptionWithVotesProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   orderNumber: number;
   countVotesPreview?: number;
   showAllVotes?: () => void;

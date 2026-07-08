@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import type { PollOption, PollState, PollVoteResponseData } from 'stream-chat';
+import type { PollOptionResponseData, PollState, PollVoteResponseData } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import {
@@ -50,7 +50,7 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export type PollOptionSelectorProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   displayAvatarCount?: number;
   voteCountVerbose?: boolean;
 };

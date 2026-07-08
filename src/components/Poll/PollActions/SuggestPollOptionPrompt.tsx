@@ -6,12 +6,12 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 import { Prompt } from '../../Dialog';
 import { TextInput } from '../../Form';
 import { useFormState } from '../../Form/hooks';
 
-type PollStateSelectorReturnValue = { options: PollOption[] };
+type PollStateSelectorReturnValue = { options: PollOptionResponseData[] };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   options: nextValue.options,
 });

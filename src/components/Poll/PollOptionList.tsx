@@ -8,10 +8,10 @@ import {
   usePollContext,
   useTranslationContext,
 } from '../../context';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 import { PollOptionsFullList as DefaultPollOptionsFullList } from './PollActions/PollOptionsFullList';
 
-type PollStateSelectorReturnValue = { options: PollOption[] };
+type PollStateSelectorReturnValue = { options: PollOptionResponseData[] };
 
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   options: nextValue.options,

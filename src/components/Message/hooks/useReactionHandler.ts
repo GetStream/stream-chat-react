@@ -12,7 +12,7 @@ import {
   getEmojiCodeByReactionType,
 } from '../../Reactions/reactionOptions';
 
-import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
+import type { LocalMessage, ReactionRequest, ReactionResponse } from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
@@ -105,7 +105,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
             reaction: {
               type,
               ...(emojiCode && { emoji_code: emojiCode }),
-            } as Reaction,
+            } as ReactionRequest,
           })
         : await channel.deleteReaction({ id, type });
 

@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { usePollContext, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 
 type PollStateSelectorReturnValue = {
   enforce_unique_vote: boolean;
   is_closed: boolean | undefined;
   max_votes_allowed: number | undefined;
   name: string;
-  options: PollOption[];
+  options: PollOptionResponseData[];
 };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   enforce_unique_vote: nextValue.enforce_unique_vote,

@@ -4,7 +4,7 @@ import React, { useContext } from 'react';
 import type {
   DeleteMessageOptions,
   LocalMessage,
-  Message,
+  MessageRequest,
   MessageResponse,
   SendMessageOptions,
   UpdateMessageAPIResponse,
@@ -59,7 +59,7 @@ export type ChannelActionContextValue = {
   retrySendMessage: RetrySendMessage;
   sendMessage: (params: {
     localMessage: LocalMessage;
-    message: Message;
+    message: MessageRequest;
     options?: SendMessageOptions;
   }) => Promise<void>;
   setChannelUnreadUiState: React.Dispatch<
