@@ -1,26 +1,40 @@
-import type { MessageRequest, StreamChat, UpdateMessageOptions } from 'stream-chat';
+import type {
+  LocalMessage,
+  MessageRequest,
+  MessageResponse,
+  StreamChat,
+  UpdateMessageAPIResponse,
+  UpdateMessageOptions,
+} from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 
 type UpdateHandler = (
   cid: string,
-  updatedMessage: MessageRequest,
+  updatedMessage: LocalMessage | MessageResponse,
   options?: UpdateMessageOptions,
 ) => ReturnType<StreamChat['updateMessage']>;
 
-export const useEditMessageHandler = (doUpdateMessageRequest?: UpdateHandler) => {
+export const useEditMessageHandler = (
+  doUpdateMessageRequest?: UpdateHandler,
+): ((
+  updatedMessage: LocalMessage | MessageResponse,
+  options?: UpdateMessageOptions,
+) => Promise<UpdateMessageAPIResponse>) => {
   const { channel, client } = useChatContext('useEditMessageHandler');
 
-  return (updatedMessage: MessageRequest, options?: UpdateMessageOptions) => {
+  return (
+    updatedMessage: LocalMessage | MessageResponse,
+    options?: UpdateMessageOptions,
+  ) => {
     if (doUpdateMessageRequest && channel) {
       return Promise.resolve(
         doUpdateMessageRequest(channel.cid, updatedMessage, options),
       );
     }
     return client.updateMessage({
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      id: updatedMessage.id!,
-      message: updatedMessage,
+      id: updatedMessage.id,
+      message: updatedMessage as unknown as MessageRequest,
       ...options,
     });
   };

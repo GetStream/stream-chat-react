@@ -26,6 +26,7 @@ import {
   isVoiceRecordingAttachment,
   type LocalMessage,
   type MessageComposerState,
+  type MessageResponse,
   type PollResponseData,
   type SharedLocationResponseData,
   type TranslationLanguages,
@@ -55,7 +56,7 @@ const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
 });
 
 export type QuotedMessagePreviewProps = {
-  getQuotedMessageAuthor?: (message: LocalMessage) => string;
+  getQuotedMessageAuthor?: (message: LocalMessage | MessageResponse) => string;
   renderText?: MessageContextValue['renderText'];
 };
 
@@ -96,7 +97,7 @@ type GroupedAttachments = Record<AttachmentType, Attachment[]> & {
   total: number;
 };
 
-const getGroupedAttachments = (quotedMessage: LocalMessage | null) => {
+const getGroupedAttachments = (quotedMessage: LocalMessage | MessageResponse | null) => {
   const groupedAttachments = {
     documents: [],
     giphies: [],
@@ -169,7 +170,7 @@ type PreviewType =
   | 'mixed';
 
 const getAttachmentIconWithType = (
-  quotedMessage: LocalMessage | null,
+  quotedMessage: LocalMessage | MessageResponse | null,
   giphyVersionName: GiphyVersions,
 ): {
   groupedAttachments: GroupedAttachments;
@@ -314,7 +315,7 @@ export const QuotedMessagePreview = ({
 };
 
 type QuotedMessagePreviewUIProps = QuotedMessagePreviewProps & {
-  quotedMessage: LocalMessage;
+  quotedMessage: LocalMessage | MessageResponse;
   authorLabel?: ReactNode;
   className?: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
