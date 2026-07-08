@@ -2,14 +2,19 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { TypingIndicatorDots } from './TypingIndicatorDots';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannel } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useTypingContext } from '../../context/TypingContext';
+import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
+import type { TextComposerState } from 'stream-chat';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
+
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 export type TypingIndicatorHeaderProps = {
   /** When true, show typing in the current thread only; when false, show typing in the channel. */
@@ -24,11 +29,14 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { threadList = false } = props;
 
   const { t } = useTranslationContext();
-  const { channelConfig, thread } = useChannelStateContext('TypingIndicatorHeader');
+  const channel = useChannel();
+  const channelConfig = useChannelConfig({ cid: channel.cid });
   const threadInstance = useThreadContext();
-  const parentId = threadInstance?.id ?? thread?.id;
+  const parentId = threadInstance?.id;
   const { client } = useChatContext('TypingIndicatorHeader');
-  const { typing = {} } = useTypingContext('TypingIndicatorHeader');
+  const messageComposer = useMessageComposerController();
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
 
   const typingInChannel = !threadList
     ? Object.values(typing).filter(

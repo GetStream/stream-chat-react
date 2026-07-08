@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import type { ChannelFilters, ChannelSort, User } from 'stream-chat';
+import type { User } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
-  ChannelList,
+  ChannelNavigation,
   Chat,
+  ChatView,
   MessageComposer,
   MessageList,
   Thread,
   useCreateChatClient,
+  useSlotChannels,
   Window,
   WithComponents,
 } from 'stream-chat-react';
@@ -26,13 +28,30 @@ const user: User = {
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
 
-const sort: ChannelSort = { last_message_at: -1 };
-const filters: ChannelFilters = {
-  type: 'messaging',
-  members: { $in: [userId] },
-};
-
 init({ data });
+
+// One view ("channels") with a single channel slot. Module-scoped for a stable reference.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel'] }];
+
+const ChannelsWorkspace = () => {
+  const channelSlots = useSlotChannels();
+
+  return (
+    <>
+      <ChannelNavigation />
+      {channelSlots.map(({ channel, slot }) => (
+        <Channel channel={channel} key={slot}>
+          <Window>
+            <ChannelHeader />
+            <MessageList />
+            <MessageComposer emojiSearchIndex={SearchIndex} />
+          </Window>
+          <Thread />
+        </Channel>
+      ))}
+    </>
+  );
+};
 
 const App = () => {
   const [isReady, setIsReady] = useState(false);
@@ -67,15 +86,7 @@ const App = () => {
   return (
     <Chat client={client}>
       <WithComponents overrides={{ EmojiPicker }}>
-        <ChannelList filters={filters} sort={sort} />
-        <Channel>
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageComposer emojiSearchIndex={SearchIndex} />
-          </Window>
-          <Thread />
-        </Channel>
+        <ChatView layouts={chatViewLayouts} views={{ channels: <ChannelsWorkspace /> }} />
       </WithComponents>
     </Chat>
   );

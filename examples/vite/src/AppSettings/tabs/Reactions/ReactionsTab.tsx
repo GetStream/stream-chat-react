@@ -1,7 +1,6 @@
 import {
   Button,
-  ChannelActionProvider,
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ComponentProvider,
   Message,
   useComponentContext,
@@ -12,7 +11,6 @@ import {
   SettingsTabLayoutHeader,
 } from '../SettingsTabLayoutComponents.tsx';
 import {
-  reactionsPreviewChannelActions,
   reactionsPreviewChannelState,
   reactionsPreviewMessage,
   reactionsPreviewOptions,
@@ -123,24 +121,26 @@ export const ReactionsTab = ({ close }: ReactionsTabProps) => {
         <div className='app__settings-modal__field'>
           <div className='app__settings-modal__field-label'>Preview</div>
           <div className='app__settings-modal__preview'>
-            <ChannelActionProvider value={reactionsPreviewChannelActions as never}>
-              <ChannelStateProvider value={reactionsPreviewChannelState as never}>
-                <ComponentProvider
-                  value={{
-                    ...componentContext,
-                    reactionOptions: reactionsPreviewOptions,
-                  }}
-                >
-                  <li className='str-chat__li--single'>
-                    <Message
-                      groupStyles={['single']}
-                      message={reactionsPreviewMessage}
-                      messageActions={[]}
-                    />
-                  </li>
-                </ComponentProvider>
-              </ChannelStateProvider>
-            </ChannelActionProvider>
+            {/* MERGE-RECONCILE: PR #2909 replaced the deleted ChannelState/ChannelAction
+                providers with ChannelInstanceProvider (Message now reads useChannel()). */}
+            <ChannelInstanceProvider
+              value={{ channel: reactionsPreviewChannelState.channel as never }}
+            >
+              <ComponentProvider
+                value={{
+                  ...componentContext,
+                  reactionOptions: reactionsPreviewOptions,
+                }}
+              >
+                <li className='str-chat__li--single'>
+                  <Message
+                    groupStyles={['single']}
+                    message={reactionsPreviewMessage}
+                    messageActions={[]}
+                  />
+                </li>
+              </ComponentProvider>
+            </ChannelInstanceProvider>
           </div>
         </div>
       </SettingsTabBody>

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, OwnUserResponse } from 'stream-chat';
+import type { OwnUserResponse } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -141,10 +141,8 @@ describe('Chat', () => {
     await waitFor(() => {
       expect(context).toBeInstanceOf(Object);
       expect(context.client).toBe(chatClient);
-      expect(context.channel).toBeUndefined();
       expect(context.mutes).toStrictEqual([]);
       expect(context.theme).toBe('messaging light');
-      expect(context.setActiveChannel).toBeInstanceOf(Function);
       expect(context.client.getUserAgent()).toMatch(
         new RegExp(
           `^stream-chat-react-.+-${originalUserAgent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
@@ -242,50 +240,6 @@ describe('Chat', () => {
 
       act(() => dispatchNotificationMutesUpdated(chatClientWithUser, null));
       await waitFor(() => expect(context.mutes).toStrictEqual([]));
-    });
-  });
-
-  describe('active channel', () => {
-    it('setActiveChannel query if there is a watcher', async () => {
-      let context: ChatContextValue;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      const channel = fromPartial<Channel>({ cid: 'cid', query: vi.fn() });
-      const watchers = { user_y: {} };
-      await waitFor(() => expect(context.channel).toBeUndefined());
-      await act(() => context.setActiveChannel(channel, watchers));
-      await waitFor(() => {
-        expect(context.channel).toStrictEqual(channel);
-        expect(channel.query).toHaveBeenCalledTimes(1);
-        expect(channel.query).toHaveBeenCalledWith({ watch: true, watchers });
-      });
-    });
-
-    it('setActiveChannel prevent event default', async () => {
-      let context: ChatContextValue;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      await waitFor(() => expect(context.setActiveChannel).not.toBeUndefined());
-
-      const e = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
-      await act(() => context.setActiveChannel(undefined, {}, e));
-      await waitFor(() => expect(e.preventDefault).toHaveBeenCalledTimes(1));
     });
   });
 

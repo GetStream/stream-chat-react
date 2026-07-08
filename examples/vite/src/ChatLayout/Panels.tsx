@@ -1,22 +1,33 @@
 import clsx from 'clsx';
-import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
-import { useEffect, useRef } from 'react';
+import type {
+  ChannelFilters,
+  ChannelOptions,
+  ChannelSort,
+  Channel as StreamChannel,
+  Thread as ThreadType,
+} from 'stream-chat';
+import { type MouseEvent, type PropsWithChildren, useEffect, useRef } from 'react';
 import {
   AIStateIndicator,
   Channel,
   ChannelAvatar,
   ChannelHeader,
-  ChannelList,
+  ChannelListItem,
+  ChannelNavigation,
   ChatView,
   type ChatViewSelectorEntry,
+  EmptyStateIndicator,
   MessageComposer,
   MessageList,
   Thread,
   ThreadList,
+  ThreadProvider,
   TypingIndicator,
-  useChannelStateContext,
-  useChatContext,
-  useThreadsViewContext,
+  useActiveThread,
+  useChatViewNavigation,
+  useSlotChannel,
+  useSlotThread,
+  useSlotThreads,
   VirtualizedMessageList,
   Window,
   WithComponents,
@@ -25,7 +36,11 @@ import {
 
 import { useAppSettingsSelector } from '../AppSettings/state';
 import { ConfiguredAvatarWithChannelDetail } from './ConfiguredChannelDetail.tsx';
-import { DESKTOP_LAYOUT_BREAKPOINT } from './constants.ts';
+import {
+  CHANNEL_THREAD_SLOT,
+  DESKTOP_LAYOUT_BREAKPOINT,
+  MAIN_CHANNEL_SLOT,
+} from './constants.ts';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
 import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
@@ -38,9 +53,48 @@ export const CHANNEL_LIST_TARGET_ID = 'app-channel-list';
 export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
   '[id^="str-chat__chat-view-"][id$="-tab-channels"]';
 
-const ChannelThreadPanel = () => {
-  const { thread } = useChannelStateContext('ChannelThreadPanel');
+// Shared sidebar overlay: the view selector (nav rail) + the view-specific list. Extracted
+// so the selector isn't duplicated across the channels/threads panels. (It still renders
+// per active view — the layout CSS scopes the collapsible overlay to each view's layout, so
+// a single always-mounted rail would need a separate CSS refactor.)
+const ChatSidebar = ({
+  children,
+  iconOnly,
+  itemSet,
+}: PropsWithChildren<{ iconOnly?: boolean; itemSet?: ChatViewSelectorEntry[] }>) => (
+  <div className='app-chat-sidebar-overlay'>
+    <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
+    {children}
+  </div>
+);
+
+// Channel list item whose click opens the channel via ChatView navigation. A plain click
+// opens it in the primary slot (default resolution); ctrl/⌘-click opens it beside the
+// current channel, in the secondary slot where the reply thread normally sits.
+const CustomChannelListItem = ({ item }: { item: unknown }) => {
+  const channel = item as StreamChannel;
+  const { open } = useChatViewNavigation();
+  const openChannel = (event: MouseEvent) => {
+    const binding = {
+      key: channel.cid ?? undefined,
+      kind: 'channel' as const,
+      source: channel,
+    };
+    open(
+      binding,
+      event.ctrlKey || event.metaKey ? { slot: CHANNEL_THREAD_SLOT } : undefined,
+    );
+  };
+  return <ChannelListItem channel={channel} onSelect={openChannel} />;
+};
+
+// The in-channel reply thread is opened into the channels view's dedicated thread slot
+// (bound by the message "reply in thread" / replies-count actions via `open`). It renders
+// only when a thread is bound; `ThreadProvider` feeds it to <Thread>, and `useActiveThread`
+// activates/deactivates it with window focus.
+const ChannelThreadPanel = ({ thread }: { thread?: ThreadType }) => {
   const isOpen = !!thread;
+  useActiveThread({ activeThread: thread });
 
   return (
     <>
@@ -51,27 +105,65 @@ const ChannelThreadPanel = () => {
         })}
       >
         <ReturnToSkipNavigation />
-        <Thread
-          additionalMessageComposerProps={{
-            audioRecordingEnabled: true,
-            asyncMessagesMultiSendEnabled: true,
-          }}
-          virtualized
-        />
+        {thread && (
+          <ThreadProvider thread={thread}>
+            <Thread
+              additionalMessageComposerProps={{
+                audioRecordingEnabled: true,
+                asyncMessagesMultiSendEnabled: true,
+              }}
+              virtualized
+            />
+          </ThreadProvider>
+        )}
+      </WithDragAndDropUpload>
+    </>
+  );
+};
+
+// The secondary channels-view slot can hold a 2nd channel (ctrl/⌘-click a channel in the
+// list) opened side-by-side, in the same spot the reply thread uses. It renders a full
+// channel in that column, with a button to close it (release the slot).
+const SecondChannelPanel = ({ channel }: { channel: StreamChannel }) => {
+  const { close } = useChatViewNavigation();
+
+  return (
+    <>
+      <ThreadResizeHandle isOpen />
+      <WithDragAndDropUpload className='str-chat__dropzone-root--thread app-chat-thread-panel app-chat-thread-panel--open'>
+        <Channel channel={channel}>
+          <Window>
+            <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
+            <div className='app-chat-view__channel-body'>
+              <button
+                className='str-chat__button str-chat__button--secondary'
+                onClick={() => close(CHANNEL_THREAD_SLOT)}
+                style={{ alignSelf: 'flex-end', margin: 'var(--str-chat__spacing-xs)' }}
+                type='button'
+              >
+                Close split
+              </button>
+              <MessageList returnAllReadData />
+              <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+            </div>
+          </Window>
+        </Channel>
       </WithDragAndDropUpload>
     </>
   );
 };
 
 const ResponsiveChannelPanels = () => {
-  const { thread } = useChannelStateContext('ResponsiveChannelPanels');
-  const isThreadOpen = !!thread;
+  // The secondary slot holds either a 2nd channel (ctrl/⌘-click) or the reply thread.
+  const sideChannel = useSlotChannel({ slot: CHANNEL_THREAD_SLOT });
+  const replyThread = useSlotThread({ slot: CHANNEL_THREAD_SLOT });
+  const isSideOpen = !!sideChannel || !!replyThread;
   const { type: messageListType } = useAppSettingsSelector((s) => s.messageList);
 
   return (
     <div
       className={clsx('app-chat-view__channel-content', {
-        'app-chat-view__channel-content--thread-open': isThreadOpen,
+        'app-chat-view__channel-content--thread-open': isSideOpen,
       })}
     >
       <WithDragAndDropUpload className='app-chat-view__channel-main'>
@@ -97,18 +189,18 @@ const ResponsiveChannelPanels = () => {
           </div>
         </Window>
       </WithDragAndDropUpload>
-      <ChannelThreadPanel />
+      {sideChannel ? (
+        <SecondChannelPanel channel={sideChannel} />
+      ) : (
+        <ChannelThreadPanel thread={replyThread} />
+      )}
     </div>
   );
 };
 
 export const ChannelsPanels = ({
-  filters,
   iconOnly,
-  initialChannelId,
   itemSet,
-  options,
-  sort,
 }: {
   filters: ChannelFilters;
   iconOnly?: boolean;
@@ -117,15 +209,18 @@ export const ChannelsPanels = ({
   options: ChannelOptions;
   sort: ChannelSort;
 }) => {
-  const { channel } = useChatContext('ChannelsPanels');
+  // The primary channel occupies the main panel; a 2nd channel (ctrl/⌘-click) or the reply
+  // thread shares the secondary slot, rendered by ResponsiveChannelPanels.
+  const mainChannel = useSlotChannel({ slot: MAIN_CHANNEL_SLOT });
+  const mainChannelId = mainChannel?.id;
   const { closeSidebar, sidebarOpen } = useSidebar();
   const channelsLayoutRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!channel?.id || typeof window === 'undefined') return;
+    if (!mainChannelId || typeof window === 'undefined') return;
     if (window.innerWidth >= DESKTOP_LAYOUT_BREAKPOINT) return;
     closeSidebar();
-  }, [channel?.id, closeSidebar]);
+  }, [mainChannelId, closeSidebar]);
 
   useEffect(() => {
     const channelListElement = channelsLayoutRef.current?.querySelector<HTMLElement>(
@@ -134,42 +229,59 @@ export const ChannelsPanels = ({
     if (!channelListElement) return;
 
     channelListElement.id = CHANNEL_LIST_TARGET_ID;
-  }, [channel?.id, sidebarOpen]);
+  }, [mainChannelId, sidebarOpen]);
 
   return (
-    <ChatView.Channels>
-      <div
-        className={clsx('app-chat-view__channels-layout', {
-          'app-chat-view__channels-layout--channel-selected': !!channel?.id,
-          'app-chat-view__channels-layout--sidebar-collapsed': !sidebarOpen,
-        })}
-        ref={channelsLayoutRef}
-      >
-        <div className='app-chat-sidebar-overlay'>
-          <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
-          <WithComponents
-            overrides={{
-              Avatar: ChannelAvatar,
-            }}
-          >
-            <ChannelList
-              customActiveChannel={initialChannelId}
-              filters={filters}
-              onRemovedFromChannel={() => undefined}
-              options={options}
-              showChannelSearch
-              sort={sort}
-            />
-          </WithComponents>
-        </div>
-        <SidebarResizeHandle layoutRef={channelsLayoutRef} />
-        <WithComponents overrides={{ TypingIndicator }}>
-          <Channel>
+    <div
+      className={clsx('app-chat-view__channels-layout', {
+        'app-chat-view__channels-layout--channel-selected': !!mainChannel,
+        'app-chat-view__channels-layout--sidebar-collapsed': !sidebarOpen,
+      })}
+      ref={channelsLayoutRef}
+    >
+      <ChatSidebar iconOnly={iconOnly} itemSet={itemSet}>
+        <WithComponents
+          overrides={{
+            Avatar: ChannelAvatar,
+            ListItem: CustomChannelListItem,
+          }}
+        >
+          <ChannelNavigation />
+        </WithComponents>
+      </ChatSidebar>
+      <SidebarResizeHandle layoutRef={channelsLayoutRef} />
+      <WithComponents overrides={{ TypingIndicator }}>
+        {mainChannel && (
+          <Channel channel={mainChannel}>
             <ResponsiveChannelPanels />
           </Channel>
+        )}
+      </WithComponents>
+    </div>
+  );
+};
+
+// Renders a single thread bound to a thread slot. Replaces the removed
+// ChatView.ThreadAdapter — the thread comes from the slot (via ThreadProvider) and
+// `useActiveThread` keeps it activated/deactivated with window focus.
+const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
+  useActiveThread({ activeThread: thread });
+
+  return (
+    <ThreadProvider thread={thread}>
+      <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+        <WithComponents overrides={{ TypingIndicator }}>
+          <ReturnToSkipNavigation />
+          <Thread
+            additionalMessageComposerProps={{
+              audioRecordingEnabled: true,
+              asyncMessagesMultiSendEnabled: true,
+            }}
+            virtualized
+          />
         </WithComponents>
-      </div>
-    </ChatView.Channels>
+      </WithDragAndDropUpload>
+    </ThreadProvider>
   );
 };
 
@@ -181,41 +293,36 @@ export const ThreadsPanels = ({
   itemSet?: ChatViewSelectorEntry[];
 }) => {
   const { sidebarOpen } = useSidebar();
-  const { activeThread } = useThreadsViewContext();
+  // Threads open in thread slots (one navigation model) — render each.
+  const threadSlots = useSlotThreads();
   const threadsLayoutRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <ChatView.Threads>
+    <>
       <ThreadStateSync />
       <div
         className={clsx('app-chat-view__threads-layout', {
-          'app-chat-view__threads-layout--thread-selected': !!activeThread?.id,
+          'app-chat-view__threads-layout--thread-selected': threadSlots.length > 0,
           'app-chat-view__threads-layout--sidebar-collapsed': !sidebarOpen,
         })}
         ref={threadsLayoutRef}
       >
-        <div className='app-chat-sidebar-overlay'>
-          <ChatView.Selector iconOnly={iconOnly} itemSet={itemSet} />
+        <ChatSidebar iconOnly={iconOnly} itemSet={itemSet}>
           <ThreadList />
-        </div>
+        </ChatSidebar>
         <SidebarResizeHandle layoutRef={threadsLayoutRef} />
         <div className='app-chat-view__threads-main'>
-          <ChatView.ThreadAdapter>
-            <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-              <WithComponents overrides={{ TypingIndicator }}>
-                <ReturnToSkipNavigation />
-                <Thread
-                  additionalMessageComposerProps={{
-                    audioRecordingEnabled: true,
-                    asyncMessagesMultiSendEnabled: true,
-                  }}
-                  virtualized
-                />
-              </WithComponents>
-            </WithDragAndDropUpload>
-          </ChatView.ThreadAdapter>
+          {threadSlots.length === 0 ? (
+            <div className='str-chat__thread-container str-chat__thread'>
+              <EmptyStateIndicator listType='message' />
+            </div>
+          ) : (
+            threadSlots.map(({ slot, thread }) => (
+              <ThreadPanel key={slot} thread={thread} />
+            ))
+          )}
         </div>
       </div>
-    </ChatView.Threads>
+    </>
   );
 };

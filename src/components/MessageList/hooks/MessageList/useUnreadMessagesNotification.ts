@@ -1,7 +1,9 @@
-import { useChannelStateContext } from '../../../../context';
 import { useEffect, useRef, useState } from 'react';
 import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageListMainPanel';
 import { UNREAD_MESSAGE_SEPARATOR_CLASS } from '../../UnreadMessagesSeparator';
+import type { MessagePaginatorState, UnreadSnapshotState } from 'stream-chat';
+import { useStateStore } from '../../../../store';
+import { useMessagePaginator } from '../../../../hooks';
 
 const targetScrolledAboveVisibleContainerArea = (
   element: Element,
@@ -29,13 +31,30 @@ export type UseUnreadMessagesNotificationParams = {
   unreadCount?: number;
 };
 
+const messagePaginatorStateSelector = (state: MessagePaginatorState) => ({
+  messages: state.items ?? [],
+});
+
+const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
+  unreadCount: state.unreadCount,
+});
+
 export const useUnreadMessagesNotification = ({
   isMessageListScrolledToBottom,
   listElement,
   showAlways,
-  unreadCount,
 }: UseUnreadMessagesNotificationParams) => {
-  const { messages } = useChannelStateContext('UnreadMessagesNotification');
+  const messagePaginator = useMessagePaginator();
+
+  const { messages } = useStateStore(
+    messagePaginator.state,
+    messagePaginatorStateSelector,
+  );
+
+  const { unreadCount } = useStateStore(
+    messagePaginator.unreadStateSnapshot,
+    unreadStateSnapshotSelector,
+  );
   const [show, setShow] = useState(false);
   const isScrolledAboveTargetTop = useRef(false);
   const intersectionObserverIsSupported = typeof IntersectionObserver !== 'undefined';
@@ -56,7 +75,7 @@ export const useUnreadMessagesNotification = ({
         UNREAD_MESSAGE_SEPARATOR_CLASS,
       );
       if (!observedTarget) {
-        setShow(true);
+        setShow(unreadCount > 0);
       }
       return;
     }
@@ -65,7 +84,7 @@ export const useUnreadMessagesNotification = ({
       UNREAD_MESSAGE_SEPARATOR_CLASS,
     );
     if (!observedTarget) {
-      setShow(true);
+      setShow(unreadCount > 0);
       return;
     }
 

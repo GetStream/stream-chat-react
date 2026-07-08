@@ -18,6 +18,7 @@ import {
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { PlayButton } from '../Button';
+import { useThreadContext } from '../Threads';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -121,7 +122,8 @@ export const VoiceRecordingPlayer = ({
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  const { message } = useMessageContext() ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration ?? 0,
@@ -130,7 +132,7 @@ export const VoiceRecordingPlayer = ({
     playbackRates,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
     waveformData: waveform_data,

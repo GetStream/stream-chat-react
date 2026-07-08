@@ -1,36 +1,36 @@
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useChatContext } from '../../../context/ChatContext';
-import { useTranslationContext } from '../../../context/TranslationContext';
-import { isDmChannel } from '../../../utils';
-import { useChannelHasMembersOnline } from './useChannelHasMembersOnline';
-import type { Channel } from 'stream-chat';
+import type { MembersState, WatcherState } from 'stream-chat';
 
-export type UseChannelHeaderOnlineStatusParams = {
-  channel?: Channel;
-  watcherCount?: number;
-};
+import { useChannel, useTranslationContext } from '../../../context';
+import { useStateStore } from '../../../store';
+import { useIsDmChannel } from '../../../hooks';
+import { useChannelHasMembersOnline } from './useChannelHasMembersOnline';
+
+const memberCountSelector = (nextValue: MembersState) => ({
+  memberCount: nextValue.memberCount,
+});
+
+const watcherCountSelector = (nextValue: WatcherState) => ({
+  watcherCount: nextValue.watcherCount,
+});
 
 /**
- * Returns the channel header online status text (e.g. "Online", "Offline", or "X members, Y online").
- * Returns null when the channel has no members (nothing to show).
+ * Returns the channel header online status text (e.g. "Online", "Offline", or
+ * "X members · Y online"). Returns null when the channel has no members (nothing to show).
+ *
+ * Reactive counts come from the channel's members/watcher state stores; DM detection and
+ * "others online" are delegated to `useIsDmChannel` / `useChannelHasMembersOnline`, which
+ * subscribe to the state they each need.
  */
-export function useChannelHeaderOnlineStatus({
-  channel: channelOverride,
-  watcherCount: watcherCountOverride,
-}: UseChannelHeaderOnlineStatusParams = {}): string | null {
+export function useChannelHeaderOnlineStatus(): string | null {
   const { t } = useTranslationContext();
-  const { client } = useChatContext();
-  const { channel: contextChannel, watcherCount: contextWatcherCount = 0 } =
-    useChannelStateContext();
-  const channel = channelOverride ?? contextChannel;
-  const watcherCount = watcherCountOverride ?? contextWatcherCount;
-  const { member_count: memberCount = 0 } = channel?.data || {};
-  const isDirectMessagingChannel = isDmChannel({
-    channel,
-    ownUserId: client.user?.id,
-  });
+  const channel = useChannel();
+  const { memberCount } = useStateStore(channel.state.membersStore, memberCountSelector);
+  const { watcherCount } = useStateStore(
+    channel.state.watcherStore,
+    watcherCountSelector,
+  );
+  const isDirectMessagingChannel = useIsDmChannel();
   const hasMembersOnline = useChannelHasMembersOnline({
-    channel,
     enabled: isDirectMessagingChannel,
   });
 

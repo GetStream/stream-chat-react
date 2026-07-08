@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useRef, useState } from 'react';
 import React from 'react';
 import type { Coords, SharedLocationResponse } from 'stream-chat';
-import { useChatContext, useTranslationContext } from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
 import { ExternalLinkIcon } from './icons';
 import { IconLocation } from '../Icons';
 import { Button } from '../Button';
@@ -21,7 +21,8 @@ export const Geolocation = ({
   GeolocationMap,
   location,
 }: GeolocationProps) => {
-  const { channel, client } = useChatContext();
+  const { client } = useChatContext();
+  const channel = useChannel();
   const { t } = useTranslationContext();
 
   const [stoppedSharing, setStoppedSharing] = useState(

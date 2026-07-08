@@ -1,14 +1,15 @@
+import type { ComponentPropsWithoutRef } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
 import type { ThreadState } from 'stream-chat';
-import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
 import { useChannelPreviewInfo } from '../../ChannelListItem';
 import { useChatContext, useTranslationContext } from '../../../context';
-import { useThreadsViewContext } from '../../ChatView';
+import { getChatViewEntityBinding, useChatViewNavigation } from '../../ChatView';
+import { useLayoutViewState } from '../../ChatView/hooks/useLayoutViewState';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
@@ -22,6 +23,7 @@ export const ThreadListItemUI = ({
   resetHighlighting,
   ...props
 }: ThreadListItemUIProps) => {
+  const { onClick: onClickFromProps, ...buttonProps } = props;
   const { client } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
@@ -52,8 +54,12 @@ export const ThreadListItemUI = ({
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');
-
-  const { activeThread, setActiveThread } = useThreadsViewContext();
+  const { open } = useChatViewNavigation();
+  const { availableSlots, slotBindings } = useLayoutViewState();
+  const isSelected = availableSlots.some((slot) => {
+    const binding = getChatViewEntityBinding(slotBindings[slot]);
+    return binding?.kind === 'thread' && binding.source.id === thread.id;
+  });
 
   const avatarProps: Partial<AvatarProps> | undefined = deletedAt
     ? undefined
@@ -88,15 +94,22 @@ export const ThreadListItemUI = ({
   return (
     <div className='str-chat__thread-list-item-container'>
       <button
-        aria-selected={activeThread === thread}
+        aria-selected={isSelected}
         className={clsx('str-chat__thread-list-item', {
           'str-chat__thread-list-item--highlighted':
             typeof resetHighlighting !== 'undefined',
         })}
         data-thread-id={thread.id}
-        onClick={() => setActiveThread(thread)}
+        onClick={(event) => {
+          const slot = event.ctrlKey || event.metaKey ? 'optional-thread' : 'main-thread';
+          void open(
+            { key: thread.id ?? undefined, kind: 'thread', source: thread },
+            { slot },
+          );
+          onClickFromProps?.(event);
+        }}
         role='option'
-        {...props}
+        {...buttonProps}
       >
         <Avatar size='xl' {...avatarProps} />
         <div className='str-chat__thread-list-item__content'>

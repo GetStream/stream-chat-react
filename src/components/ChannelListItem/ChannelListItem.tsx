@@ -18,6 +18,7 @@ import {
   useComponentContext,
 } from '../../context';
 import { useChannelMembershipState } from '../ChannelList';
+import { useSlotForKey } from '../ChatView';
 
 export type ChannelListItemUIProps = ChannelListItemProps & {
   /** Image of Channel to display */
@@ -61,8 +62,6 @@ export type ChannelListItemProps = {
   key?: string;
   /** Custom ChannelListItem click handler function */
   onSelect?: (event: React.MouseEvent) => void;
-  /** Setter for selected Channel */
-  setActiveChannel?: ChatContextValue['setActiveChannel'];
   /** Object containing watcher parameters */
   watchers?: { limit?: number; offset?: number };
 };
@@ -81,12 +80,11 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
     getLatestMessagePreview = defaultGetLatestMessagePreview,
   } = props;
   const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
-  const {
-    channel: activeChannel,
-    client,
-    isMessageAIGenerated,
-    setActiveChannel,
-  } = useChatContext('ChannelPreview');
+  const { client, isMessageAIGenerated } = useChatContext('ChannelPreview');
+  // Active = THIS channel is currently bound in some channel slot. Keyed on the
+  // channel's own cid (never "the first channel slot"), so multiple open channels
+  // each highlight independently.
+  const channelOpenInSlot = useSlotForKey(channel.cid ?? undefined);
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
@@ -106,8 +104,7 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
     lastMessage,
   });
 
-  const isActive =
-    typeof active === 'undefined' ? activeChannel?.cid === channel.cid : active;
+  const isActive = typeof active === 'undefined' ? !!channelOpenInSlot : active;
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
@@ -208,7 +205,6 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
         messageDeliveryStatus={messageDeliveryStatus}
         muted={muted}
         pinned={!!membership.pinned_at}
-        setActiveChannel={setActiveChannel}
         unread={unread}
       />
     </ChannelListItemContext.Provider>

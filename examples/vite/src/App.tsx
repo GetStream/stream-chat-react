@@ -21,7 +21,6 @@ import {
   Chat,
   ChatView,
   defaultReactionOptions,
-  DialogManagerProvider,
   mapEmojiMartData,
   MessageReactions,
   NotificationList,
@@ -38,7 +37,11 @@ import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
-import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
+import {
+  CHANNEL_THREAD_SLOT,
+  DESKTOP_LAYOUT_BREAKPOINT,
+  MAIN_CHANNEL_SLOT,
+} from './ChatLayout/constants.ts';
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
@@ -213,6 +216,15 @@ const reactionsVariant = getReactionsVariant();
 const attachmentActionsVariant = getAttachmentActionsVariant();
 const globalDialogManager = 'globalDialogManager';
 
+// Per-view layout descriptors (D8): each view declares its own slot topology. Module-scoped
+// so the reference is stable (it feeds the ChatView layout controller). The channels view
+// holds the open channel plus a reply-thread slot (the in-channel Thread panel); the threads
+// view holds a primary + an optional (ctrl/⌘-click) thread slot.
+const chatViewLayouts = [
+  { id: 'channels' as const, slots: [MAIN_CHANNEL_SLOT, CHANNEL_THREAD_SLOT] },
+  { id: 'threads' as const, slots: ['main-thread', 'optional-thread'] },
+];
+
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
@@ -386,6 +398,26 @@ const App = () => {
     [initialPanelLayout.leftPanel.width, initialPanelLayout.threadPanel.width],
   );
 
+  // Memoized so the ChatView `views` map keeps a stable reference across renders.
+  const chatViews = useMemo(
+    () => ({
+      channels: (
+        <ChannelsPanels
+          filters={filters}
+          iconOnly={chatView.iconOnly}
+          initialChannelId={initialChannelId ?? undefined}
+          itemSet={chatViewSelectorItemSet}
+          options={options}
+          sort={sort}
+        />
+      ),
+      threads: (
+        <ThreadsPanels iconOnly={chatView.iconOnly} itemSet={chatViewSelectorItemSet} />
+      ),
+    }),
+    [chatView.iconOnly, filters, initialChannelId, options],
+  );
+
   if (!chatClient) {
     return (
       <LoadingScreen
@@ -453,23 +485,18 @@ const App = () => {
                 iconOnly={chatView.iconOnly}
                 layoutRef={appLayoutRef}
               />
-              <ChatView>
-                <DialogManagerProvider id={globalDialogManager}>
-                  <ChatStateSync initialChatView={initialChatView} />
-                  <SidebarLayoutSync />
-                  <ChannelsPanels
-                    filters={filters}
-                    iconOnly={chatView.iconOnly}
-                    initialChannelId={initialChannelId ?? undefined}
-                    itemSet={chatViewSelectorItemSet}
-                    options={options}
-                    sort={sort}
-                  />
-                  <ThreadsPanels
-                    iconOnly={chatView.iconOnly}
-                    itemSet={chatViewSelectorItemSet}
-                  />
-                </DialogManagerProvider>
+              {/* ChatView hosts the dialog manager inside its own `.str-chat` root, so
+                  view-content dialogs (context menus, member actions) are correctly scoped
+                  and styled — no external provider/wrapper needed. */}
+              <ChatView
+                dialogManagerId={globalDialogManager}
+                layouts={chatViewLayouts}
+                maxSlots={2}
+                minSlots={2}
+                views={chatViews}
+              >
+                <ChatStateSync initialChatView={initialChatView} />
+                <SidebarLayoutSync />
               </ChatView>
             </div>
           </div>

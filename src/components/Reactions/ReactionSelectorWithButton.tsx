@@ -28,6 +28,11 @@ export const ReactionSelectorWithButton = ({
   const { ReactionSelector = DefaultReactionSelector } =
     useComponentContext('MessageOptions');
   const buttonRef = useRef<ComponentRef<'button'>>(null);
+  // MUST match the id `MessageActions` derives via `ReactionSelector.getDialogId` — it
+  // uses that to keep `.str-chat__message-options--active` applied while the reaction
+  // dialog is open. If the ids diverge, the options (and this trigger button) hide when
+  // focus moves into the portaled dialog, the reference collapses to a 0-size rect, and
+  // the popover falls back to the 8,8 corner. Derive from the same shared helper.
   const dialogId = DefaultReactionSelector.getDialogId({
     messageId: message.id,
     threadList,

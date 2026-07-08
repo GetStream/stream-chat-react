@@ -13,6 +13,7 @@ import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button/PlayButton';
 import { FileIcon } from '../FileIcon';
 import { DurationDisplay, ProgressBar } from '../AudioPlayback';
+import { useThreadContext } from '../Threads';
 
 type AudioAttachmentUIProps = {
   audioPlayer: AudioPlayer;
@@ -100,7 +101,8 @@ export const Audio = (props: AudioProps) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  const { message } = useMessageContext() ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration,
@@ -108,7 +110,7 @@ export const Audio = (props: AudioProps) => {
     mimeType: mime_type,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
     waveformData: props.attachment.waveform_data,

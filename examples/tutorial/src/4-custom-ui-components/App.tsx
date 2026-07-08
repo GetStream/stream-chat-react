@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
+import type { User } from 'stream-chat';
 import {
   Channel,
   ChannelAvatar,
   ChannelHeader,
-  ChannelList,
   type ChannelListItemUIProps,
+  ChannelNavigation,
   Chat,
+  ChatView,
   MessageComposer,
   MessageList,
   Thread,
+  useChatViewNavigation,
   useCreateChatClient,
   useMessageContext,
+  useSlotChannels,
   Window,
   WithComponents,
 } from 'stream-chat-react';
@@ -25,37 +28,22 @@ const user: User = {
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
 
-const sort: ChannelSort = { last_message_at: -1 };
-const filters: ChannelFilters = {
-  type: 'messaging',
-  members: { $in: [userId] },
-};
-const options: ChannelOptions = {
-  limit: 10,
-};
-
 const CustomChannelListItem = ({
   active,
   channel,
   displayImage,
   displayTitle,
   latestMessagePreview,
-  onSelect,
-  setActiveChannel,
 }: ChannelListItemUIProps) => {
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (onSelect) {
-      onSelect(event);
-      return;
-    }
-
-    setActiveChannel?.(channel, undefined, event);
-  };
+  // Selection is one navigation model: open the channel into a layout slot.
+  const { open } = useChatViewNavigation();
 
   return (
     <button
       aria-pressed={active}
-      onClick={handleClick}
+      onClick={() =>
+        open({ key: channel.cid ?? undefined, kind: 'channel', source: channel })
+      }
       style={{
         width: '100%',
         padding: '12px',
@@ -114,6 +102,29 @@ const CustomMessage = () => {
   );
 };
 
+// One view ("channels") with a single channel slot. Module-scoped for a stable reference.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel'] }];
+
+const ChannelsWorkspace = () => {
+  const channelSlots = useSlotChannels();
+
+  return (
+    <>
+      <ChannelNavigation />
+      {channelSlots.map(({ channel, slot }) => (
+        <Channel channel={channel} key={slot}>
+          <Window>
+            <ChannelHeader />
+            <MessageList />
+            <MessageComposer />
+          </Window>
+          <Thread />
+        </Channel>
+      ))}
+    </>
+  );
+};
+
 const App = () => {
   const [isReady, setIsReady] = useState(false);
   const client = useCreateChatClient({
@@ -152,15 +163,7 @@ const App = () => {
       }}
     >
       <Chat client={client} theme='custom-theme'>
-        <ChannelList filters={filters} options={options} sort={sort} />
-        <Channel>
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageComposer />
-          </Window>
-          <Thread />
-        </Channel>
+        <ChatView layouts={chatViewLayouts} views={{ channels: <ChannelsWorkspace /> }} />
       </Chat>
     </WithComponents>
   );

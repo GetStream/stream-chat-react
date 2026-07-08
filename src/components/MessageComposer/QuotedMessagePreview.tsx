@@ -31,7 +31,7 @@ import {
   type SharedLocationResponse,
   type TranslationLanguages,
 } from 'stream-chat';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useAttachmentContext } from '../../context/AttachmentContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
@@ -39,6 +39,7 @@ import {
   IconFile,
   IconLink,
   IconLocation,
+  IconNoSign,
   IconPlayFill,
   IconPoll,
   IconVideo,
@@ -49,6 +50,7 @@ import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 import { getRenderTextMentionEntities } from '../Message/renderText/rehypePlugins';
+import { isDeletedMessage } from '../MessageList';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,
@@ -184,7 +186,10 @@ const getAttachmentIconWithType = (
     PreviewImage: null,
     previewType: null,
   };
-  if (!groupedAttachments.total) return result;
+  if (isDeletedMessage(quotedMessage)) {
+    return { ...result, Icon: IconNoSign };
+  }
+  if (!groupedAttachments.total || isDeletedMessage(quotedMessage)) return result;
   if (groupedAttachments.polls.length > 0)
     return { ...result, Icon: IconPoll, previewType: 'poll' };
   if (groupedAttachments.locations.length > 0)
@@ -329,8 +334,9 @@ export const QuotedMessagePreviewUI = ({
 }: QuotedMessagePreviewUIProps) => {
   const { client } = useChatContext();
   const { t, userLanguage } = useTranslationContext();
-  const { giphyVersion: giphyVersionName = 'fixed_height' } =
-    useChannelStateContext('QuotedMessagePreview');
+  // MERGE-RECONCILE: `giphyVersion` was read from the deleted ChannelStateContext;
+  // migrated to the PR's source (useAttachmentContext().giphyVersion — same as Giphy.tsx).
+  const { giphyVersion: giphyVersionName = 'fixed_height' } = useAttachmentContext();
 
   const quotedMessageText = useMemo(
     () =>
@@ -368,7 +374,9 @@ export const QuotedMessagePreviewUI = ({
 
     let renderedText: ReactNode | undefined;
 
-    if (!quotedMessageText) {
+    if (isDeletedMessage(quotedMessage)) {
+      renderedText = t('Message deleted');
+    } else if (!quotedMessageText) {
       if (previewType === 'poll') {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         renderedText = quotedMessage.poll!.name;

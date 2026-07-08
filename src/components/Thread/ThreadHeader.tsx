@@ -1,22 +1,24 @@
 import React from 'react';
 
-import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannel } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
+import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { useTypingContext } from '../../context/TypingContext';
 
 import type { LocalMessage } from 'stream-chat';
-import type { ThreadState } from 'stream-chat';
+import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
 import { IconXmark } from '../Icons';
 import { useChatViewContext } from '../ChatView';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 /** Fallback when channel has no display title: parent message author (name only). */
 const displayNameFromParentMessage = (message: LocalMessage): string | undefined =>
@@ -33,11 +35,14 @@ const ThreadHeaderSubtitle = ({
   threadList: boolean;
 }) => {
   const { t } = useTranslationContext();
-  const { channelConfig, thread } = useChannelStateContext('ThreadHeaderSubtitle');
+  const channel = useChannel();
+  const channelConfig = useChannelConfig({ cid: channel?.cid });
   const threadInstance = useThreadContext();
-  const parentId = threadInstance?.id ?? thread?.id;
+  const parentId = threadInstance?.id;
   const { client } = useChatContext('ThreadHeaderSubtitle');
-  const { typing = {} } = useTypingContext('ThreadHeaderSubtitle');
+  const messageComposer = useMessageComposerController();
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
   const typingInThread = Object.values(typing).filter(
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );
@@ -75,7 +80,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   const { closeThread, overrideTitle, thread } = props;
 
   const { t } = useTranslationContext();
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { HeaderStartContent } = useComponentContext();
   const { activeChatView } = useChatViewContext();
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
@@ -110,7 +115,13 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
           threadList
         />
       </div>
-      {!threadInstance && (
+      {/* The close button belongs to the in-channel reply thread (a side panel that is
+          closed/released). In the threads view the thread IS the main panel — you switch
+          views rather than close it — so it is hidden there. NB: master keyed this on
+          `!threadInstance` (its reply threads were message-based, not Thread instances);
+          the slot model opens reply threads as Thread instances, so that check would now
+          wrongly hide the button in the channels view — key on the active view instead. */}
+      {activeChatView !== 'threads' && (
         <div className='str-chat__thread-header__end'>
           <Button
             appearance='ghost'

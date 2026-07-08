@@ -75,20 +75,13 @@ export const useFloatingDateSeparatorMessageList = ({
 
     throttled();
     listElement.addEventListener('scroll', throttled);
-
-    if (typeof ResizeObserver === 'undefined') {
-      return () => {
-        listElement.removeEventListener('scroll', throttled);
-        throttled.cancel();
-      };
-    }
-
-    const resizeObserver = new ResizeObserver(throttled);
-    resizeObserver.observe(listElement);
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(throttled) : undefined;
+    resizeObserver?.observe(listElement);
 
     return () => {
       listElement.removeEventListener('scroll', throttled);
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
       throttled.cancel();
     };
   }, [listElement, update]);

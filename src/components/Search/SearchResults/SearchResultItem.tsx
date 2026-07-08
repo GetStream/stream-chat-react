@@ -6,6 +6,8 @@ import type { Channel, MessageResponse, User } from 'stream-chat';
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
 import { ChannelListItem } from '../../../components/ChannelListItem';
+import { useSlotForKey } from '../../../components/ChatView';
+import { useChatViewNavigation } from '../../../components/ChatView/ChatViewNavigationContext';
 import {
   useChannelListContext,
   useChatContext,
@@ -19,13 +21,13 @@ export type ChannelSearchResultItemProps = {
 };
 
 export const ChannelSearchResultItem = ({ item }: ChannelSearchResultItemProps) => {
-  const { setActiveChannel } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
 
   const onSelect = useCallback(() => {
-    setActiveChannel(item);
+    open({ key: item.cid ?? undefined, kind: 'channel', source: item });
     setChannels?.((channels) => uniqBy([item, ...channels], 'cid'));
-  }, [item, setActiveChannel, setChannels]);
+  }, [item, open, setChannels]);
 
   return (
     <ChannelListItem
@@ -43,12 +45,8 @@ export type ChannelByMessageSearchResultItemProps = {
 export const MessageSearchResultItem = ({
   item,
 }: ChannelByMessageSearchResultItemProps) => {
-  const {
-    channel: activeChannel,
-    client,
-    searchController,
-    setActiveChannel,
-  } = useChatContext();
+  const { client, searchController } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
 
   const channel = useMemo(() => {
@@ -57,6 +55,10 @@ export const MessageSearchResultItem = ({
     const id = channelData?.id ?? 'unknown';
     return client.channel(type, id);
   }, [client, item]);
+
+  // Active = this result's channel is currently open in a slot (by identity), not
+  // "the first channel slot".
+  const channelOpenInSlot = useSlotForKey(channel?.cid ?? undefined);
 
   const onSelect = useCallback(async () => {
     if (!channel) return;
@@ -67,9 +69,9 @@ export const MessageSearchResultItem = ({
     );
     // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
     searchController._internalState.partialNext({ focusedMessage: item });
-    setActiveChannel(channel);
+    open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
     setChannels?.((channels) => uniqBy([channel, ...channels], 'cid'));
-  }, [channel, item, searchController, setActiveChannel, setChannels]);
+  }, [channel, item, open, searchController, setChannels]);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const getLatestMessagePreview = useCallback(() => item.text!, [item]);
@@ -79,7 +81,7 @@ export const MessageSearchResultItem = ({
   return (
     <ChannelListItem
       active={
-        channel.cid === activeChannel?.cid &&
+        !!channelOpenInSlot &&
         item.id === searchController._internalState.getLatestValue().focusedMessage?.id
       }
       channel={channel}
@@ -95,7 +97,8 @@ export type UserSearchResultItemProps = {
 };
 
 export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
-  const { client, setActiveChannel } = useChatContext();
+  const { client } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
@@ -105,9 +108,9 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
       members: [client.userID as string, item.id],
     });
     newChannel.watch();
-    setActiveChannel(newChannel);
+    open({ key: newChannel.cid ?? undefined, kind: 'channel', source: newChannel });
     setChannels?.((channels) => uniqBy([newChannel, ...channels], 'cid'));
-  }, [client, item, setActiveChannel, setChannels, directMessagingChannelType]);
+  }, [client, item, open, setChannels, directMessagingChannelType]);
 
   return (
     <div className='str-chat__search-result-container'>

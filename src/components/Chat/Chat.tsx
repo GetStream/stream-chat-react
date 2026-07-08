@@ -2,6 +2,8 @@ import type { PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
 import type { StreamChat } from 'stream-chat';
 import {
+  ChannelPaginator,
+  ChannelPaginatorsOrchestrator,
   ChannelSearchSource,
   MessageSearchSource,
   SearchController,
@@ -77,6 +79,12 @@ const ModalNotificationConfiguration = ({
 export type ChatProps = {
   /** The StreamChat client object */
   client: StreamChat;
+  /**
+   * Orchestrator managing the channel-list paginators (data source + cross-list
+   * ownership). Defaults to a single `channels:default` paginator over the current
+   * user's channels.
+   */
+  channelPaginatorsOrchestrator?: ChannelPaginatorsOrchestrator;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
@@ -105,6 +113,7 @@ export type ChatProps = {
  */
 export const Chat = (props: PropsWithChildren<ChatProps>) => {
   const {
+    channelPaginatorsOrchestrator: customChannelPaginatorsOrchestrator,
     children,
     client,
     customClasses,
@@ -117,14 +126,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     useImageFlagEmojisOnWindows = false,
   } = props;
 
-  const {
-    channel,
-    getAppSettings,
-    latestMessageDatesByChannels,
-    mutes,
-    setActiveChannel,
-    translators,
-  } = useChat({
+  const { getAppSettings, latestMessageDatesByChannels, mutes, translators } = useChat({
     client,
     defaultLanguage,
     i18nInstance,
@@ -145,8 +147,25 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     [client, customChannelSearchController],
   );
 
+  const channelPaginatorsOrchestrator = useMemo(
+    () =>
+      customChannelPaginatorsOrchestrator ??
+      new ChannelPaginatorsOrchestrator({
+        client,
+        paginators: [
+          new ChannelPaginator({
+            client,
+            filters: client.user?.id ? { members: { $in: [client.user.id] } } : {},
+            id: 'channels:default',
+            sort: { last_message_at: -1, pinned_at: 1, updated_at: -1 },
+          }),
+        ],
+      }),
+    [client, customChannelPaginatorsOrchestrator],
+  );
+
   const chatContextValue = useCreateChatContext({
-    channel,
+    channelPaginatorsOrchestrator,
     channelsQueryState,
     client,
     customClasses,
@@ -155,7 +174,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     latestMessageDatesByChannels,
     mutes,
     searchController,
-    setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   });

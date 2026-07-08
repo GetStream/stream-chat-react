@@ -18,6 +18,7 @@ import {
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
+import { useChatViewNavigation } from '../../../../components/ChatView';
 import { useStableCallback } from '../../../../utils';
 import { useStateStore } from '../../../../store';
 import { Alert } from '../../../../components/Dialog';
@@ -207,7 +208,8 @@ export const useBaseChannelMemberActionSetFilter = (
 };
 
 const SendDirectMessageAction = () => {
-  const { client, setActiveChannel } = useChatContext();
+  const { client } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { setChannels } = useChannelListContext();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
@@ -225,7 +227,14 @@ const SendDirectMessageAction = () => {
         members: [client.userID, targetUserId],
       });
       await directMessageChannel.watch();
-      setActiveChannel(directMessageChannel);
+      // Selection is one navigation model: open the DM into a layout slot. The
+      // `setChannels` bridge ingests it into the channel list (via the orchestrator's
+      // primary paginator) so it appears without a full re-query.
+      open({
+        key: directMessageChannel.cid ?? undefined,
+        kind: 'channel',
+        source: directMessageChannel,
+      });
       setChannels?.((channels) => uniqBy([directMessageChannel, ...channels], 'cid'));
       close();
     } catch (error) {
@@ -246,7 +255,7 @@ const SendDirectMessageAction = () => {
     client,
     close,
     isSending,
-    setActiveChannel,
+    open,
     setChannels,
     t,
     targetUserId,

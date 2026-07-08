@@ -4,15 +4,22 @@ import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avat
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
-import { useTypingContext } from '../../context/TypingContext';
+import { useChannel, useChatContext, useComponentContext } from '../../context';
+import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { useStateStore } from '../../store';
+
+import type { TextComposerState } from 'stream-chat';
+
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 const ChannelHeaderSubtitle = () => {
-  const { channelConfig } = useChannelStateContext('ChannelHeaderSubtitle');
+  const channel = useChannel();
+  const channelConfig = useChannelConfig({ cid: channel.cid });
   const { client } = useChatContext('ChannelHeaderSubtitle');
-  const { typing = {} } = useTypingContext('ChannelHeaderSubtitle');
+  const messageComposer = useMessageComposerController();
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
   const onlineStatusText = useChannelHeaderOnlineStatus();
   const typingInChannel = Object.values(typing).filter(
     ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
@@ -48,7 +55,7 @@ export type ChannelHeaderProps = {
 export const ChannelHeader = (props: ChannelHeaderProps) => {
   const { Avatar = DefaultAvatar, image: overrideImage, title: overrideTitle } = props;
 
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { HeaderStartContent } = useComponentContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,

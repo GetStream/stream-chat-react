@@ -1,121 +1,106 @@
-import React, { useEffect, useMemo } from 'react';
+import React from 'react';
 import clsx from 'clsx';
+import type { TextComposerState, ThreadState } from 'stream-chat';
 
-import { AvatarStack } from '../Avatar';
-import { TypingIndicatorDots } from './TypingIndicatorDots';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useTypingContext } from '../../context/TypingContext';
-import { useThreadContext } from '../Threads';
-import { VisuallyHidden } from '../VisuallyHidden';
+import { useThreadContext } from '../Threads/ThreadContext';
+import { useStateStore } from '../../store';
+import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 
-import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
-import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
+const threadParentMessageSelector = ({ parentMessage }: ThreadState) => ({
+  parentMessage,
+});
 
-export type TypingIndicatorProps = {
-  /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
-  isMessageListScrolledToBottom?: boolean;
-  scrollToBottom: () => void;
-  /** Whether the typing indicator is in a thread */
-  threadList?: boolean;
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
+
+const useJoinTypingUsers = (names: string[]) => {
+  const { t } = useTranslationContext();
+
+  if (!names.length) return null;
+
+  const [name, ...rest] = names;
+
+  if (names.length === 1)
+    return t('{{ user }} is typing...', {
+      user: name,
+    });
+
+  const MAX_JOINED_USERS = 3;
+
+  if (names.length > MAX_JOINED_USERS)
+    return t('{{ users }} and more are typing...', {
+      users: names.slice(0, MAX_JOINED_USERS).join(', ').trim(),
+    });
+
+  return t('{{ users }} and {{ user }} are typing...', {
+    user: name,
+    users: rest.join(', ').trim(),
+  });
 };
 
+// MERGE-RECONCILE: took PR #2909's no-props TypingIndicator (the merged MessageList
+// renders <TypingIndicator />). Master's richer version (isMessageListScrolledToBottom/
+// scrollToBottom/threadList props, useDebouncedTypingActive, AvatarStack of typing users,
+// a11y typingAnnouncement via VisuallyHidden) was NOT carried over. Reconcile if those
+// features are desired.
 /**
- * TypingIndicator shows avatars of users currently typing and a bubble with animated dots.
- * Renders only for other participants (never the current user), only when scrolled to latest message if isMessageListScrolledToBottom is provided.
- * It must be a child of Channel component.
+ * TypingIndicator lists users currently typing, it needs to be a child of Channel component
  */
-const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
-  const { isMessageListScrolledToBottom = true, scrollToBottom, threadList } = props;
-
-  const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
-  const threadInstance = useThreadContext();
-  const parentId = threadInstance?.id ?? thread?.id;
+export const TypingIndicator = () => {
+  const messageComposer = useMessageComposerController();
+  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
   const { client } = useChatContext('TypingIndicator');
-  const { t } = useTranslationContext();
-  const { typing = {} } = useTypingContext('TypingIndicator');
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
+  const { parentMessage } =
+    useStateStore(thread?.state, threadParentMessageSelector) ?? {};
 
-  const typingInChannel = !threadList
+  const typingInChannel = !isThreadList
     ? Object.values(typing).filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
       )
     : [];
 
-  const typingInThread = threadList
+  const typingInThread = isThreadList
     ? Object.values(typing).filter(
-        ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
+        ({ parent_id, user }) =>
+          user?.id !== client.user?.id && parent_id === parentMessage?.id,
       )
     : [];
 
-  const typingUsers = threadList ? typingInThread : typingInChannel;
-  const { displayUsers } = useDebouncedTypingActive(typingUsers);
-  const showIndicator = displayUsers.length > 0;
-  const typingAnnouncement = useMemo(
-    () => getTypingStatusMessage(displayUsers, t),
-    [displayUsers, t],
-  );
+  const typingUserList = (isThreadList ? typingInThread : typingInChannel)
+    .map(({ user }) => user?.name || user?.id)
+    .filter(Boolean) as string[];
 
-  const displayInfo = useMemo(
-    () =>
-      displayUsers.map(
-        ({ user }) =>
-          ({
-            id: user?.id,
-            imageUrl: user?.image,
-            userName: user?.name,
-          }) as const,
-      ),
-    [displayUsers],
-  );
+  const joinedTypingUsers = useJoinTypingUsers(typingUserList);
 
-  useEffect(() => {
-    if (showIndicator && isMessageListScrolledToBottom) scrollToBottom();
-  }, [scrollToBottom, isMessageListScrolledToBottom, showIndicator]);
+  const isTypingActive =
+    (isThreadList && typingInThread.length) || (!isThreadList && typingInChannel.length);
 
   if (channelConfig?.typing_events === false) {
     return null;
   }
 
-  if (!showIndicator || !isMessageListScrolledToBottom) {
-    return null;
-  }
-
+  if (!isTypingActive) return null;
   return (
     <div
-      className={clsx(
-        'str-chat__typing-indicator',
-        'str-chat__typing-indicator--with-transition',
-        {
-          'str-chat__typing-indicator--typing': showIndicator,
-        },
-      )}
+      className={clsx('str-chat__typing-indicator', {
+        'str-chat__typing-indicator--typing': isTypingActive,
+      })}
       data-testid='typing-indicator'
     >
-      {displayInfo.length > 0 && (
-        <div aria-hidden='true'>
-          <AvatarStack badgeSize='md' displayInfo={displayInfo} size='md' />
-        </div>
-      )}
-      <div aria-hidden='true' className='str-chat__typing-indicator__bubble'>
-        <div className='str-chat__typing-indicator__dots'>
-          <TypingIndicatorDots />
-        </div>
+      <div className='str-chat__typing-indicator__dots'>
+        <span className='str-chat__typing-indicator__dot'></span>
+        <span className='str-chat__typing-indicator__dot'></span>
+        <span className='str-chat__typing-indicator__dot'></span>
       </div>
-      <VisuallyHidden>
-        <span
-          aria-atomic='true'
-          aria-live='polite'
-          data-testid='typing-indicator-status'
-          role='status'
-        >
-          {typingAnnouncement}
-        </span>
-      </VisuallyHidden>
+      <div className='str-chat__typing-indicator__users' data-testid='typing-users'>
+        {joinedTypingUsers}
+      </div>
     </div>
   );
 };
-
-export const TypingIndicator = React.memo(
-  UnMemoizedTypingIndicator,
-) as typeof UnMemoizedTypingIndicator;

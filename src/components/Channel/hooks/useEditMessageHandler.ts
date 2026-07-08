@@ -5,6 +5,7 @@ import type {
   UpdateMessageOptions,
 } from 'stream-chat';
 
+import { useChannel } from '../../../context/useChannel';
 import { useChatContext } from '../../../context/ChatContext';
 
 type UpdateHandler = (
@@ -14,7 +15,8 @@ type UpdateHandler = (
 ) => ReturnType<StreamChat['updateMessage']>;
 
 export const useEditMessageHandler = (doUpdateMessageRequest?: UpdateHandler) => {
-  const { channel, client } = useChatContext('useEditMessageHandler');
+  const channel = useChannel();
+  const { client } = useChatContext();
 
   return (
     updatedMessage: LocalMessage | MessageResponse,

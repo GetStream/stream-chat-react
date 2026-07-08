@@ -1,8 +1,12 @@
 import React from 'react';
-import { useChannelActionContext, useTranslationContext } from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import { useMessagePaginator } from '../../hooks';
 import { Button } from '../Button';
 import { IconArrowUp, IconXmark } from '../Icons';
 import clsx from 'clsx';
+import { useThreadContext } from '../Threads';
+import type { UnreadSnapshotState } from 'stream-chat';
+import { useStateStore } from '../../store';
 
 export type UnreadMessagesNotificationProps = {
   /**
@@ -13,18 +17,28 @@ export type UnreadMessagesNotificationProps = {
    * Configuration parameter to determine, whether the unread count is to be shown on the component. Enabled by default.
    */
   showCount?: boolean;
-  /**
-   * The count of unread messages to be displayed if enabled.
-   */
+  // todo: maybe remove?
   unreadCount?: number;
 };
+
+const unreadStateSnapshotSelector = (state: UnreadSnapshotState) => ({
+  unreadCount: state.unreadCount,
+});
 
 export const UnreadMessagesNotification = ({
   queryMessageLimit,
   showCount = true,
-  unreadCount,
 }: UnreadMessagesNotificationProps) => {
-  const { jumpToFirstUnreadMessage, markRead } = useChannelActionContext();
+  // todo: move into a hook dedicated to unread count from the snapshot
+  const channel = useChannel();
+  const { client } = useChatContext('UnreadMessagesNotification');
+  const thread = useThreadContext();
+  const messagePaginator = useMessagePaginator();
+  const { unreadCount } = useStateStore(
+    messagePaginator.unreadStateSnapshot,
+    unreadStateSnapshotSelector,
+  );
+
   const { t } = useTranslationContext('UnreadMessagesNotification');
 
   return (
@@ -36,7 +50,11 @@ export const UnreadMessagesNotification = ({
     >
       <Button
         appearance='outline'
-        onClick={() => jumpToFirstUnreadMessage(queryMessageLimit)}
+        onClick={() =>
+          messagePaginator.jumpToTheFirstUnreadMessage({
+            pageSize: queryMessageLimit,
+          })
+        }
         variant='secondary'
       >
         <IconArrowUp />
@@ -47,7 +65,13 @@ export const UnreadMessagesNotification = ({
       <Button
         appearance='outline'
         aria-label={t('aria/Mark messages as read')}
-        onClick={() => markRead()}
+        onClick={() => {
+          if (thread) {
+            client.messageDeliveryReporter.throttledMarkRead(thread);
+            return;
+          }
+          client.messageDeliveryReporter.throttledMarkRead(channel);
+        }}
         variant='secondary'
       >
         <IconXmark />

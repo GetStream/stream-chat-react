@@ -1,7 +1,7 @@
+export * from './AttachmentContext';
 export * from './AttachmentSelectorContext';
-export * from './ChannelActionContext';
 export * from './ChannelListContext';
-export * from './ChannelStateContext';
+export * from './ChannelInstanceContext';
 export * from './ChatContext';
 export * from './ComponentContext';
 export * from './DialogManagerContext';
@@ -13,5 +13,5 @@ export * from './MessageTranslationViewContext';
 export * from './ModalContext';
 export * from './PollContext';
 export * from './TranslationContext';
-export * from './TypingContext';
+export * from './useChannel';
 export * from './WithComponents';

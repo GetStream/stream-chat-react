@@ -7,16 +7,30 @@ import { Message } from '../Message';
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 import { UnreadMessagesSeparator as DefaultUnreadMessagesSeparator } from './UnreadMessagesSeparator';
-import type { LocalMessage, UserResponse } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  UnreadSnapshotState,
+  UserResponse,
+} from 'stream-chat';
 import type { ComponentContextValue, CustomClasses } from '../../context';
-import type { ChannelUnreadUiState } from '../../types';
+// import type { ChannelUnreadUiState } from '../../types';
 
 export interface RenderMessagesOptions {
+  channel: Channel;
+  /**
+   * Current user's channel read state used to render components reflecting unread state.
+   * It does not reflect the back-end state if a channel is marked read on mount.
+   * This is in order to keep the unread UI when an unread channel is open.
+   */
+  channelUnreadUiState: UnreadSnapshotState;
   components: ComponentContextValue;
   lastReceivedMessageId: string | null;
   messageGroupStyles: Record<string, GroupStyle>;
   messages: Array<RenderedMessage>;
   ownMessagesDeliveredToOthers: Record<string, UserResponse[]>;
+  /** The message id currently signaled for focus by the paginator. */
+  focusedMessageId?: string | null;
   /**
    * Object mapping message IDs of own messages to the users who read those messages.
    */
@@ -27,12 +41,6 @@ export interface RenderMessagesOptions {
   sharedMessageProps: SharedMessageProps;
   /** Latest own message in currently displayed message set. */
   lastOwnMessage?: LocalMessage;
-  /**
-   * Current user's channel read state used to render components reflecting unread state.
-   * It does not reflect the back-end state if a channel is marked read on mount.
-   * This is in order to keep the unread UI when an unread channel is open.
-   */
-  channelUnreadUiState?: ChannelUnreadUiState;
   customClasses?: CustomClasses;
 }
 
@@ -50,9 +58,11 @@ type MessagePropsToOmit =
   | 'readBy';
 
 export function defaultRenderMessages({
+  channel,
   channelUnreadUiState,
   components,
   customClasses,
+  focusedMessageId,
   lastOwnMessage,
   lastReceivedMessageId: lastReceivedId,
   messageGroupStyles,
@@ -111,22 +121,19 @@ export function defaultRenderMessages({
         customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
       const isFirstUnreadMessage = getIsFirstUnreadMessage({
-        firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
+        ...channelUnreadUiState,
+        channel,
+        firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
         isFirstMessage: !!firstMessage?.id && firstMessage.id === message.id,
-        lastReadDate: channelUnreadUiState?.last_read,
-        lastReadMessageId: channelUnreadUiState?.last_read_message_id,
         message,
         previousMessage,
-        unreadMessageCount: channelUnreadUiState?.unread_messages,
       });
 
       renderedMessages.push(
         <Fragment key={message.id || message.created_at.toISOString()}>
           {isFirstUnreadMessage && UnreadMessagesSeparator && (
             <MessageListItem className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-              <UnreadMessagesSeparator
-                unreadCount={channelUnreadUiState?.unread_messages}
-              />
+              <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unreadCount} />
             </MessageListItem>
           )}
           <MessageListItem
@@ -138,6 +145,7 @@ export function defaultRenderMessages({
             <Message
               deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
               groupStyles={[groupStyles]} /* TODO: convert to simple string */
+              highlighted={focusedMessageId === message.id}
               lastOwnMessage={lastOwnMessage}
               lastReceivedId={lastReceivedId}
               message={message}

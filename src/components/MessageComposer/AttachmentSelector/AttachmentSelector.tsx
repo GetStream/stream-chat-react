@@ -27,11 +27,7 @@ import { ShareLocationDialog as DefaultLocationDialog } from '../../Location';
 import { PollCreationDialog as DefaultPollCreationDialog } from '../../Poll';
 import { Portal } from '../../Portal/Portal';
 import { UploadFileInput } from '../../ReactFileUtilities';
-import {
-  useChannelStateContext,
-  useComponentContext,
-  useTranslationContext,
-} from '../../../context';
+import { useChannel, useComponentContext, useTranslationContext } from '../../../context';
 import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
@@ -52,6 +48,8 @@ import {
   CommandsMenuClassName,
   CommandsSubmenuHeader,
 } from './CommandsMenu';
+import { useChannelConfig } from '../../Channel/hooks/useChannelConfig';
+import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 
 const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
@@ -92,7 +90,8 @@ export const AttachmentSelectorButton = forwardRef<
 });
 
 export const SimpleAttachmentSelector = () => {
-  const { channelCapabilities } = useChannelStateContext();
+  const channel = useChannel();
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const { t } = useTranslationContext();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [buttonElement, setButtonElement] = useState<HTMLButtonElement | null>(null);
@@ -112,7 +111,7 @@ export const SimpleAttachmentSelector = () => {
     };
   }, [buttonElement]);
 
-  if (!channelCapabilities['upload-file']) return null;
+  if (!channelCapabilities.has('upload-file')) return null;
 
   return (
     <div className='str-chat__attachment-selector'>
@@ -260,10 +259,12 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
     PollCreationDialog = DefaultPollCreationDialog,
     ShareLocationDialog = DefaultLocationDialog,
   } = useComponentContext();
-  const { channelCapabilities } = useChannelStateContext();
   const { isUploadEnabled } = useAttachmentManagerState();
   const messageComposer = useMessageComposerController();
-  const channelConfig = messageComposer.channel.getConfig();
+  const channelCapabilities = useChannelCapabilities({
+    cid: messageComposer.channel.cid,
+  });
+  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
 
   return useMemo(
     () =>
@@ -271,14 +272,14 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
         .filter((action) => {
           if (action.type === 'uploadFile')
             return (
-              channelCapabilities['upload-file'] &&
+              channelCapabilities.has('upload-file') &&
               channelConfig?.uploads &&
               isUploadEnabled
             );
 
           if (action.type === 'createPoll')
             return (
-              channelCapabilities['send-poll'] &&
+              channelCapabilities.has('send-poll') &&
               !messageComposer.threadId &&
               channelConfig?.polls
             );
@@ -321,7 +322,8 @@ export const AttachmentSelector = ({
   const { t } = useTranslationContext();
   const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
     useComponentContext();
-  const { channelCapabilities } = useChannelStateContext();
+  const channel = useChannel();
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const messageComposer = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const actions = useAttachmentSelectorActionsFiltered(attachmentSelectorActionSet);
@@ -391,7 +393,7 @@ export const AttachmentSelector = ({
   return (
     <AttachmentSelectorContextProvider value={{ fileInput }}>
       <div className='str-chat__attachment-selector'>
-        {channelCapabilities['upload-file'] && <UploadFileInput ref={setFileInput} />}
+        {channelCapabilities.has('upload-file') && <UploadFileInput ref={setFileInput} />}
         <AttachmentSelectorButton
           aria-expanded={menuDialogIsOpen}
           aria-haspopup='true'

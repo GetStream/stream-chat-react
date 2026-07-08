@@ -2,6 +2,8 @@ import clsx from 'clsx';
 import React, {
   type ComponentType,
   createContext,
+  type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -10,29 +12,68 @@ import React, {
 import { useStableId } from '../UtilityComponents/useStableId';
 
 import { Button, type ButtonProps } from '../Button';
-import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import {
   IconMessageBubble,
   IconMessageBubbleFill,
   IconThread,
   IconThreadFill,
 } from '../Icons';
-import { ThreadProvider } from '../Threads';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import {
+  DialogManagerProvider,
   useChatContext,
-  useComponentContext,
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
+// MERGE-RECONCILE: this file keeps PR #2909's slot/layout navigation architecture
+// (LayoutController / WorkspaceLayout / ChatViewNavigationProvider, context shape
+// activeView/setActiveView/layoutController) as the base, and grafts master's WAI-ARIA
+// tabs accessibility (ChatViewA11yContext, role=tablist/tab/tabpanel wiring) and Phosphor
+// icons (../Icons) on top. PR's `Icon` from '../Threads/icons' was removed by master and is
+// no longer imported. Reconcile if the layout navigation is later dropped in favor of the
+// simpler master ChatView.
 import {
   type ChatViewA11yContextValue,
   createChatViewA11yContextValue,
   DEFAULT_CHAT_VIEW_A11Y_CONTEXT_VALUE,
 } from './ChatView.a11y.utility';
+import { ChatViewNavigationProvider } from './ChatViewNavigationContext';
+import { WorkspaceLayout } from './layout/WorkspaceLayout';
+import {
+  createLayoutRuntimeState,
+  LayoutController as LayoutControllerClass,
+} from './layoutController/LayoutController';
+import { createChatViewSlotBinding, getChatViewEntityBinding } from './slotBinding';
+import {
+  renderSlotFromRegistry,
+  resolveSlotKindRegistry,
+  SlotRegistryContext,
+} from './slotRegistry';
 
 import type { PropsWithChildren } from 'react';
 import type { Thread, ThreadManagerState } from 'stream-chat';
+import type {
+  ChatViewLayoutState,
+  DuplicateEntityPolicy,
+  LayoutController,
+  LayoutRuntimeState,
+  LayoutSlotBinding,
+  ResolveDuplicateEntity,
+  SlotName,
+} from './layoutController/layoutControllerTypes';
+import type {
+  ChatViewEntityBinding,
+  ChatViewSlotFallbackProps,
+  ChatViewSlotRenderers,
+  LayoutDescriptor,
+} from './slotBinding';
+import { getLayoutViewState } from './hooks';
+
+// Re-export the binding primitives + renderer types from their leaf modules so
+// existing `stream-chat-react` imports keep resolving through ChatView.
+export * from './slotBinding';
+export type { SlotKindDefinition, SlotKindRegistry } from './slotRegistry';
+export { defaultSlotKindRegistry } from './slotRegistry';
 
 export type ChatView = 'channels' | 'threads';
 
@@ -45,12 +86,147 @@ export type ChatView = 'channels' | 'threads';
  * 5) Tabs are always tabbable (tabIndex=0), so users can reach both without
  *    arrow-key navigation.
  */
-type ChatViewContextValue = {
-  activeChatView: ChatView;
-  setActiveChatView: (cv: ChatView) => void;
+
+// Entity-binding primitives + per-kind renderer types live in the leaf module
+// `./slotBinding` (so the generic <Slot> and the renderer registry can consume
+// them without an import cycle). Re-exported here for back-compat.
+export type ChatViewEntityInferer = {
+  kind: ChatViewEntityBinding['kind'];
+  match: (source: unknown) => boolean;
+  toBinding: (source: unknown) => ChatViewEntityBinding;
 };
 
-export const ChatViewContext = createContext<ChatViewContextValue | undefined>(undefined);
+export type ChatViewBuiltinLayout = 'nav-rail-entity-list-workspace';
+
+export type ChatViewProps = PropsWithChildren<{
+  /**
+   * Optional id for the dialog manager ChatView hosts inside its `.str-chat` root. Dialogs
+   * opened by view content (context menus, member actions, …) resolve to this manager and
+   * their overlays render under `.str-chat`, so the SDK's `.str-chat`-scoped dialog CSS
+   * applies. Omit for a local (unregistered) manager.
+   */
+  dialogManagerId?: string;
+  duplicateEntityPolicy?: DuplicateEntityPolicy;
+  entityInferers?: ChatViewEntityInferer[];
+  layout?: ChatViewBuiltinLayout;
+  layoutController?: LayoutController;
+  /** Declarative layout descriptors (D7). Defaults to the built-in channels/threads. */
+  layouts?: LayoutDescriptor[];
+  maxSlots?: number;
+  minSlots?: number;
+  resolveDuplicateEntity?: ResolveDuplicateEntity;
+  SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
+  slotNames?: string[];
+  slotFallbackComponents?: Partial<
+    Record<string, ComponentType<ChatViewSlotFallbackProps>>
+  >;
+  slotRenderers?: ChatViewSlotRenderers;
+  /**
+   * Per-view content (D8). The active view's node is rendered inside an a11y tabpanel;
+   * that view's slot topology comes from the matching `layouts` descriptor, and
+   * `viewActionSlotResolvers[view]` (if any) is registered while it is active. Replaces
+   * the removed `ChatView.Channels`/`ChatView.Threads` gated components — the app writes
+   * one mapping instead of two hand-composed, activeView-gated trees.
+   */
+  views?: Partial<Record<ChatView, ReactNode>>;
+  /** Optional per-view navigation action slot resolvers. */
+  viewActionSlotResolvers?: Partial<Record<ChatView, ViewActionSlotResolvers>>;
+}>;
+
+export type ChatViewNavigationAction = 'openChannel' | 'openThread';
+
+export type ResolveViewActionTargetSlotArgs = {
+  action: ChatViewNavigationAction;
+  activeView: ChatView;
+  availableSlots: SlotName[];
+  requestedSlot?: SlotName;
+  slotBindings: Record<SlotName, LayoutSlotBinding | undefined>;
+  slotNames?: SlotName[];
+};
+
+export type ResolveViewActionTargetSlot = (
+  args: ResolveViewActionTargetSlotArgs,
+) => SlotName | undefined;
+
+export type ViewActionSlotResolvers = Partial<
+  Record<ChatViewNavigationAction, ResolveViewActionTargetSlot>
+>;
+
+type ChatViewContextValue = {
+  activeChatView: ChatView;
+  activeView: ChatView;
+  entityInferers: ChatViewEntityInferer[];
+  layoutController: LayoutController;
+  registerViewActionSlotResolvers: (
+    view: ChatView,
+    resolvers?: ViewActionSlotResolvers,
+  ) => void;
+  resolveActionTargetSlot: (
+    view: ChatView,
+    args: ResolveViewActionTargetSlotArgs,
+  ) => SlotName | undefined;
+  setActiveView: (cv: ChatView) => void;
+};
+
+const DEFAULT_MAX_SLOTS = 1;
+const DEFAULT_MIN_SLOTS = 1;
+
+const createGeneratedSlotNames = (slotCount: number) =>
+  Array.from({ length: Math.max(0, slotCount) }, (_, index) => `slot${index + 1}`);
+
+const resolveSlotTopology = ({
+  maxSlots,
+  minSlots,
+  slotNames,
+}: {
+  maxSlots?: number;
+  minSlots?: number;
+  slotNames?: string[];
+}) => {
+  const explicitSlotNames = slotNames?.filter(Boolean) ?? [];
+  const hasExplicitSlotNames = explicitSlotNames.length > 0;
+  const resolvedMaxSlots = hasExplicitSlotNames
+    ? Math.min(
+        Math.max(1, maxSlots ?? explicitSlotNames.length),
+        explicitSlotNames.length,
+      )
+    : Math.max(1, maxSlots ?? DEFAULT_MAX_SLOTS);
+  const resolvedMinSlots = Math.min(
+    Math.max(1, minSlots ?? DEFAULT_MIN_SLOTS),
+    resolvedMaxSlots,
+  );
+  const resolvedSlotNames = hasExplicitSlotNames
+    ? explicitSlotNames.slice(0, resolvedMaxSlots)
+    : createGeneratedSlotNames(resolvedMaxSlots);
+
+  return {
+    initialAvailableSlots: resolvedSlotNames.slice(0, resolvedMinSlots),
+    resolvedMaxSlots,
+    resolvedMinSlots,
+    resolvedSlotNames,
+  };
+};
+
+const defaultLayoutController = new LayoutControllerClass({
+  initialState: {
+    activeView: 'channels',
+    layouts: {
+      channels: createLayoutRuntimeState({
+        availableSlots: createGeneratedSlotNames(DEFAULT_MAX_SLOTS),
+      }),
+    },
+  },
+});
+
+export const ChatViewContext = createContext<ChatViewContextValue>({
+  activeChatView: 'channels',
+  activeView: 'channels',
+  entityInferers: [],
+  layoutController: defaultLayoutController,
+  registerViewActionSlotResolvers: () => undefined,
+  resolveActionTargetSlot: () => undefined,
+  setActiveView: () => undefined,
+});
 const ChatViewA11yContext = createContext<ChatViewA11yContextValue>(
   DEFAULT_CHAT_VIEW_A11Y_CONTEXT_VALUE,
 );
@@ -69,81 +245,306 @@ export const useChatViewContext = () => {
 };
 const useChatViewA11yContext = () => useContext(ChatViewA11yContext);
 
-export const ChatView = ({ children }: PropsWithChildren) => {
-  const [activeChatView, setActiveChatView] = useState<ChatView>('channels');
-  const chatViewId = useStableId();
+const activeViewSelector = ({ activeView }: ChatViewLayoutState) => ({ activeView });
+const workspaceLayoutStateSelector = (state: ChatViewLayoutState) => ({
+  activeView: state.activeView,
+  viewState: getLayoutViewState(state),
+});
 
+const DefaultSlotFallback = () => (
+  <div className='str-chat__chat-view__workspace-layout-slot-fallback'>
+    Select a channel to start messaging
+  </div>
+);
+
+const resolveSlotFallbackComponent = ({
+  slot,
+  SlotFallback,
+  slotFallbackComponents,
+}: {
+  SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
+  slot: string;
+  slotFallbackComponents?: Partial<
+    Record<string, ComponentType<ChatViewSlotFallbackProps>>
+  >;
+}) => slotFallbackComponents?.[slot] ?? SlotFallback ?? DefaultSlotFallback;
+
+const BUILTIN_WORKSPACE_LAYOUT: ChatViewBuiltinLayout = 'nav-rail-entity-list-workspace';
+const DEFAULT_LIST_BINDING_KEY = 'list';
+
+// D7 — the built-in views expressed as declarative layout descriptors. Each layout
+// seeds its own list kind into its first slot (channels -> channelList,
+// threads -> threadList); the kind picks the renderer, so there is no `source.view`.
+const LIST_KIND_BY_LAYOUT: Record<ChatView, 'channelList' | 'threadList'> = {
+  channels: 'channelList',
+  threads: 'threadList',
+};
+const buildDefaultLayoutDescriptors = (slots: SlotName[]): LayoutDescriptor[] => {
+  const seedSlot = slots[0];
+  return (['channels', 'threads'] as const).map((id) => ({
+    id,
+    initialBindings: seedSlot
+      ? {
+          [seedSlot]: {
+            key: DEFAULT_LIST_BINDING_KEY,
+            kind: LIST_KIND_BY_LAYOUT[id],
+            source: {},
+          },
+        }
+      : undefined,
+    slots,
+  }));
+};
+
+// D7 — turn the declarative descriptors into seeded per-layout runtime state at
+// controller construction (replaces the imperative, lazy seed effect).
+const seedLayoutsFromDescriptors = (
+  descriptors: LayoutDescriptor[],
+  minSlots: number,
+): Partial<Record<ChatView, LayoutRuntimeState>> =>
+  descriptors.reduce<Partial<Record<ChatView, LayoutRuntimeState>>>((acc, descriptor) => {
+    const slotBindings: Record<SlotName, LayoutSlotBinding | undefined> = {};
+    Object.entries(descriptor.initialBindings ?? {}).forEach(([slot, entity]) => {
+      if (entity) slotBindings[slot] = createChatViewSlotBinding(entity);
+    });
+    const availableCount = Math.min(Math.max(1, minSlots), descriptor.slots.length);
+    acc[descriptor.id] = createLayoutRuntimeState({
+      availableSlots: descriptor.slots.slice(0, availableCount),
+      slotBindings,
+      slotNames: descriptor.slots,
+    });
+    return acc;
+  }, {});
+
+export const ChatView = ({
+  children,
+  dialogManagerId,
+  duplicateEntityPolicy,
+  entityInferers = [],
+  layout,
+  layoutController,
+  layouts: layoutsProp,
+  maxSlots,
+  minSlots,
+  resolveDuplicateEntity,
+  SlotFallback,
+  slotFallbackComponents,
+  slotNames,
+  slotRenderers,
+  viewActionSlotResolvers: viewActionSlotResolversProp,
+  views,
+}: ChatViewProps) => {
   const { theme } = useChatContext();
-
+  const chatViewId = useStableId();
   const a11yValue = useMemo(
     () => createChatViewA11yContextValue(chatViewId),
     [chatViewId],
   );
+  const [viewActionSlotResolvers, setViewActionSlotResolvers] = useState<
+    Partial<Record<ChatView, ViewActionSlotResolvers>>
+  >({});
+  const { initialAvailableSlots, resolvedMaxSlots, resolvedMinSlots, resolvedSlotNames } =
+    useMemo(
+      () =>
+        resolveSlotTopology({
+          maxSlots,
+          minSlots,
+          slotNames,
+        }),
+      [maxSlots, minSlots, slotNames],
+    );
 
-  const value = useMemo(() => ({ activeChatView, setActiveChatView }), [activeChatView]);
+  const layoutDescriptors = useMemo<LayoutDescriptor[]>(
+    () => layoutsProp ?? buildDefaultLayoutDescriptors(resolvedSlotNames),
+    [layoutsProp, resolvedSlotNames],
+  );
+
+  // In the built-in workspace and in `views`-map mode the SDK owns per-view rendering,
+  // so seed every layout's slot topology from its descriptor up front (a stable boolean
+  // keeps the controller identity constant across renders).
+  const seedAllLayouts = layout === BUILTIN_WORKSPACE_LAYOUT || !!views;
+
+  const internalLayoutController = useMemo(
+    () =>
+      new LayoutControllerClass({
+        duplicateEntityPolicy,
+        initialState: {
+          activeView: 'channels',
+          // D7 — when the SDK owns per-view rendering (workspace or `views` map), seed
+          // every layout's slots/bindings up front from its descriptor (no lazy seed
+          // effect). In bare `children` mode the app claims slots itself, so seed only
+          // the channels slot topology.
+          layouts: seedAllLayouts
+            ? seedLayoutsFromDescriptors(layoutDescriptors, resolvedMinSlots)
+            : {
+                channels: createLayoutRuntimeState({
+                  availableSlots: initialAvailableSlots,
+                  slotNames: resolvedSlotNames,
+                }),
+              },
+          maxSlots: resolvedMaxSlots,
+          minSlots: resolvedMinSlots,
+        },
+        resolveDuplicateEntity,
+      }),
+    [
+      duplicateEntityPolicy,
+      initialAvailableSlots,
+      layoutDescriptors,
+      resolvedMaxSlots,
+      resolvedMinSlots,
+      resolvedSlotNames,
+      resolveDuplicateEntity,
+      seedAllLayouts,
+    ],
+  );
+
+  const effectiveLayoutController = layoutController ?? internalLayoutController;
+
+  const { activeView } =
+    useStateStore(effectiveLayoutController.state, activeViewSelector) ??
+    activeViewSelector(effectiveLayoutController.state.getLatestValue());
+
+  const setActiveView = useCallback(
+    (cv: ChatView) => {
+      // Per-view layouts are retained across switches (that is the point of the
+      // `layouts` map): each view keeps its own slot bindings so returning to it
+      // restores what was open. We must NOT release the source view's channel/thread
+      // bindings here — display is slot-based, so releasing on switch would drop the
+      // open channel/thread (e.g. `?channel=` cleared when moving to the threads view).
+      effectiveLayoutController.setActiveView(cv);
+    },
+    [effectiveLayoutController],
+  );
+
+  const registerViewActionSlotResolvers = useCallback(
+    (view: ChatView, resolvers?: ViewActionSlotResolvers) => {
+      setViewActionSlotResolvers((current) => {
+        const previous = current[view];
+        if (previous === resolvers) return current;
+
+        const next = { ...current };
+        if (!resolvers) delete next[view];
+        else next[view] = resolvers;
+        return next;
+      });
+    },
+    [],
+  );
+
+  const resolveActionTargetSlot = useCallback(
+    (view: ChatView, args: ResolveViewActionTargetSlotArgs) =>
+      viewActionSlotResolvers[view]?.[args.action]?.(args),
+    [viewActionSlotResolvers],
+  );
+
+  const value = useMemo(
+    () => ({
+      activeChatView: activeView,
+      activeView,
+      entityInferers,
+      layoutController: effectiveLayoutController,
+      registerViewActionSlotResolvers,
+      resolveActionTargetSlot,
+      setActiveView,
+    }),
+    [
+      activeView,
+      effectiveLayoutController,
+      entityInferers,
+      registerViewActionSlotResolvers,
+      resolveActionTargetSlot,
+      setActiveView,
+    ],
+  );
+
+  // Register per-view navigation action resolvers supplied via the `views`-mode prop.
+  useEffect(() => {
+    if (!viewActionSlotResolversProp) return;
+    const entries = Object.entries(viewActionSlotResolversProp) as Array<
+      [ChatView, ViewActionSlotResolvers | undefined]
+    >;
+    entries.forEach(([view, resolvers]) =>
+      registerViewActionSlotResolvers(view, resolvers),
+    );
+    return () => {
+      entries.forEach(([view]) => registerViewActionSlotResolvers(view, undefined));
+    };
+  }, [registerViewActionSlotResolvers, viewActionSlotResolversProp]);
+
+  const workspaceLayoutState =
+    useStateStore(effectiveLayoutController.state, workspaceLayoutStateSelector) ??
+    workspaceLayoutStateSelector(effectiveLayoutController.state.getLatestValue());
+  const { viewState } = workspaceLayoutState;
+
+  const slotKindRegistry = useMemo(
+    () => resolveSlotKindRegistry(slotRenderers),
+    [slotRenderers],
+  );
+
+  // D8 — the active view's content is rendered in a single a11y tabpanel; per-view slot
+  // topology is seeded from its `layouts` descriptor. Always-on `children` (e.g. sync
+  // helpers, dialog managers) render alongside it, regardless of the active view.
+  const activeViewContent = views?.[activeView];
+
+  const content = views ? (
+    <>
+      {children}
+      {activeViewContent != null && (
+        <div
+          aria-labelledby={a11yValue.chatViewTabIds[activeView]}
+          className={`str-chat__chat-view__${activeView}`}
+          id={a11yValue.chatViewPanelIds[activeView]}
+          role='tabpanel'
+        >
+          {activeViewContent}
+        </div>
+      )}
+    </>
+  ) : layout === BUILTIN_WORKSPACE_LAYOUT ? (
+    (() => {
+      const slots = viewState.availableSlots.map((slot) => {
+        const content = renderSlotFromRegistry(
+          getChatViewEntityBinding(viewState.slotBindings[slot]),
+          slot,
+          slotKindRegistry,
+        );
+        const Fallback = resolveSlotFallbackComponent({
+          slot,
+          SlotFallback,
+          slotFallbackComponents,
+        });
+
+        return {
+          content: content ?? <Fallback slot={slot} />,
+          slot,
+        };
+      });
+
+      return <WorkspaceLayout navRail={<ChatViewSelector />} slots={slots} />;
+    })()
+  ) : (
+    children
+  );
 
   return (
     <ChatViewA11yContext.Provider value={a11yValue}>
       <ChatViewContext.Provider value={value}>
-        <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>{children}</div>
+        <SlotRegistryContext.Provider value={slotKindRegistry}>
+          <ChatViewNavigationProvider>
+            <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>
+              {/* Host the chat-view dialog manager INSIDE `.str-chat` so dialogs opened by
+                  view content (context menus, member actions, …) portal here and inherit the
+                  `.str-chat`-scoped dialog CSS. Nested managers (e.g. MessageList's) still win
+                  where present. */}
+              <DialogManagerProvider id={dialogManagerId}>
+                {content}
+              </DialogManagerProvider>
+            </div>
+          </ChatViewNavigationProvider>
+        </SlotRegistryContext.Provider>
       </ChatViewContext.Provider>
     </ChatViewA11yContext.Provider>
-  );
-};
-
-const ChannelsView = ({ children }: PropsWithChildren) => {
-  const { activeChatView } = useChatViewContext();
-  const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
-  const isActive = activeChatView === 'channels';
-
-  if (!isActive) return null;
-
-  return (
-    <div
-      aria-labelledby={chatViewTabIds.channels}
-      className='str-chat__chat-view__channels'
-      id={chatViewPanelIds.channels}
-      role='tabpanel'
-    >
-      {children}
-    </div>
-  );
-};
-
-export type ThreadsViewContextValue = {
-  activeThread: Thread | undefined;
-  setActiveThread: (cv: ThreadsViewContextValue['activeThread']) => void;
-};
-
-const ThreadsViewContext = createContext<ThreadsViewContextValue>({
-  activeThread: undefined,
-  setActiveThread: () => undefined,
-});
-
-export const useThreadsViewContext = () => useContext(ThreadsViewContext);
-
-const ThreadsView = ({ children }: PropsWithChildren) => {
-  const { activeChatView } = useChatViewContext();
-  const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
-  const [activeThread, setActiveThread] =
-    useState<ThreadsViewContextValue['activeThread']>(undefined);
-
-  const value = useMemo(() => ({ activeThread, setActiveThread }), [activeThread]);
-  const isActive = activeChatView === 'threads';
-
-  if (!isActive) return null;
-
-  return (
-    <ThreadsViewContext.Provider value={value}>
-      <div
-        aria-labelledby={chatViewTabIds.threads}
-        className='str-chat__chat-view__threads'
-        id={chatViewPanelIds.threads}
-        role='tabpanel'
-      >
-        {children}
-      </div>
-    </ThreadsViewContext.Provider>
   );
 };
 
@@ -173,53 +574,10 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
   }, [activeThread]);
 };
 
-// ThreadList under View.Threads context, will access setting function and on item click will set activeThread
-// which can be accessed for the ease of use by ThreadAdapter which forwards it to required ThreadProvider
-// ThreadList can easily live without this context and click handler can be overriden, ThreadAdapter is then no longer needed
-/**
- * // this setup still works
- * const MyCustomComponent = () => {
- *  const [activeThread, setActiveThread] = useState();
- *
- *  return <>
- *    // simplified
- *    <ThreadList onItemPointerDown={setActiveThread} />
- *    <ThreadProvider thread={activeThread}>
- *      <Thread />
- *    </ThreadProvider>
- *  </>
- * }
- *
- */
-const ThreadAdapter = ({ children }: PropsWithChildren) => {
-  const { client } = useChatContext('ThreadAdapter');
-  const { EmptyStateIndicator = DefaultEmptyStateIndicator } =
-    useComponentContext('ThreadAdapter');
-  const { activeThread } = useThreadsViewContext();
-  const { t } = useTranslationContext('ThreadAdapter');
-  const { isLoading, ready } = useStateStore(
-    client.threads.state,
-    threadAdapterSelector,
-  ) ?? {
-    isLoading: false,
-    ready: false,
-  };
-
-  useActiveThread({ activeThread });
-
-  if (!activeThread && ready && !isLoading && EmptyStateIndicator) {
-    return (
-      <div className='str-chat__thread-container str-chat__thread'>
-        <EmptyStateIndicator
-          listType='message'
-          messageText={t('Select a thread to continue the conversation')}
-        />
-      </div>
-    );
-  }
-
-  return <ThreadProvider thread={activeThread}>{children}</ThreadProvider>;
-};
+// D8 — `ThreadAdapter` is retired: the threads view renders the thread(s) bound in
+// thread slots (via `useSlotThreads` + `ThreadProvider`), so there is no single
+// `activeThread` adapter. `useActiveThread` remains for callers that render a thread
+// panel and want focus-driven activate/deactivate.
 
 export const ChatViewSelectorButton = ({
   ActiveIcon,
@@ -267,11 +625,6 @@ export const ChatViewSelectorButton = ({
   );
 };
 
-const threadAdapterSelector = ({ pagination, ready }: ThreadManagerState) => ({
-  isLoading: pagination.isLoading,
-  ready,
-});
-
 const unreadThreadCountSelector = ({ unreadThreadCount }: ThreadManagerState) => ({
   unreadThreadCount,
 });
@@ -283,11 +636,11 @@ export type ChatViewSelectorItemProps = {
 export const ChatViewChannelsSelectorButton = ({
   iconOnly = true,
 }: ChatViewSelectorItemProps) => {
-  const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { activeView, setActiveView } = useChatViewContext();
   const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
   const { t } = useTranslationContext();
 
-  const isActive = activeChatView === 'channels';
+  const isActive = activeView === 'channels';
 
   return (
     <ChatViewSelectorButton
@@ -299,8 +652,8 @@ export const ChatViewChannelsSelectorButton = ({
       iconOnly={iconOnly}
       id={chatViewTabIds.channels}
       isActive={isActive}
-      onClick={() => setActiveChatView('channels')}
-      onPointerDown={() => setActiveChatView('channels')}
+      onClick={() => setActiveView('channels')}
+      onPointerDown={() => setActiveView('channels')}
       tabIndex={0}
       text={t('Channels')}
     />
@@ -317,11 +670,11 @@ export const ChatViewThreadsSelectorButton = ({
   ) ?? {
     unreadThreadCount: 0,
   };
-  const { activeChatView, setActiveChatView } = useChatViewContext();
+  const { activeView, setActiveView } = useChatViewContext();
   const { chatViewPanelIds, chatViewTabIds } = useChatViewA11yContext();
   const { t } = useTranslationContext();
 
-  const isActive = activeChatView === 'threads';
+  const isActive = activeView === 'threads';
 
   return (
     <ChatViewSelectorButton
@@ -333,8 +686,8 @@ export const ChatViewThreadsSelectorButton = ({
       iconOnly={iconOnly}
       id={chatViewTabIds.threads}
       isActive={isActive}
-      onClick={() => setActiveChatView('threads')}
-      onPointerDown={() => setActiveChatView('threads')}
+      onClick={() => setActiveView('threads')}
+      onPointerDown={() => setActiveView('threads')}
       tabIndex={0}
       text={t('Threads')}
     >
@@ -388,7 +741,4 @@ const ChatViewSelector = ({
   );
 };
 
-ChatView.Channels = ChannelsView;
-ChatView.Threads = ThreadsView;
-ChatView.ThreadAdapter = ThreadAdapter;
 ChatView.Selector = ChatViewSelector;

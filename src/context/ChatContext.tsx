@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type {
   AppSettingsAPIResponse,
-  Channel,
+  ChannelPaginatorsOrchestrator,
   Mute,
   SearchController,
 } from 'stream-chat';
@@ -28,6 +28,11 @@ type ChannelConfId = string; // e.g.: "messaging:general"
 
 export type ChatContextValue = {
   /**
+   * `ChannelPaginatorsOrchestrator` used to query and manage channels across one or
+   * more channel lists (the channel-list data source + cross-list ownership).
+   */
+  channelPaginatorsOrchestrator: ChannelPaginatorsOrchestrator;
+  /**
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
    */
   channelsQueryState: ChannelsQueryState;
@@ -36,22 +41,7 @@ export type ChatContextValue = {
   mutes: Array<Mute>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;
-  /**
-   * Sets active channel to be rendered within Channel component.
-   * @param newChannel
-   * @param watchers
-   * @param event
-   */
-  setActiveChannel: (
-    newChannel?: Channel,
-    watchers?: { limit?: number; offset?: number },
-    event?: React.BaseSyntheticEvent,
-  ) => void;
   useImageFlagEmojisOnWindows: boolean;
-  /**
-   * Active channel used to render the contents of the Channel component.
-   */
-  channel?: Channel;
   /**
    * Object through which custom classes can be set for main container components of the SDK.
    */

@@ -28,9 +28,19 @@ import {
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
-const mockSetActiveChannel = vi.fn().mockImplementation(() => {});
+const mockOpen = vi.fn();
 const mockSetChannels = vi.fn().mockImplementation(() => {});
 const directMessagingChannelType = 'X';
+
+// Selection opens the channel into a layout slot (one navigation model); the item's
+// "active" highlight comes from useSlotForKey (stubbed inactive here).
+vi.mock('../../ChatView', () => ({
+  useChatViewNavigation: () => ({ open: mockOpen }),
+  useSlotForKey: () => undefined,
+}));
+vi.mock('../../ChatView/ChatViewNavigationContext', () => ({
+  useChatViewNavigation: () => ({ open: mockOpen }),
+}));
 
 const mockTranslation = (key: string, options?: Record<string, unknown>) => {
   const interpolated = Object.entries(options || {}).reduce(
@@ -82,7 +92,6 @@ const renderComponent = async ({
         value={{
           channel: activeChannel ?? channel,
           client: customClient ?? client,
-          setActiveChannel: mockSetActiveChannel,
           ...chatContext,
         }}
       >
@@ -123,7 +132,8 @@ describe('SearchResultItem Components', () => {
 
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(channelSearchData.channel.id);
+      expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
+      expect(mockOpen.mock.calls[0][0].source.id).toBe(channelSearchData.channel.id);
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
     });
   });
@@ -159,9 +169,7 @@ describe('SearchResultItem Components', () => {
       expect(
         searchController._internalState.getLatestValue().focusedMessage,
       ).toStrictEqual(messageResponseData);
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(
-        messageResponseData.channel.id,
-      );
+      expect(mockOpen.mock.calls[0][0].source.id).toBe(messageResponseData.channel.id);
       expect(mockSetChannels).toHaveBeenCalledTimes(1);
     });
 

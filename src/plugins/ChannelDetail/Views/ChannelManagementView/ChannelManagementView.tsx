@@ -76,7 +76,10 @@ export const ChannelManagementInfoBody = ({
   const { muted: channelMuted } = useIsChannelMuted(channel);
   const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
-  const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
+  // MERGE-RECONCILE: useChannelHeaderOnlineStatus was reworked (PR #2909) to read the channel
+  // from context (useChannel) instead of an argument. Verify this view renders within a
+  // Channel/ChannelInstance subtree so the context channel matches `channel`.
+  const onlineStatusText = useChannelHeaderOnlineStatus();
   const pinned = !!membership.pinned_at;
 
   return (

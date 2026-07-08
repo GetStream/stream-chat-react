@@ -8,6 +8,7 @@ import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { IconMute, IconPin } from '../Icons';
 import { useComponentContext, useTranslationContext } from '../../context';
+import { useChatViewNavigation } from '../ChatView';
 import type { ChannelListItemUIProps } from './ChannelListItem';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 
@@ -24,9 +25,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     muted,
     onSelect: customOnSelectChannel,
     pinned,
-    setActiveChannel,
     unread,
-    watchers,
   } = props;
 
   const {
@@ -34,6 +33,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
   } = useComponentContext();
   const { t } = useTranslationContext();
+  const { open } = useChatViewNavigation();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -43,8 +43,9 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
-    } else if (setActiveChannel) {
-      setActiveChannel(channel, watchers);
+    } else {
+      // Selection is one navigation model: open the channel into a layout slot.
+      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
     }
     if (channelPreviewButton?.current) {
       channelPreviewButton.current.blur();

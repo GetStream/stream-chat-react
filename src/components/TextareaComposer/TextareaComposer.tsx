@@ -24,6 +24,7 @@ import { useComponentContext, useMessageComposerContext } from '../../context';
 import { useStateStore } from '../../store';
 import { SuggestionList as DefaultSuggestionList } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
+import { useSendMessageFn } from '../MessageComposer/hooks/useSendMessageFn';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -91,7 +92,6 @@ export const TextareaComposer = ({
   const {
     additionalTextareaProps,
     focus,
-    handleSubmit,
     maxRows: maxRowsContext,
     minRows: minRowsContext,
     onPaste,
@@ -124,6 +124,7 @@ export const TextareaComposer = ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       } satisfies React.CSSProperties);
+  const sendMessage = useSendMessageFn();
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
   const { quotedMessage } = useStateStore(
@@ -229,14 +230,14 @@ export const TextareaComposer = ({
           // prevent adding newline when submitting a message with
           event.preventDefault();
         }
-        handleSubmit();
+        sendMessage();
       }
     },
     [
       focusedItemIndex,
-      handleSubmit,
       messageComposer,
       onKeyDown,
+      sendMessage,
       shouldSubmit,
       textComposer,
       textareaRef,

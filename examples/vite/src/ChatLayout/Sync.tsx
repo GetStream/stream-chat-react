@@ -1,11 +1,12 @@
 import { useEffect, useRef } from 'react';
-import type { ThreadManagerState } from 'stream-chat';
 import {
   type ChatView as ChatViewType,
   useChatContext,
   useChatViewContext,
-  useStateStore,
-  useThreadsViewContext,
+  useChatViewNavigation,
+  useLayoutViewState,
+  useSlotChannels,
+  useSlotThreads,
 } from 'stream-chat-react';
 
 const selectedChannelUrlParam = 'channel';
@@ -81,10 +82,40 @@ export const ChatStateSync = ({
 }: {
   initialChatView?: ChatViewType;
 }) => {
-  const { activeChatView, setActiveChatView } = useChatViewContext();
-  const { channel, client } = useChatContext();
+  const { activeChatView, setActiveView } = useChatViewContext();
+  const { client } = useChatContext();
+  const { open } = useChatViewNavigation();
+  // Single-panel app: sync the primary (first) open channel slot to the URL. Read the
+  // *channels* view specifically (not the active view) so the `?channel=` param is
+  // retained while the threads view is focused — the channels layout keeps its binding.
+  const channel = useSlotChannels({ view: 'channels' })[0]?.channel;
   const previousSyncedChatView = useRef<ChatViewType | undefined>(undefined);
   const previousChannelId = useRef<string | undefined>(undefined);
+  const restoredChannelFromUrl = useRef(false);
+
+  // Restore the active channel from the `?channel=` URL param on mount (previously
+  // done by the legacy ChannelList's `customActiveChannel`; the channel list is now
+  // orchestrator-driven, so URL restore is handled here — display flows through the
+  // channel slot bound by `open`).
+  useEffect(() => {
+    if (restoredChannelFromUrl.current || channel) return;
+    const channelIdFromUrl = getSelectedChannelIdFromUrl();
+    if (!channelIdFromUrl) return;
+    restoredChannelFromUrl.current = true;
+
+    // NB: no cancel-on-cleanup guard — under StrictMode the simulated unmount would
+    // otherwise cancel this restore while the ref already blocks the re-run. `open`
+    // targets the (always-mounted) layout slot state, so a late call is safe.
+    void (async () => {
+      let target = Object.values(client.activeChannels).find(
+        (candidate) => candidate.id === channelIdFromUrl,
+      );
+      if (!target) {
+        [target] = await client.queryChannels({ id: channelIdFromUrl });
+      }
+      if (target) open({ key: target.cid ?? undefined, kind: 'channel', source: target });
+    })();
+  }, [channel, client, open]);
 
   useEffect(() => {
     if (
@@ -92,7 +123,7 @@ export const ChatStateSync = ({
       previousSyncedChatView.current === undefined &&
       activeChatView !== initialChatView
     ) {
-      setActiveChatView(initialChatView);
+      setActiveView(initialChatView);
       return;
     }
 
@@ -100,7 +131,7 @@ export const ChatStateSync = ({
 
     previousSyncedChatView.current = activeChatView;
     updateSelectedChatViewInUrl(activeChatView);
-  }, [activeChatView, initialChatView, setActiveChatView]);
+  }, [activeChatView, initialChatView, setActiveView]);
 
   useEffect(() => {
     if (channel?.id) {
@@ -122,99 +153,53 @@ export const ChatStateSync = ({
   return null;
 };
 
-const threadManagerSelector = (nextValue: ThreadManagerState) => ({
-  isLoading: nextValue.pagination.isLoading,
-  ready: nextValue.ready,
-  threads: nextValue.threads,
-});
-
 export const ThreadStateSync = () => {
-  const selectedThreadId = useRef<string | undefined>(
+  const initialThreadId = useRef<string | undefined>(
     getSelectedThreadIdFromUrl() ?? undefined,
   );
   const { client } = useChatContext();
-  const { activeThread, setActiveThread } = useThreadsViewContext();
-  const { isLoading, ready, threads } = useStateStore(
-    client.threads.state,
-    threadManagerSelector,
-  ) ?? {
-    isLoading: false,
-    ready: false,
-    threads: [],
-  };
-  const isRestoringThread = useRef(false);
+  const { open } = useChatViewNavigation();
+  const { availableSlots } = useLayoutViewState();
+  // Single-panel app: the primary (first) thread slot drives the URL. A multi-panel
+  // app would sync differently (e.g. a focused slot).
+  const activeThread = useSlotThreads()[0]?.thread;
   const previousThreadId = useRef<string | undefined>(undefined);
-  const attemptedThreadLookup = useRef(false);
+  const restoredThreadFromUrl = useRef(false);
 
+  // Restore the thread from the `?thread=` URL param, binding it into the primary
+  // thread slot once the threads layout exposes one. Mirrors ChatStateSync's channel
+  // restore — no cancel-on-cleanup guard so StrictMode's simulated unmount can't abort
+  // the async restore (the ref already blocks the re-run; `open` targets slot state).
+  useEffect(() => {
+    if (restoredThreadFromUrl.current || activeThread) return;
+    const threadIdFromUrl = initialThreadId.current;
+    if (!threadIdFromUrl) return;
+    if (!availableSlots.includes('main-thread')) return;
+    restoredThreadFromUrl.current = true;
+
+    void (async () => {
+      const thread = await client.getThread(threadIdFromUrl).catch(() => undefined);
+      if (!thread) return;
+      open(
+        { key: thread.id ?? undefined, kind: 'thread', source: thread },
+        { slot: 'main-thread' },
+      );
+    })();
+  }, [activeThread, availableSlots, client, open]);
+
+  // Keep the URL in sync with the primary thread slot.
   useEffect(() => {
     if (activeThread?.id) {
-      selectedThreadId.current = activeThread.id;
       previousThreadId.current = activeThread.id;
-      attemptedThreadLookup.current = false;
       updateSelectedThreadIdInUrl(activeThread.id);
       return;
     }
 
     if (!previousThreadId.current) return;
 
-    selectedThreadId.current = undefined;
     previousThreadId.current = undefined;
-    attemptedThreadLookup.current = false;
     updateSelectedThreadIdInUrl();
   }, [activeThread?.id]);
-
-  useEffect(() => {
-    const threadIdToRestore = selectedThreadId.current;
-
-    if (!threadIdToRestore) return;
-
-    if (activeThread?.id && activeThread.id !== threadIdToRestore) {
-      return;
-    }
-
-    const matchingThreadFromList = threads.find(
-      (thread) => thread.id === threadIdToRestore,
-    );
-
-    if (matchingThreadFromList && activeThread !== matchingThreadFromList) {
-      setActiveThread(matchingThreadFromList);
-      return;
-    }
-
-    if (
-      matchingThreadFromList ||
-      activeThread?.id === threadIdToRestore ||
-      isRestoringThread.current ||
-      attemptedThreadLookup.current ||
-      isLoading ||
-      !ready
-    ) {
-      return;
-    }
-
-    let cancelled = false;
-
-    attemptedThreadLookup.current = true;
-    isRestoringThread.current = true;
-
-    client
-      .getThread(threadIdToRestore)
-      .then((thread) => {
-        if (!thread || cancelled) return;
-
-        setActiveThread(thread);
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (cancelled) return;
-
-        isRestoringThread.current = false;
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activeThread, client, isLoading, ready, setActiveThread, threads]);
 
   return null;
 };

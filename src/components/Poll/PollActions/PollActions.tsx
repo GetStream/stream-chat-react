@@ -11,13 +11,14 @@ import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
 import { PollResults as DefaultPollResults } from './PollResults';
 import { MAX_POLL_OPTIONS } from '../constants';
 import {
-  useChannelStateContext,
+  useChannel,
   useChatContext,
   useMessageContext,
   usePollContext,
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
+import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 
 import type { PollState } from 'stream-chat';
 
@@ -56,9 +57,10 @@ export const PollActions = ({
   PollResults = DefaultPollResults,
   SuggestPollOptionForm = DefaultSuggestPollOptionForm,
 }: PollActionsProps) => {
+  const channel = useChannel();
   const { client } = useChatContext();
   const { t } = useTranslationContext('PollActions');
-  const { channelCapabilities = {} } = useChannelStateContext('PollActions');
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const { message } = useMessageContext('PollActions');
   const { poll } = usePollContext();
   const {
@@ -73,7 +75,7 @@ export const PollActions = ({
   } = useStateStore(poll.state, pollStateSelector);
   const [modalOpen, setModalOpen] = useState<ModalName | undefined>();
 
-  const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
+  const canCastVote = channelCapabilities.has('cast-poll-vote') && !is_closed;
   const closeModal = useCallback(() => setModalOpen(undefined), []);
   const onUpdateAnswerClick = useCallback(() => setModalOpen('add-comment'), []);
 
@@ -82,7 +84,7 @@ export const PollActions = ({
     !!voteCount ||
     (canCastVote && allow_user_suggested_options && options.length < MAX_POLL_OPTIONS) ||
     (!is_closed && allow_answers) ||
-    (answers_count > 0 && channelCapabilities['query-poll-votes']);
+    (answers_count > 0 && channelCapabilities.has('query-poll-votes'));
 
   if (!hasContents) return null;
 
@@ -143,7 +145,7 @@ export const PollActions = ({
         </PollAction>
       )}
 
-      {answers_count > 0 && channelCapabilities['query-poll-votes'] && (
+      {answers_count > 0 && channelCapabilities.has('query-poll-votes') && (
         <PollAction
           buttonText={t('View {{count}} comments', { count: answers_count })}
           closeModal={closeModal}

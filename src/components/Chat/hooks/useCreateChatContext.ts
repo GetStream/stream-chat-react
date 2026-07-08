@@ -4,7 +4,7 @@ import type { ChatContextValue } from '../../../context/ChatContext';
 
 export const useCreateChatContext = (value: ChatContextValue) => {
   const {
-    channel,
+    channelPaginatorsOrchestrator,
     channelsQueryState,
     client,
     customClasses,
@@ -13,12 +13,10 @@ export const useCreateChatContext = (value: ChatContextValue) => {
     latestMessageDatesByChannels,
     mutes,
     searchController,
-    setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   } = value;
 
-  const channelCid = channel?.cid;
   const channelsQueryError = channelsQueryState.error;
   const channelsQueryInProgress = channelsQueryState.queryInProgress;
   const clientValues = `${client.clientID}${Object.keys(client.activeChannels).length}${
@@ -29,7 +27,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
 
   const chatContext: ChatContextValue = useMemo(
     () => ({
-      channel,
+      channelPaginatorsOrchestrator,
       channelsQueryState,
       client,
       customClasses,
@@ -38,13 +36,12 @@ export const useCreateChatContext = (value: ChatContextValue) => {
       latestMessageDatesByChannels,
       mutes,
       searchController,
-      setActiveChannel,
       theme,
       useImageFlagEmojisOnWindows,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      channelCid,
+      channelPaginatorsOrchestrator,
       channelsQueryError,
       channelsQueryInProgress,
       clientValues,

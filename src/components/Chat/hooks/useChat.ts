@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { SupportedTranslations } from '../../../i18n';
@@ -11,7 +11,6 @@ import {
 
 import type {
   AppSettingsAPIResponse,
-  Channel,
   Event,
   Mute,
   OwnUserResponse,
@@ -35,7 +34,6 @@ export const useChat = ({
     userLanguage: 'en',
   });
 
-  const [channel, setChannel] = useState<Channel>();
   const [mutes, setMutes] = useState<Array<Mute>>([]);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
@@ -113,33 +111,14 @@ export const useChat = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [i18nInstance]);
 
-  const setActiveChannel = useCallback(
-    async (
-      activeChannel?: Channel,
-      watchers: { limit?: number; offset?: number } = {},
-      event?: React.BaseSyntheticEvent,
-    ) => {
-      if (event && event.preventDefault) event.preventDefault();
-
-      if (activeChannel && Object.keys(watchers).length) {
-        await activeChannel.query({ watch: true, watchers });
-      }
-
-      setChannel(activeChannel);
-    },
-    [],
-  );
-
   useEffect(() => {
     setLatestMessageDatesByChannels({});
   }, [client.user?.id]);
 
   return {
-    channel,
     getAppSettings,
     latestMessageDatesByChannels,
     mutes,
-    setActiveChannel,
     translators,
   };
 };

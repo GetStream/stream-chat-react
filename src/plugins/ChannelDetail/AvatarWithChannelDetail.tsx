@@ -1,11 +1,7 @@
 import clsx from 'clsx';
 import React, { useCallback, useState } from 'react';
 
-import {
-  useChannelStateContext,
-  useComponentContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannel, useComponentContext, useTranslationContext } from '../../context';
 import {
   type ChannelAvatarProps,
   ChannelAvatar as DefaultChannelAvatar,
@@ -32,7 +28,7 @@ export const AvatarWithChannelDetail = ({
   ...avatarProps
 }: AvatarWithChannelDetailProps) => {
   const { t } = useTranslationContext();
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { Avatar: ContextAvatar, Modal = GlobalModal } = useComponentContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
 

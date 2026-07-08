@@ -119,7 +119,6 @@ const defaultChatContext = fromPartial<ChatContextValue>({
   channelsQueryState: { queryInProgress: 'uninitialized' },
   getAppSettings: vi.fn(),
   latestMessageDatesByChannels: {},
-  mutes: [],
   searchController: new SearchController(),
 });
 

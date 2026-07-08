@@ -4,13 +4,10 @@ import React, { useContext } from 'react';
 import type {
   DeleteMessageOptions,
   LocalMessage,
-  Mute,
   ReactionResponse,
   ReactionSort,
   UserResponse,
 } from 'stream-chat';
-
-import type { ChannelActionContextValue } from './ChannelActionContext';
 
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
 import type { ReactEventHandler } from '../components/Message/types';
@@ -43,7 +40,7 @@ export type MessageContextValue = {
   handleMarkUnread: ReactEventHandler;
   /** Function to mute a user in a Channel */
   handleMute: ReactEventHandler;
-  /** Function to open a Thread on a Message */
+  /** Function to open a thread for the message (routed through ChatView navigation) */
   handleOpenThread: ReactEventHandler;
   /** Function to pin a Message in a Channel */
   handlePin: ReactEventHandler;
@@ -52,14 +49,12 @@ export type MessageContextValue = {
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  /** Function to retry sending a Message */
-  handleRetry: ChannelActionContextValue['retrySendMessage'];
+  /** Function to resend a failed message */
+  handleRetry: (message: LocalMessage) => Promise<void> | void;
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */
   message: LocalMessage;
-  /** Indicates whether a message has not been read yet or has been marked unread */
-  messageIsUnread: boolean;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
@@ -98,8 +93,6 @@ export type MessageContextValue = {
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
-  mutes?: Mute[];
   /** Sort options to provide to a reactions query */
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */
@@ -112,7 +105,7 @@ export type MessageContextValue = {
   returnAllReadData?: boolean;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
-  /** Whether or not the Message is in a Thread */
+  /** If true, the Message is rendered inside a thread's reply list */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;

@@ -1,14 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
-  useChannelStateContext,
+  useChannel,
   useComponentContext,
   useMessageComposerContext,
 } from '../../context';
 import { AIStates, useAIState } from '../AIStateIndicator';
-import { useMessageComposerController, useMessageContentIsEmpty } from './hooks';
+import {
+  useMessageComposerController,
+  useMessageContentIsEmpty,
+  useSendMessageFn,
+  useUpdateMessageFn,
+} from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import type { MessageComposerState, TextComposerState } from 'stream-chat';
@@ -25,7 +30,7 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 });
 
 export const MessageComposerActions = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { hideSendButton } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const {
@@ -56,7 +61,13 @@ export const MessageComposerActions = () => {
       ? DefaultStopAIGenerationButton
       : StopAIGenerationButtonOverride;
 
-  const { handleSubmit, recordingController } = useMessageComposerContext();
+  const { recordingController } = useMessageComposerContext();
+  const sendMessageFn = useSendMessageFn();
+  const updateMessageFn = useUpdateMessageFn();
+  const submitMessageFn = useMemo(
+    () => (editedMessage ? updateMessageFn : sendMessageFn),
+    [editedMessage, sendMessageFn, updateMessageFn],
+  );
   const isCooldownActive = useIsCooldownActive();
 
   const { aiState } = useAIState(channel);
@@ -68,9 +79,9 @@ export const MessageComposerActions = () => {
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
 
   let content = SendButton ? (
-    <SendButton sendMessage={handleSubmit} />
+    <SendButton sendMessage={submitMessageFn} />
   ) : (
-    <DefaultSendButton sendMessage={handleSubmit}>
+    <DefaultSendButton sendMessage={submitMessageFn}>
       {editedMessage || command ? <IconCheckmark /> : <IconSend />}
     </DefaultSendButton>
   );

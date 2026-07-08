@@ -1,7 +1,7 @@
 import { renderHook } from '@testing-library/react';
 import React from 'react';
 
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
+import { ChannelInstanceProvider } from '../../../../context/ChannelInstanceContext';
 import { ChatProvider } from '../../../../context/ChatContext';
 import {
   generateChannel,
@@ -13,9 +13,9 @@ import { useReactionsFetcher } from '../useReactionsFetcher';
 function renderUseReactionsFetcherHook(client = getTestClient(), notificationOpts) {
   const wrapper = ({ children }) => (
     <ChatProvider value={{ client }}>
-      <ChannelStateProvider value={{ channel: generateChannel() }}>
+      <ChannelInstanceProvider value={{ channel: generateChannel() }}>
         {children}
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>
   );
 

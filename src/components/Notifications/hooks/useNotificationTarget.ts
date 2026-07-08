@@ -1,7 +1,11 @@
 import { useContext } from 'react';
 
 import { ChatViewContext } from '../../ChatView';
-import { useChannelListContext, useChannelStateContext } from '../../../context';
+import { useChannelListContext } from '../../../context';
+// MERGE-RECONCILE: the deleted ChannelStateContext's `channel` is read here only to detect
+// whether a channel is in scope; migrated to useChannelInstanceContext (safe — returns
+// undefined channel outside a Channel subtree, unlike useChannel which throws).
+import { useChannelInstanceContext } from '../../../context/ChannelInstanceContext';
 import { useThreadContext } from '../../Threads/ThreadContext';
 
 import type { NotificationTargetPanel } from '../notificationTarget';
@@ -13,7 +17,7 @@ import { useLegacyThreadContext } from '../../Thread';
 export const useNotificationTarget = (): NotificationTargetPanel | undefined => {
   const chatViewContext = useContext(ChatViewContext);
   const { channels } = useChannelListContext();
-  const { channel } = useChannelStateContext();
+  const { channel } = useChannelInstanceContext();
   const threadInstance = useThreadContext();
   const { legacyThread } = useLegacyThreadContext();
 

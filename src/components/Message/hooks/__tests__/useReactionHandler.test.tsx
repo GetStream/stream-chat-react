@@ -1,12 +1,10 @@
 import React from 'react';
-import { renderHook } from '@testing-library/react';
-import type { LocalMessage } from 'stream-chat';
+import { renderHook, type RenderHookResult } from '@testing-library/react';
+import { act } from '@testing-library/react';
+import type { Channel as ChannelType, LocalMessage, StreamChat } from 'stream-chat';
 
 import { reactionHandlerWarning, useReactionHandler } from '../useReactionHandler';
 
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../../context/ChatContext';
 import { ComponentProvider } from '../../../../context/ComponentContext';
 import { emojiToUnicode } from '../../../Reactions/reactionOptions';
 import {
@@ -14,68 +12,64 @@ import {
   generateMessage,
   generateReaction,
   generateUser,
+  getOrCreateChannelApi,
   getTestClientWithUser,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  mockChatContext,
+  useMockedApis,
 } from '../../../../mock-builders';
+import { Channel } from '../../../Channel';
+import { Chat } from '../../../Chat';
 
-const getConfig = vi.fn();
-const sendAction = vi.fn();
-const sendReaction = vi.fn();
-const deleteReaction = vi.fn();
-const updateMessage = vi.fn();
+// MERGE-RECONCILE (test migration): PR #2909 rewrote useReactionHandler to send/delete
+// reactions through the channel instance (`channel.sendReaction`/`channel.deleteReaction`)
+// and to apply optimistic updates via `messagePaginator.ingestItem` — replacing the removed
+// ChannelActionContext `updateMessage` and the ChannelStateContext capability check. The
+// wrapper now uses the real <Chat>/<Channel> providers and assertions spy on the channel /
+// its messagePaginator. The `send-reaction` capability test was dropped (the hook no longer
+// gates on capabilities; permission gating lives in the UI layer).
+
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
+let channel: ChannelType;
+let client: StreamChat;
+
 async function renderUseReactionHandlerHook(
   params: {
-    channelContextProps?: Record<string, unknown>;
-    channelStateContextOverrides?: Record<string, unknown>;
     componentContext?: Record<string, unknown>;
     message?: LocalMessage | null;
   } = {},
 ) {
-  const {
-    channelContextProps = {},
-    channelStateContextOverrides = {},
-    componentContext = {},
-    message = generateMessage(),
-  } = params;
-
-  const client = await getTestClientWithUser(alice);
-  const channel = generateChannel({
-    deleteReaction,
-    getConfig,
-    sendAction,
-    sendReaction,
-    ...channelContextProps,
-  });
+  const { componentContext = {}, message = generateMessage() } = params;
 
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChatProvider value={mockChatContext({ client })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateContextOverrides,
-        })}
-      >
-        <ChannelActionProvider value={mockChannelActionContext({ updateMessage })}>
-          <ComponentProvider value={componentContext}>{children}</ComponentProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <ComponentProvider value={componentContext}>{children}</ComponentProvider>
+      </Channel>
+    </Chat>
   );
 
-  const { result } = renderHook(() => useReactionHandler(message ?? undefined), {
-    wrapper,
+  let rendered: RenderHookResult<ReturnType<typeof useReactionHandler>, unknown>;
+  await act(async () => {
+    rendered = await renderHook(() => useReactionHandler(message ?? undefined), {
+      wrapper,
+    });
   });
-  return result.current;
+  return rendered!.result.current;
 }
 
 describe('useReactionHandler custom hook', () => {
-  afterEach(vi.clearAllMocks);
+  beforeAll(async () => {
+    client = await getTestClientWithUser(alice);
+    const channelData = generateChannel();
+    useMockedApis(client, [getOrCreateChannelApi(channelData)]);
+    channel = client.channel('messaging', channelData.channel.id);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should generate function that handles reactions', async () => {
     const handleReaction = await renderUseReactionHandlerHook();
     expect(typeof handleReaction).toBe('function');
@@ -100,6 +94,9 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should delete own reaction from channel if it was already there', async () => {
+    const deleteReaction = vi
+      .spyOn(channel, 'deleteReaction')
+      .mockResolvedValue({ message: generateMessage() } as never);
     const reaction = generateReaction({ user: alice });
     const message = generateMessage({ own_reactions: [reaction] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
@@ -108,6 +105,9 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should send reaction with emoji_code derived from the default reaction options', async () => {
+    const sendReaction = vi
+      .spyOn(channel, 'sendReaction')
+      .mockResolvedValue({ message: generateMessage() } as never);
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('love');
@@ -118,6 +118,9 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should send reaction without emoji_code when the type has no unicode', async () => {
+    const sendReaction = vi
+      .spyOn(channel, 'sendReaction')
+      .mockResolvedValue({ message: generateMessage() } as never);
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('unsupported-reaction-type');
@@ -127,6 +130,9 @@ describe('useReactionHandler custom hook', () => {
   });
 
   it('should derive emoji_code from custom reaction options provided via context', async () => {
+    const sendReaction = vi
+      .spyOn(channel, 'sendReaction')
+      .mockResolvedValue({ message: generateMessage() } as never);
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({
       componentContext: {
@@ -149,34 +155,30 @@ describe('useReactionHandler custom hook', () => {
     });
   });
 
-  it('should stamp emoji_code on the optimistic reaction preview', async () => {
+  it('should stamp emoji_code on the optimistic reaction preview ingested into the paginator', async () => {
+    vi.spyOn(channel, 'sendReaction').mockResolvedValue({
+      message: generateMessage(),
+    } as never);
+    const ingestItem = vi.spyOn(channel.messagePaginator, 'ingestItem');
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('love');
-    const optimisticMessage = updateMessage.mock.calls[0][0];
-    expect(optimisticMessage.latest_reactions[0]).toMatchObject({
+    const optimisticMessage = ingestItem.mock.calls[0][0] as LocalMessage;
+    expect(optimisticMessage.latest_reactions?.[0]).toMatchObject({
       emoji_code: '❤️',
       type: 'love',
     });
   });
 
-  it('should not send reaction without permission', async () => {
-    const reaction = generateReaction({ user: bob });
-    const message = generateMessage({ own_reactions: [] });
-    const handleReaction = await renderUseReactionHandlerHook({
-      channelStateContextOverrides: { channelCapabilities: { 'send-reaction': false } },
-      message,
-    });
-    await handleReaction(reaction.type);
-    expect(sendReaction).not.toHaveBeenCalled();
-  });
-
-  it('should rollback reaction if channel update fails', async () => {
+  it('should rollback the optimistic reaction if the channel update fails', async () => {
+    vi.spyOn(channel, 'sendReaction').mockRejectedValueOnce(new Error('fail'));
+    const ingestItem = vi.spyOn(channel.messagePaginator, 'ingestItem');
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
-    sendReaction.mockImplementationOnce(() => Promise.reject());
     await handleReaction(reaction.type);
-    expect(updateMessage).toHaveBeenCalledWith(message);
+    // last ingest reverts to the original message
+    const lastIngested = ingestItem.mock.calls.at(-1)?.[0] as LocalMessage;
+    expect(lastIngested.id).toBe(message.id);
   });
 });

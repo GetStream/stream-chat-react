@@ -10,6 +10,7 @@ import {
   useDialogIsOpen,
   useDialogOnNearestManager,
   useDropdownContext,
+  useSlotChannels,
 } from 'stream-chat-react';
 import { DraggableDialog } from '../DraggableDialog';
 import {
@@ -609,7 +610,9 @@ export const WebSocketEventPromptDialog = ({
 }: {
   referenceElement: HTMLElement | null;
 }) => {
-  const { channel, client } = useChatContext();
+  const { client } = useChatContext();
+  // Dev tool: act on the first channel currently open in a layout slot.
+  const channel = useSlotChannels()[0]?.channel;
   const idCounterRef = useRef(0);
   const createId = useCallback((prefix: string) => {
     idCounterRef.current += 1;

@@ -43,11 +43,13 @@ import {
   type RenderMediaProps,
   SUPPORTED_VIDEO_FORMATS,
 } from './utils';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import type { ImageAttachmentConfiguration } from '../../types/types';
 import { VisibilityDisclaimer } from './VisibilityDisclaimer';
 import { VideoAttachment } from './VideoAttachment';
 import type { AttachmentProps } from './Attachment';
+import {
+  type ImageAttachmentConfiguration,
+  useAttachmentContext,
+} from '../../context/AttachmentContext';
 
 export type AttachmentContainerProps = {
   attachment: Attachment | GalleryAttachment | SharedLocationResponse;
@@ -220,7 +222,7 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
   const { attachment, Image = DefaultImage } = props;
   const componentType = 'image';
   const imageElement = useRef<HTMLImageElement>(null);
-  const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const { imageAttachmentSizeHandler } = useAttachmentContext();
   const [attachmentConfiguration, setAttachmentConfiguration] = useState<
     ImageAttachmentConfiguration | undefined
   >(undefined);
