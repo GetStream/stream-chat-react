@@ -16,7 +16,7 @@ export const useChannelMembershipState = () => {
   const { client } = useChatContext();
   const { channel } = useChannelStateContext();
   const members = useChannelMembersState(channel);
-  const membership = members[client.userID!] as ChannelMemberResponse | undefined;
+  const membership = members[client.userId!] as ChannelMemberResponse | undefined;
 
   const isMember = typeof membership?.channel_role === 'string';
   const canJoin = channel.data?.own_capabilities?.includes('join-channel');
@@ -32,7 +32,7 @@ export const ChannelPreviewOverlay = () => {
   const handleJoin = useCallback(async () => {
     setJoining(true);
     try {
-      await channel.addMembers([client.userID!]);
+      await channel.addMembers([client.userId!]);
     } catch (error) {
       addNotification({
         emitter: 'ChannelPreviewOverlay',
@@ -48,7 +48,7 @@ export const ChannelPreviewOverlay = () => {
     } finally {
       setJoining(false);
     }
-  }, [addNotification, channel, client.userID]);
+  }, [addNotification, channel, client.userId]);
 
   if (isMember) return null;
 

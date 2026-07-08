@@ -198,7 +198,7 @@ export const ThreadStateSync = () => {
     isRestoringThread.current = true;
 
     client
-      .getThread(threadIdToRestore)
+      .getThreadAndHydrate(threadIdToRestore)
       .then((thread) => {
         if (!thread || cancelled) return;
 

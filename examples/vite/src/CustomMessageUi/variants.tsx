@@ -183,7 +183,7 @@ const CustomMessageUiMetadata = ({
       {messageTextUpdatedAt && (
         <div
           className='custom-message-ui__metadata-edited-status'
-          title={messageTextUpdatedAt}
+          title={messageTextUpdatedAt.toISOString()}
         >
           Edited
         </div>

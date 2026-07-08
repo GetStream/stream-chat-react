@@ -120,21 +120,22 @@ type BuildChannelSeedContext = Omit<WebSocketEventTemplateContext, 'channel'> & 
   channel: Partial<DebugChannelResponse>;
 };
 
-const createFallbackUser = (id: string, createdAt: string): DebugUserResponse => ({
-  banned: false,
-  blocked_user_ids: [],
-  created_at: createdAt,
-  id,
-  invisible: false,
-  language: '',
-  last_active: createdAt,
-  name: id,
-  online: true,
-  role: 'user',
-  shadow_banned: false,
-  teams: [],
-  updated_at: createdAt,
-});
+const createFallbackUser = (id: string, createdAt: string): DebugUserResponse =>
+  ({
+    banned: false,
+    blocked_user_ids: [],
+    created_at: createdAt,
+    id,
+    invisible: false,
+    language: '',
+    last_active: createdAt,
+    name: id,
+    online: true,
+    role: 'user',
+    shadow_banned: false,
+    teams: [],
+    updated_at: createdAt,
+  }) as unknown as DebugUserResponse;
 
 const getUserId = (user: DebugUserResponse) =>
   typeof user.id === 'string' ? user.id : 'debug-user';
@@ -154,7 +155,7 @@ const createMember = (user: DebugUserResponse): ChannelMemberResponse => {
     updated_at: createdAt,
     user,
     user_id: getUserId(user),
-  };
+  } as unknown as ChannelMemberResponse;
 };
 
 const getMemberUserId = (member: { user?: unknown; user_id?: unknown }) => {
@@ -176,7 +177,7 @@ const buildChannel = (
 ): DebugChannelResponse => {
   const createdAt = context.createdAt;
 
-  return {
+  return ({
     cid: context.cid,
     config: {
       automod: 'disabled',
@@ -253,7 +254,7 @@ const buildChannel = (
     type: context.channelType,
     updated_at: createdAt,
     ...overrides,
-  };
+  }) as unknown as DebugChannelResponse;
 };
 
 const buildMe = (

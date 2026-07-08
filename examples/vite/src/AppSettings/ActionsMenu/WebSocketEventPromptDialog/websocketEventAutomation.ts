@@ -2,7 +2,7 @@ import type {
   Channel,
   ChannelMemberResponse,
   Event,
-  MessageResponseBase,
+  MessageResponse,
   ReactionResponse,
   StreamChat,
   UserResponse,
@@ -16,15 +16,13 @@ import {
 import type { SimulationState, SimulationUser } from './types';
 
 type UnknownRecord = Record<string, unknown>;
-type EventPayload = Omit<
-  Partial<Event>,
-  'channel' | 'member' | 'message' | 'reaction' | 'user'
-> & {
+type EventPayload = {
   channel?: Partial<WebSocketEventTemplateContext['channel']>;
   member?: ChannelMemberResponse;
-  message?: Partial<MessageResponseBase>;
+  message?: Partial<MessageResponse>;
   reaction?: ReactionResponse;
   user?: UserResponse;
+  [key: string]: unknown;
 };
 
 const messageTextFragments = [
@@ -86,7 +84,7 @@ const buildReactionState = ({
 }: {
   reaction: ReactionResponse;
 }): Pick<
-  MessageResponseBase,
+  MessageResponse,
   'latest_reactions' | 'reaction_counts' | 'reaction_groups' | 'reaction_scores'
 > => {
   const reactionType = getId(reaction.type) ?? 'love';
@@ -113,7 +111,10 @@ const buildReactionState = ({
     reaction_scores: {
       [reactionType]: reactionScore,
     },
-  };
+  } as unknown as Pick<
+    MessageResponse,
+    'latest_reactions' | 'reaction_counts' | 'reaction_groups' | 'reaction_scores'
+  >;
 };
 
 const uniquePush = <T extends string>(items: T[], value: T) => {
@@ -390,7 +391,7 @@ export const buildFreshWebSocketEventPayload = ({
           text,
           updated_at: freshContext.createdAt,
           user,
-        },
+        } as unknown as Partial<MessageResponse>,
         message_id: messageId,
         user: eventType === 'message.new' ? user : basePayload.user,
       };
@@ -407,13 +408,14 @@ export const buildFreshWebSocketEventPayload = ({
       const reaction = {
         ...baseReaction,
         created_at: freshContext.createdAt,
+        custom: {},
         message_id: messageId,
         type: reactionType,
         updated_at: freshContext.createdAt,
         user,
         user_id: user.id,
         score: reactionScore,
-      };
+      } as unknown as ReactionResponse;
 
       return {
         ...basePayload,
@@ -430,7 +432,7 @@ export const buildFreshWebSocketEventPayload = ({
           updated_at: freshContext.createdAt,
           user,
           ...buildReactionState({ reaction }),
-        },
+        } as unknown as Partial<MessageResponse>,
         message_id: messageId,
         reaction,
         user,
@@ -464,7 +466,7 @@ export const buildFreshWebSocketEventPayload = ({
           member,
           updated_at: freshContext.createdAt,
           user,
-        },
+        } as unknown as Partial<MessageResponse>,
         user,
       };
     }
@@ -494,7 +496,7 @@ export const trackSimulationStateFromPayload = ({
   simulationState,
   templateContext,
 }: {
-  payload: Event;
+  payload: EventPayload;
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
@@ -555,12 +557,12 @@ export const emitWebSocketEventPayload = ({
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
-  const emittedPayload = {
+  const emittedPayload: EventPayload = {
     ...payload,
     type: eventType,
-  } as Event;
+  };
 
-  client.dispatchEvent(emittedPayload);
+  client.dispatchEvent(emittedPayload as Event);
 
   trackSimulationStateFromPayload({
     payload: emittedPayload,

@@ -104,7 +104,10 @@ const options: ChannelOptions = {
   limit: 10,
 };
 
-const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+const sort: ChannelSort = [
+  { field: 'last_message_at', direction: -1 },
+  { field: 'updated_at', direction: -1 },
+];
 
 // @ts-expect-error ai_generated isn't on LocalMessage's public type yet
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
@@ -292,7 +295,7 @@ const App = () => {
             $or: {
               enabled: true,
               generate: () => ({
-                $or: [{ members: { $in: [chatClient.userID!] } }, { type: 'public' }],
+                $or: [{ members: { $in: [chatClient.userId!] } }, { type: 'public' }],
                 members: undefined,
               }),
             },
