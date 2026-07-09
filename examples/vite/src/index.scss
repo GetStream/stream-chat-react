@@ -109,7 +109,7 @@ body {
     min-width: 0;
     height: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 2;
   }
 
   /* The channels view's content row (`.app-chat-view__channel-content`) is the layout's main
@@ -662,7 +662,7 @@ body {
           var(--str-chat__chat-view-selector-transition-easing, ease),
         visibility 0s linear
           var(--str-chat__chat-view-selector-transition-duration, 180ms);
-      z-index: 1;
+      z-index: 2;
     }
 
     .app-chat-view__channels-layout:not(
