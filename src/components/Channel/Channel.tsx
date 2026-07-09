@@ -107,7 +107,17 @@ const ChannelContainer = ({
   );
 };
 
-const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
+/**
+ * A wrapper component that provides channel data and renders children.
+ * The Channel component provides the following contexts:
+ * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
+ * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
+ *
+ * Not wrapped in `React.memo`: `Channel` always receives `children` (a fresh element every
+ * parent render), so the default shallow comparison never matches and memo could never skip a
+ * render. The heavy descendants (`MessageList`, etc.) memoize themselves.
+ */
+export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
   // The channel is supplied via the `channel` prop (fed by a channel slot / the app's
   // slot-bound <Channel>). NOTE: master's giphyVersion/imageAttachmentSizeHandler/
@@ -427,11 +437,3 @@ const ChannelInner = (
     </ChannelContainer>
   );
 };
-
-/**
- * A wrapper component that provides channel data and renders children.
- * The Channel component provides the following contexts:
- * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
- * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
- */
-export const Channel = React.memo(UnMemoizedChannel) as typeof UnMemoizedChannel;
