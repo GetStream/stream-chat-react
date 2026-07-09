@@ -12,6 +12,7 @@ layer(stream-app-overrides);
 @import url('./SystemNotification/SystemNotification.scss') layer(stream-app-overrides);
 @import url('./AccessibilityNavigation/ReturnToSkipNavigation.scss')
 layer(stream-app-overrides);
+@import url('./SingleChannel/SingleChannel.scss') layer(stream-app-overrides);
 @import url('stream-chat-react/dist/css/emoji-picker.css') layer(stream-new-plugins);
 @import url('stream-chat-react/dist/css/channel-detail.css') layer(stream-new-plugins);
 
@@ -263,6 +264,38 @@ body {
   .str-chat__notification-list,
   .str-chat__dialog-overlay {
     z-index: 4;
+  }
+
+  .app-channel-list-switcher {
+    display: flex;
+    padding-block: var(--str-chat__spacing-xxs);
+    padding-inline: var(--str-chat__spacing-xs);
+
+    .app-channel-list-switcher__trigger {
+      width: 100%;
+      justify-content: space-between;
+
+      .str-chat__button__content {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .app-channel-list-switcher__caret {
+        font-size: 0.75em;
+        line-height: 1;
+      }
+
+      &[aria-expanded='true'] .app-channel-list-switcher__caret {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  /* The switcher menu is the SDK ContextMenu, portalled out of the switcher subtree, so it can't
+     be sized by ancestry. Match it to the trigger width via a CSS var set from JS (the trigger's
+     measured width). popper only sets position/inset on the menu, so `width` here sticks. */
+  .app-channel-list-switcher__menu {
+    width: var(--app-channel-list-switcher-menu-width);
   }
 
   @media (max-width: 767px) {

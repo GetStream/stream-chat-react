@@ -20,7 +20,6 @@ import {
 import { useChat } from './hooks/useChat';
 import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
-import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import type { CustomClasses } from '../../context/ChatContext';
 import { ChatProvider } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
@@ -132,8 +131,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     i18nInstance,
   });
 
-  const channelsQueryState = useChannelsQueryState();
-
   const searchController = useMemo(
     () =>
       customChannelSearchController ??
@@ -166,7 +163,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
 
   const chatContextValue = useCreateChatContext({
     channelPaginatorsOrchestrator,
-    channelsQueryState,
     client,
     customClasses,
     getAppSettings,

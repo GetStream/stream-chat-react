@@ -1,4 +1,4 @@
-import type { ReactNode, Ref } from 'react';
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Event } from 'stream-chat';
 import {
@@ -12,6 +12,11 @@ import {
   useDropdownContext,
   useSlotChannels,
 } from 'stream-chat-react';
+import {
+  assignReferenceRef,
+  SearchableSelect,
+  type SearchableSelectOption,
+} from '../../SearchableSelect';
 import { DraggableDialog } from '../DraggableDialog';
 import {
   buildFreshWebSocketEventPayload,
@@ -53,20 +58,6 @@ export const webSocketEventPromptDialogId = 'app-websocket-event-prompt-dialog';
 
 const initialEventType: SupportedWebsocketEventType = 'message.new';
 const defaultDialogMode: DialogMode = 'single';
-
-const assignReferenceRef = (
-  referenceRef: Ref<HTMLElement> | undefined,
-  element: HTMLButtonElement | null,
-) => {
-  if (!referenceRef) return;
-
-  if (typeof referenceRef === 'function') {
-    referenceRef(element);
-    return;
-  }
-
-  referenceRef.current = element;
-};
 
 const createPipelineEmitStep = ({
   eventType,
@@ -149,7 +140,7 @@ const createDefaultIntervalEmitters = ({
 ];
 
 const SectionLabel = ({ children }: { children: ReactNode }) => (
-  <div className='app__websocket-event-dialog__dropdown-section'>{children}</div>
+  <div className='app__searchable-select__dropdown-section'>{children}</div>
 );
 
 const EventTypeDropdownItem = ({
@@ -166,7 +157,7 @@ const EventTypeDropdownItem = ({
   return (
     <button
       aria-checked={selected}
-      className='app__websocket-event-dialog__dropdown-item'
+      className='app__searchable-select__dropdown-item'
       onClick={() => {
         onSelect(eventType);
         close();
@@ -174,11 +165,9 @@ const EventTypeDropdownItem = ({
       role='menuitemradio'
       type='button'
     >
-      <span className='app__websocket-event-dialog__dropdown-item-label'>
-        {eventType}
-      </span>
+      <span className='app__searchable-select__dropdown-item-label'>{eventType}</span>
       {!selected && 'todo' in websocketEventTemplateDefinitions[eventType] && (
-        <span className='app__websocket-event-dialog__dropdown-item-badge'>TODO</span>
+        <span className='app__searchable-select__dropdown-item-badge'>TODO</span>
       )}
     </button>
   );
@@ -201,7 +190,7 @@ const EventPresetDropdownItem = ({
   return (
     <button
       aria-checked={selected}
-      className='app__websocket-event-dialog__dropdown-item'
+      className='app__searchable-select__dropdown-item'
       onClick={() => {
         onSelect(presetId);
         close();
@@ -209,9 +198,7 @@ const EventPresetDropdownItem = ({
       role='menuitemradio'
       type='button'
     >
-      <span className='app__websocket-event-dialog__dropdown-item-label'>
-        {preset.label}
-      </span>
+      <span className='app__searchable-select__dropdown-item-label'>{preset.label}</span>
     </button>
   );
 };
@@ -249,13 +236,13 @@ const EventTypeDropdownItems = ({
   return (
     <>
       <div
-        className='app__websocket-event-dialog__dropdown-search'
+        className='app__searchable-select__dropdown-search'
         onClick={(event) => event.stopPropagation()}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <input
           autoFocus
-          className='app__websocket-event-dialog__dropdown-search-input'
+          className='app__searchable-select__dropdown-search-input'
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder='Search events'
           type='text'
@@ -292,9 +279,7 @@ const EventTypeDropdownItems = ({
         />
       ))}
       {!hasMatches && (
-        <div className='app__websocket-event-dialog__dropdown-empty'>
-          No matching events
-        </div>
+        <div className='app__searchable-select__dropdown-empty'>No matching events</div>
       )}
     </>
   );
@@ -314,7 +299,7 @@ const SavedPipelineDropdownItem = ({
   return (
     <button
       aria-checked={selected}
-      className='app__websocket-event-dialog__dropdown-item'
+      className='app__searchable-select__dropdown-item'
       onClick={() => {
         onSelect(savedPipeline.id);
         close();
@@ -322,7 +307,7 @@ const SavedPipelineDropdownItem = ({
       role='menuitemradio'
       type='button'
     >
-      <span className='app__websocket-event-dialog__dropdown-item-label'>
+      <span className='app__searchable-select__dropdown-item-label'>
         {savedPipeline.name}
       </span>
       <span className='app__websocket-event-dialog__saved-pipeline-meta'>
@@ -353,13 +338,13 @@ const SavedPipelineDropdownItems = ({
   return (
     <>
       <div
-        className='app__websocket-event-dialog__dropdown-search'
+        className='app__searchable-select__dropdown-search'
         onClick={(event) => event.stopPropagation()}
         onMouseDown={(event) => event.stopPropagation()}
       >
         <input
           autoFocus
-          className='app__websocket-event-dialog__dropdown-search-input'
+          className='app__searchable-select__dropdown-search-input'
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder='Search saved pipelines'
           type='text'
@@ -376,7 +361,7 @@ const SavedPipelineDropdownItems = ({
         />
       ))}
       {filteredSavedPipelines.length === 0 && (
-        <div className='app__websocket-event-dialog__dropdown-empty'>
+        <div className='app__searchable-select__dropdown-empty'>
           {savedPipelines.length === 0
             ? 'No saved pipelines'
             : 'No matching saved pipelines'}
@@ -405,159 +390,6 @@ const ModeTabButton = ({
     {children}
   </button>
 );
-
-type SearchableSelectOption<T extends string> = {
-  label: string;
-  value: T;
-};
-
-const SearchableSelectOptionItem = <T extends string>({
-  onSelect,
-  option,
-  selected,
-}: {
-  onSelect: (value: T) => void;
-  option: SearchableSelectOption<T>;
-  selected: boolean;
-}) => {
-  const { close } = useDropdownContext();
-
-  return (
-    <button
-      aria-checked={selected}
-      className='app__websocket-event-dialog__dropdown-item'
-      onClick={() => {
-        onSelect(option.value);
-        close();
-      }}
-      role='menuitemradio'
-      type='button'
-    >
-      <span className='app__websocket-event-dialog__dropdown-item-label'>
-        {option.label}
-      </span>
-    </button>
-  );
-};
-
-const SearchableSelectDropdownItems = <T extends string>({
-  onSearchChange,
-  onSelect,
-  options,
-  searchPlaceholder,
-  searchQuery,
-  selectedValue,
-}: {
-  onSearchChange: (value: string) => void;
-  onSelect: (value: T) => void;
-  options: SearchableSelectOption<T>[];
-  searchPlaceholder: string;
-  searchQuery: string;
-  selectedValue: T;
-}) => {
-  const normalizedQuery = searchQuery.trim().toLowerCase();
-  const filteredOptions = options.filter((option) =>
-    option.label.toLowerCase().includes(normalizedQuery),
-  );
-
-  return (
-    <>
-      <div
-        className='app__websocket-event-dialog__dropdown-search'
-        onClick={(event) => event.stopPropagation()}
-        onMouseDown={(event) => event.stopPropagation()}
-      >
-        <input
-          autoFocus
-          className='app__websocket-event-dialog__dropdown-search-input'
-          onChange={(event) => onSearchChange(event.target.value)}
-          placeholder={searchPlaceholder}
-          type='text'
-          value={searchQuery}
-        />
-      </div>
-      {filteredOptions.map((option) => (
-        <SearchableSelectOptionItem
-          key={option.value}
-          onSelect={onSelect}
-          option={option}
-          selected={selectedValue === option.value}
-        />
-      ))}
-      {filteredOptions.length === 0 && (
-        <div className='app__websocket-event-dialog__dropdown-empty'>
-          No matching options
-        </div>
-      )}
-    </>
-  );
-};
-
-const SearchableSelect = <T extends string>({
-  onChange,
-  options,
-  searchPlaceholder,
-  value,
-}: {
-  onChange: (value: T) => void;
-  options: SearchableSelectOption<T>[];
-  searchPlaceholder: string;
-  value: T;
-}) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const selectedOption =
-    options.find((option) => option.value === value) ?? options[0] ?? null;
-
-  const TriggerComponent = useMemo(
-    () =>
-      function SearchableSelectTrigger({
-        onClick,
-        referenceRef,
-        ...props
-      }: DropdownTriggerProps) {
-        return (
-          <button
-            {...props}
-            className='app__websocket-event-dialog__select app__websocket-event-dialog__select-trigger'
-            onClick={onClick}
-            ref={(element) => assignReferenceRef(referenceRef, element)}
-            type='button'
-          >
-            <span className='app__websocket-event-dialog__trigger-value'>
-              {selectedOption?.label ?? ''}
-            </span>
-            <span
-              aria-hidden='true'
-              className='app__websocket-event-dialog__trigger-icon'
-            >
-              <IconChevronDown />
-            </span>
-          </button>
-        );
-      },
-    [selectedOption],
-  );
-
-  return (
-    <Dropdown
-      className='app__websocket-event-dialog__dropdown'
-      matchReferenceWidth
-      onClose={() => setSearchQuery('')}
-      onOpen={() => setSearchQuery('')}
-      placement='bottom-start'
-      TriggerComponent={TriggerComponent}
-    >
-      <SearchableSelectDropdownItems
-        onSearchChange={setSearchQuery}
-        onSelect={onChange}
-        options={options}
-        searchPlaceholder={searchPlaceholder}
-        searchQuery={searchQuery}
-        selectedValue={value}
-      />
-    </Dropdown>
-  );
-};
 
 const eventTypeOptions: SearchableSelectOption<SupportedWebsocketEventType>[] =
   supportedWebsocketEventTypes.map((value) => ({
@@ -1232,13 +1064,10 @@ export const WebSocketEventPromptDialog = ({
             ref={(element) => assignReferenceRef(referenceRef, element)}
             type='button'
           >
-            <span className='app__websocket-event-dialog__trigger-value'>
+            <span className='app__searchable-select__trigger-value'>
               {selectedEventPreset?.label ?? selectedEventType}
             </span>
-            <span
-              aria-hidden='true'
-              className='app__websocket-event-dialog__trigger-icon'
-            >
+            <span aria-hidden='true' className='app__searchable-select__trigger-icon'>
               <IconChevronDown />
             </span>
           </button>
@@ -1262,13 +1091,10 @@ export const WebSocketEventPromptDialog = ({
             ref={(element) => assignReferenceRef(referenceRef, element)}
             type='button'
           >
-            <span className='app__websocket-event-dialog__trigger-value'>
+            <span className='app__searchable-select__trigger-value'>
               {selectedSavedPipeline?.name ?? 'Load saved pipeline'}
             </span>
-            <span
-              aria-hidden='true'
-              className='app__websocket-event-dialog__trigger-icon'
-            >
+            <span aria-hidden='true' className='app__searchable-select__trigger-icon'>
               <IconChevronDown />
             </span>
           </button>
@@ -1345,7 +1171,7 @@ export const WebSocketEventPromptDialog = ({
                   Event type
                 </span>
                 <Dropdown
-                  className='app__websocket-event-dialog__dropdown'
+                  className='app__searchable-select__dropdown'
                   matchReferenceWidth
                   onClose={() => setEventSearchQuery('')}
                   onOpen={() => setEventSearchQuery('')}
@@ -1423,7 +1249,7 @@ export const WebSocketEventPromptDialog = ({
                     Saved pipelines
                   </span>
                   <Dropdown
-                    className='app__websocket-event-dialog__dropdown'
+                    className='app__searchable-select__dropdown'
                     matchReferenceWidth
                     onClose={() => setSavedPipelineSearchQuery('')}
                     onOpen={() => setSavedPipelineSearchQuery('')}

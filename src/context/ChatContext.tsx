@@ -8,7 +8,6 @@ import type {
 } from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
-import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
 
 type CSSClasses =
   | 'chat'
@@ -32,10 +31,6 @@ export type ChatContextValue = {
    * more channel lists (the channel-list data source + cross-list ownership).
    */
   channelPaginatorsOrchestrator: ChannelPaginatorsOrchestrator;
-  /**
-   * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
-   */
-  channelsQueryState: ChannelsQueryState;
   getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
   mutes: Array<Mute>;

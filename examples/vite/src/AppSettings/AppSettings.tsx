@@ -83,12 +83,15 @@ const createSettingsNavButton = ({
 }: Pick<SettingsSectionConfig, 'Icon' | 'id' | 'title'>) => {
   const SettingsNavButton = ({ select, selected }: SectionNavigatorNavButtonProps) => (
     <Button
+      appearance='ghost'
       aria-selected={selected}
-      className={`app__settings-modal__tab str-chat__button--ghost str-chat__button--secondary str-chat__button--size-lg ${
+      className={`app__settings-modal__tab ${
         selected ? 'app__settings-modal__tab--active' : ''
       }`}
       onClick={select}
       role='tab'
+      size='md'
+      variant='secondary'
     >
       <Icon />
       {title}

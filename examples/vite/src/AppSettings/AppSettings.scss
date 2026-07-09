@@ -343,7 +343,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .app__websocket-event-dialog__select,
+  .app__searchable-select,
   .app__websocket-event-dialog__text-input,
   .app__websocket-event-dialog__number-input {
     width: 100%;
@@ -356,7 +356,7 @@
     font: inherit;
   }
 
-  .app__websocket-event-dialog__select-trigger {
+  .app__searchable-select__trigger {
     align-items: center;
     cursor: pointer;
     display: flex;
@@ -364,7 +364,7 @@
     text-align: left;
   }
 
-  .app__websocket-event-dialog__select:focus-visible,
+  .app__searchable-select:focus-visible,
   .app__websocket-event-dialog__text-input:focus-visible,
   .app__websocket-event-dialog__number-input:focus-visible {
     outline: 2px solid var(--str-chat__border-utility-selected);
@@ -393,19 +393,19 @@
     outline-offset: 1px;
   }
 
-  .app__websocket-event-dialog__trigger-value {
+  .app__searchable-select__trigger-value {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .app__websocket-event-dialog__trigger-icon {
+  .app__searchable-select__trigger-icon {
     color: var(--str-chat__text-secondary);
     flex-shrink: 0;
     font-size: 12px;
   }
 
-  .app__websocket-event-dialog__dropdown {
+  .app__searchable-select__dropdown {
     max-height: min(360px, calc(100vh - 80px));
     min-width: min(420px, calc(100vw - 32px));
     border: 1px solid var(--str-chat__border-core-default);
@@ -419,11 +419,11 @@
     z-index: 1;
   }
 
-  .app__websocket-event-dialog__dropdown::-webkit-scrollbar {
+  .app__searchable-select__dropdown::-webkit-scrollbar {
     display: none;
   }
 
-  .app__websocket-event-dialog__dropdown-section {
+  .app__searchable-select__dropdown-section {
     color: var(--str-chat__text-secondary);
     font-size: 12px;
     font-weight: 700;
@@ -431,7 +431,7 @@
     text-transform: uppercase;
   }
 
-  .app__websocket-event-dialog__dropdown-search {
+  .app__searchable-select__dropdown-search {
     padding: 4px 4px 8px;
     position: sticky;
     top: 0;
@@ -439,7 +439,7 @@
     z-index: 1;
   }
 
-  .app__websocket-event-dialog__dropdown-search-input {
+  .app__searchable-select__dropdown-search-input {
     width: 100%;
     min-height: 36px;
     border: 1px solid var(--str-chat__border-core-default);
@@ -450,12 +450,12 @@
     font: inherit;
   }
 
-  .app__websocket-event-dialog__dropdown-search-input:focus-visible {
+  .app__searchable-select__dropdown-search-input:focus-visible {
     outline: 2px solid var(--str-chat__border-utility-selected);
     outline-offset: 1px;
   }
 
-  .app__websocket-event-dialog__dropdown-item {
+  .app__searchable-select__dropdown-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -471,21 +471,21 @@
     text-align: left;
   }
 
-  .app__websocket-event-dialog__dropdown-item[aria-checked='true'] {
+  .app__searchable-select__dropdown-item[aria-checked='true'] {
     background: var(--str-chat__background-utility-selected);
   }
 
-  .app__websocket-event-dialog__dropdown-item:hover {
+  .app__searchable-select__dropdown-item:hover {
     background: var(--str-chat__background-utility-selected);
   }
 
-  .app__websocket-event-dialog__dropdown-item-label {
+  .app__searchable-select__dropdown-item-label {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .app__websocket-event-dialog__dropdown-item-badge {
+  .app__searchable-select__dropdown-item-badge {
     color: var(--str-chat__text-secondary);
     flex-shrink: 0;
     font-size: 12px;
@@ -499,7 +499,7 @@
     white-space: nowrap;
   }
 
-  .app__websocket-event-dialog__dropdown-empty {
+  .app__searchable-select__dropdown-empty {
     color: var(--str-chat__text-secondary);
     font-size: 13px;
     padding: 10px 12px;
@@ -986,25 +986,16 @@
     width: auto;
   }
 
-  .app__settings-modal__body .str-chat__section-navigator__navigation-item {
-    padding: 0;
-  }
-
   .app__settings-modal__tab {
     width: 100%;
     white-space: nowrap;
     justify-content: flex-start;
-    font-weight: 500;
-    margin-bottom: 6px;
-    color: var(--str-chat__text-secondary);
   }
 
   .app__settings-modal__tab[aria-selected='true'],
   .app__settings-modal__tab.app__settings-modal__tab--active {
     background: var(--str-chat__background-utility-selected);
     border-color: var(--str-chat__border-utility-selected);
-    color: var(--str-chat__text-primary);
-    font-weight: 600;
   }
 
   .app__settings-modal__content-stack {
@@ -1139,7 +1130,7 @@
       width: min(360px, calc(100vw - 24px));
     }
 
-    .app__websocket-event-dialog__dropdown {
+    .app__searchable-select__dropdown {
       min-width: min(320px, calc(100vw - 24px));
     }
 
@@ -1161,19 +1152,30 @@
     }
   }
 
+  /* Inline (drawer) navigation spacing. Size/full-screen chrome is intentionally NOT set here:
+     `--inline` is toggled by SectionNavigator's measured-width layout report, and changing the
+     modal's width from that report fed back into the measurement (100dvw vs 90vw straddling the
+     640px threshold) causing a resize-observer oscillation ("blinking") near the breakpoint. The
+     full-screen sizing lives in a viewport media query below instead, so it can't feed back. */
   .app__settings-modal--inline {
-    width: 100dvw;
-    height: 100dvh;
-    max-width: none;
-    border-radius: 0;
-    box-shadow: none;
-
     .app__settings-modal__tab-header {
       padding: var(--str-chat__spacing-xs);
     }
 
     .app__settings-modal__tab-body {
       padding: var(--str-chat__spacing-lg);
+    }
+  }
+
+  /* Full-screen the settings modal on small viewports. Viewport-driven (not layout-report-driven)
+     so it doesn't change the width SectionNavigator measures — no feedback loop. */
+  @media (max-width: 640px) {
+    .app__settings-modal {
+      width: 100dvw;
+      height: 100dvh;
+      max-width: none;
+      border-radius: 0;
+      box-shadow: none;
     }
   }
 }

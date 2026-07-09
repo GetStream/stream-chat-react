@@ -95,7 +95,7 @@ const ChannelContainer = ({
   className: additionalClassName,
   ...props
 }: PropsWithChildren<ComponentProps<'div'>>) => {
-  const { customClasses, theme } = useChatContext('Channel');
+  const { customClasses, theme } = useChatContext();
   const { channelClass, chatClass } = useChannelContainerClasses({
     customClasses,
   });
@@ -109,32 +109,12 @@ const ChannelContainer = ({
 
 const UnMemoizedChannel = (props: PropsWithChildren<ChannelProps>) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
-  const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext();
-
-  const { channelsQueryState } = useChatContext('Channel');
   // The channel is supplied via the `channel` prop (fed by a channel slot / the app's
   // slot-bound <Channel>). NOTE: master's giphyVersion/imageAttachmentSizeHandler/
   // videoAttachmentSizeHandler props + AttachmentContextProvider (custom attachment sizing)
   // are NOT provided by this PR-base Channel — useAttachmentContext falls back to defaults.
   // Re-graft the AttachmentContextProvider if custom sizing is needed.
   const channel = propsChannel;
-
-  if (channelsQueryState.queryInProgress === 'reload' && LoadingIndicator) {
-    return (
-      <ChannelContainer>
-        <LoadingIndicator />
-      </ChannelContainer>
-    );
-  }
-
-  if (channelsQueryState.error && LoadingErrorIndicator) {
-    return (
-      <ChannelContainer>
-        <LoadingErrorIndicator error={channelsQueryState.error} />
-      </ChannelContainer>
-    );
-  }
 
   if (!channel?.cid) {
     return <ChannelContainer>{EmptyPlaceholder}</ChannelContainer>;

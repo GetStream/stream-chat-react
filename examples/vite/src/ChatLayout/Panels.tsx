@@ -1,8 +1,5 @@
 import clsx from 'clsx';
 import type {
-  ChannelFilters,
-  ChannelOptions,
-  ChannelSort,
   Channel as StreamChannel,
   Thread as ThreadType,
   UserResponse,
@@ -15,7 +12,6 @@ import {
   ChannelAvatar,
   ChannelHeader,
   ChannelListItem,
-  ChannelNavigation,
   ChannelSearchResultItem,
   ChatView,
   type ChatViewSelectorEntry,
@@ -55,6 +51,7 @@ import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
 import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
+import { SwitchableChannelNavigation } from './SwitchableChannelNavigation.tsx';
 import { ThreadStateSync } from './Sync.tsx';
 
 export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
@@ -312,12 +309,9 @@ export const ChannelsPanels = ({
   iconOnly,
   itemSet,
 }: {
-  filters: ChannelFilters;
   iconOnly?: boolean;
   initialChannelId?: string;
   itemSet?: ChatViewSelectorEntry[];
-  options: ChannelOptions;
-  sort: ChannelSort;
 }) => {
   // The primary channel occupies the main panel; a 2nd channel (ctrl/⌘-click) or the reply
   // thread shares the secondary slot, rendered by ResponsiveChannelPanels.
@@ -357,7 +351,7 @@ export const ChannelsPanels = ({
             SearchSourceResultList: SplitAwareSearchResultList,
           }}
         >
-          <ChannelNavigation />
+          <SwitchableChannelNavigation />
         </WithComponents>
       </ChatSidebar>
       <SidebarResizeHandle layoutRef={channelsLayoutRef} />

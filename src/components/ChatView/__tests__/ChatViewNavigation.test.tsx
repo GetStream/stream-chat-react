@@ -28,12 +28,6 @@ const viewState = (controller?: LayoutController | null) => {
 
 const createChatContextValue = (): ChatContextValue =>
   ({
-    channelsQueryState: {
-      error: null,
-      queryInProgress: null,
-      setError: vi.fn(),
-      setQueryInProgress: vi.fn(),
-    },
     client: {
       threads: {
         state: new StateStore({

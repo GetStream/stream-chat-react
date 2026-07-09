@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
-import uniqBy from 'lodash.uniqby';
 import React, {
   createContext,
   useCallback,
@@ -12,7 +11,6 @@ import React, {
 import type { ChannelMemberResponse } from 'stream-chat';
 
 import {
-  useChannelListContext,
   useChatContext,
   useComponentContext,
   useModalContext,
@@ -208,9 +206,8 @@ export const useBaseChannelMemberActionSetFilter = (
 };
 
 const SendDirectMessageAction = () => {
-  const { client } = useChatContext();
+  const { channelPaginatorsOrchestrator, client } = useChatContext();
   const { open } = useChatViewNavigation();
-  const { setChannels } = useChannelListContext();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
   const { addNotification } = useNotificationApi();
@@ -227,15 +224,14 @@ const SendDirectMessageAction = () => {
         members: [client.userID, targetUserId],
       });
       await directMessageChannel.watch();
-      // Selection is one navigation model: open the DM into a layout slot. The
-      // `setChannels` bridge ingests it into the channel list (via the orchestrator's
-      // primary paginator) so it appears without a full re-query.
+      // Selection is one navigation model: open the DM into a layout slot, then route it into
+      // the channel list(s) that should own it so it appears without a full re-query.
       open({
         key: directMessageChannel.cid ?? undefined,
         kind: 'channel',
         source: directMessageChannel,
       });
-      setChannels?.((channels) => uniqBy([directMessageChannel, ...channels], 'cid'));
+      channelPaginatorsOrchestrator.ingestChannel(directMessageChannel);
       close();
     } catch (error) {
       addNotification({
@@ -254,9 +250,9 @@ const SendDirectMessageAction = () => {
     channel,
     client,
     close,
+    channelPaginatorsOrchestrator,
     isSending,
     open,
-    setChannels,
     t,
     targetUserId,
   ]);

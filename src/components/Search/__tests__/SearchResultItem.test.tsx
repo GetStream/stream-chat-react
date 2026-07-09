@@ -11,7 +11,6 @@ import {
 import { SearchContextProvider } from '../SearchContext';
 import type { SearchContextValue } from '../SearchContext';
 import {
-  ChannelListContextProvider,
   ChatProvider,
   DialogManagerProvider,
   TranslationProvider,
@@ -22,14 +21,14 @@ import {
   generateUser,
   initChannelFromData,
   initClientWithChannels,
-  mockChannelListContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
 const mockOpen = vi.fn();
-const mockSetChannels = vi.fn().mockImplementation(() => {});
+const mockIngestChannel = vi.fn();
+const mockOrchestrator = { ingestChannel: mockIngestChannel };
 const directMessagingChannelType = 'X';
 
 // Selection opens the channel into a layout slot (one navigation model); the item's
@@ -92,20 +91,17 @@ const renderComponent = async ({
       <ChatProvider
         value={{
           channel: activeChannel ?? channel,
+          channelPaginatorsOrchestrator: mockOrchestrator,
           client: customClient ?? client,
           ...chatContext,
         }}
       >
         <DialogManagerProvider>
-          <ChannelListContextProvider
-            value={mockChannelListContext({ setChannels: mockSetChannels })}
+          <SearchContextProvider
+            value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
           >
-            <SearchContextProvider
-              value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
-            >
-              <SearchResultItemComponent item={item} {...itemProps} />
-            </SearchContextProvider>
-          </ChannelListContextProvider>
+            <SearchResultItemComponent item={item} {...itemProps} />
+          </SearchContextProvider>
         </DialogManagerProvider>
       </ChatProvider>
     </TranslationProvider>,
@@ -135,7 +131,7 @@ describe('SearchResultItem Components', () => {
 
       expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
       expect(mockOpen.mock.calls[0][0].source.id).toBe(channelSearchData.channel.id);
-      expect(mockSetChannels).toHaveBeenCalledTimes(1);
+      expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
     it('runs a custom onSelect instead of the default open', async () => {
@@ -186,7 +182,7 @@ describe('SearchResultItem Components', () => {
         searchController._internalState.getLatestValue().focusedMessage,
       ).toStrictEqual(messageResponseData);
       expect(mockOpen.mock.calls[0][0].source.id).toBe(messageResponseData.channel.id);
-      expect(mockSetChannels).toHaveBeenCalledTimes(1);
+      expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
     it('displays message text in preview', async () => {
@@ -224,7 +220,7 @@ describe('SearchResultItem Components', () => {
         fireEvent.click(screen.getByRole('option'));
       });
       expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
-      expect(mockSetChannels).toHaveBeenCalledTimes(1);
+      expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
     it('runs a custom onSelect instead of the default DM open', async () => {

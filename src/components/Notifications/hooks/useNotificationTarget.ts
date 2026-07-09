@@ -16,7 +16,7 @@ import { useLegacyThreadContext } from '../../Thread';
  */
 export const useNotificationTarget = (): NotificationTargetPanel | undefined => {
   const chatViewContext = useContext(ChatViewContext);
-  const { channels } = useChannelListContext();
+  const { paginator } = useChannelListContext();
   const { channel } = useChannelInstanceContext();
   const threadInstance = useThreadContext();
   const { legacyThread } = useLegacyThreadContext();
@@ -24,6 +24,6 @@ export const useNotificationTarget = (): NotificationTargetPanel | undefined => 
   if (threadInstance || legacyThread) return 'thread';
   if (channel) return 'channel';
   if (chatViewContext?.activeChatView === 'threads') return 'thread-list';
-  if (channels) return 'channel-list';
+  if (paginator) return 'channel-list';
   return undefined;
 };

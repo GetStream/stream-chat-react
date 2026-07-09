@@ -1,10 +1,5 @@
-import type { PropsWithChildren } from 'react';
-import React, { useMemo } from 'react';
-import type {
-  ChannelPaginator,
-  ChannelPaginatorsOrchestratorState,
-  ChannelPaginatorState,
-} from 'stream-chat';
+import React from 'react';
+import type { ChannelPaginatorsOrchestratorState } from 'stream-chat';
 
 import { ChannelListContextProvider } from '../../context/ChannelListContext';
 import { useChatContext } from '../../context/ChatContext';
@@ -15,45 +10,13 @@ const paginatorsSelector = (state: ChannelPaginatorsOrchestratorState) => ({
   paginators: state.paginators,
 });
 
-const primaryPaginatorStateSelector = (state: ChannelPaginatorState) => ({
-  items: state.items,
-});
-
 /**
- * Back-compat bridge: exposes the primary (`paginators[0]`) `ChannelPaginator` through
- * the legacy `ChannelListContext` so consumers that predate the orchestrator
- * (`SearchResultItem`, `ChannelMemberActions`, `useNotificationTarget`) keep working
- * without knowing about paginators. `setChannels` proxies to the paginator's `setItems`.
- */
-const ChannelListCompatProvider = ({
-  children,
-  paginator,
-}: PropsWithChildren<{ paginator: ChannelPaginator }>) => {
-  const { items } = useStateStore(paginator.state, primaryPaginatorStateSelector);
-  const value = useMemo(
-    () => ({
-      channels: items ?? [],
-      hasNextPage: paginator.hasNext,
-      loadNextPage: async () => {
-        await paginator.next();
-      },
-      setChannels: (
-        valueOrFactory: Parameters<typeof paginator.setItems>[0]['valueOrFactory'],
-      ) => paginator.setItems({ valueOrFactory }),
-    }),
-    [items, paginator],
-  );
-
-  return (
-    <ChannelListContextProvider value={value}>{children}</ChannelListContextProvider>
-  );
-};
-
-/**
- * Renders one `<ChannelList/>` per paginator held by the
- * `ChannelPaginatorsOrchestrator` on `ChatContext` — i.e. its data source is the
- * orchestrator (the whole set of lists). Each child `ChannelList` registers the
- * (ref-counted) WS subscriptions.
+ * Renders one `<ChannelList/>` per paginator held by the `ChannelPaginatorsOrchestrator` on
+ * `ChatContext` — i.e. its data source is the orchestrator (the whole set of lists). Each child
+ * `ChannelList` registers the (ref-counted) WS subscriptions. The primary (`paginators[0]`)
+ * paginator is exposed through `ChannelListContext` so descendants (search results, member
+ * actions, notification targeting) can read/mutate the loaded list without knowing about the
+ * orchestrator.
  */
 export const ChannelLists = () => {
   const { channelPaginatorsOrchestrator } = useChatContext('ChannelLists');
@@ -74,8 +37,8 @@ export const ChannelLists = () => {
   if (!primaryPaginator) return lists;
 
   return (
-    <ChannelListCompatProvider paginator={primaryPaginator}>
+    <ChannelListContextProvider value={{ paginator: primaryPaginator }}>
       {lists}
-    </ChannelListCompatProvider>
+    </ChannelListContextProvider>
   );
 };
