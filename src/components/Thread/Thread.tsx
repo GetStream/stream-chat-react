@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { LegacyThreadContext } from './LegacyThreadContext';
+import { WithAudioPlayback } from '../AudioPlayback';
 import { MESSAGE_ACTIONS } from '../Message';
 import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
@@ -46,6 +47,8 @@ export type ThreadProps = {
   additionalParentMessageProps?: Partial<MessageProps>;
   /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
   additionalVirtualizedMessageListProps?: VirtualizedMessageListProps;
+  /** Allows multiple audio players to play the audio at the same time within this thread. Disabled by default. */
+  allowConcurrentAudioPlayback?: boolean;
   /** If true, focuses the `MessageComposer` component on opening a thread */
   autoFocus?: boolean;
   /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
@@ -128,6 +131,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     additionalMessageListProps,
     additionalParentMessageProps,
     additionalVirtualizedMessageListProps,
+    allowConcurrentAudioPlayback,
     autoFocus = true,
     doDeleteMessageRequest,
     doMarkReadRequest,
@@ -256,23 +260,28 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
         legacyThread: parentMessage ?? undefined,
       }}
     >
-      <div className={threadClass}>
-        <ThreadHeader closeThread={closeThread} thread={parentMessage} />
-        <ThreadMessageList
-          disableDateSeparator={!enableDateSeparator}
-          head={head}
-          Message={MessageUIComponent}
-          messageActions={messageActions}
-          {...(virtualized
-            ? additionalVirtualizedMessageListProps
-            : additionalMessageListProps)}
-        />
-        <MessageComposer
-          focus={autoFocus}
-          parent={parentMessage}
-          {...additionalMessageComposerProps}
-        />
-      </div>
+      {/* The thread owns its audio-player pool (rather than inheriting one from an ambient
+          <Channel>) because a slot-bound Thread is a sibling of the channel, not nested inside
+          it. Scoping the pool here means thread audio stops when the thread unmounts. */}
+      <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+        <div className={threadClass}>
+          <ThreadHeader closeThread={closeThread} thread={parentMessage} />
+          <ThreadMessageList
+            disableDateSeparator={!enableDateSeparator}
+            head={head}
+            Message={MessageUIComponent}
+            messageActions={messageActions}
+            {...(virtualized
+              ? additionalVirtualizedMessageListProps
+              : additionalMessageListProps)}
+          />
+          <MessageComposer
+            focus={autoFocus}
+            parent={parentMessage}
+            {...additionalMessageComposerProps}
+          />
+        </div>
+      </WithAudioPlayback>
     </LegacyThreadContext.Provider>
   );
 };
