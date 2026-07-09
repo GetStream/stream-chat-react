@@ -22,6 +22,7 @@ export default defineConfig({
         'channel-detail': resolve(__dirname, './src/plugins/ChannelDetail/index.ts'),
         emojis: resolve(__dirname, './src/plugins/Emojis/index.ts'),
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
+        'slot-geometry': resolve(__dirname, './src/plugins/SlotGeometry/index.ts'),
       },
     },
     emptyOutDir: false,

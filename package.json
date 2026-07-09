@@ -40,6 +40,12 @@
       "require": "./dist/cjs/mp3-encoder.js",
       "default": "./dist/cjs/mp3-encoder.js"
     },
+    "./slot-geometry": {
+      "types": "./dist/types/plugins/SlotGeometry/index.d.ts",
+      "import": "./dist/es/slot-geometry.mjs",
+      "require": "./dist/cjs/slot-geometry.js",
+      "default": "./dist/cjs/slot-geometry.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -57,6 +63,9 @@
       ],
       "mp3-encoder": [
         "./dist/types/plugins/encoders/mp3.d.ts"
+      ],
+      "slot-geometry": [
+        "./dist/types/plugins/SlotGeometry/index.d.ts"
       ]
     }
   },
