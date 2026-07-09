@@ -102,6 +102,40 @@ export const useSlotEntity = <TKind extends SlotEntityKind>({
 };
 
 /**
+ * Like {@link useSlotEntity}, but resolves the source of the **topmost layer** on a slot (the last
+ * entry of `slotLayers[slot]`) rather than its base binding — when that layer's `kind` matches.
+ *
+ * Layers stack above the base binding and cover it while it stays mounted (see
+ * `ChatViewNavigation.pushLayer`). Read the base with `useSlotEntity`/`useSlotChannel`/… and the
+ * overlay on top with this hook, then render the overlay covering the base.
+ *
+ * @example
+ * ```tsx
+ * const profile = useSlotTopLayerEntity({ kind: 'userProfile', slot: 'main-thread' });
+ * // profile is { userId } | undefined — present while a userProfile layer covers the slot
+ * ```
+ */
+export const useSlotTopLayerEntity = <TKind extends SlotEntityKind>({
+  kind,
+  slot,
+  view,
+}: UseSlotEntityOptions<TKind>): SlotEntitySourceByKind<TKind> | undefined => {
+  const { availableSlots, slotLayers } = useLayoutViewState(view);
+
+  for (const candidateSlot of resolveCandidateSlots(slot, availableSlots)) {
+    const layers = slotLayers?.[candidateSlot];
+    const topBinding = layers?.[layers.length - 1];
+    const entity = getChatViewEntityBinding(topBinding);
+    if (isEntityOfKind(entity, kind)) {
+      // Safe due to discriminant check on `kind` above.
+      return entity.source as SlotEntitySourceByKind<TKind>;
+    }
+  }
+
+  return undefined;
+};
+
+/**
  * Resolves **every** matching ChatView entity binding as `{ slot, source }` pairs
  * (in active-view `availableSlots` order, or only `slot` when provided).
  *

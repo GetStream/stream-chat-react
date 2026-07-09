@@ -11,6 +11,7 @@ import {
   useSlotChannel,
   useSlotEntity,
   useSlotThread,
+  useSlotTopLayerEntity,
 } from '../hooks';
 
 import { ChatProvider } from '../../../context/ChatContext';
@@ -132,6 +133,85 @@ describe('useSlotEntity hooks', () => {
       'messaging:secondary',
     );
     expect(screen.getByTestId('resolved-thread')).toHaveTextContent('thread-1');
+  });
+
+  it('resolves the top layer via useSlotTopLayerEntity without shadowing the base binding', () => {
+    const thread = makeThread('thread-under-layer');
+
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+      },
+    });
+
+    // Base binding: a thread. Layer on top: a member profile.
+    layoutController.bind('slot1', {
+      key: `thread:${thread.id}`,
+      payload: { key: thread.id, kind: 'thread', source: thread },
+    });
+    layoutController.pushLayer('slot1', {
+      key: 'userProfile:u1',
+      payload: { key: 'userProfile:u1', kind: 'userProfile', source: { userId: 'u1' } },
+    });
+
+    const Harness = () => {
+      const topProfile = useSlotTopLayerEntity({ kind: 'userProfile', slot: 'slot1' });
+      // The base binding (thread) is unchanged — a layer never rewrites `slotBindings`.
+      const baseThread = useSlotThread({ slot: 'slot1' });
+      // Reading the profile as a base binding must NOT find it (it lives in the layer stack).
+      const profileAsBase = useSlotEntity({ kind: 'userProfile', slot: 'slot1' });
+
+      return (
+        <>
+          <div data-testid='top-profile'>{topProfile?.userId}</div>
+          <div data-testid='base-thread'>{baseThread?.id}</div>
+          <div data-testid='profile-as-base'>{profileAsBase?.userId ?? 'none'}</div>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <Harness />
+      </ChatView>,
+    );
+
+    expect(screen.getByTestId('top-profile')).toHaveTextContent('u1');
+    expect(screen.getByTestId('base-thread')).toHaveTextContent('thread-under-layer');
+    expect(screen.getByTestId('profile-as-base')).toHaveTextContent('none');
+  });
+
+  it('returns undefined from useSlotTopLayerEntity when the top layer kind does not match', () => {
+    const layoutController = new LayoutController({
+      initialState: {
+        availableSlots: ['slot1'],
+      },
+    });
+
+    layoutController.pushLayer('slot1', {
+      key: 'userProfile:u2',
+      payload: { key: 'userProfile:u2', kind: 'userProfile', source: { userId: 'u2' } },
+    });
+
+    const Harness = () => {
+      const asThread = useSlotTopLayerEntity({ kind: 'thread', slot: 'slot1' });
+      const asProfile = useSlotTopLayerEntity({ kind: 'userProfile', slot: 'slot1' });
+      return (
+        <>
+          <div data-testid='as-thread'>{asThread ? 'match' : 'none'}</div>
+          <div data-testid='as-profile'>{asProfile?.userId ?? 'none'}</div>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView layoutController={layoutController}>
+        <Harness />
+      </ChatView>,
+    );
+
+    expect(screen.getByTestId('as-thread')).toHaveTextContent('none');
+    expect(screen.getByTestId('as-profile')).toHaveTextContent('u2');
   });
 });
 

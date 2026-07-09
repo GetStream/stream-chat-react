@@ -545,6 +545,136 @@ describe('useChatViewNavigation', () => {
     expect(slot2Binding?.source).toBe(secondaryChannel);
   });
 
+  it('pushLayer stacks over the base binding and popLayer removes it', () => {
+    const channel = makeChannel('messaging:layer-base');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: channel.cid ?? undefined,
+                kind: 'channel',
+                source: channel,
+              })
+            }
+            type='button'
+          >
+            open-channel
+          </button>
+          <button
+            onClick={() =>
+              navigation.pushLayer('slot1', {
+                key: 'u1',
+                kind: 'userProfile',
+                source: { userId: 'u1' },
+              })
+            }
+            type='button'
+          >
+            push-layer
+          </button>
+          <button onClick={() => navigation.popLayer('slot1')} type='button'>
+            pop-layer
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={1}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+    fireEvent.click(screen.getByText('push-layer'));
+
+    const layered = viewState(capturedController);
+    // Base binding is untouched; the profile lives in the layer stack on top of it.
+    expect(getChatViewEntityBinding(layered?.slotBindings.slot1)?.kind).toBe('channel');
+    expect(layered?.slotLayers?.slot1).toHaveLength(1);
+    expect(getChatViewEntityBinding(layered?.slotLayers?.slot1?.[0])?.kind).toBe(
+      'userProfile',
+    );
+
+    fireEvent.click(screen.getByText('pop-layer'));
+
+    const popped = viewState(capturedController);
+    expect(popped?.slotLayers?.slot1).toBeUndefined();
+    expect(getChatViewEntityBinding(popped?.slotBindings.slot1)?.kind).toBe('channel');
+  });
+
+  it('close pops the top layer first and releases the base only when no layers remain', () => {
+    const channel = makeChannel('messaging:layer-close');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: channel.cid ?? undefined,
+                kind: 'channel',
+                source: channel,
+              })
+            }
+            type='button'
+          >
+            open-channel
+          </button>
+          <button
+            onClick={() =>
+              navigation.pushLayer('slot1', {
+                key: 'u1',
+                kind: 'userProfile',
+                source: { userId: 'u1' },
+              })
+            }
+            type='button'
+          >
+            push-layer
+          </button>
+          <button onClick={() => navigation.close('slot1')} type='button'>
+            close
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={1}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+    fireEvent.click(screen.getByText('push-layer'));
+
+    // First close: pops the layer, base channel stays bound.
+    fireEvent.click(screen.getByText('close'));
+    const afterFirstClose = viewState(capturedController);
+    expect(afterFirstClose?.slotLayers?.slot1).toBeUndefined();
+    expect(getChatViewEntityBinding(afterFirstClose?.slotBindings.slot1)?.kind).toBe(
+      'channel',
+    );
+
+    // Second close: no layers left, so the base binding is released.
+    fireEvent.click(screen.getByText('close'));
+    expect(viewState(capturedController)?.slotBindings.slot1).toBeUndefined();
+  });
+
   it('opens channel and thread into configured slotNames in order', () => {
     const channel = makeChannel('messaging:expand-named');
     const thread = makeThread('thread-expand-named');

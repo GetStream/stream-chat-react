@@ -19,6 +19,7 @@ export const getLayoutViewState = (
     slotBindings: { ...(layout?.slotBindings ?? {}) },
     slotForwardHistory: { ...(layout?.slotForwardHistory ?? {}) },
     slotHistory: { ...(layout?.slotHistory ?? {}) },
+    slotLayers: { ...(layout?.slotLayers ?? {}) },
     slotMeta: { ...(layout?.slotMeta ?? {}) },
     slotNames: layout?.slotNames ? [...layout.slotNames] : undefined,
   };

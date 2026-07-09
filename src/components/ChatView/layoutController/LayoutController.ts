@@ -28,6 +28,7 @@ export const createLayoutRuntimeState = (
   slotBindings: { ...(partial.slotBindings ?? {}) },
   slotForwardHistory: { ...(partial.slotForwardHistory ?? {}) },
   slotHistory: { ...(partial.slotHistory ?? {}) },
+  slotLayers: { ...(partial.slotLayers ?? {}) },
   slotMeta: { ...(partial.slotMeta ?? {}) },
   slotNames: partial.slotNames ? [...partial.slotNames] : undefined,
 });
@@ -61,6 +62,7 @@ const toViewState = (
     slotBindings: { ...(layout?.slotBindings ?? {}) },
     slotForwardHistory: { ...(layout?.slotForwardHistory ?? {}) },
     slotHistory: { ...(layout?.slotHistory ?? {}) },
+    slotLayers: { ...(layout?.slotLayers ?? {}) },
     slotMeta: { ...(layout?.slotMeta ?? {}) },
     slotNames: layout?.slotNames ? [...layout.slotNames] : undefined,
   };
@@ -80,6 +82,7 @@ const mergeViewState = (
       slotBindings: { ...nextViewState.slotBindings },
       slotForwardHistory: { ...nextViewState.slotForwardHistory },
       slotHistory: { ...nextViewState.slotHistory },
+      slotLayers: { ...(nextViewState.slotLayers ?? {}) },
       slotMeta: { ...nextViewState.slotMeta },
       slotNames: nextViewState.slotNames ? [...nextViewState.slotNames] : undefined,
     },
@@ -332,7 +335,8 @@ const clearSlotBinding = (
     !viewState.slotBindings[slot] &&
     !viewState.slotMeta[slot] &&
     !viewState.slotHistory?.[slot] &&
-    !viewState.slotForwardHistory?.[slot]
+    !viewState.slotForwardHistory?.[slot] &&
+    !viewState.slotLayers?.[slot]
   ) {
     return viewState;
   }
@@ -349,11 +353,15 @@ const clearSlotBinding = (
   const nextSlotForwardHistory = { ...(viewState.slotForwardHistory ?? {}) };
   delete nextSlotForwardHistory[slot];
 
+  const nextSlotLayers = { ...(viewState.slotLayers ?? {}) };
+  delete nextSlotLayers[slot];
+
   return {
     ...viewState,
     slotBindings: nextSlotBindings,
     slotForwardHistory: nextSlotForwardHistory,
     slotHistory: nextSlotHistory,
+    slotLayers: nextSlotLayers,
     slotMeta: nextSlotMeta,
   };
 };
@@ -464,6 +472,44 @@ export class LayoutController implements LayoutControllerApi {
     this.state.next((current) => {
       const activeViewState = toViewState(current);
       return mergeViewState(current, clearSlotBinding(activeViewState, slot));
+    });
+  };
+
+  // Layers stack *above* a slot's base binding (see `slotLayers`). Push/pop keep every layer
+  // (and the base beneath) mounted; only the topmost is shown by the renderer, so popping a
+  // layer reveals what's underneath at its exact preserved state.
+  pushLayer: LayoutControllerApi['pushLayer'] = (slot, binding) => {
+    this.state.next((current) => {
+      const activeViewState = toViewState(current);
+      const slotLayers = activeViewState.slotLayers?.[slot] ?? [];
+      return mergeViewState(current, {
+        ...activeViewState,
+        slotLayers: {
+          ...(activeViewState.slotLayers ?? {}),
+          [slot]: [...slotLayers, binding],
+        },
+      });
+    });
+  };
+
+  popLayer: LayoutControllerApi['popLayer'] = (slot) => {
+    this.state.next((current) => {
+      const activeViewState = toViewState(current);
+      const slotLayers = activeViewState.slotLayers?.[slot];
+      if (!slotLayers?.length) return current;
+
+      const nextSlotLayers = { ...(activeViewState.slotLayers ?? {}) };
+      const remaining = slotLayers.slice(0, -1);
+      if (remaining.length) {
+        nextSlotLayers[slot] = remaining;
+      } else {
+        delete nextSlotLayers[slot];
+      }
+
+      return mergeViewState(current, {
+        ...activeViewState,
+        slotLayers: nextSlotLayers,
+      });
     });
   };
 

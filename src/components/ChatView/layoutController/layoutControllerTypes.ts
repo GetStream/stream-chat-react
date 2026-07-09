@@ -20,6 +20,15 @@ export type ChatViewLayoutViewState = {
   slotBindings: Record<SlotName, LayoutSlotBinding | undefined>;
   slotHistory: Record<SlotName, LayoutSlotBinding[] | undefined>;
   slotForwardHistory: Record<SlotName, LayoutSlotBinding[] | undefined>;
+  /**
+   * Per-slot **layer stack** rendered *above* the slot's base `slotBindings[slot]`. Unlike
+   * history (past bindings, unmounted) a layer coexists with the base and the layers beneath it —
+   * all kept mounted, only the topmost visible — so revealing a lower layer restores its exact
+   * state (e.g. a thread's scroll position). Index 0 is the bottom layer, the last entry is the
+   * top/active one. Ephemeral: intentionally left out of serialization so a reload restores only
+   * the base bindings, never a transient overlay.
+   */
+  slotLayers?: Record<SlotName, LayoutSlotBinding[] | undefined>;
   slotMeta: Record<SlotName, LayoutSlotMeta | undefined>;
   slotNames?: SlotName[];
 };
@@ -124,6 +133,10 @@ export type CreateLayoutControllerOptions = {
 
 export type LayoutController = {
   bind: (slot: SlotName, binding: LayoutSlotBinding) => void;
+  /** Push a binding onto `slot`'s layer stack (above its base + existing layers). */
+  pushLayer: (slot: SlotName, binding: LayoutSlotBinding) => void;
+  /** Pop the top layer off `slot`'s layer stack (no-op when the stack is empty). */
+  popLayer: (slot: SlotName) => void;
   release: (slot: SlotName) => void;
   setAvailableSlots: (slots: SlotName[]) => void;
   setSlotNames: (slots?: SlotName[]) => void;

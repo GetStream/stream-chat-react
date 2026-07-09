@@ -149,10 +149,23 @@ export type ChatViewOpenOptions = {
 };
 
 export type ChatViewNavigation = {
-  /** Release the binding held by `slot`. No-op for empty or persistent slots. */
+  /**
+   * Dismiss the top of `slot`. If the slot has layers (see {@link pushLayer}), pop the topmost
+   * layer, revealing what's beneath at its preserved state. Only when no layers remain does this
+   * release the base binding. No-op for empty or persistent slots.
+   */
   close: (slot: SlotName) => void;
   /** Hide `slot` without releasing its binding (subtree stays mounted). */
   hide: (slot: SlotName) => void;
+  /**
+   * Push `binding` as a **layer** on top of `slot`'s current content. The content beneath stays
+   * mounted (state/scroll preserved) and hidden; the layer covers it. Use for transient overlays
+   * that should return to the underlying view — e.g. a member profile opened over a thread, where
+   * `close`/`popLayer` restores the thread exactly where it was. Ephemeral (not serialized).
+   */
+  pushLayer: (slot: SlotName, binding: ChatViewEntityBinding) => void;
+  /** Pop `slot`'s top layer, revealing the layer/base beneath. No-op when there are no layers. */
+  popLayer: (slot: SlotName) => void;
   /**
    * Resolve a target slot for `binding` and bind it there, switching to the binding kind's view
    * first if needed (e.g. a `channel` binding activates the channels view).
@@ -187,6 +200,8 @@ const ChatViewNavigationContext = createContext<ChatViewNavigation>({
   hide: () => undefined,
   open: () => ({ reason: 'no-available-slot', status: 'rejected' }),
   openView: () => undefined,
+  popLayer: () => undefined,
+  pushLayer: () => undefined,
   unhide: () => undefined,
 });
 
@@ -223,7 +238,7 @@ export const useSlotForKey = (key?: string): SlotName | undefined => {
 export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
   const { layoutController, resolveActionTargetSlot } = useChatViewContext();
   const registry = useSlotRegistry();
-  const { availableSlots, slotBindings } = useLayoutViewState();
+  const { availableSlots, slotBindings, slotLayers } = useLayoutViewState();
   const { activeView } =
     useStateStore(layoutController.state, chatViewNavigationStateSelector) ??
     chatViewNavigationStateSelector(layoutController.state.getLatestValue());
@@ -363,6 +378,12 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
 
     const close: ChatViewNavigation['close'] = (slot) => {
       if (!availableSlots.includes(slot)) return;
+      // Layers dismiss top-down: pop the topmost layer first and only release the base binding
+      // once no layers remain.
+      if (slotLayers?.[slot]?.length) {
+        layoutController.popLayer(slot);
+        return;
+      }
       // Persistent kinds (nav-rail lists) are hide-only; close never releases them.
       if (isPersistentSlotKind(registry, slotKind(slot))) return;
       layoutController.release(slot);
@@ -372,11 +393,20 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       if (availableSlots.includes(slot)) layoutController.hide(slot);
     };
 
+    const pushLayer: ChatViewNavigation['pushLayer'] = (slot, binding) => {
+      if (!availableSlots.includes(slot)) return;
+      layoutController.pushLayer(slot, createChatViewSlotBinding(binding));
+    };
+
+    const popLayer: ChatViewNavigation['popLayer'] = (slot) => {
+      if (availableSlots.includes(slot)) layoutController.popLayer(slot);
+    };
+
     const unhide: ChatViewNavigation['unhide'] = (slot) => {
       if (availableSlots.includes(slot)) layoutController.unhide(slot);
     };
 
-    return { close, hide, open, openView, unhide };
+    return { close, hide, open, openView, popLayer, pushLayer, unhide };
   }, [
     activeView,
     availableSlots,
@@ -384,6 +414,7 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
     registry,
     resolveActionTargetSlot,
     slotBindings,
+    slotLayers,
   ]);
 
   return (
