@@ -10,8 +10,11 @@
   --str-chat__thread-list-transition-offset: var(
     --str-chat__channel-list-transition-offset
   );
-  --str-chat__thread-list-width: var(--str-chat__channel-list-width);
-  --str-chat__thread-list-mobile-width: var(--str-chat__channel-list-mobile-width);
+  /* Default desktop width of the thread list. Override to match custom layouts. */
+  --str-chat__thread-list-width: 100%;
+
+  /* Default mobile overlay width of the thread list. Override to match custom layouts. */
+  --str-chat__thread-list-mobile-width: 100%;
 }
 
 .str-chat__thread-list-container {

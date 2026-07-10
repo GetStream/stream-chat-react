@@ -21,6 +21,26 @@ vi.mock('../../Notifications', () => ({
   useNotificationTarget: () => 'channel',
 }));
 
+// Capture interaction announcements (the tree here has no AriaLiveAnnouncerProvider).
+// Mock the module the announcement hook imports from directly — useAudioPlaybackChangeAnnouncements
+// pulls useInteractionAnnouncements via its relative path, not the Accessibility barrel, so mocking
+// the barrel would leave the real (no-op without a provider) hook in place.
+const { announceInteractionMock } = vi.hoisted(() => ({
+  announceInteractionMock: vi.fn(),
+}));
+vi.mock(
+  '../../Accessibility/hooks/useInteractionAnnouncements',
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import('../../Accessibility/hooks/useInteractionAnnouncements')
+    >()),
+    useInteractionAnnouncements: () => ({
+      announceInteraction: announceInteractionMock,
+      cancelInteraction: vi.fn(),
+    }),
+  }),
+);
+
 const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
 
@@ -188,6 +208,36 @@ describe('VoiceRecordingPlayer', () => {
       fireEvent.click(playbackRateButton);
     });
     expect(playbackRateButton).toHaveTextContent('x2.5');
+  });
+
+  it('announces the new playback speed when it is changed', () => {
+    announceInteractionMock.mockClear();
+    const { queryByTestId } = renderComponent(
+      {
+        attachment: { ...attachment },
+        playbackRates: [2.5, 3.0],
+      },
+      VoiceRecordingPlayer,
+    );
+    const playbackRateButton = queryByTestId('playback-rate-button');
+    // Initial render must not announce.
+    expect(announceInteractionMock).not.toHaveBeenCalled();
+
+    act(() => {
+      fireEvent.click(playbackRateButton);
+    });
+    expect(announceInteractionMock).toHaveBeenLastCalledWith(
+      'audioPlayer.playbackRateChanged',
+      { rate: 3 },
+    );
+
+    act(() => {
+      fireEvent.click(playbackRateButton);
+    });
+    expect(announceInteractionMock).toHaveBeenLastCalledWith(
+      'audioPlayer.playbackRateChanged',
+      { rate: 2.5 },
+    );
   });
 
   it('should update progress on timeupdate', async () => {

@@ -9,6 +9,7 @@ import {
   ChannelList,
   ChatView,
   type ChatViewSelectorEntry,
+  MessageComposerUI as DefaultMessageComposerUI,
   MessageComposer,
   MessageList,
   Thread,
@@ -34,9 +35,32 @@ import { ThreadStateSync } from './Sync.tsx';
 
 export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
   'app-channel-message-composer-textarea';
+export const THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
+  'app-thread-message-composer-textarea';
 export const CHANNEL_LIST_TARGET_ID = 'app-channel-list';
+export const THREAD_LIST_TARGET_ID = 'app-thread-list';
 export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
   '[id^="str-chat__chat-view-"][id$="-tab-channels"]';
+
+// Tag the list's `[role="listbox"]` with a stable id so the skip-navigation links can target it. The
+// listbox unmounts/remounts (search mode, view switches, reloads) and its view may start inactive, so
+// observe `document.body` and re-tag whenever it (re)appears. The selector is globally unambiguous —
+// only one view's sidebar is mounted at a time.
+const useTagSkipNavigationListbox = (listboxSelector: string, targetId: string) => {
+  useEffect(() => {
+    const tagListbox = () => {
+      const listbox = document.querySelector<HTMLElement>(listboxSelector);
+      if (listbox && listbox.id !== targetId) {
+        listbox.id = targetId;
+      }
+    };
+
+    tagListbox();
+    const observer = new MutationObserver(tagListbox);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [listboxSelector, targetId]);
+};
 
 const ChannelThreadPanel = () => {
   const { thread } = useChannelStateContext('ChannelThreadPanel');
@@ -92,6 +116,7 @@ const ResponsiveChannelPanels = () => {
               asyncMessagesMultiSendEnabled
               audioRecordingEnabled
               maxRows={10}
+              focus
             />
             <ChannelPreviewOverlay />
           </div>
@@ -127,14 +152,10 @@ export const ChannelsPanels = ({
     closeSidebar();
   }, [channel?.id, closeSidebar]);
 
-  useEffect(() => {
-    const channelListElement = channelsLayoutRef.current?.querySelector<HTMLElement>(
-      '.app-chat-sidebar-overlay > .str-chat__channel-list',
-    );
-    if (!channelListElement) return;
-
-    channelListElement.id = CHANNEL_LIST_TARGET_ID;
-  }, [channel?.id, sidebarOpen]);
+  useTagSkipNavigationListbox(
+    '.app-chat-sidebar-overlay .str-chat__channel-list-inner__main',
+    CHANNEL_LIST_TARGET_ID,
+  );
 
   return (
     <ChatView.Channels>
@@ -173,6 +194,16 @@ export const ChannelsPanels = ({
   );
 };
 
+// Renders the "Back to quick navigation" return link above the thread's composer (the SDK renders
+// the thread composer internally, so we inject via the MessageComposerUI slot) — matching the
+// channel view, where the link sits right above <MessageComposer />.
+const ThreadMessageComposerUI = () => (
+  <>
+    <ReturnToSkipNavigation />
+    <DefaultMessageComposerUI />
+  </>
+);
+
 export const ThreadsPanels = ({
   iconOnly,
   itemSet,
@@ -183,6 +214,11 @@ export const ThreadsPanels = ({
   const { sidebarOpen } = useSidebar();
   const { activeThread } = useThreadsViewContext();
   const threadsLayoutRef = useRef<HTMLDivElement | null>(null);
+
+  useTagSkipNavigationListbox(
+    '.app-chat-sidebar-overlay .str-chat__thread-list',
+    THREAD_LIST_TARGET_ID,
+  );
 
   return (
     <ChatView.Threads>
@@ -202,12 +238,21 @@ export const ThreadsPanels = ({
         <div className='app-chat-view__threads-main'>
           <ChatView.ThreadAdapter>
             <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-              <WithComponents overrides={{ TypingIndicator }}>
-                <ReturnToSkipNavigation />
+              <WithComponents
+                overrides={{
+                  MessageComposerUI: ThreadMessageComposerUI,
+                  TypingIndicator,
+                }}
+              >
                 <Thread
                   additionalMessageComposerProps={{
+                    additionalTextareaProps: {
+                      id: THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+                    },
                     audioRecordingEnabled: true,
                     asyncMessagesMultiSendEnabled: true,
+                    // Auto-focus the thread composer on mount, matching the channels-view composer.
+                    focus: true,
                   }}
                   virtualized
                 />

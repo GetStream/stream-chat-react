@@ -1,8 +1,17 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { axe } from '../../../../../axe-helper';
 
 import { ThreadListItemUI } from '../ThreadListItemUI';
+
+const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
+
+vi.mock('../../../Accessibility', () => ({
+  useInteractionAnnouncements: () => ({
+    announceInteraction,
+    cancelInteraction: vi.fn(),
+  }),
+}));
 
 const mockUseChatContext = vi.fn();
 const mockUseTranslationContext = vi.fn();
@@ -47,6 +56,15 @@ vi.mock('../../../Badge', () => ({
 
 vi.mock('../../../SummarizedMessagePreview', () => ({
   SummarizedMessagePreview: () => <span data-testid='summary' />,
+  useLatestMessagePreview: ({
+    latestMessage,
+  }: {
+    latestMessage?: { text?: string };
+  }) => ({
+    senderName: undefined,
+    text: latestMessage?.text ?? '',
+    type: 'text',
+  }),
 }));
 
 describe('ThreadListItemUI', () => {
@@ -55,8 +73,18 @@ describe('ThreadListItemUI', () => {
   beforeEach(() => {
     mockUseChatContext.mockReturnValue({ client: { userID: 'martin' } });
     mockUseTranslationContext.mockReturnValue({
-      t: (key: string, values?: { count?: number }) =>
-        key === 'replyCount' ? `${values?.count ?? 0} replies` : key,
+      t: (key: string, values?: Record<string, unknown>) => {
+        if (key === 'replyCount') return `${values?.count ?? 0} replies`;
+        const interpolated = Object.entries(values ?? {}).reduce(
+          (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
+          key,
+        );
+        return interpolated.startsWith('aria/')
+          ? interpolated.replace('aria/', '')
+          : interpolated;
+      },
+      tDateTimeParser: () => 'recently',
+      userLanguage: 'en',
     });
     mockUseThreadListItemContext.mockReturnValue(thread);
     mockUseChannelPreviewInfo.mockReturnValue({ displayTitle: 'General' });
@@ -96,6 +124,75 @@ describe('ThreadListItemUI', () => {
     render(<ThreadListItemUI />);
 
     expect(screen.getByRole('option')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  it('composes the row aria-label from the thread parts', () => {
+    mockUseThreadsViewContext.mockReturnValue({
+      activeThread: thread,
+      setActiveThread: vi.fn(),
+    });
+    mockUseStateStore.mockReturnValue({
+      channel: {},
+      deletedAt: undefined,
+      latestReply: undefined,
+      ownUnreadMessageCount: 2,
+      parentMessage: { text: 'hello world' },
+      participants: [],
+      replyCount: 3,
+    });
+
+    render(<ThreadListItemUI />);
+
+    const label = screen.getByRole('option').getAttribute('aria-label') ?? '';
+    expect(label).toContain('General');
+    expect(label).toContain('2 unread message');
+    expect(label).toContain('Thread: hello world');
+    expect(label).toContain('3 replies');
+    // Active row announces its state in the name (since aria-selected is unreliable for SR).
+    expect(label).toContain('Active');
+  });
+
+  it('lets accessibleLabelConfig override the composed aria-label', () => {
+    mockUseThreadsViewContext.mockReturnValue({
+      activeThread: { id: 'thread-2' },
+      setActiveThread: vi.fn(),
+    });
+
+    render(
+      <ThreadListItemUI accessibleLabelConfig={{ build: () => 'Custom thread label' }} />,
+    );
+
+    expect(screen.getByRole('option')).toHaveAttribute(
+      'aria-label',
+      'Custom thread label',
+    );
+  });
+
+  it('opens the thread and announces it on selection', () => {
+    const setActiveThread = vi.fn();
+    mockUseThreadsViewContext.mockReturnValue({
+      activeThread: { id: 'thread-2' },
+      setActiveThread,
+    });
+
+    render(<ThreadListItemUI />);
+    fireEvent.click(screen.getByRole('option'));
+
+    expect(setActiveThread).toHaveBeenCalledWith(thread);
+    expect(announceInteraction).toHaveBeenCalledWith('thread.opened', {
+      name: 'General',
+    });
+  });
+
+  it('does not re-open or announce the already-active thread', () => {
+    const setActiveThread = vi.fn();
+    mockUseThreadsViewContext.mockReturnValue({ activeThread: thread, setActiveThread });
+
+    render(<ThreadListItemUI />);
+    fireEvent.click(screen.getByRole('option'));
+
+    expect(setActiveThread).not.toHaveBeenCalled();
+    expect(announceInteraction).not.toHaveBeenCalled();
   });
 
   it('passes axe checks in listbox context', async () => {

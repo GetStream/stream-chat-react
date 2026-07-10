@@ -14,6 +14,7 @@ import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import type { MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { IconCheckmark, IconSend } from '../Icons';
+import { useInertWhenHidden } from '../Accessibility';
 
 const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
@@ -91,9 +92,18 @@ export const MessageComposerActions = () => {
 export const AdditionalMessageComposerActions = () => {
   const { EmojiPicker } = useComponentContext();
   const isCooldownActive = useIsCooldownActive();
+  const messageComposer = useMessageComposerController();
+  const { command } = useStateStore(
+    messageComposer.textComposer.state,
+    textComposerStateSelector,
+  );
+  // The additional actions are visually hidden via a CSS transition while a
+  // command is active; keep them removed from the a11y tree and tab order
+  // without setting `display: none` (which would kill the transition).
+  const inertProps = useInertWhenHidden(!!command, { setHiddenAttribute: false });
 
   return (
-    <div className='str-chat__message-composer__additional-actions'>
+    <div className='str-chat__message-composer__additional-actions' {...inertProps}>
       {!isCooldownActive && EmojiPicker ? <EmojiPicker /> : null}
     </div>
   );

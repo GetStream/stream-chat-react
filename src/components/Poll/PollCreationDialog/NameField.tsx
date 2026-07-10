@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 import { TextInput } from '../../Form';
-import { useModalContext, useTranslationContext } from '../../../context';
+import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerState } from 'stream-chat';
-import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   error: state.errors.name,
@@ -14,8 +13,6 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
-  const { dialogId } = useModalContext();
-  const { descriptionId } = useAriaIdentifiers(dialogId);
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
@@ -25,9 +22,12 @@ export const NameField = () => {
   );
 
   return (
+    // `data-autofocus` marks this as the dialog's default field. Initial focus stays on the dialog
+    // surface so the SR announces the dialog identity/description; pressing Enter on the surface
+    // then moves focus here (see GlobalModal's keydown handling) so the user can start typing.
     <TextInput
-      aria-describedby={descriptionId}
       className='str-chat__form__input-field__value'
+      data-autofocus
       error={!!error}
       errorMessage={
         error ? (

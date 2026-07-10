@@ -92,7 +92,17 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
     const isPersistent = !notification.duration;
 
     const severity = notification.severity;
-    const livePriority = severity === 'error' ? 'assertive' : 'polite';
+    // Priority defaults from severity (errors interrupt; everything else is polite), but a
+    // notification may explicitly opt into a different aria-live priority via
+    // `metadata.ariaLive` — e.g. a success confirmation that should be heard promptly rather than
+    // queued behind a focus-change announcement (see `addNotification`'s `ariaLive` option).
+    const ariaLiveOverride = notification.metadata?.ariaLive;
+    const livePriority: 'assertive' | 'polite' =
+      ariaLiveOverride === 'assertive' || ariaLiveOverride === 'polite'
+        ? ariaLiveOverride
+        : severity === 'error'
+          ? 'assertive'
+          : 'polite';
 
     return (
       <div

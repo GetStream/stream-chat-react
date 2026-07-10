@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useEffect } from 'react';
 import type { PollComposerState } from 'stream-chat';
 import { VotingVisibility } from 'stream-chat';
 import { MultipleAnswersField } from './MultipleAnswersField';
@@ -7,6 +7,7 @@ import { OptionFieldSet } from './OptionFieldSet';
 import { PollCreationDialogControls } from './PollCreationDialogControls';
 import { Prompt } from '../../Dialog';
 import { SwitchField } from '../../Form/SwitchField';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
@@ -23,14 +24,14 @@ const pollComposerStateSelector = (state: PollComposerState) => ({
 
 export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
   const { t } = useTranslationContext();
+  const { announceInteraction } = useInteractionAnnouncements();
   const { pollComposer } = useMessageComposerController();
   const { allow_answers, allow_user_suggested_options, voting_visibility } =
     useStateStore(pollComposer.state, pollComposerStateSelector);
 
-  const onClose = useCallback(() => {
-    pollComposer.initState();
-    close();
-  }, [pollComposer, close]);
+  useEffect(() => {
+    announceInteraction('poll.dialogOpened');
+  }, [announceInteraction]);
 
   return (
     <Prompt.Root
@@ -38,7 +39,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
       data-testid='poll-creation-dialog'
     >
       <Prompt.Header
-        close={onClose}
+        close={close}
         description={t('Create a question, add options, and configure poll settings')}
         title={t('Create poll')}
       />

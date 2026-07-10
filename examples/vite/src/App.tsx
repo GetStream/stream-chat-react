@@ -69,6 +69,7 @@ import {
 } from './CustomMessageUi';
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
+import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -96,6 +97,12 @@ const token =
 if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
 }
+
+const options: ChannelOptions = {
+  presence: true,
+  state: true,
+  limit: 10,
+};
 
 const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
@@ -223,18 +230,6 @@ const App = () => {
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
     () => new URLSearchParams(window.location.search),
-    [],
-  );
-  const options = useMemo<ChannelOptions>(
-    () => ({
-      // filter_values: {
-      //   user_id: userId,
-      // },
-      // predefined_filter: 'livestreams_channels',
-      presence: true,
-      state: true,
-      limit: 10,
-    }),
     [],
   );
   const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
@@ -428,6 +423,7 @@ const App = () => {
         HeaderEndContent: SidebarToggle,
         HeaderStartContent: SidebarToggle,
         MessageActions: ConfigurableMessageActions,
+        AttachmentSelector: CommandModeAttachmentSelector,
         ...messageUiOverrides,
       }}
     >

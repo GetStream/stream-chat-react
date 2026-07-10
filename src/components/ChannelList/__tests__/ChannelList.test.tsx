@@ -806,7 +806,7 @@ describe('ChannelList', () => {
             ),
         );
 
-      it("should not render search results on input focus if user haven't started to type", async () => {
+      it('should not activate search (or show results) on input focus alone (WCAG 3.2.1)', async () => {
         const { container } = await renderComponents({ channel, client });
         const input = screen.queryByTestId('search-input');
         await act(async () => {
@@ -814,12 +814,13 @@ describe('ChannelList', () => {
         });
 
         await waitFor(() => {
-          // Search results container should be visible (with presearch) but no query results
+          // Focus must not change context: search stays inactive, so the results container is not
+          // rendered and the channel list remains visible. (RW19 — activation is decoupled from
+          // focus; search only activates on typing, covered by the following tests.)
           expect(
             container.querySelector(SEARCH_RESULT_LIST_SELECTOR),
-          ).toBeInTheDocument();
-          // Channel list is hidden when search is active
-          expect(screen.queryByLabelText('Channel list')).not.toBeInTheDocument();
+          ).not.toBeInTheDocument();
+          expect(screen.queryByLabelText('Channel list')).toBeInTheDocument();
         });
       });
       it('should hide channel list and show search results when user types', async () => {

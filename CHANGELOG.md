@@ -1,3 +1,19 @@
+## [14.8.0](https://github.com/GetStream/stream-chat-react/compare/v14.7.0...v14.8.0) (2026-07-09)
+
+### Bug Fixes
+
+* **ChannelList:** make channel list and thread list width app-driven ([#3235](https://github.com/GetStream/stream-chat-react/issues/3235)) ([c89366b](https://github.com/GetStream/stream-chat-react/commit/c89366b5800b099c14e95d2612704393e8dd249a))
+
+### Features
+
+* **a11y:** improve keyboard and screen-reader support across composer, lists, search, and dialogs ([#3230](https://github.com/GetStream/stream-chat-react/issues/3230)) ([2c08f53](https://github.com/GetStream/stream-chat-react/commit/2c08f53c19c0c3eed7ba4b8c57eb67a77a6bd002))
+
+## [14.7.0](https://github.com/GetStream/stream-chat-react/compare/v14.6.1...v14.7.0) (2026-07-06)
+
+### Features
+
+* allow to customize ChannelListHeader ([#3234](https://github.com/GetStream/stream-chat-react/issues/3234)) ([f9752d4](https://github.com/GetStream/stream-chat-react/commit/f9752d441468ab1d8c8d43e4df1638f3adc1f90e))
+
 ## [14.6.1](https://github.com/GetStream/stream-chat-react/compare/v14.6.0...v14.6.1) (2026-07-03)
 
 ### Bug Fixes

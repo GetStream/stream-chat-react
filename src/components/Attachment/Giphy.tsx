@@ -1,6 +1,7 @@
 import type { Attachment } from 'stream-chat';
 import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { toGalleryItemDescriptors } from '../Gallery';
+import { getGiphyDescriptiveTitle } from './giphyAccessibility';
 import clsx from 'clsx';
 import {
   useChannelStateContext,
@@ -30,11 +31,18 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
     () => toGalleryItemDescriptors(attachment, { giphyVersionName }),
     [attachment, giphyVersionName],
   );
-  const alt = imageDescriptors && imageDescriptors.alt;
   const dimensions = imageDescriptors && imageDescriptors.dimensions;
   const imageUrl = imageDescriptors && imageDescriptors.imageUrl;
   const title = imageDescriptors && imageDescriptors.title;
   const resolvedImageUrl = attachmentConfiguration?.url || imageUrl;
+  // For giphy attachments `imageDescriptors.alt`/`title` may both resolve to a raw
+  // media URL (Giphy payloads rarely carry a human title), which is useless to
+  // screen-reader users. Prefer a real, non-URL title; otherwise fall back to a
+  // localized generic label instead of exposing the URL as the accessible name.
+  const descriptiveTitle = getGiphyDescriptiveTitle(title);
+  const accessibleName = descriptiveTitle
+    ? t('aria/Animated GIF: {{ title }}', { title: descriptiveTitle })
+    : t('aria/Animated GIF');
   const imageStyleVariables = useMemo(() => {
     const originalHeight = Number(dimensions?.height);
     const originalWidth = Number(dimensions?.width);
@@ -57,7 +65,7 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   return (
     <div className={clsx(`str-chat__message-attachment-giphy`)}>
       <BaseImage
-        alt={alt ?? title ?? t('User uploaded content')}
+        alt={accessibleName}
         height={dimensions?.height}
         ref={imageElement}
         src={resolvedImageUrl}
