@@ -58,29 +58,17 @@ export const useMessageAlsoSentInChannelNavigation =
 
     const viewReplyInChannel = async (messageId = message?.id) => {
       if (!messageId) return;
-      if (!channelSlot) {
-        // The channel isn't shown in the active view — navigate to it. `open` resolves the
-        // channel kind's view from the slot registry and switches there (no hard-coded view name);
-        // `ingestChannel` surfaces it in the channel list(s) incrementally instead of forcing a
-        // full list re-query.
+      // The channel isn't shown in the active view when it has no slot — we need to navigate to it.
+      const needsNavigation = !channelSlot;
+      if (needsNavigation) {
         open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
-        // Load the channel's state (members, config, read state; registers it in
-        // `client.activeChannels`) so `ingestChannel` below can match it against paginator filters
-        // and the panel has data to render. `messages: { limit: 0 }` fetches no messages — the
-        // `jumpToMessage` call at the end loads the message window around the target, so pulling a
-        // default page here would be wasted, immediately-superseded work. `channel.initialized` is
-        // only set by `channel.watch()` (the channel list watches its channels), so this guard
-        // effectively means "not already loaded via the list"; a plain `query()` neither watches
-        // nor flips `initialized`.
-        if (!channel.initialized) {
-          await channel.query({ messages: { limit: 0 } });
-        }
-        // Surface the (now initialized) channel in the list(s) so its data is available for filter
-        // matching; `ingestChannel` dedupes by cid and inserts in sort order — safe to call always.
-        channelPaginatorsOrchestrator.ingestChannel(channel);
       }
 
       await channel.messagePaginator.jumpToMessage(messageId);
+
+      if (needsNavigation) {
+        channelPaginatorsOrchestrator.ingestChannel(channel);
+      }
     };
 
     const viewReplyInThread = async (
