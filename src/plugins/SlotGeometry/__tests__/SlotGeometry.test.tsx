@@ -2,7 +2,12 @@ import React from 'react';
 import { act, render } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { measureObscured, SlotGeometryProvider, useSlotGeometry } from '../SlotGeometry';
+import {
+  measureObscured,
+  resolveRevealAction,
+  SlotGeometryProvider,
+  useSlotGeometry,
+} from '../SlotGeometry';
 import type { SlotGeometryContextValue } from '../SlotGeometry';
 
 const rect = (left: number, top: number, width: number, height: number): DOMRect =>
@@ -49,6 +54,30 @@ describe('measureObscured', () => {
     expect(measureObscured(target, [elementAt(rect(50, 0, 100, 100))])).toBe(false);
     // Covers 70% → above threshold → obscured.
     expect(measureObscured(target, [elementAt(rect(30, 0, 100, 100))])).toBe(true);
+  });
+});
+
+describe('resolveRevealAction', () => {
+  it('clears when there is no reveal intent', () => {
+    expect(resolveRevealAction(undefined, { obscured: {} })).toBe('clear');
+    expect(resolveRevealAction(undefined, { obscured: { main: true } })).toBe('clear');
+  });
+
+  it('waits until the target slot has been measured', () => {
+    // The target's view may have only just become active; its element isn't measured yet, so we
+    // must not act (or clear) prematurely — this is the cross-view (threads → channels) gate.
+    expect(resolveRevealAction('main', { obscured: {} })).toBe('wait');
+    expect(resolveRevealAction('main', { obscured: { other: true } })).toBe('wait');
+  });
+
+  it('acts when the measured target is obscured', () => {
+    expect(resolveRevealAction('main', { obscured: { main: true } })).toBe('act');
+  });
+
+  it('clears when the measured target is already visible', () => {
+    // Wide / side-by-side layout: the channel isn't covered, so we leave the thread and just
+    // settle the one-shot intent.
+    expect(resolveRevealAction('main', { obscured: { main: false } })).toBe('clear');
   });
 });
 
@@ -110,5 +139,16 @@ describe('SlotGeometryProvider', () => {
     act(() => geometry().register('main', elementAt(rect(0, 0, 0, 0))));
     act(() => geometry().register('main', null));
     expect(geometry().isObscured('main')).toBe(false);
+  });
+
+  it('tracks a reveal intent (instance-scoped, no module state) and clears it', () => {
+    const geometry = renderProvider();
+    expect(geometry().revealSlot).toBeUndefined();
+
+    act(() => geometry().requestReveal('main'));
+    expect(geometry().revealSlot).toBe('main');
+
+    act(() => geometry().clearReveal());
+    expect(geometry().revealSlot).toBeUndefined();
   });
 });

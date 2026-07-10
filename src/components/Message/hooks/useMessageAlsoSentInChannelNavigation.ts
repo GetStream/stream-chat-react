@@ -4,11 +4,8 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../../context';
-import { useStateStore } from '../../../store';
-import { useChatViewContext, useChatViewNavigation } from '../../ChatView';
+import { useChatViewNavigation, useSlotForKey } from '../../ChatView';
 import { useThreadContext } from '../../Threads';
-
-const activeViewSelector = ({ activeView }: { activeView: string }) => ({ activeView });
 
 export type MessageAlsoSentInChannelNavigation = {
   /** True when rendered inside a thread (the reply was "also sent in channel"); false in a
@@ -37,12 +34,13 @@ export const useMessageAlsoSentInChannelNavigation =
     const { t } = useTranslationContext();
     const channel = useChannel();
     const { open } = useChatViewNavigation();
-    const { layoutController } = useChatViewContext();
     const thread = useThreadContext();
     const { message } = useMessageContext('useMessageAlsoSentInChannelNavigation');
-    const { activeView } = useStateStore(layoutController.state, activeViewSelector) ?? {
-      activeView: layoutController.state.getLatestValue().activeView,
-    };
+    // The slot (in the *active* view) currently showing this channel, if any. Asking about the
+    // channel by key — not by view name — keeps this generic: whichever view the registry maps the
+    // `channel` kind to, and whatever an integrator named it, this is defined only when the channel
+    // is already on screen in the active view.
+    const channelSlot = useSlotForKey(channel.cid);
 
     const addThreadNotFoundNotification = (error: Error) => {
       client.notifications.addError({
@@ -60,13 +58,20 @@ export const useMessageAlsoSentInChannelNavigation =
 
     const viewReplyInChannel = async (messageId = message?.id) => {
       if (!messageId) return;
-      if (activeView === 'threads') {
-        // Switch to the channels view and bind this specific channel. Backed by the
-        // ChannelPaginatorsOrchestrator, `ingestChannel` surfaces it in the channel list(s)
-        // incrementally (deduped, in sort order) instead of forcing a full list re-query.
+      if (!channelSlot) {
+        // The channel isn't shown in the active view — navigate to it. `open` resolves the
+        // channel kind's view from the slot registry and switches there (no hard-coded view name);
+        // `ingestChannel` surfaces it in the channel list(s) incrementally instead of forcing a
+        // full list re-query.
         open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
-        // Only initialize the channel if it hasn't been loaded yet — a channel already held by the
-        // orchestrator / active session is initialized, so we skip the redundant query.
+        // Load the channel's state (members, config, read state; registers it in
+        // `client.activeChannels`) so `ingestChannel` below can match it against paginator filters
+        // and the panel has data to render. `messages: { limit: 0 }` fetches no messages — the
+        // `jumpToMessage` call at the end loads the message window around the target, so pulling a
+        // default page here would be wasted, immediately-superseded work. `channel.initialized` is
+        // only set by `channel.watch()` (the channel list watches its channels), so this guard
+        // effectively means "not already loaded via the list"; a plain `query()` neither watches
+        // nor flips `initialized`.
         if (!channel.initialized) {
           await channel.query({ messages: { limit: 0 } });
         }

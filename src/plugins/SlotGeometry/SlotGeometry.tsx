@@ -32,9 +32,20 @@ import type { PropsWithChildren } from 'react';
 /** A slot identifier. Plain string so the module is layout-agnostic (e.g. any `SlotName`). */
 export type SlotId = string;
 
-/** Fraction of a slot's area another slot must overlap before we treat it as covered. */
+/**
+ * How much of a slot another slot must overlap before it counts as "covered", as a fraction of the
+ * covered slot's own area. Range `0`–`1`: `0` = any overlap at all counts, `1` = the slot must be
+ * completely covered. `0.6` means another slot has to sit over **≥ 60%** of this slot's area (a
+ * side-by-side neighbour that only touches an edge overlaps ~0% and does not count).
+ */
 const COVER_THRESHOLD = 0.6;
-/** Rendered area (px²) below which a slot counts as collapsed/hidden — effectively obscured. */
+/**
+ * Smallest rendered area, in CSS pixels² (`width × height`), at which a slot still counts as
+ * visible. At or above `1` px² it can be covered/uncovered normally; **below** `1` px² — i.e. a
+ * slot collapsed to (almost) nothing, `width`/`height` of 0, or `display: none` — it is treated as
+ * obscured outright, with no overlap needed. (1 px² is effectively "zero"; it's a small epsilon to
+ * avoid floating-point noise, not a meaningful size.)
+ */
 const MIN_VISIBLE_AREA = 1;
 
 export type SlotCoverage = {
@@ -42,7 +53,34 @@ export type SlotCoverage = {
   obscured: Record<SlotId, boolean>;
 };
 
+/** What a consumer should do with a pending "reveal this slot" intent, given current coverage. */
+export type RevealAction =
+  /** The target hasn't been measured yet (e.g. its view just became active) — do nothing, wait for
+   *  the next coverage update. */
+  | 'wait'
+  /** The target is measured and obscured — reveal it (the consumer releases whatever covers it). */
+  | 'act'
+  /** Nothing to do (no intent, or the target is measured and already visible) — clear the intent. */
+  | 'clear';
+
+/**
+ * Decide what to do about a pending reveal intent. This is the core of coverage-driven reveal: it
+ * waits until the target slot has actually been measured, then tells the consumer to reveal it only
+ * if it's obscured, and otherwise to settle. Pure and synchronous so it can be unit-tested and
+ * called from an effect keyed on the reactive `coverage`.
+ */
+export const resolveRevealAction = (
+  revealSlot: SlotId | undefined,
+  coverage: SlotCoverage,
+): RevealAction => {
+  if (revealSlot === undefined) return 'clear';
+  if (!(revealSlot in coverage.obscured)) return 'wait';
+  return coverage.obscured[revealSlot] ? 'act' : 'clear';
+};
+
 export type SlotGeometryContextValue = {
+  /** Clears a pending reveal intent (see {@link SlotGeometryContextValue.requestReveal}). */
+  clearReveal: () => void;
   coverage: SlotCoverage;
   /**
    * Live, synchronous obscured check — measures the DOM at call time, so it is safe to call from
@@ -50,15 +88,23 @@ export type SlotGeometryContextValue = {
    */
   isObscured: (slot: SlotId) => boolean;
   register: (slot: SlotId, element: HTMLElement | null) => void;
+  /**
+   * Record a one-shot intent to reveal `slot` after navigation. A consumer pairs this with
+   * `resolveRevealAction(revealSlot, coverage)` in an effect to release whatever covers the slot
+   * once it has been measured — the deferred, coverage-conditional reveal used across a view switch.
+   */
+  requestReveal: (slot: SlotId) => void;
+  /** The slot a consumer asked to reveal, or `undefined`. Reactive; resolve with `resolveRevealAction`. */
+  revealSlot: SlotId | undefined;
 };
 
 const noopContextValue: SlotGeometryContextValue = {
+  clearReveal: () => undefined,
   coverage: { obscured: {} },
   isObscured: () => false,
-  register: () => {
-    // No-op: outside a SlotGeometryProvider there is no geometry to track, so registration is
-    // silently ignored (consumers still render; `isObscured` just always returns false).
-  },
+  register: () => undefined,
+  requestReveal: () => undefined,
+  revealSlot: undefined,
 };
 
 const SlotGeometryContext = createContext<SlotGeometryContextValue>(noopContextValue);
@@ -98,6 +144,12 @@ export const SlotGeometryProvider = ({ children }: PropsWithChildren) => {
   const observerRef = useRef<ResizeObserver | null>(null);
   const rafRef = useRef<number | null>(null);
   const [coverage, setCoverage] = useState<SlotCoverage>({ obscured: {} });
+  // A one-shot "reveal this slot after navigation" intent, scoped to this provider instance (no
+  // module-global state). A consumer resolves it against `coverage` via `resolveRevealAction`.
+  const [revealSlot, setRevealSlot] = useState<SlotId | undefined>(undefined);
+
+  const requestReveal = useCallback((slot: SlotId) => setRevealSlot(slot), []);
+  const clearReveal = useCallback(() => setRevealSlot(undefined), []);
 
   const othersOf = (slot: SlotId) =>
     [...elementsRef.current.entries()]
@@ -175,7 +227,14 @@ export const SlotGeometryProvider = ({ children }: PropsWithChildren) => {
     };
   }, [scheduleRecompute]);
 
-  const value: SlotGeometryContextValue = { coverage, isObscured, register };
+  const value: SlotGeometryContextValue = {
+    clearReveal,
+    coverage,
+    isObscured,
+    register,
+    requestReveal,
+    revealSlot,
+  };
 
   return (
     <SlotGeometryContext.Provider value={value}>{children}</SlotGeometryContext.Provider>

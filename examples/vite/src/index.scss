@@ -246,6 +246,60 @@ body {
     min-width: 0;
   }
 
+  /* Positioning context for the member-detail layer overlay (below). */
+  .app-chat-view__channel-content {
+    position: relative;
+  }
+
+  /* A `pushLayer` overlay (e.g. the member detail) covering the secondary column. It sits above
+     the base panel — which stays mounted underneath at its exact scroll position — pinned to the
+     same reserved width the secondary panel uses (`--app-secondary-panel-width`), so popping the
+     layer reveals the thread/2nd-channel untouched. Full-bleed on mobile, where the secondary
+     region is the whole content area. */
+  .app-chat-secondary-overlay {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: 0;
+    inline-size: max(var(--app-secondary-panel-width, 360px), 360px);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    /* Opaque, theme-aware surface (light: #fff, dark: dark) so the covered thread doesn't bleed
+       through. This theme exposes the `background-core-elevation-*` tokens, not the legacy
+       `--str-chat__*-background-color` ones. */
+    background: var(--str-chat__background-core-elevation-1, #ffffff);
+  }
+
+  .app-chat-secondary-overlay > .str-chat__channel-detail__channel-member-detail-view {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  /* The secondary slot's divider border lives on the SLOT region — the open base panel AND any
+     layer overlay covering it — so it shows consistently for a reply thread, a 2nd channel, and
+     stacked layers like the member profile. This is the same border the SDK Thread draws; we drop
+     the Thread's own copy below (search "border owned by the slot") so it isn't doubled. */
+  .app-chat-secondary-panel--open,
+  .app-chat-secondary-overlay {
+    border-inline-start: 1px solid var(--str-chat__border-core-default);
+  }
+
+  /* Border owned by the slot (above): drop the SDK Thread's own inline-start border wherever it
+     renders inside the secondary slot, at all widths, so the divider isn't doubled. App-level
+     override only — the SDK Thread styles are untouched. */
+  .app-chat-secondary-panel .str-chat__thread,
+  .app-chat-secondary-panel .str-chat__thread-container {
+    border-inline-start: none;
+  }
+
+  @media (max-width: 767px) {
+    .app-chat-secondary-overlay {
+      inset-inline: 0;
+      inline-size: auto;
+    }
+  }
+
   .app-loading-screen__window {
     width: 100%;
     height: 100%;
@@ -561,13 +615,6 @@ body {
       width: 100%;
       height: 100%;
       max-width: none;
-    }
-
-    /* Hide thread's own start border when resize handle provides the separator */
-    .app-chat-resize-handle--secondary
-      + .app-chat-secondary-panel
-      .str-chat__thread-container {
-      --str-chat__thread-border-inline-start: none;
     }
 
     /* If space gets tight while sidebar + thread are both open,

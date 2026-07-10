@@ -399,11 +399,11 @@ describe('useChatViewNavigation', () => {
     expect(state?.activeView).toBe('channels');
   });
 
-  // Regression: opening a reply thread while both slots are occupied by channels must NOT
-  // evict the primary (first) channel. The thread takes the last non-persistent slot, so the
-  // primary channel stays put. (Reported: the first channel disappeared when opening a thread
-  // with two channels open side-by-side.)
-  it('opens a thread into the last slot without evicting the primary channel', () => {
+  // Base policy: opening a reply thread while both slots are occupied by channels must NOT evict
+  // either channel. The primary/anchor channel stays put, and — since the only remaining target is
+  // the occupied secondary slot — the thread STACKS as a layer over the 2nd channel instead of
+  // replacing it. `close`/`popLayer` on that slot restores the 2nd channel.
+  it('layers a thread over the secondary channel instead of evicting it', () => {
     const primaryChannel = makeChannel('messaging:primary');
     const secondaryChannel = makeChannel('messaging:secondary');
     const thread = makeThread('thread-from-primary');
@@ -472,12 +472,17 @@ describe('useChatViewNavigation', () => {
     const state = viewState(capturedController);
     const slot1Binding = getChatViewEntityBinding(state?.slotBindings.slot1);
     const slot2Binding = getChatViewEntityBinding(state?.slotBindings.slot2);
+    const slot2TopLayer = getChatViewEntityBinding(state?.slotLayers?.slot2?.[0]);
 
-    // Primary channel stays put in slot1; the thread replaced the 2nd channel in slot2.
+    // Primary channel stays put in slot1; the 2nd channel stays as slot2's base with the thread
+    // stacked on top as a layer.
     expect(slot1Binding?.kind).toBe('channel');
     expect(slot1Binding?.source).toBe(primaryChannel);
-    expect(slot2Binding?.kind).toBe('thread');
-    expect(slot2Binding?.source).toBe(thread);
+    expect(slot2Binding?.kind).toBe('channel');
+    expect(slot2Binding?.source).toBe(secondaryChannel);
+    expect(state?.slotLayers?.slot2).toHaveLength(1);
+    expect(slot2TopLayer?.kind).toBe('thread');
+    expect(slot2TopLayer?.source).toBe(thread);
   });
 
   // Regression: `open(binding, { additive: true })` — used by ctrl/⌘-click on channel-list and
@@ -673,6 +678,87 @@ describe('useChatViewNavigation', () => {
     // Second close: no layers left, so the base binding is released.
     fireEvent.click(screen.getByText('close'));
     expect(viewState(capturedController)?.slotBindings.slot1).toBeUndefined();
+  });
+
+  // Regression: `open(binding, { additive: true, layer: true })` stacks the binding as a layer on
+  // top of the (occupied) secondary slot instead of evicting it, and does NOT run the channel's
+  // dependent thread-release — so ⌘/ctrl-clicking a channel beside an open reply thread covers the
+  // thread without closing it.
+  it('layers a channel over an open thread without releasing it', () => {
+    const channelA = makeChannel('messaging:layer-primary');
+    const channelB = makeChannel('messaging:layer-secondary');
+    const thread = makeThread('thread-under-channel-layer');
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useChatViewNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+
+      return (
+        <>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: channelA.cid ?? undefined,
+                kind: 'channel',
+                source: channelA,
+              })
+            }
+            type='button'
+          >
+            open-channel
+          </button>
+          <button
+            onClick={() =>
+              navigation.open({
+                key: thread.id ?? undefined,
+                kind: 'thread',
+                source: thread,
+              })
+            }
+            type='button'
+          >
+            open-thread
+          </button>
+          <button
+            onClick={() =>
+              navigation.open(
+                {
+                  key: channelB.cid ?? undefined,
+                  kind: 'channel',
+                  source: channelB,
+                },
+                { additive: true, layer: true },
+              )
+            }
+            type='button'
+          >
+            layer-channel
+          </button>
+        </>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView maxSlots={2} minSlots={2}>
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+    fireEvent.click(screen.getByText('open-thread'));
+    fireEvent.click(screen.getByText('layer-channel'));
+
+    const state = viewState(capturedController);
+    // slot2's base binding is still the thread; the 2nd channel sits on top as a layer.
+    expect(getChatViewEntityBinding(state?.slotBindings.slot2)?.kind).toBe('thread');
+    expect(state?.slotLayers?.slot2).toHaveLength(1);
+    const topLayer = getChatViewEntityBinding(state?.slotLayers?.slot2?.[0]);
+    expect(topLayer?.kind).toBe('channel');
+    expect(topLayer?.source).toBe(channelB);
+    // The primary channel is untouched (dependent thread-release did not fire).
+    expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(channelA);
   });
 
   it('opens channel and thread into configured slotNames in order', () => {

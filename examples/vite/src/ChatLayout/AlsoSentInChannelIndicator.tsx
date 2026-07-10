@@ -1,29 +1,29 @@
 import {
   MessageAlsoSentInChannelIndicator,
-  useChatViewNavigation,
   useMessageAlsoSentInChannelNavigation,
 } from 'stream-chat-react';
 import { useSlotGeometry } from 'stream-chat-react/slot-geometry';
 
-import { CHANNEL_THREAD_SLOT, MAIN_CHANNEL_SLOT } from './constants';
+import { MAIN_CHANNEL_SLOT } from './constants';
 
 /**
  * Coverage-aware "Also sent in channel" indicator. It reuses the SDK default component and its
- * navigation hook — no logic or markup is copied — and only augments the click: when jumping to the
- * channel from inside the reply thread, it first releases the thread slot **if** the geometry module
- * reports the channel column is actually obscured (collapsed under / covered by the thread) right
- * now. On wide side-by-side layouts the channel isn't obscured, so the thread stays open.
+ * navigation hook — no logic or markup is copied — and only records a one-shot intent (on the
+ * geometry provider) to reveal the channel column when jumping to it from inside a reply thread.
  *
- * Coverage is app-layout knowledge (this example's responsive CSS), so it lives here rather than in
- * the SDK — measured from real DOM rects, no breakpoint or class-name coupling.
+ * The actual "close the covering thread" decision is deferred to a channels-view effect
+ * (in `ResponsiveChannelPanels`), because it must run *after* navigation: in the cross-view
+ * case (threads → channels) the channel isn't mounted or measurable at click time. The effect closes
+ * the thread only when the geometry plugin reports the channel is actually obscured, so wide
+ * side-by-side layouts keep the thread. This scopes the behavior to this navigation only — it does
+ * not change global channel-open semantics.
  */
 export const AlsoSentInChannelIndicator = () => {
   const { isInThread, viewReference } = useMessageAlsoSentInChannelNavigation();
-  const { close } = useChatViewNavigation();
-  const { isObscured } = useSlotGeometry();
+  const { requestReveal } = useSlotGeometry();
 
   const onView = async () => {
-    if (isInThread && isObscured(MAIN_CHANNEL_SLOT)) close(CHANNEL_THREAD_SLOT);
+    if (isInThread) requestReveal(MAIN_CHANNEL_SLOT);
     await viewReference();
   };
 

@@ -1,6 +1,12 @@
 export {
+  resolveRevealAction,
   SlotGeometryProvider,
   useSlotGeometry,
   useRegisterSlotGeometry,
 } from './SlotGeometry';
-export type { SlotCoverage, SlotGeometryContextValue, SlotId } from './SlotGeometry';
+export type {
+  RevealAction,
+  SlotCoverage,
+  SlotGeometryContextValue,
+  SlotId,
+} from './SlotGeometry';

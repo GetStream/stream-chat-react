@@ -53,6 +53,8 @@ import {
   OPTIONAL_THREAD_SLOT,
 } from './ChatLayout/constants.ts';
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
+import { SlotGeometryProvider } from 'stream-chat-react/slot-geometry';
+import { AlsoSentInChannelIndicator } from './ChatLayout/AlsoSentInChannelIndicator.tsx';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
 import {
@@ -481,7 +483,6 @@ const App = () => {
     [initialPanelLayout.leftPanel.width, initialPanelLayout.threadPanel.width],
   );
 
-  // Memoized so the ChatView `views` map keeps a stable reference across renders.
   const chatViews = useMemo(
     () => ({
       channels: (
@@ -531,6 +532,10 @@ const App = () => {
   return (
     <WithComponents
       overrides={{
+        // Coverage-aware "Also sent in channel → View": records a reveal intent that a
+        // channels-view effect resolves after navigation (works across the threads → channels
+        // switch; closes the covering thread only when it actually covers).
+        MessageAlsoSentInChannelIndicator: AlsoSentInChannelIndicator,
         emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
@@ -566,16 +571,22 @@ const App = () => {
                 iconOnly={chatView.iconOnly}
                 layoutRef={appLayoutRef}
               />
-              <ChatView
-                dialogManagerId={globalDialogManager}
-                layouts={chatViewLayouts}
-                maxSlots={2}
-                minSlots={2}
-                views={chatViews}
-              >
-                <ChatStateSync initialChatView={initialChatView} />
-                <SidebarLayoutSync />
-              </ChatView>
+              {/* Geometry provider spans the whole ChatView so slot-coverage state and the reveal
+                  intent are shared across views (the "Also sent in channel → View" indicator sets
+                  the intent in the threads view; the channels panels resolve it after navigating).
+                  Instance-scoped — not a module singleton — so other chat surfaces don't collide. */}
+              <SlotGeometryProvider>
+                <ChatView
+                  dialogManagerId={globalDialogManager}
+                  layouts={chatViewLayouts}
+                  maxSlots={2}
+                  minSlots={2}
+                  views={chatViews}
+                >
+                  <ChatStateSync initialChatView={initialChatView} />
+                  <SidebarLayoutSync />
+                </ChatView>
+              </SlotGeometryProvider>
             </div>
           </div>
           {/* The single-channel scenario floats over the full app in a draggable modal (the full

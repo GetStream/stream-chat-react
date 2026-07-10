@@ -72,6 +72,7 @@ export type ResolveTargetSlot = (args: ResolveTargetSlotArgs) => SlotName | null
 export type OpenResult =
   | { slot: SlotName; status: 'opened' }
   | { replaced: LayoutSlotBinding; slot: SlotName; status: 'replaced' }
+  | { slot: SlotName; status: 'layered' }
   | { reason: 'duplicate-binding' | 'no-available-slot'; status: 'rejected' };
 
 export type OpenOptions = {
