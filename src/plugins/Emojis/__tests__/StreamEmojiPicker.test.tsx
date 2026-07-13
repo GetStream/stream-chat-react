@@ -5,7 +5,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 // stub. This lets us assert that the owner (EmojiPicker) preserves skin tone and
 // frequently-used across open/close — without depending on the real panel's
 // virtualized grid + async data load, which don't render reliably in jsdom.
-vi.mock('../components', () => ({
+vi.mock('../components/EmojiPickerPanel', () => ({
   EmojiPickerPanel: ({
     frequentlyUsedIds = [],
     onEmojiSelect,

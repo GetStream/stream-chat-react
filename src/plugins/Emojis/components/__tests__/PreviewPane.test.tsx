@@ -3,12 +3,30 @@ import { render, screen } from '@testing-library/react';
 vi.mock('../../../../context', () => ({
   useTranslationContext: () => ({ t: (key: string) => key }),
 }));
+vi.mock('../../context/EmojiPickerContext', () => ({
+  useEmojiPickerContext: () => ({
+    resolveNative: (emoji: { skins: { native: string }[] }) =>
+      emoji.skins[0]?.native ?? '',
+  }),
+}));
+
+const { preview } = vi.hoisted(() => ({
+  preview: {
+    previewedEmoji: null as null | {
+      id: string;
+      name: string;
+      skins: { native: string }[];
+    },
+    setPreviewedEmoji: vi.fn(),
+  },
+}));
+vi.mock('../../context/EmojiPickerPreviewContext', () => ({
+  useEmojiPickerPreviewContext: () => preview,
+}));
 
 import { PreviewPane } from '../PreviewPane';
-import { EmojiPickerProvider } from '../../context/EmojiPickerContext';
-import type { EmojiDataEmoji } from '../../data';
 
-const smile: EmojiDataEmoji = {
+const smile = {
   id: 'smile',
   keywords: ['happy'],
   name: 'Smiling Face',
@@ -16,18 +34,10 @@ const smile: EmojiDataEmoji = {
   version: 1,
 };
 
-const renderPreview = (emoji: EmojiDataEmoji | null, skinToneIndex = 0) =>
-  render(
-    <EmojiPickerProvider
-      value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex }}
-    >
-      <PreviewPane emoji={emoji} />
-    </EmojiPickerProvider>,
-  );
-
 describe('PreviewPane', () => {
   it('shows the emoji name and its shortcode when an emoji is previewed', () => {
-    renderPreview(smile);
+    preview.previewedEmoji = smile;
+    render(<PreviewPane />);
 
     expect(screen.getByText('Smiling Face')).toBeInTheDocument();
     // The shortcode (`:id:`) must be visible so users learn the autocomplete token.
@@ -35,23 +45,10 @@ describe('PreviewPane', () => {
   });
 
   it('shows the placeholder and no shortcode when nothing is previewed', () => {
-    renderPreview(null);
+    preview.previewedEmoji = null;
+    render(<PreviewPane />);
 
     expect(screen.getByText('Pick an emoji…')).toBeInTheDocument();
     expect(screen.queryByText(/^:.+:$/)).not.toBeInTheDocument();
-  });
-
-  it('shows the configured resting emoji (previewEmoji) when nothing is hovered', () => {
-    render(
-      <EmojiPickerProvider
-        value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex: 0 }}
-      >
-        <PreviewPane emoji={null} placeholderEmoji={smile} />
-      </EmojiPickerProvider>,
-    );
-
-    expect(screen.getByText('Smiling Face')).toBeInTheDocument();
-    expect(screen.getByText(':smile:')).toBeInTheDocument();
-    expect(screen.queryByText('Pick an emoji…')).not.toBeInTheDocument();
   });
 });

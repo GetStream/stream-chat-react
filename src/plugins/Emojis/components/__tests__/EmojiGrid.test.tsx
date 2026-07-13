@@ -1,7 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { EmojiGrid, type EmojiPickerCategory } from '../EmojiGrid';
-import { EmojiPickerProvider } from '../../context/EmojiPickerContext';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 // Capture the Virtuoso scroll callbacks so the scroll-spy behavior is testable, and
 // render every item synchronously so the non-search view's a11y tree is assertable.
@@ -20,8 +18,8 @@ vi.mock('react-virtuoso', () => ({
     rangeChanged,
   }: {
     atBottomStateChange?: (atBottom: boolean) => void;
-    data?: EmojiPickerCategory[];
-    itemContent?: (index: number, item: EmojiPickerCategory) => React.ReactNode;
+    data?: unknown[];
+    itemContent?: (index: number, item: unknown) => React.ReactNode;
     rangeChanged?: (range: { endIndex: number; startIndex: number }) => void;
   }) => {
     virtuoso.atBottomStateChange = atBottomStateChange;
@@ -36,42 +34,57 @@ vi.mock('react-virtuoso', () => ({
   },
 }));
 
-const emoji = (id: string, native: string) => ({
+const { ctx, preview } = vi.hoisted(() => ({
+  ctx: {} as Record<string, unknown>,
+  preview: { previewedEmoji: null, setPreviewedEmoji: vi.fn() },
+}));
+vi.mock('../../context/EmojiPickerContext', () => ({
+  useEmojiPickerContext: () => ctx,
+}));
+vi.mock('../../context/EmojiPickerPreviewContext', () => ({
+  useEmojiPickerPreviewContext: () => preview,
+}));
+vi.mock('../../../../context', () => ({
+  useTranslationContext: () => ({ t: (key: string) => key }),
+}));
+
+import { EmojiGrid, type EmojiPickerCategory } from '../EmojiGrid';
+
+const emoji = (id: string, native: string, name = id) => ({
   id,
   keywords: [],
-  name: id,
+  name,
   skins: [{ native, unified: '' }],
   version: 1,
 });
 
-const categories: EmojiPickerCategory[] = [
-  {
-    emojis: [
-      {
-        id: 'grinning',
-        keywords: ['face', 'smile'],
-        name: 'Grinning',
-        skins: [{ native: '😀', unified: '1f600' }],
-        version: 1,
-      },
-    ],
-    id: 'people',
-    label: 'Smileys & People',
-  },
-];
+const base = () => ({
+  categories: [] as EmojiPickerCategory[],
+  isSearching: false,
+  resolveNative: (e: { skins: { native: string }[] }) => e.skins[0]?.native ?? '',
+  scrollTarget: null,
+  searchResults: null as null | ReturnType<typeof emoji>[],
+  selectEmoji: vi.fn(),
+  setActiveCategory: vi.fn(),
+});
 
-const renderGrid = () =>
-  render(
-    <EmojiPickerProvider
-      value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex: 0 }}
-    >
-      <EmojiGrid categories={categories} />
-    </EmojiPickerProvider>,
-  );
+beforeEach(() => {
+  Object.assign(ctx, base());
+});
 
 describe('EmojiGrid accessibility (non-search view)', () => {
+  beforeEach(() => {
+    ctx.categories = [
+      {
+        emojis: [emoji('grinning', '😀', 'Grinning')],
+        id: 'people',
+        label: 'Smileys & People',
+      },
+    ];
+  });
+
   it('renders emojis as accessible buttons with no orphaned grid/row/gridcell roles', () => {
-    renderGrid();
+    render(<EmojiGrid />);
 
     // The review flagged row/gridcell elements with no owning grid in the virtualized
     // view. Native button semantics avoid the invalid ARIA entirely.
@@ -83,51 +96,43 @@ describe('EmojiGrid accessibility (non-search view)', () => {
   });
 
   it('keeps emojis grouped under a labeled category region', () => {
-    renderGrid();
-
+    render(<EmojiGrid />);
     expect(screen.getByRole('region', { name: 'Smileys & People' })).toBeInTheDocument();
   });
 });
 
 describe('EmojiGrid scroll-spy (active category tracking)', () => {
-  const twoCategories: EmojiPickerCategory[] = [
-    { emojis: [emoji('grinning', '😀')], id: 'people', label: 'People' },
-    { emojis: [emoji('checkered_flag', '🏁')], id: 'flags', label: 'Flags' },
-  ];
-
-  const renderSpy = (onActiveCategoryChange: (id: string) => void) =>
-    render(
-      <EmojiPickerProvider
-        value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex: 0 }}
-      >
-        <EmojiGrid
-          categories={twoCategories}
-          onActiveCategoryChange={onActiveCategoryChange}
-        />
-      </EmojiPickerProvider>,
-    );
+  beforeEach(() => {
+    ctx.categories = [
+      { emojis: [emoji('grinning', '😀')], id: 'people', label: 'People' },
+      { emojis: [emoji('checkered_flag', '🏁')], id: 'flags', label: 'Flags' },
+    ];
+  });
 
   it('marks the category at the top of the viewport active as the list scrolls', () => {
-    const onActive = vi.fn();
-    renderSpy(onActive);
-
+    render(<EmojiGrid />);
     virtuoso.rangeChanged?.({ endIndex: 1, startIndex: 1 });
-
-    expect(onActive).toHaveBeenLastCalledWith('flags');
+    expect(ctx.setActiveCategory).toHaveBeenLastCalledWith('flags');
   });
 
   it('marks the last category active at the bottom, even when a short final category never reaches the top', () => {
-    const onActive = vi.fn();
-    renderSpy(onActive);
-
-    // Top of the viewport is still the first category…
+    render(<EmojiGrid />);
     virtuoso.rangeChanged?.({ endIndex: 1, startIndex: 0 });
-    // …but the list is scrolled to the very bottom, so the last category is active.
     virtuoso.atBottomStateChange?.(true);
-    expect(onActive).toHaveBeenLastCalledWith('flags');
-
+    expect(ctx.setActiveCategory).toHaveBeenLastCalledWith('flags');
     // Range changes while pinned at the bottom must not steal the active category back.
     virtuoso.rangeChanged?.({ endIndex: 1, startIndex: 0 });
-    expect(onActive).toHaveBeenLastCalledWith('flags');
+    expect(ctx.setActiveCategory).toHaveBeenLastCalledWith('flags');
+  });
+});
+
+describe('EmojiGrid search view', () => {
+  it('renders flat search results and selects through context', () => {
+    const rocket = emoji('rocket', '🚀', 'Rocket');
+    ctx.isSearching = true;
+    ctx.searchResults = [rocket];
+    render(<EmojiGrid />);
+    fireEvent.click(screen.getByRole('button', { name: 'Rocket' }));
+    expect(ctx.selectEmoji).toHaveBeenCalledWith(rocket);
   });
 });

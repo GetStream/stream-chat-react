@@ -1,28 +1,23 @@
 import { type KeyboardEvent, useRef } from 'react';
 import clsx from 'clsx';
 import { EMOJI_CATEGORY_META } from './categories';
-import type { EmojiPickerCategory } from './EmojiGrid';
-
-export type CategoryNavProps = {
-  categories: EmojiPickerCategory[];
-  onNavigate: (categoryId: string) => void;
-  activeCategoryId?: string;
-};
+import { useEmojiPickerContext } from '../context/EmojiPickerContext';
 
 const NAV_KEYS = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
 
 /**
  * Top navigation bar with one tab per category (role="tablist"). Clicking a tab
  * scrolls its section into view; Left/Right/Home/End move focus between tabs with a
- * roving tabindex; the active tab reflects the currently visible section.
+ * roving tabindex; the active tab reflects the currently visible section. Reads the
+ * category model + active category from context and reports clicks via
+ * `requestScrollToCategory`. The active tab is suppressed during search.
  */
-export const CategoryNav = ({
-  activeCategoryId,
-  categories,
-  onNavigate,
-}: CategoryNavProps) => {
+export const CategoryNav = () => {
+  const { activeCategoryId, categories, isSearching, requestScrollToCategory } =
+    useEmojiPickerContext('CategoryNav');
   const navRef = useRef<HTMLDivElement>(null);
-  const rovingId = activeCategoryId ?? categories[0]?.id;
+  const active = isSearching ? undefined : activeCategoryId;
+  const rovingId = active ?? categories[0]?.id;
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!NAV_KEYS.includes(event.key)) return;
@@ -51,13 +46,12 @@ export const CategoryNav = ({
       {categories.map(({ id, label }) => (
         <button
           aria-label={label}
-          aria-selected={activeCategoryId === id}
+          aria-selected={active === id}
           className={clsx('str-chat__emoji-picker__category-nav-button', {
-            'str-chat__emoji-picker__category-nav-button--active':
-              activeCategoryId === id,
+            'str-chat__emoji-picker__category-nav-button--active': active === id,
           })}
           key={id}
-          onClick={() => onNavigate(id)}
+          onClick={() => requestScrollToCategory(id)}
           role='tab'
           tabIndex={id === rovingId ? 0 : -1}
           type='button'

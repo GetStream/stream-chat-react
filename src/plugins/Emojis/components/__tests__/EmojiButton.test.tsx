@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import { EmojiButton } from '../EmojiButton';
-import { EmojiPickerProvider } from '../../context/EmojiPickerContext';
+import {
+  type EmojiPickerContextValue,
+  EmojiPickerProvider,
+} from '../../context/EmojiPickerContext';
+import { EmojiPickerPreviewProvider } from '../../context/EmojiPickerPreviewContext';
+import { SKIN_TONES } from '../skinTones';
 import type { EmojiDataEmoji } from '../../data';
 
 // A skin-tone-capable emoji (6 skins) and a plain one (1 skin) — mirrors the dataset,
@@ -28,14 +33,40 @@ const grinning: EmojiDataEmoji = {
   version: 1,
 };
 
-const renderButton = (emoji: EmojiDataEmoji, skinToneIndex: number) =>
-  render(
-    <EmojiPickerProvider
-      value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex }}
+// The cell renders `resolveNative(emoji)` from context; mirror the real skin-tone
+// resolution so the per-tone assertions still exercise the contract.
+const makeContext = (skinToneIndex: number): EmojiPickerContextValue => ({
+  activeCategoryId: '',
+  categories: [],
+  isSearching: false,
+  query: '',
+  requestScrollToCategory: vi.fn(),
+  resolveNative: (emoji) =>
+    emoji.skins[skinToneIndex]?.native ?? emoji.skins[0]?.native ?? '',
+  retry: vi.fn(),
+  scrollTarget: null,
+  searchResults: null,
+  selectEmoji: vi.fn(),
+  setActiveCategory: vi.fn(),
+  setQuery: vi.fn(),
+  setSkinTone: vi.fn(),
+  skinToneIndex,
+  skinTones: SKIN_TONES,
+  status: 'ready',
+});
+
+const wrap = (emoji: EmojiDataEmoji, skinToneIndex: number) => (
+  <EmojiPickerProvider value={makeContext(skinToneIndex)}>
+    <EmojiPickerPreviewProvider
+      value={{ previewedEmoji: null, setPreviewedEmoji: vi.fn() }}
     >
       <EmojiButton emoji={emoji} />
-    </EmojiPickerProvider>,
-  );
+    </EmojiPickerPreviewProvider>
+  </EmojiPickerProvider>
+);
+
+const renderButton = (emoji: EmojiDataEmoji, skinToneIndex: number) =>
+  render(wrap(emoji, skinToneIndex));
 
 describe('EmojiButton skin tone', () => {
   it('renders the default glyph at skin tone 0', () => {
@@ -52,13 +83,7 @@ describe('EmojiButton skin tone', () => {
     const { rerender } = renderButton(wave, 0);
     expect(screen.getByRole('button', { name: 'Waving Hand' })).toHaveTextContent('👋');
 
-    rerender(
-      <EmojiPickerProvider
-        value={{ onSelectEmoji: vi.fn(), setPreviewedEmoji: vi.fn(), skinToneIndex: 3 }}
-      >
-        <EmojiButton emoji={wave} />
-      </EmojiPickerProvider>,
-    );
+    rerender(wrap(wave, 3));
     expect(screen.getByRole('button', { name: 'Waving Hand' })).toHaveTextContent('👋🏽');
   });
 

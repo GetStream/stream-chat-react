@@ -1,17 +1,36 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { SKIN_TONES } from '../skinTones';
 
+const { ctx } = vi.hoisted(() => ({
+  ctx: {
+    setSkinTone: vi.fn(),
+    skinToneIndex: 0,
+    skinTones: [] as { glyph: string; labelKey: string }[],
+  },
+}));
+vi.mock('../../context/EmojiPickerContext', () => ({
+  useEmojiPickerContext: () => ctx,
+}));
 vi.mock('../../../../context', () => ({
   useTranslationContext: () => ({ t: (key: string) => key }),
 }));
 
 import { SkinToneSelector } from '../SkinToneSelector';
 
+const setup = (skinToneIndex: number) => {
+  ctx.skinToneIndex = skinToneIndex;
+  ctx.skinTones = SKIN_TONES;
+  vi.spyOn(ctx, 'setSkinTone').mockImplementation();
+  return ctx.setSkinTone;
+};
+
 const openGroup = () =>
   fireEvent.click(screen.getByRole('button', { name: 'aria/Choose default skin tone' }));
 
 describe('SkinToneSelector radiogroup keyboard navigation', () => {
   it('moves focus to the checked tone when the group opens, with roving tabindex', () => {
-    render(<SkinToneSelector onSelect={vi.fn()} skinToneIndex={2} />);
+    setup(2);
+    render(<SkinToneSelector />);
     openGroup();
 
     const radios = screen.getAllByRole('radio');
@@ -21,34 +40,35 @@ describe('SkinToneSelector radiogroup keyboard navigation', () => {
   });
 
   it('selects the next/previous tone with arrow keys (selection follows focus)', () => {
-    const onSelect = vi.fn();
-    render(<SkinToneSelector onSelect={onSelect} skinToneIndex={0} />);
+    const setSkinTone = setup(0);
+    render(<SkinToneSelector />);
     openGroup();
 
     const group = screen.getByRole('radiogroup');
     fireEvent.keyDown(group, { key: 'ArrowRight' });
-    expect(onSelect).toHaveBeenLastCalledWith(1);
+    expect(setSkinTone).toHaveBeenLastCalledWith(1);
     fireEvent.keyDown(group, { key: 'ArrowLeft' });
-    expect(onSelect).toHaveBeenLastCalledWith(5); // wraps from 0 to the last tone
+    expect(setSkinTone).toHaveBeenLastCalledWith(5); // wraps from 0 to the last tone
   });
 
   it('jumps to the first/last tone with Home/End', () => {
-    const onSelect = vi.fn();
-    render(<SkinToneSelector onSelect={onSelect} skinToneIndex={2} />);
+    const setSkinTone = setup(2);
+    render(<SkinToneSelector />);
     openGroup();
 
     const group = screen.getByRole('radiogroup');
     fireEvent.keyDown(group, { key: 'End' });
-    expect(onSelect).toHaveBeenLastCalledWith(5);
+    expect(setSkinTone).toHaveBeenLastCalledWith(5);
     fireEvent.keyDown(group, { key: 'Home' });
-    expect(onSelect).toHaveBeenLastCalledWith(0);
+    expect(setSkinTone).toHaveBeenLastCalledWith(0);
   });
 
   it('collapses on Escape without bubbling to close the whole picker', () => {
+    setup(0);
     const onOuterKeyDown = vi.fn();
     render(
       <div onKeyDown={onOuterKeyDown}>
-        <SkinToneSelector onSelect={vi.fn()} skinToneIndex={0} />
+        <SkinToneSelector />
       </div>,
     );
     openGroup();

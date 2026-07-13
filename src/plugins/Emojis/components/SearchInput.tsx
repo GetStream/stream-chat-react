@@ -1,34 +1,36 @@
-import { useEffect, useRef } from 'react';
+import { type KeyboardEvent, useEffect, useRef } from 'react';
 import { Button, IconSearch, IconXCircle, VisuallyHidden } from '../../../components';
 import { useStableId } from '../../../components/UtilityComponents/useStableId';
+import { useEmojiPickerContext } from '../context/EmojiPickerContext';
 import { useTranslationContext } from '../../../context';
 
 export type SearchInputProps = {
-  onChange: (value: string) => void;
-  value: string;
   /** Focus the input on mount when the picker opens (default `true`). */
   autoFocus?: boolean;
-  /** Called when ArrowDown is pressed, to move focus into the emoji grid. */
-  onArrowDown?: () => void;
 };
 
 /**
  * Search box for the emoji picker. Mirrors the SDK's SearchBar structure (icon +
- * labelled input + clear button) and receives focus when the picker opens.
+ * labelled input + clear button) and receives focus when the picker opens. Reads/reports
+ * the query through context; ArrowDown moves focus to the first emoji cell within the
+ * enclosing picker dialog (the default grid's DOM contract).
  */
-export const SearchInput = ({
-  autoFocus = true,
-  onArrowDown,
-  onChange,
-  value,
-}: SearchInputProps) => {
+export const SearchInput = ({ autoFocus = true }: SearchInputProps) => {
   const { t } = useTranslationContext('EmojiPickerSearchInput');
+  const { query, setQuery } = useEmojiPickerContext('SearchInput');
   const inputId = useStableId();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (autoFocus) inputRef.current?.focus();
   }, [autoFocus]);
+
+  const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== 'ArrowDown') return;
+    event.preventDefault();
+    const dialog = event.currentTarget.closest('[role="dialog"]');
+    dialog?.querySelector<HTMLElement>('.str-chat__emoji-picker__emoji')?.focus();
+  };
 
   return (
     <div className='str-chat__emoji-picker__search'>
@@ -40,25 +42,20 @@ export const SearchInput = ({
         autoComplete='off'
         className='str-chat__emoji-picker__search-input'
         id={inputId}
-        onChange={(event) => onChange(event.target.value)}
-        onKeyDown={(event) => {
-          if (event.key === 'ArrowDown') {
-            event.preventDefault();
-            onArrowDown?.();
-          }
-        }}
+        onChange={(event) => setQuery(event.target.value)}
+        onKeyDown={onKeyDown}
         placeholder={t('Search emoji')}
         ref={inputRef}
         type='text'
-        value={value}
+        value={query}
       />
-      {value ? (
+      {query ? (
         <Button
           appearance='ghost'
           aria-label={t('aria/Clear emoji search')}
           circular
           className='str-chat__emoji-picker__search-clear'
-          onClick={() => onChange('')}
+          onClick={() => setQuery('')}
           size='xs'
           type='button'
           variant='secondary'

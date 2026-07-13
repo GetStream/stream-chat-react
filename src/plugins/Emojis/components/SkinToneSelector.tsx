@@ -1,12 +1,7 @@
 import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { MAX_SKIN_TONE_INDEX, SKIN_TONES } from './skinTones';
+import { useEmojiPickerContext } from '../context/EmojiPickerContext';
 import { useTranslationContext } from '../../../context';
-
-export type SkinToneSelectorProps = {
-  onSelect: (skinToneIndex: number) => void;
-  skinToneIndex: number;
-};
 
 const ARROW_KEYS = ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', 'End'];
 
@@ -15,14 +10,19 @@ const ARROW_KEYS = ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', '
  * WAI-ARIA radiogroup: focus moves onto the checked tone on open, a roving tabindex keeps
  * one tone tab-reachable, arrow/Home/End keys move the selection (selection follows
  * focus), and Escape collapses back to the toggle without closing the whole picker.
+ * Reads the active tone + available tones from context and reports changes via
+ * `setSkinTone`.
  */
-export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorProps) => {
+export const SkinToneSelector = () => {
   const { t } = useTranslationContext('EmojiPickerSkinTone');
+  const { setSkinTone, skinToneIndex, skinTones } =
+    useEmojiPickerContext('SkinToneSelector');
+  const maxIndex = skinTones.length - 1;
   const [expanded, setExpanded] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const groupRef = useRef<HTMLDivElement>(null);
   const returnFocusToToggle = useRef(false);
-  const activeTone = SKIN_TONES[skinToneIndex] ?? SKIN_TONES[0];
+  const activeTone = skinTones[skinToneIndex] ?? skinTones[0];
 
   const radios = () =>
     Array.from(
@@ -71,18 +71,18 @@ export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorPr
 
     let next = skinToneIndex;
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
-      next = skinToneIndex >= MAX_SKIN_TONE_INDEX ? 0 : skinToneIndex + 1;
+      next = skinToneIndex >= maxIndex ? 0 : skinToneIndex + 1;
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
-      next = skinToneIndex <= 0 ? MAX_SKIN_TONE_INDEX : skinToneIndex - 1;
+      next = skinToneIndex <= 0 ? maxIndex : skinToneIndex - 1;
     } else if (event.key === 'Home') {
       next = 0;
     } else if (event.key === 'End') {
-      next = MAX_SKIN_TONE_INDEX;
+      next = maxIndex;
     }
 
     // All tones are mounted, so focus the target now; selection follows focus.
     radios()[next]?.focus();
-    onSelect(next);
+    setSkinTone(next);
   };
 
   return (
@@ -93,7 +93,7 @@ export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorPr
       ref={groupRef}
       role='radiogroup'
     >
-      {SKIN_TONES.map((tone, index) => (
+      {skinTones.map((tone, index) => (
         <button
           aria-checked={index === skinToneIndex}
           aria-label={t(tone.labelKey)}
@@ -102,7 +102,7 @@ export const SkinToneSelector = ({ onSelect, skinToneIndex }: SkinToneSelectorPr
           })}
           key={tone.labelKey}
           onClick={() => {
-            onSelect(index);
+            setSkinTone(index);
             collapse(true);
           }}
           role='radio'

@@ -17,29 +17,29 @@ vi.mock('../../../../context', () => ({
 }));
 
 // The real grid uses react-virtuoso, which renders no items without layout (jsdom).
-// Mock it to expose the categories it receives so we can assert what the panel feeds it.
+// Mock it to expose the categories it reads from context so we can assert what the panel
+// feeds it.
 vi.mock('../EmojiGrid', async () => {
-  const { forwardRef } = await import('react');
+  const { useEmojiPickerContext } = await import('../../context/EmojiPickerContext');
   return {
-    EmojiGrid: forwardRef(function EmojiGrid({
-      categories,
-    }: {
-      categories: { emojis: { id: string; name: string }[]; id: string }[];
-    }) {
+    EmojiGrid: function EmojiGrid() {
+      const { categories, isSearching, searchResults } = useEmojiPickerContext();
+      const emojis = isSearching
+        ? (searchResults ?? [])
+        : categories.flatMap((category) => category.emojis);
       return (
         <div data-testid='grid'>
-          {categories
-            .flatMap((category) => category.emojis)
-            .map((emoji) => (
-              <span key={emoji.id}>{emoji.name}</span>
-            ))}
+          {emojis.map((emoji) => (
+            <span key={emoji.id}>{emoji.name}</span>
+          ))}
         </div>
       );
-    }),
+    },
   };
 });
 
-import { EmojiPickerPanel, themeClassName } from '../EmojiPickerPanel';
+import { EmojiPickerPanel } from '../EmojiPickerPanel';
+import { themeClassName } from '../EmojiPickerRoot';
 
 const DATA = {
   aliases: {},

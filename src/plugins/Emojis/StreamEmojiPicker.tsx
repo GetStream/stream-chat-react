@@ -9,7 +9,13 @@ import {
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
-import { EmojiPickerPanel } from './components';
+import { CategoryNav } from './components/CategoryNav';
+import { EmojiGrid } from './components/EmojiGrid';
+import { EmojiPickerPanel } from './components/EmojiPickerPanel';
+import { EmojiPickerRoot } from './components/EmojiPickerRoot';
+import { PreviewPane } from './components/PreviewPane';
+import { SearchInput } from './components/SearchInput';
+import { SkinToneSelector } from './components/SkinToneSelector';
 import { useFrequentlyUsedEmoji } from './hooks/useFrequentlyUsedEmoji';
 import { useSkinTone } from './hooks/useSkinTone';
 
@@ -61,7 +67,7 @@ const classNames: Pick<
   wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
 
-export const StreamEmojiPicker = (props: StreamEmojiPickerProps) => {
+const StreamEmojiPickerComponent = (props: StreamEmojiPickerProps) => {
   const { t } = useTranslationContext('EmojiPicker');
   const { textareaRef } = useMessageComposerContext('EmojiPicker');
   const { textComposer } = useMessageComposerController();
@@ -179,3 +185,18 @@ export const StreamEmojiPicker = (props: StreamEmojiPickerProps) => {
     </div>
   );
 };
+
+/**
+ * The built-in emoji picker. Rendered directly, it is the batteries-included preset
+ * (toggle button + popover + the standard panel). For a custom layout, compose the parts
+ * — `StreamEmojiPicker.Root` wrapping any arrangement of `.Nav` / `.Search` / `.Grid` /
+ * `.Preview` / `.SkinTone` (and your own slots via `useEmojiPickerContext`).
+ */
+export const StreamEmojiPicker = Object.assign(StreamEmojiPickerComponent, {
+  Grid: EmojiGrid,
+  Nav: CategoryNav,
+  Preview: PreviewPane,
+  Root: EmojiPickerRoot,
+  Search: SearchInput,
+  SkinTone: SkinToneSelector,
+});

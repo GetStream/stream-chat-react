@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { useEmojiPickerContext } from '../context/EmojiPickerContext';
+import { useEmojiPickerPreviewContext } from '../context/EmojiPickerPreviewContext';
 import type { EmojiDataEmoji } from '../data';
 
 export type EmojiButtonProps = {
@@ -11,16 +12,15 @@ export type EmojiButtonProps = {
  * skin tone. Memoized because the grid can render ~1800 of these.
  */
 export const EmojiButton = memo(function EmojiButton({ emoji }: EmojiButtonProps) {
-  const { onSelectEmoji, setPreviewedEmoji, skinToneIndex } =
-    useEmojiPickerContext('EmojiButton');
-  const native = emoji.skins[skinToneIndex]?.native ?? emoji.skins[0]?.native ?? '';
+  const { resolveNative, selectEmoji } = useEmojiPickerContext('EmojiButton');
+  const { setPreviewedEmoji } = useEmojiPickerPreviewContext();
 
   return (
     <button
       aria-label={emoji.name}
       className='str-chat__emoji-picker__emoji'
       data-emoji-id={emoji.id}
-      onClick={() => onSelectEmoji(emoji)}
+      onClick={() => selectEmoji(emoji)}
       onFocus={() => setPreviewedEmoji(emoji)}
       onMouseEnter={() => setPreviewedEmoji(emoji)}
       // Native <button> semantics (not role='gridcell'): the category view is
@@ -29,7 +29,7 @@ export const EmojiButton = memo(function EmojiButton({ emoji }: EmojiButtonProps
       tabIndex={-1}
       type='button'
     >
-      {native}
+      {resolveNative(emoji)}
     </button>
   );
 });
