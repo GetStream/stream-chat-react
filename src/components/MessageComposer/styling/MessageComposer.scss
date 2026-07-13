@@ -191,27 +191,6 @@
           ease-out;
     }
 
-    .str-chat__textarea {
-      flex: 1;
-      min-width: 0;
-      position: relative;
-      display: flex;
-      align-items: center;
-      width: 100%;
-
-      textarea {
-        background: transparent;
-        color: var(--str-chat__input-text-default);
-        font: var(--str-chat__font-body-default);
-        resize: none;
-        border: none;
-        box-shadow: none;
-        outline: none;
-        width: 100%;
-        scrollbar-width: none;
-      }
-    }
-
     .str-chat__emoji-picker-button {
       display: flex;
       cursor: pointer;
@@ -262,6 +241,32 @@
       svg {
         transform: scale(-1, 1);
       }
+    }
+  }
+
+  // Scoped to the TextareaComposer's own elements (not the composer-controls
+  // wrapper) so the textarea fills its container in any composer layout — e.g.
+  // a custom composer that renders <TextareaComposer> without the default
+  // MessageComposerUI. Without this the bare <textarea> falls back to its
+  // intrinsic `cols` width (~160px).
+  .str-chat__textarea {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    textarea {
+      background: transparent;
+      color: var(--str-chat__input-text-default);
+      font: var(--str-chat__font-body-default);
+      resize: none;
+      border: none;
+      box-shadow: none;
+      outline: none;
+      width: 100%;
+      scrollbar-width: none;
     }
   }
 
