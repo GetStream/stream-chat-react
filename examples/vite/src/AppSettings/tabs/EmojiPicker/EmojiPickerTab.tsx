@@ -87,9 +87,12 @@ const PagedGrid = () => {
     : ((categories.find((category) => category.id === activeCategoryId) ?? categories[0])
         ?.emojis ?? []);
 
+  // A plain (non-virtualized) grid must bring its own scroll — the default grid gets it
+  // from Virtuoso. `__grid-container` is the SDK's scrollable body class (block-size:100%
+  // + overflow-y), the same one the built-in search-results view uses.
   return (
     <div className='str-chat__emoji-picker__body'>
-      <div className='str-chat__emoji-picker__grid'>
+      <div className='str-chat__emoji-picker__grid-container'>
         <div className='str-chat__emoji-picker__category-emojis'>
           {emojis.map((emoji) => (
             <button
