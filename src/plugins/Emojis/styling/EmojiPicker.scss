@@ -99,21 +99,6 @@ $emoji-picker-border-radius: 12px;
       flex: none;
     }
 
-    // Search + skin-tone selector share one row (only when skinTonePosition='search').
-    &__search-row {
-      display: flex;
-      align-items: center;
-
-      .str-chat__emoji-picker__search {
-        flex: 1 1 auto;
-      }
-
-      .str-chat__emoji-picker__skin-tone-toggle,
-      .str-chat__emoji-picker__skin-tones {
-        margin-inline-end: var(--str-chat__spacing-sm);
-      }
-    }
-
     &__empty {
       display: flex;
       flex-direction: column;
@@ -255,12 +240,6 @@ $emoji-picker-border-radius: 12px;
       min-block-size: 2.75rem;
       padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
       border-block-start: 1px solid var(--str-chat__emoji-picker-separator-color);
-    }
-
-    // Preview positioned at the top: divider below it instead of above.
-    &__footer--top {
-      border-block-start: none;
-      border-block-end: 1px solid var(--str-chat__emoji-picker-separator-color);
     }
 
     &__preview {

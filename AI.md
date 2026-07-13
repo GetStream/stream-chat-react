@@ -274,27 +274,16 @@ import 'stream-chat-react/css/emoji-picker.css';
 - On `StreamEmojiPicker`, skin tone and "frequently used" are integrator-managed props
   (`skinTone`/`onSkinToneChange`, `frequentlyUsedEmoji`/`onFrequentlyUsedChange`);
   the SDK does not persist them. See `examples/vite/` for a localStorage example.
-- On `StreamEmojiPicker`, `pickerProps` accepts a curated set of emoji-mart-compatible `Picker` options (plus
-  `theme` and `style`):
-  - **Layout**: `navPosition` / `previewPosition` (`'top' | 'bottom' | 'none'`),
-    `searchPosition` (`'sticky' | 'static' | 'none'`), `skinTonePosition`
-    (`'preview' | 'search' | 'none'`).
-  - **Grid & content**: `perLine` (default `9`), `categories` (filter + reorder;
-    `'frequent'` always prepends), `maxFrequentRows` (default `1`).
-  - **Filtering & polish**: `exceptEmojis`, `emojiVersion`, `noCountryFlags`,
-    `previewEmoji`, `noResultsEmoji`, `autoFocus`, `onClickOutside`.
-
-  Divergences from emoji-mart's defaults: `autoFocus` defaults to `true`; `emojiVersion`
-  is unfiltered by default (the bundled set 15); `previewEmoji` / `noResultsEmoji` default
-  to the SDK's placeholder / empty state; `noCountryFlags` is opt-in (no Windows
-  auto-detect); `categories` cannot reposition `'frequent'`.
-
-  Not supported (rejected by the type; ignored with a console warning at runtime): image
-  sets (`set`, `getSpritesheetURL`), `custom` emoji, `data`, `i18n` / `locale`,
-  `dynamicWidth`, `icons`, `categoryIcons`. Sizing knobs (`emojiSize`, `emojiButtonSize`,
-  …) are `--str-chat__emoji-picker-*` CSS variables, not props. Skin tone uses the
-  first-class `skinTone` / `defaultSkinTone` props (not emoji-mart's `skin`). Try these
-  live in the "Emoji Picker" settings tab of `examples/vite/`.
+- `StreamEmojiPicker` exposes a small, flat set of props (no emoji-mart-style
+  `pickerProps` bag): `theme` (`'auto'` — the default, inherits the ancestor SDK theme —
+  `'light'`, or `'dark'`), `style`, `categories` (filter + reorder; `'frequent'` always
+  prepends and cannot be repositioned), `exceptEmojis`, `autoFocus` (default `true`), and
+  `onClickOutside`. Layout and sizing are CSS, not props: set
+  `--str-chat__emoji-picker-per-line` (default `9`) for the column count and the other
+  `--str-chat__emoji-picker-*` tokens for sizing/colors. Emoji-mart-only features (image
+  `set`s, `custom` emoji, `data`, `i18n` / `locale`, …) aren't available on the built-in
+  picker — keep using the deprecated `EmojiPicker` if you still need them. Try it live in
+  the "Emoji Picker" settings tab of `examples/vite/`.
 
 - To let users **react with any emoji** (the reaction selector's `+` button), fill
   `reactionOptions.extended` with the full emoji set. It also gates display — a reaction
@@ -321,9 +310,11 @@ import 'stream-chat-react/css/emoji-picker.css';
 - **Migrating from emoji-mart** (the deprecated `EmojiPicker`): swap `EmojiPicker` →
   `StreamEmojiPicker`, then remove the `emoji-mart` / `@emoji-mart/react` /
   `@emoji-mart/data` installs and any `init({ data })` call. The deprecated `EmojiPicker`
-  still accepts raw emoji-mart `pickerProps` (e.g. `set`, `emojiSize`); `StreamEmojiPicker`
-  uses the curated `pickerProps` above. Autocomplete (`createTextComposerEmojiMiddleware`)
-  and reactions (`mapEmojiMartData`) are engine-agnostic and need no changes.
+  takes a raw emoji-mart `pickerProps` bag (e.g. `set`, `emojiSize`); `StreamEmojiPicker`
+  instead exposes flat props (`theme`, `categories`, `exceptEmojis`, `autoFocus`, …) and
+  moves layout/sizing to `--str-chat__emoji-picker-*` CSS tokens. Autocomplete
+  (`createTextComposerEmojiMiddleware`) and reactions (`mapEmojiMartData`) are
+  engine-agnostic and need no changes.
 
 **Reference**: See `examples/tutorial/src/6-emoji-picker/`
 

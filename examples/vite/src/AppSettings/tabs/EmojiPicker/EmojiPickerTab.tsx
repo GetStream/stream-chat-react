@@ -62,27 +62,23 @@ function Field<T extends string | number | boolean>({
   );
 }
 
-const numberOptions = (values: number[]) =>
-  values.map((value) => ({ label: String(value), value }));
-
 /**
  * Always-open picker wired to the current settings, so tweaks show instantly without
  * opening the composer. Skin tone and frequently-used are local to the preview —
- * selecting an emoji here feeds the "frequently used" row so `maxFrequentRows` can be
- * exercised too.
+ * selecting an emoji here feeds the "frequently used" row.
  */
 const EmojiPickerPreview = ({ options }: { options: EmojiPickerSettingsState }) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
-  const { engine, ...pickerOptions } = options;
+  const { autoFocus, engine } = options;
   const [skinTone, setSkinTone] = useState(0);
   const [frequentlyUsedIds, setFrequentlyUsedIds] = useState<string[]>([]);
 
-  // The deprecated emoji-mart picker renders inline too and honors the same
-  // emoji-mart-compatible option names, so the same controls drive both engines.
+  // The deprecated emoji-mart picker renders inline too and honors the same option
+  // names, so the shared controls drive both engines.
   if (engine === 'emoji-mart') {
     return (
       <EmojiMart
-        {...pickerOptions}
+        autoFocus={autoFocus}
         data={async () => (await import('@emoji-mart/data')).default}
         onEmojiSelect={() => undefined}
         theme={mode}
@@ -92,20 +88,20 @@ const EmojiPickerPreview = ({ options }: { options: EmojiPickerSettingsState }) 
 
   return (
     <EmojiPickerPanel
+      autoFocus={autoFocus}
       frequentlyUsedIds={frequentlyUsedIds}
       onEmojiSelect={(emoji: EmojiSelection) =>
         setFrequentlyUsedIds((ids) => [emoji.id, ...ids.filter((id) => id !== emoji.id)])
       }
       onSkinToneChange={setSkinTone}
-      options={{ ...pickerOptions, exceptEmojis: [] }}
       skinToneIndex={skinTone}
     />
   );
 };
 
 /**
- * Playground for the built-in EmojiPicker's `pickerProps`. Each control writes to the
- * app settings store; the live preview (and the composer's picker via
+ * Playground for the built-in `StreamEmojiPicker`. Each control writes to the app
+ * settings store; the live preview (and the composer's picker via
  * `EmojiPickerWithCustomOptions`) reflect the change instantly.
  */
 export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
@@ -118,7 +114,7 @@ export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
     <div className='app__settings-modal__content-stack'>
       <SettingsTabLayoutHeader
         close={close}
-        description='Switch between the Stream (native) and deprecated emoji-mart pickers, and configure pickerProps. The live preview and the composer’s picker both update instantly.'
+        description='Switch between the Stream (native) and deprecated emoji-mart pickers. The live preview and the composer’s picker both update instantly.'
         title='Emoji Picker'
       />
 
@@ -147,58 +143,6 @@ export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
               ]}
               value={emojiPicker.engine}
             />
-            <Field<EmojiPickerSettingsState['navPosition']>
-              label='Navigation position'
-              onSelect={(navPosition) => update({ navPosition })}
-              options={[
-                { label: 'Top', value: 'top' },
-                { label: 'Bottom', value: 'bottom' },
-                { label: 'None', value: 'none' },
-              ]}
-              value={emojiPicker.navPosition}
-            />
-            <Field<EmojiPickerSettingsState['previewPosition']>
-              label='Preview position'
-              onSelect={(previewPosition) => update({ previewPosition })}
-              options={[
-                { label: 'Top', value: 'top' },
-                { label: 'Bottom', value: 'bottom' },
-                { label: 'None', value: 'none' },
-              ]}
-              value={emojiPicker.previewPosition}
-            />
-            <Field<EmojiPickerSettingsState['searchPosition']>
-              label='Search position'
-              onSelect={(searchPosition) => update({ searchPosition })}
-              options={[
-                { label: 'Sticky', value: 'sticky' },
-                { label: 'Static', value: 'static' },
-                { label: 'None', value: 'none' },
-              ]}
-              value={emojiPicker.searchPosition}
-            />
-            <Field<EmojiPickerSettingsState['skinTonePosition']>
-              label='Skin-tone position'
-              onSelect={(skinTonePosition) => update({ skinTonePosition })}
-              options={[
-                { label: 'Preview', value: 'preview' },
-                { label: 'Search', value: 'search' },
-                { label: 'None', value: 'none' },
-              ]}
-              value={emojiPicker.skinTonePosition}
-            />
-            <Field<number>
-              label='Emoji per line'
-              onSelect={(perLine) => update({ perLine })}
-              options={numberOptions([7, 8, 9, 10])}
-              value={emojiPicker.perLine}
-            />
-            <Field<number>
-              label='Frequently-used rows'
-              onSelect={(maxFrequentRows) => update({ maxFrequentRows })}
-              options={numberOptions([1, 2, 3, 4])}
-              value={emojiPicker.maxFrequentRows}
-            />
             <Field<boolean>
               label='Auto-focus search'
               onSelect={(autoFocus) => update({ autoFocus })}
@@ -207,15 +151,6 @@ export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
                 { label: 'Off', value: false },
               ]}
               value={emojiPicker.autoFocus}
-            />
-            <Field<boolean>
-              label='Country flags'
-              onSelect={(noCountryFlags) => update({ noCountryFlags })}
-              options={[
-                { label: 'Show', value: false },
-                { label: 'Hide', value: true },
-              ]}
-              value={emojiPicker.noCountryFlags}
             />
           </div>
           <div className='app__emoji-settings__preview'>

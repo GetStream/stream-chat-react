@@ -226,6 +226,7 @@ const EmojiPickerWithCustomOptions = (
   return (
     <StreamEmojiPicker
       {...props}
+      autoFocus={pickerOptions.autoFocus}
       frequentlyUsedEmoji={frequentlyUsedEmoji}
       onFrequentlyUsedChange={(ids) => {
         setFrequentlyUsedEmoji(ids);
@@ -235,12 +236,8 @@ const EmojiPickerWithCustomOptions = (
         setSkinTone(tone);
         writeStored(EMOJI_SKIN_TONE_KEY, tone);
       }}
-      pickerProps={{
-        ...props.pickerProps,
-        ...pickerOptions,
-        theme: mode,
-      }}
       skinTone={skinTone}
+      theme={mode}
     />
   );
 };

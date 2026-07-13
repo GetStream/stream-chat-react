@@ -132,40 +132,10 @@ describe('StreamEmojiPicker session state', () => {
   });
 });
 
-describe('StreamEmojiPicker pickerProps', () => {
-  it('warns about unsupported (emoji-mart) pickerProps, but not about theme/style', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-    const { unmount } = render(
-      <StreamEmojiPicker
-        // @ts-expect-error emoji-mart-only Picker options (image sets) are not supported
-        pickerProps={{ set: 'apple', theme: 'dark' }}
-      />,
-    );
-    expect(warn).toHaveBeenCalledWith(expect.stringContaining('set'));
-    unmount();
-
-    warn.mockClear();
-    render(<StreamEmojiPicker pickerProps={{ style: { width: 320 }, theme: 'light' }} />);
-    expect(warn).not.toHaveBeenCalled();
-
-    warn.mockRestore();
-  });
-
-  it('does not warn when only supported (curated) picker options are passed', () => {
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    render(
-      <StreamEmojiPicker
-        pickerProps={{ navPosition: 'bottom', perLine: 8, theme: 'light' }}
-      />,
-    );
-    expect(warn).not.toHaveBeenCalled();
-    warn.mockRestore();
-  });
-
+describe('StreamEmojiPicker props', () => {
   it('calls onClickOutside when a pointer press lands outside the open picker', () => {
     const onClickOutside = vi.fn();
-    render(<StreamEmojiPicker pickerProps={{ onClickOutside }} />);
+    render(<StreamEmojiPicker onClickOutside={onClickOutside} />);
     openPicker();
     fireEvent.pointerDown(document.body);
     expect(onClickOutside).toHaveBeenCalledTimes(1);

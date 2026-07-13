@@ -16,15 +16,16 @@ import {
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { useEmojiPickerState } from '../hooks/useEmojiPickerState';
 import { useGridKeyboardNav } from '../hooks/useGridKeyboardNav';
-import { resolvePickerLayout } from '../hooks/pickerLayout';
 import { buildEmojiSearchData, runSearch } from '../search';
 import type { EmojiDataEmoji } from '../data';
 import { filterEmojiData } from '../data/filterEmojiData';
-import {
-  DEFAULT_EMOJI_PICKER_OPTIONS,
-  type ResolvedEmojiPickerOptions,
-} from '../options';
 import { useTranslationContext } from '../../../context';
+
+// The grid renders 9 emoji per row by default; integrators change the column count via
+// the `--str-chat__emoji-picker-per-line` CSS token (the SCSS falls back to 9), so the
+// panel sets no inline width. The "frequently used" section is capped to a single row.
+const DEFAULT_COLUMNS = 9;
+const FREQUENT_ROWS = 1;
 
 export type EmojiSelection = {
   id: string;
@@ -34,7 +35,13 @@ export type EmojiSelection = {
 
 export type EmojiPickerPanelProps = {
   onEmojiSelect: (emoji: EmojiSelection) => void;
+  /** Focus the search input when the panel mounts (default `true`). */
+  autoFocus?: boolean;
+  /** Category ids to show, in order. Defaults to the dataset order. `frequent` always prepends. */
+  categories?: string[];
   className?: string;
+  /** Emoji ids to exclude from the grid and search. */
+  exceptEmojis?: string[];
   /**
    * Ordered list of recently used emoji ids (most recent first), rendered as the
    * "frequently used" section. This is a controlled value — the owner (EmojiPicker)
@@ -45,8 +52,6 @@ export type EmojiPickerPanelProps = {
   onClose?: () => void;
   /** Called with the new skin tone index when the user changes it. */
   onSkinToneChange?: (skinTone: number) => void;
-  /** Resolved (fully-defaulted) picker options — layout, filtering, and grid config. */
-  options?: ResolvedEmojiPickerOptions;
   /** Active skin tone index (0 = default, 1–5 = light → dark). Controlled by the owner. */
   skinToneIndex?: number;
   style?: CSSProperties;
@@ -81,12 +86,14 @@ export const themeClassName = (theme: EmojiPickerPanelProps['theme']) => {
  * shell rather than held here.
  */
 export const EmojiPickerPanel = ({
+  autoFocus = true,
+  categories: categoryFilter,
   className,
+  exceptEmojis,
   frequentlyUsedIds = [],
   onClose,
   onEmojiSelect,
   onSkinToneChange,
-  options = DEFAULT_EMOJI_PICKER_OPTIONS,
   skinToneIndex = 0,
   style,
   theme,
@@ -96,15 +103,8 @@ export const EmojiPickerPanel = ({
   // One filtered view of the dataset feeds both the grid and the search index so
   // exclusions apply consistently. Returns the same reference when no filter is set.
   const filteredData = useMemo(
-    () =>
-      data
-        ? filterEmojiData(data, {
-            emojiVersion: options.emojiVersion,
-            exceptEmojis: options.exceptEmojis,
-            noCountryFlags: options.noCountryFlags,
-          })
-        : data,
-    [data, options.emojiVersion, options.exceptEmojis, options.noCountryFlags],
+    () => (data ? filterEmojiData(data, { exceptEmojis }) : data),
+    [data, exceptEmojis],
   );
   const [previewedEmoji, setPreviewedEmoji] = useState<EmojiDataEmoji | null>(null);
   const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(undefined);
@@ -123,9 +123,9 @@ export const EmojiPickerPanel = ({
       label: t(EMOJI_CATEGORY_META[category.id]?.labelKey ?? category.id),
     }));
     // `categories` option: keep only the requested ids, in the requested order.
-    if (!options.categories) return built;
+    if (!categoryFilter) return built;
     const byId = new Map(built.map((category) => [category.id, category]));
-    return options.categories
+    return categoryFilter
       .map((id) => {
         if (!byId.has(id)) {
           console.warn(
@@ -135,30 +135,22 @@ export const EmojiPickerPanel = ({
         return byId.get(id);
       })
       .filter((category): category is EmojiPickerCategory => Boolean(category));
-  }, [filteredData, options.categories, t]);
+  }, [filteredData, categoryFilter, t]);
 
   const categories = useMemo<EmojiPickerCategory[]>(() => {
     if (!filteredData || !frequentlyUsedIds.length) return baseCategories;
     const frequent: EmojiPickerCategory = {
-      // Capped to `perLine × maxFrequentRows` items (default one row) so the section
-      // grows to at most the configured number of rows as more emoji are used.
+      // Capped to a single row so the section stays one row wide as more emoji are used.
       emojis: resolveFrequentlyUsedEmoji(
         filteredData,
         frequentlyUsedIds,
-        options.perLine * options.maxFrequentRows,
+        DEFAULT_COLUMNS * FREQUENT_ROWS,
       ),
       id: 'frequent',
       label: t(EMOJI_CATEGORY_META.frequent.labelKey),
     };
     return frequent.emojis.length ? [frequent, ...baseCategories] : baseCategories;
-  }, [
-    baseCategories,
-    filteredData,
-    frequentlyUsedIds,
-    options.maxFrequentRows,
-    options.perLine,
-    t,
-  ]);
+  }, [baseCategories, filteredData, frequentlyUsedIds, t]);
 
   const scrollToCategory = useCallback((categoryId: string) => {
     emojiGridRef.current?.scrollToCategory(categoryId);
@@ -212,60 +204,6 @@ export const EmojiPickerPanel = ({
 
   const isSearching = searchedEmojis !== null;
 
-  // Region placement + skin-tone fallbacks are resolved by a pure helper.
-  const pickerLayout = resolvePickerLayout(options);
-  const idlePreviewEmoji = options.previewEmoji
-    ? (filteredData?.emojis[options.previewEmoji] ?? null)
-    : null;
-  const noResultsGlyph = options.noResultsEmoji
-    ? (filteredData?.emojis[options.noResultsEmoji]?.skins[0]?.native ?? undefined)
-    : undefined;
-
-  const nav = (
-    <CategoryNav
-      activeCategoryId={isSearching ? undefined : activeCategoryId}
-      categories={categories}
-      onNavigate={handleNavigate}
-    />
-  );
-  const skinToneSelector = (
-    <SkinToneSelector onSelect={onSkinToneChange ?? noop} skinToneIndex={skinToneIndex} />
-  );
-  const searchInput = pickerLayout.search ? (
-    <SearchInput
-      autoFocus={options.autoFocus}
-      onArrowDown={focusFirst}
-      onChange={setQuery}
-      value={query}
-    />
-  ) : null;
-  // The skin-tone selector shares the search row only when it belongs there; otherwise
-  // the bare input renders (unchanged default), avoiding an extra wrapper.
-  const searchRow =
-    searchInput && pickerLayout.skinTone === 'search' ? (
-      <div className='str-chat__emoji-picker__search-row'>
-        {searchInput}
-        {skinToneSelector}
-      </div>
-    ) : (
-      searchInput
-    );
-  const previewRow = (position: 'top' | 'bottom') =>
-    pickerLayout.preview === position ? (
-      <div
-        className={clsx('str-chat__emoji-picker__footer', {
-          'str-chat__emoji-picker__footer--top': position === 'top',
-        })}
-      >
-        <PreviewPane emoji={previewedEmoji} placeholderEmoji={idlePreviewEmoji} />
-        {pickerLayout.skinTone === 'preview' ? skinToneSelector : null}
-      </div>
-    ) : null;
-  const footerSkinRow =
-    pickerLayout.skinTone === 'footer' ? (
-      <div className='str-chat__emoji-picker__footer'>{skinToneSelector}</div>
-    ) : null;
-
   return (
     <EmojiPickerProvider value={contextValue}>
       <div
@@ -278,20 +216,21 @@ export const EmojiPickerPanel = ({
           }
         }}
         role='dialog'
-        // `--*` custom properties aren't in React 17/18's CSSProperties, so cast (the
-        // vite example uses the same pattern for its layout CSS variables).
-        style={
-          {
-            ...style,
-            '--str-chat__emoji-picker-per-line': options.perLine,
-          } as CSSProperties
-        }
+        style={style}
       >
         {data ? (
           <>
-            {pickerLayout.nav === 'top' ? nav : null}
-            {previewRow('top')}
-            {searchRow}
+            <CategoryNav
+              activeCategoryId={isSearching ? undefined : activeCategoryId}
+              categories={categories}
+              onNavigate={handleNavigate}
+            />
+            <SearchInput
+              autoFocus={autoFocus}
+              onArrowDown={focusFirst}
+              onChange={setQuery}
+              value={query}
+            />
             <div
               className='str-chat__emoji-picker__body'
               onKeyDown={onGridKeyDown}
@@ -309,7 +248,7 @@ export const EmojiPickerPanel = ({
                     </div>
                   </div>
                 ) : (
-                  <EmptyResults emoji={noResultsGlyph} />
+                  <EmptyResults />
                 )
               ) : (
                 <EmojiGrid
@@ -319,9 +258,13 @@ export const EmojiPickerPanel = ({
                 />
               )}
             </div>
-            {previewRow('bottom')}
-            {footerSkinRow}
-            {pickerLayout.nav === 'bottom' ? nav : null}
+            <div className='str-chat__emoji-picker__footer'>
+              <PreviewPane emoji={previewedEmoji} placeholderEmoji={null} />
+              <SkinToneSelector
+                onSelect={onSkinToneChange ?? noop}
+                skinToneIndex={skinToneIndex}
+              />
+            </div>
           </>
         ) : error ? (
           <div className='str-chat__emoji-picker__error' role='alert'>

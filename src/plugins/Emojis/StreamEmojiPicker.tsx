@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { type CSSProperties, useEffect, useRef, useState } from 'react';
 
 import { useMessageComposerContext, useTranslationContext } from '../../context';
 import {
@@ -12,21 +12,8 @@ import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useI
 import { EmojiPickerPanel } from './components';
 import { useFrequentlyUsedEmoji } from './hooks/useFrequentlyUsedEmoji';
 import { useSkinTone } from './hooks/useSkinTone';
-import {
-  type EmojiPickerPassthroughProps,
-  resolveEmojiPickerOptions,
-  warnUnsupportedPickerProps,
-} from './options';
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
-
-export type {
-  EmojiPickerNavPosition,
-  EmojiPickerPassthroughProps,
-  EmojiPickerPreviewPosition,
-  EmojiPickerSearchPosition,
-  EmojiPickerSkinTonePosition,
-} from './options';
 
 export type StreamEmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
@@ -34,24 +21,20 @@ export type StreamEmojiPickerProps = {
   pickerContainerClassName?: string;
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
-  /**
-   * Presentation + curated layout/behavior options for the picker panel, using
-   * emoji-mart-compatible names (`theme`, `style`, `perLine`, `navPosition`,
-   * `previewPosition`, `searchPosition`, `skinTonePosition`, `categories`,
-   * `exceptEmojis`, `emojiVersion`, `maxFrequentRows`, `noCountryFlags`,
-   * `previewEmoji`, `noResultsEmoji`, `autoFocus`, `onClickOutside`).
-   *
-   * Not every emoji-mart `Picker` option is supported: image sets (`set`,
-   * `getSpritesheetURL`), `custom` emoji, `data`, `i18n`/`locale`, `dynamicWidth`,
-   * `icons`, and `categoryIcons` are rejected by the type and ignored (with a console
-   * warning) at runtime; sizing knobs (`emojiSize`, …) are CSS tokens instead. See the
-   * emoji migration notes in `AI.md`.
-   */
-  pickerProps?: EmojiPickerPassthroughProps;
-  /**
-   * Floating UI placement (default: 'top-end') for the picker popover
-   */
+  /** Floating UI placement (default: 'top-end') for the picker popover. */
   placement?: PopperLikePlacement;
+  /** Focus the search input when the picker opens (default `true`). */
+  autoFocus?: boolean;
+  /** Category ids to show, in order. Defaults to the dataset order. `frequent` always prepends. */
+  categories?: string[];
+  /** Emoji ids to exclude from the grid and search. */
+  exceptEmojis?: string[];
+  /** Called when a pointer press lands outside the open picker. */
+  onClickOutside?: () => void;
+  /** Inline styles applied to the picker panel root. */
+  style?: CSSProperties;
+  /** Color theme. 'auto' (default) inherits the ancestor SDK theme; 'light'/'dark' force it. */
+  theme?: 'auto' | 'light' | 'dark';
   /** Uncontrolled initial skin tone index (0 = default, 1–5 = light → dark). */
   defaultSkinTone?: number;
   /**
@@ -114,19 +97,10 @@ export const StreamEmojiPicker = (props: StreamEmojiPickerProps) => {
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
   const { ButtonIconComponent = IconEmoji } = props;
-  const pickerStyle = props.pickerProps?.style;
-  const options = resolveEmojiPickerOptions(props.pickerProps);
   // Latest-ref so the click-outside listener isn't re-attached when the callback identity
   // changes between renders.
-  const onClickOutsideRef = useRef(props.pickerProps?.onClickOutside);
-  onClickOutsideRef.current = props.pickerProps?.onClickOutside;
-
-  const pickerPropsKeys = Object.keys(props.pickerProps ?? {});
-  useEffect(() => {
-    warnUnsupportedPickerProps(props.pickerProps);
-    // Re-check only when the set of provided keys changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickerPropsKeys.join(',')]);
+  const onClickOutsideRef = useRef(props.onClickOutside);
+  onClickOutsideRef.current = props.onClickOutside;
 
   useEffect(() => {
     if (!popperElement || !referenceElement) return;
@@ -160,6 +134,9 @@ export const StreamEmojiPicker = (props: StreamEmojiPickerProps) => {
           style={{ left: x ?? 0, position: strategy, top: y ?? 0 }}
         >
           <EmojiPickerPanel
+            autoFocus={props.autoFocus}
+            categories={props.categories}
+            exceptEmojis={props.exceptEmojis}
             frequentlyUsedIds={frequentlyUsedIds}
             onClose={() => {
               setDisplayPicker(false);
@@ -177,10 +154,9 @@ export const StreamEmojiPicker = (props: StreamEmojiPickerProps) => {
               }
             }}
             onSkinToneChange={setSkinTone}
-            options={options}
             skinToneIndex={skinTone}
-            style={pickerStyle}
-            theme={props.pickerProps?.theme}
+            style={props.style}
+            theme={props.theme}
           />
         </div>
       )}

@@ -40,7 +40,6 @@ vi.mock('../EmojiGrid', async () => {
 });
 
 import { EmojiPickerPanel, themeClassName } from '../EmojiPickerPanel';
-import { DEFAULT_EMOJI_PICKER_OPTIONS } from '../../options';
 
 const DATA = {
   aliases: {},
@@ -113,12 +112,7 @@ describe('EmojiPickerPanel option: exceptEmojis', () => {
   });
 
   it('removes excluded emoji from the grid, keeping the rest', () => {
-    render(
-      <EmojiPickerPanel
-        onEmojiSelect={() => {}}
-        options={{ ...DEFAULT_EMOJI_PICKER_OPTIONS, exceptEmojis: ['smile'] }}
-      />,
-    );
+    render(<EmojiPickerPanel exceptEmojis={['smile']} onEmojiSelect={() => {}} />);
     expect(screen.getByText('Grinning')).toBeInTheDocument();
     expect(screen.queryByText('Smile')).not.toBeInTheDocument();
   });
@@ -155,64 +149,21 @@ describe('EmojiPickerPanel option: categories', () => {
   });
 
   it('shows only the requested categories, in the requested order', () => {
-    render(
-      <EmojiPickerPanel
-        onEmojiSelect={() => {}}
-        options={{ ...DEFAULT_EMOJI_PICKER_OPTIONS, categories: ['nature'] }}
-      />,
-    );
+    render(<EmojiPickerPanel categories={['nature']} onEmojiSelect={() => {}} />);
     expect(screen.getAllByRole('tab')).toHaveLength(1);
     expect(screen.getByText('Dog')).toBeInTheDocument();
     expect(screen.queryByText('Grinning')).not.toBeInTheDocument();
   });
 });
 
-describe('EmojiPickerPanel layout positions', () => {
+describe('EmojiPickerPanel option: autoFocus', () => {
   beforeEach(() => {
     hookState.data = DATA;
     hookState.error = false;
   });
 
-  it('omits the search input when searchPosition is none', () => {
-    render(
-      <EmojiPickerPanel
-        onEmojiSelect={() => {}}
-        options={{ ...DEFAULT_EMOJI_PICKER_OPTIONS, searchPosition: 'none' }}
-      />,
-    );
-    expect(screen.queryByPlaceholderText('Search emoji')).not.toBeInTheDocument();
-  });
-
-  it('omits the category nav when navPosition is none', () => {
-    render(
-      <EmojiPickerPanel
-        onEmojiSelect={() => {}}
-        options={{ ...DEFAULT_EMOJI_PICKER_OPTIONS, navPosition: 'none' }}
-      />,
-    );
-    expect(screen.queryByRole('tablist')).not.toBeInTheDocument();
-  });
-
-  it('omits the skin-tone selector when skinTonePosition is none', () => {
-    render(
-      <EmojiPickerPanel
-        onEmojiSelect={() => {}}
-        onSkinToneChange={() => {}}
-        options={{ ...DEFAULT_EMOJI_PICKER_OPTIONS, skinTonePosition: 'none' }}
-      />,
-    );
-    expect(
-      screen.queryByRole('button', { name: 'aria/Choose default skin tone' }),
-    ).not.toBeInTheDocument();
-  });
-
   it('does not focus the search input when autoFocus is false', () => {
-    render(
-      <EmojiPickerPanel
-        onEmojiSelect={() => {}}
-        options={{ ...DEFAULT_EMOJI_PICKER_OPTIONS, autoFocus: false }}
-      />,
-    );
+    render(<EmojiPickerPanel autoFocus={false} onEmojiSelect={() => {}} />);
     expect(screen.getByPlaceholderText('Search emoji')).not.toHaveFocus();
   });
 });
