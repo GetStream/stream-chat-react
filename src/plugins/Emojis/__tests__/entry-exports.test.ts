@@ -2,12 +2,11 @@ import * as emojis from '../index';
 import { StreamEmojiPicker } from '../StreamEmojiPicker';
 
 describe('emojis entry exports', () => {
-  it('exports both the deprecated EmojiPicker and the StreamEmojiPicker successor', () => {
+  it('exports both pickers, the compound parts, and the context hook', () => {
+    // Deprecated emoji-mart picker + its built-in successor.
     expect(typeof emojis.EmojiPicker).toBe('function');
     expect(typeof emojis.StreamEmojiPicker).toBe('function');
-  });
-
-  it('exposes the compound API + context hook', () => {
+    // Composition surface.
     expect(typeof emojis.useEmojiPickerContext).toBe('function');
     for (const part of [
       'Grid',

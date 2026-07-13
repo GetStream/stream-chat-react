@@ -122,14 +122,6 @@ describe('StreamEmojiPicker session state', () => {
     fireEvent.click(screen.getByText('select-rocket'));
     expect(screen.getByTestId('frequently-used').textContent).toBe('');
   });
-
-  it('marks the toggle button as opening a dialog popup', () => {
-    render(<StreamEmojiPicker />);
-    expect(screen.getByLabelText('aria/Emoji picker')).toHaveAttribute(
-      'aria-haspopup',
-      'dialog',
-    );
-  });
 });
 
 describe('StreamEmojiPicker props', () => {

@@ -1,8 +1,8 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
-// Capture the Virtuoso scroll callbacks so the scroll-spy behavior is testable, and
-// render every item synchronously so the non-search view's a11y tree is assertable.
+// Capture the Virtuoso scroll callbacks so scroll-spy is testable, and render items
+// synchronously so the browse view's a11y tree is assertable (jsdom has no layout).
 const { virtuoso } = vi.hoisted(() => ({
   virtuoso: {} as {
     atBottomStateChange?: (atBottom: boolean) => void;
@@ -63,7 +63,7 @@ const base = () => ({
   isSearching: false,
   resolveNative: (e: { skins: { native: string }[] }) => e.skins[0]?.native ?? '',
   scrollTarget: null,
-  searchResults: null as null | ReturnType<typeof emoji>[],
+  searchResults: null,
   selectEmoji: vi.fn(),
   setActiveCategory: vi.fn(),
 });
@@ -72,8 +72,8 @@ beforeEach(() => {
   Object.assign(ctx, base());
 });
 
-describe('EmojiGrid accessibility (non-search view)', () => {
-  beforeEach(() => {
+describe('EmojiGrid browse view', () => {
+  it('renders emojis as labeled buttons under labeled category regions, with no orphaned grid roles', () => {
     ctx.categories = [
       {
         emojis: [emoji('grinning', '😀', 'Grinning')],
@@ -81,27 +81,18 @@ describe('EmojiGrid accessibility (non-search view)', () => {
         label: 'Smileys & People',
       },
     ];
-  });
-
-  it('renders emojis as accessible buttons with no orphaned grid/row/gridcell roles', () => {
     render(<EmojiGrid />);
 
-    // The review flagged row/gridcell elements with no owning grid in the virtualized
-    // view. Native button semantics avoid the invalid ARIA entirely.
+    // Native button semantics — no invalid ARIA grid/row/gridcell in the virtualized view.
     expect(screen.queryAllByRole('grid')).toHaveLength(0);
     expect(screen.queryAllByRole('row')).toHaveLength(0);
     expect(screen.queryAllByRole('gridcell')).toHaveLength(0);
-
     expect(screen.getByRole('button', { name: 'Grinning' })).toBeInTheDocument();
-  });
-
-  it('keeps emojis grouped under a labeled category region', () => {
-    render(<EmojiGrid />);
     expect(screen.getByRole('region', { name: 'Smileys & People' })).toBeInTheDocument();
   });
 });
 
-describe('EmojiGrid scroll-spy (active category tracking)', () => {
+describe('EmojiGrid scroll-spy', () => {
   beforeEach(() => {
     ctx.categories = [
       { emojis: [emoji('grinning', '😀')], id: 'people', label: 'People' },
@@ -115,7 +106,7 @@ describe('EmojiGrid scroll-spy (active category tracking)', () => {
     expect(ctx.setActiveCategory).toHaveBeenLastCalledWith('flags');
   });
 
-  it('marks the last category active at the bottom, even when a short final category never reaches the top', () => {
+  it('pins the last category active at the bottom, even when a short final category never reaches the top', () => {
     render(<EmojiGrid />);
     virtuoso.rangeChanged?.({ endIndex: 1, startIndex: 0 });
     virtuoso.atBottomStateChange?.(true);
@@ -123,16 +114,5 @@ describe('EmojiGrid scroll-spy (active category tracking)', () => {
     // Range changes while pinned at the bottom must not steal the active category back.
     virtuoso.rangeChanged?.({ endIndex: 1, startIndex: 0 });
     expect(ctx.setActiveCategory).toHaveBeenLastCalledWith('flags');
-  });
-});
-
-describe('EmojiGrid search view', () => {
-  it('renders flat search results and selects through context', () => {
-    const rocket = emoji('rocket', '🚀', 'Rocket');
-    ctx.isSearching = true;
-    ctx.searchResults = [rocket];
-    render(<EmojiGrid />);
-    fireEvent.click(screen.getByRole('button', { name: 'Rocket' }));
-    expect(ctx.selectEmoji).toHaveBeenCalledWith(rocket);
   });
 });

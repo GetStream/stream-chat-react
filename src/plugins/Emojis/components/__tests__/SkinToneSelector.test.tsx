@@ -39,7 +39,7 @@ describe('SkinToneSelector radiogroup keyboard navigation', () => {
     expect(radios[0]).toHaveAttribute('tabindex', '-1');
   });
 
-  it('selects the next/previous tone with arrow keys (selection follows focus)', () => {
+  it('moves the selection with Arrow/Home/End keys (selection follows focus)', () => {
     const setSkinTone = setup(0);
     render(<SkinToneSelector />);
     openGroup();
@@ -49,14 +49,6 @@ describe('SkinToneSelector radiogroup keyboard navigation', () => {
     expect(setSkinTone).toHaveBeenLastCalledWith(1);
     fireEvent.keyDown(group, { key: 'ArrowLeft' });
     expect(setSkinTone).toHaveBeenLastCalledWith(5); // wraps from 0 to the last tone
-  });
-
-  it('jumps to the first/last tone with Home/End', () => {
-    const setSkinTone = setup(2);
-    render(<SkinToneSelector />);
-    openGroup();
-
-    const group = screen.getByRole('radiogroup');
     fireEvent.keyDown(group, { key: 'End' });
     expect(setSkinTone).toHaveBeenLastCalledWith(5);
     fireEvent.keyDown(group, { key: 'Home' });
