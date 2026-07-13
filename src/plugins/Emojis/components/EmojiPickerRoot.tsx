@@ -10,6 +10,7 @@ import { type EmojiPickerCategory } from './EmojiGrid';
 import { EMOJI_CATEGORY_META } from './categories';
 import { resolveFrequentlyUsedEmoji } from './frequentlyUsed';
 import { SKIN_TONES } from './skinTones';
+import { EmojiPickerCellProvider } from '../context/EmojiPickerCellContext';
 import {
   type EmojiPickerContextValue,
   EmojiPickerProvider,
@@ -248,41 +249,50 @@ export const EmojiPickerRoot = ({
     [previewedEmoji],
   );
 
+  // The cold subset the default cell subscribes to, so the grid's ~hundreds of cells
+  // don't re-render on hot state (scroll-spy active category, live query, scroll target).
+  const cellValue = useMemo(
+    () => ({ resolveNative, selectEmoji }),
+    [resolveNative, selectEmoji],
+  );
+
   return (
     <EmojiPickerProvider value={contextValue}>
-      <EmojiPickerPreviewProvider value={previewValue}>
-        <div
-          aria-label={t('aria/Emoji picker')}
-          className={clsx('str-chat__emoji-picker', themeClassName(theme), className)}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') {
-              event.stopPropagation();
-              onClose?.();
-            }
-          }}
-          role='dialog'
-          style={style}
-        >
-          {status === 'ready' ? (
-            children
-          ) : status === 'error' ? (
-            <div className='str-chat__emoji-picker__error' role='alert'>
-              <p className='str-chat__emoji-picker__error-message'>
-                {t('Failed to load emojis')}
-              </p>
-              <button
-                className='str-chat__emoji-picker__error-retry'
-                onClick={retry}
-                type='button'
-              >
-                {t('Retry')}
-              </button>
-            </div>
-          ) : (
-            <div aria-busy='true' className='str-chat__emoji-picker__loading' />
-          )}
-        </div>
-      </EmojiPickerPreviewProvider>
+      <EmojiPickerCellProvider value={cellValue}>
+        <EmojiPickerPreviewProvider value={previewValue}>
+          <div
+            aria-label={t('aria/Emoji picker')}
+            className={clsx('str-chat__emoji-picker', themeClassName(theme), className)}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape') {
+                event.stopPropagation();
+                onClose?.();
+              }
+            }}
+            role='dialog'
+            style={style}
+          >
+            {status === 'ready' ? (
+              children
+            ) : status === 'error' ? (
+              <div className='str-chat__emoji-picker__error' role='alert'>
+                <p className='str-chat__emoji-picker__error-message'>
+                  {t('Failed to load emojis')}
+                </p>
+                <button
+                  className='str-chat__emoji-picker__error-retry'
+                  onClick={retry}
+                  type='button'
+                >
+                  {t('Retry')}
+                </button>
+              </div>
+            ) : (
+              <div aria-busy='true' className='str-chat__emoji-picker__loading' />
+            )}
+          </div>
+        </EmojiPickerPreviewProvider>
+      </EmojiPickerCellProvider>
     </EmojiPickerProvider>
   );
 };

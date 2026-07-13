@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { useEmojiPickerContext } from '../context/EmojiPickerContext';
+import { useEmojiPickerCellContext } from '../context/EmojiPickerCellContext';
 import { useEmojiPickerPreviewContext } from '../context/EmojiPickerPreviewContext';
 import type { EmojiDataEmoji } from '../data';
 
@@ -9,10 +9,12 @@ export type EmojiButtonProps = {
 
 /**
  * A single selectable emoji cell rendering the native unicode glyph for the active
- * skin tone. Memoized because the grid can render ~1800 of these.
+ * skin tone. Memoized because the grid can render ~1800 of these — and it subscribes to
+ * the cold cell context (not the public picker context) so scroll-spy/search updates,
+ * which a cell reads none of, never re-render the grid.
  */
 export const EmojiButton = memo(function EmojiButton({ emoji }: EmojiButtonProps) {
-  const { resolveNative, selectEmoji } = useEmojiPickerContext();
+  const { resolveNative, selectEmoji } = useEmojiPickerCellContext();
   const { setPreviewedEmoji } = useEmojiPickerPreviewContext();
 
   return (

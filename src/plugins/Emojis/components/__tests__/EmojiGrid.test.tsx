@@ -50,6 +50,9 @@ const { ctx, preview } = vi.hoisted(() => ({
 vi.mock('../../context/EmojiPickerContext', () => ({
   useEmojiPickerContext: () => ctx,
 }));
+vi.mock('../../context/EmojiPickerCellContext', () => ({
+  useEmojiPickerCellContext: () => ctx,
+}));
 vi.mock('../../context/EmojiPickerPreviewContext', () => ({
   useEmojiPickerPreviewContext: () => preview,
 }));
