@@ -1,38 +1,47 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
-// Capture the Virtuoso scroll callbacks so scroll-spy is testable, and render items
-// synchronously so the browse view's a11y tree is assertable (jsdom has no layout).
+// Capture the Virtuoso scroll callbacks + imperative scroll so scroll-spy and
+// scroll-to-category are testable, and render items synchronously so the browse view's
+// a11y tree is assertable (jsdom has no layout).
 const { virtuoso } = vi.hoisted(() => ({
-  virtuoso: {} as {
+  virtuoso: { scrollToIndex: vi.fn() } as {
     atBottomStateChange?: (atBottom: boolean) => void;
     rangeChanged?: (range: { endIndex: number; startIndex: number }) => void;
+    scrollToIndex: ReturnType<typeof vi.fn>;
   },
 }));
 
-vi.mock('react-virtuoso', () => ({
-  Virtuoso: ({
-    atBottomStateChange,
-    data = [],
-    itemContent,
-    rangeChanged,
-  }: {
-    atBottomStateChange?: (atBottom: boolean) => void;
-    data?: unknown[];
-    itemContent?: (index: number, item: unknown) => React.ReactNode;
-    rangeChanged?: (range: { endIndex: number; startIndex: number }) => void;
-  }) => {
-    virtuoso.atBottomStateChange = atBottomStateChange;
-    virtuoso.rangeChanged = rangeChanged;
-    return (
-      <div>
-        {data.map((item, index) => (
-          <React.Fragment key={index}>{itemContent?.(index, item)}</React.Fragment>
-        ))}
-      </div>
-    );
-  },
-}));
+vi.mock('react-virtuoso', async () => {
+  const { forwardRef, useImperativeHandle } = await import('react');
+  return {
+    Virtuoso: forwardRef(function Virtuoso(
+      {
+        atBottomStateChange,
+        data = [],
+        itemContent,
+        rangeChanged,
+      }: {
+        atBottomStateChange?: (atBottom: boolean) => void;
+        data?: unknown[];
+        itemContent?: (index: number, item: unknown) => React.ReactNode;
+        rangeChanged?: (range: { endIndex: number; startIndex: number }) => void;
+      },
+      ref,
+    ) {
+      virtuoso.atBottomStateChange = atBottomStateChange;
+      virtuoso.rangeChanged = rangeChanged;
+      useImperativeHandle(ref, () => ({ scrollToIndex: virtuoso.scrollToIndex }));
+      return (
+        <div>
+          {data.map((item, index) => (
+            <React.Fragment key={index}>{itemContent?.(index, item)}</React.Fragment>
+          ))}
+        </div>
+      );
+    }),
+  };
+});
 
 const { ctx, preview } = vi.hoisted(() => ({
   ctx: {} as Record<string, unknown>,
@@ -62,7 +71,7 @@ const base = () => ({
   categories: [] as EmojiPickerCategory[],
   isSearching: false,
   resolveNative: (e: { skins: { native: string }[] }) => e.skins[0]?.native ?? '',
-  scrollTarget: null,
+  scrollTarget: null as { categoryId: string; nonce: number } | null,
   searchResults: null,
   selectEmoji: vi.fn(),
   setActiveCategory: vi.fn(),
@@ -114,5 +123,45 @@ describe('EmojiGrid scroll-spy', () => {
     // Range changes while pinned at the bottom must not steal the active category back.
     virtuoso.rangeChanged?.({ endIndex: 1, startIndex: 0 });
     expect(ctx.setActiveCategory).toHaveBeenLastCalledWith('flags');
+  });
+});
+
+describe('EmojiGrid scroll-to-category', () => {
+  beforeEach(() => {
+    // Run the scroll's requestAnimationFrame defer synchronously so it's assertable.
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
+      cb(0);
+      return 0;
+    });
+    vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => undefined);
+    virtuoso.scrollToIndex.mockClear();
+  });
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('scrolls to a requested category once, and not when categories change', () => {
+    ctx.categories = [
+      { emojis: [emoji('grinning', '😀')], id: 'people', label: 'People' },
+      { emojis: [emoji('checkered_flag', '🏁')], id: 'flags', label: 'Flags' },
+    ];
+    ctx.scrollTarget = { categoryId: 'flags', nonce: 1 };
+    const { rerender } = render(<EmojiGrid />);
+    expect(virtuoso.scrollToIndex).toHaveBeenCalledTimes(1);
+    expect(virtuoso.scrollToIndex).toHaveBeenLastCalledWith({ align: 'start', index: 1 });
+
+    // A categories change (e.g. frequently-used updating after a selection) must NOT
+    // re-fire the scroll — otherwise the grid jumps back to the last-requested category.
+    ctx.categories = [
+      { emojis: [emoji('clock', '🕐')], id: 'frequent', label: 'Frequently used' },
+      ...(ctx.categories as EmojiPickerCategory[]),
+    ];
+    rerender(<EmojiGrid />);
+    expect(virtuoso.scrollToIndex).toHaveBeenCalledTimes(1);
+
+    // A fresh scroll request (new nonce) does scroll again.
+    ctx.scrollTarget = { categoryId: 'flags', nonce: 2 };
+    rerender(<EmojiGrid />);
+    expect(virtuoso.scrollToIndex).toHaveBeenCalledTimes(2);
   });
 });

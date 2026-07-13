@@ -52,11 +52,24 @@ export const EmojiGrid = () => {
     [categories],
   );
 
+  // Latest-ref so the scroll effect can key on the `scrollTarget` nonce alone. Depending
+  // on `scrollToCategory` (whose identity changes with `categories`) would re-fire the
+  // scroll on unrelated updates — e.g. selecting an emoji updates frequently-used, which
+  // rebuilds `categories` and would otherwise yank the grid back to the last-scrolled
+  // category.
+  const scrollToCategoryRef = useRef(scrollToCategory);
+  scrollToCategoryRef.current = scrollToCategory;
+
   // Nav clicks (and any consumer) request a scroll via `scrollTarget`; the nonce makes a
-  // repeat request to the same category re-fire.
+  // repeat request to the same category re-fire. Deferred a frame so a freshly-mounted
+  // (search → browse) grid has laid out before we scroll to the requested category.
   useEffect(() => {
-    if (scrollTarget) scrollToCategory(scrollTarget.categoryId);
-  }, [scrollTarget, scrollToCategory]);
+    if (!scrollTarget) return;
+    const frame = requestAnimationFrame(() =>
+      scrollToCategoryRef.current(scrollTarget.categoryId),
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [scrollTarget]);
 
   // Keyboard nav can target a category that virtualization has unmounted; give it the
   // category order + a way to scroll one into view so focus can traverse the whole set.
