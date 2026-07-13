@@ -14,7 +14,7 @@ const NAV_KEYS = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
  */
 export const CategoryNav = () => {
   const { activeCategoryId, categories, isSearching, requestScrollToCategory } =
-    useEmojiPickerContext('CategoryNav');
+    useEmojiPickerContext();
   const navRef = useRef<HTMLDivElement>(null);
   const active = isSearching ? undefined : activeCategoryId;
   const rovingId = active ?? categories[0]?.id;

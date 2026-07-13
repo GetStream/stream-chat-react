@@ -10,8 +10,8 @@ import { useTranslationContext } from '../../../context';
  * so hovering does not re-render the emoji grid).
  */
 export const PreviewPane = () => {
-  const { t } = useTranslationContext('EmojiPickerPreview');
-  const { resolveNative } = useEmojiPickerContext('PreviewPane');
+  const { t } = useTranslationContext();
+  const { resolveNative } = useEmojiPickerContext();
   const { previewedEmoji } = useEmojiPickerPreviewContext();
 
   return (

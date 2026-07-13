@@ -68,8 +68,8 @@ const classNames: Pick<
 };
 
 const StreamEmojiPickerComponent = (props: StreamEmojiPickerProps) => {
-  const { t } = useTranslationContext('EmojiPicker');
-  const { textareaRef } = useMessageComposerContext('EmojiPicker');
+  const { t } = useTranslationContext();
+  const { textareaRef } = useMessageComposerContext();
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   // Skin tone and frequently-used live here (not in the panel) so they survive the

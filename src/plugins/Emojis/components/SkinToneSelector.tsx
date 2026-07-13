@@ -14,9 +14,8 @@ const ARROW_KEYS = ['ArrowRight', 'ArrowLeft', 'ArrowDown', 'ArrowUp', 'Home', '
  * `setSkinTone`.
  */
 export const SkinToneSelector = () => {
-  const { t } = useTranslationContext('EmojiPickerSkinTone');
-  const { setSkinTone, skinToneIndex, skinTones } =
-    useEmojiPickerContext('SkinToneSelector');
+  const { t } = useTranslationContext();
+  const { setSkinTone, skinToneIndex, skinTones } = useEmojiPickerContext();
   const maxIndex = skinTones.length - 1;
   const [expanded, setExpanded] = useState(false);
   const toggleRef = useRef<HTMLButtonElement>(null);

@@ -9,7 +9,7 @@ export type EmptyResultsProps = {
  * Shown in place of the emoji grid when a search yields no matches.
  */
 export const EmptyResults = ({ emoji }: EmptyResultsProps) => {
-  const { t } = useTranslationContext('EmojiPicker');
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__emoji-picker__empty' role='status'>

@@ -16,8 +16,8 @@ export type SearchInputProps = {
  * enclosing picker dialog (the default grid's DOM contract).
  */
 export const SearchInput = ({ autoFocus = true }: SearchInputProps) => {
-  const { t } = useTranslationContext('EmojiPickerSearchInput');
-  const { query, setQuery } = useEmojiPickerContext('SearchInput');
+  const { t } = useTranslationContext();
+  const { query, setQuery } = useEmojiPickerContext();
   const inputId = useStableId();
   const inputRef = useRef<HTMLInputElement>(null);
 

@@ -101,7 +101,7 @@ export const EmojiPickerRoot = ({
   style,
   theme,
 }: EmojiPickerRootProps) => {
-  const { t } = useTranslationContext('EmojiPickerRoot');
+  const { t } = useTranslationContext();
   const { data, error, retry } = useEmojiPickerState();
   const status: 'error' | 'loading' | 'ready' = data
     ? 'ready'

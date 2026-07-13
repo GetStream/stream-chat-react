@@ -49,11 +49,11 @@ export const EmojiPickerProvider = EmojiPickerContext.Provider;
  * private to each slot. Hover-preview state lives in a separate internal context so
  * consuming this one does not re-render the emoji grid.
  */
-export const useEmojiPickerContext = (componentName = 'EmojiPicker') => {
+export const useEmojiPickerContext = () => {
   const context = useContext(EmojiPickerContext);
   if (!context) {
     throw new Error(
-      `The ${componentName} component must be rendered within a StreamEmojiPicker.Root.`,
+      'Emoji picker slots must be rendered within a StreamEmojiPicker.Root.',
     );
   }
   return context;

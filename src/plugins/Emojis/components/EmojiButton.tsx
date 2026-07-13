@@ -12,7 +12,7 @@ export type EmojiButtonProps = {
  * skin tone. Memoized because the grid can render ~1800 of these.
  */
 export const EmojiButton = memo(function EmojiButton({ emoji }: EmojiButtonProps) {
-  const { resolveNative, selectEmoji } = useEmojiPickerContext('EmojiButton');
+  const { resolveNative, selectEmoji } = useEmojiPickerContext();
   const { setPreviewedEmoji } = useEmojiPickerPreviewContext();
 
   return (

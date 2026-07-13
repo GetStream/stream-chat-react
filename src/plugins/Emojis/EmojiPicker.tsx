@@ -57,8 +57,8 @@ const classNames: Pick<
  * packages. See the emoji section of `AI.md` for migration notes.
  */
 export const EmojiPicker = (props: EmojiPickerProps) => {
-  const { t } = useTranslationContext('EmojiPicker');
-  const { textareaRef } = useMessageComposerContext('EmojiPicker');
+  const { t } = useTranslationContext();
+  const { textareaRef } = useMessageComposerContext();
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);

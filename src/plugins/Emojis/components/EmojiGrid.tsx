@@ -39,7 +39,7 @@ const CategorySection = ({ category }: { category: EmojiPickerCategory }) => (
  */
 export const EmojiGrid = () => {
   const { categories, isSearching, scrollTarget, searchResults, setActiveCategory } =
-    useEmojiPickerContext('EmojiGrid');
+    useEmojiPickerContext();
   const virtuosoRef = useRef<VirtuosoHandle>(null);
   const atBottomRef = useRef(false);
   const bodyRef = useRef<HTMLDivElement>(null);
