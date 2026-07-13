@@ -13,7 +13,7 @@ export type ChatViewSettingsState = {
 
 export type EmojiPickerSettingsState = {
   autoFocus: boolean;
-  engine: 'emoji-mart' | 'stream';
+  engine: 'emoji-mart' | 'stream' | 'stream-composed';
 };
 
 // Mirrors the SDK's EmojiPicker defaults; the settings tab resets to this.

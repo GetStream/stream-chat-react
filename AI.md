@@ -285,6 +285,60 @@ import 'stream-chat-react/css/emoji-picker.css';
   picker — keep using the deprecated `EmojiPicker` if you still need them. Try it live in
   the "Emoji Picker" settings tab of `examples/vite/`.
 
+- **Custom layouts (composition).** For a non-standard arrangement, or to replace a part,
+  compose the picker from its slots instead of rearranging props. Rendered directly,
+  `StreamEmojiPicker` is the preset; `StreamEmojiPicker.Root` + the slots let you assemble
+  it yourself:
+
+  ```tsx
+  import { StreamEmojiPicker, useEmojiPickerContext } from 'stream-chat-react/emojis';
+
+  <StreamEmojiPicker.Root onEmojiSelect={insert}>
+    <StreamEmojiPicker.Nav />
+    <StreamEmojiPicker.Search />
+    <StreamEmojiPicker.Grid />
+    <StreamEmojiPicker.SkinTone />
+  </StreamEmojiPicker.Root>;
+  ```
+
+  The rule: **the SDK owns the data + the selection; you own presentation + behavior.**
+  `Root` exposes everything through `useEmojiPickerContext()` — read-only data
+  (`categories`, `searchResults`, `status`, `skinTones`, `resolveNative`) and report-back
+  setters (`selectEmoji`, `setQuery`, `setSkinTone`, `setActiveCategory` /
+  `requestScrollToCategory`). A custom slot is just a component that calls the hook; when
+  you replace a slot, that slot's mechanics (scrolling, scroll-spy, roving keyboard, ARIA,
+  virtualization, hover-preview) become yours, but it keeps talking to the others through
+  the shared state. Example — a paged grid driven by the built-in `Nav`:
+
+  ```tsx
+  function PagedGrid() {
+    const {
+      categories,
+      activeCategoryId,
+      searchResults,
+      isSearching,
+      selectEmoji,
+      resolveNative,
+    } = useEmojiPickerContext();
+    const emojis = isSearching
+      ? (searchResults ?? [])
+      : ((categories.find((c) => c.id === activeCategoryId) ?? categories[0])?.emojis ??
+        []);
+    return (
+      <div>
+        {emojis.map((e) => (
+          <button key={e.id} onClick={() => selectEmoji(e)}>
+            {resolveNative(e)}
+          </button>
+        ))}
+      </div>
+    );
+  }
+  ```
+
+  `Root` always keeps the container-level a11y (dialog role, Escape-to-close,
+  focus-return) and the loading/error states, regardless of how you recompose the inside.
+
 - To let users **react with any emoji** (the reaction selector's `+` button), fill
   `reactionOptions.extended` with the full emoji set. It also gates display — a reaction
   whose type isn't in `quick`/`extended` is not rendered. Load it lazily from the emojis

@@ -1,7 +1,12 @@
 import EmojiMartPickerImport from '@emoji-mart/react';
 import { type ComponentType, useState } from 'react';
 import { Button } from 'stream-chat-react';
-import { EmojiPickerPanel, type EmojiSelection } from 'stream-chat-react/emojis';
+import {
+  EmojiPickerPanel,
+  type EmojiSelection,
+  StreamEmojiPicker,
+  useEmojiPickerContext,
+} from 'stream-chat-react/emojis';
 import {
   appSettingsStore,
   DEFAULT_EMOJI_PICKER_SETTINGS,
@@ -63,15 +68,60 @@ function Field<T extends string | number | boolean>({
 }
 
 /**
+ * A custom "paged" grid slot — renders only the active category (a layout the default
+ * scrolling grid can't do), driven entirely by context: it reads `activeCategoryId`
+ * (which the built-in Nav sets) and reports selection via `selectEmoji`. Demonstrates
+ * that a replacement slot only needs the SDK's data + report-back APIs.
+ */
+const PagedGrid = () => {
+  const {
+    activeCategoryId,
+    categories,
+    isSearching,
+    resolveNative,
+    searchResults,
+    selectEmoji,
+  } = useEmojiPickerContext();
+  const emojis = isSearching
+    ? (searchResults ?? [])
+    : ((categories.find((category) => category.id === activeCategoryId) ?? categories[0])
+        ?.emojis ?? []);
+
+  return (
+    <div className='str-chat__emoji-picker__body'>
+      <div className='str-chat__emoji-picker__grid'>
+        <div className='str-chat__emoji-picker__category-emojis'>
+          {emojis.map((emoji) => (
+            <button
+              className='str-chat__emoji-picker__emoji'
+              key={emoji.id}
+              onClick={() => selectEmoji(emoji)}
+              type='button'
+            >
+              {resolveNative(emoji)}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/**
  * Always-open picker wired to the current settings, so tweaks show instantly without
  * opening the composer. Skin tone and frequently-used are local to the preview —
- * selecting an emoji here feeds the "frequently used" row.
+ * selecting an emoji here feeds the "frequently used" row. The `stream-composed` engine
+ * shows the same picker assembled from `StreamEmojiPicker.Root` + slots, swapping in the
+ * custom `PagedGrid` while keeping the built-in nav/search/preview/skin-tone.
  */
 const EmojiPickerPreview = ({ options }: { options: EmojiPickerSettingsState }) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
   const { autoFocus, engine } = options;
   const [skinTone, setSkinTone] = useState(0);
   const [frequentlyUsedIds, setFrequentlyUsedIds] = useState<string[]>([]);
+
+  const recordUse = (emoji: EmojiSelection) =>
+    setFrequentlyUsedIds((ids) => [emoji.id, ...ids.filter((id) => id !== emoji.id)]);
 
   // The deprecated emoji-mart picker renders inline too and honors the same option
   // names, so the shared controls drive both engines.
@@ -86,13 +136,30 @@ const EmojiPickerPreview = ({ options }: { options: EmojiPickerSettingsState }) 
     );
   }
 
+  if (engine === 'stream-composed') {
+    return (
+      <StreamEmojiPicker.Root
+        frequentlyUsedIds={frequentlyUsedIds}
+        onEmojiSelect={recordUse}
+        onSkinToneChange={setSkinTone}
+        skinToneIndex={skinTone}
+      >
+        <StreamEmojiPicker.Nav />
+        <StreamEmojiPicker.Search autoFocus={autoFocus} />
+        <PagedGrid />
+        <div className='str-chat__emoji-picker__footer'>
+          <StreamEmojiPicker.Preview />
+          <StreamEmojiPicker.SkinTone />
+        </div>
+      </StreamEmojiPicker.Root>
+    );
+  }
+
   return (
     <EmojiPickerPanel
       autoFocus={autoFocus}
       frequentlyUsedIds={frequentlyUsedIds}
-      onEmojiSelect={(emoji: EmojiSelection) =>
-        setFrequentlyUsedIds((ids) => [emoji.id, ...ids.filter((id) => id !== emoji.id)])
-      }
+      onEmojiSelect={recordUse}
       onSkinToneChange={setSkinTone}
       skinToneIndex={skinTone}
     />
@@ -139,6 +206,7 @@ export const EmojiPickerTab = ({ close }: EmojiPickerTabProps) => {
               onSelect={(engine) => update({ engine })}
               options={[
                 { label: 'Stream (native)', value: 'stream' },
+                { label: 'Stream (composed)', value: 'stream-composed' },
                 { label: 'emoji-mart (deprecated)', value: 'emoji-mart' },
               ]}
               value={emojiPicker.engine}
