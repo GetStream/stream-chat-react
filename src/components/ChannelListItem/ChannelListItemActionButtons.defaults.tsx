@@ -89,7 +89,7 @@ const useArchiveAction = (): ChannelActionBehavior => {
 
   const toggle = async () => {
     try {
-      if (membership.archived_at) {
+      if (membership?.archived_at) {
         await channel.unarchive();
         addNotification({
           context: { channel },
@@ -121,8 +121,8 @@ const useArchiveAction = (): ChannelActionBehavior => {
   };
 
   return {
-    'aria-pressed': typeof membership.archived_at === 'string',
-    title: membership.archived_at ? t('Unarchive') : t('Archive'),
+    'aria-pressed': typeof membership?.archived_at === 'string',
+    title: membership?.archived_at ? t('Unarchive') : t('Archive'),
     toggle,
   };
 };
@@ -288,7 +288,7 @@ const usePinAction = (): ChannelActionBehavior => {
 
   const toggle = async () => {
     try {
-      if (membership.pinned_at) {
+      if (membership?.pinned_at) {
         await channel.unpin();
         addNotification({
           context: { channel },
@@ -320,8 +320,8 @@ const usePinAction = (): ChannelActionBehavior => {
   };
 
   return {
-    'aria-pressed': !!membership.pinned_at,
-    title: membership.pinned_at ? t('Unpin') : t('Pin'),
+    'aria-pressed': !!membership?.pinned_at,
+    title: membership?.pinned_at ? t('Unpin') : t('Pin'),
     toggle,
   };
 };
@@ -518,7 +518,7 @@ export const useBaseChannelActionSetFilter = (channelActionSet: ChannelActionIte
   const { channel } = useChannelListItemContext();
   const membership = useChannelMembershipState(channel);
   const memberCount = channel.data?.member_count ?? 0;
-  const connectedUserIsMember = typeof membership.user !== 'undefined';
+  const connectedUserIsMember = typeof membership?.user !== 'undefined';
   const isDirectMessageChannel = connectedUserIsMember && memberCount === 2;
 
   const ownCapabilities = channel.data?.own_capabilities;

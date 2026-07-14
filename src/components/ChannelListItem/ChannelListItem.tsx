@@ -220,7 +220,7 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
         latestMessagePreview={latestMessagePreview}
         messageDeliveryStatus={messageDeliveryStatus}
         muted={muted}
-        pinned={!!membership.pinned_at}
+        pinned={!!membership?.pinned_at}
         setActiveChannel={setActiveChannel}
         unread={unread}
       />

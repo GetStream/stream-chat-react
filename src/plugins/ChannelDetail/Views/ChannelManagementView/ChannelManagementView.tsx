@@ -77,7 +77,7 @@ export const ChannelManagementInfoBody = ({
   const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
   const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
-  const pinned = !!membership.pinned_at;
+  const pinned = !!membership?.pinned_at;
 
   return (
     <Prompt.Body className='str-chat__channel-detail__channel-management-view__body'>

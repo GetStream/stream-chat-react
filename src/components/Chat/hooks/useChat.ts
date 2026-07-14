@@ -14,6 +14,7 @@ import type {
   EventPayload,
   OwnUserResponse,
   StreamChat,
+  TranslationLanguage,
   UserMuteResponse,
 } from 'stream-chat';
 
@@ -88,7 +89,7 @@ export const useChat = ({
   }, [clientMutes?.length]);
 
   useEffect(() => {
-    let userLanguage = client.user?.language;
+    let userLanguage = client.user?.language as TranslationLanguage;
 
     if (!userLanguage) {
       const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
