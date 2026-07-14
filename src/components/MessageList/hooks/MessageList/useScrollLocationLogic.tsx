@@ -32,16 +32,24 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const closeToTop = useRef(false);
   const initialDataAutoscrollDoneRef = useRef(false);
 
-  const scrollToBottom = useCallback(() => {
-    if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
-      return;
-    }
+  // `behavior` is optional so callers opt into animation: the initial-mount and streaming
+  // "keep pinned to bottom" autoscroll below call it with no argument and stay instant (which is
+  // what keeps pagination position-preservation correct), while an interactive scroll-to-latest
+  // passes `{ behavior }` for a smooth (or reduced-motion `auto`) scroll.
+  const scrollToBottom = useCallback(
+    (options?: { behavior?: ScrollBehavior }) => {
+      if (!listElement?.scrollTo || hasMoreNewer || suppressAutoscroll) {
+        return;
+      }
 
-    listElement.scrollTo({
-      top: listElement.scrollHeight,
-    });
-    setHasNewMessages(false);
-  }, [listElement, hasMoreNewer, suppressAutoscroll]);
+      listElement.scrollTo({
+        behavior: options?.behavior,
+        top: listElement.scrollHeight,
+      });
+      setHasNewMessages(false);
+    },
+    [listElement, hasMoreNewer, suppressAutoscroll],
+  );
 
   useLayoutEffect(() => {
     if (listElement) {

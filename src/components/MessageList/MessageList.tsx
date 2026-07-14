@@ -65,6 +65,17 @@ const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
   messageFocusSignal: state.signal,
 });
 
+// Smooth scrolling for user-initiated scrolls (scroll-to-latest, jump-to-message), honoring the OS
+// "reduce motion" preference (WCAG 2.3.3 — `auto` = instant). Read imperatively at scroll time and
+// deliberately NOT via a reactive hook: it must add no render churn to MessageList, which would
+// perturb the paginator's scroll-position handling (initial/streaming autoscroll stays instant).
+const getScrollBehavior = (): ScrollBehavior =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? 'auto'
+    : 'smooth';
+
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
   const {
@@ -236,17 +247,93 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const scrollToBottomFromNotification = React.useCallback(() => {
     if (messagePaginator.hasMoreHead) {
+      // Latest page not loaded — load it; the message-focus signal then drives the smooth scroll
+      // to the latest message via the effect below.
       messagePaginator.jumpToTheLatestMessage();
     } else {
-      scrollToBottom();
+      scrollToBottom({ behavior: getScrollBehavior() });
     }
   }, [messagePaginator, scrollToBottom]);
 
+  // Bring a focused message (deep-link / quoted-reply jump, or jump-to-latest) into view and start
+  // its highlight's dismissal only once it is actually viewed.
+  //
+  // The list renders whatever the paginator holds in state, so the target is in the DOM as soon as
+  // the jump resolves — there is nothing to wait for on the data side. What can lag is *visibility*:
+  // the list may be collapsed to zero width (e.g. a thread panel covering the channel when a "view
+  // in channel" jump fires), in which case the initial scroll is computed against stale geometry and
+  // the emit-time TTL would burn the highlight before the user ever sees it. So we:
+  //   - re-center on relayout (the reveal resizes the list 0 → full width; a resize is the precise
+  //     signal for "geometry changed" and never fires from scrolling, so it can't fight the smooth
+  //     animation below), and
+  //   - measure the dismissal TTL from the moment the message is genuinely on screen (viewed),
+  //     reported by an IntersectionObserver rather than from when the jump resolved.
   React.useLayoutEffect(() => {
-    if (!focusedMessageId) return;
-    const element = listElement?.querySelector(`[data-message-id='${focusedMessageId}']`);
-    element?.scrollIntoView({ block: 'center' });
-  }, [focusedMessageId, listElement]);
+    if (!messageFocusSignal || !listElement) return;
+    const { messageId, token } = messageFocusSignal;
+
+    const findTarget = () =>
+      listElement.querySelector<HTMLElement>(`[data-message-id='${messageId}']`);
+    const centerTarget = (behavior: ScrollBehavior) =>
+      findTarget()?.scrollIntoView({ behavior, block: 'center' });
+
+    // Initial attempt — smooth (or reduced-motion 'auto') for the common case of a visible list.
+    centerTarget(getScrollBehavior());
+
+    const target = findTarget();
+    if (
+      !target ||
+      typeof IntersectionObserver === 'undefined' ||
+      typeof ResizeObserver === 'undefined'
+    ) {
+      // Can't observe "viewed" — start the countdown now so the highlight still clears.
+      messagePaginator.scheduleMessageFocusSignalClear({ token });
+      return;
+    }
+
+    // Re-center on relayout while the jump is active, keyed off an actual change in the list's
+    // measured size rather than "the observer's Nth callback". That distinction matters: the reveal
+    // (0 → full width) often coincides with the observer's initial callback, so a "skip the first
+    // callback" heuristic would swallow the very resize we need to react to. Comparing sizes also
+    // leaves the common visible-list case untouched — the baseline callback reports no change, so
+    // the initial smooth scroll above is never interrupted by an instant re-center.
+    let lastWidth = listElement.clientWidth;
+    let lastHeight = listElement.clientHeight;
+    const relayoutObserver = new ResizeObserver(() => {
+      const width = listElement.clientWidth;
+      const height = listElement.clientHeight;
+      if (width === lastWidth && height === lastHeight) return;
+      lastWidth = width;
+      lastHeight = height;
+      centerTarget('auto');
+    });
+
+    const viewObserver = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[entries.length - 1];
+        const rootHeight = listElement.clientHeight || 1;
+        // Viewed = at least half the message is on screen, or (for a message taller than the
+        // viewport) the visible slice fills at least half the viewport.
+        const viewed =
+          entry.isIntersecting &&
+          (entry.intersectionRatio >= 0.5 ||
+            entry.intersectionRect.height >= rootHeight * 0.5);
+        if (!viewed) return;
+        messagePaginator.scheduleMessageFocusSignalClear({ token });
+        viewObserver.disconnect();
+        relayoutObserver.disconnect();
+      },
+      { root: listElement, threshold: [0, 0.5, 1] },
+    );
+
+    viewObserver.observe(target);
+    relayoutObserver.observe(listElement);
+
+    return () => {
+      viewObserver.disconnect();
+      relayoutObserver.disconnect();
+    };
+  }, [messageFocusSignal, listElement, messagePaginator]);
 
   const id = useStableId();
 
