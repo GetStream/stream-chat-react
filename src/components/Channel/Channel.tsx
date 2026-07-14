@@ -79,7 +79,7 @@ export type ChannelProps = {
     options?: UpdateMessageOptions,
   ) => ReturnType<StreamChat['updateMessage']>;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
-  EmptyPlaceholder?: React.ReactElement;
+  EmptyPlaceholder?: React.ReactElement | null;
   /**
    * Allows to prevent triggering the channel.watch() call when mounting the component.
    * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
