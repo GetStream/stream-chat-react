@@ -13,7 +13,7 @@ import { defaultTranslatorFunction, predefinedFormatters } from './utils';
 
 import type { i18n as I18n, TFunction } from 'i18next';
 import type momentTimezone from 'moment-timezone';
-import type { TranslationLanguages } from 'stream-chat';
+import type { TranslationLanguage } from 'stream-chat';
 
 import type { TranslationTopicConstructor } from './TranslationBuilder';
 import type { UnknownType } from '../types/types';
@@ -260,7 +260,7 @@ export type Streami18nOptions = {
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   formatters?: Partial<PredefinedFormatters> & CustomFormatters;
-  language?: TranslationLanguages;
+  language?: TranslationLanguage;
   logger?: (message?: string) => void;
   translationBuilderTopics?: Record<string, TranslationTopicConstructor>;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
@@ -423,7 +423,7 @@ const defaultStreami18nOptions = {
   dayjsLocaleConfigForLanguage: null,
   debug: false,
   disableDateTimeTranslations: false,
-  language: 'en' as TranslationLanguages,
+  language: 'en' as TranslationLanguage,
   logger: (message?: string) => console.warn(message),
   /**
    * Key in the translationBuilderTopics has to match postProcessorName in the translation value.
@@ -482,7 +482,7 @@ export class Streami18n {
    * Initialize properties used in constructor
    */
   logger: (msg?: string) => void;
-  currentLanguage: TranslationLanguages;
+  currentLanguage: TranslationLanguage;
   DateTimeParser: DateTimeParserModule;
   formatters: PredefinedFormatters & CustomFormatters = predefinedFormatters;
   isCustomDateTimeParser: boolean;
@@ -670,7 +670,7 @@ export class Streami18n {
     };
   }
 
-  localeExists = (language: TranslationLanguages) => {
+  localeExists = (language: TranslationLanguage) => {
     if (this.isCustomDateTimeParser) return true;
 
     return Object.keys(Dayjs.Ls).indexOf(language) > -1;
@@ -720,7 +720,7 @@ export class Streami18n {
   }
 
   registerTranslation(
-    language: TranslationLanguages,
+    language: TranslationLanguage,
     translation: typeof enTranslations,
     customDayjsLocale?: Partial<ILocale>,
   ) {
@@ -753,7 +753,7 @@ export class Streami18n {
     }
   }
 
-  addOrUpdateLocale(key: TranslationLanguages, config: Partial<ILocale>) {
+  addOrUpdateLocale(key: TranslationLanguage, config: Partial<ILocale>) {
     if (this.localeExists(key)) {
       Dayjs.updateLocale(key, { ...config });
     } else {
@@ -762,7 +762,7 @@ export class Streami18n {
     }
   }
 
-  async setLanguage(language: TranslationLanguages) {
+  async setLanguage(language: TranslationLanguage) {
     this.currentLanguage = language;
 
     if (!this.initialized) return;

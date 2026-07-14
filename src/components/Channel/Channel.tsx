@@ -18,7 +18,6 @@ import type {
   ChannelStateResponseFields,
   DeleteMessageOptions,
   Event,
-  EventAPIResponse,
   GiphyVersions,
   LocalMessage,
   MessageRequest,
@@ -112,7 +111,7 @@ export type ChannelProps = {
   doMarkReadRequest?: (
     channel: StreamChannel,
     setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
-  ) => Promise<EventAPIResponse> | void;
+  ) => ReturnType<StreamChannel['markRead']> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channel: StreamChannel,

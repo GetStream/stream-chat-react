@@ -13,11 +13,11 @@ import {
   useTranslationContext,
 } from '../../../context';
 
-import type { PollAnswer, PollState } from 'stream-chat';
+import type { PollState, PollVoteResponseData } from 'stream-chat';
 
 type PollStateSelectorReturnValue = {
   is_closed: boolean | undefined;
-  ownAnswer: PollAnswer | undefined;
+  ownAnswer: PollVoteResponseData | undefined;
 };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   is_closed: nextValue.is_closed,

@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useStateStore } from '../../../store';
 import { useModalContext, usePollContext, useTranslationContext } from '../../../context';
-import type { PollAnswer, PollState } from 'stream-chat';
+import type { PollState, PollVoteResponseData } from 'stream-chat';
 import { Prompt } from '../../Dialog';
 import { TextInput } from '../../Form';
 import { useFormState } from '../../Form/hooks';
 
-type PollStateSelectorReturnValue = { ownAnswer: PollAnswer | undefined };
+type PollStateSelectorReturnValue = { ownAnswer: PollVoteResponseData | undefined };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   ownAnswer: nextValue.ownAnswer,
 });

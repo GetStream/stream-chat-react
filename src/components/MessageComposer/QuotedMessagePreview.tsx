@@ -29,7 +29,7 @@ import {
   type MessageResponse,
   type PollResponseData,
   type SharedLocationResponseData,
-  type TranslationLanguages,
+  type TranslationLanguage,
   type VoiceRecordingAttachment,
 } from 'stream-chat';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
@@ -338,7 +338,7 @@ export const QuotedMessagePreviewUI = ({
 
   const quotedMessageText = useMemo(
     () =>
-      quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+      quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguage}_text`] ||
       quotedMessage?.text,
     [quotedMessage?.i18n, quotedMessage?.text, userLanguage],
   );
