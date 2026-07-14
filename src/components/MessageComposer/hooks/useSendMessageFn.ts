@@ -40,9 +40,15 @@ export const useSendMessageFn = () => {
       const restoreComposerStateSnapshot = takeStateSnapshot(messageComposer);
       try {
         /**
-         * When sending a message with poll, no text, attachments, etc. are allowed,
-         * so we need to clear the message composer.
-         * We also need to generate a new id for the message composer.
+         * Reset the composer BEFORE awaiting the send, not after. The message data was already
+         * captured by `compose()` above, so clearing now is safe — and it is required for
+         * correctness: `sendMessageWithLocalUpdate` awaits a network round-trip, and clearing only
+         * after it opens a long window during which the user's next keystrokes (or an in-flight,
+         * async `textComposer.handleChange` commit) race with the clear. That race drops or fails to
+         * clear rapidly typed-and-sent messages. On failure the snapshot is restored below.
+         *
+         * When sending a poll message no text/attachments are allowed, so instead of a full clear we
+         * only detach the poll and generate a fresh composer id, keeping any drafted content.
          */
         const sendingPollMessage = !!message?.poll_id;
         if (sendingPollMessage) {
@@ -50,6 +56,8 @@ export const useSendMessageFn = () => {
             id: MessageComposer.generateId(),
             pollId: null,
           });
+        } else {
+          messageComposer.clear();
         }
 
         await (thread ?? channel).sendMessageWithLocalUpdate({
@@ -57,8 +65,6 @@ export const useSendMessageFn = () => {
           message,
           options: sendOptions,
         });
-
-        if (!sendingPollMessage) messageComposer.clear();
       } catch (error) {
         restoreComposerStateSnapshot();
         // todo: Register notification translator
