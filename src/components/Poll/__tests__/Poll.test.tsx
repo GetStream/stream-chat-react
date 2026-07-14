@@ -1,11 +1,11 @@
 import React from 'react';
-import { Poll as PollClass } from 'stream-chat';
-import type { StreamChat } from 'stream-chat';
+import { Poll as PollClass, StateStore } from 'stream-chat';
+import type { Channel, OwnCapabilitiesState, StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { render, screen } from '@testing-library/react';
 import { Poll } from '../Poll';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   ComponentProvider,
   MessageProvider,
@@ -26,6 +26,25 @@ const POLL_HEADER__CLASS = '.str-chat__poll-header';
 
 const t = (v) => v;
 
+// MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
+// `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
+// which subscribes to `channel.state.ownCapabilitiesStore` (a string[]). Convert the legacy
+// `{ 'cap': boolean }` object into that string[] and seed a real ChannelInstanceProvider channel.
+const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
+  Object.entries(capabilities)
+    .filter(([, enabled]) => enabled)
+    .map(([capability]) => capability);
+
+const makeChannel = (capabilities: Record<string, boolean> = {}) =>
+  fromPartial<Channel>({
+    cid: 'messaging:poll-test',
+    state: {
+      ownCapabilitiesStore: new StateStore<OwnCapabilitiesState>({
+        ownCapabilities: toOwnCapabilities(capabilities),
+      }),
+    },
+  });
+
 const defaultChannelStateContext = {
   channelCapabilities: { 'query-poll-votes': true },
 };
@@ -42,21 +61,22 @@ const renderComponent = async ({
   props,
 }: any) => {
   const client = customClient ?? (await getTestClientWithUser());
+  const channel = makeChannel(
+    { ...defaultChannelStateContext, ...channelStateContext }.channelCapabilities,
+  );
   return render(
     <ChatProvider value={mockChatContext({ client })}>
-      <ModalDialogManagerProvider>
-        <TranslationProvider value={mockTranslationContextValue({ t })}>
-          <ComponentProvider value={componentContext ?? {}}>
-            <ChannelStateProvider
-              value={{ ...defaultChannelStateContext, ...channelStateContext }}
-            >
+      <ChannelInstanceProvider value={{ channel }}>
+        <ModalDialogManagerProvider>
+          <TranslationProvider value={mockTranslationContextValue({ t })}>
+            <ComponentProvider value={componentContext ?? {}}>
               <MessageProvider value={{ ...defaultMessageContext, ...messageContext }}>
                 <Poll {...props} />
               </MessageProvider>
-            </ChannelStateProvider>
-          </ComponentProvider>
-        </TranslationProvider>
-      </ModalDialogManagerProvider>
+            </ComponentProvider>
+          </TranslationProvider>
+        </ModalDialogManagerProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 };

@@ -2,6 +2,8 @@ import { act, renderHook, type RenderHookResult } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { useMediaRecorder } from '../useMediaRecorder';
+import { Chat } from '../../../Chat';
+import { Channel } from '../../../Channel';
 import { EventEmitterMock, MediaRecorderMock } from '../../../../mock-builders/browser';
 import { DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../../classes/AmplitudeRecorder';
 import { DEFAULT_AUDIO_TRANSCODER_CONFIG } from '../../classes';
@@ -9,12 +11,19 @@ import {
   generateVoiceRecordingAttachment,
   initClientWithChannels,
 } from '../../../../mock-builders';
-import { Chat } from '../../../Chat';
-import { Channel } from '../../../Channel';
+
+// MERGE-RECONCILE (test migration): the master merge moved message sending onto the
+// channel/composer via `useSendMessageFn()` (which `useMediaRecorder` now calls internally),
+// replacing the old `handleSubmit` prop. `useSendMessageFn` imports the package barrel, which
+// creates an import cycle when this hook module is loaded first in a test; mocking it here both
+// breaks that cycle and gives us a spy to assert the "submit" step, replacing the obsolete
+// `handleSubmit` assertions.
+const { sendMessageFnMock } = vi.hoisted(() => ({ sendMessageFnMock: vi.fn() }));
+vi.mock('../../../MessageComposer/hooks/useSendMessageFn', () => ({
+  useSendMessageFn: () => sendMessageFnMock,
+}));
 
 window.MediaRecorder = MediaRecorderMock as unknown as typeof MediaRecorder;
-
-const handleSubmit = vi.fn();
 
 const defaultMockPermissionState = 'prompt';
 const status = new EventEmitterMock();
@@ -125,14 +134,14 @@ describe('useMediaRecorder', () => {
         result: {
           current: { completeRecording },
         },
-      } = await render({ enabled: false, handleSubmit });
+      } = await render({ enabled: false });
       const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
       );
       await completeRecording();
       expect(uploadAttachmentSpy).not.toHaveBeenCalled();
-      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(sendMessageFnMock).not.toHaveBeenCalled();
     });
 
     it('does nothing if recording attachment is not generated on stop', async () => {
@@ -141,7 +150,7 @@ describe('useMediaRecorder', () => {
         result: {
           current: { completeRecording, recorder },
         },
-      } = await render({ handleSubmit });
+      } = await render();
       const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
@@ -154,7 +163,7 @@ describe('useMediaRecorder', () => {
       expect(recorderStopSpy).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).not.toHaveBeenCalledWith();
       expect(uploadAttachmentSpy).not.toHaveBeenCalled();
-      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(sendMessageFnMock).not.toHaveBeenCalled();
     });
 
     it('uploads and submits the attachment', async () => {
@@ -164,7 +173,7 @@ describe('useMediaRecorder', () => {
         result: {
           current: { completeRecording, recorder },
         },
-      } = await render({ handleSubmit });
+      } = await render();
       const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
         'uploadAttachment',
@@ -177,7 +186,7 @@ describe('useMediaRecorder', () => {
         completeRecording();
       });
       expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
-      expect(handleSubmit).toHaveBeenCalledWith();
+      expect(sendMessageFnMock).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
     });
 
@@ -190,7 +199,6 @@ describe('useMediaRecorder', () => {
         },
       } = await render({
         asyncMessagesMultiSendEnabled: true,
-        handleSubmit,
       });
       const uploadAttachmentSpy = vi.spyOn(
         channel.messageComposer.attachmentManager,
@@ -204,7 +212,7 @@ describe('useMediaRecorder', () => {
         completeRecording();
       });
       expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
-      expect(handleSubmit).not.toHaveBeenCalled();
+      expect(sendMessageFnMock).not.toHaveBeenCalled();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
     });
   });

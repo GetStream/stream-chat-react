@@ -3,36 +3,51 @@ import {
   restoreLayoutControllerState,
   serializeLayoutControllerState,
 } from '../layoutController/serialization';
-import { resolveTargetSlotChannelDefault } from '../layoutSlotResolvers';
 
-import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
-import type { ChatViewLayoutState } from '../layoutController/layoutControllerTypes';
+import type { Channel as StreamChannel } from 'stream-chat';
+
+// MERGE-RECONCILE (test migration): the LayoutController became a pure slot-mechanism controller.
+// - `clear(slot)` is now `release(slot)`.
+// - `openInLayout` no longer auto-resolves a target slot; the caller passes an explicit
+//   `{ targetSlot }` (an occupied target is a replace, an unknown target is rejected). The default
+//   kind-based slot resolution (formerly `resolveTargetSlotChannelDefault` from `../layoutSlotResolvers`)
+//   moved into the navigation layer (`resolveDefaultTargetSlot` in ChatViewNavigationContext, not
+//   exported) and is covered by ChatViewNavigation.test.tsx — the standalone resolver tests and the
+//   "prefers replacing same-kind slot" open() test were dropped as obsolete for this layer.
+// - Runtime slot state (bindings/history/meta/…) is now stored per-view under `layouts[activeView]`
+//   instead of at the top level; reads go through the `viewState` helper below.
 
 const makeChannel = (cid: string) => ({ cid }) as unknown as StreamChannel;
-const makeThread = (id: string) => ({ id }) as unknown as StreamThread;
 const makeBinding = (kind: string, source: unknown, key?: string) => ({
   key,
   payload: { key, kind, source },
 });
 
+const viewState = (controller: LayoutController) => {
+  const state = controller.state.getLatestValue();
+  return state.layouts![state.activeView]!;
+};
+
 describe('layoutController', () => {
-  it('returns opened, replaced, and rejected outcomes from open()', () => {
+  it('returns opened, replaced, and rejected outcomes from openInLayout()', () => {
     const controller = new LayoutController({
       initialState: {
         availableSlots: ['slot1'],
       },
-      resolveTargetSlot: () => 'slot1',
     });
 
     const firstOpen = controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:one'), 'messaging:one'),
+      { targetSlot: 'slot1' },
     );
     const secondOpen = controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:two'), 'messaging:two'),
+      { targetSlot: 'slot1' },
     );
-    controller.clear('slot1');
+    controller.release('slot1');
     const rejectedOpen = controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:three'), 'messaging:three'),
+      { targetSlot: 'missing' },
     );
 
     expect(firstOpen).toMatchObject({ slot: 'slot1', status: 'opened' });
@@ -43,7 +58,7 @@ describe('layoutController', () => {
     });
   });
 
-  it('tracks occupiedAt when slot becomes occupied and clears it on clear()', () => {
+  it('tracks occupiedAt when slot becomes occupied and clears it on release()', () => {
     const controller = new LayoutController({
       initialState: {
         availableSlots: ['slot1'],
@@ -52,39 +67,20 @@ describe('layoutController', () => {
 
     controller.openInLayout(
       makeBinding('channel', makeChannel('messaging:one'), 'messaging:one'),
+      { targetSlot: 'slot1' },
     );
-    const occupiedAt = controller.state.getLatestValue().slotMeta.slot1?.occupiedAt;
-    controller.clear('slot1');
+    const occupiedAt = viewState(controller).slotMeta.slot1?.occupiedAt;
+    controller.release('slot1');
 
     expect(typeof occupiedAt).toBe('number');
-    expect(controller.state.getLatestValue().slotMeta.slot1).toBeUndefined();
-  });
-
-  it('prefers replacing same-kind slot over binding into a free slot', () => {
-    const firstThread = makeBinding('thread', makeThread('thread-1'), 'thread-1');
-    const secondThread = makeBinding('thread', makeThread('thread-2'), 'thread-2');
-    const controller = new LayoutController({
-      initialState: {
-        availableSlots: ['slot1', 'slot2'],
-        slotBindings: {
-          slot1: firstThread,
-        },
-      },
-    });
-
-    const result = controller.openInLayout(secondThread);
-    const state = controller.state.getLatestValue();
-
-    expect(result).toMatchObject({ slot: 'slot1', status: 'replaced' });
-    expect(state.slotBindings.slot2).toBeUndefined();
-    expect(state.slotHistory?.slot1).toEqual([firstThread]);
+    expect(viewState(controller).slotMeta.slot1).toBeUndefined();
+    expect(viewState(controller).slotBindings.slot1).toBeUndefined();
   });
 
   it('supports duplicateEntityPolicy reject and move', () => {
     const rejectController = new LayoutController({
       duplicateEntityPolicy: 'reject',
       initialState: { availableSlots: ['slot1', 'slot2'] },
-      resolveTargetSlot: () => 'slot2',
     });
     const duplicateChannel = makeChannel('messaging:duplicate');
 
@@ -130,7 +126,7 @@ describe('layoutController', () => {
       },
     );
 
-    const movedState = moveController.state.getLatestValue();
+    const movedState = viewState(moveController);
     expect(movedState.slotBindings.slot1).toBeUndefined();
     expect((movedState.slotBindings.slot2?.payload as { kind: string }).kind).toBe(
       'channel',
@@ -181,14 +177,15 @@ describe('layoutController', () => {
     });
 
     const snapshot = serializeLayoutControllerState(sourceController);
-    expect((snapshot.slotBindings.slot1?.payload as { kind: string }).kind).toBe(
+    const snapshotView = snapshot.layouts.channels!;
+    expect((snapshotView.slotBindings.slot1?.payload as { kind: string }).kind).toBe(
       'channelList',
     );
-    expect((snapshot.slotBindings.slot2?.payload as { kind: string }).kind).toBe(
+    expect((snapshotView.slotBindings.slot2?.payload as { kind: string }).kind).toBe(
       'channel',
     );
     expect(
-      snapshot.slotHistory.slot2?.map(
+      snapshotView.slotHistory.slot2?.map(
         (entry) => (entry.payload as { kind: string }).kind,
       ),
     ).toEqual(['searchResults', 'channel']);
@@ -198,7 +195,7 @@ describe('layoutController', () => {
     });
     restoreLayoutControllerState(restoreController, snapshot);
 
-    expect(restoreController.state.getLatestValue()).toMatchObject({
+    expect(viewState(restoreController)).toMatchObject({
       hiddenSlots: { slot1: true },
       slotBindings: {
         slot1: makeBinding('channelList', { view: 'threads' }, 'channel-list'),
@@ -234,11 +231,11 @@ describe('layoutController', () => {
     controller.openInLayout(second, { targetSlot: 'slot1' });
     controller.goBack('slot1');
 
-    expect(controller.state.getLatestValue().slotBindings.slot1).toEqual(first);
-    expect(controller.state.getLatestValue().slotForwardHistory?.slot1).toEqual([second]);
+    expect(viewState(controller).slotBindings.slot1).toEqual(first);
+    expect(viewState(controller).slotForwardHistory?.slot1).toEqual([second]);
 
     controller.goForward('slot1');
-    expect(controller.state.getLatestValue().slotBindings.slot1).toEqual(second);
+    expect(viewState(controller).slotBindings.slot1).toEqual(second);
   });
 
   it('does not duplicate history when replacing slot and top history already equals current', () => {
@@ -258,7 +255,6 @@ describe('layoutController', () => {
           slot1: [currentBinding],
         },
       },
-      resolveTargetSlot: () => 'slot1',
     });
 
     controller.openInLayout(
@@ -266,9 +262,7 @@ describe('layoutController', () => {
       { targetSlot: 'slot1' },
     );
 
-    expect(controller.state.getLatestValue().slotHistory?.slot1).toEqual([
-      currentBinding,
-    ]);
+    expect(viewState(controller).slotHistory?.slot1).toEqual([currentBinding]);
   });
 
   it('clears forward history on write after going back', () => {
@@ -298,85 +292,6 @@ describe('layoutController', () => {
     controller.goBack('slot1');
     controller.openInLayout(third, { targetSlot: 'slot1' });
 
-    expect(controller.state.getLatestValue().slotForwardHistory?.slot1).toBeUndefined();
-  });
-});
-
-describe('resolveTargetSlotChannelDefault', () => {
-  const makeState = (overrides: Partial<ChatViewLayoutState>): ChatViewLayoutState => ({
-    activeView: 'channels',
-    availableSlots: ['slot1', 'slot2'],
-    slotBindings: {},
-    slotForwardHistory: {},
-    slotHistory: {},
-    slotMeta: {},
-    ...overrides,
-  });
-
-  it('prefers requestedSlot when provided', () => {
-    const slot = resolveTargetSlotChannelDefault({
-      binding: makeBinding('channel', makeChannel('messaging:one')),
-      requestedSlot: 'slot2',
-      state: makeState({}),
-    });
-
-    expect(slot).toBe('slot2');
-  });
-
-  it('replaces thread slot first when opening a channel into a full workspace', () => {
-    const state = makeState({
-      slotBindings: {
-        slot1: makeBinding('channel', makeChannel('messaging:one')),
-        slot2: makeBinding('thread', makeThread('thread-1')),
-      },
-    });
-
-    const slot = resolveTargetSlotChannelDefault({
-      binding: makeBinding('channel', makeChannel('messaging:two')),
-      state,
-    });
-
-    expect(slot).toBe('slot2');
-  });
-
-  it('prefers existing channel slot over channelList slot for channel opens', () => {
-    const state = makeState({
-      availableSlots: ['list', 'channel'],
-      slotBindings: {
-        channel: makeBinding('channel', makeChannel('messaging:one')),
-        list: makeBinding('channelList', { view: 'channels' }),
-      },
-      slotMeta: {
-        channel: { occupiedAt: 20 },
-        list: { occupiedAt: 10 },
-      },
-    });
-
-    const slot = resolveTargetSlotChannelDefault({
-      binding: makeBinding('channel', makeChannel('messaging:two')),
-      state,
-    });
-
-    expect(slot).toBe('channel');
-  });
-
-  it('falls back to earliest occupied slot when only channels are present', () => {
-    const state = makeState({
-      slotBindings: {
-        slot1: makeBinding('channel', makeChannel('messaging:one')),
-        slot2: makeBinding('channel', makeChannel('messaging:two')),
-      },
-      slotMeta: {
-        slot1: { occupiedAt: 10 },
-        slot2: { occupiedAt: 20 },
-      },
-    });
-
-    const slot = resolveTargetSlotChannelDefault({
-      binding: makeBinding('channel', makeChannel('messaging:three')),
-      state,
-    });
-
-    expect(slot).toBe('slot1');
+    expect(viewState(controller).slotForwardHistory?.slot1).toBeUndefined();
   });
 });

@@ -3,8 +3,10 @@ import React from 'react';
 import type { Channel, LocalMessage, MessageSearchSource } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
+// MERGE-RECONCILE (test migration): the deleted ChannelActionContext.jumpToMessage was replaced by
+// channel.messagePaginator.jumpToMessage (PR #2909), so useChannelActionContext is no longer
+// imported/mocked here; the channel stub exposes a messagePaginator instead.
 import {
-  useChannelActionContext,
   useChatContext,
   useModalContext,
   useTranslationContext,
@@ -162,6 +164,9 @@ const createChannel = (
 
   const channel = fromPartial<Channel>({
     cid: 'messaging:test-channel',
+    messagePaginator: {
+      jumpToMessage: vi.fn(),
+    },
     on: vi.fn((event: string, handler: ChannelEventHandler) => {
       (handlers[event] = handlers[event] ?? []).push(handler);
       return { unsubscribe: vi.fn() };
@@ -217,10 +222,6 @@ describe('PinnedMessagesView', () => {
     vi.mocked(useModalContext).mockReturnValue({
       close: vi.fn(),
     } as ReturnType<typeof useModalContext>);
-
-    vi.mocked(useChannelActionContext).mockReturnValue({
-      jumpToMessage: vi.fn(),
-    } as unknown as ReturnType<typeof useChannelActionContext>);
 
     mockSearchSourceState();
   });

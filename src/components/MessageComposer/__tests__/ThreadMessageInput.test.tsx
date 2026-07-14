@@ -1,10 +1,14 @@
+// Import the package barrel first so it evaluates in its natural order (components
+// then context). MessageComposer's send/update hooks import `useChannel` from this
+// root barrel; importing a deep component path first would trigger a partial circular
+// re-entry that leaves `useChannel` undefined under Vitest.
+import '../../..';
 import {
   generateChannel,
   generateMember,
   generateMessage,
   generateUser,
   initClientWithChannels,
-  mockChatContext,
 } from '../../../mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
@@ -16,24 +20,12 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { ChatProvider, useChannelActionContext } from '../../../context';
+import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
-import React, { useEffect, useRef } from 'react';
-import { SearchController } from 'stream-chat';
+import React from 'react';
 import type { LocalMessage } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
-
-vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../ChatView')>();
-  return {
-    ...actual,
-    useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    })),
-  };
-});
 
 const sendMessageMock = vi.fn();
 const fileUploadUrl = 'http://www.getstream.io';
@@ -67,14 +59,6 @@ const mockedChannelData = generateChannel(
   }),
 );
 
-const defaultChatContext = {
-  channelsQueryState: { queryInProgress: 'uninitialized' },
-  getAppSettings: vi.fn(),
-  latestMessageDatesByChannels: {},
-  mutes: [],
-  searchController: new SearchController(),
-};
-
 const setup = async ({ channelData }: any = {}) => {
   const {
     channels: [customChannel],
@@ -98,20 +82,9 @@ const setup = async ({ channelData }: any = {}) => {
   return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
 };
 
-const ThreadSetter = () => {
-  const { openThread } = useChannelActionContext();
-  const isOpenThread = useRef(false);
-  useEffect(() => {
-    if (isOpenThread.current) return;
-    isOpenThread.current = true;
-    openThread(mainListMessage);
-  }, [openThread]);
-};
-
 const renderComponent = async ({
   channelData = {},
   channelProps = {},
-  chatContextOverrides = {},
   customChannel,
   customClient,
   customUser,
@@ -133,17 +106,12 @@ const renderComponent = async ({
 
   await act(() => {
     renderResult = render(
-      <ChatProvider
-        value={mockChatContext({
-          ...defaultChatContext,
-          channel,
-          client,
-          ...chatContextOverrides,
-        })}
-      >
-        <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-          {/* @ts-expect-error -- test-only component */}
-          <ThreadSetter />
+      <Chat client={client}>
+        <Channel
+          channel={channel}
+          doSendMessageRequest={sendMessageMock}
+          {...channelProps}
+        >
           <LegacyThreadContext.Provider
             value={fromPartial<{ legacyThread: LocalMessage | undefined }>({
               legacyThread: thread ?? mainListMessage,
@@ -152,7 +120,7 @@ const renderComponent = async ({
             <MessageComposer {...messageInputProps} />
           </LegacyThreadContext.Provider>
         </Channel>
-      </ChatProvider>,
+      </Chat>,
     );
   });
 

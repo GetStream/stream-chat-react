@@ -12,6 +12,8 @@ import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayback';
+import { ThreadProvider } from '../../Threads';
+import type { Thread } from 'stream-chat';
 
 vi.mock('../../Notifications', () => ({
   useNotificationApi: () => ({
@@ -74,14 +76,21 @@ describe('VoiceRecording', () => {
       return el;
     });
     const message = generateMessage();
+    // In v14 the audio-player requester namespace differentiates a channel player from a
+    // thread player by the presence of a Thread instance (useThreadContext), not by the
+    // message-context `threadList` flag. Wrapping the second widget in a ThreadProvider gives
+    // it a distinct requester, so two separate AudioPlayer instances (hence two `new Audio()`
+    // canPlayType probes) are created.
     render(
       <WithAudioPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={mockMessageContext({ message, threadList: true })}>
-          <VoiceRecording attachment={attachment} />
-        </MessageProvider>
+        <ThreadProvider thread={fromPartial<Thread>({})}>
+          <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+            <VoiceRecording attachment={attachment} />
+          </MessageProvider>
+        </ThreadProvider>
       </WithAudioPlayback>,
     );
     expect(createdAudios).toHaveLength(2);

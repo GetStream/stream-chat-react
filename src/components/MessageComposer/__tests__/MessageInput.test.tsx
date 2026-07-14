@@ -1,3 +1,8 @@
+// Import the package barrel first so it evaluates in its natural order (components
+// then context). MessageComposer's send/update hooks import `useChannel` from this
+// root barrel; importing a deep component path first would trigger a partial circular
+// re-entry that leaves `useChannel` undefined under Vitest.
+import '../../..';
 import React from 'react';
 import type {
   Channel as ChannelType,
@@ -54,21 +59,6 @@ import {
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 import type { ChannelProps } from '../../Channel';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
-
-vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../ChatView')>();
-  return {
-    ...actual,
-    useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    })),
-    useThreadsViewContext: vi.fn(() => ({
-      activeThread: undefined,
-      setActiveThread: vi.fn(),
-    })),
-  };
-});
 
 const IMAGE_PREVIEW_TEST_ID = 'attachment-preview-media';
 const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
@@ -281,7 +271,11 @@ const renderComponent = async ({
           })}
         >
           <DialogManagerProvider id='message-input-test-dialog-manager'>
-            <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
+            <Channel
+              channel={channel}
+              doSendMessageRequest={sendMessageMock}
+              {...channelProps}
+            >
               <MessageProvider
                 value={fromPartial<MessageContextValue>({
                   ...defaultMessageContextValue,
@@ -984,6 +978,42 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
+    it('clears the composer before the send request resolves', async () => {
+      // Regression: the composer used to be cleared only after awaiting the send round-trip, which
+      // opened a window where a fast follow-up keystroke/submit raced with the late clear (dropped
+      // or un-cleared messages when typing and submitting in quick succession). The clear must
+      // happen optimistically, before the send is awaited.
+      const { customChannel, customClient } = await setup();
+      let resolveSend: () => void = () => undefined;
+      sendMessageMock.mockImplementationOnce(
+        () =>
+          new Promise<void>((resolve) => {
+            resolveSend = resolve;
+          }),
+      );
+      const { submit } = await renderComponent({ customChannel, customClient });
+
+      const textarea = (await screen.findByPlaceholderText(
+        inputPlaceholder,
+      )) as HTMLTextAreaElement;
+      const messageText = 'race-guard';
+      fireEvent.change(textarea, { target: { value: messageText } });
+      await waitFor(() => expect(textarea.value).toBe(messageText));
+
+      await act(() => submit());
+
+      // The send request is dispatched but still pending (never resolved yet). The composer must
+      // already be empty — with the pre-fix ordering it would stay 'race-guard' until the send
+      // resolved.
+      await waitFor(() => expect(sendMessageMock).toHaveBeenCalled());
+      await waitFor(() => expect(textarea.value).toBe(''));
+
+      await act(async () => {
+        resolveSend();
+        await Promise.resolve();
+      });
+    });
+
     it('should allow to send custom message data', async () => {
       const { customChannel, customClient } = await setup();
       const customMessageData = { customX: 'customX' };
@@ -1014,43 +1044,39 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
-    it('should use overrideSubmitHandler prop if it is defined', async () => {
-      const overrideMock = vi.fn().mockImplementation(() => Promise.resolve());
+    it('sends through a custom request handler, replacing the default send (successor to the removed overrideSubmitHandler prop)', async () => {
+      // `overrideSubmitHandler` was removed; overriding the send is now done through `Channel`'s
+      // `doSendMessageRequest`, which registers a `send` handler on `channel.messageOperations`
+      // (`configState.requestHandlers.sendMessageRequest`). `sendMessageWithLocalUpdate` uses that
+      // handler instead of the default `channel.sendMessage`, and — because the handler resolves a
+      // response — the default request is never made.
       const { customChannel, customClient } = await setup();
+      const sendMessageSpy = vi.spyOn(customChannel, 'sendMessage');
+      const messageText = 'via-custom-handler';
       const customMessageData = { customX: 'customX' };
       customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
-      const { container, submit } = await renderComponent({
-        customChannel,
-        customClient,
-        messageInputProps: {
-          overrideSubmitHandler: overrideMock,
-        },
+      sendMessageMock.mockResolvedValueOnce({
+        message: generateMessage({ text: messageText, user }),
       });
-      const messageText = 'Some text';
+
+      const { submit } = await renderComponent({ customChannel, customClient });
 
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-        target: {
-          value: messageText,
-        },
+        target: { value: messageText },
       });
 
       await act(() => submit());
 
-      expect(overrideMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cid: customChannel.cid,
-          localMessage: expect.objectContaining({
-            text: messageText,
-            ...customMessageData,
-          }),
-          message: expect.objectContaining({
-            text: messageText,
-            ...customMessageData,
-          }),
-          sendOptions: expect.objectContaining({}),
-        }),
+      // The custom handler receives the composed message (text + custom data) and the send options.
+      await waitFor(() =>
+        expect(sendMessageMock).toHaveBeenCalledWith(
+          customChannel,
+          expect.objectContaining({ text: messageText, ...customMessageData }),
+          {},
+        ),
       );
-      await axeNoViolations(container);
+      // Its resolved response replaces the default send — channel.sendMessage is never called.
+      expect(sendMessageSpy).not.toHaveBeenCalled();
     });
 
     it('should not do anything if the message is empty and has no files', async () => {

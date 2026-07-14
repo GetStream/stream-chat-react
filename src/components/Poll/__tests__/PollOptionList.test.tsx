@@ -1,12 +1,12 @@
 import React from 'react';
-import { Poll, VotingVisibility } from 'stream-chat';
-import type { StreamChat } from 'stream-chat';
+import { Poll, StateStore, VotingVisibility } from 'stream-chat';
+import type { Channel, OwnCapabilitiesState, StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 import { PollOptionList } from '../PollOptionList';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   MessageProvider,
   ModalDialogManagerProvider,
@@ -20,11 +20,29 @@ import {
   generatePollVoteRemovedEvent,
   generateUser,
   getTestClientWithUser,
-  mockChannelStateContext,
   mockChatContext,
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+
+// MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
+// `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
+// which subscribes to `channel.state.ownCapabilitiesStore` (a string[]). Convert the legacy
+// `{ 'cap': boolean }` object into that string[] and seed a real ChannelInstanceProvider channel.
+const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
+  Object.entries(capabilities)
+    .filter(([, enabled]) => enabled)
+    .map(([capability]) => capability);
+
+const makeChannel = (capabilities: Record<string, boolean> = {}) =>
+  fromPartial<Channel>({
+    cid: 'messaging:poll-test',
+    state: {
+      ownCapabilitiesStore: new StateStore<OwnCapabilitiesState>({
+        ownCapabilities: toOwnCapabilities(capabilities),
+      }),
+    },
+  });
 
 const OPTION_SELECTOR = '.str-chat__poll-option';
 const VOTABLE_OPTION_SELECTOR = '.str-chat__poll-option--votable';
@@ -65,17 +83,15 @@ describe('PollOptionList', () => {
     messageContext,
     poll,
     pollOptionListProps,
-  }: any) =>
-    render(
+  }: any) => {
+    const channel = makeChannel(
+      { ...defaultChannelStateContext, ...channelStateContext }.channelCapabilities,
+    );
+    return render(
       <ChatProvider value={mockChatContext({ client: chatClient })}>
-        <ModalDialogManagerProvider>
-          <TranslationProvider value={mockTranslationContextValue({ t })}>
-            <ChannelStateProvider
-              value={mockChannelStateContext({
-                ...defaultChannelStateContext,
-                ...channelStateContext,
-              })}
-            >
+        <ChannelInstanceProvider value={{ channel }}>
+          <ModalDialogManagerProvider>
+            <TranslationProvider value={mockTranslationContextValue({ t })}>
               <MessageProvider
                 value={mockMessageContext({
                   ...defaultMessageContext,
@@ -86,11 +102,12 @@ describe('PollOptionList', () => {
                   <PollOptionList {...pollOptionListProps} />
                 </PollProvider>
               </MessageProvider>
-            </ChannelStateProvider>
-          </TranslationProvider>
-        </ModalDialogManagerProvider>
+            </TranslationProvider>
+          </ModalDialogManagerProvider>
+        </ChannelInstanceProvider>
       </ChatProvider>,
     );
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();

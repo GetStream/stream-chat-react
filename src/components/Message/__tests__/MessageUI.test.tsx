@@ -22,46 +22,55 @@ import { Attachment as AttachmentMock } from '../../Attachment';
 import { Avatar as AvatarMock } from '../../Avatar';
 import { defaultReactionOptions } from '../../Reactions';
 
-import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  WithComponents,
-} from '../../../context';
+import { WithComponents } from '../../../context';
 import {
   countReactions,
-  generateChannel,
   generateFileAttachment,
   generateImageAttachment,
   generateMessage,
   generateReaction,
   generateStaticLocationResponse,
   generateUser,
-  getOrCreateChannelApi,
-  getTestClientWithUser,
   groupReactions,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  useMockedApis,
+  initClientWithChannels,
 } from '../../../mock-builders';
+import { Channel as ChannelComponent } from '../../Channel';
 import { MessageBouncePrompt } from '../../MessageBounce';
+import { ThreadProvider } from '../../Threads';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
-import type { Channel, ChannelConfigWithInfo, StreamChat } from 'stream-chat';
+import type { Channel, StreamChat, Thread } from 'stream-chat';
 import type { ComponentContextValue, MessageContextValue } from '../../../context';
 
-vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../ChatView')>();
-  return {
-    ...actual,
-    useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    })),
-    useThreadsViewContext: vi.fn(() => ({
-      activeThread: undefined,
-      setActiveThread: vi.fn(),
-    })),
-  };
-});
+// MERGE-RECONCILE (test migration): thread opening moved from the deleted ChannelActionContext
+// `openThread` handler to the ChatView navigation `open`. We mock the ChatView navigation
+// submodule so a single spy (openThreadMock) captures navigation from the reply-count button and
+// the also-sent-in-channel "View" button.
+const { openThreadMock } = vi.hoisted(() => ({ openThreadMock: vi.fn() }));
+
+vi.mock('../../ChatView/ChatViewNavigationContext', () => ({
+  createThreadEntityBinding: (
+    _client: unknown,
+    { message }: { message: { id?: string } },
+  ) => ({ key: message?.id, kind: 'thread', source: { id: message?.id } }),
+  useChatViewNavigation: () => ({ open: openThreadMock }),
+  useSlotForKey: () => undefined,
+  useSlotForKind: () => undefined,
+}));
+
+// MERGE-RECONCILE (test migration): the bounce retry action moved from ChannelActionContext
+// `retrySendMessage` to the `useRetryHandler` hook (channel.retrySendMessageWithLocalUpdate).
+// Mocking this leaf hook doubles as a spy for the retry action AND sidesteps a source-level
+// circular-import fragility: MessageBounceContext imports useRetryHandler through the top
+// `../components` barrel, whose re-export resolves to `undefined` under the test module graph
+// (the same hook imported via the short `./hooks` path works — see report).
+const { retryHandlerMock } = vi.hoisted(() => ({
+  retryHandlerMock: vi.fn(() => Promise.resolve()),
+}));
+
+vi.mock('../../../components', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../components')>()),
+  useRetryHandler: () => retryHandlerMock,
+}));
 
 Dayjs.extend(calendar);
 
@@ -80,9 +89,23 @@ vi.mock('../../Modal', async (importOriginal) => ({
 const alice = generateUser();
 const bob = generateUser({ image: 'bob-avatar.jpg', name: 'bob' });
 const carol = generateUser();
-const openThreadMock = vi.fn();
-const retrySendMessageMock = vi.fn();
 const removeMessageMock = vi.fn();
+
+// Generous capability set so message actions/options render; individual MessageUI assertions
+// here do not test capability-gated absence.
+const OWN_CAPABILITIES = [
+  'send-reaction',
+  'send-reply',
+  'delete-own-message',
+  'update-own-message',
+  'delete-any-message',
+  'update-any-message',
+  'flag-message',
+  'mute-channel',
+  'pin-message',
+  'quote-message',
+  'read-events',
+];
 
 function generateAliceMessage(
   messageOptions?: Parameters<typeof generateMessage>[0] & Record<string, unknown>,
@@ -107,57 +130,54 @@ describe('<MessageSimple />', () => {
   let client: StreamChat;
 
   async function renderMessageSimple({
-    channelCapabilities = { 'send-reaction': true, 'send-reply': true },
-    channelConfigOverrides = { replies: true } as Partial<ChannelConfigWithInfo> &
-      Record<string, unknown>,
     components = {} as Partial<ComponentContextValue>,
     message,
     props = {} as Partial<MessageContextValue>,
     renderer = render,
   }: {
+    // channelCapabilities / channelConfigOverrides kept for call-site compatibility; the
+    // capabilities/config now live on the real channel created in beforeEach.
     channelCapabilities?: Record<string, boolean>;
-    channelConfigOverrides?: Partial<ChannelConfigWithInfo> & Record<string, unknown>;
+    channelConfigOverrides?: Record<string, unknown>;
     components?: Partial<ComponentContextValue>;
     message: ReturnType<typeof generateMessage>;
     props?: Partial<MessageContextValue>;
     renderer?: typeof render;
   }) {
+    // MERGE-RECONCILE (test migration): "in a thread" is now derived from useThreadContext()
+    // (a <Thread>/ThreadProvider), not the legacy `threadList` prop. Wrap in ThreadProvider when
+    // the caller opts into thread-list rendering so status suppression behaves as before.
+    const messageElement = (
+      <Message
+        {...fromPartial<MessageProps>({
+          message,
+          threadList: false,
+          ...props,
+        })}
+      />
+    );
     let result: RenderResult;
     await act(() => {
       result = renderer(
         <Chat client={client}>
-          <ChannelStateProvider
-            value={mockChannelStateContext({
-              channel,
-              channelCapabilities,
-              channelConfig: channelConfigOverrides,
-            })}
-          >
-            <ChannelActionProvider
-              value={mockChannelActionContext({
-                openThread: openThreadMock,
-                removeMessage: removeMessageMock,
-                retrySendMessage: retrySendMessageMock,
-              })}
+          <ChannelComponent channel={channel}>
+            <WithComponents
+              overrides={{
+                Attachment: AttachmentMock,
+                Message: () => <MessageUI {...props} />,
+                reactionOptions: defaultReactionOptions,
+                ...components,
+              }}
             >
-              <WithComponents
-                overrides={{
-                  Attachment: AttachmentMock,
-                  Message: () => <MessageUI {...props} />,
-                  reactionOptions: defaultReactionOptions,
-                  ...components,
-                }}
-              >
-                <Message
-                  {...fromPartial<MessageProps>({
-                    message,
-                    threadList: false,
-                    ...props,
-                  })}
-                />
-              </WithComponents>
-            </ChannelActionProvider>
-          </ChannelStateProvider>
+              {props.threadList ? (
+                <ThreadProvider thread={fromPartial<Thread>({})}>
+                  {messageElement}
+                </ThreadProvider>
+              ) : (
+                messageElement
+              )}
+            </WithComponents>
+          </ChannelComponent>
         </Chat>,
       );
     });
@@ -170,15 +190,29 @@ describe('<MessageSimple />', () => {
   });
 
   beforeEach(async () => {
-    const mockedChannel = generateChannel(
-      fromPartial<Parameters<typeof generateChannel>[0]>({
-        state: { membership: {} },
-      }),
-    );
-
-    client = await getTestClientWithUser(alice);
-    useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
-    channel = client.channel('messaging', mockedChannel.channel.id);
+    ({
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            config: {
+              mutes: true,
+              quotes: true,
+              reactions: true,
+              replies: true,
+              user_message_reminder: true,
+            },
+            own_capabilities: OWN_CAPABILITIES,
+          },
+        } as any,
+      ],
+      customUser: alice,
+    }));
+    // Bounce delete removes the message from channel state (formerly ChannelActionContext
+    // removeMessage).
+    vi.spyOn(channel.state, 'removeMessage').mockImplementation(removeMessageMock);
   });
 
   it('should not render anything if message is of custom type message.date', async () => {
@@ -562,7 +596,7 @@ describe('<MessageSimple />', () => {
     fireEvent.keyDown(messageInner, { code: 'Enter', key: 'Enter' });
     fireEvent.keyDown(messageInner, { code: 'Space', key: ' ' });
     fireEvent.click(messageInner);
-    expect(retrySendMessageMock).not.toHaveBeenCalled();
+    expect(retryHandlerMock).not.toHaveBeenCalled();
   });
 
   it('should not assign keyboard button semantics to non-retryable regular messages', async () => {
@@ -678,53 +712,74 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should open thread when View button is clicked and parent found', async () => {
+  // MERGE-RECONCILE (test migration): the also-sent-in-channel "View" navigation moved from the
+  // ChannelActionContext `openThread` handler to useMessageAlsoSentInChannelNavigation, which
+  // resolves the parent thread via `client.getThread` and then navigates through ChatView `open`.
+  it('should open thread when View button is clicked and parent thread is resolved', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    channel.state.messageSets[0].messages.unshift(parentMessage);
+    vi.spyOn(client, 'getThread').mockResolvedValue(
+      fromPartial({
+        id: parentMessage.id,
+        messagePaginator: { jumpToMessage: vi.fn(() => Promise.resolve(true)) },
+      }),
+    );
     const { container, getByText } = await renderMessageSimple({
       message,
     });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByText('View'));
-    expect(openThreadMock).toHaveBeenCalledWith(expect.any(Object));
+    await waitFor(() =>
+      expect(openThreadMock).toHaveBeenCalledWith(
+        expect.objectContaining({ kind: 'thread' }),
+      ),
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should not open thread when View button is clicked and parent message is not found', async () => {
+  it('should not open thread when the parent thread cannot be resolved', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
+    vi.spyOn(client, 'getThread').mockRejectedValue(new Error('not found'));
     const { container, getByText } = await renderMessageSimple({
       message,
     });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByText('View'));
+    await waitFor(() => expect(client.getThread).toHaveBeenCalled());
     expect(openThreadMock).not.toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should query the parent if not found in local state', async () => {
+  it('should fetch the parent thread via getThread when not present locally', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    const searchSpy = vi.spyOn(client, 'search');
+    const getThreadSpy = vi.spyOn(client, 'getThread').mockResolvedValue(
+      fromPartial({
+        id: parentMessage.id,
+        messagePaginator: { jumpToMessage: vi.fn(() => Promise.resolve(true)) },
+      }),
+    );
     const { container, getByText } = await renderMessageSimple({
       message,
     });
     fireEvent.click(getByText('View'));
-    expect(searchSpy).toHaveBeenCalledWith(
-      { cid: channel.cid },
-      { id: parentMessage.id },
+    await waitFor(() =>
+      expect(getThreadSpy).toHaveBeenCalledWith(
+        parentMessage.id,
+        expect.objectContaining({ watch: true }),
+      ),
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -736,14 +791,11 @@ describe('<MessageSimple />', () => {
     });
     const { container, getByTestId } = await renderMessageSimple({
       message,
-      props: {
-        handleOpenThread: openThreadMock,
-      },
     });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
     expect(openThreadMock).toHaveBeenCalledWith(
-      expect.any(Object), // The event object
+      expect.objectContaining({ kind: 'thread' }),
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -888,11 +940,11 @@ describe('<MessageSimple />', () => {
       });
       fireEvent.click(getByTestId('message-inner'));
       fireEvent.click(getByTestId('message-bounce-send'));
-      expect(retrySendMessageMock).toHaveBeenCalledWith(
-        expect.objectContaining({
+      expect(retryHandlerMock).toHaveBeenCalledWith({
+        localMessage: expect.objectContaining({
           id: message.id,
         }),
-      );
+      });
     });
 
     it('should remove message', async () => {

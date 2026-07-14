@@ -5,32 +5,20 @@ import { axe } from '../../../../axe-helper';
 import { MessageActions } from '../MessageActions';
 import { defaultMessageActionSet } from '../MessageActions.defaults';
 
-import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
-  ComponentProvider,
-  DialogManagerProvider,
-  MessageProvider,
-  TranslationProvider,
-} from '../../../context';
+import { DialogManagerProvider, MessageProvider } from '../../../context';
 
 import {
-  generateChannel,
   generateFileAttachment,
   generateImageAttachment,
   generateLocalFileUploadAttachmentData,
+  generateMember,
   generateMessage,
   generateReminderResponse,
   generateUser,
   getTestClientWithUser,
+  initChannelFromData,
   initClientWithChannels,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  mockChatContext,
-  mockComponentContext,
   mockMessageContext,
-  mockTranslationContextValue,
 } from '../../../mock-builders';
 
 import { type ChatView, ChatViewContext } from '../../ChatView/ChatView';
@@ -93,47 +81,35 @@ async function renderMessageActions({
   messageActionsProps = {},
 }: any = {}) {
   const client = chatClient || (await getTestClientWithUser(alice));
-  const channel = generateChannel({
-    getConfig: () => channelConfig,
-    state: { membership: {} },
-    ...channelStateOpts,
+  if (customChatContext.mutes) {
+    client.user!.mutes = customChatContext.mutes;
+  }
+  const capabilities = channelStateOpts.channelCapabilities ?? {};
+  const own_capabilities = Object.keys(capabilities).filter((key) => capabilities[key]);
+  const config = { ...channelConfig, ...(channelStateOpts.channelConfig ?? {}) };
+  const channel = await initChannelFromData({
+    channelData: { channel: { config, own_capabilities } },
+    client,
+    defaultGenerateChannelOptions: {
+      members: [generateMember({ user: client.user })],
+    },
   });
 
   return render(
-    <ChatViewContext.Provider value={chatViewContextValue}>
-      <ChatProvider value={mockChatContext({ client, ...customChatContext })}>
+    <Chat client={client}>
+      <Channel channel={channel}>
         <DialogManagerProvider id='message-actions-dialog-provider'>
-          <ChannelStateProvider
-            value={mockChannelStateContext({
-              channel,
-              channelConfig,
-              ...channelStateOpts,
+          <MessageProvider
+            value={mockMessageContext({
+              ...defaultMessageContextValue,
+              ...customMessageContext,
             })}
           >
-            <ChannelActionProvider
-              value={mockChannelActionContext({
-                openThread: vi.fn(),
-                removeMessage: vi.fn(),
-                updateMessage: vi.fn(),
-              })}
-            >
-              <TranslationProvider value={mockTranslationContextValue()}>
-                <ComponentProvider value={mockComponentContext()}>
-                  <MessageProvider
-                    value={mockMessageContext({
-                      ...defaultMessageContextValue,
-                      ...customMessageContext,
-                    })}
-                  >
-                    <MessageActions {...messageActionsProps} />
-                  </MessageProvider>
-                </ComponentProvider>
-              </TranslationProvider>
-            </ChannelActionProvider>
-          </ChannelStateProvider>
+            <MessageActions {...messageActionsProps} />
+          </MessageProvider>
         </DialogManagerProvider>
-      </ChatProvider>
-    </ChatViewContext.Provider>,
+      </Channel>
+    </Chat>,
   );
 }
 
@@ -463,43 +439,28 @@ describe('<MessageActions />', () => {
       const {
         channels: [channel],
         client,
-      } = await initClientWithChannels();
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['quote-message'] } }],
+      });
       const message = generateMessage({ user: client.user });
       const setQuotedMessageSpy = vi.spyOn(channel.messageComposer, 'setQuotedMessage');
 
       await act(async () => {
         await render(
-          <ChatProvider value={mockChatContext({ client })}>
-            <DialogManagerProvider id='message-actions-dialog-provider'>
-              <ChannelStateProvider
-                value={mockChannelStateContext({
-                  channel,
-                  channelCapabilities: { 'quote-message': true },
-                })}
-              >
-                <ChannelActionProvider
-                  value={mockChannelActionContext({
-                    openThread: vi.fn(),
-                    removeMessage: vi.fn(),
-                    updateMessage: vi.fn(),
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
                   })}
                 >
-                  <TranslationProvider value={mockTranslationContextValue()}>
-                    <ComponentProvider value={mockComponentContext()}>
-                      <MessageProvider
-                        value={mockMessageContext({
-                          ...defaultMessageContextValue,
-                          message,
-                        })}
-                      >
-                        <MessageActions />
-                      </MessageProvider>
-                    </ComponentProvider>
-                  </TranslationProvider>
-                </ChannelActionProvider>
-              </ChannelStateProvider>
-            </DialogManagerProvider>
-          </ChatProvider>,
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+            </Channel>
+          </Chat>,
         );
       });
 
@@ -1350,7 +1311,10 @@ describe('<MessageActions />', () => {
 
       expect(button).toHaveAttribute('aria-expanded', 'false');
       expect(button).toHaveAttribute('aria-haspopup', 'true');
-      expect(button).toHaveAttribute('aria-label', 'Open Message Actions Menu');
+      // translations load asynchronously through the real <Chat> i18n instance
+      await waitFor(() =>
+        expect(button).toHaveAttribute('aria-label', 'Open Message Actions Menu'),
+      );
 
       await toggleOpenMessageActions();
 
@@ -1827,7 +1791,9 @@ describe('<MessageActions />', () => {
       const {
         channels: [channel],
         client,
-      } = await initClientWithChannels();
+      } = await initClientWithChannels({
+        channelsData: [{ channel: { own_capabilities: ['quote-message'] } }],
+      });
       const message = generateMessage({ parent_id: 'parent-1', user: client.user });
       const textarea = document.createElement('textarea');
       textarea.className = 'str-chat__textarea__textarea';
@@ -1839,37 +1805,20 @@ describe('<MessageActions />', () => {
 
       await act(async () => {
         await render(
-          <ChatProvider value={mockChatContext({ client })}>
-            <DialogManagerProvider id='message-actions-dialog-provider'>
-              <ChannelStateProvider
-                value={mockChannelStateContext({
-                  channel,
-                  channelCapabilities: { 'quote-message': true },
-                })}
-              >
-                <ChannelActionProvider
-                  value={mockChannelActionContext({
-                    openThread: vi.fn(),
-                    removeMessage: vi.fn(),
-                    updateMessage: vi.fn(),
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <DialogManagerProvider id='message-actions-dialog-provider'>
+                <MessageProvider
+                  value={mockMessageContext({
+                    ...defaultMessageContextValue,
+                    message,
                   })}
                 >
-                  <TranslationProvider value={mockTranslationContextValue()}>
-                    <ComponentProvider value={mockComponentContext()}>
-                      <MessageProvider
-                        value={mockMessageContext({
-                          ...defaultMessageContextValue,
-                          message,
-                        })}
-                      >
-                        <MessageActions />
-                      </MessageProvider>
-                    </ComponentProvider>
-                  </TranslationProvider>
-                </ChannelActionProvider>
-              </ChannelStateProvider>
-            </DialogManagerProvider>
-          </ChatProvider>,
+                  <MessageActions />
+                </MessageProvider>
+              </DialogManagerProvider>
+            </Channel>
+          </Chat>,
         );
       });
 

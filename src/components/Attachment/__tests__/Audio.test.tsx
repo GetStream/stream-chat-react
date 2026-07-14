@@ -11,6 +11,8 @@ import {
 import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
+import { ThreadProvider } from '../../Threads';
+import type { Thread } from 'stream-chat';
 
 const { addNotificationSpy } = vi.hoisted(() => ({
   addNotificationSpy: vi.fn(),
@@ -279,14 +281,19 @@ describe('Audio', () => {
 
   it('differentiates between in thread and in channel audio player', async () => {
     const message = generateMessage();
+    // In v14 a thread player is distinguished from a channel player by the presence of a
+    // Thread instance (useThreadContext), not the message-context `threadList` flag, so the
+    // thread widget is wrapped in a ThreadProvider to give it a distinct requester namespace.
     render(
       <WithAudioPlayback allowConcurrentPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={mockMessageContext({ message, threadList: true })}>
-          <Audio attachment={audioAttachment} />
-        </MessageProvider>
+        <ThreadProvider thread={fromPartial<Thread>({})}>
+          <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+            <Audio attachment={audioAttachment} />
+          </MessageProvider>
+        </ThreadProvider>
       </WithAudioPlayback>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');

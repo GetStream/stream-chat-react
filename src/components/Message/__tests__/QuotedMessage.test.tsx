@@ -5,9 +5,6 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
   TranslationProvider,
@@ -16,13 +13,12 @@ import {
   generateFileAttachment,
   generateUser,
   initClientWithChannels,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  mockChatContext,
   mockComponentContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
+import { Channel } from '../../Channel';
+import { Chat } from '../../Chat';
 import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
@@ -50,7 +46,6 @@ const alice = generateUser({ name: 'alice' });
 const jumpToMessageMock = vi.fn();
 
 async function renderQuotedMessage({
-  channelCapabilitiesOverrides = {},
   componentContext,
   customChannel,
   customClient,
@@ -60,47 +55,39 @@ async function renderQuotedMessage({
     channels: [channel],
     client,
   } = await initClientWithChannels({ customUser: alice });
-  const channelConfig = (customChannel ?? channel).getConfig();
-  const channelCapabilities = {
-    ...channelCapabilitiesOverrides,
-  };
+  const activeChannel = customChannel ?? channel;
+  // MERGE-RECONCILE (test migration): jumpToMessage moved from ChannelActionContext to the
+  // channel's messagePaginator. QuotedMessage now calls channel.messagePaginator.jumpToMessage.
+  vi.spyOn(activeChannel.messagePaginator, 'jumpToMessage').mockImplementation(
+    jumpToMessageMock,
+  );
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
 
   return render(
-    <ChatProvider value={mockChatContext({ client: customClient ?? client })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          channel: customChannel ?? channel,
-          channelCapabilities,
-          channelConfig,
-        })}
-      >
-        <ChannelActionProvider
-          value={mockChannelActionContext({ jumpToMessage: jumpToMessageMock })}
+    <Chat client={customClient ?? client}>
+      <Channel channel={activeChannel}>
+        <TranslationProvider
+          value={mockTranslationContextValue({
+            t: (key: any) => key,
+            tDateTimeParser: customDateTimeParser,
+            userLanguage: 'en',
+          })}
         >
-          <TranslationProvider
-            value={mockTranslationContextValue({
-              t: (key: any) => key,
-              tDateTimeParser: customDateTimeParser,
-              userLanguage: 'en',
+          <ComponentProvider
+            value={mockComponentContext({
+              Message: () => <MessageUI />,
+              ...componentContext,
             })}
           >
-            <ComponentProvider
-              value={mockComponentContext({
-                Message: () => <MessageUI />,
-                ...componentContext,
-              })}
-            >
-              <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
-                <Message {...customProps}>
-                  <QuotedMessage {...customProps} />
-                </Message>
-              </DialogManagerProvider>
-            </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>,
+            <DialogManagerProvider id='quoted-message-dialog-manager-provider'>
+              <Message {...customProps}>
+                <QuotedMessage {...customProps} />
+              </Message>
+            </DialogManagerProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </Channel>
+    </Chat>,
   );
 }
 

@@ -1,34 +1,63 @@
 import { renderHook } from '@testing-library/react';
 import React from 'react';
 import { useUnreadMessagesNotificationVirtualized } from '../VirtualizedMessageList';
-import type { UseUnreadMessagesNotificationParams } from '../VirtualizedMessageList/useUnreadMessagesNotificationVirtualized';
 import { act } from '@testing-library/react';
-import { generateMessage } from '../../../../mock-builders';
+import { generateMessage, initClientWithChannels } from '../../../../mock-builders';
 import type { RenderedMessage } from '../../utils';
+import { Chat } from '../../../Chat';
+import { Channel } from '../../../Channel';
 
-const render = (params: UseUnreadMessagesNotificationParams) => {
-  const wrapper = ({ children }: React.PropsWithChildren) => <>{children}</>;
-  return renderHook(() => useUnreadMessagesNotificationVirtualized(params), {
-    wrapper,
-  });
+// MERGE-RECONCILE (test migration): useUnreadMessagesNotificationVirtualized was rewritten to
+// read `unreadCount`/`lastReadAt` from `channel.messagePaginator.unreadStateSnapshot` (via
+// useStateStore) instead of receiving `unreadCount`/`lastRead` as params. The hook now only
+// takes `{ showAlways }`. Tests set the unread state through
+// `channel.messagePaginator.setUnreadSnapshot(...)` and render inside the real
+// <Chat>/<Channel> providers so `useMessagePaginator` can resolve the channel.
+
+const render = async ({
+  lastRead = null,
+  showAlways = false,
+  unreadCount = 0,
+}: {
+  lastRead?: Date | null;
+  showAlways?: boolean;
+  unreadCount?: number;
+} = {}) => {
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels();
+  channel.messagePaginator.setUnreadSnapshot({ lastReadAt: lastRead, unreadCount });
+  const wrapper = ({ children }: React.PropsWithChildren) => (
+    <Chat client={client}>
+      <Channel channel={channel}>{children}</Channel>
+    </Chat>
+  );
+  const utils = renderHook(
+    () => useUnreadMessagesNotificationVirtualized({ showAlways }),
+    { wrapper },
+  );
+  return { channel, ...utils };
 };
+
 describe('useUnreadMessagesNotificationVirtualized', () => {
-  it('should hide the notification on mount if there are no unread messages', () => {
-    const {
-      result: {
-        current: { show },
-      },
-    } = render({ unreadCount: 0 });
-    expect(show).toBe(false);
+  it('should hide the notification on mount if there are no unread messages', async () => {
+    const { result } = await render({ unreadCount: 0 });
+    expect(result.current.show).toBe(false);
   });
 
   describe('toggle function', () => {
     it('should prevent show state change when there are no messages to render', async () => {
-      const { rerender, result } = render({ unreadCount: 0 });
+      const { channel, result } = await render({ unreadCount: 0 });
       await act(() => {
         result.current.toggleShowUnreadMessagesNotification([]);
       });
-      rerender({ lastRead: new Date('1970-1-1'), unreadCount: 1 });
+      await act(() => {
+        channel.messagePaginator.setUnreadSnapshot({
+          lastReadAt: new Date('1970-1-1'),
+          unreadCount: 1,
+        });
+      });
       expect(result.current.show).toBe(false);
     });
 
@@ -40,7 +69,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
         generateMessage({ created_at: firstRenderedMsgCreated }),
         generateMessage({ created_at: now }),
       ];
-      const { result } = render({ lastRead, showAlways: false, unreadCount: 0 });
+      const { result } = await render({ lastRead, showAlways: false, unreadCount: 0 });
       await act(() => {
         result.current.toggleShowUnreadMessagesNotification(
           messages as RenderedMessage[],
@@ -59,7 +88,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           generateMessage({ created_at: firstRenderedMsgCreated }),
           generateMessage({ created_at: now }),
         ];
-        const { result } = render({
+        const { result } = await render({
           lastRead,
           showAlways: showUnreadNotificationAlways,
           unreadCount: 1,
@@ -87,7 +116,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           generateMessage({ created_at: firstRenderedMsgCreated }),
           generateMessage({ created_at: lastRenderedMsgCreated }),
         ];
-        const { result } = render({
+        const { result } = await render({
           lastRead,
           showAlways: showUnreadNotificationAlways,
           unreadCount: 1,
@@ -111,7 +140,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           generateMessage({ created_at: firstRenderedMsgCreated }),
           generateMessage({ created_at: lastRead }),
         ];
-        const { result } = render({
+        const { result } = await render({
           lastRead,
           showAlways: showUnreadNotificationAlways,
           unreadCount: 1,
@@ -135,7 +164,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
           generateMessage({ created_at: lastRead }),
           generateMessage({ created_at: lastRenderedMsgCreated }),
         ];
-        const { result } = render({
+        const { result } = await render({
           lastRead,
           showAlways: showUnreadNotificationAlways,
           unreadCount: 1,

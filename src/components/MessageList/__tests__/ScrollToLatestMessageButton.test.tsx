@@ -1,16 +1,25 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { Channel, StreamChat, UserResponse } from 'stream-chat';
+import { StateStore } from 'stream-chat';
+import type { Channel, StreamChat, Thread, UserResponse } from 'stream-chat';
 
 import { ScrollToLatestMessageButton } from '../ScrollToLatestMessageButton';
-import { ChannelStateProvider, ChatProvider } from '../../../context';
+import { Chat } from '../../Chat';
+import { Channel as ChannelComponent } from '../../Channel';
+import { ThreadProvider } from '../../Threads';
 import {
   createClientWithChannel,
   dispatchMessageNewEvent,
   dispatchMessageUpdatedEvent,
   generateMessage,
-  mockChatContext,
 } from '../../../mock-builders';
+
+// MERGE-RECONCILE (test migration): ScrollToLatestMessageButton no longer reads the thread from
+// the removed ChannelStateContext, nor accepts a `threadList` prop. It resolves the client via
+// useChatContext, the channel via useChannel, and the thread via useThreadContext
+// (Threads/ThreadContext) reading `thread.state.parentMessage`. The test now renders inside the
+// real <Chat>/<Channel> providers and provides a thread via <ThreadProvider>. The thread stub
+// exposes a real StateStore holding the parent message so useStateStore resolves it.
 
 const BUTTON_TEST_ID = 'scroll-to-latest-message-button';
 const NEW_MESSAGE_COUNTER_TEST_ID = 'unread-message-notification-counter';
@@ -23,10 +32,26 @@ let channel: Channel;
 let users: UserResponse[];
 let containerIsThread: boolean;
 let anotherUser;
-let channelStateContext;
 let parentMsg;
+let thread: Thread | undefined;
 
 const onClick = vi.fn();
+
+const makeThread = (parentMessage) =>
+  ({
+    state: new StateStore({ parentMessage }),
+  }) as unknown as Thread;
+
+// The button under test defaults to the main-list button (no thread context), which observes
+// `message.new`. Original tests rendered it without the (now removed) `threadList` prop even in
+// the "a thread" variant; a thread being open only mattered for the dedicated thread-list button
+// exercised by the last test, which wraps its button in <ThreadProvider>.
+const renderButton = (ui: React.ReactNode) =>
+  render(
+    <Chat client={client}>
+      <ChannelComponent channel={channel}>{ui}</ChannelComponent>
+    </Chat>,
+  );
 
 const dispatchMessageEvents = ({ channel, client, newMessage, parentMsg, user }) => {
   if (containerIsThread) {
@@ -54,34 +79,24 @@ describe.each([
       (u) => u.user_id !== client.user.id,
     );
     parentMsg = { ...channel.state.messages[0], reply_count: 0 };
-    channelStateContext = {
-      thread: containerIsThread ? parentMsg : null,
-    };
+    thread = makeThread(parentMsg);
   });
 
   afterEach(vi.clearAllMocks);
 
   it(`is not rendered if ${containerMsgList} scrolled to the bottom`, () => {
-    const { container } = render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />,
     );
-    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByTestId(BUTTON_TEST_ID)).not.toBeInTheDocument();
   });
 
   it('is rendered if scrolled above the threshold', () => {
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
     expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
     expect(
@@ -90,15 +105,11 @@ describe.each([
   });
 
   it('calls the onclick callback', async () => {
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
 
     await act(() => {
@@ -112,12 +123,8 @@ describe.each([
 
   it('does not increase the unread count if already scrolled at the bottom', async () => {
     const newMessage = generateMessage({ user: anotherUser });
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton isMessageListScrolledToBottom onClick={onClick} />,
     );
 
     await act(() => {
@@ -138,15 +145,11 @@ describe.each([
 
   it('shows the count unread if new message arrives to active channel from another user', async () => {
     const newMessage = generateMessage({ user: anotherUser });
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
 
     await act(() => {
@@ -168,15 +171,11 @@ describe.each([
 
   it('does not show unread count for own arriving messages', async () => {
     const newMessage = generateMessage({ user: client.user });
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
 
     await act(() => {
@@ -200,15 +199,11 @@ describe.each([
       existingClient: client,
       existingUsers: users,
     });
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
 
     await act(() => {
@@ -233,15 +228,11 @@ describe.each([
       existingUsers: users,
     });
 
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
 
     await act(() => {
@@ -260,15 +251,11 @@ describe.each([
   });
 
   it('increases the count unread with each new message arrival', async () => {
-    render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
-          <ScrollToLatestMessageButton
-            isMessageListScrolledToBottom={false}
-            onClick={onClick}
-          />
-        </ChannelStateProvider>
-      </ChatProvider>,
+    renderButton(
+      <ScrollToLatestMessageButton
+        isMessageListScrolledToBottom={false}
+        onClick={onClick}
+      />,
     );
 
     for (let i = 1; i <= 2; i++) {
@@ -302,8 +289,8 @@ describe.each([
     const newMessage = generateMessage(messagePayload);
 
     const { container } = render(
-      <ChatProvider value={mockChatContext({ channel, client })}>
-        <ChannelStateProvider value={channelStateContext}>
+      <Chat client={client}>
+        <ChannelComponent channel={channel}>
           <div id={mainListId}>
             <ScrollToLatestMessageButton
               isMessageListScrolledToBottom={false}
@@ -311,14 +298,15 @@ describe.each([
             />
           </div>
           <div id={threadListId}>
-            <ScrollToLatestMessageButton
-              isMessageListScrolledToBottom={false}
-              onClick={onClick}
-              threadList
-            />
+            <ThreadProvider thread={thread}>
+              <ScrollToLatestMessageButton
+                isMessageListScrolledToBottom={false}
+                onClick={onClick}
+              />
+            </ThreadProvider>
           </div>
-        </ChannelStateProvider>
-      </ChatProvider>,
+        </ChannelComponent>
+      </Chat>,
     );
 
     await act(() => {

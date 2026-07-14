@@ -3,13 +3,18 @@ import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel, LocalMessage, Thread } from 'stream-chat';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
-import type { ChatContextValue } from '../../../context/ChatContext';
+import { ChannelInstanceProvider, ChatProvider } from '../../../context';
+import type { ChatContextValue } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-import { mockChannelStateContext } from '../../../mock-builders';
 import { ThreadHeader } from '../ThreadHeader';
+
+// MERGE-RECONCILE (test migration): ThreadHeader moved off the deleted ChannelStateContext.
+// It now resolves the channel via useChannel() (ChannelInstanceContext), the reply count from
+// the (optional) thread instance in ThreadContext, and the channel title from
+// useChannelPreviewInfo. The subtitle fallback is the parent message author's name. We seed a
+// ChannelInstanceProvider channel and mock the composer controller / store so the header renders
+// without a fully initialized <Channel>. Assertions are unchanged.
 
 vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
   useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
@@ -19,8 +24,8 @@ vi.mock('../../../store', () => ({
   useStateStore: vi.fn(() => undefined),
 }));
 
-vi.mock('../../../context/TypingContext', () => ({
-  useTypingContext: vi.fn(() => ({ typing: {} })),
+vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
+  useMessageComposerController: vi.fn(() => fromPartial({})),
 }));
 
 vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
@@ -41,7 +46,6 @@ import { useChatViewContext } from '../../ChatView';
 import { useThreadContext } from '../../Threads';
 
 const alice = { id: 'alice', name: 'Alice' };
-const bob = { id: 'bob', name: 'Bob' };
 
 const createThread = (user) => ({
   id: `${user?.id ?? 'thread'}-message`,
@@ -49,21 +53,8 @@ const createThread = (user) => ({
   user,
 });
 
-const createChannel = (overrides = {}) => ({
-  data: undefined,
-  getClient: () => ({ userID: alice.id }),
-  state: {
-    members: {
-      [alice.id]: { user: alice },
-      [bob.id]: { user: bob },
-    },
-  },
-  ...overrides,
-});
-
 const renderComponent = ({
   activeChatView = 'channels',
-  channelOverrides = {},
   props = {},
   threadContext = undefined,
 } = {}) => {
@@ -74,7 +65,7 @@ const renderComponent = ({
     userID: alice.id,
   });
   const thread = createThread(alice);
-  const channel = createChannel(channelOverrides) as unknown as Channel;
+  const channel = fromPartial<Channel>({ cid: 'messaging:thread-header-test' });
 
   vi.mocked(useChatViewContext).mockReturnValue(
     fromPartial<ReturnType<typeof useChatViewContext>>({
@@ -91,7 +82,7 @@ const renderComponent = ({
         latestMessageDatesByChannels: {},
       })}
     >
-      <ChannelStateProvider value={mockChannelStateContext({ channel, thread })}>
+      <ChannelInstanceProvider value={{ channel }}>
         <TranslationProvider
           value={fromPartial<TranslationContextValue>({
             t: ((key: string, options?: Record<string, unknown>) => {
@@ -110,7 +101,7 @@ const renderComponent = ({
             {...props}
           />
         </TranslationProvider>
-      </ChannelStateProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 };
@@ -137,13 +128,6 @@ describe('ThreadHeader', () => {
     );
 
     renderComponent({
-      channelOverrides: {
-        state: {
-          members: {
-            [alice.id]: { user: alice },
-          },
-        },
-      },
       props: {
         thread: createThread(alice),
       },
@@ -158,13 +142,6 @@ describe('ThreadHeader', () => {
     );
 
     renderComponent({
-      channelOverrides: {
-        state: {
-          members: {
-            [alice.id]: { user: alice },
-          },
-        },
-      },
       props: {
         thread: createThread({ id: 'alice' }),
       },

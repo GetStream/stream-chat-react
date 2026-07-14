@@ -1,3 +1,8 @@
+// Import the package barrel first so it evaluates in its natural order (components then context).
+// MessageComposer's send hooks (rendered by PollCreationDialog's controls) import `useChannel` from
+// this root barrel; importing a deep component path first triggers a partial circular re-entry that
+// leaves `useChannel` undefined under Vitest.
+import '../../..';
 import React from 'react';
 import {
   act,
@@ -7,11 +12,11 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { PollCreationDialog } from '../PollCreationDialog';
-import { MessageComposerContextProvider } from '../../../context';
-import { generateUser, initClientWithChannels } from '../../../mock-builders';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { MessageComposerContextProvider } from '../../../context';
+import { generateUser, initClientWithChannels } from '../../../mock-builders';
+import { PollCreationDialog } from '../PollCreationDialog';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 import type { MessageComposerContextValue } from '../../../context';

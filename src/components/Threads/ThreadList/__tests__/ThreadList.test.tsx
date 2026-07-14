@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { cleanup, render, screen } from '@testing-library/react';
+import type { StreamChat } from 'stream-chat';
 
 import { ThreadList } from '../ThreadList';
+import { initClientWithChannels } from '../../../../mock-builders';
 
 const mockUseChatContext = vi.fn();
 const mockUseComponentContext = vi.fn();
@@ -44,25 +46,17 @@ vi.mock('../../../Notifications', () => ({
 }));
 
 describe('ThreadList', () => {
-  const mockClient = {
-    notifications: {
-      store: {
-        getLatestValue: vi.fn(() => ({ notifications: [] })),
-        subscribeWithSelector: vi.fn(() => vi.fn()),
-      },
-    },
-    threads: {
-      activate: vi.fn(),
-      deactivate: vi.fn(),
-      loadNextPage: vi.fn(),
-      state: {
-        subscribeWithSelector: vi.fn(() => vi.fn()),
-      },
-    },
-  };
+  // MERGE-RECONCILE (test migration): the ThreadList effects now call real ThreadManager APIs
+  // (`client.threads.state.getLatestValue()`, `partialNext`, `reload`). Use a real StreamChat
+  // client (via initClientWithChannels) so `client.threads.state` is a genuine StateStore rather
+  // than hand-mocking `client.threads`. `useStateStore` stays mocked to drive isLoading/threads,
+  // and `client.threads.reload` is stubbed to avoid a network call in the mount effect.
+  let client: StreamChat;
 
-  beforeEach(() => {
-    mockUseChatContext.mockReturnValue({ client: mockClient });
+  beforeEach(async () => {
+    ({ client } = await initClientWithChannels());
+    vi.spyOn(client.threads, 'reload').mockResolvedValue(undefined);
+    mockUseChatContext.mockReturnValue({ client });
     mockUseComponentContext.mockReturnValue({});
     mockUseTranslationContext.mockReturnValue({ t: (value: string) => value });
     mockUseStateStore.mockReturnValue({ isLoading: false, threads: [] });
