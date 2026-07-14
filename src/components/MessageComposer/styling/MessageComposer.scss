@@ -267,6 +267,15 @@
       outline: none;
       width: 100%;
       scrollbar-width: none;
+
+      // The composer intentionally has no focus ring on the textarea itself.
+      // Re-assert the reset on :focus-visible so it keeps outranking the global
+      // `.str-chat *:not(:disabled):focus-visible` outline (base.scss, (0,3,0))
+      // now that this rule is scoped one level shallower (was (0,3,1) under
+      // .str-chat__message-composer-controls, now (0,2,1)).
+      &:focus-visible {
+        outline: none;
+      }
     }
   }
 
