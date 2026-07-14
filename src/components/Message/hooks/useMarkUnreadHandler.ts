@@ -1,5 +1,5 @@
 import { validateAndGetMessage } from '../utils';
-import { useChannel, useTranslationContext } from '../../../context';
+import { useChannel } from '../../../context';
 
 import type { LocalMessage } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
@@ -14,10 +14,9 @@ export const useMarkUnreadHandler = (
   message?: LocalMessage,
   notifications: MarkUnreadHandlerNotifications = {},
 ): ReactEventHandler => {
-  const { getErrorNotification, getSuccessNotification, notify } = notifications;
+  const { getSuccessNotification, notify } = notifications;
 
   const channel = useChannel();
-  const { t } = useTranslationContext('useMarkUnreadHandler');
 
   return async (event) => {
     event.preventDefault();
@@ -26,25 +25,13 @@ export const useMarkUnreadHandler = (
       return;
     }
 
-    try {
-      await channel.markUnread({ message_id: message.id });
-      if (!notify) return;
-      const successMessage =
-        getSuccessNotification &&
-        validateAndGetMessage(getSuccessNotification, [message]);
-      if (successMessage) notify(successMessage, 'success');
-    } catch (e) {
-      if (!notify) return;
-      const errorMessage =
-        getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
-      if (getErrorNotification && !errorMessage) return;
-      notify(
-        errorMessage ||
-          t(
-            'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
-          ),
-        'error',
-      );
-    }
+    // Let request failures propagate so the caller (e.g. MessageActions' MarkUnread control, which
+    // wraps every action in try/catch and reports failures through useNotificationApi) can surface
+    // the error. The optional `notify` bridge remains for direct callers that want a success toast.
+    await channel.markUnread({ message_id: message.id });
+    if (!notify) return;
+    const successMessage =
+      getSuccessNotification && validateAndGetMessage(getSuccessNotification, [message]);
+    if (successMessage) notify(successMessage, 'success');
   };
 };

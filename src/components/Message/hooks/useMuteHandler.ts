@@ -28,7 +28,11 @@ export const useMuteHandler = (
 
     const { getErrorNotification, getSuccessNotification, notify } = notifications;
 
-    if (!t || !message?.user || !notify || !client) {
+    // Perform the mute/unmute unconditionally — mirror useMarkUnreadHandler/useDeleteHandler, which
+    // do the action first and treat `notify` as an optional UI bridge. Gating the action on `notify`
+    // (as this hook previously did) turned mute into a no-op, because Message.tsx wires the handler
+    // as `useMuteHandler(message)` with no notifications, per the canonical `(message)`-only style.
+    if (!message?.user || !client) {
       console.warn(missingUseMuteHandlerParamsWarning);
       return;
     }
@@ -38,49 +42,45 @@ export const useMuteHandler = (
       try {
         await client.muteUser(message.user.id);
 
+        if (!notify) return;
         const successMessage =
-          getSuccessNotification &&
-          validateAndGetMessage(getSuccessNotification, [message.user]);
+          (getSuccessNotification &&
+            validateAndGetMessage(getSuccessNotification, [message.user])) ||
+          t('{{ user }} has been muted', {
+            user: message.user.name || message.user.id,
+          });
 
-        notify(
-          successMessage ||
-            t('{{ user }} has been muted', {
-              user: message.user.name || message.user.id,
-            }),
-          'success',
-        );
+        if (typeof successMessage === 'string') notify(successMessage, 'success');
       } catch (e) {
+        if (!notify) return;
         const errorMessage =
-          getErrorNotification &&
-          validateAndGetMessage(getErrorNotification, [message.user]);
+          (getErrorNotification &&
+            validateAndGetMessage(getErrorNotification, [message.user])) ||
+          t('Error muting a user ...');
 
-        notify(errorMessage || t('Error muting a user ...'), 'error');
+        if (typeof errorMessage === 'string') notify(errorMessage, 'error');
       }
     } else {
       try {
         await client.unmuteUser(message.user.id);
 
-        const fallbackMessage = t('{{ user }} has been unmuted', {
-          user: message.user.name || message.user.id,
-        });
-
+        if (!notify) return;
         const successMessage =
           (getSuccessNotification &&
             validateAndGetMessage(getSuccessNotification, [message.user])) ||
-          fallbackMessage;
+          t('{{ user }} has been unmuted', {
+            user: message.user.name || message.user.id,
+          });
 
-        if (typeof successMessage === 'string') {
-          notify(successMessage, 'success');
-        }
+        if (typeof successMessage === 'string') notify(successMessage, 'success');
       } catch (e) {
+        if (!notify) return;
         const errorMessage =
           (getErrorNotification &&
             validateAndGetMessage(getErrorNotification, [message.user])) ||
           t('Error unmuting a user ...');
 
-        if (typeof errorMessage === 'string') {
-          notify(errorMessage, 'error');
-        }
+        if (typeof errorMessage === 'string') notify(errorMessage, 'error');
       }
     }
   };
