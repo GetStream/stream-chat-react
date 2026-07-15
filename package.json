@@ -46,6 +46,12 @@
       "require": "./dist/cjs/slot-geometry.js",
       "default": "./dist/cjs/slot-geometry.js"
     },
+    "./slot-layout": {
+      "types": "./dist/types/plugins/SlotLayout/index.d.ts",
+      "import": "./dist/es/slot-layout.mjs",
+      "require": "./dist/cjs/slot-layout.js",
+      "default": "./dist/cjs/slot-layout.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -66,6 +72,9 @@
       ],
       "slot-geometry": [
         "./dist/types/plugins/SlotGeometry/index.d.ts"
+      ],
+      "slot-layout": [
+        "./dist/types/plugins/SlotLayout/index.d.ts"
       ]
     }
   },
