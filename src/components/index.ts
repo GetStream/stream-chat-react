@@ -13,7 +13,6 @@ export * from './ChannelListItem';
 export * from './Search';
 export * from './SkipNavigation';
 export * from './Chat';
-export * from './ChatView';
 export * from './DateSeparator';
 export * from './Dialog';
 export * from './EmptyStateIndicator';

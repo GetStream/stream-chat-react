@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { useSlotChannel } from '../ChatView';
-import { Channel as ChannelComponent, type ChannelProps } from './Channel';
+import { useSlotChannel } from './hooks';
+import { Channel as ChannelComponent, type ChannelProps } from '../../components/Channel';
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import type { SlotName } from '../ChatView/layoutController/layoutControllerTypes';
+import type { SlotName } from './layoutController/layoutControllerTypes';
 
 export type ChannelSlotProps = PropsWithChildren<
   Omit<ChannelProps, 'channel'> & {

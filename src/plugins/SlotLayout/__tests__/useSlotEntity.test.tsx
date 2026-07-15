@@ -3,9 +3,9 @@ import { StateStore } from 'stream-chat';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
-import { ChannelSlot } from '../../Channel';
+import { ChannelSlot } from '../ChannelSlot';
 import { ChatView } from '../ChatView';
-import { ThreadSlot } from '../../Thread';
+import { ThreadSlot } from '../ThreadSlot';
 import {
   getLayoutViewState,
   useSlotChannel,
@@ -21,7 +21,7 @@ import { LayoutController } from '../layoutController/LayoutController';
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import type { ChatContextValue } from '../../../context/ChatContext';
 
-vi.mock('../../Channel/Channel', () => ({
+vi.mock('../../../components/Channel/Channel', () => ({
   Channel: ({
     channel,
     children,
@@ -36,13 +36,13 @@ vi.mock('../../Channel/Channel', () => ({
   ),
 }));
 
-vi.mock('../../Threads', () => ({
+vi.mock('../../../components/Threads', () => ({
   ThreadProvider: ({ children }: { children?: React.ReactNode }) => (
     <>{children ?? null}</>
   ),
 }));
 
-vi.mock('../../Thread/Thread', () => ({
+vi.mock('../../../components/Thread/Thread', () => ({
   Thread: () => <div data-testid='mocked-thread-component'>thread-component</div>,
 }));
 

@@ -36,13 +36,13 @@ vi.mock('../../Threads', () => ({
   useThreadContext: vi.fn(() => undefined),
 }));
 
-vi.mock('../../ChatView', () => ({
+vi.mock('../../../plugins/SlotLayout', () => ({
   useChatViewContext: vi.fn(() => ({ activeChatView: 'channels' })),
   useSlotForKind: vi.fn(() => undefined),
 }));
 
 import { useChannelPreviewInfo } from '../../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChatViewContext } from '../../ChatView';
+import { useChatViewContext } from '../../../plugins/SlotLayout';
 import { useThreadContext } from '../../Threads';
 
 const alice = { id: 'alice', name: 'Alice' };

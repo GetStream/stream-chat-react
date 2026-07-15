@@ -16,7 +16,7 @@ import {
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
-import { useChatViewNavigation } from '../../../../components/ChatView';
+import { useChatViewNavigation } from '../../../SlotLayout';
 import { useStableCallback } from '../../../../utils';
 import { useStateStore } from '../../../../store';
 import { Alert } from '../../../../components/Dialog';

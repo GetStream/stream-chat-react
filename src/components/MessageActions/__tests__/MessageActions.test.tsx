@@ -21,7 +21,7 @@ import {
   mockMessageContext,
 } from '../../../mock-builders';
 
-import { type ChatView, ChatViewContext } from '../../ChatView/ChatView';
+import { type ChatView, ChatViewContext } from '../../../plugins/SlotLayout/ChatView';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';

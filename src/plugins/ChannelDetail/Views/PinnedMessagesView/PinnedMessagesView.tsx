@@ -2,7 +2,7 @@ import type { LocalMessage, MessageResponse, MessageSearchSource } from 'stream-
 import React, { useCallback, useMemo } from 'react';
 
 import { useModalContext, useTranslationContext } from '../../../../context';
-import { useChatViewNavigation } from '../../../../components/ChatView';
+import { useChatViewNavigation } from '../../../SlotLayout';
 import { getDateString, isDate } from '../../../../i18n/utils';
 import { Avatar } from '../../../../components/Avatar';
 import { ListItemLayout } from '../../../../components/ListItemLayout';

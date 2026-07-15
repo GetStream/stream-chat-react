@@ -9,16 +9,16 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useStableId } from '../UtilityComponents/useStableId';
+import { useStableId } from '../../components/UtilityComponents/useStableId';
 
-import { Button, type ButtonProps } from '../Button';
+import { Button, type ButtonProps } from '../../components/Button';
 import {
   IconMessageBubble,
   IconMessageBubbleFill,
   IconThread,
   IconThreadFill,
-} from '../Icons';
-import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
+} from '../../components/Icons';
+import { UnreadCountBadge } from '../../components/Threads/UnreadCountBadge';
 import {
   DialogManagerProvider,
   useChatContext,

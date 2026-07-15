@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 
-import { useChatViewContext, useSlotThread } from '../ChatView';
-import { ThreadProvider } from '../Threads';
-import { Thread as ThreadComponent, type ThreadProps } from './Thread';
+import { useChatViewContext } from './ChatView';
+import { useSlotThread } from './hooks';
+import { ThreadProvider } from '../../components/Threads';
+import { Thread as ThreadComponent, type ThreadProps } from '../../components/Thread';
 import { ThreadSlotContext } from './ThreadSlotContext';
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import type { SlotName } from '../ChatView/layoutController/layoutControllerTypes';
+import type { SlotName } from './layoutController/layoutControllerTypes';
 
 export type ThreadSlotProps = PropsWithChildren<
   ThreadProps & {

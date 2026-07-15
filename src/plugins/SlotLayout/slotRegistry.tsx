@@ -10,8 +10,8 @@
 
 import React, { createContext, useContext } from 'react';
 
-import { ChannelNavigation } from '../ChannelList';
-import { ThreadList } from '../Threads/ThreadList';
+import { ChannelNavigation } from '../../components/ChannelList';
+import { ThreadList } from '../../components/Threads/ThreadList';
 
 import type { ReactNode } from 'react';
 import type { ChatView } from './ChatView';

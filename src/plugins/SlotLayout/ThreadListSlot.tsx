@@ -1,15 +1,12 @@
 import React, { useEffect } from 'react';
 
-import {
-  createChatViewSlotBinding,
-  getChatViewEntityBinding,
-  useChatViewContext,
-} from '../../ChatView';
-import { useLayoutViewState } from '../../ChatView/hooks/useLayoutViewState';
-import { Slot } from '../../ChatView/layout/Slot';
+import { createChatViewSlotBinding, getChatViewEntityBinding } from './slotBinding';
+import { useChatViewContext } from './ChatView';
+import { useLayoutViewState } from './hooks/useLayoutViewState';
+import { Slot } from './layout/Slot';
 
 import type { PropsWithChildren, ReactNode } from 'react';
-import type { SlotName } from '../../ChatView/layoutController/layoutControllerTypes';
+import type { SlotName } from './layoutController/layoutControllerTypes';
 
 export type ThreadListSlotProps = PropsWithChildren<{
   fallback?: ReactNode;
