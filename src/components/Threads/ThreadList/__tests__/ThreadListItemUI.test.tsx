@@ -7,29 +7,24 @@ import { ThreadListItemUI } from '../ThreadListItemUI';
 const mockUseChatContext = vi.fn();
 const mockUseTranslationContext = vi.fn();
 const mockUseStateStore = vi.fn();
-const mockUseLayoutViewState = vi.fn();
-const mockOpen = vi.fn();
+const mockOpenThread = vi.fn();
+const mockIsThreadActive = vi.fn();
 const mockUseThreadListItemContext = vi.fn();
 const mockUseChannelPreviewInfo = vi.fn();
 
+// Active state and selection now come from the workspace navigation adapter:
+// `isThreadActive(id)` drives the selected state; clicking opens the thread via `openThread`.
 vi.mock('../../../../context', () => ({
   useChatContext: () => mockUseChatContext(),
   useTranslationContext: () => mockUseTranslationContext(),
+  useWorkspaceNavigation: () => ({
+    isThreadActive: mockIsThreadActive,
+    openThread: mockOpenThread,
+  }),
 }));
 
 vi.mock('../../../../store', () => ({
   useStateStore: (...args) => mockUseStateStore(...args),
-}));
-
-// Active state now comes from the ChatView slot bindings (a thread bound in a slot),
-// not a ThreadsViewContext; selection opens the thread into a slot via `open`.
-vi.mock('../../../ChatView', () => ({
-  getChatViewEntityBinding: (binding) => binding,
-  useChatViewNavigation: () => ({ open: mockOpen }),
-}));
-
-vi.mock('../../../ChatView/hooks/useLayoutViewState', () => ({
-  useLayoutViewState: () => mockUseLayoutViewState(),
 }));
 
 vi.mock('../ThreadListItem', () => ({
@@ -56,12 +51,6 @@ vi.mock('../../../Badge', () => ({
 vi.mock('../../../SummarizedMessagePreview', () => ({
   SummarizedMessagePreview: () => <span data-testid='summary' />,
 }));
-
-// Bind (or not) `thread-1` into the `main-thread` slot to drive the active state.
-const bindThread = (id?: string) => ({
-  availableSlots: id ? ['main-thread'] : [],
-  slotBindings: id ? { 'main-thread': { kind: 'thread', source: { id } } } : {},
-});
 
 describe('ThreadListItemUI', () => {
   const thread = { id: 'thread-1', state: {} };
@@ -90,16 +79,16 @@ describe('ThreadListItemUI', () => {
     vi.clearAllMocks();
   });
 
-  it('marks the item selected when the thread is bound in a slot', () => {
-    mockUseLayoutViewState.mockReturnValue(bindThread('thread-1'));
+  it('marks the item selected when the thread is active in the workspace', () => {
+    mockIsThreadActive.mockReturnValue(true);
 
     render(<ThreadListItemUI />);
 
     expect(screen.getByRole('option')).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('marks the item not selected when a different thread is bound', () => {
-    mockUseLayoutViewState.mockReturnValue(bindThread('thread-2'));
+  it('marks the item not selected when the thread is not active', () => {
+    mockIsThreadActive.mockReturnValue(false);
 
     render(<ThreadListItemUI />);
 
@@ -107,7 +96,7 @@ describe('ThreadListItemUI', () => {
   });
 
   it('passes axe checks in listbox context', async () => {
-    mockUseLayoutViewState.mockReturnValue(bindThread('thread-1'));
+    mockIsThreadActive.mockReturnValue(true);
 
     const { container } = render(
       <div aria-label='Thread list' role='listbox'>

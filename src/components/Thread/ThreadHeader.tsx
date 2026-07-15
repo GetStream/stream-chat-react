@@ -15,8 +15,7 @@ import type { LocalMessage } from 'stream-chat';
 import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
 import { IconXmark } from '../Icons';
-import { useChatViewContext, useSlotForKind } from '../ChatView';
-import { useThreadSlotContext } from './ThreadSlotContext';
+import { useWorkspaceNavigation } from '../../context';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
@@ -83,20 +82,14 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
   const { HeaderStartContent } = useComponentContext();
-  const { activeChatView } = useChatViewContext();
-  const activeThreadSlot = useSlotForKind('thread');
-  const threadSlot = useThreadSlotContext();
-  // A thread occupying a slot other than the view's first thread slot is a *secondary* thread
-  // (a 2nd thread opened beside the main one).
-  const isSecondaryThread =
-    !!threadSlot && !!activeThreadSlot && threadSlot !== activeThreadSlot;
-  // Show the close button for reply threads rendered in a side panel (any non-threads view)
-  // and for secondary threads in the threads view. It is hidden for the threads view's primary
-  // thread, which is the main panel — you switch views rather than close it.
-  const showCloseButton = activeChatView !== 'threads' || isSecondaryThread;
+  const { isThreadDismissable, isThreadsView } = useWorkspaceNavigation();
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const threadInstance = useThreadContext();
+  // Show the close button for dismissable thread panels: reply threads in any non-threads view,
+  // and secondary threads in the threads view. It is hidden for the threads view's primary thread,
+  // which is the main panel — you switch views rather than close it.
+  const showCloseButton = isThreadDismissable(threadInstance?.id);
   const { replyCount: replyCountThreadInstance } =
     useStateStore(threadInstance?.state, threadStateSelector) ?? {};
 
@@ -116,7 +109,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header__start'>
-        {activeChatView === 'threads' && HeaderStartContent && <HeaderStartContent />}
+        {isThreadsView && HeaderStartContent && <HeaderStartContent />}
       </div>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>{t('Thread')}</div>

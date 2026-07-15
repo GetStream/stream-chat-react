@@ -22,11 +22,12 @@ import {
   TranslationProvider,
 } from '../../../context';
 
-// Selection is one navigation model: clicking the item opens the channel into a
-// layout slot via ChatView navigation (no more setActiveChannel).
-const mockOpen = vi.fn();
-vi.mock('../../ChatView', () => ({
-  useChatViewNavigation: () => ({ open: mockOpen }),
+// Selection is one navigation model: clicking the item opens the channel in the
+// workspace via the navigation adapter (no more setActiveChannel).
+const mockOpenChannel = vi.fn();
+vi.mock('../../../context', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
+  useWorkspaceNavigation: () => ({ openChannel: mockOpenChannel }),
 }));
 
 const PREVIEW_TEST_ID = 'channel-list-item-button';
@@ -110,8 +111,8 @@ describe('ChannelPreviewMessenger', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('should open the channel into a slot on click', async () => {
-    mockOpen.mockClear();
+  it('should open the channel in the workspace on click', async () => {
+    mockOpenChannel.mockClear();
     const { container, getByTestId } = render(renderComponent({ watchers: {} }));
 
     await waitFor(() => {
@@ -121,12 +122,8 @@ describe('ChannelPreviewMessenger', () => {
     fireEvent.click(getByTestId(PREVIEW_TEST_ID));
 
     await waitFor(() => {
-      expect(mockOpen).toHaveBeenCalledTimes(1);
-      expect(mockOpen).toHaveBeenCalledWith({
-        key: channel.cid ?? undefined,
-        kind: 'channel',
-        source: channel,
-      });
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel).toHaveBeenCalledWith(channel);
     });
 
     const results = await axe(container.firstChild!.firstChild as Element);

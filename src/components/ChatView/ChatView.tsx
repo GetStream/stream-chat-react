@@ -38,6 +38,7 @@ import {
   DEFAULT_CHAT_VIEW_A11Y_CONTEXT_VALUE,
 } from './ChatView.a11y.utility';
 import { ChatViewNavigationProvider } from './ChatViewNavigationContext';
+import { WorkspaceNavigationAdapter } from './workspaceNavigationAdapter';
 import { WorkspaceLayout } from './layout/WorkspaceLayout';
 import {
   createLayoutRuntimeState,
@@ -532,15 +533,19 @@ export const ChatView = ({
       <ChatViewContext.Provider value={value}>
         <SlotRegistryContext.Provider value={slotKindRegistry}>
           <ChatViewNavigationProvider>
-            <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>
-              {/* Host the chat-view dialog manager INSIDE `.str-chat` so dialogs opened by
-                  view content (context menus, member actions, …) portal here and inherit the
-                  `.str-chat`-scoped dialog CSS. Nested managers (e.g. MessageList's) still win
-                  where present. */}
-              <DialogManagerProvider id={dialogManagerId}>
-                {content}
-              </DialogManagerProvider>
-            </div>
+            {/* Expose the slot-agnostic WorkspaceNavigation adapter (D1) to the subtree so core
+                components navigate through it rather than the ChatView slot API directly. */}
+            <WorkspaceNavigationAdapter>
+              <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>
+                {/* Host the chat-view dialog manager INSIDE `.str-chat` so dialogs opened by
+                    view content (context menus, member actions, …) portal here and inherit the
+                    `.str-chat`-scoped dialog CSS. Nested managers (e.g. MessageList's) still win
+                    where present. */}
+                <DialogManagerProvider id={dialogManagerId}>
+                  {content}
+                </DialogManagerProvider>
+              </div>
+            </WorkspaceNavigationAdapter>
           </ChatViewNavigationProvider>
         </SlotRegistryContext.Provider>
       </ChatViewContext.Provider>

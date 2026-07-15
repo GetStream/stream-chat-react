@@ -26,19 +26,19 @@ import {
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
-const mockOpen = vi.fn();
+const mockOpenChannel = vi.fn();
 const mockIngestChannel = vi.fn();
 const mockOrchestrator = { ingestChannel: mockIngestChannel };
 const directMessagingChannelType = 'X';
 
-// Selection opens the channel into a layout slot (one navigation model); the item's
-// "active" highlight comes from useSlotForKey (stubbed inactive here).
-vi.mock('../../ChatView', () => ({
-  useChatViewNavigation: () => ({ open: mockOpen }),
-  useSlotForKey: () => undefined,
-}));
-vi.mock('../../ChatView/ChatViewNavigationContext', () => ({
-  useChatViewNavigation: () => ({ open: mockOpen }),
+// Selection opens the channel in the workspace (one navigation model); the item's
+// "active" highlight comes from isChannelActive (stubbed inactive here).
+vi.mock('../../../context', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
+  useWorkspaceNavigation: () => ({
+    isChannelActive: () => false,
+    openChannel: mockOpenChannel,
+  }),
 }));
 
 const mockTranslation = (key: string, options?: Record<string, unknown>) => {
@@ -129,8 +129,8 @@ describe('SearchResultItem Components', () => {
 
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
-      expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
-      expect(mockOpen.mock.calls[0][0].source.id).toBe(channelSearchData.channel.id);
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel.mock.calls[0][0].id).toBe(channelSearchData.channel.id);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
@@ -146,7 +146,7 @@ describe('SearchResultItem Components', () => {
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
       expect(onSelect).toHaveBeenCalledTimes(1);
-      expect(mockOpen).not.toHaveBeenCalled();
+      expect(mockOpenChannel).not.toHaveBeenCalled();
     });
   });
 
@@ -181,7 +181,7 @@ describe('SearchResultItem Components', () => {
       expect(
         searchController._internalState.getLatestValue().focusedMessage,
       ).toStrictEqual(messageResponseData);
-      expect(mockOpen.mock.calls[0][0].source.id).toBe(messageResponseData.channel.id);
+      expect(mockOpenChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
@@ -219,7 +219,7 @@ describe('SearchResultItem Components', () => {
       await act(() => {
         fireEvent.click(screen.getByRole('option'));
       });
-      expect(mockOpen.mock.calls[0][0]).toMatchObject({ kind: 'channel' });
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
@@ -235,7 +235,7 @@ describe('SearchResultItem Components', () => {
         fireEvent.click(screen.getByRole('option'));
       });
       expect(onSelect).toHaveBeenCalledTimes(1);
-      expect(mockOpen).not.toHaveBeenCalled();
+      expect(mockOpenChannel).not.toHaveBeenCalled();
     });
 
     it('uses user id when name is not available', async () => {

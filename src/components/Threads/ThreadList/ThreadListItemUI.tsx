@@ -7,9 +7,11 @@ import type { ThreadState } from 'stream-chat';
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
 import { useChannelPreviewInfo } from '../../ChannelListItem';
-import { useChatContext, useTranslationContext } from '../../../context';
-import { getChatViewEntityBinding, useChatViewNavigation } from '../../ChatView';
-import { useLayoutViewState } from '../../ChatView/hooks/useLayoutViewState';
+import {
+  useChatContext,
+  useTranslationContext,
+  useWorkspaceNavigation,
+} from '../../../context';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
@@ -54,12 +56,8 @@ export const ThreadListItemUI = ({
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');
-  const { open } = useChatViewNavigation();
-  const { availableSlots, slotBindings } = useLayoutViewState();
-  const isSelected = availableSlots.some((slot) => {
-    const binding = getChatViewEntityBinding(slotBindings[slot]);
-    return binding?.kind === 'thread' && binding.source.id === thread.id;
-  });
+  const { isThreadActive, openThread } = useWorkspaceNavigation();
+  const isSelected = isThreadActive(thread.id);
 
   const avatarProps: Partial<AvatarProps> | undefined = deletedAt
     ? undefined
@@ -101,11 +99,8 @@ export const ThreadListItemUI = ({
         })}
         data-thread-id={thread.id}
         onClick={(event) => {
-          const slot = event.ctrlKey || event.metaKey ? 'optional-thread' : 'main-thread';
-          void open(
-            { key: thread.id ?? undefined, kind: 'thread', source: thread },
-            { slot },
-          );
+          // ⌘/ctrl-click opens the thread beside the current one; a plain click replaces it.
+          void openThread(thread, { additive: event.ctrlKey || event.metaKey });
           onClickFromProps?.(event);
         }}
         role='option'

@@ -6,7 +6,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   ingestChannel: vi.fn(),
   jumpToMessage: vi.fn(() => Promise.resolve(true)),
-  open: vi.fn(),
+  openChannel: vi.fn(),
+  openThread: vi.fn(),
   // `query` should never be called by the hook (the jump bootstraps the channel) — asserted below.
   query: vi.fn(() => Promise.resolve()),
   state: {
@@ -35,11 +36,13 @@ vi.mock('../../../../context', () => ({
   }),
   useMessageContext: () => ({ message: mocks.state.message }),
   useTranslationContext: () => ({ t: (key: string) => key }),
-}));
-
-vi.mock('../../../ChatView', () => ({
-  useChatViewNavigation: () => ({ open: mocks.open }),
-  useSlotForKey: () => mocks.state.channelSlot,
+  // `isChannelActive` mirrors the old `useSlotForKey` presence check: truthy when the channel
+  // is already shown in the workspace.
+  useWorkspaceNavigation: () => ({
+    isChannelActive: () => !!mocks.state.channelSlot,
+    openChannel: mocks.openChannel,
+    openThread: mocks.openThread,
+  }),
 }));
 
 vi.mock('../../../Threads', () => ({ useThreadContext: () => mocks.state.thread }));
@@ -77,9 +80,9 @@ describe('useMessageAlsoSentInChannelNavigation', () => {
       const result = renderNavigation();
       await result.current.viewReplyInChannel('reply-1');
 
-      expect(mocks.open).toHaveBeenCalledTimes(1);
-      expect(mocks.open).toHaveBeenCalledWith(
-        expect.objectContaining({ key: 'messaging:general', kind: 'channel' }),
+      expect(mocks.openChannel).toHaveBeenCalledTimes(1);
+      expect(mocks.openChannel).toHaveBeenCalledWith(
+        expect.objectContaining({ cid: 'messaging:general' }),
       );
       expect(mocks.jumpToMessage).toHaveBeenCalledWith('reply-1');
       expect(mocks.ingestChannel).toHaveBeenCalledTimes(1);
@@ -88,7 +91,7 @@ describe('useMessageAlsoSentInChannelNavigation', () => {
       expect(mocks.query).not.toHaveBeenCalled();
 
       // Order: open → jumpToMessage → ingestChannel (ingest after the jump so channel.data is loaded).
-      const openOrder = mocks.open.mock.invocationCallOrder[0];
+      const openOrder = mocks.openChannel.mock.invocationCallOrder[0];
       const jumpOrder = mocks.jumpToMessage.mock.invocationCallOrder[0];
       const ingestOrder = mocks.ingestChannel.mock.invocationCallOrder[0];
       expect(openOrder).toBeLessThan(jumpOrder);
@@ -102,7 +105,7 @@ describe('useMessageAlsoSentInChannelNavigation', () => {
       await result.current.viewReplyInChannel('reply-1');
 
       expect(mocks.jumpToMessage).toHaveBeenCalledWith('reply-1');
-      expect(mocks.open).not.toHaveBeenCalled();
+      expect(mocks.openChannel).not.toHaveBeenCalled();
       expect(mocks.ingestChannel).not.toHaveBeenCalled();
       expect(mocks.query).not.toHaveBeenCalled();
     });

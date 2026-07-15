@@ -1,56 +1,56 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
-import { WithComponents } from '../../../../context';
+import { fromPartial } from '@total-typescript/shoehorn';
+import { WithComponents, WorkspaceNavigationProvider } from '../../../../context';
 import { TranslationProvider } from '../../../../context/TranslationContext';
 import { mockTranslationContextValue } from '../../../../mock-builders';
 import { ThreadListHeader } from '../ThreadListHeader';
-
-// The header derives "a thread is active" from the ChatView slot bindings
-// (useSlotThreads), not a ThreadsViewContext. Mock it to control activeness.
-const mockUseSlotThreads = vi.fn();
-vi.mock('../../../ChatView', () => ({
-  useSlotThreads: () => mockUseSlotThreads(),
-}));
 
 const t = vi.fn((key: string) => key);
 const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
 
 afterEach(cleanup);
 
+// The header derives "a thread is active" from the workspace navigation adapter
+// (openThreads). Drive it through the real provider.
+const renderHeader = ({
+  openThreads,
+  withHeaderEndContent,
+}: {
+  openThreads: unknown[];
+  withHeaderEndContent: boolean;
+}) => {
+  const inner = (
+    <TranslationProvider value={mockTranslationContextValue({ t })}>
+      <ThreadListHeader />
+    </TranslationProvider>
+  );
+  return render(
+    <WorkspaceNavigationProvider value={fromPartial({ openThreads })}>
+      {withHeaderEndContent ? (
+        <WithComponents overrides={{ HeaderEndContent }}>{inner}</WithComponents>
+      ) : (
+        inner
+      )}
+    </WorkspaceNavigationProvider>,
+  );
+};
+
 describe('ThreadListHeader', () => {
   it('should not render HeaderEndContent when not provided via ComponentContext', () => {
-    mockUseSlotThreads.mockReturnValue([{ slot: 'main-thread', thread: {} }]);
-    render(
-      <TranslationProvider value={mockTranslationContextValue({ t })}>
-        <ThreadListHeader />
-      </TranslationProvider>,
-    );
+    renderHeader({ openThreads: [{}], withHeaderEndContent: false });
 
     expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
   });
 
   it('should render HeaderEndContent when a thread is active', () => {
-    mockUseSlotThreads.mockReturnValue([{ slot: 'main-thread', thread: {} }]);
-    render(
-      <WithComponents overrides={{ HeaderEndContent }}>
-        <TranslationProvider value={mockTranslationContextValue({ t })}>
-          <ThreadListHeader />
-        </TranslationProvider>
-      </WithComponents>,
-    );
+    renderHeader({ openThreads: [{}], withHeaderEndContent: true });
 
     expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
   });
 
   it('should not render HeaderEndContent when no thread is active', () => {
-    mockUseSlotThreads.mockReturnValue([]);
-    render(
-      <WithComponents overrides={{ HeaderEndContent }}>
-        <TranslationProvider value={mockTranslationContextValue({ t })}>
-          <ThreadListHeader />
-        </TranslationProvider>
-      </WithComponents>,
-    );
+    renderHeader({ openThreads: [], withHeaderEndContent: true });
 
     expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
   });

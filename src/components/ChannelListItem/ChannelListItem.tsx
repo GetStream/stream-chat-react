@@ -16,9 +16,9 @@ import {
   type TranslationContextValue,
   useChatContext,
   useComponentContext,
+  useWorkspaceNavigation,
 } from '../../context';
 import { useChannelMembershipState } from '../ChannelList';
-import { useSlotForKey } from '../ChatView';
 
 export type ChannelListItemUIProps = ChannelListItemProps & {
   /** Image of Channel to display */
@@ -81,10 +81,11 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   } = props;
   const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
   const { client, isMessageAIGenerated } = useChatContext('ChannelPreview');
-  // Active = THIS channel is currently bound in some channel slot. Keyed on the
-  // channel's own cid (never "the first channel slot"), so multiple open channels
-  // each highlight independently.
-  const channelOpenInSlot = useSlotForKey(channel.cid ?? undefined);
+  // Active = THIS channel is currently open in the workspace. Keyed on the channel's own
+  // cid (never "the first channel slot"), so multiple open channels each highlight independently.
+  const channelOpenInSlot = useWorkspaceNavigation().isChannelActive(
+    channel.cid ?? undefined,
+  );
   const { t, userLanguage } = useTranslationContext('ChannelPreview');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,

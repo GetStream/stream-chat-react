@@ -8,15 +8,14 @@ import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
-import {
-  useChatViewNavigation,
-  useSlotForKind,
-} from '../ChatView/ChatViewNavigationContext';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
-import { useThreadSlotContext } from './ThreadSlotContext';
 
-import { useChatContext, useComponentContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useWorkspaceNavigation,
+} from '../../context';
 import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
 import { useThreadRequestHandlers } from './hooks/useThreadRequestHandlers';
@@ -143,7 +142,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     virtualized,
   } = props;
   const threadInstance = useThreadContext();
-  const threadSlot = useThreadSlotContext();
   const { client, customClasses } = useChatContext('Thread');
   const {
     Message: ContextMessage,
@@ -170,15 +168,13 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
       )
     : false;
 
-  const { close } = useChatViewNavigation();
-  const activeThreadSlot = useSlotForKind('thread');
-  const closableThreadSlot = threadSlot ?? activeThreadSlot;
+  const { closeThread: closeThreadPanel } = useWorkspaceNavigation();
 
   const closeThread = useCallback(() => {
-    if (closableThreadSlot) close(closableThreadSlot);
-    // Keep legacy behavior when Thread is used outside ChatView navigation flow.
+    closeThreadPanel(threadInstance?.id);
+    // Keep legacy behavior when Thread is used outside a workspace navigation flow.
     threadInstance?.deactivate();
-  }, [close, closableThreadSlot, threadInstance]);
+  }, [closeThreadPanel, threadInstance]);
 
   const ThreadMessage = PropMessage || additionalMessageListProps?.Message;
   const FallbackMessage = virtualized && VirtualMessage ? VirtualMessage : ContextMessage;

@@ -10,19 +10,19 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
 // MERGE-RECONCILE (test migration): master's useOpenThreadHandler read `openThread` from the
-// deleted ChannelActionContext. It now opens threads through the ChatView navigation
-// (`useChatViewNavigation().open`) with a thread binding built from the channel + message. The
-// navigation `open` is mocked (there is no ChatView provider in this unit) while the real
-// <Chat>/<Channel> providers supply the client and channel. The obsolete "warn if openThread is
-// not defined in the channel context" case was dropped — there is no context handler to omit.
+// deleted ChannelActionContext. It now opens threads through the core workspace-navigation adapter
+// (`useWorkspaceNavigation().openThread`) with the channel + message. The adapter is mocked at the
+// `WorkspaceNavigationContext` submodule (the `context` barrel re-exports it) so the real
+// <Chat>/<Channel> providers still supply the client and channel. The obsolete "warn if openThread
+// is not defined in the channel context" case was dropped — there is no context handler to omit.
 
-const { openMock } = vi.hoisted(() => ({ openMock: vi.fn() }));
+const { openThreadMock } = vi.hoisted(() => ({ openThreadMock: vi.fn() }));
 
-vi.mock('../../../ChatView/ChatViewNavigationContext', async (importOriginal) => ({
+vi.mock('../../../../context/WorkspaceNavigationContext', async (importOriginal) => ({
   ...(await importOriginal<
-    typeof import('../../../ChatView/ChatViewNavigationContext')
+    typeof import('../../../../context/WorkspaceNavigationContext')
   >()),
-  useChatViewNavigation: () => ({ open: openMock }),
+  useWorkspaceNavigation: () => ({ openThread: openThreadMock }),
 }));
 
 let channel: ChannelType;
@@ -75,7 +75,7 @@ describe('useOpenThreadHandler custom hook', () => {
     const message = generateMessage() as unknown as LocalMessage;
     const handleOpenThread = renderUseOpenThreadHandlerHook(message);
     handleOpenThread(mouseEventMock);
-    expect(openMock).toHaveBeenCalledWith(expect.objectContaining({ kind: 'thread' }));
+    expect(openThreadMock).toHaveBeenCalledWith(expect.objectContaining({ message }));
   });
 
   it('should warn user if it is called without a message', () => {
@@ -85,7 +85,7 @@ describe('useOpenThreadHandler custom hook', () => {
     expect(warnSpy).toHaveBeenCalledWith(
       'Open thread handler was called but it is missing one of its parameters',
     );
-    expect(openMock).not.toHaveBeenCalled();
+    expect(openThreadMock).not.toHaveBeenCalled();
   });
 
   it('should allow user to open a thread with a custom thread handler if one is set', () => {
@@ -94,6 +94,6 @@ describe('useOpenThreadHandler custom hook', () => {
     const handleOpenThread = renderUseOpenThreadHandlerHook(message, customThreadHandler);
     handleOpenThread(mouseEventMock);
     expect(customThreadHandler).toHaveBeenCalledWith(message, mouseEventMock);
-    expect(openMock).not.toHaveBeenCalled();
+    expect(openThreadMock).not.toHaveBeenCalled();
   });
 });

@@ -5,15 +5,11 @@ import type { UserResponse } from 'stream-chat';
 import { useTranslationContext } from '../../context/TranslationContext';
 import {
   useChannel,
-  useChatContext,
   useComponentContext,
   useMessageContext,
+  useWorkspaceNavigation,
 } from '../../context';
 import { useStateStore } from '../../store';
-import {
-  createThreadEntityBinding,
-  useChatViewNavigation,
-} from '../ChatView/ChatViewNavigationContext';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 
 export type MessageRepliesCountButtonProps = {
@@ -41,8 +37,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   } = props;
   const { message: contextMessage } = useMessageContext(MessageRepliesCountButton.name);
   const channel = useChannel();
-  const { client } = useChatContext();
-  const { open } = useChatViewNavigation();
+  const { openThread } = useWorkspaceNavigation();
   const replyMetadataSelector = useMemo(
     () => () => {
       const targetMessage = contextMessage?.id
@@ -81,9 +76,9 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       }
 
       if (!contextMessage) return;
-      void open(createThreadEntityBinding(client, { channel, message: contextMessage }));
+      void openThread({ channel, message: contextMessage });
     },
-    [channel, client, contextMessage, onClick, open],
+    [channel, contextMessage, onClick, openThread],
   );
 
   if (!replyCount) return null;

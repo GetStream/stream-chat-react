@@ -5,9 +5,11 @@ import type { Channel, MessageResponse, User } from 'stream-chat';
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
 import { ChannelListItem } from '../../../components/ChannelListItem';
-import { useSlotForKey } from '../../../components/ChatView';
-import { useChatViewNavigation } from '../../../components/ChatView/ChatViewNavigationContext';
-import { useChatContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useTranslationContext,
+  useWorkspaceNavigation,
+} from '../../../context';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 import { Timestamp } from '../../../components/Message/Timestamp';
 
@@ -22,7 +24,7 @@ export const ChannelSearchResultItem = ({
   item,
   onSelect,
 }: ChannelSearchResultItemProps) => {
-  const { open } = useChatViewNavigation();
+  const { openChannel } = useWorkspaceNavigation();
   const { channelPaginatorsOrchestrator } = useChatContext();
 
   const handleSelect = useCallback(
@@ -31,14 +33,14 @@ export const ChannelSearchResultItem = ({
         onSelect(event);
         return;
       }
-      // Default: open the channel into a layout slot. Slot/UX choices (e.g. ctrl/⌘-click to
+      // Default: open the channel in the workspace. Slot/UX choices (e.g. ctrl/⌘-click to
       // open beside the current channel) are left to the app via `onSelect`.
-      open({ key: item.cid ?? undefined, kind: 'channel', source: item });
+      openChannel(item);
       // Route the channel into the list(s) that should own it (the orchestrator dedupes by cid,
       // inserts in sort order, and honors ownership/filters) so it appears without a re-query.
       channelPaginatorsOrchestrator.ingestChannel(item);
     },
-    [item, open, channelPaginatorsOrchestrator, onSelect],
+    [item, openChannel, channelPaginatorsOrchestrator, onSelect],
   );
 
   return (
@@ -62,7 +64,7 @@ export const MessageSearchResultItem = ({
   onSelect,
 }: ChannelByMessageSearchResultItemProps) => {
   const { channelPaginatorsOrchestrator, client, searchController } = useChatContext();
-  const { open } = useChatViewNavigation();
+  const { isChannelActive, openChannel } = useWorkspaceNavigation();
 
   const channel = useMemo(() => {
     const { channel: channelData } = item;
@@ -71,9 +73,9 @@ export const MessageSearchResultItem = ({
     return client.channel(type, id);
   }, [client, item]);
 
-  // Active = this result's channel is currently open in a slot (by identity), not
+  // Active = this result's channel is currently open in the workspace (by identity), not
   // "the first channel slot".
-  const channelOpenInSlot = useSlotForKey(channel?.cid ?? undefined);
+  const channelOpenInSlot = isChannelActive(channel?.cid ?? undefined);
 
   const handleSelect = useCallback(
     async (event: React.MouseEvent) => {
@@ -89,10 +91,17 @@ export const MessageSearchResultItem = ({
       );
       // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
       searchController._internalState.partialNext({ focusedMessage: item });
-      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+      openChannel(channel);
       channelPaginatorsOrchestrator.ingestChannel(channel);
     },
-    [channel, item, open, searchController, channelPaginatorsOrchestrator, onSelect],
+    [
+      channel,
+      item,
+      openChannel,
+      searchController,
+      channelPaginatorsOrchestrator,
+      onSelect,
+    ],
   );
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -123,7 +132,7 @@ export type UserSearchResultItemProps = {
 
 export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemProps) => {
   const { channelPaginatorsOrchestrator, client } = useChatContext();
-  const { open } = useChatViewNavigation();
+  const { openChannel } = useWorkspaceNavigation();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
 
@@ -137,15 +146,15 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         members: [client.userID as string, item.id],
       });
       newChannel.watch();
-      // Default: open the DM channel into a layout slot. ctrl/⌘-click and other slot choices
+      // Default: open the DM channel in the workspace. ctrl/⌘-click and other slot choices
       // are left to the app via `onSelect`.
-      open({ key: newChannel.cid ?? undefined, kind: 'channel', source: newChannel });
+      openChannel(newChannel);
       channelPaginatorsOrchestrator.ingestChannel(newChannel);
     },
     [
       client,
       item,
-      open,
+      openChannel,
       channelPaginatorsOrchestrator,
       directMessagingChannelType,
       onSelect,

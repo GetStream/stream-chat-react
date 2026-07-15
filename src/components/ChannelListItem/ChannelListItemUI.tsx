@@ -7,8 +7,11 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
 import { IconMute, IconPin } from '../Icons';
-import { useComponentContext, useTranslationContext } from '../../context';
-import { useChatViewNavigation } from '../ChatView';
+import {
+  useComponentContext,
+  useTranslationContext,
+  useWorkspaceNavigation,
+} from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
 import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
 
@@ -33,7 +36,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
   } = useComponentContext();
   const { t } = useTranslationContext();
-  const { open } = useChatViewNavigation();
+  const { openChannel } = useWorkspaceNavigation();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
@@ -44,8 +47,8 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
     } else {
-      // Selection is one navigation model: open the channel into a layout slot.
-      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+      // Selection is one navigation model: open the channel in the workspace.
+      openChannel(channel);
     }
     if (channelPreviewButton?.current) {
       channelPreviewButton.current.blur();

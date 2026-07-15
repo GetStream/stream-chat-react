@@ -42,19 +42,25 @@ import type { Channel, StreamChat, Thread } from 'stream-chat';
 import type { ComponentContextValue, MessageContextValue } from '../../../context';
 
 // MERGE-RECONCILE (test migration): thread opening moved from the deleted ChannelActionContext
-// `openThread` handler to the ChatView navigation `open`. We mock the ChatView navigation
-// submodule so a single spy (openThreadMock) captures navigation from the reply-count button and
-// the also-sent-in-channel "View" button.
+// `openThread` handler to the core workspace-navigation adapter `openThread`. We mock the
+// WorkspaceNavigationContext submodule (the `context` barrel re-exports it) so a single spy
+// (openThreadMock) captures navigation from the reply-count button and the also-sent "View" button.
 const { openThreadMock } = vi.hoisted(() => ({ openThreadMock: vi.fn() }));
 
-vi.mock('../../ChatView/ChatViewNavigationContext', () => ({
-  createThreadEntityBinding: (
-    _client: unknown,
-    { message }: { message: { id?: string } },
-  ) => ({ key: message?.id, kind: 'thread', source: { id: message?.id } }),
-  useChatViewNavigation: () => ({ open: openThreadMock }),
-  useSlotForKey: () => undefined,
-  useSlotForKind: () => undefined,
+vi.mock('../../../context/WorkspaceNavigationContext', async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import('../../../context/WorkspaceNavigationContext')
+  >()),
+  useWorkspaceNavigation: () => ({
+    isChannelActive: () => false,
+    isThreadActive: () => false,
+    isThreadDismissable: () => false,
+    isThreadsView: false,
+    openChannel: () => undefined,
+    openChannels: [],
+    openThread: openThreadMock,
+    openThreads: [],
+  }),
 }));
 
 // MERGE-RECONCILE (test migration): the bounce retry action moved from ChannelActionContext
@@ -734,7 +740,7 @@ describe('<MessageSimple />', () => {
     fireEvent.click(getByText('View'));
     await waitFor(() =>
       expect(openThreadMock).toHaveBeenCalledWith(
-        expect.objectContaining({ kind: 'thread' }),
+        expect.objectContaining({ id: parentMessage.id }),
       ),
     );
     const results = await axe(container);
@@ -795,7 +801,7 @@ describe('<MessageSimple />', () => {
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByTestId('replies-count-button'));
     expect(openThreadMock).toHaveBeenCalledWith(
-      expect.objectContaining({ kind: 'thread' }),
+      expect.objectContaining({ message: expect.objectContaining({ id: message.id }) }),
     );
     const results = await axe(container);
     expect(results).toHaveNoViolations();

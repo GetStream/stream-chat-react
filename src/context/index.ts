@@ -15,3 +15,4 @@ export * from './PollContext';
 export * from './TranslationContext';
 export * from './useChannel';
 export * from './WithComponents';
+export * from './WorkspaceNavigationContext';

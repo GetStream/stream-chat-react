@@ -3,8 +3,8 @@ import {
   useChatContext,
   useMessageContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../../context';
-import { useChatViewNavigation, useSlotForKey } from '../../ChatView';
 import { useThreadContext } from '../../Threads';
 
 export type MessageAlsoSentInChannelNavigation = {
@@ -33,14 +33,9 @@ export const useMessageAlsoSentInChannelNavigation =
     const { channelPaginatorsOrchestrator, client } = useChatContext();
     const { t } = useTranslationContext();
     const channel = useChannel();
-    const { open } = useChatViewNavigation();
+    const { isChannelActive, openChannel, openThread } = useWorkspaceNavigation();
     const thread = useThreadContext();
     const { message } = useMessageContext('useMessageAlsoSentInChannelNavigation');
-    // The slot (in the *active* view) currently showing this channel, if any. Asking about the
-    // channel by key — not by view name — keeps this generic: whichever view the registry maps the
-    // `channel` kind to, and whatever an integrator named it, this is defined only when the channel
-    // is already on screen in the active view.
-    const channelSlot = useSlotForKey(channel.cid);
 
     const addThreadNotFoundNotification = (error: Error) => {
       client.notifications.addError({
@@ -58,10 +53,10 @@ export const useMessageAlsoSentInChannelNavigation =
 
     const viewReplyInChannel = async (messageId = message?.id) => {
       if (!messageId) return;
-      // The channel isn't shown in the active view when it has no slot — we need to navigate to it.
-      const needsNavigation = !channelSlot;
+      // The channel isn't on screen when it isn't open in the workspace — navigate to it.
+      const needsNavigation = !isChannelActive(channel.cid);
       if (needsNavigation) {
-        open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+        openChannel(channel);
       }
 
       await channel.messagePaginator.jumpToMessage(messageId);
@@ -87,7 +82,7 @@ export const useMessageAlsoSentInChannelNavigation =
         }
       }
 
-      open({ key: targetThread.id ?? undefined, kind: 'thread', source: targetThread });
+      openThread(targetThread);
       await targetThread.messagePaginator.jumpToMessage(replyId);
     };
 
