@@ -63,10 +63,11 @@ import {
   SidebarLayoutSync,
 } from './ChatLayout/Resize.tsx';
 import {
-  ChatStateSync,
-  getSelectedChannelIdFromUrl,
-  getSelectedChatViewFromUrl,
-} from './ChatLayout/Sync.tsx';
+  getInitialChannelIdFromUrl,
+  getInitialChatViewFromUrl,
+  getInitialThreadIdFromUrl,
+  WorkspaceUrlSync,
+} from './ChatLayout/WorkspaceUrlSync.tsx';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
 import {
   resolveSingleChannel,
@@ -256,16 +257,9 @@ const App = () => {
     channelCid: state.layout.channelCid,
   }));
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
-  const initialSearchParams = useMemo(
-    () => new URLSearchParams(window.location.search),
-    [],
-  );
-  const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
-  const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
-  const initialThreadId = useMemo(
-    () => initialSearchParams.get('thread'),
-    [initialSearchParams],
-  );
+  const initialChannelId = useMemo(() => getInitialChannelIdFromUrl(), []);
+  const initialChatView = useMemo(() => getInitialChatViewFromUrl(), []);
+  const initialThreadId = useMemo(() => getInitialThreadIdFromUrl(), []);
   const initialPanelLayout = useMemo(
     () => appSettingsStore.getLatestValue().panelLayout,
     [],
@@ -583,7 +577,7 @@ const App = () => {
                   minSlots={2}
                   views={chatViews}
                 >
-                  <ChatStateSync initialChatView={initialChatView} />
+                  <WorkspaceUrlSync />
                   <SidebarLayoutSync />
                 </ChatView>
               </SlotGeometryProvider>

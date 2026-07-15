@@ -77,7 +77,6 @@ import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipN
 import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
 import { useSidebar } from './SidebarContext.tsx';
 import { SwitchableChannelNavigation } from './SwitchableChannelNavigation.tsx';
-import { ThreadStateSync } from './Sync.tsx';
 
 export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
   'app-channel-message-composer-textarea';
@@ -755,7 +754,6 @@ export const ThreadsPanels = ({
 
   return (
     <>
-      <ThreadStateSync />
       <div
         className={clsx('app-chat-view__threads-layout', {
           'app-chat-view__threads-layout--thread-selected': hasThread,
