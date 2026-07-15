@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { LocalAttachment } from 'stream-chat';
-import {
-  Prompt,
-  useDialogIsOpen,
-  useDialogOnNearestManager,
-  useSlotChannels,
-} from 'stream-chat-react';
+import { Prompt, useDialogIsOpen, useDialogOnNearestManager } from 'stream-chat-react';
+import { useSlotChannels } from 'stream-chat-react/slot-layout';
 import { DraggableDialog } from './DraggableDialog';
 
 export const attachmentPromptDialogId = 'app-attachment-prompt-dialog';

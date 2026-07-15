@@ -5,14 +5,13 @@ import {
   ChannelHeader,
   ChannelNavigation,
   Chat,
-  ChatView,
   MessageComposer,
   MessageList,
   Thread,
   useCreateChatClient,
-  useSlotChannels,
   WithComponents,
 } from 'stream-chat-react';
+import { ChatView, useSlotChannels } from 'stream-chat-react/slot-layout';
 import { EmojiPicker } from 'stream-chat-react/emojis';
 
 import { init, SearchIndex } from 'emoji-mart';

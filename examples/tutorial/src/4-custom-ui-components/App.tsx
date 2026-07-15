@@ -7,16 +7,18 @@ import {
   type ChannelListItemUIProps,
   ChannelNavigation,
   Chat,
-  ChatView,
   MessageComposer,
   MessageList,
   Thread,
-  useChatViewNavigation,
   useCreateChatClient,
   useMessageContext,
-  useSlotChannels,
   WithComponents,
 } from 'stream-chat-react';
+import {
+  ChatView,
+  useChatViewNavigation,
+  useSlotChannels,
+} from 'stream-chat-react/slot-layout';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';

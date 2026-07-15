@@ -10,8 +10,8 @@ import {
   useDialogIsOpen,
   useDialogOnNearestManager,
   useDropdownContext,
-  useSlotChannels,
 } from 'stream-chat-react';
+import { useSlotChannels } from 'stream-chat-react/slot-layout';
 import {
   assignReferenceRef,
   SearchableSelect,

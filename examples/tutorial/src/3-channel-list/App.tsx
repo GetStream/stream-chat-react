@@ -6,13 +6,12 @@ import {
   ChannelHeader,
   ChannelNavigation,
   Chat,
-  ChatView,
   MessageComposer,
   MessageList,
   Thread,
   useCreateChatClient,
-  useSlotChannels,
 } from 'stream-chat-react';
+import { ChatView, useSlotChannels } from 'stream-chat-react/slot-layout';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';

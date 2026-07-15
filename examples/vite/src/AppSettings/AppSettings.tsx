@@ -1,13 +1,13 @@
 import { type ComponentType, useCallback, useMemo, useState } from 'react';
 import {
   Button,
-  ChatViewSelectorButton,
   GlobalModal,
   IconBell,
   IconEmoji,
   IconMessageBubble,
   IconMessageBubbles,
 } from 'stream-chat-react';
+import { ChatViewSelectorButton } from 'stream-chat-react/slot-layout';
 import {
   SECTION_NAVIGATOR_LAYOUT,
   SectionNavigator,
