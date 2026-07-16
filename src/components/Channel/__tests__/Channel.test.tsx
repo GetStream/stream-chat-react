@@ -1,7 +1,7 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
-import { ErrorFromResponse, SearchController } from 'stream-chat';
+import { SearchController, StreamAPIError } from 'stream-chat';
 import type {
   Channel as ChannelType,
   LocalMessage,
@@ -2057,7 +2057,7 @@ describe('Channel', () => {
         expect(msg.status).toBe('received');
       });
 
-      it('should convert axios network errors to ErrorFromResponse when sending fails', async () => {
+      it('should convert axios network errors to StreamAPIError when sending fails', async () => {
         const messageText = nanoid();
         const messageId = nanoid();
         const axiosNetworkError = Object.assign(new Error('Network Error'), {
@@ -2091,7 +2091,7 @@ describe('Channel', () => {
         const failedMessage = channel.state.findMessage(messageId);
         expect(failedMessage).toBeDefined();
         expect(failedMessage.status).toBe('failed');
-        expect(failedMessage.error).toBeInstanceOf(ErrorFromResponse);
+        expect(failedMessage.error).toBeInstanceOf(StreamAPIError);
         expect(failedMessage.error.message).toBe('Network Error');
         expect(failedMessage.error.status).toBe(0);
         expect(failedMessage.error.code).toBeNull();

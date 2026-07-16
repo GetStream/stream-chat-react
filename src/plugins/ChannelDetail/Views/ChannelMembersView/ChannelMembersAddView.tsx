@@ -158,7 +158,7 @@ export const ChannelMembersAddView = ({
 
   const selectedUserIdSet = useMemo(() => new Set(selectedUserIds), [selectedUserIds]);
   const mutedUserIdSet = useMemo(
-    () => new Set(mutes.map((mute) => mute.target.id)),
+    () => new Set(mutes.map((mute) => mute.target?.id)),
     [mutes],
   );
 

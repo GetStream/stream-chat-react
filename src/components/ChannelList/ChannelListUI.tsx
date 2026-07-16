@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import type { PropsWithChildren } from 'react';
-import type { APIErrorResponse, Channel, ErrorFromResponse } from 'stream-chat';
+import type { APIError, Channel, StreamAPIError } from 'stream-chat';
 
 import { LoadingChannels } from '../Loading/LoadingChannels';
 import { NullComponent } from '../UtilityComponents';
@@ -9,7 +9,7 @@ import { useComponentContext, useTranslationContext } from '../../context';
 
 export type ChannelListUIProps = {
   /** Whether the channel query request returned an errored response */
-  error: ErrorFromResponse<APIErrorResponse> | null;
+  error: StreamAPIError<APIError> | null;
   /** The channels currently loaded in the list, only defined if `sendChannelsToList` on `ChannelList` is true */
   loadedChannels?: Channel[];
   /** Whether the channels are currently loading */

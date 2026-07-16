@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, Event, EventPayload } from 'stream-chat';
 import type { Dispatch, SetStateAction } from 'react';
 
 import {
@@ -17,61 +17,73 @@ import type { ChannelListProps } from '../ChannelList';
 
 type SetChannels = Dispatch<SetStateAction<Channel[]>>;
 
-type BaseParameters = {
-  event: Event;
+type BaseParameters<E = Event> = {
+  event: E;
   setChannels: SetChannels;
 };
 
-type RepeatedParameters = {
-  customHandler?: (
-    setChannels: BaseParameters['setChannels'],
-    event: BaseParameters['event'],
-  ) => void;
+type RepeatedParameters<E = Event> = {
+  customHandler?: (setChannels: SetChannels, event: E) => void;
 };
 
-type HandleMessageNewParameters = BaseParameters &
-  RepeatedParameters & {
+type HandleMessageNewParameters = BaseParameters<EventPayload<'message.new'>> &
+  RepeatedParameters<EventPayload<'message.new'>> & {
     allowNewMessagesFromUnfilteredChannels: boolean;
     lockChannelOrder: boolean;
   } & Required<Pick<ChannelListProps, 'filters' | 'sort'>>;
 
-type HandleNotificationMessageNewParameters = BaseParameters &
-  RepeatedParameters & {
+type HandleNotificationMessageNewParameters = BaseParameters<
+  EventPayload<'notification.message_new'>
+> &
+  RepeatedParameters<EventPayload<'notification.message_new'>> & {
     allowNewMessagesFromUnfilteredChannels: boolean;
     lockChannelOrder: boolean;
   } & Required<Pick<ChannelListProps, 'filters' | 'sort'>>;
 
-type HandleNotificationRemovedFromChannelParameters = BaseParameters & RepeatedParameters;
+type HandleNotificationRemovedFromChannelParameters = BaseParameters<
+  EventPayload<'notification.removed_from_channel'>
+> &
+  RepeatedParameters<EventPayload<'notification.removed_from_channel'>>;
 
-type HandleNotificationAddedToChannelParameters = BaseParameters &
-  RepeatedParameters & {
+type HandleNotificationAddedToChannelParameters = BaseParameters<
+  EventPayload<'notification.added_to_channel'>
+> &
+  RepeatedParameters<EventPayload<'notification.added_to_channel'>> & {
     allowNewMessagesFromUnfilteredChannels: boolean;
     lockChannelOrder: boolean;
   } & Required<Pick<ChannelListProps, 'sort'>>;
 
-type HandleChannelVisibleParameters = BaseParameters &
-  RepeatedParameters &
+type HandleChannelVisibleParameters = BaseParameters<EventPayload<'channel.visible'>> &
+  RepeatedParameters<EventPayload<'channel.visible'>> &
   Required<Pick<ChannelListProps, 'sort' | 'filters'>>;
 
-type HandleMemberUpdatedParameters = BaseParameters & {
+type HandleMemberUpdatedParameters = BaseParameters<EventPayload<'member.updated'>> & {
   lockChannelOrder: boolean;
 } & Required<Pick<ChannelListProps, 'sort' | 'filters'>>;
 
-type HandleChannelDeletedParameters = BaseParameters & RepeatedParameters;
+type HandleChannelDeletedParameters = BaseParameters<EventPayload<'channel.deleted'>> &
+  RepeatedParameters<EventPayload<'channel.deleted'>>;
 
-type HandleChannelHiddenParameters = BaseParameters & RepeatedParameters;
+type HandleChannelHiddenParameters = BaseParameters<EventPayload<'channel.hidden'>> &
+  RepeatedParameters<EventPayload<'channel.hidden'>>;
 
-type HandleChannelTruncatedParameters = BaseParameters & RepeatedParameters;
+type HandleChannelTruncatedParameters = BaseParameters<
+  EventPayload<'channel.truncated'>
+> &
+  RepeatedParameters<EventPayload<'channel.truncated'>>;
 
-type HandleChannelUpdatedParameters = BaseParameters & RepeatedParameters;
+type HandleChannelUpdatedParameters = BaseParameters<EventPayload<'channel.updated'>> &
+  RepeatedParameters<EventPayload<'channel.updated'>>;
 
-type HandleUserPresenceChangedParameters = BaseParameters;
+type HandleUserPresenceChangedParameters = BaseParameters<
+  EventPayload<'user.presence.changed'>
+>;
 
-const shared = ({
+const shared = <E extends { cid?: string }>({
   customHandler,
   event,
   setChannels,
-}: BaseParameters & RepeatedParameters) => {
+}: BaseParameters<E> & RepeatedParameters<E>) => {
   if (typeof customHandler === 'function') {
     return customHandler(setChannels, event);
   }

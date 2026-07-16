@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
-import type { SharedLocationResponse, Attachment as StreamAttachment } from 'stream-chat';
+import type { SharedLocationResponseData, Attachment as StreamAttachment } from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
   isImageAttachment,
   isScrapedContent,
-  isSharedLocationResponse,
+  isSharedLocationResponseData,
   isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
@@ -29,7 +29,6 @@ import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
 import type { CardProps } from './LinkPreview/Card';
 import type { FileAttachmentProps } from './FileAttachment';
-import type { GalleryItem } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import type { GeolocationProps } from './Geolocation';
@@ -49,7 +48,7 @@ export const ATTACHMENT_GROUPS_ORDER = [
 
 export type AttachmentProps = {
   /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
-  attachments: (StreamAttachment | SharedLocationResponse)[];
+  attachments: (StreamAttachment | SharedLocationResponseData)[];
   /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
   actionHandler?: ActionHandlerReturnType;
   /**
@@ -120,10 +119,10 @@ const renderGroupedAttachments = ({
   attachments,
   ...rest
 }: AttachmentProps): GroupedRenderedAttachment => {
-  const mediaAttachments: GalleryItem[] = [];
+  const mediaAttachments: StreamAttachment[] = [];
   const containers = attachments.reduce<GroupedRenderedAttachment>(
     (typeMap, attachment) => {
-      if (isSharedLocationResponse(attachment)) {
+      if (isSharedLocationResponseData(attachment)) {
         typeMap.geolocation.push(
           <GeolocationContainer
             {...rest}
@@ -151,7 +150,7 @@ const renderGroupedAttachments = ({
         isImageAttachment(attachment) ||
         isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)
       ) {
-        mediaAttachments.push(attachment as GalleryItem);
+        mediaAttachments.push(attachment);
       } else if (
         isAudioAttachment(attachment) ||
         isVoiceRecordingAttachment(attachment) ||

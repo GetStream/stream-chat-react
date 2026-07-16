@@ -38,7 +38,7 @@
  */
 
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import type { LocalMessage, TranslationLanguages } from 'stream-chat';
+import type { LocalMessage, TranslationLanguage } from 'stream-chat';
 
 /**
  * Returns the translated message text for a given language from `message.i18n`, or
@@ -51,7 +51,7 @@ export const getTranslatedMessageText = ({
   language: string;
   message?: LocalMessage;
 }): string | undefined =>
-  message?.i18n?.[`${language}_text` as `${TranslationLanguages}_text`];
+  message?.i18n?.[`${language}_text` as `${TranslationLanguage}_text`];
 
 /**
  * Which message text to show.

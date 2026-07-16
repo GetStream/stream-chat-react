@@ -1,7 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
 import uniqBy from 'lodash.uniqby';
 import type { ComponentType } from 'react';
-import type { Channel, MessageResponse, User } from 'stream-chat';
+import type {
+  Channel,
+  ChannelResponse,
+  MessageResponse,
+  UserResponse,
+} from 'stream-chat';
+
+type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
 
 import { useSearchContext } from '../SearchContext';
 import { Avatar } from '../../../components/Avatar';
@@ -37,7 +44,7 @@ export const ChannelSearchResultItem = ({ item }: ChannelSearchResultItemProps) 
 };
 
 export type ChannelByMessageSearchResultItemProps = {
-  item: MessageResponse;
+  item: SearchResultMessage;
 };
 
 export const MessageSearchResultItem = ({
@@ -91,7 +98,7 @@ export const MessageSearchResultItem = ({
 };
 
 export type UserSearchResultItemProps = {
-  item: User;
+  item: UserResponse;
 };
 
 export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
@@ -102,7 +109,7 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
 
   const onClick = useCallback(() => {
     const newChannel = client.channel(directMessagingChannelType, {
-      members: [client.userID as string, item.id],
+      members: [{ user_id: client.userId as string }, { user_id: item.id }],
     });
     newChannel.watch();
     setActiveChannel(newChannel);
@@ -128,7 +135,8 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
         />
         <div className='str-chat__search-result-data'>
           <div className='str-chat__search-result__display-name'>
-            {item.name || item.username || item.id}
+            {/* @ts-expect-error username is not typed */}
+            {item.name || item.custom.username || item.id}
           </div>
           <Timestamp
             customClass='str-chat__search-result__last-active-timestamp'

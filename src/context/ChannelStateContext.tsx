@@ -5,8 +5,8 @@ import type {
   ChannelConfigWithInfo,
   GiphyVersions,
   LocalMessage,
-  Mute,
   ChannelState as StreamChannelState,
+  UserMuteResponse,
 } from 'stream-chat';
 
 import type {
@@ -55,7 +55,7 @@ export type ChannelStateContextValue = Omit<ChannelState, 'typing'> & {
   videoAttachmentSizeHandler: VideoAttachmentSizeHandler;
   channelUnreadUiState?: ChannelUnreadUiState;
   giphyVersion?: GiphyVersions;
-  mutes?: Array<Mute>;
+  mutes?: Array<UserMuteResponse>;
   watcher_count?: number;
 };
 

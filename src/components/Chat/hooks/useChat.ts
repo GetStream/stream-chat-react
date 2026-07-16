@@ -10,12 +10,12 @@ import {
 } from '../../../i18n';
 
 import type {
-  AppSettingsAPIResponse,
   Channel,
-  Event,
-  Mute,
+  EventPayload,
   OwnUserResponse,
   StreamChat,
+  TranslationLanguage,
+  UserMuteResponse,
 } from 'stream-chat';
 
 export type UseChatParams = {
@@ -36,12 +36,12 @@ export const useChat = ({
   });
 
   const [channel, setChannel] = useState<Channel>();
-  const [mutes, setMutes] = useState<Array<Mute>>([]);
+  const [mutes, setMutes] = useState<Array<UserMuteResponse>>([]);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
   const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
 
-  const appSettings = useRef<Promise<AppSettingsAPIResponse> | null>(null);
+  const appSettings = useRef<ReturnType<StreamChat['getAppSettings']> | null>(null);
 
   const getAppSettings = () => {
     if (appSettings.current) {
@@ -79,17 +79,17 @@ export const useChat = ({
   useEffect(() => {
     setMutes(clientMutes);
 
-    const handleEvent = (event: Event) => {
+    const handleEvent = (event: EventPayload<'notification.mutes_updated'>) => {
       setMutes(event.me?.mutes || []);
     };
 
-    client.on('notification.mutes_updated', handleEvent);
-    return () => client.off('notification.mutes_updated', handleEvent);
+    const subscription = client.on('notification.mutes_updated', handleEvent);
+    return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientMutes?.length]);
 
   useEffect(() => {
-    let userLanguage = client.user?.language;
+    let userLanguage = client.user?.language as TranslationLanguage;
 
     if (!userLanguage) {
       const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version

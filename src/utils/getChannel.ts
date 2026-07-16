@@ -1,7 +1,7 @@
 import type {
   Channel,
-  ChannelQueryOptions,
-  QueryChannelAPIResponse,
+  ChannelGetOrCreateRequest,
+  ChannelStateResponse,
   StreamChat,
 } from 'stream-chat';
 
@@ -11,7 +11,7 @@ import type {
  */
 const WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL: Record<
   string,
-  Promise<QueryChannelAPIResponse> | undefined
+  Promise<ChannelStateResponse> | undefined
 > = {};
 
 type GetChannelParams = {
@@ -19,7 +19,7 @@ type GetChannelParams = {
   channel?: Channel;
   id?: string;
   members?: string[];
-  options?: ChannelQueryOptions;
+  options?: ChannelGetOrCreateRequest;
   type?: string;
 };
 /**
@@ -44,8 +44,12 @@ export const getChannel = async ({
   }
 
   // unfortunately typescript is not able to infer that if (!channel && !type) === false, then channel or type has to be truthy
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const theChannel = channel || client.channel(type!, id, { members });
+  const theChannel =
+    channel ||
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    client.channel(type!, id, {
+      members: members?.map((userId) => ({ user_id: userId })),
+    });
 
   // need to keep as with call to channel.watch the id can be changed from undefined to an actual ID generated server-side
   const originalCid = theChannel?.id

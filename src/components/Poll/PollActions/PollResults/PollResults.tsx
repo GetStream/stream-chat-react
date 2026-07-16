@@ -8,7 +8,7 @@ import {
   usePollContext,
   useTranslationContext,
 } from '../../../../context';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 import { COUNT_OPTION_VOTES_PREVIEW } from '../../constants';
 import { PollQuestion } from '../PollQuestion';
 import { PollOptionWithVotesList } from './PollOptionWithVotesList';
@@ -34,7 +34,7 @@ export const PollResults = () => {
     pollStateSelector,
   );
   const [optionToView, setOptionToView] = useState<{
-    option: PollOption;
+    option: PollOptionResponseData;
     optionOrderNumber: number;
   } | null>(null);
 

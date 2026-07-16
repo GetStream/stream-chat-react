@@ -137,7 +137,7 @@ export const ChannelMembersBrowseView = ({
     searchInputResetKey,
   } = useChannelMembersSearch();
   const mutedUserIdSet = useMemo(
-    () => new Set(mutes.map((mute) => mute.target.id)),
+    () => new Set(mutes.map((mute) => mute.target?.id)),
     [mutes],
   );
 

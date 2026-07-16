@@ -11,13 +11,13 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
    * `isAdmin` will be removed in future release. See `channelCapabilities`.
    */
   const isAdmin =
-    client.user?.role === 'admin' || channel.state.membership.role === 'admin';
+    client.user?.role === 'admin' || channel.state.membership?.role === 'admin';
 
   /**
    * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
    * `isOwner` will be removed in future release. See `channelCapabilities`.
    */
-  const isOwner = channel.state.membership.role === 'owner';
+  const isOwner = channel.state.membership?.role === 'owner';
 
   /**
    * @deprecated as it relies on `membership.role` check which is already deprecated and shouldn't be used anymore.
@@ -25,12 +25,12 @@ export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boole
    */
   const isModerator =
     client.user?.role === 'channel_moderator' ||
-    channel.state.membership.role === 'channel_moderator' ||
-    channel.state.membership.role === 'moderator' ||
-    channel.state.membership.is_moderator === true ||
-    channel.state.membership.channel_role === 'channel_moderator';
+    channel.state.membership?.role === 'channel_moderator' ||
+    channel.state.membership?.role === 'moderator' ||
+    channel.state.membership?.is_moderator === true ||
+    channel.state.membership?.channel_role === 'channel_moderator';
 
-  const isMyMessage = client.userID === message.user?.id;
+  const isMyMessage = client.userId === message.user?.id;
 
   const canEdit =
     !message.poll &&

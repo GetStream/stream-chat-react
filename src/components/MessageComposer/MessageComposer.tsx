@@ -11,7 +11,7 @@ import { MessageComposerContextProvider } from '../../context/MessageComposerCon
 import { DialogManagerProvider } from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
 
-import type { LocalMessage, Message, SendMessageOptions } from 'stream-chat';
+import type { LocalMessage, MessageRequest, SendMessageOptions } from 'stream-chat';
 
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useRegisterDropHandlers } from './WithDragAndDropUpload';
@@ -64,7 +64,7 @@ export type MessageComposerProps = {
   overrideSubmitHandler?: (params: {
     cid: string;
     localMessage: LocalMessage;
-    message: Message;
+    message: MessageRequest;
     sendOptions: SendMessageOptions;
   }) => Promise<void> | void;
   /** When replying in a thread, the parent message object */

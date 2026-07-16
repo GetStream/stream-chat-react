@@ -222,7 +222,7 @@ const SendDirectMessageAction = () => {
     setIsSending(true);
     try {
       const directMessageChannel = client.channel(channel.type, {
-        members: [client.userID, targetUserId],
+        members: [{ user_id: client.userID }, { user_id: targetUserId }],
       });
       await directMessageChannel.watch();
       setActiveChannel(directMessageChannel);
@@ -278,7 +278,7 @@ const UserMuteAction = () => {
   const { t } = useTranslationContext();
   const { targetUserId } = useChannelMemberActionContext();
   const userMuted =
-    !!targetUserId && mutes.some((mute) => mute.target.id === targetUserId);
+    !!targetUserId && mutes.some((mute) => mute.target?.id === targetUserId);
   const [optimisticUserMuted, setOptimisticUserMuted] = useState(userMuted);
 
   useEffect(() => {
@@ -415,7 +415,7 @@ const BlockUserAction = () => {
 
     try {
       setUserBlockInProgress(true);
-      await client.unBlockUser(targetUserId);
+      await client.unblockUser(targetUserId);
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',

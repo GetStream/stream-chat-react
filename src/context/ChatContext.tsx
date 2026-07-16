@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type {
-  AppSettingsAPIResponse,
   Channel,
-  Mute,
   SearchController,
+  StreamChat,
+  UserMuteResponse,
 } from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
@@ -31,9 +31,9 @@ export type ChatContextValue = {
    * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
    */
   channelsQueryState: ChannelsQueryState;
-  getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
+  getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
-  mutes: Array<Mute>;
+  mutes: Array<UserMuteResponse>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;
   /**

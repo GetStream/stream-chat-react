@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { CommandResponse, MessageComposerState } from 'stream-chat';
+import type { Command, MessageComposerState } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
 import { useMessageComposerController } from './useMessageComposerController';
@@ -13,7 +13,7 @@ const messageComposerStateSelector = ({
 });
 
 export type MessageComposerCommand = {
-  command: CommandResponse & { name: string };
+  command: Command & { name: string };
   enabled: boolean;
 };
 
@@ -29,7 +29,7 @@ export const useMessageComposerCommands = () => {
     () =>
       (channelConfig?.commands ?? [])
         .filter(
-          (command): command is CommandResponse & { name: string } => !!command.name,
+          (command): command is Command & { name: string } => !!command.name,
         )
         .map((command) => ({
           command,

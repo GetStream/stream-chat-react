@@ -140,7 +140,7 @@ export const useCreateChannelStateContext = (
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      channel.data?.name, // otherwise ChannelHeader will not be updated
+      channel.data?.custom?.name,
       channelId,
       channelUnreadUiState,
       error,

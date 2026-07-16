@@ -459,7 +459,7 @@ const DefaultMessageActionComponents = {
                   type: 'api:message:saveForLater:delete:success',
                 });
               } else {
-                await client.reminders.createReminder({ messageId: message.id });
+                await client.reminders.createReminder({ message_id: message.id });
                 addNotification({
                   context: {
                     message,
@@ -671,7 +671,7 @@ const DefaultMessageActionComponents = {
           onClick={() => {
             const targetId = message.user?.id;
             if (targetId) {
-              if (isBlocked) client.unBlockUser(targetId);
+              if (isBlocked) client.unblockUser(targetId);
               else client.blockUser(targetId);
             }
             closeMenu();

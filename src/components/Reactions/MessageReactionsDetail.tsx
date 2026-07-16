@@ -28,7 +28,7 @@ export type MessageReactionsDetailProps = Partial<
   reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
 } & ReactionSelectorProps;
 
-const defaultReactionDetailsSort = { created_at: -1 } as const;
+const defaultReactionDetailsSort: ReactionSort = [{ direction: -1, field: 'created_at' }];
 
 export const MessageReactionsDetailLoadingIndicator = () => {
   const elements = useMemo(

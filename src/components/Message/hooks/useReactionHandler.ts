@@ -12,7 +12,7 @@ import {
   getEmojiCodeByReactionType,
 } from '../../Reactions/reactionOptions';
 
-import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
+import type { LocalMessage, ReactionRequest, ReactionResponse } from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
@@ -32,7 +32,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
       const hasReaction = !!newReactionGroups[reactionType];
 
       if (add) {
-        const timestamp = new Date().toISOString();
+        const timestamp = new Date();
         newReactionGroups[reactionType] = hasReaction
           ? {
               ...newReactionGroups[reactionType],
@@ -42,6 +42,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
               count: 1,
               first_reaction_at: timestamp,
               last_reaction_at: timestamp,
+              latest_reactions_by: [],
               sum_scores: 1,
             };
       } else {
@@ -99,11 +100,14 @@ export const useReactionHandler = (message?: LocalMessage) => {
       thread?.upsertReplyLocally({ message: tempMessage });
 
       const messageResponse = add
-        ? await channel.sendReaction(id, {
-            type,
-            ...(emojiCode && { emoji_code: emojiCode }),
-          } as Reaction)
-        : await channel.deleteReaction(id, type);
+        ? await channel.sendReaction({
+            id,
+            reaction: {
+              type,
+              ...(emojiCode && { emoji_code: emojiCode }),
+            } as ReactionRequest,
+          })
+        : await channel.deleteReaction({ id, type });
 
       // seems useless as we're expecting WS event to come in and replace this anyway
       updateMessage(messageResponse.message);

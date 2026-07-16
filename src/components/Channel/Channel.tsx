@@ -12,16 +12,15 @@ import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import throttle from 'lodash.throttle';
 import type {
-  ChannelAPIResponse,
+  ChannelGetOrCreateRequest,
   ChannelMemberResponse,
-  ChannelQueryOptions,
   ChannelState,
+  ChannelStateResponseFields,
   DeleteMessageOptions,
   Event,
-  EventAPIResponse,
   GiphyVersions,
   LocalMessage,
-  Message,
+  MessageRequest,
   MessageResponse,
   SendMessageAPIResponse,
   SendMessageOptions,
@@ -102,7 +101,7 @@ export type ChannelProps = {
    * If the channel instance has already been initialized (channel has been queried),
    * then the channel query will be skipped and channelQueryOptions will not be applied.
    */
-  channelQueryOptions?: ChannelQueryOptions;
+  channelQueryOptions?: ChannelGetOrCreateRequest;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
   doDeleteMessageRequest?: (
     message: LocalMessage,
@@ -112,11 +111,11 @@ export type ChannelProps = {
   doMarkReadRequest?: (
     channel: StreamChannel,
     setChannelUnreadUiState?: (state: ChannelUnreadUiState) => void,
-  ) => Promise<EventAPIResponse> | void;
+  ) => ReturnType<StreamChannel['markRead']> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channel: StreamChannel,
-    message: Message,
+    message: MessageRequest,
     options?: SendMessageOptions,
   ) => ReturnType<StreamChannel['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
@@ -350,10 +349,11 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
-    if (event.message) {
+    const message = (event as Extract<Event, { message?: unknown }>).message;
+    if (message) {
       dispatch({
         channel,
-        message: event.message,
+        message,
         type: 'updateThreadOnEvent',
       });
     }
@@ -624,7 +624,7 @@ const ChannelInner = (
 
     const oldestID = oldestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse;
+    let queryResponse: ChannelStateResponseFields;
 
     try {
       queryResponse = await channel.query({
@@ -658,7 +658,7 @@ const ChannelInner = (
 
     const newestId = newestMessage?.id;
     const perPage = limit;
-    let queryResponse: ChannelAPIResponse;
+    let queryResponse: ChannelStateResponseFields;
 
     try {
       queryResponse = await channel.query({
@@ -761,7 +761,7 @@ const ChannelInner = (
                 await channel.query(
                   {
                     messages: {
-                      created_at_around: channelUnreadUiState.last_read.toISOString(),
+                      created_at_around: channelUnreadUiState.last_read,
                       limit: queryMessageLimit,
                     },
                   },
@@ -786,9 +786,8 @@ const ChannelInner = (
               );
               return;
             }
-            const firstMessageTimestamp = new Date(
-              firstMessageWithCreationDate.created_at as string,
-            ).getTime();
+            const firstMessageTimestamp =
+              firstMessageWithCreationDate.created_at.getTime();
             if (lastReadTimestamp < firstMessageTimestamp) {
               // whole channel is unread
               firstUnreadMessageId = firstMessageWithCreationDate.id;
@@ -876,7 +875,10 @@ const ChannelInner = (
       if (doDeleteMessageRequest) {
         deletedMessage = await doDeleteMessageRequest(message, options);
       } else {
-        const result = await client.deleteMessage(message.id, options);
+        const result = await client.deleteMessage({
+          id: message.id,
+          ...options,
+        });
         deletedMessage = result.message;
       }
 
@@ -902,7 +904,7 @@ const ChannelInner = (
     options,
   }: {
     localMessage: LocalMessage;
-    message: Message;
+    message: MessageRequest;
     options?: SendMessageOptions;
   }) => {
     try {
@@ -911,7 +913,7 @@ const ChannelInner = (
       if (doSendMessageRequest) {
         messageResponse = await doSendMessageRequest(channel, message, options);
       } else {
-        messageResponse = await channel.sendMessage(message, options);
+        messageResponse = await channel.sendMessage({ message, ...options });
       }
 
       let existingMessage: LocalMessage | undefined = undefined;
@@ -984,7 +986,7 @@ const ChannelInner = (
     options,
   }: {
     localMessage: LocalMessage;
-    message: Message;
+    message: MessageRequest;
     options?: SendMessageOptions;
   }) => {
     channel.state.filterErrorMessages();
@@ -1075,9 +1077,10 @@ const ChannelInner = (
     const oldestMessageId = oldMessages[0]?.id;
 
     try {
-      const queryResponse = await channel.getReplies(parentId, {
+      const queryResponse = await channel.getReplies({
         id_lt: oldestMessageId,
         limit,
+        parent_id: parentId,
       });
 
       const threadHasMoreMessages = hasMoreMessagesProbably(

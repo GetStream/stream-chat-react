@@ -4,9 +4,9 @@ import React, { useContext } from 'react';
 import type {
   DeleteMessageOptions,
   LocalMessage,
-  Mute,
   ReactionResponse,
   ReactionSort,
+  UserMuteResponse,
   UserResponse,
 } from 'stream-chat';
 
@@ -99,7 +99,7 @@ export type MessageContextValue = {
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
-  mutes?: Mute[];
+  mutes?: UserMuteResponse[];
   /** Sort options to provide to a reactions query */
   reactionDetailsSort?: ReactionSort;
   /** A list of users that have read this Message */

@@ -4,7 +4,12 @@ import {
   useChannelStateContext,
   useChatContext,
 } from '../../../context';
-import type { Channel, Event, LocalMessage, MessageResponse } from 'stream-chat';
+import type {
+  Channel,
+  EventPayload,
+  LocalMessage,
+  MessageResponse,
+} from 'stream-chat';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
@@ -50,7 +55,7 @@ export const useMarkRead = ({
       if (shouldMarkRead()) markRead();
     };
 
-    const handleMessageNew = (event: Event) => {
+    const handleMessageNew = (event: EventPayload<'message.new'>) => {
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
 
@@ -80,7 +85,7 @@ export const useMarkRead = ({
       }
     };
 
-    channel.on('message.new', handleMessageNew);
+    const subscription = channel.on('message.new', handleMessageNew);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     if (shouldMarkRead()) {
@@ -88,7 +93,7 @@ export const useMarkRead = ({
     }
 
     return () => {
-      channel.off('message.new', handleMessageNew);
+      subscription.unsubscribe();
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [

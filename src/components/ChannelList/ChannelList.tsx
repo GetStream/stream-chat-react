@@ -7,6 +7,7 @@ import type {
   ChannelOptions,
   ChannelSort,
   Event,
+  EventPayload,
   SearchControllerState,
 } from 'stream-chat';
 
@@ -44,7 +45,7 @@ import { useStableId } from '../UtilityComponents/useStableId';
 
 const DEFAULT_FILTERS = {};
 const DEFAULT_OPTIONS = {};
-const DEFAULT_SORT = {};
+const DEFAULT_SORT: ChannelSort = [];
 
 const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
   searchIsActive: nextValue.isActive,
@@ -228,9 +229,12 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
       );
 
       if (!customActiveChannelObject) {
-        [customActiveChannelObject] = await client.queryChannels({
-          id: customActiveChannel,
-        });
+        [customActiveChannelObject] = await client.queryChannelsAndHydrate(
+          {
+            filter_conditions: { id: customActiveChannel },
+          },
+          { withResponse: false },
+        );
       }
 
       if (customActiveChannelObject) {
@@ -308,18 +312,19 @@ const UnMemoizedChannelList = (props: ChannelListProps) => {
   useConnectionRecoveredListener(forceUpdate);
 
   useEffect(() => {
-    const handleEvent = (event: Event) => {
+    const handleEvent = (event: EventPayload<'channel.deleted' | 'channel.hidden'>) => {
       if (event.cid === channel?.cid) {
         setActiveChannel();
       }
     };
 
-    client.on('channel.deleted', handleEvent);
-    client.on('channel.hidden', handleEvent);
+    const subscriptions = [
+      client.on('channel.deleted', handleEvent),
+      client.on('channel.hidden', handleEvent),
+    ];
 
     return () => {
-      client.off('channel.deleted', handleEvent);
-      client.off('channel.hidden', handleEvent);
+      subscriptions.forEach((subscription) => subscription.unsubscribe());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel?.cid]);

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import type { EventPayload } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -23,7 +24,7 @@ export const useReportLostConnectionSystemNotification = () => {
       connectionLostNotificationIdRef.current = null;
     };
 
-    const handleConnectionChanged = ({ online }: { online?: boolean }) => {
+    const handleConnectionChanged = ({ online }: EventPayload<'connection.changed'>) => {
       if (!online) {
         if (connectionLostNotificationIdRef.current) return;
 
@@ -40,10 +41,10 @@ export const useReportLostConnectionSystemNotification = () => {
       dismissConnectionLostNotification();
     };
 
-    client.on('connection.changed', handleConnectionChanged);
+    const subscription = client.on('connection.changed', handleConnectionChanged);
 
     return () => {
-      client.off('connection.changed', handleConnectionChanged);
+      subscription.unsubscribe();
       dismissConnectionLostNotification();
     };
   }, [addSystemNotification, client, removeNotification, t]);
