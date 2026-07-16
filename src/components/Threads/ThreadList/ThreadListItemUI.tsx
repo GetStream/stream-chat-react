@@ -5,10 +5,18 @@ import type { ThreadState } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 
 import { Timestamp } from '../../Message/Timestamp';
-import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
+import {
+  Avatar,
+  type AvatarProps,
+  AvatarStack as DefaultAvatarStack,
+} from '../../Avatar';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import { useChannelPreviewInfo } from '../../ChannelListItem';
-import { useChatContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../context';
 import { useThreadsViewContext } from '../../ChatView';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
@@ -21,6 +29,7 @@ import {
   composeThreadListItemAccessibleLabel,
   type ThreadListItemLabelConfig,
 } from './utils.a11y';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../Avatar/utils';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
   /**
@@ -39,6 +48,10 @@ export const ThreadListItemUI = ({
   const { client, isMessageAIGenerated } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext();
 
   const selector = useCallback(
     (nextValue: ThreadState) => ({
@@ -141,13 +154,8 @@ export const ThreadListItemUI = ({
   const displayInfo = useMemo(() => {
     if (!participants) return [];
 
-    return participants.slice(0, 3).map((participant) => ({
-      id: participant.user?.id ?? undefined,
-      imageUrl: participant.user?.image,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userName: participant.user?.name || participant.user!.id,
-    }));
-  }, [participants]);
+    return participants.slice(0, 3).map(extractDisplayInfo);
+  }, [extractDisplayInfo, participants]);
 
   useEffect(() => {
     if (!resetHighlighting) return;
