@@ -203,6 +203,14 @@ const resolveBinding = async (
     case 'channel': {
       const channel = resolveChannel(client, token.key);
       if (!channel) return undefined;
+      // A channel absent from every loaded page is an unwatched stub — its `state.members`,
+      // `membership`, mute status etc. aren't loaded yet. Ownership resolution (`retainChannel`
+      // → `matchesFilter`) reads exactly that state, so retaining now would only match the
+      // empty-filter fallback list (`channels:opened`), never `channels:default`. Watch first so
+      // the channel is classified into its real owning list. Already-initialized channels
+      // (paginator-first / warm Back-Forward) skip this — and this is the same single watch
+      // `<Channel>` would otherwise issue, just moved earlier, so it stays a single `/query`.
+      if (!channel.initialized) await channel.watch().catch(() => undefined);
       return { binding: { key: channel.cid, kind: 'channel', source: channel }, channel };
     }
     case 'thread': {

@@ -10,6 +10,7 @@ import {
   ChannelList,
   ChannelListContextProvider,
   ChannelListHeader,
+  ChannelListItem,
   ContextMenu,
   ContextMenuButton,
   NotificationList as DefaultNotificationList,
@@ -19,6 +20,7 @@ import {
   useComponentContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
+  useRetainedChannels,
   useStateStore,
 } from 'stream-chat-react';
 
@@ -156,6 +158,21 @@ const ChannelListSwitcher = ({
   );
 };
 
+// Channels retained on the active paginator (surfaced via `orchestrator.retainChannel` — deep-link
+// restore, search, DM) render here as a pinned section above the paginated list. `useRetainedChannels`
+// resolves the retained ids to entities and sorts them by the list's own sort.
+const RetainedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
+  const retained = useRetainedChannels(paginator);
+  if (!retained.length) return null;
+  return (
+    <div className='app-retained-channels'>
+      {retained.map((channel) => (
+        <ChannelListItem channel={channel} key={channel.cid} />
+      ))}
+    </div>
+  );
+};
+
 /**
  * Example channel navigation that shows exactly ONE channel list at a time plus a menu to
  * switch between the lists held by the `ChannelPaginatorsOrchestrator`. It mirrors the SDK's
@@ -199,6 +216,10 @@ export const SwitchableChannelNavigation = () => {
             onSelect={setActiveId}
             paginators={paginators}
           />
+          {/* Channels surfaced outside pagination (deep-link / search / DM) are retained in a
+              separate per-paginator store and rendered here, pinned above the paginated list —
+              for the active list only, so the retained section tracks the visible paginator. */}
+          <RetainedChannels paginator={activePaginator} />
           <ChannelList key={activePaginator.id} paginator={activePaginator} />
         </ChannelListContextProvider>
       )}
