@@ -1,3 +1,14 @@
+## [14.9.0](https://github.com/GetStream/stream-chat-react/compare/v14.8.0...v14.9.0) (2026-07-16)
+
+### Bug Fixes
+
+* custom doUploadRequest permission adjustments ([#3243](https://github.com/GetStream/stream-chat-react/issues/3243)) ([fa67adf](https://github.com/GetStream/stream-chat-react/commit/fa67adf3ee864c7344a06fe1b9edafde4acb529d)), closes [GetStream/stream-chat-js#1800](https://github.com/GetStream/stream-chat-js/issues/1800)
+* **MessageComposer:** make textarea full-width in custom composer layouts ([#3241](https://github.com/GetStream/stream-chat-react/issues/3241)) ([05236db](https://github.com/GetStream/stream-chat-react/commit/05236dbe07af510ed59581e672d0502f923d186d))
+
+### Features
+
+* expose internal contexts and composer components in the public API ([#3242](https://github.com/GetStream/stream-chat-react/issues/3242)) ([6b6a828](https://github.com/GetStream/stream-chat-react/commit/6b6a828305401b03a52deb27ed45be2816baa06f)), closes [GetStream/docs-content#1431](https://github.com/GetStream/docs-content/issues/1431)
+
 ## [14.8.0](https://github.com/GetStream/stream-chat-react/compare/v14.7.0...v14.8.0) (2026-07-09)
 
 ### Bug Fixes
