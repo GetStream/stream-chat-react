@@ -1,8 +1,10 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import type { UserSuggestion } from 'stream-chat';
-import { Avatar } from '../../../Avatar';
+import type { UserResponse, UserSuggestion } from 'stream-chat';
+import { Avatar as DefaultAvatar } from '../../../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../Avatar/utils';
 import { ListItemLayout } from '../../../ListItemLayout';
+import { useComponentContext } from '../../../../context';
 import type { MentionItemComponentProps } from './types';
 import {
   type TokenizedSuggestionDisplayName,
@@ -25,24 +27,20 @@ export type UserItemProps = MentionItemComponentProps<
  * UI component for mentions rendered in suggestion list
  */
 export const UserItem = ({ entity, focused, ...buttonProps }: UserItemProps) => {
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const hasEntity = !!Object.keys(entity).length;
 
   const titleAttribute = entity.name || entity.id || '';
+  const displayInfo = extractDisplayInfo({ user: entity });
   const LeadingSlot = useMemo(
     () =>
       function UserItemAvatar() {
         // Decorative: the option's accessible name already carries the user's name (title +
         // tokenized display name), so the avatar's fallback initials/role would only add noise.
-        return (
-          <Avatar
-            aria-hidden
-            imageUrl={entity.image}
-            size='md'
-            userName={titleAttribute}
-          />
-        );
+        return <Avatar {...displayInfo} aria-hidden size='md' />;
       },
-    [entity.image, titleAttribute],
+    [Avatar, displayInfo],
   );
 
   if (!hasEntity) return null;
