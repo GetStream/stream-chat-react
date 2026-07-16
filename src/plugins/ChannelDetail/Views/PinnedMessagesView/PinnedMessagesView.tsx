@@ -87,14 +87,15 @@ const PinnedMessagesViewItem = ({
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
   const displayName = getUserDisplayName(message.user ?? undefined);
-  const displayInfo = extractDisplayInfo({ user: message.user ?? undefined });
 
   const LeadingSlot = useMemo(
     () =>
       function MessageAuthorAvatar() {
+        const displayInfo = extractDisplayInfo({ user: message.user ?? undefined });
+
         return <Avatar {...displayInfo} size='md' />;
       },
-    [Avatar, displayInfo],
+    [Avatar, extractDisplayInfo, message.user],
   );
 
   const TrailingSlot = useMemo(

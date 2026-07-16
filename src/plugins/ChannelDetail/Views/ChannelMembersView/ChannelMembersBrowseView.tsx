@@ -62,14 +62,15 @@ const ChannelMembersBrowseViewItem = ({
   const user = member.user;
   const displayName = getMemberDisplayName(member);
   const roleTranslation = getMemberRoleTranslation(member, t);
-  const displayInfo = extractDisplayInfo({ user: user ?? undefined });
 
   const LeadingSlot = useMemo(
     () =>
       function MemberAvatar() {
+        const displayInfo = extractDisplayInfo({ user: user ?? undefined });
+
         return <Avatar {...displayInfo} isOnline={user?.online} size='md' />;
       },
-    [Avatar, displayInfo, user],
+    [Avatar, extractDisplayInfo, user],
   );
 
   const TrailingSlot = useMemo(

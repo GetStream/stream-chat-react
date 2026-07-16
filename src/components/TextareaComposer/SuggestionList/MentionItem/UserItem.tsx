@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
-import type { UserResponse, UserSuggestion } from 'stream-chat';
+import type { UserSuggestion } from 'stream-chat';
 import { Avatar as DefaultAvatar } from '../../../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../Avatar/utils';
 import { ListItemLayout } from '../../../ListItemLayout';
@@ -32,16 +32,15 @@ export const UserItem = ({ entity, focused, ...buttonProps }: UserItemProps) => 
   const hasEntity = !!Object.keys(entity).length;
 
   const titleAttribute = entity.name || entity.id || '';
-  const displayInfo = extractDisplayInfo({ user: entity });
-  const LeadingSlot = useMemo(
-    () =>
-      function UserItemAvatar() {
-        // Decorative: the option's accessible name already carries the user's name (title +
-        // tokenized display name), so the avatar's fallback initials/role would only add noise.
-        return <Avatar {...displayInfo} aria-hidden size='md' />;
-      },
-    [Avatar, displayInfo],
-  );
+  const LeadingSlot = useMemo(() => {
+    const displayInfo = extractDisplayInfo({ user: entity });
+
+    return function UserItemAvatar() {
+      // Decorative: the option's accessible name already carries the user's name (title +
+      // tokenized display name), so the avatar's fallback initials/role would only add noise.
+      return <Avatar {...displayInfo} aria-hidden size='md' />;
+    };
+  }, [Avatar, entity, extractDisplayInfo]);
 
   if (!hasEntity) return null;
 

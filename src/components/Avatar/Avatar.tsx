@@ -53,6 +53,7 @@ export const Avatar = ({
   className,
   FallbackIcon = IconUser,
   imageUrl,
+  initials: customInitials,
   isOnline,
   size,
   userName,
@@ -63,17 +64,16 @@ export const Avatar = ({
   useEffect(() => () => setError(false), [imageUrl]);
 
   const nameString = userName?.toString().trim() || '';
-  const avatarImageAlt = nameString.trim();
 
   const sizeAwareInitials = useMemo(() => {
-    const initials = rest.initials || getInitials(nameString);
+    const initials = customInitials || getInitials(nameString);
 
     if (size === 'sm' || size === 'xs') {
       return initials.charAt(0);
     }
 
     return initials;
-  }, [nameString, size, rest.initials]);
+  }, [nameString, size, customInitials]);
 
   const showImage = typeof imageUrl === 'string' && imageUrl && !error;
 
@@ -100,7 +100,7 @@ export const Avatar = ({
       )}
       {showImage ? (
         <img
-          alt={avatarImageAlt}
+          alt={nameString}
           className='str-chat__avatar-image'
           data-testid='avatar-img'
           onError={() => setError(true)}

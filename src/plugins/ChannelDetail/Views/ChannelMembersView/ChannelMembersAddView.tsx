@@ -65,14 +65,15 @@ const ChannelMembersAddViewItem = ({
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
   const displayName = getUserDisplayName(user);
-  const displayInfo = extractDisplayInfo({ user });
 
   const LeadingSlot = useMemo(
     () =>
       function MemberAvatar() {
+        const displayInfo = extractDisplayInfo({ user });
+
         return <Avatar {...displayInfo} isOnline={user.online} size='md' />;
       },
-    [Avatar, displayInfo, user.online],
+    [Avatar, extractDisplayInfo, user],
   );
 
   const SelectableTrailingSlot = useMemo(
