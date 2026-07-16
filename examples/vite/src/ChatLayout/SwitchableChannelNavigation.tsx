@@ -20,7 +20,7 @@ import {
   useComponentContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
-  useRetainedChannels,
+  useSideloadedChannels,
   useStateStore,
 } from 'stream-chat-react';
 
@@ -158,15 +158,15 @@ const ChannelListSwitcher = ({
   );
 };
 
-// Channels retained on the active paginator (surfaced via `orchestrator.retainChannel` — deep-link
-// restore, search, DM) render here as a pinned section above the paginated list. `useRetainedChannels`
-// resolves the retained ids to entities and sorts them by the list's own sort.
-const RetainedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
-  const retained = useRetainedChannels(paginator);
-  if (!retained.length) return null;
+// Channels sideloaded on the active paginator (surfaced via `orchestrator.sideloadChannel` — deep-link
+// restore, search, DM) render here in a section above the paginated list. `useSideloadedChannels`
+// resolves the sideloaded ids to entities and sorts them by the list's own sort.
+const SideloadedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
+  const sideloaded = useSideloadedChannels(paginator);
+  if (!sideloaded.length) return null;
   return (
-    <div className='app-retained-channels'>
-      {retained.map((channel) => (
+    <div className='app-sideloaded-channels'>
+      {sideloaded.map((channel) => (
         <ChannelListItem channel={channel} key={channel.cid} />
       ))}
     </div>
@@ -216,10 +216,10 @@ export const SwitchableChannelNavigation = () => {
             onSelect={setActiveId}
             paginators={paginators}
           />
-          {/* Channels surfaced outside pagination (deep-link / search / DM) are retained in a
-              separate per-paginator store and rendered here, pinned above the paginated list —
-              for the active list only, so the retained section tracks the visible paginator. */}
-          <RetainedChannels paginator={activePaginator} />
+          {/* Channels surfaced outside pagination (deep-link / search / DM) are sideloaded in a
+              separate per-paginator store and rendered here, above the paginated list —
+              for the active list only, so the sideloaded section tracks the visible paginator. */}
+          <SideloadedChannels paginator={activePaginator} />
           <ChannelList key={activePaginator.id} paginator={activePaginator} />
         </ChannelListContextProvider>
       )}

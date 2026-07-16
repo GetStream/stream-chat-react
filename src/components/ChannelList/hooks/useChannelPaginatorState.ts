@@ -23,7 +23,7 @@ const selector = (state: ChannelPaginatorState): ChannelPaginatorView => ({
  * Reactive view of a `ChannelPaginator`'s paginated state — the channels plus query status. This
  * is the single supported read path for the paginated list, so consumers never touch the raw
  * store shape (which lets the SDK evolve its internal storage, e.g. id-based, without breaking
- * callers). Retained items are a separate concern — see `useRetainedChannels`.
+ * callers). Sideloaded items are a separate concern — see `useSideloadedChannels`.
  */
 export const useChannelPaginatorState = (paginator: ChannelPaginator) =>
   useStateStore(paginator.state, selector);
