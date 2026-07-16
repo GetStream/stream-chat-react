@@ -21,6 +21,9 @@ const Picker =
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
+// Warn at most once per session that this engine is going away.
+let hasWarnedEmojiMartDeprecation = false;
+
 export type EmojiPickerProps = {
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
@@ -28,8 +31,8 @@ export type EmojiPickerProps = {
   wrapperClassName?: string;
   closeOnEmojiSelect?: boolean;
   /**
-   * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
-   * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
+   * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.6.0#options--props) to be
+   * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.6.0#-picker) component
    */
   pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
   /**
@@ -48,9 +51,14 @@ const classNames: Pick<
   wrapperClassName: 'str-chat__message-textarea-emoji-picker',
 };
 
+/**
+ * @deprecated The emoji-mart-based `EmojiPicker` will be removed in v15. Switch to
+ * `StreamEmojiPicker` from `stream-chat-react/emojis`, which needs no emoji-mart
+ * packages. See the emoji section of `AI.md` for migration notes.
+ */
 export const EmojiPicker = (props: EmojiPickerProps) => {
-  const { t } = useTranslationContext('EmojiPicker');
-  const { textareaRef } = useMessageComposerContext('EmojiPicker');
+  const { t } = useTranslationContext();
+  const { textareaRef } = useMessageComposerContext();
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);
@@ -62,6 +70,15 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
     offset: 8,
     placement: props.placement ?? 'top-end',
   });
+
+  useEffect(() => {
+    if (hasWarnedEmojiMartDeprecation) return;
+    hasWarnedEmojiMartDeprecation = true;
+    console.warn(
+      '[stream-chat-react] The `emoji-mart`-based `EmojiPicker` is deprecated and will be removed in the next major version. ' +
+        'Switch to `StreamEmojiPicker` from `stream-chat-react/emojis` as it offers the same functionality without 3rd party dependencies.',
+    );
+  }, []);
 
   useEffect(() => {
     refs.setReference(referenceElement);

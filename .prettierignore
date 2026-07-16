@@ -7,3 +7,7 @@ examples/**/serviceWorker.ts
 .agents/
 .claude/skills/
 skills-lock.json
+
+# Vendored emoji dataset (snapshot of @emoji-mart/data — kept minified; regenerate
+# via `node scripts/vendor-emoji-data.mjs`)
+src/plugins/Emojis/data/emoji-data.json

@@ -614,7 +614,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emoji-mart/data@npm:^1.2.1":
+"@emoji-mart/data@npm:1.2.1, @emoji-mart/data@npm:^1.2.1":
   version: 1.2.1
   resolution: "@emoji-mart/data@npm:1.2.1"
   checksum: 10c0/6784b97bf49a0d3ff110d8447bbd3b0449fcbc497294be3d1c3a6cb1609308776895c7520200be604cbecaa5e172c76927e47f34419c72ba8a76fd4e5a53674b
@@ -2072,11 +2072,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@stream-io/stream-chat-react-tutorial@workspace:examples/tutorial"
   dependencies:
-    "@emoji-mart/data": "npm:^1.2.1"
     "@types/react": "npm:^19.2.15"
     "@types/react-dom": "npm:^19.2.3"
     "@vitejs/plugin-react": "npm:^6.0.3"
-    emoji-mart: "npm:^5.6.0"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     stream-chat: "npm:^9.50.2"
@@ -2092,6 +2090,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.29.0"
     "@emoji-mart/data": "npm:^1.2.1"
+    "@emoji-mart/react": "npm:^1.1.1"
     "@playwright/test": "npm:^1.60.0"
     "@types/react": "npm:^19.2.15"
     "@types/react-dom": "npm:^19.2.3"
@@ -10041,7 +10040,7 @@ __metadata:
     "@breezystack/lamejs": "npm:^1.2.7"
     "@commitlint/cli": "npm:^21.0.1"
     "@commitlint/config-conventional": "npm:^21.0.1"
-    "@emoji-mart/data": "npm:^1.2.1"
+    "@emoji-mart/data": "npm:1.2.1"
     "@emoji-mart/react": "npm:^1.1.1"
     "@eslint/js": "npm:^9.39.4"
     "@floating-ui/react": "npm:^0.27.19"

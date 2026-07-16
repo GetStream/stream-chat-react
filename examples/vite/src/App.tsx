@@ -1,4 +1,11 @@
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type {
   ChannelFilters,
   ChannelOptions,
@@ -22,7 +29,6 @@ import {
   ChatView,
   defaultReactionOptions,
   DialogManagerProvider,
-  mapEmojiMartData,
   MessageReactions,
   NotificationList,
   type NotificationListProps,
@@ -32,9 +38,12 @@ import {
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
-import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
-import { init, SearchIndex } from 'emoji-mart';
-import data from '@emoji-mart/data/sets/14/native.json';
+import {
+  createTextComposerEmojiMiddleware,
+  EmojiPicker,
+  loadDefaultExtendedReactionOptions,
+  StreamEmojiPicker,
+} from 'stream-chat-react/emojis';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
@@ -73,8 +82,6 @@ import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.t
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
-init({ data });
-
 const parseUserIdFromToken = (token: string): string | undefined => {
   try {
     const [, payload] = token.split('.');
@@ -108,11 +115,6 @@ const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
 
 // @ts-expect-error ai_generated isn't on LocalMessage's public type yet
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
-
-const newReactionOptions: ReactionOptions = {
-  ...defaultReactionOptions,
-  extended: mapEmojiMartData(data),
-};
 
 const useUser = () => {
   const searchParams = useMemo(() => new URLSearchParams(window.location.search), []);
@@ -180,18 +182,62 @@ const CustomMessageReactions = (props: React.ComponentProps<typeof MessageReacti
 
 const CustomChannelSearch = () => <Search exitSearchOnInputBlur />;
 
+// Demonstrates integrator-owned persistence of the picker's skin tone and
+// frequently-used emoji via localStorage. The SDK itself never touches storage —
+// it exposes these as controlled props so apps own where the state lives.
+const EMOJI_SKIN_TONE_KEY = 'vite-example/emoji-skin-tone';
+const EMOJI_FREQUENTLY_USED_KEY = 'vite-example/emoji-frequently-used';
+
+const readStored = <T,>(key: string, fallback: T): T => {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+const writeStored = (key: string, value: unknown) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // ignore storage failures (e.g. private browsing)
+  }
+};
+
 const EmojiPickerWithCustomOptions = (
-  props: React.ComponentProps<typeof EmojiPicker>,
+  props: React.ComponentProps<typeof StreamEmojiPicker>,
 ) => {
   const { mode } = useAppSettingsSelector((state) => state.theme);
+  const { engine, ...pickerOptions } = useAppSettingsSelector(
+    (state) => state.emojiPicker,
+  );
+  const [skinTone, setSkinTone] = useState(() => readStored(EMOJI_SKIN_TONE_KEY, 0));
+  const [frequentlyUsedEmoji, setFrequentlyUsedEmoji] = useState(() =>
+    readStored<string[]>(EMOJI_FREQUENTLY_USED_KEY, []),
+  );
+
+  // The deprecated emoji-mart picker self-manages skin tone + frequently-used and
+  // accepts the same emoji-mart-compatible option names, so it only needs pickerProps.
+  if (engine === 'emoji-mart') {
+    return <EmojiPicker pickerProps={{ ...pickerOptions, theme: mode }} />;
+  }
 
   return (
-    <EmojiPicker
+    <StreamEmojiPicker
       {...props}
-      pickerProps={{
-        ...props.pickerProps,
-        theme: mode,
+      autoFocus={pickerOptions.autoFocus}
+      frequentlyUsedEmoji={frequentlyUsedEmoji}
+      onFrequentlyUsedChange={(ids) => {
+        setFrequentlyUsedEmoji(ids);
+        writeStored(EMOJI_FREQUENTLY_USED_KEY, ids);
       }}
+      onSkinToneChange={(tone) => {
+        setSkinTone(tone);
+        writeStored(EMOJI_SKIN_TONE_KEY, tone);
+      }}
+      skinTone={skinTone}
+      theme={mode}
     />
   );
 };
@@ -226,6 +272,21 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
 
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
+  // Restore "react with any emoji": lazily load the full emoji set and expose it as the
+  // extended reaction options (the reaction selector's "+" list). The dataset loads on
+  // demand via the same code-split chunk the picker uses; until it resolves only the
+  // quick reactions show.
+  const [reactionOptions, setReactionOptions] =
+    useState<ReactionOptions>(defaultReactionOptions);
+  useEffect(() => {
+    let active = true;
+    loadDefaultExtendedReactionOptions().then((extended) => {
+      if (active) setReactionOptions({ ...defaultReactionOptions, extended });
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
   const chatView = useAppSettingsSelector((state) => state.chatView);
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
@@ -357,9 +418,7 @@ const App = () => {
       });
 
       composer.textComposer.middlewareExecutor.insert({
-        middleware: [
-          createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
-        ],
+        middleware: [createTextComposerEmojiMiddleware() as TextComposerMiddleware],
         position: { before: 'stream-io/text-composer/mentions-middleware' },
         unique: true,
       });
@@ -414,11 +473,10 @@ const App = () => {
   return (
     <WithComponents
       overrides={{
-        emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
         MessageReactions: CustomMessageReactions,
-        reactionOptions: newReactionOptions,
+        reactionOptions,
         Search: CustomChannelSearch,
         HeaderEndContent: SidebarToggle,
         HeaderStartContent: SidebarToggle,

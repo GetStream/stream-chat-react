@@ -57,7 +57,7 @@ const steps: TutorialStep[] = [
     id: 'emoji-picker',
     title: '6. Emoji Picker',
     description:
-      'Wire a custom EmojiPicker into MessageComposer with emoji-mart search support.',
+      'Wire a custom EmojiPicker into MessageComposer with built-in emoji search support.',
     Component: EmojiPickerStep,
   },
   {

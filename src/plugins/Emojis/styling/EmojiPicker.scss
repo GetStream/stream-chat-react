@@ -1,11 +1,368 @@
-$emoji-picker-border-radius: 10px;
+@use '../../../styling/utils';
+@use '../../../styling/light' as light;
 
-.str-chat__message-textarea-emoji-picker-container {
-  border-radius: $emoji-picker-border-radius;
-  box-shadow: var(--str-chat__box-shadow-3);
-  overflow: hidden;
+$emoji-picker-border-radius: 12px;
 
-  em-emoji-picker {
-    --border-radius: #{$emoji-picker-border-radius};
+.str-chat {
+  .str-chat__message-textarea-emoji-picker-container {
+    border-radius: $emoji-picker-border-radius;
+    box-shadow: var(--str-chat__box-shadow-3);
+    overflow: hidden;
   }
+
+  .str-chat__emoji-picker {
+    // Component tokens — resolved from semantic tokens. With `theme='auto'` these
+    // inherit the ancestor `.str-chat__theme-*`; with a forced `theme` the semantic
+    // tokens are re-asserted on the panel below so the override wins regardless of
+    // the ancestor theme.
+    --str-chat__emoji-picker-background-color: var(
+      --str-chat__background-core-surface-card
+    );
+    --str-chat__emoji-picker-text-color: var(--str-chat__text-primary);
+    --str-chat__emoji-picker-secondary-text-color: var(--str-chat__text-secondary);
+    --str-chat__emoji-picker-hover-background-color: var(
+      --str-chat__background-utility-hover
+    );
+    --str-chat__emoji-picker-selected-background-color: var(
+      --str-chat__background-utility-selected
+    );
+    --str-chat__emoji-picker-border-color: var(--str-chat__border-core-on-surface);
+    // Gentle hairline for the search/footer dividers (the default on-surface border is
+    // intentionally strong and reads as too heavy here).
+    --str-chat__emoji-picker-separator-color: var(--str-chat__border-core-subtle);
+    // A soft grey fill for the search field (the app background token is white).
+    --str-chat__emoji-picker-search-background-color: var(
+      --str-chat__background-utility-hover
+    );
+    --str-chat__emoji-picker-active-indicator-color: var(--str-chat__accent-primary);
+    --str-chat__emoji-picker-width: 22.5rem;
+    --str-chat__emoji-picker-height: 27.5rem;
+    --str-chat__emoji-picker-emoji-size: 1.5rem;
+
+    display: flex;
+    flex-direction: column;
+    inline-size: var(--str-chat__emoji-picker-width);
+    max-inline-size: 100%;
+    block-size: var(--str-chat__emoji-picker-height);
+    background-color: var(--str-chat__emoji-picker-background-color);
+    color: var(--str-chat__emoji-picker-text-color);
+    font: var(--str-chat__font-body-default);
+
+    // The whole row is styled as one filled search field, with the icon inside it.
+    &__search {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-xs);
+      margin: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm)
+        var(--str-chat__spacing-sm);
+      // No inline padding: the icon's inset already comes from the flex `gap` after
+      // the visually-hidden label (the first flex child). Adding padding here would
+      // stack on top of that gap and push the icon deeper into the field.
+      min-block-size: 2rem;
+      border-radius: var(--str-chat__radius-8);
+      background-color: var(--str-chat__emoji-picker-search-background-color);
+
+      &:focus-within {
+        @include utils.focusable;
+      }
+
+      .str-chat__icon {
+        flex: none;
+        inline-size: 1rem;
+        block-size: 1rem;
+        color: var(--str-chat__emoji-picker-secondary-text-color);
+      }
+    }
+
+    &__search-input {
+      flex: 1 1 auto;
+      min-inline-size: 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      font-size: 0.875rem;
+      line-height: 1.5;
+
+      // The filled field shows focus via `:focus-within`, so the input itself doesn't.
+      &:focus,
+      &:focus-visible {
+        outline: none;
+      }
+
+      &::placeholder {
+        color: var(--str-chat__emoji-picker-secondary-text-color);
+      }
+    }
+
+    &__search-clear {
+      flex: none;
+    }
+
+    &__empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--str-chat__spacing-xs);
+      min-block-size: 12rem;
+      padding: var(--str-chat__spacing-md);
+      color: var(--str-chat__emoji-picker-secondary-text-color);
+      text-align: center;
+    }
+
+    &__empty-emoji {
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    &__category-nav {
+      display: flex;
+      align-items: stretch;
+      gap: var(--str-chat__spacing-xxs);
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm) 0;
+    }
+
+    &__category-nav-button {
+      @include utils.button-reset;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      justify-content: center;
+      padding-block: var(--str-chat__spacing-xs);
+      font-size: 1.125rem;
+      line-height: 1;
+      // Muted tabs; the active one is emphasized with an underline bar (like
+      // emoji-mart) rather than a filled background.
+      opacity: 0.55;
+
+      &:hover {
+        opacity: 0.85;
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+
+      &--active {
+        opacity: 1;
+
+        &::after {
+          content: '';
+          position: absolute;
+          inset-inline: 15%;
+          inset-block-end: 0;
+          block-size: 2px;
+          border-radius: 2px 2px 0 0;
+          background-color: var(--str-chat__emoji-picker-active-indicator-color);
+        }
+      }
+    }
+
+    &__body {
+      flex: 1 1 auto;
+      min-block-size: 0;
+      border-block-start: 1px solid var(--str-chat__emoji-picker-separator-color);
+    }
+
+    &__grid-container {
+      @include utils.scrollable-y;
+      block-size: 100%;
+      padding-inline: var(--str-chat__spacing-xs);
+    }
+
+    &__category {
+      padding-inline: var(--str-chat__spacing-xs);
+
+      &-label {
+        position: sticky;
+        inset-block-start: 0;
+        z-index: 1;
+        padding-block: var(--str-chat__spacing-xs) var(--str-chat__spacing-xxs);
+        background-color: var(--str-chat__emoji-picker-background-color);
+        color: var(--str-chat__emoji-picker-secondary-text-color);
+        font-size: 0.8125rem;
+        font-weight: 500;
+      }
+
+      &-emojis {
+        display: grid;
+        // Fixed column count driven by the `perLine` option (default 9); cells share the
+        // row evenly with a real gap so the grid breathes rather than packing tight.
+        grid-template-columns: repeat(
+          var(--str-chat__emoji-picker-per-line, 9),
+          minmax(0, 1fr)
+        );
+        gap: var(--str-chat__spacing-xs);
+        padding-block-end: var(--str-chat__spacing-xs);
+      }
+
+      // Pin the "frequently used" section to a single row. The panel caps its ids to
+      // FREQUENTLY_USED_LIMIT (see frequentlyUsed.ts) and these fixed columns match the
+      // default grid width, so it fills one aligned row and never wraps to a second as
+      // more emoji are used. (Uses the literal child class, not `&-emojis`, so the
+      // combinator doesn't re-expand the whole parent chain.)
+      &[data-category-id='frequent'] > .str-chat__emoji-picker__category-emojis {
+        grid-template-columns: repeat(
+          var(--str-chat__emoji-picker-per-line, 9),
+          minmax(0, 1fr)
+        );
+      }
+    }
+
+    &__emoji {
+      @include utils.button-reset;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      aspect-ratio: 1 / 1;
+      inline-size: 100%;
+      border-radius: var(--str-chat__radius-4);
+      font-size: var(--str-chat__emoji-picker-emoji-size);
+      line-height: 1;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+
+    &__footer {
+      display: flex;
+      align-items: center;
+      gap: var(--str-chat__spacing-sm);
+      min-block-size: 2.75rem;
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-sm);
+      border-block-start: 1px solid var(--str-chat__emoji-picker-separator-color);
+    }
+
+    &__preview {
+      display: flex;
+      flex: 1 1 auto;
+      align-items: center;
+      gap: var(--str-chat__spacing-sm);
+      min-inline-size: 0;
+
+      &-emoji {
+        flex: none;
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+
+      // Name (prominent) stacked over the `:shortcode:` (muted), both truncated.
+      &-text {
+        display: flex;
+        flex-direction: column;
+        min-inline-size: 0;
+        line-height: 1.2;
+      }
+
+      &-name {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.875rem;
+      }
+
+      &-shortcode {
+        overflow: hidden;
+        color: var(--str-chat__emoji-picker-secondary-text-color);
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 0.8125rem;
+      }
+    }
+
+    &__skin-tones {
+      display: flex;
+      flex: none;
+      align-items: center;
+      gap: var(--str-chat__spacing-xxs);
+    }
+
+    &__skin-tone-toggle,
+    &__skin-tone {
+      @include utils.button-reset;
+      cursor: pointer;
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--str-chat__spacing-xxs);
+      border-radius: var(--str-chat__radius-4);
+      font-size: 1.25rem;
+      line-height: 1;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+
+    &__skin-tone--active {
+      background-color: var(--str-chat__emoji-picker-selected-background-color);
+    }
+
+    &__loading {
+      flex: 1 1 auto;
+      min-block-size: 12rem;
+    }
+
+    &__error {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--str-chat__spacing-sm);
+      min-block-size: 12rem;
+      padding: var(--str-chat__spacing-md);
+      color: var(--str-chat__emoji-picker-secondary-text-color);
+      text-align: center;
+    }
+
+    &__error-retry {
+      @include utils.button-reset;
+      cursor: pointer;
+      padding: var(--str-chat__spacing-xs) var(--str-chat__spacing-md);
+      border: 1px solid var(--str-chat__emoji-picker-border-color);
+      border-radius: var(--str-chat__radius-8);
+      color: var(--str-chat__emoji-picker-text-color);
+      font: inherit;
+
+      &:hover {
+        background-color: var(--str-chat__emoji-picker-hover-background-color);
+      }
+
+      &:focus-visible {
+        @include utils.focusable;
+      }
+    }
+  }
+}
+
+// Forced light theme (`pickerProps.theme='light'`).
+//
+// The SDK's global theme rules (variable-tokens.scss) treat light as the `.str-chat`
+// default and apply dark via `.str-chat__theme-dark`; there is no rule that asserts
+// light values for a `.str-chat__theme-light` class. So a picker forced to light while
+// nested in a `.str-chat__theme-dark` ancestor would inherit the ancestor's dark tokens.
+// Re-assert the full light set on the forced-light panel so it wins over any inherited
+// theme — mirroring how variable-tokens.scss emits `light.variables` for the
+// `.str-chat__theme-dark .str-chat__theme-inverse` ("light inside dark") case.
+//
+// `theme='dark'` needs no equivalent block: the panel carries `.str-chat__theme-dark`,
+// which the global rule (always loaded via index.css) already matches. `theme='auto'`
+// intentionally inherits the ancestor theme.
+.str-chat__emoji-picker.str-chat__theme-light {
+  @include light.variables;
 }

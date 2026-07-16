@@ -1,5 +1,9 @@
 @layer stream, stream-overrides;
 @import 'stream-chat-react/dist/css/index.css' layer(stream);
+/* The emoji picker ships its own opt-in stylesheet (kept out of index.css so apps
+   that don't use it pay no CSS cost). This step renders <EmojiPicker>, so it must
+   be imported or the picker panel renders unstyled. */
+@import 'stream-chat-react/dist/css/emoji-picker.css' layer(stream);
 
 @layer stream-overrides {
   .custom-theme {

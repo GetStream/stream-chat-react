@@ -139,7 +139,7 @@ export type ComponentContextValue = {
   EditedMessagePreview?: React.ComponentType<EditedMessagePreviewProps>;
   /** Custom UI component for rendering button with emoji picker in MessageComposer */
   EmojiPicker?: React.ComponentType;
-  /** Mechanism to be used with autocomplete and text replace features of the `MessageComposer` component, see [emoji-mart `SearchIndex`](https://github.com/missive/emoji-mart#%EF%B8%8F%EF%B8%8F-headless-search) */
+  /** Custom emoji search index for `MessageComposer` autocomplete and emoticon replacement. Optional — the SDK ships a built-in `defaultEmojiSearchIndex` (used by `createTextComposerEmojiMiddleware`); emoji-mart's `SearchIndex` also satisfies this interface. */
   emojiSearchIndex?: EmojiSearchIndex;
   /** Custom UI component to be displayed when the `MessageList` is empty, defaults to and accepts same props as: [EmptyStateIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/EmptyStateIndicator/EmptyStateIndicator.tsx)  */
   EmptyStateIndicator?: React.ComponentType<EmptyStateIndicatorProps>;
