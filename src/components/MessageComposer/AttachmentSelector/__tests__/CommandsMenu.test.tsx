@@ -24,6 +24,7 @@ vi.mock('../../../Dialog', async (importOriginal) => ({
 }));
 
 vi.mock('../../../../context', () => ({
+  useComponentContext: () => ({}),
   useMessageComposerContext: () => ({ textareaRef: { current: null } }),
   useTranslationContext: () => ({ t }),
 }));

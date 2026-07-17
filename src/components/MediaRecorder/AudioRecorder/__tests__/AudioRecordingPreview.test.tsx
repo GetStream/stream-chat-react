@@ -34,6 +34,7 @@ const tSpy = (s) => s;
 
 vi.mock('../../../../context', () => ({
   useChatContext: () => ({ client: mockClient }),
+  useComponentContext: () => ({}),
   useTranslationContext: () => ({ t: tSpy }),
 }));
 
