@@ -22,6 +22,7 @@ vi.mock('../../MessageComposer/hooks', () => ({
 }));
 
 vi.mock('../../../context', () => ({
+  useComponentContext: () => ({}),
   useTranslationContext: () => ({
     t: (key: string) => key,
   }),
