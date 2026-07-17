@@ -341,6 +341,13 @@ const ChannelInner = (
       originalTitle.current = document.title;
 
       if (!errored) {
+        // Re-derive the unread snapshot from the current read state on every (re)open. A cached
+        // channel is NOT re-queried on reopen, so the LLC's first-page-query auto-seed does not run
+        // and the separator/"N new" banner would otherwise show a stale boundary (or never clear).
+        // Must run before markChannelRead below so it captures the unread boundary before the
+        // server read advances it.
+        channel.messagePaginator.seedUnreadSnapshot();
+
         const ownReadState = client.userID
           ? channel.state.read[client.userID]
           : undefined;

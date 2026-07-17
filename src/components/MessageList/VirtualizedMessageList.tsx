@@ -293,6 +293,7 @@ const VirtualizedMessageListWithContext = (
     unreadStateSnapshotSelector,
   );
   const focusedMessageId = messageFocusSignal?.messageId;
+  const focusToken = messageFocusSignal?.token;
 
   const virtuoso = useRef<VirtuosoHandle>(null);
 
@@ -406,6 +407,7 @@ const VirtualizedMessageListWithContext = (
   } = useNewMessageNotification(processedMessages, client.userID);
 
   useMarkRead({
+    hasMoreNewer,
     isMessageListScrolledToBottom,
     messageListIsThread: isThreadList,
   });
@@ -514,13 +516,19 @@ const VirtualizedMessageListWithContext = (
       if (index !== -1) {
         scrollTimeout = setTimeout(() => {
           virtuoso.current?.scrollToIndex({ align: 'center', index });
+          messagePaginator.scheduleMessageFocusSignalClear({ token: focusToken });
         }, 0);
       }
     }
     return () => {
       clearTimeout(scrollTimeout);
     };
-  }, [focusedMessageId, processedMessages]);
+  }, [focusedMessageId, focusToken, processedMessages, messagePaginator]);
+
+  useEffect(() => {
+    const paginator = messagePaginator;
+    return () => paginator.clearMessageFocusSignal();
+  }, [messagePaginator]);
 
   const id = useStableId();
 
