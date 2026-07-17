@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useTimeElapsed } from './hooks/useTimeElapsed';
-import { useMessageComposerContext } from '../../../context';
+import { useComponentContext, useMessageComposerContext } from '../../../context';
 import { RecordingTimer } from './RecordingTimer';
-import { IconVoice } from '../../Icons';
+import { IconVoice as DefaultIconVoice } from '../../Icons';
 
 type WaveformProps = {
   maxDataPointsDrawn?: number;
@@ -47,6 +47,8 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 200 }: WaveformProps) => 
   );
 };
 export const AudioRecordingPreview = () => {
+  const { icons: { IconVoice = DefaultIconVoice } = {} } = useComponentContext();
+
   const {
     recordingController: { recorder },
   } = useMessageComposerContext();

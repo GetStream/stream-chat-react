@@ -1,12 +1,19 @@
 import React from 'react';
-import { useMessageContext, useTranslationContext } from '../../context';
+import {
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import {
   ContextMenuBackButton,
   ContextMenuButton,
   ContextMenuHeader,
   useContextMenuContext,
 } from '../Dialog';
-import { IconChevronLeft, IconDownload } from '../Icons';
+import {
+  IconChevronLeft as DefaultIconChevronLeft,
+  IconDownload as DefaultIconDownload,
+} from '../Icons';
 import {
   downloadAllAttachments,
   downloadAttachment,
@@ -17,6 +24,9 @@ const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 
 export const DownloadSubmenuHeader = () => {
+  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
+    useComponentContext();
+
   const { returnToParentMenu: goBack } = useContextMenuContext();
   const { t } = useTranslationContext();
   return (
@@ -30,6 +40,7 @@ export const DownloadSubmenuHeader = () => {
 };
 
 export const DownloadSubmenu = () => {
+  const { icons: { IconDownload = DefaultIconDownload } = {} } = useComponentContext();
   const { closeMenu } = useContextMenuContext();
   const { message } = useMessageContext();
   const { t } = useTranslationContext();

@@ -1,5 +1,6 @@
 import { Button } from '../Button';
-import { IconXmark } from '../Icons';
+import { useComponentContext } from '../../context';
+import { IconXmark as DefaultIconXmark } from '../Icons';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 
@@ -8,13 +9,16 @@ export const CloseButtonOnModalOverlay = ({
   children,
   className,
   ...props
-}: ComponentProps<'button'>) => (
-  <Button
-    appearance='ghost'
-    circular
-    className={clsx('str-chat__modal__overlay__close-button', className)}
-    {...props}
-  >
-    {children ?? <IconXmark />}
-  </Button>
-);
+}: ComponentProps<'button'>) => {
+  const { icons: { IconXmark = DefaultIconXmark } = {} } = useComponentContext();
+  return (
+    <Button
+      appearance='ghost'
+      circular
+      className={clsx('str-chat__modal__overlay__close-button', className)}
+      {...props}
+    >
+      {children ?? <IconXmark />}
+    </Button>
+  );
+};

@@ -1,7 +1,9 @@
-import { useTranslationContext } from '../../../../context';
-import { IconImage } from '../../../../components/Icons';
+import { useComponentContext, useTranslationContext } from '../../../../context';
+import { IconImage as DefaultIconImage } from '../../../../components/Icons';
 
 export const ChannelMediaEmptyList = () => {
+  const { icons: { IconImage = DefaultIconImage } = {} } = useComponentContext();
+
   const { t } = useTranslationContext('ChannelMediaEmptyList');
 
   return (

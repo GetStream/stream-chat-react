@@ -18,33 +18,39 @@ import { ChannelMediaView } from './Views/ChannelMediaView';
 import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
 import { Prompt } from '../../components/Dialog';
+import { useComponentContext } from '../../context';
 import {
-  IconFolder,
-  IconImage,
-  IconInfo,
-  IconPin,
-  IconUser,
+  IconFolder as DefaultIconFolder,
+  IconImage as DefaultIconImage,
+  IconInfo as DefaultIconInfo,
+  IconPin as DefaultIconPin,
+  IconUser as DefaultIconUser,
 } from '../../components/Icons';
 
-const ChannelManagementNavButtonIcon = () => (
-  <IconInfo className='str-chat__channel-detail__action-icon' />
-);
+const ChannelManagementNavButtonIcon = () => {
+  const { icons: { IconInfo = DefaultIconInfo } = {} } = useComponentContext();
+  return <IconInfo className='str-chat__channel-detail__action-icon' />;
+};
 
-const ChannelMembersNavButtonIcon = () => (
-  <IconUser className='str-chat__channel-detail__action-icon' />
-);
+const ChannelMembersNavButtonIcon = () => {
+  const { icons: { IconUser = DefaultIconUser } = {} } = useComponentContext();
+  return <IconUser className='str-chat__channel-detail__action-icon' />;
+};
 
-const PinnedMessagesNavButtonIcon = () => (
-  <IconPin className='str-chat__channel-detail__action-icon' />
-);
+const PinnedMessagesNavButtonIcon = () => {
+  const { icons: { IconPin = DefaultIconPin } = {} } = useComponentContext();
+  return <IconPin className='str-chat__channel-detail__action-icon' />;
+};
 
-const ChannelMediaNavButtonIcon = () => (
-  <IconImage className='str-chat__channel-detail__action-icon' />
-);
+const ChannelMediaNavButtonIcon = () => {
+  const { icons: { IconImage = DefaultIconImage } = {} } = useComponentContext();
+  return <IconImage className='str-chat__channel-detail__action-icon' />;
+};
 
-const ChannelFilesNavButtonIcon = () => (
-  <IconFolder className='str-chat__channel-detail__action-icon' />
-);
+const ChannelFilesNavButtonIcon = () => {
+  const { icons: { IconFolder = DefaultIconFolder } = {} } = useComponentContext();
+  return <IconFolder className='str-chat__channel-detail__action-icon' />;
+};
 
 export const ChannelManagementNavButton = (props: SectionNavigatorNavButtonProps) => (
   <ChannelDetailNavButton

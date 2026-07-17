@@ -3,7 +3,10 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { type GalleryItem } from './GalleryContext';
 import { Button } from '../Button';
-import { IconArrowDownCircle, IconXmark } from '../Icons';
+import {
+  IconArrowDownCircle as DefaultIconArrowDownCircle,
+  IconXmark as DefaultIconXmark,
+} from '../Icons';
 import { MessageTimestamp as DefaultMessageTimestamp } from '../Message/MessageTimestamp';
 import {
   ModalContext,
@@ -17,6 +20,13 @@ type GalleryHeaderProps = {
 };
 
 export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
+  const {
+    icons: {
+      IconArrowDownCircle = DefaultIconArrowDownCircle,
+      IconXmark = DefaultIconXmark,
+    } = {},
+  } = useComponentContext();
+
   const { t } = useTranslationContext();
   const { MessageTimestamp = DefaultMessageTimestamp } = useComponentContext('GalleryUI');
   const { isMyMessage, message } = useMessageContext('GalleryUI');

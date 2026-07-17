@@ -17,10 +17,10 @@ import {
 import { Prompt } from '../../../../components/Dialog';
 import { Gallery as DefaultGallery, GalleryUI } from '../../../../components/Gallery';
 import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconImage,
-  IconVideoFill,
+  IconChevronLeft as DefaultIconChevronLeft,
+  IconChevronRight as DefaultIconChevronRight,
+  IconImage as DefaultIconImage,
+  IconVideoFill as DefaultIconVideoFill,
 } from '../../../../components/Icons';
 import { GlobalModal } from '../../../../components/Modal';
 import {
@@ -52,8 +52,11 @@ const ChannelMediaGridItem = ({
   onClick,
 }: ChannelMediaGridItemProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
-  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
-    useComponentContext();
+  const {
+    Avatar = DefaultAvatar,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+    icons: { IconImage = DefaultIconImage, IconVideoFill = DefaultIconVideoFill } = {},
+  } = useComponentContext();
   const displayName = getUserDisplayName(item.user);
   const mediaSrc =
     item.type === 'video'
@@ -120,6 +123,12 @@ const ChannelMediaPagination = ({
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
+  const {
+    icons: {
+      IconChevronLeft = DefaultIconChevronLeft,
+      IconChevronRight = DefaultIconChevronRight,
+    } = {},
+  } = useComponentContext();
 
   return (
     <div className='str-chat__channel-detail__media-view__pagination'>

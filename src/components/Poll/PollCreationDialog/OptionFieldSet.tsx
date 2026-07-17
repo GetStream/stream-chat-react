@@ -1,11 +1,11 @@
 import clsx from 'clsx';
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { TextInput } from '../../Form/TextInput';
-import { useTranslationContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerOption, PollComposerState } from 'stream-chat';
-import { IconMinusCircle } from '../../Icons';
+import { IconMinusCircle as DefaultIconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
 import { VisuallyHidden } from '../../VisuallyHidden';
@@ -281,15 +281,19 @@ export const OptionFieldSet = () => {
   );
 };
 
-const RemoveOptionButton = ({ className, ...props }: ButtonProps) => (
-  <Button
-    appearance='ghost'
-    circular
-    className={clsx('str-chat__form__remove-option-button', className)}
-    size='xs'
-    variant='secondary'
-    {...props}
-  >
-    <IconMinusCircle />
-  </Button>
-);
+const RemoveOptionButton = ({ className, ...props }: ButtonProps) => {
+  const { icons: { IconMinusCircle = DefaultIconMinusCircle } = {} } =
+    useComponentContext();
+  return (
+    <Button
+      appearance='ghost'
+      circular
+      className={clsx('str-chat__form__remove-option-button', className)}
+      size='xs'
+      variant='secondary'
+      {...props}
+    >
+      <IconMinusCircle />
+    </Button>
+  );
+};

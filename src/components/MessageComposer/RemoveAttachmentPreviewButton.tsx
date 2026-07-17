@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import { IconXmarkSmall } from '../Icons';
+import { IconXmarkSmall as DefaultIconXmarkSmall } from '../Icons';
 import { Button } from '../Button';
 import React, { type ComponentProps } from 'react';
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import type { AttachmentLoadingState } from 'stream-chat';
 
 export const RemoveAttachmentPreviewButton = ({
@@ -12,6 +12,9 @@ export const RemoveAttachmentPreviewButton = ({
 }: ComponentProps<'button'> & {
   uploadState?: AttachmentLoadingState;
 }) => {
+  const { icons: { IconXmarkSmall = DefaultIconXmarkSmall } = {} } =
+    useComponentContext();
+
   const { t } = useTranslationContext();
   return (
     <Button

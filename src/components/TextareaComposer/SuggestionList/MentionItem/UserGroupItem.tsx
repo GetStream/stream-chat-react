@@ -1,7 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 import type { UserGroupMentionSuggestion } from 'stream-chat';
-import { IconUsers } from '../../../Icons';
+import { useComponentContext } from '../../../../context';
+import { IconUsers as DefaultIconUsers } from '../../../Icons';
 import { ListItemLayout } from '../../../ListItemLayout';
 import { MentionSuggestionTitle } from './MentionSuggestionTitle';
 import type { MentionItemComponentProps } from './types';
@@ -14,6 +15,8 @@ export const UserGroupItem = ({
   focused,
   ...buttonProps
 }: UserGroupItemProps) => {
+  const { icons: { IconUsers = DefaultIconUsers } = {} } = useComponentContext();
+
   void focused;
 
   return (

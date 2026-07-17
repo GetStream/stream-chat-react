@@ -1,7 +1,14 @@
 import React from 'react';
-import { useChannelActionContext, useTranslationContext } from '../../context';
+import {
+  useChannelActionContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import { Button } from '../Button';
-import { IconArrowUp, IconXmark } from '../Icons';
+import {
+  IconArrowUp as DefaultIconArrowUp,
+  IconXmark as DefaultIconXmark,
+} from '../Icons';
 import clsx from 'clsx';
 
 export type UnreadMessagesNotificationProps = {
@@ -24,6 +31,10 @@ export const UnreadMessagesNotification = ({
   showCount = true,
   unreadCount,
 }: UnreadMessagesNotificationProps) => {
+  const {
+    icons: { IconArrowUp = DefaultIconArrowUp, IconXmark = DefaultIconXmark } = {},
+  } = useComponentContext();
+
   const { jumpToFirstUnreadMessage, markRead } = useChannelActionContext();
   const { t } = useTranslationContext('UnreadMessagesNotification');
 

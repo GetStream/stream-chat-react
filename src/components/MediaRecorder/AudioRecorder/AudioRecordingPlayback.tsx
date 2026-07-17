@@ -3,9 +3,12 @@ import { DurationDisplay, WaveProgressBar } from '../../AudioPlayback';
 import type { AudioPlayerState } from '../../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
-import { IconPauseFill, IconPlayFill } from '../../Icons';
+import {
+  IconPauseFill as DefaultIconPauseFill,
+  IconPlayFill as DefaultIconPlayFill,
+} from '../../Icons';
 import { Button } from '../../Button';
-import { useTranslationContext } from '../../../context';
+import { useComponentContext, useTranslationContext } from '../../../context';
 import clsx from 'clsx';
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
@@ -27,6 +30,13 @@ export const AudioRecordingPlayback = ({
   src,
   waveformData,
 }: AudioRecordingPlayerProps) => {
+  const {
+    icons: {
+      IconPauseFill = DefaultIconPauseFill,
+      IconPlayFill = DefaultIconPlayFill,
+    } = {},
+  } = useComponentContext();
+
   const { t } = useTranslationContext();
   const audioPlayer = useAudioPlayer({
     durationSeconds,

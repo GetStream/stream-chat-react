@@ -7,17 +7,21 @@ import {
   useState,
 } from 'react';
 
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
 import { useChannelListItemContext } from './ChannelListItem';
 import { Button } from '../Button';
 import {
-  IconArchive,
-  IconLeave,
-  IconMore,
-  IconMute,
-  IconNoSign,
-  IconPin,
+  IconArchive as DefaultIconArchive,
+  IconLeave as DefaultIconLeave,
+  IconMore as DefaultIconMore,
+  IconMute as DefaultIconMute,
+  IconNoSign as DefaultIconNoSign,
+  IconPin as DefaultIconPin,
 } from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import {
@@ -340,6 +344,7 @@ const defaultComponents = {
   dropdown: {
     Archive() {
       const behaviorProps = useDropdownActionButtonProps(useArchiveAction());
+      const { icons: { IconArchive = DefaultIconArchive } = {} } = useComponentContext();
 
       return (
         <ContextMenuButton
@@ -354,6 +359,7 @@ const defaultComponents = {
     },
     Ban() {
       const behaviorProps = useDropdownActionButtonProps(useBanAction());
+      const { icons: { IconNoSign = DefaultIconNoSign } = {} } = useComponentContext();
 
       return (
         <ContextMenuButton
@@ -368,6 +374,7 @@ const defaultComponents = {
     },
     Leave() {
       const behaviorProps = useDropdownActionButtonProps(useLeaveAction());
+      const { icons: { IconLeave = DefaultIconLeave } = {} } = useComponentContext();
 
       return (
         <ContextMenuButton
@@ -383,6 +390,7 @@ const defaultComponents = {
     },
     Mute() {
       const behaviorProps = useDropdownActionButtonProps(useMuteAction());
+      const { icons: { IconMute = DefaultIconMute } = {} } = useComponentContext();
 
       return (
         <ContextMenuButton
@@ -397,6 +405,7 @@ const defaultComponents = {
     },
     Pin() {
       const behaviorProps = useDropdownActionButtonProps(usePinAction());
+      const { icons: { IconPin = DefaultIconPin } = {} } = useComponentContext();
 
       return (
         <ContextMenuButton
@@ -413,6 +422,7 @@ const defaultComponents = {
   quick: {
     Archive() {
       const behaviorProps = useQuickActionButtonProps(useArchiveAction());
+      const { icons: { IconArchive = DefaultIconArchive } = {} } = useComponentContext();
 
       return (
         <Button
@@ -430,6 +440,7 @@ const defaultComponents = {
     },
     Mute() {
       const behaviorProps = useQuickActionButtonProps(useMuteAction());
+      const { icons: { IconMute = DefaultIconMute } = {} } = useComponentContext();
 
       return (
         <Button
@@ -449,6 +460,7 @@ const defaultComponents = {
   QuickDropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
     const { channel } = useChannelListItemContext();
     const { t } = useTranslationContext();
+    const { icons: { IconMore = DefaultIconMore } = {} } = useComponentContext();
 
     const dialogId = ChannelListItemActionButtons.getDialogId({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

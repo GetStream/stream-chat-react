@@ -1,9 +1,9 @@
 import { BaseImage, type BaseImageProps } from '../BaseImage';
 import { Button } from '../Button';
 import clsx from 'clsx';
-import { IconPlayFill } from '../Icons';
+import { IconPlayFill as DefaultIconPlayFill } from '../Icons';
 import React from 'react';
-import { useTranslationContext } from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 
 export type VideoThumbnailProps = BaseImageProps & {
   onPlay?: () => void;
@@ -14,6 +14,8 @@ export const VideoThumbnail = ({
   onPlay,
   ...imageProps
 }: VideoThumbnailProps) => {
+  const { icons: { IconPlayFill = DefaultIconPlayFill } = {} } = useComponentContext();
+
   const { t } = useTranslationContext();
 
   return (
