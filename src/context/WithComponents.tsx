@@ -13,8 +13,8 @@ export function WithComponents({
     ...parentOverrides,
     ...overrides,
     icons: {
-      ...parentOverrides.icons,
-      ...overrides.icons,
+      ...parentOverrides?.icons,
+      ...overrides?.icons,
     },
   };
 

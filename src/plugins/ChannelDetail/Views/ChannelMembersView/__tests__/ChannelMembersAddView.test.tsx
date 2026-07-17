@@ -2,7 +2,11 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import type { UserResponse } from 'stream-chat';
 
-import { useChatContext, useTranslationContext } from '../../../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../../../context';
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersAddView } from '../ChannelMembersAddView';
 import {
@@ -87,6 +91,8 @@ describe('ChannelMembersAddView', () => {
       t: (key: string, options?: { count?: number }) =>
         options?.count ? `${key}:${options.count}` : key,
     } as ReturnType<typeof useTranslationContext>);
+
+    vi.mocked(useComponentContext).mockReturnValue({});
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { user: { id: 'user-1' } },

@@ -1,7 +1,11 @@
 import { type SearchSourceState, type UserResponse, UserSearchSource } from 'stream-chat';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useChatContext, useComponentContext, useTranslationContext } from '../../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../../context';
 import { useStateStore } from '../../../../store';
 import { Avatar } from '../../../../components/Avatar';
 import { Checkbox } from '../../../../components/Form';

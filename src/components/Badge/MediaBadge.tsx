@@ -21,7 +21,7 @@ export const MediaBadge = ({ attachment, variant }: MediaBadgeProps) => {
       IconVideoFill = DefaultIconVideoFill,
     } = {},
   } = useComponentContext();
-  
+
   const mediaBadgeVariantToIcon: Record<MediaBadgeVariant, ComponentType> = {
     video: IconVideoFill,
     voiceRecording: IconMicrophoneSolid,
