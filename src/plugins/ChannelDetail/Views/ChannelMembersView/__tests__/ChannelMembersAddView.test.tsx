@@ -92,6 +92,8 @@ describe('ChannelMembersAddView', () => {
         options?.count ? `${key}:${options.count}` : key,
     } as ReturnType<typeof useTranslationContext>);
 
+    vi.mocked(useComponentContext).mockReturnValue({});
+
     vi.mocked(useChatContext).mockReturnValue({
       client: { user: { id: 'user-1' } },
       mutes: [],

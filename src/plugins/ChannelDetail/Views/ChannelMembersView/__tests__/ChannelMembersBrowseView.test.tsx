@@ -121,6 +121,7 @@ describe('ChannelMembersBrowseView', () => {
         return key;
       },
     } as ReturnType<typeof useTranslationContext>);
+    vi.mocked(useComponentContext).mockReturnValue({});
     vi.mocked(useChatContext).mockReturnValue({
       mutes: [],
     } as ReturnType<typeof useChatContext>);
