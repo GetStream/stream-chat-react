@@ -1,19 +1,24 @@
 import type { LiveLocationPreview, StaticLocationPreview } from 'stream-chat';
 import type { ComponentType } from 'react';
 import React from 'react';
-import { useTranslationContext } from '../../../context';
-import { IconLocation } from '../../Icons';
+import { useComponentContext, useTranslationContext } from '../../../context';
+import { IconLocation as DefaultIconLocation } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 
 type GeolocationPreviewImageProps = {
   location: StaticLocationPreview | LiveLocationPreview;
 };
 
-const GeolocationPreviewImage = () => (
-  <div className='str-chat__location-preview-image'>
-    <IconLocation />
-  </div>
-);
+const GeolocationPreviewImage = () => {
+  const { icons: { IconLocation = DefaultIconLocation } = {} } = useComponentContext(
+    'GeolocationPreviewImage',
+  );
+  return (
+    <div className='str-chat__location-preview-image'>
+      <IconLocation />
+    </div>
+  );
+};
 
 export type GeolocationPreviewProps = {
   location: StaticLocationPreview | LiveLocationPreview;

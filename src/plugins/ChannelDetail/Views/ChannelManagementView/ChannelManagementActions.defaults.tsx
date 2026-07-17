@@ -15,11 +15,11 @@ import { Alert } from '../../../../components/Dialog';
 import { Button } from '../../../../components/Button';
 import { Switch } from '../../../../components/Form';
 import {
-  IconAudio,
-  IconDelete,
-  IconLeave,
-  IconMute,
-  IconNoSign,
+  IconAudio as DefaultIconAudio,
+  IconDelete as DefaultIconDelete,
+  IconLeave as DefaultIconLeave,
+  IconMute as DefaultIconMute,
+  IconNoSign as DefaultIconNoSign,
 } from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { GlobalModal } from '../../../../components/Modal';
@@ -45,21 +45,36 @@ const toError = (error: unknown) =>
 
 const getDisplayName = (name?: string, fallback?: string) => name || fallback || '';
 
-const BlockUserActionIcon = () => (
-  <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
-);
-const DeleteChatActionIcon = () => (
-  <IconDelete className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
-);
-const MuteActionIcon = () => (
-  <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
-);
-const MutedActionIcon = () => (
-  <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
-);
-const LeaveChannelActionIcon = () => (
-  <IconLeave className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
-);
+const BlockUserActionIcon = () => {
+  const { icons: { IconNoSign = DefaultIconNoSign } = {} } = useComponentContext();
+  return (
+    <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
+  );
+};
+const DeleteChatActionIcon = () => {
+  const { icons: { IconDelete = DefaultIconDelete } = {} } = useComponentContext();
+  return (
+    <IconDelete className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
+  );
+};
+const MuteActionIcon = () => {
+  const { icons: { IconMute = DefaultIconMute } = {} } = useComponentContext();
+  return (
+    <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
+  );
+};
+const MutedActionIcon = () => {
+  const { icons: { IconAudio = DefaultIconAudio } = {} } = useComponentContext();
+  return (
+    <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
+  );
+};
+const LeaveChannelActionIcon = () => {
+  const { icons: { IconLeave = DefaultIconLeave } = {} } = useComponentContext();
+  return (
+    <IconLeave className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
+  );
+};
 
 const channelManagementViewActionClassName = 'str-chat__channel-management-view-action';
 

@@ -13,7 +13,7 @@ import { useTypingContext } from '../../context/TypingContext';
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconXmark } from '../Icons';
+import { IconXmark as DefaultIconXmark } from '../Icons';
 import { useChatViewContext } from '../ChatView';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
@@ -72,6 +72,8 @@ export type ThreadHeaderProps = {
 };
 
 export const ThreadHeader = (props: ThreadHeaderProps) => {
+  const { icons: { IconXmark = DefaultIconXmark } = {} } = useComponentContext();
+
   const { closeThread, overrideTitle, thread } = props;
 
   const { t } = useTranslationContext();

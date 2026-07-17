@@ -6,6 +6,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   useChatContext,
+  useComponentContext,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
@@ -192,6 +193,8 @@ describe('ChannelFilesView', () => {
       t: (key: string) => key,
       tDateTimeParser: (input?: string | number | Date) => Dayjs(input),
     } as unknown as ReturnType<typeof useTranslationContext>);
+
+    vi.mocked(useComponentContext).mockReturnValue({});
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },

@@ -6,6 +6,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import {
   useChannelActionContext,
   useChatContext,
+  useComponentContext,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
@@ -209,6 +210,8 @@ describe('PinnedMessagesView', () => {
       },
       tDateTimeParser: (input?: string | Date) => new Date(input ?? Date.now()),
     } as ReturnType<typeof useTranslationContext>);
+
+    vi.mocked(useComponentContext).mockReturnValue({});
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },

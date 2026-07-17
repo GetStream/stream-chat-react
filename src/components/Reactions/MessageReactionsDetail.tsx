@@ -14,7 +14,7 @@ import {
 import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
-import { IconEmojiAdd } from '../Icons';
+import { IconEmojiAdd as DefaultIconEmojiAdd } from '../Icons';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
 
 export type MessageReactionsDetailProps = Partial<
@@ -66,6 +66,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   const { client } = useChatContext();
   const {
     Avatar = DefaultAvatar,
+    icons: { IconEmojiAdd = DefaultIconEmojiAdd } = {},
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,

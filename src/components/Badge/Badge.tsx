@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import React, { type ComponentProps } from 'react';
-import { IconExclamationMarkFill } from '../Icons';
+import { useComponentContext } from '../../context';
+import { IconExclamationMarkFill as DefaultIconExclamationMarkFill } from '../Icons';
 
 export type BadgeVariant =
   | 'default'
@@ -47,8 +48,12 @@ export const ErrorBadge = ({
   className,
   size = 'sm',
   ...rest
-}: Omit<BadgeProps, 'variant'>) => (
-  <Badge {...rest} className={className} size={size} variant='error'>
-    <IconExclamationMarkFill />
-  </Badge>
-);
+}: Omit<BadgeProps, 'variant'>) => {
+  const { icons: { IconExclamationMarkFill = DefaultIconExclamationMarkFill } = {} } =
+    useComponentContext();
+  return (
+    <Badge {...rest} className={className} size={size} variant='error'>
+      <IconExclamationMarkFill />
+    </Badge>
+  );
+};

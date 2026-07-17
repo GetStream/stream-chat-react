@@ -14,6 +14,7 @@ vi.mock('../hooks', () => ({
 }));
 
 vi.mock('../../../context', () => ({
+  useComponentContext: () => ({}),
   useMessageComposerContext: () => ({
     textareaRef: {
       current: {

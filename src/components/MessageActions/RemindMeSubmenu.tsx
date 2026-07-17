@@ -1,5 +1,10 @@
 import React from 'react';
-import { useChatContext, useMessageContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useMessageContext,
+  useTranslationContext,
+} from '../../context';
 import { useNotificationApi } from '../Notifications';
 import {
   ContextMenuBackButton,
@@ -7,7 +12,7 @@ import {
   ContextMenuHeader,
   useContextMenuContext,
 } from '../Dialog';
-import { IconChevronLeft } from '../Icons';
+import { IconChevronLeft as DefaultIconChevronLeft } from '../Icons';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error && error.message ? error.message : fallback;
@@ -23,6 +28,9 @@ const getNotificationError = (error: unknown): Error | undefined => {
 };
 
 export const RemindMeSubmenuHeader = () => {
+  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
+    useComponentContext();
+
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
   return (

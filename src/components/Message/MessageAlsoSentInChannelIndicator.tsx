@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 
-import { IconArrowUpRight } from '../Icons';
+import { IconArrowUpRight as DefaultIconArrowUpRight } from '../Icons';
 import { useNotificationApi } from '../Notifications';
 import {
   useChannelActionContext,
   useChannelStateContext,
+  useComponentContext,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -14,6 +15,9 @@ import { formatMessage, type LocalMessage } from 'stream-chat';
  * Indicator shown when the message was also sent to the main channel (show_in_channel === true).
  */
 export const MessageAlsoSentInChannelIndicator = () => {
+  const { icons: { IconArrowUpRight = DefaultIconArrowUpRight } = {} } =
+    useComponentContext();
+
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const { channel } = useChannelStateContext();
