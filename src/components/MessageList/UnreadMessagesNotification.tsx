@@ -66,11 +66,8 @@ export const UnreadMessagesNotification = ({
         appearance='outline'
         aria-label={t('aria/Mark messages as read')}
         onClick={() => {
-          if (thread) {
-            client.messageDeliveryReporter.throttledMarkRead(thread);
-            return;
-          }
-          client.messageDeliveryReporter.throttledMarkRead(channel);
+          messagePaginator.clearUnreadSnapshot();
+          client.messageDeliveryReporter.throttledMarkRead(thread ?? channel);
         }}
         variant='secondary'
       >

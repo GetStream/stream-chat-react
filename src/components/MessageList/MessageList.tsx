@@ -129,6 +129,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messageFocusSignalSelector,
   );
   const focusedMessageId = messageFocusSignal?.messageId;
+  const focusToken = messageFocusSignal?.token;
 
   const {
     hasNewMessages,
@@ -152,6 +153,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   useMarkRead({
+    hasMoreNewer,
     isMessageListScrolledToBottom,
     messageListIsThread: isThreadList,
   });
@@ -245,8 +247,15 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   React.useLayoutEffect(() => {
     if (!focusedMessageId) return;
     const element = listElement?.querySelector(`[data-message-id='${focusedMessageId}']`);
-    element?.scrollIntoView({ block: 'center' });
-  }, [focusedMessageId, listElement]);
+    if (!element) return;
+    element.scrollIntoView({ block: 'center' });
+    messagePaginator.scheduleMessageFocusSignalClear({ token: focusToken });
+  }, [focusedMessageId, focusToken, listElement, messagePaginator]);
+
+  React.useEffect(() => {
+    const paginator = messagePaginator;
+    return () => paginator.clearMessageFocusSignal();
+  }, [messagePaginator]);
 
   const id = useStableId();
 

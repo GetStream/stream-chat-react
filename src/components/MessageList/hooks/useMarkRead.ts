@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useChannel, useChatContext } from '../../../context';
 import { useMessagePaginator } from '../../../hooks';
 import { useThreadContext } from '../../Threads';
@@ -11,18 +11,19 @@ const hasReadLastMessage = (channel: Channel, userId: string) => {
 };
 
 type UseMarkReadParams = {
+  hasMoreNewer: boolean;
   isMessageListScrolledToBottom: boolean;
   // todo: remove and infer only from useThreadContext return value - if undefined, not a thread list
   messageListIsThread: boolean;
 };
 
 /**
- * Takes care of marking the active message collection read (channel or thread).
- * The collection is marked read only if:
- * 1. the list is scrolled to the bottom
- * 2. it was not explicitly marked unread by the user
+ * Marks the active message collection (channel or thread) read when the user is caught up at the
+ * bottom, and keeps the paginator's unread snapshot (the "Unread messages" separator / "N new"
+ * banner) in sync.
  */
 export const useMarkRead = ({
+  hasMoreNewer,
   isMessageListScrolledToBottom,
   messageListIsThread,
 }: UseMarkReadParams) => {
@@ -34,12 +35,45 @@ export const useMarkRead = ({
   const isThreadList = !!thread || messageListIsThread;
 
   const markRead = useCallback(() => {
-    if (thread) {
-      client.messageDeliveryReporter.throttledMarkRead(thread);
-      return;
-    }
-    client.messageDeliveryReporter.throttledMarkRead(channel);
+    client.messageDeliveryReporter.throttledMarkRead(thread ?? channel);
   }, [channel, client.messageDeliveryReporter, thread]);
+
+  // Advance the frozen unread snapshot the separator/banner render from. The LLC never clears it on
+  // `message.read`, so on a genuine catch-up we clear it ourselves; deliberately NOT called on the
+  // initial open (see the effect below) so the separator persists where the user left off.
+  const resetUnreadSnapshot = useCallback(() => {
+    const loadedItems = messagePaginator.state.getLatestValue().items ?? [];
+    const previous = messagePaginator.unreadStateSnapshot.getLatestValue();
+    messagePaginator.unreadStateSnapshot.next({
+      ...previous,
+      firstUnreadMessageId: null,
+      lastReadAt: new Date(),
+      lastReadMessageId:
+        loadedItems[loadedItems.length - 1]?.id ?? previous.lastReadMessageId,
+      unreadCount: 0,
+    });
+  }, [messagePaginator]);
+
+  useEffect(() => {
+    // Tell the state layer whether the user is actively viewing the latest messages (tab
+    // foregrounded AND at the bottom AND no newer messages beyond the loaded window). While live,
+    // the LLC skips the own-unread bump on `message.new` so the separator/banner never flash.
+    const pushViewingLive = () =>
+      messagePaginator.setViewingLive(
+        !document.hidden && isMessageListScrolledToBottom && !hasMoreNewer,
+      );
+
+    pushViewingLive();
+    document.addEventListener('visibilitychange', pushViewingLive);
+
+    return () => {
+      document.removeEventListener('visibilitychange', pushViewingLive);
+      messagePaginator.setViewingLive(false);
+    };
+  }, [hasMoreNewer, isMessageListScrolledToBottom, messagePaginator]);
+
+  const wasAtBottomRef = useRef(isMessageListScrolledToBottom);
+  const hasLeftBottomRef = useRef(false);
 
   useEffect(() => {
     if (!channel.getConfig()?.read_events) return;
@@ -56,8 +90,19 @@ export const useMarkRead = ({
       );
     };
 
+    const wasAtBottom = wasAtBottomRef.current;
+    wasAtBottomRef.current = isMessageListScrolledToBottom;
+    if (wasAtBottom && !isMessageListScrolledToBottom) {
+      hasLeftBottomRef.current = true;
+    }
+    const scrolledBackToBottom =
+      !wasAtBottom && isMessageListScrolledToBottom && hasLeftBottomRef.current;
+
     const onVisibilityChange = () => {
-      if (shouldMarkRead()) markRead();
+      if (shouldMarkRead()) {
+        resetUnreadSnapshot();
+        markRead();
+      }
     };
 
     const handleMessageNew = (event: Event) => {
@@ -73,6 +118,7 @@ export const useMarkRead = ({
       // unreadStateSnapshot, and the thread-vs-channel guard above. Verify at runtime
       // that thread replies do NOT bump the channel's unread UI under the paginator model.
       if (shouldMarkRead()) {
+        resetUnreadSnapshot();
         markRead();
       }
     };
@@ -81,6 +127,12 @@ export const useMarkRead = ({
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     if (shouldMarkRead()) {
+      // On open (no scroll-back) mark read on the SERVER only and keep the snapshot so the
+      // separator/banner persist; on a real scroll-back-to-bottom also clear the snapshot.
+      if (scrolledBackToBottom) {
+        resetUnreadSnapshot();
+        hasLeftBottomRef.current = false;
+      }
       markRead();
     }
 
@@ -93,23 +145,9 @@ export const useMarkRead = ({
     client,
     isMessageListScrolledToBottom,
     markRead,
+    resetUnreadSnapshot,
     isThreadList,
     messagePaginator,
     thread,
   ]);
 };
-
-// todo: remove?
-// function getPreviousLastMessage(messages: LocalMessage[], newMessage?: MessageResponse) {
-//   if (!newMessage) return;
-//   let previousLastMessage;
-//   for (let i = messages.length - 1; i >= 0; i--) {
-//     const msg = messages[i];
-//     if (!msg?.id) break;
-//     if (msg.id !== newMessage.id) {
-//       previousLastMessage = msg;
-//       break;
-//     }
-//   }
-//   return previousLastMessage;
-// }
