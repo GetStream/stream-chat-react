@@ -1,9 +1,13 @@
 import type { ChannelMemberResponse } from 'stream-chat';
 import React, { useCallback, useMemo } from 'react';
 
-import { useChatContext, useTranslationContext } from '../../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../../context';
 import { Avatar } from '../../../../components/Avatar';
-import { IconMute } from '../../../../components/Icons';
+import { IconMute as DefaultIconMute } from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
@@ -78,6 +82,7 @@ const ChannelMembersBrowseViewItem = ({
   const TrailingSlot = useMemo(
     () =>
       function MemberTrailingSlot() {
+        const { icons: { IconMute = DefaultIconMute } = {} } = useComponentContext();
         return (
           <div className='str-chat__channel-detail__channel-members-view__list-item__trailing-slot'>
             {roleTranslation ? (

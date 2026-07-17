@@ -6,10 +6,15 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { IconUser } from '../Icons';
+import { useComponentContext } from '../../context';
+import { IconUser as DefaultIconUser } from '../Icons';
 
 export type AvatarProps = {
-  /** Custom icon rendered when there is no image and no initials */
+  /**
+   * Custom icon rendered when there is no image and no initials.
+   * @deprecated Use the `icons.IconUser` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconUser: ... } }}>`) instead.
+   * Passing this prop still wins over the context slot for backwards compatibility.
+   */
   FallbackIcon?: ComponentType<ComponentPropsWithoutRef<'svg'>>;
   /** URL of the avatar image */
   imageUrl?: string;
@@ -46,13 +51,15 @@ const getInitials = (name?: string) => {
  */
 export const Avatar = ({
   className,
-  FallbackIcon = IconUser,
+  FallbackIcon,
   imageUrl,
   isOnline,
   size,
   userName,
   ...rest
 }: AvatarProps) => {
+  const { icons: { IconUser = DefaultIconUser } = {} } = useComponentContext();
+  const ResolvedFallbackIcon = FallbackIcon ?? IconUser;
   const [error, setError] = useState(false);
 
   useEffect(() => () => setError(false), [imageUrl]);
@@ -108,7 +115,7 @@ export const Avatar = ({
               {sizeAwareInitials}
             </div>
           )}
-          {!sizeAwareInitials.length && <FallbackIcon />}
+          {!sizeAwareInitials.length && <ResolvedFallbackIcon />}
         </>
       )}
     </div>

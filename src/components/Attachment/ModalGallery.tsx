@@ -8,7 +8,7 @@ import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
 import { GlobalModal, type ModalCloseSource } from '../Modal';
 import { useComponentContext, useTranslationContext } from '../../context';
-import { IconRetry } from '../Icons';
+import { IconRetry as DefaultIconRetry } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
 const MAX_VISIBLE_THUMBNAILS = 4;
@@ -144,6 +144,7 @@ const ThumbnailButton = ({
   showOverlay,
 }: ThumbnailButtonProps) => {
   const { t } = useTranslationContext();
+  const { icons: { IconRetry = DefaultIconRetry } = {} } = useComponentContext();
   const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));

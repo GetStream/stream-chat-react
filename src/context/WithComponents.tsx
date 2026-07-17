@@ -9,7 +9,15 @@ export function WithComponents({
   overrides,
 }: PropsWithChildren<{ overrides: Partial<ComponentContextValue> }>) {
   const parentOverrides = useContext(ComponentContext);
-  const actualOverrides: ComponentContextValue = { ...parentOverrides, ...overrides };
+  const actualOverrides: ComponentContextValue = {
+    ...parentOverrides,
+    ...overrides,
+    icons: {
+      ...parentOverrides.icons,
+      ...overrides.icons,
+    },
+  };
+
   return (
     <ComponentContext.Provider value={actualOverrides}>
       {children}

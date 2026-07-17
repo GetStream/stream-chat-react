@@ -9,7 +9,7 @@ import {
 } from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';
-import { IconVoice } from '../../Icons';
+import { IconVoice as DefaultIconVoice } from '../../Icons';
 
 const dialogId = 'recording-permission-denied-notification';
 
@@ -69,6 +69,7 @@ export const DefaultStartRecordingAudioButton = forwardRef<
   StartRecordingAudioButtonProps
 >(function StartRecordingAudioButton(props, ref) {
   const { t } = useTranslationContext();
+  const { icons: { IconVoice = DefaultIconVoice } = {} } = useComponentContext();
 
   return (
     <Button

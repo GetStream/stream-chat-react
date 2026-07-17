@@ -24,11 +24,11 @@ import { Alert } from '../../../../components/Dialog';
 import { Button } from '../../../../components/Button';
 import { Switch } from '../../../../components/Form';
 import {
-  IconAudio,
-  IconMessageBubble,
-  IconMute,
-  IconNoSign,
-  IconUserRemove,
+  IconAudio as DefaultIconAudio,
+  IconMessageBubble as DefaultIconMessageBubble,
+  IconMute as DefaultIconMute,
+  IconNoSign as DefaultIconNoSign,
+  IconUserRemove as DefaultIconUserRemove,
 } from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { GlobalModal } from '../../../../components/Modal';
@@ -80,25 +80,40 @@ export const useChannelMemberActionContext = () => {
 const toError = (error: unknown) =>
   error instanceof Error ? error : new Error('An unknown error occurred');
 
-const MemberMuteActionIcon = () => (
-  <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
-);
+const MemberMuteActionIcon = () => {
+  const { icons: { IconMute = DefaultIconMute } = {} } = useComponentContext();
+  return (
+    <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
+  );
+};
 
-const MemberUnmuteActionIcon = () => (
-  <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
-);
+const MemberUnmuteActionIcon = () => {
+  const { icons: { IconAudio = DefaultIconAudio } = {} } = useComponentContext();
+  return (
+    <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
+  );
+};
 
-const SendDirectMessageActionIcon = () => (
-  <IconMessageBubble className='str-chat__channel-detail__action-icon' />
-);
+const SendDirectMessageActionIcon = () => {
+  const { icons: { IconMessageBubble = DefaultIconMessageBubble } = {} } =
+    useComponentContext();
+  return <IconMessageBubble className='str-chat__channel-detail__action-icon' />;
+};
 
-const BlockUserActionIcon = () => (
-  <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
-);
+const BlockUserActionIcon = () => {
+  const { icons: { IconNoSign = DefaultIconNoSign } = {} } = useComponentContext();
+  return (
+    <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
+  );
+};
 
-const RemoveUserActionIcon = () => (
-  <IconUserRemove className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--remove-user' />
-);
+const RemoveUserActionIcon = () => {
+  const { icons: { IconUserRemove = DefaultIconUserRemove } = {} } =
+    useComponentContext();
+  return (
+    <IconUserRemove className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--remove-user' />
+  );
+};
 
 const channelMemberDetailActionClassName = 'str-chat__channel-member-detail-action';
 

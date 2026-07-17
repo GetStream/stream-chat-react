@@ -1,13 +1,16 @@
 import React from 'react';
 import type { Attachment } from 'stream-chat';
-import { useTranslationContext } from '../../context';
-import { IconUnsupportedAttachment } from '../Icons';
+import { useComponentContext, useTranslationContext } from '../../context';
+import { IconUnsupportedAttachment as DefaultIconUnsupportedAttachment } from '../Icons';
 
 export type UnsupportedAttachmentProps = {
   attachment: Attachment;
 };
 
 export const UnsupportedAttachment = () => {
+  const { icons: { IconUnsupportedAttachment = DefaultIconUnsupportedAttachment } = {} } =
+    useComponentContext();
+
   const { t } = useTranslationContext('UnsupportedAttachment');
   return (
     <div

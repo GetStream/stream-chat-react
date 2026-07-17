@@ -14,7 +14,10 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { IconExclamationMark, IconRetry } from '../../Icons';
+import {
+  IconExclamationMark as DefaultIconExclamationMark,
+  IconRetry as DefaultIconRetry,
+} from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
@@ -34,6 +37,13 @@ export const MediaAttachmentPreview = ({
   openPreview,
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
+  const {
+    icons: {
+      IconExclamationMark = DefaultIconExclamationMark,
+      IconRetry = DefaultIconRetry,
+    } = {},
+  } = useComponentContext();
+
   const { t } = useTranslationContext();
   const { BaseImage = DefaultBaseImage } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);

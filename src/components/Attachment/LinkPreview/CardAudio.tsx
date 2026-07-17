@@ -1,10 +1,10 @@
 import { type AudioPlayerState, ProgressBar, useAudioPlayer } from '../../AudioPlayback';
-import { useMessageContext } from '../../../context';
+import { useComponentContext, useMessageContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { PlayButton } from '../../Button';
 import type { AudioProps } from '../Audio';
 import React from 'react';
-import { IconLink } from '../../Icons';
+import { IconLink as DefaultIconLink } from '../../Icons';
 import { SafeAnchor } from '../../SafeAnchor';
 import type { CardProps } from './Card';
 
@@ -21,22 +21,25 @@ const SourceLink = ({
   author_name,
   showUrl,
   url,
-}: Pick<CardProps, 'author_name'> & { url: string; showUrl?: boolean }) => (
-  <div
-    className='str-chat__message-attachment-card--source-link'
-    data-testid='card-source-link'
-  >
-    <IconLink />
-    <SafeAnchor
-      className='str-chat__message-attachment-card--url'
-      href={url}
-      rel='noopener noreferrer'
-      target='_blank'
+}: Pick<CardProps, 'author_name'> & { url: string; showUrl?: boolean }) => {
+  const { icons: { IconLink = DefaultIconLink } = {} } = useComponentContext();
+  return (
+    <div
+      className='str-chat__message-attachment-card--source-link'
+      data-testid='card-source-link'
     >
-      {showUrl ? url : author_name || getHostFromURL(url)}
-    </SafeAnchor>
-  </div>
-);
+      <IconLink />
+      <SafeAnchor
+        className='str-chat__message-attachment-card--url'
+        href={url}
+        rel='noopener noreferrer'
+        target='_blank'
+      >
+        {showUrl ? url : author_name || getHostFromURL(url)}
+      </SafeAnchor>
+    </div>
+  );
+};
 
 const audioPlayerStateSelector = (state: AudioPlayerState) => ({
   durationSeconds: state.durationSeconds,

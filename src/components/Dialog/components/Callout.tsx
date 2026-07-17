@@ -3,7 +3,7 @@ import { DialogAnchor, type DialogAnchorProps } from '../service';
 import { useDialogIsOpen } from '../hooks';
 import { Button } from '../../Button';
 import clsx from 'clsx';
-import { IconXmark } from '../../Icons';
+import { IconXmark as DefaultIconXmark } from '../../Icons';
 import { useComponentContext, useTranslationContext } from '../../../context';
 
 export type CalloutProps = PropsWithChildren<
@@ -51,6 +51,7 @@ export const Callout = ({
 export type CalloutDialogProps = Pick<CalloutProps, 'children' | 'className' | 'onClose'>;
 
 const DefaultCalloutDialog = ({ children, className, onClose }: CalloutDialogProps) => {
+  const { icons: { IconXmark = DefaultIconXmark } = {} } = useComponentContext();
   const { t } = useTranslationContext();
 
   return (

@@ -1,6 +1,10 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
 import type { CommandResponse } from 'stream-chat';
-import { useMessageComposerContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContext,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../../context';
 import { useMessageComposerCommands, useMessageComposerController } from '../hooks';
 import {
   ContextMenuBackButton,
@@ -9,29 +13,23 @@ import {
   useContextMenuContext,
 } from '../../Dialog';
 import {
-  IconAudio,
-  IconChevronLeft,
-  IconFlag,
-  IconGiphy,
-  IconMute,
-  IconUserAdd,
-  IconUserRemove,
+  IconAudio as DefaultIconAudio,
+  IconChevronLeft as DefaultIconChevronLeft,
+  IconFlag as DefaultIconFlag,
+  IconGiphy as DefaultIconGiphy,
+  IconMute as DefaultIconMute,
+  IconUserAdd as DefaultIconUserAdd,
+  IconUserRemove as DefaultIconUserRemove,
 } from '../../Icons';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
 
-const icons: Record<string, ComponentType> = {
-  ban: IconUserRemove,
-  flag: IconFlag,
-  giphy: IconGiphy,
-  mute: IconMute,
-  unban: IconUserAdd,
-  unmute: IconAudio,
-};
-
 export const CommandsMenuClassName = 'str-chat__context-menu--commands';
 
 export const CommandsSubmenuHeader = () => {
+  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
+    useComponentContext();
+
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
   return (
@@ -129,6 +127,28 @@ export const CommandContextMenuItem = ({
   enabled?: boolean;
 }) => {
   const { args, description } = useCommandTranslation(command);
+  const {
+    icons: {
+      IconAudio = DefaultIconAudio,
+      IconFlag = DefaultIconFlag,
+      IconGiphy = DefaultIconGiphy,
+      IconMute = DefaultIconMute,
+      IconUserAdd = DefaultIconUserAdd,
+      IconUserRemove = DefaultIconUserRemove,
+    } = {},
+  } = useComponentContext();
+
+  const icons = useMemo<Record<string, ComponentType>>(
+    () => ({
+      ban: IconUserRemove,
+      flag: IconFlag,
+      giphy: IconGiphy,
+      mute: IconMute,
+      unban: IconUserAdd,
+      unmute: IconAudio,
+    }),
+    [IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove],
+  );
 
   // todo: retrieve the command trigger char from textComposer - needed adjustment in LLC
   const details = useMemo(

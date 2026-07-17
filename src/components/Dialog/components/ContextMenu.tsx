@@ -13,7 +13,10 @@ import React, {
   useState,
 } from 'react';
 import { Avatar, type AvatarProps } from '../../Avatar';
-import { IconChevronLeft, IconChevronRight } from '../../Icons';
+import {
+  IconChevronLeft as DefaultIconChevronLeft,
+  IconChevronRight as DefaultIconChevronRight,
+} from '../../Icons';
 import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import type { DialogAnchorProps } from '../service/DialogAnchor';
@@ -87,6 +90,10 @@ export type BaseContextMenuButtonProps = {
   hasSubMenu?: boolean;
   label?: ReactNode;
   Icon?: ComponentType<ComponentProps<'svg'>>;
+  /**
+   * @deprecated Use the `icons.IconChevronRight` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconChevronRight: ... } }}>`) instead.
+   * Passing this prop still wins over the context slot for backwards compatibility.
+   */
   SubmenuIcon?: ComponentType<ComponentProps<'svg'>>;
   variant?: 'destructive';
 } & ComponentProps<'button'>;
@@ -99,37 +106,42 @@ export const BaseContextMenuButton = ({
   Icon,
   label,
   role = 'menuitem',
-  SubmenuIcon = IconChevronRight,
+  SubmenuIcon,
   variant,
   ...props
-}: BaseContextMenuButtonProps) => (
-  <button
-    {...props}
-    className={clsx(
-      'str-chat__context-menu__button',
-      {
-        'str-chat__context-menu__button--with-submenu': hasSubMenu,
-        [`str-chat__context-menu__button--${variant}`]: typeof variant === 'string',
-      },
-      className,
-    )}
-    role={role}
-    type='button'
-  >
-    {Icon && <Icon className='str-chat__context-menu__button__icon' />}
-    {label ? (
-      <>
-        <div className='str-chat__context-menu__button__label'>{label}</div>
-        <div className='str-chat__context-menu__button__details'>{details}</div>
-      </>
-    ) : (
-      <div className='str-chat__context-menu__button__label'>{children}</div>
-    )}
-    {!!hasSubMenu && (
-      <SubmenuIcon className='str-chat__context-menu__button__submenu-icon' />
-    )}
-  </button>
-);
+}: BaseContextMenuButtonProps) => {
+  const { icons: { IconChevronRight = DefaultIconChevronRight } = {} } =
+    useComponentContext();
+  const ResolvedSubmenuIcon = SubmenuIcon ?? IconChevronRight;
+  return (
+    <button
+      {...props}
+      className={clsx(
+        'str-chat__context-menu__button',
+        {
+          'str-chat__context-menu__button--with-submenu': hasSubMenu,
+          [`str-chat__context-menu__button--${variant}`]: typeof variant === 'string',
+        },
+        className,
+      )}
+      role={role}
+      type='button'
+    >
+      {Icon && <Icon className='str-chat__context-menu__button__icon' />}
+      {label ? (
+        <>
+          <div className='str-chat__context-menu__button__label'>{label}</div>
+          <div className='str-chat__context-menu__button__details'>{details}</div>
+        </>
+      ) : (
+        <div className='str-chat__context-menu__button__label'>{children}</div>
+      )}
+      {!!hasSubMenu && (
+        <ResolvedSubmenuIcon className='str-chat__context-menu__button__submenu-icon' />
+      )}
+    </button>
+  );
+};
 
 export type UserContextMenuButtonProps = Pick<AvatarProps, 'imageUrl' | 'userName'> &
   ComponentProps<'button'>;
@@ -668,6 +680,8 @@ export function ContextMenuContent({
   ...props
 }: ContextMenuContentProps) {
   const { t } = useTranslationContext();
+  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
+    useComponentContext();
   const resolvedBackLabel = backLabel ?? t('Back');
   const {
     ['aria-describedby']: rootAriaDescribedBy,

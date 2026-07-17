@@ -8,7 +8,7 @@ import {
   useComponentContext,
   useTranslationContext,
 } from '../../context';
-import { IconGiphy } from '../Icons';
+import { IconGiphy as DefaultIconGiphy } from '../Icons';
 import { type CSSProperties, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ImageAttachmentConfiguration } from '../../types/types';
 
@@ -78,9 +78,12 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   );
 };
 
-const GiphyBadge = () => (
-  <div className='str-chat__giphy-badge'>
-    <IconGiphy />
-    Giphy
-  </div>
-);
+const GiphyBadge = () => {
+  const { icons: { IconGiphy = DefaultIconGiphy } = {} } = useComponentContext();
+  return (
+    <div className='str-chat__giphy-badge'>
+      <IconGiphy />
+      Giphy
+    </div>
+  );
+};
