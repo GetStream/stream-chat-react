@@ -691,15 +691,15 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         const [firstMessage] = messages;
-        expect(channel.state.findMessage(firstMessage.id)).toBeDefined();
+        const inTimeline = () =>
+          channel.messagePaginator.items?.some((m) => m.id === firstMessage.id);
+        expect(inTimeline()).toBe(true);
 
         act(() => {
-          channel.state.removeMessage(firstMessage);
+          channel.messagePaginator.removeItem({ id: firstMessage.id });
         });
 
-        await waitFor(() =>
-          expect(channel.state.findMessage(firstMessage.id)).toBeUndefined(),
-        );
+        await waitFor(() => expect(inTimeline()).toBe(false));
       });
     });
 
