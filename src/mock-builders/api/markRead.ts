@@ -12,7 +12,7 @@ export const markReadApi = (channel: Channel) => ({
     channel_type: channel.type,
     cid: channel.cid,
     created_at: new Date().toISOString(),
-    last_read_message_id: channel.state.messages.slice(-1)[0]?.id,
+    last_read_message_id: channel.messagePaginator.latestItem?.id,
     type: 'message.read' as const,
     user: channel.getClient().user,
   },

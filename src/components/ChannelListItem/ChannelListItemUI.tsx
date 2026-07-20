@@ -40,8 +40,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
-  const avatarName =
-    displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
+  const avatarName = displayTitle || channel.messagePaginator.latestItem?.user?.id;
 
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {

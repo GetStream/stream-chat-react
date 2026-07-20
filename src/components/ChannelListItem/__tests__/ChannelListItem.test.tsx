@@ -112,16 +112,19 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser(user);
+    // Distinct, increasing created_at so "newest" is unambiguous — the message paginator orders by
+    // created_at (with an id tiebreaker), so identical timestamps would make its head diverge from
+    // the mocked response's array order.
+    const genMessages = () =>
+      Array.from({ length: 5 }, (_, i) =>
+        generateMessage({
+          created_at: new Date(Date.UTC(2020, 0, 1, 0, 0, i)).toISOString(),
+        }),
+      );
     useMockedApis(client, [
       queryChannelsApi([
-        generateChannel({
-          channel: { name: 'c0' },
-          messages: Array.from({ length: 5 }, generateMessage),
-        }),
-        generateChannel({
-          channel: { name: 'c1' },
-          messages: Array.from({ length: 5 }, generateMessage),
-        }),
+        generateChannel({ channel: { name: 'c0' }, messages: genMessages() }),
+        generateChannel({ channel: { name: 'c1' }, messages: genMessages() }),
       ]),
     ]);
 
@@ -263,7 +266,7 @@ describe('ChannelPreview', () => {
         const message =
           eventType === 'message.new'
             ? generateMessage()
-            : c0.state.messages.slice(-1)[0];
+            : c0.messagePaginator.latestItem;
         await act(async () => {
           await dispatcher(client, message, c0);
         });
@@ -391,8 +394,8 @@ describe('ChannelPreview', () => {
         expect(getByTestId('channel-id')).toBeInTheDocument();
       });
 
-      const lastMessage = c0.state.messages.slice(-1)[0];
-      const penultimateMessage = c0.state.messages.slice(-2)[0];
+      const lastMessage = c0.messagePaginator.latestItem;
+      const penultimateMessage = c0.messagePaginator.latestItems.slice(-2)[0];
       await act(async () => {
         await dispatcher(client, penultimateMessage, c0);
       });
@@ -512,7 +515,7 @@ describe('ChannelPreview', () => {
         expect(lastMessagePreviews.length).toBe(2);
         expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
         expect(lastMessagePreviews[1]).toHaveTextContent(
-          c1.state.messages.slice(-1)[0].text,
+          c1.messagePaginator.latestItem.text,
         );
       });
     });

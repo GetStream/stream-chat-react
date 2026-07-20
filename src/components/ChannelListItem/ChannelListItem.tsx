@@ -92,8 +92,8 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   });
   const membership = useChannelMembershipState(channel);
 
-  const [lastMessage, setLastMessage] = useState<LocalMessage>(
-    channel.state.messages[channel.state.messages.length - 1],
+  const [lastMessage, setLastMessage] = useState<LocalMessage | undefined>(
+    channel.messagePaginator.latestItem,
   );
   const [latestMessagePreview, setLatestMessagePreview] = useState<ReactNode>(() =>
     getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
@@ -154,9 +154,7 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
 
       if (deletedMessagesInAnotherChannel) return;
 
-      setLastMessage(
-        channel.state.latestMessages[channel.state.latestMessages.length - 1],
-      );
+      setLastMessage(channel.messagePaginator.latestItem);
       setLatestMessagePreview(
         getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
       );

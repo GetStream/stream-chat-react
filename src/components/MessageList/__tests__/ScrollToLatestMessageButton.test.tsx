@@ -78,7 +78,7 @@ describe.each([
     anotherUser = Object.values(channel.state.members).find(
       (u) => u.user_id !== client.user.id,
     );
-    parentMsg = { ...channel.state.messages[0], reply_count: 0 };
+    parentMsg = { ...channel.messagePaginator.latestItems[0], reply_count: 0 };
     thread = makeThread(parentMsg);
   });
 

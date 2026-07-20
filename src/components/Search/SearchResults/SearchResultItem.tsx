@@ -10,7 +10,6 @@ import {
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../context';
-import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
 import { Timestamp } from '../../../components/Message/Timestamp';
 
 export type ChannelSearchResultItemProps = {
@@ -78,18 +77,15 @@ export const MessageSearchResultItem = ({
   const channelOpenInSlot = isChannelActive(channel?.cid ?? undefined);
 
   const handleSelect = useCallback(
-    async (event: React.MouseEvent) => {
+    (event: React.MouseEvent) => {
       if (onSelect) {
         onSelect(event);
         return;
       }
       if (!channel) return;
-      await channel.state.loadMessageIntoState(
-        item.id,
-        undefined,
-        DEFAULT_JUMP_TO_PAGE_SIZE,
-      );
-      // FIXME: message focus should be handled by yet non-existent msg list controller in client packaged
+      // Setting focusedMessage is enough: the target channel's <Channel> reacts to
+      // searchController.focusedMessage and performs the paginator jumpToMessage (loading the
+      // window around the target). No manual channel.state preload is needed here.
       searchController._internalState.partialNext({ focusedMessage: item });
       openChannel(channel);
       channelPaginatorsOrchestrator.ingestChannel(channel);

@@ -50,7 +50,7 @@ export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   const channel = useChannel();
 
   const handleDelete: ReactEventHandler = useCallback(() => {
-    channel.state.removeMessage(message);
+    channel.messagePaginator.removeItem({ id: message.id });
   }, [channel, message]);
 
   const handleEdit: ReactEventHandler = useCallback(

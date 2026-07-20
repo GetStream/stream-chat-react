@@ -216,9 +216,11 @@ describe('<MessageSimple />', () => {
       ],
       customUser: alice,
     }));
-    // Bounce delete removes the message from channel state (formerly ChannelActionContext
-    // removeMessage).
-    vi.spyOn(channel.state, 'removeMessage').mockImplementation(removeMessageMock);
+    // Bounce delete removes the local message via the message paginator (formerly
+    // ChannelActionContext removeMessage / channel.state.removeMessage).
+    vi.spyOn(channel.messagePaginator, 'removeItem').mockImplementation(
+      removeMessageMock,
+    );
   });
 
   it('should not render anything if message is of custom type message.date', async () => {

@@ -136,7 +136,7 @@ const MockMessageList = () => {
   const { items } = useStateStore(channel.messagePaginator.state, (state) => ({
     items: state.items,
   }));
-  const channelMessages = items ?? channel.state.messages ?? [];
+  const channelMessages = items ?? [];
 
   return channelMessages.map(
     ({ id, status, text }) =>
@@ -757,10 +757,11 @@ describe('Channel', () => {
           },
         );
 
-        // Message state now lives on the stream-chat channel (the React reducer was removed),
-        // so the message.new event is reflected in channel.state.messages.
+        // Message state now lives on the stream-chat channel's messagePaginator (the React reducer
+        // and legacy channel.state message list were removed), so the message.new event is
+        // reflected there.
         await waitFor(() => {
-          expect(channel.state.messages.some(({ id }) => id === message.id)).toBe(true);
+          expect(channel.messagePaginator.getItem(message.id)?.id).toBe(message.id);
         });
       });
 
@@ -840,17 +841,20 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         await waitFor(() => {
-          expect(channel.state.messages[0]?.user?.name).toBe(user.name);
+          expect(channel.messagePaginator.latestItems[0]?.user?.name).toBe(user.name);
         });
 
         await act(() => {
           dispatchUserUpdatedEvent();
         });
 
-        // User references are now updated on the stream-chat channel state, which the
-        // MessageList reads from (the removed React reducer used to own this mapping).
+        // User references are now updated on the stream-chat channel's messagePaginator (via
+        // client._updateUserMessageReferences -> reflectUserUpdate), which the MessageList reads
+        // from (the removed React reducer used to own this mapping).
         await waitFor(() => {
-          expect(channel.state.messages[0]?.user?.name).toBe(updatedAttribute.name);
+          expect(channel.messagePaginator.latestItems[0]?.user?.name).toBe(
+            updatedAttribute.name,
+          );
         });
       });
 

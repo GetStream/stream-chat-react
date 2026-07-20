@@ -43,8 +43,7 @@ export const getLatestMessagePreview = (
   userLanguage: TranslationContextValue['userLanguage'] = 'en',
   isMessageAIGenerated?: ChatContextValue['isMessageAIGenerated'],
 ): ReactNode => {
-  const latestMessage =
-    channel.state.latestMessages[channel.state.latestMessages.length - 1];
+  const latestMessage = channel.messagePaginator.latestItem;
 
   const previewTextToRender =
     getTranslatedMessageText({ language: userLanguage, message: latestMessage }) ||

@@ -5,7 +5,7 @@ import { useThreadContext } from '../../Threads';
 import type { Channel, Event } from 'stream-chat';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
-  const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
+  const latestMessageIdInChannel = channel.messagePaginator.latestItem?.id;
   const lastReadMessageIdServer = channel.state.read[userId]?.last_read_message_id;
   return latestMessageIdInChannel === lastReadMessageIdServer;
 };
