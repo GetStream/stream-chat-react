@@ -32,7 +32,6 @@ export const ThreadListItemUI = ({
     (nextValue: ThreadState) => ({
       channel: nextValue.channel,
       deletedAt: nextValue.deletedAt,
-      latestReply: nextValue.replies.at(-1),
       ownUnreadMessageCount:
         (client.userID && nextValue.read[client.userID]?.unreadMessageCount) || 0,
       parentMessage: nextValue.parentMessage,
@@ -45,12 +44,21 @@ export const ThreadListItemUI = ({
   const {
     channel,
     deletedAt,
-    latestReply,
     ownUnreadMessageCount,
     parentMessage,
     participants,
     replyCount,
   } = useStateStore(thread.state, selector);
+
+  // The latest-reply preview comes from the messagePaginator, the sole reply source.
+  const latestReplySelector = useMemo(
+    () => () => ({
+      latestReply: thread.messagePaginator.state.getLatestValue().items?.at(-1),
+    }),
+    [thread.messagePaginator],
+  );
+  const { latestReply } =
+    useStateStore(thread.messagePaginator.state, latestReplySelector) ?? {};
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');
