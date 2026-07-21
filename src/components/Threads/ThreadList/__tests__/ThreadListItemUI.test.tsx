@@ -53,7 +53,7 @@ vi.mock('../../../SummarizedMessagePreview', () => ({
 }));
 
 describe('ThreadListItemUI', () => {
-  const thread = { id: 'thread-1', state: {} };
+  const thread = { id: 'thread-1', messagePaginator: { state: {} }, state: {} };
 
   beforeEach(() => {
     mockUseChatContext.mockReturnValue({ client: { userID: 'martin' } });

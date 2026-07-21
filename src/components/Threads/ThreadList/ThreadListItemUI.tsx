@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
-import type { ThreadState } from 'stream-chat';
+import type { LocalMessage, PaginatorState, ThreadState } from 'stream-chat';
 
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
@@ -21,6 +21,10 @@ export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
   resetHighlighting?: () => void;
 };
 
+const latestReplySelector = (state: PaginatorState<LocalMessage>) => ({
+  latestReply: state.items?.at(-1),
+});
+
 export const ThreadListItemUI = ({
   resetHighlighting,
   ...props
@@ -34,7 +38,6 @@ export const ThreadListItemUI = ({
     (nextValue: ThreadState) => ({
       channel: nextValue.channel,
       deletedAt: nextValue.deletedAt,
-      latestReply: nextValue.replies.at(-1),
       ownUnreadMessageCount:
         (client.userID && nextValue.read[client.userID]?.unreadMessageCount) || 0,
       parentMessage: nextValue.parentMessage,
@@ -47,12 +50,17 @@ export const ThreadListItemUI = ({
   const {
     channel,
     deletedAt,
-    latestReply,
     ownUnreadMessageCount,
     parentMessage,
     participants,
     replyCount,
   } = useStateStore(thread.state, selector);
+
+  // Replies now live in the thread's message paginator; the latest reply is the newest loaded item.
+  const { latestReply } = useStateStore(
+    thread.messagePaginator.state,
+    latestReplySelector,
+  );
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t } = useTranslationContext('ThreadListItemUI');

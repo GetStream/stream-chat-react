@@ -270,7 +270,7 @@ const ChannelInner = (
     }
 
     if (event.type === 'user.deleted') {
-      const oldestID = channel.state?.messages?.[0]?.id;
+      const oldestID = channel.messagePaginator.items?.[0]?.id;
       const refetchLimit =
         channelQueryOptions?.messages?.limit ?? DEFAULT_NEXT_CHANNEL_PAGE_SIZE;
 
