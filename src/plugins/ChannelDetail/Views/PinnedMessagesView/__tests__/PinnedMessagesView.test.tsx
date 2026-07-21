@@ -1,6 +1,12 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import type { Channel, LocalMessage, MessageSearchSource } from 'stream-chat';
+import { StateStore } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  MessageSearchSource,
+  PaginatorState,
+} from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 // MERGE-RECONCILE (test migration): the deleted ChannelActionContext.jumpToMessage was replaced by
@@ -150,17 +156,19 @@ const channelEventHandlers = new WeakMap<
   Record<string, ChannelEventHandler[]>
 >();
 
-const emitChannelEvent = (channel: Channel, event: string) =>
-  act(() => {
-    channelEventHandlers.get(channel)?.[event]?.forEach((handler) => handler());
-  });
-
 const createChannel = (
   overrides: {
-    pinnedMessages?: Channel['state']['pinnedMessages'];
+    pinnedMessages?: LocalMessage[];
   } = {},
 ) => {
   const handlers: Record<string, ChannelEventHandler[]> = {};
+
+  const pinnedMessagesPaginatorState = new StateStore<PaginatorState<LocalMessage>>({
+    hasMoreHead: true,
+    hasMoreTail: true,
+    isLoading: false,
+    items: overrides.pinnedMessages ?? pinnedMessages,
+  });
 
   const channel = fromPartial<Channel>({
     cid: 'messaging:test-channel',
@@ -171,8 +179,8 @@ const createChannel = (
       (handlers[event] = handlers[event] ?? []).push(handler);
       return { unsubscribe: vi.fn() };
     }),
-    state: {
-      pinnedMessages: overrides.pinnedMessages ?? pinnedMessages,
+    pinnedMessagesPaginator: {
+      state: pinnedMessagesPaginatorState,
     },
   });
 
@@ -190,11 +198,18 @@ const renderWithChannel = (ui: React.ReactElement, channel: Channel = createChan
 const mockSearchSourceState = (
   state: { hasNextPage?: boolean; isLoading?: boolean; messages?: unknown } = {},
 ) =>
-  vi.mocked(useStateStore).mockReturnValue({
-    hasNextPage: false,
-    isLoading: false,
-    messages: undefined,
-    ...state,
+  // Two consumers call useStateStore in this tree: usePinnedMessagesSearch (search source state)
+  // and usePinnedMessagesCount (channel.pinnedMessagesPaginator.state, which exposes `items`). Run
+  // the real selector against the paginator store; return the mocked search-source state otherwise.
+  vi.mocked(useStateStore).mockImplementation((store, selector) => {
+    const latest = store?.getLatestValue?.();
+    if (latest && 'items' in latest) return selector(latest);
+    return {
+      hasNextPage: false,
+      isLoading: false,
+      messages: undefined,
+      ...state,
+    };
   });
 
 describe('PinnedMessagesView', () => {
@@ -349,15 +364,27 @@ describe('PinnedMessagesView', () => {
   it('shows the search input and loads once a message is pinned during the session', () => {
     const channel = createChannel({ pinnedMessages: [] });
 
-    renderWithChannel(<PinnedMessagesView layout='tabs' />, channel);
+    const { rerender } = render(
+      <ChannelDetailProvider channel={channel}>
+        <PinnedMessagesView layout='tabs' />
+      </ChannelDetailProvider>,
+    );
 
     // No pinned messages yet: the search input is suppressed and nothing loads.
     expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
 
-    // A message is pinned; the view reacts without a remount.
-    channel.state.pinnedMessages = pinnedMessages;
-    emitChannelEvent(channel, 'message.updated');
+    // A message is pinned. The paginator (channel.pinnedMessagesPaginator) is updated; the reactive
+    // re-render is exercised by usePinnedMessagesCount's own test, so here we re-render to reflect the
+    // new count (useStateStore is mocked non-reactively in this suite).
+    act(() => {
+      channel.pinnedMessagesPaginator.state.partialNext({ items: pinnedMessages });
+    });
+    rerender(
+      <ChannelDetailProvider channel={channel}>
+        <PinnedMessagesView layout='tabs' />
+      </ChannelDetailProvider>,
+    );
 
     expect(screen.getByRole('searchbox', { name: 'Search' })).toBeInTheDocument();
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');
