@@ -75,10 +75,10 @@ ChatContext               # Client, active channel, theme, navigation
 
 **File:** `src/components/Channel/Channel.tsx` + `channelState.ts`
 
-- Messages are added to local state IMMEDIATELY when sending (optimistic)
+- Messages are ingested into the paginator IMMEDIATELY when sending (optimistic)
 - WebSocket events may arrive before/after API response
 - **Timestamp-based conflict resolution:** Newest version always wins
-- **Gotcha:** Thread state is separate from channel state - both must be updated
+- **Gotcha:** thread replies are a separate paginator (`thread.messagePaginator`) from the channel's `channel.messagePaginator` — they are not dual-written; each is updated by its own event handling
 
 ### 2. WebSocket Event Processing
 
@@ -141,17 +141,16 @@ Messages are processed in order:
 
 ### DO NOT:
 
-1. **Mutate `channel.state.messages` directly** - Use `channel.state.addMessageSorted()` / `removeMessage()`
+1. **Push messages into `channel.state`** - messages/threads/pinned are owned by the LLC paginators (`channel.messagePaginator`, `thread.messagePaginator`, `channel.pinnedMessagesPaginator`). Read them reactively via `useStateStore(channel.messagePaginator.state, …)`; the SDK's own event handlers perform the writes. There is no `channel.state.addMessageSorted()` / `removeMessage()` (removed in v15).
 2. **Include `channel` in dependency arrays** - Use `channel.cid` only (stable), not `channel.state` (changes constantly)
-3. **Modify reducer action types without updating all dispatchers** - They're tightly coupled
-4. **Change message sort order** - SDK maintains order; local changes will conflict
-5. **Forget to update both channel AND thread state** - Thread messages must exist in main state too
+3. **Change message sort order** - the paginator maintains order; local changes will conflict
+4. **Assume thread replies live in the channel's message list** - a thread's replies are an independent paginator (`thread.messagePaginator`); they are not mirrored into `channel.messagePaginator`
 
-### Thread State Synchronization
+### Thread vs. channel messages
 
-- Main channel: `state.messages` (flat list)
-- Threads: `state.threads[parentId]` (keyed by parent message ID)
-- **Invariant:** Messages in threads MUST also exist in main channel state
+- Main channel messages: `channel.messagePaginator` (LLC).
+- Thread replies: `thread.messagePaginator`, owned by the `Thread` object (resolve via `client.threads`) — **independent** of the channel's message list.
+- **No cross-store invariant:** a reply is not required to exist in the channel's message list. Whether a reply also shows in the channel is the server's `show_in_channel` flag, applied when the message is ingested.
 
 ### React Version Compatibility
 
@@ -174,7 +173,7 @@ useMemo(
   [
     channel.cid, // ✅ Stable - include this
     deleteMessage, // ✅ Stable callback
-    // ❌ NOT channel.state.messages - causes infinite re-renders
+    // ❌ NOT channel.messagePaginator.state.items - changes constantly (subscribe via useStateStore)
     // ❌ NOT channel.initialized - changes constantly
   ],
 );
