@@ -44,60 +44,69 @@ yarn lint-fix             # ALWAYS run this first
 
 ```
 <Chat>                    # Root: provides client, theme, i18n
-  └─ <Channel>            # State container: messages, threads, WebSocket events
+  └─ <Channel>            # Bootstrap + WS side-effects; provides the LLC channel instance
       ├─ <MessageList>    # Renders messages (or <VirtualizedMessageList>)
       ├─ <MessageInput>   # Composer with attachments/mentions
       └─ <Thread>         # Threaded replies
 ```
 
-### Context Layers (14+ contexts)
+### Context Layers
 
 ```
 ChatContext               # Client, active channel, theme, navigation
-├─ ChannelStateContext    # Read-only: messages, members, loading states
-├─ ChannelActionContext   # Write: sendMessage, deleteMessage, openThread
-├─ ComponentContext       # 100+ customizable component slots
+├─ ChannelInstanceContext # The LLC `channel` for this subtree (read via `useChannel()`)
+├─ ComponentContext       # Customizable component slots
 └─ MessageContext         # Per-message: actions, reactions, status
 ```
 
-**All contexts have hooks:** `useChatContext()`, `useChannelStateContext()`, etc.
+**Hooks:** `useChatContext()`, `useChannel()`, `useMessagePaginator()`, `useComponentContext()`, etc.
 
-### State Management (Multi-Layer)
+> **Removed in v15:** `ChannelStateContext` / `ChannelActionContext` and their
+> `useChannelStateContext()` / `useCreateChannelStateContext` / `useCreateChannelActionContext`
+> builders. Message/channel state is no longer copied into a React context — components read it
+> directly from the LLC (`useChannel()` + `useStateStore(channel.messagePaginator.state, …)`), and
+> actions are invoked on the LLC channel / navigation adapters.
 
-1. **Local state** (`useState`) - Component UI state
-2. **Reducer state** (`useReducer`) - Channel uses `makeChannelReducer` for complex message state
-3. **Context state** - Global shared state
-4. **External state** - `stream-chat` SDK's StateStore via `useStateStore` hook (uses `useSyncExternalStore`)
+### State Management
+
+1. **Local state** (`useState`) - only UI/lifecycle flags on `Channel` (`isBootstrapping`,
+   `bootstrapError`); no reducer, no React-held message list.
+2. **External LLC state** - the message list, thread replies, and pinned messages live on
+   `channel.messagePaginator` / `thread.messagePaginator` / `channel.pinnedMessagesPaginator`
+   (`StateStore`s). Components subscribe via the `useStateStore` hook (backed by
+   `useSyncExternalStore`) — this is the primary re-render driver.
+3. **Context** - the channel instance and component-slot overrides (see Context Layers).
 
 ## Critical Architectural Patterns
 
 ### 1. Optimistic Updates & Race Conditions
 
-**File:** `src/components/Channel/Channel.tsx` + `channelState.ts`
+**Owner:** the LLC (`stream-chat`), not React state.
 
-- Messages are ingested into the paginator IMMEDIATELY when sending (optimistic)
-- WebSocket events may arrive before/after API response
-- **Timestamp-based conflict resolution:** Newest version always wins
-- **Gotcha:** thread replies are a separate paginator (`thread.messagePaginator`) from the channel's `channel.messagePaginator` — they are not dual-written; each is updated by its own event handling
+- Optimistic sends go through `channel.sendMessage`, which ingests the pending message into
+  `channel.messagePaginator` immediately (`ingestItem`, dedupe-by-id + sorted insert). Because
+  `MessageList` subscribes to the paginator `StateStore`, the message renders at once — no React-local
+  copy. The React SDK only customizes the request via `channel.configState.requestHandlers` (see
+  `Channel/hooks/useChannelRequestHandlers.ts`).
+- WebSocket events may arrive before/after the API response; **conflict resolution is in the paginator
+  / LLC** (newest version wins, dedupe by id).
+- **Gotcha:** thread replies are a separate paginator (`thread.messagePaginator`) from the channel's
+  `channel.messagePaginator` — they are not dual-written; each is updated by its own event handling.
 
 ### 2. WebSocket Event Processing
 
-**File:** `src/components/Channel/Channel.tsx` (`handleEvent` function)
+**File:** `src/components/Channel/Channel.tsx` (`handleEvent`, registered in the bootstrap effect).
 
-```ts
-// Events are THROTTLED to 500ms to prevent excessive re-renders
-throttledCopyStateFromChannel = throttle(
-  () => dispatch({ type: 'copyStateFromChannelOnEvent' }),
-  500,
-  { leading: true, trailing: true },
-);
-```
+Re-renders on events are **not** driven from `Channel`. The LLC's own event handlers write into the
+paginators' `StateStore`s, and components re-render via their `useStateStore` subscriptions
+(`useSyncExternalStore`). There is **no** throttled `copyStateFromChannelOnEvent` dispatch anymore
+(the old reducer + 500ms throttle were removed).
 
-**Key behaviors:**
+`Channel.handleEvent` now performs only **side effects**: online-status tracking, document-title /
+unread-count updates on `message.new`, latest-message bookkeeping, and a full `channel.query(...)`
+re-fetch on `user.deleted`.
 
-- Some events ignored: `user.watching.start/stop`
-- Unread updates throttled separately (200ms)
-- Message filtering: `parent_id` + `show_in_channel` determine thread visibility
+- Message filtering: `parent_id` + `show_in_channel` determine thread visibility.
 
 ### 3. Message Enrichment Pipeline
 
@@ -122,20 +131,22 @@ Messages are processed in order:
 - Only visible items + overscan buffer rendered
 - `skipMessageDataMemoization` prop exists for channels with 1000s of messages
 
-### 5. Performance: Memoization & Throttling
+### 5. Performance: Memoization
 
 **Critical memoization:**
 
-- Message data serialized to string for comparison (see `useCreateChannelStateContext`)
-- `areMessageUIPropsEqual` checks cheap props first (highlighted, mutes.length)
-- **Gotcha:** Any prop not in serialization won't trigger updates!
+- `useStateStore(store, selector)` selectors: return small flat objects — the hook shallow-compares
+  the selected slice and only re-renders on a real change. This is what scopes paginator-state
+  updates (e.g. `MessageList` selects `{ messages, hasMoreNewer, isLoading }`).
+- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) — per-message `React.memo` comparator;
+  checks cheap props first (highlighted, mutes.length).
+- **Gotcha:** a change the selector or `areMessageUIPropsEqual` doesn't observe won't trigger a
+  re-render.
 
-**Throttling locations:**
-
-- WebSocket events: 500ms
-- Unread counter updates: 200ms
-- `markRead`: 500ms (leading: true, trailing: false - only fires on FIRST call)
-- `loadMoreFinished`: 2000ms debounced
+> The old event throttling (500ms `copyStateFromChannelOnEvent`, 200ms unread, `markRead` 500ms,
+> `loadMoreFinished` debounce) and the `useCreateChannelStateContext` string-serialization memoization
+> are **gone** — re-rendering is now driven by `StateStore` subscriptions, not a throttled reducer
+> copy.
 
 ## Critical Gotchas & Invariants
 
@@ -217,13 +228,13 @@ render(
 
 1. `Message.tsx` ↔ `MessageContext` - Every message needs actions
 2. `Channel.tsx` ↔ `VirtualizedMessageList` - Complex prop drilling
-3. `useCreateChannelStateContext` ↔ Message memoization - String serialization fragility
+3. `useStateStore` selectors ↔ Message memoization - a selector that returns an unstable/over-broad
+   slice defeats the shallow-compare and re-renders the list
 
 **Integration Risks:**
 
-- Modifying reducer actions requires updates in multiple dispatchers
-- Changing message sorting conflicts with SDK updates
-- Thread state isolation is error-prone
+- Changing message sorting conflicts with the LLC paginator's ordering
+- Reading LLC message state through anything other than `useStateStore` on the paginator (stale copies)
 
 ## Code Organization Standards
 
