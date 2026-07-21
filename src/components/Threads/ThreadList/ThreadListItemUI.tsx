@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
-import type { LocalMessage, PaginatorState, ThreadState } from 'stream-chat';
+import type { MessagePaginatorState, ThreadState } from 'stream-chat';
 
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
@@ -20,10 +20,6 @@ import { SummarizedMessagePreview } from '../../SummarizedMessagePreview';
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
   resetHighlighting?: () => void;
 };
-
-const latestReplySelector = (state: PaginatorState<LocalMessage>) => ({
-  latestReply: state.items?.at(-1),
-});
 
 export const ThreadListItemUI = ({
   resetHighlighting,
@@ -56,7 +52,19 @@ export const ThreadListItemUI = ({
     replyCount,
   } = useStateStore(thread.state, selector);
 
-  // Replies now live in the thread's message paginator; the latest reply is the newest loaded item.
+  // Replies live in the thread's message paginator. Resolve the latest reply from the paginator's
+  // tracked `latestMessageId` (index lookup), which is advanced on ingestion and therefore correct
+  // regardless of the active window or the interval/item sort orientation — unlike reading the head
+  // window's last entry, which assumes head == newest.
+  const latestReplySelector = useCallback(
+    (state: MessagePaginatorState) => ({
+      latestReply: state.latestMessageId
+        ? thread.messagePaginator.getItem(state.latestMessageId)
+        : undefined,
+    }),
+    [thread],
+  );
+
   const { latestReply } = useStateStore(
     thread.messagePaginator.state,
     latestReplySelector,
