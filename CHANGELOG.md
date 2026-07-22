@@ -1,3 +1,9 @@
+## [14.10.0](https://github.com/GetStream/stream-chat-react/compare/v14.9.0...v14.10.0) (2026-07-22)
+
+### Features
+
+* introduce extractDisplayInfo for Avatar/AvatarStack components ([#3244](https://github.com/GetStream/stream-chat-react/issues/3244)) ([1068e79](https://github.com/GetStream/stream-chat-react/commit/1068e79cc2bfddf2d900b49325c59d762c91b485))
+
 ## [14.9.0](https://github.com/GetStream/stream-chat-react/compare/v14.8.0...v14.9.0) (2026-07-16)
 
 ### Bug Fixes
