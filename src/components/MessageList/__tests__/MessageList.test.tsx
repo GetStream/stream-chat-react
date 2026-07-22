@@ -191,7 +191,7 @@ const renderComponent = ({
   const channel = channelProps?.channel as ChannelType | undefined;
   if (channel) {
     const messages = (msgListProps?.messages ??
-      channel.messagePaginator.latestItems) as unknown as LocalMessage[];
+      channel.messagePaginator.headItems) as unknown as LocalMessage[];
     seedPaginator(channel, messages ?? []);
   }
   const messageList = (

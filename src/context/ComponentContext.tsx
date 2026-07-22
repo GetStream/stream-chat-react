@@ -79,6 +79,7 @@ import type { CommandChipProps } from '../components/MessageComposer/CommandChip
 import type { ProgressIndicatorProps } from '../components/Loading/progress-indicators';
 import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedSizeIndicator';
 import type { NotificationAnnouncerProps } from '../components/Accessibility';
+import type { SummarizedMessagePreviewProps } from '../components/SummarizedMessagePreview';
 
 export type ComponentContextValue = {
   /** Custom UI component rendered when a paginated list (e.g. the channel list) is empty. */
@@ -128,6 +129,8 @@ export type ComponentContextValue = {
   ChannelListItemActionButtons?: React.ComponentType;
   /** Custom UI component to display the channel preview in the list, defaults to and accepts same props as: [ChannelListItemUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/ChannelPreview/ChannelListItemUI.tsx) */
   ChannelListItemUI?: React.ComponentType<ChannelListItemUIProps>;
+  /** Custom UI component to render a channel-list item's previewed message, defaults to and accepts same props as: [SummarizedMessagePreview](https://github.com/GetStream/stream-chat-react/blob/master/src/components/SummarizedMessagePreview/SummarizedMessagePreview.tsx) */
+  SummarizedMessagePreview?: React.ComponentType<SummarizedMessagePreviewProps>;
   /** Custom UI component to display command chip, defaults to and accepts same props as: [CommandChip](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/CommandChip.tsx) */
   CommandChip?: React.ComponentType<CommandChipProps>;
   /** Custom component for rendering context menus, defaults to and accepts same props as: [ContextMenu](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Dialog/components/ContextMenu.tsx). The default is behavior-aware (not purely presentational) and solves: stable anchoring/placement updates against the reference element, submenu stack navigation (open/return), coordinated dismissal (Escape, overlay click, controlled close), focus management for anchored menus, and transition state reset between openings so animations stay consistent. */

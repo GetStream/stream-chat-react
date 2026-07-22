@@ -13,7 +13,7 @@ import {
   useWorkspaceNavigation,
 } from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
-import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
+import { SummarizedMessagePreview as DefaultSummarizedMessagePreview } from '../SummarizedMessagePreview';
 
 const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   const {
@@ -23,24 +23,25 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     displayImage,
     displayTitle,
     groupChannelDisplayInfo,
-    lastMessage,
     messageDeliveryStatus,
     muted,
     onSelect: customOnSelectChannel,
     pinned,
+    previewedMessage,
     unread,
   } = props;
 
   const {
     Avatar = DefaultChannelAvatar,
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
+    SummarizedMessagePreview = DefaultSummarizedMessagePreview,
   } = useComponentContext();
   const { t } = useTranslationContext();
   const { openChannel } = useWorkspaceNavigation();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
 
-  const avatarName = displayTitle || channel.messagePaginator.latestItem?.user?.id;
+  const avatarName = displayTitle || channel.messagePaginator.headmostItem?.user?.id;
 
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {
@@ -90,7 +91,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
               {muted && <IconMute />}
             </div>
             <div className='str-chat__channel-list-item-data__timestamp-and-badge'>
-              <ChannelListItemTimestamp lastMessage={lastMessage} />
+              <ChannelListItemTimestamp previewedMessage={previewedMessage} />
               {typeof unread === 'number' && unread > 0 && (
                 <Badge data-testid='unread-badge' size='md' variant='primary'>
                   {unread}
@@ -99,7 +100,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
             </div>
           </div>
           <SummarizedMessagePreview
-            latestMessage={lastMessage}
+            latestMessage={previewedMessage}
             messageDeliveryStatus={messageDeliveryStatus}
             participantCount={channel.data?.member_count}
           />

@@ -1,19 +1,21 @@
 import throttle from 'lodash.throttle';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
-import type { Channel, Event, LocalMessage } from 'stream-chat';
+import type {
+  Channel,
+  Event,
+  LocalMessage,
+  MessagePaginatorAggregateState,
+} from 'stream-chat';
+
+import { useStateStore } from '../../store';
 
 import { ChannelListItemUI as DefaultChannelListItemUI } from './ChannelListItemUI';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
-import { getLatestMessagePreview as defaultGetLatestMessagePreview } from './utils';
-import { useTranslationContext } from '../../context/TranslationContext';
-import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
+import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import type { GroupChannelDisplayInfo } from './utils';
 import {
-  type ChatContextValue,
-  type TranslationContextValue,
   useChatContext,
   useComponentContext,
   useWorkspaceNavigation,
@@ -27,10 +29,8 @@ export type ChannelListItemUIProps = ChannelListItemProps & {
   displayTitle?: string;
   /** Title of Channel to display */
   groupChannelDisplayInfo?: GroupChannelDisplayInfo;
-  /** The last message received in a channel */
-  lastMessage?: LocalMessage;
-  /** Latest message preview to display, will be a string or JSX element supporting markdown. */
-  latestMessagePreview?: ReactNode;
+  /** The message previewed by this item — see {@link ChannelListItemProps.previewedMessage}. */
+  previewedMessage?: LocalMessage;
   /** Status describing whether own message has been delivered or read by another. If the last message is not an own message, then the status is undefined. */
   messageDeliveryStatus?: MessageDeliveryStatus;
   /** Whether the channel is muted by the current user */
@@ -52,14 +52,14 @@ export type ChannelListItemProps = {
   channelUpdateCount?: number;
   /** Custom class for the channel preview root */
   className?: string;
-  /** Custom function that generates the message preview in ChannelListItem component */
-  getLatestMessagePreview?: (
-    channel: Channel,
-    t: TranslationContextValue['t'],
-    userLanguage: TranslationContextValue['userLanguage'],
-    isMessageAIGenerated: ChatContextValue['isMessageAIGenerated'],
-  ) => ReactNode;
   key?: string;
+  /**
+   * The message previewed by this item. Defaults to the channel's reactive latest message
+   * (`channel.messagePaginator.aggregateState.lastMessage`); pass a specific message to preview it
+   * instead — e.g. a search result previewing the matched message, where the channel's latest message
+   * would be misleading.
+   */
+  previewedMessage?: LocalMessage;
   /** Custom ChannelListItem click handler function */
   onSelect?: (event: React.MouseEvent) => void;
   /** Object containing watcher parameters */
@@ -72,37 +72,36 @@ const ChannelListItemContext = React.createContext<{ channel: Channel }>({
 
 export const useChannelListItemContext = () => useContext(ChannelListItemContext);
 
+const lastMessageSelector = ({ lastMessage }: MessagePaginatorAggregateState) => ({
+  lastMessage: lastMessage ?? undefined,
+});
+
 export const ChannelListItem = (props: ChannelListItemProps) => {
-  const {
-    active,
-    channel,
-    channelUpdateCount,
-    getLatestMessagePreview = defaultGetLatestMessagePreview,
-  } = props;
+  const { active, channel, channelUpdateCount } = props;
   const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
-  const { client, isMessageAIGenerated } = useChatContext('ChannelPreview');
+  const { client } = useChatContext('ChannelPreview');
   // Active = THIS channel is currently open in the workspace. Keyed on the channel's own
   // cid (never "the first channel slot"), so multiple open channels each highlight independently.
   const channelOpenInSlot = useWorkspaceNavigation().isChannelActive(
     channel.cid ?? undefined,
   );
-  const { t, userLanguage } = useTranslationContext('ChannelPreview');
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
   });
   const membership = useChannelMembershipState(channel);
 
-  const [lastMessage, setLastMessage] = useState<LocalMessage | undefined>(
-    channel.messagePaginator.latestItem,
+  const { lastMessage: trackedLastMessage } = useStateStore(
+    channel.messagePaginator.aggregateState,
+    lastMessageSelector,
   );
-  const [latestMessagePreview, setLatestMessagePreview] = useState<ReactNode>(() =>
-    getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
-  );
+  // A caller may override the previewed message per instance (e.g. a search result previewing the
+  // matched message); otherwise use the channel's reactive tracked latest.
+  const previewedMessage = props.previewedMessage ?? trackedLastMessage;
 
   const [unread, setUnread] = useState(0);
   const { messageDeliveryStatus } = useMessageDeliveryStatus({
     channel,
-    lastMessage,
+    lastMessage: previewedMessage,
   });
 
   const isActive = typeof active === 'undefined' ? !!channelOpenInSlot : active;
@@ -144,9 +143,6 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
 
   useEffect(() => {
     refreshUnreadCount();
-    setLatestMessagePreview(
-      getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
-    );
 
     const handleEvent = (event: Event) => {
       const deletedMessagesInAnotherChannel =
@@ -154,10 +150,6 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
 
       if (deletedMessagesInAnotherChannel) return;
 
-      setLastMessage(channel.messagePaginator.latestItem);
-      setLatestMessagePreview(
-        getLatestMessagePreview(channel, t, userLanguage, isMessageAIGenerated),
-      );
       refreshUnreadCount();
     };
 
@@ -176,16 +168,7 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
       channel.off('message.undeleted', handleEvent);
       channel.off('channel.truncated', handleEvent);
     };
-  }, [
-    channel,
-    client,
-    refreshUnreadCount,
-    channelUpdateCount,
-    getLatestMessagePreview,
-    t,
-    userLanguage,
-    isMessageAIGenerated,
-  ]);
+  }, [channel, client, refreshUnreadCount, channelUpdateCount]);
 
   const channelPreviewContextValue = useMemo(() => ({ channel }), [channel]);
 
@@ -199,11 +182,10 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
         displayImage={displayImage}
         displayTitle={displayTitle}
         groupChannelDisplayInfo={groupChannelDisplayInfo}
-        lastMessage={lastMessage}
-        latestMessagePreview={latestMessagePreview}
         messageDeliveryStatus={messageDeliveryStatus}
         muted={muted}
         pinned={!!membership.pinned_at}
+        previewedMessage={previewedMessage}
         unread={unread}
       />
     </ChannelListItemContext.Provider>

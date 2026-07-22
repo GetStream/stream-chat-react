@@ -841,7 +841,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient });
 
         await waitFor(() => {
-          expect(channel.messagePaginator.latestItems[0]?.user?.name).toBe(user.name);
+          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(user.name);
         });
 
         await act(() => {
@@ -852,7 +852,7 @@ describe('Channel', () => {
         // client._updateUserMessageReferences -> reflectUserUpdate), which the MessageList reads
         // from (the removed React reducer used to own this mapping).
         await waitFor(() => {
-          expect(channel.messagePaginator.latestItems[0]?.user?.name).toBe(
+          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(
             updatedAttribute.name,
           );
         });

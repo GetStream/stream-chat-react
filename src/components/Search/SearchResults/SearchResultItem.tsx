@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ComponentType } from 'react';
+import { formatMessage } from 'stream-chat';
 import type { Channel, MessageResponse, User } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
@@ -100,8 +101,8 @@ export const MessageSearchResultItem = ({
     ],
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const getLatestMessagePreview = useCallback(() => item.text!, [item]);
+  // Preview the matched message itself (not the channel's latest) by overriding `previewedMessage`.
+  const previewedMessage = useMemo(() => formatMessage(item), [item]);
 
   if (!channel) return null;
 
@@ -113,8 +114,8 @@ export const MessageSearchResultItem = ({
       }
       channel={channel}
       className='str-chat__search-result'
-      getLatestMessagePreview={getLatestMessagePreview}
       onSelect={handleSelect}
+      previewedMessage={previewedMessage}
     />
   );
 };

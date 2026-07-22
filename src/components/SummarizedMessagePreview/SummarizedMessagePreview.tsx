@@ -22,6 +22,13 @@ import {
   IconVoice,
 } from '../Icons';
 
+/**
+ * Props for {@link SummarizedMessagePreview}. Override the component via `ComponentContext`
+ * (`<Chat>`/`<Channel>` prop `SummarizedMessagePreview`) to customize how a channel-list item renders
+ * the preview of its latest message.
+ */
+export type SummarizedMessagePreviewProps = UseLatestMessagePreviewParams;
+
 const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> = {
   delivered: IconChecks,
   read: IconChecks,

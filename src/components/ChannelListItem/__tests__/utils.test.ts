@@ -1,12 +1,8 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { nanoid } from 'nanoid';
 
 import {
   generateChannel,
-  generateImageAttachment,
   generateMember,
-  generateMessage,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
@@ -14,14 +10,7 @@ import {
 } from 'mock-builders';
 
 import type { StreamChat } from 'stream-chat';
-import type { TranslationContextValue } from '../../../context';
-import {
-  getChannelDisplayImage,
-  getGroupChannelDisplayInfo,
-  getLatestMessagePreview,
-} from '../utils';
-import { generateStaticLocationResponse } from '../../../mock-builders';
-import { render } from '@testing-library/react';
+import { getChannelDisplayImage, getGroupChannelDisplayInfo } from '../utils';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
@@ -39,82 +28,6 @@ describe('ChannelPreview utils', () => {
 
   beforeEach(async () => {
     chatClient = await getTestClientWithUser(clientUser);
-  });
-
-  describe('getLatestMessagePreview', () => {
-    const channelWithEmptyMessage = generateChannel();
-    const channelWithDeletedMessage = generateChannel({
-      messages: [generateMessage({ deleted_at: new Date().toISOString() })],
-    });
-    const channelWithDeletedTypeMessage = generateChannel({
-      messages: [generateMessage({ type: 'deleted' })],
-    });
-    const channelWithDeletedForMeMessage = generateChannel({
-      messages: [generateMessage({ deleted_for_me: true })],
-    });
-    const channelWithLocationMessage = generateChannel({
-      messages: [
-        generateMessage({
-          attachments: [],
-          shared_location: generateStaticLocationResponse({}),
-          text: '',
-        }),
-      ],
-    });
-    const channelWithAttachmentMessage = generateChannel({
-      messages: [
-        generateMessage({
-          attachments: [generateImageAttachment({})],
-          text: undefined,
-        }),
-      ],
-    });
-    const channelWithHTMLInMessage = generateChannel({
-      messages: [
-        generateMessage({
-          attachments: [generateImageAttachment({})],
-          text:
-            '<h1>Hello, world!</h1> \n' +
-            '<p>This is my first web page.</p> \n' +
-            '<p>It contains a <strong>main heading</strong> and <em> paragraph </em>.</p>',
-        }),
-      ],
-    });
-
-    const expectedTextWithHTMLRendering =
-      '<h1>Hello, world!</h1> <p>This is my first web page.</p> <p>It contains a <strong>main heading</strong> and <em> paragraph </em>.</p>';
-
-    function isReactMarkdownElement(x) {
-      return React.isValidElement(x) && x.type === ReactMarkdown;
-    }
-
-    it.each([
-      ['Nothing yet...', 'channelWithEmptyMessage', channelWithEmptyMessage],
-      ['Message deleted', 'channelWithDeletedMessage', channelWithDeletedMessage],
-      ['Message deleted', 'channelWithDeletedTypeMessage', channelWithDeletedTypeMessage],
-      [
-        'Message deleted',
-        'channelWithDeletedForMeMessage',
-        channelWithDeletedForMeMessage,
-      ],
-      ['🏙 Attachment...', 'channelWithAttachmentMessage', channelWithAttachmentMessage],
-      ['📍Shared location', 'channelWithLocationMessage', channelWithLocationMessage],
-      [
-        expectedTextWithHTMLRendering,
-        'channelWithHTMLInMessage',
-        channelWithHTMLInMessage,
-      ],
-    ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
-      const t = ((text: string) => text) as TranslationContextValue['t'];
-      const channel = await getQueriedChannelInstance(c);
-      const preview = getLatestMessagePreview(channel, t);
-      if (isReactMarkdownElement(preview)) {
-        const { container } = render(preview);
-        expect(container).toHaveTextContent(expectedValue);
-      } else {
-        expect(getLatestMessagePreview(channel, t)).toBe(expectedValue);
-      }
-    });
   });
 
   describe('getChannelDisplayImage (utils)', () => {

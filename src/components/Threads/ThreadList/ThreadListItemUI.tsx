@@ -2,7 +2,7 @@ import type { ComponentPropsWithoutRef } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
-import type { MessagePaginatorState, ThreadState } from 'stream-chat';
+import type { MessagePaginatorAggregateState, ThreadState } from 'stream-chat';
 
 import { Timestamp } from '../../Message/Timestamp';
 import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
@@ -52,21 +52,18 @@ export const ThreadListItemUI = ({
     replyCount,
   } = useStateStore(thread.state, selector);
 
-  // Replies live in the thread's message paginator. Resolve the latest reply from the paginator's
-  // tracked `latestMessageId` (index lookup), which is advanced on ingestion and therefore correct
-  // regardless of the active window or the interval/item sort orientation — unlike reading the head
-  // window's last entry, which assumes head == newest.
+  // Replies live in the thread's message paginator. The latest reply is tracked on the paginator's
+  // `aggregateState` (advanced on every ingest), NOT derived from the pagination `state`: a reply
+  // arriving via WS lands in the head interval, which is not the active window here, so the
+  // pagination store would not emit. `aggregateState` is written directly on each advance, so this
+  // subscription stays reactive.
   const latestReplySelector = useCallback(
-    (state: MessagePaginatorState) => ({
-      latestReply: state.latestMessageId
-        ? thread.messagePaginator.getItem(state.latestMessageId)
-        : undefined,
-    }),
-    [thread],
+    (state: MessagePaginatorAggregateState) => ({ latestReply: state.lastMessage }),
+    [],
   );
 
   const { latestReply } = useStateStore(
-    thread.messagePaginator.state,
+    thread.messagePaginator.aggregateState,
     latestReplySelector,
   );
 
