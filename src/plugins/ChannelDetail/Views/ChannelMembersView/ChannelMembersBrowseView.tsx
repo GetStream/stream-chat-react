@@ -1,17 +1,18 @@
 import type { ChannelMemberResponse } from 'stream-chat';
 import React, { useCallback, useMemo } from 'react';
 
-import { useChatContext, useTranslationContext } from '../../../../context';
-import { Avatar } from '../../../../components/Avatar';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../../context';
+import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { IconMute } from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
-import {
-  getMemberDisplayName,
-  getMemberUserId,
-  getUserDisplayName,
-} from './ChannelMembersView.utils';
+import { getMemberDisplayName, getMemberUserId } from './ChannelMembersView.utils';
 import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
 import { ChannelDetailListLoadingIndicator } from '../../ChannelDetailListLoadingIndicator';
 import { ChannelDetailSearchInput } from '../../ChannelDetailSearchInput';
@@ -56,6 +57,8 @@ const ChannelMembersBrowseViewItem = ({
   onMemberSelect?: (member: ChannelMemberResponse) => void;
 }) => {
   const { t } = useTranslationContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const user = member.user;
   const displayName = getMemberDisplayName(member);
   const roleTranslation = getMemberRoleTranslation(member, t);
@@ -63,16 +66,11 @@ const ChannelMembersBrowseViewItem = ({
   const LeadingSlot = useMemo(
     () =>
       function MemberAvatar() {
-        return (
-          <Avatar
-            imageUrl={user?.image}
-            isOnline={user?.online}
-            size='md'
-            userName={getUserDisplayName(user)}
-          />
-        );
+        const displayInfo = extractDisplayInfo({ user: user ?? undefined });
+
+        return <Avatar {...displayInfo} isOnline={user?.online} size='md' />;
       },
-    [user],
+    [Avatar, extractDisplayInfo, user],
   );
 
   const TrailingSlot = useMemo(

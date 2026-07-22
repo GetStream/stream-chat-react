@@ -7,7 +7,8 @@ import {
   useTranslationContext,
 } from '../../../../context';
 import { formatTime } from '../../../../components/AudioPlayback';
-import { Avatar } from '../../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { Badge } from '../../../../components/Badge';
 import {
   type BaseImageProps,
@@ -51,6 +52,8 @@ const ChannelMediaGridItem = ({
   onClick,
 }: ChannelMediaGridItemProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const displayName = getUserDisplayName(item.user);
   const mediaSrc =
     item.type === 'video'
@@ -84,11 +87,10 @@ const ChannelMediaGridItem = ({
         </div>
       )}
       <Avatar
+        {...extractDisplayInfo({ user: item.user })}
         aria-hidden='true'
         className='str-chat__channel-detail__media-view__item__avatar'
-        imageUrl={item.user?.image}
         size='sm'
-        userName={displayName}
       />
       {item.type === 'video' && (
         <Badge

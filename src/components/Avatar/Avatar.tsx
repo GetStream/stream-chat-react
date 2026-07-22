@@ -13,8 +13,13 @@ export type AvatarProps = {
   FallbackIcon?: ComponentType<ComponentPropsWithoutRef<'svg'>>;
   /** URL of the avatar image */
   imageUrl?: string;
-  /** Name of the user, used for avatar image alt text and title fallback */
+  /** Name of the user (first and last name), used for avatar image alt text and title fallback */
   userName?: string;
+  /**
+   * Initials that are used directly instead of generating intials from `userName` property.
+   * @note Providing more than two characters will break the default UI.
+   */
+  initials?: string;
   /** Online status indicator, not rendered if not of type boolean */
   isOnline?: boolean;
   size: '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs' | (string & {}) | null;
@@ -48,6 +53,7 @@ export const Avatar = ({
   className,
   FallbackIcon = IconUser,
   imageUrl,
+  initials: customInitials,
   isOnline,
   size,
   userName,
@@ -57,18 +63,17 @@ export const Avatar = ({
 
   useEffect(() => () => setError(false), [imageUrl]);
 
-  const nameString = userName?.toString() || '';
-  const avatarImageAlt = nameString.trim();
+  const nameString = userName?.toString().trim() || '';
 
   const sizeAwareInitials = useMemo(() => {
-    const initials = getInitials(nameString);
+    const initials = customInitials || getInitials(nameString);
 
     if (size === 'sm' || size === 'xs') {
       return initials.charAt(0);
     }
 
     return initials;
-  }, [nameString, size]);
+  }, [nameString, size, customInitials]);
 
   const showImage = typeof imageUrl === 'string' && imageUrl && !error;
 
@@ -95,7 +100,7 @@ export const Avatar = ({
       )}
       {showImage ? (
         <img
-          alt={avatarImageAlt}
+          alt={nameString}
           className='str-chat__avatar-image'
           data-testid='avatar-img'
           onError={() => setError(true)}
