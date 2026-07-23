@@ -79,6 +79,10 @@ export type MessageComposerProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
+  /**
+   * When set to `true` disables clearing established state of the MessageComposerController upon component unmount.
+   */
+  preventClearingOnUnmount?: boolean;
 };
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
@@ -99,9 +103,15 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
       // for a disconnected channel
       if (messageComposer.channel.disconnected) return;
 
-      messageComposer.createDraft().finally(() => messageComposer.clear());
+      const promise = messageComposer.config.drafts.enabled
+        ? messageComposer.createDraft()
+        : Promise.resolve();
+
+      if (props.preventClearingOnUnmount) return;
+
+      promise.finally(() => messageComposer.clear());
     },
-    [messageComposer],
+    [messageComposer, props.preventClearingOnUnmount],
   );
 
   useEffect(() => {
