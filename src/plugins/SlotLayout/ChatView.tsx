@@ -39,6 +39,7 @@ import {
 } from './ChatView.a11y.utility';
 import { ChatViewNavigationProvider } from './ChatViewNavigationContext';
 import { WorkspaceNavigationAdapter } from './workspaceNavigationAdapter';
+import type { DeriveWorkspaceNavigation } from './workspaceNavigationAdapter';
 import { WorkspaceLayout } from './layout/WorkspaceLayout';
 import {
   createLayoutRuntimeState,
@@ -106,6 +107,12 @@ export type ChatViewProps = PropsWithChildren<{
    * their overlays render under `.str-chat`, so the SDK's `.str-chat`-scoped dialog CSS
    * applies. Omit for a local (unregistered) manager.
    */
+  /**
+   * Optionally override the {@link WorkspaceNavigation} the ChatView provides — e.g. make
+   * `openChannel`/`openThread` open beside the current content on ⌘/ctrl-click. Receives the
+   * SDK-derived navigation; spread it and override only what you need. Must be referentially stable.
+   */
+  deriveWorkspaceNavigation?: DeriveWorkspaceNavigation;
   dialogManagerId?: string;
   duplicateEntityPolicy?: DuplicateEntityPolicy;
   entityInferrers?: ChatViewEntityInferer[];
@@ -319,6 +326,7 @@ const seedLayoutsFromDescriptors = (
 
 export const ChatView = ({
   children,
+  deriveWorkspaceNavigation,
   dialogManagerId,
   duplicateEntityPolicy,
   entityInferrers = [],
@@ -535,7 +543,9 @@ export const ChatView = ({
           <ChatViewNavigationProvider>
             {/* Expose the slot-agnostic WorkspaceNavigation adapter (D1) to the subtree so core
                 components navigate through it rather than the ChatView slot API directly. */}
-            <WorkspaceNavigationAdapter>
+            <WorkspaceNavigationAdapter
+              deriveWorkspaceNavigation={deriveWorkspaceNavigation}
+            >
               <div className={clsx('str-chat', theme, 'str-chat__chat-view')}>
                 {/* Host the chat-view dialog manager INSIDE `.str-chat` so dialogs opened by
                     view content (context menus, member actions, …) portal here and inherit the

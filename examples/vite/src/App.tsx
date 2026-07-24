@@ -55,6 +55,7 @@ import {
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { SlotGeometryProvider } from 'stream-chat-react/slot-geometry';
 import { AlsoSentInChannelIndicator } from './ChatLayout/AlsoSentInChannelIndicator.tsx';
+import { useAdditiveWorkspaceNavigation } from './ChatLayout/useAdditiveWorkspaceNavigation.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
 import {
@@ -493,6 +494,11 @@ const App = () => {
     [chatView.iconOnly, initialChannelId],
   );
 
+  // ⌘/ctrl-click opens beside the current content. Applied through the navigation adapter (not the
+  // search items' `onSelect`) so the SDK's default select handler — which also ingests the channel
+  // into the list — stays in effect. Declared before the early return so the hook order is stable.
+  const deriveWorkspaceNavigation = useAdditiveWorkspaceNavigation();
+
   if (!chatClient) {
     return (
       <LoadingScreen
@@ -571,6 +577,7 @@ const App = () => {
                   Instance-scoped — not a module singleton — so other chat surfaces don't collide. */}
               <SlotGeometryProvider>
                 <ChatView
+                  deriveWorkspaceNavigation={deriveWorkspaceNavigation}
                   dialogManagerId={globalDialogManager}
                   layouts={chatViewLayouts}
                   maxSlots={2}

@@ -131,6 +131,10 @@ describe('SearchResultItem Components', () => {
 
       expect(mockOpenChannel).toHaveBeenCalledTimes(1);
       expect(mockOpenChannel.mock.calls[0][0].id).toBe(channelSearchData.channel.id);
+      // The click event is forwarded so overrides can honor ⌘/ctrl-click.
+      expect(mockOpenChannel.mock.calls[0][1]).toEqual(
+        expect.objectContaining({ event: expect.anything() }),
+      );
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 

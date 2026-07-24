@@ -15,13 +15,31 @@ export type OpenThreadTarget =
   | StreamThread
   | { channel: StreamChannel; message: LocalMessage };
 
-/** Options shared by the workspace open operations. */
+/**
+ * A DOM event that may have triggered a workspace navigation. Restricted to the React event types
+ * that expose modifier keys (`metaKey`/`ctrlKey`/…) — the reason the event is forwarded at all — so
+ * overrides can read them without narrowing. `PointerEvent`, `DragEvent`, and `WheelEvent` extend
+ * `MouseEvent` and are accepted through it; `TouchEvent` and `KeyboardEvent` are the other carriers.
+ */
+export type WorkspaceNavigationTriggerEvent =
+  | React.MouseEvent
+  | React.KeyboardEvent
+  | React.TouchEvent;
+
+/** Options shared by the workspace navigation operations. */
 export type WorkspaceNavigationOptions = {
   /**
    * Open *beside* the current content (e.g. ctrl/⌘-click) instead of replacing it, when the active
    * workspace layout has room for a secondary panel. Ignored in single-panel layouts.
    */
   additive?: boolean;
+  /**
+   * The DOM event that triggered the navigation, when there is one. Forwarded by the SDK components
+   * that initiate navigation from a user gesture (channel-list / search-result selection, …) so a
+   * consumer overriding these operations (e.g. via `ChatView`'s `deriveWorkspaceNavigation`) can read
+   * modifier keys — deciding `additive` from ⌘/ctrl-click — without tracking key state globally.
+   */
+  event?: WorkspaceNavigationTriggerEvent;
   /**
    * Open *over* the current content as a transient layer instead of replacing it; dismissing the
    * entity restores what was beneath. Ignored by layouts that do not support layering.
@@ -37,9 +55,10 @@ export type WorkspaceNavigationOptions = {
 export type WorkspaceNavigation = {
   /**
    * Dismiss a thread from the workspace. With `threadId`, dismiss that thread's panel; otherwise the
-   * active thread panel. Does not deactivate the thread instance — the caller owns that.
+   * active thread panel. Does not deactivate the thread instance — the caller owns that. Accepts the
+   * triggering event (see {@link WorkspaceNavigationOptions.event}).
    */
-  closeThread: (threadId?: string) => void;
+  closeThread: (threadId?: string, options?: WorkspaceNavigationOptions) => void;
   /** Whether a channel with `cid` is currently open in the workspace. */
   isChannelActive: (cid?: string) => boolean;
   /** Whether a thread with `threadId` is currently open in the workspace. */

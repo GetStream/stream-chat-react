@@ -3,7 +3,6 @@ import type {
   ChannelMemberResponse,
   Channel as StreamChannel,
   Thread as ThreadType,
-  UserResponse,
 } from 'stream-chat';
 import {
   type ComponentType,
@@ -21,23 +20,18 @@ import {
   ChannelAvatar,
   ChannelHeader,
   ChannelListItem,
-  ChannelSearchResultItem,
   EmptyStateIndicator,
   IconArrowLeft,
   IconXmark,
   MessageComposer,
   MessageList,
-  MessageSearchResultItem,
   ModalContextProvider,
-  SearchSourceResultList,
-  type SearchSourceResultListProps,
   Thread,
   type ThreadHeaderProps,
   ThreadList,
   ThreadProvider,
   TypingIndicator,
   useChatContext,
-  UserSearchResultItem,
   useTranslationContext,
   VirtualizedMessageList,
   WithComponents,
@@ -128,67 +122,6 @@ const CustomChannelListItem = ({ item }: { item: unknown }) => {
   };
   return <ChannelListItem channel={channel} onSelect={openChannel} />;
 };
-
-// Search result items wired for ⌘/Ctrl-click here in the app (the SDK items default to a plain
-// open; the "open beside" UX decision belongs to the app). Plain click opens in place;
-// ctrl/⌘-click opens the result beside the current channel (additive -> secondary slot).
-const SearchChannelResult = ({ item }: { item: StreamChannel }) => {
-  const { open } = useChatViewNavigation();
-  return (
-    <ChannelSearchResultItem
-      item={item}
-      onSelect={(event) =>
-        open(
-          { key: item.cid ?? undefined, kind: 'channel', source: item },
-          {
-            // ⌘/ctrl-click opens beside the current channel (secondary slot). The SDK base policy
-            // binds it there if free, or stacks a layer if the slot is occupied (e.g. an open reply
-            // thread) — no explicit `layer` needed.
-            additive: event.ctrlKey || event.metaKey,
-          },
-        )
-      }
-    />
-  );
-};
-
-const SearchUserResult = ({ item }: { item: UserResponse }) => {
-  const { open } = useChatViewNavigation();
-  const { client } = useChatContext();
-  return (
-    <UserSearchResultItem
-      item={item}
-      onSelect={(event) => {
-        const channel = client.channel('messaging', {
-          members: [client.userID as string, item.id],
-        });
-        void channel.watch();
-        open(
-          { key: channel.cid ?? undefined, kind: 'channel', source: channel },
-          {
-            // ⌘/ctrl-click opens beside the current channel (secondary slot). The SDK base policy
-            // binds it there if free, or stacks a layer if the slot is occupied (e.g. an open reply
-            // thread) — no explicit `layer` needed.
-            additive: event.ctrlKey || event.metaKey,
-          },
-        );
-      }}
-    />
-  );
-};
-
-// Injects the ⌘/Ctrl-aware channel/user result items (messages keep the default). Provided to
-// the channels view via ComponentContext (overrides the SDK's SearchSourceResultList).
-const SplitAwareSearchResultList = (props: SearchSourceResultListProps) => (
-  <SearchSourceResultList
-    {...props}
-    SearchResultItems={{
-      channels: SearchChannelResult,
-      messages: MessageSearchResultItem,
-      users: SearchUserResult,
-    }}
-  />
-);
 
 // The in-channel reply thread is opened into the channels view's secondary slot (the same
 // slot a 2nd channel can occupy) — bound by the message "reply in thread" / replies-count
@@ -669,7 +602,6 @@ export const ChannelsPanels = ({
           overrides={{
             Avatar: ChannelAvatar,
             ListItem: CustomChannelListItem,
-            SearchSourceResultList: SplitAwareSearchResultList,
           }}
         >
           <SwitchableChannelNavigation />

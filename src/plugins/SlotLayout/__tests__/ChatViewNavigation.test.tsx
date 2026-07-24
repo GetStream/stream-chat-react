@@ -7,6 +7,7 @@ import { ChatView, useChatViewContext } from '../ChatView';
 import { getChatViewEntityBinding } from '../ChatView';
 import { useChatViewNavigation } from '../ChatViewNavigationContext';
 import { getLayoutViewState } from '../hooks';
+import { useWorkspaceNavigation } from '../../../context/WorkspaceNavigationContext';
 
 import { ChatProvider } from '../../../context/ChatContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
@@ -818,5 +819,86 @@ describe('useChatViewNavigation', () => {
     expect(getChatViewEntityBinding(openThreadState?.slotBindings.main)?.kind).toBe(
       'thread',
     );
+  });
+});
+
+describe('ChatView deriveWorkspaceNavigation', () => {
+  it('lets the app override openChannel on the workspace navigation adapter', () => {
+    const channel = makeChannel('messaging:derive');
+    const customOpenChannel = vi.fn();
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useWorkspaceNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+      return (
+        <button onClick={() => navigation.openChannel(channel)} type='button'>
+          open-channel
+        </button>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView
+        deriveWorkspaceNavigation={(base) => ({
+          ...base,
+          openChannel: customOpenChannel,
+        })}
+        maxSlots={1}
+      >
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+
+    // The app-provided openChannel ran instead of the adapter's default...
+    expect(customOpenChannel).toHaveBeenCalledTimes(1);
+    expect(customOpenChannel.mock.calls[0][0]).toBe(channel);
+    // ...and since it did not delegate to the base, no slot was bound.
+    expect(
+      getChatViewEntityBinding(viewState(capturedController)?.slotBindings.slot1),
+    ).toBeUndefined();
+  });
+
+  it('lets the app decorate openChannel (e.g. inject options) while delegating to the base', () => {
+    const channel = makeChannel('messaging:decorate');
+    const seenOptions: unknown[] = [];
+    let capturedController: LayoutController | undefined;
+
+    const Harness = () => {
+      const navigation = useWorkspaceNavigation();
+      const { layoutController } = useChatViewContext();
+      capturedController = layoutController;
+      return (
+        <button onClick={() => navigation.openChannel(channel)} type='button'>
+          open-channel
+        </button>
+      );
+    };
+
+    renderWithProviders(
+      <ChatView
+        deriveWorkspaceNavigation={(base) => ({
+          ...base,
+          openChannel: (ch, options) => {
+            seenOptions.push({ ...options, additive: true });
+            base.openChannel(ch, { ...options, additive: true });
+          },
+        })}
+        maxSlots={1}
+      >
+        <Harness />
+      </ChatView>,
+    );
+
+    fireEvent.click(screen.getByText('open-channel'));
+
+    // The decorator ran and delegated to the base, so the channel was actually opened.
+    expect(seenOptions).toEqual([{ additive: true }]);
+    expect(
+      getChatViewEntityBinding(viewState(capturedController)?.slotBindings.slot1)?.kind,
+    ).toBe('channel');
   });
 });

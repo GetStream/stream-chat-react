@@ -123,7 +123,11 @@ describe('ChannelPreviewMessenger', () => {
 
     await waitFor(() => {
       expect(mockOpenChannel).toHaveBeenCalledTimes(1);
-      expect(mockOpenChannel).toHaveBeenCalledWith(channel);
+      // The triggering event is forwarded so overrides can honor ⌘/ctrl-click.
+      expect(mockOpenChannel).toHaveBeenCalledWith(
+        channel,
+        expect.objectContaining({ event: expect.anything() }),
+      );
     });
 
     const results = await axe(container.firstChild!.firstChild as Element);

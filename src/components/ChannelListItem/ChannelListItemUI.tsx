@@ -47,8 +47,10 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
     } else {
-      // Selection is one navigation model: open the channel in the workspace.
-      openChannel(channel);
+      // Selection is one navigation model: open the channel in the workspace. Forward the event so a
+      // consumer overriding `openChannel` (e.g. via ChatView's `deriveWorkspaceNavigation`) can honor
+      // ⌘/ctrl-click.
+      openChannel(channel, { event: e });
     }
     if (channelPreviewButton?.current) {
       channelPreviewButton.current.blur();

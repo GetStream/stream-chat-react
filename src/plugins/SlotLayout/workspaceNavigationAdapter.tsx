@@ -16,14 +16,34 @@ import type { WorkspaceNavigation } from '../../context/WorkspaceNavigationConte
 import type { ChatViewEntityBinding } from './ChatView';
 
 /**
+ * Optional transform an app supplies (via `ChatView`) to customize the derived
+ * {@link WorkspaceNavigation} — e.g. make `openChannel`/`openThread` open *beside* the current
+ * content on ⌘/ctrl-click. Receives the fully-derived navigation and returns the one to provide;
+ * spread the base and override only the methods you care about. Must be referentially stable
+ * (wrap in `useCallback`) — it participates in the adapter's `useMemo`.
+ */
+export type DeriveWorkspaceNavigation = (
+  base: WorkspaceNavigation,
+) => WorkspaceNavigation;
+
+export type WorkspaceNavigationAdapterProps = {
+  deriveWorkspaceNavigation?: DeriveWorkspaceNavigation;
+};
+
+/**
  * Implements the core-owned {@link WorkspaceNavigation} abstraction (D1) over the ChatView slot
  * system and provides it to the subtree. Rendered inside `ChatViewNavigationProvider` (so it can
  * drive `open`/`close`) and the ChatView context (so it can read the active view's slot state).
  *
  * Every read/operation is derived from the same slot primitives the ChatView hooks use, so core
  * consumers routed through the adapter behave exactly as they did calling the slot API directly.
+ * An app may pass `deriveWorkspaceNavigation` to override individual operations (e.g. additive
+ * open on ⌘/ctrl-click) without re-implementing the adapter.
  */
-export const WorkspaceNavigationAdapter = ({ children }: PropsWithChildren) => {
+export const WorkspaceNavigationAdapter = ({
+  children,
+  deriveWorkspaceNavigation,
+}: PropsWithChildren<WorkspaceNavigationAdapterProps>) => {
   const { close, open } = useChatViewNavigation();
   const { activeChatView } = useChatViewContext();
   const { client } = useChatContext('WorkspaceNavigationAdapter');
@@ -94,7 +114,12 @@ export const WorkspaceNavigationAdapter = ({ children }: PropsWithChildren) => {
     };
   }, [activeChatView, availableSlots, client, close, open, slotBindings]);
 
+  const derived = useMemo(
+    () => (deriveWorkspaceNavigation ? deriveWorkspaceNavigation(value) : value),
+    [deriveWorkspaceNavigation, value],
+  );
+
   return (
-    <WorkspaceNavigationProvider value={value}>{children}</WorkspaceNavigationProvider>
+    <WorkspaceNavigationProvider value={derived}>{children}</WorkspaceNavigationProvider>
   );
 };
