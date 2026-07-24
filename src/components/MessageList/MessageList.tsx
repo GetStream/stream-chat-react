@@ -163,6 +163,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   useMarkRead({
+    hasMoreNewer,
     isMessageListScrolledToBottom,
     messageListIsThread: isThreadList,
   });

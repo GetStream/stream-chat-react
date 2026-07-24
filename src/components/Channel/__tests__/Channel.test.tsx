@@ -355,39 +355,19 @@ describe('Channel', () => {
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
-  it('should mark the channel as read when the channel is mounted', async () => {
+  it('should not mark the channel as read on mount (owned by useMarkRead when caught up at the bottom)', async () => {
     const { channel, chatClient } = await setup();
     vi.spyOn(channel, 'countUnread').mockImplementation(() => 1);
+    const channelOnSpy = vi.spyOn(channel, 'on');
     const markReadSpy = vi.spyOn(channel, 'markRead');
 
+    // <Channel> renders no message list here, so nothing marks read on open; marking read is
+    // triggered by useMarkRead (see useMarkRead tests), not by Channel mounting.
     await renderComponent({ channel, chatClient });
-
-    await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
-  });
-
-  it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
-    const { channel, chatClient } = await setup();
-    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
-    const markReadSpy = vi.spyOn(channel, 'markRead');
-
-    await renderComponent({ channel, chatClient, markReadOnMount: false });
-
-    await waitFor(() => expect(markReadSpy).not.toHaveBeenCalledWith());
-  });
-
-  it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
-    const { channel, chatClient } = await setup();
-    vi.spyOn(channel, 'countUnread').mockImplementation(() => 1);
-    const doMarkReadRequest = vi.fn();
-
-    await renderComponent({
-      channel,
-      chatClient,
-      doMarkReadRequest,
-      markReadOnMount: true,
-    });
-
-    await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
+    // Wait for the mount/bootstrap effect to finish (it registers the channel event handler)...
+    await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
+    // ...then confirm it did not mark read.
+    expect(markReadSpy).not.toHaveBeenCalled();
   });
 
   it('should not query the channel from the backend when initializeOnMount is disabled', async () => {

@@ -45,9 +45,7 @@ const render = async ({
     .mockImplementation(() => undefined);
   const wrapper = ({ children }: React.PropsWithChildren) => (
     <Chat client={client}>
-      <ChannelComponent channel={channel} markReadOnMount={false}>
-        {children}
-      </ChannelComponent>
+      <ChannelComponent channel={channel}>{children}</ChannelComponent>
     </Chat>
   );
   // eslint-disable-next-line require-await

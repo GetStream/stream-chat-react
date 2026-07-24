@@ -406,6 +406,7 @@ const VirtualizedMessageListWithContext = (
   } = useNewMessageNotification(processedMessages, client.userID);
 
   useMarkRead({
+    hasMoreNewer,
     isMessageListScrolledToBottom,
     messageListIsThread: isThreadList,
   });

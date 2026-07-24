@@ -1,5 +1,5 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type {
   ChannelMemberResponse,
@@ -86,8 +86,6 @@ export type ChannelProps = {
    * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
    */
   initializeOnMount?: boolean;
-  /** Configuration parameter to mark the active channel as read when mounted (opened). By default, the channel is marked read on mount. */
-  markReadOnMount?: boolean;
 };
 
 const ChannelContainer = ({
@@ -152,7 +150,6 @@ const ChannelInner = (
     doSendMessageRequest,
     doUpdateMessageRequest,
     initializeOnMount = true,
-    markReadOnMount = true,
   } = props;
 
   const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
@@ -174,7 +171,6 @@ const ChannelInner = (
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
   const originalTitle = useRef('');
-  const lastRead = useRef<Date | undefined>(undefined);
   const online = useRef(true);
 
   const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
@@ -183,40 +179,6 @@ const ChannelInner = (
   const [bootstrapError, setBootstrapError] = useState<Error | undefined>(undefined);
   const [isBootstrapping, setIsBootstrapping] = useState(
     !channel.initialized && initializeOnMount,
-  );
-
-  const markChannelRead = useCallback(
-    async ({
-      updateChannelUiUnreadState = true,
-    }: { updateChannelUiUnreadState?: boolean } = {}) => {
-      if (channel.disconnected || !channelConfig?.read_events) {
-        return;
-      }
-
-      lastRead.current = new Date();
-
-      try {
-        const markReadResponse = await channel.markRead();
-        // markReadResponse.event can be null for users not members of the channel
-        if (updateChannelUiUnreadState && markReadResponse?.event) {
-          channel.messagePaginator.unreadStateSnapshot.next({
-            firstUnreadMessageId: null,
-            lastReadAt: lastRead.current,
-            lastReadMessageId: markReadResponse.event.last_read_message_id ?? null,
-            unreadCount: 0,
-          });
-        }
-
-        if (activeUnreadHandler) {
-          activeUnreadHandler(0, originalTitle.current);
-        } else if (originalTitle.current) {
-          document.title = originalTitle.current;
-        }
-      } catch (e) {
-        console.error(t('Failed to mark channel as read'));
-      }
-    },
-    [activeUnreadHandler, channel, channelConfig?.read_events, t],
   );
 
   const handleEvent = async (event: Event) => {
@@ -242,7 +204,7 @@ const ChannelInner = (
           channelConfig?.read_events &&
           !channel.muteStatus().muted
         ) {
-          const unread = channel.countUnread(lastRead.current);
+          const unread = channel.countUnread();
 
           if (activeUnreadHandler) {
             activeUnreadHandler(unread, originalTitle.current);
@@ -341,15 +303,22 @@ const ChannelInner = (
       originalTitle.current = document.title;
 
       if (!errored) {
-        const ownReadState = client.userID
-          ? channel.state.read[client.userID]
-          : undefined;
-        const lastReadAtFromOwnReadState = ownReadState?.last_read
-          ? new Date(ownReadState.last_read)
-          : undefined;
+        // Re-derive the unread snapshot from the current read state on every (re)open. A cached
+        // channel is NOT re-queried on reopen, so the LLC's first-page-query auto-seed does not run
+        // and the separator/"N new" banner would otherwise show a stale boundary (or never clear).
+        // Marking the channel read on open is owned by `useMarkRead` (only when the message list is
+        // caught up at the bottom); this just seeds the boundary the separator/banner render from.
+        //
+        // Skip the re-seed when the channel is already flagged unread (`firstUnreadMessageId` set):
+        // `seedUnreadSnapshot` clears that flag, so re-seeding would silently undo a deliberate
+        // "mark as unread". A normally-read channel has no flag, so its boundary still refreshes.
+        if (
+          !channel.messagePaginator.unreadStateSnapshot.getLatestValue()
+            .firstUnreadMessageId
+        ) {
+          channel.messagePaginator.seedUnreadSnapshot();
+        }
 
-        if (channel.countUnread(lastReadAtFromOwnReadState) > 0 && markReadOnMount)
-          void markChannelRead({ updateChannelUiUnreadState: false });
         // The more complex sync logic is done in Chat
         client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
@@ -368,13 +337,7 @@ const ChannelInner = (
       client.off('user.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    channel.cid,
-    channelQueryOptions,
-    channelConfig?.read_events,
-    initializeOnMount,
-    markChannelRead,
-  ]);
+  }, [channel.cid, channelQueryOptions, channelConfig?.read_events, initializeOnMount]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;
