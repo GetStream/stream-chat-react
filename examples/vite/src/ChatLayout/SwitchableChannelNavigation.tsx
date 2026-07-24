@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type {
+  Channel,
   ChannelPaginator,
   ChannelPaginatorsOrchestratorState,
   ChannelPaginatorState,
+  PaginatorIntervalViews,
   SearchControllerState,
 } from 'stream-chat';
 import {
@@ -20,7 +22,6 @@ import {
   useComponentContext,
   useDialogIsOpen,
   useDialogOnNearestManager,
-  useSideloadedChannels,
   useStateStore,
 } from 'stream-chat-react';
 
@@ -158,15 +159,27 @@ const ChannelListSwitcher = ({
   );
 };
 
-// Channels sideloaded on the active paginator (surfaced via `orchestrator.sideloadChannel` — deep-link
-// restore, search, DM) render here in a section above the paginated list. `useSideloadedChannels`
-// resolves the sideloaded ids to entities and sorts them by the list's own sort.
+// Channels ingested into the active paginator out of pagination order (surfaced via
+// `orchestrator.ingestChannel` on a deep-link restore, search result, or new DM) land in one of the
+// paginator's logical intervals when their sort position falls outside the loaded pages: the logical
+// HEAD when newer than the loaded window, the logical TAIL when older (e.g. deep-linking a channel
+// far down the list). Neither shows in the paginated `ChannelList` (which follows the active
+// interval), so render both here, in a section above the list. `intervalViews` emits regardless of
+// which interval is active, and the selector below only wakes when logicalHead/logicalTail change
+// (not the `head` field), so this stays reactive even while the list shows a different window.
+const sideloadedSelector = (state: PaginatorIntervalViews<Channel>) => ({
+  head: state.logicalHead,
+  tail: state.logicalTail,
+});
 const SideloadedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
-  const sideloaded = useSideloadedChannels(paginator);
-  if (!sideloaded.length) return null;
+  const { head, tail } = useStateStore(paginator.intervalViews, sideloadedSelector);
+  // Head items sort newer than the loaded window, tail items older — concatenated they are all the
+  // out-of-order (sideloaded) channels, newest first.
+  const channels = [...head, ...tail];
+  if (!channels.length) return null;
   return (
     <div className='app-sideloaded-channels'>
-      {sideloaded.map((channel) => (
+      {channels.map((channel) => (
         <ChannelListItem channel={channel} key={channel.cid} />
       ))}
     </div>
@@ -216,9 +229,9 @@ export const SwitchableChannelNavigation = () => {
             onSelect={setActiveId}
             paginators={paginators}
           />
-          {/* Channels surfaced outside pagination (deep-link / search / DM) are sideloaded in a
-              separate per-paginator store and rendered here, above the paginated list —
-              for the active list only, so the sideloaded section tracks the visible paginator. */}
+          {/* Channels surfaced outside pagination (deep-link / search / DM) sit in the active
+              paginator's logical head/tail intervals and are rendered here, above the paginated
+              list — for the active list only, so the section tracks the visible paginator. */}
           <SideloadedChannels paginator={activePaginator} />
           <ChannelList key={activePaginator.id} paginator={activePaginator} />
         </ChannelListContextProvider>

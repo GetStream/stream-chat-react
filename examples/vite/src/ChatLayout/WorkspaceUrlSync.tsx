@@ -204,8 +204,8 @@ const resolveBinding = async (
       const channel = resolveChannel(client, token.key);
       if (!channel) return undefined;
       // A channel absent from every loaded page is an unwatched stub — its `state.members`,
-      // `membership`, mute status etc. aren't loaded yet. Ownership resolution (`sideloadChannel`
-      // → `matchesFilter`) reads exactly that state, so sideloading now would only match the
+      // `membership`, mute status etc. aren't loaded yet. Ownership resolution (`ingestChannel`
+      // → `matchesFilter`) reads exactly that state, so ingesting now would only match the
       // empty-filter fallback list (`channels:opened`), never `channels:default`. Watch first so
       // the channel is classified into its real owning list. Already-initialized channels
       // (paginator-first / warm Back-Forward) skip this — and this is the same single watch
@@ -357,13 +357,12 @@ export const WorkspaceUrlSync = () => {
         target.slots.map(async (entry) => {
           const base = await resolveBinding(client, entry.base);
           if (!base) return undefined;
-          if (base.channel) channelPaginatorsOrchestrator.sideloadChannel(base.channel);
+          if (base.channel) channelPaginatorsOrchestrator.ingestChannel(base.channel);
           const layers: ChatViewEntityBinding[] = [];
           for (const layerToken of entry.layers) {
             const layer = await resolveBinding(client, layerToken);
             if (!layer) continue;
-            if (layer.channel)
-              channelPaginatorsOrchestrator.sideloadChannel(layer.channel);
+            if (layer.channel) channelPaginatorsOrchestrator.ingestChannel(layer.channel);
             layers.push(layer.binding);
           }
           return { base: base.binding, layers, slot: entry.slot, view: entry.view };
