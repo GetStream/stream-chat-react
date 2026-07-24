@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   Channel,
   ChannelPaginator,
@@ -24,6 +24,8 @@ import {
   useDialogOnNearestManager,
   useStateStore,
 } from 'stream-chat-react';
+
+import { ScrollToActiveChannelButton } from './ScrollToActiveChannelButton';
 
 // Human-readable labels for each channel list, keyed by the paginator id set up in App.tsx.
 // The SDK doesn't name lists — an app that shows more than one decides how to label them, so
@@ -208,6 +210,9 @@ export const SwitchableChannelNavigation = () => {
   );
 
   const [activeId, setActiveId] = useState<string | undefined>(undefined);
+  // Wraps the paginated list so the floating "scroll to active channel" button can locate the scroll
+  // container and position itself over the list's centre line.
+  const scrollRegionRef = useRef<HTMLDivElement>(null);
 
   // Default to the first list; if the selected list disappears (or none is selected yet),
   // fall back to the first available paginator.
@@ -233,7 +238,10 @@ export const SwitchableChannelNavigation = () => {
               paginator's logical head/tail intervals and are rendered here, above the paginated
               list — for the active list only, so the section tracks the visible paginator. */}
           <SideloadedChannels paginator={activePaginator} />
-          <ChannelList key={activePaginator.id} paginator={activePaginator} />
+          <div className='app-channel-list-scroll-region' ref={scrollRegionRef}>
+            <ChannelList key={activePaginator.id} paginator={activePaginator} />
+            <ScrollToActiveChannelButton regionRef={scrollRegionRef} />
+          </div>
         </ChannelListContextProvider>
       )}
       <NotificationList panel='channel-list' />

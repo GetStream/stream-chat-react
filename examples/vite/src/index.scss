@@ -352,6 +352,40 @@ body {
     width: var(--app-channel-list-switcher-menu-width);
   }
 
+  /* Wraps the paginated list. It fills the remaining column height (so the inner scroll container
+     stays bounded and scrollable) and is the positioning context for the floating button below. */
+  .app-channel-list-scroll-region {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    position: relative;
+  }
+
+  /* Floating "scroll to active channel" button, centred over the list. The wrapper ignores pointer
+     events so it never blocks the list beneath it; only the button itself is interactive. */
+  .app-scroll-to-active-channel {
+    position: absolute;
+    inset-inline-start: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    pointer-events: none;
+
+    &.app-scroll-to-active-channel--up {
+      inset-block-start: 5%;
+    }
+
+    &.app-scroll-to-active-channel--down {
+      inset-block-end: 0%;
+    }
+
+    .str-chat__button {
+      pointer-events: auto;
+      background: var(--str-chat__background-core-elevation-1);
+      box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
+    }
+  }
+
   @media (max-width: 767px) {
     .app-chat-resize-handle {
       display: none;
