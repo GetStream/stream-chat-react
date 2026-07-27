@@ -1,9 +1,14 @@
 import { type SearchSourceState, type UserResponse, UserSearchSource } from 'stream-chat';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { useChatContext, useTranslationContext } from '../../../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../../../context';
 import { useStateStore } from '../../../../store';
-import { Avatar } from '../../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { Checkbox } from '../../../../components/Form';
 import { IconMute } from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
@@ -57,21 +62,18 @@ const ChannelMembersAddViewItem = ({
   user: UserResponse;
 }) => {
   const { t } = useTranslationContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const displayName = getUserDisplayName(user);
 
   const LeadingSlot = useMemo(
     () =>
       function MemberAvatar() {
-        return (
-          <Avatar
-            imageUrl={user.image}
-            isOnline={user.online}
-            size='md'
-            userName={displayName}
-          />
-        );
+        const displayInfo = extractDisplayInfo({ user });
+
+        return <Avatar {...displayInfo} isOnline={user.online} size='md' />;
       },
-    [displayName, user.image, user.online],
+    [Avatar, extractDisplayInfo, user],
   );
 
   const SelectableTrailingSlot = useMemo(

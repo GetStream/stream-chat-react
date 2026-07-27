@@ -16,7 +16,7 @@
     "modern-normalize": "^3.0.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "stream-chat": "^9.49.0",
+    "stream-chat": "^9.50.2",
     "stream-chat-react": "workspace:^"
   },
   "devDependencies": {

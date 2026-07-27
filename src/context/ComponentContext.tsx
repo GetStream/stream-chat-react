@@ -1,5 +1,6 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
+import type { UserResponse } from 'stream-chat';
 
 import {
   type AttachmentPreviewListProps,
@@ -103,6 +104,9 @@ export type ComponentContextValue = {
   AutocompleteSuggestionItem?: React.ComponentType<SuggestionItemProps>;
   /** Optional UI component to override the default List component that displays suggestions, defaults to and accepts same props as: [List](https://github.com/GetStream/stream-chat-react/blob/master/src/components/AutoCompleteTextarea/List.js) */
   AutocompleteSuggestionList?: React.ComponentType<SuggestionListProps>;
+  extractDisplayInfo?: (_: {
+    user?: Partial<UserResponse>;
+  }) => NonNullable<AvatarStackProps['displayInfo']>[number];
   /** UI component to display a user's avatar, defaults to and accepts same props as: [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
   /** UI component to display a list of avatars stacked in a row, defaults to and accepts same props as: [AvatarStack](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/AvatarStack.tsx) */

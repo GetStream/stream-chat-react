@@ -12,7 +12,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { Avatar, type AvatarProps } from '../../Avatar';
+import { type AvatarProps, Avatar as DefaultAvatar } from '../../Avatar';
 import { IconChevronLeft, IconChevronRight } from '../../Icons';
 import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
@@ -141,23 +141,26 @@ export const UserContextMenuButton = ({
   role = 'menuitem',
   userName,
   ...props
-}: UserContextMenuButtonProps) => (
-  <button
-    {...props}
-    className={clsx(
-      'str-chat__context-menu__button str-chat__user-context-menu__button',
-      className,
-    )}
-    role={role}
-    type='button'
-  >
-    {/* The avatar is decorative here: the button already carries the user's name as its
-        label, so exposing the avatar (its fallback initials, title, and role="button")
-        to assistive tech only adds noise to the option's accessible name. */}
-    <Avatar aria-hidden imageUrl={imageUrl} size='sm' userName={userName} />
-    <div className='str-chat__context-menu__button__label'>{children ?? userName}</div>
-  </button>
-);
+}: UserContextMenuButtonProps) => {
+  const { Avatar = DefaultAvatar } = useComponentContext();
+  return (
+    <button
+      {...props}
+      className={clsx(
+        'str-chat__context-menu__button str-chat__user-context-menu__button',
+        className,
+      )}
+      role={role}
+      type='button'
+    >
+      {/* The avatar is decorative here: the button already carries the user's name as its
+          label, so exposing the avatar (its fallback initials, title, and role="button")
+          to assistive tech only adds noise to the option's accessible name. */}
+      <Avatar aria-hidden imageUrl={imageUrl} size='sm' userName={userName} />
+      <div className='str-chat__context-menu__button__label'>{children ?? userName}</div>
+    </button>
+  );
+};
 
 export type EmojiContextMenuButtonProps = { emoji: string } & Pick<
   BaseContextMenuButtonProps,

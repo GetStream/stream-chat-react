@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import {
   useChannelStateContext,
   useComponentContext,
@@ -63,7 +64,10 @@ export const PollOptionSelector = ({
   const { t } = useTranslationContext();
   const { channelCapabilities = {} } = useChannelStateContext('PollOptionsShortlist');
   const { message } = useMessageContext();
-  const { AvatarStack = DefaultAvatarStack } = useComponentContext();
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext();
   const { poll } = usePollContext();
   const {
     is_closed,
@@ -99,12 +103,8 @@ export const PollOptionSelector = ({
       (latest_votes_by_option[option.id] as PollVote[])
         .filter((vote) => !!vote.user && !isVoteAnswer(vote))
         .slice(0, displayAvatarCount)
-        .map(({ user }) => ({
-          id: user!.id, // eslint-disable-line @typescript-eslint/no-non-null-assertion
-          imageUrl: user!.image, // eslint-disable-line @typescript-eslint/no-non-null-assertion
-          userName: user!.name, // eslint-disable-line @typescript-eslint/no-non-null-assertion
-        })),
-    [displayAvatarCount, latest_votes_by_option, option.id],
+        .map(extractDisplayInfo),
+    [displayAvatarCount, extractDisplayInfo, latest_votes_by_option, option.id],
   );
 
   return (

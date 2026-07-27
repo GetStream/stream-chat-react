@@ -343,7 +343,6 @@ export const AttachmentSelector = ({
   const { t } = useTranslationContext();
   const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
     useComponentContext();
-  const { channelCapabilities } = useChannelStateContext();
   const messageComposer = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const { command } = useStateStore(
@@ -434,7 +433,7 @@ export const AttachmentSelector = ({
   return (
     <AttachmentSelectorContextProvider value={{ fileInput }}>
       <div className='str-chat__attachment-selector' {...inertProps}>
-        {channelCapabilities['upload-file'] && <UploadFileInput ref={setFileInput} />}
+        <UploadFileInput ref={setFileInput} />
         <AttachmentSelectorButton
           {...buttonProps}
           aria-expanded={menuDialogIsOpen}

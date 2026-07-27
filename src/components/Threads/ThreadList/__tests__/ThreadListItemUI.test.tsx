@@ -22,6 +22,7 @@ const mockUseChannelPreviewInfo = vi.fn();
 
 vi.mock('../../../../context', () => ({
   useChatContext: () => mockUseChatContext(),
+  useComponentContext: () => ({}),
   useTranslationContext: () => mockUseTranslationContext(),
 }));
 

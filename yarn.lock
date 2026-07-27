@@ -2079,7 +2079,7 @@ __metadata:
     emoji-mart: "npm:^5.6.0"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
-    stream-chat: "npm:^9.49.0"
+    stream-chat: "npm:^9.50.2"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -2105,7 +2105,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:^9.49.0"
+    stream-chat: "npm:^9.50.2"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -10106,7 +10106,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
-    stream-chat: "npm:^9.49.0"
+    stream-chat: "npm:^9.50.2"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
     unified: "npm:^11.0.5"
@@ -10124,7 +10124,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: ^9.49.0
+    stream-chat: ^9.50.2
   dependenciesMeta:
     "@parcel/watcher":
       built: true
@@ -10150,9 +10150,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"stream-chat@npm:^9.49.0":
-  version: 9.49.0
-  resolution: "stream-chat@npm:9.49.0"
+"stream-chat@npm:^9.50.2":
+  version: 9.50.2
+  resolution: "stream-chat@npm:9.50.2"
   dependencies:
     "@types/jsonwebtoken": "npm:^9.0.8"
     "@types/ws": "npm:^8.18.1"
@@ -10168,7 +10168,7 @@ __metadata:
       built: true
     husky:
       built: true
-  checksum: 10c0/2fceb2434d69523b09b9c6419ab46f2c181aa2ef0b269ed388ce53254f8a4c618eb14ead46d2ae5245c2070c33ab35d33ac1c3671610774503da8a160d71e985
+  checksum: 10c0/5ddd07124f74538f8fc3f9b875e928e60b854d8c85736d0af0692e7fbae58d27f6d1683f36c274b2ff7c78ad5980e28d3bf050f482e670d7fbf3886e01bcca4d
   languageName: node
   linkType: hard
 

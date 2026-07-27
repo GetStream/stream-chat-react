@@ -14,4 +14,5 @@ export * from './ModalContext';
 export * from './PollContext';
 export * from './TranslationContext';
 export * from './TypingContext';
+export * from './VirtualizedMessageListContext';
 export * from './WithComponents';

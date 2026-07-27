@@ -51,6 +51,7 @@ import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { MessageBubble } from './MessageBubble';
 import { ErrorBadge } from '../Badge';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 type MessageUIWithContextProps = MessageContextValue;
 
@@ -79,6 +80,7 @@ const MessageUIWithContext = ({
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
+    extractDisplayInfo = defaultExtractDisplayInfo,
     MessageActions = DefaultMessageActions,
     MessageAlsoSentInChannelIndicator = DefaultMessageAlsoSentInChannelIndicator,
     MessageBlocked = DefaultMessageBlocked,
@@ -210,12 +212,11 @@ const MessageUIWithContext = ({
         <MessageTranslationIndicator message={message} />
         {message.user && (
           <Avatar
+            {...extractDisplayInfo({ user: message.user ?? undefined })}
             className='str-chat__avatar--with-border'
-            imageUrl={message.user.image}
             onClick={onUserClick}
             onMouseOver={onUserHover}
             size='md'
-            userName={message.user.name || message.user.id}
           />
         )}
         <div
