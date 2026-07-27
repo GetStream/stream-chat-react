@@ -6,22 +6,7 @@ import {
   useLatestMessagePreview,
   type UseLatestMessagePreviewParams,
 } from './hooks/useLatestMessagePreview';
-import { useComponentContext } from '../../context';
-import {
-  IconCamera as DefaultIconCamera,
-  IconCheckmark1Small as DefaultIconCheckmark1Small,
-  IconChecks as DefaultIconChecks,
-  IconClock as DefaultIconClock,
-  IconExclamationCircleFill as DefaultIconExclamationCircleFill,
-  IconFile as DefaultIconFile,
-  IconGiphy as DefaultIconGiphy,
-  IconLink as DefaultIconLink,
-  IconLocation as DefaultIconLocation,
-  IconNoSign as DefaultIconNoSign,
-  IconUnsupportedAttachment as DefaultIconUnsupportedAttachment,
-  IconVideo as DefaultIconVideo,
-  IconVoice as DefaultIconVoice,
-} from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export const SummarizedMessagePreview = ({
   latestMessage,
@@ -29,22 +14,20 @@ export const SummarizedMessagePreview = ({
   participantCount,
 }: UseLatestMessagePreviewParams) => {
   const {
-    icons: {
-      IconCamera = DefaultIconCamera,
-      IconCheckmark1Small = DefaultIconCheckmark1Small,
-      IconChecks = DefaultIconChecks,
-      IconClock = DefaultIconClock,
-      IconExclamationCircleFill = DefaultIconExclamationCircleFill,
-      IconFile = DefaultIconFile,
-      IconGiphy = DefaultIconGiphy,
-      IconLink = DefaultIconLink,
-      IconLocation = DefaultIconLocation,
-      IconNoSign = DefaultIconNoSign,
-      IconUnsupportedAttachment = DefaultIconUnsupportedAttachment,
-      IconVideo = DefaultIconVideo,
-      IconVoice = DefaultIconVoice,
-    } = {},
-  } = useComponentContext();
+    IconCamera,
+    IconCheckmark1Small,
+    IconChecks,
+    IconClock,
+    IconExclamationCircleFill,
+    IconFile,
+    IconGiphy,
+    IconLink,
+    IconLocation,
+    IconNoSign,
+    IconUnsupportedAttachment,
+    IconVideo,
+    IconVoice,
+  } = useComponentContextIcons();
 
   const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> =
     {

@@ -1,12 +1,7 @@
 import { CheckSignIcon } from '../../MessageComposer/icons';
-import {
-  IconDelete as DefaultIconDelete,
-  IconPauseFill as DefaultIconPauseFill,
-  IconVoice as DefaultIconVoice,
-} from '../../Icons';
 import React from 'react';
 import {
-  useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../../context';
@@ -16,9 +11,7 @@ import { useNotificationApi } from '../../Notifications';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 
 const ToggleRecordingButton = () => {
-  const {
-    icons: { IconPauseFill = DefaultIconPauseFill, IconVoice = DefaultIconVoice } = {},
-  } = useComponentContext();
+  const { IconPauseFill, IconVoice } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const {
     recordingController: { recorder, recordingState },
@@ -42,7 +35,7 @@ const ToggleRecordingButton = () => {
 };
 
 export const AudioRecorderRecordingControls = () => {
-  const { icons: { IconDelete = DefaultIconDelete } = {} } = useComponentContext();
+  const { IconDelete } = useComponentContextIcons();
 
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();

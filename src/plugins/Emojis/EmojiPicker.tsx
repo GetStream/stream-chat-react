@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import PickerImport from '@emoji-mart/react';
 
 import {
-  useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../context';
 import {
   Button,
-  IconEmoji as DefaultIconEmoji,
   type PopperLikePlacement,
   useMessageComposerController,
 } from '../../components';
@@ -80,7 +79,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { icons: { IconEmoji = DefaultIconEmoji } = {} } = useComponentContext();
+  const { IconEmoji } = useComponentContextIcons();
   const ResolvedButtonIconComponent = props.ButtonIconComponent ?? IconEmoji;
 
   const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;

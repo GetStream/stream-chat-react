@@ -1,8 +1,7 @@
-import { IconPin as DefaultIconPin } from '../../../../components/Icons';
-import { useComponentContext, useTranslationContext } from '../../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 
 export const PinnedMessagesEmptyList = () => {
-  const { icons: { IconPin = DefaultIconPin } = {} } = useComponentContext();
+  const { IconPin } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
 

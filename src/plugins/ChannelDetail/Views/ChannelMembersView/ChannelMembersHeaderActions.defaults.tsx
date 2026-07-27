@@ -1,7 +1,11 @@
 import type { Channel } from 'stream-chat';
 import React, { useMemo, useState } from 'react';
 
-import { useComponentContext, useTranslationContext } from '../../../../context';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../../../context';
 import { Button } from '../../../../components/Button';
 import {
   ContextMenu,
@@ -15,7 +19,6 @@ import type {
   ChannelMembersHeaderActionsProps,
   ChannelMembersModeController,
 } from './ChannelMembersView';
-import { IconUserAdd as DefaultIconUserAdd } from '../../../../components/Icons';
 
 export type ChannelMembersHeaderActionType = 'addMembers' | (string & {});
 
@@ -91,7 +94,7 @@ const AddMembersMenuAction = ({
   modeController,
 }: ChannelMembersHeaderActionComponentProps) => {
   const { t } = useTranslationContext();
-  const { icons: { IconUserAdd = DefaultIconUserAdd } = {} } = useComponentContext();
+  const { IconUserAdd } = useComponentContextIcons();
 
   if (modeController.mode !== 'browse') return null;
 

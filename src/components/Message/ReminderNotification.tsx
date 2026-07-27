@@ -1,11 +1,7 @@
 import React from 'react';
-import { useComponentContext, useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
-import {
-  IconBell as DefaultIconBell,
-  IconBookmark as DefaultIconBookmark,
-} from '../Icons';
 
 export type ReminderNotificationProps = {
   reminder?: Reminder;
@@ -16,7 +12,7 @@ const reminderStateSelector = (state: ReminderState) => ({
 });
 
 function SavedForLaterContent() {
-  const { icons: { IconBookmark = DefaultIconBookmark } = {} } = useComponentContext();
+  const { IconBookmark } = useComponentContextIcons();
   const { t } = useTranslationContext();
   return (
     <div className='str-chat__message-saved-for-later'>
@@ -29,7 +25,7 @@ function SavedForLaterContent() {
 const THRESHOLD_RELATIVE_MINUTES = 59;
 
 function RemindMeContent({ reminder }: { reminder: Reminder }) {
-  const { icons: { IconBell = DefaultIconBell } = {} } = useComponentContext();
+  const { IconBell } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 

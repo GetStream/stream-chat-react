@@ -23,11 +23,15 @@ vi.mock('../../../Dialog', async (importOriginal) => ({
   useContextMenuContext: () => ({ closeMenu, returnToParentMenu }),
 }));
 
-vi.mock('../../../../context', () => ({
-  useComponentContext: () => ({}),
-  useMessageComposerContext: () => ({ textareaRef: { current: null } }),
-  useTranslationContext: () => ({ t }),
-}));
+vi.mock('../../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../../context')>();
+  return {
+    useComponentContext: () => ({}),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useMessageComposerContext: () => ({ textareaRef: { current: null } }),
+    useTranslationContext: () => ({ t }),
+  };
+});
 
 vi.mock('../../hooks', () => ({
   useMessageComposerCommands: () => commandsMock.value,

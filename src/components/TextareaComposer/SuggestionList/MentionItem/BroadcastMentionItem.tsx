@@ -1,9 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 import type { ChannelMentionSuggestion, HereMentionSuggestion } from 'stream-chat';
-import { IconMegaphone as DefaultIconMegaphone } from '../../../Icons';
 import { ListItemLayout } from '../../../ListItemLayout';
-import { useComponentContext, useTranslationContext } from '../../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 import { MentionSuggestionTitle } from './MentionSuggestionTitle';
 import type { MentionItemComponentProps } from './types';
 
@@ -16,7 +15,7 @@ export const BroadcastMentionItem = ({
   focused,
   ...buttonProps
 }: BroadcastMentionItemProps) => {
-  const { icons: { IconMegaphone = DefaultIconMegaphone } = {} } = useComponentContext();
+  const { IconMegaphone } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   const description =

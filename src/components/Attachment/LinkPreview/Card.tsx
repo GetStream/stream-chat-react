@@ -2,12 +2,11 @@ import React from 'react';
 import { BaseImage } from '../../BaseImage';
 import { SafeAnchor } from '../../SafeAnchor';
 import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useComponentContext } from '../../../context';
+import { useComponentContextIcons } from '../../../context';
 
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from '../utils';
 import type { Dimensions } from '../../../types/types';
-import { IconLink as DefaultIconLink } from '../../Icons';
 import { UnableToRenderCard } from './UnableToRenderCard';
 import clsx from 'clsx';
 
@@ -65,7 +64,7 @@ type CardContentProps = RenderAttachmentProps['attachment'];
 const CardContent = (props: CardContentProps) => {
   const { og_scrape_url, text, title, title_link } = props;
   const url = title_link || og_scrape_url;
-  const { icons: { IconLink = DefaultIconLink } = {} } = useComponentContext();
+  const { IconLink } = useComponentContextIcons();
 
   return (
     <div className='str-chat__message-attachment-card--content'>

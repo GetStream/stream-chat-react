@@ -1,6 +1,5 @@
 import { Button } from '../Button';
-import { useComponentContext } from '../../context';
-import { IconXmark as DefaultIconXmark } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
 
@@ -10,7 +9,7 @@ export const CloseButtonOnModalOverlay = ({
   className,
   ...props
 }: ComponentProps<'button'>) => {
-  const { icons: { IconXmark = DefaultIconXmark } = {} } = useComponentContext();
+  const { IconXmark } = useComponentContextIcons();
   return (
     <Button
       appearance='ghost'

@@ -13,20 +13,24 @@ vi.mock('../hooks', () => ({
   }),
 }));
 
-vi.mock('../../../context', () => ({
-  useComponentContext: () => ({}),
-  useMessageComposerContext: () => ({
-    textareaRef: {
-      current: {
-        focus: focusMock,
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useComponentContext: () => ({}),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useMessageComposerContext: () => ({
+      textareaRef: {
+        current: {
+          focus: focusMock,
+        },
       },
-    },
-  }),
-  useTranslationContext: () => ({
-    t: (key: string, options?: { command?: string }) =>
-      key.replace('{{ command }}', options?.command ?? ''),
-  }),
-}));
+    }),
+    useTranslationContext: () => ({
+      t: (key: string, options?: { command?: string }) =>
+        key.replace('{{ command }}', options?.command ?? ''),
+    }),
+  };
+});
 
 describe('CommandChip', () => {
   beforeEach(() => {

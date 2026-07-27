@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
@@ -16,12 +17,6 @@ import {
 } from '../../../../components/BaseImage';
 import { Prompt } from '../../../../components/Dialog';
 import { Gallery as DefaultGallery, GalleryUI } from '../../../../components/Gallery';
-import {
-  IconChevronLeft as DefaultIconChevronLeft,
-  IconChevronRight as DefaultIconChevronRight,
-  IconImage as DefaultIconImage,
-  IconVideoFill as DefaultIconVideoFill,
-} from '../../../../components/Icons';
 import { GlobalModal } from '../../../../components/Modal';
 import {
   SectionNavigatorHeader,
@@ -52,11 +47,9 @@ const ChannelMediaGridItem = ({
   onClick,
 }: ChannelMediaGridItemProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
-  const {
-    Avatar = DefaultAvatar,
-    extractDisplayInfo = defaultExtractDisplayInfo,
-    icons: { IconImage = DefaultIconImage, IconVideoFill = DefaultIconVideoFill } = {},
-  } = useComponentContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
+  const { IconImage, IconVideoFill } = useComponentContextIcons();
   const displayName = getUserDisplayName(item.user);
   const mediaSrc =
     item.type === 'video'
@@ -123,12 +116,7 @@ const ChannelMediaPagination = ({
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
-  const {
-    icons: {
-      IconChevronLeft = DefaultIconChevronLeft,
-      IconChevronRight = DefaultIconChevronRight,
-    } = {},
-  } = useComponentContext();
+  const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
 
   return (
     <div className='str-chat__channel-detail__media-view__pagination'>

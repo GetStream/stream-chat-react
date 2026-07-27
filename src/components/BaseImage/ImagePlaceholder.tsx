@@ -1,15 +1,14 @@
 import React from 'react';
 import clsx from 'clsx';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useComponentContext } from '../../context';
-import { IconImage as DefaultIconImage } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type ImagePlaceholderProps = {
   className?: string;
 };
 
 export const ImagePlaceholder = ({ className }: ImagePlaceholderProps) => {
-  const { icons: { IconImage = DefaultIconImage } = {} } = useComponentContext();
+  const { IconImage } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   return (

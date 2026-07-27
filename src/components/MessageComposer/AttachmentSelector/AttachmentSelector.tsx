@@ -30,6 +30,7 @@ import { UploadFileInput } from '../../ReactFileUtilities';
 import {
   useChannelStateContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../../context';
 import {
@@ -42,13 +43,6 @@ import { useStateStore } from '../../../store';
 import type { TextComposerState } from 'stream-chat';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import {
-  IconAttachment as DefaultIconAttachment,
-  IconCommand as DefaultIconCommand,
-  IconLocation as DefaultIconLocation,
-  IconPlus as DefaultIconPlus,
-  IconPoll as DefaultIconPoll,
-} from '../../Icons';
 import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
 import {
   CommandsMenu,
@@ -59,7 +53,7 @@ import {
 const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
 
 const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
-  const { icons: { IconPlus = DefaultIconPlus } = {} } = useComponentContext();
+  const { IconPlus } = useComponentContextIcons();
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
 
   if (AttachmentSelectorInitiationButtonContents) {
@@ -170,7 +164,7 @@ export type AttachmentSelectorActionProps = {
 export const DefaultAttachmentSelectorComponents = {
   Command({ submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
-    const { icons: { IconCommand = DefaultIconCommand } = {} } = useComponentContext();
+    const { IconCommand } = useComponentContextIcons();
     const { openSubmenu } = useContextMenuContext();
     const commands = useMessageComposerCommands();
     const hasEnabledCommands = commands.some(({ enabled }) => enabled);
@@ -197,8 +191,7 @@ export const DefaultAttachmentSelectorComponents = {
     );
   },
   File() {
-    const { icons: { IconAttachment = DefaultIconAttachment } = {} } =
-      useComponentContext();
+    const { IconAttachment } = useComponentContextIcons();
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
     const { closeMenu } = useContextMenuContext();
@@ -218,7 +211,7 @@ export const DefaultAttachmentSelectorComponents = {
   },
   Location({ openModalForAction }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
-    const { icons: { IconLocation = DefaultIconLocation } = {} } = useComponentContext();
+    const { IconLocation } = useComponentContextIcons();
     const { closeMenu } = useContextMenuContext();
     return (
       <ContextMenuButton
@@ -235,7 +228,7 @@ export const DefaultAttachmentSelectorComponents = {
   },
   Poll({ openModalForAction }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
-    const { icons: { IconPoll = DefaultIconPoll } = {} } = useComponentContext();
+    const { IconPoll } = useComponentContextIcons();
     const { closeMenu } = useContextMenuContext();
     return (
       <ContextMenuButton

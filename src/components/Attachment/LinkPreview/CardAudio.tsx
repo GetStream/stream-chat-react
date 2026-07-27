@@ -1,10 +1,9 @@
 import { type AudioPlayerState, ProgressBar, useAudioPlayer } from '../../AudioPlayback';
-import { useComponentContext, useMessageContext } from '../../../context';
+import { useComponentContextIcons, useMessageContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { PlayButton } from '../../Button';
 import type { AudioProps } from '../Audio';
 import React from 'react';
-import { IconLink as DefaultIconLink } from '../../Icons';
 import { SafeAnchor } from '../../SafeAnchor';
 import type { CardProps } from './Card';
 
@@ -22,7 +21,7 @@ const SourceLink = ({
   showUrl,
   url,
 }: Pick<CardProps, 'author_name'> & { url: string; showUrl?: boolean }) => {
-  const { icons: { IconLink = DefaultIconLink } = {} } = useComponentContext();
+  const { IconLink } = useComponentContextIcons();
   return (
     <div
       className='str-chat__message-attachment-card--source-link'

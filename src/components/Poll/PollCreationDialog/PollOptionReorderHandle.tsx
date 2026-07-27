@@ -2,9 +2,8 @@ import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
 import React, { useEffect, useRef } from 'react';
 import type { PollComposerOption } from 'stream-chat';
 
-import { IconReorder as DefaultIconReorder } from '../../Icons';
 import { useAriaLiveAnnouncer } from '../../Accessibility';
-import { useComponentContext, useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 
 type PollOptionReorderHandleProps = {
   index: number;
@@ -30,7 +29,7 @@ export const PollOptionReorderHandle = ({
   registerRef,
   totalOptionCount,
 }: PollOptionReorderHandleProps) => {
-  const { icons: { IconReorder = DefaultIconReorder } = {} } = useComponentContext();
+  const { IconReorder } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   const announce = useAriaLiveAnnouncer();

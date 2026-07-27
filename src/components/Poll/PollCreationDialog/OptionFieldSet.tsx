@@ -1,11 +1,10 @@
 import clsx from 'clsx';
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { TextInput } from '../../Form/TextInput';
-import { useComponentContext, useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
 import type { PollComposerOption, PollComposerState } from 'stream-chat';
-import { IconMinusCircle as DefaultIconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
 import { VisuallyHidden } from '../../VisuallyHidden';
@@ -282,8 +281,7 @@ export const OptionFieldSet = () => {
 };
 
 const RemoveOptionButton = ({ className, ...props }: ButtonProps) => {
-  const { icons: { IconMinusCircle = DefaultIconMinusCircle } = {} } =
-    useComponentContext();
+  const { IconMinusCircle } = useComponentContextIcons();
   return (
     <Button
       appearance='ghost'

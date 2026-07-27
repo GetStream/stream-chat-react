@@ -5,6 +5,7 @@ import type { Channel } from 'stream-chat';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
@@ -14,13 +15,6 @@ import { useStateStore } from '../../../../store';
 import { Alert } from '../../../../components/Dialog';
 import { Button } from '../../../../components/Button';
 import { Switch } from '../../../../components/Form';
-import {
-  IconAudio as DefaultIconAudio,
-  IconDelete as DefaultIconDelete,
-  IconLeave as DefaultIconLeave,
-  IconMute as DefaultIconMute,
-  IconNoSign as DefaultIconNoSign,
-} from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { GlobalModal } from '../../../../components/Modal';
 import { useNotificationApi } from '../../../../components/Notifications';
@@ -46,31 +40,31 @@ const toError = (error: unknown) =>
 const getDisplayName = (name?: string, fallback?: string) => name || fallback || '';
 
 const BlockUserActionIcon = () => {
-  const { icons: { IconNoSign = DefaultIconNoSign } = {} } = useComponentContext();
+  const { IconNoSign } = useComponentContextIcons();
   return (
     <IconNoSign className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--block-user' />
   );
 };
 const DeleteChatActionIcon = () => {
-  const { icons: { IconDelete = DefaultIconDelete } = {} } = useComponentContext();
+  const { IconDelete } = useComponentContextIcons();
   return (
     <IconDelete className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--delete-chat' />
   );
 };
 const MuteActionIcon = () => {
-  const { icons: { IconMute = DefaultIconMute } = {} } = useComponentContext();
+  const { IconMute } = useComponentContextIcons();
   return (
     <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
   );
 };
 const MutedActionIcon = () => {
-  const { icons: { IconAudio = DefaultIconAudio } = {} } = useComponentContext();
+  const { IconAudio } = useComponentContextIcons();
   return (
     <IconAudio className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--unmute' />
   );
 };
 const LeaveChannelActionIcon = () => {
-  const { icons: { IconLeave = DefaultIconLeave } = {} } = useComponentContext();
+  const { IconLeave } = useComponentContextIcons();
   return (
     <IconLeave className='str-chat__icon--destructive str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--leave-channel' />
   );

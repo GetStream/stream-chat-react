@@ -94,27 +94,31 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('../../../context', () => ({
-  useChatContext: () => ({
-    client: mocks.client,
-    mutes: mocks.mutes,
-  }),
-  useComponentContext: () => ({
-    Modal: ({
-      children,
-      open,
-      role,
-    }: {
-      children: React.ReactNode;
-      open: boolean;
-      role?: string;
-    }) => (open ? <div role={role}>{children}</div> : null),
-  }),
-  useModalContext: () => ({ close: mocks.close }),
-  useTranslationContext: () => ({
-    t: mocks.useStableTranslationFunction ? mocks.t : (key: string) => mocks.t(key),
-  }),
-}));
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useChatContext: () => ({
+      client: mocks.client,
+      mutes: mocks.mutes,
+    }),
+    useComponentContext: () => ({
+      Modal: ({
+        children,
+        open,
+        role,
+      }: {
+        children: React.ReactNode;
+        open: boolean;
+        role?: string;
+      }) => (open ? <div role={role}>{children}</div> : null),
+    }),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useModalContext: () => ({ close: mocks.close }),
+    useTranslationContext: () => ({
+      t: mocks.useStableTranslationFunction ? mocks.t : (key: string) => mocks.t(key),
+    }),
+  };
+});
 
 vi.mock('../../../components/Notifications', () => ({
   useNotificationApi: () => ({

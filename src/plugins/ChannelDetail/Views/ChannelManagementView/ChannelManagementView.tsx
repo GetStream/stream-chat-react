@@ -10,6 +10,7 @@ import React, {
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
@@ -23,11 +24,6 @@ import {
   useChannelPreviewInfo,
   useIsUserMuted,
 } from '../../../../components/ChannelListItem';
-import {
-  IconCheckmark as DefaultIconCheckmark,
-  IconMute as DefaultIconMute,
-  IconPin as DefaultIconPin,
-} from '../../../../components/Icons';
 import { useChannelMembershipState } from '../../../../components/ChannelList';
 import { useIsChannelMuted } from '../../../../components/ChannelListItem/hooks/useIsChannelMuted';
 import { useChannelHasMembersOnline } from '../../../../components/ChannelHeader/hooks/useChannelHasMembersOnline';
@@ -59,8 +55,7 @@ export type ChannelManagementInfoBodyProps = {
 export const ChannelManagementInfoBody = ({
   actions,
 }: ChannelManagementInfoBodyProps) => {
-  const { icons: { IconMute = DefaultIconMute, IconPin = DefaultIconPin } = {} } =
-    useComponentContext();
+  const { IconMute, IconPin } = useComponentContextIcons();
 
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
@@ -320,7 +315,7 @@ const useChannelManagementEditForm = ({
 };
 
 export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps) => {
-  const { icons: { IconCheckmark = DefaultIconCheckmark } = {} } = useComponentContext();
+  const { IconCheckmark } = useComponentContextIcons();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
   const {
     canSubmit,

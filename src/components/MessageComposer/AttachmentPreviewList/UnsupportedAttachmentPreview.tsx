@@ -1,7 +1,6 @@
 import React from 'react';
 import type { AnyLocalAttachment, LocalUploadAttachment } from 'stream-chat';
-import { IconUnsupportedAttachment as DefaultIconUnsupportedAttachment } from '../../Icons';
-import { useComponentContext, useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 
 export type UnsupportedAttachmentPreviewProps<
@@ -18,8 +17,7 @@ export const UnsupportedAttachmentPreview = ({
   attachment,
   removeAttachments,
 }: UnsupportedAttachmentPreviewProps) => {
-  const { icons: { IconUnsupportedAttachment = DefaultIconUnsupportedAttachment } = {} } =
-    useComponentContext();
+  const { IconUnsupportedAttachment } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   const { id } = attachment.localMetadata ?? {};

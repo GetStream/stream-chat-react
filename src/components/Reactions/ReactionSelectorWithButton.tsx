@@ -4,13 +4,13 @@ import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector'
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import {
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 
 import type { IconProps } from '../../types/types';
 import { QuickMessageActionsButton } from '../MessageActions';
-import { IconEmoji as DefaultIconEmoji } from '../Icons';
 
 type ReactionSelectorWithButtonProps = {
   /**
@@ -30,10 +30,8 @@ export const ReactionSelectorWithButton = ({
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
   const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
-  const {
-    icons: { IconEmoji = DefaultIconEmoji } = {},
-    ReactionSelector = DefaultReactionSelector,
-  } = useComponentContext();
+  const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
+  const { IconEmoji } = useComponentContextIcons();
   const ResolvedReactionIcon = ReactionIcon ?? IconEmoji;
   const buttonRef = useRef<ComponentRef<'button'>>(null);
   const dialogId = DefaultReactionSelector.getDialogId({

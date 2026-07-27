@@ -2,30 +2,6 @@
 import React, { forwardRef, useState } from 'react';
 
 import { GlobalModal } from '../Modal';
-import {
-  IconAudio as DefaultIconAudio,
-  IconBell as DefaultIconBell,
-  IconBellOff as DefaultIconBellOff,
-  IconBookmark as DefaultIconBookmark,
-  IconBookmarkRemove as DefaultIconBookmarkRemove,
-  IconCopy as DefaultIconCopy,
-  IconDelete as DefaultIconDelete,
-  IconDownload as DefaultIconDownload,
-  IconEdit as DefaultIconEdit,
-  IconEmoji as DefaultIconEmoji,
-  IconFlag as DefaultIconFlag,
-  IconMore as DefaultIconMore,
-  IconMute as DefaultIconMute,
-  IconNoSign as DefaultIconNoSign,
-  IconNotification as DefaultIconNotification,
-  IconPin as DefaultIconPin,
-  IconQuote as DefaultIconQuote,
-  IconReply as DefaultIconReply,
-  IconRetry as DefaultIconRetry,
-  IconThread as DefaultIconThread,
-  IconUnpin as DefaultIconUnpin,
-  IconUserCheck as DefaultIconUserCheck,
-} from '../Icons';
 import { isMessageDeleted, isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { savePreEditSnapshot } from '../MessageComposer/preEditSnapshot';
@@ -36,6 +12,7 @@ import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithBut
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -91,7 +68,7 @@ const DefaultMessageActionComponents = {
       });
       const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
-      const { icons: { IconEmoji = DefaultIconEmoji } = {} } = useComponentContext();
+      const { IconEmoji } = useComponentContextIcons();
       return (
         <>
           <DialogAnchor
@@ -137,7 +114,7 @@ const DefaultMessageActionComponents = {
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { icons: { IconThread = DefaultIconThread } = {} } = useComponentContext();
+      const { IconThread } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Open Thread')}
@@ -172,7 +149,7 @@ const DefaultMessageActionComponents = {
         }
       };
 
-      const { icons: { IconQuote = DefaultIconQuote } = {} } = useComponentContext();
+      const { IconQuote } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Quote Message')}
@@ -191,8 +168,7 @@ const DefaultMessageActionComponents = {
       const { closeMenu, openSubmenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const { icons: { IconDownload = DefaultIconDownload } = {} } =
-        useComponentContext();
+      const { IconDownload } = useComponentContextIcons();
 
       const downloadableAttachments = (message.attachments ?? []).filter(
         isDownloadableAttachment,
@@ -230,8 +206,7 @@ const DefaultMessageActionComponents = {
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
       const isPinned = !!message.pinned;
-      const { icons: { IconPin = DefaultIconPin, IconUnpin = DefaultIconUnpin } = {} } =
-        useComponentContext();
+      const { IconPin, IconUnpin } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={isPinned ? t('aria/Unpin Message') : t('aria/Pin Message')}
@@ -276,7 +251,7 @@ const DefaultMessageActionComponents = {
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { icons: { IconCopy = DefaultIconCopy } = {} } = useComponentContext();
+      const { IconCopy } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Copy Message Text')}
@@ -296,7 +271,7 @@ const DefaultMessageActionComponents = {
       const { handleRetry, message } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { icons: { IconRetry = DefaultIconRetry } = {} } = useComponentContext();
+      const { IconRetry } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Resend Message')}
@@ -317,7 +292,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
       const { closeMenu } = useContextMenuContext();
 
-      const { icons: { IconEdit = DefaultIconEdit } = {} } = useComponentContext();
+      const { IconEdit } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Edit Message')}
@@ -339,8 +314,7 @@ const DefaultMessageActionComponents = {
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
 
-      const { icons: { IconNotification = DefaultIconNotification } = {} } =
-        useComponentContext();
+      const { IconNotification } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Mark Message Unread')}
@@ -389,9 +363,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
       const { message } = useMessageContext();
       const reminder = useMessageReminder(message.id);
-      const {
-        icons: { IconBell = DefaultIconBell, IconBellOff = DefaultIconBellOff } = {},
-      } = useComponentContext();
+      const { IconBell, IconBellOff } = useComponentContextIcons();
       const messageAlreadyBookmarked = reminder && !reminder?.remindAt;
 
       if (messageAlreadyBookmarked) return null;
@@ -449,12 +421,7 @@ const DefaultMessageActionComponents = {
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const reminder = useMessageReminder(message.id);
-      const {
-        icons: {
-          IconBookmark = DefaultIconBookmark,
-          IconBookmarkRemove = DefaultIconBookmarkRemove,
-        } = {},
-      } = useComponentContext();
+      const { IconBookmark, IconBookmarkRemove } = useComponentContextIcons();
       const messageAlreadyHasReminderScheduled = Boolean(reminder && reminder?.remindAt);
 
       if (messageAlreadyHasReminderScheduled) return null;
@@ -524,7 +491,7 @@ const DefaultMessageActionComponents = {
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
 
-      const { icons: { IconFlag = DefaultIconFlag } = {} } = useComponentContext();
+      const { IconFlag } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={t('aria/Flag Message')}
@@ -569,8 +536,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       const isMuted = isUserMuted(message, mutes);
-      const { icons: { IconAudio = DefaultIconAudio, IconMute = DefaultIconMute } = {} } =
-        useComponentContext();
+      const { IconAudio, IconMute } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
@@ -619,8 +585,8 @@ const DefaultMessageActionComponents = {
     Delete() {
       const { closeMenu } = useContextMenuContext();
       const { addNotification } = useNotificationApi();
-      const { icons: { IconDelete = DefaultIconDelete } = {}, Modal = GlobalModal } =
-        useComponentContext();
+      const { Modal = GlobalModal } = useComponentContext();
+      const { IconDelete } = useComponentContextIcons();
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
@@ -688,12 +654,7 @@ const DefaultMessageActionComponents = {
         !message.user?.id ||
         new Set(client.blockedUsers.getLatestValue().userIds).has(message.user?.id);
 
-      const {
-        icons: {
-          IconNoSign = DefaultIconNoSign,
-          IconUserCheck = DefaultIconUserCheck,
-        } = {},
-      } = useComponentContext();
+      const { IconNoSign, IconUserCheck } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
           aria-label={isBlocked ? t('Unblock') : t('aria/Block User')}
@@ -732,7 +693,7 @@ const DefaultMessageActionComponents = {
         id: `${reactionSelectorDialogId}-dropdown`,
       });
 
-      const { icons: { IconMore = DefaultIconMore } = {} } = useComponentContext();
+      const { IconMore } = useComponentContextIcons();
       return (
         <QuickMessageActionsButton
           aria-expanded={dropdownDialogIsOpen}
@@ -753,14 +714,14 @@ const DefaultMessageActionComponents = {
       );
     }),
     React() {
-      const { icons: { IconEmoji = DefaultIconEmoji } = {} } = useComponentContext();
+      const { IconEmoji } = useComponentContextIcons();
       return <ReactionSelectorWithButton ReactionIcon={IconEmoji} />;
     },
     Reply() {
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { icons: { IconReply = DefaultIconReply } = {} } = useComponentContext();
+      const { IconReply } = useComponentContextIcons();
       return (
         <QuickMessageActionsButton
           aria-label={t('aria/Open Thread')}

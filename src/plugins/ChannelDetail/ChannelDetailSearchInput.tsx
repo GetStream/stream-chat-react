@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
-import { useComponentContext, useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { TextInput } from '../../components/Form';
-import { IconSearch as DefaultIconSearch } from '../../components/Icons';
 
 export type ChannelDetailSearchInputProps = {
   autoFocus?: boolean;
@@ -12,7 +11,7 @@ export type ChannelDetailSearchInputProps = {
 
 export const ChannelDetailSearchInput = React.memo(
   ({ autoFocus, onSearchChange, resetKey }: ChannelDetailSearchInputProps) => {
-    const { icons: { IconSearch = DefaultIconSearch } = {} } = useComponentContext();
+    const { IconSearch } = useComponentContextIcons();
 
     const { t } = useTranslationContext();
     const [searchInput, setSearchInput] = useState('');

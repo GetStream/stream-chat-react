@@ -7,10 +7,10 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { Button } from '../Button';
-import { IconPlus as DefaultIconPlus } from '../Icons';
 
 import type { ReactionResponse } from 'stream-chat';
 
+import { useComponentContextIcons } from '../../context';
 export type ReactionSelectorProps = {
   /** Override dialog id used by the selector popover. */
   dialogId?: string;
@@ -41,10 +41,10 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   const [extendedListOpen, setExtendedListOpen] = useState(false);
 
   const {
-    icons: { IconPlus = DefaultIconPlus } = {},
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
   } = useComponentContext('ReactionSelector');
+  const { IconPlus } = useComponentContextIcons();
 
   const {
     closeReactionSelectorOnClick,

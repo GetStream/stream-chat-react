@@ -34,17 +34,7 @@ import {
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import { useComponentContext } from '../../context';
-import {
-  IconCamera as DefaultIconCamera,
-  IconFile as DefaultIconFile,
-  IconLink as DefaultIconLink,
-  IconLocation as DefaultIconLocation,
-  IconPlayFill as DefaultIconPlayFill,
-  IconPoll as DefaultIconPoll,
-  IconVideo as DefaultIconVideo,
-  IconVoice as DefaultIconVoice,
-} from '../Icons';
+import { useComponentContextIcons } from '../../context';
 import clsx from 'clsx';
 import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
@@ -355,17 +345,15 @@ export const QuotedMessagePreviewUI = ({
   const { giphyVersion: giphyVersionName = 'fixed_height' } =
     useChannelStateContext('QuotedMessagePreview');
   const {
-    icons: {
-      IconCamera = DefaultIconCamera,
-      IconFile = DefaultIconFile,
-      IconLink = DefaultIconLink,
-      IconLocation = DefaultIconLocation,
-      IconPlayFill = DefaultIconPlayFill,
-      IconPoll = DefaultIconPoll,
-      IconVideo = DefaultIconVideo,
-      IconVoice = DefaultIconVoice,
-    } = {},
-  } = useComponentContext();
+    IconCamera,
+    IconFile,
+    IconLink,
+    IconLocation,
+    IconPlayFill,
+    IconPoll,
+    IconVideo,
+    IconVoice,
+  } = useComponentContextIcons();
 
   const iconSet = useMemo(
     () => ({

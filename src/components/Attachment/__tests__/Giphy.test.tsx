@@ -11,21 +11,25 @@ const { channelStateMock } = vi.hoisted(() => ({
   },
 }));
 
-vi.mock('../../../context', () => ({
-  useChannelStateContext: () => channelStateMock,
-  useComponentContext: () => ({}),
-  useTranslationContext: () => ({
-    t: (key, params) =>
-      Object.keys(params ?? {}).reduce(
-        (acc, paramKey) =>
-          acc.replace(
-            new RegExp(`\\{\\{\\s${paramKey}\\s\\}\\}`, 'g'),
-            String(params?.[paramKey]),
-          ),
-        key.replace(/^aria\//, ''),
-      ),
-  }),
-}));
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useChannelStateContext: () => channelStateMock,
+    useComponentContext: () => ({}),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useTranslationContext: () => ({
+      t: (key, params) =>
+        Object.keys(params ?? {}).reduce(
+          (acc, paramKey) =>
+            acc.replace(
+              new RegExp(`\\{\\{\\s${paramKey}\\s\\}\\}`, 'g'),
+              String(params?.[paramKey]),
+            ),
+          key.replace(/^aria\//, ''),
+        ),
+    }),
+  };
+});
 
 describe('Giphy accessible name', () => {
   it('uses the giphy title as the image accessible name', () => {

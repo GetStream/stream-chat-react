@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -11,10 +11,6 @@ import {
   useContextMenuContext,
 } from '../Dialog';
 import {
-  IconChevronLeft as DefaultIconChevronLeft,
-  IconDownload as DefaultIconDownload,
-} from '../Icons';
-import {
   downloadAllAttachments,
   downloadAttachment,
   isDownloadableAttachment,
@@ -24,8 +20,7 @@ const msgActionsBoxButtonClassName =
   'str-chat__message-actions-list-item-button' as const;
 
 export const DownloadSubmenuHeader = () => {
-  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
-    useComponentContext();
+  const { IconChevronLeft } = useComponentContextIcons();
 
   const { returnToParentMenu: goBack } = useContextMenuContext();
   const { t } = useTranslationContext();
@@ -40,7 +35,7 @@ export const DownloadSubmenuHeader = () => {
 };
 
 export const DownloadSubmenu = () => {
-  const { icons: { IconDownload = DefaultIconDownload } = {} } = useComponentContext();
+  const { IconDownload } = useComponentContextIcons();
   const { closeMenu } = useContextMenuContext();
   const { message } = useMessageContext();
   const { t } = useTranslationContext();

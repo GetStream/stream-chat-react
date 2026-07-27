@@ -4,16 +4,12 @@ import {
   type LocalAudioAttachment,
   type LocalVoiceRecordingAttachment,
 } from 'stream-chat';
-import { useComponentContext, useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import {
-  IconExclamationMark as DefaultIconExclamationMark,
-  IconExclamationTriangleFill as DefaultIconExclamationTriangleFill,
-} from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
   type AudioPlayerState,
@@ -44,12 +40,7 @@ export const AudioAttachmentPreview = ({
   handleRetry,
   removeAttachments,
 }: AudioAttachmentPreviewProps) => {
-  const {
-    icons: {
-      IconExclamationMark = DefaultIconExclamationMark,
-      IconExclamationTriangleFill = DefaultIconExclamationTriangleFill,
-    } = {},
-  } = useComponentContext();
+  const { IconExclamationMark, IconExclamationTriangleFill } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =

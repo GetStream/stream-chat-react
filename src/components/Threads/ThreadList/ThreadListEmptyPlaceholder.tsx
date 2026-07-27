@@ -1,11 +1,9 @@
 import React from 'react';
 
-import { useComponentContext, useTranslationContext } from '../../../context';
-import { IconMessageBubbles as DefaultIconMessageBubbles } from '../../Icons';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 
 export const ThreadListEmptyPlaceholder = () => {
-  const { icons: { IconMessageBubbles = DefaultIconMessageBubbles } = {} } =
-    useComponentContext();
+  const { IconMessageBubbles } = useComponentContextIcons();
 
   const { t } = useTranslationContext('ThreadListEmptyPlaceholder');
 

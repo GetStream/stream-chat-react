@@ -1,7 +1,7 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
 import type { CommandResponse } from 'stream-chat';
 import {
-  useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../../context';
@@ -12,23 +12,13 @@ import {
   ContextMenuHeader,
   useContextMenuContext,
 } from '../../Dialog';
-import {
-  IconAudio as DefaultIconAudio,
-  IconChevronLeft as DefaultIconChevronLeft,
-  IconFlag as DefaultIconFlag,
-  IconGiphy as DefaultIconGiphy,
-  IconMute as DefaultIconMute,
-  IconUserAdd as DefaultIconUserAdd,
-  IconUserRemove as DefaultIconUserRemove,
-} from '../../Icons';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
 
 export const CommandsMenuClassName = 'str-chat__context-menu--commands';
 
 export const CommandsSubmenuHeader = () => {
-  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
-    useComponentContext();
+  const { IconChevronLeft } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
@@ -127,16 +117,8 @@ export const CommandContextMenuItem = ({
   enabled?: boolean;
 }) => {
   const { args, description } = useCommandTranslation(command);
-  const {
-    icons: {
-      IconAudio = DefaultIconAudio,
-      IconFlag = DefaultIconFlag,
-      IconGiphy = DefaultIconGiphy,
-      IconMute = DefaultIconMute,
-      IconUserAdd = DefaultIconUserAdd,
-      IconUserRemove = DefaultIconUserRemove,
-    } = {},
-  } = useComponentContext();
+  const { IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove } =
+    useComponentContextIcons();
 
   const icons = useMemo<Record<string, ComponentType>>(
     () => ({

@@ -3,12 +3,11 @@ import { flushSync } from 'react-dom';
 import { useCanCreatePoll } from '../../MessageComposer/hooks/useCanCreatePoll';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import {
-  useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../../context';
 import clsx from 'clsx';
-import { IconSend as DefaultIconSend } from '../../Icons';
 import { Prompt } from '../../Dialog';
 import { useNotificationApi } from '../../Notifications';
 
@@ -19,7 +18,7 @@ export type PollCreationDialogControlsProps = {
 export const PollCreationDialogControls = ({
   close,
 }: PollCreationDialogControlsProps) => {
-  const { icons: { IconSend = DefaultIconSend } = {} } = useComponentContext();
+  const { IconSend } = useComponentContextIcons();
 
   const { t } = useTranslationContext('PollCreationDialogControls');
   const { handleSubmit: handleSubmitMessage, textareaRef } = useMessageComposerContext();

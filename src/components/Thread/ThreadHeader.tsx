@@ -13,9 +13,9 @@ import { useTypingContext } from '../../context/TypingContext';
 import type { LocalMessage } from 'stream-chat';
 import type { ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconXmark as DefaultIconXmark } from '../Icons';
 import { useChatViewContext } from '../ChatView';
 
+import { useComponentContextIcons } from '../../context';
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 
 /** Fallback when channel has no display title: parent message author (name only). */
@@ -72,7 +72,7 @@ export type ThreadHeaderProps = {
 };
 
 export const ThreadHeader = (props: ThreadHeaderProps) => {
-  const { icons: { IconXmark = DefaultIconXmark } = {} } = useComponentContext();
+  const { IconXmark } = useComponentContextIcons();
 
   const { closeThread, overrideTitle, thread } = props;
 

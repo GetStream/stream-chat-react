@@ -13,15 +13,15 @@ import React, {
   useState,
 } from 'react';
 import { type AvatarProps, Avatar as DefaultAvatar } from '../../Avatar';
-import {
-  IconChevronLeft as DefaultIconChevronLeft,
-  IconChevronRight as DefaultIconChevronRight,
-} from '../../Icons';
 import type { PopperLikePlacement } from '../hooks';
 import { useDialogIsOpen, useDialogOnNearestManager } from '../hooks';
 import type { DialogAnchorProps } from '../service/DialogAnchor';
 import { DialogAnchor, useDialogAnchor } from '../service/DialogAnchor';
-import { useComponentContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../../context';
 import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
 import { VisuallyHidden } from '../../VisuallyHidden';
 import { useStableId } from '../../UtilityComponents/useStableId';
@@ -110,8 +110,7 @@ export const BaseContextMenuButton = ({
   variant,
   ...props
 }: BaseContextMenuButtonProps) => {
-  const { icons: { IconChevronRight = DefaultIconChevronRight } = {} } =
-    useComponentContext();
+  const { IconChevronRight } = useComponentContextIcons();
   const ResolvedSubmenuIcon = SubmenuIcon ?? IconChevronRight;
   return (
     <button
@@ -683,8 +682,7 @@ export function ContextMenuContent({
   ...props
 }: ContextMenuContentProps) {
   const { t } = useTranslationContext();
-  const { icons: { IconChevronLeft = DefaultIconChevronLeft } = {} } =
-    useComponentContext();
+  const { IconChevronLeft } = useComponentContextIcons();
   const resolvedBackLabel = backLabel ?? t('Back');
   const {
     ['aria-describedby']: rootAriaDescribedBy,

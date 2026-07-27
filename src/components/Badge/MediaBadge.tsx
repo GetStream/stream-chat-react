@@ -1,8 +1,4 @@
-import { useComponentContext } from '../../context';
-import {
-  IconMicrophoneSolid as DefaultIconMicrophoneSolid,
-  IconVideoFill as DefaultIconVideoFill,
-} from '../Icons';
+import { useComponentContextIcons } from '../../context';
 import React, { type ComponentType } from 'react';
 import type { LocalAttachment } from 'stream-chat';
 import clsx from 'clsx';
@@ -15,12 +11,7 @@ export type MediaBadgeProps = {
 };
 
 export const MediaBadge = ({ attachment, variant }: MediaBadgeProps) => {
-  const {
-    icons: {
-      IconMicrophoneSolid = DefaultIconMicrophoneSolid,
-      IconVideoFill = DefaultIconVideoFill,
-    } = {},
-  } = useComponentContext();
+  const { IconMicrophoneSolid, IconVideoFill } = useComponentContextIcons();
 
   const mediaBadgeVariantToIcon: Record<MediaBadgeVariant, ComponentType> = {
     video: IconVideoFill,

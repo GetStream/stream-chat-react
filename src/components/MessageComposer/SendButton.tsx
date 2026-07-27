@@ -1,7 +1,6 @@
 import React from 'react';
 import { useMessageComposerHasSendableData } from './hooks';
-import { useComponentContext, useTranslationContext } from '../../context';
-import { IconSend as DefaultIconSend } from '../Icons';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { Button } from '../Button';
 
 export type SendButtonProps = {
@@ -9,7 +8,7 @@ export type SendButtonProps = {
 } & React.ComponentProps<'button'>;
 
 export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) => {
-  const { icons: { IconSend = DefaultIconSend } = {} } = useComponentContext();
+  const { IconSend } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   const hasSendableData = useMessageComposerHasSendableData();

@@ -5,14 +5,13 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useComponentContext, useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { ContextMenuBody, ContextMenuButton, ContextMenuRoot, Prompt } from '../Dialog';
 import {
   Dropdown,
   type DropdownTriggerProps,
   useDropdownContext,
 } from '../Form/Dropdown';
-import { IconChevronDown as DefaultIconChevronDown } from '../Icons';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { SwitchField } from '../Form/SwitchField';
 import { useNotificationApi } from '../Notifications';
@@ -65,8 +64,7 @@ export const ShareLocationDialog = ({
   GeolocationMap = DefaultGeolocationMap,
   shareDurations = DEFAULT_SHARE_LOCATION_DURATIONS,
 }: ShareLocationDialogProps) => {
-  const { icons: { IconChevronDown = DefaultIconChevronDown } = {} } =
-    useComponentContext();
+  const { IconChevronDown } = useComponentContextIcons();
 
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();

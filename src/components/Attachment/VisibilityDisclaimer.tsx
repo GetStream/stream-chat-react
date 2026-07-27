@@ -1,9 +1,8 @@
 import React from 'react';
-import { IconEyeFill as DefaultIconEyeFill } from '../Icons';
-import { useComponentContext, useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 
 export const VisibilityDisclaimer = () => {
-  const { icons: { IconEyeFill = DefaultIconEyeFill } = {} } = useComponentContext();
+  const { IconEyeFill } = useComponentContextIcons();
 
   const { t } = useTranslationContext();
   return (

@@ -1,12 +1,8 @@
 import clsx from 'clsx';
 import React, { forwardRef, useCallback } from 'react';
 import type { ChangeEvent, ComponentProps, KeyboardEvent } from 'react';
-import { useComponentContext, useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
-import {
-  IconMinus as DefaultIconMinus,
-  IconPlusSmall as DefaultIconPlusSmall,
-} from '../Icons';
 import { Button } from '../Button';
 
 export type NumericInputProps = Omit<
@@ -55,9 +51,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
     const generatedId = useStableId();
     const id = idProp ?? generatedId;
     const { t } = useTranslationContext();
-    const {
-      icons: { IconMinus = DefaultIconMinus, IconPlusSmall = DefaultIconPlusSmall } = {},
-    } = useComponentContext();
+    const { IconMinus, IconPlusSmall } = useComponentContextIcons();
 
     const num = parseNumeric(value);
     const minDef = min ?? -Infinity;

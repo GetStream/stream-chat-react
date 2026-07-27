@@ -18,37 +18,30 @@ import { ChannelMediaView } from './Views/ChannelMediaView';
 import { ChannelMembersView } from './Views/ChannelMembersView';
 import { PinnedMessagesView } from './Views/PinnedMessagesView';
 import { Prompt } from '../../components/Dialog';
-import { useComponentContext } from '../../context';
-import {
-  IconFolder as DefaultIconFolder,
-  IconImage as DefaultIconImage,
-  IconInfo as DefaultIconInfo,
-  IconPin as DefaultIconPin,
-  IconUser as DefaultIconUser,
-} from '../../components/Icons';
+import { useComponentContextIcons } from '../../context';
 
 const ChannelManagementNavButtonIcon = () => {
-  const { icons: { IconInfo = DefaultIconInfo } = {} } = useComponentContext();
+  const { IconInfo } = useComponentContextIcons();
   return <IconInfo className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelMembersNavButtonIcon = () => {
-  const { icons: { IconUser = DefaultIconUser } = {} } = useComponentContext();
+  const { IconUser } = useComponentContextIcons();
   return <IconUser className='str-chat__channel-detail__action-icon' />;
 };
 
 const PinnedMessagesNavButtonIcon = () => {
-  const { icons: { IconPin = DefaultIconPin } = {} } = useComponentContext();
+  const { IconPin } = useComponentContextIcons();
   return <IconPin className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelMediaNavButtonIcon = () => {
-  const { icons: { IconImage = DefaultIconImage } = {} } = useComponentContext();
+  const { IconImage } = useComponentContextIcons();
   return <IconImage className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelFilesNavButtonIcon = () => {
-  const { icons: { IconFolder = DefaultIconFolder } = {} } = useComponentContext();
+  const { IconFolder } = useComponentContextIcons();
   return <IconFolder className='str-chat__channel-detail__action-icon' />;
 };
 

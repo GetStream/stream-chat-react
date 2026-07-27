@@ -6,8 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { useComponentContext } from '../../context';
-import { IconUser as DefaultIconUser } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type AvatarProps = {
   /**
@@ -64,7 +63,7 @@ export const Avatar = ({
   userName,
   ...rest
 }: AvatarProps) => {
-  const { icons: { IconUser = DefaultIconUser } = {} } = useComponentContext();
+  const { IconUser } = useComponentContextIcons();
   const ResolvedFallbackIcon = FallbackIcon ?? IconUser;
   const [error, setError] = useState(false);
 

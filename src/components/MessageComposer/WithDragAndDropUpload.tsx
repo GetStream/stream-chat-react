@@ -5,14 +5,13 @@ import clsx from 'clsx';
 import type { MessageComposerConfig } from 'stream-chat';
 
 import {
-  useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../context';
 import { useAttachmentManagerState, useMessageComposerController } from './hooks';
 import { useStateStore } from '../../store';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
-import { IconUpload as DefaultIconUpload } from '../Icons';
 
 const DragAndDropUploadContext = React.createContext<{
   subscribeToDrop: ((fn: (files: File[]) => void) => () => void) | null;
@@ -165,7 +164,7 @@ export const FileDragAndDropContent = ({
   isDragRejected,
 }: FileDragAndDropContentProps) => {
   const { t } = useTranslationContext();
-  const { icons: { IconUpload = DefaultIconUpload } = {} } = useComponentContext();
+  const { IconUpload } = useComponentContextIcons();
   return (
     <div className='str-chat__dropzone-container__content'>
       {isDragRejected ? (

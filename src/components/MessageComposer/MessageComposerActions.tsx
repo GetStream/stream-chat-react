@@ -5,6 +5,7 @@ import { SendButton as DefaultSendButton } from './SendButton';
 import {
   useChannelStateContext,
   useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
 } from '../../context';
 import { AIStates, useAIState } from '../AIStateIndicator';
@@ -13,10 +14,6 @@ import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioReco
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import type { MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
-import {
-  IconCheckmark as DefaultIconCheckmark,
-  IconSend as DefaultIconSend,
-} from '../Icons';
 import { useInertWhenHidden } from '../Accessibility';
 
 const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
@@ -29,9 +26,7 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 });
 
 export const MessageComposerActions = () => {
-  const {
-    icons: { IconCheckmark = DefaultIconCheckmark, IconSend = DefaultIconSend } = {},
-  } = useComponentContext();
+  const { IconCheckmark, IconSend } = useComponentContextIcons();
 
   const { channel } = useChannelStateContext();
   const { hideSendButton } = useMessageComposerContext();
