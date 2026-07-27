@@ -302,7 +302,20 @@ const ChannelInner = (
       throttle(
         async (options?: MarkReadWrapperOptions) => {
           const { updateChannelUiUnreadState = true } = options ?? {};
-          if (channel.disconnected || !channelConfig?.read_events) {
+          if (channel.disconnected) return;
+
+          if (!channelConfig?.read_events && client.options.isLocalUnreadCountEnabled) {
+            const event = channel.markReadLocally();
+
+            if (updateChannelUiUnreadState && event) {
+              lastRead.current = new Date();
+              _setChannelUnreadUiState({
+                last_read: lastRead.current,
+                last_read_message_id: event.last_read_message_id,
+                unread_messages: 0,
+              });
+            }
+
             return;
           }
 
@@ -316,7 +329,7 @@ const ChannelInner = (
               );
             } else {
               const markReadResponse = await channel.markRead();
-              //  markReadResponse.event can be null in case of a user that is not a member of a channel being marked read
+              // markReadResponse.event can be null in case of a user that is not a member of a channel being marked read
               // in that case event is null and we should not set unread UI
               if (updateChannelUiUnreadState && markReadResponse?.event) {
                 _setChannelUnreadUiState({
@@ -343,6 +356,7 @@ const ChannelInner = (
       activeUnreadHandler,
       channel,
       channelConfig,
+      client,
       doMarkReadRequest,
       setChannelUnreadUiState,
       t,
@@ -381,7 +395,7 @@ const ChannelInner = (
       if (mainChannelUpdated) {
         if (
           document.hidden &&
-          channelConfig?.read_events &&
+          (channelConfig?.read_events || client.options.isLocalUnreadCountEnabled) &&
           !channel.muteStatus().muted
         ) {
           const unread = channel.countUnread(lastRead.current);

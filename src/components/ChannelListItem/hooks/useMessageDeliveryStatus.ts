@@ -92,10 +92,12 @@ export const useMessageDeliveryStatus = ({
 
     channel.on('message.delivered', handleMessageDelivered);
     channel.on('message.read', handleMarkRead);
+    channel.on('message.read_locally', handleMarkRead);
 
     return () => {
       channel.off('message.delivered', handleMessageDelivered);
       channel.off('message.read', handleMarkRead);
+      channel.off('message.read_locally', handleMarkRead);
     };
   }, [channel, client, isOwnMessage, lastMessage]);
 
