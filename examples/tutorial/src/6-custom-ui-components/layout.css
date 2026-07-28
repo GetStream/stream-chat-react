@@ -1,14 +1,16 @@
 @layer stream;
 @import 'stream-chat-react/dist/css/index.css' layer(stream);
 
-/* Scoped, and deliberately NOT in a layer - this differs from the published
-   tutorial, which uses `@layer stream-overrides { .custom-theme { ... } }`.
-   The step browser (src/App.tsx) renders every step in one document, and the
-   steps before this one import the SDK stylesheet *unlayered*. Unlayered CSS
-   outranks every @layer, so a layered override would silently do nothing here,
-   and an unscoped one would leak into the other steps.
+/* One deliberate deviation from the tutorial, which wraps these tokens in
+   `@layer stream-overrides { .custom-theme { ... } }`. The step browser
+   (src/App.tsx) renders every step in one document, and the steps before this
+   one import the SDK stylesheet *unlayered*. Unlayered CSS outranks every
+   @layer, so the tutorial's layered override would silently do nothing here.
+   Declaring it unlayered on `.str-chat.custom-theme` (0,2,0) beats the SDK's
+   own `.str-chat` (0,1,0) regardless of source order, and only matches the
+   steps that actually pass `theme="custom-theme"`.
    In your own app, follow the tutorial and keep these in the layer. */
-.step-custom-ui-components .custom-theme {
+.str-chat.custom-theme {
   /* Accent color  -  used by mentions, read receipts, attachment actions, focus states, etc. */
   --str-chat__accent-primary: #0d47a1;
 
@@ -25,7 +27,7 @@
 
   /* Panel backgrounds */
   --str-chat__background-core-elevation-1: #dbeafe; /* channel list and surrounding panels */
-  --str-chat__background-core-app: #c7dafc;         /* message list background */
+  --str-chat__background-core-app: #c7dafc; /* message list background */
 
   /* Focus ring */
   --str-chat__border-utility-focused: #1e40af;

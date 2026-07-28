@@ -1,21 +1,21 @@
 html,
 body,
 #root {
-    height: 100%;
+  height: 100%;
 }
 body {
-    margin: 0;
+  margin: 0;
 }
 #root {
-    display: flex;
+  display: flex;
 }
 
 .str-chat__channel-list {
-    width: 30%;
+  width: 30%;
 }
 .str-chat__channel {
-    width: 100%;
+  width: 100%;
 }
 .str-chat__thread {
-    width: 45%;
+  width: 45%;
 }

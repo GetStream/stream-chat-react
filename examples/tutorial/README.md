@@ -19,7 +19,40 @@ Folder names match the tutorial's step numbers, so `4-channel-list` is the tutor
 
 If you change a step's code here, update the matching code block in the tutorial too, and vice versa.
 
-### One deliberate deviation: theme scoping
+### `layout.css` is duplicated on purpose
+
+The tutorial has the reader create a single `src/layout.css` in Step 3 and
+rewrite it in Step 5. Each step folder here carries its own copy so the folder is
+a self-contained snapshot of the app at that step, which means there are only two
+distinct versions of the file:
+
+| Version  | In                                                                         |
+| -------- | -------------------------------------------------------------------------- |
+| Step 3's | `3-core-component-setup`, `4-channel-list`                                 |
+| Step 5's | `5-theming`, `6-custom-ui-components`, `7-emoji-picker`, both `optional-*` |
+
+Every file in a group is byte-identical, so any drift shows up in a diff. If you
+edit one, edit the whole group.
+
+Parts of each copy are inert inside the step browser. That is expected, and none
+of it should be "cleaned up" here, because the file has to stay a faithful copy of
+what the tutorial tells the reader to write:
+
+- The `custom-theme` tokens do nothing in `7-emoji-picker` and
+  `optional-livestream`, which don't pass `theme="custom-theme"` to `<Chat>`. The
+  reader's single `layout.css` holds the tokens and leaves them unused for those
+  same two examples.
+- The `.str-chat__channel-list` / `__channel` / `__thread` widths are overridden
+  by `.tutorial-browser__step-shell .str-chat__*` in `tutorial-main.css`, which
+  wins on specificity (0,2,0 against 0,1,0). The tutorial's widths assume the app
+  owns the whole page; here it is sized to fit a preview card.
+- The `html` / `body` / `#root` rules are real, but `tutorial-main.css` declares
+  them too, so the chrome does not depend on a step's stylesheet.
+
+None of this costs bundle size: Vite collapses the identical copies, so the built
+CSS contains one `width: 30%` and one `@layer stream`.
+
+### One deliberate deviation: unlayered theme tokens
 
 The tutorial puts the custom theme tokens in a CSS layer:
 
@@ -34,26 +67,27 @@ The tutorial puts the custom theme tokens in a CSS layer:
 }
 ```
 
-The themed steps here instead use an unlayered, step-scoped selector:
+The themed steps here declare them unlayered instead:
 
 ```css
 @layer stream;
 @import 'stream-chat-react/dist/css/index.css' layer(stream);
 
-.step-theming .custom-theme {
+.str-chat.custom-theme {
   /* tokens */
 }
 ```
 
-Why: the step browser renders every step in a single document, so all eight
+Why: the step browser renders every step in a single document, so all seven
 stylesheets are live at once. Steps 3 and 4 import the SDK stylesheet
 _unlayered_ (as the tutorial has them, since Step 5 is where you're taught to
 move it into a layer), and unlayered CSS outranks every `@layer` regardless of
-specificity. A layered override would silently do nothing, and an unscoped one
-would restyle the earlier steps.
+specificity. A layered override would silently do nothing.
 
-The `step-<id>` class is applied by the browser in `src/App.tsx`, on the wrapper
-around the active step.
+`.str-chat.custom-theme` (specificity 0,2,0) also beats the SDK's own
+`.str-chat` (0,1,0) regardless of source order, and it only matches the steps
+that actually pass `theme="custom-theme"`, so the themed steps can't leak into
+the unthemed ones.
 
 **This deviation exists only to make the step browser work. In your own app,
 follow the tutorial and keep the tokens in the layer.**

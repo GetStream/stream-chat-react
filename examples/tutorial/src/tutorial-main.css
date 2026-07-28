@@ -1,3 +1,19 @@
+/* Host document rules. Every step's layout.css sets these too, because the
+   tutorial has the reader write them - but the chrome must not depend on a
+   step's stylesheet for its own layout. Declared here so the browser stands on
+   its own if steps are ever loaded lazily or in isolation. */
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+#root {
+  display: flex;
+}
+
 /* Chrome only - deliberately NOT `.tutorial-browser *`, so the SDK's own
    box-sizing is left alone. These panes are sized in viewport units *and*
    padded, so with the default content-box the padding is added on top of 100vh

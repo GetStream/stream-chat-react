@@ -150,10 +150,8 @@ const App = () => {
         </header>
 
         <section className='tutorial-browser__preview-card'>
-          {/* The `step-<id>` class scopes each step's theme overrides. Every step's
-              CSS is loaded into this one document, so without a scope the themed
-              steps would restyle the unthemed ones. See the README section
-              "One deliberate deviation: theme scoping". */}
+          {/* The `step-<id>` class lets tutorial-main.css target an individual
+              step's chrome. Only `step-client-setup` needs it today. */}
           <div
             className={`tutorial-browser__step-shell step-${selectedStep.id}`}
             key={selectedStep.id}
