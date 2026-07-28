@@ -4,6 +4,7 @@ import type { ReactionSummary, ReactionType } from './types';
 
 import { useFetchReactions } from './hooks/useFetchReactions';
 import { Avatar as DefaultAvatar } from '../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import type { MessageContextValue } from '../../context';
 import {
   useChatContext,
@@ -66,6 +67,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   const { client } = useChatContext();
   const {
     Avatar = DefaultAvatar,
+    extractDisplayInfo = defaultExtractDisplayInfo,
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
@@ -212,11 +214,10 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                     key={`${user?.id}-${type}`}
                   >
                     <Avatar
+                      {...extractDisplayInfo({ user: user ?? undefined })}
                       className='str-chat__avatar--with-border'
                       data-testid='avatar'
-                      imageUrl={user?.image as string | undefined}
                       size='md'
-                      userName={user?.name || user?.id}
                     />
                     <div className='str-chat__message-reactions-detail__user-list-item-info'>
                       <span

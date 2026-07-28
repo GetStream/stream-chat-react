@@ -28,7 +28,7 @@ import {
   NotificationList as DefaultNotificationList,
   useNotificationTarget,
 } from '../Notifications';
-import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
+import { useIncomingMessageAnnouncements } from '../Accessibility';
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
@@ -631,7 +631,12 @@ const VirtualizedMessageListWithContext = (
               />
             </div>
           </DialogManagerProvider>
-          {TypingIndicator && <TypingIndicator />}
+          {TypingIndicator && (
+            <TypingIndicator
+              isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+              scrollToBottom={scrollToBottom}
+            />
+          )}
           <NotificationList panel={notificationTarget} />
         </MessageListMainPanel>
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
@@ -753,21 +758,19 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const messages = props.messages; // || contextMessages;
 
   return (
-    <AriaLiveRegion>
-      <VirtualizedMessageListWithContext
-        channel={channel}
-        // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
-        // hasMore={!!hasMore}
-        // hasMoreNewer={!!hasMoreNewer}
-        // jumpToLatestMessage={jumpToLatestMessage}
-        // loadingMore={!!loadingMore}
-        // loadingMoreNewer={!!loadingMoreNewer}
-        // loadMore={loadMore}
-        // loadMoreNewer={loadMoreNewer}
-        messages={messages}
-        read={read}
-        {...props}
-      />
-    </AriaLiveRegion>
+    <VirtualizedMessageListWithContext
+      channel={channel}
+      // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
+      // hasMore={!!hasMore}
+      // hasMoreNewer={!!hasMoreNewer}
+      // jumpToLatestMessage={jumpToLatestMessage}
+      // loadingMore={!!loadingMore}
+      // loadingMoreNewer={!!loadingMoreNewer}
+      // loadMore={loadMore}
+      // loadMoreNewer={loadMoreNewer}
+      messages={messages}
+      read={read}
+      {...props}
+    />
   );
 }

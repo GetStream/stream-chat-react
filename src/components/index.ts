@@ -37,6 +37,7 @@ export * from './Notifications';
 export * from './Poll';
 export * from './Reactions';
 export * from './SafeAnchor';
+export * from './SummarizedMessagePreview';
 export * from './TextareaComposer';
 export * from './Thread';
 export * from './Threads';

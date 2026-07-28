@@ -1,11 +1,16 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import { MessageActions } from '../MessageActions';
 import { defaultMessageActionSet } from '../MessageActions.defaults';
 
-import { DialogManagerProvider, MessageProvider } from '../../../context';
+import {
+  DialogManagerProvider,
+  MessageProvider,
+  type TranslationContextValue,
+} from '../../../context';
 
 import {
   generateFileAttachment,
@@ -29,10 +34,12 @@ import { Chat } from '../../Chat';
 
 (window as any).ResizeObserver = ResizeObserverMock;
 
-const chatViewContextValue = {
-  activeChatView: 'channels' as ChatView,
-  setActiveChatView: () => {},
-};
+const chatViewContextValue = fromPartial<
+  React.ComponentProps<typeof ChatViewContext.Provider>['value']
+>({
+  activeView: 'channels' as ChatView,
+  setActiveView: () => {},
+});
 
 const alice = generateUser({ name: 'alice' });
 const TOGGLE_ACTIONS_BUTTON_TEST_ID = 'message-actions-toggle-button';
@@ -64,6 +71,15 @@ const defaultMessageContextValue = {
   isMyMessage: () => false,
   message: generateMessage(),
 };
+
+// Like the default mock `t` (strips the `aria/` namespace) but also interpolates `{{ param }}`
+// placeholders, so translated download labels ("Download attachment 1") render as real text.
+const interpolatingT = ((key: string, params: Record<string, unknown> = {}) =>
+  Object.entries(params).reduce(
+    (value, [name, arg]) =>
+      value.replace(new RegExp(`{{\\s*${name}\\s*}}`, 'g'), String(arg)),
+    key.split('/').pop() ?? key,
+  )) as TranslationContextValue['t'];
 
 const toggleOpenMessageActions = async (index = 0) => {
   await act(async () => {
@@ -1440,7 +1456,9 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText('Download Attachment'));
       });
 
+      expect(screen.getAllByRole('menu')).toHaveLength(1);
       expect(screen.getByText('Download All')).toBeInTheDocument();
+      expect(screen.queryByText('Download Download Attachment')).not.toBeInTheDocument();
       expect(
         screen.getByText('Download bloom-and-harbor-cafe-menu-summer-2026.pdf'),
       ).toBeInTheDocument();
@@ -1505,9 +1523,38 @@ describe('<MessageActions />', () => {
         await fireEvent.click(screen.getByText('Download Attachment'));
       });
 
+      expect(screen.getAllByRole('menu')).toHaveLength(1);
       expect(screen.getByText('Download All')).toBeInTheDocument();
       expect(screen.getByText('Download first.pdf')).toBeInTheDocument();
       expect(screen.getByText('Download second.png')).toBeInTheDocument();
+    });
+
+    it('should fall back to numbered download labels when file name is missing', async () => {
+      const firstAttachment = generateFileAttachment({
+        asset_url: 'https://example.com/attachments/no-name-1.bin',
+      });
+      const secondAttachment = generateFileAttachment({
+        asset_url: 'https://example.com/attachments/no-name-2.bin',
+      });
+      delete firstAttachment.title;
+      delete secondAttachment.title;
+
+      const message = generateMessage({
+        attachments: [firstAttachment, secondAttachment],
+        user: alice,
+      });
+
+      await renderMessageActions({
+        customMessageContext: { message },
+      });
+      await toggleOpenMessageActions();
+
+      await act(async () => {
+        await fireEvent.click(screen.getByText('Download Attachment'));
+      });
+
+      expect(screen.getByText('Download attachment 1')).toBeInTheDocument();
+      expect(screen.getByText('Download attachment 2')).toBeInTheDocument();
     });
 
     it('should download all non-local attachments from download submenu', async () => {
@@ -1731,6 +1778,7 @@ describe('<MessageActions />', () => {
       await act(async () => {
         await fireEvent.click(remindMeButton);
       });
+      expect(screen.getAllByRole('menu')).toHaveLength(1);
       await act(async () => {
         await fireEvent.click(
           document.querySelector(

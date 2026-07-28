@@ -1,6 +1,17 @@
 .str-chat__form__input-fieldset {
   .str-chat__form__input-field {
     .str-chat__form__input-field__value {
+      .str-chat__drag-handle-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: grab;
+      }
+
       .str-chat__form__remove-option-button {
         color: var(--str-chat__input-text-icon);
       }

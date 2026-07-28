@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { MediaRecorderController } from '../classes';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { MediaRecorderController, MediaRecordingState } from '../classes';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
+import { useInteractionAnnouncements } from '../../Accessibility';
 
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
-import type { CustomAudioRecordingConfig, MediaRecordingState } from '../classes';
+import type { CustomAudioRecordingConfig } from '../classes';
 import type { MessageComposerContextValue } from '../../../context';
 import { useSendMessageFn } from '../../MessageComposer/hooks/useSendMessageFn';
 
@@ -32,12 +33,12 @@ export const useMediaRecorder = ({
   recordingConfig,
 }: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
+  const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
   const sendMessageFn = useSendMessageFn();
   const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
-  // const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
 
   const recorder = useMemo(
     () =>
@@ -58,17 +59,34 @@ export const useMediaRecorder = ({
     await messageComposer.attachmentManager.uploadAttachment(recording);
     if (!asyncMessagesMultiSendEnabled) {
       await sendMessageFn();
-      // // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
-      // scheduleForSubmit(true);
+      announceInteraction('voiceRecording.sent');
+    } else {
+      announceInteraction('voiceRecording.attached');
     }
     recorder.cleanUp();
-  }, [asyncMessagesMultiSendEnabled, messageComposer, recorder, sendMessageFn]);
+  }, [
+    announceInteraction,
+    asyncMessagesMultiSendEnabled,
+    messageComposer,
+    recorder,
+    sendMessageFn,
+  ]);
 
-  // useEffect(() => {
-  //   if (!isScheduledForSubmit) return;
-  //   handleSubmit();
-  //   scheduleForSubmit(false);
-  // }, [handleSubmit, isScheduledForSubmit]);
+  const previousRecordingStateRef = useRef(recordingState);
+  useEffect(() => {
+    const previous = previousRecordingStateRef.current;
+    previousRecordingStateRef.current = recordingState;
+    if (previous === recordingState) return;
+    if (recordingState === MediaRecordingState.RECORDING) {
+      announceInteraction(
+        previous === MediaRecordingState.PAUSED
+          ? 'voiceRecording.resumed'
+          : 'voiceRecording.started',
+      );
+    } else if (recordingState === MediaRecordingState.PAUSED) {
+      announceInteraction('voiceRecording.paused');
+    }
+  }, [announceInteraction, recordingState]);
 
   useEffect(() => {
     if (!recorder) return;

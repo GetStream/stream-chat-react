@@ -83,12 +83,10 @@ const PromptHeader = ({
           {close && (
             <Button
               appearance='ghost'
-              aria-describedby={hasDescription ? resolvedDescriptionId : undefined}
-              aria-label={
-                typeof title === 'string'
-                  ? t('Close prompt: {{ title }}', { title })
-                  : t('Close')
-              }
+              // Concise "Close": the dialog itself is named by its title (aria-labelledby) and
+              // described by its description (aria-describedby on the dialog surface), so the close
+              // button carries neither — repeating them here is redundant noise on focus.
+              aria-label={t('Close')}
               circular
               className='str-chat__prompt__header__close-button'
               onClick={close}

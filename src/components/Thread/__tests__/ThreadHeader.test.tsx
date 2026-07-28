@@ -37,7 +37,7 @@ vi.mock('../../Threads', () => ({
 }));
 
 vi.mock('../../../plugins/SlotLayout', () => ({
-  useChatViewContext: vi.fn(() => ({ activeChatView: 'channels' })),
+  useChatViewContext: vi.fn(() => ({ activeView: 'channels' })),
   useSlotForKind: vi.fn(() => undefined),
 }));
 
@@ -54,7 +54,7 @@ const createThread = (user) => ({
 });
 
 const renderComponent = ({
-  activeChatView = 'channels',
+  activeView = 'channels',
   props = {},
   threadContext = undefined,
 } = {}) => {
@@ -69,8 +69,8 @@ const renderComponent = ({
 
   vi.mocked(useChatViewContext).mockReturnValue(
     fromPartial<ReturnType<typeof useChatViewContext>>({
-      activeChatView,
-      setActiveChatView: vi.fn(),
+      activeView,
+      setActiveView: vi.fn(),
     }),
   );
   vi.mocked(useThreadContext).mockReturnValue(threadContext as Thread | undefined);

@@ -11,6 +11,7 @@ import {
 } from '../../context';
 import { useStateStore } from '../../store';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 export type MessageRepliesCountButtonProps = {
   /* If supplied, adds custom text to the end of a multiple replies message */
@@ -25,9 +26,10 @@ export type MessageRepliesCountButtonProps = {
 };
 
 function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonProps) {
-  const { AvatarStack = DefaultAvatarStack } = useComponentContext(
-    MessageRepliesCountButton.name,
-  );
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext(MessageRepliesCountButton.name);
   const {
     labelPlural,
     labelSingle,
@@ -60,12 +62,8 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
   const avatarStackDisplayInfo = useMemo(
-    () =>
-      threadParticipants.slice(0, 3).map((participant) => ({
-        imageUrl: participant.image,
-        userName: participant.name || participant.id,
-      })),
-    [threadParticipants],
+    () => threadParticipants.slice(0, 3).map((user) => extractDisplayInfo({ user })),
+    [extractDisplayInfo, threadParticipants],
   );
 
   const handleClick = useCallback<MouseEventHandler>(

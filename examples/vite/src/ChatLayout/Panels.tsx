@@ -23,6 +23,7 @@ import {
   EmptyStateIndicator,
   IconArrowLeft,
   IconXmark,
+  MessageComposerUI as DefaultMessageComposerUI,
   MessageComposer,
   MessageList,
   ModalContextProvider,
@@ -74,7 +75,10 @@ import { SwitchableChannelNavigation } from './SwitchableChannelNavigation.tsx';
 
 export const CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
   'app-channel-message-composer-textarea';
+export const THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID =
+  'app-thread-message-composer-textarea';
 export const CHANNEL_LIST_TARGET_ID = 'app-channel-list';
+export const THREAD_LIST_TARGET_ID = 'app-thread-list';
 export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
   '[id^="str-chat__chat-view-"][id$="-tab-channels"]';
 
@@ -82,6 +86,26 @@ export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
 // way everywhere so every channel and thread honors the setting (not just the primary channel).
 const useVirtualizedMessageList = () =>
   useAppSettingsSelector((s) => s.messageList).type === 'virtualized';
+
+// Tag the list's `[role="listbox"]` with a stable id so the skip-navigation links can target it. The
+// listbox unmounts/remounts (search mode, view switches, reloads) and its view may start inactive, so
+// observe `document.body` and re-tag whenever it (re)appears. The selector is globally unambiguous —
+// only one view's sidebar is mounted at a time.
+const useTagSkipNavigationListbox = (listboxSelector: string, targetId: string) => {
+  useEffect(() => {
+    const tagListbox = () => {
+      const listbox = document.querySelector<HTMLElement>(listboxSelector);
+      if (listbox && listbox.id !== targetId) {
+        listbox.id = targetId;
+      }
+    };
+
+    tagListbox();
+    const observer = new MutationObserver(tagListbox);
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [listboxSelector, targetId]);
+};
 
 // Shared sidebar overlay: the view selector (nav rail) + the view-specific list. Extracted
 // so the selector isn't duplicated across the channels/threads panels. (It still renders
@@ -230,7 +254,18 @@ const SecondChannelContent = ({
             ) : (
               <MessageList returnAllReadData />
             )}
-            <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+            <ReturnToSkipNavigation />
+            <AIStateIndicator />
+            <MessageComposer
+              additionalTextareaProps={{
+                id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+              }}
+              asyncMessagesMultiSendEnabled
+              audioRecordingEnabled
+              maxRows={10}
+              focus
+            />
+            <ChannelPreviewOverlay />
           </div>
         </WithDragAndDropUpload>
       </WithComponents>
@@ -580,14 +615,10 @@ export const ChannelsPanels = ({
     closeSidebar();
   }, [mainChannelId, closeSidebar]);
 
-  useEffect(() => {
-    const channelListElement = channelsLayoutRef.current?.querySelector<HTMLElement>(
-      '.app-chat-sidebar-overlay > .str-chat__channel-list',
-    );
-    if (!channelListElement) return;
-
-    channelListElement.id = CHANNEL_LIST_TARGET_ID;
-  }, [mainChannelId, sidebarOpen]);
+  useTagSkipNavigationListbox(
+    '.app-chat-sidebar-overlay .str-chat__channel-list-inner__main',
+    CHANNEL_LIST_TARGET_ID,
+  );
 
   return (
     <div
@@ -668,6 +699,16 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
   );
 };
 
+// Renders the "Back to quick navigation" return link above the thread's composer (the SDK renders
+// the thread composer internally, so we inject via the MessageComposerUI slot) — matching the
+// channel view, where the link sits right above <MessageComposer />.
+const ThreadMessageComposerUI = () => (
+  <>
+    <ReturnToSkipNavigation />
+    <DefaultMessageComposerUI />
+  </>
+);
+
 export const ThreadsPanels = ({
   iconOnly,
   itemSet,
@@ -683,6 +724,11 @@ export const ThreadsPanels = ({
   const hasThread = !!mainThread || !!optionalThread;
   const isSecondaryOpen = !!optionalThread;
   const threadsLayoutRef = useRef<HTMLDivElement | null>(null);
+
+  useTagSkipNavigationListbox(
+    '.app-chat-sidebar-overlay .str-chat__thread-list',
+    THREAD_LIST_TARGET_ID,
+  );
 
   return (
     <>

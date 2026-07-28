@@ -1,3 +1,36 @@
+## [14.10.0](https://github.com/GetStream/stream-chat-react/compare/v14.9.0...v14.10.0) (2026-07-22)
+
+### Features
+
+* introduce extractDisplayInfo for Avatar/AvatarStack components ([#3244](https://github.com/GetStream/stream-chat-react/issues/3244)) ([1068e79](https://github.com/GetStream/stream-chat-react/commit/1068e79cc2bfddf2d900b49325c59d762c91b485))
+
+## [14.9.0](https://github.com/GetStream/stream-chat-react/compare/v14.8.0...v14.9.0) (2026-07-16)
+
+### Bug Fixes
+
+* custom doUploadRequest permission adjustments ([#3243](https://github.com/GetStream/stream-chat-react/issues/3243)) ([fa67adf](https://github.com/GetStream/stream-chat-react/commit/fa67adf3ee864c7344a06fe1b9edafde4acb529d)), closes [GetStream/stream-chat-js#1800](https://github.com/GetStream/stream-chat-js/issues/1800)
+* **MessageComposer:** make textarea full-width in custom composer layouts ([#3241](https://github.com/GetStream/stream-chat-react/issues/3241)) ([05236db](https://github.com/GetStream/stream-chat-react/commit/05236dbe07af510ed59581e672d0502f923d186d))
+
+### Features
+
+* expose internal contexts and composer components in the public API ([#3242](https://github.com/GetStream/stream-chat-react/issues/3242)) ([6b6a828](https://github.com/GetStream/stream-chat-react/commit/6b6a828305401b03a52deb27ed45be2816baa06f)), closes [GetStream/docs-content#1431](https://github.com/GetStream/docs-content/issues/1431)
+
+## [14.8.0](https://github.com/GetStream/stream-chat-react/compare/v14.7.0...v14.8.0) (2026-07-09)
+
+### Bug Fixes
+
+* **ChannelList:** make channel list and thread list width app-driven ([#3235](https://github.com/GetStream/stream-chat-react/issues/3235)) ([c89366b](https://github.com/GetStream/stream-chat-react/commit/c89366b5800b099c14e95d2612704393e8dd249a))
+
+### Features
+
+* **a11y:** improve keyboard and screen-reader support across composer, lists, search, and dialogs ([#3230](https://github.com/GetStream/stream-chat-react/issues/3230)) ([2c08f53](https://github.com/GetStream/stream-chat-react/commit/2c08f53c19c0c3eed7ba4b8c57eb67a77a6bd002))
+
+## [14.7.0](https://github.com/GetStream/stream-chat-react/compare/v14.6.1...v14.7.0) (2026-07-06)
+
+### Features
+
+* allow to customize ChannelListHeader ([#3234](https://github.com/GetStream/stream-chat-react/issues/3234)) ([f9752d4](https://github.com/GetStream/stream-chat-react/commit/f9752d441468ab1d8c8d43e4df1638f3adc1f90e))
+
 ## [14.6.1](https://github.com/GetStream/stream-chat-react/compare/v14.6.0...v14.6.1) (2026-07-03)
 
 ### Bug Fixes

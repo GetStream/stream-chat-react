@@ -12,6 +12,12 @@ import { useStateStore } from '../../../store';
 vi.mock('../SearchContext');
 vi.mock('../../../context');
 vi.mock('../../../store');
+// The announcement / keyboard-nav hooks are exercised by their own tests; stub them here so this
+// suite stays focused on render logic (and avoids needing an announcer provider).
+vi.mock('../hooks', () => ({
+  useAnnounceSearchResultCount: vi.fn(),
+  useSearchResultsKeyboardNavigation: () => ({ onKeyDown: vi.fn() }),
+}));
 
 const mockedUseSearchContext = vi.mocked(useSearchContext);
 const mockedUseComponentContext = vi.mocked(useComponentContext);

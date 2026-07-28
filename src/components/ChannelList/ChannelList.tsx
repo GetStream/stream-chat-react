@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Channel, ChannelPaginator, ChannelPaginatorState } from 'stream-chat';
 
 import { ChannelListItem } from '../ChannelListItem';
@@ -8,6 +8,8 @@ import { InfiniteScrollWithComponents } from '../InfiniteScrollPaginator/Infinit
 import { LoadingChannels, LoadingIndicator } from '../Loading';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
+import { useTranslationContext } from '../../context/TranslationContext';
+import { useChannelListKeyboardNavigation } from './hooks/useChannelListKeyboardNavigation';
 import { useStateStore } from '../../store';
 
 export type ChannelListProps = {
@@ -34,6 +36,7 @@ export const ChannelList = ({
   paginator,
 }: ChannelListProps) => {
   const { channelPaginatorsOrchestrator, client } = useChatContext('ChannelList');
+  const { t } = useTranslationContext('ChannelList');
   const { lastQueryError } = useStateStore(
     paginator.state,
     channelPaginatorStateSelector,
@@ -45,6 +48,16 @@ export const ChannelList = ({
     ListItem = DefaultListItem,
     LoadingNextPageIndicator = DefaultLoadingNextPageIndicator,
   } = useComponentContext();
+
+  // Keyboard roving + row-action navigation for this list. The scroll container (the
+  // `InfiniteScrollPaginator` root, reached via `listboxRef`) IS the `role="listbox"` that owns this
+  // list's `role="option"` rows — so no extra wrapper element is needed. The hook reads/focuses the
+  // option rows under `listboxRef`.
+  // NOTE: the hook's "focus the first item of the next page after Load more" branch is a no-op here —
+  // the list paginates on scroll-to-bottom (no rendered `load-more-button` for its `LOAD_MORE_SELECTOR`
+  // to match). Accepted; keyboard roving is unaffected.
+  const listboxRef = useRef<HTMLDivElement>(null);
+  const { onClickCapture, onKeyDown } = useChannelListKeyboardNavigation(listboxRef);
 
   // Ref-counted: safe whether called here, from <ChannelLists/>, or from <Chat>.
   useEffect(
@@ -67,6 +80,8 @@ export const ChannelList = ({
 
   return (
     <InfiniteScrollWithComponents<Channel>
+      aria-label={t('aria/Channel list')}
+      contentProps={{ role: 'presentation' }}
       EmptyListIndicator={EmptyListIndicator}
       EndReachedIndicator={EndReachedIndicator}
       FirstPageLoadingIndicator={FirstPageLoadingIndicator}
@@ -74,7 +89,11 @@ export const ChannelList = ({
       LoadingNextPageIndicator={LoadingNextPageIndicator}
       loadNextDebounceMs={loadMoreDebounceMs}
       loadNextOnScrollToBottom={paginator.next}
+      onClickCapture={onClickCapture}
+      onKeyDown={onKeyDown}
       paginator={paginator}
+      ref={listboxRef}
+      role='listbox'
       threshold={loadMoreThresholdPx}
     />
   );

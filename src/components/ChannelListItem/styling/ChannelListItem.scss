@@ -116,3 +116,7 @@
     }
   }
 }
+
+.str-chat__channel-list-item[aria-selected='true'] {
+  background-color: var(--str-chat__background-utility-selected);
+}

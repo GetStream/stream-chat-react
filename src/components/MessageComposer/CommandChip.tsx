@@ -16,7 +16,9 @@ export const CommandChip = ({ command }: CommandChipProps) => {
   return (
     <div className='str-chat__command-chip'>
       <IconBolt />
-      <span>{command.name}</span>
+      <span aria-hidden='true' tabIndex={-1}>
+        {command.name}
+      </span>
       <button
         aria-label={t('Exit command {{ command }}', { command: command.name })}
         className={'str-chat__command-chip__close-button'}

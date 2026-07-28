@@ -6,7 +6,7 @@ import { Chat } from '../../../Chat';
 import { Channel } from '../../../Channel';
 import { EventEmitterMock, MediaRecorderMock } from '../../../../mock-builders/browser';
 import { DEFAULT_AMPLITUDE_RECORDER_CONFIG } from '../../classes/AmplitudeRecorder';
-import { DEFAULT_AUDIO_TRANSCODER_CONFIG } from '../../classes';
+import { DEFAULT_AUDIO_TRANSCODER_CONFIG, MediaRecordingState } from '../../classes';
 import {
   generateVoiceRecordingAttachment,
   initClientWithChannels,
@@ -21,6 +21,19 @@ import {
 const { sendMessageFnMock } = vi.hoisted(() => ({ sendMessageFnMock: vi.fn() }));
 vi.mock('../../../MessageComposer/hooks/useSendMessageFn', () => ({
   useSendMessageFn: () => sendMessageFnMock,
+}));
+
+// Capture interaction announcements while keeping the rest of the Accessibility module intact (Chat
+// mounts AriaLiveAnnouncerProvider / NotificationAnnouncer from it).
+const { announceInteractionMock } = vi.hoisted(() => ({
+  announceInteractionMock: vi.fn(),
+}));
+vi.mock('../../../Accessibility', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../../Accessibility')>()),
+  useInteractionAnnouncements: () => ({
+    announceInteraction: announceInteractionMock,
+    cancelInteraction: vi.fn(),
+  }),
 }));
 
 window.MediaRecorder = MediaRecorderMock as unknown as typeof MediaRecorder;
@@ -188,6 +201,8 @@ describe('useMediaRecorder', () => {
       expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
       expect(sendMessageFnMock).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
+      expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.sent');
+      expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.attached');
     });
 
     it('uploads but does not submit the attachment if multiple async messages enabled', async () => {
@@ -214,6 +229,53 @@ describe('useMediaRecorder', () => {
       expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
       expect(sendMessageFnMock).not.toHaveBeenCalled();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
+      expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.attached');
+      expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.sent');
+    });
+  });
+
+  describe('lifecycle announcements', () => {
+    it('announces started, paused, and resumed on the matching state transitions', async () => {
+      const {
+        result: {
+          current: { recorder },
+        },
+      } = await render();
+
+      await act(() => {
+        recorder.recordingState.next(MediaRecordingState.RECORDING);
+      });
+      expect(announceInteractionMock).toHaveBeenLastCalledWith('voiceRecording.started');
+
+      await act(() => {
+        recorder.recordingState.next(MediaRecordingState.PAUSED);
+      });
+      expect(announceInteractionMock).toHaveBeenLastCalledWith('voiceRecording.paused');
+
+      await act(() => {
+        recorder.recordingState.next(MediaRecordingState.RECORDING);
+      });
+      expect(announceInteractionMock).toHaveBeenLastCalledWith('voiceRecording.resumed');
+    });
+
+    it('does not announce an interaction when a recording is cancelled/reset (covered by a notification)', async () => {
+      const {
+        result: {
+          current: { recorder },
+        },
+      } = await render();
+
+      await act(() => {
+        recorder.recordingState.next(MediaRecordingState.RECORDING);
+      });
+      announceInteractionMock.mockClear();
+
+      // Cancelling resets the state to `undefined`; the "Voice message deleted" notification (spoken
+      // by NotificationAnnouncer) is the announcement — no interaction is fired here.
+      await act(() => {
+        recorder.recordingState.next(undefined);
+      });
+      expect(announceInteractionMock).not.toHaveBeenCalled();
     });
   });
 });

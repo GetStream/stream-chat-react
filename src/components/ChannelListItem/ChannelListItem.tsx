@@ -15,6 +15,7 @@ import { useChannelPreviewInfo } from './hooks/useChannelPreviewInfo';
 import type { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { useMessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import type { GroupChannelDisplayInfo } from './utils';
+import type { ChannelListItemLabelConfig } from './utils.a11y';
 import {
   useChatContext,
   useComponentContext,
@@ -23,6 +24,12 @@ import {
 import { useChannelMembershipState } from '../ChannelList';
 
 export type ChannelListItemUIProps = ChannelListItemProps & {
+  /**
+   * Configures the row's composed accessible name (part overrides, order, separator, or a full
+   * `build`). Supply it from a `ComponentContext`-provided `ChannelListItemUI` to customize the
+   * announcement. See `composeChannelListItemAccessibleLabel`.
+   */
+  accessibleLabelConfig?: ChannelListItemLabelConfig;
   /** Image of Channel to display */
   displayImage?: string;
   /** Title of Channel to display */

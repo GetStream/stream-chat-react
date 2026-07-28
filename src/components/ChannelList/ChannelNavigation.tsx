@@ -1,7 +1,7 @@
 import React from 'react';
 import type { SearchControllerState } from 'stream-chat';
 
-import { ChannelListHeader } from './ChannelListHeader';
+import { ChannelListHeader as DefaultChannelListHeader } from './ChannelListHeader';
 import { ChannelLists } from './ChannelLists';
 import { NotificationList as DefaultNotificationList } from '../Notifications';
 import { Search as DefaultSearch } from '../Search';
@@ -20,8 +20,11 @@ const searchControllerStateSelector = (state: SearchControllerState) => ({
  * via the `ComponentContext` `Search` slot.
  */
 export const ChannelNavigation = () => {
-  const { NotificationList = DefaultNotificationList, Search = DefaultSearch } =
-    useComponentContext();
+  const {
+    ChannelListHeader = DefaultChannelListHeader,
+    NotificationList = DefaultNotificationList,
+    Search = DefaultSearch,
+  } = useComponentContext();
   const { searchController } = useChatContext();
   const { isActive } = useStateStore(
     searchController.state,

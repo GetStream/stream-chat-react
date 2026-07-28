@@ -4,10 +4,12 @@ import { formatMessage } from 'stream-chat';
 import type { Channel, MessageResponse, User } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
-import { Avatar } from '../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../components/Avatar/utils';
 import { ChannelListItem } from '../../../components/ChannelListItem';
 import {
   useChatContext,
+  useComponentContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../context';
@@ -132,6 +134,8 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
   const { openChannel } = useWorkspaceNavigation();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
 
   const onClick = useCallback(
     (event: React.MouseEvent) => {
@@ -170,10 +174,9 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         role='option'
       >
         <Avatar
-          imageUrl={item.image}
+          {...extractDisplayInfo({ user: item })}
           isOnline={item.online}
           size='xl'
-          userName={item.name || item.id}
         />
         <div className='str-chat__search-result-data'>
           <div className='str-chat__search-result__display-name'>

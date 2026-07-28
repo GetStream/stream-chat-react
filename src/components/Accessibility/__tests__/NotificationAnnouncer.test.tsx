@@ -1,6 +1,8 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 
+import { AriaLiveAnnouncerProvider } from '../AriaLiveAnnouncerProvider';
+import { AriaLiveOutlet } from '../AriaLiveOutlet';
 import {
   type NotificationAnnouncementBuilder,
   type NotificationAnnouncementFilter,
@@ -42,12 +44,19 @@ type RenderNotificationAnnouncerProps = {
   notificationFilter?: NotificationAnnouncementFilter;
 };
 
-const renderNotificationAnnouncer = (props: RenderNotificationAnnouncerProps = {}) =>
-  render(
-    <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+// The announcer no longer renders its own region — it routes through the shared announcer,
+// so the tree must provide an AriaLiveAnnouncerProvider + an AriaLiveOutlet (the live region).
+const notificationAnnouncerTree = (props: RenderNotificationAnnouncerProps = {}) => (
+  <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
+    <AriaLiveAnnouncerProvider>
       <NotificationAnnouncer {...props} />
-    </TranslationProvider>,
-  );
+      <AriaLiveOutlet />
+    </AriaLiveAnnouncerProvider>
+  </TranslationProvider>
+);
+
+const renderNotificationAnnouncer = (props: RenderNotificationAnnouncerProps = {}) =>
+  render(notificationAnnouncerTree(props));
 
 describe('NotificationAnnouncer', () => {
   let currentNotifications: Notification[];
@@ -81,11 +90,7 @@ describe('NotificationAnnouncer', () => {
       },
     ];
 
-    rerender(
-      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
-        <NotificationAnnouncer />
-      </TranslationProvider>,
-    );
+    rerender(notificationAnnouncerTree());
 
     act(() => {
       vi.advanceTimersByTime(60);
@@ -108,11 +113,7 @@ describe('NotificationAnnouncer', () => {
       },
     ];
 
-    rerender(
-      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
-        <NotificationAnnouncer />
-      </TranslationProvider>,
-    );
+    rerender(notificationAnnouncerTree());
 
     act(() => {
       vi.advanceTimersByTime(60);
@@ -164,13 +165,7 @@ describe('NotificationAnnouncer', () => {
       },
     ];
 
-    rerender(
-      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
-        <NotificationAnnouncer
-          buildNotificationAnnouncement={buildNotificationAnnouncement}
-        />
-      </TranslationProvider>,
-    );
+    rerender(notificationAnnouncerTree({ buildNotificationAnnouncement }));
 
     act(() => {
       vi.advanceTimersByTime(60);
@@ -207,11 +202,7 @@ describe('NotificationAnnouncer', () => {
       },
     ];
 
-    rerender(
-      <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
-        <NotificationAnnouncer notificationFilter={notificationFilter} />
-      </TranslationProvider>,
-    );
+    rerender(notificationAnnouncerTree({ notificationFilter }));
 
     act(() => {
       vi.advanceTimersByTime(60);

@@ -60,4 +60,13 @@ describe('CommandChip', () => {
       screen.getByRole('button', { name: 'Exit command giphy' }),
     ).toBeInTheDocument();
   });
+
+  it('renders a non-focusable visual-only command label', () => {
+    render(<CommandChip command={{ name: 'giphy' }} />);
+
+    const commandLabel = screen.getByText('giphy');
+
+    expect(commandLabel).toHaveAttribute('aria-hidden', 'true');
+    expect(commandLabel).toHaveAttribute('tabindex', '-1');
+  });
 });

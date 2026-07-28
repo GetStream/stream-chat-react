@@ -39,16 +39,12 @@ export const DownloadSubmenu = () => {
   );
 
   return (
-    <div
-      aria-label={t('aria/Download attachment')}
-      className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'
-      role='menu'
-    >
+    <div className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'>
       {downloadableAttachments.map((attachment, index) => {
-        const fileName =
-          attachment.localMetadata?.file?.name ??
-          attachment.title ??
-          t('Download Attachment');
+        const fileName = attachment.localMetadata?.file?.name ?? attachment.title;
+        const label = fileName
+          ? t('Download {{ fileName }}', { fileName })
+          : t('Download attachment {{ number }}', { number: index + 1 });
 
         return (
           <ContextMenuButton
@@ -58,14 +54,14 @@ export const DownloadSubmenu = () => {
               attachment.localMetadata?.id ??
               attachment.asset_url ??
               attachment.image_url ??
-              `${fileName}-${index}`
+              `${fileName ?? 'attachment'}-${index}`
             }
             onClick={() => {
               void downloadAttachment(attachment);
               closeMenu();
             }}
           >
-            {`Download ${fileName}`}
+            {label}
           </ContextMenuButton>
         );
       })}

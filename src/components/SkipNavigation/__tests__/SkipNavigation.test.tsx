@@ -43,6 +43,24 @@ describe('SkipNavigation', () => {
     expect(target).not.toHaveAttribute('tabindex');
   });
 
+  it('prevents the default in-page hash navigation on click (focus stays JS-driven)', () => {
+    render(
+      <>
+        <SkipNavigation targetIds={['main-content']} />
+        <div id='main-content'>Main content</div>
+      </>,
+    );
+
+    const link = screen.getByRole('link', { name: 'Skip to main-content' });
+    const target = screen.getByText('Main content');
+
+    // fireEvent returns false when the event's default action was prevented.
+    const defaultAllowed = fireEvent.click(link);
+
+    expect(defaultAllowed).toBe(false);
+    expect(target).toHaveFocus();
+  });
+
   it('does not override prevented onClick behavior', () => {
     const onClick = vi.fn((event: React.MouseEvent<HTMLAnchorElement>) =>
       event.preventDefault(),

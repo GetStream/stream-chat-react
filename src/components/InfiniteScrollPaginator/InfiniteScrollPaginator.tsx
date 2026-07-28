@@ -17,6 +17,13 @@ const mousewheelListener = (event: Event) => {
 
 type InfiniteScrollPaginatorOwnProps = {
   element?: React.ElementType;
+  /**
+   * Props spread onto the inner content wrapper (the element that directly wraps
+   * `children`). Use this to e.g. mark the wrapper `role="presentation"` so it stays
+   * transparent in the accessibility tree and does not break the ownership between an
+   * ancestor (`listbox`/`menu`) and its `option`/`menuitem` children.
+   */
+  contentProps?: React.ComponentProps<'div'>;
   listenToScroll?: (
     distanceFromBottom: number,
     distanceFromTop: number,
@@ -61,6 +68,7 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
     children,
     className,
     element: Component = 'div' as E,
+    contentProps,
     listenToScroll,
     loadNextDebounceMs = 500,
     loadNextOnScrollToBottom,
@@ -69,6 +77,7 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
     useCapture = false,
     ...componentProps
   } = props;
+  const { className: contentClassName, ...contentRestProps } = contentProps ?? {};
 
   const rootRef = useRef<HTMLElement | null>(null);
   const childRef = useRef<HTMLDivElement | null>(null);
@@ -157,7 +166,14 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
     },
     React.createElement(
       'div',
-      { className: 'str-chat__infinite-scroll-paginator__content', ref: childRef },
+      {
+        ...contentRestProps,
+        className: clsx(
+          'str-chat__infinite-scroll-paginator__content',
+          contentClassName,
+        ),
+        ref: childRef,
+      },
       children,
     ),
   );

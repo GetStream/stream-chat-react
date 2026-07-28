@@ -15,7 +15,6 @@ const renderSelector = async (selectorProps?: any) => {
   return render(
     <ChatProvider
       value={{
-        channelsQueryState: fromPartial({}),
         client,
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},
@@ -40,7 +39,6 @@ const renderSelectorWithPanels = async (selectorProps?: any) => {
   return render(
     <ChatProvider
       value={{
-        channelsQueryState: fromPartial({}),
         client,
         getAppSettings: vi.fn(),
         latestMessageDatesByChannels: {},

@@ -1,10 +1,15 @@
 import type { LocalMessage, MessageResponse, MessageSearchSource } from 'stream-chat';
 import React, { useCallback, useMemo } from 'react';
 
-import { useModalContext, useTranslationContext } from '../../../../context';
+import {
+  useComponentContext,
+  useModalContext,
+  useTranslationContext,
+} from '../../../../context';
 import { useChatViewNavigation } from '../../../SlotLayout';
 import { getDateString, isDate } from '../../../../i18n/utils';
-import { Avatar } from '../../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
@@ -78,14 +83,18 @@ const PinnedMessagesViewItem = ({
   onSelect: (message: PinnedMessage) => void;
 }) => {
   const { t } = useTranslationContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const displayName = getUserDisplayName(message.user ?? undefined);
 
   const LeadingSlot = useMemo(
     () =>
       function MessageAuthorAvatar() {
-        return <Avatar imageUrl={message.user?.image} size='md' userName={displayName} />;
+        const displayInfo = extractDisplayInfo({ user: message.user ?? undefined });
+
+        return <Avatar {...displayInfo} size='md' />;
       },
-    [displayName, message.user?.image],
+    [Avatar, extractDisplayInfo, message.user],
   );
 
   const TrailingSlot = useMemo(

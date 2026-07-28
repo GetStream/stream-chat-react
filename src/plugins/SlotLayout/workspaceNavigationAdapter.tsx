@@ -45,7 +45,7 @@ export const WorkspaceNavigationAdapter = ({
   deriveWorkspaceNavigation,
 }: PropsWithChildren<WorkspaceNavigationAdapterProps>) => {
   const { close, open } = useChatViewNavigation();
-  const { activeChatView } = useChatViewContext();
+  const { activeView } = useChatViewContext();
   const { client } = useChatContext('WorkspaceNavigationAdapter');
   const { availableSlots, slotBindings } = useLayoutViewState();
 
@@ -72,7 +72,7 @@ export const WorkspaceNavigationAdapter = ({
       return acc;
     }, []);
 
-    const isThreadsView = activeChatView === 'threads';
+    const isThreadsView = activeView === 'threads';
 
     return {
       closeThread: (threadId) => {
@@ -112,7 +112,7 @@ export const WorkspaceNavigationAdapter = ({
       },
       openThreads,
     };
-  }, [activeChatView, availableSlots, client, close, open, slotBindings]);
+  }, [activeView, availableSlots, client, close, open, slotBindings]);
 
   const derived = useMemo(
     () => (deriveWorkspaceNavigation ? deriveWorkspaceNavigation(value) : value),

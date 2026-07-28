@@ -25,16 +25,12 @@ export const ChannelLists = () => {
     paginatorsSelector,
   );
 
-  const lists = (
-    <>
-      {paginators.map((paginator) => (
-        <ChannelList key={paginator.id} paginator={paginator} />
-      ))}
-    </>
-  );
+  const lists = paginators.map((paginator) => (
+    <ChannelList key={paginator.id} paginator={paginator} />
+  ));
 
   const primaryPaginator = paginators[0];
-  if (!primaryPaginator) return lists;
+  if (!primaryPaginator) return <>{lists}</>;
 
   return (
     <ChannelListContextProvider value={{ paginator: primaryPaginator }}>

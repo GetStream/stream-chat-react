@@ -14,6 +14,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 // imported/mocked here; the channel stub exposes a messagePaginator instead.
 import {
   useChatContext,
+  useComponentContext,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
@@ -233,6 +234,10 @@ describe('PinnedMessagesView', () => {
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },
     } as ReturnType<typeof useChatContext>);
+
+    vi.mocked(useComponentContext).mockReturnValue(
+      {} as ReturnType<typeof useComponentContext>,
+    );
 
     vi.mocked(useModalContext).mockReturnValue({
       close: vi.fn(),

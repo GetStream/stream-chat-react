@@ -10,7 +10,7 @@ export type SearchContextValue = {
   containerRef: React.RefObject<HTMLDivElement | null>;
   /** Reference to the container element of the filter buttons */
   filterButtonsContainerRef: React.RefObject<HTMLDivElement | null>;
-} & Pick<SearchProps, 'disabled' | 'placeholder'> &
+} & Pick<SearchProps, 'disabled' | 'inputProps' | 'placeholder'> &
   Required<Pick<SearchProps, 'exitSearchOnInputBlur' | 'directMessagingChannelType'>>;
 
 export const SearchContext = createContext<SearchContextValue | undefined>(undefined);

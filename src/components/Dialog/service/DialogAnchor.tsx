@@ -7,6 +7,7 @@ import { useDialog, useDialogIsOpen } from '../hooks';
 import { type OffsetOpt, usePopoverPosition } from '../hooks/usePopoverPosition';
 import type { PopperLikePlacement } from '../hooks';
 import type { Placement } from '@floating-ui/react';
+import { AriaLiveOutlet } from '../../Accessibility';
 
 export interface DialogAnchorOptions {
   open: boolean;
@@ -259,6 +260,10 @@ export const DialogAnchor = ({
           tabIndex={typeof tabIndex !== 'undefined' ? tabIndex : 0}
         >
           {children}
+          {/* Render the live-region outlet inside the dialog subtree only when it
+              is an `aria-modal` dialog, so announcements are not suppressed by
+              assistive technologies. Non-modal popovers/menus skip it. */}
+          {resolvedAriaModal && <AriaLiveOutlet layer={1} />}
         </div>
       </FocusScope>
     </DialogPortalEntry>

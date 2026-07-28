@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { PaginatorState, StateStore } from 'stream-chat';
 
 import { useStateStore } from '../../store';
@@ -29,14 +29,22 @@ export type InfiniteScrollWithComponentsProps<TItem extends { id?: string }> =
     hasReachedTop?: (paginator: PaginatorLike<TItem>) => boolean;
   };
 
+type InfiniteScrollWithComponentsComponent = <TItem extends { id?: string }>(
+  props: InfiniteScrollWithComponentsProps<TItem>,
+) => React.ReactNode;
+
 /**
  * Renders any paginator-backed list with pluggable indicator/item components,
  * driven by the paginator's reactive `state`. Used by the orchestrator-driven
- * channel list.
+ * channel list. `forwardRef` so callers can put the scroll root's DOM node to use
+ * (e.g. the channel list marks it `role="listbox"` and drives keyboard roving off it).
  */
-export const InfiniteScrollWithComponents = <TItem extends { id?: string }>(
+export const InfiniteScrollWithComponents = forwardRef(function InfiniteScrollWithComponents<
+  TItem extends { id?: string },
+>(
   props: InfiniteScrollWithComponentsProps<TItem>,
-) => {
+  ref: React.ForwardedRef<unknown>,
+) {
   const {
     EmptyListIndicator,
     EndReachedIndicator,
@@ -64,7 +72,7 @@ export const InfiniteScrollWithComponents = <TItem extends { id?: string }>(
   return (
     <>
       <EndReachedIndicator hasEnded={topEndReached} reached='top' />
-      <InfiniteScrollPaginator {...componentProps}>
+      <InfiniteScrollPaginator {...componentProps} ref={ref}>
         {items.map((item) => (
           <ListItem item={item} key={item.id} />
         ))}
@@ -73,4 +81,4 @@ export const InfiniteScrollWithComponents = <TItem extends { id?: string }>(
       <EndReachedIndicator hasEnded={bottomEndReached} reached='bottom' />
     </>
   );
-};
+}) as InfiniteScrollWithComponentsComponent;

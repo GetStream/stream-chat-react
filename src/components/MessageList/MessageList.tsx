@@ -14,7 +14,7 @@ import {
   NotificationList as DefaultNotificationList,
   useNotificationTarget,
 } from '../Notifications';
-import { AriaLiveRegion, useIncomingMessageAnnouncements } from '../Accessibility';
+import { useIncomingMessageAnnouncements } from '../Accessibility';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 
 import { DialogManagerProvider, useChannel } from '../../context';
@@ -402,7 +402,10 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   <MessageListWrapper className='str-chat__ul'>
                     {elements}
                   </MessageListWrapper>
-                  <TypingIndicator />
+                  <TypingIndicator
+                    isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                    scrollToBottom={scrollToBottom}
+                  />
 
                   <div key='bottom' />
                 </InfiniteScrollPaginator>
@@ -530,7 +533,5 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
  * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
  */
 export const MessageList = (props: MessageListProps) => (
-  <AriaLiveRegion>
-    <MessageListWithContext {...props} />
-  </AriaLiveRegion>
+  <MessageListWithContext {...props} />
 );

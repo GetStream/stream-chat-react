@@ -50,3 +50,12 @@ When importing from 'stream-chat' library, always import by library name (from '
 ## React components
 
 Try to avoid inline `style` attribute and prefer adding styles to `.scss` files.
+
+## How a plugin works in stream-chat-react
+
+A "plugin" is just a separate build entry point that ships as a subpath export (e.g. stream-chat-react/emojis, stream-chat-react/mp3-encoder). Concretely, each plugin is wired in 4 places:
+
+- Source folder — src/plugins/<Name>/ with an index.ts re-exporting its public API (see src/plugins/Emojis/index.ts).
+- Vite entry — a new key in build.lib.entry in vite.config.ts:20.
+- package.json — an exports subpath + a typesVersions entry (package.json:18,44).
+- Styling (optional) — a styling/index.scss added as a separate sass target in the build-styling script (package.json:185), producing its own CSS file like dist/css/emoji-picker.css.

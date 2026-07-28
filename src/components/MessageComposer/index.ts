@@ -1,5 +1,8 @@
 export * from './AttachmentSelector';
-export { AttachmentPreviewList } from './AttachmentPreviewList';
+export {
+  AttachmentPreviewList,
+  VoiceRecordingPreviewSlot,
+} from './AttachmentPreviewList';
 export type {
   AttachmentPreviewListProps,
   FileAttachmentPreviewProps,
@@ -16,6 +19,7 @@ export * from './hooks';
 export * from './icons';
 export * from './LinkPreviewList';
 export * from './MessageComposer';
+export * from './MessageComposerActions';
 export * from './MessageComposerUI';
 export * from './QuotedMessagePreview';
 export * from './SendButton';

@@ -5,28 +5,48 @@ import clsx from 'clsx';
 import type { MessagePaginatorAggregateState, ThreadState } from 'stream-chat';
 
 import { Timestamp } from '../../Message/Timestamp';
-import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
+import {
+  Avatar,
+  type AvatarProps,
+  AvatarStack as DefaultAvatarStack,
+} from '../../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../Avatar/utils';
+import { useInteractionAnnouncements } from '../../Accessibility';
 import { useChannelPreviewInfo } from '../../ChannelListItem';
 import {
   useChatContext,
+  useComponentContext,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../context';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
-import { SummarizedMessagePreview } from '../../SummarizedMessagePreview';
+import {
+  SummarizedMessagePreview,
+  useLatestMessagePreview,
+} from '../../SummarizedMessagePreview';
+import {
+  composeThreadListItemAccessibleLabel,
+  type ThreadListItemLabelConfig,
+} from './utils.a11y';
 
 export type ThreadListItemUIProps = ComponentPropsWithoutRef<'button'> & {
+  /**
+   * Configures the row's composed accessible name (the `aria-label`). Override individual parts, the
+   * order, the separator, or supply a full `build`. See `composeThreadListItemAccessibleLabel`.
+   */
+  accessibleLabelConfig?: ThreadListItemLabelConfig;
   resetHighlighting?: () => void;
 };
 
 export const ThreadListItemUI = ({
+  accessibleLabelConfig,
   resetHighlighting,
   ...props
 }: ThreadListItemUIProps) => {
   const { onClick: onClickFromProps, ...buttonProps } = props;
-  const { client } = useChatContext();
+  const { client, isMessageAIGenerated } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
 
@@ -68,9 +88,65 @@ export const ThreadListItemUI = ({
   );
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
-  const { t } = useTranslationContext('ThreadListItemUI');
+  const { t, tDateTimeParser, userLanguage } =
+    useTranslationContext('ThreadListItemUI');
+  const { announceInteraction } = useInteractionAnnouncements();
   const { isThreadActive, openThread } = useWorkspaceNavigation();
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext();
   const isSelected = isThreadActive(thread.id);
+
+  // Reuse the SAME preview the visible subtitle renders (text + sender, all message kinds), so the
+  // announced parent message matches what is shown.
+  const { senderName: parentMessageSender, text: parentMessagePreview } =
+    useLatestMessagePreview({
+      latestMessage: parentMessage,
+      participantCount: participants?.length,
+    });
+
+  const accessibleLabel = useMemo(
+    () =>
+      composeThreadListItemAccessibleLabel(
+        {
+          active: isSelected,
+          channel,
+          client,
+          displayTitle: channelDisplayTitle,
+          isMessageAIGenerated,
+          latestReply: latestReply ?? undefined,
+          parentMessage: parentMessage ?? undefined,
+          parentMessagePreview: parentMessage ? parentMessagePreview : undefined,
+          parentMessageSender: parentMessage ? parentMessageSender : undefined,
+          participantCount: participants?.length,
+          replyCount,
+          t,
+          tDateTimeParser,
+          unreadCount: ownUnreadMessageCount,
+          userLanguage,
+        },
+        accessibleLabelConfig,
+      ),
+    [
+      accessibleLabelConfig,
+      channel,
+      channelDisplayTitle,
+      client,
+      isMessageAIGenerated,
+      isSelected,
+      latestReply,
+      ownUnreadMessageCount,
+      parentMessage,
+      parentMessagePreview,
+      parentMessageSender,
+      participants,
+      replyCount,
+      t,
+      tDateTimeParser,
+      userLanguage,
+    ],
+  );
 
   const avatarProps: Partial<AvatarProps> | undefined = deletedAt
     ? undefined
@@ -82,13 +158,8 @@ export const ThreadListItemUI = ({
   const displayInfo = useMemo(() => {
     if (!participants) return [];
 
-    return participants.slice(0, 3).map((participant) => ({
-      id: participant.user?.id ?? undefined,
-      imageUrl: participant.user?.image,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userName: participant.user?.name || participant.user!.id,
-    }));
-  }, [participants]);
+    return participants.slice(0, 3).map(extractDisplayInfo);
+  }, [extractDisplayInfo, participants]);
 
   useEffect(() => {
     if (!resetHighlighting) return;
@@ -105,6 +176,7 @@ export const ThreadListItemUI = ({
   return (
     <div className='str-chat__thread-list-item-container'>
       <button
+        aria-label={accessibleLabel}
         aria-selected={isSelected}
         className={clsx('str-chat__thread-list-item', {
           'str-chat__thread-list-item--highlighted':
@@ -114,6 +186,12 @@ export const ThreadListItemUI = ({
         onClick={(event) => {
           // ⌘/ctrl-click opens the thread beside the current one; a plain click replaces it.
           void openThread(thread, { additive: event.ctrlKey || event.metaKey });
+          // Confirm the opened thread to assistive tech, debounced in the registry so it lands after
+          // the thread composer's focus announcement rather than competing with it. Skip when the
+          // row is already the active thread (re-selecting announces nothing new).
+          if (!isSelected && channelDisplayTitle) {
+            announceInteraction('thread.opened', { name: channelDisplayTitle });
+          }
           onClickFromProps?.(event);
         }}
         role='option'
