@@ -17,7 +17,7 @@ import {
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -148,7 +148,7 @@ const App = () => {
     <WithComponents
       overrides={{
         ChannelListItemUI: CustomChannelListItem,
-        Message: CustomMessage,
+        MessageUI: CustomMessage,
       }}
     >
       <Chat client={client} theme='custom-theme'>

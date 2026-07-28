@@ -1,7 +1,37 @@
+/* Host document rules. Every step's layout.css sets these too, because the
+   tutorial has the reader write them - but the chrome must not depend on a
+   step's stylesheet for its own layout. Declared here so the browser stands on
+   its own if steps are ever loaded lazily or in isolation. */
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+#root {
+  display: flex;
+}
+
+/* Chrome only - deliberately NOT `.tutorial-browser *`, so the SDK's own
+   box-sizing is left alone. These panes are sized in viewport units *and*
+   padded, so with the default content-box the padding is added on top of 100vh
+   and pushes the chat UI (and its composer) below the fold. */
+.tutorial-browser,
+.tutorial-browser__sidebar,
+.tutorial-browser__main,
+.tutorial-browser__header,
+.tutorial-browser__preview-card,
+.tutorial-browser__step-button {
+  box-sizing: border-box;
+}
+
 .tutorial-browser {
-  min-height: 100vh;
+  height: 100vh;
   width: 100%;
   display: flex;
+  overflow: hidden;
   background: linear-gradient(180deg, #eff5ff 0%, #f7fafc 32%, #eef7f6 100%);
 }
 
@@ -11,10 +41,7 @@
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(16px);
   padding: 24px 20px;
-  position: sticky;
-  top: 0;
-  align-self: start;
-  height: 100vh;
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -84,7 +111,11 @@
   flex-direction: column;
   padding: 20px;
   gap: 16px;
-  min-height: 100vh;
+  /* Exactly the viewport, not "at least" - the preview card below flexes into
+     whatever is left after the header, instead of overflowing the window. */
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .tutorial-browser__header {
@@ -135,6 +166,14 @@
   height: 100%;
   display: flex;
   overflow: hidden;
+}
+
+/* Step 2 renders bare text (`<Chat>Chat with client is ready!</Chat>`) with no
+   chat chrome, so it lands in the card's 28px corner arc and the first glyph
+   gets clipped. The other steps fill the corners with the channel header and
+   composer bars, which round cleanly, so they stay flush. */
+.tutorial-browser__step-shell.step-client-setup {
+  padding: 24px 28px;
 }
 
 .tutorial-browser__step-shell > * {

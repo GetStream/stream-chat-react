@@ -14,7 +14,7 @@ import {
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
 
 const user: User = {
   id: userId,
