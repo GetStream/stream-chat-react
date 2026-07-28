@@ -18,7 +18,7 @@ import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
 
 const user: User = {
   id: userId,
