@@ -1,16 +1,17 @@
 import clsx from 'clsx';
 import React from 'react';
 import { useMessageComposerController } from './hooks';
-import { IconCheckmark } from '../Icons';
 import type { MessageComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
-import { useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 
 const stateSelector = (state: MessageComposerState) => ({
   showReplyInChannel: state.showReplyInChannel,
 });
 
 export const SendToChannelCheckbox = () => {
+  const { IconCheckmark } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   const messageComposer = useMessageComposerController();
   const { showReplyInChannel } = useStateStore(messageComposer.state, stateSelector);

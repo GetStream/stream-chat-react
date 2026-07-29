@@ -11,17 +11,12 @@ import { useStableId } from '../UtilityComponents/useStableId';
 
 import { Button, type ButtonProps } from '../Button';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
-import {
-  IconMessageBubble,
-  IconMessageBubbleFill,
-  IconThread,
-  IconThreadFill,
-} from '../Icons';
 import { ThreadProvider } from '../Threads';
 import { UnreadCountBadge } from '../Threads/UnreadCountBadge';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
@@ -275,6 +270,7 @@ export const ChatViewChannelsSelectorButton = ({
 }: ChatViewSelectorItemProps) => {
   const { activeChatView, setActiveChatView } = useChatViewContext();
   const { t } = useTranslationContext();
+  const { IconMessageBubble, IconMessageBubbleFill } = useComponentContextIcons();
 
   const isActive = activeChatView === 'channels';
 
@@ -304,6 +300,7 @@ export const ChatViewThreadsSelectorButton = ({
   };
   const { activeChatView, setActiveChatView } = useChatViewContext();
   const { t } = useTranslationContext();
+  const { IconThread, IconThreadFill } = useComponentContextIcons();
 
   const isActive = activeChatView === 'threads';
   const label =

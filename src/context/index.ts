@@ -4,6 +4,7 @@ export * from './ChannelListContext';
 export * from './ChannelStateContext';
 export * from './ChatContext';
 export * from './ComponentContext';
+export * from './useComponentContextIcons';
 export * from './DialogManagerContext';
 export * from './MessageContext';
 export * from './MessageBounceContext';

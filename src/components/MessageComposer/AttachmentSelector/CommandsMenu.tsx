@@ -1,6 +1,10 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
 import type { CommandResponse } from 'stream-chat';
-import { useMessageComposerContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../../context';
 import { useMessageComposerCommands, useMessageComposerController } from '../hooks';
 import {
   ContextMenuBackButton,
@@ -8,30 +12,14 @@ import {
   ContextMenuHeader,
   useContextMenuContext,
 } from '../../Dialog';
-import {
-  IconAudio,
-  IconChevronLeft,
-  IconFlag,
-  IconGiphy,
-  IconMute,
-  IconUserAdd,
-  IconUserRemove,
-} from '../../Icons';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
-
-const icons: Record<string, ComponentType> = {
-  ban: IconUserRemove,
-  flag: IconFlag,
-  giphy: IconGiphy,
-  mute: IconMute,
-  unban: IconUserAdd,
-  unmute: IconAudio,
-};
 
 export const CommandsMenuClassName = 'str-chat__context-menu--commands';
 
 export const CommandsSubmenuHeader = () => {
+  const { IconChevronLeft } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
   return (
@@ -129,6 +117,20 @@ export const CommandContextMenuItem = ({
   enabled?: boolean;
 }) => {
   const { args, description } = useCommandTranslation(command);
+  const { IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove } =
+    useComponentContextIcons();
+
+  const icons = useMemo<Record<string, ComponentType>>(
+    () => ({
+      ban: IconUserRemove,
+      flag: IconFlag,
+      giphy: IconGiphy,
+      mute: IconMute,
+      unban: IconUserAdd,
+      unmute: IconAudio,
+    }),
+    [IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove],
+  );
 
   // todo: retrieve the command trigger char from textComposer - needed adjustment in LLC
   const details = useMemo(

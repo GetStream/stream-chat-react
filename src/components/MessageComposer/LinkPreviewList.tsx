@@ -8,7 +8,7 @@ import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useMessageComposerController } from './hooks';
 import { BaseImage } from '../BaseImage';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import { IconLink } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type LinkPreviewListProps = {
   displayLinkCount?: number;
@@ -46,6 +46,7 @@ type LinkPreviewProps = {
 };
 
 export const LinkPreviewCard = ({ linkPreview }: LinkPreviewProps) => {
+  const { IconLink } = useComponentContextIcons();
   const { linkPreviewsManager } = useMessageComposerController();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLDivElement>();

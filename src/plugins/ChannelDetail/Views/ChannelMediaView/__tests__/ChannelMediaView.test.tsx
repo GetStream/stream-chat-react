@@ -6,9 +6,11 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMediaView } from '../ChannelMediaView';
@@ -137,6 +139,7 @@ describe('ChannelMediaView', () => {
       Modal: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
         open ? <div data-testid='media-viewer'>{children}</div> : null,
     } as unknown as ReturnType<typeof useComponentContext>);
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,

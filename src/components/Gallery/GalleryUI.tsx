@@ -4,8 +4,11 @@ import { BaseImage } from '../BaseImage';
 import { GalleryHeader } from './GalleryHeader';
 import { useGalleryContext } from './GalleryContext';
 import { Button, type ButtonProps } from '../Button';
-import { IconChevronLeft, IconChevronRight } from '../Icons';
-import { ModalContext, useTranslationContext } from '../../context';
+import {
+  ModalContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { VideoPlayer } from '../VideoPlayer';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
@@ -15,6 +18,8 @@ const SWIPE_THRESHOLD = 50;
 const TRANSITION_DURATION = 300;
 
 export const GalleryUI = () => {
+  const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   const {
     closeOnBackgroundClick,

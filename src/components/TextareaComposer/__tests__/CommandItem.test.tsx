@@ -21,11 +21,16 @@ vi.mock('../../MessageComposer/hooks', () => ({
   }),
 }));
 
-vi.mock('../../../context', () => ({
-  useTranslationContext: () => ({
-    t: (key: string) => key,
-  }),
-}));
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useComponentContext: () => ({}),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useTranslationContext: () => ({
+      t: (key: string) => key,
+    }),
+  };
+});
 
 afterEach(cleanup);
 

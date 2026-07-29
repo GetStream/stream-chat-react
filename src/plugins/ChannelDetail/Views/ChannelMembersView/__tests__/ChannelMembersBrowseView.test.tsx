@@ -5,8 +5,10 @@ import type { ChannelMemberResponse } from 'stream-chat';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
 import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
@@ -121,6 +123,7 @@ describe('ChannelMembersBrowseView', () => {
         return key;
       },
     } as ReturnType<typeof useTranslationContext>);
+    vi.mocked(useComponentContext).mockReturnValue({});
     vi.mocked(useChatContext).mockReturnValue({
       mutes: [],
     } as ReturnType<typeof useChatContext>);
@@ -128,6 +131,7 @@ describe('ChannelMembersBrowseView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,

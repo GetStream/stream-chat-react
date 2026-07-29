@@ -4,13 +4,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../../../context';
 import { useStateStore } from '../../../../store';
 import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { Checkbox } from '../../../../components/Form';
-import { IconMute } from '../../../../components/Icons';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
@@ -38,9 +38,12 @@ const EMPTY_USERS: UserResponse[] = [];
 
 const computeUserItemKey = (_: number, user: UserResponse) => user.id;
 
-const MuteIndicator = () => (
-  <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
-);
+const MuteIndicator = () => {
+  const { IconMute } = useComponentContextIcons();
+  return (
+    <IconMute className='str-chat__channel-detail__action-icon str-chat__channel-detail__action-icon--mute' />
+  );
+};
 
 const readOnlyRootProps = {
   className: 'str-chat__channel-detail__channel-members-view__list-item',

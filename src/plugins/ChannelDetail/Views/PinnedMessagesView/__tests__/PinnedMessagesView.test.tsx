@@ -7,9 +7,11 @@ import {
   useChannelActionContext,
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { PinnedMessagesView } from '../PinnedMessagesView';
@@ -211,6 +213,8 @@ describe('PinnedMessagesView', () => {
       tDateTimeParser: (input?: string | Date) => new Date(input ?? Date.now()),
     } as ReturnType<typeof useTranslationContext>);
 
+    vi.mocked(useComponentContext).mockReturnValue({});
+
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },
     } as ReturnType<typeof useChatContext>);
@@ -218,6 +222,7 @@ describe('PinnedMessagesView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useModalContext).mockReturnValue({
       close: vi.fn(),

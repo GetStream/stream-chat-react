@@ -6,9 +6,11 @@ import type { Channel, ChannelMemberResponse } from 'stream-chat';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
 
@@ -88,6 +90,7 @@ describe('ChannelMemberDetail', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
   it("renders the provided member's details", () => {
