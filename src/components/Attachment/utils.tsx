@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import type { Attachment, SharedLocationResponse } from 'stream-chat';
+import type { Attachment, SharedLocationResponseData } from 'stream-chat';
 import type { ATTACHMENT_GROUPS_ORDER, AttachmentProps } from './Attachment';
 import * as linkify from 'linkifyjs';
 
@@ -44,7 +44,7 @@ export type RenderMediaProps = Omit<AttachmentProps, 'attachments'> & {
 };
 
 export type GeolocationContainerProps = Omit<AttachmentProps, 'attachments'> & {
-  location: SharedLocationResponse;
+  location: SharedLocationResponseData;
 };
 
 // This identity function determines attachment type specific to React.

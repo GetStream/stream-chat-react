@@ -9,7 +9,7 @@ import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
-import type { TextComposerState } from 'stream-chat';
+import type { EventPayload, TextComposerState } from 'stream-chat';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
@@ -38,14 +38,18 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { typing = {} } =
     useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
 
+  const typingEntries = Object.values(typing) as EventPayload<
+    'typing.start' | 'typing.stop'
+  >[];
+
   const typingInChannel = !threadList
-    ? Object.values(typing).filter(
+    ? typingEntries.filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
       )
     : [];
 
   const typingInThread = threadList
-    ? Object.values(typing).filter(
+    ? typingEntries.filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
       )
     : [];

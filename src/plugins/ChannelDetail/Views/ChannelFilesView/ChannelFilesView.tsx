@@ -78,23 +78,23 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
           <FileIcon
             className='str-chat__channel-detail__files-view__list-item__icon'
             fileName={fileName}
-            mimeType={attachment.mime_type}
+            mimeType={attachment.custom.mime_type}
             size='md'
           />
         );
       },
-    [attachment.mime_type, fileName],
+    [attachment.custom.mime_type, fileName],
   );
 
   const sharedProps = useMemo(
     () => ({
       LeadingSlot,
-      subtitle: <FileSizeIndicator fileSize={attachment.file_size} />,
+      subtitle: <FileSizeIndicator fileSize={attachment.custom.file_size} />,
       subtitleClassName: 'str-chat__channel-detail__files-view__list-item__size',
       title: fileName,
       titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
     }),
-    [attachment.file_size, fileName, LeadingSlot],
+    [attachment.custom.file_size, fileName, LeadingSlot],
   );
 
   const linkRootProps = useMemo(

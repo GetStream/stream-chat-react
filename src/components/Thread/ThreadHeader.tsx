@@ -11,7 +11,7 @@ import { useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
-import type { LocalMessage } from 'stream-chat';
+import type { EventPayload, LocalMessage } from 'stream-chat';
 import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
 import { IconXmark } from '../Icons';
@@ -43,7 +43,7 @@ const ThreadHeaderSubtitle = ({
   const messageComposer = useMessageComposerController();
   const { typing = {} } =
     useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
-  const typingInThread = Object.values(typing).filter(
+  const typingInThread = (Object.values(typing) as EventPayload<'typing.start'>[]).filter(
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );
   const hasTyping = channelConfig?.typing_events !== false && typingInThread.length > 0;

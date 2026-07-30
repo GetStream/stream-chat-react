@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import type {
   DeleteMessageOptions,
-  EventAPIResponse,
   LocalMessage,
-  MarkReadOptions,
-  Message,
+  MarkReadRequest,
+  MessageRequest,
   MessageResponse,
   SendMessageOptions,
   Channel as StreamChannel,
@@ -20,11 +19,11 @@ export type ChannelRequestHandlersParams = {
   ) => Promise<MessageResponse>;
   doMarkReadRequest?: (
     channel: StreamChannel,
-    options?: MarkReadOptions,
-  ) => Promise<EventAPIResponse | null> | void;
+    options?: MarkReadRequest,
+  ) => ReturnType<StreamChannel['markRead']> | void;
   doSendMessageRequest?: (
     channel: StreamChannel,
-    message: Message,
+    message: MessageRequest,
     options?: SendMessageOptions,
   ) => ReturnType<StreamChannel['sendMessage']> | void;
   doUpdateMessageRequest?: (
@@ -67,19 +66,19 @@ export const useChannelRequestHandlers = ({
 
     if (doSendMessageRequest) {
       const sendMessageRequest = async (params: {
-        message?: Message;
+        message?: MessageRequest;
         options?: SendMessageOptions;
       }) => {
         const response = await doSendMessageRequest(
           channel,
-          params.message as Message,
+          params.message as MessageRequest,
           params.options,
         );
         if (response?.message) return { message: response.message };
-        const fallback = await channel.sendMessage(
-          params.message as Message,
-          params.options,
-        );
+        const fallback = await channel.sendMessage({
+          message: params.message as MessageRequest,
+          ...params.options,
+        });
         return { message: fallback.message };
       };
 
@@ -101,11 +100,11 @@ export const useChannelRequestHandlers = ({
     if (doMarkReadRequest) {
       nextRequestHandlers.markReadRequest = async (params: {
         channel: StreamChannel;
-        options?: MarkReadOptions;
+        options?: MarkReadRequest;
       }) => {
         const response = await doMarkReadRequest(params.channel, params.options);
         if (response !== undefined) return response;
-        return await params.channel.markAsReadRequest(params.options);
+        return await params.channel.markRead(params.options);
       };
     }
 

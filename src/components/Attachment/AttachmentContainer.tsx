@@ -9,13 +9,13 @@ import clsx from 'clsx';
 import type {
   Attachment,
   LocalAttachment,
-  SharedLocationResponse,
+  SharedLocationResponseData,
   VideoAttachment as VideoAttachmentType,
 } from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
-  isSharedLocationResponse,
+  isSharedLocationResponseData,
   isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
@@ -52,7 +52,7 @@ import {
 } from '../../context/AttachmentContext';
 
 export type AttachmentContainerProps = {
-  attachment: Attachment | GalleryAttachment | SharedLocationResponse;
+  attachment: Attachment | GalleryAttachment | SharedLocationResponseData;
   componentType: AttachmentComponentType;
 };
 export const AttachmentWithinContainer = ({
@@ -60,16 +60,20 @@ export const AttachmentWithinContainer = ({
   children,
   componentType,
 }: PropsWithChildren<AttachmentContainerProps>) => {
-  const isGAT = isGalleryAttachmentType(attachment);
   let extra = '';
+  let isSvg = false;
 
-  if (!isGAT && !isSharedLocationResponse(attachment)) {
-    extra =
-      componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
-        ? 'no-image'
-        : attachment?.actions?.length
-          ? 'actions'
-          : '';
+  if (!isSharedLocationResponseData(attachment)) {
+    const isGAT = isGalleryAttachmentType(attachment);
+    if (!isGAT) {
+      extra =
+        componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
+          ? 'no-image'
+          : attachment?.actions?.length
+            ? 'actions'
+            : '';
+      isSvg = isSvgAttachment(attachment);
+    }
   }
 
   const classNames = clsx(
@@ -81,7 +85,7 @@ export const AttachmentWithinContainer = ({
       )?.type,
       [`str-chat__message-attachment--${componentType}--${extra}`]:
         componentType && extra,
-      'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
+      'str-chat__message-attachment--svg-image': isSvg,
       'str-chat__message-attachment-with-actions': extra === 'actions',
     },
   );

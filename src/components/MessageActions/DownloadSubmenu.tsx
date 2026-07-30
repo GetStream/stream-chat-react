@@ -8,6 +8,7 @@ import {
 } from '../Dialog';
 import { IconChevronLeft, IconDownload } from '../Icons';
 import {
+  type DownloadableAttachment,
   downloadAllAttachments,
   downloadAttachment,
   isDownloadableAttachment,
@@ -36,7 +37,7 @@ export const DownloadSubmenu = () => {
 
   const downloadableAttachments = (message.attachments ?? []).filter(
     isDownloadableAttachment,
-  );
+  ) as DownloadableAttachment[];
 
   return (
     <div className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'>

@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useChannel, useChatContext } from '../../../context';
 import { useMessagePaginator } from '../../../hooks';
 import { useThreadContext } from '../../Threads';
-import type { Channel, Event } from 'stream-chat';
+import type { Channel, EventPayload } from 'stream-chat';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.messagePaginator.headmostItem?.id;
@@ -92,7 +92,7 @@ export const useMarkRead = ({
       }
     };
 
-    const handleMessageNew = (event: Event) => {
+    const handleMessageNew = (event: EventPayload<'message.new'>) => {
       const threadUpdated = !!thread && event.message?.parent_id === thread.id;
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
@@ -105,7 +105,7 @@ export const useMarkRead = ({
       }
     };
 
-    channel.on('message.new', handleMessageNew);
+    const subscription = channel.on('message.new', handleMessageNew);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     if (shouldMarkRead()) {
@@ -113,7 +113,7 @@ export const useMarkRead = ({
     }
 
     return () => {
-      channel.off('message.new', handleMessageNew);
+      subscription.unsubscribe();
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [

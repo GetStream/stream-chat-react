@@ -67,8 +67,8 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
   const {
     children,
     className,
-    element: Component = 'div' as E,
     contentProps,
+    element: Component = 'div' as E,
     listenToScroll,
     loadNextDebounceMs = 500,
     loadNextOnScrollToBottom,
@@ -168,10 +168,7 @@ export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginat
       'div',
       {
         ...contentRestProps,
-        className: clsx(
-          'str-chat__infinite-scroll-paginator__content',
-          contentClassName,
-        ),
+        className: clsx('str-chat__infinite-scroll-paginator__content', contentClassName),
         ref: childRef,
       },
       children,

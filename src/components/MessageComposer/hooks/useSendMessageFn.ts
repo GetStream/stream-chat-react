@@ -1,7 +1,7 @@
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useMessageComposerController } from '..';
 import { useChannel, useThreadContext } from '../../..';
-import { MessageComposer } from 'stream-chat';
+import { MessageComposer, type MessageRequest } from 'stream-chat';
 import { useStableCallback } from '../../../utils/useStableCallback';
 
 const takeStateSnapshot = (messageComposer: MessageComposer) => {
@@ -62,7 +62,10 @@ export const useSendMessageFn = () => {
 
         await (thread ?? channel).sendMessageWithLocalUpdate({
           localMessage,
-          message,
+          // `useSendMessageFn` only runs for new messages; edits go through a separate
+          // update handler. `compose()` widens `message` to `MessageRequest | UpdatedMessage`,
+          // but in this path it is always a `MessageRequest`.
+          message: message as MessageRequest,
           options: sendOptions,
         });
       } catch (error) {

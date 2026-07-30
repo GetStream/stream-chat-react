@@ -4,7 +4,7 @@ import { useChannel, useChatContext, useTranslationContext } from '../../context
 import { useThreadContext } from '../Threads/ThreadContext';
 import { useStateStore } from '../../store';
 
-import type { Event, ThreadState } from 'stream-chat';
+import type { EventPayload, ThreadState } from 'stream-chat';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 import { IconArrowDown } from '../Icons';
@@ -40,7 +40,7 @@ const UnMemoizedScrollToLatestMessageButton = (
   const observedEvent = isThreadList ? 'message.updated' : 'message.new';
 
   useEffect(() => {
-    const handleEvent = (event: Event) => {
+    const handleEvent = (event: EventPayload<'message.new' | 'message.updated'>) => {
       const newMessageInAnotherChannel = event.cid !== channel?.cid;
       const newMessageIsMine = event.user?.id === client.user?.id;
 
@@ -65,10 +65,10 @@ const UnMemoizedScrollToLatestMessageButton = (
         setCountUnread(() => newReplyCount - replyCount);
       }
     };
-    client.on(observedEvent, handleEvent);
+    const subscription = client.on(observedEvent, handleEvent);
 
     return () => {
-      client.off(observedEvent, handleEvent);
+      subscription.unsubscribe();
     };
   }, [
     channel,

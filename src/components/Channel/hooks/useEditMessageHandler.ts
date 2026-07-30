@@ -1,3 +1,4 @@
+import { localMessageToNewMessagePayload } from 'stream-chat';
 import type {
   LocalMessage,
   MessageResponse,
@@ -27,6 +28,10 @@ export const useEditMessageHandler = (doUpdateMessageRequest?: UpdateHandler) =>
         doUpdateMessageRequest(channel.cid, updatedMessage, options),
       );
     }
-    return client.updateMessage(updatedMessage, undefined, options);
+    return client.updateMessage({
+      id: updatedMessage.id,
+      message: localMessageToNewMessagePayload(updatedMessage as LocalMessage),
+      ...options,
+    });
   };
 };

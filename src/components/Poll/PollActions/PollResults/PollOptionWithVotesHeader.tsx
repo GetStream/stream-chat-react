@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStateStore } from '../../../../store';
 import { usePollContext, useTranslationContext } from '../../../../context';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 import { IconTrophy } from '../../../Icons';
 
 type PollStateSelectorReturnValue = {
@@ -40,7 +40,7 @@ export const PollResultOptionVoteCounter = ({
 };
 
 export type PollOptionWithVotesHeaderProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   optionOrderNumber: number;
 };
 

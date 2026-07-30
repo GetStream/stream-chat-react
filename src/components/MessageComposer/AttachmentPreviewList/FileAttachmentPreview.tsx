@@ -34,7 +34,7 @@ export const FileAttachmentPreview = ({
       data-testid='attachment-preview-file'
     >
       <div className='str-chat__attachment-preview-file__icon'>
-        <FileIcon fileName={attachment.title} mimeType={attachment.mime_type} />
+        <FileIcon fileName={attachment.title} mimeType={attachment.custom.mime_type} />
       </div>
 
       <div className='str-chat__attachment-preview-file__info'>

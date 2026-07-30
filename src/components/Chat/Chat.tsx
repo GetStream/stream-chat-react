@@ -166,7 +166,11 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
             client,
             filters: client.user?.id ? { members: { $in: [client.user.id] } } : {},
             id: 'channels:default',
-            sort: { last_message_at: -1, pinned_at: 1, updated_at: -1 },
+            sort: [
+              { direction: -1, field: 'last_message_at' },
+              { direction: 1, field: 'pinned_at' },
+              { direction: -1, field: 'updated_at' },
+            ],
           }),
         ],
       }),

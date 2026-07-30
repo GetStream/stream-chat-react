@@ -9,7 +9,7 @@ import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../store';
 
-import type { TextComposerState } from 'stream-chat';
+import type { EventPayload, TextComposerState } from 'stream-chat';
 
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
@@ -21,9 +21,9 @@ const ChannelHeaderSubtitle = () => {
   const { typing = {} } =
     useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const typingInChannel = Object.values(typing).filter(
-    ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
-  );
+  const typingInChannel = (
+    Object.values(typing) as EventPayload<'typing.start' | 'typing.stop'>[]
+  ).filter(({ parent_id, user }) => user?.id !== client.user?.id && !parent_id);
   const hasTyping = channelConfig?.typing_events !== false && typingInChannel.length > 0;
 
   if (!hasTyping && !onlineStatusText) return null;

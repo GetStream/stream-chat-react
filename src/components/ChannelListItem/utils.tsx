@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { Channel, LocalMessage, PollVote } from 'stream-chat';
+import type { Channel, LocalMessage, PollVoteResponseData } from 'stream-chat';
 import { toString as mdastToString } from 'mdast-util-to-string';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
@@ -45,8 +45,10 @@ const stripMarkdownToText = (text: string): string => {
   }
 };
 
-const getLatestPollVote = (latestVotesByOption: Record<string, PollVote[]>) => {
-  let latestVote: PollVote | undefined;
+const getLatestPollVote = (
+  latestVotesByOption: Record<string, PollVoteResponseData[]>,
+) => {
+  let latestVote: PollVoteResponseData | undefined;
   for (const optionVotes of Object.values(latestVotesByOption)) {
     optionVotes.forEach((vote) => {
       if (latestVote && new Date(latestVote.updated_at) >= new Date(vote.created_at))
@@ -99,7 +101,8 @@ const getLatestMessagePreviewParts = (
   // time a caller derives from the same message; fall back to the channel's latest.
   const latestMessage =
     latestMessageArg ??
-    channel.state.latestMessages[channel.state.latestMessages.length - 1];
+    channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+    undefined;
 
   const previewTextToRender =
     getTranslatedMessageText({ language: userLanguage, message: latestMessage }) ||
@@ -142,7 +145,7 @@ const getLatestMessagePreviewParts = (
       };
     } else {
       const latestVote = getLatestPollVote(
-        poll.latest_votes_by_option as Record<string, PollVote[]>,
+        poll.latest_votes_by_option as Record<string, PollVoteResponseData[]>,
       );
       const option =
         latestVote && poll.options.find((opt) => opt.id === latestVote.option_id);
@@ -329,14 +332,14 @@ export type GroupChannelDisplayInfo = {
 };
 
 /**
- * Channel display image: channel.data.image, or for DM (2 members) the other member's user.image.
+ * Channel display image: channel.data.custom.image, or for DM (2 members) the other member's user.image.
  */
 export const getChannelDisplayImage = (
   channel: Channel,
   currentUserId?: string,
 ): string | undefined => {
-  const data = channel.data as { image?: string } | undefined;
-  if (data?.image && typeof data.image === 'string') return data.image;
+  const image = channel.data?.custom?.image;
+  if (image && typeof image === 'string') return image;
 
   const memberList = Object.values(channel.state.members);
   if (memberList.length === 2) {

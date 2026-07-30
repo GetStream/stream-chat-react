@@ -219,7 +219,9 @@ const resolveBinding = async (
       // never-visited thread) do we fall back to fetching it by id.
       const thread =
         client.threads.threadsById[token.key] ??
-        (await client.getThread(token.key).catch(() => undefined));
+        (await client
+          .getThreadAndHydrate(token.key, { watch: true })
+          .catch(() => undefined));
       if (!thread) return undefined;
       return {
         binding: { key: thread.id ?? undefined, kind: 'thread', source: thread },
@@ -340,6 +342,15 @@ export const WorkspaceUrlSync = () => {
       // actually mount (only the *active* view's slots render). Then a listed channel is already
       // watched and a listed thread already in `threadsById`, so resolution reuses them instead of
       // issuing a duplicate per-entity query. Warm Back/Forward resolves these waits immediately.
+      //
+      // The thread-list wait applies ONLY in the threads view: that is the only view whose
+      // `ThreadList` mounts and activates `client.threads`, so it is the only case where waiting
+      // de-duplicates against a list that is actually loading. A thread slot in the channels view is
+      // a channel reply-thread that the thread list does NOT back — waiting there would just stall
+      // to the `waitForThreadList` timeout and then resolve anyway (and, if the list did load, reuse
+      // a manager instance whose replies aren't loaded, forcing a redundant `/replies`). So a
+      // channels-view thread skips the wait and resolves immediately via `getThreadAndHydrate`
+      // (fully hydrated, replies embedded → a single `/threads/<id>` request).
       const activeKinds = new Set(
         target.slots
           .filter((s) => s.view === target.activeView)
@@ -349,7 +360,9 @@ export const WorkspaceUrlSync = () => {
         activeKinds.has('channel')
           ? waitForChannelList(channelPaginatorsOrchestrator)
           : undefined,
-        activeKinds.has('thread') ? waitForThreadList(client) : undefined,
+        target.activeView === 'threads' && activeKinds.has('thread')
+          ? waitForThreadList(client)
+          : undefined,
       ]);
 
       // Resolve first (async) — no layout mutation yet, so nothing renders half-restored.

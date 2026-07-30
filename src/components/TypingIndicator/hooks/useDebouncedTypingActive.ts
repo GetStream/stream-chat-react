@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { ChannelState } from 'stream-chat';
+import type { EventPayload } from 'stream-chat';
 
 const DEFAULT_HIDE_DELAY_MS = 2000;
 
-export type TypingEntry = ChannelState['typing'][string];
+export type TypingEntry = EventPayload<'typing.start' | 'typing.stop'>;
 
 /**
  * Derive a stable key from typing users so that the effect only runs when the

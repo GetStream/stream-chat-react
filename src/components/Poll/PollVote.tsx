@@ -9,9 +9,9 @@ import {
   useTranslationContext,
 } from '../../context';
 
-import type { PollVote as PollVoteType } from 'stream-chat';
+import type { PollVoteResponseData as PollVoteType } from 'stream-chat';
 
-const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
+const PollVoteTimestamp = ({ timestamp }: { timestamp: string | Date }) => {
   const { t } = useTranslationContext();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();

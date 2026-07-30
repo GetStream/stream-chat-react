@@ -26,10 +26,10 @@ export const AudioRecorder = () => {
     <div className='str-chat__audio_recorder' data-testid={'audio-recorder'}>
       {(isStopped(recordingState) || state.paused) && recording?.asset_url ? (
         <AudioRecordingPlayback
-          durationSeconds={recording.duration ?? 0}
-          mimeType={recording.mime_type}
+          durationSeconds={recording.custom.duration ?? 0}
+          mimeType={recording.custom.mime_type}
           src={recording.asset_url}
-          waveformData={recording.waveform_data}
+          waveformData={recording.custom.waveform_data}
         />
       ) : state.recording ? (
         <AudioRecordingPreview />

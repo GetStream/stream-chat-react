@@ -344,7 +344,6 @@ export const AttachmentSelector = ({
   const { t } = useTranslationContext();
   const { ContextMenu: ContextMenuComponent = ContextMenu, Modal = GlobalModal } =
     useComponentContext();
-  const channel = useChannel();
   const messageComposer = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const { command } = useStateStore(

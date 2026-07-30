@@ -316,7 +316,7 @@ const UserMuteAction = () => {
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const otherMember = useOtherMember();
-  const userMuted = !!mutes.find((mute) => mute.target.id === otherMember?.user?.id);
+  const userMuted = !!mutes.find((mute) => mute.target?.id === otherMember?.user?.id);
   const [optimisticUserMuted, setOptimisticUserMuted] = useState(userMuted);
 
   useEffect(() => {
@@ -464,7 +464,7 @@ const BlockUserAction = () => {
 
     try {
       setUserBlockInProgress(true);
-      await client.unBlockUser(targetUserId);
+      await client.unblockUser(targetUserId);
       addNotification({
         context: { channel },
         emitter: 'ChannelManagementView',

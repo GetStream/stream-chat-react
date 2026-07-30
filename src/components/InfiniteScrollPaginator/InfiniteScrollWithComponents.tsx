@@ -39,46 +39,46 @@ type InfiniteScrollWithComponentsComponent = <TItem extends { id?: string }>(
  * channel list. `forwardRef` so callers can put the scroll root's DOM node to use
  * (e.g. the channel list marks it `role="listbox"` and drives keyboard roving off it).
  */
-export const InfiniteScrollWithComponents = forwardRef(function InfiniteScrollWithComponents<
-  TItem extends { id?: string },
->(
-  props: InfiniteScrollWithComponentsProps<TItem>,
-  ref: React.ForwardedRef<unknown>,
-) {
-  const {
-    EmptyListIndicator,
-    EndReachedIndicator,
-    FirstPageLoadingIndicator,
-    hasReachedBottom,
-    hasReachedTop,
-    ListItem,
-    LoadingNextPageIndicator,
-    paginator,
-    ...componentProps
-  } = props;
+export const InfiniteScrollWithComponents = forwardRef(
+  function InfiniteScrollWithComponents<TItem extends { id?: string }>(
+    props: InfiniteScrollWithComponentsProps<TItem>,
+    ref: React.ForwardedRef<unknown>,
+  ) {
+    const {
+      EmptyListIndicator,
+      EndReachedIndicator,
+      FirstPageLoadingIndicator,
+      hasReachedBottom,
+      hasReachedTop,
+      ListItem,
+      LoadingNextPageIndicator,
+      paginator,
+      ...componentProps
+    } = props;
 
-  const { isLoading, items } = useStateStore(paginator.state, (state) => ({
-    isLoading: state.isLoading,
-    items: state.items,
-  }));
-  const isLoadingFirstPage = items === undefined;
-  const isEmpty = items?.length === 0;
-  const topEndReached = hasReachedTop?.(paginator) ?? !paginator.hasPrev;
-  const bottomEndReached = hasReachedBottom?.(paginator) ?? !paginator.hasNext;
+    const { isLoading, items } = useStateStore(paginator.state, (state) => ({
+      isLoading: state.isLoading,
+      items: state.items,
+    }));
+    const isLoadingFirstPage = items === undefined;
+    const isEmpty = items?.length === 0;
+    const topEndReached = hasReachedTop?.(paginator) ?? !paginator.hasPrev;
+    const bottomEndReached = hasReachedBottom?.(paginator) ?? !paginator.hasNext;
 
-  if (isLoadingFirstPage) return <FirstPageLoadingIndicator />;
-  if (isEmpty) return <EmptyListIndicator />;
+    if (isLoadingFirstPage) return <FirstPageLoadingIndicator />;
+    if (isEmpty) return <EmptyListIndicator />;
 
-  return (
-    <>
-      <EndReachedIndicator hasEnded={topEndReached} reached='top' />
-      <InfiniteScrollPaginator {...componentProps} ref={ref}>
-        {items.map((item) => (
-          <ListItem item={item} key={item.id} />
-        ))}
-        <LoadingNextPageIndicator isLoading={isLoading} />
-      </InfiniteScrollPaginator>
-      <EndReachedIndicator hasEnded={bottomEndReached} reached='bottom' />
-    </>
-  );
-}) as InfiniteScrollWithComponentsComponent;
+    return (
+      <>
+        <EndReachedIndicator hasEnded={topEndReached} reached='top' />
+        <InfiniteScrollPaginator {...componentProps} ref={ref}>
+          {items.map((item) => (
+            <ListItem item={item} key={item.id} />
+          ))}
+          <LoadingNextPageIndicator isLoading={isLoading} />
+        </InfiniteScrollPaginator>
+        <EndReachedIndicator hasEnded={bottomEndReached} reached='bottom' />
+      </>
+    );
+  },
+) as InfiniteScrollWithComponentsComponent;
