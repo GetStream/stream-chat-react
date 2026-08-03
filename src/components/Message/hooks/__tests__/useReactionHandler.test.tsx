@@ -101,7 +101,10 @@ describe('useReactionHandler custom hook', () => {
     const message = generateMessage({ own_reactions: [reaction] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction(reaction.type);
-    expect(deleteReaction).toHaveBeenCalledWith(message.id, reaction.type);
+    expect(deleteReaction).toHaveBeenCalledWith({
+      id: message.id,
+      type: reaction.type,
+    });
   });
 
   it('should send reaction with emoji_code derived from the default reaction options', async () => {
@@ -111,9 +114,12 @@ describe('useReactionHandler custom hook', () => {
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('love');
-    expect(sendReaction).toHaveBeenCalledWith(message.id, {
-      emoji_code: '❤️',
-      type: 'love',
+    expect(sendReaction).toHaveBeenCalledWith({
+      id: message.id,
+      reaction: {
+        emoji_code: '❤️',
+        type: 'love',
+      },
     });
   });
 
@@ -124,8 +130,11 @@ describe('useReactionHandler custom hook', () => {
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('unsupported-reaction-type');
-    expect(sendReaction).toHaveBeenCalledWith(message.id, {
-      type: 'unsupported-reaction-type',
+    expect(sendReaction).toHaveBeenCalledWith({
+      id: message.id,
+      reaction: {
+        type: 'unsupported-reaction-type',
+      },
     });
   });
 
@@ -149,9 +158,12 @@ describe('useReactionHandler custom hook', () => {
       message,
     });
     await handleReaction('rocket');
-    expect(sendReaction).toHaveBeenCalledWith(message.id, {
-      emoji_code: '🚀',
-      type: 'rocket',
+    expect(sendReaction).toHaveBeenCalledWith({
+      id: message.id,
+      reaction: {
+        emoji_code: '🚀',
+        type: 'rocket',
+      },
     });
   });
 

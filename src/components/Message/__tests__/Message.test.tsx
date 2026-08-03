@@ -24,8 +24,8 @@ import { defaultReactionOptions } from '../../Reactions';
 import type {
   ChannelConfigWithInfo,
   Channel as ChannelType,
-  Mute,
   StreamChat,
+  UserMuteResponse,
 } from 'stream-chat';
 import type { ComponentContextValue } from '../../../context';
 import type { MessageProps } from '../types';
@@ -253,7 +253,10 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(deleteReaction).toHaveBeenCalledWith(message.id, reaction.type);
+    expect(deleteReaction).toHaveBeenCalledWith({
+      id: message.id,
+      type: reaction.type,
+    });
   });
 
   it('should send reaction', async () => {
@@ -269,9 +272,12 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(sendReaction).toHaveBeenCalledWith(message.id, {
-      emoji_code: '❤️',
-      type: reaction.type,
+    expect(sendReaction).toHaveBeenCalledWith({
+      id: message.id,
+      reaction: {
+        emoji_code: '❤️',
+        type: reaction.type,
+      },
     });
   });
 
@@ -515,7 +521,9 @@ describe('<Message /> component', () => {
     let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
+      channelStateOpts: {
+        mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
+      },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
@@ -536,7 +544,9 @@ describe('<Message /> component', () => {
     let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
+      channelStateOpts: {
+        mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
+      },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;

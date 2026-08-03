@@ -48,6 +48,13 @@ const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
 
 const attachment = generateVoiceRecordingAttachment();
 
+// v10: duration / file_size / mime_type / waveform_data are not top-level Attachment
+// fields anymore, they live under `attachment.custom`.
+const withCustom = (overrides: Record<string, unknown>) => ({
+  ...attachment,
+  custom: { ...attachment.custom, ...overrides },
+});
+
 (window as any).ResizeObserver = ResizeObserverMock;
 
 vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
@@ -167,7 +174,7 @@ describe('VoiceRecordingPlayer', () => {
 
   it('should fallback to file size, if duration is not available', () => {
     const { getByTestId } = renderComponent({
-      attachment: { ...attachment, duration: undefined, file_size: 60 * 1024 },
+      attachment: withCustom({ duration: undefined, file_size: 60 * 1024 }),
     });
     expect(getByTestId('file-size-indicator')).toHaveTextContent('60 kB');
   });
@@ -300,7 +307,7 @@ describe('QuotedVoiceRecording', () => {
   });
   it('should fallback to file size, if duration is not available', () => {
     const { queryByTestId } = renderComponent({
-      attachment: { ...attachment, duration: undefined, file_size: 60 * 1024 },
+      attachment: withCustom({ duration: undefined, file_size: 60 * 1024 }),
       isQuoted: true,
     });
     expect(queryByTestId('file-size-indicator')).toHaveTextContent('60 kB');

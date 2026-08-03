@@ -12,6 +12,7 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
+import { localMessageToNewMessagePayload } from 'stream-chat';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 
@@ -550,10 +551,11 @@ describe('Channel', () => {
               .catch(() => {});
           });
           await waitFor(() =>
-            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
-              message.id,
-              deleteMessageOptions,
-            ),
+            // v10: single request object - `client.deleteMessage({ id, ...options })`.
+            expect(clientDeleteMessageSpy).toHaveBeenCalledWith({
+              id: message.id,
+              ...deleteMessageOptions,
+            }),
           );
         });
 
@@ -603,11 +605,12 @@ describe('Channel', () => {
             .catch(() => {});
         });
         await waitFor(() =>
-          expect(clientUpdateMessageSpy).toHaveBeenCalledWith(
-            updatedMessage,
-            undefined,
-            undefined,
-          ),
+          // v10: single request object - `client.updateMessage({ id, message })`, where `message` is
+          // the LocalMessage projected onto the API payload shape.
+          expect(clientUpdateMessageSpy).toHaveBeenCalledWith({
+            id: updatedMessage.id,
+            message: localMessageToNewMessagePayload(fromPartial(updatedMessage)),
+          }),
         );
       });
 

@@ -54,8 +54,13 @@ const getOptionInput = () => screen.getByPlaceholderText(OPTION_FIELD_PLACEHOLDE
 const getSubmitPollButton = () => screen.getByRole('button', { name: /send poll/i });
 
 const close = vi.fn();
-const handleSubmit = vi.fn();
 const user = generateUser();
+
+// The poll message is sent through `useSendMessageFn`, i.e. `channel.sendMessageWithLocalUpdate`.
+// (`MessageComposerContextValue.handleSubmit` no longer exists - the composer context only carries
+// `onPaste` / `recordingController` / `textareaRef`.)
+const spyOnSendMessage = (channel: ChannelType) =>
+  vi.spyOn(channel, 'sendMessageWithLocalUpdate').mockResolvedValue(undefined);
 
 const renderComponent = async (
   { channel: customChannel, client: customClient } = {} as {
@@ -76,7 +81,7 @@ const renderComponent = async (
       <Chat client={client}>
         <Channel channel={channel}>
           <MessageComposerContextProvider
-            value={fromPartial<MessageComposerContextValue>({ handleSubmit })}
+            value={fromPartial<MessageComposerContextValue>({})}
           >
             <PollCreationDialog close={close} />
           </MessageComposerContextProvider>
@@ -666,9 +671,11 @@ describe('PollCreationDialog', () => {
       max_votes_allowed: '10',
       name: 'AAAA',
       options: [{ text: 'Option 1' }, { text: 'Option 2' }],
-      user_id: user.id,
       voting_visibility: 'anonymous',
     };
+    // v10 `createPoll(request)` derives the author from the connected user - `user_id` is no longer
+    // part of the request payload. The composer generates the poll `id`, which `objectContaining`
+    // below tolerates.
     const expectedPollPayload = { ...formState, max_votes_allowed: 10 };
 
     const poll = { id: 'pollId' };
@@ -775,6 +782,7 @@ describe('PollCreationDialog', () => {
     // not add its own error notification (avoids a duplicate). It also must
     // not emit the success notification.
     vi.spyOn(client, 'createPoll').mockRejectedValueOnce(new Error('create failed'));
+    const sendMessageSpy = spyOnSendMessage(channel);
     const addNotificationSpy = vi.spyOn(client.notifications, 'add');
 
     await act(async () => {
@@ -802,7 +810,7 @@ describe('PollCreationDialog', () => {
       ([payload]) => payload?.message === 'Poll sent',
     );
     expect(successCalls).toHaveLength(0);
-    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(sendMessageSpy).not.toHaveBeenCalled();
     expect(close).toHaveBeenCalledTimes(1);
   });
 
@@ -818,7 +826,9 @@ describe('PollCreationDialog', () => {
     vi.spyOn(client, 'createPoll').mockResolvedValueOnce(
       fromPartial({ poll: { id: 'pid' } }),
     );
-    handleSubmit.mockRejectedValueOnce(new Error('send failed'));
+    const sendMessageSpy = spyOnSendMessage(channel).mockRejectedValueOnce(
+      new Error('send failed'),
+    );
     const addNotificationSpy = vi.spyOn(client.notifications, 'add');
 
     await act(async () => {
@@ -846,7 +856,7 @@ describe('PollCreationDialog', () => {
       ([payload]) => payload?.message === 'Poll sent',
     );
     expect(successCalls).toHaveLength(0);
-    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(sendMessageSpy).toHaveBeenCalledTimes(1);
   });
 
   it('returns focus to the composer input after a successful send', async () => {
@@ -867,10 +877,7 @@ describe('PollCreationDialog', () => {
         <Chat client={client}>
           <Channel channel={channel}>
             <MessageComposerContextProvider
-              value={fromPartial<MessageComposerContextValue>({
-                handleSubmit,
-                textareaRef,
-              })}
+              value={fromPartial<MessageComposerContextValue>({ textareaRef })}
             >
               <PollCreationDialog close={close} />
             </MessageComposerContextProvider>
@@ -911,6 +918,7 @@ describe('PollCreationDialog', () => {
       client,
     } = await initClientWithChannels({ customUser: user });
     await renderComponent({ channel, client });
+    const sendMessageSpy = spyOnSendMessage(channel);
 
     let resolveCreatePoll: (value: unknown) => void = () => {};
     const createPollPromise = new Promise((resolve) => {
@@ -932,7 +940,7 @@ describe('PollCreationDialog', () => {
     });
 
     expect(close).toHaveBeenCalledTimes(1);
-    expect(handleSubmit).not.toHaveBeenCalled();
+    expect(sendMessageSpy).not.toHaveBeenCalled();
 
     await act(async () => {
       resolveCreatePoll(fromPartial({ poll: { id: 'pid' } }));
@@ -940,7 +948,7 @@ describe('PollCreationDialog', () => {
     });
 
     await waitFor(() => {
-      expect(handleSubmit).toHaveBeenCalledTimes(1);
+      expect(sendMessageSpy).toHaveBeenCalledTimes(1);
     });
     expect(close).toHaveBeenCalledTimes(1);
   });

@@ -6,7 +6,7 @@ import '../../..';
 import React from 'react';
 import type {
   Channel as ChannelType,
-  CommandResponse,
+  Command,
   CooldownTimerState,
   LinkPreview,
   LinkPreviewsManagerState,
@@ -1266,8 +1266,8 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
-    vi.spyOn(customClient, 'queryUserGroups').mockResolvedValue(
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
       fromPartial({ user_groups: [] }),
     );
     await renderComponent({
@@ -1311,8 +1311,8 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(
-      fromPartial({ roles: ['admin'] }),
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(
+      fromPartial({ roles: [{ name: 'admin' }] }),
     );
     vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
       fromPartial({
@@ -1365,7 +1365,7 @@ describe(`MessageInputFlat`, () => {
         members: [generateMember({ user })],
       }),
     });
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(fromPartial({ roles: [] }));
 
     await renderComponent({
       customChannel,
@@ -1432,8 +1432,8 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
-    vi.spyOn(customClient, 'queryUserGroups').mockResolvedValue(
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
       fromPartial({ user_groups: [] }),
     );
     const { container, submit } = await renderComponent({
@@ -1572,7 +1572,7 @@ describe(`MessageInputFlat`, () => {
   });
 
   describe('Command activation announcement', () => {
-    const giphyCommand = fromPartial<CommandResponse>({
+    const giphyCommand = fromPartial<Command>({
       args: 'giphy-command-args',
       description: 'giphy-command-description',
       name: 'giphy',
@@ -1661,7 +1661,7 @@ describe(`MessageInputFlat`, () => {
     // RW10: the command-specific placeholder template must not become the
     // accessible name once real content is present.
     it('does not use the command placeholder template as the name when content exists', async () => {
-      const giphyCommand = fromPartial<CommandResponse>({
+      const giphyCommand = fromPartial<Command>({
         args: 'giphy-command-args',
         description: 'giphy-command-description',
         name: 'giphy',
@@ -1681,7 +1681,7 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('names the giphy GIF-search field by its own placeholder while empty', async () => {
-      const giphyCommand = fromPartial<CommandResponse>({
+      const giphyCommand = fromPartial<Command>({
         args: 'giphy-command-args',
         description: 'giphy-command-description',
         name: 'giphy',
@@ -1747,7 +1747,7 @@ describe(`MessageInputFlat`, () => {
     it('clears the active command when Escape is pressed in the textarea', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
-      const command = fromPartial<CommandResponse>({
+      const command = fromPartial<Command>({
         args: 'giphy-command-args',
         description: 'giphy-command-description',
         name: 'giphy',
@@ -1771,7 +1771,7 @@ describe(`MessageInputFlat`, () => {
     it('clears the active command when Backspace is pressed in an empty textarea', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
-      const command = fromPartial<CommandResponse>({
+      const command = fromPartial<Command>({
         args: 'giphy-command-args',
         description: 'giphy-command-description',
         name: 'giphy',
@@ -1798,7 +1798,7 @@ describe(`MessageInputFlat`, () => {
       const input = (await screen.findByPlaceholderText(
         inputPlaceholder,
       )) as HTMLTextAreaElement;
-      const command = fromPartial<CommandResponse>({
+      const command = fromPartial<Command>({
         args: 'giphy-command-args',
         description: 'giphy-command-description',
         name: 'giphy',
@@ -1884,7 +1884,7 @@ describe(`MessageInputFlat`, () => {
 
     it('clears active command when quoting makes it unavailable', async () => {
       const { channel } = await renderComponent();
-      const command = fromPartial<CommandResponse>({
+      const command = fromPartial<Command>({
         args: 'ban-command-args',
         description: 'ban-command-description',
         name: 'ban',
@@ -2083,7 +2083,7 @@ describe(`MessageInputFlat`, () => {
 
     it('should clear active command when entering edit mode', async () => {
       const { channel } = await renderComponent();
-      const command = fromPartial<CommandResponse>({
+      const command = fromPartial<Command>({
         args: 'giphy-command-args',
         description: 'giphy-command-description',
         name: 'giphy',

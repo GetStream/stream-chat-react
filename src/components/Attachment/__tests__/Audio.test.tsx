@@ -55,7 +55,18 @@ vi.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg: any[]) =
   originalConsoleError(...errorOrTextorArg);
 });
 
-const audioAttachment = generateAudioAttachment({ mime_type: undefined });
+// v10: duration / file_size / mime_type live under `attachment.custom`, not at the
+// top level of Attachment. The default attachment intentionally carries no mime_type so
+// that the AudioPlayer's canPlayType() probe does not reject it in jsdom.
+const generatedAudioAttachment = generateAudioAttachment();
+const audioAttachment = {
+  ...generatedAudioAttachment,
+  custom: { ...generatedAudioAttachment.custom, mime_type: undefined },
+};
+const withCustom = (overrides: Record<string, unknown>) => ({
+  ...audioAttachment,
+  custom: { ...audioAttachment.custom, ...overrides },
+});
 
 const renderComponent = (
   props = {
@@ -108,18 +119,18 @@ describe('Audio', () => {
 
   it('renders title and file size', () => {
     const { container, getByText } = renderComponent({
-      og: { ...audioAttachment, duration: undefined },
+      og: withCustom({ duration: undefined }),
     });
 
     expect(getByText(audioAttachment.title)).toBeInTheDocument();
     expect(
-      getByText(prettifyFileSize(audioAttachment.file_size as number)),
+      getByText(prettifyFileSize(audioAttachment.custom.file_size as number)),
     ).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
   it('renders duration instead of file size when available', () => {
-    renderComponent({ og: { ...audioAttachment, duration: 43.007999420166016 } });
+    renderComponent({ og: withCustom({ duration: 43.007999420166016 }) });
 
     expect(screen.getByText('00:44')).toBeInTheDocument();
     expect(screen.queryByTestId('file-size-indicator')).not.toBeInTheDocument();
@@ -255,7 +266,7 @@ describe('Audio', () => {
   });
 
   it('should register error if the audio MIME type is not playable', async () => {
-    renderComponent({ og: { ...audioAttachment, mime_type: 'audio/mp4' } });
+    renderComponent({ og: withCustom({ mime_type: 'audio/mp4' }) });
     const spy = vi.spyOn(HTMLAudioElement.prototype, 'canPlayType').mockReturnValue('');
 
     await clickToPlay();
