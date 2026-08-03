@@ -1,9 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 import type { RoleMentionSuggestion } from 'stream-chat';
-import { IconShield } from '../../../Icons';
 import { ListItemLayout } from '../../../ListItemLayout';
-import { useTranslationContext } from '../../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 import { MentionSuggestionTitle } from './MentionSuggestionTitle';
 import type { MentionItemComponentProps } from './types';
 import { TokenizedSuggestionParts } from '../TokenizedSuggestionParts';
@@ -11,6 +10,8 @@ import { TokenizedSuggestionParts } from '../TokenizedSuggestionParts';
 export type RoleItemProps = MentionItemComponentProps<RoleMentionSuggestion>;
 
 export const RoleItem = ({ entity, focused, ...buttonProps }: RoleItemProps) => {
+  const { IconShield } = useComponentContextIcons();
+
   void focused;
   const { t } = useTranslationContext();
   const role = entity.name;

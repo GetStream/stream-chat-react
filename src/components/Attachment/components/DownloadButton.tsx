@@ -2,8 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { sanitizeUrl } from '@braintree/sanitize-url';
 
-import { useTranslationContext } from '../../../context';
-import { IconDownload } from '../../Icons';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 
 export type DownloadButtonProps = {
   /** Attachment asset URL (e.g. `asset_url`). */
@@ -25,6 +24,8 @@ export const DownloadButton = ({
   suggestedFileName,
   tooltipTitle,
 }: DownloadButtonProps) => {
+  const { IconDownload } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   if (!assetUrl) return null;
   const href = sanitizeUrl(assetUrl);

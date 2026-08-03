@@ -34,16 +34,7 @@ import {
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import {
-  IconCamera,
-  IconFile,
-  IconLink,
-  IconLocation,
-  IconPlayFill,
-  IconPoll,
-  IconVideo,
-  IconVoice,
-} from '../Icons';
+import { useComponentContextIcons } from '../../context';
 import clsx from 'clsx';
 import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
@@ -168,9 +159,31 @@ type PreviewType =
   | 'video'
   | 'mixed';
 
+type IconSet = Record<
+  | 'IconCamera'
+  | 'IconFile'
+  | 'IconLink'
+  | 'IconLocation'
+  | 'IconPlayFill'
+  | 'IconPoll'
+  | 'IconVideo'
+  | 'IconVoice',
+  ComponentType
+>;
+
 const getAttachmentIconWithType = (
   quotedMessage: LocalMessage | null,
   giphyVersionName: GiphyVersions,
+  {
+    IconCamera,
+    IconFile,
+    IconLink,
+    IconLocation,
+    IconPlayFill,
+    IconPoll,
+    IconVideo,
+    IconVoice,
+  }: IconSet,
 ): {
   groupedAttachments: GroupedAttachments;
   Icon: ComponentType;
@@ -331,6 +344,39 @@ export const QuotedMessagePreviewUI = ({
   const { t, userLanguage } = useTranslationContext();
   const { giphyVersion: giphyVersionName = 'fixed_height' } =
     useChannelStateContext('QuotedMessagePreview');
+  const {
+    IconCamera,
+    IconFile,
+    IconLink,
+    IconLocation,
+    IconPlayFill,
+    IconPoll,
+    IconVideo,
+    IconVoice,
+  } = useComponentContextIcons();
+
+  const iconSet = useMemo(
+    () => ({
+      IconCamera,
+      IconFile,
+      IconLink,
+      IconLocation,
+      IconPlayFill,
+      IconPoll,
+      IconVideo,
+      IconVoice,
+    }),
+    [
+      IconCamera,
+      IconFile,
+      IconLink,
+      IconLocation,
+      IconPlayFill,
+      IconPoll,
+      IconVideo,
+      IconVoice,
+    ],
+  );
 
   const quotedMessageText = useMemo(
     () =>
@@ -364,7 +410,7 @@ export const QuotedMessagePreviewUI = ({
       Icon: AttachmentIcon,
       PreviewImage,
       previewType,
-    } = getAttachmentIconWithType(quotedMessage, giphyVersionName);
+    } = getAttachmentIconWithType(quotedMessage, giphyVersionName, iconSet);
 
     let renderedText: ReactNode | undefined;
 
@@ -420,6 +466,7 @@ export const QuotedMessagePreviewUI = ({
     };
   }, [
     giphyVersionName,
+    iconSet,
     quotedMessage,
     quotedMessageMentionEntities,
     quotedMessageText,

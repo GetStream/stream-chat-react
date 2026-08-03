@@ -3,8 +3,11 @@ import clsx from 'clsx';
 
 import type { ThreadManagerState } from 'stream-chat';
 
-import { IconRefresh } from '../../Icons';
-import { useChatContext, useTranslationContext } from '../../../context';
+import {
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../../context';
 import { useStateStore } from '../../../store';
 import { LoadingIndicator } from '../../Loading';
 
@@ -14,6 +17,8 @@ const selector = (nextValue: ThreadManagerState) => ({
 });
 
 export const ThreadListUnseenThreadsBanner = () => {
+  const { IconRefresh } = useComponentContextIcons();
+
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { isLoading, unseenThreadIds } = useStateStore(client.threads.state, selector);

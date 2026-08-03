@@ -1,9 +1,12 @@
-import React, { type CSSProperties, useEffect, useRef, useState } from 'react';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
 
-import { useMessageComposerContext, useTranslationContext } from '../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 import {
   Button,
-  IconEmoji,
   type PopperLikePlacement,
   useMessageComposerController,
 } from '../../components';
@@ -22,7 +25,6 @@ import { useSkinTone } from './hooks/useSkinTone';
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
 export type StreamEmojiPickerProps = {
-  ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
   pickerContainerClassName?: string;
   wrapperClassName?: string;
@@ -102,7 +104,8 @@ const StreamEmojiPickerComponent = (props: StreamEmojiPickerProps) => {
 
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = IconEmoji } = props;
+  // Overridable via the `icons.IconEmoji` ComponentContext slot.
+  const { IconEmoji } = useComponentContextIcons();
   // Latest-ref so the click-outside listener isn't re-attached when the callback identity
   // changes between renders.
   const onClickOutsideRef = useRef(props.onClickOutside);
@@ -180,7 +183,7 @@ const StreamEmojiPickerComponent = (props: StreamEmojiPickerProps) => {
         type='button'
         variant='secondary'
       >
-        {ButtonIconComponent && <ButtonIconComponent />}
+        <IconEmoji />
       </Button>
     </div>
   );

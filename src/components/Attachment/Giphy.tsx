@@ -6,9 +6,9 @@ import clsx from 'clsx';
 import {
   useChannelStateContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
-import { IconGiphy } from '../Icons';
 import { type CSSProperties, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { ImageAttachmentConfiguration } from '../../types/types';
 
@@ -78,9 +78,12 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   );
 };
 
-const GiphyBadge = () => (
-  <div className='str-chat__giphy-badge'>
-    <IconGiphy />
-    Giphy
-  </div>
-);
+const GiphyBadge = () => {
+  const { IconGiphy } = useComponentContextIcons();
+  return (
+    <div className='str-chat__giphy-badge'>
+      <IconGiphy />
+      Giphy
+    </div>
+  );
+};

@@ -1,13 +1,18 @@
 import { useMessageComposerController } from './hooks';
 import type { TextComposerState } from 'stream-chat';
-import { IconBolt, IconXmark } from '../Icons';
-import { useMessageComposerContext, useTranslationContext } from '../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 
 export type CommandChipProps = {
   command?: TextComposerState['command'];
 };
 
 export const CommandChip = ({ command }: CommandChipProps) => {
+  const { IconBolt, IconXmark } = useComponentContextIcons();
+
   const { textComposer } = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
   const { t } = useTranslationContext();

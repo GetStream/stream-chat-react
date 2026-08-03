@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
-import { AvatarStack } from '../Avatar';
+import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
 import { useChatContext } from '../../context/ChatContext';
@@ -12,6 +12,8 @@ import { VisuallyHidden } from '../VisuallyHidden';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
+import { useComponentContext } from '../../context';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 export type TypingIndicatorProps = {
   /** When false, the indicator is not rendered (e.g. when list is not scrolled to bottom). Omit or true to show when typing. */
@@ -29,6 +31,10 @@ export type TypingIndicatorProps = {
 const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { isMessageListScrolledToBottom = true, scrollToBottom, threadList } = props;
 
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext();
   const { channelConfig, thread } = useChannelStateContext('TypingIndicator');
   const threadInstance = useThreadContext();
   const parentId = threadInstance?.id ?? thread?.id;
@@ -57,16 +63,8 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   );
 
   const displayInfo = useMemo(
-    () =>
-      displayUsers.map(
-        ({ user }) =>
-          ({
-            id: user?.id,
-            imageUrl: user?.image,
-            userName: user?.name,
-          }) as const,
-      ),
-    [displayUsers],
+    () => displayUsers.map(extractDisplayInfo),
+    [displayUsers, extractDisplayInfo],
   );
 
   useEffect(() => {

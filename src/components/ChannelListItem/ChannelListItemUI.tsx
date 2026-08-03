@@ -6,11 +6,11 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
-import { IconMute, IconPin } from '../Icons';
 import { useInteractionAnnouncements } from '../Accessibility';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
@@ -40,6 +40,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     Avatar = DefaultChannelAvatar,
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
   } = useComponentContext();
+  const { IconMute, IconPin } = useComponentContextIcons();
   const { client, isMessageAIGenerated } = useChatContext('ChannelListItemUI');
   const { t, tDateTimeParser, userLanguage } = useTranslationContext('ChannelListItemUI');
   const { announceInteraction } = useInteractionAnnouncements();

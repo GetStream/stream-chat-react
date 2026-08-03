@@ -1,8 +1,9 @@
 import React from 'react';
-import { IconEyeFill } from '../Icons';
-import { useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 
 export const VisibilityDisclaimer = () => {
+  const { IconEyeFill } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   return (
     <div className='str-chat__visibility-disclaimer'>

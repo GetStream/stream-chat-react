@@ -1,7 +1,10 @@
 import React from 'react';
 
-import { IconPin } from '../Icons';
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import type { LocalMessage } from 'stream-chat';
 
 export type PinIndicatorProps = {
@@ -15,6 +18,7 @@ export type PinIndicatorProps = {
 export const PinIndicator = ({ message }: PinIndicatorProps) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
+  const { IconPin } = useComponentContextIcons();
 
   if (!message) return null;
 

@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PickerImport from '@emoji-mart/react';
 
-import { useMessageComposerContext, useTranslationContext } from '../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 import {
   Button,
-  IconEmoji,
   type PopperLikePlacement,
   useMessageComposerController,
 } from '../../components';
@@ -25,6 +28,10 @@ const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).
 let hasWarnedEmojiMartDeprecation = false;
 
 export type EmojiPickerProps = {
+  /**
+   * @deprecated Use the `icons.IconEmoji` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconEmoji: ... } }}>`) instead.
+   * Passing this prop still wins over the context slot for backwards compatibility.
+   */
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
   pickerContainerClassName?: string;
@@ -89,7 +96,9 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = IconEmoji } = props;
+  const { IconEmoji } = useComponentContextIcons();
+  const ResolvedButtonIconComponent = props.ButtonIconComponent ?? IconEmoji;
+
   const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
 
   useEffect(() => {
@@ -151,7 +160,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         type='button'
         variant='secondary'
       >
-        {ButtonIconComponent && <ButtonIconComponent />}
+        {ResolvedButtonIconComponent && <ResolvedButtonIconComponent />}
       </Button>
     </div>
   );

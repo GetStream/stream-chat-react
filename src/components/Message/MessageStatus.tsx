@@ -6,9 +6,9 @@ import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContextIcons } from '../../context';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconCheckmark1Small, IconChecks, IconClock } from '../Icons';
 
 export type MessageStatusProps = {
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
@@ -49,6 +49,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
     threadList,
   } = useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
+  const { IconCheckmark1Small, IconChecks, IconClock } = useComponentContextIcons();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
   if (!isMyMessage() || message.type === 'error') return null;

@@ -4,6 +4,7 @@ import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector'
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import {
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -12,8 +13,12 @@ import type { IconProps } from '../../types/types';
 import { QuickMessageActionsButton } from '../MessageActions';
 
 type ReactionSelectorWithButtonProps = {
-  /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
-  ReactionIcon: React.ComponentType<IconProps>;
+  /**
+   * Custom component rendering the icon used in a button invoking reactions selector for a given message.
+   * @deprecated Use the `icons.IconEmoji` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconEmoji: ... } }}>`) instead.
+   * Passing this prop still wins over the context slot for backwards compatibility.
+   */
+  ReactionIcon?: React.ComponentType<IconProps>;
 };
 
 /**
@@ -25,8 +30,9 @@ export const ReactionSelectorWithButton = ({
 }: ReactionSelectorWithButtonProps) => {
   const { t } = useTranslationContext('ReactionSelectorWithButton');
   const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
-  const { ReactionSelector = DefaultReactionSelector } =
-    useComponentContext('MessageOptions');
+  const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
+  const { IconEmoji } = useComponentContextIcons();
+  const ResolvedReactionIcon = ReactionIcon ?? IconEmoji;
   const buttonRef = useRef<ComponentRef<'button'>>(null);
   const dialogId = DefaultReactionSelector.getDialogId({
     messageId: message.id,
@@ -56,7 +62,7 @@ export const ReactionSelectorWithButton = ({
         onClick={() => dialog?.toggle()}
         ref={buttonRef}
       >
-        <ReactionIcon className='str-chat__message-action-icon' />
+        <ResolvedReactionIcon className='str-chat__message-action-icon' />
       </QuickMessageActionsButton>
     </>
   );

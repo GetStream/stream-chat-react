@@ -19,7 +19,7 @@ import {
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
 
 const user: User = {
   id: userId,
@@ -93,7 +93,9 @@ const App = () => {
       await channel.watch();
 
       const hasProductMessage = channel.state.messages.some((message) =>
-        message.attachments?.some(isProductAttachment),
+        message.attachments?.some(
+          (attachment) => 'type' in attachment && attachment.type === 'product',
+        ),
       );
 
       if (!hasProductMessage) {

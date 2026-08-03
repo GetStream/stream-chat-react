@@ -8,7 +8,9 @@
 //   ?user_id=alice&user_name=Alice           // + display name override
 //
 // Notes:
-// - apiKey is the one thing you still need to set (via VITE_API_KEY).
+// - apiKey is the one thing you still need to set. `getstream env --target vite`
+//   writes VITE_STREAM_API_KEY, which is what the tutorial tells you to run;
+//   VITE_API_KEY is still accepted for older local setups.
 // - The token endpoint and environment default to the values shared with
 //   the other example apps in this repo; override with VITE_TOKEN_ENDPOINT
 //   and VITE_TOKEN_ENVIRONMENT if you're pointing at a different Stream
@@ -16,7 +18,7 @@
 
 const searchParams = new URLSearchParams(window.location.search);
 
-export const apiKey = import.meta.env.VITE_API_KEY;
+export const apiKey = import.meta.env.VITE_STREAM_API_KEY || import.meta.env.VITE_API_KEY;
 
 export const userId =
   searchParams.get('user_id') || import.meta.env.VITE_USER_ID || 'react-tutorial';

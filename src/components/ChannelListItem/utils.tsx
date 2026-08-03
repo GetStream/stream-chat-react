@@ -13,6 +13,7 @@ import type { PluggableList } from 'unified';
 import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
 import { isMessageDeleted } from '../Message/utils';
 import remarkGfm from 'remark-gfm';
+import { extractDisplayInfo } from '../Avatar/utils';
 
 const remarkPlugins: PluggableList = [
   htmlToTextPlugin,
@@ -355,8 +356,10 @@ export const getGroupChannelDisplayInfo = (
   const memberList: GroupChannelDisplayInfoMember[] = [];
   for (const member of members) {
     const { user } = member;
+
     if (!user?.name && !user?.image) continue;
-    memberList.push({ imageUrl: user.image, userName: user.name });
+
+    memberList.push(extractDisplayInfo(member));
   }
   return {
     members: memberList,

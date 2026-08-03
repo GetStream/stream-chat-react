@@ -3,11 +3,13 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
 import { formatTime } from '../../../../components/AudioPlayback';
-import { Avatar } from '../../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { Badge } from '../../../../components/Badge';
 import {
   type BaseImageProps,
@@ -15,12 +17,6 @@ import {
 } from '../../../../components/BaseImage';
 import { Prompt } from '../../../../components/Dialog';
 import { Gallery as DefaultGallery, GalleryUI } from '../../../../components/Gallery';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconImage,
-  IconVideoFill,
-} from '../../../../components/Icons';
 import { GlobalModal } from '../../../../components/Modal';
 import {
   SectionNavigatorHeader,
@@ -51,6 +47,9 @@ const ChannelMediaGridItem = ({
   onClick,
 }: ChannelMediaGridItemProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
+  const { IconImage, IconVideoFill } = useComponentContextIcons();
   const displayName = getUserDisplayName(item.user);
   const mediaSrc =
     item.type === 'video'
@@ -84,11 +83,10 @@ const ChannelMediaGridItem = ({
         </div>
       )}
       <Avatar
+        {...extractDisplayInfo({ user: item.user })}
         aria-hidden='true'
         className='str-chat__channel-detail__media-view__item__avatar'
-        imageUrl={item.user?.image}
         size='sm'
-        userName={displayName}
       />
       {item.type === 'video' && (
         <Badge
@@ -118,6 +116,7 @@ const ChannelMediaPagination = ({
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
+  const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
 
   return (
     <div className='str-chat__channel-detail__media-view__pagination'>

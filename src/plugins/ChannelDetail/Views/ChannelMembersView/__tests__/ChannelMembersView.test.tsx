@@ -3,9 +3,11 @@ import React from 'react';
 
 import {
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import {
   type ChannelMembersModeViewProps,
   ChannelMembersView,
@@ -219,6 +221,7 @@ describe('ChannelMembersView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.mocked(useChannelMemberCount).mockReturnValue(2);
   });
 

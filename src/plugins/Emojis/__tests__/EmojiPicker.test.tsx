@@ -21,6 +21,8 @@ const { textareaRef } = vi.hoisted(() => ({
 const insertText = vi.hoisted(() => vi.fn());
 
 vi.mock('../../../context', () => ({
+  // The toggle icon resolves through the ComponentContext `icons` slot.
+  useComponentContextIcons: () => ({ IconEmoji: () => <span>emoji</span> }),
   useMessageComposerContext: () => ({ textareaRef }),
   useTranslationContext: () => ({ t: (key: string) => key }),
 }));
@@ -41,7 +43,6 @@ vi.mock('../../../components', async () => {
         );
       },
     ),
-    IconEmoji: () => <span>emoji</span>,
     useMessageComposerController: () => ({ textComposer: { insertText } }),
   };
 });

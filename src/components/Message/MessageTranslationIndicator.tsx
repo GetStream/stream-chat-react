@@ -1,8 +1,8 @@
 import type { LocalMessage } from 'stream-chat';
 import React, { useCallback, useMemo } from 'react';
-import { IconTranslate } from '../Icons';
 import {
   getTranslatedMessageText,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -15,6 +15,8 @@ export type TranslationIndicatorProps = {
 export const MessageTranslationIndicator = ({
   message: propMessage,
 }: TranslationIndicatorProps) => {
+  const { IconTranslate } = useComponentContextIcons();
+
   const { t, userLanguage } = useTranslationContext();
   const {
     message: contextMessage,

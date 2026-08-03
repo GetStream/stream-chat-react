@@ -1,12 +1,12 @@
 import type { MouseEventHandler } from 'react';
 import React from 'react';
 import {
+  useComponentContextIcons,
   useMessageBounceContext,
   useModalContext,
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
-import { IconExclamationMark } from '../Icons';
 import { Alert } from '../Dialog';
 import type { PropsWithChildrenOnly } from '../../types/types';
 
@@ -14,6 +14,8 @@ export type MessageBouncePromptProps = PropsWithChildrenOnly;
 
 // todo: shall we rename this to MessageBounceAlert?
 export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
+  const { IconExclamationMark } = useComponentContextIcons();
+
   const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext();
   const { t } = useTranslationContext();
   const { close } = useModalContext();

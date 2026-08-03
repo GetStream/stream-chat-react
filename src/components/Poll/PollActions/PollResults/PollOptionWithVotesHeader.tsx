@@ -1,8 +1,11 @@
 import React from 'react';
 import { useStateStore } from '../../../../store';
-import { usePollContext, useTranslationContext } from '../../../../context';
+import {
+  useComponentContextIcons,
+  usePollContext,
+  useTranslationContext,
+} from '../../../../context';
 import type { PollOption, PollState } from 'stream-chat';
-import { IconTrophy } from '../../../Icons';
 
 type PollStateSelectorReturnValue = {
   maxVotedOptionIds: string[];
@@ -20,6 +23,8 @@ export type PollResultOptionVoteCounterProps = {
 export const PollResultOptionVoteCounter = ({
   optionId,
 }: PollResultOptionVoteCounterProps) => {
+  const { IconTrophy } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { maxVotedOptionIds, vote_counts_by_option } = useStateStore(

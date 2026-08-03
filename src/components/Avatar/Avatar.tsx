@@ -6,15 +6,24 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { IconUser } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type AvatarProps = {
-  /** Custom icon rendered when there is no image and no initials */
+  /**
+   * Custom icon rendered when there is no image and no initials.
+   * @deprecated Use the `icons.IconUser` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconUser: ... } }}>`) instead.
+   * Passing this prop still wins over the context slot for backwards compatibility.
+   */
   FallbackIcon?: ComponentType<ComponentPropsWithoutRef<'svg'>>;
   /** URL of the avatar image */
   imageUrl?: string;
-  /** Name of the user, used for avatar image alt text and title fallback */
+  /** Name of the user (first and last name), used for avatar image alt text and title fallback */
   userName?: string;
+  /**
+   * Initials that are used directly instead of generating intials from `userName` property.
+   * @note Providing more than two characters will break the default UI.
+   */
+  initials?: string;
   /** Online status indicator, not rendered if not of type boolean */
   isOnline?: boolean;
   size: '2xl' | 'xl' | 'lg' | 'md' | 'sm' | 'xs' | (string & {}) | null;
@@ -46,29 +55,31 @@ const getInitials = (name?: string) => {
  */
 export const Avatar = ({
   className,
-  FallbackIcon = IconUser,
+  FallbackIcon,
   imageUrl,
+  initials: customInitials,
   isOnline,
   size,
   userName,
   ...rest
 }: AvatarProps) => {
+  const { IconUser } = useComponentContextIcons();
+  const ResolvedFallbackIcon = FallbackIcon ?? IconUser;
   const [error, setError] = useState(false);
 
   useEffect(() => () => setError(false), [imageUrl]);
 
-  const nameString = userName?.toString() || '';
-  const avatarImageAlt = nameString.trim();
+  const nameString = userName?.toString().trim() || '';
 
   const sizeAwareInitials = useMemo(() => {
-    const initials = getInitials(nameString);
+    const initials = customInitials || getInitials(nameString);
 
     if (size === 'sm' || size === 'xs') {
       return initials.charAt(0);
     }
 
     return initials;
-  }, [nameString, size]);
+  }, [nameString, size, customInitials]);
 
   const showImage = typeof imageUrl === 'string' && imageUrl && !error;
 
@@ -95,7 +106,7 @@ export const Avatar = ({
       )}
       {showImage ? (
         <img
-          alt={avatarImageAlt}
+          alt={nameString}
           className='str-chat__avatar-image'
           data-testid='avatar-img'
           onError={() => setError(true)}
@@ -108,7 +119,7 @@ export const Avatar = ({
               {sizeAwareInitials}
             </div>
           )}
-          {!sizeAwareInitials.length && <FallbackIcon />}
+          {!sizeAwareInitials.length && <ResolvedFallbackIcon />}
         </>
       )}
     </div>

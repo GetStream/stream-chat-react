@@ -4,11 +4,13 @@ import type { ComponentType } from 'react';
 import type { Channel, MessageResponse, User } from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
-import { Avatar } from '../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../components/Avatar/utils';
 import { ChannelListItem } from '../../../components/ChannelListItem';
 import {
   useChannelListContext,
   useChatContext,
+  useComponentContext,
   useTranslationContext,
 } from '../../../context';
 import { DEFAULT_JUMP_TO_PAGE_SIZE } from '../../../constants/limits';
@@ -99,6 +101,8 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
   const { setChannels } = useChannelListContext();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
 
   const onClick = useCallback(() => {
     const newChannel = client.channel(directMessagingChannelType, {
@@ -121,10 +125,9 @@ export const UserSearchResultItem = ({ item }: UserSearchResultItemProps) => {
         role='option'
       >
         <Avatar
-          imageUrl={item.image}
+          {...extractDisplayInfo({ user: item })}
           isOnline={item.online}
           size='xl'
-          userName={item.name || item.id}
         />
         <div className='str-chat__search-result-data'>
           <div className='str-chat__search-result__display-name'>
