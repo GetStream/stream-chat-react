@@ -110,7 +110,7 @@ export const VoiceRecordingPlayer = ({
     file_size,
     mime_type,
     waveform_data,
-  } = (attachment as VoiceRecordingAttachment).custom;
+  } = (attachment as VoiceRecordingAttachment).custom ?? {};
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
@@ -144,8 +144,8 @@ export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
-  const { duration, file_size, mime_type } = (attachment as VoiceRecordingAttachment)
-    .custom;
+  const { duration, file_size, mime_type } =
+    (attachment as VoiceRecordingAttachment).custom ?? {};
   return (
     <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>

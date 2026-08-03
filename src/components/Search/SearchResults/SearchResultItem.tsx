@@ -188,7 +188,7 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         <div className='str-chat__search-result-data'>
           <div className='str-chat__search-result__display-name'>
             {/* @ts-expect-error username is not typed */}
-            {item.name || item.custom.username || item.id}
+            {item.name || item.custom?.username || item.id}
           </div>
           <Timestamp
             customClass='str-chat__search-result__last-active-timestamp'

@@ -90,9 +90,8 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
 export const Audio = (props: AudioProps) => {
   const { attachment } = props;
   const { asset_url, title } = attachment;
-  const { duration, file_size, mime_type, waveform_data } = (
-    attachment as VoiceRecordingAttachment
-  ).custom;
+  const { duration, file_size, mime_type, waveform_data } =
+    (attachment as VoiceRecordingAttachment).custom ?? {};
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.

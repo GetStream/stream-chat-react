@@ -59,7 +59,8 @@ export const toChannelMediaItems = (
           : Boolean(descriptor.imageUrl);
       if (!hasRenderableSource) return;
 
-      const attachmentDuration = (attachment as VoiceRecordingAttachment).custom.duration;
+      const attachmentDuration = (attachment as VoiceRecordingAttachment).custom
+        ?.duration;
 
       items.push({
         durationSeconds:

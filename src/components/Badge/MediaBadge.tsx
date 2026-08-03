@@ -17,7 +17,7 @@ const MediaBadgeVariantToIcon: Record<MediaBadgeVariant, ComponentType> = {
 
 export const MediaBadge = ({ attachment, variant }: MediaBadgeProps) => {
   const Icon = MediaBadgeVariantToIcon[variant];
-  const { duration } = (attachment as LocalVoiceRecordingAttachment).custom;
+  const { duration } = (attachment as LocalVoiceRecordingAttachment).custom ?? {};
   return (
     <div
       className={clsx('str-chat__media-badge', {

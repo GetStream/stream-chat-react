@@ -45,9 +45,8 @@ export const AudioAttachmentPreview = ({
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
   const url = attachment.asset_url || previewUri;
-  const { duration, file_size, mime_type, waveform_data } = (
-    attachment as LocalVoiceRecordingAttachment
-  ).custom;
+  const { duration, file_size, mime_type, waveform_data } =
+    (attachment as LocalVoiceRecordingAttachment).custom ?? {};
 
   const audioPlayer = useAudioPlayer({
     fileSize: attachment.localMetadata.file?.size ?? file_size,

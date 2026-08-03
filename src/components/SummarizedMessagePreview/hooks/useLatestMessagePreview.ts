@@ -226,8 +226,11 @@ export const useLatestMessagePreview = ({
             getAttachmentFallbackText(contentType, attachments.length, t);
 
       // attach duration for audio/video attachments if available
+      // `Attachment.custom` is typed as required by the OpenAPI models, but it is not guaranteed
+      // at runtime (og-scraped, giphy and custom-integration attachments arrive without it), and
+      // this cast is applied to attachments of ANY type - so it must be read defensively.
       const firstAttachmentDuration = (firstAttachment as VoiceRecordingAttachment).custom
-        .duration;
+        ?.duration;
       if (attachments.length === 1 && typeof firstAttachmentDuration === 'number') {
         const minutes = Math.floor(firstAttachmentDuration / 60);
         const seconds = Math.ceil(firstAttachmentDuration) % 60;
