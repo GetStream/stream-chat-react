@@ -31,10 +31,16 @@ export const useSendMessageFn = () => {
   const messageComposer = useMessageComposerController();
   const { t } = useTranslationContext('useSendMessageFn');
 
+  /**
+   * Resolves with `true` when the message was sent, `false` when there was nothing to send or the
+   * send failed. The send failure is already reported through `client.notifications`, so callers may
+   * ignore the result; callers that render their own post-send feedback (e.g. the poll creation
+   * dialog announcing "Poll sent") MUST check it — this function never rejects.
+   */
   return useStableCallback(
-    async () => {
+    async (): Promise<boolean> => {
       const composition = await messageComposer.compose();
-      if (!composition || !composition.message) return;
+      if (!composition || !composition.message) return false;
 
       const { localMessage, message, sendOptions } = composition;
       const restoreComposerStateSnapshot = takeStateSnapshot(messageComposer);
@@ -68,6 +74,8 @@ export const useSendMessageFn = () => {
           message: message as MessageRequest,
           options: sendOptions,
         });
+
+        return true;
       } catch (error) {
         restoreComposerStateSnapshot();
         // todo: Register notification translator
@@ -85,6 +93,8 @@ export const useSendMessageFn = () => {
             emitter: 'useSendMessageFn',
           },
         });
+
+        return false;
       } finally {
         if (messageComposer.config.text.publishTypingEvents)
           await messageComposer.channel.stopTyping();
