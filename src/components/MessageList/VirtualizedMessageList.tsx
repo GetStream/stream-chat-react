@@ -624,11 +624,16 @@ const VirtualizedMessageListWithContext = (
                   !isMessageListScrolledToBottom
                 }
               />
-              <ScrollToLatestMessageButton
-                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
-                onClick={scrollToBottom}
-              />
+              {/* An empty list has nothing to jump to. Gate on the message count rather than on
+                  scroll position alone: a list with no content can legitimately report "not at
+                  bottom", which would otherwise render a dead affordance. */}
+              {messages.length > 0 && (
+                <ScrollToLatestMessageButton
+                  isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                  isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
+                  onClick={scrollToBottom}
+                />
+              )}
             </div>
           </DialogManagerProvider>
           {TypingIndicator && (
