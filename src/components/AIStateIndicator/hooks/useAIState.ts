@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { AIState, Channel, Event } from 'stream-chat';
+import type { AIState, Channel, EventPayload } from 'stream-chat';
 
 export const AIStates = {
   Error: 'AI_STATE_ERROR',
@@ -23,13 +23,16 @@ export const useAIState = (channel?: Channel): { aiState: AIState } => {
       return;
     }
 
-    const indicatorChangedListener = channel.on('ai_indicator.update', (event: Event) => {
-      const { cid } = event;
-      const state = event.ai_state as AIState;
-      if (channel.cid === cid) {
-        setAiState(state);
-      }
-    });
+    const indicatorChangedListener = channel.on(
+      'ai_indicator.update',
+      (event: EventPayload<'ai_indicator.update'>) => {
+        const { cid } = event;
+        const state = event.ai_state as AIState;
+        if (channel.cid === cid) {
+          setAiState(state);
+        }
+      },
+    );
 
     const indicatorClearedListener = channel.on('ai_indicator.clear', (event) => {
       const { cid } = event;

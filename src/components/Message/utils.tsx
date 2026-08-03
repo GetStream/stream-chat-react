@@ -6,10 +6,9 @@ import type { TFunction } from 'i18next';
 import type {
   ChannelConfigWithInfo,
   LocalMessage,
-  LocalMessageBase,
   MessageResponse,
-  Mute,
   StreamChat,
+  UserMuteResponse,
   UserResponse,
 } from 'stream-chat';
 import type { MessageProps } from './types';
@@ -41,10 +40,10 @@ export const validateAndGetMessage = <T extends unknown[]>(
 /**
  * Tell if the owner of the current message is muted
  */
-export const isUserMuted = (message: LocalMessage, mutes?: Mute[]) => {
+export const isUserMuted = (message: LocalMessage, mutes?: UserMuteResponse[]) => {
   if (!mutes || !message) return false;
 
-  return mutes.some(({ target }) => target.id === message.user?.id);
+  return mutes.some(({ target }) => target?.id === message.user?.id);
 };
 
 export const OPTIONAL_MESSAGE_ACTIONS = {
@@ -177,10 +176,7 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
 ];
 
 function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
-  const areBaseMessagesEqual = (
-    prevMessage: LocalMessageBase,
-    nextMessage: LocalMessageBase,
-  ) =>
+  const areBaseMessagesEqual = (prevMessage: LocalMessage, nextMessage: LocalMessage) =>
     prevMessage.deleted_at === nextMessage.deleted_at &&
     prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
     prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
@@ -198,8 +194,8 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
     Boolean(prevMessage.quoted_message) === Boolean(nextMessage.quoted_message) &&
     ((!prevMessage.quoted_message && !nextMessage.quoted_message) ||
       areBaseMessagesEqual(
-        prevMessage.quoted_message as LocalMessageBase,
-        nextMessage.quoted_message as LocalMessageBase,
+        prevMessage.quoted_message as LocalMessage,
+        nextMessage.quoted_message as LocalMessage,
       ))
   );
 }
@@ -391,20 +387,14 @@ export const isMessageErrorRetryable = (message: LocalMessage) =>
 export const isNetworkSendFailure = (message: Pick<LocalMessage, 'error' | 'status'>) =>
   message.status === 'failed' && message.error?.status === 0;
 
-export const isMessageBounced = (
-  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
-) =>
-  message.type === 'error' &&
-  (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE' ||
-    message.moderation?.action === 'bounce');
+export const isMessageBounced = (message: Pick<LocalMessage, 'type' | 'moderation'>) =>
+  message.type === 'error' && message.moderation?.action === 'bounce';
 
 export const isMessageBlocked = (
-  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details' | 'shadowed'>,
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'shadowed'>,
 ) =>
   message.shadowed ||
-  (message.type === 'error' &&
-    (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
-      message.moderation?.action === 'remove'));
+  (message.type === 'error' && message.moderation?.action === 'remove');
 
 export const isMessageDeleted = (message: LocalMessage): boolean =>
   Boolean(message.deleted_at || message.type === 'deleted' || message.deleted_for_me);

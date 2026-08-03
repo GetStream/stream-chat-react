@@ -71,8 +71,10 @@ describe('ChatView.Selector', () => {
   it('renders tooltips instead of inline labels by default', async () => {
     const { container } = await renderSelector();
 
-    expect(screen.getByRole('tab', { name: 'Channels' })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Threads' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Open channels view' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open threads view' })).toBeInTheDocument();
     expect(
       container.querySelectorAll('.str-chat__chat-view__selector-button-text'),
     ).toHaveLength(0);
@@ -101,54 +103,57 @@ describe('ChatView.Selector', () => {
     ).toEqual(['Channels', 'Threads']);
   });
 
-  it('renders tabs with tablist/tabpanel semantics and tabbable tabs', async () => {
+  it('exposes the selector as a navigation landmark whose current item is aria-current, and only renders the active view container (no tab/tabpanel roles)', async () => {
     await renderSelectorWithPanels();
 
-    const tablist = screen.getByRole('tablist', { name: 'Chat view tabs' });
-    const channelsTab = screen.getByRole('tab', { name: 'Channels' });
-    const threadsTab = screen.getByRole('tab', { name: 'Threads' });
+    const nav = screen.getByRole('navigation', { name: 'Chat view controls' });
+    const channelsButton = screen.getByRole('button', { name: 'Open channels view' });
+    const threadsButton = screen.getByRole('button', { name: 'Open threads view' });
 
-    expect(tablist).toContainElement(channelsTab);
-    expect(tablist).toContainElement(threadsTab);
-    expect(channelsTab).toHaveAttribute('tabindex', '0');
-    expect(threadsTab).toHaveAttribute('tabindex', '0');
+    expect(nav).toContainElement(channelsButton);
+    expect(nav).toContainElement(threadsButton);
 
-    const channelsPanel = document.getElementById(
-      channelsTab.getAttribute('aria-controls') || '',
-    );
-    const threadsPanel = document.getElementById(
-      threadsTab.getAttribute('aria-controls') || '',
-    );
+    // The current view's button is marked aria-current="true" (generic "current item" —
+    // not "page", since the SDK may be embedded in a larger host UI), not aria-pressed.
+    expect(channelsButton).toHaveAttribute('aria-current', 'true');
+    expect(threadsButton).not.toHaveAttribute('aria-current');
+    expect(channelsButton).not.toHaveAttribute('aria-pressed');
 
-    expect(channelsPanel).toHaveAttribute('role', 'tabpanel');
-    expect(channelsPanel).toHaveAttribute('aria-labelledby', channelsTab.id);
-    expect(threadsPanel).toBeNull();
+    // ChatView is a switcher between two independent surfaces, not a WAI-ARIA Tabs widget.
+    expect(screen.queryByRole('tablist')).toBeNull();
+    expect(screen.queryByRole('tab')).toBeNull();
+    expect(screen.queryByRole('tabpanel')).toBeNull();
+
+    // The active view container is a plain div with a stable id and no landmark role.
+    const channelsPanel = screen.getByTestId('channels-panel-content').parentElement;
+    expect(channelsPanel).not.toHaveAttribute('role');
+    expect(channelsPanel).not.toHaveAttribute('aria-labelledby');
+    expect(channelsPanel?.id).toMatch(/str-chat__chat-view-.*-panel-channels$/);
+
+    // The inactive view is not rendered.
+    expect(screen.queryByTestId('threads-panel-content')).toBeNull();
   });
 
-  it('does not switch tabs on arrow keys', async () => {
+  it('moves aria-current and swaps the rendered view when another view is selected', async () => {
     await renderSelectorWithPanels();
 
-    const channelsTab = screen.getByRole('tab', { name: 'Channels' });
-    const threadsTab = screen.getByRole('tab', { name: 'Threads' });
+    const channelsButton = screen.getByRole('button', { name: 'Open channels view' });
+    const threadsButton = screen.getByRole('button', { name: 'Open threads view' });
 
-    channelsTab.focus();
-    fireEvent.keyDown(channelsTab, { key: 'ArrowRight' });
+    expect(channelsButton).toHaveAttribute('aria-current', 'true');
+    expect(threadsButton).not.toHaveAttribute('aria-current');
+
+    fireEvent.click(threadsButton);
 
     await waitFor(() => {
-      expect(channelsTab).toHaveAttribute('aria-selected', 'true');
-      expect(channelsTab).toHaveAttribute('tabindex', '0');
-      expect(threadsTab).toHaveAttribute('aria-selected', 'false');
-      expect(threadsTab).toHaveAttribute('tabindex', '0');
-      expect(
-        document.getElementById(channelsTab.getAttribute('aria-controls') || ''),
-      ).toHaveAttribute('role', 'tabpanel');
-      expect(
-        document.getElementById(threadsTab.getAttribute('aria-controls') || ''),
-      ).toBeNull();
+      expect(threadsButton).toHaveAttribute('aria-current', 'true');
+      expect(channelsButton).not.toHaveAttribute('aria-current');
+      expect(screen.getByTestId('threads-panel-content')).toBeInTheDocument();
+      expect(screen.queryByTestId('channels-panel-content')).toBeNull();
     });
   });
 
-  it('has no axe violations for tabs and panels markup', async () => {
+  it('has no axe violations for the nav landmark and view markup', async () => {
     const { container } = await renderSelectorWithPanels();
 
     const results = await axe(container);

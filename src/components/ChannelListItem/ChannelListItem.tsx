@@ -2,7 +2,7 @@ import throttle from 'lodash.throttle';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import type {
   Channel,
-  Event,
+  EventPayload,
   LocalMessage,
   MessagePaginatorAggregateState,
 } from 'stream-chat';
@@ -115,24 +115,24 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
-    const handleEvent = (event: Event) => {
+    const handleEvent = (event: EventPayload<'notification.mark_read'>) => {
       if (!event.cid) return setUnread(0);
       if (channel.cid === event.cid) setUnread(0);
     };
 
-    client.on('notification.mark_read', handleEvent);
-    return () => client.off('notification.mark_read', handleEvent);
+    const subscription = client.on('notification.mark_read', handleEvent);
+    return () => subscription.unsubscribe();
   }, [channel, client]);
 
   useEffect(() => {
-    const handleEvent = (event: Event) => {
+    const handleEvent = (event: EventPayload<'notification.mark_unread'>) => {
       if (channel.cid !== event.cid) return;
       if (event.user?.id !== client.user?.id) return;
       setUnread(channel.countUnread());
     };
-    channel.on('notification.mark_unread', handleEvent);
+    const subscription = channel.on('notification.mark_unread', handleEvent);
     return () => {
-      channel.off('notification.mark_unread', handleEvent);
+      subscription.unsubscribe();
     };
   }, [channel, client]);
 
@@ -151,7 +151,16 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   useEffect(() => {
     refreshUnreadCount();
 
-    const handleEvent = (event: Event) => {
+    const handleEvent = (
+      event: EventPayload<
+        | 'message.new'
+        | 'message.updated'
+        | 'message.deleted'
+        | 'message.undeleted'
+        | 'channel.truncated'
+        | 'user.messages.deleted'
+      >,
+    ) => {
       const deletedMessagesInAnotherChannel =
         event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid;
 
@@ -160,20 +169,17 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
       refreshUnreadCount();
     };
 
-    channel.on('message.new', handleEvent);
-    channel.on('message.updated', handleEvent);
-    channel.on('message.deleted', handleEvent);
-    client.on('user.messages.deleted', handleEvent);
-    channel.on('message.undeleted', handleEvent);
-    channel.on('channel.truncated', handleEvent);
+    const subscriptions = [
+      channel.on('message.new', handleEvent),
+      channel.on('message.updated', handleEvent),
+      channel.on('message.deleted', handleEvent),
+      client.on('user.messages.deleted', handleEvent),
+      channel.on('message.undeleted', handleEvent),
+      channel.on('channel.truncated', handleEvent),
+    ];
 
     return () => {
-      channel.off('message.new', handleEvent);
-      channel.off('message.updated', handleEvent);
-      channel.off('message.deleted', handleEvent);
-      client.off('user.messages.deleted', handleEvent);
-      channel.off('message.undeleted', handleEvent);
-      channel.off('channel.truncated', handleEvent);
+      subscriptions.forEach((subscription) => subscription.unsubscribe());
     };
   }, [channel, client, refreshUnreadCount, channelUpdateCount]);
 

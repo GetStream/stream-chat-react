@@ -75,7 +75,7 @@ export const useMessageAlsoSentInChannelNavigation =
 
       if (!targetThread) {
         try {
-          targetThread = await client.getThread(parentId, { watch: true });
+          targetThread = await client.getThreadAndHydrate(parentId, { watch: true });
         } catch (error) {
           addThreadNotFoundNotification(error as Error);
           return;

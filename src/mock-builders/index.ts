@@ -11,7 +11,8 @@ const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
     client['connectionId'] = 'dumm_connection_id';
     client.user = { ...user, mutes: [] } as UserResponse;
     client['_user'] = { ...user } as UserResponse;
-    client.userID = user.id;
+    // `userID` is a getter in v10 (derives from `client.user?.id`), so it can't be assigned;
+    // setting `client.user` above is what populates it.
     client['userToken'] = token;
     client.wsPromise = Promise.resolve() as StreamChat['wsPromise'];
     resolve();
@@ -24,7 +25,7 @@ interface MockClientOverrides {
 
 function mockClient(client: StreamChat, mocks: MockClientOverrides = {}) {
   vi.spyOn(client, '_setToken').mockResolvedValue();
-  vi.spyOn(client, '_setupConnection').mockReturnValue(undefined);
+  vi.spyOn(client, 'openConnection').mockReturnValue(undefined);
   vi.spyOn(client, 'getAppSettings').mockImplementation(
     mocks.getAppSettings ?? ((() => Promise.resolve({})) as StreamChat['getAppSettings']),
   );

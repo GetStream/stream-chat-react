@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type {
-  AppSettingsAPIResponse,
   ChannelPaginatorsOrchestrator,
-  Mute,
   SearchController,
+  StreamChat,
+  UserMuteResponse,
 } from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
@@ -31,9 +31,9 @@ export type ChatContextValue = {
    * more channel lists (the channel-list data source + cross-list ownership).
    */
   channelPaginatorsOrchestrator: ChannelPaginatorsOrchestrator;
-  getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
+  getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
-  mutes: Array<Mute>;
+  mutes: Array<UserMuteResponse>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;
   useImageFlagEmojisOnWindows: boolean;

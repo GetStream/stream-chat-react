@@ -1,5 +1,5 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
-import type { CommandResponse } from 'stream-chat';
+import type { Command } from 'stream-chat';
 import { useMessageComposerContext, useTranslationContext } from '../../../context';
 import { useMessageComposerCommands, useMessageComposerController } from '../hooks';
 import {
@@ -86,7 +86,7 @@ export const CommandsMenu = () => {
   );
 };
 
-export const useCommandTranslation = (command: CommandResponse) => {
+export const useCommandTranslation = (command: Command) => {
   const { t } = useTranslationContext();
 
   const knownArgsTranslations = useMemo<Record<string, string>>(
@@ -125,7 +125,7 @@ export const CommandContextMenuItem = ({
   enabled = true,
   ...props
 }: ComponentProps<'button'> & {
-  command: CommandResponse & { name: string };
+  command: Command & { name: string };
   enabled?: boolean;
 }) => {
   const { args, description } = useCommandTranslation(command);

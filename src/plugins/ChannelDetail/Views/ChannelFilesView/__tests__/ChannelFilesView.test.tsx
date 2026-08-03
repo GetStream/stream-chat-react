@@ -113,17 +113,19 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/financial-report-Q1-2026.pdf',
-        file_size: 4 * 1024 * 1024,
-        mime_type: 'application/pdf',
+        // v10: file_size/mime_type live under `attachment.custom`.
+        custom: { file_size: 4 * 1024 * 1024, mime_type: 'application/pdf' },
         title: 'financial-report-Q1-2026.pdf',
         type: 'file',
       },
       {
+        custom: {},
         image_url: 'https://cdn.test/screenshot.png',
         title: 'screenshot',
         type: 'image',
       },
       {
+        custom: {},
         og_scrape_url: 'https://getstream.io',
         title: 'scraped-link-preview',
         title_link: 'https://getstream.io',
@@ -141,8 +143,7 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/customer-feedback.wav',
-        file_size: 7 * 1024 * 1024,
-        mime_type: 'audio/wav',
+        custom: { file_size: 7 * 1024 * 1024, mime_type: 'audio/wav' },
         title: 'customer-feedback.wav',
         type: 'audio',
       },
@@ -158,8 +159,10 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/sales-report-may.xlsx',
-        file_size: 6 * 1024 * 1024,
-        mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        custom: {
+          file_size: 6 * 1024 * 1024,
+          mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        },
         title: 'sales-report-may.xlsx',
         type: 'file',
       },

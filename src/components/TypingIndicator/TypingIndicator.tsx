@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import type { TextComposerState, ThreadState } from 'stream-chat';
+import type { EventPayload, TextComposerState, ThreadState } from 'stream-chat';
 
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
@@ -55,14 +55,18 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   const { parentMessage } =
     useStateStore(thread?.state, threadParentMessageSelector) ?? {};
 
+  const typingEntries = Object.values(typing) as EventPayload<
+    'typing.start' | 'typing.stop'
+  >[];
+
   const typingInChannel = !isThreadList
-    ? Object.values(typing).filter(
+    ? typingEntries.filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
       )
     : [];
 
   const typingInThread = isThreadList
-    ? Object.values(typing).filter(
+    ? typingEntries.filter(
         ({ parent_id, user }) =>
           user?.id !== client.user?.id && parent_id === parentMessage?.id,
       )

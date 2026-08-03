@@ -633,16 +633,19 @@ describe('MediaRecorderController', () => {
         expect(recording).toStrictEqual(
           expect.objectContaining({
             asset_url: fileObjectURL,
-            duration: dataPoints.reduce((acc, n) => acc + n),
-            file_size: recordedChunkCount,
+            // v10: duration / file_size / mime_type / waveform_data live under `custom`.
+            custom: {
+              duration: dataPoints.reduce((acc, n) => acc + n),
+              file_size: recordedChunkCount,
+              mime_type: targetMimeType,
+              waveform_data: dataPoints,
+            },
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
             },
-            mime_type: targetMimeType,
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
-            waveform_data: dataPoints,
           }),
         );
         createFileFromBlobsSpy.mockReturnValue(fileMock);
@@ -678,16 +681,19 @@ describe('MediaRecorderController', () => {
         expect(recording).toStrictEqual(
           expect.objectContaining({
             asset_url: fileObjectURL,
-            duration: dataPoints.reduce((acc, n) => acc + n),
-            file_size: recordedChunkCount,
+            // v10: duration / file_size / mime_type / waveform_data live under `custom`.
+            custom: {
+              duration: dataPoints.reduce((acc, n) => acc + n),
+              file_size: recordedChunkCount,
+              mime_type: targetMimeType,
+              waveform_data: dataPoints,
+            },
             localMetadata: {
               file: recordedFile,
               id: nanoidMockValue,
             },
-            mime_type: targetMimeType,
             title: recordedFile.name,
             type: RecordingAttachmentType.VOICE_RECORDING,
-            waveform_data: dataPoints,
           }),
         );
         createFileFromBlobsSpy.mockReturnValue(fileMock);
@@ -717,16 +723,19 @@ describe('MediaRecorderController', () => {
       expect(recording).toStrictEqual(
         expect.objectContaining({
           asset_url: fileObjectURL,
-          duration: dataPoints.reduce((acc, n) => acc + n),
-          file_size: recordedChunkCount,
+          // v10: duration / file_size / mime_type / waveform_data live under `custom`.
+          custom: {
+            duration: dataPoints.reduce((acc, n) => acc + n),
+            file_size: recordedChunkCount,
+            mime_type: targetMimeType,
+            waveform_data: dataPoints,
+          },
           localMetadata: {
             file: recordedFile,
             id: nanoidMockValue,
           },
-          mime_type: targetMimeType,
           title: recordedFile.name,
           type: RecordingAttachmentType.VOICE_RECORDING,
-          waveform_data: dataPoints,
         }),
       );
       createFileFromBlobsSpy.mockReturnValue(fileMock);

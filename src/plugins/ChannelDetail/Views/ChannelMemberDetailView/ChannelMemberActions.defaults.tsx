@@ -221,7 +221,7 @@ const SendDirectMessageAction = () => {
     setIsSending(true);
     try {
       const directMessageChannel = client.channel(channel.type, {
-        members: [client.userID, targetUserId],
+        members: [client.userID, targetUserId].map((user_id) => ({ user_id })),
       });
       await directMessageChannel.watch();
       // Selection is one navigation model: open the DM into a layout slot, then route it into
@@ -283,7 +283,7 @@ const UserMuteAction = () => {
   const { t } = useTranslationContext();
   const { targetUserId } = useChannelMemberActionContext();
   const userMuted =
-    !!targetUserId && mutes.some((mute) => mute.target.id === targetUserId);
+    !!targetUserId && mutes.some((mute) => mute.target?.id === targetUserId);
   const [optimisticUserMuted, setOptimisticUserMuted] = useState(userMuted);
 
   useEffect(() => {
@@ -420,7 +420,7 @@ const BlockUserAction = () => {
 
     try {
       setUserBlockInProgress(true);
-      await client.unBlockUser(targetUserId);
+      await client.unblockUser(targetUserId);
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',

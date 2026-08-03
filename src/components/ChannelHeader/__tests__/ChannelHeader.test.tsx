@@ -46,6 +46,10 @@ const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
 
+// stream-chat v10: channel custom data is nested - `channel.data.custom.name` /
+// `channel.data.custom.image` (the display helpers read exactly those paths).
+const channelCustom = (custom: Record<string, unknown>) => ({ custom });
+
 const renderComponentBase = ({
   channel,
   client,
@@ -91,7 +95,7 @@ afterEach(cleanup);
 describe('ChannelHeader', () => {
   it('should render without crashing', async () => {
     const { container } = await renderComponent({
-      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      channelData: channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -99,7 +103,7 @@ describe('ChannelHeader', () => {
   });
 
   it("should display avatar with fallback image only if other user's name is available", async () => {
-    await renderComponent({ channelData: { image: null } });
+    await renderComponent({ channelData: channelCustom({ image: null }) });
     await waitFor(() => {
       expect(screen.queryByTestId('avatar-img')).not.toBeInTheDocument();
       expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
@@ -108,7 +112,7 @@ describe('ChannelHeader', () => {
 
   it('should display avatar when channel has an image', async () => {
     const { container, getByTestId } = await renderComponent({
-      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      channelData: channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -118,7 +122,7 @@ describe('ChannelHeader', () => {
 
   it('should display custom title', async () => {
     const { container, getByText } = await renderComponent({
-      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      channelData: channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
       props: { title: 'Custom Title' },
     });
     const results = await axe(container);
@@ -129,9 +133,8 @@ describe('ChannelHeader', () => {
   it('should render subtitle area for online status', async () => {
     const { container } = await renderComponent({
       channelData: {
-        image: 'image.jpg',
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
         member_count: 5,
-        name: 'test-channel-1',
       },
     });
     const results = await axe(container);
@@ -149,9 +152,8 @@ describe('ChannelHeader', () => {
   it('should display watcher_count in subtitle', async () => {
     const { container } = await renderComponent({
       channelData: {
-        image: 'image.jpg',
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
         member_count: 10,
-        name: 'test-channel-1',
         watcher_count: 34,
       },
     });
@@ -167,9 +169,8 @@ describe('ChannelHeader', () => {
   it('should display correct member_count in subtitle', async () => {
     const { container } = await renderComponent({
       channelData: {
-        image: 'image.jpg',
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
         member_count: 34,
-        name: 'test-channel-1',
       },
     });
     const results = await axe(container);
@@ -259,7 +260,9 @@ describe('ChannelHeader', () => {
       });
     };
     const channelName = 'channel-name';
-    const channelState = getChannelState(3, { channel: { name: channelName } });
+    const channelState = getChannelState(3, {
+      channel: channelCustom({ name: channelName }),
+    });
 
     it('renders group avatar for channels with more than 2 members', async () => {
       const channelState = getChannelState(5);
@@ -403,15 +406,18 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      const updatedAttribute = { custom: 'new-custom' };
+      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
 
@@ -423,11 +429,13 @@ describe('ChannelHeader', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
     });
@@ -441,15 +449,18 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      const updatedAttribute = { custom: 'new-custom' };
+      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
 
@@ -461,11 +472,13 @@ describe('ChannelHeader', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
     });

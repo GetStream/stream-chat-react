@@ -4,7 +4,7 @@ import { useChatContext } from '../../../context';
 import { useMessagePaginator } from '../../../hooks';
 import { useTranslationContext } from '../../../context/TranslationContext';
 
-import type { LocalMessage } from 'stream-chat';
+import type { LocalMessage, UserResponse } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
@@ -60,7 +60,7 @@ export const usePinHandler = (
           ...message,
           pinned: true,
           pinned_at: new Date(),
-          pinned_by: client.user,
+          pinned_by: client.user as UserResponse | undefined,
         };
 
         messagePaginator.ingestItem(optimisticMessage);
@@ -77,10 +77,10 @@ export const usePinHandler = (
       try {
         const optimisticMessage: LocalMessage = {
           ...message,
-          pin_expires: null,
+          pin_expires: undefined,
           pinned: false,
-          pinned_at: null,
-          pinned_by: null,
+          pinned_at: undefined,
+          pinned_by: undefined,
         };
 
         messagePaginator.ingestItem(optimisticMessage);

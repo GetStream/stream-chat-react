@@ -125,8 +125,8 @@ export type ChannelManagementEditBodyProps = {
 const EDIT_BODY_EMITTER = 'ChannelManagementEditBody';
 
 type ChannelUpdatePayload = {
-  set?: { image?: string; name?: string };
-  unset?: ['image'];
+  set?: { 'custom.image'?: string; 'custom.name'?: string };
+  unset?: ['custom.image'];
 };
 
 /**
@@ -143,12 +143,14 @@ const buildChannelUpdatePayload = ({
 }): ChannelUpdatePayload | null => {
   const payload: ChannelUpdatePayload = {};
 
-  const set: { image?: string; name?: string } = {};
-  if (name !== undefined) set.name = name;
-  if (typeof image === 'string') set.image = image;
+  // Custom channel fields (name/image) live under `channel.data.custom` in v10, so partial-update
+  // set/unset target them by dot-path — mirroring the `channel.data.custom.name` read path.
+  const set: { 'custom.image'?: string; 'custom.name'?: string } = {};
+  if (name !== undefined) set['custom.name'] = name;
+  if (typeof image === 'string') set['custom.image'] = image;
   if (Object.keys(set).length > 0) payload.set = set;
 
-  if (image === null) payload.unset = ['image'];
+  if (image === null) payload.unset = ['custom.image'];
 
   return Object.keys(payload).length > 0 ? payload : null;
 };
@@ -176,7 +178,7 @@ const useChannelManagementEditForm = ({
 
   // Dirty-tracking baseline; advanced to the saved value on success so the form
   // is no longer considered dirty (and the Save button hides) after a write.
-  const [baselineName, setBaselineName] = useState(channel.data?.name ?? '');
+  const [baselineName, setBaselineName] = useState(channel.data?.custom?.name ?? '');
   const [name, setName] = useState(baselineName);
   // null = keep current avatar, File = replace it, 'removed' = clear it
   const [imageEdit, setImageEdit] = useState<File | 'removed' | null>(null);

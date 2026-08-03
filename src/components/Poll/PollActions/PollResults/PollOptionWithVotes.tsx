@@ -4,12 +4,16 @@ import { PollVoteListing } from '../../PollVote';
 import { useStateStore } from '../../../../store';
 import { useChannel, usePollContext, useTranslationContext } from '../../../../context';
 import { useChannelCapabilities } from '../../../Channel/hooks/useChannelCapabilities';
-import type { PollOption, PollState, PollVote } from 'stream-chat';
+import type {
+  PollOptionResponseData,
+  PollState,
+  PollVoteResponseData,
+} from 'stream-chat';
 import { Button } from '../../../Button';
 import clsx from 'clsx';
 
 type PollStateSelectorReturnValue = {
-  latest_votes_by_option: Record<string, PollVote[]>;
+  latest_votes_by_option: Record<string, PollVoteResponseData[]>;
 };
 
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
@@ -17,7 +21,7 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export type PollOptionWithVotesProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   orderNumber: number;
   countVotesPreview?: number;
   showAllVotes?: () => void;

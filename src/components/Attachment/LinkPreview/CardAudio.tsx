@@ -88,16 +88,9 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
 };
 
 export const CardAudio = ({
-  attachment: {
-    asset_url,
-    author_name,
-    mime_type,
-    og_scrape_url,
-    text,
-    title,
-    title_link,
-  },
+  attachment: { asset_url, author_name, custom, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
+  const { mime_type } = custom;
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
   const rootClassName = 'str-chat__message-attachment-card-audio-widget';

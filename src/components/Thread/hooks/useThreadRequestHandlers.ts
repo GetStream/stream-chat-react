@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
+import { localMessageToNewMessagePayload } from 'stream-chat';
 import type {
   DeleteMessageOptions,
   EventAPIResponse,
   LocalMessage,
-  MarkReadOptions,
-  Message,
+  MarkReadRequest,
+  MessageRequest,
   MessageResponse,
   SendMessageOptions,
   Channel as StreamChannel,
@@ -22,11 +23,11 @@ export type ThreadRequestHandlersParams = {
   ) => Promise<MessageResponse>;
   doMarkReadRequest?: (params: {
     thread: StreamThread;
-    options?: MarkReadOptions;
+    options?: MarkReadRequest;
   }) => Promise<EventAPIResponse | null> | void;
   doSendMessageRequest?: (
     thread: StreamThread,
-    message: Message,
+    message: MessageRequest,
     options?: SendMessageOptions,
   ) => ReturnType<StreamChannel['sendMessage']> | void;
   doUpdateMessageRequest?: (
@@ -91,7 +92,7 @@ export const useThreadRequestHandlers = ({
 
         const fallback = await channel
           .getClient()
-          .deleteMessage(params.localMessage.id, params.options);
+          .deleteMessage({ id: params.localMessage.id, ...params.options });
         return { message: fallback.message };
       };
     }
@@ -99,14 +100,14 @@ export const useThreadRequestHandlers = ({
     if (doSendMessageRequest) {
       const sendMessageRequest = async (params: {
         localMessage: LocalMessage;
-        message?: Message;
+        message?: MessageRequest;
         options?: SendMessageOptions;
       }) => {
         const sourceMessage = params.message ?? params.localMessage;
         const targetMessage = {
           ...sourceMessage,
           parent_id: sourceMessage.parent_id ?? threadInstance.id,
-        } as Message;
+        } as MessageRequest;
 
         if (isMessageFromThread(params.localMessage)) {
           const response = await doSendMessageRequest(
@@ -117,7 +118,10 @@ export const useThreadRequestHandlers = ({
           if (response?.message) return { message: response.message };
         }
 
-        const fallback = await channel.sendMessage(targetMessage, params.options);
+        const fallback = await channel.sendMessage({
+          message: targetMessage,
+          ...params.options,
+        });
         return { message: fallback.message };
       };
 
@@ -142,9 +146,11 @@ export const useThreadRequestHandlers = ({
           return { message: response.message };
         }
 
-        const fallback = await channel
-          .getClient()
-          .updateMessage(params.localMessage, undefined, params.options);
+        const fallback = await channel.getClient().updateMessage({
+          id: params.localMessage.id,
+          message: localMessageToNewMessagePayload(params.localMessage),
+          ...params.options,
+        });
         return { message: fallback.message };
       };
     }
@@ -152,14 +158,14 @@ export const useThreadRequestHandlers = ({
     if (doMarkReadRequest) {
       nextThreadRequestHandlers.markReadRequest = async (params: {
         thread: StreamThread;
-        options?: MarkReadOptions;
+        options?: MarkReadRequest;
       }) => {
         const response = await doMarkReadRequest({
           options: params.options,
           thread: params.thread,
         });
         if (response !== undefined) return response;
-        return await params.thread.channel.markAsReadRequest({
+        return await params.thread.channel.markReadViaReporter({
           ...params.options,
           thread_id: params.thread.id,
         });

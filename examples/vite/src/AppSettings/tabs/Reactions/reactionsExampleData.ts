@@ -1,21 +1,25 @@
 import type { LocalMessage } from 'stream-chat';
 
-const fireReactionTimestamp = '2026-02-12T06:39:57.188362Z';
-const firstLikeReactionTimestamp = '2026-02-12T06:39:56.237389Z';
-const secondLikeReactionTimestamp = '2026-02-12T06:39:52.237389Z';
-const heartReactionTimestamp = '2026-02-12T06:35:58.021196Z';
+// v10 types reaction/message timestamps as `Date` rather than ISO strings.
+const fireReactionAt = new Date('2026-02-12T06:39:57.188362Z');
+const firstLikeReactionAt = new Date('2026-02-12T06:39:56.237389Z');
+const secondLikeReactionAt = new Date('2026-02-12T06:39:52.237389Z');
+const heartReactionAt = new Date('2026-02-12T06:35:58.021196Z');
 
-export const reactionsPreviewMessage: LocalMessage = {
+// The generated v10 models require far more fields than a static preview fixture needs
+// (`MessageResponse` alone mandates cid, html, deleted_reply_count, …), so the literal is asserted
+// once here rather than padded with a dozen placeholder values.
+export const reactionsPreviewMessage = {
   created_at: new Date('2026-02-12T06:34:40.000000Z'),
-  deleted_at: null,
   id: 'settings-preview-message-id',
   latest_reactions: [
     {
-      created_at: fireReactionTimestamp,
+      created_at: fireReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'fire',
-      updated_at: fireReactionTimestamp,
+      updated_at: fireReactionAt,
       user: {
         id: 'test-user',
         language: '',
@@ -25,11 +29,12 @@ export const reactionsPreviewMessage: LocalMessage = {
       user_id: 'test-user',
     },
     {
-      created_at: firstLikeReactionTimestamp,
+      created_at: firstLikeReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'like',
-      updated_at: firstLikeReactionTimestamp,
+      updated_at: firstLikeReactionAt,
       user: {
         id: 'test-user',
         language: '',
@@ -39,11 +44,12 @@ export const reactionsPreviewMessage: LocalMessage = {
       user_id: 'test-user',
     },
     {
-      created_at: secondLikeReactionTimestamp,
+      created_at: secondLikeReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'like',
-      updated_at: secondLikeReactionTimestamp,
+      updated_at: secondLikeReactionAt,
       user: {
         id: 'test-user-2',
         language: '',
@@ -53,77 +59,88 @@ export const reactionsPreviewMessage: LocalMessage = {
       user_id: 'test-user-2',
     },
     {
-      created_at: heartReactionTimestamp,
+      created_at: heartReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'heart',
-      updated_at: heartReactionTimestamp,
+      updated_at: heartReactionAt,
       user: { id: 'test-user-2' },
       user_id: 'test-user-2',
     },
-  ] as LocalMessage['latest_reactions'],
+  ],
   own_reactions: [
     {
-      created_at: fireReactionTimestamp,
+      created_at: fireReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'fire',
-      updated_at: fireReactionTimestamp,
+      updated_at: fireReactionAt,
       user: { id: 'test-user' },
       user_id: 'test-user',
     },
     {
-      created_at: firstLikeReactionTimestamp,
+      created_at: firstLikeReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'like',
-      updated_at: firstLikeReactionTimestamp,
+      updated_at: firstLikeReactionAt,
       user: { id: 'test-user' },
       user_id: 'test-user',
     },
     {
-      created_at: heartReactionTimestamp,
+      created_at: heartReactionAt,
+      custom: {},
       message_id: 'settings-preview-message-id',
       score: 1,
       type: 'heart',
-      updated_at: heartReactionTimestamp,
+      updated_at: heartReactionAt,
       user: { id: 'test-user' },
       user_id: 'test-user',
     },
-  ] as LocalMessage['own_reactions'],
-  pinned_at: null,
+  ],
   reaction_counts: { fire: 1, heart: 1, like: 2 },
   reaction_groups: {
     fire: {
       count: 1,
-      first_reaction_at: fireReactionTimestamp,
-      last_reaction_at: fireReactionTimestamp,
+      first_reaction_at: fireReactionAt,
+      last_reaction_at: fireReactionAt,
+      // v10 requires the most recent reactors per group, ordered most recent first.
+      latest_reactions_by: [{ created_at: fireReactionAt, user_id: 'test-user' }],
       sum_scores: 1,
     },
     heart: {
       count: 1,
-      first_reaction_at: heartReactionTimestamp,
-      last_reaction_at: heartReactionTimestamp,
+      first_reaction_at: heartReactionAt,
+      last_reaction_at: heartReactionAt,
+      latest_reactions_by: [{ created_at: heartReactionAt, user_id: 'test-user-2' }],
       sum_scores: 1,
     },
     like: {
       count: 2,
-      first_reaction_at: secondLikeReactionTimestamp,
-      last_reaction_at: firstLikeReactionTimestamp,
+      first_reaction_at: secondLikeReactionAt,
+      last_reaction_at: firstLikeReactionAt,
+      latest_reactions_by: [
+        { created_at: firstLikeReactionAt, user_id: 'test-user' },
+        { created_at: secondLikeReactionAt, user_id: 'test-user-2' },
+      ],
       sum_scores: 2,
     },
-  } as LocalMessage['reaction_groups'],
+  },
   reaction_scores: { fire: 1, heart: 1, like: 2 },
   status: 'received',
   text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed lectus nibh, rutrum in risus eget, dictum commodo dolor. Donec augue nisi, sollicitudin sed magna ut, tincidunt pretium lorem. ',
   type: 'regular',
   updated_at: new Date('2026-02-12T06:40:00.000000Z'),
+  // Only the fields the preview renders are supplied; `UserResponse` requires several more.
   user: {
     id: 'settings-preview-user',
     image: 'https://getstream.io/random_svg/?id=preview-user&name=Preview+User',
     name: 'Preview User',
   },
-};
+} as unknown as LocalMessage;
 
 export const reactionsPreviewChannelState = {
   channel: {

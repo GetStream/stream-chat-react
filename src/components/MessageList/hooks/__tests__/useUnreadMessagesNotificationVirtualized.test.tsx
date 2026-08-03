@@ -13,7 +13,12 @@ import { Channel } from '../../../Channel';
 // takes `{ showAlways }`. Tests set the unread state through
 // `channel.messagePaginator.setUnreadSnapshot(...)` and render inside the real
 // <Chat>/<Channel> providers so `useMessagePaginator` can resolve the channel.
-
+//
+// The snapshot has to be seeded AFTER the <Channel> bootstrap has settled: mounting <Channel>
+// runs the paginator's first-page query, whose postQueryReconcile calls
+// `MessagePaginator.seedUnreadSnapshot()` and (re)derives the snapshot from `channel.state.read`
+// — which for a generated channel means `unreadCount: 0` and a fresh `last_read`. Seeding before
+// the render would therefore be overwritten before the hook ever observed it.
 const render = async ({
   lastRead = null,
   showAlways = false,
@@ -27,7 +32,6 @@ const render = async ({
     channels: [channel],
     client,
   } = await initClientWithChannels();
-  channel.messagePaginator.setUnreadSnapshot({ lastReadAt: lastRead, unreadCount });
   const wrapper = ({ children }: React.PropsWithChildren) => (
     <Chat client={client}>
       <Channel channel={channel}>{children}</Channel>
@@ -37,6 +41,14 @@ const render = async ({
     () => useUnreadMessagesNotificationVirtualized({ showAlways }),
     { wrapper },
   );
+  // flush the <Channel> bootstrap (and its unread-snapshot re-seed) before seeding the snapshot
+  // the test actually wants the hook to observe.
+  await act(async () => {
+    await Promise.resolve();
+  });
+  await act(() => {
+    channel.messagePaginator.setUnreadSnapshot({ lastReadAt: lastRead, unreadCount });
+  });
   return { channel, ...utils };
 };
 

@@ -2,14 +2,13 @@ import type { ComponentProps, PropsWithChildren } from 'react';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type {
+  ChannelGetOrCreateRequest,
   ChannelMemberResponse,
-  ChannelQueryOptions,
   DeleteMessageOptions,
   Event,
-  EventAPIResponse,
   LocalMessage,
-  MarkReadOptions,
-  Message,
+  MarkReadRequest,
+  MessageRequest,
   MessageResponse,
   SendMessageOptions,
   Channel as StreamChannel,
@@ -55,7 +54,7 @@ export type ChannelProps = {
    * If the channel instance has already been initialized (channel has been queried),
    * then the channel query will be skipped and channelQueryOptions will not be applied.
    */
-  channelQueryOptions?: ChannelQueryOptions;
+  channelQueryOptions?: ChannelGetOrCreateRequest;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
   doDeleteMessageRequest?: (
     message: LocalMessage,
@@ -64,12 +63,12 @@ export type ChannelProps = {
   /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
   doMarkReadRequest?: (
     channel: StreamChannel,
-    options?: MarkReadOptions,
-  ) => Promise<EventAPIResponse | null> | void;
+    options?: MarkReadRequest,
+  ) => ReturnType<StreamChannel['markRead']> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
   doSendMessageRequest?: (
     channel: StreamChannel,
-    message: Message,
+    message: MessageRequest,
     options?: SendMessageOptions,
   ) => ReturnType<StreamChannel['sendMessage']> | void;
   /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */

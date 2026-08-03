@@ -1,7 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ComponentType } from 'react';
 import { formatMessage } from 'stream-chat';
-import type { Channel, MessageResponse, User } from 'stream-chat';
+import type {
+  Channel,
+  ChannelResponse,
+  MessageResponse,
+  UserResponse,
+} from 'stream-chat';
 
 import { useSearchContext } from '../SearchContext';
 import { Avatar as DefaultAvatar } from '../../../components/Avatar';
@@ -14,6 +19,8 @@ import {
   useWorkspaceNavigation,
 } from '../../../context';
 import { Timestamp } from '../../../components/Message/Timestamp';
+
+type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
 
 export type ChannelSearchResultItemProps = {
   item: Channel;
@@ -55,7 +62,7 @@ export const ChannelSearchResultItem = ({
 };
 
 export type ChannelByMessageSearchResultItemProps = {
-  item: MessageResponse;
+  item: SearchResultMessage;
   /** Overrides selection (see `ChannelSearchResultItem`); when provided it runs instead of the
    *  default (jump to the message and open its channel). */
   onSelect?: (event: React.MouseEvent) => void;
@@ -123,7 +130,7 @@ export const MessageSearchResultItem = ({
 };
 
 export type UserSearchResultItemProps = {
-  item: User;
+  item: UserResponse;
   /** Overrides selection (see `ChannelSearchResultItem`); when provided it runs instead of the
    *  default (open a direct-messaging channel with the user). */
   onSelect?: (event: React.MouseEvent) => void;
@@ -144,7 +151,7 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         return;
       }
       const newChannel = client.channel(directMessagingChannelType, {
-        members: [client.userID as string, item.id],
+        members: [{ user_id: client.userId as string }, { user_id: item.id }],
       });
       newChannel.watch();
       // Default: open the DM channel in the workspace, forwarding the event so a consumer overriding
@@ -180,7 +187,8 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         />
         <div className='str-chat__search-result-data'>
           <div className='str-chat__search-result__display-name'>
-            {item.name || item.username || item.id}
+            {/* @ts-expect-error username is not typed */}
+            {item.name || item.custom?.username || item.id}
           </div>
           <Timestamp
             customClass='str-chat__search-result__last-active-timestamp'

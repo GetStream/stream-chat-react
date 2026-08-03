@@ -204,7 +204,8 @@ export const composeChannelListItemAccessibleLabel = (
       ...data,
       latestMessage:
         data.latestMessage ??
-        data.channel.state.latestMessages[data.channel.state.latestMessages.length - 1],
+        data.channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+        undefined,
     },
     defaultChannelListItemLabelParts,
     DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER,

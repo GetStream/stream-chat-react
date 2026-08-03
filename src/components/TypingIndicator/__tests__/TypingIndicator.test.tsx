@@ -22,10 +22,12 @@ import {
 // MERGE-RECONCILE (test migration): PR #2909 rewrote TypingIndicator as a no-props component that
 // reads typing users from `channel.messageComposer.textComposer.typing`, the channel from
 // ChannelInstanceContext (via useChannel), the thread from ThreadContext, and the typing_events
-// config from `client.configsStore`. The former TypingContext/ChannelStateContext providers,
-// scrollToBottom/threadList props and the aria-live status/bubble markup are gone; assertions now
-// match the joined typing text emitted for each user count. (This replaces the stale
-// TypingIndicator.test.js, whose JSX-in-.js content could not be parsed.)
+// config from `client.configsStore`. The former TypingContext/ChannelStateContext providers and
+// scrollToBottom/threadList props are gone. The visible text is now a visually-hidden
+// `typing-indicator-status` live region whose content comes from `getTypingStatusMessage`
+// ('{{ typing }} is typing' / '{{ typing }} are typing' / '{{ count }} people are typing'), so
+// assertions match those keys plus the AvatarStack (capped at 3, with a "+N" overflow badge).
+// (This replaces the stale TypingIndicator.test.js, whose JSX-in-.js content could not be parsed.)
 
 const me = generateUser();
 
@@ -134,7 +136,9 @@ describe('TypingIndicator', () => {
     });
 
     expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
-    expect(screen.getByText('{{ user }} is typing...')).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      '{{ typing }} is typing',
+    );
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -147,7 +151,25 @@ describe('TypingIndicator', () => {
     });
 
     expect(container.firstChild).toHaveClass('str-chat__typing-indicator--typing');
-    expect(screen.getByText('{{ user }} is typing...')).toBeInTheDocument();
+    // Own typing entry is filtered out, so a single (foreign) typer remains.
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      '{{ typing }} is typing',
+    );
+    expect(screen.getAllByTestId('avatar')).toHaveLength(1);
+    const results = await axe(container);
+    expect(results).toHaveNoViolations();
+  });
+
+  it('should render TypingIndicator when two other users are typing', async () => {
+    const { container } = await renderComponent({
+      alice: { user: me },
+      jessica: { user: { id: 'jessica', image: 'jessica.jpg' } },
+      joris: { user: { id: 'joris', image: 'joris.jpg' } },
+    });
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      '{{ typing }} are typing',
+    );
+    expect(screen.getAllByTestId('avatar')).toHaveLength(2);
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -159,9 +181,12 @@ describe('TypingIndicator', () => {
       joris: { user: { id: 'joris', image: 'joris.jpg' } },
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
-    expect(
-      screen.getByText('{{ users }} and {{ user }} are typing...'),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      '{{ count }} people are typing',
+    );
+    // 3 foreign typers == AvatarStack cap, so all avatars render without an overflow badge.
+    expect(screen.getAllByTestId('avatar')).toHaveLength(3);
+    expect(screen.queryByTestId('avatar-stack-count-badge')).not.toBeInTheDocument();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
@@ -174,7 +199,12 @@ describe('TypingIndicator', () => {
       joris: { user: { id: 'joris', image: 'joris.jpg' } },
       margriet: { user: { id: 'margriet', image: 'margriet.jpg' } },
     });
-    expect(screen.getByText('{{ users }} and more are typing...')).toBeInTheDocument();
+    expect(screen.getByTestId('typing-indicator-status')).toHaveTextContent(
+      '{{ count }} people are typing',
+    );
+    // 4 foreign typers exceed the AvatarStack cap of 3 -> overflow badge for the remainder.
+    expect(screen.getAllByTestId('avatar')).toHaveLength(3);
+    expect(screen.getByTestId('avatar-stack-count-badge')).toHaveTextContent('+1');
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });

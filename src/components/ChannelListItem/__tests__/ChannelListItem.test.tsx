@@ -118,12 +118,14 @@ describe('ChannelPreview', () => {
       );
     useMockedApis(client, [
       queryChannelsApi([
-        generateChannel({ channel: { name: 'c0' }, messages: genMessages() }),
-        generateChannel({ channel: { name: 'c1' }, messages: genMessages() }),
+        generateChannel({ channel: { custom: { name: 'c0' } }, messages: genMessages() }),
+        generateChannel({ channel: { custom: { name: 'c1' } }, messages: genMessages() }),
       ]),
     ]);
 
-    [c0, c1] = await client.queryChannels({}, {});
+    // v10: `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` is
+    // the one that hydrates and returns `Channel[]`.
+    [c0, c1] = await client.queryChannelsAndHydrate({}, {});
   });
 
   it('should mark channel as read, when set as active channel', async () => {
@@ -854,7 +856,9 @@ describe('ChannelPreview', () => {
         Avatar: ChannelAvatar,
       };
       const channelName = 'channel-name';
-      const channelState = getChannelState(3, { channel: { name: channelName } });
+      const channelState = getChannelState(3, {
+        channel: { custom: { name: channelName } },
+      });
 
       it('renders 2 avatars and overflow badge in channel avatar for 5-member channel', async () => {
         const channelState = getChannelState(5);

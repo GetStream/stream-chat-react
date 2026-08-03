@@ -6,11 +6,7 @@ import { axe } from '../../../../axe-helper';
 import { MessageActions } from '../MessageActions';
 import { defaultMessageActionSet } from '../MessageActions.defaults';
 
-import {
-  DialogManagerProvider,
-  MessageProvider,
-  type TranslationContextValue,
-} from '../../../context';
+import { DialogManagerProvider, MessageProvider } from '../../../context';
 
 import {
   generateFileAttachment,
@@ -71,15 +67,6 @@ const defaultMessageContextValue = {
   isMyMessage: () => false,
   message: generateMessage(),
 };
-
-// Like the default mock `t` (strips the `aria/` namespace) but also interpolates `{{ param }}`
-// placeholders, so translated download labels ("Download attachment 1") render as real text.
-const interpolatingT = ((key: string, params: Record<string, unknown> = {}) =>
-  Object.entries(params).reduce(
-    (value, [name, arg]) =>
-      value.replace(new RegExp(`{{\\s*${name}\\s*}}`, 'g'), String(arg)),
-    key.split('/').pop() ?? key,
-  )) as TranslationContextValue['t'];
 
 const toggleOpenMessageActions = async (index = 0) => {
   await act(async () => {

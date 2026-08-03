@@ -416,11 +416,15 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
                 }
               />
-              <ScrollToLatestMessageButton
-                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
-                onClick={scrollToBottomFromNotification}
-              />
+              {/* An empty list has nothing to jump to — see the matching gate in
+                  VirtualizedMessageList. */}
+              {messages.length > 0 && (
+                <ScrollToLatestMessageButton
+                  isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                  isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
+                  onClick={scrollToBottomFromNotification}
+                />
+              )}
             </div>
           </DialogManagerProvider>
           <NotificationList panel={notificationTarget} />

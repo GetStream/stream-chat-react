@@ -722,14 +722,15 @@ describe('<MessageSimple />', () => {
 
   // MERGE-RECONCILE (test migration): the also-sent-in-channel "View" navigation moved from the
   // ChannelActionContext `openThread` handler to useMessageAlsoSentInChannelNavigation, which
-  // resolves the parent thread via `client.getThread` and then navigates through ChatView `open`.
+  // resolves the parent thread via `client.getThreadAndHydrate` (v10 rename of `getThread`) and
+  // then navigates through ChatView `open`.
   it('should open thread when View button is clicked and parent thread is resolved', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    vi.spyOn(client, 'getThread').mockResolvedValue(
+    vi.spyOn(client, 'getThreadAndHydrate').mockResolvedValue(
       fromPartial({
         id: parentMessage.id,
         messagePaginator: { jumpToMessage: vi.fn(() => Promise.resolve(true)) },
@@ -755,25 +756,25 @@ describe('<MessageSimple />', () => {
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    vi.spyOn(client, 'getThread').mockRejectedValue(new Error('not found'));
+    vi.spyOn(client, 'getThreadAndHydrate').mockRejectedValue(new Error('not found'));
     const { container, getByText } = await renderMessageSimple({
       message,
     });
     expect(openThreadMock).not.toHaveBeenCalled();
     fireEvent.click(getByText('View'));
-    await waitFor(() => expect(client.getThread).toHaveBeenCalled());
+    await waitFor(() => expect(client.getThreadAndHydrate).toHaveBeenCalled());
     expect(openThreadMock).not.toHaveBeenCalled();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
-  it('should fetch the parent thread via getThread when not present locally', async () => {
+  it('should fetch the parent thread via getThreadAndHydrate when not present locally', async () => {
     const parentMessage = generateMessage({ id: 'x' });
     const message = generateAliceMessage({
       parent_id: parentMessage.id,
       show_in_channel: true,
     });
-    const getThreadSpy = vi.spyOn(client, 'getThread').mockResolvedValue(
+    const getThreadSpy = vi.spyOn(client, 'getThreadAndHydrate').mockResolvedValue(
       fromPartial({
         id: parentMessage.id,
         messagePaginator: { jumpToMessage: vi.fn(() => Promise.resolve(true)) },
@@ -843,18 +844,13 @@ describe('<MessageSimple />', () => {
     expect(results).toHaveNoViolations();
   });
 
+  // MERGE-RECONCILE (stream-chat v10): the v1 moderation shape (`message.moderation_details`
+  // with `MESSAGE_RESPONSE_ACTION_BOUNCE`) no longer exists in the v10 (OpenAPI) type surface —
+  // `isMessageBounced`/`isMessageBlocked` now read `message.moderation.action` only — so the `v1`
+  // parametrization was dropped. `v2` retains full behavioral coverage.
   describe.each<
     [string, Parameters<typeof generateMessage>[0] & Record<string, unknown>]
   >([
-    [
-      'v1',
-      {
-        moderation_details: {
-          action: 'MESSAGE_RESPONSE_ACTION_BOUNCE',
-        },
-        type: 'error',
-      },
-    ],
     [
       'v2',
       {

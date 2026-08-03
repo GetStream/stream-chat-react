@@ -57,20 +57,13 @@ export const PollCreationDialogControls = ({
               // was not created, so do not attempt to send the message.
               return;
             }
-            // The poll exists now; sending the message is a separate step. Keep it in its own
-            // try/catch so a send failure is surfaced (createPoll's self-notification only covers
-            // poll creation) instead of being swallowed alongside it.
-            try {
-              await sendMessage();
-            } catch {
-              addNotification({
-                emitter: 'PollCreationDialog',
-                message: t('Send message request failed'),
-                severity: 'error',
-                type: 'api:message:send:failed',
-              });
-              return;
-            }
+            // The poll exists now; sending the message is a separate step that can fail on its own
+            // (createPoll's self-notification only covers poll creation). `sendMessage()` never
+            // rejects — it reports its own `api:message:send:failed` notification and resolves with
+            // `false` — so the success announcement below must be gated on the returned flag.
+            // Announcing "Poll sent" after a failed send would contradict the error notification.
+            const sent = await sendMessage();
+            if (!sent) return;
             addNotification({
               // Announce assertively: focus has just returned to the composer, so a polite
               // "Poll sent" would be queued behind the textarea's focus announcement and read

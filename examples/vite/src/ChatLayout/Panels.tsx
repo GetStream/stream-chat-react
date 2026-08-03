@@ -20,10 +20,10 @@ import {
   ChannelAvatar,
   ChannelHeader,
   ChannelListItem,
+  MessageComposerUI as DefaultMessageComposerUI,
   EmptyStateIndicator,
   IconArrowLeft,
   IconXmark,
-  MessageComposerUI as DefaultMessageComposerUI,
   MessageComposer,
   MessageList,
   ModalContextProvider,
@@ -419,7 +419,7 @@ const ChannelMemberDetailOverlay = ({
     // Not a cached member (e.g. large channel) — fetch just this one.
     let cancelled = false;
     channel
-      .queryMembers({ id: { $in: [userId] } })
+      .queryMembers({ payload: { filter_conditions: { id: { $in: [userId] } } } })
       .then((response) => {
         if (!cancelled) setMember(response.members[0]);
       })
@@ -616,7 +616,7 @@ export const ChannelsPanels = ({
   }, [mainChannelId, closeSidebar]);
 
   useTagSkipNavigationListbox(
-    '.app-chat-sidebar-overlay .str-chat__channel-list-inner__main',
+    '.app-chat-sidebar-overlay .str-chat__channel-list [role="listbox"]',
     CHANNEL_LIST_TARGET_ID,
   );
 
@@ -646,6 +646,16 @@ export const ChannelsPanels = ({
   );
 };
 
+// Renders the "Back to quick navigation" return link above the thread's composer (the SDK renders
+// the thread composer internally, so we inject via the MessageComposerUI slot) — matching the
+// channel view, where the link sits right above <MessageComposer />.
+const ThreadMessageComposerUI = () => (
+  <>
+    <ReturnToSkipNavigation />
+    <DefaultMessageComposerUI />
+  </>
+);
+
 // Renders the primary open thread, bound to the main thread slot. `ThreadSlot` supplies the
 // ThreadProvider + slot context (so the header's close button knows which slot it releases),
 // and `useActiveThread` keeps the thread activated/deactivated with window focus.
@@ -656,12 +666,21 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
   return (
     <ThreadSlot hideIfEmpty={false} slot={MAIN_THREAD_SLOT}>
       <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-        <WithComponents overrides={{ TypingIndicator }}>
-          <ReturnToSkipNavigation />
+        <WithComponents
+          overrides={{
+            MessageComposerUI: ThreadMessageComposerUI,
+            TypingIndicator,
+          }}
+        >
           <Thread
             additionalMessageComposerProps={{
+              additionalTextareaProps: {
+                id: THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+              },
               audioRecordingEnabled: true,
               asyncMessagesMultiSendEnabled: true,
+              // Auto-focus the thread composer on mount, matching the channels-view composer.
+              focus: true,
             }}
             virtualized={virtualized}
           />
@@ -683,8 +702,12 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
     <ThreadSlot hideIfEmpty={false} slot={OPTIONAL_THREAD_SLOT}>
       <div className='app-chat-secondary-panel app-chat-secondary-panel--open'>
         <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-          <WithComponents overrides={{ TypingIndicator }}>
-            <ReturnToSkipNavigation />
+          <WithComponents
+            overrides={{
+              MessageComposerUI: ThreadMessageComposerUI,
+              TypingIndicator,
+            }}
+          >
             <Thread
               additionalMessageComposerProps={{
                 audioRecordingEnabled: true,
@@ -698,16 +721,6 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
     </ThreadSlot>
   );
 };
-
-// Renders the "Back to quick navigation" return link above the thread's composer (the SDK renders
-// the thread composer internally, so we inject via the MessageComposerUI slot) — matching the
-// channel view, where the link sits right above <MessageComposer />.
-const ThreadMessageComposerUI = () => (
-  <>
-    <ReturnToSkipNavigation />
-    <DefaultMessageComposerUI />
-  </>
-);
 
 export const ThreadsPanels = ({
   iconOnly,

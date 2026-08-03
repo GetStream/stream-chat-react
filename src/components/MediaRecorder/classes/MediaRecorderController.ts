@@ -174,19 +174,21 @@ export class MediaRecorderController {
 
     return {
       asset_url: this.recordingUri,
-      duration: this.durationMs / 1000,
-      file_size: blob.size,
+      custom: {
+        duration: this.durationMs / 1000,
+        file_size: blob.size,
+        mime_type: blob.type,
+        waveform_data: resampleWaveformData(
+          this.amplitudeRecorder?.amplitudes.value ?? [],
+          this.amplitudeRecorderConfig.sampleCount,
+        ),
+      },
       localMetadata: {
         file,
         id: nanoid(),
       },
-      mime_type: blob.type,
       title: file.name,
       type: RecordingAttachmentType.VOICE_RECORDING,
-      waveform_data: resampleWaveformData(
-        this.amplitudeRecorder?.amplitudes.value ?? [],
-        this.amplitudeRecorderConfig.sampleCount,
-      ),
     } as LocalVoiceRecordingAttachment;
   };
 

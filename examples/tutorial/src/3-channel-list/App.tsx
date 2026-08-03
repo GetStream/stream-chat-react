@@ -22,7 +22,7 @@ const user: User = {
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
 
-const sort: ChannelSort = { last_message_at: -1 };
+const sort: ChannelSort = [{ direction: -1, field: 'last_message_at' }];
 const filters: ChannelFilters = {
   type: 'messaging',
   members: { $in: [userId] },

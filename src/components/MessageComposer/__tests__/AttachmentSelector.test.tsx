@@ -13,7 +13,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { CommandResponse } from 'stream-chat';
+import type { Command } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
@@ -155,7 +155,7 @@ describe('AttachmentSelector', () => {
   });
 
   it('keeps Commands visible and disables it when all commands are unavailable', async () => {
-    const disabledCommand = fromPartial<CommandResponse>({
+    const disabledCommand = fromPartial<Command>({
       args: 'ban-command-args',
       description: 'ban-command-description',
       name: 'ban',
@@ -451,7 +451,8 @@ describe('AttachmentSelector', () => {
       expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument();
     });
 
-    const dialog = screen.getByRole('dialog', { name: 'Create poll' });
+    // Accessible name comes from the translated dialog title (en: "Create Poll").
+    const dialog = screen.getByRole('dialog', { name: 'Create Poll' });
     const questionInput = screen.getByLabelText('Question');
     // The description id is per-instance (unique across stacked modals), so read it rather than
     // hardcoding the shared base.
@@ -491,7 +492,14 @@ describe('AttachmentSelector', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels({
-      channelsData: [{ channel: { ...defaultChannelData, config: defaultConfig } }],
+      channelsData: [
+        {
+          channel: {
+            config: DEFAULT_CONFIG,
+            own_capabilities: DEFAULT_OWN_CAPABILITIES,
+          },
+        },
+      ],
     });
     vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
     vi.spyOn(client, 'createPoll').mockResolvedValue(
@@ -514,7 +522,7 @@ describe('AttachmentSelector', () => {
       });
     });
     await act(async () => {
-      await fireEvent.change(screen.getByPlaceholderText('Add an option'), {
+      await fireEvent.change(screen.getByPlaceholderText('Add an Option'), {
         target: { value: 'Opt' },
       });
     });
@@ -843,7 +851,7 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   describe('command-active inert behavior', () => {
-    const giphyCommand = fromPartial<CommandResponse>({
+    const giphyCommand = fromPartial<Command>({
       args: 'giphy-command-args',
       description: 'giphy-command-description',
       name: 'giphy',
