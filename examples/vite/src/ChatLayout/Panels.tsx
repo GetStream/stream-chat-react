@@ -419,7 +419,7 @@ const ChannelMemberDetailOverlay = ({
     // Not a cached member (e.g. large channel) — fetch just this one.
     let cancelled = false;
     channel
-      .queryMembers({ id: { $in: [userId] } })
+      .queryMembers({ payload: { filter_conditions: { id: { $in: [userId] } } } })
       .then((response) => {
         if (!cancelled) setMember(response.members[0]);
       })

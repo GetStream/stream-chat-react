@@ -120,10 +120,12 @@ type BuildChannelSeedContext = Omit<WebSocketEventTemplateContext, 'channel'> & 
   channel: Partial<DebugChannelResponse>;
 };
 
-const createFallbackUser = (id: string, createdAt: string): DebugUserResponse => ({
+const createFallbackUser = (id: string, createdAt: Date): DebugUserResponse => ({
   banned: false,
   blocked_user_ids: [],
   created_at: createdAt,
+  // v10 requires `custom` on user responses.
+  custom: {},
   id,
   invisible: false,
   language: '',
@@ -131,7 +133,6 @@ const createFallbackUser = (id: string, createdAt: string): DebugUserResponse =>
   name: id,
   online: true,
   role: 'user',
-  shadow_banned: false,
   teams: [],
   updated_at: createdAt,
 });
@@ -140,13 +141,16 @@ const getUserId = (user: DebugUserResponse) =>
   typeof user.id === 'string' ? user.id : 'debug-user';
 
 const createMember = (user: DebugUserResponse): ChannelMemberResponse => {
-  const createdAt =
-    typeof user.created_at === 'string' ? user.created_at : new Date().toISOString();
+  // `user.created_at` is typed as `Date` in v10, but this builder also receives raw event/JSON
+  // payloads where it may still be a string — normalize either form to a `Date`.
+  const createdAt = user.created_at ? new Date(user.created_at) : new Date();
 
   return {
     banned: false,
     channel_role: 'channel_member',
     created_at: createdAt,
+    // v10 requires `custom` on member responses.
+    custom: {},
     notifications_muted: false,
     role: 'member',
     shadow_banned: false,
@@ -174,12 +178,16 @@ const buildChannel = (
   context: BuildChannelSeedContext,
   overrides: JsonObject = {},
 ): DebugChannelResponse => {
-  const createdAt = context.createdAt;
+  // `context.createdAt` stays an ISO string (event payloads carry strings), but the
+  // `ChannelResponse`/config timestamps below are typed as `Date` in v10.
+  const createdAt = new Date(context.createdAt);
 
   return {
     cid: context.cid,
     config: {
       automod: 'disabled',
+      // v10 requires `automod_behavior` alongside `automod`.
+      automod_behavior: 'flag',
       blocklist_behavior: 'flag',
       commands: [
         {
@@ -220,7 +228,6 @@ const buildChannel = (
       delivery_events: true,
       mark_messages_pending: false,
       max_message_length: 5000,
-      message_retention: 'infinite',
       mutes: true,
       name: context.channelType,
       polls: true,
@@ -242,6 +249,9 @@ const buildChannel = (
     },
     created_at: createdAt,
     created_by: context.actor,
+    // v10 requires `custom` on channel responses; the demo's `name` is a custom field, but
+    // `DebugChannelResponse` keeps it top-level for the simulator's own payload shaping.
+    custom: {},
     disabled: false,
     frozen: false,
     hidden: false,
@@ -758,11 +768,14 @@ export const createWebSocketEventTemplateContext = ({
   channel?: Channel;
   client: StreamChat;
 }): WebSocketEventTemplateContext => {
-  const createdAt = new Date().toISOString();
+  // Kept as an ISO string on the context (event payloads carry string timestamps), with the `Date`
+  // form on hand for the response-shaped builders that v10 types as `Date`.
+  const createdAtDate = new Date();
+  const createdAt = createdAtDate.toISOString();
   const actorUser =
     client.user && typeof client.user === 'object'
       ? ({ ...client.user } as DebugUserResponse)
-      : createFallbackUser('debug-user', createdAt);
+      : createFallbackUser('debug-user', createdAtDate);
   const actorId = typeof actorUser.id === 'string' ? actorUser.id : 'debug-user';
 
   const members = channel ? Object.values(channel.state.members) : [];
@@ -779,7 +792,7 @@ export const createWebSocketEventTemplateContext = ({
   const otherUser =
     otherMemberFromChannel?.user && typeof otherMemberFromChannel.user === 'object'
       ? ({ ...otherMemberFromChannel.user } as DebugUserResponse)
-      : createFallbackUser('debug-other-user', createdAt);
+      : createFallbackUser('debug-other-user', createdAtDate);
   const otherMember = otherMemberFromChannel
     ? ({ ...otherMemberFromChannel } as ChannelMemberResponse)
     : createMember(otherUser);

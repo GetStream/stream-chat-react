@@ -1,10 +1,10 @@
 import type {
   Channel,
   ChannelMemberResponse,
-  Event,
-  MessageResponseBase,
+  MessageResponse,
   ReactionResponse,
   StreamChat,
+  Event as StreamChatEvent,
   UserResponse,
 } from 'stream-chat';
 
@@ -16,13 +16,16 @@ import {
 import type { SimulationState, SimulationUser } from './types';
 
 type UnknownRecord = Record<string, unknown>;
-type EventPayload = Omit<
-  Partial<Event>,
-  'channel' | 'member' | 'message' | 'reaction' | 'user'
-> & {
+/**
+ * The simulator assembles arbitrary WS payloads as loose JSON, so this is intentionally an open
+ * record rather than being derived from `Event`. In v10 `Event` is a discriminated union, and
+ * `Omit<Partial<Event>, …>` distributes over it — which drops the fields common to every member
+ * (`created_at`, `channel_member_count`, `message_id`, …) and makes them unassignable here.
+ */
+type EventPayload = UnknownRecord & {
   channel?: Partial<WebSocketEventTemplateContext['channel']>;
   member?: ChannelMemberResponse;
-  message?: Partial<MessageResponseBase>;
+  message?: Partial<MessageResponse>;
   reaction?: ReactionResponse;
   user?: UserResponse;
 };
@@ -86,7 +89,7 @@ const buildReactionState = ({
 }: {
   reaction: ReactionResponse;
 }): Pick<
-  MessageResponseBase,
+  MessageResponse,
   'latest_reactions' | 'reaction_counts' | 'reaction_groups' | 'reaction_scores'
 > => {
   const reactionType = getId(reaction.type) ?? 'love';
@@ -94,7 +97,9 @@ const buildReactionState = ({
     typeof reaction.score === 'number' && Number.isFinite(reaction.score)
       ? reaction.score
       : 1;
-  const reactionTimestamp = getId(reaction.created_at) ?? new Date().toISOString();
+  const reactionTimestamp = reaction.created_at
+    ? new Date(reaction.created_at)
+    : new Date();
 
   return {
     latest_reactions: [reaction],
@@ -330,7 +335,8 @@ export const createInitialSimulationState = ({
     });
   });
 
-  const channelMessages = channel?.state.messages ?? [];
+  // Messages are owned by the LLC paginator; `channel.state.messages` was removed in v15.
+  const channelMessages = channel?.messagePaginator.state.getLatestValue().items ?? [];
 
   channelMessages.forEach((message) => {
     const messageObject = asJsonObject(message);
@@ -383,12 +389,12 @@ export const buildFreshWebSocketEventPayload = ({
         created_at: freshContext.createdAt,
         message: {
           ...baseMessage,
-          created_at: freshContext.createdAt,
+          created_at: new Date(freshContext.createdAt),
           html: `<p>${text}</p>\n`,
           id: messageId,
           member,
           text,
-          updated_at: freshContext.createdAt,
+          updated_at: new Date(freshContext.createdAt),
           user,
         },
         message_id: messageId,
@@ -406,10 +412,14 @@ export const buildFreshWebSocketEventPayload = ({
       const reactionScore = eventType === 'reaction.updated' ? 2 : 1;
       const reaction = {
         ...baseReaction,
-        created_at: freshContext.createdAt,
+        // `dispatchEvent` receives an already-parsed `Event`, so timestamps are `Date`s here
+        // (only the raw wire format uses ISO strings).
+        created_at: new Date(freshContext.createdAt),
+        // v10 requires `custom` on reaction responses.
+        custom: {},
         message_id: messageId,
         type: reactionType,
-        updated_at: freshContext.createdAt,
+        updated_at: new Date(freshContext.createdAt),
         user,
         user_id: user.id,
         score: reactionScore,
@@ -427,7 +437,7 @@ export const buildFreshWebSocketEventPayload = ({
           ...baseMessage,
           id: messageId,
           member,
-          updated_at: freshContext.createdAt,
+          updated_at: new Date(freshContext.createdAt),
           user,
           ...buildReactionState({ reaction }),
         },
@@ -462,7 +472,7 @@ export const buildFreshWebSocketEventPayload = ({
           ...baseMessage,
           id: messageId,
           member,
-          updated_at: freshContext.createdAt,
+          updated_at: new Date(freshContext.createdAt),
           user,
         },
         user,
@@ -494,7 +504,7 @@ export const trackSimulationStateFromPayload = ({
   simulationState,
   templateContext,
 }: {
-  payload: Event;
+  payload: EventPayload;
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
@@ -555,12 +565,15 @@ export const emitWebSocketEventPayload = ({
   simulationState: SimulationState;
   templateContext: WebSocketEventTemplateContext;
 }) => {
-  const emittedPayload = {
+  const emittedPayload: EventPayload = {
     ...payload,
     type: eventType,
-  } as Event;
+  };
 
-  client.dispatchEvent(emittedPayload);
+  // Assert only at the LLC boundary: `Event` is a discriminated union that a generic payload
+  // builder cannot satisfy structurally. (`StreamChatEvent` is aliased on import because the
+  // bare name `Event` would resolve to the DOM global.)
+  client.dispatchEvent(emittedPayload as StreamChatEvent);
 
   trackSimulationStateFromPayload({
     payload: emittedPayload,

@@ -8,6 +8,7 @@ import {
 } from 'react';
 import type {
   ChannelFilters,
+  ChannelPaginatorRequestOptions,
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
@@ -119,10 +120,13 @@ if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
 }
 
-const options: ChannelOptions = {
+// v10: the paginator takes query options as `requestOptions`, which omits `offset`/`limit` —
+// page size is a paginator concern and is passed via `paginatorOptions.pageSize` instead.
+const CHANNELS_PAGE_SIZE = 10;
+
+const requestOptions: ChannelPaginatorRequestOptions = {
   presence: true,
   state: true,
-  limit: 10,
 };
 
 const sort: ChannelSort = [
@@ -381,7 +385,8 @@ const App = () => {
       client: chatClient,
       filters: { ...filters, archived: false, muted: false },
       id: 'channels:default',
-      options,
+      paginatorOptions: { pageSize: CHANNELS_PAGE_SIZE },
+      requestOptions,
       sort,
     });
     const archived = new ChannelPaginator({
