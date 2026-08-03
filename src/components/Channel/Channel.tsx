@@ -315,13 +315,9 @@ const ChannelInner = (
                 unread_messages: 0,
               });
             }
+          } else if (channelConfig?.read_events) {
+            lastRead.current = new Date();
 
-            return;
-          }
-
-          lastRead.current = new Date();
-
-          try {
             if (doMarkReadRequest) {
               doMarkReadRequest(
                 channel,
@@ -339,14 +335,12 @@ const ChannelInner = (
                 });
               }
             }
+          }
 
-            if (activeUnreadHandler) {
-              activeUnreadHandler(0, originalTitle.current);
-            } else if (originalTitle.current) {
-              document.title = originalTitle.current;
-            }
-          } catch (e) {
-            console.error(t('Failed to mark channel as read'));
+          if (activeUnreadHandler) {
+            activeUnreadHandler(0, originalTitle.current);
+          } else if (originalTitle.current) {
+            document.title = originalTitle.current;
           }
         },
         500,
@@ -359,7 +353,6 @@ const ChannelInner = (
       client,
       doMarkReadRequest,
       setChannelUnreadUiState,
-      t,
     ],
   );
 
@@ -438,6 +431,10 @@ const ChannelInner = (
       });
     }
 
+    if (event.type === 'message.read_locally') {
+      return;
+    }
+
     if (event.type === 'notification.mark_unread')
       _setChannelUnreadUiState((prev) => {
         if (!(event.last_read_at && event.user)) return prev;
@@ -504,7 +501,11 @@ const ChannelInner = (
         if (client.user?.id && channel.state.read[client.user.id]) {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { user, ...ownReadState } = channel.state.read[client.user.id];
-          _setChannelUnreadUiState(ownReadState);
+          _setChannelUnreadUiState((existingState) => {
+            // only set the initial state here, do not override existing
+            if (existingState) return existingState;
+            return ownReadState;
+          });
         }
         /**
          * TODO: maybe pass last_read to the countUnread method to get proper value
