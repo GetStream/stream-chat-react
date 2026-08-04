@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { act, cleanup, render, type RenderResult } from '@testing-library/react';
 
@@ -6,7 +6,7 @@ import { ImageComponent } from '../../Attachment/Image';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-import { useChatContext, WithComponents } from '../../../context';
+import { WithComponents } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
@@ -53,14 +53,6 @@ describe('Image', () => {
   });
 
   it('should render custom BaseImage component', async () => {
-    const ActiveChannelSetter = ({ activeChannel }) => {
-      const { setActiveChannel } = useChatContext();
-      useEffect(() => {
-        setActiveChannel(activeChannel);
-      }, [activeChannel]); // eslint-disable-line
-      return null;
-    };
-
     const {
       channels: [channel],
       client,
@@ -73,8 +65,7 @@ describe('Image', () => {
       result = render(
         <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
           <Chat client={client}>
-            <ActiveChannelSetter activeChannel={channel} />
-            <Channel>
+            <Channel channel={channel}>
               <ImageComponent alt='fallback' imageUrl='image_url' />
             </Channel>
           </Chat>

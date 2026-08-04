@@ -56,20 +56,6 @@
       overflow-y: auto;
       scrollbar-gutter: stable both-edges;
       scrollbar-width: thin;
-
-      .str-chat__channel-list-empty {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: calc(var(--str-chat__space-8) + var(--str-chat__space-4));
-
-        p {
-          color: var(--str-chat__text-secondary);
-          font: var(--str-chat__font-caption-default);
-        }
-      }
     }
   }
 
@@ -81,7 +67,17 @@
 
   .str-chat__channel-list-empty {
     @include utils.empty-theme('channel-list');
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: calc(var(--str-chat__space-8) + var(--str-chat__space-4));
     color: var(--str-chat__text-secondary);
+    p {
+      color: var(--str-chat__text-secondary);
+      font: var(--str-chat__font-caption-default);
+    }
   }
 
   /* Mobile: hide when nav closed; when open show as overlay. */

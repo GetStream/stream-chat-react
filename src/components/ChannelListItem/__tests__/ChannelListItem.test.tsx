@@ -6,6 +6,8 @@ import { act, render, type RenderResult, screen, waitFor } from '@testing-librar
 import { ChannelAvatar } from '../../Avatar';
 import { ChannelListItem } from '../ChannelListItem';
 import type { ChannelListItemProps, ChannelListItemUIProps } from '../ChannelListItem';
+import { ChannelListItemUI as DefaultChannelListItemUI } from '../ChannelListItemUI';
+import type { SummarizedMessagePreviewProps } from '../../SummarizedMessagePreview';
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
@@ -47,21 +49,11 @@ const PreviewUIComponent = (props: ChannelListItemUIProps) => (
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
     <div data-testid='last-event-message'>
-      {props.lastMessage ? props.lastMessage.text : EMPTY_CHANNEL_PREVIEW_TEXT}
+      {props.previewedMessage ? props.previewedMessage.text : EMPTY_CHANNEL_PREVIEW_TEXT}
     </div>
     <div data-testid='pinned'>{String(!!props.pinned)}</div>
   </>
 );
-const PreviewUIComponentWithLatestMessagePreview = (props: ChannelListItemUIProps) => (
-  <>
-    <div data-testid='channel-id'>{props.channel.id}</div>
-    <div data-testid='unread-count'>{props.unread}</div>
-    <div data-testid='last-event-message'>
-      {props.lastMessage ? props.latestMessagePreview : EMPTY_CHANNEL_PREVIEW_TEXT}
-    </div>
-  </>
-);
-
 const expectUnreadCountToBe = async (
   getByTestId: (id: string) => HTMLElement,
   expectedValue: string | number,
@@ -92,7 +84,8 @@ describe('ChannelPreview', () => {
     renderer: (ui: React.ReactNode) => ReturnType<typeof render>,
     {
       ChannelListItemUI = PreviewUIComponent as React.ComponentType<ChannelListItemUIProps>,
-    } = {},
+      ...componentOverrides
+    }: Partial<ComponentContextValue> = {},
   ) =>
     renderer(
       <ChatContext.Provider
@@ -103,7 +96,9 @@ describe('ChannelPreview', () => {
         })}
       >
         <TranslationProvider value={mockTranslationContextValue()}>
-          <ComponentProvider value={mockComponentContext({ ChannelListItemUI })}>
+          <ComponentProvider
+            value={mockComponentContext({ ChannelListItemUI, ...componentOverrides })}
+          >
             <ChannelListItem {...props} />
           </ComponentProvider>
         </TranslationProvider>
@@ -112,20 +107,25 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser(user);
+    // Distinct, increasing created_at so "newest" is unambiguous — the message paginator orders by
+    // created_at (with an id tiebreaker), so identical timestamps would make its head diverge from
+    // the mocked response's array order.
+    const genMessages = () =>
+      Array.from({ length: 5 }, (_, i) =>
+        generateMessage({
+          created_at: new Date(Date.UTC(2020, 0, 1, 0, 0, i)).toISOString(),
+        }),
+      );
     useMockedApis(client, [
       queryChannelsApi([
-        generateChannel({
-          channel: { name: 'c0' },
-          messages: Array.from({ length: 5 }, generateMessage),
-        }),
-        generateChannel({
-          channel: { name: 'c1' },
-          messages: Array.from({ length: 5 }, generateMessage),
-        }),
+        generateChannel({ channel: { custom: { name: 'c0' } }, messages: genMessages() }),
+        generateChannel({ channel: { custom: { name: 'c1' } }, messages: genMessages() }),
       ]),
     ]);
 
-    [c0, c1] = await client.queryChannels({}, {});
+    // v10: `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` is
+    // the one that hydrates and returns `Channel[]`.
+    [c0, c1] = await client.queryChannelsAndHydrate({}, {});
   });
 
   it('should mark channel as read, when set as active channel', async () => {
@@ -188,20 +188,31 @@ describe('ChannelPreview', () => {
     await expectUnreadCountToBe(getByTestId, newUnreadCount);
   });
 
-  it('allows to customize latest message preview generation', async () => {
-    const getLatestMessagePreview = (channel) => channel.data.name;
+  it('renders a custom SummarizedMessagePreview provided via the component context', async () => {
+    const CustomSummarizedMessagePreview = ({
+      latestMessage,
+    }: SummarizedMessagePreviewProps) => (
+      <div data-testid='custom-summarized-preview'>{`custom:${latestMessage?.text ?? ''}`}</div>
+    );
 
     const { getByTestId } = renderComponent(
       {
         activeChannel: c0,
         channel: c0,
-        getLatestMessagePreview,
       },
       render,
-      { ChannelListItemUI: PreviewUIComponentWithLatestMessagePreview },
+      {
+        // Stub the action buttons — their default needs a DialogManager not present in this harness.
+        ChannelListItemActionButtons: () => null,
+        // Use the real ChannelListItemUI so it reads SummarizedMessagePreview from the context.
+        ChannelListItemUI: DefaultChannelListItemUI,
+        SummarizedMessagePreview: CustomSummarizedMessagePreview,
+      },
     );
 
-    await expectLastEventMessageToBe(getByTestId, c0.data.name);
+    await waitFor(() => {
+      expect(getByTestId('custom-summarized-preview')).toHaveTextContent('custom:');
+    });
   });
 
   it('allows to imperatively state the component represents an active channel', () => {
@@ -263,7 +274,7 @@ describe('ChannelPreview', () => {
         const message =
           eventType === 'message.new'
             ? generateMessage()
-            : c0.state.messages.slice(-1)[0];
+            : c0.messagePaginator.headmostItem;
         await act(async () => {
           await dispatcher(client, message, c0);
         });
@@ -391,8 +402,8 @@ describe('ChannelPreview', () => {
         expect(getByTestId('channel-id')).toBeInTheDocument();
       });
 
-      const lastMessage = c0.state.messages.slice(-1)[0];
-      const penultimateMessage = c0.state.messages.slice(-2)[0];
+      const lastMessage = c0.messagePaginator.headmostItem;
+      const penultimateMessage = c0.messagePaginator.headItems.slice(-2)[0];
       await act(async () => {
         await dispatcher(client, penultimateMessage, c0);
       });
@@ -512,7 +523,7 @@ describe('ChannelPreview', () => {
         expect(lastMessagePreviews.length).toBe(2);
         expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
         expect(lastMessagePreviews[1]).toHaveTextContent(
-          c1.state.messages.slice(-1)[0].text,
+          c1.messagePaginator.headmostItem.text,
         );
       });
     });
@@ -845,7 +856,9 @@ describe('ChannelPreview', () => {
         Avatar: ChannelAvatar,
       };
       const channelName = 'channel-name';
-      const channelState = getChannelState(3, { channel: { name: channelName } });
+      const channelState = getChannelState(3, {
+        channel: { custom: { name: channelName } },
+      });
 
       it('renders 2 avatars and overflow badge in channel avatar for 5-member channel', async () => {
         const channelState = getChannelState(5);

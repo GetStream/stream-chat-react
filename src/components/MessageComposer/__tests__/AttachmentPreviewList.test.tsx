@@ -391,7 +391,11 @@ describe('AttachmentPreviewList', () => {
       await renderComponent({
         attachments: [
           {
-            ...generateFileAttachment({ file_size: 1000, title: 'sized.pdf' }),
+            // v10: file_size lives under `attachment.custom`.
+            ...generateFileAttachment({
+              custom: { file_size: 1000 },
+              title: 'sized.pdf',
+            }),
             localMetadata: {
               id: 'a1',
               uploadProgress: 50,

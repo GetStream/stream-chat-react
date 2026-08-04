@@ -22,16 +22,12 @@ import {
   TranslationProvider,
 } from '../../../context';
 
-const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
-
-// Keep the rest of the Accessibility barrel real; only stub the announcer so we can assert calls
-// (and avoid a missing-provider warning since these tests render the item without a Chat root).
-vi.mock('../../Accessibility', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../Accessibility')>()),
-  useInteractionAnnouncements: () => ({
-    announceInteraction,
-    cancelInteraction: vi.fn(),
-  }),
+// Selection is one navigation model: clicking the item opens the channel in the
+// workspace via the navigation adapter (no more setActiveChannel).
+const mockOpenChannel = vi.fn();
+vi.mock('../../../context', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
+  useWorkspaceNavigation: () => ({ openChannel: mockOpenChannel }),
 }));
 
 const PREVIEW_TEST_ID = 'channel-list-item-button';
@@ -86,7 +82,6 @@ describe('ChannelPreviewMessenger', () => {
                 displayImage='https://randomimage.com/src.jpg'
                 displayTitle='Channel name'
                 latestMessagePreview='Latest message!'
-                setActiveChannel={vi.fn()}
                 unread={10}
                 {...props}
               />
@@ -107,7 +102,6 @@ describe('ChannelPreviewMessenger', () => {
   };
 
   beforeEach(async () => {
-    announceInteraction.mockClear();
     chatClient = await getTestClientWithUser(clientUser);
     await initializeChannel(generateChannel());
   });
@@ -117,50 +111,9 @@ describe('ChannelPreviewMessenger', () => {
     expect(container).toMatchSnapshot();
   });
 
-  it('composes the row aria-label from name + last message', () => {
-    render(renderComponent());
-    const button = screen.getByTestId(PREVIEW_TEST_ID);
-    const label = button.getAttribute('aria-label') ?? '';
-    // Channel display name leads; the label is more than just the name (last message etc.).
-    expect(label.startsWith('Channel name')).toBe(true);
-    expect(label.length).toBeGreaterThan('Channel name'.length);
-  });
-
-  it('sets aria-selected only on the active row (not "false" on every other row)', () => {
-    const { rerender } = render(renderComponent({ active: true }));
-    expect(screen.getByTestId(PREVIEW_TEST_ID)).toHaveAttribute('aria-selected', 'true');
-
-    rerender(renderComponent({ active: false }));
-    expect(screen.getByTestId(PREVIEW_TEST_ID)).not.toHaveAttribute('aria-selected');
-  });
-
-  it('announces the active state in the active row aria-label', () => {
-    render(renderComponent({ active: true }));
-    expect(screen.getByTestId(PREVIEW_TEST_ID).getAttribute('aria-label')).toContain(
-      'Active',
-    );
-  });
-
-  it('lets accessibleLabelConfig override the composed aria-label', () => {
-    render(
-      renderComponent({
-        accessibleLabelConfig: { build: () => 'Custom row label' },
-      }),
-    );
-    expect(screen.getByTestId(PREVIEW_TEST_ID)).toHaveAttribute(
-      'aria-label',
-      'Custom row label',
-    );
-  });
-
-  it('should call setActiveChannel on click', async () => {
-    const setActiveChannel = vi.fn();
-    const { container, getByTestId } = render(
-      renderComponent({
-        setActiveChannel,
-        watchers: {},
-      }),
-    );
+  it('should open the channel in the workspace on click', async () => {
+    mockOpenChannel.mockClear();
+    const { container, getByTestId } = render(renderComponent({ watchers: {} }));
 
     await waitFor(() => {
       expect(getByTestId(PREVIEW_TEST_ID)).toBeInTheDocument();
@@ -169,8 +122,12 @@ describe('ChannelPreviewMessenger', () => {
     fireEvent.click(getByTestId(PREVIEW_TEST_ID));
 
     await waitFor(() => {
-      expect(setActiveChannel).toHaveBeenCalledTimes(1);
-      expect(setActiveChannel).toHaveBeenCalledWith(channel, {});
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
+      // The triggering event is forwarded so overrides can honor ⌘/ctrl-click.
+      expect(mockOpenChannel).toHaveBeenCalledWith(
+        channel,
+        expect.objectContaining({ event: expect.anything() }),
+      );
     });
 
     const results = await axe(container.firstChild!.firstChild as Element);
@@ -190,26 +147,6 @@ describe('ChannelPreviewMessenger', () => {
     const previewButton = screen.queryByTestId(PREVIEW_TEST_ID);
     fireEvent.click(previewButton);
     expect(onSelect).toHaveBeenCalledTimes(1);
-  });
-
-  it('announces the opened channel to assistive tech on selection', () => {
-    render(renderComponent({ setActiveChannel: vi.fn() }));
-    fireEvent.click(screen.getByTestId(PREVIEW_TEST_ID));
-    expect(announceInteraction).toHaveBeenCalledWith('channel.opened', {
-      name: 'Channel name',
-    });
-  });
-
-  it('does not announce when re-selecting the already-active channel', () => {
-    render(renderComponent({ active: true, setActiveChannel: vi.fn() }));
-    fireEvent.click(screen.getByTestId(PREVIEW_TEST_ID));
-    expect(announceInteraction).not.toHaveBeenCalled();
-  });
-
-  it('does not announce on a custom onSelect (the custom handler owns its feedback)', () => {
-    render(renderComponent({ onSelect: vi.fn() }));
-    fireEvent.click(screen.getByTestId(PREVIEW_TEST_ID));
-    expect(announceInteraction).not.toHaveBeenCalled();
   });
 
   it('renders channel actions after the channel item so keyboard users can tab into them', () => {

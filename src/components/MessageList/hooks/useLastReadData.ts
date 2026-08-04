@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
-import type { Channel, LocalMessage, UserResponse } from 'stream-chat';
+import type { Channel, LocalMessage, MessageReceiptsSnapshot } from 'stream-chat';
+
+import { useStateStore } from '../../../store/hooks/useStateStore';
 
 type UseLastReadDataParams = {
   channel: Channel;
@@ -8,29 +10,26 @@ type UseLastReadDataParams = {
   lastOwnMessage?: LocalMessage;
 };
 
+const trackerSnapshotSelector = (next: MessageReceiptsSnapshot) => ({
+  readersByMessageId: next.readersByMessageId,
+  revision: next.revision,
+});
+
 export const useLastReadData = (props: UseLastReadDataParams) => {
-  const { channel, lastOwnMessage, messages, returnAllReadData } = props;
+  const { channel, lastOwnMessage, returnAllReadData } = props;
+  const trackerSnapshot = useStateStore(
+    channel.messageReceiptsTracker.snapshotStore,
+    trackerSnapshotSelector,
+  );
 
   return useMemo(() => {
-    if (returnAllReadData) {
-      return messages.reduce(
-        (acc, msg) => {
-          acc[msg.id] = channel.messageReceiptsTracker.readersForMessage({
-            msgId: msg.id,
-            timestampMs: msg.created_at.getTime(),
-          });
-          return acc;
-        },
-        {} as Record<string, UserResponse[]>,
-      );
-    }
+    const readersByMessageId = trackerSnapshot?.readersByMessageId ?? {};
+
+    if (returnAllReadData) return readersByMessageId;
 
     if (!lastOwnMessage) return {};
     return {
-      [lastOwnMessage.id]: channel.messageReceiptsTracker.readersForMessage({
-        msgId: lastOwnMessage.id,
-        timestampMs: lastOwnMessage.created_at.getTime(),
-      }),
+      [lastOwnMessage.id]: readersByMessageId[lastOwnMessage.id] ?? [],
     };
-  }, [channel, lastOwnMessage, messages, returnAllReadData]);
+  }, [lastOwnMessage, returnAllReadData, trackerSnapshot]);
 };

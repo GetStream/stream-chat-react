@@ -20,8 +20,6 @@ import {
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
 import { generateScrapedVideoAttachment } from '../../../mock-builders';
-import type { ChannelStateContextValue } from '../../../context';
-import { ChannelStateProvider } from '../../../context';
 
 const UNSUPPORTED_ATTACHMENT_TEST_ID = 'attachment-unsupported';
 
@@ -57,26 +55,29 @@ const ATTACHMENTS = {
   },
 };
 
+// MERGE-RECONCILE (test migration): media config (giphyVersion, imageAttachmentSizeHandler,
+// etc.) is no longer read from the removed ChannelStateContext — it is passed to <Attachment>
+// directly as props (surfaced via AttachmentContext). The former `channelStateValue` argument
+// is therefore spread onto the component as props.
 const renderComponent = (
   props,
-  channelStateValue = {},
+  attachmentConfig = {},
   { useDefaultGiphy = false } = {},
 ) =>
   render(
-    <ChannelStateProvider value={channelStateValue as ChannelStateContextValue}>
-      <Attachment
-        AttachmentActions={AttachmentActions}
-        Audio={Audio}
-        Card={Card}
-        File={File}
-        Geolocation={Geolocation}
-        {...(!useDefaultGiphy ? { Giphy } : {})}
-        Image={Image}
-        Media={Media}
-        ModalGallery={ModalGallery}
-        {...props}
-      />
-    </ChannelStateProvider>,
+    <Attachment
+      AttachmentActions={AttachmentActions}
+      Audio={Audio}
+      Card={Card}
+      File={File}
+      Geolocation={Geolocation}
+      {...(!useDefaultGiphy ? { Giphy } : {})}
+      Image={Image}
+      Media={Media}
+      ModalGallery={ModalGallery}
+      {...attachmentConfig}
+      {...props}
+    />,
   );
 
 describe('attachment', () => {
@@ -132,7 +133,14 @@ describe('attachment', () => {
       'should render Media component for video of %s mime-type attachment',
       async (mime_type) => {
         const attachment = generateVideoAttachment({ mime_type });
-        renderComponent({ attachments: [attachment] });
+        // The generated attachment carries a `thumb_url`; with the default
+        // `shouldGenerateVideoThumbnail` VideoAttachment renders a thumbnail first and only
+        // mounts the Media (VideoPlayer) on play. Disable thumbnail generation so the Media
+        // component (the assertion target) renders directly.
+        renderComponent(
+          { attachments: [attachment] },
+          { shouldGenerateVideoThumbnail: false },
+        );
         await waitFor(() => {
           expect(screen.getByTestId('media-attachment')).toBeInTheDocument();
         });

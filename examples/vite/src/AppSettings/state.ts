@@ -69,9 +69,17 @@ export type MessageListSettingsState = {
   type: 'standard' | 'virtualized';
 };
 
+export type LayoutSettingsState = {
+  /** The single-channel modal renders a bare `<Channel>` (customer-support scenario) floating over
+   *  the full app. It's open exactly when this holds a channel CID; closing the modal clears it.
+   *  There's no separate "layout mode" — the modal is an overlay, not a full-view swap. */
+  channelCid?: string;
+};
+
 export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
+  layout: LayoutSettingsState;
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
@@ -116,6 +124,7 @@ const defaultAppSettingsState: AppSettingsState = {
   chatView: {
     iconOnly: true,
   },
+  layout: {},
   messageActions: {
     customMessageActions: {
       delete: {

@@ -216,7 +216,6 @@
       .str-chat__modal-gallery__image-retry-indicator {
         @include utils.flex-row-center;
         position: relative;
-        z-index: 1;
         width: 2.75rem;
         height: 2.75rem;
         border-radius: var(--str-chat__radius-max);

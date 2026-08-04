@@ -1,12 +1,21 @@
-import { type CSSProperties, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type {
   ChannelFilters,
-  ChannelOptions,
+  ChannelPaginatorRequestOptions,
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
 } from 'stream-chat';
 import {
+  ChannelPaginator,
+  ChannelPaginatorsOrchestrator,
   ChannelSearchSource,
   createActiveCommandGuardMiddleware,
   createCommandInjectionMiddleware,
@@ -19,9 +28,7 @@ import {
   Attachment,
   type AttachmentProps,
   Chat,
-  ChatView,
   defaultReactionOptions,
-  DialogManagerProvider,
   mapEmojiMartData,
   MessageReactions,
   NotificationList,
@@ -32,14 +39,24 @@ import {
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
+import { ChatView } from 'stream-chat-react/slot-layout';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data/sets/14/native.json';
 import { humanId } from 'human-id';
 
 import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
-import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
+import {
+  CHANNEL_THREAD_SLOT,
+  DESKTOP_LAYOUT_BREAKPOINT,
+  MAIN_CHANNEL_SLOT,
+  MAIN_THREAD_SLOT,
+  OPTIONAL_THREAD_SLOT,
+} from './ChatLayout/constants.ts';
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
+import { SlotGeometryProvider } from 'stream-chat-react/slot-geometry';
+import { AlsoSentInChannelIndicator } from './ChatLayout/AlsoSentInChannelIndicator.tsx';
+import { useAdditiveWorkspaceNavigation } from './ChatLayout/useAdditiveWorkspaceNavigation.ts';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
 import {
@@ -48,11 +65,16 @@ import {
   SidebarLayoutSync,
 } from './ChatLayout/Resize.tsx';
 import {
-  ChatStateSync,
-  getSelectedChannelIdFromUrl,
-  getSelectedChatViewFromUrl,
-} from './ChatLayout/Sync.tsx';
+  getInitialChannelIdFromUrl,
+  getInitialChatViewFromUrl,
+  getInitialThreadIdFromUrl,
+  WorkspaceUrlSync,
+} from './ChatLayout/WorkspaceUrlSync.tsx';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
+import {
+  resolveSingleChannel,
+  SingleChannelModal,
+} from './SingleChannel/SingleChannelApp.tsx';
 import { SystemNotification } from './SystemNotification/SystemNotification.tsx';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import {
@@ -98,13 +120,19 @@ if (!apiKey) {
   throw new Error('VITE_STREAM_API_KEY is not defined');
 }
 
-const options: ChannelOptions = {
+// v10: the paginator takes query options as `requestOptions`, which omits `offset`/`limit` —
+// page size is a paginator concern and is passed via `paginatorOptions.pageSize` instead.
+const CHANNELS_PAGE_SIZE = 10;
+
+const requestOptions: ChannelPaginatorRequestOptions = {
   presence: true,
   state: true,
-  limit: 10,
 };
 
-const sort: ChannelSort = { last_message_at: -1, updated_at: -1 };
+const sort: ChannelSort = [
+  { direction: -1, field: 'last_message_at' },
+  { direction: -1, field: 'updated_at' },
+];
 
 // @ts-expect-error ai_generated isn't on LocalMessage's public type yet
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
@@ -220,6 +248,15 @@ const reactionsVariant = getReactionsVariant();
 const attachmentActionsVariant = getAttachmentActionsVariant();
 const globalDialogManager = 'globalDialogManager';
 
+// Per-view layout descriptors (D8): each view declares its own slot topology. Module-scoped
+// so the reference is stable (it feeds the ChatView layout controller). The channels view
+// holds the open channel plus a reply-thread slot (the in-channel Thread panel); the threads
+// view holds a primary + an optional (ctrl/⌘-click) thread slot.
+const chatViewLayouts = [
+  { id: 'channels' as const, slots: [MAIN_CHANNEL_SLOT, CHANNEL_THREAD_SLOT] },
+  { id: 'threads' as const, slots: [MAIN_THREAD_SLOT, OPTIONAL_THREAD_SLOT] },
+];
+
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
@@ -227,17 +264,17 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
+  // Project to a stable-shape object rather than returning `state.layout` directly. `layout`
+  // starts as `{}`, and useStateStore only diffs the keys present in its *cached* selection — so
+  // a selection that starts empty never notices `channelCid` appearing later, and the modal would
+  // never mount on a layout-only change. Always exposing the `channelCid` key fixes that.
+  const { channelCid: singleChannelCid } = useAppSettingsSelector((state) => ({
+    channelCid: state.layout.channelCid,
+  }));
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
-  const initialSearchParams = useMemo(
-    () => new URLSearchParams(window.location.search),
-    [],
-  );
-  const initialChannelId = useMemo(() => getSelectedChannelIdFromUrl(), []);
-  const initialChatView = useMemo(() => getSelectedChatViewFromUrl(), []);
-  const initialThreadId = useMemo(
-    () => initialSearchParams.get('thread'),
-    [initialSearchParams],
-  );
+  const initialChannelId = useMemo(() => getInitialChannelIdFromUrl(), []);
+  const initialChatView = useMemo(() => getInitialChatViewFromUrl(), []);
+  const initialThreadId = useMemo(() => getInitialThreadIdFromUrl(), []);
   const initialPanelLayout = useMemo(
     () => appSettingsStore.getLatestValue().panelLayout,
     [],
@@ -259,11 +296,7 @@ const App = () => {
       return true;
     }
 
-    if ((!channelsView && hasSelectedThread) || hasSelectedThread) {
-      return false;
-    }
-
-    return true;
+    return !((!channelsView && hasSelectedThread) || hasSelectedThread);
   }, [
     initialChannelId,
     initialChatView,
@@ -271,6 +304,12 @@ const App = () => {
     initialThreadId,
   ]);
   const appLayoutRef = useRef<HTMLDivElement | null>(null);
+  // Anchor for the floating single-channel modal. A small fixed point (state, not ref, so the
+  // modal re-renders once it attaches) at the top-left corner — the DraggableDialog anchors
+  // `right-start` to it, so the modal opens at 8px/8px before it's dragged.
+  const [singleChannelAnchor, setSingleChannelAnchor] = useState<HTMLElement | null>(
+    null,
+  );
 
   const chatClient = useCreateChatClient({
     apiKey,
@@ -330,6 +369,80 @@ const App = () => {
     [userId],
   );
 
+  // Four channel lists driven by one orchestrator:
+  //  - `channels:default` (main): the app `filters`, minus archived and muted channels.
+  //  - `channels:archived`: the user's archived channels.
+  //  - `channels:muted`: the user's muted channels.
+  //  - `channels:opened` (fallback): empty filter, seeded empty so it never auto-queries — holds
+  //    channels opened from search that don't match any of the above.
+  // The priority ownership resolver decides where a channel that matches several lists lands
+  // (archived > muted > default > opened), so e.g. an archived channel stays out of the main list.
+  // `orchestrator.ingestChannel` (search/DM open, and the mute handler below) re-evaluates a
+  // channel against every list and routes it accordingly.
+  const channelPaginatorsOrchestrator = useMemo(() => {
+    if (!chatClient) return undefined;
+    const main = new ChannelPaginator({
+      client: chatClient,
+      filters: { ...filters, archived: false, muted: false },
+      id: 'channels:default',
+      paginatorOptions: { pageSize: CHANNELS_PAGE_SIZE },
+      requestOptions,
+      sort,
+    });
+    const archived = new ChannelPaginator({
+      client: chatClient,
+      filters: { ...filters, archived: true },
+      id: 'channels:archived',
+      sort,
+    });
+    const muted = new ChannelPaginator({
+      client: chatClient,
+      filters: { ...filters, muted: true },
+      id: 'channels:muted',
+      sort,
+    });
+    const fallback = new ChannelPaginator({
+      client: chatClient,
+      filters: {},
+      id: 'channels:opened',
+    });
+    // Seed an empty loaded page so the catch-all list doesn't auto-query on mount.
+    fallback.setItems({ isLastPage: true, valueOrFactory: [] });
+
+    // The orchestrator has no built-in mute handler, so muting/unmuting wouldn't move a channel
+    // between lists on its own. Enrich the default handlers: when the user's channel mutes change,
+    // re-route every loaded channel (ingestChannel re-evaluates ownership per channel, so a newly
+    // muted channel leaves the main list for the muted one and an unmuted channel returns).
+    const eventHandlers = ChannelPaginatorsOrchestrator.getDefaultHandlers();
+    eventHandlers['notification.channel_mutes_updated'] = [
+      {
+        id: 'example:channel-mutes-updated',
+        handle: ({ ctx: { orchestrator } }) => {
+          const seen = new Set<string>();
+          orchestrator.paginators.forEach((paginator) => {
+            (paginator.items ?? []).forEach((channel) => {
+              if (seen.has(channel.cid)) return;
+              seen.add(channel.cid);
+              orchestrator.ingestChannel(channel);
+            });
+          });
+        },
+      },
+    ];
+
+    return new ChannelPaginatorsOrchestrator({
+      client: chatClient,
+      eventHandlers,
+      ownershipResolver: [
+        'channels:archived',
+        'channels:muted',
+        'channels:default',
+        'channels:opened',
+      ],
+      paginators: [main, archived, muted, fallback],
+    });
+  }, [chatClient, filters]);
+
   useEffect(() => {
     if (!chatClient) return;
 
@@ -376,10 +489,31 @@ const App = () => {
     () =>
       ({
         '--app-left-panel-width': `${initialPanelLayout.leftPanel.width}px`,
-        '--app-thread-panel-width': `${initialPanelLayout.threadPanel.width}px`,
+        '--app-secondary-panel-width': `${initialPanelLayout.threadPanel.width}px`,
       }) as CSSProperties,
     [initialPanelLayout.leftPanel.width, initialPanelLayout.threadPanel.width],
   );
+
+  const chatViews = useMemo(
+    () => ({
+      channels: (
+        <ChannelsPanels
+          iconOnly={chatView.iconOnly}
+          initialChannelId={initialChannelId ?? undefined}
+          itemSet={chatViewSelectorItemSet}
+        />
+      ),
+      threads: (
+        <ThreadsPanels iconOnly={chatView.iconOnly} itemSet={chatViewSelectorItemSet} />
+      ),
+    }),
+    [chatView.iconOnly, initialChannelId],
+  );
+
+  // ⌘/ctrl-click opens beside the current content. Applied through the navigation adapter (not the
+  // search items' `onSelect`) so the SDK's default select handler — which also ingests the channel
+  // into the list — stays in effect. Declared before the early return so the hook order is stable.
+  const deriveWorkspaceNavigation = useAdditiveWorkspaceNavigation();
 
   if (!chatClient) {
     return (
@@ -414,6 +548,10 @@ const App = () => {
   return (
     <WithComponents
       overrides={{
+        // Coverage-aware "Also sent in channel → View": records a reveal intent that a
+        // channels-view effect resolves after navigation (works across the threads → channels
+        // switch; closes the covering thread only when it actually covers).
+        MessageAlsoSentInChannelIndicator: AlsoSentInChannelIndicator,
         emojiSearchIndex: SearchIndex,
         EmojiPicker: EmojiPickerWithCustomOptions,
         NotificationList: ConfigurableNotificationList,
@@ -429,6 +567,7 @@ const App = () => {
     >
       <SidebarProvider initialOpen={initialSidebarOpen}>
         <Chat
+          channelPaginatorsOrchestrator={channelPaginatorsOrchestrator}
           client={chatClient}
           i18nInstance={i18nInstance}
           isMessageAIGenerated={isMessageAIGenerated}
@@ -449,26 +588,54 @@ const App = () => {
                 iconOnly={chatView.iconOnly}
                 layoutRef={appLayoutRef}
               />
-              <ChatView>
-                <DialogManagerProvider id={globalDialogManager}>
-                  <ChatStateSync initialChatView={initialChatView} />
+              {/* Geometry provider spans the whole ChatView so slot-coverage state and the reveal
+                  intent are shared across views (the "Also sent in channel → View" indicator sets
+                  the intent in the threads view; the channels panels resolve it after navigating).
+                  Instance-scoped — not a module singleton — so other chat surfaces don't collide. */}
+              <SlotGeometryProvider>
+                <ChatView
+                  deriveWorkspaceNavigation={deriveWorkspaceNavigation}
+                  dialogManagerId={globalDialogManager}
+                  layouts={chatViewLayouts}
+                  maxSlots={2}
+                  minSlots={2}
+                  views={chatViews}
+                >
+                  <WorkspaceUrlSync />
                   <SidebarLayoutSync />
-                  <ChannelsPanels
-                    filters={filters}
-                    iconOnly={chatView.iconOnly}
-                    initialChannelId={initialChannelId ?? undefined}
-                    itemSet={chatViewSelectorItemSet}
-                    options={options}
-                    sort={sort}
-                  />
-                  <ThreadsPanels
-                    iconOnly={chatView.iconOnly}
-                    itemSet={chatViewSelectorItemSet}
-                  />
-                </DialogManagerProvider>
-              </ChatView>
+                </ChatView>
+              </SlotGeometryProvider>
             </div>
           </div>
+          {/* The single-channel scenario floats over the full app in a draggable modal (the full
+              app stays mounted, so its dialog managers never remount). Open whenever a channel is
+              selected (`layout.channelCid`); the title switches channels, the close button clears
+              it. The anchor fixes the initial position (20,20). It's rendered unconditionally so
+              its ref is populated before the modal ever mounts — otherwise the first open would
+              pass `referenceElement={null}` (the ref callback fires after that render), and the
+              DialogAnchor wouldn't position/show the dialog until some later re-render. */}
+          <span
+            aria-hidden
+            ref={setSingleChannelAnchor}
+            style={{
+              height: 0,
+              insetBlockStart: '20px',
+              insetInlineStart: '20px',
+              pointerEvents: 'none',
+              position: 'fixed',
+              width: 0,
+            }}
+          />
+          {singleChannelCid && (
+            <SingleChannelModal
+              channel={resolveSingleChannel({
+                channelKey: singleChannelCid,
+                client: chatClient,
+                orchestrator: channelPaginatorsOrchestrator,
+              })}
+              referenceElement={singleChannelAnchor}
+            />
+          )}
         </Chat>
       </SidebarProvider>
     </WithComponents>

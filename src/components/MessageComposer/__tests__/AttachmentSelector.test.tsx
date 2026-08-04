@@ -1,3 +1,8 @@
+// Import the package barrel first so it evaluates in its natural order (components
+// then context). MessageComposer's send/update hooks import `useChannel` from this
+// root barrel; importing a deep component path first would trigger a partial circular
+// re-entry that leaves `useChannel` undefined under Vitest.
+import '../../..';
 import React from 'react';
 import {
   act,
@@ -8,29 +13,18 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { CommandResponse } from 'stream-chat';
+import type { Command } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
-import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ComponentProvider,
-  MessageProvider,
-  TranslationProvider,
-  TypingProvider,
-} from '../../../context';
-import type { TranslationContextValue } from '../../../context';
+import { Channel } from '../../Channel';
+import { MessageProvider, WithComponents } from '../../../context';
 import {
   generateMessage,
   initClientWithChannels,
-  mockChannelActionContext,
   mockMessageContext,
-  mockTypingContext,
 } from '../../../mock-builders';
-import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
 import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
-import { ChatViewContext } from '../../ChatView/ChatView';
 
 const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-menu';
 const POLL_CREATION_DIALOG_TEST_ID = 'poll-creation-dialog';
@@ -46,24 +40,11 @@ const SHARE_LOCATION_BUTTON_CLASS =
 const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
-const translationContext = fromPartial<TranslationContextValue>({
-  t: ((value: string) => value) as TranslationContextValue['t'],
-  tDateTimeParser: ((value: string) =>
-    value.toString()) as TranslationContextValue['tDateTimeParser'],
-});
-
-const defaultChannelData = {
-  own_capabilities: ['upload-file'],
-};
-
-const defaultConfig = {
-  config: { shared_locations: true },
-};
-
-const defaultChannelStateContext = {
-  channelCapabilities: { 'send-poll': true, 'upload-file': true },
-  notifications: [],
-};
+// Capabilities & config now live on the channel (own_capabilities +
+// client.configsStore) rather than in a ChannelStateContext. These defaults grant every
+// attachment option so the full AttachmentSelector menu renders.
+const DEFAULT_OWN_CAPABILITIES = ['upload-file', 'send-poll'];
+const DEFAULT_CONFIG = { polls: true, shared_locations: true, uploads: true };
 
 const invokeMenu = async () => {
   await act(async () => {
@@ -72,13 +53,14 @@ const invokeMenu = async () => {
 };
 
 const renderComponent = async ({
-  channelData = {},
-  channelStateContext,
   componentContext,
+  config = DEFAULT_CONFIG,
   customChannel,
   customClient,
   message,
   messageInputProps,
+  ownCapabilities = DEFAULT_OWN_CAPABILITIES,
+  thread,
 }: any = {}) => {
   let channel, client;
   if (customChannel && customClient) {
@@ -86,22 +68,16 @@ const renderComponent = async ({
     client = customClient;
   } else {
     const res = await initClientWithChannels({
-      channelsData: [
-        { channel: { ...defaultChannelData, config: defaultConfig, ...channelData } },
-      ],
+      channelsData: [{ channel: { config, own_capabilities: ownCapabilities } }],
     });
     channel = res.channels[0];
     client = res.client;
   }
   vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
 
-  const ThreadOrChannel = () =>
-    channelStateContext?.thread ? (
-      <LegacyThreadContext.Provider
-        value={{
-          legacyThread: channelStateContext.thread ?? undefined,
-        }}
-      >
+  const Composer = () =>
+    thread ? (
+      <LegacyThreadContext.Provider value={{ legacyThread: thread }}>
         <MessageComposer {...messageInputProps} />
       </LegacyThreadContext.Provider>
     ) : (
@@ -111,37 +87,19 @@ const renderComponent = async ({
   let result: RenderResult = undefined as unknown as RenderResult;
   await act(() => {
     result = render(
-      <ChatViewContext.Provider
-        value={{ activeChatView: 'channels', setActiveChatView: vi.fn() }}
-      >
-        <Chat client={client}>
-          <ComponentProvider value={{ ...componentContext }}>
-            <TranslationProvider value={translationContext}>
-              <TypingProvider value={mockTypingContext()}>
-                <ChannelActionProvider value={mockChannelActionContext()}>
-                  <ChannelStateProvider
-                    value={{
-                      ...defaultChannelStateContext,
-                      channel,
-                      ...channelStateContext,
-                    }}
-                  >
-                    <div id={CHANNEL_CONTAINER_ID}>
-                      {message ? (
-                        <MessageProvider value={mockMessageContext({ message })}>
-                          <ThreadOrChannel />
-                        </MessageProvider>
-                      ) : (
-                        <ThreadOrChannel />
-                      )}
-                    </div>
-                  </ChannelStateProvider>
-                </ChannelActionProvider>
-              </TypingProvider>
-            </TranslationProvider>
-          </ComponentProvider>
-        </Chat>
-      </ChatViewContext.Provider>,
+      <Chat client={client}>
+        <WithComponents overrides={{ ...componentContext }}>
+          <Channel channel={channel}>
+            {message ? (
+              <MessageProvider value={mockMessageContext({ message })}>
+                <Composer />
+              </MessageProvider>
+            ) : (
+              <Composer />
+            )}
+          </Channel>
+        </WithComponents>
+      </Chat>,
     );
   });
   return { ...result, channel, client };
@@ -190,14 +148,14 @@ describe('AttachmentSelector', () => {
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
     expect(menu).toBeInTheDocument();
-    expect(menu).toHaveAttribute('aria-label', 'aria/Attachment Actions');
+    expect(menu).toHaveAttribute('aria-label', 'Attachment Actions');
     expect(menu).toHaveTextContent('File');
     expect(menu).toHaveTextContent('Poll');
     expect(menu).toHaveTextContent('Location');
   });
 
   it('keeps Commands visible and disables it when all commands are unavailable', async () => {
-    const disabledCommand = fromPartial<CommandResponse>({
+    const disabledCommand = fromPartial<Command>({
       args: 'ban-command-args',
       description: 'ban-command-description',
       name: 'ban',
@@ -210,7 +168,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               commands: [disabledCommand],
@@ -219,6 +176,7 @@ describe('AttachmentSelector', () => {
               uploads: false,
             },
             id: 'id',
+            own_capabilities: [],
             type: 'type',
           },
         },
@@ -230,7 +188,6 @@ describe('AttachmentSelector', () => {
     });
 
     await renderComponent({
-      channelStateContext: { channelCapabilities: {} },
       customChannel,
       customClient,
     });
@@ -251,7 +208,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               polls: true,
@@ -259,13 +215,13 @@ describe('AttachmentSelector', () => {
               uploads: false,
             },
             id: 'id',
+            own_capabilities: ['send-poll'],
             type: 'type',
           },
         },
       ],
     });
     await renderComponent({
-      channelStateContext: { channelCapabilities: { 'send-poll': true } },
       customChannel,
       customClient,
     });
@@ -286,7 +242,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               commands: [],
@@ -295,13 +250,13 @@ describe('AttachmentSelector', () => {
               uploads: false,
             },
             id: 'id',
+            own_capabilities: ['send-poll'],
             type: 'type',
           },
         },
       ],
     });
     await renderComponent({
-      channelStateContext: { channelCapabilities: { 'send-poll': true } },
       customChannel,
       customClient,
     });
@@ -319,7 +274,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               polls: false,
@@ -327,13 +281,13 @@ describe('AttachmentSelector', () => {
               uploads: false,
             },
             id: 'id',
+            own_capabilities: [],
             type: 'type',
           },
         },
       ],
     });
     await renderComponent({
-      channelStateContext: { channelCapabilities: {} },
       customChannel,
       customClient,
     });
@@ -354,7 +308,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               commands: [],
@@ -363,13 +316,13 @@ describe('AttachmentSelector', () => {
               uploads: true,
             },
             id: 'id',
+            own_capabilities: ['upload-file'],
             type: 'type',
           },
         },
       ],
     });
     await renderComponent({
-      channelStateContext: { channelCapabilities: { 'upload-file': true } },
       customChannel,
       customClient,
     });
@@ -388,7 +341,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               commands: [],
@@ -397,13 +349,13 @@ describe('AttachmentSelector', () => {
               uploads: false,
             },
             id: 'id',
+            own_capabilities: ['upload-file'],
             type: 'type',
           },
         },
       ],
     });
     await renderComponent({
-      channelStateContext: { channelCapabilities: { 'upload-file': true } },
       customChannel,
       customClient,
     });
@@ -424,7 +376,6 @@ describe('AttachmentSelector', () => {
       channelsData: [
         {
           channel: {
-            ...defaultChannelData,
             cid: 'type:id',
             config: {
               commands: [],
@@ -433,18 +384,16 @@ describe('AttachmentSelector', () => {
               uploads: true,
             },
             id: 'id',
+            own_capabilities: ['upload-file'],
             type: 'type',
           },
         },
       ],
     });
     await renderComponent({
-      channelStateContext: {
-        channelCapabilities: { 'upload-file': true },
-        thread: generateMessage({ cid: customChannel.cid }),
-      },
       customChannel,
       customClient,
+      thread: generateMessage({ cid: customChannel.cid }),
     });
     // In a thread, the full AttachmentSelector context menu is not used; only the simple button is rendered
     expect(
@@ -455,7 +404,7 @@ describe('AttachmentSelector', () => {
 
   it('renders AttachmentSelector if upload-file permission is not granted', async () => {
     await renderComponent({
-      channelStateContext: { channelCapabilities: { 'send-poll': true } },
+      ownCapabilities: ['send-poll'],
     });
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
@@ -467,10 +416,8 @@ describe('AttachmentSelector', () => {
 
   it('renders AttachmentSelector if only location sharing is enabled', async () => {
     await renderComponent({
-      channelData: {
-        config: { shared_locations: true },
-      },
-      channelStateContext: { channelCapabilities: {} },
+      config: { shared_locations: true },
+      ownCapabilities: [],
     });
     await invokeMenu();
     const menu = screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID);
@@ -482,7 +429,8 @@ describe('AttachmentSelector', () => {
 
   it('does not render the invoke button if no permissions are not granted', async () => {
     await renderComponent({
-      channelStateContext: { channelCapabilities: {} },
+      config: {},
+      ownCapabilities: [],
     });
     expect(
       screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
@@ -503,7 +451,8 @@ describe('AttachmentSelector', () => {
       expect(screen.queryByTestId(POLL_CREATION_DIALOG_TEST_ID)).toBeInTheDocument();
     });
 
-    const dialog = screen.getByRole('dialog', { name: 'Create poll' });
+    // Accessible name comes from the translated dialog title (en: "Create Poll").
+    const dialog = screen.getByRole('dialog', { name: 'Create Poll' });
     const questionInput = screen.getByLabelText('Question');
     // The description id is per-instance (unique across stacked modals), so read it rather than
     // hardcoding the shared base.
@@ -543,7 +492,14 @@ describe('AttachmentSelector', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels({
-      channelsData: [{ channel: { ...defaultChannelData, config: defaultConfig } }],
+      channelsData: [
+        {
+          channel: {
+            config: DEFAULT_CONFIG,
+            own_capabilities: DEFAULT_OWN_CAPABILITIES,
+          },
+        },
+      ],
     });
     vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
     vi.spyOn(client, 'createPoll').mockResolvedValue(
@@ -566,7 +522,7 @@ describe('AttachmentSelector', () => {
       });
     });
     await act(async () => {
-      await fireEvent.change(screen.getByPlaceholderText('Add an option'), {
+      await fireEvent.change(screen.getByPlaceholderText('Add an Option'), {
         target: { value: 'Opt' },
       });
     });
@@ -786,8 +742,17 @@ const getSimpleAttachmentSelectorInvokeElement = () =>
 
 describe('SimpleAttachmentSelector', () => {
   const message = generateMessage();
+  // Only file uploads enabled => AttachmentSelector falls back to SimpleAttachmentSelector.
+  const renderSimple = (overrides: Record<string, unknown> = {}) =>
+    renderComponent({
+      config: { uploads: true },
+      message,
+      ownCapabilities: ['upload-file'],
+      ...overrides,
+    });
+
   it('renders the button', async () => {
-    await renderComponent({ message });
+    await renderSimple();
     expect(screen.getByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID)).toBeInTheDocument();
   });
 
@@ -808,10 +773,7 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('does not render if missing "upload-file" capability', async () => {
-    await renderComponent({
-      channelStateContext: { channelCapabilities: { 'send-poll': true } },
-      message,
-    });
+    await renderSimple({ ownCapabilities: ['send-poll'] });
     expect(
       screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
     ).not.toBeInTheDocument();
@@ -821,7 +783,7 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('opens on Space key up', async () => {
-    await renderComponent({ message });
+    await renderSimple();
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
     const inputClickSpy = vi.spyOn(inputElement, 'click').mockReturnValue();
     const label = getSimpleAttachmentSelectorInvokeElement();
@@ -835,7 +797,7 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('opens on Space key up', async () => {
-    await renderComponent({ message });
+    await renderSimple();
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
     const inputClickSpy = vi.spyOn(inputElement, 'click').mockReturnValue();
     const label = getSimpleAttachmentSelectorInvokeElement();
@@ -849,7 +811,7 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('does not open on other key up', async () => {
-    await renderComponent({ message });
+    await renderSimple();
     const inputElement = screen.getByTestId(UPLOAD_INPUT_TEST_ID);
     const inputClickSpy = vi.spyOn(inputElement, 'click').mockReturnValue();
     const label = getSimpleAttachmentSelectorInvokeElement();
@@ -862,9 +824,8 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('render custom AttachmentSelectorInitiationButtonContents', async () => {
-    await renderComponent({
+    await renderSimple({
       componentContext: { AttachmentSelectorInitiationButtonContents },
-      message,
     });
     expect(
       screen.getByTestId('customAttachmentSelectorInitiationButtonContents'),
@@ -872,18 +833,16 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   it('does not render FileUploadIcon (deprecated, use AttachmentSelectorInitiationButtonContents)', async () => {
-    await renderComponent({
+    await renderSimple({
       componentContext: { FileUploadIcon },
-      message,
     });
     // FileUploadIcon is no longer used by SimpleAttachmentSelector
     expect(screen.queryByTestId('customFileUploadIcon')).not.toBeInTheDocument();
   });
 
   it('renders AttachmentSelectorInitiationButtonContents but not FileUploadIcon', async () => {
-    await renderComponent({
+    await renderSimple({
       componentContext: { AttachmentSelectorInitiationButtonContents, FileUploadIcon },
-      message,
     });
     expect(
       screen.getByTestId('customAttachmentSelectorInitiationButtonContents'),
@@ -892,7 +851,7 @@ describe('SimpleAttachmentSelector', () => {
   });
 
   describe('command-active inert behavior', () => {
-    const giphyCommand = fromPartial<CommandResponse>({
+    const giphyCommand = fromPartial<Command>({
       args: 'giphy-command-args',
       description: 'giphy-command-description',
       name: 'giphy',

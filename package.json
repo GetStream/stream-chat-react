@@ -40,6 +40,18 @@
       "require": "./dist/cjs/mp3-encoder.js",
       "default": "./dist/cjs/mp3-encoder.js"
     },
+    "./slot-geometry": {
+      "types": "./dist/types/plugins/SlotGeometry/index.d.ts",
+      "import": "./dist/es/slot-geometry.mjs",
+      "require": "./dist/cjs/slot-geometry.js",
+      "default": "./dist/cjs/slot-geometry.js"
+    },
+    "./slot-layout": {
+      "types": "./dist/types/plugins/SlotLayout/index.d.ts",
+      "import": "./dist/es/slot-layout.mjs",
+      "require": "./dist/cjs/slot-layout.js",
+      "default": "./dist/cjs/slot-layout.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -57,6 +69,12 @@
       ],
       "mp3-encoder": [
         "./dist/types/plugins/encoders/mp3.d.ts"
+      ],
+      "slot-geometry": [
+        "./dist/types/plugins/SlotGeometry/index.d.ts"
+      ],
+      "slot-layout": [
+        "./dist/types/plugins/SlotLayout/index.d.ts"
       ]
     }
   },
@@ -114,7 +132,7 @@
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.50.2"
+    "stream-chat": "10.0.0-rc.1"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -184,7 +202,7 @@
     "react-dom": "^19.2.6",
     "sass": "^1.100.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^9.50.2",
+    "stream-chat": "10.0.0-rc.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4",
     "vite": "^8.1.3",

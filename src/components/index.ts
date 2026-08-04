@@ -13,7 +13,6 @@ export * from './ChannelListItem';
 export * from './Search';
 export * from './SkipNavigation';
 export * from './Chat';
-export * from './ChatView';
 export * from './DateSeparator';
 export * from './Dialog';
 export * from './EmptyStateIndicator';
@@ -45,7 +44,6 @@ export * from './Threads';
 export * from './Tooltip';
 export * from './TypingIndicator';
 export * from './VisuallyHidden';
-export * from './Window';
 
 export { FileInput } from './ReactFileUtilities';
 export type { FileInputProps } from './ReactFileUtilities';

@@ -22,7 +22,7 @@ export type StableCallback<A extends unknown[], R> = (...args: A) => R;
  *   never be wrapped in this hook)
  * - Always prefer using a standard useCallback/stable function wherever possible
  *   (the purpose of useStableCallback is to bridge the gap between top level contexts
- *   and cascading rereders in downstream components - **not** as an escape hatch)
+ *   and cascading re-renders in downstream components - **not** as an escape hatch)
  * @param callback - the callback we want to stabilize
  */
 export const useStableCallback = <A extends unknown[], R>(

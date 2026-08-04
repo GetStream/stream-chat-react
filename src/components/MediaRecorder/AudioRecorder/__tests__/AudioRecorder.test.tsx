@@ -1,3 +1,8 @@
+// MERGE-RECONCILE (test migration): import the package barrel first so it evaluates in its
+// natural order (components then context). MessageComposer's send/update hooks import
+// `useChannel` from this root barrel; importing a deep component path first would trigger a
+// partial circular re-entry that leaves `useChannel` undefined under Vitest.
+import '../../../..';
 import React from 'react';
 import {
   act,
@@ -11,13 +16,12 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import * as transcoder from '../../transcode';
 
 import { MessageComposer } from '../../../MessageComposer';
+import { Chat } from '../../../Chat';
+import { Channel } from '../../../Channel';
 import {
-  type ChannelActionContextValue,
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
-  ComponentProvider,
+  DialogManagerProvider,
   MessageComposerContextProvider,
+  WithComponents,
 } from '../../../../context';
 import {
   generateAudioAttachment,
@@ -40,7 +44,6 @@ import {
 import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
 import { WithAudioPlayback } from '../../../AudioPlayback';
-import { ChatViewContext } from '../../../ChatView/ChatView';
 import type {
   AppSettingsAPIResponse,
   Attachment,
@@ -48,13 +51,6 @@ import type {
   SendFileAPIResponse,
 } from '../../../../../../stream-chat-js/src';
 import type { MessageComposerContextValue } from '../../../../context';
-
-const chatViewContextValue = fromPartial<
-  NonNullable<React.ContextType<typeof ChatViewContext>>
->({
-  activeChatView: 'channels',
-  setActiveChatView: () => {},
-});
 
 const PERM_DENIED_NOTIFICATION_TEXT =
   'To start recording, allow the microphone access in your browser';
@@ -64,65 +60,43 @@ const CANCEL_RECORDING_AUDIO_BUTTON_TEST_ID = 'cancel-recording-audio-button';
 const AUDIO_RECORDER_TEST_ID = 'audio-recorder';
 const AUDIO_RECORDER_STOP_BTN_TEST_ID = 'audio-recorder-stop-button';
 
-const DEFAULT_RENDER_PARAMS = {
-  channelActionCtx: {},
-  channelStateCtx: {
-    channelCapabilities: [],
-  },
-  chatCtx: {
-    getAppSettings: vi.fn().mockReturnValue({}),
-    latestMessageDatesByChannels: {},
-  },
-  componentCtx: {},
-};
-
 window.ResizeObserver = ResizeObserverMock as unknown as typeof ResizeObserver;
 
 vi.spyOn(HTMLDivElement.prototype, 'getBoundingClientRect').mockReturnValue(
   fromPartial<DOMRect>({ width: 120 }),
 );
 
+// MERGE-RECONCILE (test migration): channel state/actions moved onto the stream-chat client,
+// so the removed ChannelState/ChannelAction/Chat/Component providers are replaced by the
+// real <Chat>/<Channel> tree. A caller may pass an already-initialized channel/client (with
+// preset composer text/attachments) via `channelStateCtx.channel` / `chatCtx.client`;
+// otherwise a fresh pair is created. Custom component overrides pass through <Channel> props.
 const renderComponent = async ({
-  channelActionCtx,
   channelStateCtx,
   chatCtx,
   componentCtx,
   props,
 }: any = {}) => {
-  const {
-    channels: [channel],
-    client,
-  } = await initClientWithChannels();
+  let channel = channelStateCtx?.channel;
+  let client = chatCtx?.client;
+  if (!channel || !client) {
+    ({
+      channels: [channel],
+      client,
+    } = await initClientWithChannels());
+  }
   let result: RenderResult;
   await act(async () => {
     result = await render(
-      <ChatViewContext.Provider value={chatViewContextValue}>
-        <ChatProvider
-          value={{
-            client,
-            ...DEFAULT_RENDER_PARAMS.chatCtx,
-            ...chatCtx,
-          }}
-        >
-          <ComponentProvider
-            value={{ ...DEFAULT_RENDER_PARAMS.componentCtx, ...componentCtx }}
-          >
-            <ChannelActionProvider
-              value={{ ...DEFAULT_RENDER_PARAMS.channelActionCtx, ...channelActionCtx }}
-            >
-              <ChannelStateProvider
-                value={{
-                  channel,
-                  ...DEFAULT_RENDER_PARAMS.channelStateCtx,
-                  ...channelStateCtx,
-                }}
-              >
-                <MessageComposer {...{ audioRecordingEnabled: true, ...props }} />
-              </ChannelStateProvider>
-            </ChannelActionProvider>
-          </ComponentProvider>
-        </ChatProvider>
-      </ChatViewContext.Provider>,
+      <WithComponents overrides={componentCtx ?? {}}>
+        <Chat client={client}>
+          <DialogManagerProvider id='audio-recorder-test-dialog-manager'>
+            <Channel channel={channel}>
+              <MessageComposer {...{ audioRecordingEnabled: true, ...props }} />
+            </Channel>
+          </DialogManagerProvider>
+        </Chat>
+      </WithComponents>,
     );
   });
   return result;
@@ -172,6 +146,10 @@ describe('MessageInput', () => {
     (navigator as any).mediaDevices = {
       getUserMedia: vi.fn().mockResolvedValue({}),
     };
+    // Reset the permissions query each test: vi.clearAllMocks() clears call history but keeps
+    // mock implementations, so a persistent mockResolvedValue set by the permission tests would
+    // otherwise leak a 'denied' status into later tests.
+    (navigator as any).permissions = { query: vi.fn() };
   });
   afterEach(() => {
     vi.clearAllMocks();
@@ -316,25 +294,29 @@ describe('MessageInput', () => {
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
     const status: EventEmitterMock & { state?: PermissionState } = new EventEmitterMock();
     status.state = 'denied';
-    window.navigator.permissions.query['mockResolvedValueOnce'](status);
+    window.navigator.permissions.query['mockResolvedValue'](status);
     await renderComponent();
     expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).not.toBeInTheDocument();
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     });
-    expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText(PERM_DENIED_NOTIFICATION_TEXT)).toBeInTheDocument();
+    });
   });
 
   it('renders custom RecordingPermissionDeniedNotification', async () => {
     const RecordingPermissionDeniedNotification = () => <div>custom notification</div>;
     const status: EventEmitterMock & { state?: PermissionState } = new EventEmitterMock();
     status.state = 'denied';
-    window.navigator.permissions.query['mockResolvedValueOnce'](status);
+    window.navigator.permissions.query['mockResolvedValue'](status);
     await renderComponent({ componentCtx: { RecordingPermissionDeniedNotification } });
     await act(() => {
       fireEvent.click(screen.queryByTestId(START_RECORDING_AUDIO_BUTTON_TEST_ID));
     });
-    expect(screen.queryByText('custom notification')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText('custom notification')).toBeInTheDocument();
+    });
   });
 
   it('uploads the recording on completion and schedules submit when multiple async messages disabled', async () => {
@@ -452,17 +434,15 @@ const DEFAULT_RECORDING_CONTROLLER = {
 
 const renderAudioRecorder = (controller = {}) =>
   render(
-    <ChannelActionProvider value={fromPartial<ChannelActionContextValue>({})}>
-      <WithAudioPlayback>
-        <MessageComposerContextProvider
-          value={fromPartial<MessageComposerContextValue>({
-            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-          })}
-        >
-          <AudioRecorder />
-        </MessageComposerContextProvider>
-      </WithAudioPlayback>
-    </ChannelActionProvider>,
+    <WithAudioPlayback>
+      <MessageComposerContextProvider
+        value={fromPartial<MessageComposerContextValue>({
+          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+        })}
+      >
+        <AudioRecorder />
+      </MessageComposerContextProvider>
+    </WithAudioPlayback>,
   );
 
 describe('AudioRecorder', () => {

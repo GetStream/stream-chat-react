@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
 import { FileIcon } from '../FileIcon';
@@ -18,6 +18,7 @@ import {
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { PlayButton } from '../Button';
+import { useThreadContext } from '../Threads';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -103,14 +104,13 @@ export const VoiceRecordingPlayer = ({
   playbackRates,
 }: VoiceRecordingPlayerProps) => {
   const { t } = useTranslationContext();
+  const { asset_url, title = t('Voice message') } = attachment;
   const {
-    asset_url,
     duration = 0,
     file_size,
     mime_type,
-    title = t('Voice message'),
     waveform_data,
-  } = attachment;
+  } = (attachment as VoiceRecordingAttachment).custom ?? {};
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
@@ -121,7 +121,8 @@ export const VoiceRecordingPlayer = ({
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  const { message } = useMessageContext() ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration ?? 0,
@@ -130,7 +131,7 @@ export const VoiceRecordingPlayer = ({
     playbackRates,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
     waveformData: waveform_data,
@@ -143,27 +144,26 @@ export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
+  const { duration, file_size, mime_type } =
+    (attachment as VoiceRecordingAttachment).custom ?? {};
   return (
     <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-            {attachment.duration ? (
+            {duration ? (
               <DurationDisplay
-                duration={attachment.duration}
+                duration={duration}
                 isPlaying={false}
                 secondsElapsed={undefined}
               />
             ) : (
-              <FileSizeIndicator
-                fileSize={attachment.file_size}
-                maximumFractionDigits={0}
-              />
+              <FileSizeIndicator fileSize={file_size} maximumFractionDigits={0} />
             )}
           </div>
         </div>
       </div>
-      <FileIcon mimeType={attachment.mime_type} />
+      <FileIcon mimeType={mime_type} />
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import { mockedApiResponse } from './utils';
 
 interface ErrorObject {
+  code?: number;
   duration?: number;
   exception_fields?: Record<string, string>;
   message?: string;

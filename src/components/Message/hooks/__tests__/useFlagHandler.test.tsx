@@ -1,53 +1,52 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel as ChannelType, LocalMessage, StreamChat } from 'stream-chat';
 
 import { missingUseFlagHandlerParameterWarning, useFlagHandler } from '../useFlagHandler';
 
-import { ChatProvider } from '../../../../context/ChatContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
-import {
-  generateChannel,
-  generateMessage,
-  generateUser,
-  getTestClientWithUser,
-  mockChannelStateContext,
-  mockChatContext,
-} from '../../../../mock-builders';
-import type { LocalMessage } from 'stream-chat';
+import { generateMessage, initClientWithChannels } from '../../../../mock-builders';
+import { Channel } from '../../../Channel';
+import { Chat } from '../../../Chat';
 
-const alice = generateUser({ name: 'alice' });
-const flagMessage = vi.fn();
+// MERGE-RECONCILE (test migration): the master merge removed ChannelStateContext.
+// `useFlagHandler` reads the client from ChatContext and flags through `client.flagMessage`.
+// The wrapper now uses the real <Chat>/<Channel> providers and assertions spy on
+// `client.flagMessage` instead of stubbing it on a mocked client.
+
+let channel: ChannelType;
+let client: StreamChat;
+
 const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
 });
 
-async function renderUseHandleFlagHook(
-  message?: LocalMessage,
-  channelStateContextValue?: Record<string, unknown>,
-) {
-  const client = await getTestClientWithUser(alice);
-  client.flagMessage = flagMessage;
-  const channel = generateChannel();
+function renderUseHandleFlagHook(message?: LocalMessage) {
   const wrapper = ({ children }: React.PropsWithChildren) => (
-    <ChatProvider value={mockChatContext({ client })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          channel,
-          ...channelStateContextValue,
-        })}
-      >
-        {children}
-      </ChannelStateProvider>
-    </ChatProvider>
+    <Chat client={client}>
+      <Channel channel={channel}>{children}</Channel>
+    </Chat>
   );
   const { result } = renderHook(() => useFlagHandler(message), {
     wrapper,
   });
   return result.current;
 }
+
 describe('useHandleFlag custom hook', () => {
-  afterEach(vi.clearAllMocks);
+  beforeEach(async () => {
+    const {
+      channels: [ch],
+      client: c,
+    } = await initClientWithChannels();
+    channel = ch;
+    client = c;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should generate function that handles mutes', async () => {
     const handleFlag = await renderUseHandleFlagHook();
     expect(typeof handleFlag).toBe('function');
@@ -61,18 +60,20 @@ describe('useHandleFlag custom hook', () => {
   });
 
   it('should allow to flag a message when it is successful', async () => {
-    const message = generateMessage();
-    flagMessage.mockImplementationOnce(() => Promise.resolve());
+    const message = generateMessage() as unknown as LocalMessage;
+    const flagSpy = vi.spyOn(client, 'flagMessage').mockResolvedValue(fromPartial({}));
     const handleFlag = await renderUseHandleFlagHook(message);
     await handleFlag(mouseEventMock);
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
+    expect(flagSpy).toHaveBeenCalledWith(message.id);
   });
 
   it('should throw when flagging fails', async () => {
-    const message = generateMessage();
-    flagMessage.mockImplementationOnce(() => Promise.reject(new Error('flag failed')));
+    const message = generateMessage() as unknown as LocalMessage;
+    const flagSpy = vi
+      .spyOn(client, 'flagMessage')
+      .mockRejectedValue(new Error('flag failed'));
     const handleFlag = await renderUseHandleFlagHook(message);
     await expect(handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
-    expect(flagMessage).toHaveBeenCalledWith(message.id);
+    expect(flagSpy).toHaveBeenCalledWith(message.id);
   });
 });

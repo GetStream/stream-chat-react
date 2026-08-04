@@ -96,11 +96,19 @@ export const initClientWithChannels = async ({
   const defaultGenerateChannelOptions = {
     members: [generateMember({ user: user as UserResponse })],
   };
-  const channels = await Promise.all(
-    (channelsData ?? [defaultGenerateChannelOptions]).map((channelData) =>
-      initChannelFromData({ channelData, client, defaultGenerateChannelOptions }),
-    ),
-  );
+  // Set up channels sequentially, not via Promise.all: initChannelFromData mocks the shared
+  // client.axiosInstance query endpoint per channel (useMockedApis uses mockResolvedValue, which
+  // REPLACES the previous mock). Running concurrently lets the last channel's mock win, so every
+  // channel's watch() resolves with the same (last) response — cross-seeding each channel's message
+  // paginator with another channel's messages (the paginator then correctly rejects the foreign-cid
+  // messages, unlike the cid-agnostic legacy channel.state). Sequential setup keeps each watch()
+  // paired with its own mocked response.
+  const channels: Awaited<ReturnType<typeof initChannelFromData>>[] = [];
+  for (const channelData of channelsData ?? [defaultGenerateChannelOptions]) {
+    channels.push(
+      await initChannelFromData({ channelData, client, defaultGenerateChannelOptions }),
+    );
+  }
 
   return { channels, client };
 };

@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Attachment, LocalMessage } from 'stream-chat';
+import type { Attachment, LocalMessage, VoiceRecordingAttachment } from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
@@ -226,9 +226,14 @@ export const useLatestMessagePreview = ({
             getAttachmentFallbackText(contentType, attachments.length, t);
 
       // attach duration for audio/video attachments if available
-      if (attachments.length === 1 && typeof firstAttachment.duration === 'number') {
-        const minutes = Math.floor(firstAttachment.duration / 60);
-        const seconds = Math.ceil(firstAttachment.duration) % 60;
+      // `Attachment.custom` is typed as required by the OpenAPI models, but it is not guaranteed
+      // at runtime (og-scraped, giphy and custom-integration attachments arrive without it), and
+      // this cast is applied to attachments of ANY type - so it must be read defensively.
+      const firstAttachmentDuration = (firstAttachment as VoiceRecordingAttachment).custom
+        ?.duration;
+      if (attachments.length === 1 && typeof firstAttachmentDuration === 'number') {
+        const minutes = Math.floor(firstAttachmentDuration / 60);
+        const seconds = Math.ceil(firstAttachmentDuration) % 60;
         const durationString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         text += ` (${durationString})`;
       }

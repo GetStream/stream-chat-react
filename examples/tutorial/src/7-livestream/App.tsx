@@ -7,7 +7,6 @@ import {
   MessageComposer,
   useCreateChatClient,
   VirtualizedMessageList,
-  Window,
 } from 'stream-chat-react';
 
 import './layout.css';
@@ -51,11 +50,9 @@ const App = () => {
   return (
     <Chat client={chatClient} theme='str-chat__theme-dark'>
       <Channel channel={channel}>
-        <Window>
-          <ChannelHeader />
-          <VirtualizedMessageList />
-          <MessageComposer focus />
-        </Window>
+        <ChannelHeader />
+        <VirtualizedMessageList />
+        <MessageComposer focus />
       </Channel>
     </Chat>
   );

@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
-import type { LocalMessage, StreamChat } from 'stream-chat';
+import type { LocalMessage, StreamChat, VoiceRecordingAttachment } from 'stream-chat';
 import {
   type LatestMessagePreviewData,
   useLatestMessagePreview,
@@ -337,9 +337,15 @@ describe('useLatestMessagePreview', () => {
       expect(result.current.text).toBe('fileCount');
     });
 
+    // v10: attachment-specific fields such as `duration` live under `attachment.custom`.
     it('appends duration for single audio/video attachment', () => {
       const message = generateMessage({
-        attachments: [generateVideoAttachment({ duration: 125, title: 'clip.mp4' })],
+        attachments: [
+          generateVideoAttachment({
+            custom: { duration: 125 },
+            title: 'clip.mp4',
+          } as Partial<VoiceRecordingAttachment>),
+        ],
         text: '',
         user: ownUser,
       });
@@ -349,7 +355,11 @@ describe('useLatestMessagePreview', () => {
 
     it('appends duration for voice recording', () => {
       const message = generateMessage({
-        attachments: [generateVoiceRecordingAttachment({ duration: 63.5 })],
+        attachments: [
+          generateVoiceRecordingAttachment({
+            custom: { duration: 63.5 },
+          } as Partial<VoiceRecordingAttachment>),
+        ],
         text: '',
         user: ownUser,
       });
@@ -361,7 +371,12 @@ describe('useLatestMessagePreview', () => {
 
     it('formats zero-second duration correctly', () => {
       const message = generateMessage({
-        attachments: [generateVideoAttachment({ duration: 0, title: 'clip.mp4' })],
+        attachments: [
+          generateVideoAttachment({
+            custom: { duration: 0 },
+            title: 'clip.mp4',
+          } as Partial<VoiceRecordingAttachment>),
+        ],
         text: '',
         user: ownUser,
       });

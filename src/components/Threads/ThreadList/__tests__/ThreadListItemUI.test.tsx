@@ -16,22 +16,25 @@ vi.mock('../../../Accessibility', () => ({
 const mockUseChatContext = vi.fn();
 const mockUseTranslationContext = vi.fn();
 const mockUseStateStore = vi.fn();
-const mockUseThreadsViewContext = vi.fn();
+const mockOpenThread = vi.fn();
+const mockIsThreadActive = vi.fn();
 const mockUseThreadListItemContext = vi.fn();
 const mockUseChannelPreviewInfo = vi.fn();
 
+// Active state and selection now come from the workspace navigation adapter:
+// `isThreadActive(id)` drives the selected state; clicking opens the thread via `openThread`.
 vi.mock('../../../../context', () => ({
   useChatContext: () => mockUseChatContext(),
   useComponentContext: () => ({}),
   useTranslationContext: () => mockUseTranslationContext(),
+  useWorkspaceNavigation: () => ({
+    isThreadActive: mockIsThreadActive,
+    openThread: mockOpenThread,
+  }),
 }));
 
 vi.mock('../../../../store', () => ({
   useStateStore: (...args) => mockUseStateStore(...args),
-}));
-
-vi.mock('../../../ChatView', () => ({
-  useThreadsViewContext: () => mockUseThreadsViewContext(),
 }));
 
 vi.mock('../ThreadListItem', () => ({
@@ -69,7 +72,7 @@ vi.mock('../../../SummarizedMessagePreview', () => ({
 }));
 
 describe('ThreadListItemUI', () => {
-  const thread = { id: 'thread-1', state: {} };
+  const thread = { id: 'thread-1', messagePaginator: { state: {} }, state: {} };
 
   beforeEach(() => {
     mockUseChatContext.mockReturnValue({ client: { userID: 'martin' } });
@@ -105,22 +108,16 @@ describe('ThreadListItemUI', () => {
     vi.clearAllMocks();
   });
 
-  it('uses aria-selected=true when the thread is active', () => {
-    mockUseThreadsViewContext.mockReturnValue({
-      activeThread: thread,
-      setActiveThread: vi.fn(),
-    });
+  it('marks the item selected when the thread is active in the workspace', () => {
+    mockIsThreadActive.mockReturnValue(true);
 
     render(<ThreadListItemUI />);
 
     expect(screen.getByRole('option')).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('uses aria-selected=false when the thread is not active', () => {
-    mockUseThreadsViewContext.mockReturnValue({
-      activeThread: { id: 'thread-2' },
-      setActiveThread: vi.fn(),
-    });
+  it('marks the item not selected when the thread is not active', () => {
+    mockIsThreadActive.mockReturnValue(false);
 
     render(<ThreadListItemUI />);
 
@@ -128,10 +125,7 @@ describe('ThreadListItemUI', () => {
   });
 
   it('composes the row aria-label from the thread parts', () => {
-    mockUseThreadsViewContext.mockReturnValue({
-      activeThread: thread,
-      setActiveThread: vi.fn(),
-    });
+    mockIsThreadActive.mockReturnValue(true);
     mockUseStateStore.mockReturnValue({
       channel: {},
       deletedAt: undefined,
@@ -154,10 +148,7 @@ describe('ThreadListItemUI', () => {
   });
 
   it('lets accessibleLabelConfig override the composed aria-label', () => {
-    mockUseThreadsViewContext.mockReturnValue({
-      activeThread: { id: 'thread-2' },
-      setActiveThread: vi.fn(),
-    });
+    mockIsThreadActive.mockReturnValue(false);
 
     render(
       <ThreadListItemUI accessibleLabelConfig={{ build: () => 'Custom thread label' }} />,
@@ -170,37 +161,30 @@ describe('ThreadListItemUI', () => {
   });
 
   it('opens the thread and announces it on selection', () => {
-    const setActiveThread = vi.fn();
-    mockUseThreadsViewContext.mockReturnValue({
-      activeThread: { id: 'thread-2' },
-      setActiveThread,
-    });
+    mockIsThreadActive.mockReturnValue(false);
 
     render(<ThreadListItemUI />);
     fireEvent.click(screen.getByRole('option'));
 
-    expect(setActiveThread).toHaveBeenCalledWith(thread);
+    expect(mockOpenThread).toHaveBeenCalledWith(thread, { additive: false });
     expect(announceInteraction).toHaveBeenCalledWith('thread.opened', {
       name: 'General',
     });
   });
 
-  it('does not re-open or announce the already-active thread', () => {
-    const setActiveThread = vi.fn();
-    mockUseThreadsViewContext.mockReturnValue({ activeThread: thread, setActiveThread });
+  it('does not re-announce when the already-active thread is re-selected', () => {
+    mockIsThreadActive.mockReturnValue(true);
 
     render(<ThreadListItemUI />);
     fireEvent.click(screen.getByRole('option'));
 
-    expect(setActiveThread).not.toHaveBeenCalled();
+    // Re-selecting still routes through openThread (idempotent), but must not re-announce.
+    expect(mockOpenThread).toHaveBeenCalledWith(thread, { additive: false });
     expect(announceInteraction).not.toHaveBeenCalled();
   });
 
   it('passes axe checks in listbox context', async () => {
-    mockUseThreadsViewContext.mockReturnValue({
-      activeThread: thread,
-      setActiveThread: vi.fn(),
-    });
+    mockIsThreadActive.mockReturnValue(true);
 
     const { container } = render(
       <div aria-label='Thread list' role='listbox'>

@@ -13,8 +13,12 @@ const getComponent = ({ attachment }: any) => (
 
 const file = {
   asset_url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-  file_size: 1337,
-  mime_type: 'application/pdf',
+  // v10: file_size / mime_type are not top-level Attachment fields anymore, they live
+  // under `attachment.custom`.
+  custom: {
+    file_size: 1337,
+    mime_type: 'application/pdf',
+  },
   text: 'My file',
   title: 'Nice file',
   type: 'file',

@@ -1,56 +1,48 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
-import { ErrorFromResponse, SearchController } from 'stream-chat';
 import type {
+  ChannelResponse,
   Channel as ChannelType,
+  Event,
   LocalMessage,
   Message,
   MessageResponse,
-  ReadResponse,
+  QueryChannelAPIResponse,
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { localMessageToNewMessagePayload } from 'stream-chat';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 
 import { Channel } from '../Channel';
 import { Chat } from '../../Chat';
 import { LoadingErrorIndicator } from '../../Loading';
 
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { ChatProvider, useChatContext } from '../../../context/ChatContext';
-import { useComponentContext } from '../../../context/ComponentContext';
+import { ChatProvider } from '../../../context/ChatContext';
+import { useChannel } from '../../../context/useChannel';
+import { useStateStore } from '../../../store';
+
+import type { GenerateChannelOptions } from '../../../mock-builders';
 import {
   dispatchChannelTruncatedEvent,
   dispatchConnectionChangedEvent,
+  erroredPostApi,
   generateChannel,
-  generateFileAttachment,
   generateMember,
   generateMessage,
-  generateScrapedDataAttachment,
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
   initClientWithChannels,
   sendMessageApi,
-  threadRepliesApi,
   useMockedApis,
 } from '../../../mock-builders';
-import { MessageList } from '../../MessageList';
-import { Thread } from '../../Thread';
 import { WithComponents } from '../../../context';
-import type {
-  ChannelActionContextValue,
-  ChannelStateContextValue,
-  ChatContextValue,
-  ComponentContextValue,
-} from '../../../context';
-import { DEFAULT_THREAD_PAGE_SIZE } from '../../../constants/limits';
+import type { ChatContextValue, ComponentContextValue } from '../../../context';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 import type { ChannelProps } from '../Channel';
-import type { ChannelUnreadUiState } from '../../../types/types';
 
 vi.mock('../../Loading', () => ({
   LoadingChannel: vi.fn(() => <div>Loading channel</div>),
@@ -58,73 +50,23 @@ vi.mock('../../Loading', () => ({
   LoadingIndicator: vi.fn(() => <div>loading</div>),
 }));
 
-vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../ChatView')>();
-
-  return {
-    ...actual,
-    useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    })),
-    useThreadsViewContext: vi.fn(() => ({
-      activeThread: undefined,
-      setActiveThread: vi.fn(),
-    })),
-  };
-});
-
-import { useChatViewContext, useThreadsViewContext } from '../../ChatView';
-
-const queryChannelWithNewMessages = (newMessages, channel) =>
-  // generate new channel mock from existing channel with new messages added
-  getOrCreateChannelApi(
-    generateChannel({
-      channel: {
-        config: channel.getConfig(),
-        id: channel.id,
-        type: channel.type,
-      },
-      messages: newMessages,
-    }),
-  );
-
-const MockAvatar = ({ userName }: any) => (
-  <div className='avatar' data-testid='custom-avatar'>
-    {userName}
-  </div>
-);
-
-// This component is used for performing effects in a component that consumes the contexts from Channel,
-// i.e. making use of the callbacks & values provided by the Channel component.
-// the effect is called every time channelContext changes
-const CallbackEffectWithChannelContexts = ({ callback }) => {
-  const channelStateContext = useChannelStateContext();
-  const channelActionContext = useChannelActionContext();
-  const componentContext = useComponentContext();
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const channelContext = {
-    ...channelStateContext,
-    ...channelActionContext,
-    ...componentContext,
-  };
-
+// Runs `callback` in an effect once the Channel subtree has mounted — used by tests that need to
+// dispatch events or trigger channel actions after the channel is ready. It intentionally exposes
+// no context: tests read state/actions straight off the stream-chat `channel` instance
+// (channel.state, channel.messagePaginator, channel.*WithLocalUpdate).
+const OnChannelReady = ({ callback }: { callback: () => void }) => {
   useEffect(() => {
-    callback(channelContext);
-  }, [callback, channelContext]);
+    callback();
+  }, [callback]);
 
   return null;
 };
 
-// In order for ChannelInner to be rendered, we need to set the active channel first.
-const ActiveChannelSetter = ({ activeChannel }: { activeChannel?: ChannelType }) => {
-  const { setActiveChannel } = useChatContext();
-  useEffect(() => {
-    setActiveChannel(activeChannel);
-  }, [activeChannel]); // eslint-disable-line
-  return null;
-};
+// The mock-builder generators produce LocalMessage objects, while the stream-chat write APIs and
+// mocked API responses are typed against Message / MessageResponse. The shapes are runtime-identical
+// for these tests, so bridge them explicitly rather than weakening assertions.
+const toMessage = (m: LocalMessage) => m as unknown as Message;
+const toMessageResponse = (m: LocalMessage) => m as unknown as MessageResponse;
 
 const renderComponent = async (
   props: {
@@ -133,12 +75,9 @@ const renderComponent = async (
     children?: React.ReactNode;
     components?: Partial<ComponentContextValue>;
   } & Partial<ChannelProps> = {},
-  callback: (
-    ctx: ChannelStateContextValue & ChannelActionContextValue & ComponentContextValue,
-  ) => void = () => {},
+  callback: () => void = () => {},
 ) => {
   const {
-    channel: channelFromProps,
     chatClient: chatClientFromProps,
     children,
     components,
@@ -147,18 +86,17 @@ const renderComponent = async (
   let result: RenderResult | undefined;
   await act(() => {
     result = render(
-      <WithComponents overrides={components}>
-        <Chat client={chatClientFromProps}>
-          <ActiveChannelSetter activeChannel={channelFromProps} />
+      <WithComponents overrides={components ?? {}}>
+        <Chat client={chatClientFromProps as StreamChat}>
           <Channel {...channelProps}>
             {children}
-            <CallbackEffectWithChannelContexts callback={callback} />
+            <OnChannelReady callback={callback} />
           </Channel>
         </Chat>
       </WithComponents>,
     );
   });
-  return result;
+  return result as RenderResult;
 };
 
 const initClient = async ({
@@ -170,8 +108,8 @@ const initClient = async ({
 }: {
   channelId?: string;
   channelType?: string;
-  messages?: (MessageResponse | LocalMessage)[];
-  pinnedMessages?: (MessageResponse | LocalMessage)[];
+  messages?: LocalMessage[];
+  pinnedMessages?: LocalMessage[];
   user: UserResponse;
 }) => {
   const members = [generateMember({ user })];
@@ -181,8 +119,9 @@ const initClient = async ({
       type: channelType,
     },
     members,
-    messages,
-    pinned_messages: fromPartial(pinnedMessages ?? []),
+    messages: messages as unknown as GenerateChannelOptions['messages'],
+    pinned_messages: (pinnedMessages ??
+      []) as unknown as GenerateChannelOptions['pinned_messages'],
   });
   const chatClient = await getTestClientWithUser(user);
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -194,7 +133,11 @@ const initClient = async ({
 };
 
 const MockMessageList = () => {
-  const { messages: channelMessages } = useChannelStateContext();
+  const channel = useChannel();
+  const { items } = useStateStore(channel.messagePaginator.state, (state) => ({
+    items: state.items,
+  }));
+  const channelMessages = items ?? [];
 
   return channelMessages.map(
     ({ id, status, text }) =>
@@ -202,62 +145,47 @@ const MockMessageList = () => {
   );
 };
 
-const getMessageIds = (renderedMessages: { id: string }[] = []) =>
-  renderedMessages.map(({ id }) => id);
-
 describe('Channel', () => {
-  const user = generateUser(
-    fromPartial<UserResponse>({ custom: 'custom-value', id: 'id', name: 'name' }),
-  );
+  const user = generateUser(fromPartial<UserResponse>({ id: 'id', name: 'name' }));
   const channelType = 'messaging';
-  let channelId: string;
-  let channel: ChannelType;
-  let chatClient: StreamChat;
-  let messages: LocalMessage[];
 
-  beforeEach(async () => {
-    // Re-establish ChatView mock implementations (may be cleared by vi.resetAllMocks in nested describe blocks)
-    useChatViewContext['mockImplementation'](() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    }));
-    useThreadsViewContext['mockImplementation'](() => ({
-      activeThread: undefined,
-      setActiveThread: vi.fn(),
-    }));
-
-    channelId = nanoid();
-
-    // create a full message state so that we can properly test `loadMore`
-    messages = Array.from({ length: 25 }, (_, i) =>
-      generateMessage({
-        cid: `${channelType}:${channelId}`,
-        created_at: new Date((i + 1) * 1000000),
-        user,
-      }),
-    );
-
-    const pinnedMessages = [
-      generateMessage({
-        cid: `${channelType}:${channelId}`,
-        pinned: true,
-        user,
-      }),
+  // Instantiate a fresh client + channel per test. Callers may override the seeded messages /
+  // pinned messages; otherwise a full 25-message state is created so `loadMore` can be exercised.
+  const setup = async ({
+    messages: messagesOverride,
+    pinnedMessages: pinnedMessagesOverride,
+  }: { messages?: LocalMessage[]; pinnedMessages?: LocalMessage[] } = {}) => {
+    const channelId = nanoid();
+    const messages =
+      messagesOverride ??
+      Array.from({ length: 25 }, (_, i) =>
+        generateMessage({
+          cid: `${channelType}:${channelId}`,
+          created_at: new Date((i + 1) * 1000000),
+          user,
+        }),
+      );
+    const pinnedMessages = pinnedMessagesOverride ?? [
+      generateMessage({ cid: `${channelType}:${channelId}`, pinned: true, user }),
     ];
 
-    ({ channel, chatClient } = await initClient({
+    const { channel, chatClient } = await initClient({
       channelId,
       channelType,
       messages,
       pinnedMessages,
       user,
-    }));
+    });
     vi.spyOn(channel, 'getDraft').mockResolvedValue(
       fromPartial({
-        draft: generateMessageDraft({ channel, channel_cid: channel.cid }),
+        draft: generateMessageDraft({
+          channel: channel as unknown as ChannelResponse,
+          channel_cid: channel.cid,
+        }),
       }),
     );
-  });
+    return { channel, channelId, chatClient, messages };
+  };
 
   afterEach(() => {
     vi.clearAllMocks();
@@ -270,16 +198,7 @@ describe('Channel', () => {
     vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     render(
       <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
-        <ChatProvider
-          value={fromPartial<ChatContextValue>({
-            channelsQueryState: {
-              error: null,
-              queryInProgress: null,
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          })}
-        >
+        <ChatProvider value={fromPartial<ChatContextValue>({})}>
           <Channel EmptyPlaceholder={<div>empty</div>} />
         </ChatProvider>
       </WithComponents>,
@@ -289,222 +208,54 @@ describe('Channel', () => {
     expect(screen.queryByText('default empty state')).not.toBeInTheDocument();
   });
 
-  it('should render the message empty state if the channel is not provided by the ChatContext', async () => {
-    const DefaultEmptyStateIndicator = ({ listType }) => (
-      <div>{`${listType} empty state`}</div>
-    );
-
-    // get rid of console warnings as they are expected - Channel reaches to ChatContext
-    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    render(
-      <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
-        <ChatProvider
-          value={fromPartial<ChatContextValue>({
-            channelsQueryState: {
-              error: null,
-              queryInProgress: null,
-              setError: vi.fn(),
-              setQueryInProgress: vi.fn(),
-            },
-          })}
-        >
-          <Channel />
-        </ChatProvider>
-      </WithComponents>,
-    );
-
-    await waitFor(() =>
-      expect(screen.getByText('message empty state')).toBeInTheDocument(),
-    );
-  });
-
-  it('should render channel content if channels query loads more channels', async () => {
-    const childrenContent = 'Channel children';
-    await channel.watch();
-    render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: null,
-            queryInProgress: 'load-more',
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-          client: chatClient,
-          searchController: new SearchController(),
-        })}
-      >
-        <Channel channel={channel}>{childrenContent}</Channel>
-      </ChatProvider>,
-    );
-    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
-  });
-
-  it('should render default loading indicator if channels query is in progress', async () => {
+  it('should render empty channel container if no channel is provided and EmptyPlaceholder is null', async () => {
     const childrenContent = 'Channel children';
     const { asFragment } = render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: null,
-            queryInProgress: 'reload',
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-        })}
-      >
-        <Channel>{childrenContent}</Channel>
-      </ChatProvider>,
-    );
-    await waitFor(() => expect(asFragment()).toMatchSnapshot());
-  });
-
-  it('should render empty channel container if channel does not have cid and EmptyPlaceholder is null', async () => {
-    const childrenContent = 'Channel children';
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { cid, ...channelWithoutCID } = channel;
-    const { asFragment } = render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channel: channelWithoutCID,
-          channelsQueryState: {
-            error: null,
-            queryInProgress: null,
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-        })}
-      >
+      <ChatProvider value={fromPartial<ChatContextValue>({})}>
         <Channel EmptyPlaceholder={null}>{childrenContent}</Channel>
       </ChatProvider>,
     );
     await waitFor(() => expect(asFragment()).toMatchSnapshot());
   });
 
-  it('should render empty channel container if channels query failed and no channel is available', async () => {
-    const childrenContent = 'Channel children';
-    const { asFragment } = render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: new Error(),
-            queryInProgress: null,
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-        })}
-      >
-        <Channel>{childrenContent}</Channel>
-      </ChatProvider>,
-    );
-    await waitFor(() => expect(asFragment()).toMatchSnapshot());
-  });
+  it('should render the provided loading indicator while the channel is being watched', async () => {
+    const { channel, chatClient } = await setup();
+    const loadingText = 'Loading channel';
+    // Keep the channel in the bootstrapping (loading) state indefinitely.
+    const watchPromise = new Promise<never>(() => {});
+    vi.spyOn(channel, 'watch').mockImplementation(() => watchPromise);
 
-  it('should render channel content if channels query failed but channel is available', async () => {
-    const childrenContent = 'Channel children';
-    await channel.watch();
-    render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: new Error('pagination failed'),
-            queryInProgress: null,
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-          client: chatClient,
-          searchController: new SearchController(),
-        })}
-      >
-        <Channel channel={channel}>{childrenContent}</Channel>
-      </ChatProvider>,
-    );
-    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
-  });
+    await renderComponent({
+      channel,
+      chatClient,
+      components: {
+        LoadingIndicator: () => <div>{loadingText}</div>,
+      },
+    });
 
-  it('should render channel content if channels query failed and channel is available even if LoadingErrorIndicator is provided', async () => {
-    const errMsg = 'Channels query failed';
-    const childrenContent = 'Channel children';
-    await channel.watch();
-    render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: new Error(errMsg),
-            queryInProgress: null,
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-          client: chatClient,
-          searchController: new SearchController(),
-        })}
-      >
-        <WithComponents
-          overrides={{
-            LoadingErrorIndicator: ({ error }) => <div>{error.message}</div>,
-          }}
-        >
-          <Channel channel={channel}>{childrenContent}</Channel>
-        </WithComponents>
-      </ChatProvider>,
-    );
-    await waitFor(() => expect(screen.getByText(childrenContent)).toBeInTheDocument());
-    expect(screen.queryByText(errMsg)).not.toBeInTheDocument();
-  });
-
-  it('should render provided loading indicator if channels query is in progress', async () => {
-    const childrenContent = 'Channel children';
-    const loadingText = 'Loading channels';
-    render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: null,
-            queryInProgress: 'reload',
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-        })}
-      >
-        <WithComponents
-          overrides={{
-            LoadingIndicator: () => <div>{loadingText}</div>,
-          }}
-        >
-          <Channel>{childrenContent}</Channel>
-        </WithComponents>
-      </ChatProvider>,
-    );
     await waitFor(() => expect(screen.getByText(loadingText)).toBeInTheDocument());
   });
 
-  it('should render provided error indicator if channels query failed', async () => {
-    const childrenContent = 'Channel children';
-    const errMsg = 'Channels query failed';
-    render(
-      <ChatProvider
-        value={fromPartial<ChatContextValue>({
-          channelsQueryState: {
-            error: new Error(errMsg),
-            queryInProgress: null,
-            setError: vi.fn(),
-            setQueryInProgress: vi.fn(),
-          },
-        })}
-      >
-        <WithComponents
-          overrides={{
-            LoadingErrorIndicator: ({ error }) => <div>{error.message}</div>,
-          }}
-        >
-          <Channel>{childrenContent}</Channel>
-        </WithComponents>
-      </ChatProvider>,
+  it('should render the provided error indicator if watching the channel fails', async () => {
+    const { channel, chatClient } = await setup();
+    const errMsg = 'Channel query failed';
+    vi.spyOn(channel, 'watch').mockImplementation(() =>
+      Promise.reject(new Error(errMsg)),
     );
+
+    await renderComponent({
+      channel,
+      chatClient,
+      components: {
+        LoadingErrorIndicator: ({ error }) => <div>{error?.message}</div>,
+      },
+    });
+
     await waitFor(() => expect(screen.getByText(errMsg)).toBeInTheDocument());
   });
 
   it('should watch the current channel on mount', async () => {
+    const { channel, chatClient } = await setup();
     const watchSpy = vi.spyOn(channel, 'watch');
 
     await renderComponent({
@@ -520,6 +271,7 @@ describe('Channel', () => {
   });
 
   it('should apply channelQueryOptions to channel watch call', async () => {
+    const { channel, chatClient } = await setup();
     const watchSpy = vi.spyOn(channel, 'watch');
     const channelQueryOptions = {
       messages: { limit: 20 },
@@ -532,106 +284,8 @@ describe('Channel', () => {
     });
   });
 
-  it('should set hasMore state to false if the initial channel query returns less messages than the default initial page size', async () => {
-    useMockedApis(chatClient, [
-      queryChannelWithNewMessages([generateMessage()], channel),
-    ]);
-    let hasMore: boolean;
-    await renderComponent({ channel, chatClient }, ({ hasMore: contextHasMore }) => {
-      hasMore = contextHasMore;
-    });
-
-    await waitFor(() => {
-      expect(hasMore).toBe(false);
-    });
-  });
-
-  // this will only happen if we:
-  // load with channel A
-  // switch to channel B and paginate (loadMore - older)
-  // switch back to channel A (reset hasMore)
-  // switch back to channel B - messages are already cached and there's more than page size amount
-  it('should set hasMore state to true if the initial channel query returns more messages than the default initial page size', async () => {
-    useMockedApis(chatClient, [
-      queryChannelWithNewMessages(Array.from({ length: 26 }, generateMessage), channel),
-    ]);
-    let hasMore: boolean;
-    await act(() => {
-      renderComponent(
-        { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-        ({ hasMore: contextHasMore }) => {
-          hasMore = contextHasMore;
-        },
-      );
-    });
-
-    await waitFor(() => {
-      expect(hasMore).toBe(true);
-    });
-  });
-
-  it('should set hasMore state to true if the initial channel query returns count of messages equal to the default initial page size', async () => {
-    useMockedApis(chatClient, [
-      queryChannelWithNewMessages(Array.from({ length: 25 }, generateMessage), channel),
-    ]);
-    let hasMore: boolean;
-    await renderComponent(
-      { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-      ({ hasMore: contextHasMore }) => {
-        hasMore = contextHasMore;
-      },
-    );
-
-    await waitFor(() => {
-      expect(hasMore).toBe(true);
-    });
-  });
-
-  it('should set hasMore state to false if the initial channel query returns less messages than the custom query channels options message limit', async () => {
-    useMockedApis(chatClient, [
-      queryChannelWithNewMessages([generateMessage()], channel),
-    ]);
-    let hasMore: boolean;
-    const channelQueryOptions = {
-      messages: { limit: 10 },
-    };
-    await renderComponent(
-      { channel, channelQueryOptions, chatClient },
-      ({ hasMore: contextHasMore }) => {
-        hasMore = contextHasMore;
-      },
-    );
-
-    await waitFor(() => {
-      expect(hasMore).toBe(false);
-    });
-  });
-
-  it('should set hasMore state to true if the initial channel query returns count of messages equal custom query channels options message limit', async () => {
-    const equalCount = 10;
-    useMockedApis(chatClient, [
-      queryChannelWithNewMessages(
-        Array.from({ length: equalCount }, generateMessage),
-        channel,
-      ),
-    ]);
-    let hasMore: boolean;
-    const channelQueryOptions = {
-      messages: { limit: equalCount },
-    };
-    await renderComponent(
-      { channel, channelQueryOptions, chatClient },
-      ({ hasMore: contextHasMore }) => {
-        hasMore = contextHasMore;
-      },
-    );
-
-    await waitFor(() => {
-      expect(hasMore).toBe(true);
-    });
-  });
-
   it('should not call watch the current channel on mount if channel is initialized', async () => {
+    const { channel, chatClient } = await setup();
     const watchSpy = vi.spyOn(channel, 'watch');
     channel.initialized = true;
     await renderComponent({ channel, chatClient });
@@ -639,10 +293,15 @@ describe('Channel', () => {
   });
 
   it('should set an error if watching the channel goes wrong, and render a LoadingErrorIndicator', async () => {
+    const { channel, chatClient } = await setup();
     const watchError = new Error('watching went wrong');
-    vi.spyOn(channel, 'watch').mockImplementationOnce(() => Promise.reject(watchError));
+    vi.spyOn(channel, 'watch').mockImplementation(() => Promise.reject(watchError));
 
-    await renderComponent({ channel, chatClient });
+    await renderComponent({
+      channel,
+      chatClient,
+      components: { LoadingErrorIndicator },
+    });
 
     await waitFor(() =>
       expect(LoadingErrorIndicator).toHaveBeenCalledWith(
@@ -655,7 +314,8 @@ describe('Channel', () => {
   });
 
   it('should render a LoadingIndicator if it is loading', async () => {
-    const watchPromise = new Promise(() => {});
+    const { channel, chatClient } = await setup();
+    const watchPromise = new Promise<never>(() => {});
     vi.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
     const result = await renderComponent({ channel, chatClient });
 
@@ -667,6 +327,7 @@ describe('Channel', () => {
   });
 
   it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
+    const { channel, chatClient } = await setup();
     const { findByText } = await renderComponent({
       channel,
       chatClient,
@@ -676,47 +337,9 @@ describe('Channel', () => {
     expect(await findByText('children')).toBeInTheDocument();
   });
 
-  it('should preserve shouldGenerateVideoThumbnail when set to false', async () => {
-    let contextShouldGenerateVideoThumbnail: boolean | undefined;
-
-    await renderComponent(
-      {
-        channel,
-        chatClient,
-        shouldGenerateVideoThumbnail: false,
-      },
-      ({ shouldGenerateVideoThumbnail }) => {
-        contextShouldGenerateVideoThumbnail = shouldGenerateVideoThumbnail;
-      },
-    );
-
-    await waitFor(() => {
-      expect(contextShouldGenerateVideoThumbnail).toBe(false);
-    });
-  });
-
-  it('should store pinned messages as an array in the channel context', async () => {
-    let ctxPins: LocalMessage[] | undefined;
-
-    const { getByText } = await renderComponent(
-      {
-        channel,
-        chatClient,
-        children: <div>children</div>,
-      },
-      (ctx) => {
-        ctxPins = ctx.pinnedMessages;
-      },
-    );
-
-    await waitFor(() => {
-      expect(getByText('children')).toBeInTheDocument();
-      expect(Array.isArray(ctxPins)).toBe(true);
-    });
-  });
-
   // should these 'on' tests actually test if the handler works?
   it('should add a connection recovery handler on the client on mount', async () => {
+    const { channel, chatClient } = await setup();
     const clientOnSpy = vi.spyOn(chatClient, 'on');
 
     await renderComponent({ channel, chatClient });
@@ -730,46 +353,35 @@ describe('Channel', () => {
   });
 
   it('should add an `on` handler to the channel on mount', async () => {
+    const { channel, chatClient } = await setup();
     const channelOnSpy = vi.spyOn(channel, 'on');
     await renderComponent({ channel, chatClient });
 
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
   });
 
-  it('should mark the channel as read when the channel is mounted', async () => {
-    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
+  it('should not mark the channel as read on mount (owned by useMarkRead when caught up at the bottom)', async () => {
+    const { channel, chatClient } = await setup();
+    vi.spyOn(channel, 'countUnread').mockImplementation(() => 1);
+    const channelOnSpy = vi.spyOn(channel, 'on');
     const markReadSpy = vi.spyOn(channel, 'markRead');
 
+    // <Channel> renders no message list here, so nothing marks read on open; marking read is
+    // triggered by useMarkRead (see useMarkRead tests), not by Channel mounting.
     await renderComponent({ channel, chatClient });
-
-    await waitFor(() => expect(markReadSpy).toHaveBeenCalledWith());
-  });
-
-  it('should not mark the channel as read if the count of unread messages is higher than 0 on mount and the feature is disabled', async () => {
-    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
-    const markReadSpy = vi.spyOn(channel, 'markRead');
-
-    await renderComponent({ channel, chatClient, markReadOnMount: false });
-
-    await waitFor(() => expect(markReadSpy).not.toHaveBeenCalledWith());
-  });
-
-  it('should use the doMarkReadRequest prop to mark channel as read, if that is defined', async () => {
-    vi.spyOn(channel, 'countUnread').mockImplementationOnce(() => 1);
-    const doMarkReadRequest = vi.fn();
-
-    await renderComponent({
-      channel,
-      chatClient,
-      doMarkReadRequest,
-      markReadOnMount: true,
-    });
-
-    await waitFor(() => expect(doMarkReadRequest).toHaveBeenCalledTimes(1));
+    // Wait for the mount/bootstrap effect to finish (it registers the channel event handler)...
+    await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
+    // ...then confirm it did not mark read.
+    expect(markReadSpy).not.toHaveBeenCalled();
   });
 
   it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
-    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}));
+    const { channel, chatClient } = await setup();
+    const watchSpy = vi
+      .spyOn(channel, 'watch')
+      .mockImplementationOnce(() =>
+        Promise.resolve(fromPartial<QueryChannelAPIResponse>({})),
+      );
     await renderComponent({
       channel,
       chatClient,
@@ -779,17 +391,16 @@ describe('Channel', () => {
   });
 
   it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
-    const watchSpy = vi.spyOn(channel, 'watch').mockImplementationOnce(() => ({}));
+    const { channel, chatClient } = await setup();
+    const watchSpy = vi.spyOn(channel, 'watch');
     await renderComponent({ channel, chatClient });
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
 
   describe('disconnected client (#2393)', () => {
     it('does not crash rendering when the client disconnects while the channel is mounted', async () => {
-      let ctx: ChannelStateContextValue | undefined;
-      await renderComponent({ channel, chatClient }, (c) => {
-        ctx = c;
-      });
+      const { channel, chatClient } = await setup();
+      const { container } = await renderComponent({ channel, chatClient });
 
       // the channel is initialized; the shared client then disconnects
       channel.disconnected = true;
@@ -801,1321 +412,119 @@ describe('Channel', () => {
         await Promise.resolve();
       });
 
-      expect(ctx).toBeDefined();
-      expect(ctx?.error).toBeNull();
+      // the tree re-rendered without throwing and the channel's paginator state stays
+      // readable while offline
+      expect(container.querySelector('.str-chat__channel')).toBeInTheDocument();
+      expect(() => channel.messagePaginator.state.getLatestValue()).not.toThrow();
     });
 
     it('does not paginate (query) when the client is disconnected', async () => {
-      let loadMore: ChannelActionContextValue['loadMore'] | undefined;
-      await renderComponent(
-        { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-        (c) => {
-          loadMore = c.loadMore;
-        },
-      );
+      const { channel, chatClient } = await setup();
+      await renderComponent({
+        channel,
+        channelQueryOptions: { messages: { limit: 25 } },
+        chatClient,
+      });
 
       const querySpy = vi.spyOn(channel, 'query');
+      const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');
       channel.disconnected = true;
 
       await act(async () => {
-        await loadMore?.();
+        dispatchConnectionChangedEvent(chatClient, false);
+        await Promise.resolve();
       });
 
+      // while the client is offline the mounted Channel must not issue a
+      // pagination query/prev against the disconnected channel
+      expect(prevSpy).not.toHaveBeenCalled();
       expect(querySpy).not.toHaveBeenCalled();
     });
   });
 
   describe('Children that consume the contexts set in Channel', () => {
-    it('should be able to open threads', async () => {
-      const threadMessage = messages[0];
-      const hasThread = vi.fn();
-      const hasThreadInstance = vi.fn();
-      const mockThreadInstance = {
-        registerSubscriptions: vi.fn(),
-        threadInstanceMock: true,
-      };
-      const getThreadSpy = vi
-        .spyOn(chatClient, 'getThread')
-        .mockResolvedValueOnce(fromPartial(mockThreadInstance));
-
-      // this renders Channel, calls openThread from a child context consumer with a message,
-      // and then calls hasThread with the thread id if it was set.
-      await renderComponent(
-        { channel, chatClient },
-        ({ openThread, thread, threadInstance }: any) => {
-          if (!thread) {
-            openThread(
-              threadMessage,
-              fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
-            );
-          } else {
-            hasThread(thread.id);
-            hasThreadInstance(threadInstance);
-          }
-        },
-      );
-
-      await waitFor(() => {
-        expect(hasThread).toHaveBeenCalledWith(threadMessage.id);
-        expect(getThreadSpy).not.toHaveBeenCalled();
-        expect(hasThreadInstance).toHaveBeenCalledWith(undefined);
-      });
-      getThreadSpy.mockRestore();
-    });
-
-    it('should be able to load more messages in a thread until reaching the end', async () => {
-      const getRepliesSpy = vi.spyOn(channel, 'getReplies');
-      const threadMessage = messages[0];
-      const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
-      const replies = Array.from({ length: DEFAULT_THREAD_PAGE_SIZE }, (_, index) =>
-        generateMessage({
-          created_at: new Date(timestamp + index * 1000),
-          parent_id: threadMessage.id,
-        }),
-      );
-
-      useMockedApis(chatClient, [threadRepliesApi(replies)]);
-
-      const hasThreadMessages = vi.fn();
-
-      let callback = ({ loadMoreThread, openThread, thread, threadMessages }) => {
-        if (!thread) {
-          // first, open a thread
-          openThread(threadMessage, { preventDefault: () => null });
-        } else if (!threadMessages.length) {
-          // then, load more messages in the thread
-          loadMoreThread();
-        } else {
-          // then, call our mock fn so we can verify what was passed as threadMessages
-          hasThreadMessages(threadMessages);
-        }
-      };
-      const { rerender } = await render(
-        <Chat client={chatClient}>
-          <Channel channel={channel}>
-            <CallbackEffectWithChannelContexts callback={callback} />
-          </Channel>
-        </Chat>,
-      );
-
-      await waitFor(() => {
-        expect(getRepliesSpy).toHaveBeenCalledTimes(1);
-        expect(getRepliesSpy).toHaveBeenCalledWith(threadMessage.id, expect.any(Object));
-        expect(hasThreadMessages).toHaveBeenCalledWith(replies);
-      });
-
-      useMockedApis(chatClient, [threadRepliesApi([])]);
-      callback = ({ loadMoreThread }) => {
-        loadMoreThread();
-      };
-      await act(() => {
-        rerender(
-          <Chat client={chatClient}>
-            <Channel channel={channel}>
-              <CallbackEffectWithChannelContexts callback={callback} />
-            </Channel>
-          </Chat>,
-        );
-      });
-      expect(getRepliesSpy).toHaveBeenCalledTimes(2);
-      await act(() => {
-        rerender(
-          <Chat client={chatClient}>
-            <Channel channel={channel}>
-              <CallbackEffectWithChannelContexts callback={callback} />
-            </Channel>
-          </Chat>,
-        );
-      });
-      expect(getRepliesSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('should allow closing a thread after it has been opened', async () => {
-      let threadHasClosed = false;
-      const threadMessage = messages[0];
-
-      let threadHasAlreadyBeenOpened = false;
-      await renderComponent(
-        { channel, chatClient },
-        ({ closeThread, openThread, thread }) => {
-          if (!thread) {
-            // if there is no open thread
-            if (!threadHasAlreadyBeenOpened) {
-              // and we haven't opened one before, open a thread
-              openThread(
-                threadMessage,
-                fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
-              );
-              threadHasAlreadyBeenOpened = true;
-            } else {
-              // if we opened it ourselves before, it means the thread was successfully closed
-              threadHasClosed = true;
-            }
-          } else {
-            // if a thread is open, close it.
-            closeThread(
-              fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
-            );
-          }
-        },
-      );
-
-      await waitFor(() => expect(threadHasClosed).toBe(true));
-    });
-
-    it('should call the onMentionsHover/onMentionsClick prop if a child component calls onMentionsHover with the right event', async () => {
-      const onMentionsHoverMock = vi.fn();
-      const onMentionsClickMock = vi.fn();
-      const username = 'Mentioned User';
-      const mentionedUserMock = fromPartial<UserResponse>({
-        name: username,
-      });
-
-      const MentionedUserComponent = () => {
-        const { onMentionsHover } = useChannelActionContext();
-        return (
-          <span
-            onClick={(e) => onMentionsHover(e, [mentionedUserMock])}
-            onMouseOver={(e) => onMentionsHover(e, [mentionedUserMock])}
-          >
-            <strong>@{username}</strong> this is a message
-          </span>
-        );
-      };
-
-      const { findByText } = await renderComponent({
-        channel,
-        chatClient,
-        children: <MentionedUserComponent />,
-        onMentionsClick: onMentionsClickMock,
-        onMentionsHover: onMentionsHoverMock,
-      });
-
-      const usernameText = await findByText(`@${username}`);
-
-      act(() => {
-        fireEvent.mouseOver(usernameText);
-        fireEvent.click(usernameText);
-      });
-
-      await waitFor(() =>
-        expect(onMentionsHoverMock).toHaveBeenCalledWith(
-          expect.any(Object), // event
-          mentionedUserMock,
-        ),
-      );
-      await waitFor(() =>
-        expect(onMentionsClickMock).toHaveBeenCalledWith(
-          expect.any(Object), // event
-          mentionedUserMock,
-        ),
-      );
-    });
-
-    describe('loading more messages', () => {
-      const limit = 10;
-      it("should initiate the hasMore flag with the current message set's pagination hasPrev value", async () => {
-        let hasMore: boolean;
-        await renderComponent(
-          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-          ({ hasMore: hasMoreCtx }) => {
-            hasMore = hasMoreCtx;
-          },
-        );
-        expect(hasMore).toBe(true);
-
-        channel.state.messageSets[0].pagination.hasPrev = false;
-        await renderComponent(
-          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-          ({ hasMore: hasMoreCtx }) => {
-            hasMore = hasMoreCtx;
-          },
-        );
-        expect(hasMore).toBe(false);
-      });
-      it('should be able to load more messages', async () => {
-        const channelQuerySpy = vi.spyOn(channel, 'query');
-        let newMessageAdded = false;
-
-        const newMessages = [generateMessage()];
-
-        await renderComponent(
-          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-          ({ loadMore, messages: contextMessages }) => {
-            if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
-              // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(chatClient, [
-                queryChannelWithNewMessages(newMessages, channel),
-              ]);
-              loadMore(limit);
-            } else {
-              // If message has been added, update checker so we can verify it happened.
-              newMessageAdded = true;
-            }
-          },
-        );
-
-        await waitFor(() =>
-          expect(channelQuerySpy).toHaveBeenCalledWith({
-            messages: {
-              id_lt: messages[0].id,
-              limit,
-            },
-            watchers: {
-              limit,
-            },
-          }),
-        );
-
-        await waitFor(() => expect(newMessageAdded).toBe(true));
-      });
-
-      it('should set hasMore to false if querying channel returns less messages than the limit', async () => {
-        let channelHasMore = false;
-        const newMessages = [generateMessage({ created_at: new Date(1000) })];
-        await renderComponent(
-          { channel, chatClient },
-          ({ hasMore, loadMore, messages: contextMessages }) => {
-            if (!contextMessages.find((message) => message.id === newMessages[0].id)) {
-              // Our new message is not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(chatClient, [
-                queryChannelWithNewMessages(newMessages, channel),
-              ]);
-              loadMore(limit);
-            } else {
-              // If message has been added, set our checker variable, so we can verify if hasMore is false.
-              channelHasMore = hasMore;
-            }
-          },
-        );
-
-        await waitFor(() => expect(channelHasMore).toBe(false));
-      });
-
-      it('should set hasMore to true if querying channel returns an amount of messages that equals the limit', async () => {
-        let channelHasMore = false;
-        const newMessages = Array(limit)
-          .fill(null)
-          .map(() => generateMessage());
-        await renderComponent(
-          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-          ({ hasMore, loadMore, messages: contextMessages }) => {
-            if (!contextMessages.some((message) => message.id === newMessages[0].id)) {
-              // Our new messages are not yet passed as part of channel context. Call loadMore and mock API response to include it.
-              useMockedApis(chatClient, [
-                queryChannelWithNewMessages(newMessages, channel),
-              ]);
-              loadMore(limit);
-            } else {
-              // If message has been added, set our checker variable so we can verify if hasMore is true.
-              channelHasMore = hasMore;
-            }
-          },
-        );
-
-        await waitFor(() => expect(channelHasMore).toBe(true));
-      });
-
-      it('should set loadingMore to true while loading more', async () => {
-        const queryPromise = new Promise(() => {});
-        let isLoadingMore = false;
-
-        await renderComponent(
-          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-          ({ loadingMore, loadMore }) => {
-            // return a promise that hasn't resolved yet, so loadMore will be stuck in the 'await' part of the function
-            vi.spyOn(channel, 'query').mockImplementationOnce(() => queryPromise);
-            loadMore();
-            isLoadingMore = loadingMore;
-          },
-        );
-        await waitFor(() => expect(isLoadingMore).toBe(true));
-      });
-
-      it('should not load the second page, if the previous query has returned less then default limit messages', async () => {
-        const firstPageOfMessages = [generateMessage()];
-        useMockedApis(chatClient, [
-          queryChannelWithNewMessages(firstPageOfMessages, channel),
-        ]);
-        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
-        let contextMessageCount: number;
-        await renderComponent(
-          { channel, chatClient },
-          ({ loadMore, messages: contextMessages }) => {
-            queryNextPageSpy = vi.spyOn(channel, 'query');
-            contextMessageCount = contextMessages.length;
-            loadMore();
-          },
-        );
-
-        await waitFor(() => {
-          expect(queryNextPageSpy).not.toHaveBeenCalled();
-          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(1);
-          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject(
-            expect.objectContaining({
-              data: {},
-              presence: false,
-              state: true,
-              watch: false,
-            }),
-          );
-          expect(contextMessageCount).toBe(firstPageOfMessages.length);
-        });
-      });
-
-      it('should load the second page, if the previous query has returned message count equal default messages limit', async () => {
-        const firstPageMessages = Array.from({ length: 25 }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 16) * 100000) }),
-        );
-        const secondPageMessages = Array.from({ length: 15 }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 1) * 100000) }),
-        );
-        useMockedApis(chatClient, [
-          queryChannelWithNewMessages(firstPageMessages, channel),
-        ]);
-        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
-        let loadMoreCalled = false;
-        let contextMessageCount: number;
-        await renderComponent(
-          { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-          ({ loadMore, messages: contextMessages }) => {
-            // Only set the spy and call loadMore once to prevent re-invocations
-            // from overwriting the spy (which would lose track of the call).
-            if (!loadMoreCalled) {
-              loadMoreCalled = true;
-              queryNextPageSpy = vi.spyOn(channel, 'query');
-              useMockedApis(chatClient, [
-                queryChannelWithNewMessages(secondPageMessages, channel),
-              ]);
-              loadMore();
-            }
-            contextMessageCount = contextMessages.length;
-          },
-        );
-
-        await waitFor(() => {
-          if (!queryNextPageSpy) throw new Error('spy not set');
-          expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
-          // Verify loadMore called channel.query with the right pagination args
-          expect(queryNextPageSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              messages: { id_lt: firstPageMessages[0].id, limit: 25 },
-              watchers: { limit: 25 },
-            }),
-          );
-          expect(contextMessageCount).toBe(
-            firstPageMessages.length + secondPageMessages.length,
-          );
-        });
-      });
-      it('should not load the second page, if the previous query has returned less then custom limit messages', async () => {
-        const channelQueryOptions = {
-          messages: { limit: 10 },
-        };
-        const firstPageOfMessages = [generateMessage()];
-        useMockedApis(chatClient, [
-          queryChannelWithNewMessages(firstPageOfMessages, channel),
-        ]);
-        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
-        let contextMessageCount: number;
-        await renderComponent(
-          { channel, channelQueryOptions, chatClient },
-          ({ loadMore, messages: contextMessages }) => {
-            queryNextPageSpy = vi.spyOn(channel, 'query');
-            contextMessageCount = contextMessages.length;
-            loadMore(channelQueryOptions.messages.limit);
-          },
-        );
-
-        await waitFor(() => {
-          expect(queryNextPageSpy).not.toHaveBeenCalled();
-          expect(chatClient.axiosInstance.post).toHaveBeenCalledTimes(1);
-          expect(chatClient.axiosInstance.post.mock.calls[0][1]).toMatchObject({
-            data: {},
-            messages: {
-              limit: channelQueryOptions.messages.limit,
-            },
-            presence: false,
-            state: true,
-            watch: false,
-          });
-          expect(contextMessageCount).toBe(firstPageOfMessages.length);
-        });
-      });
-      it('should load the second page, if the previous query has returned message count equal custom messages limit', async () => {
-        const equalCount = 10;
-        const channelQueryOptions = {
-          messages: { limit: equalCount },
-        };
-        const firstPageMessages = Array.from({ length: equalCount }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 1 + equalCount) * 100000) }),
-        );
-        const secondPageMessages = Array.from({ length: equalCount - 1 }, (_, i) =>
-          generateMessage({ created_at: new Date((i + 1) * 100000) }),
-        );
-        useMockedApis(chatClient, [
-          queryChannelWithNewMessages(firstPageMessages, channel),
-        ]);
-        let queryNextPageSpy: ReturnType<typeof vi.spyOn>;
-        let loadMoreCalled = false;
-        let contextMessageCount: number;
-
-        await renderComponent(
-          { channel, channelQueryOptions, chatClient },
-          ({ loadMore, messages: contextMessages }) => {
-            if (!loadMoreCalled) {
-              loadMoreCalled = true;
-              queryNextPageSpy = vi.spyOn(channel, 'query');
-              useMockedApis(chatClient, [
-                queryChannelWithNewMessages(secondPageMessages, channel),
-              ]);
-              loadMore(channelQueryOptions.messages.limit);
-            }
-            contextMessageCount = contextMessages.length;
-          },
-        );
-
-        await waitFor(() => {
-          if (!queryNextPageSpy) throw new Error('spy not set');
-          expect(queryNextPageSpy).toHaveBeenCalledTimes(1);
-          // Verify loadMore called channel.query with the right pagination args
-          expect(queryNextPageSpy).toHaveBeenCalledWith(
-            expect.objectContaining({
-              messages: {
-                id_lt: firstPageMessages[0].id,
-                limit: channelQueryOptions.messages.limit,
-              },
-              watchers: { limit: channelQueryOptions.messages.limit },
-            }),
-          );
-          expect(contextMessageCount).toBe(
-            firstPageMessages.length + secondPageMessages.length,
-          );
-        });
-      });
-    });
-
-    describe('jump to first unread message', () => {
-      const user = generateUser();
-      const last_read = new Date(1000);
-      const last_read_message_id = 'X';
-      const first_unread_message_id = 'Y';
-      const firtUnreadDate = new Date(1500);
-      const lastReadMessage = generateMessage({
-        created_at: last_read,
-        id: last_read_message_id,
-      });
-      const firstUnreadMessage = generateMessage({
-        created_at: firtUnreadDate,
-        id: first_unread_message_id,
-      });
-      const currentMessageSetLastReadLoadedFirstUnreadNotLoaded = [
-        generateMessage({ created_at: new Date(100) }),
-        lastReadMessage,
-      ];
-      const currentMessageSetLastReadFirstUnreadLoaded = [
-        lastReadMessage,
-        firstUnreadMessage,
-      ];
-      const currentMessageSetLastReadNotLoadedFirstUnreadLoaded = [
-        firstUnreadMessage,
-        generateMessage(),
-      ];
-      const currentMessageSetFirstUnreadLastReadNotLoaded = [
-        generateMessage(),
-        generateMessage(),
-      ];
-      const errorNotificationText = 'Failed to jump to the first unread message';
-      const ownReadStateBase = {
-        last_read,
-        unread_messages: 1,
-        user,
-      };
-      const ownReadStateLastReadMsgIdKnown = {
-        last_read,
-        last_read_message_id,
-        unread_messages: 1,
-        user,
-      };
-      const ownReadStateFirstUnreadMsgIdKnown = {
-        first_unread_message_id,
-        last_read,
-        last_read_message_id,
-        unread_messages: 1,
-        user,
-      };
-
-      afterEach(vi.resetAllMocks);
-      /**
-       * {channelUnreadUiState: {first_unread_message_id: 'Y', last_read: new Date(1), last_read_message_id: 'X', unread_messages: 9, }, messages: Array.from({length: 10})} // marked channel unread
-       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(1), last_read_message_id: 'X', unread_messages: 9, }, messages: Array.from({length: 10})} // incoming new messages while being scrolled up / open an already read channel with unread messages
-       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(0), last_read_message_id: undefined, unread_messages: 10, }, messages: Array.from({length: 10})} // open a new channel with existing messages
-       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(10), last_read_message_id: 'Z', unread_messages: 0, }, messages: Array.from({length: 10})} // open a fully read channel
-       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(0), last_read_message_id: undefined, unread_messages: 0, }, messages: Array.from({length: 0})} // open an empty unread channel
-       * {channelUnreadUiState: {first_unread_message_id: undefined, last_read: new Date(1), last_read_message_id: undefined, unread_messages: 0, }, messages: Array.from({length: 0})} // open an empty read channel
-       */
-      it('should exit early if the unread count is falsy', async () => {
-        const {
-          channels: [channel],
-          client: chatClient,
-        } = await initClientWithChannels({
-          channelsData: [
-            {
-              messages: [generateMessage()],
-              read: [
-                fromPartial<ReadResponse>({
-                  first_unread_message_id: 'Y',
-                  last_read: new Date().toISOString(),
-                  last_read_message_id: 'X',
-                  unread_messages: 0,
-                  user,
-                }),
-              ],
-            },
-          ],
-          customUser: user,
-        });
-        const loadMessageIntoState = vi
-          .spyOn(channel.state, 'loadMessageIntoState')
-          // @ts-expect-error - mock implementation has simplified signature
-          .mockImplementation(() => ({}));
-
-        const channelQuerySpy = vi
-          .spyOn(channel, 'query')
-          // @ts-expect-error - mock implementation has simplified signature
-          .mockImplementation(() => ({}));
-
-        let hasJumped: boolean;
-        let highlightedMessageId: string;
-        await renderComponent(
-          { channel, chatClient },
-          ({
-            highlightedMessageId: highlightedMessageIdContext,
-            jumpToFirstUnreadMessage,
-          }) => {
-            if (hasJumped) {
-              highlightedMessageId = highlightedMessageIdContext;
-              return;
-            }
-            jumpToFirstUnreadMessage();
-            hasJumped = true;
-          },
-        );
-
-        await waitFor(() => {
-          expect(loadMessageIntoState).not.toHaveBeenCalled();
-          expect(channelQuerySpy).not.toHaveBeenCalled();
-          expect(highlightedMessageId).toBeUndefined();
-        });
-      });
-
-      const runTest = async ({
-        channelQueryResolvedValue,
-        currentMsgSet,
-        loadScenario,
-        ownReadState,
-      }: {
-        channelQueryResolvedValue?: (MessageResponse | LocalMessage)[];
-        currentMsgSet: (MessageResponse | LocalMessage)[];
-        loadScenario: string;
-        ownReadState: Record<string, unknown>;
-      }) => {
-        const {
-          channels: [channel],
-          client: chatClient,
-        } = await initClientWithChannels({
-          channelsData: [
-            {
-              messages: currentMsgSet,
-              read: [ownReadState],
-            },
-          ],
-          customUser: user,
-        });
-        let loadMessageIntoState: ReturnType<typeof vi.spyOn>;
-        let channelQuerySpy: ReturnType<typeof vi.spyOn>;
-        if (['already loaded', 'query fails'].includes(loadScenario)) {
-          channelQuerySpy = vi
-            .spyOn(channel, 'query')
-            // @ts-expect-error - mock implementation has simplified signature
-            .mockImplementation(() => ({}));
-        } else {
-          // eslint-disable-next-line react-hooks/rules-of-hooks
-          useMockedApis(chatClient, [
-            queryChannelWithNewMessages(channelQueryResolvedValue, channel),
-          ]);
-        }
-        if (!loadScenario.startsWith('query by')) {
-          loadMessageIntoState = vi
-            .spyOn(channel.state, 'loadMessageIntoState')
-            // @ts-expect-error - mock implementation has simplified signature
-            .mockImplementation(() => ({}));
-
-          if (loadScenario === 'query fails') {
-            loadMessageIntoState.mockRejectedValue('Query failed');
-          }
-        }
-
-        const addErrorSpy = vi.spyOn(chatClient.notifications, 'add');
-        let hasJumped: boolean;
-        let highlightedMessageId: string;
-        let channelUnreadUiStateAfterJump: ChannelUnreadUiState | undefined;
-        await act(async () => {
-          await renderComponent(
-            { channel, chatClient },
-            ({
-              channelUnreadUiState,
-              highlightedMessageId: highlightedMessageIdContext,
-              jumpToFirstUnreadMessage,
-              setChannelUnreadUiState,
-            }) => {
-              if (!channelUnreadUiState) return;
-              if (
-                ownReadState.first_unread_message_id &&
-                !channelUnreadUiState.first_unread_message_id
-              ) {
-                setChannelUnreadUiState(fromPartial<ChannelUnreadUiState>(ownReadState)); // needed as the first_unread_message_id is not available on channels load
-                return;
-              }
-              if (hasJumped) {
-                highlightedMessageId = highlightedMessageIdContext;
-                channelUnreadUiStateAfterJump = channelUnreadUiState;
-                return;
-              }
-              jumpToFirstUnreadMessage();
-              hasJumped = true;
-            },
-          );
-        });
-
-        await waitFor(() => {
-          if (loadScenario === 'already loaded') {
-            expect(loadMessageIntoState).not.toHaveBeenCalled();
-            expect(channelQuerySpy).not.toHaveBeenCalled();
-          }
-
-          if (loadScenario.match('query fails')) {
-            expect(addErrorSpy).toHaveBeenCalledWith(
-              expect.objectContaining({ message: errorNotificationText }),
-            );
-            expect(highlightedMessageId).toBeUndefined();
-          } else {
-            expect(highlightedMessageId).toBe(first_unread_message_id);
-            if (!ownReadState.first_unread_message_id) {
-              expect(channelUnreadUiStateAfterJump.first_unread_message_id).toBe(
-                first_unread_message_id,
-              );
-            }
-          }
-        });
-        addErrorSpy.mockRestore();
-      };
-
-      it('should not query messages around the first unread message if it is already loaded in state', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetLastReadNotLoadedFirstUnreadLoaded,
-          loadScenario: 'already loaded',
-          ownReadState: ownReadStateFirstUnreadMsgIdKnown,
-        });
-      });
-
-      it('should query messages around the first unread message if it is not loaded in state', async () => {
-        await runTest({
-          channelQueryResolvedValue: currentMessageSetLastReadFirstUnreadLoaded,
-          currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
-          loadScenario: 'query by id',
-          ownReadState: ownReadStateFirstUnreadMsgIdKnown,
-        });
-      });
-
-      it('should handle query error if the first unread message is not found after channel query by message id', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
-          loadScenario: 'query fails',
-          ownReadState: ownReadStateFirstUnreadMsgIdKnown,
-        });
-      });
-
-      it('should not query messages around the last read message if it is already loaded in state', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetLastReadFirstUnreadLoaded,
-          loadScenario: 'already loaded',
-          ownReadState: ownReadStateLastReadMsgIdKnown,
-        });
-      });
-
-      it('should query messages around the last read message if it is not loaded in state', async () => {
-        await runTest({
-          channelQueryResolvedValue: currentMessageSetLastReadFirstUnreadLoaded,
-          currentMsgSet: currentMessageSetLastReadNotLoadedFirstUnreadLoaded,
-          loadScenario: 'query by id',
-          ownReadState: ownReadStateLastReadMsgIdKnown,
-        });
-      });
-
-      it('should handle the query error if the last read message is not found after channel query by message id', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetLastReadNotLoadedFirstUnreadLoaded,
-          loadScenario: 'query fails',
-          ownReadState: ownReadStateLastReadMsgIdKnown,
-        });
-      });
-
-      it('should not query messages by the last read date if the first unread message found in local state by last read date', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetLastReadFirstUnreadLoaded,
-          loadScenario: 'already loaded',
-          ownReadState: ownReadStateBase,
-        });
-      });
-
-      it('should try to load messages into state and fail as first unread id is unknown and last read message is already in state', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetLastReadLoadedFirstUnreadNotLoaded,
-          loadScenario: 'query fails',
-          ownReadState: ownReadStateBase,
-        });
-      });
-
-      it.each([
-        ['is returned in query', currentMessageSetLastReadFirstUnreadLoaded],
-        // ['is not returned in query', currentMessageSetLastReadNotLoadedFirstUnreadLoaded],
-      ])(
-        'should query messages by last read date if the last read & first unread message not found in the local message list state and both ids are unknown and last read message %s',
-        async (queryScenario, channelQueryResolvedValue) => {
-          await runTest({
-            channelQueryResolvedValue,
-            currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
-            loadScenario: 'query by date',
-            ownReadState: ownReadStateBase,
-          });
-        },
-      );
-
-      it('should handle query messages by last read date query error', async () => {
-        await runTest({
-          currentMsgSet: currentMessageSetFirstUnreadLastReadNotLoaded,
-          loadScenario: 'query by date query fails',
-          ownReadState: ownReadStateBase,
-        });
-      });
-
-      // const timestamp = new Date('2024-01-01T00:00:00.000Z').getTime();
-      it.each([
-        [
-          false,
-          'last page',
-          'first unread message',
-          [
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
-            generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.001Z'),
-              id: last_read_message_id,
-            }),
-            generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.002Z'),
-              id: first_unread_message_id,
-            }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.003Z') }),
-          ],
-          first_unread_message_id,
-        ],
-        [
-          true,
-          'other than last page',
-          'first unread message',
-          [
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') }),
-            generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.002Z'),
-              id: last_read_message_id,
-            }),
-            generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.003Z'),
-              id: first_unread_message_id,
-            }),
-          ],
-          first_unread_message_id,
-        ],
-        [
-          true,
-          'other than last page',
-          'last read message',
-          [
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.000Z') }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.001Z') }),
-            generateMessage({ created_at: new Date('2024-01-01T00:00:00.002Z') }),
-            generateMessage({
-              created_at: new Date('2024-01-01T00:00:00.003Z'),
-              id: last_read_message_id,
-            }),
-          ],
-          undefined,
-        ],
-      ])(
-        'should set pagination flag hasMore to %s when messages query returns %s and chooses jump-to message id from %s',
-        async (expectedHasMore, _, __, jumpToPage, expectedJumpToId) => {
-          const {
-            channels: [channel],
-            client: chatClient,
-          } = await initClientWithChannels({
-            channelsData: [
-              {
-                messages: [generateMessage()],
-                read: [
-                  {
-                    last_read: new Date().toISOString(),
-                    last_read_message_id,
-                    unread_messages: 1,
-                    user,
-                  },
-                ],
-              },
-            ],
-            customUser: user,
-          });
-          const addErrorSpy = vi.spyOn(chatClient.notifications, 'add');
-          let hasJumped: boolean;
-          let hasMoreMessages: boolean;
-          let highlightedMessageId: string;
-          await renderComponent(
-            { channel, chatClient },
-            ({
-              channelUnreadUiState,
-              hasMore,
-              highlightedMessageId: contextHighlightedMessageId,
-              jumpToFirstUnreadMessage,
-            }) => {
-              if (hasJumped) {
-                hasMoreMessages = hasMore;
-                highlightedMessageId = contextHighlightedMessageId;
-                return;
-              }
-              if (!channelUnreadUiState) return;
-              useMockedApis(chatClient, [
-                queryChannelWithNewMessages(jumpToPage, channel),
-              ]);
-              jumpToFirstUnreadMessage(jumpToPage.length);
-              hasJumped = true;
-            },
-          );
-
-          await waitFor(() => {
-            expect(hasMoreMessages).toBe(expectedHasMore);
-            expect(highlightedMessageId).toBe(expectedJumpToId);
-            if (!expectedJumpToId) {
-              expect(addErrorSpy).toHaveBeenCalled();
-            } else {
-              expect(addErrorSpy).not.toHaveBeenCalled();
-            }
-          });
-          addErrorSpy.mockRestore();
-        },
-      );
-    });
-
-    describe('jumpToLatestMessage', () => {
-      it('applies the latest page messages and flags together', async () => {
-        const olderMessages = [
-          generateMessage({ id: 'older-1', text: 'older-1', user }),
-          generateMessage({ id: 'older-2', text: 'older-2', user }),
-        ];
-        const latestMessages = [
-          generateMessage({ id: 'latest-1', text: 'latest-1', user }),
-          generateMessage({ id: 'latest-2', text: 'latest-2', user }),
-        ];
-
-        let resolveLatestLoad: (() => void) | undefined;
-        const loadMessageIntoState = vi
-          .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation(
-            () =>
-              new Promise<void>((resolve) => {
-                resolveLatestLoad = () => {
-                  channel.state.messages = latestMessages;
-                  channel.state.messagePagination.hasPrev = true;
-                  channel.state.messagePagination.hasNext = false;
-                  resolve();
-                };
-              }),
-          );
-
-        const snapshots = [];
-        let phase = 'seed-older-set';
-
-        await renderComponent(
-          { channel, chatClient },
-          ({
-            dispatch,
-            hasMoreNewer,
-            jumpToLatestMessage,
-            messages: renderedMessages,
-          }) => {
-            snapshots.push({
-              hasMoreNewer,
-              messageIds: getMessageIds(renderedMessages),
-            });
-
-            if (phase === 'seed-older-set') {
-              phase = 'jump-latest';
-              dispatch({
-                hasMoreNewer: true,
-                messages: olderMessages,
-                type: 'loadMoreNewerFinished',
-              });
-              return;
-            }
-
-            if (
-              phase === 'jump-latest' &&
-              hasMoreNewer &&
-              getMessageIds(renderedMessages).join(':') ===
-                getMessageIds(olderMessages).join(':')
-            ) {
-              phase = 'waiting-for-latest';
-              void jumpToLatestMessage();
-            }
-          },
-        );
-
-        await waitFor(() => {
-          expect(loadMessageIntoState).toHaveBeenCalledWith('latest');
-        });
-
-        act(() => {
-          resolveLatestLoad();
-        });
-
-        await waitFor(() => {
-          expect(
-            snapshots.some(
-              ({ hasMoreNewer, messageIds }) =>
-                !hasMoreNewer &&
-                messageIds.join(':') === getMessageIds(latestMessages).join(':'),
-            ),
-          ).toBe(true);
-        });
-
-        expect(
-          snapshots.some(
-            ({ hasMoreNewer, messageIds }) =>
-              !hasMoreNewer &&
-              messageIds.join(':') === getMessageIds(olderMessages).join(':'),
-          ),
-        ).toBe(false);
-      });
-    });
-
-    describe('jumpToMessage', () => {
-      it('does not reuse older-page loading state while jumping to a highlighted message', async () => {
-        const targetMessages = [
-          generateMessage({ id: 'target-1', text: 'target-1', user }),
-          generateMessage({ id: 'target-2', text: 'target-2', user }),
-        ];
-
-        let resolveTargetLoad: (() => void) | undefined;
-        vi.spyOn(channel.state, 'loadMessageIntoState').mockImplementation(
-          () =>
-            new Promise<void>((resolve) => {
-              resolveTargetLoad = () => {
-                channel.state.messages = targetMessages;
-                channel.state.messagePagination.hasPrev = true;
-                channel.state.messagePagination.hasNext = true;
-                resolve();
-              };
-            }),
-        );
-
-        const loadingSnapshots = [];
-        let jumpToMessageRef: ChannelActionContextValue['jumpToMessage'];
-        let hasStartedJump = false;
-
-        await renderComponent(
-          { channel, chatClient },
-          ({ jumpToMessage, loadingMore, loadingMoreForJumpToChannelMessage }) => {
-            jumpToMessageRef = jumpToMessage;
-            loadingSnapshots.push({
-              loadingMore,
-              loadingMoreForJumpToChannelMessage,
-            });
-
-            if (!hasStartedJump && jumpToMessageRef) {
-              hasStartedJump = true;
-              void jumpToMessageRef('target-2');
-            }
-          },
-        );
-
-        await waitFor(() => {
-          expect(
-            loadingSnapshots.some(
-              ({ loadingMore, loadingMoreForJumpToChannelMessage }) =>
-                !loadingMore && loadingMoreForJumpToChannelMessage,
-            ),
-          ).toBe(true);
-        });
-
-        act(() => {
-          resolveTargetLoad();
-        });
-
-        await waitFor(() => {
-          expect(
-            loadingSnapshots.some(
-              ({ loadingMore, loadingMoreForJumpToChannelMessage }) =>
-                !loadingMore && !loadingMoreForJumpToChannelMessage,
-            ),
-          ).toBe(true);
-        });
-      });
-
-      it('applies the target message set and highlight without replaying stale loadMore state', async () => {
-        const olderMessages = [
-          generateMessage({ id: 'older-1', text: 'older-1', user }),
-          generateMessage({ id: 'older-2', text: 'older-2', user }),
-        ];
-        const targetMessages = [
-          generateMessage({ id: 'target-1', text: 'target-1', user }),
-          generateMessage({ id: 'target-2', text: 'target-2', user }),
-        ];
-
-        let resolveTargetLoad: (() => void) | undefined;
-        const loadMessageIntoState = vi
-          .spyOn(channel.state, 'loadMessageIntoState')
-          .mockImplementation(
-            () =>
-              new Promise<void>((resolve) => {
-                resolveTargetLoad = () => {
-                  channel.state.messages = targetMessages;
-                  channel.state.messagePagination.hasPrev = true;
-                  channel.state.messagePagination.hasNext = true;
-                  resolve();
-                };
-              }),
-          );
-
-        const snapshots = [];
-        let phase = 'seed-older-set';
-
-        await renderComponent(
-          { channel, chatClient },
-          ({
-            dispatch,
-            highlightedMessageId,
-            jumpToMessage,
-            messages: renderedMessages,
-          }) => {
-            snapshots.push({
-              highlightedMessageId,
-              messageIds: getMessageIds(renderedMessages),
-            });
-
-            if (phase === 'seed-older-set') {
-              phase = 'jump-target';
-              dispatch({
-                hasMoreNewer: true,
-                messages: olderMessages,
-                type: 'loadMoreNewerFinished',
-              });
-              return;
-            }
-
-            if (
-              phase === 'jump-target' &&
-              getMessageIds(renderedMessages).join(':') ===
-                getMessageIds(olderMessages).join(':')
-            ) {
-              phase = 'waiting-for-target';
-              void jumpToMessage('target-2');
-            }
-          },
-        );
-
-        await waitFor(() => {
-          expect(loadMessageIntoState).toHaveBeenCalledWith('target-2', undefined, 25);
-        });
-
-        act(() => {
-          resolveTargetLoad();
-        });
-
-        await waitFor(() => {
-          expect(
-            snapshots.some(
-              ({ highlightedMessageId, messageIds }) =>
-                highlightedMessageId === 'target-2' &&
-                messageIds.join(':') === getMessageIds(targetMessages).join(':'),
-            ),
-          ).toBe(true);
-        });
-
-        expect(
-          snapshots.some(
-            ({ highlightedMessageId, messageIds }) =>
-              highlightedMessageId === 'target-2' &&
-              messageIds.join(':') === getMessageIds(olderMessages).join(':'),
-          ),
-        ).toBe(false);
-      });
-    });
-
     describe('Sending/removing/updating messages', () => {
-      it('should remove error messages from channel state when sending a new message', async () => {
-        const filterErrorMessagesSpy = vi.spyOn(channel.state, 'filterErrorMessages');
-        // flag to prevent infinite loop
-        let hasSent = false;
+      it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
+        const { channel, chatClient } = await setup();
+        const messageText = nanoid();
+        const m = generateMessage({ text: messageText });
+        useMockedApis(chatClient, [sendMessageApi(m)]);
 
-        await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
-          if (!hasSent) {
-            const m = generateMessage();
-            sendMessage({
-              localMessage: { ...m, status: 'sending' },
-              message: fromPartial<Message>(m),
-            });
-            hasSent = true;
-          }
+        await renderComponent({ channel, chatClient });
+
+        // The optimistic local update writes the preview to the paginator synchronously, before the
+        // mocked send response is applied.
+        const sendPromise = channel.sendMessageWithLocalUpdate({
+          localMessage: fromPartial({ ...m, status: 'sending' }),
+          message: toMessage(m),
         });
 
-        await waitFor(() => expect(filterErrorMessagesSpy).toHaveBeenCalledWith());
-      });
+        const preview = channel.messagePaginator.getItem(m.id);
+        expect(preview).toBeDefined();
+        expect(preview?.text).toBe(messageText);
+        expect(preview?.status).toBe('sending');
 
-      it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
-        // flag to prevent infinite loop
-        let hasSent = false;
-        const messageText = nanoid();
-        vi.spyOn(channel, 'sendMessage').mockImplementationOnce(
-          () => new Promise(() => {}),
-        );
-
-        const { findByText } = await renderComponent(
-          {
-            channel,
-            chatClient,
-            children: <MockMessageList />,
-          },
-          ({ sendMessage }) => {
-            if (!hasSent) {
-              const m = generateMessage({ text: messageText });
-              sendMessage({
-                localMessage: { ...m, status: 'sending' },
-                message: fromPartial<Message>(m),
-              });
-              hasSent = true;
-            }
-          },
-        );
-
-        expect(await findByText(messageText)).toBeInTheDocument();
+        await act(async () => {
+          await sendPromise;
+        });
       });
 
       it('should mark message as received when the backend reports duplicated message id', async () => {
-        // flag to prevent infinite loop
-        let hasSent = false;
+        const { channel, chatClient } = await setup();
         const messageText = nanoid();
         const messageId = nanoid();
 
-        let originalMessageStatus = null;
-        vi.spyOn(channel, 'sendMessage').mockImplementation((message: any) => {
-          originalMessageStatus = message.status;
-          throw chatClient.errorFromResponse({
-            data: {
-              code: 4,
-              message: `SendMessage failed with error: "a message with ID ${message.id} already exists"`,
-            },
-            status: 400,
-          });
-        });
-
-        const { findByText } = await renderComponent(
-          {
-            channel,
-            chatClient,
-            children: <MockMessageList />,
-          },
-          ({ sendMessage }) => {
-            if (!hasSent) {
-              const m = generateMessage({
-                id: messageId,
-                status: 'sending', // FIXME: had to be explicitly added
-                text: messageText,
-              });
-              sendMessage({
-                localMessage: { ...m, status: 'sending' },
-                message: fromPartial<Message>(m),
-              });
-              hasSent = true;
-            }
-          },
-        );
-
-        expect(await findByText(messageText)).toBeInTheDocument();
-        expect(originalMessageStatus).toBe('sending');
-
-        const msg = channel.state.findMessage(messageId);
-        expect(msg).toBeDefined();
-        expect(msg.status).toBe('received');
-      });
-
-      it('should convert axios network errors to ErrorFromResponse when sending fails', async () => {
-        const messageText = nanoid();
-        const messageId = nanoid();
-        const axiosNetworkError = Object.assign(new Error('Network Error'), {
-          code: 'ERR_NETWORK',
-          name: 'AxiosError',
-        });
-
-        vi.spyOn(channel, 'sendMessage').mockRejectedValueOnce(axiosNetworkError);
-
-        let sendMessage: ChannelActionContextValue['sendMessage'];
-        await renderComponent({ channel, chatClient }, ({ sendMessage: sm }) => {
-          sendMessage = sm;
-        });
-
-        await act(() =>
-          sendMessage({
-            localMessage: {
-              ...generateMessage({
-                id: messageId,
-                text: messageText,
-              }),
-              status: 'sending',
-            },
-            message: generateMessage({
-              id: messageId,
-              text: messageText,
-            }),
+        // The send request fails with a code-4 "already exists" error; messageOperations' state
+        // policy treats that as success and flips the optimistic message to 'received'.
+        useMockedApis(chatClient, [
+          erroredPostApi({
+            code: 4,
+            message: `SendMessage failed with error: "a message with ID ${messageId} already exists"`,
           }),
-        );
+        ]);
 
-        const failedMessage = channel.state.findMessage(messageId);
-        expect(failedMessage).toBeDefined();
-        expect(failedMessage.status).toBe('failed');
-        expect(failedMessage.error).toBeInstanceOf(ErrorFromResponse);
-        expect(failedMessage.error.message).toBe('Network Error');
-        expect(failedMessage.error.status).toBe(0);
-        expect(failedMessage.error.code).toBeNull();
+        await renderComponent({ channel, chatClient, children: <MockMessageList /> });
+
+        const m = generateMessage({
+          id: messageId,
+          status: 'sending',
+          text: messageText,
+        });
+        await act(async () => {
+          await channel
+            .sendMessageWithLocalUpdate({
+              localMessage: fromPartial<LocalMessage>({ ...m, status: 'sending' }),
+              message: toMessage(m),
+            })
+            .catch(() => {});
+        });
+
+        await waitFor(() => {
+          expect(channel.messagePaginator.getItem(messageId)?.status).toBe('received');
+        });
       });
 
       it('should use the doSendMessageRequest prop to send messages if that is defined', async () => {
-        const doSendMessageRequest = vi.fn();
+        const { channel, chatClient } = await setup();
         const message = generateMessage();
+        const doSendMessageRequest = vi.fn((_channel, sentMessage) =>
+          Promise.resolve({ message: sentMessage }),
+        ) as unknown as ChannelProps['doSendMessageRequest'];
 
-        let sendMessage: ChannelActionContextValue['sendMessage'];
-        await renderComponent(
-          {
-            channel,
-            chatClient,
-            doSendMessageRequest,
-          },
-          ({ sendMessage: sm }) => {
-            sendMessage = sm;
-          },
-        );
+        await renderComponent({
+          channel,
+          chatClient,
+          doSendMessageRequest,
+        });
 
-        await act(() =>
-          sendMessage({ localMessage: { ...message, status: 'sending' }, message }),
-        );
+        await act(async () => {
+          await channel
+            .sendMessageWithLocalUpdate({
+              localMessage: fromPartial({ ...message, status: 'sending' }),
+              message: toMessage(message),
+            })
+            .catch(() => {});
+        });
 
         expect(doSendMessageRequest).toHaveBeenCalledWith(
           channel,
@@ -2124,109 +533,53 @@ describe('Channel', () => {
         );
       });
 
-      it('should eventually pass the result of the sendMessage API as part of ChannelActionContext', async () => {
-        const responseText = nanoid();
-
-        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((sm: any) =>
-          fromPartial({
-            message: { ...sm, text: responseText },
-          }),
-        );
-
-        let sendMessage: ChannelActionContextValue['sendMessage'];
-        const { findByText } = await renderComponent(
-          {
-            channel,
-            chatClient,
-            children: <MockMessageList />,
-          },
-          ({ sendMessage: sm }) => {
-            sendMessage = sm;
-          },
-        );
-
-        const m = generateMessage();
-        await act(() =>
-          sendMessage({
-            localMessage: { ...m, status: 'sending' },
-            message: m,
-          }),
-        );
-
-        expect(await findByText(responseText)).toBeInTheDocument();
-      });
-
       describe('delete message', () => {
-        it('should throw error instead of calling default client.deleteMessage() function', async () => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id, ...message } = generateMessage();
-
-          const clientDeleteMessageSpy = vi.spyOn(chatClient, 'deleteMessage');
-          let deleteMessageHandler: ChannelActionContextValue['deleteMessage'];
-          await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
-            deleteMessageHandler = deleteMessage;
-          });
-
-          await expect(() => deleteMessageHandler(fromPartial(message))).rejects.toThrow(
-            'Cannot delete a message - missing message ID.',
-          );
-          expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
-        });
-
         it('should call the default client.deleteMessage() function', async () => {
+          const { channel, chatClient } = await setup();
           const message = generateMessage();
           const deleteMessageOptions = { deleteForMe: true, hard: false };
           const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
-            .mockImplementationOnce(() => Promise.resolve({ message }));
-          await renderComponent({ channel, chatClient }, ({ deleteMessage }) => {
-            deleteMessage(message, deleteMessageOptions);
+            .mockResolvedValue(fromPartial({ message: toMessageResponse(message) }));
+          await renderComponent({ channel, chatClient });
+          await act(async () => {
+            await channel
+              .deleteMessageWithLocalUpdate({
+                localMessage: fromPartial(message),
+                options: deleteMessageOptions,
+              })
+              .catch(() => {});
           });
           await waitFor(() =>
-            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
-              message.id,
-              deleteMessageOptions,
-            ),
+            // v10: single request object - `client.deleteMessage({ id, ...options })`.
+            expect(clientDeleteMessageSpy).toHaveBeenCalledWith({
+              id: message.id,
+              ...deleteMessageOptions,
+            }),
           );
-        });
-
-        it('should throw error instead of calling custom doDeleteMessageRequest function', async () => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { id, ...message } = generateMessage();
-
-          const clientDeleteMessageSpy = vi
-            .spyOn(chatClient, 'deleteMessage')
-            .mockImplementationOnce(() => Promise.resolve({ message }));
-          const doDeleteMessageRequest = vi.fn();
-          let deleteMessageHandler: ChannelActionContextValue['deleteMessage'];
-          await renderComponent(
-            { channel, chatClient, doDeleteMessageRequest },
-            ({ deleteMessage }) => {
-              deleteMessageHandler = deleteMessage;
-            },
-          );
-
-          await expect(() => deleteMessageHandler(fromPartial(message))).rejects.toThrow(
-            'Cannot delete a message - missing message ID.',
-          );
-          expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
-          expect(doDeleteMessageRequest).not.toHaveBeenCalled();
         });
 
         it('should call the custom doDeleteMessageRequest instead of client.deleteMessage()', async () => {
+          const { channel, chatClient } = await setup();
           const message = generateMessage();
           const deleteMessageOptions = { deleteForMe: true, hard: false };
-          const doDeleteMessageRequest = vi.fn();
+          const doDeleteMessageRequest = vi.fn(() =>
+            Promise.resolve(message),
+          ) as unknown as ChannelProps['doDeleteMessageRequest'];
           const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
-            .mockImplementationOnce(() => Promise.resolve({ message }));
+            .mockResolvedValue(fromPartial({ message: toMessageResponse(message) }));
 
-          await renderComponent(
-            { channel, chatClient, doDeleteMessageRequest },
-            ({ deleteMessage }) => {
-              deleteMessage(message, deleteMessageOptions);
-            },
-          );
+          await renderComponent({ channel, chatClient, doDeleteMessageRequest });
+
+          await act(async () => {
+            await channel
+              .deleteMessageWithLocalUpdate({
+                localMessage: fromPartial(message),
+                options: deleteMessageOptions,
+              })
+              .catch(() => {});
+          });
 
           await waitFor(() => {
             expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
@@ -2239,30 +592,41 @@ describe('Channel', () => {
       });
 
       it('should enable editing messages', async () => {
+        const { channel, chatClient, messages } = await setup();
         const newText = 'something entirely different';
         const updatedMessage = { ...messages[0], text: newText };
-        const clientUpdateMessageSpy = vi.spyOn(chatClient, 'updateMessage');
-        await renderComponent({ channel, chatClient }, ({ editMessage }) => {
-          editMessage(updatedMessage);
+        const clientUpdateMessageSpy = vi
+          .spyOn(chatClient, 'updateMessage')
+          .mockResolvedValue(fromPartial({ message: toMessageResponse(updatedMessage) }));
+        await renderComponent({ channel, chatClient });
+        await act(async () => {
+          await channel
+            .updateMessageWithLocalUpdate({ localMessage: fromPartial(updatedMessage) })
+            .catch(() => {});
         });
         await waitFor(() =>
-          expect(clientUpdateMessageSpy).toHaveBeenCalledWith(
-            updatedMessage,
-            undefined,
-            undefined,
-          ),
+          // v10: single request object - `client.updateMessage({ id, message })`, where `message` is
+          // the LocalMessage projected onto the API payload shape.
+          expect(clientUpdateMessageSpy).toHaveBeenCalledWith({
+            id: updatedMessage.id,
+            message: localMessageToNewMessagePayload(fromPartial(updatedMessage)),
+          }),
         );
       });
 
       it('should use doUpdateMessageRequest for the editMessage callback if provided', async () => {
-        const doUpdateMessageRequest = vi.fn((channelId, message) => message);
+        const { channel, chatClient, messages } = await setup();
+        const doUpdateMessageRequest = vi.fn((channelId, message) => ({
+          message,
+        })) as unknown as ChannelProps['doUpdateMessageRequest'];
 
-        await renderComponent(
-          { channel, chatClient, doUpdateMessageRequest },
-          ({ editMessage }) => {
-            editMessage(messages[0]);
-          },
-        );
+        await renderComponent({ channel, chatClient, doUpdateMessageRequest });
+
+        await act(async () => {
+          await channel
+            .updateMessageWithLocalUpdate({ localMessage: fromPartial(messages[0]) })
+            .catch(() => {});
+        });
 
         await waitFor(() =>
           expect(doUpdateMessageRequest).toHaveBeenCalledWith(
@@ -2273,155 +637,82 @@ describe('Channel', () => {
         );
       });
 
-      it('should update messages passed into the updateMessage callback', async () => {
-        const newText = 'something entirely different';
-        const updatedMessage = { ...messages[0], text: newText, updated_at: Date.now() };
-        let hasUpdated = false;
-
-        const { findByText } = await renderComponent(
-          { channel, chatClient, children: <MockMessageList /> },
-          ({ updateMessage }) => {
-            if (!hasUpdated) updateMessage(fromPartial(updatedMessage));
-            hasUpdated = true;
-          },
-        );
-
-        await waitFor(async () => {
-          expect(await findByText(updatedMessage.text)).toBeInTheDocument();
-        });
-      });
-
       it('should enable retrying message sending', async () => {
+        const { channel, chatClient } = await setup();
         const messageObject = generateMessage({
           text: nanoid(),
         });
 
-        let retrySendMessage: ChannelActionContextValue['retrySendMessage'];
-        let sendMessage: ChannelActionContextValue['sendMessage'];
-        let contextMessages: ChannelStateContextValue['messages'];
-        await renderComponent(
-          { channel, chatClient, children: <MockMessageList /> },
-          ({ messages: cm, retrySendMessage: rsm, sendMessage: sm }) => {
-            retrySendMessage = rsm;
-            sendMessage = sm;
-            contextMessages = cm;
-          },
-        );
+        await renderComponent({ channel, chatClient });
 
-        vi.spyOn(channel, 'sendMessage')
-          .mockImplementationOnce(() => Promise.reject())
-          .mockImplementationOnce(() => {
-            const creationDate = new Date();
-            const created_at = creationDate.toISOString();
-            const updated_at = new Date(creationDate.getTime() + 1).toISOString();
-            return fromPartial({
-              ...messageObject,
-              created_at,
-              updated_at,
-            });
-          });
+        // First send fails.
+        useMockedApis(chatClient, [erroredPostApi()]);
+        await act(async () => {
+          await channel
+            .sendMessageWithLocalUpdate({
+              localMessage: fromPartial({ ...messageObject, status: 'sending' }),
+              message: toMessage(messageObject),
+            })
+            .catch(() => {});
+        });
 
-        await act(() =>
-          sendMessage({
-            localMessage: { ...messageObject, status: 'sending' },
-            message: messageObject,
-          }),
-        );
+        expect(channel.messagePaginator.getItem(messageObject.id)?.status).toBe('failed');
 
-        expect(contextMessages.some(({ status }) => status === 'failed')).toBe(true);
+        // Retry succeeds.
+        useMockedApis(chatClient, [sendMessageApi(messageObject)]);
+        await act(async () => {
+          await channel
+            .retrySendMessageWithLocalUpdate({
+              localMessage: fromPartial({ ...messageObject, status: 'failed' }),
+            })
+            .catch(() => {});
+        });
 
-        await act(() => retrySendMessage(messageObject));
-
-        expect(screen.queryByText(messageObject.text)).toBeInTheDocument();
-      });
-
-      it('should remove scraped attachment on retry-sending message', async () => {
-        // flag to prevent infinite loop
-        let hasSent = false;
-        let hasRetried = false;
-        const fileAttachment = generateFileAttachment();
-        const scrapedAttachment = generateScrapedDataAttachment();
-        const attachments = [fileAttachment, scrapedAttachment];
-        const messageObject = { attachments, text: 'bla bla' };
-        const sendMessageSpy = vi
-          .spyOn(channel, 'sendMessage')
-          .mockImplementationOnce(() => Promise.reject());
-
-        await renderComponent(
-          { channel, chatClient, children: <MockMessageList /> },
-          ({ messages: contextMessages, retrySendMessage, sendMessage }) => {
-            if (!hasSent) {
-              sendMessage({
-                localMessage: fromPartial<LocalMessage>({
-                  ...messageObject,
-                  status: 'sending',
-                }),
-                message: messageObject,
-              });
-              hasSent = true;
-            } else if (
-              !hasRetried &&
-              contextMessages.some(({ status }) => status === 'failed')
-            ) {
-              // retry
-              useMockedApis(chatClient, [sendMessageApi(generateMessage(messageObject))]);
-              retrySendMessage(fromPartial<LocalMessage>(messageObject));
-              hasRetried = true;
-            }
-          },
-        );
-
-        expect(sendMessageSpy).not.toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({ attachments: [scrapedAttachment] }),
-        );
-        expect(sendMessageSpy).not.toHaveBeenNthCalledWith(
-          2,
-          expect.objectContaining({ attachments: [fileAttachment] }),
+        expect(channel.messagePaginator.getItem(messageObject.id)?.status).toBe(
+          'received',
         );
       });
 
       it('should allow removing messages', async () => {
-        let allMessagesRemoved = false;
-        const removeSpy = vi.spyOn(channel.state, 'removeMessage');
+        const { channel, chatClient, messages } = await setup();
+        await renderComponent({ channel, chatClient });
 
-        await renderComponent(
-          { channel, chatClient },
-          ({ messages: contextMessages, removeMessage }) => {
-            if (contextMessages.length > 0) {
-              // if there are messages passed as the context, remove them
-              removeMessage(contextMessages[0]);
-            } else {
-              // once they're all gone, set to true so we can verify that we no longer have messages
-              allMessagesRemoved = true;
-            }
-          },
-        );
+        const [firstMessage] = messages;
+        const inTimeline = () =>
+          channel.messagePaginator.items?.some((m) => m.id === firstMessage.id);
+        expect(inTimeline()).toBe(true);
 
-        await waitFor(() => expect(removeSpy).toHaveBeenCalledWith(messages[0]));
-        await waitFor(() => expect(allMessagesRemoved).toBe(true));
+        act(() => {
+          channel.messagePaginator.removeItem({ id: firstMessage.id });
+        });
+
+        await waitFor(() => expect(inTimeline()).toBe(false));
       });
     });
 
     describe('Channel events', () => {
       // note: these tests rely on Client.dispatchEvent, which eventually propagates to the channel component.
-      const createOneTimeEventDispatcher = (event, client, channel) => {
+      const createOneTimeEventDispatcher = (
+        event: Record<string, unknown>,
+        client: StreamChat,
+        channel: ChannelType,
+      ) => {
         let hasDispatchedEvent = false;
         return () => {
           if (!hasDispatchedEvent)
             client.dispatchEvent({
               ...event,
               cid: channel.cid,
-            });
+            } as Event);
           hasDispatchedEvent = true;
         };
       };
 
       const createChannelEventDispatcher = (
-        body,
-        client,
-        channel,
-        type = 'message.new',
+        body: Record<string, unknown>,
+        client: StreamChat,
+        channel: ChannelType,
+        type: string = 'message.new',
       ) =>
         createOneTimeEventDispatcher(
           {
@@ -2433,6 +724,7 @@ describe('Channel', () => {
         );
 
       it('should eventually pass down a message when a message.new event is triggered on the channel', async () => {
+        const { channel, chatClient } = await setup();
         const message = generateMessage({ user });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
@@ -2440,7 +732,7 @@ describe('Channel', () => {
           channel,
         );
 
-        const { findByText } = await renderComponent(
+        await renderComponent(
           {
             channel,
             chatClient,
@@ -2452,110 +744,16 @@ describe('Channel', () => {
           },
         );
 
-        expect(await findByText(message.text)).toBeInTheDocument();
-      });
-
-      it('should not overwrite the message with send response, if already updated by WS events', async () => {
-        let oldText: string;
-        const newText = 'new text';
-
-        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((message: any) => {
-          const creationDate = new Date();
-          const created_at = creationDate.toISOString();
-          const updated_at = new Date(creationDate.getTime() + 1).toISOString();
-
-          oldText = message.text;
-          const finalMessage = { ...message, created_at, updated_at: created_at };
-          // both effects have to be emitted, otherwise the original message in status "sending" will not be filtered out (done when message.new is emitted) => and the message.updated event would add the updated message as a new message.
-          createChannelEventDispatcher(
-            {
-              created_at,
-              message: {
-                ...finalMessage,
-                text: newText,
-              },
-              user,
-            },
-            chatClient,
-            channel,
-          )();
-          createChannelEventDispatcher(
-            {
-              created_at: updated_at,
-              message: {
-                ...finalMessage,
-                text: newText,
-                updated_at,
-                user,
-              },
-              type: 'message.updated',
-            },
-            chatClient,
-            channel,
-          )();
-          return fromPartial({ message });
+        // Message state now lives on the stream-chat channel's messagePaginator (the React reducer
+        // and legacy channel.state message list were removed), so the message.new event is
+        // reflected there.
+        await waitFor(() => {
+          expect(channel.messagePaginator.getItem(message.id)?.id).toBe(message.id);
         });
-
-        let sendMessage: ChannelActionContextValue['sendMessage'];
-        const { findByText, queryByText } = await renderComponent(
-          { channel, chatClient, children: <MockMessageList /> },
-          ({ sendMessage: sm }) => {
-            sendMessage = sm;
-          },
-        );
-
-        await act(async () => {
-          const m = generateMessage();
-          await sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
-        });
-
-        await waitFor(async () => {
-          expect(
-            await queryByText(oldText, undefined, { timeout: 100 }),
-          ).not.toBeInTheDocument();
-        });
-
-        expect(await findByText(newText)).toBeInTheDocument();
-      });
-
-      it('should overwrite the message of status "sending" regardless of updated_at timestamp', async () => {
-        let oldText: string;
-        const newText = 'new text';
-
-        vi.spyOn(channel, 'sendMessage').mockImplementationOnce((message: any) => {
-          const creationDate = new Date();
-          const created_at = creationDate.toISOString();
-          const updated_at = new Date(creationDate.getTime() - 1).toISOString();
-          oldText = message.text;
-          return fromPartial({
-            message: { ...message, created_at, text: newText, updated_at },
-          });
-        });
-
-        let sendMessage: ChannelActionContextValue['sendMessage'];
-        const { findByText, queryByText } = await renderComponent(
-          { channel, chatClient, children: <MockMessageList /> },
-          ({ sendMessage: sm }) => {
-            sendMessage = sm;
-          },
-        );
-
-        await act(async () => {
-          const m = generateMessage();
-
-          await sendMessage({ localMessage: { ...m, status: 'sending' }, message: m });
-        });
-
-        await waitFor(async () => {
-          expect(
-            await queryByText(oldText, undefined, { timeout: 100 }),
-          ).not.toBeInTheDocument();
-        });
-
-        expect(await findByText(newText)).toBeInTheDocument();
       });
 
       it('should not mark the channel as read if a new message from another user comes in and the user is looking at the page', async () => {
+        const { channel, chatClient } = await setup();
         const markReadSpy = vi.spyOn(channel, 'markRead');
 
         const message = generateMessage({ user: generateUser() });
@@ -2573,6 +771,7 @@ describe('Channel', () => {
       });
 
       it('should not mark the channel as read if the new message author is the current user and the user is looking at the page', async () => {
+        const { channel, chatClient } = await setup();
         const markReadSpy = vi.spyOn(channel, 'markRead');
 
         const message = generateMessage({ user: generateUser() });
@@ -2590,6 +789,7 @@ describe('Channel', () => {
       });
 
       it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
+        const { channel, chatClient } = await setup();
         const unreadAmount = 1;
         Object.defineProperty(document, 'hidden', {
           configurable: true,
@@ -2610,174 +810,38 @@ describe('Channel', () => {
         await waitFor(() => expect(document.title).toContain(`${unreadAmount}`));
       });
 
-      it('should update the `thread` parent message if an event comes in that modifies it', async () => {
-        const threadMessage = messages[0];
-        const newText = 'new text';
-        const updatedThreadMessage = { ...threadMessage, text: newText };
-        const dispatchUpdateMessageEvent = createChannelEventDispatcher(
-          { message: updatedThreadMessage, type: 'message.updated' },
-          chatClient,
-          channel,
-        );
-        let threadStarterHasUpdatedText = false;
-        await renderComponent({ channel, chatClient }, ({ openThread, thread }) => {
-          if (!thread) {
-            // first, open thread
-            openThread(
-              threadMessage,
-              fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
-            );
-          } else if (thread.text !== newText) {
-            // then, update the thread message
-            // FIXME: dispatch event needs to be queued on event loop now
-            setTimeout(() => dispatchUpdateMessageEvent(), 0);
-          } else {
-            threadStarterHasUpdatedText = true;
-          }
-        });
-
-        await waitFor(() => expect(threadStarterHasUpdatedText).toBe(true));
-      });
-
-      it('should update the threadMessages if a new message comes in that is part of the thread', async () => {
-        const threadMessage = messages[0];
-        const newThreadMessage = generateMessage({
-          parent_id: threadMessage.id,
-        });
-        const dispatchNewThreadMessageEvent = createChannelEventDispatcher(
+      it('should update user data in MessageList based on updated_at', async () => {
+        const { channel, chatClient } = await setup();
+        const updatedAttribute = { name: 'newName' };
+        const dispatchUserUpdatedEvent = createChannelEventDispatcher(
           {
-            message: newThreadMessage,
+            type: 'user.updated',
+            user: {
+              ...user,
+              ...updatedAttribute,
+              updated_at: new Date().toISOString(),
+            },
           },
           chatClient,
           channel,
         );
-        let newThreadMessageWasAdded = false;
-        await renderComponent(
-          { channel, chatClient },
-          ({ openThread, thread, threadMessages }) => {
-            if (!thread) {
-              // first, open thread
-              openThread(
-                threadMessage,
-                fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
-              );
-            } else if (!threadMessages.some(({ id }) => id === newThreadMessage.id)) {
-              // then, add new thread message
-              // FIXME: dispatch event needs to be queued on event loop now
-              setTimeout(() => dispatchNewThreadMessageEvent(), 0);
-            } else {
-              newThreadMessageWasAdded = true;
-            }
-          },
-        );
+        await renderComponent({ channel, chatClient });
 
-        await waitFor(() => expect(newThreadMessageWasAdded).toBe(true));
-      });
-
-      [
-        {
-          component: MessageList,
-          getFirstMessageAvatar: () => {
-            const [avatar] = screen.queryAllByTestId('custom-avatar') || [];
-            return avatar;
-          },
-          name: 'MessageList',
-        },
-        {
-          callback:
-            (message) =>
-            ({ openThread, thread }) => {
-              if (!thread)
-                openThread(
-                  message,
-                  fromPartial<React.BaseSyntheticEvent>({ preventDefault: () => null }),
-                );
-            },
-          component: Thread,
-          getFirstMessageAvatar: () => {
-            // the first avatar is that of the ThreadHeader
-            const avatars = screen.queryAllByTestId('custom-avatar') || [];
-            return avatars[0];
-          },
-          name: 'Thread',
-        },
-      ].forEach(({ callback, component: Component, getFirstMessageAvatar, name }) => {
-        it(`should update user data in ${name} based on updated_at`, async () => {
-          const [threadMessage] = messages;
-
-          const updatedAttribute = { name: 'newName' };
-          const dispatchUserUpdatedEvent = createChannelEventDispatcher(
-            {
-              type: 'user.updated',
-              user: {
-                ...user,
-                ...updatedAttribute,
-                updated_at: new Date().toISOString(),
-              },
-            },
-            chatClient,
-            channel,
-          );
-          await renderComponent(
-            {
-              channel,
-              chatClient,
-              children: <Component />,
-              components: {
-                Avatar: MockAvatar,
-              },
-            },
-            callback?.(threadMessage) ?? (() => {}),
-          );
-
-          await waitFor(() => {
-            expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
-          });
-
-          await act(() => {
-            dispatchUserUpdatedEvent();
-          });
-
-          await waitFor(() => {
-            expect(getFirstMessageAvatar()).toHaveTextContent(updatedAttribute.name);
-          });
+        await waitFor(() => {
+          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(user.name);
         });
 
-        it(`should not update user data in ${name} if updated_at has not changed`, async () => {
-          const [threadMessage] = messages;
+        await act(() => {
+          dispatchUserUpdatedEvent();
+        });
 
-          const updatedAttribute = { name: 'newName' };
-          const dispatchUserUpdatedEvent = createChannelEventDispatcher(
-            {
-              type: 'user.updated',
-              user: { ...user, ...updatedAttribute },
-            },
-            chatClient,
-            channel,
+        // User references are now updated on the stream-chat channel's messagePaginator (via
+        // client._updateUserMessageReferences -> reflectUserUpdate), which the MessageList reads
+        // from (the removed React reducer used to own this mapping).
+        await waitFor(() => {
+          expect(channel.messagePaginator.headItems[0]?.user?.name).toBe(
+            updatedAttribute.name,
           );
-          await renderComponent(
-            {
-              channel,
-              chatClient,
-              children: <Component />,
-              components: {
-                Avatar: MockAvatar,
-              },
-            },
-            callback?.(threadMessage) ?? (() => {}),
-          );
-
-          await waitFor(() => {
-            expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
-          });
-
-          await act(() => {
-            dispatchUserUpdatedEvent();
-          });
-
-          await waitFor(() => {
-            expect(getFirstMessageAvatar()).toHaveTextContent(user.name);
-          });
         });
       });
 
@@ -2821,10 +885,21 @@ describe('Channel', () => {
             customUser: user,
           });
 
+          // The channel unread UI state moved from ChannelStateContext.channelUnreadUiState to
+          // channel.messagePaginator.unreadStateSnapshot. It is populated by a paginator query in
+          // the app; seed it directly here since this harness does not run that query.
+          activeChannel.messagePaginator.setUnreadSnapshot({
+            unreadCount: unread_messages,
+          });
+
           const Component = () => {
-            const { channelUnreadUiState } = useChannelStateContext();
-            if (!channelUnreadUiState) return <div>{NO_UNREAD_TEXT}</div>;
-            return <div>{`unread-text-${channelUnreadUiState.unread_messages}`}</div>;
+            const channel = useChannel();
+            const { unreadCount } = useStateStore(
+              channel.messagePaginator.unreadStateSnapshot,
+              (state) => ({ unreadCount: state.unreadCount }),
+            );
+            if (!unreadCount) return <div>{NO_UNREAD_TEXT}</div>;
+            return <div>{`unread-text-${unreadCount}`}</div>;
           };
 
           await act(async () => {

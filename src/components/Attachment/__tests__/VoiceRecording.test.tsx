@@ -12,6 +12,8 @@ import { VoiceRecording, VoiceRecordingPlayer } from '../VoiceRecording';
 import { ChatProvider, MessageProvider } from '../../../context';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { WithAudioPlayback } from '../../AudioPlayback';
+import { ThreadProvider } from '../../Threads';
+import type { Thread } from 'stream-chat';
 
 vi.mock('../../Notifications', () => ({
   useNotificationApi: () => ({
@@ -45,6 +47,13 @@ const AUDIO_RECORDING_PLAYER_TEST_ID = 'voice-recording-widget';
 const QUOTED_AUDIO_RECORDING_TEST_ID = 'quoted-voice-recording-widget';
 
 const attachment = generateVoiceRecordingAttachment();
+
+// v10: duration / file_size / mime_type / waveform_data are not top-level Attachment
+// fields anymore, they live under `attachment.custom`.
+const withCustom = (overrides: Record<string, unknown>) => ({
+  ...attachment,
+  custom: { ...attachment.custom, ...overrides },
+});
 
 (window as any).ResizeObserver = ResizeObserverMock;
 
@@ -94,14 +103,21 @@ describe('VoiceRecording', () => {
       return el;
     });
     const message = generateMessage();
+    // In v14 the audio-player requester namespace differentiates a channel player from a
+    // thread player by the presence of a Thread instance (useThreadContext), not by the
+    // message-context `threadList` flag. Wrapping the second widget in a ThreadProvider gives
+    // it a distinct requester, so two separate AudioPlayer instances (hence two `new Audio()`
+    // canPlayType probes) are created.
     render(
       <WithAudioPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
           <VoiceRecording attachment={attachment} />
         </MessageProvider>
-        <MessageProvider value={mockMessageContext({ message, threadList: true })}>
-          <VoiceRecording attachment={attachment} />
-        </MessageProvider>
+        <ThreadProvider thread={fromPartial<Thread>({})}>
+          <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+            <VoiceRecording attachment={attachment} />
+          </MessageProvider>
+        </ThreadProvider>
       </WithAudioPlayback>,
     );
     expect(createdAudios).toHaveLength(2);
@@ -158,7 +174,7 @@ describe('VoiceRecordingPlayer', () => {
 
   it('should fallback to file size, if duration is not available', () => {
     const { getByTestId } = renderComponent({
-      attachment: { ...attachment, duration: undefined, file_size: 60 * 1024 },
+      attachment: withCustom({ duration: undefined, file_size: 60 * 1024 }),
     });
     expect(getByTestId('file-size-indicator')).toHaveTextContent('60 kB');
   });
@@ -291,7 +307,7 @@ describe('QuotedVoiceRecording', () => {
   });
   it('should fallback to file size, if duration is not available', () => {
     const { queryByTestId } = renderComponent({
-      attachment: { ...attachment, duration: undefined, file_size: 60 * 1024 },
+      attachment: withCustom({ duration: undefined, file_size: 60 * 1024 }),
       isQuoted: true,
     });
     expect(queryByTestId('file-size-indicator')).toHaveTextContent('60 kB');

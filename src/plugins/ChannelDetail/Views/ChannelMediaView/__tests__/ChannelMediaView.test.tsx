@@ -76,7 +76,12 @@ vi.mock('../../../../../components/Dialog', () => ({
 const messages: MessageResponse[] = [
   {
     attachments: [
-      { image_url: 'https://cdn.test/image-1.png', title: 'image-1', type: 'image' },
+      {
+        custom: {},
+        image_url: 'https://cdn.test/image-1.png',
+        title: 'image-1',
+        type: 'image',
+      },
     ],
     cid: 'messaging:test-channel',
     created_at: '2026-01-01T15:53:00.000Z',
@@ -89,7 +94,8 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/video-1.mp4',
-        duration: 8,
+        // v10: media metadata (duration, …) lives under `attachment.custom`.
+        custom: { duration: 8 },
         thumb_url: 'https://cdn.test/video-1-thumb.png',
         title: 'video-1',
         type: 'video',
@@ -206,6 +212,7 @@ describe('ChannelMediaView', () => {
     Array.from({ length: count }, (_, index) => ({
       attachments: [
         {
+          custom: {},
           image_url: `https://cdn.test/image-${index}.png`,
           title: `image-${index}`,
           type: 'image',

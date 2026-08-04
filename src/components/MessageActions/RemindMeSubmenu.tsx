@@ -50,8 +50,8 @@ export const RemindMeSubmenu = () => {
           onClick={async () => {
             try {
               await client.reminders.upsertReminder({
-                messageId: message.id,
-                remind_at: new Date(new Date().getTime() + offsetMs).toISOString(),
+                message_id: message.id,
+                remind_at: new Date(new Date().getTime() + offsetMs),
               });
               addNotification({
                 context: {

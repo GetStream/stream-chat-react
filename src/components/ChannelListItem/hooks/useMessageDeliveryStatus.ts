@@ -1,7 +1,13 @@
-import { useCallback, useEffect, useState } from 'react';
-import type { Channel, Event, LocalMessage, UserResponse } from 'stream-chat';
+import { useCallback, useMemo } from 'react';
+import type {
+  Channel,
+  LocalMessage,
+  MessageReceiptsSnapshot,
+  UserResponse,
+} from 'stream-chat';
 
 import { useChatContext } from '../../../context';
+import { useStateStore } from '../../../store/hooks/useStateStore';
 
 export enum MessageDeliveryStatus {
   SENT = 'sent',
@@ -15,14 +21,21 @@ type UseMessageStatusParamsChannelPreviewProps = {
   lastMessage?: LocalMessage;
 };
 
+const trackerSnapshotSelector = (next: MessageReceiptsSnapshot) => ({
+  deliveredByMessageId: next.deliveredByMessageId,
+  readersByMessageId: next.readersByMessageId,
+  revision: next.revision,
+});
+
 export const useMessageDeliveryStatus = ({
   channel,
   lastMessage,
 }: UseMessageStatusParamsChannelPreviewProps) => {
   const { client } = useChatContext();
-  const [messageDeliveryStatus, setMessageDeliveryStatus] = useState<
-    MessageDeliveryStatus | undefined
-  >();
+  const trackerSnapshot = useStateStore(
+    channel.messageReceiptsTracker.snapshotStore,
+    trackerSnapshotSelector,
+  );
 
   const isOwnMessage = useCallback(
     (message?: { user?: UserResponse | null }) =>
@@ -30,74 +43,26 @@ export const useMessageDeliveryStatus = ({
     [client],
   );
 
-  useEffect(() => {
+  const messageDeliveryStatus = useMemo(() => {
     // empty channel
-    if (!lastMessage) {
-      setMessageDeliveryStatus(undefined);
-    }
+    if (!lastMessage) return undefined;
 
     const lastMessageIsOwn = isOwnMessage(lastMessage);
-    if (!lastMessage?.created_at || !lastMessageIsOwn) return;
+    if (!lastMessageIsOwn) return undefined;
 
-    const msgRef = {
-      msgId: lastMessage.id,
-      timestampMs: lastMessage.created_at.getTime(),
-    };
-    const readersForMessage = channel.messageReceiptsTracker.readersForMessage(msgRef);
+    const readersForMessage = trackerSnapshot?.readersByMessageId[lastMessage.id] ?? [];
     const deliveredForMessage =
-      channel.messageReceiptsTracker.deliveredForMessage(msgRef);
-    setMessageDeliveryStatus(
-      readersForMessage.length > 1 ||
-        (readersForMessage.length === 1 && readersForMessage[0].id !== client.user?.id)
-        ? MessageDeliveryStatus.READ
-        : deliveredForMessage.length > 1 ||
-            (deliveredForMessage.length === 1 &&
-              deliveredForMessage[0].id !== client.user?.id)
-          ? MessageDeliveryStatus.DELIVERED
-          : MessageDeliveryStatus.SENT,
-    );
-  }, [channel, client, isOwnMessage, lastMessage]);
+      trackerSnapshot?.deliveredByMessageId[lastMessage.id] ?? [];
 
-  useEffect(() => {
-    const handleMessageNew = (event: Event) => {
-      // the last message is not mine, so do not show the delivery status
-      if (!isOwnMessage(event.message)) {
-        return setMessageDeliveryStatus(undefined);
-      }
-      return setMessageDeliveryStatus(MessageDeliveryStatus.SENT);
-    };
-
-    channel.on('message.new', handleMessageNew);
-
-    return () => {
-      channel.off('message.new', handleMessageNew);
-    };
-  }, [channel, isOwnMessage]);
-
-  useEffect(() => {
-    if (!isOwnMessage(lastMessage)) return;
-    const handleMessageDelivered = (event: Event) => {
-      if (
-        event.user?.id !== client.user?.id &&
-        lastMessage &&
-        lastMessage.id === event.last_delivered_message_id
-      )
-        setMessageDeliveryStatus(MessageDeliveryStatus.DELIVERED);
-    };
-
-    const handleMarkRead = (event: Event) => {
-      if (event.user?.id !== client.user?.id)
-        setMessageDeliveryStatus(MessageDeliveryStatus.READ);
-    };
-
-    channel.on('message.delivered', handleMessageDelivered);
-    channel.on('message.read', handleMarkRead);
-
-    return () => {
-      channel.off('message.delivered', handleMessageDelivered);
-      channel.off('message.read', handleMarkRead);
-    };
-  }, [channel, client, isOwnMessage, lastMessage]);
+    return readersForMessage.length > 1 ||
+      (readersForMessage.length === 1 && readersForMessage[0].id !== client.user?.id)
+      ? MessageDeliveryStatus.READ
+      : deliveredForMessage.length > 1 ||
+          (deliveredForMessage.length === 1 &&
+            deliveredForMessage[0].id !== client.user?.id)
+        ? MessageDeliveryStatus.DELIVERED
+        : MessageDeliveryStatus.SENT;
+  }, [client.user?.id, isOwnMessage, lastMessage, trackerSnapshot]);
 
   return {
     messageDeliveryStatus,

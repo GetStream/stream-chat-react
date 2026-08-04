@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import type { Channel, Event, MessageResponse } from 'stream-chat';
+import type { Channel, EventPayload, LocalMessage, MessageResponse } from 'stream-chat';
 
 import { useAriaLiveAnnouncer } from '../useAriaLiveAnnouncer';
 import { useTranslationContext } from '../../../context/TranslationContext';
@@ -7,7 +7,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 const MESSAGE_ANNOUNCEMENT_THROTTLE_MS = 1000;
 
 const isAnnounceableIncomingMessage = (
-  message: MessageResponse,
+  message: LocalMessage | MessageResponse,
   ownUserId?: string,
 ): boolean => {
   const messageUserId = message.user?.id;
@@ -16,13 +16,16 @@ const isAnnounceableIncomingMessage = (
     return false;
   }
 
+  // `status` only exists on LocalMessage; the message from a `message.new` event is a MessageResponse.
+  const status = (message as LocalMessage).status;
+
   return (
     message.type !== 'deleted' &&
     message.type !== 'ephemeral' &&
     message.type !== 'error' &&
     message.type !== 'system' &&
-    message.status !== 'failed' &&
-    message.status !== 'sending'
+    status !== 'failed' &&
+    status !== 'sending'
   );
 };
 
@@ -108,7 +111,7 @@ export const useIncomingMessageAnnouncements = ({
       return;
     }
 
-    const handleMessageNew = (event: Event) => {
+    const handleMessageNew = (event: EventPayload<'message.new'>) => {
       const message = event.message;
       if (!message) return;
 

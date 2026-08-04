@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
-import uniqBy from 'lodash.uniqby';
 import React, {
   createContext,
   useCallback,
@@ -12,12 +11,12 @@ import React, {
 import type { ChannelMemberResponse } from 'stream-chat';
 
 import {
-  useChannelListContext,
   useChatContext,
   useComponentContext,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
+import { useChatViewNavigation } from '../../../SlotLayout';
 import { useStableCallback } from '../../../../utils';
 import { useStateStore } from '../../../../store';
 import { Alert } from '../../../../components/Dialog';
@@ -207,8 +206,8 @@ export const useBaseChannelMemberActionSetFilter = (
 };
 
 const SendDirectMessageAction = () => {
-  const { client, setActiveChannel } = useChatContext();
-  const { setChannels } = useChannelListContext();
+  const { channelPaginatorsOrchestrator, client } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
   const { addNotification } = useNotificationApi();
@@ -222,11 +221,17 @@ const SendDirectMessageAction = () => {
     setIsSending(true);
     try {
       const directMessageChannel = client.channel(channel.type, {
-        members: [client.userID, targetUserId],
+        members: [client.userID, targetUserId].map((user_id) => ({ user_id })),
       });
       await directMessageChannel.watch();
-      setActiveChannel(directMessageChannel);
-      setChannels?.((channels) => uniqBy([directMessageChannel, ...channels], 'cid'));
+      // Selection is one navigation model: open the DM into a layout slot, then route it into
+      // the channel list(s) that should own it so it appears without a full re-query.
+      open({
+        key: directMessageChannel.cid ?? undefined,
+        kind: 'channel',
+        source: directMessageChannel,
+      });
+      channelPaginatorsOrchestrator.ingestChannel(directMessageChannel);
       close();
     } catch (error) {
       addNotification({
@@ -245,9 +250,9 @@ const SendDirectMessageAction = () => {
     channel,
     client,
     close,
+    channelPaginatorsOrchestrator,
     isSending,
-    setActiveChannel,
-    setChannels,
+    open,
     t,
     targetUserId,
   ]);
@@ -278,7 +283,7 @@ const UserMuteAction = () => {
   const { t } = useTranslationContext();
   const { targetUserId } = useChannelMemberActionContext();
   const userMuted =
-    !!targetUserId && mutes.some((mute) => mute.target.id === targetUserId);
+    !!targetUserId && mutes.some((mute) => mute.target?.id === targetUserId);
   const [optimisticUserMuted, setOptimisticUserMuted] = useState(userMuted);
 
   useEffect(() => {
@@ -415,7 +420,7 @@ const BlockUserAction = () => {
 
     try {
       setUserBlockInProgress(true);
-      await client.unBlockUser(targetUserId);
+      await client.unblockUser(targetUserId);
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',

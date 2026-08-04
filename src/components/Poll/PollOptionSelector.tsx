@@ -1,12 +1,16 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import React, { useMemo } from 'react';
-import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
+import type {
+  PollOptionResponseData,
+  PollState,
+  PollVoteResponseData,
+} from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import {
-  useChannelStateContext,
+  useChannel,
   useComponentContext,
   useMessageContext,
   usePollContext,
@@ -14,6 +18,7 @@ import {
 } from '../../context';
 import { useStateStore } from '../../store';
 import { Checkbox } from '../Form';
+import { useChannelCapabilities } from '../Channel/hooks/useChannelCapabilities';
 
 type AmountBarProps = {
   amount: number;
@@ -35,11 +40,11 @@ export const AmountBar = ({ amount, className }: AmountBarProps) => (
 
 type PollStateSelectorReturnValue = {
   is_closed: boolean | undefined;
-  latest_votes_by_option: Record<string, PollVote[]>;
+  latest_votes_by_option: Record<string, PollVoteResponseData[]>;
   maxVotedOptionIds: string[];
-  ownVotesByOptionId: Record<string, PollVote>;
+  ownVotesByOptionId: Record<string, PollVoteResponseData>;
   vote_counts_by_option: Record<string, number>;
-  voting_visibility: VotingVisibility | undefined;
+  voting_visibility: string | undefined;
 };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   is_closed: nextValue.is_closed,
@@ -51,7 +56,7 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export type PollOptionSelectorProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   displayAvatarCount?: number;
   voteCountVerbose?: boolean;
 };
@@ -61,8 +66,9 @@ export const PollOptionSelector = ({
   option,
   voteCountVerbose,
 }: PollOptionSelectorProps) => {
+  const channel = useChannel();
   const { t } = useTranslationContext();
-  const { channelCapabilities = {} } = useChannelStateContext('PollOptionsShortlist');
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
   const { message } = useMessageContext();
   const {
     AvatarStack = DefaultAvatarStack,
@@ -78,7 +84,7 @@ export const PollOptionSelector = ({
     voting_visibility,
   } = useStateStore(poll.state, pollStateSelector);
 
-  const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
+  const canCastVote = channelCapabilities.has('cast-poll-vote') && !is_closed;
   const isInteractive = !!canCastVote;
   const isSelected = !!ownVotesByOptionId[option.id];
   const winningOptionCount = maxVotedOptionIds[0]
@@ -100,7 +106,7 @@ export const PollOptionSelector = ({
   const avatarDisplayInfo = useMemo(
     () =>
       latest_votes_by_option?.[option.id] &&
-      (latest_votes_by_option[option.id] as PollVote[])
+      (latest_votes_by_option[option.id] as PollVoteResponseData[])
         .filter((vote) => !!vote.user && !isVoteAnswer(vote))
         .slice(0, displayAvatarCount)
         .map(extractDisplayInfo),

@@ -1,13 +1,13 @@
 import { useEffect, useMemo } from 'react';
 import { MessageComposer as MessageComposerController } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
-import { useChannelStateContext, useChatContext } from '../../../context';
+import { useChannel, useChatContext } from '../../../context';
 import { useLegacyThreadContext } from '../../Thread';
 
 export const useMessageComposerController = () => {
   const { client } = useChatContext();
   const { messageComposerCache: queueCache } = client;
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
 

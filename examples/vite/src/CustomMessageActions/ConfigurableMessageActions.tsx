@@ -116,7 +116,7 @@ const CustomDeleteMessageAlert = ({
           appearance='outline'
           className='str-chat__delete-message-alert__delete-button'
           data-testid='delete-message-alert-delete-button'
-          onClick={() => onDelete({ deleteForMe, hardDelete })}
+          onClick={() => onDelete({ delete_for_me: deleteForMe, hard: hardDelete })}
           size='md'
           variant='danger'
         >

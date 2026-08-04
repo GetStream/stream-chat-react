@@ -20,7 +20,7 @@ const mocks = vi.hoisted(() => {
   const muteUser = vi.fn();
   const removeMembers = vi.fn();
   const t = vi.fn((key: string) => key);
-  const unBlockUser = vi.fn();
+  const unblockUser = vi.fn();
   const unmute = vi.fn();
   const unmuteUser = vi.fn();
   const blockedUsers = (() => {
@@ -68,7 +68,7 @@ const mocks = vi.hoisted(() => {
     blockedUsers,
     blockUser,
     muteUser,
-    unBlockUser,
+    unblockUser,
     unmuteUser,
     user: { id: 'own-user' },
     userID: 'own-user',
@@ -87,7 +87,7 @@ const mocks = vi.hoisted(() => {
     muteUser,
     removeMembers,
     t,
-    unBlockUser,
+    unblockUser,
     unmute,
     unmuteUser,
     useStableTranslationFunction: true,
@@ -180,7 +180,7 @@ describe('DefaultChannelManagementActions', () => {
     mocks.muteUser.mockReset();
     mocks.removeMembers.mockReset();
     mocks.t.mockClear();
-    mocks.unBlockUser.mockReset();
+    mocks.unblockUser.mockReset();
     mocks.unmute.mockReset();
     mocks.unmuteUser.mockReset();
     mocks.useStableTranslationFunction = true;
@@ -374,7 +374,7 @@ describe('DefaultChannelManagementActions', () => {
 
   it('opens an unblock user alert and runs the API from the confirm button', async () => {
     mocks.client.blockedUsers.next({ userIds: ['other-user'] });
-    mocks.unBlockUser.mockResolvedValueOnce(undefined);
+    mocks.unblockUser.mockResolvedValueOnce(undefined);
 
     renderAction(<DefaultChannelManagementActions.BlockUser />);
 
@@ -382,7 +382,7 @@ describe('DefaultChannelManagementActions', () => {
 
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Unblock' })).toBeInTheDocument();
-    expect(mocks.unBlockUser).not.toHaveBeenCalled();
+    expect(mocks.unblockUser).not.toHaveBeenCalled();
 
     await act(async () => {
       fireEvent.click(
@@ -391,7 +391,7 @@ describe('DefaultChannelManagementActions', () => {
       await Promise.resolve();
     });
 
-    expect(mocks.unBlockUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.unblockUser).toHaveBeenCalledWith('other-user');
     expect(mocks.addNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'User unblocked',

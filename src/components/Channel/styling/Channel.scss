@@ -1,43 +1,23 @@
+/* `.str-chat__channel` is the channel's main content column: a flex column that fills its
+   parent and stacks the header / message list / composer. It used to wrap a `.str-chat__container`
+   (flex row for a side-by-side Thread) and a `.str-chat__main-panel`; the thread is a slot now,
+   so both wrappers are gone and their layout lives here directly. */
 .str-chat__channel {
+  position: relative;
   height: 100%;
   display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
+  width: 100%;
+  min-width: 0;
   min-height: 0;
-  position: relative;
 
-  .str-chat__container {
-    height: 100%;
+  /* A drag-and-drop wrapper placed directly inside the channel becomes the content column. */
+  > .str-chat__dropzone-root {
     display: flex;
-
-    .str-chat__main-panel {
-      position: relative;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      min-width: 0;
-    }
-
-    /* Mobile (<768px): when thread is open, show only thread (channel panel collapsed). */
-    @media (max-width: 767px) {
-      &:has(.str-chat__thread-container) {
-        > .str-chat__main-panel,
-        > .str-chat__dropzone-root:not(.str-chat__dropzone-root--thread) {
-          flex: 0 0 0;
-          width: 0;
-          min-width: 0;
-          max-width: 0;
-          overflow: hidden;
-        }
-
-        > .str-chat__thread-container,
-        > .str-chat__dropzone-root--thread {
-          flex: 1 1 auto;
-          min-width: 0;
-          width: 100%;
-        }
-      }
-    }
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
   }
 }
 
