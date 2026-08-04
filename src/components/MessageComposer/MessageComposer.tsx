@@ -104,7 +104,7 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
       if (messageComposer.channel.disconnected) return;
 
       const promise = messageComposer.config.drafts.enabled
-        ? messageComposer.createDraft()
+        ? messageComposer.createDraft().catch(console.error)
         : Promise.resolve();
 
       if (props.preventClearingOnUnmount) return;
