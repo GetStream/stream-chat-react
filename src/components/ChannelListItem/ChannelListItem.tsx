@@ -119,23 +119,18 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
 
   useEffect(() => {
     const handleEvent = (event: Event) => {
-      if (!event.cid) return setUnread(0);
-      if (channel.cid === event.cid) setUnread(0);
-    };
-
-    client.on('notification.mark_read', handleEvent);
-    return () => client.off('notification.mark_read', handleEvent);
-  }, [channel, client]);
-
-  useEffect(() => {
-    const handleEvent = (event: Event) => {
       if (channel.cid !== event.cid) return;
       if (event.user?.id !== client.user?.id) return;
       setUnread(channel.countUnread());
     };
+
+    client.on('notification.mark_read', handleEvent);
     channel.on('notification.mark_unread', handleEvent);
+    channel.on('message.read_locally', handleEvent);
     return () => {
+      client.off('notification.mark_read', handleEvent);
       channel.off('notification.mark_unread', handleEvent);
+      channel.off('message.read_locally', handleEvent);
     };
   }, [channel, client]);
 
