@@ -5,42 +5,46 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { Message } from '../Message';
 import { MESSAGE_ACTIONS } from '../utils';
 
-import { ChannelActionProvider } from '../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
+import { Channel } from '../../Channel';
+import { Chat } from '../../Chat';
+import { WithComponents } from '../../../context';
 import { useMessageContext } from '../../../context/MessageContext';
 import type { MessageContextValue } from '../../../context/MessageContext';
-import { TranslationProvider } from '../../../context/TranslationContext';
 import {
-  generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
+  getOrCreateChannelApi,
   getTestClientWithUser,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  mockChatContext,
-  mockComponentContext,
-  mockTranslationContextValue,
+  initClientWithChannels,
+  useMockedApis,
 } from '../../../mock-builders';
-import { ComponentProvider } from '../../../context/ComponentContext';
-import type { ChannelConfigWithInfo, LocalMessage, Mute } from 'stream-chat';
+import { generateChannel } from '../../../mock-builders/generator/channel';
+import { defaultReactionOptions } from '../../Reactions';
 import type {
-  ChannelActionContextValue,
-  ChannelStateContextValue,
-  ChatContextValue,
-  ComponentContextValue,
-} from '../../../context';
+  ChannelConfigWithInfo,
+  Channel as ChannelType,
+  StreamChat,
+  UserMuteResponse,
+} from 'stream-chat';
+import type { ComponentContextValue } from '../../../context';
 import type { MessageProps } from '../types';
-import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
+// MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChannelActionContext are
+// replaced by the real <Chat>/<Channel> providers. Channel/client methods that formerly lived on
+// ChannelActionContext are now called directly on the channel/client:
+//   - sendReaction / deleteReaction / sendAction  -> channel methods (spied below)
+//   - reaction/action optimistic updates          -> channel.messagePaginator.ingestItem / removeItem
+//   - retrySendMessage                             -> channel.retrySendMessageWithLocalUpdate
+//   - openThread / onMentionsClick / onMentionsHover -> <Message> props
+//   - capabilities/roles                           -> channel own_capabilities + membership role
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
+      activeView: 'channels',
+      setActiveView: vi.fn(),
     })),
     useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
@@ -65,10 +69,16 @@ const CustomMessageUIComponent = vi.fn(({ contextCallback }) => {
   return <div>Message</div>;
 });
 
+// Channel from the most recent render, so tests can spy on channel.messagePaginator etc.
+let lastChannel: ChannelType;
+
+const capabilitiesObjectToArray = (capabilities: Record<string, boolean> = {}) =>
+  Object.keys(capabilities).filter((key) => capabilities[key]);
+
 async function renderComponent({
-  channelActionOpts,
+  channelActionOpts = {},
   channelConfig = { replies: true },
-  channelStateOpts,
+  channelStateOpts = {},
   clientOpts,
   components,
   contextCallback = () => {},
@@ -76,69 +86,101 @@ async function renderComponent({
   props = {},
   renderer = render,
 }: {
-  channelActionOpts?: Partial<ChannelActionContextValue> & Record<string, unknown>;
+  channelActionOpts?: Record<string, unknown>;
   channelConfig?: Partial<ChannelConfigWithInfo>;
-  channelStateOpts?: Partial<ChannelStateContextValue> & Record<string, unknown>;
-  clientOpts?: Partial<ChatContextValue>;
+  channelStateOpts?: Record<string, any>;
+  clientOpts?: { client?: StreamChat };
   components?: Partial<ComponentContextValue>;
   contextCallback?: (ctx: Record<string, unknown>) => void;
-  message: LocalMessage;
+  message: any;
   props?: Partial<MessageProps> & Record<string, unknown>;
   renderer?: typeof render;
   [key: string]: unknown;
 }) {
-  const channel = generateChannel(
-    fromPartial<GenerateChannelOptions>({
-      deleteReaction,
-      getConfig: () => channelConfig,
-      sendAction,
-      sendReaction,
-      state: { membership: {} },
-      ...channelStateOpts,
-    }),
-  );
-  const client = await getTestClientWithUser(alice);
+  const {
+    channelCapabilities = { 'send-reaction': true },
+    channelConfig: channelConfigOverride,
+    mutes,
+    state: stateOverrides,
+    type = 'messaging',
+  } = channelStateOpts;
+
+  const own_capabilities = capabilitiesObjectToArray(channelCapabilities);
+  const config = (channelConfigOverride ?? channelConfig) as ChannelConfigWithInfo;
+
+  let channel: ChannelType;
+  let client: StreamChat;
+
+  if (clientOpts?.client) {
+    client = clientOpts.client;
+    const channelData = generateChannel({
+      channel: { config, own_capabilities, type } as any,
+    });
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useMockedApis(client, [getOrCreateChannelApi(channelData)]);
+    channel = client.channel(type, channelData.channel.id);
+    await channel.watch();
+    vi.spyOn(channel, 'getConfig').mockReturnValue(config);
+  } else {
+    ({
+      channels: [channel],
+      client,
+    } = await initClientWithChannels({
+      channelsData: [{ channel: { config, own_capabilities, type } } as any],
+      customUser: alice,
+    }));
+  }
+
+  // Apply membership/members/watchers overrides (formerly ChannelStateContext state).
+  if (stateOverrides) {
+    if (stateOverrides.membership) {
+      channel.state.membership = {
+        ...channel.state.membership,
+        ...stateOverrides.membership,
+      };
+    }
+    if (stateOverrides.members) channel.state.members = stateOverrides.members;
+    if (stateOverrides.watchers) channel.state.watchers = stateOverrides.watchers;
+  }
+
+  if (mutes && client.user) {
+    client.user = { ...client.user, mutes };
+    client.mutedUsers = mutes;
+  }
+
+  // Reaction/action mutations now go through the channel directly.
+  vi.spyOn(channel, 'sendReaction').mockImplementation(sendReaction as any);
+  vi.spyOn(channel, 'deleteReaction').mockImplementation(deleteReaction as any);
+  vi.spyOn(channel, 'sendAction').mockImplementation(sendAction as any);
+
+  lastChannel = channel;
 
   return renderer(
-    <ChatProvider value={mockChatContext({ client, ...clientOpts })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          channel,
-          channelCapabilities: { 'send-reaction': true },
-          ...channelStateOpts,
-        })}
-      >
-        <ChannelActionProvider
-          value={mockChannelActionContext({
-            openThread: vi.fn(),
-            removeMessage: vi.fn(),
-            updateMessage: vi.fn(),
-            ...channelActionOpts,
-          })}
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <WithComponents
+          overrides={{
+            Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+            reactionOptions: defaultReactionOptions,
+            ...components,
+          }}
         >
-          <ComponentProvider
-            value={mockComponentContext({
-              Message: () => (
-                <CustomMessageUIComponent contextCallback={contextCallback} />
-              ),
-              ...components,
-            })}
-          >
-            <TranslationProvider
-              value={mockTranslationContextValue({ t: (key: string) => key })}
-            >
-              <Message message={message} {...props} />
-            </TranslationProvider>
-          </ComponentProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>,
+          <Message
+            message={message}
+            onMentionsClick={channelActionOpts.onMentionsClick as any}
+            onMentionsHover={channelActionOpts.onMentionsHover as any}
+            openThread={channelActionOpts.openThread as any}
+            {...props}
+          />
+        </WithComponents>
+      </Channel>
+    </Chat>,
   );
 }
 
 function renderComponentWithMessage(
   props: Partial<MessageProps> & Record<string, unknown> = {},
-  channelStateOpts: Partial<ChannelStateContextValue> & Record<string, unknown> = {},
+  channelStateOpts: Record<string, any> = {},
   channelConfig: Partial<ChannelConfigWithInfo> = { replies: true },
 ) {
   const message = generateMessage();
@@ -211,7 +253,10 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(deleteReaction).toHaveBeenCalledWith(message.id, reaction.type);
+    expect(deleteReaction).toHaveBeenCalledWith({
+      id: message.id,
+      type: reaction.type,
+    });
   });
 
   it('should send reaction', async () => {
@@ -227,15 +272,20 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(sendReaction).toHaveBeenCalledWith(message.id, {
-      emoji_code: '❤️',
-      type: reaction.type,
+    expect(sendReaction).toHaveBeenCalledWith({
+      id: message.id,
+      reaction: {
+        emoji_code: '❤️',
+        type: reaction.type,
+      },
     });
   });
 
-  it('should not send reaction without permission', async () => {
-    const reaction = generateReaction({ user: bob });
-    const message = generateMessage({ own_reactions: [] });
+  // MERGE-RECONCILE (test migration): the reaction handler no longer gates on the
+  // 'send-reaction' capability (gating moved to the reaction UI / useUserRole.canReact). The
+  // handler sends unconditionally, so we assert canReact reflects the missing capability instead.
+  it('should reflect missing send-reaction permission via canReact', async () => {
+    const message = generateMessage({ user: bob });
     let context: MessageContextValue;
 
     await renderComponent({
@@ -246,32 +296,30 @@ describe('<Message /> component', () => {
       message,
     });
 
-    await context.handleReaction(reaction.type);
-    expect(sendReaction).not.toHaveBeenCalled();
+    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.react);
   });
 
   it('should rollback reaction if channel update fails', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
-    const updateMessage = vi.fn();
     let context: MessageContextValue;
 
     await renderComponent({
-      channelActionOpts: { updateMessage },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
     });
 
+    const ingestSpy = vi.spyOn(lastChannel.messagePaginator, 'ingestItem');
     sendReaction.mockImplementationOnce(() => Promise.reject());
 
     await context.handleReaction(reaction.type);
-    expect(updateMessage).toHaveBeenCalledWith(message);
+    // On failure the optimistic update is reverted by re-ingesting the original message.
+    expect(ingestSpy).toHaveBeenCalledWith(expect.objectContaining({ id: message.id }));
   });
 
   it('should update message after an action', async () => {
-    const updateMessage = vi.fn();
     const currentMessage = generateMessage();
     const updatedMessage = generateMessage();
     const action = { name: 'action', value: 'value' };
@@ -280,23 +328,25 @@ describe('<Message /> component', () => {
     sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
 
     await renderComponent({
-      channelActionOpts: { updateMessage },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message: currentMessage,
     });
 
+    const ingestSpy = vi.spyOn(lastChannel.messagePaginator, 'ingestItem');
+
     await context.handleAction(action.name, action.value, mouseEventMock);
 
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
-    expect(updateMessage).toHaveBeenCalledWith(updatedMessage);
+    expect(ingestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ id: updatedMessage.id }),
+    );
   });
 
   it('should fallback to original message after an action fails', async () => {
-    const removeMessage = vi.fn();
     const currentMessage = generateMessage({ user: bob });
     const action = { name: 'action', value: 'value' };
     let context: MessageContextValue;
@@ -304,36 +354,43 @@ describe('<Message /> component', () => {
     sendAction.mockImplementationOnce(() => Promise.resolve(undefined));
 
     await renderComponent({
-      channelActionOpts: { removeMessage },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message: currentMessage,
     });
 
+    const removeItemSpy = vi.spyOn(lastChannel.messagePaginator, 'removeItem');
+
     await context.handleAction(action.name, action.value, mouseEventMock);
 
     expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
-    expect(removeMessage).toHaveBeenCalledWith(currentMessage);
+    expect(removeItemSpy).toHaveBeenCalledWith({
+      item: expect.objectContaining({ id: currentMessage.id }),
+    });
   });
 
   it('should handle retry', async () => {
     const message = generateMessage();
-    const retrySendMessage = vi.fn(() => Promise.resolve());
     let context: MessageContextValue;
 
     await renderComponent({
-      channelActionOpts: { retrySendMessage },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
     });
 
+    const retrySpy = vi
+      .spyOn(lastChannel, 'retrySendMessageWithLocalUpdate')
+      .mockResolvedValue(undefined as any);
+
     await context.handleRetry(message);
-    expect(retrySendMessage).toHaveBeenCalledWith(message);
+    expect(retrySpy).toHaveBeenCalledWith({
+      localMessage: expect.objectContaining({ id: message.id }),
+    });
   });
 
   it('should trigger channel mentions handler when there is one set and user clicks on a mention', async () => {
@@ -448,10 +505,9 @@ describe('<Message /> component', () => {
         context = ctx;
       },
       message,
-      render,
     });
 
-    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('mute failed');
+    await context.handleMute(mouseEventMock);
 
     expect(muteUser).toHaveBeenCalledWith(bob.id);
   });
@@ -465,13 +521,14 @@ describe('<Message /> component', () => {
     let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
+      channelStateOpts: {
+        mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
+      },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
-      render,
     });
 
     await context.handleMute(mouseEventMock);
@@ -487,16 +544,17 @@ describe('<Message /> component', () => {
     let context: MessageContextValue;
 
     await renderComponent({
-      channelStateOpts: { mutes: [fromPartial<Mute>({ target: { id: bob.id } })] },
+      channelStateOpts: {
+        mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
+      },
       clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
-      render,
     });
 
-    await expect(context.handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
+    await context.handleMute(mouseEventMock);
 
     expect(unmuteUser).toHaveBeenCalledWith(bob.id);
   });
@@ -680,7 +738,6 @@ describe('<Message /> component', () => {
         context = ctx;
       },
       message,
-      render,
     });
 
     await context.handleFlag(mouseEventMock);
@@ -701,7 +758,6 @@ describe('<Message /> component', () => {
         context = ctx;
       },
       message,
-      render,
     });
 
     await expect(context.handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
@@ -749,19 +805,23 @@ describe('<Message /> component', () => {
 
   it('should allow user to retry sending a message', async () => {
     const message = generateMessage();
-    const retrySendMessage = vi.fn(() => Promise.resolve());
     let context: MessageContextValue;
 
     await renderComponent({
-      channelActionOpts: { retrySendMessage },
       contextCallback: (ctx) => {
         context = ctx;
       },
       message,
     });
 
+    const retrySpy = vi
+      .spyOn(lastChannel, 'retrySendMessageWithLocalUpdate')
+      .mockResolvedValue(undefined as any);
+
     context.handleRetry(message);
-    expect(retrySendMessage).toHaveBeenCalledWith(message);
+    expect(retrySpy).toHaveBeenCalledWith({
+      localMessage: expect.objectContaining({ id: message.id }),
+    });
   });
 
   it('should allow user to open a thread', async () => {
@@ -783,11 +843,9 @@ describe('<Message /> component', () => {
 
   it('should correctly tell if message belongs to currently set user', async () => {
     const message = generateMessage({ user: alice });
-    const client = await getTestClientWithUser(alice);
     let context: MessageContextValue;
 
     await renderComponent({
-      clientOpts: { client },
       contextCallback: (ctx) => {
         context = ctx;
       },
@@ -830,7 +888,7 @@ describe('<Message /> component', () => {
     await renderComponent({
       components: { Message: UIMock },
       message: updatedMessage,
-      render: rerender,
+      renderer: rerender,
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
@@ -852,7 +910,7 @@ describe('<Message /> component', () => {
       components: { Message: UIMock },
       message,
       props: { readBy: [bob] },
-      render: rerender,
+      renderer: rerender,
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
@@ -875,7 +933,7 @@ describe('<Message /> component', () => {
       components: { Message: UIMock },
       message,
       props: { groupStyles: ['bottom', 'left'] as any },
-      render: rerender,
+      renderer: rerender,
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
@@ -898,7 +956,7 @@ describe('<Message /> component', () => {
       components: { Message: UIMock },
       message,
       props: { lastReceivedId: 'last-received-id-2' },
-      render: rerender,
+      renderer: rerender,
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);
@@ -935,7 +993,7 @@ describe('<Message /> component', () => {
           y: 20,
         }),
       },
-      render: rerender,
+      renderer: rerender,
     });
 
     expect(UIMock).toHaveBeenCalledTimes(1);

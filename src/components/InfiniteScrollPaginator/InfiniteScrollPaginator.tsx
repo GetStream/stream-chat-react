@@ -1,6 +1,7 @@
 import clsx from 'clsx';
 import debounce from 'lodash.debounce';
 import type { PropsWithChildren } from 'react';
+import { forwardRef } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { DEFAULT_LOAD_PAGE_SCROLL_THRESHOLD } from '../../constants/limits';
 
@@ -14,7 +15,8 @@ const mousewheelListener = (event: Event) => {
   }
 };
 
-export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
+type InfiniteScrollPaginatorOwnProps = {
+  element?: React.ElementType;
   /**
    * Props spread onto the inner content wrapper (the element that directly wraps
    * `children`). Use this to e.g. mark the wrapper `role="presentation"` so it stays
@@ -35,13 +37,38 @@ export type InfiniteScrollPaginatorProps = React.ComponentProps<'div'> & {
   useCapture?: boolean;
 };
 
-export const InfiniteScrollPaginator = (
-  props: PropsWithChildren<InfiniteScrollPaginatorProps>,
-) => {
+// polymorphic props, defaulting to 'div'. `ref` is carried by `ComponentPropsWithRef<C>`
+// (it is not omitted below), so the props type already exposes the correct ref — no separate
+// `ref?` signature is needed (and the react-compat lint rule forbids a literal one; the
+// component is a real `forwardRef` below).
+export type InfiniteScrollPaginatorProps<C extends React.ElementType = 'div'> =
+  PropsWithChildren<
+    InfiniteScrollPaginatorOwnProps & {
+      element?: C;
+    } & Omit<
+        React.ComponentPropsWithRef<C>,
+        keyof InfiniteScrollPaginatorOwnProps | 'element'
+      >
+  >;
+
+type InfiniteScrollPaginatorComponent = <C extends React.ElementType = 'div'>(
+  props: InfiniteScrollPaginatorProps<C>,
+) => React.ReactNode;
+
+const renderPolymorphic = <C extends React.ElementType>(
+  Comp: C,
+  props: React.ComponentPropsWithRef<C>,
+  children?: React.ReactNode,
+) => React.createElement(Comp, props, children);
+
+export const InfiniteScrollPaginator = forwardRef(function InfiniteScrollPaginator<
+  E extends React.ElementType = 'div',
+>(props: InfiniteScrollPaginatorProps<E>, ref: React.ForwardedRef<unknown>) {
   const {
     children,
     className,
     contentProps,
+    element: Component = 'div' as E,
     listenToScroll,
     loadNextDebounceMs = 500,
     loadNextOnScrollToBottom,
@@ -52,7 +79,7 @@ export const InfiniteScrollPaginator = (
   } = props;
   const { className: contentClassName, ...contentRestProps } = contentProps ?? {};
 
-  const rootRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
   const childRef = useRef<HTMLDivElement | null>(null);
 
   const scrollListener = useMemo(
@@ -123,19 +150,28 @@ export const InfiniteScrollPaginator = (
     };
   }, [useCapture]);
 
-  return (
-    <div
-      {...componentProps}
-      className={clsx('str-chat__infinite-scroll-paginator', className)}
-      ref={rootRef}
-    >
-      <div
-        {...contentRestProps}
-        className={clsx('str-chat__infinite-scroll-paginator__content', contentClassName)}
-        ref={childRef}
-      >
-        {children}
-      </div>
-    </div>
+  return renderPolymorphic(
+    Component as E,
+    {
+      ...(componentProps as React.ComponentPropsWithRef<E>),
+      className: clsx('str-chat__infinite-scroll-paginator', className),
+      ref: (node: React.ComponentRef<E> | null) => {
+        if (typeof ref === 'function') {
+          ref(node);
+        } else if (ref && 'current' in ref) {
+          (ref as React.RefObject<React.ComponentRef<E> | null>).current = node;
+        }
+        rootRef.current = node && node instanceof HTMLElement ? node : null;
+      },
+    },
+    React.createElement(
+      'div',
+      {
+        ...contentRestProps,
+        className: clsx('str-chat__infinite-scroll-paginator__content', contentClassName),
+        ref: childRef,
+      },
+      children,
+    ),
   );
-};
+}) as InfiniteScrollPaginatorComponent;

@@ -570,7 +570,7 @@ describe('ChannelPreview utils', () => {
         generateChannel({ messages: [generateMessage({ text: 'x', user: bob })] }),
       );
       const latestMessage =
-        channel.state.latestMessages[channel.state.latestMessages.length - 1];
+        channel.messagePaginator.aggregateState.getLatestValue().lastMessage;
 
       const label = composeChannelListItemAccessibleLabel(
         {
@@ -592,10 +592,10 @@ describe('ChannelPreview utils', () => {
   });
 
   describe('getChannelDisplayImage (utils)', () => {
-    it('returns channel.data.image when set', async () => {
+    it('returns channel.data.custom.image when set', async () => {
       const image = nanoid();
       const channel = await getQueriedChannelInstance(
-        generateChannel({ channel: { image } }),
+        generateChannel({ channel: { custom: { image } } }),
       );
       expect(getChannelDisplayImage(channel)).toBe(image);
     });

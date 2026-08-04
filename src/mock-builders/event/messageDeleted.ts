@@ -12,7 +12,7 @@ export default (
     fromPartial<Event>({
       channel: data,
       cid: data.cid,
-      message: message as MessageResponse,
+      message: { ...message, cid: message.cid ?? data.cid } as MessageResponse,
       type: 'message.deleted',
     }),
   );

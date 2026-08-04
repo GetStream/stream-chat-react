@@ -39,11 +39,12 @@ describe('useReactionsFetcher', () => {
     });
 
     expect(queryReactions).toHaveBeenCalledTimes(2);
-    expect(queryReactions.mock.calls[0]?.[3]).toEqual(
-      expect.objectContaining({ limit: 25, next: undefined }),
+    // v10: `client.queryReactions` takes a single request object.
+    expect(queryReactions.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ id: message.id, limit: 25, next: undefined }),
     );
-    expect(queryReactions.mock.calls[1]?.[3]).toEqual(
-      expect.objectContaining({ limit: 25, next: 'page-2' }),
+    expect(queryReactions.mock.calls[1]?.[0]).toEqual(
+      expect.objectContaining({ id: message.id, limit: 25, next: 'page-2' }),
     );
     expect(reactions!).toHaveLength(2);
   });

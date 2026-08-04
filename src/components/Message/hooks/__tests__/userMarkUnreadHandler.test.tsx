@@ -1,70 +1,106 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel as ChannelType, LocalMessage, StreamChat } from 'stream-chat';
+
 import { useMarkUnreadHandler } from '../useMarkUnreadHandler';
-import { ChannelStateProvider, TranslationProvider } from '../../../../context';
-import type { TranslationContextValue } from '../../../../context';
-import {
-  generateMessage,
-  mockChannelStateContext,
-  mockTranslationContextValue,
-} from '../../../../mock-builders';
-import type { LocalMessage } from 'stream-chat';
+import type { MarkUnreadHandlerNotifications } from '../useMarkUnreadHandler';
+import { generateMessage, initClientWithChannels } from '../../../../mock-builders';
+import { Channel } from '../../../Channel';
+import { Chat } from '../../../Chat';
+
+// MERGE-RECONCILE (test migration): the master merge removed ChannelStateContext.
+// `useMarkUnreadHandler` reads the channel from ChannelInstanceContext (useChannel). The wrapper
+// uses the real <Chat>/<Channel> providers and assertions spy on `channel.markUnread`. The hook
+// now *propagates* request failures (it no longer swallows them) so the caller — e.g. MessageActions'
+// MarkUnread control, which wraps the handler in try/catch and reports via useNotificationApi — can
+// surface the error; the optional `notify` bridge is only used for a success toast.
 
 vi.spyOn(console, 'warn').mockImplementation(() => null);
 
 const event = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
-const t = ((str: string) => str) as TranslationContextValue['t'];
 const message = generateMessage() as unknown as LocalMessage;
-const channel = fromPartial<{ markUnread: ReturnType<typeof vi.fn> }>({
-  markUnread: vi.fn(),
-});
-function renderUseMarkUnreadHandlerHook({ message }: { message?: LocalMessage } = {}) {
+
+let channel: ChannelType;
+let client: StreamChat;
+
+function renderUseMarkUnreadHandlerHook({
+  message,
+  notifications,
+}: { message?: LocalMessage; notifications?: MarkUnreadHandlerNotifications } = {}) {
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <TranslationProvider value={mockTranslationContextValue({ t })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          channel,
-        })}
-      >
-        {children}
-      </ChannelStateProvider>
-    </TranslationProvider>
+    <Chat client={client}>
+      <Channel channel={channel}>{children}</Channel>
+    </Chat>
   );
-  const { result } = renderHook(() => useMarkUnreadHandler(message), {
+  const { result } = renderHook(() => useMarkUnreadHandler(message, notifications), {
     wrapper,
   });
   return result.current;
 }
+
 describe('useMarkUnreadHandler', () => {
-  afterEach(vi.clearAllMocks);
-  it('does not call channel.markUnread if no message is provided', async () => {
-    const handleMarkUnread = renderUseMarkUnreadHandlerHook();
-    await handleMarkUnread(event);
-    expect(channel.markUnread).not.toHaveBeenCalled();
+  beforeEach(async () => {
+    const {
+      channels: [ch],
+      client: c,
+    } = await initClientWithChannels();
+    channel = ch;
+    client = c;
   });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('does not call channel.markUnread if no message is provided', async () => {
+    const markUnreadSpy = vi.spyOn(channel, 'markUnread');
+    const handleMarkUnread = renderUseMarkUnreadHandlerHook();
+    await act(async () => {
+      await handleMarkUnread(event);
+    });
+    expect(markUnreadSpy).not.toHaveBeenCalled();
+  });
+
   it('does not call channel.markUnread if message is missing id', async () => {
+    const markUnreadSpy = vi.spyOn(channel, 'markUnread');
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({
       message: generateMessage({ id: undefined }) as unknown as LocalMessage,
     });
-    await handleMarkUnread(event);
-    expect(channel.markUnread).not.toHaveBeenCalled();
+    await act(async () => {
+      await handleMarkUnread(event);
+    });
+    expect(markUnreadSpy).not.toHaveBeenCalled();
   });
+
   it('calls channel.markUnread', async () => {
+    const markUnreadSpy = vi
+      .spyOn(channel, 'markUnread')
+      .mockResolvedValue(fromPartial({}));
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message });
-    await handleMarkUnread(event);
-    expect(channel.markUnread).toHaveBeenCalledWith(
+    await act(async () => {
+      await handleMarkUnread(event);
+    });
+    expect(markUnreadSpy).toHaveBeenCalledWith(
       expect.objectContaining({ message_id: message.id }),
     );
   });
+
   it('completes without throwing on successful mark unread', async () => {
+    vi.spyOn(channel, 'markUnread').mockResolvedValue(fromPartial({}));
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message });
-    await handleMarkUnread(event);
+    await act(async () => {
+      await expect(handleMarkUnread(event)).resolves.toBeUndefined();
+    });
   });
 
-  it('throws the default error message if mark unread fails', async () => {
-    channel.markUnread.mockRejectedValueOnce(new Error('mark unread failed'));
+  it('propagates the error if mark unread fails (caller surfaces the notification)', async () => {
+    const error = new Error('mark unread failed');
+    vi.spyOn(channel, 'markUnread').mockRejectedValue(error);
     const handleMarkUnread = renderUseMarkUnreadHandlerHook({ message });
-    await expect(handleMarkUnread(event)).rejects.toThrow('mark unread failed');
+    await act(async () => {
+      await expect(handleMarkUnread(event)).rejects.toThrow('mark unread failed');
+    });
   });
 });

@@ -2,13 +2,14 @@ import type { LocalMessage, MessageResponse, MessageSearchSource } from 'stream-
 import React, { useCallback, useMemo } from 'react';
 
 import {
-  useChannelActionContext,
-  useChatContext,
+  useComponentContext,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
+import { useChatViewNavigation } from '../../../SlotLayout';
 import { getDateString, isDate } from '../../../../i18n/utils';
-import { Avatar } from '../../../../components/Avatar';
+import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
 import { VirtualizedList } from '../../VirtualizedList';
 import { Prompt } from '../../../../components/Dialog';
@@ -82,14 +83,18 @@ const PinnedMessagesViewItem = ({
   onSelect: (message: PinnedMessage) => void;
 }) => {
   const { t } = useTranslationContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const displayName = getUserDisplayName(message.user ?? undefined);
 
   const LeadingSlot = useMemo(
     () =>
       function MessageAuthorAvatar() {
-        return <Avatar imageUrl={message.user?.image} size='md' userName={displayName} />;
+        const displayInfo = extractDisplayInfo({ user: message.user ?? undefined });
+
+        return <Avatar {...displayInfo} size='md' />;
       },
-    [displayName, message.user?.image],
+    [Avatar, extractDisplayInfo, message.user],
   );
 
   const TrailingSlot = useMemo(
@@ -129,11 +134,9 @@ export type PinnedMessagesViewProps = SectionNavigatorSectionContentProps & {
 export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = ({
   searchSource,
 }) => {
-  const { setActiveChannel } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { t } = useTranslationContext();
   const { close } = useModalContext();
-  // fixme: it is not right to couple the ChannelDetail view with Channel component. We need to have access to channel.messagePaginator.jumpToMessage()
-  const { jumpToMessage } = useChannelActionContext();
   const { channel } = useChannelDetailContext();
   const {
     displayedMessages,
@@ -145,11 +148,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
 
   const handleSelectMessage = useCallback(
     (message: PinnedMessage) => {
-      setActiveChannel(channel);
-      jumpToMessage(message.id);
+      // Selection is one navigation model: open the channel into a layout slot.
+      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+      // MERGE-RECONCILE: the deleted ChannelActionContext.jumpToMessage was replaced by the
+      // channel's messagePaginator (PR #2909 / stream-chat message-paginator API).
+      void channel.messagePaginator.jumpToMessage(message.id);
       close();
     },
-    [channel, close, jumpToMessage, setActiveChannel],
+    [channel, close, open],
   );
 
   const renderItem = useCallback(

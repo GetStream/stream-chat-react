@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Attachment } from 'stream-chat';
+import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import {
   FileSizeIndicator as DefaultFileSizeIndicator,
@@ -13,6 +13,7 @@ import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button/PlayButton';
 import { FileIcon } from '../FileIcon';
 import { DurationDisplay, ProgressBar } from '../AudioPlayback';
+import { useThreadContext } from '../Threads';
 
 type AudioAttachmentUIProps = {
   audioPlayer: AudioPlayer;
@@ -87,9 +88,10 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
  * Audio attachment with play/pause button and progress bar
  */
 export const Audio = (props: AudioProps) => {
-  const {
-    attachment: { asset_url, duration, file_size, mime_type, title },
-  } = props;
+  const { attachment } = props;
+  const { asset_url, title } = attachment;
+  const { duration, file_size, mime_type, waveform_data } =
+    (attachment as VoiceRecordingAttachment).custom ?? {};
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
@@ -100,7 +102,8 @@ export const Audio = (props: AudioProps) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  const { message } = useMessageContext() ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration,
@@ -108,10 +111,10 @@ export const Audio = (props: AudioProps) => {
     mimeType: mime_type,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src: asset_url,
     title,
-    waveformData: props.attachment.waveform_data,
+    waveformData: waveform_data,
   });
 
   return audioPlayer ? <AudioAttachmentUI audioPlayer={audioPlayer} /> : null;

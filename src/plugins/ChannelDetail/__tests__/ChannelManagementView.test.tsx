@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { Channel, Mute } from 'stream-chat';
+import type { Channel, UserMuteResponse } from 'stream-chat';
 
 import { ChannelDetailProvider } from '../ChannelDetailContext';
 import { ChannelManagementView } from '../Views/ChannelManagementView/ChannelManagementView';
@@ -9,8 +9,9 @@ const mocks = vi.hoisted(() => ({
   addNotification: vi.fn(),
   channel: {
     data: {
+      // v10: custom channel data (name, image, …) nests under `data.custom`.
+      custom: { name: 'Test channel' },
       member_count: 2,
-      name: 'Test channel',
       own_capabilities: ['update-channel'],
     },
     sendImage: vi.fn(),
@@ -25,7 +26,7 @@ const mocks = vi.hoisted(() => ({
   },
   close: vi.fn(),
   displayImage: undefined as string | undefined,
-  mutes: [] as Mute[],
+  mutes: [] as UserMuteResponse[],
 }));
 
 vi.mock('../../../context', () => ({
@@ -170,7 +171,7 @@ describe('ChannelManagementView', () => {
     mocks.channel.updatePartial.mockReset();
     mocks.channel.sendImage.mockResolvedValue({ file: 'https://stream-upload.example' });
     mocks.channel.updatePartial.mockResolvedValue({});
-    mocks.channel.data.name = 'Test channel';
+    mocks.channel.data.custom.name = 'Test channel';
     mocks.channel.data.member_count = 2;
     mocks.channel.data.own_capabilities = ['update-channel'];
     mocks.displayImage = undefined;
@@ -185,7 +186,7 @@ describe('ChannelManagementView', () => {
     mocks.mutes = [
       {
         target: { id: 'other-user' },
-      } as Mute,
+      } as UserMuteResponse,
     ];
 
     rerender(
@@ -287,7 +288,7 @@ describe('ChannelManagementView', () => {
     await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(1));
     expect(mocks.channel.sendImage).not.toHaveBeenCalled();
     expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-      set: { image: 'https://custom-upload.example' },
+      set: { 'custom.image': 'https://custom-upload.example' },
     });
   });
 
@@ -316,7 +317,7 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          set: { name: 'Renamed channel' },
+          set: { 'custom.name': 'Renamed channel' },
         }),
       );
       expect(mocks.channel.sendImage).not.toHaveBeenCalled();
@@ -331,7 +332,7 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() => expect(mocks.channel.sendImage).toHaveBeenCalledTimes(1));
       expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-        set: { image: 'https://stream-upload.example' },
+        set: { 'custom.image': 'https://stream-upload.example' },
       });
     });
 
@@ -345,7 +346,10 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          set: { image: 'https://stream-upload.example', name: 'Renamed channel' },
+          set: {
+            'custom.image': 'https://stream-upload.example',
+            'custom.name': 'Renamed channel',
+          },
         }),
       );
     });
@@ -360,7 +364,7 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          unset: ['image'],
+          unset: ['custom.image'],
         }),
       );
       expect(mocks.channel.sendImage).not.toHaveBeenCalled();
@@ -457,7 +461,7 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          set: { name: 'Renamed channel' },
+          set: { 'custom.name': 'Renamed channel' },
         }),
       );
 

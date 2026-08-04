@@ -7,6 +7,7 @@ import { useInteractionAnnouncements } from '../../Accessibility';
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { CustomAudioRecordingConfig } from '../classes';
 import type { MessageComposerContextValue } from '../../../context';
+import { useSendMessageFn } from '../../MessageComposer/hooks/useSendMessageFn';
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -18,7 +19,7 @@ export type RecordingController = {
 
 type UseMediaRecorderParams = Pick<
   MessageComposerContextValue,
-  'asyncMessagesMultiSendEnabled' | 'handleSubmit'
+  'asyncMessagesMultiSendEnabled'
 > & {
   enabled: boolean;
   generateRecordingTitle?: (mimeType: string) => string;
@@ -29,16 +30,15 @@ export const useMediaRecorder = ({
   asyncMessagesMultiSendEnabled,
   enabled,
   generateRecordingTitle,
-  handleSubmit,
   recordingConfig,
 }: UseMediaRecorderParams): RecordingController => {
   const { t } = useTranslationContext('useMediaRecorder');
   const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
+  const sendMessageFn = useSendMessageFn();
   const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();
-  const [isScheduledForSubmit, scheduleForSubmit] = useState(false);
 
   const recorder = useMemo(
     () =>
@@ -58,14 +58,19 @@ export const useMediaRecorder = ({
     if (!recording) return;
     await messageComposer.attachmentManager.uploadAttachment(recording);
     if (!asyncMessagesMultiSendEnabled) {
-      // FIXME: cannot call handleSubmit() directly as the function has stale reference to attachments
-      scheduleForSubmit(true);
+      await sendMessageFn();
       announceInteraction('voiceRecording.sent');
     } else {
       announceInteraction('voiceRecording.attached');
     }
     recorder.cleanUp();
-  }, [announceInteraction, asyncMessagesMultiSendEnabled, messageComposer, recorder]);
+  }, [
+    announceInteraction,
+    asyncMessagesMultiSendEnabled,
+    messageComposer,
+    recorder,
+    sendMessageFn,
+  ]);
 
   const previousRecordingStateRef = useRef(recordingState);
   useEffect(() => {
@@ -82,12 +87,6 @@ export const useMediaRecorder = ({
       announceInteraction('voiceRecording.paused');
     }
   }, [announceInteraction, recordingState]);
-
-  useEffect(() => {
-    if (!isScheduledForSubmit) return;
-    handleSubmit();
-    scheduleForSubmit(false);
-  }, [handleSubmit, isScheduledForSubmit]);
 
   useEffect(() => {
     if (!recorder) return;

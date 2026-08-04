@@ -40,17 +40,15 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import {
-  useChannelStateContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import { useThreadContext } from '../Threads';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
 import { QuotedMessage as DefaultQuotedMessage } from './QuotedMessage';
 import { MessageBubble } from './MessageBubble';
 import { ErrorBadge } from '../Badge';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 type MessageUIWithContextProps = MessageContextValue;
 
@@ -59,7 +57,6 @@ const MessageUIWithContext = ({
   firstOfGroup,
   groupedByUser,
   handleAction,
-  handleOpenThread,
   highlighted,
   isMessageAIGenerated,
   isMyMessage,
@@ -68,9 +65,9 @@ const MessageUIWithContext = ({
   onUserHover,
   renderText,
   showAvatar = 'incoming',
-  threadList,
 }: MessageUIWithContextProps) => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
+  const threadInstance = useThreadContext();
   const { client } = useChatContext();
   const { t } = useTranslationContext('MessageUI');
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
@@ -79,6 +76,7 @@ const MessageUIWithContext = ({
   const {
     Attachment = DefaultAttachment,
     Avatar = DefaultAvatar,
+    extractDisplayInfo = defaultExtractDisplayInfo,
     MessageActions = DefaultMessageActions,
     MessageAlsoSentInChannelIndicator = DefaultMessageAlsoSentInChannelIndicator,
     MessageBlocked = DefaultMessageBlocked,
@@ -140,7 +138,7 @@ const MessageUIWithContext = ({
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
   const showMetadata = !groupedByUser || endOfGroup;
-  const showReplyCountButton = !threadList && !!message.reply_count;
+  const showReplyCountButton = !threadInstance && !!message.reply_count;
 
   const rootClassName = clsx(
     'str-chat__message',
@@ -210,12 +208,11 @@ const MessageUIWithContext = ({
         <MessageTranslationIndicator message={message} />
         {message.user && (
           <Avatar
+            {...extractDisplayInfo({ user: message.user ?? undefined })}
             className='str-chat__avatar--with-border'
-            imageUrl={message.user.image}
             onClick={onUserClick}
             onMouseOver={onUserHover}
             size='md'
-            userName={message.user.name || message.user.id}
           />
         )}
         <div
@@ -232,7 +229,6 @@ const MessageUIWithContext = ({
           {!isDeleted && <MessageActions />}
           {showReplyCountButton && (
             <MessageRepliesCountButton
-              onClick={handleOpenThread}
               reply_count={message.reply_count}
               thread_participants={message.thread_participants}
             />

@@ -44,8 +44,8 @@ vi.mock('../../ChatView', async (importOriginal) => {
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
+      activeView: 'channels',
+      setActiveView: vi.fn(),
     })),
     useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,

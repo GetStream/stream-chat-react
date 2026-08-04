@@ -26,7 +26,7 @@ const toError = (error: unknown) =>
   error instanceof Error ? error : new Error('An unknown error occurred');
 
 const getUserDisplayName = (user?: UserResponse) =>
-  user?.name || user?.username || user?.id || '';
+  user?.name || user?.custom?.username || user?.id || '';
 
 const getMemberDisplayName = (member: ChannelMemberResponse) =>
   getUserDisplayName(member.user) || member.user_id || '';

@@ -25,13 +25,14 @@ import {
   isVideoAttachment,
   isVoiceRecordingAttachment,
   type LocalMessage,
-  type LocalMessageBase,
   type MessageComposerState,
-  type PollResponse,
-  type SharedLocationResponse,
-  type TranslationLanguages,
+  type MessageResponse,
+  type PollResponseData,
+  type SharedLocationResponseData,
+  type TranslationLanguage,
+  type VoiceRecordingAttachment,
 } from 'stream-chat';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useAttachmentContext } from '../../context/AttachmentContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
 import {
@@ -39,6 +40,7 @@ import {
   IconFile,
   IconLink,
   IconLocation,
+  IconNoSign,
   IconPlayFill,
   IconPoll,
   IconVideo,
@@ -49,13 +51,14 @@ import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 import { getRenderTextMentionEntities } from '../Message/renderText/rehypePlugins';
+import { isDeletedMessage } from '../MessageList';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,
 });
 
 export type QuotedMessagePreviewProps = {
-  getQuotedMessageAuthor?: (message: LocalMessage) => string;
+  getQuotedMessageAuthor?: (message: LocalMessage | MessageResponse) => string;
   renderText?: MessageContextValue['renderText'];
 };
 
@@ -91,12 +94,12 @@ const getAttachmentType = (attachment: Attachment) => {
 
 type GroupedAttachments = Record<AttachmentType, Attachment[]> & {
   giphies: Attachment[];
-  locations: SharedLocationResponse[];
-  polls: PollResponse[];
+  locations: SharedLocationResponseData[];
+  polls: PollResponseData[];
   total: number;
 };
 
-const getGroupedAttachments = (quotedMessage: LocalMessage | null) => {
+const getGroupedAttachments = (quotedMessage: LocalMessage | MessageResponse | null) => {
   const groupedAttachments = {
     documents: [],
     giphies: [],
@@ -169,7 +172,7 @@ type PreviewType =
   | 'mixed';
 
 const getAttachmentIconWithType = (
-  quotedMessage: LocalMessage | null,
+  quotedMessage: LocalMessage | MessageResponse | null,
   giphyVersionName: GiphyVersions,
 ): {
   groupedAttachments: GroupedAttachments;
@@ -184,7 +187,10 @@ const getAttachmentIconWithType = (
     PreviewImage: null,
     previewType: null,
   };
-  if (!groupedAttachments.total) return result;
+  if (isDeletedMessage(quotedMessage)) {
+    return { ...result, Icon: IconNoSign };
+  }
+  if (!groupedAttachments.total || isDeletedMessage(quotedMessage)) return result;
   if (groupedAttachments.polls.length > 0)
     return { ...result, Icon: IconPoll, previewType: 'poll' };
   if (groupedAttachments.locations.length > 0)
@@ -224,7 +230,10 @@ const getAttachmentIconWithType = (
       ...result,
       Icon: IconFile,
       PreviewImage: (
-        <FileIcon fileName={fileAttachment.title} mimeType={fileAttachment.mime_type} />
+        <FileIcon
+          fileName={fileAttachment.title}
+          mimeType={fileAttachment.custom?.mime_type}
+        />
       ),
       previewType: 'file',
     };
@@ -311,7 +320,7 @@ export const QuotedMessagePreview = ({
 };
 
 type QuotedMessagePreviewUIProps = QuotedMessagePreviewProps & {
-  quotedMessage: LocalMessageBase;
+  quotedMessage: LocalMessage | MessageResponse;
   authorLabel?: ReactNode;
   className?: string;
   onClick?: MouseEventHandler<HTMLDivElement>;
@@ -329,12 +338,13 @@ export const QuotedMessagePreviewUI = ({
 }: QuotedMessagePreviewUIProps) => {
   const { client } = useChatContext();
   const { t, userLanguage } = useTranslationContext();
-  const { giphyVersion: giphyVersionName = 'fixed_height' } =
-    useChannelStateContext('QuotedMessagePreview');
+  // MERGE-RECONCILE: `giphyVersion` was read from the deleted ChannelStateContext;
+  // migrated to the PR's source (useAttachmentContext().giphyVersion — same as Giphy.tsx).
+  const { giphyVersion: giphyVersionName = 'fixed_height' } = useAttachmentContext();
 
   const quotedMessageText = useMemo(
     () =>
-      quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguages}_text`] ||
+      quotedMessage?.i18n?.[`${userLanguage}_text` as `${TranslationLanguage}_text`] ||
       quotedMessage?.text,
     [quotedMessage?.i18n, quotedMessage?.text, userLanguage],
   );
@@ -368,7 +378,9 @@ export const QuotedMessagePreviewUI = ({
 
     let renderedText: ReactNode | undefined;
 
-    if (!quotedMessageText) {
+    if (isDeletedMessage(quotedMessage)) {
+      renderedText = t('Message deleted');
+    } else if (!quotedMessageText) {
       if (previewType === 'poll') {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         renderedText = quotedMessage.poll!.name;
@@ -376,10 +388,10 @@ export const QuotedMessagePreviewUI = ({
         renderedText = t('Live location');
       } else if (previewType === 'voice') {
         {
-          const voiceRecording = groupedAttachments.voiceRecordings[0];
+          const voiceRecording = groupedAttachments
+            .voiceRecordings[0] as VoiceRecordingAttachment;
           renderedText = t('Voice message {{ duration }}', {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            duration: displayDuration(voiceRecording!.duration),
+            duration: displayDuration(voiceRecording?.custom?.duration),
           });
         }
       } else if (previewType === 'giphy') {

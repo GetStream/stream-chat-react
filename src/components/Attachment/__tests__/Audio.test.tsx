@@ -11,6 +11,8 @@ import {
 import { prettifyFileSize } from '../../MessageComposer/hooks/utils';
 import { WithAudioPlayback } from '../../AudioPlayback';
 import { MessageProvider } from '../../../context';
+import { ThreadProvider } from '../../Threads';
+import type { Thread } from 'stream-chat';
 
 const { addNotificationSpy } = vi.hoisted(() => ({
   addNotificationSpy: vi.fn(),
@@ -53,7 +55,18 @@ vi.spyOn(console, 'error').mockImplementationOnce((...errorOrTextorArg: any[]) =
   originalConsoleError(...errorOrTextorArg);
 });
 
-const audioAttachment = generateAudioAttachment({ mime_type: undefined });
+// v10: duration / file_size / mime_type live under `attachment.custom`, not at the
+// top level of Attachment. The default attachment intentionally carries no mime_type so
+// that the AudioPlayer's canPlayType() probe does not reject it in jsdom.
+const generatedAudioAttachment = generateAudioAttachment();
+const audioAttachment = {
+  ...generatedAudioAttachment,
+  custom: { ...generatedAudioAttachment.custom, mime_type: undefined },
+};
+const withCustom = (overrides: Record<string, unknown>) => ({
+  ...audioAttachment,
+  custom: { ...audioAttachment.custom, ...overrides },
+});
 
 const renderComponent = (
   props = {
@@ -106,18 +119,18 @@ describe('Audio', () => {
 
   it('renders title and file size', () => {
     const { container, getByText } = renderComponent({
-      og: { ...audioAttachment, duration: undefined },
+      og: withCustom({ duration: undefined }),
     });
 
     expect(getByText(audioAttachment.title)).toBeInTheDocument();
     expect(
-      getByText(prettifyFileSize(audioAttachment.file_size as number)),
+      getByText(prettifyFileSize(audioAttachment.custom.file_size as number)),
     ).toBeInTheDocument();
     expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
   it('renders duration instead of file size when available', () => {
-    renderComponent({ og: { ...audioAttachment, duration: 43.007999420166016 } });
+    renderComponent({ og: withCustom({ duration: 43.007999420166016 }) });
 
     expect(screen.getByText('00:44')).toBeInTheDocument();
     expect(screen.queryByTestId('file-size-indicator')).not.toBeInTheDocument();
@@ -253,7 +266,7 @@ describe('Audio', () => {
   });
 
   it('should register error if the audio MIME type is not playable', async () => {
-    renderComponent({ og: { ...audioAttachment, mime_type: 'audio/mp4' } });
+    renderComponent({ og: withCustom({ mime_type: 'audio/mp4' }) });
     const spy = vi.spyOn(HTMLAudioElement.prototype, 'canPlayType').mockReturnValue('');
 
     await clickToPlay();
@@ -279,14 +292,19 @@ describe('Audio', () => {
 
   it('differentiates between in thread and in channel audio player', async () => {
     const message = generateMessage();
+    // In v14 a thread player is distinguished from a channel player by the presence of a
+    // Thread instance (useThreadContext), not the message-context `threadList` flag, so the
+    // thread widget is wrapped in a ThreadProvider to give it a distinct requester namespace.
     render(
       <WithAudioPlayback allowConcurrentPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
-        <MessageProvider value={mockMessageContext({ message, threadList: true })}>
-          <Audio attachment={audioAttachment} />
-        </MessageProvider>
+        <ThreadProvider thread={fromPartial<Thread>({})}>
+          <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+            <Audio attachment={audioAttachment} />
+          </MessageProvider>
+        </ThreadProvider>
       </WithAudioPlayback>,
     );
     const playButtons = screen.queryAllByTestId('play-audio');

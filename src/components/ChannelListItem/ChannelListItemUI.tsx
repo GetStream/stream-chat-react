@@ -12,10 +12,11 @@ import {
   useChatContext,
   useComponentContext,
   useTranslationContext,
+  useWorkspaceNavigation,
 } from '../../context';
 import type { ChannelListItemUIProps } from './ChannelListItem';
 import { composeChannelListItemAccessibleLabel } from './utils.a11y';
-import { SummarizedMessagePreview } from '../SummarizedMessagePreview';
+import { SummarizedMessagePreview as DefaultSummarizedMessagePreview } from '../SummarizedMessagePreview';
 
 const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
   const {
@@ -26,22 +27,22 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     displayImage,
     displayTitle,
     groupChannelDisplayInfo,
-    lastMessage,
     messageDeliveryStatus,
     muted,
     onSelect: customOnSelectChannel,
     pinned,
-    setActiveChannel,
+    previewedMessage,
     unread,
-    watchers,
   } = props;
 
   const {
     Avatar = DefaultChannelAvatar,
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
+    SummarizedMessagePreview = DefaultSummarizedMessagePreview,
   } = useComponentContext();
   const { client, isMessageAIGenerated } = useChatContext('ChannelListItemUI');
   const { t, tDateTimeParser, userLanguage } = useTranslationContext('ChannelListItemUI');
+  const { openChannel } = useWorkspaceNavigation();
   const { announceInteraction } = useInteractionAnnouncements();
 
   const channelPreviewButton = useRef<HTMLButtonElement | null>(null);
@@ -57,7 +58,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
           client,
           displayTitle,
           isMessageAIGenerated,
-          latestMessage: lastMessage,
+          latestMessage: previewedMessage,
           messageDeliveryStatus,
           t,
           tDateTimeParser,
@@ -77,10 +78,10 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
       client,
       displayTitle,
       isMessageAIGenerated,
-      lastMessage,
       messageDeliveryStatus,
       muted,
       pinned,
+      previewedMessage,
       t,
       tDateTimeParser,
       unread,
@@ -88,14 +89,16 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     ],
   );
 
-  const avatarName =
-    displayTitle || channel.state.messages[channel.state.messages.length - 1]?.user?.id;
+  const avatarName = displayTitle || channel.messagePaginator.headmostItem?.user?.id;
 
   const onSelectChannel = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (customOnSelectChannel) {
       customOnSelectChannel(e);
-    } else if (setActiveChannel) {
-      setActiveChannel(channel, watchers);
+    } else {
+      // Selection is one navigation model: open the channel in the workspace. Forward the event so a
+      // consumer overriding `openChannel` (e.g. via ChatView's `deriveWorkspaceNavigation`) can honor
+      // ⌘/ctrl-click.
+      openChannel(channel, { event: e });
       // Confirm the opened channel to assistive tech. Only when actually switching (not re-selecting
       // the open one) and only via the default selection path — a custom `onSelect` owns its own
       // feedback. Debounced in the registry so it lands after the composer's focus announcement.
@@ -145,7 +148,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
               {muted && <IconMute />}
             </div>
             <div className='str-chat__channel-list-item-data__timestamp-and-badge'>
-              <ChannelListItemTimestamp lastMessage={lastMessage} />
+              <ChannelListItemTimestamp previewedMessage={previewedMessage} />
               {typeof unread === 'number' && unread > 0 && (
                 <Badge data-testid='unread-badge' size='md' variant='primary'>
                   {unread}
@@ -154,7 +157,7 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
             </div>
           </div>
           <SummarizedMessagePreview
-            latestMessage={lastMessage}
+            latestMessage={previewedMessage}
             messageDeliveryStatus={messageDeliveryStatus}
             participantCount={channel.data?.member_count}
           />

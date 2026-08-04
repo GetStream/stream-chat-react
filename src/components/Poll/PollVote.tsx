@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { Avatar } from '../Avatar';
+import { Avatar as DefaultAvatar } from '../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 
-import type { PollVote as PollVoteType } from 'stream-chat';
+import type { PollVoteResponseData as PollVoteType } from 'stream-chat';
 
-const PollVoteTimestamp = ({ timestamp }: { timestamp: string }) => {
+const PollVoteTimestamp = ({ timestamp }: { timestamp: string | Date }) => {
   const { t } = useTranslationContext();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
@@ -41,6 +46,8 @@ type PollVoteAuthor = PollVoteProps;
 const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
   const { t } = useTranslationContext();
   const { client } = useChatContext();
+  const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
+    useComponentContext();
   const displayName =
     client.user?.id && client.user.id === vote.user?.id
       ? t('You')
@@ -50,11 +57,10 @@ const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
     <div className='str-chat__poll-vote__author'>
       {vote.user && (
         <Avatar
+          {...extractDisplayInfo({ user: vote.user })}
           className='str-chat__avatar--poll-vote-author'
-          imageUrl={vote.user.image}
           key={`poll-vote-${vote.id}-avatar-${vote.user.id}`}
           size='md'
-          userName={vote.user.name}
         />
       )}
       <div className='str-chat__poll-vote__author__name'>{displayName}</div>

@@ -3,14 +3,13 @@ import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { toGalleryItemDescriptors } from '../Gallery';
 import { getGiphyDescriptiveTitle } from './giphyAccessibility';
 import clsx from 'clsx';
-import {
-  useChannelStateContext,
-  useComponentContext,
-  useTranslationContext,
-} from '../../context';
+import { useComponentContext, useTranslationContext } from '../../context';
 import { IconGiphy } from '../Icons';
 import { type CSSProperties, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { ImageAttachmentConfiguration } from '../../types/types';
+import {
+  type ImageAttachmentConfiguration,
+  useAttachmentContext,
+} from '../../context/AttachmentContext';
 
 export type GiphyAttachmentProps = {
   attachment: Attachment;
@@ -18,7 +17,7 @@ export type GiphyAttachmentProps = {
 
 export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   const { giphyVersion: giphyVersionName, imageAttachmentSizeHandler } =
-    useChannelStateContext();
+    useAttachmentContext();
   const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { t } = useTranslationContext();
   const usesDefaultBaseImage = BaseImage === DefaultBaseImage;

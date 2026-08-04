@@ -11,6 +11,7 @@ const clamp = (value: number, min: number, max: number) => {
 
 export const DraggableDialog = ({
   children,
+  closeOnClickOutside,
   dialogClassName,
   dialogId,
   dialogIsOpen,
@@ -23,6 +24,9 @@ export const DraggableDialog = ({
   title,
 }: {
   children: ReactNode;
+  /** Per-dialog override for outside-click dismissal (defaults to the manager's policy). Pass
+   *  `false` for a persistent draggable window that should only close via its own control. */
+  closeOnClickOutside?: boolean;
   dialogClassName: string;
   dialogId: string;
   dialogIsOpen: boolean;
@@ -32,7 +36,7 @@ export const DraggableDialog = ({
   promptClassName: string;
   referenceElement: HTMLElement | null;
   shellClassName: string;
-  title: string;
+  title: ReactNode;
 }) => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -133,6 +137,7 @@ export const DraggableDialog = ({
     <DialogAnchor
       allowFlip
       className={dialogClassName}
+      closeOnClickOutside={closeOnClickOutside}
       dialogManagerId={dialogManagerId}
       id={dialogId}
       placement='right-start'

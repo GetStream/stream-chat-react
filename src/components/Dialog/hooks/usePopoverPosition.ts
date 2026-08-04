@@ -88,9 +88,21 @@ export function usePopoverPosition({
     // viewport collision adjustments
     ...(allowShift ? [shiftMw(mergedShiftOptions)] : []),
 
-    // optional size constraining
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    ...(fitAvailableSpace ? [sizeMw({ apply: () => {} })] : []),
+    // optional size constraining: cap the floating element to the space left in the viewport
+    // (after flip/shift) so a tall popover scrolls inside the viewport instead of overflowing it.
+    ...(fitAvailableSpace
+      ? [
+          sizeMw({
+            apply({ availableHeight, availableWidth, elements }) {
+              Object.assign(elements.floating.style, {
+                maxHeight: `${Math.max(0, availableHeight)}px`,
+                maxWidth: `${Math.max(0, availableWidth)}px`,
+              });
+            },
+            padding: 8,
+          }),
+        ]
+      : []),
   ];
 
   // if placement is 'auto*', seed with any static placement; autoPlacement will pick the final one

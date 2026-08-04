@@ -1,6 +1,6 @@
 import { type CooldownTimerState } from 'stream-chat';
 
-import { useChannelStateContext } from '../../../context';
+import { useChannel } from '../../../context';
 import { useStateStore } from '../../../store';
 
 const cooldownTimerStateSelector = (state: CooldownTimerState) => ({
@@ -14,7 +14,7 @@ const cooldownTimerStateSelector = (state: CooldownTimerState) => ({
  * the initial value is now 70s from which the countdown will continue using useTimer() hook.
  */
 export const useCooldownRemaining = (): number => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   return (
     useStateStore(channel.cooldownTimer.state, cooldownTimerStateSelector)
       .cooldownRemaining ?? 0

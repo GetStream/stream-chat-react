@@ -1,65 +1,74 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { StateStore } from 'stream-chat';
+import type {
+  Channel,
+  ChannelState,
+  LocalMessage,
+  OwnCapabilitiesState,
+  StreamChat,
+} from 'stream-chat';
 
 import { useUserRole } from '../useUserRole';
 
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../../context/ChatContext';
+import { ChannelInstanceProvider, ChatProvider } from '../../../../context';
 import {
-  generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-  mockChannelStateContext,
   mockChatContext,
 } from '../../../../mock-builders';
-import type { LocalMessage } from 'stream-chat';
-import type { ChannelStateContextValue, ChatContextValue } from '../../../../context';
-import type { GenerateChannelOptions } from '../../../../mock-builders/generator/channel';
 
-const getConfig = vi.fn();
+// MERGE-RECONCILE (test migration): PR #2909 / v14 moved useUserRole off the deleted
+// ChannelStateContext. It now reads the channel via `useChannel()` and capabilities via
+// `useChannelCapabilities({ cid })`, which subscribes to `channel.state.ownCapabilitiesStore`
+// (a string[] of enabled capabilities). The wrapper uses real ChatProvider/ChannelInstanceProvider
+// and seeds capabilities from the same `{ 'cap': boolean }` object the cases already pass, so the
+// test cases are unchanged. `onlySenderCanEdit` was removed in v14 (BC-061) and is not tested.
+
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
 
-async function renderUserRoleHook(
-  {
-    channelProps = {},
-    channelStateContextValue = {},
-    clientContextValue = {},
-    disableQuotedMessages = undefined as any,
-    message = generateMessage(),
-  } = {} as {
-    channelProps?: GenerateChannelOptions & Record<string, unknown>;
-    channelStateContextValue?: Partial<ChannelStateContextValue>;
-    clientContextValue?: Partial<ChatContextValue>;
-    disableQuotedMessages?: boolean;
-    message?: LocalMessage;
-  },
-) {
-  const client = await getTestClientWithUser(alice);
-  const channel = generateChannel(
-    fromPartial<GenerateChannelOptions>({
-      getConfig,
-      state: { membership: {} },
-      ...channelProps,
-    }),
-  );
+// Convert the legacy `{ 'capability': boolean }` shape into the v14 ownCapabilities string[].
+const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
+  Object.entries(capabilities)
+    .filter(([, enabled]) => enabled)
+    .map(([capability]) => capability);
+
+async function renderUserRoleHook({
+  channelProps = {},
+  channelStateContextValue = {},
+  clientContextValue = {},
+  disableQuotedMessages = undefined as boolean | undefined,
+  message = generateMessage(),
+}: {
+  channelProps?: { state?: { membership?: Partial<ChannelState['membership']> } };
+  channelStateContextValue?: { channelCapabilities?: Record<string, boolean> };
+  clientContextValue?: { client?: StreamChat };
+  disableQuotedMessages?: boolean;
+  message?: LocalMessage;
+} = {}) {
+  const client = clientContextValue.client ?? (await getTestClientWithUser(alice));
+  const channel = fromPartial<Channel>({
+    cid: 'messaging:role-test',
+    state: {
+      membership: channelProps.state?.membership ?? {},
+      ownCapabilitiesStore: new StateStore<OwnCapabilitiesState>({
+        ownCapabilities: toOwnCapabilities(channelStateContextValue.channelCapabilities),
+      }),
+    },
+  });
 
   const wrapper = ({ children }: React.PropsWithChildren) => (
-    <ChatProvider value={mockChatContext({ client, ...clientContextValue })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({ channel, ...channelStateContextValue })}
-      >
-        {children}
-      </ChannelStateProvider>
+    <ChatProvider value={mockChatContext({ client })}>
+      <ChannelInstanceProvider value={{ channel }}>{children}</ChannelInstanceProvider>
     </ChatProvider>
   );
 
-  const { result } = renderHook(
-    () => useUserRole(message as any, disableQuotedMessages),
-    { wrapper },
-  );
+  const { result } = renderHook(() => useUserRole(message, disableQuotedMessages), {
+    wrapper,
+  });
   return result.current;
 }
 

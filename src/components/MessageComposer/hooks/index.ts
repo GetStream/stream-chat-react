@@ -7,3 +7,5 @@ export * from './useMessageComposerCommands';
 export * from './useMessageComposerController';
 export * from './useMessageComposerHasSendableData';
 export * from './useMessageContentIsEmpty';
+export * from './useSendMessageFn';
+export * from './useUpdateMessageFn';

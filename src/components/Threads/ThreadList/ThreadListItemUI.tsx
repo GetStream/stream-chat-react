@@ -1,15 +1,24 @@
+import type { ComponentPropsWithoutRef } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 
-import type { ThreadState } from 'stream-chat';
-import type { ComponentPropsWithoutRef } from 'react';
+import type { MessagePaginatorAggregateState, ThreadState } from 'stream-chat';
 
 import { Timestamp } from '../../Message/Timestamp';
-import { Avatar, type AvatarProps, AvatarStack } from '../../Avatar';
+import {
+  Avatar,
+  type AvatarProps,
+  AvatarStack as DefaultAvatarStack,
+} from '../../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../Avatar/utils';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import { useChannelPreviewInfo } from '../../ChannelListItem';
-import { useChatContext, useTranslationContext } from '../../../context';
-import { useThreadsViewContext } from '../../ChatView';
+import {
+  useChatContext,
+  useComponentContext,
+  useTranslationContext,
+  useWorkspaceNavigation,
+} from '../../../context';
 import { useThreadListItemContext } from './ThreadListItem';
 import { useStateStore } from '../../../store';
 import { Badge } from '../../Badge';
@@ -36,6 +45,7 @@ export const ThreadListItemUI = ({
   resetHighlighting,
   ...props
 }: ThreadListItemUIProps) => {
+  const { onClick: onClickFromProps, ...buttonProps } = props;
   const { client, isMessageAIGenerated } = useChatContext();
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const thread = useThreadListItemContext()!;
@@ -44,7 +54,6 @@ export const ThreadListItemUI = ({
     (nextValue: ThreadState) => ({
       channel: nextValue.channel,
       deletedAt: nextValue.deletedAt,
-      latestReply: nextValue.replies.at(-1),
       ownUnreadMessageCount:
         (client.userID && nextValue.read[client.userID]?.unreadMessageCount) || 0,
       parentMessage: nextValue.parentMessage,
@@ -57,28 +66,36 @@ export const ThreadListItemUI = ({
   const {
     channel,
     deletedAt,
-    latestReply,
     ownUnreadMessageCount,
     parentMessage,
     participants,
     replyCount,
   } = useStateStore(thread.state, selector);
 
+  // Replies live in the thread's message paginator. The latest reply is tracked on the paginator's
+  // `aggregateState` (advanced on every ingest), NOT derived from the pagination `state`: a reply
+  // arriving via WS lands in the head interval, which is not the active window here, so the
+  // pagination store would not emit. `aggregateState` is written directly on each advance, so this
+  // subscription stays reactive.
+  const latestReplySelector = useCallback(
+    (state: MessagePaginatorAggregateState) => ({ latestReply: state.lastMessage }),
+    [],
+  );
+
+  const { latestReply } = useStateStore(
+    thread.messagePaginator.aggregateState,
+    latestReplySelector,
+  );
+
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
   const { t, tDateTimeParser, userLanguage } = useTranslationContext('ThreadListItemUI');
   const { announceInteraction } = useInteractionAnnouncements();
-
-  const { activeThread, setActiveThread } = useThreadsViewContext();
-
-  const onSelectThread = useCallback(() => {
-    if (activeThread === thread) return;
-    setActiveThread(thread);
-    // Confirm the opened thread to assistive tech, debounced in the registry so it lands after the
-    // thread composer's focus announcement rather than competing with it.
-    if (channelDisplayTitle) {
-      announceInteraction('thread.opened', { name: channelDisplayTitle });
-    }
-  }, [activeThread, announceInteraction, channelDisplayTitle, setActiveThread, thread]);
+  const { isThreadActive, openThread } = useWorkspaceNavigation();
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext();
+  const isSelected = isThreadActive(thread.id);
 
   // Reuse the SAME preview the visible subtitle renders (text + sender, all message kinds), so the
   // announced parent message matches what is shown.
@@ -92,13 +109,13 @@ export const ThreadListItemUI = ({
     () =>
       composeThreadListItemAccessibleLabel(
         {
-          active: activeThread === thread,
+          active: isSelected,
           channel,
           client,
           displayTitle: channelDisplayTitle,
           isMessageAIGenerated,
-          latestReply,
-          parentMessage,
+          latestReply: latestReply ?? undefined,
+          parentMessage: parentMessage ?? undefined,
           parentMessagePreview: parentMessage ? parentMessagePreview : undefined,
           parentMessageSender: parentMessage ? parentMessageSender : undefined,
           participantCount: participants?.length,
@@ -112,11 +129,11 @@ export const ThreadListItemUI = ({
       ),
     [
       accessibleLabelConfig,
-      activeThread,
       channel,
       channelDisplayTitle,
       client,
       isMessageAIGenerated,
+      isSelected,
       latestReply,
       ownUnreadMessageCount,
       parentMessage,
@@ -126,7 +143,6 @@ export const ThreadListItemUI = ({
       replyCount,
       t,
       tDateTimeParser,
-      thread,
       userLanguage,
     ],
   );
@@ -141,13 +157,8 @@ export const ThreadListItemUI = ({
   const displayInfo = useMemo(() => {
     if (!participants) return [];
 
-    return participants.slice(0, 3).map((participant) => ({
-      id: participant.user?.id ?? undefined,
-      imageUrl: participant.user?.image,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      userName: participant.user?.name || participant.user!.id,
-    }));
-  }, [participants]);
+    return participants.slice(0, 3).map(extractDisplayInfo);
+  }, [extractDisplayInfo, participants]);
 
   useEffect(() => {
     if (!resetHighlighting) return;
@@ -165,15 +176,25 @@ export const ThreadListItemUI = ({
     <div className='str-chat__thread-list-item-container'>
       <button
         aria-label={accessibleLabel}
-        aria-selected={activeThread === thread}
+        aria-selected={isSelected}
         className={clsx('str-chat__thread-list-item', {
           'str-chat__thread-list-item--highlighted':
             typeof resetHighlighting !== 'undefined',
         })}
         data-thread-id={thread.id}
-        onClick={onSelectThread}
+        onClick={(event) => {
+          // ⌘/ctrl-click opens the thread beside the current one; a plain click replaces it.
+          void openThread(thread, { additive: event.ctrlKey || event.metaKey });
+          // Confirm the opened thread to assistive tech, debounced in the registry so it lands after
+          // the thread composer's focus announcement rather than competing with it. Skip when the
+          // row is already the active thread (re-selecting announces nothing new).
+          if (!isSelected && channelDisplayTitle) {
+            announceInteraction('thread.opened', { name: channelDisplayTitle });
+          }
+          onClickFromProps?.(event);
+        }}
         role='option'
-        {...props}
+        {...buttonProps}
       >
         <Avatar size='xl' {...avatarProps} />
         <div className='str-chat__thread-list-item__content'>

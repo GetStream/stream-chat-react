@@ -23,6 +23,7 @@ export type UseMessageListScrollManagerParams = {
   scrolledUpThreshold: number;
   scrollToBottom: () => void;
   showNewMessages: () => void;
+  suppressAutoscroll?: boolean;
 };
 
 // Tracks how the current older-page pagination cycle should restore the viewport
@@ -95,6 +96,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     scrolledUpThreshold,
     scrollToBottom,
     showNewMessages,
+    suppressAutoscroll = false,
   } = params;
 
   const { client } = useChatContext('useMessageListScrollManager');
@@ -234,7 +236,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
 
           const lastMessageIsFromCurrentUser = lastNewMessage.user?.id === client.userID;
 
-          if (lastMessageIsFromCurrentUser || wasAtBottom) {
+          if (!suppressAutoscroll && (lastMessageIsFromCurrentUser || wasAtBottom)) {
             scrollToBottom();
           } else {
             showNewMessages();
@@ -273,6 +275,10 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     messages.current = newMessages;
     measures.current = newMeasures;
     previousLoadingMoreRef.current = loadingMore;
+    // MERGE-RECONCILE: deps are the UNION of master's anchor-based scroll params and
+    // PR #2909's suppressAutoscroll (exhaustive-deps is disabled, so extra deps are safe).
+    // The scroll logic here (master) and useScrollLocationLogic (PR base) diverged;
+    // verify the two scroll paths cooperate rather than double-manage scrolling.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     captureAnchor,
@@ -284,6 +290,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     params.messages,
     restoreAnchor,
     scrollContainerMeasures,
+    suppressAutoscroll,
   ]);
 
   return (

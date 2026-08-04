@@ -16,17 +16,23 @@ export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIRes
     options ?? ({} as ChannelAPIResponse);
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
+  const cid = `${type}:${id}`;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { config, id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
 
+  const { messages: optionMessages, ...optionsBesidesChannelAndMessages } =
+    optionsBesidesChannel;
+  // Real channel query responses carry the channel cid on each message, and the message paginator
+  // filters ingested messages by cid — so stamp it (respecting any explicit per-message cid).
+  const messages = (optionMessages ?? []).map((message) => ({ cid, ...message }));
+
   return {
     members: [],
-    messages: [],
     pinned_messages: [],
-    ...optionsBesidesChannel,
+    ...optionsBesidesChannelAndMessages,
 
     channel: {
-      cid: `${type}:${id}`,
+      cid,
 
       config: {
         automod: 'disabled',
@@ -76,5 +82,6 @@ export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIRes
       updated_at: '2020-04-28T11:20:48.578147Z',
       ...restOptionsChannel,
     },
+    messages,
   } as ChannelAPIResponse;
 };

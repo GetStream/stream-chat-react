@@ -7,6 +7,7 @@ import React from 'react';
 import { IconLink } from '../../Icons';
 import { SafeAnchor } from '../../SafeAnchor';
 import type { CardProps } from './Card';
+import { useThreadContext } from '../../Threads';
 
 const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {
@@ -55,13 +56,14 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  const { message } = useMessageContext() ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     mimeType,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src,
   });
 
@@ -86,16 +88,9 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
 };
 
 export const CardAudio = ({
-  attachment: {
-    asset_url,
-    author_name,
-    mime_type,
-    og_scrape_url,
-    text,
-    title,
-    title_link,
-  },
+  attachment: { asset_url, author_name, custom, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
+  const { mime_type } = custom;
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
   const rootClassName = 'str-chat__message-attachment-card-audio-widget';

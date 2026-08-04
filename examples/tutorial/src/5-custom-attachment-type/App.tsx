@@ -14,7 +14,6 @@ import {
   MessageList,
   Thread,
   useCreateChatClient,
-  Window,
   WithComponents,
 } from 'stream-chat-react';
 
@@ -118,11 +117,9 @@ const App = () => {
     <WithComponents overrides={{ Attachment: CustomAttachment }}>
       <Chat client={client} theme='custom-theme'>
         <Channel channel={channel}>
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageComposer />
-          </Window>
+          <ChannelHeader />
+          <MessageList />
+          <MessageComposer />
           <Thread />
         </Channel>
       </Chat>

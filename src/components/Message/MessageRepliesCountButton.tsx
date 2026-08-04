@@ -1,10 +1,17 @@
 import type { MouseEventHandler } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { UserResponse } from 'stream-chat';
-import React, { useMemo } from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannelStateContext, useComponentContext } from '../../context';
+import {
+  useChannel,
+  useComponentContext,
+  useMessageContext,
+  useWorkspaceNavigation,
+} from '../../context';
+import { useStateStore } from '../../store';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
+import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 
 export type MessageRepliesCountButtonProps = {
   /* If supplied, adds custom text to the end of a multiple replies message */
@@ -19,27 +26,57 @@ export type MessageRepliesCountButtonProps = {
 };
 
 function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonProps) {
-  const { AvatarStack = DefaultAvatarStack } = useComponentContext(
-    MessageRepliesCountButton.name,
-  );
+  const {
+    AvatarStack = DefaultAvatarStack,
+    extractDisplayInfo = defaultExtractDisplayInfo,
+  } = useComponentContext(MessageRepliesCountButton.name);
   const {
     labelPlural,
     labelSingle,
     onClick,
-    reply_count: replyCount = 0,
-    thread_participants: threadParticipants = [],
+    reply_count: replyCountFromProps = 0,
+    thread_participants: threadParticipantsFromProps = [],
   } = props;
-  const { channelCapabilities } = useChannelStateContext();
+  const { message: contextMessage } = useMessageContext(MessageRepliesCountButton.name);
+  const channel = useChannel();
+  const { openThread } = useWorkspaceNavigation();
+  const replyMetadataSelector = useMemo(
+    () => () => {
+      const targetMessage = contextMessage?.id
+        ? channel.messagePaginator.getItem(contextMessage.id)
+        : undefined;
+
+      return {
+        replyCountFromPaginator: targetMessage?.reply_count,
+        threadParticipantsFromPaginator: targetMessage?.thread_participants,
+      };
+    },
+    [channel.messagePaginator, contextMessage?.id],
+  );
+  const { replyCountFromPaginator, threadParticipantsFromPaginator } =
+    useStateStore(channel.messagePaginator.state, replyMetadataSelector) ?? {};
+  const replyCount = replyCountFromPaginator ?? replyCountFromProps;
+  const threadParticipants =
+    threadParticipantsFromPaginator ?? threadParticipantsFromProps;
 
   const { t } = useTranslationContext('MessageRepliesCountButton');
 
   const avatarStackDisplayInfo = useMemo(
-    () =>
-      threadParticipants.slice(0, 3).map((participant) => ({
-        imageUrl: participant.image,
-        userName: participant.name || participant.id,
-      })),
-    [threadParticipants],
+    () => threadParticipants.slice(0, 3).map((user) => extractDisplayInfo({ user })),
+    [extractDisplayInfo, threadParticipants],
+  );
+
+  const handleClick = useCallback<MouseEventHandler>(
+    (event) => {
+      if (onClick) {
+        onClick(event);
+        return;
+      }
+
+      if (!contextMessage) return;
+      void openThread({ channel, message: contextMessage });
+    },
+    [channel, contextMessage, onClick, openThread],
   );
 
   if (!replyCount) return null;
@@ -57,8 +94,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
       <button
         className='str-chat__message-replies-count-button'
         data-testid='replies-count-button'
-        disabled={!channelCapabilities['send-reply']}
-        onClick={onClick}
+        onClick={handleClick}
       >
         {replyCountText}
 

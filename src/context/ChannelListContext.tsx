@@ -1,26 +1,16 @@
-import type { Dispatch, PropsWithChildren, SetStateAction } from 'react';
+import type { PropsWithChildren } from 'react';
 import React, { createContext, useContext } from 'react';
 
-import type { Channel } from 'stream-chat';
+import type { ChannelPaginator } from 'stream-chat';
 
 export type ChannelListContextValue = {
   /**
-   * State representing the array of loaded channels.
-   * Channels query is executed by default only by ChannelList component in the SDK.
+   * The primary channel paginator held by the `ChannelPaginatorsOrchestrator` on `ChatContext`.
+   * Read the loaded channels reactively with `useStateStore(paginator.state, …)`, load the next
+   * page with `paginator.next()`, and mutate the loaded list (e.g. prepend a just-opened channel)
+   * via `paginator.setItems({ valueOrFactory })`. Undefined when rendered outside a channel list.
    */
-  channels: Channel[];
-  /**
-   * Indicator for channel pagination to determine whether more items can be loaded
-   */
-  hasNextPage: boolean;
-  /**
-   * Pagination function to load more channels
-   */
-  loadNextPage(): Promise<void>;
-  /**
-   * Sets the list of Channel objects to be rendered by ChannelList component.
-   */
-  setChannels: Dispatch<SetStateAction<Channel[]>>;
+  paginator?: ChannelPaginator;
 };
 
 export const ChannelListContext = createContext<ChannelListContextValue | undefined>(
@@ -28,7 +18,8 @@ export const ChannelListContext = createContext<ChannelListContextValue | undefi
 );
 
 /**
- * Context provider for components rendered within the `ChannelList`
+ * Context provider exposing the primary channel paginator to components rendered within the
+ * channel list (e.g. search results, member actions, notification targeting).
  */
 export const ChannelListContextProvider = ({
   children,
@@ -36,17 +27,8 @@ export const ChannelListContextProvider = ({
 }: PropsWithChildren<{
   value: ChannelListContextValue;
 }>) => (
-  <ChannelListContext.Provider value={value as unknown as ChannelListContextValue}>
-    {children}
-  </ChannelListContext.Provider>
+  <ChannelListContext.Provider value={value}>{children}</ChannelListContext.Provider>
 );
 
-export const useChannelListContext = () => {
-  const contextValue = useContext(ChannelListContext);
-
-  if (!contextValue) {
-    return {} as ChannelListContextValue;
-  }
-
-  return contextValue as unknown as ChannelListContextValue;
-};
+export const useChannelListContext = (): ChannelListContextValue =>
+  useContext(ChannelListContext) ?? {};

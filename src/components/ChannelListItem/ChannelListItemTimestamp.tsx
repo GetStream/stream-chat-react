@@ -5,14 +5,16 @@ import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString, isDate } from '../../i18n/utils';
 
 export type ChannelListItemTimestampProps = {
-  /** The last message in the channel, used to extract the timestamp */
-  lastMessage?: LocalMessage;
+  /** The message previewed by the item, used to extract the timestamp */
+  previewedMessage?: LocalMessage;
 };
 
-export function ChannelListItemTimestamp({ lastMessage }: ChannelListItemTimestampProps) {
+export function ChannelListItemTimestamp({
+  previewedMessage,
+}: ChannelListItemTimestampProps) {
   const { t, tDateTimeParser } = useTranslationContext('ChannelListItemTimestamp');
 
-  const timestamp = lastMessage?.created_at;
+  const timestamp = previewedMessage?.created_at;
   const normalizedTimestamp =
     timestamp && isDate(timestamp) ? timestamp.toISOString() : undefined;
 
