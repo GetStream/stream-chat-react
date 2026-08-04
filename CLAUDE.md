@@ -8,7 +8,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Key Files:**
 
-- `AI.md` - Integration patterns for users
 - `AGENTS.md` - Repository structure & contribution workflow
 - `developers/` - Detailed development guides
 
@@ -382,7 +381,6 @@ const channels = useStateStore(chatClient.state.channelsArray);
 
 ## References
 
-- **Integration patterns:** See `AI.md`
 - **Repo structure:** See `AGENTS.md`
 - **Development guides:** See `developers/`
 - **Component docs:** https://getstream.io/chat/docs/sdk/react/

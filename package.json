@@ -136,8 +136,7 @@
   "files": [
     "dist",
     "package.json",
-    "README.md",
-    "AI.md"
+    "README.md"
   ],
   "devDependencies": {
     "@breezystack/lamejs": "^1.2.7",
