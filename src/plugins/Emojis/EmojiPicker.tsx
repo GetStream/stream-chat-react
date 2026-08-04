@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import PickerImport from '@emoji-mart/react';
+import { Picker, type PickerProps } from './Picker';
 
 import {
   useComponentContextIcons,
@@ -13,14 +13,6 @@ import {
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
-
-// @emoji-mart/react ships as CJS with the component on `exports.default`. Under
-// spec-strict ESM interop (e.g. Vite 8 / Rolldown, native Node ESM) a default
-// import yields the module namespace `{ default }` instead of the component,
-// which makes React throw "Element type is invalid ... got: object". Unwrap the
-// default defensively so it works regardless of interop.
-const Picker =
-  (PickerImport as unknown as { default?: typeof PickerImport }).default ?? PickerImport;
 
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
@@ -38,7 +30,7 @@ export type EmojiPickerProps = {
    * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
    * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
    */
-  pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
+  pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & PickerProps>;
   /**
    * Floating UI placement (default: 'top-end') for the picker popover
    */
