@@ -3,6 +3,7 @@ import { MessageComposer as MessageComposerController } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
 import { useChannelStateContext, useChatContext } from '../../../context';
 import { useLegacyThreadContext } from '../../Thread';
+import { useMessageComposerControllerContext } from '../MessageComposer';
 
 export const useMessageComposerController = () => {
   const { client } = useChatContext();
@@ -10,6 +11,8 @@ export const useMessageComposerController = () => {
   const { channel } = useChannelStateContext();
   const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
+  // custom supplied composer overriding default composer retrieval behavior
+  const composerFromOverrideContext = useMessageComposerControllerContext();
 
   const cachedParentMessage = useMemo(() => {
     if (!parentMessage) return undefined;
@@ -22,6 +25,8 @@ export const useMessageComposerController = () => {
   // edited message (always new) -> thread instance (own) -> thread message (always new) -> channel (own)
   // editedMessage ?? thread ?? parentMessage ?? channel;
   const messageComposer = useMemo(() => {
+    if (composerFromOverrideContext) return composerFromOverrideContext;
+
     if (threadInstance) {
       return threadInstance.messageComposer;
     } else if (cachedParentMessage) {
@@ -42,7 +47,14 @@ export const useMessageComposerController = () => {
     } else {
       return channel.messageComposer;
     }
-  }, [cachedParentMessage, channel, client, queueCache, threadInstance]);
+  }, [
+    cachedParentMessage,
+    channel.messageComposer,
+    client,
+    composerFromOverrideContext,
+    queueCache,
+    threadInstance,
+  ]);
 
   if (
     (['legacy_thread', 'message'] as MessageComposerController['contextType'][]).includes(
