@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -12,12 +13,12 @@ import { useChannelStateContext } from 'stream-chat-react';
 import {
   ContextMenuButton,
   defaultMessageActionSet,
+  MessageUI as DefaultMessageUI,
   IconEdit,
   MessageActions,
   type MessageActionSetItem,
   MessageComposer,
   MessageComposerControllerProvider,
-  MessageUI,
   type MessageUIComponentProps,
   useChatContext,
   useComponentContext,
@@ -27,6 +28,8 @@ import {
   useTranslationContext,
   WithComponents,
 } from 'stream-chat-react';
+
+import { useAppSettingsSelector } from '../AppSettings';
 
 type InlineEditContextValue = {
   isEditing: boolean;
@@ -105,6 +108,9 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
   const { client } = useChatContext();
   const { channel } = useChannelStateContext();
   const { message } = useMessageContext();
+  const inlineEditEnabled = useAppSettingsSelector(
+    (state) => state.messageActions.customMessageActions,
+  ).inlineEdit;
 
   const { MessageActions: OuterMessageActions = MessageActions } = useComponentContext();
 
@@ -118,6 +124,12 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
   );
 
   const { editing } = useStateStore(editingComposer.state, selector);
+
+  // If the setting is turned off mid-edit, abandon the in-progress edit so the
+  // message doesn't stay stuck in composer view with no way to submit it.
+  useEffect(() => {
+    if (!inlineEditEnabled && editing) editingComposer.clear();
+  }, [editing, editingComposer, inlineEditEnabled]);
 
   const startEditing = useCallback(() => {
     editingComposer.initState({ composition: message });
@@ -149,6 +161,10 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
     return Component;
   }, [OuterMessageActions]);
 
+  if (!inlineEditEnabled) {
+    return <DefaultMessageUI {...props} />;
+  }
+
   if (editing) {
     return (
       <MessageComposerControllerProvider messageComposerController={editingComposer}>
@@ -160,7 +176,7 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
   return (
     <InlineEditContext.Provider value={contextValue}>
       <WithComponents overrides={{ MessageActions: MessageActionsWithInlineEdit }}>
-        <MessageUI {...props} />
+        <DefaultMessageUI {...props} />
       </WithComponents>
     </InlineEditContext.Provider>
   );
