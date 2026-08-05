@@ -95,6 +95,13 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 
   useEffect(
     () => () => {
+      // A disconnected channel (current user removed / channel deleted) cannot
+      // accept a draft, and neither createDraft() nor clear() are safe to call:
+      // both reach channel.getConfig(), which throws "You can't use a channel
+      // after client.disconnect() was called". The composer is going away with
+      // the channel, so there is nothing left worth persisting or resetting.
+      if (messageComposer.channel.disconnected) return;
+
       messageComposer.createDraft().finally(() => messageComposer.clear());
     },
     [messageComposer],

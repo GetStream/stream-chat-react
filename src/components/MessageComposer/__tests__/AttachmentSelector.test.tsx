@@ -774,6 +774,27 @@ describe('AttachmentSelector', () => {
       expect(screen.getByTestId(SHARE_LOCATION_DIALOG_TEST_ID)).toBeInTheDocument();
     });
   });
+
+  it('does not throw when the channel disconnects while mounted (#3254)', async () => {
+    const { channel } = await renderComponent();
+
+    // initClientWithChannels stubs channel.getConfig; restore the real
+    // implementation so that the disconnect guard in getClient() is reachable
+    vi.mocked(channel.getConfig).mockRestore();
+    channel.disconnected = true;
+
+    // opening the menu re-renders the selector, which re-reads the channel config
+    await expect(invokeMenu()).resolves.toBeUndefined();
+
+    // no config means no available actions, so the selector renders nothing
+    // instead of tearing down the surrounding subtree
+    expect(
+      screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).not.toBeInTheDocument();
+  });
 });
 
 const AttachmentSelectorInitiationButtonContents = () => (

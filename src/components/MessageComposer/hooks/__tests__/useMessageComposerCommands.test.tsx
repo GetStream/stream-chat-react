@@ -116,4 +116,17 @@ describe('useMessageComposerCommands', () => {
       { command: expect.objectContaining({ name: 'ban' }), enabled: false },
     ]);
   });
+  it('returns no commands for a disconnected channel without calling getConfig (#3254)', () => {
+    // channel.getConfig() calls channel.getClient(), which throws once the
+    // channel is disconnected
+    vi.spyOn(messageComposer.channel, 'getConfig').mockImplementation(() => {
+      throw new Error("You can't use a channel after client.disconnect() was called");
+    });
+    (messageComposer.channel as { disconnected?: boolean }).disconnected = true;
+
+    const { result } = renderHook(() => useMessageComposerCommands());
+
+    expect(result.current).toEqual([]);
+    expect(messageComposer.channel.getConfig).not.toHaveBeenCalled();
+  });
 });

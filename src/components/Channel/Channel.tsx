@@ -77,6 +77,7 @@ import {
 } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
+import { getChannelConfig } from '../../utils/getChannelConfig';
 import type {
   ChannelUnreadUiState,
   ImageAttachmentSizeHandler,
@@ -248,7 +249,7 @@ const ChannelInner = (
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
   const thread = useThreadContext();
 
-  const [channelConfig, setChannelConfig] = useState(channel.getConfig());
+  const [channelConfig, setChannelConfig] = useState(() => getChannelConfig(channel));
 
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
@@ -357,6 +358,11 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
+    // Client-level subscriptions keep delivering events after the channel has
+    // been disconnected (current user removed / channel deleted). Reading from
+    // or querying such a channel throws, so there is nothing useful left to do.
+    if (channel.disconnected) return;
+
     if (event.message) {
       dispatch({
         channel,

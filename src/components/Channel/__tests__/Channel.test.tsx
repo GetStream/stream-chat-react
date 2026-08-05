@@ -1,9 +1,12 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import { nanoid } from 'nanoid';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ErrorFromResponse, SearchController } from 'stream-chat';
 import type {
+  ChannelAPIResponse,
   Channel as ChannelType,
+  Event,
+  GiphyVersions,
   LocalMessage,
   Message,
   MessageResponse,
@@ -819,6 +822,88 @@ describe('Channel', () => {
 
       await act(async () => {
         await loadMore?.();
+      });
+
+      expect(querySpy).not.toHaveBeenCalled();
+    });
+
+    it('does not throw during render when the channel is disconnected (#3254)', async () => {
+      // initClient stubs channel.getConfig; restore the real implementation so
+      // that the disconnect guard inside channel.getClient() is reachable
+      vi.mocked(channel.getConfig).mockRestore();
+
+      let channelConfig: ChannelStateContextValue['channelConfig'] | 'unset' = 'unset';
+      const ConfigProbe = () => {
+        channelConfig = useChannelStateContext().channelConfig;
+        return <div>probe</div>;
+      };
+
+      let setGiphyVersion: (version: GiphyVersions) => void = () => {};
+      const Wrapper = () => {
+        const [giphyVersion, _setGiphyVersion] = useState<GiphyVersions>('fixed_height');
+        setGiphyVersion = _setGiphyVersion;
+        return (
+          <Chat client={chatClient}>
+            <Channel channel={channel} giphyVersion={giphyVersion}>
+              <ConfigProbe />
+            </Channel>
+          </Chat>
+        );
+      };
+
+      await act(() => {
+        render(<Wrapper />);
+      });
+      await waitFor(() => expect(screen.getByText('probe')).toBeInTheDocument());
+
+      // the channel is mounted and initialized; it then gets disconnected, as it
+      // would be by channel.deleted / notification.removed_from_channel
+      channel.disconnected = true;
+
+      // changing a Channel prop bypasses React.memo and re-renders ChannelInner
+      expect(() =>
+        act(() => {
+          setGiphyVersion('original');
+        }),
+      ).not.toThrow();
+
+      // the subtree survives, and the config captured while connected is retained
+      expect(screen.getByText('probe')).toBeInTheDocument();
+      expect(channelConfig).toEqual(expect.objectContaining({ read_events: true }));
+    });
+
+    it('provides an undefined channelConfig when mounting an already disconnected channel (#3254)', async () => {
+      // the channel must already be initialized, otherwise Channel tries to query
+      // it on mount and legitimately ends up in its error state instead
+      await channel.watch();
+      vi.mocked(channel.getConfig).mockRestore();
+      channel.disconnected = true;
+
+      let channelConfig: ChannelStateContextValue['channelConfig'] | 'unset' = 'unset';
+      const ConfigProbe = () => {
+        channelConfig = useChannelStateContext().channelConfig;
+        return <div>probe</div>;
+      };
+
+      await renderComponent({ channel, chatClient, children: <ConfigProbe /> });
+
+      await waitFor(() => expect(screen.getByText('probe')).toBeInTheDocument());
+      expect(channelConfig).toBeUndefined();
+    });
+
+    it('does not query a disconnected channel on user.deleted (#3254)', async () => {
+      await renderComponent({ channel, chatClient });
+
+      const querySpy = vi
+        .spyOn(channel, 'query')
+        .mockResolvedValue(fromPartial<ChannelAPIResponse>({}));
+      channel.disconnected = true;
+
+      // client-level subscriptions keep delivering events to the mounted Channel
+      // even after stream-chat drops the channel from client.activeChannels
+      await act(async () => {
+        chatClient.dispatchEvent(fromPartial<Event>({ type: 'user.deleted' }));
+        await Promise.resolve();
       });
 
       expect(querySpy).not.toHaveBeenCalled();
