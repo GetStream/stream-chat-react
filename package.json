@@ -132,8 +132,7 @@
   "files": [
     "dist",
     "package.json",
-    "README.md",
-    "AI.md"
+    "README.md"
   ],
   "devDependencies": {
     "@breezystack/lamejs": "^1.2.7",
@@ -206,7 +205,7 @@
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "types": "tsc --emitDeclarationOnly false --noEmit",
+    "types": "tsc --project tsconfig.lib.json --noEmit",
     "types:tests": "tsc --project tsconfig.test.json --noEmit",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
