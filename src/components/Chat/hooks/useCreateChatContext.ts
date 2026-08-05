@@ -4,7 +4,7 @@ import type { ChatContextValue } from '../../../context/ChatContext';
 
 export const useCreateChatContext = (value: ChatContextValue) => {
   const {
-    channelPaginatorsOrchestrator,
+    channelManager,
     client,
     customClasses,
     getAppSettings,
@@ -24,7 +24,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
 
   const chatContext: ChatContextValue = useMemo(
     () => ({
-      channelPaginatorsOrchestrator,
+      channelManager,
       client,
       customClasses,
       getAppSettings,
@@ -37,7 +37,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
-      channelPaginatorsOrchestrator,
+      channelManager,
       clientValues,
       getAppSettings,
       searchController,

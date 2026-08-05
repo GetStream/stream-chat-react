@@ -34,7 +34,7 @@ export const ChannelSearchResultItem = ({
   onSelect,
 }: ChannelSearchResultItemProps) => {
   const { openChannel } = useWorkspaceNavigation();
-  const { channelPaginatorsOrchestrator } = useChatContext();
+  const { channelManager } = useChatContext();
 
   const handleSelect = useCallback(
     (event: React.MouseEvent) => {
@@ -45,11 +45,11 @@ export const ChannelSearchResultItem = ({
       // Default: open the channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` (e.g. via ChatView's `deriveWorkspaceNavigation`) can honor ⌘/ctrl-click.
       openChannel(item, { event });
-      // Route the channel into the list(s) that should own it (the orchestrator dedupes by cid,
+      // Route the channel into the list(s) that should own it (the channel manager dedupes by cid,
       // inserts in sort order, and honors ownership/filters) so it appears without a re-query.
-      channelPaginatorsOrchestrator.ingestChannel(item);
+      channelManager.ingestChannel(item);
     },
-    [item, openChannel, channelPaginatorsOrchestrator, onSelect],
+    [item, openChannel, channelManager, onSelect],
   );
 
   return (
@@ -72,7 +72,7 @@ export const MessageSearchResultItem = ({
   item,
   onSelect,
 }: ChannelByMessageSearchResultItemProps) => {
-  const { channelPaginatorsOrchestrator, client, searchController } = useChatContext();
+  const { channelManager, client, searchController } = useChatContext();
   const { isChannelActive, openChannel } = useWorkspaceNavigation();
 
   const channel = useMemo(() => {
@@ -98,16 +98,9 @@ export const MessageSearchResultItem = ({
       // window around the target). No manual channel.state preload is needed here.
       searchController._internalState.partialNext({ focusedMessage: item });
       openChannel(channel, { event });
-      channelPaginatorsOrchestrator.ingestChannel(channel);
+      channelManager.ingestChannel(channel);
     },
-    [
-      channel,
-      item,
-      openChannel,
-      searchController,
-      channelPaginatorsOrchestrator,
-      onSelect,
-    ],
+    [channel, item, openChannel, searchController, channelManager, onSelect],
   );
 
   // Preview the matched message itself (not the channel's latest) by overriding `previewedMessage`.
@@ -137,7 +130,7 @@ export type UserSearchResultItemProps = {
 };
 
 export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemProps) => {
-  const { channelPaginatorsOrchestrator, client } = useChatContext();
+  const { channelManager, client } = useChatContext();
   const { openChannel } = useWorkspaceNavigation();
   const { directMessagingChannelType } = useSearchContext();
   const { t } = useTranslationContext();
@@ -157,16 +150,9 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
       // Default: open the DM channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });
-      channelPaginatorsOrchestrator.ingestChannel(newChannel);
+      channelManager.ingestChannel(newChannel);
     },
-    [
-      client,
-      item,
-      openChannel,
-      channelPaginatorsOrchestrator,
-      directMessagingChannelType,
-      onSelect,
-    ],
+    [client, item, openChannel, channelManager, directMessagingChannelType, onSelect],
   );
 
   return (

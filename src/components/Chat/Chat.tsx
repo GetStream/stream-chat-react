@@ -2,8 +2,8 @@ import type { PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
 import type { StreamChat } from 'stream-chat';
 import {
+  ChannelManager,
   ChannelPaginator,
-  ChannelPaginatorsOrchestrator,
   ChannelSearchSource,
   MessageSearchSource,
   SearchController,
@@ -95,7 +95,7 @@ export type ChatProps = {
    * ownership). Defaults to a single `channels:default` paginator over the current
    * user's channels.
    */
-  channelPaginatorsOrchestrator?: ChannelPaginatorsOrchestrator;
+  channelManager?: ChannelManager;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
@@ -124,7 +124,7 @@ export type ChatProps = {
  */
 export const Chat = (props: PropsWithChildren<ChatProps>) => {
   const {
-    channelPaginatorsOrchestrator: customChannelPaginatorsOrchestrator,
+    channelManager: customChannelManager,
     children,
     client,
     customClasses,
@@ -156,10 +156,10 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     [client, customChannelSearchController],
   );
 
-  const channelPaginatorsOrchestrator = useMemo(
+  const channelManager = useMemo(
     () =>
-      customChannelPaginatorsOrchestrator ??
-      new ChannelPaginatorsOrchestrator({
+      customChannelManager ??
+      new ChannelManager({
         client,
         paginators: [
           new ChannelPaginator({
@@ -174,11 +174,11 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
           }),
         ],
       }),
-    [client, customChannelPaginatorsOrchestrator],
+    [client, customChannelManager],
   );
 
   const chatContextValue = useCreateChatContext({
-    channelPaginatorsOrchestrator,
+    channelManager,
     client,
     customClasses,
     getAppSettings,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Channel as StreamChannel, User } from 'stream-chat';
+import type { Channel as StreamChannel, ClientUser } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -12,7 +12,7 @@ import {
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -31,8 +31,11 @@ const App = () => {
 
     const initChannel = async () => {
       const spaceChannel = chatClient.channel('livestream', 'spacex', {
-        image: 'https://goo.gl/Zefkbx',
-        name: 'SpaceX launch discussion',
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://goo.gl/Zefkbx',
+          name: 'SpaceX launch discussion',
+        },
       });
 
       await spaceChannel.watch();

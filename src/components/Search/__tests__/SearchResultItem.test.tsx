@@ -28,7 +28,7 @@ const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
 const mockOpenChannel = vi.fn();
 const mockIngestChannel = vi.fn();
-const mockOrchestrator = { ingestChannel: mockIngestChannel };
+const mockChannelManager = { ingestChannel: mockIngestChannel };
 const directMessagingChannelType = 'X';
 
 // Selection opens the channel in the workspace (one navigation model); the item's
@@ -91,7 +91,7 @@ const renderComponent = async ({
       <ChatProvider
         value={{
           channel: activeChannel ?? channel,
-          channelPaginatorsOrchestrator: mockOrchestrator,
+          channelManager: mockChannelManager,
           client: customClient ?? client,
           ...chatContext,
         }}
@@ -214,7 +214,8 @@ describe('SearchResultItem Components', () => {
       await renderComponent({ SearchResultItemComponent, userData: user });
 
       expect(screen.getByTestId('avatar')).toBeInTheDocument();
-      expect(screen.getByText(user.name)).toBeInTheDocument();
+      // `generateUser` always sets a name, but `UserResponse.name` is optional in v10 types
+      expect(screen.getByText(String(user.name))).toBeInTheDocument();
     });
 
     it('handles user selection', async () => {

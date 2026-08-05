@@ -25,7 +25,7 @@ const channelPaginatorStateSelector = (state: ChannelPaginatorState) => ({
 
 /**
  * Channel list driven by a single `ChannelPaginator`. The paginator is created +
- * coordinated by the `ChannelPaginatorsOrchestrator` on `ChatContext`; this component
+ * coordinated by the `ChannelManager` on `ChatContext`; this component
  * only renders its reactive `state` and drives pagination. Selection is not this
  * component's concern — the `ChannelListItem` default `ListItem` opens the channel via
  * ChatView navigation.
@@ -35,8 +35,8 @@ export const ChannelList = ({
   loadMoreThresholdPx,
   paginator,
 }: ChannelListProps) => {
-  const { channelPaginatorsOrchestrator, client } = useChatContext('ChannelList');
-  const { t } = useTranslationContext('ChannelList');
+  const { channelManager, client } = useChatContext();
+  const { t } = useTranslationContext();
   const { lastQueryError } = useStateStore(
     paginator.state,
     channelPaginatorStateSelector,
@@ -60,10 +60,7 @@ export const ChannelList = ({
   const { onClickCapture, onKeyDown } = useChannelListKeyboardNavigation(listboxRef);
 
   // Ref-counted: safe whether called here, from <ChannelLists/>, or from <Chat>.
-  useEffect(
-    () => channelPaginatorsOrchestrator.registerSubscriptions(),
-    [channelPaginatorsOrchestrator],
-  );
+  useEffect(() => channelManager.registerSubscriptions(), [channelManager]);
 
   useEffect(() => {
     if (paginator.items) return;

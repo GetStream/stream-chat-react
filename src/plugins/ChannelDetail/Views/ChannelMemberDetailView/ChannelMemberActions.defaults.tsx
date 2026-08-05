@@ -206,7 +206,7 @@ export const useBaseChannelMemberActionSetFilter = (
 };
 
 const SendDirectMessageAction = () => {
-  const { channelPaginatorsOrchestrator, client } = useChatContext();
+  const { channelManager, client } = useChatContext();
   const { open } = useChatViewNavigation();
   const { close } = useModalContext();
   const { channel } = useChannelDetailContext();
@@ -231,7 +231,7 @@ const SendDirectMessageAction = () => {
         kind: 'channel',
         source: directMessageChannel,
       });
-      channelPaginatorsOrchestrator.ingestChannel(directMessageChannel);
+      channelManager.ingestChannel(directMessageChannel);
       close();
     } catch (error) {
       addNotification({
@@ -250,7 +250,7 @@ const SendDirectMessageAction = () => {
     channel,
     client,
     close,
-    channelPaginatorsOrchestrator,
+    channelManager,
     isSending,
     open,
     t,

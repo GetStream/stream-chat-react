@@ -14,8 +14,8 @@ import type {
   TextComposerMiddleware,
 } from 'stream-chat';
 import {
+  ChannelManager,
   ChannelPaginator,
-  ChannelPaginatorsOrchestrator,
   ChannelSearchSource,
   createActiveCommandGuardMiddleware,
   createCommandInjectionMiddleware,
@@ -379,7 +379,7 @@ const App = () => {
   // (archived > muted > default > opened), so e.g. an archived channel stays out of the main list.
   // `orchestrator.ingestChannel` (search/DM open, and the mute handler below) re-evaluates a
   // channel against every list and routes it accordingly.
-  const channelPaginatorsOrchestrator = useMemo(() => {
+  const channelManager = useMemo(() => {
     if (!chatClient) return undefined;
     const main = new ChannelPaginator({
       client: chatClient,
@@ -413,24 +413,24 @@ const App = () => {
     // between lists on its own. Enrich the default handlers: when the user's channel mutes change,
     // re-route every loaded channel (ingestChannel re-evaluates ownership per channel, so a newly
     // muted channel leaves the main list for the muted one and an unmuted channel returns).
-    const eventHandlers = ChannelPaginatorsOrchestrator.getDefaultHandlers();
+    const eventHandlers = ChannelManager.getDefaultHandlers();
     eventHandlers['notification.channel_mutes_updated'] = [
       {
         id: 'example:channel-mutes-updated',
-        handle: ({ ctx: { orchestrator } }) => {
+        handle: ({ ctx: { channelManager } }) => {
           const seen = new Set<string>();
-          orchestrator.paginators.forEach((paginator) => {
+          channelManager.paginators.forEach((paginator) => {
             (paginator.items ?? []).forEach((channel) => {
               if (seen.has(channel.cid)) return;
               seen.add(channel.cid);
-              orchestrator.ingestChannel(channel);
+              channelManager.ingestChannel(channel);
             });
           });
         },
       },
     ];
 
-    return new ChannelPaginatorsOrchestrator({
+    return new ChannelManager({
       client: chatClient,
       eventHandlers,
       ownershipResolver: [
@@ -567,7 +567,7 @@ const App = () => {
     >
       <SidebarProvider initialOpen={initialSidebarOpen}>
         <Chat
-          channelPaginatorsOrchestrator={channelPaginatorsOrchestrator}
+          channelManager={channelManager}
           client={chatClient}
           i18nInstance={i18nInstance}
           isMessageAIGenerated={isMessageAIGenerated}
@@ -631,7 +631,7 @@ const App = () => {
               channel={resolveSingleChannel({
                 channelKey: singleChannelCid,
                 client: chatClient,
-                orchestrator: channelPaginatorsOrchestrator,
+                orchestrator: channelManager,
               })}
               referenceElement={singleChannelAnchor}
             />

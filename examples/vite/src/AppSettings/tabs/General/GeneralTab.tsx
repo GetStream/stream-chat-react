@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { ChannelPaginatorsOrchestratorState } from 'stream-chat';
+import type { ChannelManagerState } from 'stream-chat';
 import { Button, useChatContext, useStateStore } from 'stream-chat-react';
 import { appSettingsStore, useAppSettingsState } from '../../state';
 import { SearchableSelect, type SearchableSelectOption } from '../../SearchableSelect';
@@ -12,7 +12,7 @@ type GeneralTabProps = {
   close: () => void;
 };
 
-const paginatorsSelector = (state: ChannelPaginatorsOrchestratorState) => ({
+const paginatorsSelector = (state: ChannelManagerState) => ({
   paginators: state.paginators,
 });
 
@@ -27,11 +27,8 @@ export const GeneralTab = ({ close }: GeneralTabProps) => {
   // `layout.channelCid`. Setting it directly would open the modal behind the settings dialog.
   const [draftChannelCid, setDraftChannelCid] = useState('');
 
-  const { channelPaginatorsOrchestrator } = useChatContext();
-  const { paginators } = useStateStore(
-    channelPaginatorsOrchestrator.state,
-    paginatorsSelector,
-  );
+  const { channelManager } = useChatContext();
+  const { paginators } = useStateStore(channelManager.state, paginatorsSelector);
   // Options for the single-channel selector: a placeholder entry plus every channel the paginators
   // have already loaded (deduped by cid). Memoized so its identity is stable — SearchableSelect
   // derives its trigger from the options, and a fresh array each render would remount the trigger
