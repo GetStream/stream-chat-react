@@ -621,16 +621,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@emoji-mart/react@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "@emoji-mart/react@npm:1.1.1"
-  peerDependencies:
-    emoji-mart: ^5.2
-    react: ^16.8 || ^17 || ^18
-  checksum: 10c0/88a9c8c24bbc5695f0ed2458734c9982c965a16db1999bc731c7cce77f9bf228f1871e899744f9a3f9fdd36a11db7ad6c0e049d710cb91c66c69a2cd4d2ee40a
-  languageName: node
-  linkType: hard
-
 "@eslint-community/eslint-utils@npm:^4.8.0, @eslint-community/eslint-utils@npm:^4.9.1":
   version: 4.9.1
   resolution: "@eslint-community/eslint-utils@npm:4.9.1"
@@ -10042,7 +10032,6 @@ __metadata:
     "@commitlint/cli": "npm:^21.0.1"
     "@commitlint/config-conventional": "npm:^21.0.1"
     "@emoji-mart/data": "npm:^1.2.1"
-    "@emoji-mart/react": "npm:^1.1.1"
     "@eslint/js": "npm:^9.39.4"
     "@floating-ui/react": "npm:^0.27.19"
     "@react-aria/focus": "npm:^3.22.0"
@@ -10119,7 +10108,6 @@ __metadata:
   peerDependencies:
     "@breezystack/lamejs": ^1.2.7
     "@emoji-mart/data": ^1.1.0
-    "@emoji-mart/react": ^1.1.0
     emoji-mart: ^5.4.0
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
@@ -10140,8 +10128,6 @@ __metadata:
     "@breezystack/lamejs":
       optional: true
     "@emoji-mart/data":
-      optional: true
-    "@emoji-mart/react":
       optional: true
     emoji-mart:
       optional: true
