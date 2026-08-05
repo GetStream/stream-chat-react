@@ -666,6 +666,7 @@ const ChannelInner = (
 
   const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
     if (
+      channel.disconnected ||
       !online.current ||
       !window.navigator.onLine ||
       !channel.state.messagePagination.hasNext
