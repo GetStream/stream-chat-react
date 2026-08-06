@@ -850,8 +850,7 @@ describe('Channel', () => {
     });
 
     it('does not throw during render when the channel is disconnected (#3254)', async () => {
-      // initClient stubs channel.getConfig; restore the real implementation so
-      // that the disconnect guard inside channel.getClient() is reachable
+      // initClient stubs getConfig; restore it so the disconnect guard is reachable
       vi.mocked(channel.getConfig).mockRestore();
 
       let channelConfig: ChannelStateContextValue['channelConfig'] | 'unset' = 'unset';
@@ -878,8 +877,6 @@ describe('Channel', () => {
       });
       await waitFor(() => expect(screen.getByText('probe')).toBeInTheDocument());
 
-      // the channel is mounted and initialized; it then gets disconnected, as it
-      // would be by channel.deleted / notification.removed_from_channel
       channel.disconnected = true;
 
       // changing a Channel prop bypasses React.memo and re-renders ChannelInner
@@ -889,14 +886,12 @@ describe('Channel', () => {
         }),
       ).not.toThrow();
 
-      // the subtree survives, and the config captured while connected is retained
       expect(screen.getByText('probe')).toBeInTheDocument();
       expect(channelConfig).toEqual(expect.objectContaining({ read_events: true }));
     });
 
     it('provides an undefined channelConfig when mounting an already disconnected channel (#3254)', async () => {
-      // the channel must already be initialized, otherwise Channel tries to query
-      // it on mount and legitimately ends up in its error state instead
+      // must be initialized, otherwise Channel queries on mount and errors instead
       await channel.watch();
       vi.mocked(channel.getConfig).mockRestore();
       channel.disconnected = true;
@@ -921,8 +916,6 @@ describe('Channel', () => {
         .mockResolvedValue(fromPartial<ChannelAPIResponse>({}));
       channel.disconnected = true;
 
-      // client-level subscriptions keep delivering events to the mounted Channel
-      // even after stream-chat drops the channel from client.activeChannels
       await act(async () => {
         chatClient.dispatchEvent(fromPartial<Event>({ type: 'user.deleted' }));
         await Promise.resolve();

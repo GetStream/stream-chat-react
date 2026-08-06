@@ -778,8 +778,7 @@ describe('AttachmentSelector', () => {
   it('does not throw when the channel disconnects while mounted (#3254)', async () => {
     const { channel } = await renderComponent();
 
-    // initClientWithChannels stubs channel.getConfig; restore the real
-    // implementation so that the disconnect guard in getClient() is reachable
+    // initClientWithChannels stubs getConfig; restore it so the guard is reachable
     vi.mocked(channel.getConfig).mockRestore();
     channel.disconnected = true;
 
@@ -787,7 +786,6 @@ describe('AttachmentSelector', () => {
     await expect(invokeMenu()).resolves.toBeUndefined();
 
     // no config means no available actions, so the selector renders nothing
-    // instead of tearing down the surrounding subtree
     expect(
       screen.queryByTestId(SIMPLE_ATTACHMENT_SELECTOR_TEST_ID),
     ).not.toBeInTheDocument();

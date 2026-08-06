@@ -840,8 +840,7 @@ describe('useMarkRead', () => {
       channels: [channel],
       client,
     } = await initClientWithChannels();
-    // initClientWithChannels stubs channel.getConfig; restore the real
-    // implementation so that the disconnect guard in getClient() is reachable
+    // initClientWithChannels stubs getConfig; restore it so the guard is reachable
     vi.mocked(channel.getConfig).mockRestore();
     channel.disconnected = true;
 

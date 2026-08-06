@@ -358,9 +358,8 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
-    // Client-level subscriptions keep delivering events after the channel has
-    // been disconnected (current user removed / channel deleted). Reading from
-    // or querying such a channel throws, so there is nothing useful left to do.
+    // client-level subscriptions keep firing after disconnect, and reading from
+    // or querying a disconnected channel throws
     if (channel.disconnected) return;
 
     if (event.message) {

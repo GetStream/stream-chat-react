@@ -16,8 +16,6 @@ describe('getChannelConfig', () => {
   });
 
   it('returns undefined for a disconnected channel without calling getConfig', () => {
-    // channel.getConfig() calls channel.getClient(), which throws
-    // "You can't use a channel after client.disconnect() was called"
     const getConfig = vi.fn(() => {
       throw new Error("You can't use a channel after client.disconnect() was called");
     });
