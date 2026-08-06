@@ -95,6 +95,10 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 
   useEffect(
     () => () => {
+      // both createDraft() and clear() reach channel.getConfig(), which throws
+      // for a disconnected channel
+      if (messageComposer.channel.disconnected) return;
+
       messageComposer.createDraft().finally(() => messageComposer.clear());
     },
     [messageComposer],

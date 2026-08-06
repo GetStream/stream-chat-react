@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import type { CommandResponse, MessageComposerState } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
+import { getChannelConfig } from '../../../utils/getChannelConfig';
 import { useMessageComposerController } from './useMessageComposerController';
 
 const messageComposerStateSelector = ({
@@ -19,7 +20,7 @@ export type MessageComposerCommand = {
 
 export const useMessageComposerCommands = () => {
   const messageComposer = useMessageComposerController();
-  const channelConfig = messageComposer.channel.getConfig();
+  const channelConfig = getChannelConfig(messageComposer.channel);
   const { editedMessage, quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,

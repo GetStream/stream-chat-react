@@ -1,9 +1,12 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import { nanoid } from 'nanoid';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ErrorFromResponse, SearchController } from 'stream-chat';
 import type {
+  ChannelAPIResponse,
   Channel as ChannelType,
+  Event,
+  GiphyVersions,
   LocalMessage,
   Message,
   MessageResponse,
@@ -807,18 +810,99 @@ describe('Channel', () => {
 
     it('does not paginate (query) when the client is disconnected', async () => {
       let loadMore: ChannelActionContextValue['loadMore'] | undefined;
+      let loadMoreNewer: ChannelActionContextValue['loadMoreNewer'] | undefined;
       await renderComponent(
         { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
         (c) => {
           loadMore = c.loadMore;
+          loadMoreNewer = c.loadMoreNewer;
         },
       );
+
+      // loadMoreNewer bails out early unless there is a newer page to fetch
+      channel.state.messagePagination.hasNext = true;
 
       const querySpy = vi.spyOn(channel, 'query');
       channel.disconnected = true;
 
       await act(async () => {
         await loadMore?.();
+        await loadMoreNewer?.();
+      });
+
+      expect(querySpy).not.toHaveBeenCalled();
+    });
+
+    it('does not throw during render when the channel is disconnected (#3254)', async () => {
+      // initClient stubs getConfig; restore it so the disconnect guard is reachable
+      vi.mocked(channel.getConfig).mockRestore();
+
+      let channelConfig: ChannelStateContextValue['channelConfig'] | 'unset' = 'unset';
+      const ConfigProbe = () => {
+        channelConfig = useChannelStateContext().channelConfig;
+        return <div>probe</div>;
+      };
+
+      let setGiphyVersion: (version: GiphyVersions) => void = () => {};
+      const Wrapper = () => {
+        const [giphyVersion, _setGiphyVersion] = useState<GiphyVersions>('fixed_height');
+        setGiphyVersion = _setGiphyVersion;
+        return (
+          <Chat client={chatClient}>
+            <Channel channel={channel} giphyVersion={giphyVersion}>
+              <ConfigProbe />
+            </Channel>
+          </Chat>
+        );
+      };
+
+      await act(() => {
+        render(<Wrapper />);
+      });
+      await waitFor(() => expect(screen.getByText('probe')).toBeInTheDocument());
+
+      channel.disconnected = true;
+
+      // changing a Channel prop bypasses React.memo and re-renders ChannelInner
+      expect(() =>
+        act(() => {
+          setGiphyVersion('original');
+        }),
+      ).not.toThrow();
+
+      expect(screen.getByText('probe')).toBeInTheDocument();
+      expect(channelConfig).toEqual(expect.objectContaining({ read_events: true }));
+    });
+
+    it('provides an undefined channelConfig when mounting an already disconnected channel (#3254)', async () => {
+      // must be initialized, otherwise Channel queries on mount and errors instead
+      await channel.watch();
+      vi.mocked(channel.getConfig).mockRestore();
+      channel.disconnected = true;
+
+      let channelConfig: ChannelStateContextValue['channelConfig'] | 'unset' = 'unset';
+      const ConfigProbe = () => {
+        channelConfig = useChannelStateContext().channelConfig;
+        return <div>probe</div>;
+      };
+
+      await renderComponent({ channel, chatClient, children: <ConfigProbe /> });
+
+      await waitFor(() => expect(screen.getByText('probe')).toBeInTheDocument());
+      expect(channelConfig).toBeUndefined();
+    });
+
+    it('does not query a disconnected channel on user.deleted (#3254)', async () => {
+      await renderComponent({ channel, chatClient });
+
+      const querySpy = vi
+        .spyOn(channel, 'query')
+        .mockResolvedValue(fromPartial<ChannelAPIResponse>({}));
+      channel.disconnected = true;
+
+      await act(async () => {
+        chatClient.dispatchEvent(fromPartial<Event>({ type: 'user.deleted' }));
+        await Promise.resolve();
       });
 
       expect(querySpy).not.toHaveBeenCalled();

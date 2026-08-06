@@ -2130,3 +2130,20 @@ describe(`MessageInputFlat`, () => {
     });
   });
 });
+
+describe('MessageComposer draft creation on unmount', () => {
+  afterEach(tearDown);
+
+  it('does not create a draft for a disconnected channel (#3254)', async () => {
+    const { channel, unmount } = await renderComponent();
+    const createDraftSpy = vi.spyOn(channel!.messageComposer, 'createDraft');
+
+    channel!.disconnected = true;
+
+    await act(() => {
+      unmount();
+    });
+
+    expect(createDraftSpy).not.toHaveBeenCalled();
+  });
+});

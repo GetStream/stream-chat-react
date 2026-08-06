@@ -77,6 +77,7 @@ import {
 } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
+import { getChannelConfig } from '../../utils/getChannelConfig';
 import type {
   ChannelUnreadUiState,
   ImageAttachmentSizeHandler,
@@ -248,7 +249,7 @@ const ChannelInner = (
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
   const thread = useThreadContext();
 
-  const [channelConfig, setChannelConfig] = useState(channel.getConfig());
+  const [channelConfig, setChannelConfig] = useState(() => getChannelConfig(channel));
 
   const [channelUnreadUiState, _setChannelUnreadUiState] =
     useState<ChannelUnreadUiState>();
@@ -357,6 +358,10 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
+    // client-level subscriptions keep firing after disconnect, and reading from
+    // or querying a disconnected channel throws
+    if (channel.disconnected) return;
+
     if (event.message) {
       dispatch({
         channel,
@@ -660,6 +665,7 @@ const ChannelInner = (
 
   const loadMoreNewer = async (limit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE) => {
     if (
+      channel.disconnected ||
       !online.current ||
       !window.navigator.onLine ||
       !channel.state.messagePagination.hasNext

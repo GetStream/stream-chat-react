@@ -834,4 +834,24 @@ describe('useMarkRead', () => {
       });
     });
   });
+
+  it('does not throw when the channel is disconnected (#3254)', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    // initClientWithChannels stubs getConfig; restore it so the guard is reachable
+    vi.mocked(channel.getConfig).mockRestore();
+    channel.disconnected = true;
+
+    expect(() =>
+      render({
+        channel,
+        client,
+        params: { isMessageListScrolledToBottom: true, messageListIsThread: false },
+      }),
+    ).not.toThrow();
+
+    expect(markRead).not.toHaveBeenCalled();
+  });
 });

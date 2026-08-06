@@ -37,6 +37,7 @@ import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
 } from '../../../context/AttachmentSelectorContext';
+import { getChannelConfig } from '../../../utils/getChannelConfig';
 import { useStableId } from '../../UtilityComponents/useStableId';
 import { useInertWhenHidden } from '../../Accessibility';
 import { useStateStore } from '../../../store';
@@ -283,7 +284,7 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
   const { channelCapabilities } = useChannelStateContext();
   const { isUploadEnabled } = useAttachmentManagerState();
   const messageComposer = useMessageComposerController();
-  const channelConfig = messageComposer.channel.getConfig();
+  const channelConfig = getChannelConfig(messageComposer.channel);
 
   return useMemo(
     () =>

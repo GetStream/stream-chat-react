@@ -5,6 +5,7 @@ import {
   useChatContext,
 } from '../../../context';
 import type { Channel, Event, LocalMessage, MessageResponse } from 'stream-chat';
+import { getChannelConfig } from '../../../utils/getChannelConfig';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.state.latestMessages.slice(-1)[0]?.id;
@@ -38,7 +39,7 @@ export const useMarkRead = ({
 
   useEffect(() => {
     const unreadNotificationSupported =
-      channel.getConfig()?.read_events || client.options.isLocalUnreadCountEnabled;
+      getChannelConfig(channel)?.read_events || client.options.isLocalUnreadCountEnabled;
 
     if (!unreadNotificationSupported) return;
 
