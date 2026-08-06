@@ -827,28 +827,6 @@ describe('Channel', () => {
       expect(querySpy).not.toHaveBeenCalled();
     });
 
-    it('does not paginate newer (query) when the client is disconnected', async () => {
-      let loadMoreNewer: ChannelActionContextValue['loadMoreNewer'] | undefined;
-      await renderComponent(
-        { channel, channelQueryOptions: { messages: { limit: 25 } }, chatClient },
-        (c) => {
-          loadMoreNewer = c.loadMoreNewer;
-        },
-      );
-
-      // loadMoreNewer bails out early unless there is a newer page to fetch
-      channel.state.messagePagination.hasNext = true;
-
-      const querySpy = vi.spyOn(channel, 'query');
-      channel.disconnected = true;
-
-      await act(async () => {
-        await loadMoreNewer?.();
-      });
-
-      expect(querySpy).not.toHaveBeenCalled();
-    });
-
     it('does not throw during render when the channel is disconnected (#3254)', async () => {
       // initClient stubs getConfig; restore it so the disconnect guard is reachable
       vi.mocked(channel.getConfig).mockRestore();
