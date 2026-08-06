@@ -90,6 +90,33 @@ export const MessageActionsTab = ({ close }: MessageActionsTabProps) => {
             title='Show JSON viewer action in the message actions menu'
           />
         </div>
+
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>
+            Enable inline message editing
+          </div>
+          <SwitchField
+            checked={customMessageActions.inlineEdit}
+            id='inline-edit-message-switch'
+            onChange={(event) =>
+              appSettingsStore.partialNext({
+                messageActions: {
+                  ...messageActions,
+                  customMessageActions: {
+                    ...customMessageActions,
+                    inlineEdit: event.target.checked,
+                  },
+                },
+              })
+            }
+            title='Add an "Edit inline" action that swaps the message bubble for a MessageComposer in place'
+          />
+          <div className='app__settings-modal__field-comment'>
+            Adds an <strong>&ldquo;Edit inline&rdquo;</strong> action that replaces the
+            message with a <code>MessageComposer</code> scoped to that message via
+            <code> MessageComposerControllerProvider</code>.
+          </div>
+        </div>
       </SettingsTabBody>
     </div>
   );

@@ -1,0 +1,22 @@
+.app__inline-edit-message {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  width: 100%;
+}
+
+.app__inline-edit-message__cancel {
+  align-self: flex-end;
+  background: transparent;
+  border: 1px solid var(--str-chat__secondary-surface-color, #dbdde1);
+  border-radius: 999px;
+  color: var(--str-chat__text-color, inherit);
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0.25rem 0.75rem;
+
+  &:hover {
+    background: var(--str-chat__secondary-surface-color, #f7f7f8);
+  }
+}

@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import { MessageComposerUI as DefaultMessageComposerUI } from './MessageComposerUI';
 import { useMessageComposerController } from './hooks';
@@ -11,10 +11,33 @@ import { MessageComposerContextProvider } from '../../context/MessageComposerCon
 import { DialogManagerProvider } from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
 
-import type { LocalMessage, Message, SendMessageOptions } from 'stream-chat';
+import type {
+  LocalMessage,
+  Message,
+  MessageComposer as MessageComposerController,
+  SendMessageOptions,
+} from 'stream-chat';
 
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useRegisterDropHandlers } from './WithDragAndDropUpload';
+
+const MessageComposerControllerContext = React.createContext<
+  MessageComposerController | undefined
+>(undefined);
+
+export const MessageComposerControllerProvider = ({
+  children,
+  messageComposerController,
+}: PropsWithChildren<{
+  messageComposerController?: MessageComposerController;
+}>) => (
+  <MessageComposerControllerContext.Provider value={messageComposerController}>
+    {children}
+  </MessageComposerControllerContext.Provider>
+);
+
+export const useMessageComposerControllerContext = () =>
+  useContext(MessageComposerControllerContext);
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -79,6 +102,10 @@ export type MessageComposerProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
+  /**
+   * When set to `true` disables clearing established state of the MessageComposerController upon component unmount.
+   */
+  preventClearingOnUnmount?: boolean;
 };
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
@@ -99,9 +126,15 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
       // for a disconnected channel
       if (messageComposer.channel.disconnected) return;
 
-      messageComposer.createDraft().finally(() => messageComposer.clear());
+      const promise = messageComposer.config.drafts.enabled
+        ? messageComposer.createDraft().catch(console.error)
+        : Promise.resolve();
+
+      if (props.preventClearingOnUnmount) return;
+
+      promise.finally(() => messageComposer.clear());
     },
-    [messageComposer],
+    [messageComposer, props.preventClearingOnUnmount],
   );
 
   useEffect(() => {
