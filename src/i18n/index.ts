@@ -1,4 +1,3 @@
-export * from './translations';
 export * from './Streami18n';
 export * from './TranslationBuilder';
 export {

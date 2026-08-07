@@ -47,8 +47,10 @@ jobs:
       - name: Validate ESM bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-esm
 
-      - name: Validate translations
-        run: yarn validate-translations
+      - name: Validate translations are in sync with source
+        # `yarn build` above already ran build-translations; a diff here means the author
+        # changed a t() call without regenerating src/i18n/en.json.
+        run: git diff --exit-code -- src/i18n
 
       - name: Cache Build Output
         uses: actions/cache@v5

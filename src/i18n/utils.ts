@@ -257,19 +257,6 @@ export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(inp
 export const isLanguageSupported = (
   language: string,
 ): language is SupportedTranslations => {
-  const translations = [
-    'de',
-    'en',
-    'es',
-    'fr',
-    'hi',
-    'it',
-    'ja',
-    'ko',
-    'nl',
-    'pt',
-    'ru',
-    'tr',
-  ];
+  const translations: string[] = ['en'];
   return translations.some((translation) => language === translation);
 };

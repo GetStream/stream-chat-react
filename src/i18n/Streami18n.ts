@@ -19,35 +19,8 @@ import type { TranslationTopicConstructor } from './TranslationBuilder';
 import type { UnknownType } from '../types/types';
 import type { CustomFormatters, PredefinedFormatters, TDateTimeParser } from './types';
 
-import {
-  deTranslations,
-  enTranslations,
-  esTranslations,
-  frTranslations,
-  hiTranslations,
-  itTranslations,
-  jaTranslations,
-  koTranslations,
-  nlTranslations,
-  ptTranslations,
-  ruTranslations,
-  trTranslations,
-} from './translations';
+import enTranslations from './en.json';
 
-import 'dayjs/locale/de.js';
-import 'dayjs/locale/es.js';
-import 'dayjs/locale/fr.js';
-import 'dayjs/locale/hi.js';
-import 'dayjs/locale/it.js';
-import 'dayjs/locale/ja.js';
-import 'dayjs/locale/ko.js';
-import 'dayjs/locale/nl.js';
-import 'dayjs/locale/pt.js';
-import 'dayjs/locale/ru.js';
-import 'dayjs/locale/tr.js';
-// These locale imports also set these locale globally.
-// So As a last step I am going to import english locale
-// to make sure I don't mess up language at other places in app.
 import 'dayjs/locale/en.js';
 
 const defaultNS = 'translation';
@@ -65,155 +38,6 @@ type CalendarLocaleConfig = {
 Dayjs.extend(updateLocale);
 Dayjs.extend(utc);
 Dayjs.extend(timezone);
-
-Dayjs.updateLocale('de', {
-  calendar: {
-    lastDay: '[gestern um] LT',
-    lastWeek: '[letzten] dddd [um] LT',
-    nextDay: '[morgen um] LT',
-    nextWeek: 'dddd [um] LT',
-    sameDay: '[heute um] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('es', {
-  calendar: {
-    lastDay: '[ayer a las] LT',
-    lastWeek: '[pasado] dddd [a] LT',
-    nextDay: '[mañana a] LT',
-    nextWeek: 'dddd [a] LT',
-    sameDay: '[hoy a las] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('fr', {
-  calendar: {
-    lastDay: '[Hier à] LT',
-    lastWeek: 'dddd [dernier à] LT',
-    nextDay: '[Demain à] LT',
-    nextWeek: 'dddd [à] LT',
-    sameDay: "[Aujourd'hui à] LT",
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('hi', {
-  calendar: {
-    lastDay: '[कल] LT',
-    lastWeek: '[पिछले] dddd, LT',
-    nextDay: '[कल] LT',
-    nextWeek: 'dddd, LT',
-    sameDay: '[आज] LT',
-    sameElse: 'L',
-  },
-  // Hindi notation for meridiems are quite fuzzy in practice. While there exists
-  // a rigid notion of a 'Pahar' it is not used as rigidly in modern Hindi.
-  meridiem(hour: number) {
-    if (hour < 4) {
-      return 'रात';
-    } else if (hour < 10) {
-      return 'सुबह';
-    } else if (hour < 17) {
-      return 'दोपहर';
-    } else if (hour < 20) {
-      return 'शाम';
-    } else {
-      return 'रात';
-    }
-  },
-  meridiemHour(hour: number, meridiem: string) {
-    if (hour === 12) {
-      hour = 0;
-    }
-    if (meridiem === 'रात') {
-      return hour < 4 ? hour : hour + 12;
-    } else if (meridiem === 'सुबह') {
-      return hour;
-    } else if (meridiem === 'दोपहर') {
-      return hour >= 10 ? hour : hour + 12;
-    } else if (meridiem === 'शाम') {
-      return hour + 12;
-    }
-    return hour;
-  },
-  meridiemParse: /रात|सुबह|दोपहर|शाम/,
-});
-
-Dayjs.updateLocale('it', {
-  calendar: {
-    lastDay: '[Ieri alle] LT',
-    lastWeek: '[lo scorso] dddd [alle] LT',
-    nextDay: '[Domani alle] LT',
-    nextWeek: 'dddd [alle] LT',
-    sameDay: '[Oggi alle] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('ja', {
-  calendar: {
-    lastDay: '[昨日] LT',
-    lastWeek: 'dddd LT',
-    nextDay: '[明日] LT',
-    nextWeek: '[次の] dddd LT',
-    sameDay: '[今日] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('ko', {
-  calendar: {
-    lastDay: '[어제] LT',
-    lastWeek: '[지난] dddd LT',
-    nextDay: '[내일] LT',
-    nextWeek: 'dddd LT',
-    sameDay: '[오늘] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('nl', {
-  calendar: {
-    lastDay: '[gisteren om] LT',
-    lastWeek: '[afgelopen] dddd [om] LT',
-    nextDay: '[morgen om] LT',
-    nextWeek: 'dddd [om] LT',
-    sameDay: '[vandaag om] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('pt', {
-  calendar: {
-    lastDay: '[ontem às] LT',
-    lastWeek: 'dddd [passada às] LT',
-    nextDay: '[amanhã às] LT',
-    nextWeek: 'dddd [às] LT',
-    sameDay: '[hoje às] LT',
-    sameElse: 'L',
-  },
-});
-
-Dayjs.updateLocale('ru', {
-  calendar: {
-    lastDay: '[Вчера, в] LT',
-    nextDay: '[Завтра, в] LT',
-    sameDay: '[Сегодня, в] LT',
-  },
-});
-
-Dayjs.updateLocale('tr', {
-  calendar: {
-    lastDay: '[dün] LT',
-    lastWeek: '[geçen] dddd [saat] LT',
-    nextDay: '[yarın saat] LT',
-    nextWeek: '[gelecek] dddd [saat] LT',
-    sameDay: '[bugün saat] LT',
-    sameElse: 'L',
-  },
-});
 
 const en_locale = {
   formats: {},
@@ -271,69 +95,42 @@ export type Streami18nOptions = {
 /**
  * Wrapper around [i18next](https://www.i18next.com/) class for Stream related i18n.
  * Instance of this class should be provided to Chat component to handle i18n.
- * Stream provides following list of in-built i18n:
- * 1. English (en)
- * 2. Dutch (nl)
- * 3. Russian (ru)
- * 4. Turkish (tr)
- * 5. French (fr)
- * 6. Italian (it)
- * 7. Hindi (hi)
- * 8. Spanish (es)
- * 9. Portuguese (pt)
- * 10. German (de)
- * 11. Japanese (ja)
- * 12. Korean (ko)
  *
- * Simplest way to start using chat components in one of the in-built languages would be following:
+ * English (`en`) is the only built-in language. Every other language is supplied by the
+ * integrator via `registerTranslation()` or `translationsForLanguage`. Keys are stable,
+ * namespaced identifiers (e.g. `messageComposer.sendButton.label`) — see the key reference
+ * in `src/i18n/en.json`.
  *
- * ```
- * const i18n = new Streami18n({ language 'nl' });
- * <Chat client={chatClient} i18nInstance={i18n}>
- *  ...
- * </Chat>
- * ```
- *
- * If you would like to override certain keys in in-built translation.
- * UI will be automatically updated in this case.
+ * If you would like to override certain keys in the built-in English translation,
+ * the UI will be automatically updated:
  *
  * ```
  * const i18n = new Streami18n({
- *  language: 'nl',
  *  translationsForLanguage: {
- *    'Nothing yet...': 'Nog Niet ...',
- *    '{{ firstUser }} and {{ secondUser }} are typing...': '{{ firstUser }} en {{ secondUser }} zijn aan het typen...',
+ *    'messageList.empty': 'Nothing here yet',
  *  }
  * });
+ * ```
  *
- * If you would like to register additional languages, use registerTranslation. You can add as many languages as you want:
+ * To add a language, use `registerTranslation`. You can add as many as you want:
  *
- * i18n.registerTranslation('zh', {
- *  'Nothing yet...': 'Nog Niet ...',
- *  '{{ firstUser }} and {{ secondUser }} are typing...': '{{ firstUser }} en {{ secondUser }} zijn aan het typen...',
+ * ```
+ * const i18n = new Streami18n({ language: 'nl' });
+ *
+ * i18n.registerTranslation('nl', {
+ *  'messageList.empty': 'Nog niets...',
+ *  'typing.multipleUsers': '{{ firstUser }} en {{ secondUser }} zijn aan het typen...',
  * });
  *
+ * // Make sure to call setLanguage to reflect the new language in the UI.
+ * i18n.setLanguage('nl');
  * <Chat client={chatClient} i18nInstance={i18n}>
  *  ...
  * </Chat>
  * ```
  *
- * You can use the same function to add whole new language as well.
- *
- * ```
- * const i18n = new Streami18n();
- *
- * i18n.registerTranslation('mr', {
- *  'Nothing yet...': 'काहीही नाही  ...',
- *  '{{ firstUser }} and {{ secondUser }} are typing...': '{{ firstUser }} आणि {{ secondUser }} टीपी करत आहेत ',
- * });
- *
- * // Make sure to call setLanguage to reflect new language in UI.
- * i18n.setLanguage('it');
- * <Chat client={chatClient} i18nInstance={i18n}>
- *  ...
- * </Chat>
- * ```
+ * Keys you do not supply fall back to the English copy that ships inline with each
+ * component, so a partial dictionary is safe.
  *
  * ## Datetime i18n
  *
@@ -344,6 +141,10 @@ export type Streami18nOptions = {
  *
  * Dayjs provides locale config for plenty of languages, you can check the whole list of locale configs at following url
  * https://github.com/iamkun/dayjs/tree/dev/src/locale
+ *
+ * Only the `en` dayjs locale is bundled. For any other language you must import the dayjs
+ * locale yourself (`import 'dayjs/locale/nl.js'`) and/or pass `dayjsLocaleConfigForLanguage`,
+ * including the `calendar` block — the SDK no longer ships calendar formats for other languages.
  *
  * You can either provide the dayjs locale config while registering
  * language with Streami18n (either via constructor or registerTranslation()) or you can provide your own Dayjs or Moment instance
@@ -455,18 +256,7 @@ export class Streami18n {
       [key: string]: typeof enTranslations | UnknownType;
     };
   } = {
-    de: { [defaultNS]: deTranslations },
     en: { [defaultNS]: enTranslations },
-    es: { [defaultNS]: esTranslations },
-    fr: { [defaultNS]: frTranslations },
-    hi: { [defaultNS]: hiTranslations },
-    it: { [defaultNS]: itTranslations },
-    ja: { [defaultNS]: jaTranslations },
-    ko: { [defaultNS]: koTranslations },
-    nl: { [defaultNS]: nlTranslations },
-    pt: { [defaultNS]: ptTranslations },
-    ru: { [defaultNS]: ruTranslations },
-    tr: { [defaultNS]: trTranslations },
   };
 
   /**

@@ -1,7 +1,7 @@
 import { defineConfig } from 'i18next-cli';
 
 export default defineConfig({
-  locales: ['de', 'en', 'es', 'fr', 'hi', 'it', 'ja', 'ko', 'nl', 'pt', 'ru', 'tr'],
+  locales: ['en'],
   extract: {
     defaultNS: false,
     extractFromComments: false,
@@ -11,17 +11,15 @@ export default defineConfig({
     keySeparator: false,
     nsSeparator: false,
     output: 'src/i18n/{{language}}.json',
+    // `removeUnusedKeys` prunes anything the extractor cannot see in a `t()` call, so every
+    // key resolved from a runtime value must be preserved explicitly here or it gets deleted.
     preservePatterns: [
-      // to preserve a whole group
+      // Integrator-overridable timestamp format strings; never referenced as a literal.
       'timestamp/*',
-
-      // or  exact key if you want :
-      // 'timestamp/DateSeparator',
-
-      // or if you’re using explicit namespaces:
-      // 'translation:timestamp/DateSeparator',
+      // ISO language names, resolved via `t(languageKey)` in MessageTranslationIndicator.
+      'language/*',
     ],
-    removeUnusedKeys: false,
+    removeUnusedKeys: true,
   },
   types: {
     input: ['locales/{{language}}/{{namespace}}.json'],

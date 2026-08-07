@@ -5,8 +5,10 @@ import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import moment from 'moment-timezone';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { nlTranslations, frTranslations } from '../translations';
+// Only the `en` dayjs locale ships with the SDK; integrators import the ones they need,
+// exactly as this test does.
 import 'dayjs/locale/nl';
+import 'dayjs/locale/fr';
 import localeData from 'dayjs/plugin/localeData';
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import type { TranslationTopicConstructor } from '../TranslationBuilder';
@@ -88,27 +90,36 @@ describe('Streami18n instance - default', () => {
   });
 });
 
-describe('Streami18n instance - with built-in langauge', () => {
-  describe('datetime translations enabled', () => {
-    const streami18nOptions = { language: 'nl' };
-    const streami18n = new Streami18n(streami18nOptions);
-    it('should provide dutch translator', async () => {
-      const { t: _t } = await streami18n.getTranslators();
-      for (const key in nlTranslations) {
-        if (
-          (key.includes('{{') && key.includes('}}')) ||
-          key.includes('duration/Message reminder') ||
-          key.includes('duration/Remind Me') ||
-          key.includes('duration/Share Location') ||
-          typeof nlTranslations[key] !== 'string'
-        ) {
-          continue;
-        }
+// `en` is the only bundled language. Non-English support is entirely integrator-supplied,
+// so these tests exercise that path rather than deleted built-in dictionaries.
+const dutchTranslations = {
+  'messageList.empty': 'Nog niets...',
+  'messageComposer.sendButton.label': 'Verstuur bericht',
+};
 
-        expect(_t(key)).toBe(nlTranslations[key]);
+describe('Streami18n instance - with an integrator-registered language', () => {
+  describe('datetime translations enabled', () => {
+    const streami18n = new Streami18n({ language: 'nl', logger: () => null });
+    streami18n.registerTranslation(
+      'nl',
+      // @ts-expect-error partial translations for testing
+      dutchTranslations,
+    );
+
+    it('should translate the registered keys', async () => {
+      const { t: _t } = await streami18n.getTranslators();
+      for (const [key, value] of Object.entries(dutchTranslations)) {
+        expect(_t(key)).toBe(value);
       }
     });
-    it('should provide moment with `nl` locale', async () => {
+
+    it('should fall back to the key for unregistered keys', async () => {
+      const { t: _t } = await streami18n.getTranslators();
+      const missing = nanoid();
+      expect(_t(missing)).toBe(missing);
+    });
+
+    it('should provide dayjs with `nl` locale', async () => {
       const { tDateTimeParser } = await streami18n.getTranslators();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
       expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('nl');
@@ -116,30 +127,25 @@ describe('Streami18n instance - with built-in langauge', () => {
   });
 
   describe('datetime translations disabled', () => {
-    const streami18nOptions = {
+    const streami18n = new Streami18n({
       language: 'nl',
       disableDateTimeTranslations: true,
-    };
-    const streami18n = new Streami18n(streami18nOptions);
+      logger: () => null,
+    });
+    streami18n.registerTranslation(
+      'nl',
+      // @ts-expect-error partial translations for testing
+      dutchTranslations,
+    );
 
-    it('should provide dutch translator', async () => {
+    it('should translate the registered keys', async () => {
       const { t: _t } = await streami18n.getTranslators();
-      for (const key in nlTranslations) {
-        if (
-          (key.includes('{{') && key.includes('}}')) ||
-          key.includes('duration/Message reminder') ||
-          key.includes('duration/Remind Me') ||
-          key.includes('duration/Share Location') ||
-          typeof nlTranslations[key] !== 'string'
-        ) {
-          continue;
-        }
-
-        expect(_t(key)).toBe(nlTranslations[key]);
+      for (const [key, value] of Object.entries(dutchTranslations)) {
+        expect(_t(key)).toBe(value);
       }
     });
 
-    it('should provide moment with default `en` locale', async () => {
+    it('should provide dayjs with default `en` locale', async () => {
       const { tDateTimeParser } = await streami18n.getTranslators();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
       expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
@@ -246,27 +252,42 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   });
 });
 
-describe('setLanguage - switch to french', () => {
-  const streami18nOptions = {};
-  const streami18n = new Streami18n(streami18nOptions);
+describe('setLanguage - switch to a registered language', () => {
+  const frenchTranslations = {
+    'messageList.empty': 'Rien pour le moment...',
+    'messageComposer.sendButton.label': 'Envoyer le message',
+  };
 
-  it('should provide french translator', async () => {
+  it('should provide the french translator after switching', async () => {
+    const streami18n = new Streami18n({ logger: () => null });
+    streami18n.registerTranslation(
+      'fr',
+      // @ts-expect-error partial translations for testing
+      frenchTranslations,
+    );
+
+    // English before the switch: an unknown key resolves to itself.
+    const { t: beforeT } = await streami18n.getTranslators();
+    expect(beforeT('messageList.empty')).toBe('messageList.empty');
+
     await streami18n.setLanguage('fr');
 
     const { t: _t } = await streami18n.getTranslators();
-    for (const key in frTranslations) {
-      if (
-        (key.includes('{{') && key.includes('}}')) ||
-        key.includes('duration/Message reminder') ||
-        key.includes('duration/Remind Me') ||
-        key.includes('duration/Share Location') ||
-        typeof nlTranslations[key] !== 'string'
-      ) {
-        continue;
-      }
-
-      expect(_t(key)).toBe(frTranslations[key]);
+    for (const [key, value] of Object.entries(frenchTranslations)) {
+      expect(_t(key)).toBe(value);
     }
+  });
+
+  it('should fall back to the key for an unregistered language', async () => {
+    // An unknown language gets an empty dictionary rather than being rejected, so every
+    // key resolves to itself — which is the inline English default at each call site.
+    const streami18n = new Streami18n({ language: 'zz', logger: () => null });
+    const { t: _t } = await streami18n.getTranslators();
+
+    expect(streami18n.currentLanguage).toBe('zz');
+    expect(_t('messageComposer.sendButton.label')).toBe(
+      'messageComposer.sendButton.label',
+    );
   });
 });
 

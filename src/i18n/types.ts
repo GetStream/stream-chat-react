@@ -106,19 +106,11 @@ export type TDateTimeParserInput = string | number | Date;
 export type TDateTimeParserOutput = string | number | Date | Dayjs.Dayjs | Moment;
 export type TDateTimeParser = (input?: TDateTimeParserInput) => TDateTimeParserOutput;
 
-export type SupportedTranslations =
-  | 'de'
-  | 'en'
-  | 'es'
-  | 'fr'
-  | 'hi'
-  | 'it'
-  | 'ja'
-  | 'ko'
-  | 'nl'
-  | 'pt'
-  | 'ru'
-  | 'tr';
+/**
+ * Languages with translations bundled in the SDK. English is the only one; any other
+ * language is supplied by the integrator via `Streami18n.registerTranslation()`.
+ */
+export type SupportedTranslations = 'en';
 
 export type DateFormatterOptions = TimestampFormatterOptions & {
   formatDate?: MessageContextValue['formatDate'];
