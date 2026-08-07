@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
@@ -16,12 +17,6 @@ import {
 } from '../../../../components/BaseImage';
 import { Prompt } from '../../../../components/Dialog';
 import { Gallery as DefaultGallery, GalleryUI } from '../../../../components/Gallery';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconImage,
-  IconVideoFill,
-} from '../../../../components/Icons';
 import { GlobalModal } from '../../../../components/Modal';
 import {
   SectionNavigatorHeader,
@@ -54,6 +49,7 @@ const ChannelMediaGridItem = ({
   const { t } = useTranslationContext('ChannelMediaView');
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
+  const { IconImage, IconVideoFill } = useComponentContextIcons();
   const displayName = getUserDisplayName(item.user);
   const mediaSrc =
     item.type === 'video'
@@ -120,6 +116,7 @@ const ChannelMediaPagination = ({
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
   const { t } = useTranslationContext('ChannelMediaView');
+  const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
 
   return (
     <div className='str-chat__channel-detail__media-view__pagination'>

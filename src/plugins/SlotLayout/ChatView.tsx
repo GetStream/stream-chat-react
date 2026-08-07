@@ -12,16 +12,11 @@ import React, {
 import { useStableId } from '../../components/UtilityComponents/useStableId';
 
 import { Button, type ButtonProps } from '../../components/Button';
-import {
-  IconMessageBubble,
-  IconMessageBubbleFill,
-  IconThread,
-  IconThreadFill,
-} from '../../components/Icons';
 import { UnreadCountBadge } from '../../components/Threads/UnreadCountBadge';
 import {
   DialogManagerProvider,
   useChatContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import { useStateStore } from '../../store';
@@ -651,6 +646,7 @@ export const ChatViewChannelsSelectorButton = ({
 }: ChatViewSelectorItemProps) => {
   const { activeView, setActiveView } = useChatViewContext();
   const { t } = useTranslationContext();
+  const { IconMessageBubble, IconMessageBubbleFill } = useComponentContextIcons();
 
   const isActive = activeView === 'channels';
 
@@ -680,6 +676,7 @@ export const ChatViewThreadsSelectorButton = ({
   };
   const { activeView, setActiveView } = useChatViewContext();
   const { t } = useTranslationContext();
+  const { IconThread, IconThreadFill } = useComponentContextIcons();
 
   const isActive = activeView === 'threads';
   const label =

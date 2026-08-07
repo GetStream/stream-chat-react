@@ -32,10 +32,15 @@ const addNotificationSpy = vi.fn();
 const mockClient = { notifications: { addError: addNotificationSpy } };
 const tSpy = (s) => s;
 
-vi.mock('../../../../context', () => ({
-  useChatContext: () => ({ client: mockClient }),
-  useTranslationContext: () => ({ t: tSpy }),
-}));
+vi.mock('../../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../../context')>();
+  return {
+    useChatContext: () => ({ client: mockClient }),
+    useComponentContext: () => ({}),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useTranslationContext: () => ({ t: tSpy }),
+  };
+});
 
 vi.mock('../../../Notifications', async (importOriginal) => ({
   ...(await importOriginal()),

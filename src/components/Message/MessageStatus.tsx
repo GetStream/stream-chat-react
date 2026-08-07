@@ -6,9 +6,9 @@ import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 import { useChatContext } from '../../context/ChatContext';
+import { useComponentContextIcons } from '../../context';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconCheckmark1Small, IconChecks, IconClock } from '../Icons';
 import { useThreadContext } from '../Threads';
 
 export type MessageStatusProps = {
@@ -44,6 +44,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const { deliveredTo, isMyMessage, lastOwnMessage, message, readBy, returnAllReadData } =
     useMessageContext('MessageStatus');
   const { t } = useTranslationContext('MessageStatus');
+  const { IconCheckmark1Small, IconChecks, IconClock } = useComponentContextIcons();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
   if (!isMyMessage() || message.type === 'error') return null;

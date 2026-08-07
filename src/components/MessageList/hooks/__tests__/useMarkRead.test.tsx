@@ -510,4 +510,25 @@ describe('useMarkRead', () => {
       expect(markRead).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('does not throw when the channel is disconnected (#3254)', async () => {
+    const {
+      channels: [channel],
+      client,
+    } = await initClientWithChannels();
+    // initClientWithChannels stubs getConfig; restore it so the guard is reachable
+    vi.mocked(channel.getConfig).mockRestore();
+    channel.disconnected = true;
+
+    // `getChannelConfig` short-circuits before `channel.getConfig()` can throw, so rendering
+    // succeeds (an unhandled throw would reject this await and fail the test) and the hook
+    // never reaches the mark-read call.
+    const { markRead } = await render({
+      channel,
+      client,
+      params: { isMessageListScrolledToBottom: true, messageListIsThread: false },
+    });
+
+    expect(markRead).not.toHaveBeenCalled();
+  });
 });

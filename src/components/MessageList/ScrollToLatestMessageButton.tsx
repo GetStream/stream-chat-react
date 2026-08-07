@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 
-import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import {
+  useChannel,
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { useThreadContext } from '../Threads/ThreadContext';
 import { useStateStore } from '../../store';
 
 import type { EventPayload, ThreadState } from 'stream-chat';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
-import { IconArrowDown } from '../Icons';
 
 export type ScrollToLatestMessageButtonProps = {
   /** When true, user has jumped to an older message set and newer messages can be loaded */
@@ -35,6 +39,7 @@ const UnMemoizedScrollToLatestMessageButton = (
   const isThreadList = !!thread;
   const { parentMessage } = useStateStore(thread?.state, threadStateSelector) ?? {};
   const { t } = useTranslationContext();
+  const { IconArrowDown } = useComponentContextIcons();
   const [countUnread, setCountUnread] = useState(channel.countUnread() || 0);
   const [replyCount, setReplyCount] = useState(parentMessage?.reply_count || 0);
   const observedEvent = isThreadList ? 'message.updated' : 'message.new';

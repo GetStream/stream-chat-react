@@ -1,5 +1,5 @@
 import React, { act } from 'react';
-import { cleanup, render, type RenderResult } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 
 import {
@@ -87,17 +87,18 @@ describe('VirtualizedMessageList', () => {
     const { channel, client } = await createChannel(true);
     vi.mocked(nanoid).mockReturnValue('mockedId');
 
-    let result: RenderResult;
-    await act(() => {
-      result = render(
-        <Chat client={client}>
-          <Channel channel={channel}>
-            <VirtualizedMessageList />
-          </Channel>
-        </Chat>,
-      );
-    });
-    expect(result.container).toMatchSnapshot();
+    const { container, findByText } = render(
+      <Chat client={client}>
+        <Channel channel={channel}>
+          <VirtualizedMessageList />
+        </Channel>
+      </Chat>,
+    );
+
+    const emptyStateText = await findByText('Send a message to start the conversation');
+    const virtualList = container.querySelector('.str-chat__virtual-list');
+    expect(virtualList).toBeInTheDocument();
+    expect(virtualList).toContainElement(emptyStateText);
   });
 });
 

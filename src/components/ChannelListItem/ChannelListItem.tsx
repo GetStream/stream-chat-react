@@ -125,14 +125,23 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   }, [channel, client]);
 
   useEffect(() => {
-    const handleEvent = (event: EventPayload<'notification.mark_unread'>) => {
+    const handleEvent = (
+      event:
+        | EventPayload<'notification.mark_unread'>
+        | EventPayload<'message.read_locally'>,
+    ) => {
       if (channel.cid !== event.cid) return;
       if (event.user?.id !== client.user?.id) return;
       setUnread(channel.countUnread());
     };
-    const subscription = channel.on('notification.mark_unread', handleEvent);
+    const subscriptions = [
+      channel.on('notification.mark_unread', handleEvent),
+      // local-only read event, dispatched by markReadLocally() when
+      // client.options.isLocalUnreadCountEnabled is set
+      channel.on('message.read_locally', handleEvent),
+    ];
     return () => {
-      subscription.unsubscribe();
+      subscriptions.forEach((subscription) => subscription.unsubscribe());
     };
   }, [channel, client]);
 

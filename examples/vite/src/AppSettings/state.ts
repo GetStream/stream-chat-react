@@ -25,6 +25,7 @@ export type MessageActionsSettingsState = {
     delete: {
       enableOptionConfiguration: boolean;
     };
+    inlineEdit: boolean;
     markOwnUnread: boolean;
     viewMessageInfo: boolean;
   };
@@ -130,6 +131,7 @@ const defaultAppSettingsState: AppSettingsState = {
       delete: {
         enableOptionConfiguration: false,
       },
+      inlineEdit: false,
       markOwnUnread: false,
       viewMessageInfo: false,
     },

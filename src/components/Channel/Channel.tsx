@@ -181,6 +181,10 @@ const ChannelInner = (
   );
 
   const handleEvent = async (event: Event) => {
+    // client-level subscriptions keep firing after disconnect, and reading from
+    // or querying a disconnected channel throws
+    if (channel.disconnected) return;
+
     // ignore the event if it is not targeted at the current channel.
     // Event targeted at this channel or globally targeted event should lead to state refresh
     if (event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid)
@@ -200,7 +204,7 @@ const ChannelInner = (
       if (mainChannelUpdated) {
         if (
           document.hidden &&
-          channelConfig?.read_events &&
+          (channelConfig?.read_events || client.options.isLocalUnreadCountEnabled) &&
           !channel.muteStatus().muted
         ) {
           const unread = channel.countUnread();

@@ -9,13 +9,13 @@ import type { MessageContextValue } from '../../context';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
-import { IconEmojiAdd } from '../Icons';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
 
 export type MessageReactionsDetailProps = Partial<
@@ -72,6 +72,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
   } = useComponentContext(MessageReactionsDetail.name);
+  const { IconEmojiAdd } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
   const {

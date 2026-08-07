@@ -6,21 +6,7 @@ import {
   useLatestMessagePreview,
   type UseLatestMessagePreviewParams,
 } from './hooks/useLatestMessagePreview';
-import {
-  IconCamera,
-  IconCheckmark1Small,
-  IconChecks,
-  IconClock,
-  IconExclamationCircleFill,
-  IconFile,
-  IconGiphy,
-  IconLink,
-  IconLocation,
-  IconNoSign,
-  IconUnsupportedAttachment,
-  IconVideo,
-  IconVoice,
-} from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 /**
  * Props for {@link SummarizedMessagePreview}. Override the component via `ComponentContext`
@@ -29,33 +15,50 @@ import {
  */
 export type SummarizedMessagePreviewProps = UseLatestMessagePreviewParams;
 
-const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> = {
-  delivered: IconChecks,
-  read: IconChecks,
-  sending: IconClock,
-  sent: IconCheckmark1Small,
-};
-
-const contentTypeIconMap: Partial<
-  Record<ChannelPreviewMessageType, React.ComponentType>
-> = {
-  deleted: IconNoSign,
-  error: IconExclamationCircleFill,
-  file: IconFile,
-  giphy: IconGiphy,
-  image: IconCamera,
-  link: IconLink,
-  location: IconLocation,
-  unsupported: IconUnsupportedAttachment,
-  video: IconVideo,
-  voice: IconVoice,
-};
-
 export const SummarizedMessagePreview = ({
   latestMessage,
   messageDeliveryStatus,
   participantCount,
-}: UseLatestMessagePreviewParams) => {
+}: SummarizedMessagePreviewProps) => {
+  const {
+    IconCamera,
+    IconCheckmark1Small,
+    IconChecks,
+    IconClock,
+    IconExclamationCircleFill,
+    IconFile,
+    IconGiphy,
+    IconLink,
+    IconLocation,
+    IconNoSign,
+    IconUnsupportedAttachment,
+    IconVideo,
+    IconVoice,
+  } = useComponentContextIcons();
+
+  const deliveryStatusIconMap: Record<ChannelPreviewDeliveryStatus, React.ComponentType> =
+    {
+      delivered: IconChecks,
+      read: IconChecks,
+      sending: IconClock,
+      sent: IconCheckmark1Small,
+    };
+
+  const contentTypeIconMap: Partial<
+    Record<ChannelPreviewMessageType, React.ComponentType>
+  > = {
+    deleted: IconNoSign,
+    error: IconExclamationCircleFill,
+    file: IconFile,
+    giphy: IconGiphy,
+    image: IconCamera,
+    link: IconLink,
+    location: IconLocation,
+    unsupported: IconUnsupportedAttachment,
+    video: IconVideo,
+    voice: IconVoice,
+  };
+
   const { deliveryStatus, senderName, text, type } = useLatestMessagePreview({
     latestMessage,
     messageDeliveryStatus,

@@ -16,6 +16,11 @@ import type { LocalMessage } from 'stream-chat';
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useRegisterDropHandlers } from './WithDragAndDropUpload';
 
+export {
+  MessageComposerControllerProvider,
+  useMessageComposerControllerContext,
+} from './MessageComposerControllerContext';
+
 export type EmojiSearchIndexResult = {
   id: string;
   name: string;
@@ -72,6 +77,10 @@ export type MessageComposerProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
+  /**
+   * When set to `true` disables clearing established state of the MessageComposerController upon component unmount.
+   */
+  preventClearingOnUnmount?: boolean;
 };
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
@@ -88,9 +97,19 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 
   useEffect(
     () => () => {
-      messageComposer.createDraft().finally(() => messageComposer.clear());
+      // both createDraft() and clear() reach channel.getConfig(), which throws
+      // for a disconnected channel
+      if (messageComposer.channel.disconnected) return;
+
+      const promise = messageComposer.config.drafts.enabled
+        ? messageComposer.createDraft().catch(console.error)
+        : Promise.resolve();
+
+      if (props.preventClearingOnUnmount) return;
+
+      promise.finally(() => messageComposer.clear());
     },
-    [messageComposer],
+    [messageComposer, props.preventClearingOnUnmount],
   );
 
   useEffect(() => {

@@ -10,6 +10,7 @@ import React, {
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
@@ -23,7 +24,6 @@ import {
   useChannelPreviewInfo,
   useIsUserMuted,
 } from '../../../../components/ChannelListItem';
-import { IconCheckmark, IconMute, IconPin } from '../../../../components/Icons';
 import { useChannelMembershipState } from '../../../../components/ChannelList';
 import { useIsChannelMuted } from '../../../../components/ChannelListItem/hooks/useIsChannelMuted';
 import { useChannelHasMembersOnline } from '../../../../components/ChannelHeader/hooks/useChannelHasMembersOnline';
@@ -55,6 +55,8 @@ export type ChannelManagementInfoBodyProps = {
 export const ChannelManagementInfoBody = ({
   actions,
 }: ChannelManagementInfoBodyProps) => {
+  const { IconMute, IconPin } = useComponentContextIcons();
+
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
@@ -318,6 +320,7 @@ const useChannelManagementEditForm = ({
 };
 
 export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps) => {
+  const { IconCheckmark } = useComponentContextIcons();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
   const {
     canSubmit,

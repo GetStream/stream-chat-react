@@ -6,9 +6,12 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   useChatContext,
+  useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelFilesView } from '../ChannelFilesView';
@@ -195,6 +198,9 @@ describe('ChannelFilesView', () => {
       t: (key: string) => key,
       tDateTimeParser: (input?: string | number | Date) => Dayjs(input),
     } as unknown as ReturnType<typeof useTranslationContext>);
+
+    vi.mocked(useComponentContext).mockReturnValue({});
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },

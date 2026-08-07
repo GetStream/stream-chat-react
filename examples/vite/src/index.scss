@@ -9,6 +9,7 @@
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
 @import url('./CustomMessageActions/CustomMessageActions.scss')
 layer(stream-app-overrides);
+@import url('./InlineEditMessage/InlineEditMessage.scss') layer(stream-app-overrides);
 @import url('./SystemNotification/SystemNotification.scss') layer(stream-app-overrides);
 @import url('./AccessibilityNavigation/ReturnToSkipNavigation.scss')
 layer(stream-app-overrides);

@@ -1,7 +1,11 @@
 import React from 'react';
-import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import {
+  useChannel,
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { Button } from '../Button';
-import { IconXmark } from '../Icons';
 import { useMessagePaginator } from '../../hooks';
 
 export const UNREAD_MESSAGE_SEPARATOR_CLASS = 'str-chat__unread-messages-separator';
@@ -21,6 +25,8 @@ export const UnreadMessagesSeparator = ({
   showCount = true,
   unreadCount,
 }: UnreadMessagesSeparatorProps) => {
+  const { IconXmark } = useComponentContextIcons();
+
   const { t } = useTranslationContext('UnreadMessagesSeparator');
   const channel = useChannel();
   const { client } = useChatContext('UnreadMessagesSeparator');

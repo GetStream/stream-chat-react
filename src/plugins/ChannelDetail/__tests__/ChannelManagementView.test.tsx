@@ -29,19 +29,23 @@ const mocks = vi.hoisted(() => ({
   mutes: [] as UserMuteResponse[],
 }));
 
-vi.mock('../../../context', () => ({
-  useChatContext: () => ({
-    client: {
-      user: { id: 'own-user' },
-    },
-    mutes: mocks.mutes,
-  }),
-  useComponentContext: () => ({
-    Avatar: () => <div data-testid='channel-management-avatar' />,
-  }),
-  useModalContext: () => ({ close: mocks.close }),
-  useTranslationContext: () => ({ t: (key: string) => key }),
-}));
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useChatContext: () => ({
+      client: {
+        user: { id: 'own-user' },
+      },
+      mutes: mocks.mutes,
+    }),
+    useComponentContext: () => ({
+      Avatar: () => <div data-testid='channel-management-avatar' />,
+    }),
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useModalContext: () => ({ close: mocks.close }),
+    useTranslationContext: () => ({ t: (key: string) => key }),
+  };
+});
 
 vi.mock('../../../context/ChatContext', () => ({
   useChatContext: () => ({
@@ -133,8 +137,8 @@ vi.mock('../../../components/Dialog', () => ({
   },
 }));
 
-vi.mock('../../../components/Icons', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../../components/Icons')>();
+vi.mock('../../../components/Icons/icons', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../components/Icons/icons')>();
 
   return {
     ...actual,

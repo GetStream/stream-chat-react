@@ -1,27 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import PickerImport from '@emoji-mart/react';
+import { Picker, type PickerProps } from './Picker';
 
-import { useMessageComposerContext, useTranslationContext } from '../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 import {
   Button,
-  IconEmoji,
   type PopperLikePlacement,
   useMessageComposerController,
 } from '../../components';
 import { usePopoverPosition } from '../../components/Dialog/hooks/usePopoverPosition';
 import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useIsCooldownActive';
 
-// @emoji-mart/react ships as CJS with the component on `exports.default`. Under
-// spec-strict ESM interop (e.g. Vite 8 / Rolldown, native Node ESM) a default
-// import yields the module namespace `{ default }` instead of the component,
-// which makes React throw "Element type is invalid ... got: object". Unwrap the
-// default defensively so it works regardless of interop.
-const Picker =
-  (PickerImport as unknown as { default?: typeof PickerImport }).default ?? PickerImport;
-
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
 export type EmojiPickerProps = {
+  /**
+   * @deprecated Use the `icons.IconEmoji` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconEmoji: ... } }}>`) instead.
+   * Passing this prop still wins over the context slot for backwards compatibility.
+   */
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
   pickerContainerClassName?: string;
@@ -31,7 +30,7 @@ export type EmojiPickerProps = {
    * Untyped [properties](https://github.com/missive/emoji-mart/tree/v5.5.2#options--props) to be
    * passed down to the [emoji-mart `Picker`](https://github.com/missive/emoji-mart/tree/v5.5.2#-picker) component
    */
-  pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & Record<string, unknown>>;
+  pickerProps?: Partial<{ theme: 'auto' | 'light' | 'dark' } & PickerProps>;
   /**
    * Floating UI placement (default: 'top-end') for the picker popover
    */
@@ -72,7 +71,9 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = IconEmoji } = props;
+  const { IconEmoji } = useComponentContextIcons();
+  const ResolvedButtonIconComponent = props.ButtonIconComponent ?? IconEmoji;
+
   const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
 
   useEffect(() => {
@@ -134,7 +135,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         type='button'
         variant='secondary'
       >
-        {ButtonIconComponent && <ButtonIconComponent />}
+        {ResolvedButtonIconComponent && <ResolvedButtonIconComponent />}
       </Button>
     </div>
   );

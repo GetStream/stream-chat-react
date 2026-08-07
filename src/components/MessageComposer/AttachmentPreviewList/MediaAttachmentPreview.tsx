@@ -4,7 +4,11 @@ import {
   type LocalImageAttachment,
   type LocalVideoAttachment,
 } from 'stream-chat';
-import { useComponentContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../../context';
 import { BaseImage as DefaultBaseImage } from '../../BaseImage';
 import React, {
   type KeyboardEvent,
@@ -14,7 +18,6 @@ import React, {
   useState,
 } from 'react';
 import clsx from 'clsx';
-import { IconExclamationMark, IconRetry } from '../../Icons';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
@@ -34,6 +37,8 @@ export const MediaAttachmentPreview = ({
   openPreview,
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
+  const { IconExclamationMark, IconRetry } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   const { BaseImage = DefaultBaseImage } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);

@@ -14,8 +14,7 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { EventPayload, LocalMessage } from 'stream-chat';
 import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconXmark } from '../Icons';
-import { useWorkspaceNavigation } from '../../context';
+import { useComponentContextIcons, useWorkspaceNavigation } from '../../context';
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
@@ -77,6 +76,8 @@ export type ThreadHeaderProps = {
 };
 
 export const ThreadHeader = (props: ThreadHeaderProps) => {
+  const { IconXmark } = useComponentContextIcons();
+
   const { closeThread, overrideTitle, thread } = props;
 
   const { t } = useTranslationContext();

@@ -27,7 +27,12 @@ import { ShareLocationDialog as DefaultLocationDialog } from '../../Location';
 import { PollCreationDialog as DefaultPollCreationDialog } from '../../Poll';
 import { Portal } from '../../Portal/Portal';
 import { UploadFileInput } from '../../ReactFileUtilities';
-import { useChannel, useComponentContext, useTranslationContext } from '../../../context';
+import {
+  useChannel,
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../../context';
 import {
   AttachmentSelectorContextProvider,
   useAttachmentSelectorContext,
@@ -38,13 +43,6 @@ import { useStateStore } from '../../../store';
 import type { TextComposerState } from 'stream-chat';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import {
-  IconAttachment,
-  IconCommand,
-  IconLocation,
-  IconPlus,
-  IconPoll,
-} from '../../Icons';
 import { useIsCooldownActive } from '../hooks/useIsCooldownActive';
 import {
   CommandsMenu,
@@ -57,6 +55,7 @@ import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabiliti
 const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
 
 const AttachmentSelectorMenuInitButtonIcon = ({ className }: { className?: string }) => {
+  const { IconPlus } = useComponentContextIcons();
   const { AttachmentSelectorInitiationButtonContents } = useComponentContext();
 
   if (AttachmentSelectorInitiationButtonContents) {
@@ -168,6 +167,7 @@ export type AttachmentSelectorActionProps = {
 export const DefaultAttachmentSelectorComponents = {
   Command({ submenuHeader, submenuItems }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const { IconCommand } = useComponentContextIcons();
     const { openSubmenu } = useContextMenuContext();
     const commands = useMessageComposerCommands();
     const hasEnabledCommands = commands.some(({ enabled }) => enabled);
@@ -194,6 +194,7 @@ export const DefaultAttachmentSelectorComponents = {
     );
   },
   File() {
+    const { IconAttachment } = useComponentContextIcons();
     const { t } = useTranslationContext();
     const { fileInput } = useAttachmentSelectorContext();
     const { closeMenu } = useContextMenuContext();
@@ -213,6 +214,7 @@ export const DefaultAttachmentSelectorComponents = {
   },
   Location({ openModalForAction }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const { IconLocation } = useComponentContextIcons();
     const { closeMenu } = useContextMenuContext();
     return (
       <ContextMenuButton
@@ -229,6 +231,7 @@ export const DefaultAttachmentSelectorComponents = {
   },
   Poll({ openModalForAction }: AttachmentSelectorActionProps) {
     const { t } = useTranslationContext();
+    const { IconPoll } = useComponentContextIcons();
     const { closeMenu } = useContextMenuContext();
     return (
       <ContextMenuButton
@@ -285,7 +288,13 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
   const channelCapabilities = useChannelCapabilities({
     cid: messageComposer.channel.cid,
   });
-  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
+  const reactiveChannelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
+  // A disconnected channel (current user removed, or channel deleted) degrades to "no config",
+  // so every config-gated action drops out and the selector renders nothing rather than
+  // offering actions that cannot succeed. See #3254.
+  const channelConfig = messageComposer.channel.disconnected
+    ? undefined
+    : reactiveChannelConfig;
 
   return useMemo(
     () =>

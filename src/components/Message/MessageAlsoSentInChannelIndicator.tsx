@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { IconArrowUpRight } from '../Icons';
-import { useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { useMessageAlsoSentInChannelNavigation } from './hooks';
 
 export type MessageAlsoSentInChannelIndicatorProps = {
@@ -21,6 +20,7 @@ export type MessageAlsoSentInChannelIndicatorProps = {
 export const MessageAlsoSentInChannelIndicator = ({
   onView,
 }: MessageAlsoSentInChannelIndicatorProps = {}) => {
+  const { IconArrowUpRight } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { isInThread, isShownInChannel, viewReference } =
     useMessageAlsoSentInChannelNavigation();

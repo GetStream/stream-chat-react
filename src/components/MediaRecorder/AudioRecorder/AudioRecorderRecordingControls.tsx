@@ -1,13 +1,17 @@
 import { CheckSignIcon } from '../../MessageComposer/icons';
-import { IconDelete, IconPauseFill, IconVoice } from '../../Icons';
 import React from 'react';
-import { useMessageComposerContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../../context';
 import { isRecording } from './recordingStateIdentity';
 import { Button } from '../../Button';
 import { useNotificationApi } from '../../Notifications';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 
 const ToggleRecordingButton = () => {
+  const { IconPauseFill, IconVoice } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const {
     recordingController: { recorder, recordingState },
@@ -31,6 +35,8 @@ const ToggleRecordingButton = () => {
 };
 
 export const AudioRecorderRecordingControls = () => {
+  const { IconDelete } = useComponentContextIcons();
+
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const {

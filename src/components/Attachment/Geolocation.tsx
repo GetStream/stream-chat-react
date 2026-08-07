@@ -3,9 +3,13 @@ import { useEffect } from 'react';
 import { useRef, useState } from 'react';
 import React from 'react';
 import type { Coords, SharedLocationResponseData } from 'stream-chat';
-import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import {
+  useChannel,
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { ExternalLinkIcon } from './icons';
-import { IconLocation } from '../Icons';
 import { Button } from '../Button';
 
 export type GeolocationMapProps = Coords;
@@ -103,6 +107,7 @@ const DefaultGeolocationAttachmentMapPlaceholder = ({
   location,
 }: GeolocationAttachmentMapPlaceholderProps) => {
   const { t } = useTranslationContext();
+  const { IconLocation } = useComponentContextIcons();
 
   return (
     <div

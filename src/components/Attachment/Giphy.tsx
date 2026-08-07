@@ -3,8 +3,11 @@ import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { toGalleryItemDescriptors } from '../Gallery';
 import { getGiphyDescriptiveTitle } from './giphyAccessibility';
 import clsx from 'clsx';
-import { useComponentContext, useTranslationContext } from '../../context';
-import { IconGiphy } from '../Icons';
+import {
+  useComponentContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { type CSSProperties, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import {
   type ImageAttachmentConfiguration,
@@ -77,9 +80,12 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   );
 };
 
-const GiphyBadge = () => (
-  <div className='str-chat__giphy-badge'>
-    <IconGiphy />
-    Giphy
-  </div>
-);
+const GiphyBadge = () => {
+  const { IconGiphy } = useComponentContextIcons();
+  return (
+    <div className='str-chat__giphy-badge'>
+      <IconGiphy />
+      Giphy
+    </div>
+  );
+};

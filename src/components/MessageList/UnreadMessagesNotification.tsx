@@ -1,8 +1,12 @@
 import React from 'react';
-import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import {
+  useChannel,
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { useMessagePaginator } from '../../hooks';
 import { Button } from '../Button';
-import { IconArrowUp, IconXmark } from '../Icons';
 import clsx from 'clsx';
 import { useThreadContext } from '../Threads';
 import type { UnreadSnapshotState } from 'stream-chat';
@@ -29,6 +33,8 @@ export const UnreadMessagesNotification = ({
   queryMessageLimit,
   showCount = true,
 }: UnreadMessagesNotificationProps) => {
+  const { IconArrowUp, IconXmark } = useComponentContextIcons();
+
   // todo: move into a hook dedicated to unread count from the snapshot
   const channel = useChannel();
   const { client } = useChatContext('UnreadMessagesNotification');

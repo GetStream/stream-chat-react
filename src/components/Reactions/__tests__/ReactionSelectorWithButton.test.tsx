@@ -15,6 +15,7 @@ const capturedDialogIds: string[] = [];
 
 vi.mock('../../../context', () => ({
   useComponentContext: () => ({}),
+  useComponentContextIcons: () => ({ IconEmoji: () => null }),
   useMessageContext: () => ({
     isMyMessage: () => false,
     message: { id: 'message-1' },

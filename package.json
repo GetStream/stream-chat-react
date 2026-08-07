@@ -127,7 +127,6 @@
   "peerDependencies": {
     "@breezystack/lamejs": "^1.2.7",
     "@emoji-mart/data": "^1.1.0",
-    "@emoji-mart/react": "^1.1.0",
     "emoji-mart": "^5.4.0",
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
@@ -141,9 +140,6 @@
     "@emoji-mart/data": {
       "optional": true
     },
-    "@emoji-mart/react": {
-      "optional": true
-    },
     "emoji-mart": {
       "optional": true
     },
@@ -154,15 +150,13 @@
   "files": [
     "dist",
     "package.json",
-    "README.md",
-    "AI.md"
+    "README.md"
   ],
   "devDependencies": {
     "@breezystack/lamejs": "^1.2.7",
     "@commitlint/cli": "^21.0.1",
     "@commitlint/config-conventional": "^21.0.1",
     "@emoji-mart/data": "^1.2.1",
-    "@emoji-mart/react": "^1.1.1",
     "@eslint/js": "^9.39.4",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
@@ -229,7 +223,7 @@
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "types": "tsc --emitDeclarationOnly false --noEmit",
+    "types": "tsc --project tsconfig.lib.json --noEmit",
     "types:tests": "tsc --project tsconfig.test.json --noEmit",
     "validate-translations": "node scripts/validate-translations.js",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",

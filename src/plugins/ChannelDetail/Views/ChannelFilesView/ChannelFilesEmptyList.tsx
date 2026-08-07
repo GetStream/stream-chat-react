@@ -1,7 +1,8 @@
-import { useTranslationContext } from '../../../../context';
-import { IconFolder } from '../../../../components/Icons';
+import { useComponentContextIcons, useTranslationContext } from '../../../../context';
 
 export const ChannelFilesEmptyList = () => {
+  const { IconFolder } = useComponentContextIcons();
+
   const { t } = useTranslationContext('ChannelFilesEmptyList');
 
   return (

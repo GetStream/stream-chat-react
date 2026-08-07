@@ -3,6 +3,7 @@ import { useChannel, useChatContext } from '../../../context';
 import { useMessagePaginator } from '../../../hooks';
 import { useThreadContext } from '../../Threads';
 import type { Channel, EventPayload } from 'stream-chat';
+import { getChannelConfig } from '../../../utils/getChannelConfig';
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.messagePaginator.headmostItem?.id;
@@ -73,7 +74,13 @@ export const useMarkRead = ({
   }, [hasMoreNewer, isMessageListScrolledToBottom, messagePaginator]);
 
   useEffect(() => {
-    if (!channel.getConfig()?.read_events) return;
+    // `getChannelConfig` (rather than `channel.getConfig()`) so a disconnected channel
+    // yields `undefined` instead of throwing.
+    const unreadNotificationSupported =
+      getChannelConfig(channel)?.read_events || client.options.isLocalUnreadCountEnabled;
+
+    if (!unreadNotificationSupported) return;
+
     const shouldMarkRead = () => {
       const wasMarkedUnread =
         !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;

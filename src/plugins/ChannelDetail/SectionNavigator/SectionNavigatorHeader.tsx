@@ -1,10 +1,9 @@
 import React, { useMemo } from 'react';
 
 import { SECTION_NAVIGATOR_LAYOUT, useSectionNavigatorContext } from './SectionNavigator';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { Button } from '../../../components/Button';
 import { Prompt, type PromptHeaderProps } from '../../../components/Dialog';
-import { IconMenu } from '../../../components/Icons';
 
 export type SectionNavigatorHeaderProps = Omit<PromptHeaderProps, 'LeadingContent'>;
 
@@ -16,6 +15,8 @@ export type SectionNavigatorHeaderProps = Omit<PromptHeaderProps, 'LeadingConten
  * (`goBack`), where it would compete with the back affordance.
  */
 export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
+  const { IconMenu } = useComponentContextIcons();
+
   const { t } = useTranslationContext('SectionNavigatorHeader');
   const { layout, openNavigation } = useSectionNavigatorContext();
 
@@ -38,7 +39,7 @@ export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
         </Button>
       );
     };
-  }, [layout, openNavigation, props.goBack, t]);
+  }, [IconMenu, layout, openNavigation, props.goBack, t]);
 
   return <Prompt.Header {...props} LeadingContent={MenuButton} />;
 };

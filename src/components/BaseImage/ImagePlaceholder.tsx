@@ -1,13 +1,15 @@
 import React from 'react';
 import clsx from 'clsx';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconImage } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type ImagePlaceholderProps = {
   className?: string;
 };
 
 export const ImagePlaceholder = ({ className }: ImagePlaceholderProps) => {
+  const { IconImage } = useComponentContextIcons();
+
   const { t } = useTranslationContext();
   return (
     <div
