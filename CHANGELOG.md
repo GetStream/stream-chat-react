@@ -1,3 +1,16 @@
+## [14.11.0](https://github.com/GetStream/stream-chat-react/compare/v14.10.0...v14.11.0) (2026-08-07)
+
+### Bug Fixes
+
+* **Channel:** guard render-phase channel.getConfig() against disconnected channels ([#3257](https://github.com/GetStream/stream-chat-react/issues/3257)) ([f60273f](https://github.com/GetStream/stream-chat-react/commit/f60273f2a157747d49f2eb20702d920b977078fd)), closes [#3254](https://github.com/GetStream/stream-chat-react/issues/3254) [#2393](https://github.com/GetStream/stream-chat-react/issues/2393) [#3249](https://github.com/GetStream/stream-chat-react/issues/3249)
+* **EmojiPicker:** drop @emoji-mart/react peer dependency ([#3255](https://github.com/GetStream/stream-chat-react/issues/3255)) ([0820e4c](https://github.com/GetStream/stream-chat-react/commit/0820e4ccaf81b6669ae62332ed28f49998a5f9a4))
+
+### Features
+
+* add icons to ComponentContext ([#3246](https://github.com/GetStream/stream-chat-react/issues/3246)) ([972b68c](https://github.com/GetStream/stream-chat-react/commit/972b68c6d08a89ec8667ad2dd13c7aa927f001a0))
+* localized unread count ([#3250](https://github.com/GetStream/stream-chat-react/issues/3250)) ([1b8fa34](https://github.com/GetStream/stream-chat-react/commit/1b8fa347c1373a26f1de9079127bc7d041e93be0)), closes [GetStream/stream-chat-react-native#3679](https://github.com/GetStream/stream-chat-react-native/issues/3679)
+* **MessageComposer:** introduce context for custom composers ([#3249](https://github.com/GetStream/stream-chat-react/issues/3249)) ([5776c16](https://github.com/GetStream/stream-chat-react/commit/5776c161615215b1894a307679d52c3e00e78e61)), closes [#3248](https://github.com/GetStream/stream-chat-react/issues/3248)
+
 ## [14.10.0](https://github.com/GetStream/stream-chat-react/compare/v14.9.0...v14.10.0) (2026-07-22)
 
 ### Features
