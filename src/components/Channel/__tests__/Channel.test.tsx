@@ -442,6 +442,101 @@ describe('Channel', () => {
     });
   });
 
+  describe('disconnected channel (#3254)', () => {
+    // `initClient` stubs `getConfig`. Restoring it puts the real implementation back, which
+    // routes through `getClient()` and throws
+    // `You can't use a channel after client.disconnect() was called` once
+    // `channel.disconnected` is set — the exact failure reported in #3254. `channel.disconnected`
+    // is flipped by an async WS event (current user removed from the channel, or the channel
+    // deleted) while `<Channel>` is still mounted, so an unguarded read lands in the render phase
+    // and tears down the surrounding subtree.
+    const disconnect = (channel: ChannelType) => {
+      vi.mocked(channel.getConfig).mockRestore();
+      channel.disconnected = true;
+    };
+
+    // `Channel` is deliberately not wrapped in `React.memo`, so re-rendering the parent is enough
+    // to re-render `ChannelInner`.
+    const renderWithRerender = async (
+      channel: ChannelType,
+      chatClient: StreamChat,
+    ): Promise<() => void> => {
+      let rerender: () => void = () => {};
+      const Wrapper = () => {
+        const [, setTick] = React.useState(0);
+        rerender = () => setTick((tick) => tick + 1);
+        return (
+          <Chat client={chatClient}>
+            <Channel channel={channel}>
+              <div>child</div>
+            </Channel>
+          </Chat>
+        );
+      };
+
+      await act(() => {
+        render(<Wrapper />);
+      });
+      await waitFor(() => expect(screen.getByText('child')).toBeInTheDocument());
+
+      return rerender;
+    };
+
+    it('does not throw when re-rendering after the channel disconnects while mounted', async () => {
+      const { channel, chatClient } = await setup();
+      const rerender = await renderWithRerender(channel, chatClient);
+
+      disconnect(channel);
+
+      expect(() =>
+        act(() => {
+          rerender();
+        }),
+      ).not.toThrow();
+
+      // the subtree survived rather than being torn down
+      expect(screen.getByText('child')).toBeInTheDocument();
+    });
+
+    it('does not read the config off the disconnected channel during render', async () => {
+      const { channel, chatClient } = await setup();
+      const rerender = await renderWithRerender(channel, chatClient);
+
+      disconnect(channel);
+      // calls through to the real (throwing) implementation, so a render-phase read fails the
+      // test whether or not the assertion below is reached
+      const getConfigSpy = vi.spyOn(channel, 'getConfig');
+
+      await act(() => {
+        rerender();
+      });
+
+      // `useChannelConfig` resolves the config from `client.configsStore` by cid, so the
+      // disconnected channel instance is never touched. Reading it through the guarded
+      // `getChannelConfig(channel)` helper would satisfy this too — what must not come back is an
+      // unguarded `channel.getConfig()` in the component body.
+      expect(getConfigSpy).not.toHaveBeenCalled();
+    });
+
+    it('ignores events dispatched for a disconnected channel', async () => {
+      const { channel, chatClient } = await setup();
+      await renderWithRerender(channel, chatClient);
+
+      disconnect(channel);
+      const querySpy = vi.spyOn(channel, 'query');
+
+      // `user.deleted` is the one `handleEvent` branch that re-queries the channel; querying a
+      // disconnected channel throws, so the handler has to bail out first
+      await act(async () => {
+        chatClient.dispatchEvent(fromPartial<Event>({ type: 'user.deleted' }));
+        await Promise.resolve();
+      });
+
+      expect(querySpy).not.toHaveBeenCalled();
+      expect(screen.getByText('child')).toBeInTheDocument();
+    });
+  });
+
   describe('Children that consume the contexts set in Channel', () => {
     describe('Sending/removing/updating messages', () => {
       it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
