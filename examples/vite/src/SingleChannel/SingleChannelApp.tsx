@@ -36,11 +36,11 @@ const SINGLE_CHANNEL_DIALOG_ID = 'app-single-channel-modal';
 export const resolveSingleChannel = ({
   channelKey,
   client,
-  orchestrator,
+  channelManager,
 }: {
   channelKey?: string;
   client: StreamChat;
-  orchestrator?: ChannelManager;
+  channelManager?: ChannelManager;
 }): StreamChannel => {
   if (channelKey) {
     const separatorIndex = channelKey.indexOf(':');
@@ -51,7 +51,7 @@ export const resolveSingleChannel = ({
     return client.channel(type, id);
   }
 
-  const loadedChannel = orchestrator?.paginators.flatMap(
+  const loadedChannel = channelManager?.paginators.flatMap(
     (paginator) => paginator.items ?? [],
   )[0];
   if (loadedChannel) return loadedChannel;

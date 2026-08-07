@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   Channel,
-  ChannelPaginator,
   ChannelManagerState,
+  ChannelPaginator,
   ChannelPaginatorState,
   PaginatorIntervalViews,
   SearchControllerState,
@@ -162,7 +162,7 @@ const ChannelListSwitcher = ({
 };
 
 // Channels ingested into the active paginator out of pagination order (surfaced via
-// `orchestrator.ingestChannel` on a deep-link restore, search result, or new DM) land in one of the
+// `channelManager.ingestChannel` on a deep-link restore, search result, or new DM) land in one of the
 // paginator's logical intervals when their sort position falls outside the loaded pages: the logical
 // HEAD when newer than the loaded window, the logical TAIL when older (e.g. deep-linking a channel
 // far down the list). Neither shows in the paginated `ChannelList` (which follows the active
