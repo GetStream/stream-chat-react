@@ -315,12 +315,51 @@ See `examples/vite/src/index.scss` for reference implementation. Layers eliminat
 
 ## i18n System
 
-- **12 languages**: de, en, es, fr, hi, it, ja, ko, nl, pt, ru, tr (JSON files in `src/i18n/`)
-- **Keys are English text**: `t('Mute')`, `t('{{ user }} is typing...')`
-- **Extraction**: `i18next-cli extract` scans `t()` calls in source → updates JSON files
-- **Validation**: `yarn lint` runs `scripts/validate-translations.js` — fails on any empty translation string (zero tolerance)
-- **Date/time**: `Streami18n` class wraps i18next + Dayjs with per-locale calendar formats
-- **When adding translatable strings**: Use `t()` from `useTranslationContext()`, then run `yarn build-translations` to update JSON files. All 12 language files must have non-empty values.
+**English only.** `src/i18n/en.json` is the single bundled locale; every other language is
+supplied by the integrator via `Streami18n.registerTranslation()`.
+
+**Keys are stable dotted identifiers, with the English copy inline as i18next's `defaultValue`:**
+
+```ts
+const { t } = useTranslationContext();
+t('message.status.sent.text', 'Sent'); // singular
+t('channel.memberCount.title', {
+  // plural: `count` is required
+  count,
+  defaultValue_one: '{{ count }} member',
+  defaultValue_other: '{{ count }} members',
+});
+t('timestamp.MessageTimestamp', { timestamp }); // formatter key: no default
+```
+
+The inline default is what makes a partial custom dictionary safe — an unsupplied key still
+renders English — and it keeps the copy visible at the call site.
+
+- **Namespaces follow the source tree** (`message.*`, `messageComposer.*`, `poll.*`), so keys are
+  predictable from the component. Genuinely shared copy lives in `common.*`. Modality is the leaf:
+  `.label`, `.ariaLabel`, `.placeholder`, `.title`, `.description`, `.text`.
+- **`keySeparator: false` must stay.** Keys are flat strings that happen to contain dots; several
+  contain `...` in their copy, which `keySeparator: '.'` would mis-resolve.
+- **Typed keys:** `src/i18n/keys.ts` (generated, type-only) declares `TranslationCatalog`.
+  `src/i18n/types.ts` derives `TranslationKey`, `TranslationDictionary` and `StreamTFunction`,
+  which is what `useTranslationContext().t` is typed as — a typo is a compile error. Interpolation
+  variables are typed for plural keys only (see the note in `types.ts` for why).
+- **Runtime keys:** the ~10 keys resolved from a runtime value (a `stream-chat`
+  `notification.message`, slash-command metadata, a language code, an integrator prop) go through
+  `asDynamicKey()`. That brand is required, so every escape is deliberate and greppable.
+  `src/i18n/externalStrings.ts` maps the `stream-chat` messages we recognise onto stable keys.
+- **`yarn build-translations`** extracts, then syncs en.json from the inline defaults, then
+  regenerates `keys.ts`. **The sync step is load-bearing:** `i18next-cli extract` only ever _adds_
+  keys, so without it, editing the copy at a call site would leave the bundled en.json value in
+  place and silently change nothing.
+- **`yarn validate-translations`** regenerates and fails on any diff — that is the drift gate, and
+  it is what keeps en.json, keys.ts and the call sites in agreement. It replaced the old
+  zero-empty-string check.
+- **Date/time:** `Streami18n` wraps i18next + Dayjs. Only the `en` dayjs locale is bundled;
+  integrators import their own and pass `dayjsLocaleConfigForLanguage`.
+
+**Adding a translatable string:** call `t('namespace.component.thing.label', 'English copy')`, then
+run `yarn build-translations`.
 
 ## Styling Architecture (Theming & Build Details)
 
@@ -361,12 +400,8 @@ Vite config: no minification, sourcemaps enabled, all deps externalized. Target:
 
 ### i18n System
 
-- 12 languages in `src/i18n/*.json` — **Natural language keys** (English text = key)
-- `yarn build-translations` extracts `t()` calls from source via `i18next-cli extract`
-- `yarn validate-translations` (runs during `yarn lint`) — **zero-tolerance: any empty string value fails the build**
-- `Streami18n` class (`src/i18n/Streami18n.ts`) wraps i18next, integrates Dayjs for date/time formatting
-- Interpolation: `t('Failed to update {{ field }}', { field })`, Plurals: `_one`/`_other` suffixes
-- Access via `useTranslationContext()` hook — only works inside `<Chat>`
+See the **i18n System** section above — English-only, dotted keys with the copy inline as
+i18next's `defaultValue`. Access via `useTranslationContext()`, which only works inside `<Chat>`.
 
 ## Key Patterns for Development
 
@@ -386,14 +421,16 @@ const channels = useStateStore(chatClient.state.channelsArray);
 
 ### Adding Translations
 
-1. Add strings to `src/i18n/`
-2. Run `yarn build-translations`
-3. Use: `const { t } = useTranslationContext();`
+1. Call `t('namespace.component.thing.label', 'English copy')` — the key is namespaced by the
+   source tree, the copy goes inline (see **i18n System**)
+2. Run `yarn build-translations` to regenerate `src/i18n/en.json` and `src/i18n/keys.ts`
+3. Never hand-edit `en.json` or `keys.ts` — both are generated, and CI fails on any drift
 
 ## References
 
 - **Integration patterns:** See `AI.md`
 - **Repo structure:** See `AGENTS.md`
 - **Development guides:** See `developers/`
+- **i18n v15 migration (integrator-facing):** See `docs/i18n-v15-migration.md`
 - **Component docs:** https://getstream.io/chat/docs/sdk/react/
 - **Stream Chat API:** https://getstream.io/chat/docs/javascript/

@@ -625,8 +625,8 @@ export type TranslationCatalog = {
   'threadList.thread.ariaLabel': 'Thread: {{ messagePreview }}';
   'threadList.threadList.ariaLabel': 'Thread list';
   'threadList.unseenBanner.loading': 'Loading...';
-  'threadList.unseenBanner.unreadThreads_one': 'ThreadListUnseenThreadsBanner/unreadThreads';
-  'threadList.unseenBanner.unreadThreads_other': 'ThreadListUnseenThreadsBanner/unreadThreads';
+  'threadList.unseenBanner.unreadThreads_one': '{{ count }} unread thread';
+  'threadList.unseenBanner.unreadThreads_other': '{{ count }} unread threads';
   'timestamp.ChannelDetailPinnedMessageTimestamp': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Yesterday]", "lastWeek": "dddd", "sameElse": "L" }) }}';
   'timestamp.ChannelMembersLastActive': '{{ timestamp | timestampFormatter(relativeCompact: true) }}';
   'timestamp.ChannelPreviewTimestamp': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Yesterday]", "lastWeek": "dddd", "sameElse": "L" }) }}';

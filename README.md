@@ -97,6 +97,10 @@ The preferred method for overriding the pre-defined styles in the library is a t
 
 Our library supports auto-translation for various user languages. Please read our internationalization [documentation](https://getstream.io/chat/docs/sdk/react/customization/translations/) for further details and setup guidance.
 
+**Upgrading to v15?** English is now the only bundled language, and translation keys are namespaced
+identifiers rather than the English text. See [docs/i18n-v15-migration.md](./docs/i18n-v15-migration.md)
+for the key mapping and what you need to change.
+
 ## Contributing
 
 We welcome code changes that improve this library or fix a problem. Please make sure to follow all best practices and add tests, if applicable, before submitting a pull request on GitHub. We are pleased to merge your code into the official repository if it meets a need. Make sure to sign our [Contributor License Agreement (CLA)](https://docs.google.com/forms/d/e/1FAIpQLScFKsKkAJI7mhCr7K9rEIOpqIDThrWxuvxnwUq2XkHyG154vQ/viewform) first. See our license file for more details.
