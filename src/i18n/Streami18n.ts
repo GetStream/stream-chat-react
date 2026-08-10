@@ -116,7 +116,7 @@ export type Streami18nOptions = {
  * ```
  * const i18n = new Streami18n({
  *  translationsForLanguage: {
- *    'messageList.empty': 'Nothing here yet',
+ *    'emptyState.indicator.noConversationsYet.label': 'Nothing here yet',
  *  }
  * });
  * ```
@@ -127,8 +127,9 @@ export type Streami18nOptions = {
  * const i18n = new Streami18n({ language: 'nl' });
  *
  * i18n.registerTranslation('nl', {
- *  'messageList.empty': 'Nog niets...',
- *  'typing.multipleUsers': '{{ firstUser }} en {{ secondUser }} zijn aan het typen...',
+ *  'emptyState.indicator.noConversationsYet.label': 'Nog niets...',
+ *  'typing.singleUser': '{{ typing }} is aan het typen',
+ *  'typing.twoUsers': '{{ typing }} zijn aan het typen',
  * });
  *
  * // Make sure to call setLanguage to reflect the new language in the UI.
@@ -138,8 +139,16 @@ export type Streami18nOptions = {
  * </Chat>
  * ```
  *
- * Keys you do not supply fall back to the English copy that ships inline with each
- * component, so a partial dictionary is safe.
+ * Keys you do not supply fall back to the English copy that ships inline with each component, so
+ * a partial dictionary is safe. Both entry points merge over the bundled `runtimeDefaults`, so the
+ * keys that carry no inline copy (`timestamp.*`, `duration.*`, `language.*`) keep working too —
+ * override them only if you actually want a different format.
+ *
+ * Keys are checked against {@link TranslationKey}, but `TranslationDictionary` also permits
+ * unknown keys so you can register copy for your own components through the same instance. That
+ * means a mistyped SDK key is accepted and silently does nothing — type the dictionary as
+ * `Partial<Record<TranslationKey, string>>` if you want those rejected. {@link TranslationCatalog}
+ * maps every key to its English copy.
  *
  * ## Datetime i18n
  *
@@ -184,7 +193,7 @@ export type Streami18nOptions = {
  * i18n.registerTranslation(
  *  'mr',
  *  {
- *    'messageList.empty': 'काहीही नाही ...',
+ *    'emptyState.indicator.noConversationsYet.label': 'काहीही नाही ...',
  *    'typing.twoUsers': '{{ typing }} टीपी करत आहेत',
  *  },
  *  {
@@ -384,15 +393,15 @@ export class Streami18n {
     const translationsForLanguage = finalOptions.translationsForLanguage;
 
     if (translationsForLanguage) {
+      // Layered over `runtimeDefaults` for the same reason as `registerTranslation` — otherwise a
+      // dictionary for a language other than `en` (where `this.translations` has no entry yet)
+      // would ship without the keys that have no inline default.
       this.translations[this.currentLanguage] = {
-        [defaultNS]:
-          this.translations[this.currentLanguage] &&
-          this.translations[this.currentLanguage][defaultNS]
-            ? {
-                ...this.translations[this.currentLanguage][defaultNS],
-                ...translationsForLanguage,
-              }
-            : translationsForLanguage,
+        [defaultNS]: {
+          ...runtimeDefaults,
+          ...this.translations[this.currentLanguage]?.[defaultNS],
+          ...translationsForLanguage,
+        },
       };
     }
 
@@ -514,13 +523,17 @@ export class Streami18n {
     }
   };
 
-  /** Returns an instance of i18next used within this class instance */
-  geti18Instance = (): I18n => this.i18nInstance;
-
   /** Returns list of available languages. */
   getAvailableLanguages = () => Object.keys(this.translations);
 
-  /** Returns all the translation dictionary for all inbuilt-languages */
+  /**
+   * The resource dictionaries this instance will hand to i18next, keyed by language.
+   *
+   * Not the full English catalog: the 562 prose keys render from the `defaultValue` passed inline
+   * at each call site and are never bundled, so `en` holds only the `runtimeDefaults` subset plus
+   * whatever has been registered. To enumerate every key with its English copy — to seed a new
+   * dictionary, for instance — use {@link TranslationCatalog} (or `yarn i18n:export` in a clone).
+   */
   getTranslations = () => this.translations;
 
   /**
@@ -556,11 +569,18 @@ export class Streami18n {
       return;
     }
 
-    if (!this.translations[language]) {
-      this.translations[language] = { [defaultNS]: translation };
-    } else {
-      this.translations[language][defaultNS] = translation;
-    }
+    // Merged, not replaced, and layered over `runtimeDefaults`. Those 71 entries (`timestamp.*`,
+    // `duration.*`, `language.*`, the postProcessor directive) are the only keys with no inline
+    // `defaultValue` to fall back on, so a dictionary that replaced them would render them as raw
+    // dotted keys — every timestamp in the UI. `fallbackLng` is false, so there is no second
+    // chance. Merging is also what `translationsForLanguage` does, and it makes repeated calls for
+    // the same language accumulate rather than clobber.
+    const merged: TranslationDictionary = {
+      ...runtimeDefaults,
+      ...this.translations[language]?.[defaultNS],
+      ...translation,
+    };
+    this.translations[language] = { [defaultNS]: merged };
 
     if (customDayjsLocale) {
       this.dayjsLocales[language] = { ...customDayjsLocale };
@@ -574,7 +594,9 @@ export class Streami18n {
     }
 
     if (this.initialized) {
-      this.i18nInstance.addResources(language, defaultNS, translation);
+      // `merged`, not `translation`: for a language registered *after* init this is the only write
+      // into i18next's store, so passing the partial would leave `runtimeDefaults` absent there.
+      this.i18nInstance.addResources(language, defaultNS, merged);
     }
   }
 

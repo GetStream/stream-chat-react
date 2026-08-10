@@ -306,9 +306,14 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   streami18n.setLanguage('mr');
 
   it('should add Marathi translations object to list of translations', () => {
-    expect(streami18n.getTranslations()).toHaveProperty(languageCode, {
-      translation: translations,
-    });
+    // Merged over `runtimeDefaults` rather than stored verbatim — the keys with no inline
+    // `defaultValue` have to survive, or every timestamp renders as its raw key.
+    expect(streami18n.getTranslations()[languageCode].translation).toMatchObject(
+      translations,
+    );
+    expect(streami18n.getTranslations()[languageCode].translation).toHaveProperty(
+      'timestamp.MessageTimestamp',
+    );
   });
 
   it('should register moment locale config for Marathi translations', async () => {
@@ -490,5 +495,81 @@ describe('Streami18n translationBuilder', () => {
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       CustomNotificationTranslationTopic,
     );
+  });
+});
+
+describe('Streami18n - a custom dictionary keeps the keys that have no inline copy', () => {
+  // The 71 `runtimeDefaults` entries are the only keys with no `defaultValue` at their call site,
+  // and `fallbackLng` is false. A dictionary that replaced rather than merged left them
+  // unresolvable, so every timestamp in the UI rendered as the literal key.
+  const TIMESTAMP = '2024-01-01T10:30:00.000Z';
+
+  it.each([
+    ['registerTranslation, language registered before init', 'de', false],
+    ['registerTranslation, language registered after init', 'de', true],
+  ])('%s', async (_name, language, afterInit) => {
+    const i18n = new Streami18n({ language: language as 'en' });
+    if (!afterInit)
+      i18n.registerTranslation(language, { 'common.cancel.label': 'Abbrechen' });
+    const first = await i18n.getTranslators();
+    if (afterInit) {
+      i18n.registerTranslation(language, { 'common.cancel.label': 'Abbrechen' });
+    }
+    const { t } = afterInit ? await i18n.getTranslators() : first;
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+
+  it('translationsForLanguage for a non-English language', async () => {
+    const i18n = new Streami18n({
+      language: 'de' as 'en',
+      translationsForLanguage: { 'common.cancel.label': 'Abbrechen' },
+    });
+    const { t } = await i18n.getTranslators();
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+
+  it('overriding English does not drop the formatter keys', async () => {
+    const i18n = new Streami18n();
+    i18n.registerTranslation('en', { 'common.cancel.label': 'Dismiss' });
+    const { t } = await i18n.getTranslators();
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Dismiss');
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+
+  it('an explicit override of a formatter key still wins', async () => {
+    const i18n = new Streami18n();
+    i18n.registerTranslation('en', {
+      'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(format: HH[h]) }}',
+    });
+    const { t } = await i18n.getTranslators();
+
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10h');
+  });
+
+  it('repeated registrations for one language accumulate', async () => {
+    const i18n = new Streami18n();
+    i18n.registerTranslation('en', { 'common.cancel.label': 'Dismiss' });
+    i18n.registerTranslation('en', { 'common.send.label': 'Fire away' });
+    const { t } = await i18n.getTranslators();
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Dismiss');
+    expect(t('common.send.label', 'Send')).toBe('Fire away');
+  });
+
+  it('does not mutate the shared runtimeDefaults module object', async () => {
+    const first = new Streami18n();
+    first.registerTranslation('en', {
+      'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(format: HH[h]) }}',
+    });
+    await first.getTranslators();
+
+    const second = new Streami18n();
+    const { t } = await second.getTranslators();
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
   });
 });

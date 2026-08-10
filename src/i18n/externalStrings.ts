@@ -1,4 +1,5 @@
 import type { TranslationContextValue } from '../context/TranslationContext';
+import type { TranslationKey } from './types';
 import { asDynamicKey } from './utils';
 
 /**
@@ -15,7 +16,7 @@ import { asDynamicKey } from './utils';
  * keeps them visible to the extractor. Renaming the notification messages at the source needs
  * a `stream-chat` change; until then this table is the seam.
  */
-export const EXTERNAL_STRING_KEYS: Record<string, string> = {
+export const EXTERNAL_STRING_KEYS: Record<string, TranslationKey> = {
   'Command not ready to be sent': 'notification.commandDisabled',
   'Error uploading attachment': 'notification.attachmentUploadFailed',
   'Failed to create the poll': 'notification.pollCreateFailed',

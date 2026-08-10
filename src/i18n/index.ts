@@ -10,3 +10,4 @@ export {
   isNumberOrString,
 } from './utils';
 export * from './types';
+export type { TranslationCatalog } from './keys';

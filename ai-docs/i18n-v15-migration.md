@@ -71,9 +71,20 @@ i18n.registerTranslation('de', de);
 ```
 
 **Renaming is not optional and it fails quietly.** An old key simply never matches, so your
-override stops applying and the English copy renders instead — no error. Type your dictionary as
-`TranslationDictionary` (or `Partial<Record<TranslationKey, string>>` for strict checking) and
-TypeScript will flag the stale keys for you.
+override stops applying and the English copy renders instead — no error.
+
+To have TypeScript catch the stale keys, type the dictionary as
+`Partial<Record<TranslationKey, string>>`. Note that `TranslationDictionary` will **not** flag
+them: it deliberately permits unknown keys so you can register copy for your own components
+through the same instance, which means a stale or mistyped SDK key compiles and silently does
+nothing. Use the strict type while migrating, then relax it if you need your own keys:
+
+```ts
+const de: Partial<Record<TranslationKey, string>> = {
+  'common.cancel.label': 'Abbrechen',
+  Cancel: 'Abbrechen', // ← v14 key: compile error, exactly what you want here
+};
+```
 
 ## Discovering the keys
 
@@ -83,7 +94,10 @@ TypeScript will flag the stale keys for you.
   and spell-checked; unknown keys are allowed so you can register copy for your own components
   through the same instance.
 - **`Partial<Record<TranslationKey, string>>`** — use this instead if you want unknown keys
-  rejected outright.
+  rejected outright. This is the one that catches stale v14 keys.
+- **`TranslationCatalog`** — every key mapped to its English copy, exported from
+  `stream-chat-react`. Type-only, so it adds nothing to your bundle; hover a key to see what it
+  renders, or index it (`TranslationCatalog['common.cancel.label']` is `'Cancel'`).
 - **A JSON catalog** — every key with its English copy, which is the file to hand to translators.
   The SDK does not check one in (the copy lives inline at each `t()` call site, so a committed
   catalog would be a duplicate that can go stale). Generate it from a clone with:
@@ -174,3 +188,9 @@ The old keys _were_ the English copy, which meant:
 Keys are now stable, and the English copy travels inline at the call site as i18next's
 `defaultValue`. That keeps the copy readable where it is used, and means a key you do not supply
 still renders English rather than a raw key path.
+
+The exception is the ~71 keys that carry no inline copy — `timestamp.*` and `duration.*` (formatter
+expressions), `language.*` (built from a runtime language code), and the postProcessor directive.
+Those are bundled in `runtimeDefaults` instead, and both `registerTranslation()` and
+`translationsForLanguage` merge your dictionary over them, so you inherit the working defaults
+without listing them. You only need to supply one if you want a different date format.
