@@ -376,8 +376,10 @@ renders English — and it keeps the copy visible at the call site.
   en.json. Dead prose keys are now structurally impossible (a key exists because a call site
   declares it), which also retires the `preservePatterns` footgun that once nearly deleted the 57
   `language.*` keys.
-- **The v14 -> v15 key mapping** lives in `ai-docs/i18n-v15-key-map.json` (603 rows), which is what
-  the integrator-facing guide and the one-shot codemods in `scripts/i18n-migration/` both read.
+- **The v14 -> v15 key mapping** lives in `ai-docs/i18n-v15-key-map.json` (603 rows) and is read by
+  the integrator-facing guide. It is a hand-reviewed artifact — nothing regenerates it. The
+  one-shot codemods that produced it and rewrote the call sites were deleted once applied; recover
+  them from git history if a v14 -> v15 question ever needs re-deriving.
 - **Date/time:** `Streami18n` wraps i18next + Dayjs. Only the `en` dayjs locale is bundled;
   integrators import their own and pass `dayjsLocaleConfigForLanguage`.
 

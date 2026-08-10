@@ -93,7 +93,9 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
       {/*        className='str-chat__poll-action'*/}
       {/*        onClick={onUpdateOwnAnswerClick}*/}
       {/*      >*/}
-      {/*        {ownAnswer ? t('Update your comment') : t('Add a comment')}*/}
+      {/*        {ownAnswer*/}
+      {/*          ? t('poll.addCommentPrompt.updateComment.label', 'Update Your Comment')*/}
+      {/*          : t('poll.addCommentPrompt.addComment.label', 'Add a Comment')}*/}
       {/*      </Viewer.FooterControlsButtonSecondary>*/}
       {/*    </Viewer.FooterControls>*/}
       {/*  )}*/}

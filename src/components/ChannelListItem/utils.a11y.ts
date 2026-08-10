@@ -200,15 +200,24 @@ export type ChannelListItemLabelConfig = AccessibleLabelConfig<ChannelListItemLa
  * - Each part receives {@link ChannelListItemLabelData}. `active`/`unreadCount`/
  *   `messageDeliveryStatus` are passed directly and `latestMessage` is pre-resolved by the composer
  *   (see its doc); everything else (mute/pin state, `frozen`, member count, custom `channel.data`) is
- *   read off `channel`. Parts call `t`, so provide your own i18n keys (or return plain strings) —
- *   the SDK does not ship `Pinned`/`Muted`/`Frozen` strings.
+ *   read off `channel`. The SDK does not ship `Pinned`/`Muted`/`Frozen` strings, so return plain
+ *   strings or your own keys. `t` only accepts keys in {@link TranslationKey}; wrap your own in
+ *   {@link asDynamicKey} (exported from `stream-chat-react`) and pass the English copy as the
+ *   second argument, exactly as SDK call sites do.
  *
  * ```tsx
  * const accessibleLabelConfig: ChannelListItemLabelConfig = {
  *   parts: {
- *     pinned: ({ channel, t }) => (channel.state.membership?.pinned_at ? t('Pinned') : undefined),
- *     muted: ({ channel, t }) => (channel.muteStatus().muted ? t('Muted') : undefined),
- *     frozen: ({ channel, t }) => (channel.data?.frozen ? t('Frozen') : undefined),
+ *     pinned: ({ channel, t }) =>
+ *       channel.state.membership?.pinned_at
+ *         ? t(asDynamicKey('myApp.channelList.pinned'), 'Pinned')
+ *         : undefined,
+ *     muted: ({ channel, t }) =>
+ *       channel.muteStatus().muted
+ *         ? t(asDynamicKey('myApp.channelList.muted'), 'Muted')
+ *         : undefined,
+ *     frozen: ({ channel, t }) =>
+ *       channel.data?.frozen ? t(asDynamicKey('myApp.channelList.frozen'), 'Frozen') : undefined,
  *   },
  *   order: ['name', 'pinned', 'muted', 'frozen', ...DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER.slice(1)],
  * };
