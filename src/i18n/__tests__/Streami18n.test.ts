@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { Streami18n } from '../Streami18n';
 import type { Streami18nOptions } from '../Streami18n';
+import type { TranslationDictionary } from '../types';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import moment from 'moment-timezone';
@@ -573,5 +574,39 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
     const second = new Streami18n();
     const { t } = await second.getTranslators();
     expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+});
+
+describe('Streami18n - dictionary key types', () => {
+  // Compile-time contract, asserted here so it cannot regress silently. TranslationDictionary
+  // must accept the `_one`/`_other` plural entries a translator has to supply — keying a dictionary
+  // on TranslationKey rejects them, because that union is what `t()` takes (the bare handle).
+  it('accepts plural forms and rejects stale keys, and both resolve at runtime', async () => {
+    const de: TranslationDictionary = {
+      'common.cancel.label': 'Abbrechen',
+      'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
+      'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
+    };
+    const stale: TranslationDictionary = {
+      // @ts-expect-error 'Cancel' is a v14 natural-language key and is not in the catalog
+      Cancel: 'Abbrechen',
+    };
+    expect(stale).toBeDefined();
+
+    const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
+    i18n.registerTranslation('de' as 'en', de);
+    const { t: _t } = await i18n.getTranslators();
+
+    const options = {
+      defaultValue_one: '{{ count }} member',
+      defaultValue_other: '{{ count }} members',
+    };
+    expect(_t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(
+      _t('channelDetail.channelMembersView.members.title', { ...options, count: 1 }),
+    ).toBe('1 Mitglied');
+    expect(
+      _t('channelDetail.channelMembersView.members.title', { ...options, count: 4 }),
+    ).toBe('4 Mitglieder');
   });
 });

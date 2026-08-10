@@ -73,28 +73,32 @@ i18n.registerTranslation('de', de);
 **Renaming is not optional and it fails quietly.** An old key simply never matches, so your
 override stops applying and the English copy renders instead — no error.
 
-To have TypeScript catch the stale keys, type the dictionary as
-`Partial<Record<TranslationKey, string>>`. Note that `TranslationDictionary` will **not** flag
-them: it deliberately permits unknown keys so you can register copy for your own components
-through the same instance, which means a stale or mistyped SDK key compiles and silently does
-nothing. Use the strict type while migrating, then relax it if you need your own keys:
+Typing the dictionary as `TranslationDictionary` turns that silent failure into a compile error:
 
 ```ts
-const de: Partial<Record<TranslationKey, string>> = {
+const de: TranslationDictionary = {
   'common.cancel.label': 'Abbrechen',
   Cancel: 'Abbrechen', // ← v14 key: compile error, exactly what you want here
 };
 ```
 
+Widen to `LooseTranslationDictionary` only where you need keys of your own, or the extra plural
+categories some languages use (`_few`, `_many`, `_zero`) — it admits any key, so nothing catches a
+stale one there.
+
+> Do **not** key a dictionary on `Partial<Record<TranslationKey, string>>`. `TranslationKey` is the
+> set `t()` accepts, where a plural is the bare `<key>`; a dictionary needs the `_one` / `_other`
+> entries, which that type rejects. `TranslationDictionary` already handles this.
+
 ## Discovering the keys
 
-- **`TranslationKey`** — a union of all 633 keys, exported from `stream-chat-react`. Autocompletes
-  in any editor.
-- **`TranslationDictionary`** — what `registerTranslation()` takes. Known keys are autocompleted
-  and spell-checked; unknown keys are allowed so you can register copy for your own components
-  through the same instance.
-- **`Partial<Record<TranslationKey, string>>`** — use this instead if you want unknown keys
-  rejected outright. This is the one that catches stale v14 keys.
+- **`TranslationDictionary`** — the one to reach for: every SDK key including the `_one` /
+  `_other` plural forms, and nothing else. A typo or a stale v14 key is a compile error.
+- **`LooseTranslationDictionary`** — the same, plus any key you like. What
+  `registerTranslation()` and `translationsForLanguage` accept, so one instance can also carry your
+  app's own copy and extra plural categories. Nothing catches a stale key here.
+- **`TranslationKey`** — the union `t()` accepts (a plural appears as the bare key). Use it to type
+  a `t` parameter; it is not the right key type for a dictionary.
 - **`TranslationCatalog`** — every key mapped to its English copy, exported from
   `stream-chat-react`. Type-only, so it adds nothing to your bundle; hover a key to see what it
   renders, or index it (`TranslationCatalog['common.cancel.label']` is `'Cancel'`).

@@ -53,8 +53,10 @@ export type PluralTranslationKey = CatalogKey extends infer K
 /**
  * Every key the SDK's `t` accepts: the singular entries plus the bare handle for each plural.
  *
- * Integrators can use this to type their own dictionaries strictly:
- * `const de: Record<TranslationKey, string> = { … }`.
+ * This is the *call-site* key set — use it to type a `t` parameter. It is deliberately **not** the
+ * right type for a dictionary: a plural lives in the catalog as `<key>_one` / `<key>_other` while
+ * `t()` takes the bare `<key>`, so keying a dictionary on this rejects the very entries a
+ * translator has to supply. Use {@link TranslationDictionary} for that.
  */
 export type TranslationKey =
   | Exclude<CatalogKey, `${string}_${PluralSuffix}`>
@@ -63,11 +65,34 @@ export type TranslationKey =
 /**
  * A translation dictionary for `Streami18n.registerTranslation()` / `translationsForLanguage`.
  *
- * Known SDK keys are autocompleted and their spelling is checked; additional keys are allowed so
- * that integrators can register copy for their own components through the same instance. Use
- * `Partial<Record<TranslationKey, string>>` instead if you want unknown keys rejected.
+ * Restricted to the SDK's own keys, so a typo or a leftover v14 key is a compile error rather than
+ * an override that silently never applies. Keyed on the catalog rather than on
+ * {@link TranslationKey}, so the `_one` / `_other` plural entries are accepted.
+ *
+ * Widen to {@link LooseTranslationDictionary} when you need keys of your own, or the extra plural
+ * categories some languages use (`_few`, `_many`, `_zero`).
+ *
+ * @example
+ * const de: TranslationDictionary = {
+ *   'common.cancel.label': 'Abbrechen',
+ *   'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
+ *   'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
+ * };
  */
-export type TranslationDictionary = Partial<Record<TranslationKey, string>> &
+export type TranslationDictionary = Partial<Record<CatalogKey, string>>;
+
+/**
+ * A translation dictionary that also admits keys the SDK does not define.
+ *
+ * This is what `registerTranslation()` and `translationsForLanguage` accept, so that one
+ * `Streami18n` instance can carry an application's own copy alongside the SDK's, and so a language
+ * can supply plural categories the catalog does not have (`_few`, `_many`, `_zero`). A
+ * {@link TranslationDictionary} is assignable to it.
+ *
+ * The cost is that nothing catches a mistyped or stale SDK key here — it compiles, and then never
+ * matches at runtime. Prefer {@link TranslationDictionary} and widen only where you need to.
+ */
+export type LooseTranslationDictionary = Partial<Record<CatalogKey, string>> &
   Record<string, string>;
 
 /** The English copy for a key, used to infer that key's interpolation variables. */

@@ -93,9 +93,10 @@ instead. Do not assume the absence of an error means the app is migrated.
 "prose": bool, "plural"?: bool } }`). Entries with `"prose": false` hold formatter expressions
 rather than copy — override those to change date formatting, not to translate.
 
-Type the app's dictionaries as `TranslationDictionary` (or
-`Partial<Record<TranslationKey, string>>` for strict checking), both exported from
-`stream-chat-react`, and TypeScript will flag every stale key.
+Type the app's dictionaries as `TranslationDictionary` (exported from `stream-chat-react`) and
+TypeScript will flag every stale key. `LooseTranslationDictionary` is the escape hatch — it admits
+any key, so an app can register its own copy through the same instance, and it will **not** flag a
+stale one.
 
 Full detail, including plurals for languages needing `_few` / `_many` and how to recover a deleted
 dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).

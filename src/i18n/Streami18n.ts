@@ -19,10 +19,10 @@ import type { TranslationTopicConstructor } from './TranslationBuilder';
 import type { UnknownType } from '../types/types';
 import type {
   CustomFormatters,
+  LooseTranslationDictionary,
   PredefinedFormatters,
   StreamTFunction,
   TDateTimeParser,
-  TranslationDictionary,
 } from './types';
 
 import { runtimeDefaults } from './runtimeDefaults';
@@ -95,7 +95,7 @@ export type Streami18nOptions = {
   translationBuilderTopics?: Record<string, TranslationTopicConstructor>;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
-  translationsForLanguage?: TranslationDictionary;
+  translationsForLanguage?: LooseTranslationDictionary;
 };
 
 /**
@@ -144,11 +144,10 @@ export type Streami18nOptions = {
  * keys that carry no inline copy (`timestamp.*`, `duration.*`, `language.*`) keep working too —
  * override them only if you actually want a different format.
  *
- * Keys are checked against {@link TranslationKey}, but `TranslationDictionary` also permits
- * unknown keys so you can register copy for your own components through the same instance. That
- * means a mistyped SDK key is accepted and silently does nothing — type the dictionary as
- * `Partial<Record<TranslationKey, string>>` if you want those rejected. {@link TranslationCatalog}
- * maps every key to its English copy.
+ * Type your dictionary as {@link TranslationDictionary} and a typo or a leftover v14 key is a
+ * compile error instead of an override that silently never applies. Widen to
+ * {@link LooseTranslationDictionary} only where you need keys of your own or extra plural
+ * categories. {@link TranslationCatalog} maps every key to its English copy.
  *
  * ## Datetime i18n
  *
@@ -295,7 +294,7 @@ export class Streami18n {
 
   translations: {
     [key: string]: {
-      [key: string]: TranslationDictionary | UnknownType;
+      [key: string]: LooseTranslationDictionary | UnknownType;
     };
   } = {
     en: { [defaultNS]: runtimeDefaults },
@@ -559,7 +558,7 @@ export class Streami18n {
 
   registerTranslation(
     language: TranslationLanguage,
-    translation: TranslationDictionary,
+    translation: LooseTranslationDictionary,
     customDayjsLocale?: Partial<ILocale>,
   ) {
     if (!translation) {
@@ -575,7 +574,7 @@ export class Streami18n {
     // dotted keys — every timestamp in the UI. `fallbackLng` is false, so there is no second
     // chance. Merging is also what `translationsForLanguage` does, and it makes repeated calls for
     // the same language accumulate rather than clobber.
-    const merged: TranslationDictionary = {
+    const merged: LooseTranslationDictionary = {
       ...runtimeDefaults,
       ...this.translations[language]?.[defaultNS],
       ...translation,

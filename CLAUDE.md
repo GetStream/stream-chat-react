@@ -358,7 +358,8 @@ renders English — and it keeps the copy visible at the call site.
 - **`keySeparator: false` must stay.** Keys are flat strings that happen to contain dots; several
   contain `...` in their copy, which `keySeparator: '.'` would mis-resolve.
 - **Typed keys:** `src/i18n/keys.ts` (generated, type-only) declares `TranslationCatalog`.
-  `src/i18n/types.ts` derives `TranslationKey`, `TranslationDictionary` and `StreamTFunction`,
+  `src/i18n/types.ts` derives `TranslationKey`, `TranslationDictionary` (strict),
+  `LooseTranslationDictionary` and `StreamTFunction`,
   which is what `useTranslationContext().t` is typed as — a typo is a compile error. Interpolation
   variables are typed for plural keys only (see the note in `types.ts` for why).
 - **Runtime keys:** the ~10 keys resolved from a runtime value (a `stream-chat`
