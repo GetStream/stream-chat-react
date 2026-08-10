@@ -97,6 +97,82 @@ const dutchTranslations = {
   'messageComposer.sendButton.label': 'Verstuur bericht',
 };
 
+// Only the keys that cannot carry an inline default are bundled (see src/i18n/runtimeDefaults.ts).
+// Everything else renders from the English copy passed inline at its call site, which means these
+// tests exercise the resolution path the whole design depends on.
+describe('Streami18n - resolution without a bundled prose resource', () => {
+  it('renders a prose key from its inline default, not the key', async () => {
+    const streami18n = new Streami18n({ logger: () => null });
+    const { t: _t } = await streami18n.getTranslators();
+
+    expect(_t('message.status.sent.text', 'Sent')).toBe('Sent');
+  });
+
+  it('interpolates into an inline default', async () => {
+    const streami18n = new Streami18n({ logger: () => null });
+    const { t: _t } = await streami18n.getTranslators();
+
+    expect(
+      _t(
+        'a11y.incomingMessageAnnouncements.newMessage.label',
+        'New message from {{user}}',
+        {
+          user: 'Ada',
+        },
+      ),
+    ).toBe('New message from Ada');
+  });
+
+  it('selects the plural form from the inline defaults', async () => {
+    const streami18n = new Streami18n({ logger: () => null });
+    const { t: _t } = await streami18n.getTranslators();
+    const options = {
+      defaultValue_one: '{{ count }} member',
+      defaultValue_other: '{{ count }} members',
+    };
+
+    expect(
+      _t('channelDetail.channelMembersView.members.title', { ...options, count: 1 }),
+    ).toBe('1 member');
+    expect(
+      _t('channelDetail.channelMembersView.members.title', { ...options, count: 4 }),
+    ).toBe('4 members');
+  });
+
+  it('resolves the bundled keys that have no inline default', async () => {
+    const streami18n = new Streami18n({ logger: () => null });
+    const { t: _t } = await streami18n.getTranslators();
+
+    // language names are keyed off a runtime language code
+    expect(_t('language.de')).toBe('German');
+    // formatter expressions are passed around as prop values, never written inline
+    expect(_t('timestamp.MessageTimestamp', { timestamp: new Date(0) })).not.toBe(
+      'timestamp.MessageTimestamp',
+    );
+  });
+
+  it('does not report a prose key to parseMissingKeyHandler, and keeps its copy', async () => {
+    const parseMissingKeyHandler = vi.fn(() => 'CLOBBERED');
+    const streami18n = new Streami18n({ logger: () => null, parseMissingKeyHandler });
+    const { t: _t } = await streami18n.getTranslators();
+
+    // Unguarded, i18next would replace the result with the handler's return value.
+    expect(_t('message.status.sent.text', 'Sent')).toBe('Sent');
+    expect(parseMissingKeyHandler).not.toHaveBeenCalled();
+  });
+
+  it('still reports a genuinely unknown key to parseMissingKeyHandler', async () => {
+    const parseMissingKeyHandler = vi.fn(() => 'HANDLED');
+    const streami18n = new Streami18n({ logger: () => null, parseMissingKeyHandler });
+    const { t: _t } = await streami18n.getTranslators();
+
+    const unknown = `nonexistent.${nanoid()}`;
+    // @ts-expect-error deliberately outside the key union
+    expect(_t(unknown)).toBe('HANDLED');
+    expect(parseMissingKeyHandler).toHaveBeenCalledWith(unknown, undefined);
+  });
+});
+
 describe('Streami18n instance - with an integrator-registered language', () => {
   describe('datetime translations enabled', () => {
     const streami18n = new Streami18n({ language: 'nl', logger: () => null });

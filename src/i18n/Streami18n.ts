@@ -25,7 +25,7 @@ import type {
   TranslationDictionary,
 } from './types';
 
-import enTranslations from './en.json';
+import { runtimeDefaults } from './runtimeDefaults';
 
 import 'dayjs/locale/en.js';
 
@@ -104,8 +104,11 @@ export type Streami18nOptions = {
  *
  * English (`en`) is the only built-in language. Every other language is supplied by the
  * integrator via `registerTranslation()` or `translationsForLanguage`. Keys are stable,
- * namespaced identifiers (e.g. `messageComposer.sendButton.label`) — see the key reference
- * in `src/i18n/en.json`.
+ * namespaced identifiers (e.g. `message.status.sent.text`) — see the key reference in
+ * `src/i18n/en.json`, or the `TranslationKey` type for autocompletion.
+ *
+ * Only the keys that cannot carry inline English copy are bundled (see `runtimeDefaults`);
+ * everything else renders from the copy passed inline at its call site.
  *
  * If you would like to override certain keys in the built-in English translation,
  * the UI will be automatically updated:
@@ -246,6 +249,25 @@ const defaultStreami18nOptions = {
   },
 };
 
+/**
+ * Wraps an integrator's `parseMissingKeyHandler` so it only sees genuinely missing translations.
+ *
+ * Prose keys are not in the bundled resource — each renders from the English copy passed inline at
+ * its call site. i18next treats that as a missing key: it calls `parseMissingKeyHandler` and
+ * **replaces the rendered string with whatever the handler returns**. An unguarded handler like
+ * `(key) => \`[missing: ${key}]\`` would therefore blank out most of the UI.
+ *
+ * i18next passes the resolved default as the second argument (`usedDefault ? res : undefined`), so
+ * "the SDK supplied this copy" is distinguishable from "no translation exists". We return the
+ * default untouched in the first case, and defer to the handler only in the second.
+ */
+const guardMissingKeyHandler =
+  (handler: (key: string, defaultValue?: string) => string) =>
+  (key: string, defaultValue?: string) => {
+    if (typeof defaultValue === 'string') return defaultValue;
+    return handler(key, defaultValue);
+  };
+
 export class Streami18n {
   i18nInstance: I18n = i18n.createInstance();
   translationBuilder: TranslationBuilder;
@@ -267,7 +289,7 @@ export class Streami18n {
       [key: string]: TranslationDictionary | UnknownType;
     };
   } = {
-    en: { [defaultNS]: enTranslations },
+    en: { [defaultNS]: runtimeDefaults },
   };
 
   /**
@@ -307,7 +329,7 @@ export class Streami18n {
    *    Language code e.g., en, tr
    *
    *  - translationsForLanguage (object)
-   *    Translations object. Please check src/i18n/en.json for example.
+   *    Translations object, keyed by `TranslationKey`. src/i18n/en.json lists every key.
    *
    *  - disableDateTimeTranslations (boolean) default: false
    *    Disable translations for date-times
@@ -397,7 +419,9 @@ export class Streami18n {
     }
 
     if (finalOptions.parseMissingKeyHandler) {
-      this.i18nextConfig.parseMissingKeyHandler = finalOptions.parseMissingKeyHandler;
+      this.i18nextConfig.parseMissingKeyHandler = guardMissingKeyHandler(
+        finalOptions.parseMissingKeyHandler,
+      );
     }
 
     this.validateCurrentLanguage();

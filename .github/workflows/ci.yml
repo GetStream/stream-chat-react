@@ -57,7 +57,7 @@ jobs:
         # from the t() call sites. A diff here means the author changed a call site without
         # regenerating. Scoped to the two generated files so unrelated edits under src/i18n
         # (tests, Streami18n) do not trip it.
-        run: git diff --exit-code -- src/i18n/en.json src/i18n/keys.ts
+        run: git diff --exit-code -- src/i18n/en.json src/i18n/keys.ts src/i18n/runtimeDefaults.ts
 
       - name: Cache Build Output
         uses: actions/cache@v5

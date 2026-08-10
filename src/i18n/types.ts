@@ -79,7 +79,8 @@ type CopyFor<K extends string> = K extends CatalogKey
 
 /**
  * Keys whose value is a formatter expression or postProcessor directive rather than English copy.
- * They resolve from en.json, so call sites pass no inline default. Matched by prefix pattern
+ * They resolve from the bundled `runtimeDefaults`, so call sites pass no inline default. Matched
+ * by prefix pattern
  * rather than by enumerating the union, which keeps the overload resolution cheap.
  */
 type FormatterKey =
@@ -107,7 +108,8 @@ export type StreamTFunction = {
     options: TOptions & { count: number } & InterpolationArgs<CopyFor<K>>,
   ): string;
   /**
-   * Formatter/plumbing key: resolves from en.json, so no inline default. Options stay loose —
+   * Formatter/plumbing key: resolves from the bundled `runtimeDefaults`, so no inline default.
+   * Options stay loose —
    * the value is a formatter expression, so inferring its variables is neither useful nor cheap
    * (`CopyFor` over a template-literal key pattern blows the union size limit).
    */
@@ -118,7 +120,7 @@ export type StreamTFunction = {
    * Neither `defaultValue` nor `options` is tied to the key's exact copy. Doing so means
    * materialising `CopyFor<ProseKey>` — the union of ~540 copy strings — which exceeds
    * TypeScript's union size limit (TS2590). The two checks that would buy are covered elsewhere:
-   * the default matching en.json is enforced by the extraction drift gate, and missing
+   * the default matching the generated catalog is enforced by the drift gate, and missing
    * interpolation variables surface as a literal `{{ placeholder }}` in the rendered output,
    * which the test suite asserts on.
    *
