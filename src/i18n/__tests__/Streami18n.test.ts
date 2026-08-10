@@ -11,6 +11,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import 'dayjs/locale/nl';
 import 'dayjs/locale/fr';
 import localeData from 'dayjs/plugin/localeData';
+import { getDateString } from '../utils';
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import type { TranslationTopicConstructor } from '../TranslationBuilder';
 Dayjs.extend(localeData);
@@ -608,5 +609,165 @@ describe('Streami18n - dictionary key types', () => {
     expect(
       _t('channelDetail.channelMembersView.members.title', { ...options, count: 4 }),
     ).toBe('4 Mitglieder');
+  });
+});
+
+describe('Streami18n - a language nobody registered still formats dates', () => {
+  // Only `registerTranslation` and `translationsForLanguage` used to layer `runtimeDefaults`.
+  // Selecting a language without supplying a dictionary — the recipe in the migration guide's
+  // "Date and time" section, for an app that wants localized dates but is happy with English
+  // copy — fell through to an empty dictionary, so `duration.*` rendered as its raw key and every
+  // timestamp came out as an unformatted ISO string.
+  const TIMESTAMP = '2024-01-01T10:30:00.000Z';
+
+  const stamp = (i18n: Streami18n, key = 'timestamp.MessageTimestamp') =>
+    getDateString({
+      messageCreatedAt: TIMESTAMP,
+      t: i18n.t,
+      tDateTimeParser: i18n.tDateTimeParser,
+      timestampTranslationKey: key,
+    });
+
+  it('language is selected but no dictionary is registered', async () => {
+    const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
+    const { t } = await i18n.getTranslators();
+
+    expect(stamp(i18n)).toBe('10:30');
+    expect(stamp(i18n, 'timestamp.DateSeparator')).toBe('Mon, 1 Jan');
+    expect(t('duration.remindMe', { milliseconds: 600000 })).toBe('in 10 minutes');
+    // The postProcessor directive is bundled too, and drives the notification topic.
+    expect(i18n.getTranslations()['de'].translation).toHaveProperty(
+      'translationBuilderTopic.notification',
+    );
+    // Copy falls back to the inline English default, which is the documented trade-off.
+    expect(t('common.cancel.label', 'Cancel')).toBe('Cancel');
+  });
+
+  it('language is selected with a dayjs locale config and no dictionary', async () => {
+    const i18n = new Streami18n({
+      language: 'nl' as 'en',
+      logger: () => null,
+      dayjsLocaleConfigForLanguage: customDayjsLocaleConfig,
+    });
+    await i18n.getTranslators();
+
+    expect(stamp(i18n)).toBe('10:30');
+  });
+
+  it('keeps the selected language rather than silently reverting to English', async () => {
+    // `language: 'de'` followed by `registerTranslation('de', …)` is the documented flow, so the
+    // constructor must not reset `currentLanguage` when the dictionary has not arrived yet.
+    const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
+    i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
+    const { t } = await i18n.getTranslators();
+
+    expect(i18n.currentLanguage).toBe('de');
+    expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+  });
+});
+
+describe('Streami18n - setLanguage to a language nobody registered', () => {
+  const TIMESTAMP = '2024-01-01T10:30:00.000Z';
+  const stamp = (i18n: Streami18n) =>
+    getDateString({
+      messageCreatedAt: TIMESTAMP,
+      t: i18n.t,
+      tDateTimeParser: i18n.tDateTimeParser,
+      timestampTranslationKey: 'timestamp.MessageTimestamp',
+    });
+
+  // Switching after init used to bypass every guard: no warning, and no resource bundle for the
+  // new language, so dates broke. Before init the same call warned and fell back to English —
+  // the outcome depended on whether <Chat> had mounted yet.
+  it.each([
+    ['before init', false],
+    ['after init', true],
+  ])('%s', async (_name, afterInit) => {
+    const logger = vi.fn();
+    const i18n = new Streami18n({ logger });
+    if (afterInit) await i18n.getTranslators();
+
+    await i18n.setLanguage('de' as 'en');
+    if (!afterInit) await i18n.getTranslators();
+
+    expect(i18n.currentLanguage).toBe('de');
+    expect(stamp(i18n)).toBe('10:30');
+    expect(i18n.t('duration.remindMe', { milliseconds: 600000 })).toBe('in 10 minutes');
+    expect(logger).toHaveBeenCalledWith(
+      expect.stringContaining("no translation dictionary is registered for 'de'"),
+    );
+  });
+
+  it('does not clobber a dictionary registered for that language', async () => {
+    const i18n = new Streami18n({ logger: () => null });
+    i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
+    await i18n.getTranslators();
+    await i18n.setLanguage('de' as 'en');
+
+    expect(i18n.t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(stamp(i18n)).toBe('10:30');
+  });
+
+  it('switching back and forth keeps both dictionaries', async () => {
+    const i18n = new Streami18n({ logger: () => null });
+    i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
+    await i18n.getTranslators();
+
+    await i18n.setLanguage('de' as 'en');
+    expect(i18n.t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+
+    await i18n.setLanguage('en');
+    expect(i18n.t('common.cancel.label', 'Cancel')).toBe('Cancel');
+
+    await i18n.setLanguage('de' as 'en');
+    expect(i18n.t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+  });
+});
+
+describe('Streami18n - the unregistered-language warning', () => {
+  it('is not emitted at construction time, when registerTranslation has yet to run', () => {
+    const logger = vi.fn();
+    new Streami18n({ language: 'de' as 'en', logger });
+
+    expect(logger).not.toHaveBeenCalledWith(
+      expect.stringContaining('no translation dictionary is registered'),
+    );
+  });
+
+  it('is emitted once, on init, when no dictionary ever arrives', async () => {
+    const logger = vi.fn();
+    const i18n = new Streami18n({ language: 'de' as 'en', logger });
+    await i18n.getTranslators();
+
+    const warnings = logger.mock.calls.filter(([message]) =>
+      String(message).includes('no translation dictionary is registered'),
+    );
+    expect(warnings).toHaveLength(1);
+    expect(warnings[0][0]).toContain("registerTranslation('de', {...})");
+  });
+
+  it('is not emitted when a dictionary was registered before init', async () => {
+    const logger = vi.fn();
+    const i18n = new Streami18n({ language: 'de' as 'en', logger });
+    i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
+    await i18n.getTranslators();
+
+    expect(logger).not.toHaveBeenCalledWith(
+      expect.stringContaining('no translation dictionary is registered'),
+    );
+  });
+
+  it('is not emitted when translationsForLanguage supplied the dictionary', async () => {
+    const logger = vi.fn();
+    const i18n = new Streami18n({
+      language: 'de' as 'en',
+      logger,
+      translationsForLanguage: { 'common.cancel.label': 'Abbrechen' },
+    });
+    await i18n.getTranslators();
+
+    expect(logger).not.toHaveBeenCalledWith(
+      expect.stringContaining('no translation dictionary is registered'),
+    );
   });
 });

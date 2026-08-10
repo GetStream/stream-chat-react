@@ -140,9 +140,10 @@ export type Streami18nOptions = {
  * ```
  *
  * Keys you do not supply fall back to the English copy that ships inline with each component, so
- * a partial dictionary is safe. Both entry points merge over the bundled `runtimeDefaults`, so the
- * keys that carry no inline copy (`timestamp.*`, `duration.*`, `language.*`) keep working too —
- * override them only if you actually want a different format.
+ * a partial dictionary is safe — as is no dictionary at all. Every language is layered over the
+ * bundled `runtimeDefaults`, so the keys that carry no inline copy (`timestamp.*`, `duration.*`,
+ * `language.*`) keep working whichever way you select a language; override them only if you
+ * actually want a different format.
  *
  * Type your dictionary as {@link TranslationDictionary} and a typo or a leftover v14 key is a
  * compile error instead of an override that silently never applies. Widen to
@@ -297,8 +298,17 @@ export class Streami18n {
       [key: string]: LooseTranslationDictionary | UnknownType;
     };
   } = {
-    en: { [defaultNS]: runtimeDefaults },
+    en: { [defaultNS]: { ...runtimeDefaults } },
   };
+
+  /**
+   * Languages an integrator has actually supplied a dictionary for.
+   *
+   * Deliberately narrower than `Object.keys(this.translations)`, which also holds the languages
+   * seeded with `runtimeDefaults` alone. Those render the SDK's copy in English, which is a
+   * supported configuration — but one worth telling the integrator about.
+   */
+  private registeredLanguages = new Set<string>([defaultLng]);
 
   /**
    * dayjs.defineLanguage('nl') also changes the global locale. We don't want to do that
@@ -392,24 +402,16 @@ export class Streami18n {
     const translationsForLanguage = finalOptions.translationsForLanguage;
 
     if (translationsForLanguage) {
-      // Layered over `runtimeDefaults` for the same reason as `registerTranslation` — otherwise a
-      // dictionary for a language other than `en` (where `this.translations` has no entry yet)
-      // would ship without the keys that have no inline default.
       this.translations[this.currentLanguage] = {
-        [defaultNS]: {
-          ...runtimeDefaults,
-          ...this.translations[this.currentLanguage]?.[defaultNS],
-          ...translationsForLanguage,
-        },
+        [defaultNS]: this.mergeWithRuntimeDefaults(
+          this.currentLanguage,
+          translationsForLanguage,
+        ),
       };
+      this.registeredLanguages.add(this.currentLanguage);
     }
 
-    // If translations don't exist for given language, then set it as empty object.
-    if (!this.translations[this.currentLanguage]) {
-      this.translations[this.currentLanguage] = {
-        [defaultNS]: {},
-      };
-    }
+    this.ensureLanguage(this.currentLanguage);
 
     this.i18nextConfig = {
       debug: finalOptions.debug,
@@ -431,8 +433,6 @@ export class Streami18n {
         finalOptions.parseMissingKeyHandler,
       );
     }
-
-    this.validateCurrentLanguage();
 
     const dayjsLocaleConfigForLanguage = finalOptions.dayjsLocaleConfigForLanguage;
 
@@ -509,17 +509,59 @@ export class Streami18n {
     return Object.keys(Dayjs.Ls).indexOf(language) > -1;
   };
 
-  validateCurrentLanguage = () => {
-    const availableLanguages = Object.keys(this.translations);
-    if (availableLanguages.indexOf(this.currentLanguage) === -1) {
-      this.logger(
-        `Streami18n: '${this.currentLanguage}' language is not registered.` +
-          ` Please make sure to call streami18n.registerTranslation('${this.currentLanguage}', {...}) or ` +
-          `use one the built-in supported languages - ${this.getAvailableLanguages()}`,
-      );
+  /**
+   * A dictionary layered over `runtimeDefaults`. Every write into `this.translations` goes
+   * through here.
+   *
+   * Those 71 entries (`timestamp.*`, `duration.*`, `language.*`, the postProcessor directive) are
+   * the only keys with no inline `defaultValue` to fall back on, and `fallbackLng` is false — so a
+   * language that lacks them renders raw dotted keys for `duration.*` and unformatted ISO
+   * timestamps everywhere a date is displayed.
+   */
+  private mergeWithRuntimeDefaults = (
+    language: TranslationLanguage,
+    translation?: LooseTranslationDictionary,
+  ): LooseTranslationDictionary => ({
+    ...runtimeDefaults,
+    ...this.translations[language]?.[defaultNS],
+    ...translation,
+  });
 
-      this.currentLanguage = defaultLng;
+  /**
+   * Guarantees `language` has a dictionary, so selecting a language nobody registered a
+   * translation for still formats dates and durations correctly — it just renders the SDK's copy
+   * in English, from the `defaultValue` at each call site.
+   *
+   * Also writes into i18next's own store when we are already initialized, which is the only way a
+   * language that appears after `init()` reaches the translator.
+   */
+  private ensureLanguage = (language: TranslationLanguage) => {
+    if (this.translations[language]) return;
+
+    const translation = this.mergeWithRuntimeDefaults(language);
+    this.translations[language] = { [defaultNS]: translation };
+
+    if (this.initialized) {
+      this.i18nInstance.addResources(language, defaultNS, translation);
     }
+  };
+
+  /**
+   * Warns when the current language has no registered dictionary.
+   *
+   * Not an error, and no longer a reason to fall back to `en`: the language renders English copy
+   * with its own date formats, and resetting it would silently discard the integrator's `language`
+   * and dayjs locale choice.
+   */
+  validateCurrentLanguage = () => {
+    if (this.registeredLanguages.has(this.currentLanguage)) return;
+
+    this.logger(
+      `Streami18n: no translation dictionary is registered for '${this.currentLanguage}', so the ` +
+        `SDK's copy renders in English. Call ` +
+        `streami18n.registerTranslation('${this.currentLanguage}', {...}) to translate it. ` +
+        `Registered: ${[...this.registeredLanguages].join(', ')}`,
+    );
   };
 
   /** Returns list of available languages. */
@@ -568,18 +610,12 @@ export class Streami18n {
       return;
     }
 
-    // Merged, not replaced, and layered over `runtimeDefaults`. Those 71 entries (`timestamp.*`,
-    // `duration.*`, `language.*`, the postProcessor directive) are the only keys with no inline
-    // `defaultValue` to fall back on, so a dictionary that replaced them would render them as raw
-    // dotted keys — every timestamp in the UI. `fallbackLng` is false, so there is no second
-    // chance. Merging is also what `translationsForLanguage` does, and it makes repeated calls for
-    // the same language accumulate rather than clobber.
-    const merged: LooseTranslationDictionary = {
-      ...runtimeDefaults,
-      ...this.translations[language]?.[defaultNS],
-      ...translation,
-    };
+    // Merged, not replaced: layering over `runtimeDefaults` keeps the keys that have no inline
+    // default (see `mergeWithRuntimeDefaults`), and keeping the existing entry makes repeated
+    // calls for the same language accumulate rather than clobber.
+    const merged = this.mergeWithRuntimeDefaults(language, translation);
     this.translations[language] = { [defaultNS]: merged };
+    this.registeredLanguages.add(language);
 
     if (customDayjsLocale) {
       this.dayjsLocales[language] = { ...customDayjsLocale };
@@ -610,8 +646,11 @@ export class Streami18n {
 
   async setLanguage(language: TranslationLanguage) {
     this.currentLanguage = language;
+    this.ensureLanguage(language);
 
     if (!this.initialized) return;
+
+    this.validateCurrentLanguage();
 
     try {
       const t = await this.i18nInstance.changeLanguage(language);
