@@ -35,7 +35,27 @@ vi.mock('../../../../context', () => ({
     },
   }),
   useMessageContext: () => ({ message: mocks.state.message }),
-  useTranslationContext: () => ({ t: (key: string) => key }),
+  useTranslationContext: () => ({
+    t: (key: string, second?: unknown, third?: unknown) => {
+      const defaultValue = typeof second === 'string' ? second : undefined;
+      const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+        string,
+        unknown
+      >;
+      let template = defaultValue;
+      if (template === undefined && typeof options.count === 'number') {
+        template = (
+          options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+        ) as string | undefined;
+      }
+      template ??= options.defaultValue as string | undefined;
+      template ??= key;
+      return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+        const value = options[name];
+        return value === undefined || value === null ? whole : String(value);
+      });
+    },
+  }),
   // `isChannelActive` mirrors the old `useSlotForKey` presence check: truthy when the channel
   // is already shown in the workspace.
   useWorkspaceNavigation: () => ({

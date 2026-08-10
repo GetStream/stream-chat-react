@@ -17,7 +17,7 @@ function SavedForLaterContent() {
   return (
     <div className='str-chat__message-saved-for-later'>
       <IconBookmark />
-      <span>{t('Saved for later')}</span>
+      <span>{t('common.savedLater.text', 'Saved for later')}</span>
     </div>
   );
 }
@@ -51,32 +51,40 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
       if (useAbsoluteFormat) {
         // > 59 min ago: calendar + time (same as DateSeparator + HH:mm)
         // e.g. "Due since Today at 15:00", "Due since Yesterday at 09:30"
-        return t('Due since {{ dueSince }}', {
-          dueSince: t('timestamp/ReminderNotification', {
-            timestamp: reminder.remindAt,
-          }),
-        });
+        return t(
+          'message.reminderNotification.dueSince.label',
+          'Due since {{ dueSince }}',
+          {
+            dueSince: t('timestamp.ReminderNotification', {
+              timestamp: reminder.remindAt,
+            }),
+          },
+        );
       }
       // Within 59 min ago: relative
       // e.g. "Due since 5 minutes ago", "Due since a minute ago"
-      return t('Due since {{ dueSince }}', {
-        dueSince: t('duration/Message reminder', {
-          milliseconds: diffMs,
-        }),
-      });
+      return t(
+        'message.reminderNotification.dueSince.label',
+        'Due since {{ dueSince }}',
+        {
+          dueSince: t('duration.messageReminder', {
+            milliseconds: diffMs,
+          }),
+        },
+      );
     }
     // Future: reminder not yet due
     if (useAbsoluteFormat) {
       // > 59 min from now: calendar + time (no "Due" prefix)
       // e.g. "Today at 15:00", "Tomorrow at 09:30"
-      return t('timestamp/ReminderNotification', {
+      return t('timestamp.ReminderNotification', {
         timestamp: reminder.remindAt,
       });
     }
     // Within 59 min from now: relative
     // e.g. "Due in 30 minutes", "Due in a minute"
-    return t('Due {{ timeLeft }}', {
-      timeLeft: t('duration/Message reminder', {
+    return t('message.reminderNotification.due.label', 'Due {{ timeLeft }}', {
+      timeLeft: t('duration.messageReminder', {
         milliseconds: timeLeftMs,
       }),
     });
@@ -85,7 +93,7 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
   return (
     <p className='str-chat__message-reminder'>
       <IconBell />
-      <span>{t('Reminder set')}</span>
+      <span>{t('common.reminderSet.text', 'Reminder set')}</span>
       <span> · </span>
       <span className='str-chat__message-reminder__time-left'>{renderTime()}</span>
     </p>

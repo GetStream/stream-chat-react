@@ -20,7 +20,7 @@ export const UnsupportedAttachment = () => {
           className='str-chat__message-attachment-unsupported__title'
           data-testid='unsupported-attachment-title'
         >
-          {t('Unsupported attachment')}
+          {t('common.unsupportedAttachment.text', 'Unsupported attachment')}
         </div>
       </div>
     </div>

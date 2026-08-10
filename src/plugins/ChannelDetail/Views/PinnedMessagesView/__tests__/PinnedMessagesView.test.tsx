@@ -18,6 +18,7 @@ import {
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import { mockT } from '../../../../../mock-builders/translator';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { PinnedMessagesView } from '../PinnedMessagesView';
@@ -222,11 +223,14 @@ describe('PinnedMessagesView', () => {
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { timestamp?: Date }) => {
-        if (key === 'timestamp/ChannelDetailPinnedMessageTimestamp') {
+      t: (key: string, second?: unknown, third?: unknown) => {
+        const options = (typeof second === 'object' ? second : third) as
+          | { timestamp?: Date }
+          | undefined;
+        if (key === 'timestamp.ChannelDetailPinnedMessageTimestamp') {
           return options?.timestamp?.toISOString() ?? key;
         }
-        return key;
+        return mockT(key, second as never, third as never);
       },
       tDateTimeParser: (input?: string | Date) => new Date(input ?? Date.now()),
     } as ReturnType<typeof useTranslationContext>);

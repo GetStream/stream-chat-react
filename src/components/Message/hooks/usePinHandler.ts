@@ -70,7 +70,12 @@ export const usePinHandler = (
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-        if (notify) notify(errorMessage || t('Error pinning message'), 'error');
+        if (notify)
+          notify(
+            errorMessage ||
+              t('common.errorPinningMessage.label', 'Error pinning message'),
+            'error',
+          );
         messagePaginator.ingestItem(message);
       }
     } else {
@@ -90,7 +95,12 @@ export const usePinHandler = (
         const errorMessage =
           getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-        if (notify) notify(errorMessage || t('Error removing message pin'), 'error');
+        if (notify)
+          notify(
+            errorMessage ||
+              t('common.errorRemovingMessagePin.label', 'Error removing message pin'),
+            'error',
+          );
         messagePaginator.ingestItem(message);
       }
     }

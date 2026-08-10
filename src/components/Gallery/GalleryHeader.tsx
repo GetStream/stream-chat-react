@@ -23,11 +23,11 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
   const modalContext = useContext(ModalContext);
 
   const headerTitle =
-    (isMyMessage?.() && t('You')) ||
+    (isMyMessage?.() && t('common.you.label', 'You')) ||
     message?.user?.name ||
     message?.user?.id ||
     currentItem.title ||
-    t('User uploaded content');
+    t('common.userUploadedContent.label', 'User uploaded content');
   const downloadUrl = useMemo(() => {
     const rawDownloadUrl = currentItem.videoUrl ?? currentItem.imageUrl;
 
@@ -37,7 +37,7 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
 
     return sanitizedUrl === 'about:blank' ? undefined : sanitizedUrl;
   }, [currentItem.imageUrl, currentItem.videoUrl]);
-  const downloadLabel = t('aria/Download attachment');
+  const downloadLabel = t('common.downloadAttachment.ariaLabel', 'Download attachment');
 
   return (
     <div className='str-chat__gallery__header'>
@@ -64,10 +64,10 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
         ) : null}
         {modalContext?.close ? (
           <Button
-            aria-label={t('Close')}
+            aria-label={t('common.close.ariaLabel', 'Close')}
             className='str-chat__gallery__action-button str-chat__gallery__action-button--close'
             onClick={modalContext.close}
-            title={t('Close')}
+            title={t('common.close.ariaLabel', 'Close')}
           >
             <IconXmark />
           </Button>

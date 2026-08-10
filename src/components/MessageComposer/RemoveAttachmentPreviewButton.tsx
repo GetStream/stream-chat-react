@@ -15,7 +15,10 @@ export const RemoveAttachmentPreviewButton = ({
   const { t } = useTranslationContext();
   return (
     <Button
-      aria-label={t('aria/Remove attachment')}
+      aria-label={t(
+        'messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel',
+        'Remove attachment',
+      )}
       circular
       className={clsx('str-chat__attachment-preview__remove-button', className)}
       data-testid='preview-item-delete-button'

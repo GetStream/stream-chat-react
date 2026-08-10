@@ -1,4 +1,5 @@
 import { TranslationTopic } from '../../TranslationBuilder';
+import { translateExternalString } from '../../externalStrings';
 import type { Notification } from 'stream-chat';
 import type { NotificationTranslatorOptions } from './types';
 import { translatorsByNotificationType } from './translatorsByNotificationType';
@@ -44,8 +45,9 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
     if (translated) return translated;
     if (!notification.message) return value;
 
-    // Final fallback: attempt to translate message as natural key.
-    return this.i18next.t(notification.message, {
+    // Final fallback: the message is an English string from `stream-chat`, so map it to a
+    // stable key where we know one and otherwise render it as-is.
+    return translateExternalString(this.i18next.t, notification.message, {
       ...(notification.metadata ?? {}),
       value: notification.message,
     });

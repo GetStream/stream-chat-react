@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CommandsMenu, CommandsSubmenuHeader } from '../CommandsMenu';
+import { mockT } from '../../../../mock-builders/translator';
 
 const { announceInteraction, closeMenu, returnToParentMenu, setCommand } = vi.hoisted(
   () => ({
@@ -14,8 +15,7 @@ const { announceInteraction, closeMenu, returnToParentMenu, setCommand } = vi.ho
 
 const { commandsMock } = vi.hoisted(() => ({ commandsMock: { value: [] as unknown[] } }));
 
-// Strip the `aria/` prefix so assertions read the natural-language value.
-const t = (key: string) => (key.startsWith('aria/') ? key.replace('aria/', '') : key);
+const t = mockT;
 
 // Keep the real Dialog primitives (ContextMenuBackButton/Button/Header) — only stub the context hook.
 vi.mock('../../../Dialog', async (importOriginal) => ({

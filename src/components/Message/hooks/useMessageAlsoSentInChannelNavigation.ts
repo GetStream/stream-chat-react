@@ -39,7 +39,7 @@ export const useMessageAlsoSentInChannelNavigation =
 
     const addThreadNotFoundNotification = (error: Error) => {
       client.notifications.addError({
-        message: t('Thread has not been found'),
+        message: t('notification.replySearchFailed', 'Thread has not been found'),
         options: {
           originalError: error,
           type: 'api:message:search:not-found',

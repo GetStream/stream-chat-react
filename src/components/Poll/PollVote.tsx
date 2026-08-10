@@ -24,14 +24,14 @@ const PollVoteTimestamp = ({ timestamp }: { timestamp: string | Date }) => {
       onMouseLeave={handleLeave}
       ref={setReferenceElement}
     >
-      {t('timestamp/PollVote', { timestamp: timestampDate })}
+      {t('timestamp.PollVote', { timestamp: timestampDate })}
       <PopperTooltip
         offset={[0, 5]}
         placement='bottom'
         referenceElement={referenceElement}
         visible={tooltipVisible}
       >
-        {t('timestamp/PollVoteTooltip', { timestamp: timestampDate })}
+        {t('timestamp.PollVoteTooltip', { timestamp: timestampDate })}
       </PopperTooltip>
     </div>
   );
@@ -50,8 +50,8 @@ const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
     useComponentContext();
   const displayName =
     client.user?.id && client.user.id === vote.user?.id
-      ? t('You')
-      : vote.user?.name || vote.user?.id || t('Anonymous');
+      ? t('common.you.label', 'You')
+      : vote.user?.name || vote.user?.id || t('common.anonymous.label', 'Anonymous');
 
   return (
     <div className='str-chat__poll-vote__author'>

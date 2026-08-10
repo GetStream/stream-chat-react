@@ -25,11 +25,11 @@ export const useTextareaPlaceholder = ({
 
   const knownArgsTranslations = useMemo<Record<string, string>>(
     () => ({
-      ban: t('ban-command-args'),
-      giphy: t('giphy-command-args'),
-      mute: t('mute-command-args'),
-      unban: t('unban-command-args'),
-      unmute: t('unmute-command-args'),
+      ban: t('command.ban.args', '[@username] [text]'),
+      giphy: t('command.giphy.args', '[text]'),
+      mute: t('command.mute.args', '[@username]'),
+      unban: t('command.unban.args', '[@username]'),
+      unmute: t('command.unmute.args', '[@username]'),
     }),
     [t],
   );
@@ -37,13 +37,21 @@ export const useTextareaPlaceholder = ({
   const commandArgs =
     command?.args && (knownArgsTranslations[command.name ?? ''] ?? t(command.args));
   const commandPlaceholder =
-    command?.name === 'giphy' ? t('Search GIFs') : (commandArgs ?? undefined);
+    command?.name === 'giphy'
+      ? t('textareaComposer.textareaPlaceholder.searchGiFs.label', 'Search GIFs')
+      : (commandArgs ?? undefined);
 
   const defaultPlaceholder =
-    placeholder ?? additionalTextareaProps?.placeholder ?? t('Send a message');
+    placeholder ??
+    additionalTextareaProps?.placeholder ??
+    t('textareaComposer.textareaPlaceholder.sendMessage.label', 'Send a message');
 
   if (cooldownRemaining) {
-    return t('Slow mode, wait {{ seconds }}s...', { seconds: cooldownRemaining });
+    return t(
+      'textareaComposer.textareaPlaceholder.slowModeWaitS.label',
+      'Slow mode, wait {{ seconds }}s...',
+      { seconds: cooldownRemaining },
+    );
   }
 
   return commandPlaceholder ?? defaultPlaceholder;

@@ -174,7 +174,9 @@ const useChannelManagementEditForm = ({
   const resolvedIsDmChannel = isDmChannel({ channel, ownUserId: client.user?.id });
   const hasMembersOnline = useChannelHasMembersOnline({ channel });
   const isOnline = resolvedIsDmChannel ? hasMembersOnline : undefined;
-  const nameLabel = resolvedIsDmChannel ? t('Contact name') : t('Group name');
+  const nameLabel = resolvedIsDmChannel
+    ? t('channelDetail.channelManagementView.contactName.label', 'Contact name')
+    : t('channelDetail.channelManagementView.groupName.label', 'Group name');
 
   // Dirty-tracking baseline; advanced to the saved value on success so the form
   // is no longer considered dirty (and the Save button hides) after a write.
@@ -264,7 +266,10 @@ const useChannelManagementEditForm = ({
             operation: 'update',
             status: 'success',
           },
-          message: t('Changes saved'),
+          message: t(
+            'channelDetail.channelManagementView.changesSaved.text',
+            'Changes saved',
+          ),
           severity: 'success',
         });
       } catch (error) {
@@ -277,7 +282,10 @@ const useChannelManagementEditForm = ({
             operation: 'update',
             status: 'failed',
           },
-          message: t('Failed to save changes'),
+          message: t(
+            'channelDetail.channelManagementView.failedSaveChanges.text',
+            'Failed to save changes',
+          ),
           severity: 'error',
         });
       } finally {
@@ -360,7 +368,10 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
               type='button'
               variant='secondary'
             >
-              {t('Upload Picture')}
+              {t(
+                'channelDetail.channelManagementView.uploadPicture.text',
+                'Upload Picture',
+              )}
             </Button>
             {hasAvatarImage && (
               <Button
@@ -370,7 +381,7 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
                 type='button'
                 variant='secondary'
               >
-                {t('Delete')}
+                {t('common.delete.text', 'Delete')}
               </Button>
             )}
             <input
@@ -404,7 +415,7 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
               type='submit'
             >
               <IconCheckmark />
-              {t('Save')}
+              {t('channelDetail.channelManagementView.save.text', 'Save')}
             </Prompt.FooterControlsButtonPrimary>
           )}
         </Prompt.FooterControls>
@@ -444,7 +455,10 @@ export const ChannelManagementView = ({
         return (
           <Button
             appearance='outline'
-            aria-label={t('Edit chat data')}
+            aria-label={t(
+              'channelDetail.channelManagementView.editChatData.ariaLabel',
+              'Edit chat data',
+            )}
             className='str-chat__channel-detail__channel-management-view__edit-button'
             onClick={() => {
               setIsEditing(true);
@@ -452,7 +466,7 @@ export const ChannelManagementView = ({
             size='md'
             variant='secondary'
           >
-            {t('Edit')}
+            {t('channelDetail.channelManagementView.edit.text', 'Edit')}
           </Button>
         );
       },
@@ -461,17 +475,24 @@ export const ChannelManagementView = ({
 
   const headerTitle = isEditMode
     ? resolvedIsDmChannel
-      ? t('Edit contact')
-      : t('Edit group')
+      ? t('channelDetail.channelManagementView.editContact.label', 'Edit contact')
+      : t('channelDetail.channelManagementView.editGroup.label', 'Edit group')
     : resolvedIsDmChannel
-      ? t('Contact info')
-      : t('Group info');
+      ? t('channelDetail.channelManagementView.contactInfo.label', 'Contact info')
+      : t('channelDetail.channelManagementView.groupInfo.label', 'Group info');
 
   return (
     <div className='str-chat__channel-detail__channel-management-view'>
       <SectionNavigatorHeader
         close={close}
-        description={isEditMode ? undefined : t('Manage channel')}
+        description={
+          isEditMode
+            ? undefined
+            : t(
+                'channelDetail.channelManagementView.manageChannel.description',
+                'Manage channel',
+              )
+        }
         goBack={isEditMode ? () => setIsEditing(false) : undefined}
         title={headerTitle}
         TrailingContent={!isEditMode && canEditChannel ? EditChannelButton : undefined}

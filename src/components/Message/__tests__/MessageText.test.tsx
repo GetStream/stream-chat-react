@@ -31,6 +31,7 @@ import { MessageText } from '../MessageText';
 import type { MessageProps } from '../types';
 import type { MessageTextProps } from '../MessageText';
 import type { TranslationContextValue } from '../../../context';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -60,8 +61,6 @@ const defaultProps = {
   message: generateMessage(),
   threadList: false,
 };
-const translate = (key: string, options?: Record<string, string>) =>
-  key.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token: string) => options?.[token] ?? '');
 
 function generateAliceMessage(messageOptions) {
   return generateMessage({
@@ -87,8 +86,7 @@ async function renderMessageText({ customProps = {} } = {}) {
       <Channel channel={channel}>
         <TranslationProvider
           value={mockTranslationContextValue({
-            t: ((key: string, options?: Record<string, string>) =>
-              translate(key, options)) as TranslationContextValue['t'],
+            t: mockT as TranslationContextValue['t'],
             tDateTimeParser:
               customDateTimeParser as TranslationContextValue['tDateTimeParser'],
             userLanguage: 'en',
@@ -301,7 +299,7 @@ describe('<MessageText />', () => {
 
     const focusableWrapper = getByTestId(messageTextTestId).parentElement;
 
-    expect(focusableWrapper).toHaveAccessibleName(`aria/Message from alice, ${text}`);
+    expect(focusableWrapper).toHaveAccessibleName(`Message from alice, ${text}`);
   });
 
   it('should expose sender context on the mention-interactive text wrapper', async () => {
@@ -312,7 +310,7 @@ describe('<MessageText />', () => {
     });
 
     expect(getByTestId(messageTextTestId)).toHaveAccessibleName(
-      `aria/Message from alice, ${text}`,
+      `Message from alice, ${text}`,
     );
   });
 
@@ -328,7 +326,7 @@ describe('<MessageText />', () => {
 
     const focusableWrapper = getByTestId(messageTextTestId).parentElement;
 
-    expect(focusableWrapper).toHaveAccessibleName(`aria/Message, ${text}`);
+    expect(focusableWrapper).toHaveAccessibleName(`Message, ${text}`);
   });
 
   it('should inform that message was not sent when message is has type "error"', async () => {

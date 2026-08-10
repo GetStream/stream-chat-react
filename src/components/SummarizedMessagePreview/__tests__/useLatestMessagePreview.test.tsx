@@ -323,7 +323,7 @@ describe('useLatestMessagePreview', () => {
       });
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('image');
-      expect(result.current.text).toBe('imageCount');
+      expect(result.current.text).toBe('2 images');
     });
 
     it('uses file type for mixed attachment types', () => {
@@ -334,7 +334,7 @@ describe('useLatestMessagePreview', () => {
       });
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('file');
-      expect(result.current.text).toBe('fileCount');
+      expect(result.current.text).toBe('2 files');
     });
 
     // v10: attachment-specific fields such as `duration` live under `attachment.custom`.
@@ -366,7 +366,7 @@ describe('useLatestMessagePreview', () => {
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('voice');
       // voice recordings use generic fallback (voiceMessageCount) since fallback text is not useful
-      expect(result.current.text).toBe('voiceMessageCount (1:04)');
+      expect(result.current.text).toBe('Voice message (1:04)');
     });
 
     it('formats zero-second duration correctly', () => {

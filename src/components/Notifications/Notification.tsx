@@ -75,7 +75,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
     const { removeNotification } = useNotificationApi();
     const { t } = useTranslationContext();
 
-    const displayMessage = t('translationBuilderTopic/notification', {
+    const displayMessage = t('translationBuilderTopic.notification', {
       notification,
       value: notification.message,
     });
@@ -151,7 +151,10 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         {(showClose || isPersistent) && (
           <Button
             appearance='ghost'
-            aria-label={t('aria/Dismiss notification')}
+            aria-label={t(
+              'notification.dismissNotification.ariaLabel',
+              'Dismiss notification',
+            )}
             circular
             className='str-chat__notification-close-button'
             inverseTheme

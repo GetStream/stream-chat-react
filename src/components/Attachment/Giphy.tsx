@@ -40,8 +40,10 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   // localized generic label instead of exposing the URL as the accessible name.
   const descriptiveTitle = getGiphyDescriptiveTitle(title);
   const accessibleName = descriptiveTitle
-    ? t('aria/Animated GIF: {{ title }}', { title: descriptiveTitle })
-    : t('aria/Animated GIF');
+    ? t('attachment.giphy.animatedGif.withTitle.ariaLabel', 'Animated GIF: {{ title }}', {
+        title: descriptiveTitle,
+      })
+    : t('attachment.giphy.animatedGif.ariaLabel', 'Animated GIF');
   const imageStyleVariables = useMemo(() => {
     const originalHeight = Number(dimensions?.height);
     const originalWidth = Number(dimensions?.width);

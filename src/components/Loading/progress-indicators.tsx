@@ -18,7 +18,11 @@ export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) =
   return (
     <div className='str-chat__circular-progress-indicator str-chat__progress-indicator'>
       <svg
-        aria-label={t('aria/Percent complete', { percent })}
+        aria-label={t(
+          'loading.progressIndicators.percentComplete.ariaLabel',
+          '{{percent}} percent complete',
+          { percent },
+        )}
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={percent}

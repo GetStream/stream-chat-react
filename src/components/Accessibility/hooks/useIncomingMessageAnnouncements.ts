@@ -32,7 +32,10 @@ const isAnnounceableIncomingMessage = (
 const getSenderName = (
   message: MessageResponse,
   t: ReturnType<typeof useTranslationContext>['t'],
-) => message.user?.name?.trim() || message.user?.id || t('Anonymous');
+) =>
+  message.user?.name?.trim() ||
+  message.user?.id ||
+  t('common.anonymous.label', 'Anonymous');
 
 export type UseIncomingMessageAnnouncementsParams = {
   activeThreadId?: string;
@@ -67,12 +70,24 @@ export const useIncomingMessageAnnouncements = ({
 
     if (pendingAnnouncementBatch.count === 1) {
       announce(
-        t('New message from {{user}}', {
-          user: pendingAnnouncementBatch.firstSender || t('Anonymous'),
-        }),
+        t(
+          'a11y.incomingMessageAnnouncements.newMessage.label',
+          'New message from {{user}}',
+          {
+            user:
+              pendingAnnouncementBatch.firstSender ||
+              t('common.anonymous.label', 'Anonymous'),
+          },
+        ),
       );
     } else {
-      announce(t('{{count}} new messages', { count: pendingAnnouncementBatch.count }));
+      announce(
+        t('common.newMessages.label', {
+          count: pendingAnnouncementBatch.count,
+          defaultValue_one: '{{count}} new message',
+          defaultValue_other: '{{count}} new messages',
+        }),
+      );
     }
 
     pendingAnnouncementBatch.count = 0;

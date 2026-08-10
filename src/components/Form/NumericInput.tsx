@@ -119,7 +119,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         <div className={clsx('str-chat__form-numeric-input__wrapper')}>
           <Button
             appearance='outline'
-            aria-label={t('aria/Decrease value')}
+            aria-label={t('form.numericInput.decreaseValue.ariaLabel', 'Decrease value')}
             circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--decrement',
@@ -149,7 +149,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
           />
           <Button
             appearance='outline'
-            aria-label={t('aria/Increase value')}
+            aria-label={t('form.numericInput.increaseValue.ariaLabel', 'Increase value')}
             circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--increment',

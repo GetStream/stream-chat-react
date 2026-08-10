@@ -29,7 +29,7 @@ export const RemindMeSubmenuHeader = () => {
     <ContextMenuHeader>
       <ContextMenuBackButton onClick={returnToParentMenu}>
         <IconChevronLeft />
-        <span>{t('Remind Me')}</span>
+        <span>{t('messageActions.remindMeSubmenu.remindMe.text', 'Remind Me')}</span>
       </ContextMenuBackButton>
     </ContextMenuHeader>
   );
@@ -58,7 +58,7 @@ export const RemindMeSubmenu = () => {
                   message,
                 },
                 emitter: 'MessageActions',
-                message: t('Reminder set'),
+                message: t('common.reminderSet.text', 'Reminder set'),
                 severity: 'success',
                 type: 'api:message:reminder:set:success',
               });
@@ -78,7 +78,7 @@ export const RemindMeSubmenu = () => {
             }
           }}
         >
-          {t('duration/Remind Me', { milliseconds: offsetMs })}
+          {t('duration.remindMe', { milliseconds: offsetMs })}
         </ContextMenuButton>
       ))}
       {/* todo: potential improvement to add a custom option that would trigger rendering modal with custom date picker - we need date picker */}

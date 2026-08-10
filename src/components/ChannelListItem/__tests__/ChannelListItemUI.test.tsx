@@ -21,6 +21,7 @@ import {
   DialogManagerProvider,
   TranslationProvider,
 } from '../../../context';
+import { mockT } from '../../../mock-builders/translator';
 
 // Selection is one navigation model: clicking the item opens the channel in the
 // workspace via the navigation adapter (no more setActiveChannel).
@@ -47,16 +48,7 @@ const FocusableActionButtons = () => (
 FocusableActionButtons.getDialogId = () => '';
 FocusableActionButtons.displayName = 'ChannelListItemActionButtons';
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) => {
-  const interpolated = Object.entries(options || {}).reduce(
-    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-    key,
-  );
-
-  return interpolated.startsWith('aria/')
-    ? interpolated.replace('aria/', '')
-    : interpolated;
-};
+const mockTranslation = mockT;
 
 describe('ChannelPreviewMessenger', () => {
   const clientUser = generateUser();

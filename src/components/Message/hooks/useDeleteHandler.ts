@@ -47,7 +47,12 @@ export const useDeleteHandler = (
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-      if (notify) notify(errorMessage || t('Error deleting message'), 'error');
+      if (notify)
+        notify(
+          errorMessage ||
+            t('common.errorDeletingMessage.label', 'Error deleting message'),
+          'error',
+        );
     }
   };
 };

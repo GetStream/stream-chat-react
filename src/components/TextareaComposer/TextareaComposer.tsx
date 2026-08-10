@@ -146,7 +146,9 @@ const TextareaComposerWithLiveAnnouncements = ({
   // to a stable label instead of the placeholder, which may be a command-specific
   // template (e.g. mention/command args) that would otherwise be re-announced as a
   // stale name even though the field already holds real content.
-  const ariaLabel = text ? t('aria/Message input') : placeholder;
+  const ariaLabel = text
+    ? t('textareaComposer.messageInput.ariaLabel', 'Message input')
+    : placeholder;
 
   // react-textarea-autosize can measure placeholder content as multi-line in narrow layouts,
   // producing an inflated initial height (e.g. 2 rows) before the user types.

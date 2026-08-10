@@ -1342,7 +1342,7 @@ describe(`MessageInputFlat`, () => {
       // presentation element.
       expect(
         container.querySelector('.str-chat__suggestion-list-container'),
-      ).toHaveAttribute('aria-label', 'aria/Mention Suggestions');
+      ).toHaveAttribute('aria-label', 'Mention Suggestions');
       expect(
         container.querySelectorAll('.str-chat__suggestion-list-item').length,
       ).toBeGreaterThanOrEqual(3);
@@ -1573,8 +1573,8 @@ describe(`MessageInputFlat`, () => {
 
   describe('Command activation announcement', () => {
     const giphyCommand = fromPartial<Command>({
-      args: 'giphy-command-args',
-      description: 'giphy-command-description',
+      args: '[text]',
+      description: 'Post a random gif to the channel',
       name: 'giphy',
     });
 
@@ -1630,8 +1630,8 @@ describe(`MessageInputFlat`, () => {
 
     // The harness uses a raw ChatProvider (no TranslationProvider), so the
     // default translator returns i18n keys verbatim without interpolation.
-    const STABLE_LABEL = 'aria/Message input';
-    const USER_SELECTED = 'aria/User selected: {{ user }}';
+    const STABLE_LABEL = 'Message input';
+    const USER_SELECTED = 'User selected: mention-name';
 
     // RW13: the textarea must name itself explicitly so it never inherits an
     // ancestor name (e.g. the ChatView "Channels, tab panel").
@@ -1662,8 +1662,8 @@ describe(`MessageInputFlat`, () => {
     // accessible name once real content is present.
     it('does not use the command placeholder template as the name when content exists', async () => {
       const giphyCommand = fromPartial<Command>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
       const { channel } = await renderComponent();
@@ -1682,8 +1682,8 @@ describe(`MessageInputFlat`, () => {
 
     it('names the giphy GIF-search field by its own placeholder while empty', async () => {
       const giphyCommand = fromPartial<Command>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
       const { channel } = await renderComponent();
@@ -1748,8 +1748,8 @@ describe(`MessageInputFlat`, () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
       const command = fromPartial<Command>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -1772,8 +1772,8 @@ describe(`MessageInputFlat`, () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
       const command = fromPartial<Command>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -1799,8 +1799,8 @@ describe(`MessageInputFlat`, () => {
         inputPlaceholder,
       )) as HTMLTextAreaElement;
       const command = fromPartial<Command>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -1885,8 +1885,8 @@ describe(`MessageInputFlat`, () => {
     it('clears active command when quoting makes it unavailable', async () => {
       const { channel } = await renderComponent();
       const command = fromPartial<Command>({
-        args: 'ban-command-args',
-        description: 'ban-command-description',
+        args: '[@username] [text]',
+        description: 'Ban a user',
         name: 'ban',
         set: 'moderation_set',
       });
@@ -2084,8 +2084,8 @@ describe(`MessageInputFlat`, () => {
     it('should clear active command when entering edit mode', async () => {
       const { channel } = await renderComponent();
       const command = fromPartial<Command>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 

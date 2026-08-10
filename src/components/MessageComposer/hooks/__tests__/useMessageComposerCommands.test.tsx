@@ -30,13 +30,13 @@ describe('useMessageComposerCommands', () => {
     );
     commands = [
       fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       }),
       fromPartial<CommandResponse>({
-        args: 'ban-command-args',
-        description: 'ban-command-description',
+        args: '[@username] [text]',
+        description: 'Ban a user',
         name: 'ban',
         set: 'moderation_set',
       }),

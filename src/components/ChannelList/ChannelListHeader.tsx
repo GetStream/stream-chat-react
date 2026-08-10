@@ -12,7 +12,9 @@ export const ChannelListHeader = () => {
   const hasActiveChannel = useWorkspaceNavigation().openChannels.length > 0;
   return (
     <div className='str-chat__channel-list__header'>
-      <div className='str-chat__channel-list__header__title'>{t('Chats')}</div>
+      <div className='str-chat__channel-list__header__title'>
+        {t('channelList.header.chats.text', 'Chats')}
+      </div>
       {hasActiveChannel && HeaderEndContent && <HeaderEndContent />}
     </div>
   );

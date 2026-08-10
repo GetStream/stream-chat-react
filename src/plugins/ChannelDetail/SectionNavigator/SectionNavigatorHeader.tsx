@@ -27,7 +27,10 @@ export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
       return (
         <Button
           appearance='ghost'
-          aria-label={t('Open menu')}
+          aria-label={t(
+            'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel',
+            'Open menu',
+          )}
           circular
           className='str-chat__section-navigator__header-menu-button'
           onClick={openNavigation}

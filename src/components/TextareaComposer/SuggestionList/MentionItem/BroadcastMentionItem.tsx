@@ -19,8 +19,8 @@ export const BroadcastMentionItem = ({
   const { t } = useTranslationContext();
   const description =
     entity.mentionType === 'channel'
-      ? t('mention/Channel Description')
-      : t('mention/Here Description');
+      ? t('mention.channel.description', 'Notify everyone in this channel')
+      : t('mention.here.description', 'Notify every online member in this channel');
 
   return (
     <ListItemLayout

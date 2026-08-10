@@ -37,11 +37,16 @@ export const CommandsSubmenuHeader = () => {
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
       <ContextMenuBackButton
-        aria-label={t('aria/Back to attachments')}
+        aria-label={t(
+          'messageComposer.commandsMenu.backAttachments.ariaLabel',
+          'Back to attachments',
+        )}
         onClick={returnToParentMenu}
       >
         <IconChevronLeft />
-        <span>{t('Instant commands')}</span>
+        <span>
+          {t('messageComposer.commandsMenu.instantCommands.text', 'Instant commands')}
+        </span>
       </ContextMenuBackButton>
     </ContextMenuHeader>
   );
@@ -51,7 +56,9 @@ export const CommandsMenuHeader = () => {
   const { t } = useTranslationContext();
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands'>
-      <span>{t('Instant commands')}</span>
+      <span>
+        {t('messageComposer.commandsMenu.instantCommands.text', 'Instant commands')}
+      </span>
     </ContextMenuHeader>
   );
 };
@@ -91,21 +98,21 @@ export const useCommandTranslation = (command: Command) => {
 
   const knownArgsTranslations = useMemo<Record<string, string>>(
     () => ({
-      ban: t('ban-command-args'),
-      giphy: t('giphy-command-args'),
-      mute: t('mute-command-args'),
-      unban: t('unban-command-args'),
-      unmute: t('unmute-command-args'),
+      ban: t('command.ban.args', '[@username] [text]'),
+      giphy: t('command.giphy.args', '[text]'),
+      mute: t('command.mute.args', '[@username]'),
+      unban: t('command.unban.args', '[@username]'),
+      unmute: t('command.unmute.args', '[@username]'),
     }),
     [t],
   );
   const knownDescriptionTranslations = useMemo<Record<string, string>>(
     () => ({
-      ban: t('ban-command-description'),
-      giphy: t('giphy-command-description'),
-      mute: t('mute-command-description'),
-      unban: t('unban-command-description'),
-      unmute: t('unmute-command-description'),
+      ban: t('command.ban.description', 'Ban a user'),
+      giphy: t('command.giphy.description', 'Post a random gif to the channel'),
+      mute: t('command.mute.description', 'Mute a user'),
+      unban: t('command.unban.description', 'Unban a user'),
+      unmute: t('command.unmute.description', 'Unmute a user'),
     }),
     [t],
   );

@@ -40,7 +40,7 @@ const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) =>
       onMouseLeave={handleLeave}
       ref={setReferenceElement}
     >
-      {t('Edited')}
+      {t('message.editedIndicator.edited.text', 'Edited')}
       <PopperTooltip
         offset={[0, 5]}
         placement='top'

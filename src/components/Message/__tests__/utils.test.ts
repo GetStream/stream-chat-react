@@ -12,7 +12,7 @@ import {
   countReactions,
   getTestClientWithUser,
   groupReactions,
-  mockTranslatorFunction,
+  mockT,
 } from '../../../mock-builders';
 import {
   areMessagePropsEqual,
@@ -463,7 +463,7 @@ describe('Message utils', () => {
     it('ignores the client user', () => {
       const result = getReadByTooltipText(
         [client.user],
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -472,7 +472,7 @@ describe('Message utils', () => {
     it('returns a single user if only one user in array', () => {
       const result = getReadByTooltipText(
         [bob],
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -482,7 +482,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -496,7 +496,7 @@ describe('Message utils', () => {
       ];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -508,7 +508,7 @@ describe('Message utils', () => {
       );
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as TFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -518,7 +518,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as TFunction,
         client,
         (user) => `Dr. ${user.name}`,
       );
@@ -540,7 +540,7 @@ describe('Message utils', () => {
       expect(() =>
         getReadByTooltipText(
           [],
-          mockTranslatorFunction as unknown as TFunction,
+          mockT as unknown as TFunction,
           client,
           undefined as unknown as typeof tooltipUserNameMapper,
         ),

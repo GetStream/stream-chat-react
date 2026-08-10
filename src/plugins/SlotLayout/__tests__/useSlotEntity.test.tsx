@@ -20,6 +20,7 @@ import { LayoutController } from '../layoutController/LayoutController';
 
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import type { ChatContextValue } from '../../../context/ChatContext';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../../../components/Channel/Channel', () => ({
   Channel: ({
@@ -75,7 +76,7 @@ const createChatContextValue = (): ChatContextValue =>
 const renderWithProviders = (ui: React.ReactNode) =>
   render(
     <ChatProvider value={createChatContextValue()}>
-      <TranslationProvider value={{ t: (key: string) => key, userLanguage: 'en' }}>
+      <TranslationProvider value={{ t: mockT, userLanguage: 'en' }}>
         {ui}
       </TranslationProvider>
     </ChatProvider>,

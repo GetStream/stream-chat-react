@@ -97,8 +97,8 @@ export const SwitchField = ({
     if (!announce || !setting) return;
     announce(
       event.target.checked
-        ? t('aria/{{ setting }} enabled', { setting })
-        : t('aria/{{ setting }} disabled', { setting }),
+        ? t('form.switchField.enabled.ariaLabel', '{{ setting }} enabled', { setting })
+        : t('form.switchField.disabled.ariaLabel', '{{ setting }} disabled', { setting }),
       { priority: 'polite' },
     );
   };

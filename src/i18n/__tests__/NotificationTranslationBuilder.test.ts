@@ -59,9 +59,7 @@ describe('NotificationTranslationTopic', () => {
     const i18next = fromPartial<i18n>({
       ...mockI18Next,
       t: vi.fn((key) =>
-        key === 'File is required for upload attachment'
-          ? 'translated/file-required'
-          : key,
+        key === 'notification.attachmentFileMissing' ? 'translated/file-required' : key,
       ),
     });
     const builder = new NotificationTranslationTopic({
@@ -76,15 +74,18 @@ describe('NotificationTranslationTopic', () => {
     });
 
     expect(output).toBe('translated/file-required');
-    expect(i18next.t).toHaveBeenCalledWith('File is required for upload attachment', {
-      value: 'File is required for upload attachment',
-    });
+    // Recognised stream-chat message -> stable key, with the raw English as the default.
+    expect(i18next.t).toHaveBeenCalledWith(
+      'notification.attachmentFileMissing',
+      'File is required for upload attachment',
+      { value: 'File is required for upload attachment' },
+    );
   });
 
   it('passes notification metadata to i18next for message interpolation fallback', () => {
     const i18next = fromPartial<i18n>({
       ...mockI18Next,
-      t: vi.fn((key, options) =>
+      t: vi.fn((key, _defaultValue, options) =>
         key === 'Attachment upload failed due to {{reason}}'
           ? `translated/reason:${options.reason}`
           : key,
@@ -103,33 +104,65 @@ describe('NotificationTranslationTopic', () => {
     });
 
     expect(output).toBe('translated/reason:network error');
-    expect(i18next.t).toHaveBeenCalledWith('Attachment upload failed due to {{reason}}', {
-      reason: 'network error',
-      value: 'Attachment upload failed due to {{reason}}',
-    });
+    // Unrecognised message: passed through as its own key so it still renders verbatim.
+    expect(i18next.t).toHaveBeenCalledWith(
+      'Attachment upload failed due to {{reason}}',
+      'Attachment upload failed due to {{reason}}',
+      { reason: 'network error', value: 'Attachment upload failed due to {{reason}}' },
+    );
   });
 
   it.each([
-    ['api:location:create:failed', 'Failed to share location'],
-    ['api:location:share:failed', 'Failed to share location'],
-    ['api:reply:search:failed', 'Thread has not been found'],
-    ['api:poll:end:success', 'Poll ended'],
-    ['browser:location:get:failed', 'Failed to retrieve location'],
-    ['channel:jumpToFirstUnread:failed', 'Failed to jump to the first unread message'],
-    ['validation:attachment:file:missing', 'File is required for upload attachment'],
-    ['validation:attachment:id:missing', 'Local upload attachment missing local id'],
+    [
+      'api:location:create:failed',
+      'notification.locationShareFailed',
+      'Failed to share location',
+    ],
+    [
+      'api:location:share:failed',
+      'notification.locationShareFailed',
+      'Failed to share location',
+    ],
+    [
+      'api:reply:search:failed',
+      'notification.replySearchFailed',
+      'Thread has not been found',
+    ],
+    ['api:poll:end:success', 'notification.pollEndSuccess', 'Poll Ended'],
+    [
+      'browser:location:get:failed',
+      'notification.locationGetFailed',
+      'Failed to retrieve location',
+    ],
+    [
+      'channel:jumpToFirstUnread:failed',
+      'notification.jumpToFirstUnreadFailed',
+      'Failed to jump to the first unread message',
+    ],
+    [
+      'validation:attachment:file:missing',
+      'notification.attachmentFileMissing',
+      'File is required for upload attachment',
+    ],
+    [
+      'validation:attachment:id:missing',
+      'notification.attachmentIdMissing',
+      'Local upload attachment missing local id',
+    ],
     [
       'validation:attachment:upload:in-progress',
+      'notification.attachmentUploadInProgress',
       'Wait until all attachments have uploaded',
     ],
     [
       'validation:poll:castVote:limit',
+      'notification.pollVoteLimit',
       'Reached the vote limit. Remove an existing vote first.',
     ],
-  ])('translates known notification type %s', (type, translationKey) => {
+  ])('translates known notification type %s', (type, key, copy) => {
     const i18next = fromPartial<i18n>({
       ...mockI18Next,
-      t: vi.fn((key) => `translated:${key}`),
+      t: vi.fn((translationKey) => `translated:${translationKey}`),
     });
     const builder = new NotificationTranslationTopic({ i18next });
 
@@ -139,15 +172,16 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    expect(output).toBe(`translated:${translationKey}`);
-    expect(i18next.t).toHaveBeenCalledWith(translationKey);
+    expect(output).toBe(`translated:${key}`);
+    // The English copy travels with the call as i18next's inline defaultValue.
+    expect(i18next.t).toHaveBeenCalledWith(key, copy);
   });
 
   it('normalizes reason metadata in poll creation failure translation', () => {
     const i18next = fromPartial<i18n>({
       ...mockI18Next,
-      t: vi.fn((key, options) =>
-        key === 'Failed to create the poll due to {{reason}}'
+      t: vi.fn((key, _defaultValue, options) =>
+        key === 'notification.pollCreateFailedWithReason'
           ? `translated/reason:${options.reason}`
           : key,
       ),

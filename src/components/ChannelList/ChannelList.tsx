@@ -80,7 +80,7 @@ export const ChannelList = ({
 
   return (
     <InfiniteScrollWithComponents<Channel>
-      aria-label={t('aria/Channel list')}
+      aria-label={t('channelList.channelList.ariaLabel', 'Channel list')}
       contentProps={{ role: 'presentation' }}
       EmptyListIndicator={EmptyListIndicator}
       EndReachedIndicator={EndReachedIndicator}

@@ -379,7 +379,7 @@ const ChannelInner = (
   if (!channel.watch) {
     return (
       <ChannelContainer>
-        <div>{t('Channel Missing')}</div>
+        <div>{t('channel.channelMissing.text', 'Channel Missing')}</div>
       </ChannelContainer>
     );
   }

@@ -61,18 +61,29 @@ export const defaultChannelListItemLabelParts = {
       latestMessage?.attachments?.filter((attachment) => !attachment.og_scrape_url)
         .length ?? 0;
     if (count === 0 || (count === 1 && !latestMessage?.text)) return undefined;
-    return t('aria/{{ count }} attachment', { count });
+    return t('channelListItem.attachmentCount.ariaLabel', {
+      count,
+      defaultValue_one: '{{ count }} attachment',
+      defaultValue_other: '{{ count }} attachments',
+    });
   },
   deliveryStatus: ({ messageDeliveryStatus, t }) => {
     if (!messageDeliveryStatus) return undefined;
     const statusLabelByStatus: Record<MessageDeliveryStatus, string> = {
-      [MessageDeliveryStatus.SENT]: t('aria/Sent'),
-      [MessageDeliveryStatus.DELIVERED]: t('aria/Delivered'),
-      [MessageDeliveryStatus.READ]: t('aria/Read'),
+      [MessageDeliveryStatus.SENT]: t('channelListItem.sent.ariaLabel', 'Sent'),
+      [MessageDeliveryStatus.DELIVERED]: t(
+        'channelListItem.delivered.ariaLabel',
+        'Delivered',
+      ),
+      [MessageDeliveryStatus.READ]: t('channelListItem.read.ariaLabel', 'Read'),
     };
-    return t('aria/Delivery status: {{ deliveryStatus }}', {
-      deliveryStatus: statusLabelByStatus[messageDeliveryStatus],
-    });
+    return t(
+      'channelListItem.deliveryStatus.ariaLabel',
+      'Delivery status: {{ deliveryStatus }}',
+      {
+        deliveryStatus: statusLabelByStatus[messageDeliveryStatus],
+      },
+    );
   },
   lastMessage: ({
     channel,
@@ -96,13 +107,21 @@ export const defaultChannelListItemLabelParts = {
     const isOwn = !!client.userID && latestMessage.user?.id === client.userID;
     // Use the sender's name (or "You" for the current user). When the name is unknown we omit the
     // sender rather than reading out a raw user id.
-    const sender = isOwn ? t('You') : latestMessage.user?.name;
+    const sender = isOwn ? t('common.you.label', 'You') : latestMessage.user?.name;
     return sender
-      ? t('aria/Last message from {{ sender }}: {{ messagePreview }}', {
-          messagePreview: preview,
-          sender,
-        })
-      : t('aria/Last message: {{ messagePreview }}', { messagePreview: preview });
+      ? t(
+          'channelListItem.lastMessage.withSenderAndMessagePreview.ariaLabel',
+          'Last message from {{ sender }}: {{ messagePreview }}',
+          {
+            messagePreview: preview,
+            sender,
+          },
+        )
+      : t(
+          'channelListItem.lastMessage.withMessagePreview.ariaLabel',
+          'Last message: {{ messagePreview }}',
+          { messagePreview: preview },
+        );
   },
   linkPreview: ({ latestMessage, t }) => {
     const link = latestMessage?.attachments?.find(
@@ -110,8 +129,12 @@ export const defaultChannelListItemLabelParts = {
     );
     if (!link) return undefined;
     return link.title
-      ? t('aria/Shared a link with title: {{ linkTitle }}', { linkTitle: link.title })
-      : t('aria/Shared a link');
+      ? t(
+          'channelListItem.sharedLinkTitle.ariaLabel',
+          'Shared a link with title: {{ linkTitle }}',
+          { linkTitle: link.title },
+        )
+      : t('channelListItem.sharedLink.ariaLabel', 'Shared a link');
   },
   name: ({ displayTitle }) => displayTitle || undefined,
   time: ({ latestMessage, t, tDateTimeParser }) => {
@@ -121,11 +144,15 @@ export const defaultChannelListItemLabelParts = {
       messageCreatedAt: createdAt.toISOString(),
       t,
       tDateTimeParser,
-      timestampTranslationKey: 'timestamp/ChannelPreviewTimestamp',
+      timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
     });
     // Prefix the time so it is clearly its own segment (not read as part of the preceding
     // delivery-status segment).
-    return when ? t('aria/Last activity: {{ time }}', { time: String(when) }) : undefined;
+    return when
+      ? t('common.lastActivity.ariaLabel', 'Last activity: {{ time }}', {
+          time: String(when),
+        })
+      : undefined;
   },
   unreadCount: unreadCountLabelPart,
 } satisfies Record<string, ChannelListItemLabelPart>;

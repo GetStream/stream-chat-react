@@ -15,6 +15,7 @@ import {
   mockChatContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 // MERGE-RECONCILE (test migration): ThreadStart moved off the deleted ChannelStateContext.
 // It now reads the parent message from the thread instance in ThreadContext via
@@ -28,11 +29,7 @@ const makeThread = (parentMessage: LocalMessage) =>
   });
 
 const i18nMock = {
-  t: vi.fn((key: string, props: any) => {
-    if (key === 'replyCount' && props.count === 1) return '1 reply';
-    else if (key === 'replyCount' && props.count > 1) return '2 replies';
-    return key;
-  }),
+  t: vi.fn(mockT),
 };
 
 const renderComponent = ({ client, parentMessage }: any) =>
@@ -62,8 +59,10 @@ describe('ThreadStart', () => {
   it('renders if replies exist', () => {
     const parentMessage = generateMessage({ reply_count: 1 });
     renderComponent({ client, parentMessage });
-    expect(i18nMock.t).toHaveBeenCalledWith('replyCount', {
+    expect(i18nMock.t).toHaveBeenCalledWith('common.replyCount.label', {
       count: parentMessage.reply_count,
+      defaultValue_one: '1 reply',
+      defaultValue_other: '{{ count }} replies',
     });
     expect(screen.queryByText('1 reply')).toBeInTheDocument();
   });

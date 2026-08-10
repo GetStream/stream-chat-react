@@ -136,7 +136,10 @@ export const SimpleAttachmentSelector = ({
     <div className='str-chat__attachment-selector' {...inertProps}>
       <AttachmentSelectorButton
         {...buttonProps}
-        aria-label={t('aria/Open Attachment Selector')}
+        aria-label={t(
+          'messageComposer.attachmentSelector.openAttachmentSelector.ariaLabel',
+          'Open Attachment Selector',
+        )}
         disabled={isCooldownActive}
         onClick={() => inputRef.current?.click()}
         ref={setButtonElement}
@@ -189,7 +192,7 @@ export const DefaultAttachmentSelectorComponents = {
           });
         }}
       >
-        {t('Commands')}
+        {t('messageComposer.attachmentSelector.commands.text', 'Commands')}
       </ContextMenuButton>
     );
   },
@@ -207,7 +210,7 @@ export const DefaultAttachmentSelectorComponents = {
           closeMenu();
         }}
       >
-        {t('File')}
+        {t('messageComposer.attachmentSelector.file.text', 'File')}
       </ContextMenuButton>
     );
   },
@@ -223,7 +226,7 @@ export const DefaultAttachmentSelectorComponents = {
           closeMenu();
         }}
       >
-        {t('Location')}
+        {t('common.location.text', 'Location')}
       </ContextMenuButton>
     );
   },
@@ -239,7 +242,7 @@ export const DefaultAttachmentSelectorComponents = {
           closeMenu();
         }}
       >
-        {t('Poll')}
+        {t('common.poll.label', 'Poll')}
       </ContextMenuButton>
     );
   },
@@ -439,7 +442,10 @@ export const AttachmentSelector = ({
           {...buttonProps}
           aria-expanded={menuDialogIsOpen}
           aria-haspopup='true'
-          aria-label={t('aria/Open Attachment Selector')}
+          aria-label={t(
+            'messageComposer.attachmentSelector.openAttachmentSelector.ariaLabel',
+            'Open Attachment Selector',
+          )}
           disabled={isCooldownActive}
           iconClassName={clsx('str-chat__prepare-rotate45', {
             'str-chat__rotate45': menuDialogIsOpen,
@@ -449,8 +455,11 @@ export const AttachmentSelector = ({
         />
         <ContextMenuComponent
           allowFlip
-          aria-label={t('aria/Attachment Actions')}
-          backLabel={t('Back')}
+          aria-label={t(
+            'messageComposer.attachmentSelector.attachmentActions.ariaLabel',
+            'Attachment Actions',
+          )}
+          backLabel={t('common.back.label', 'Back')}
           className='str-chat__attachment-selector-actions-menu'
           data-testid='attachment-selector-actions-menu'
           dialogManagerId={dialogManager?.id}

@@ -51,12 +51,16 @@ type WithT = { t: TranslationContextValue['t'] };
 export const activeLabelPart: AccessibleLabelPart<WithT & { active?: boolean }> = ({
   active,
   t,
-}) => (active ? t('aria/Active') : undefined);
+}) => (active ? t('a11y.accessibleLabel.active.ariaLabel', 'Active') : undefined);
 
 /** Announces the unread count when there is one. */
 export const unreadCountLabelPart: AccessibleLabelPart<
   WithT & { unreadCount?: number }
 > = ({ t, unreadCount }) =>
   typeof unreadCount === 'number' && unreadCount > 0
-    ? t('aria/{{ count }} unread message', { count: unreadCount })
+    ? t('a11y.accessibleLabel.unreadMessage.ariaLabel', {
+        count: unreadCount,
+        defaultValue_one: '{{ count }} unread message',
+        defaultValue_other: '{{ count }} unread messages',
+      })
     : undefined;

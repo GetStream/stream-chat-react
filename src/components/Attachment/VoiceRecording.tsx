@@ -81,7 +81,7 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
         <PlaybackRateButton
-          aria-label={t('Playback speed {{ rate }}x', {
+          aria-label={t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', {
             rate: playbackRate?.toString() ?? '1',
           })}
           disabled={!canPlayRecord}
@@ -104,7 +104,8 @@ export const VoiceRecordingPlayer = ({
   playbackRates,
 }: VoiceRecordingPlayerProps) => {
   const { t } = useTranslationContext();
-  const { asset_url, title = t('Voice message') } = attachment;
+  const { asset_url, title = t('common.voiceMessage.label', 'Voice message') } =
+    attachment;
   const {
     duration = 0,
     file_size,

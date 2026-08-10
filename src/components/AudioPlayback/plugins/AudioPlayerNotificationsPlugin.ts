@@ -16,11 +16,24 @@ export const audioPlayerNotificationsPluginFactory = ({
   t: TFunction;
 }): AudioPlayerPlugin => {
   const errors: Record<AudioPlayerErrorCode, Error> = {
-    'failed-to-start': new Error(t('Failed to play the recording')),
-    'not-playable': new Error(
-      t('Recording format is not supported and cannot be reproduced'),
+    'failed-to-start': new Error(
+      t(
+        'audioPlayback.audioPlayerNotifications.failedPlayRecording.label',
+        'Failed to play the recording',
+      ),
     ),
-    'seek-not-supported': new Error(t('Cannot seek in the recording')),
+    'not-playable': new Error(
+      t(
+        'audioPlayback.audioPlayerNotifications.recordingFormatNotSupported.label',
+        'Recording format is not supported and cannot be reproduced',
+      ),
+    ),
+    'seek-not-supported': new Error(
+      t(
+        'audioPlayback.audioPlayerNotifications.cannotSeekRecording.label',
+        'Cannot seek in the recording',
+      ),
+    ),
   };
   let lastSeekNotSupportedNotificationAt: number | undefined;
 
@@ -44,7 +57,9 @@ export const audioPlayerNotificationsPluginFactory = ({
       const error =
         (errCode && errors[errCode]) ??
         e ??
-        new Error(t('Error reproducing the recording'));
+        new Error(
+          t('notification.audioPlaybackError', 'Error reproducing the recording'),
+        );
 
       addNotification({
         emitter: 'AudioPlayer',

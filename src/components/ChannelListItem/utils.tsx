@@ -114,7 +114,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'empty',
       latestMessage,
-      text: t('Nothing yet...'),
+      text: t('common.nothingYet.text', 'Nothing yet...'),
     };
   }
 
@@ -123,7 +123,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'deleted',
       latestMessage,
-      text: t('Message deleted'),
+      text: t('common.messageDeleted.text', 'Message deleted'),
     };
   }
 
@@ -131,17 +131,21 @@ const getLatestMessagePreviewParts = (
     if (!poll.vote_count) {
       const createdBy =
         poll.created_by?.id === channel.getClient().userID
-          ? t('You')
-          : (poll.created_by?.name ?? t('Poll'));
+          ? t('common.you.label', 'You')
+          : (poll.created_by?.name ?? t('common.poll.label', 'Poll'));
       return {
         isUserMessageText: false,
         kind: 'poll',
         latestMessage,
         pollName: poll.name,
-        text: t('📊 {{createdBy}} created: {{ pollName}}', {
-          createdBy,
-          pollName: poll.name,
-        }),
+        text: t(
+          'channelListItem.created.text',
+          '📊 {{createdBy}} created: {{ pollName}}',
+          {
+            createdBy,
+            pollName: poll.name,
+          },
+        ),
       };
     } else {
       const latestVote = getLatestPollVote(
@@ -156,13 +160,17 @@ const getLatestMessagePreviewParts = (
           kind: 'poll',
           latestMessage,
           pollName: poll.name,
-          text: t('📊 {{votedBy}} voted: {{pollOptionText}}', {
-            pollOptionText: option.text,
-            votedBy:
-              latestVote?.user?.id === channel.getClient().userID
-                ? t('You')
-                : (latestVote.user?.name ?? t('Poll')),
-          }),
+          text: t(
+            'channelListItem.voted.text',
+            '📊 {{votedBy}} voted: {{pollOptionText}}',
+            {
+              pollOptionText: option.text,
+              votedBy:
+                latestVote?.user?.id === channel.getClient().userID
+                  ? t('common.you.label', 'You')
+                  : (latestVote.user?.name ?? t('common.poll.label', 'Poll')),
+            },
+          ),
         };
       }
     }
@@ -191,7 +199,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'attachment',
       latestMessage,
-      text: t('🏙 Attachment...'),
+      text: t('channelListItem.attachment.text', '🏙 Attachment...'),
     };
   }
 
@@ -200,7 +208,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'location',
       latestMessage,
-      text: t('📍Shared location'),
+      text: t('channelListItem.sharedLocation.text', '📍Shared location'),
     };
   }
 
@@ -208,7 +216,7 @@ const getLatestMessagePreviewParts = (
     isUserMessageText: false,
     kind: 'text',
     latestMessage,
-    text: t('Empty message...'),
+    text: t('common.emptyMessage.text', 'Empty message...'),
   };
 };
 
@@ -223,17 +231,17 @@ const getAttachmentTypeLabel = (
 ): string | undefined => {
   switch (type) {
     case 'audio':
-      return t('aria/audio');
+      return t('channelListItem.audio.ariaLabel', 'audio');
     case 'file':
-      return t('aria/file');
+      return t('channelListItem.file.ariaLabel', 'file');
     case 'giphy':
-      return t('aria/GIF');
+      return t('channelListItem.gif.ariaLabel', 'GIF');
     case 'image':
-      return t('aria/image');
+      return t('channelListItem.image.ariaLabel', 'image');
     case 'video':
-      return t('aria/video');
+      return t('channelListItem.video.ariaLabel', 'video');
     case 'voiceRecording':
-      return t('aria/voice message');
+      return t('channelListItem.voiceMessage.ariaLabel', 'voice message');
     default:
       return undefined;
   }
@@ -263,7 +271,9 @@ export const getLatestMessagePreviewText = (
 
   switch (kind) {
     case 'poll':
-      return t('aria/Poll: {{ pollName }}', { pollName: pollName ?? '' });
+      return t('channelListItem.poll.ariaLabel', 'Poll: {{ pollName }}', {
+        pollName: pollName ?? '',
+      });
     case 'attachment': {
       // Link previews are announced separately (see the `linkPreview` label part); decide by the
       // count of real attachments. Multiple → a generic phrase (the count is announced alongside);
@@ -272,17 +282,28 @@ export const getLatestMessagePreviewText = (
         resolvedLatestMessage?.attachments?.filter(
           (attachment) => !attachment.og_scrape_url,
         ) ?? [];
-      if (realAttachments.length > 1) return t('aria/Message with attachments');
+      if (realAttachments.length > 1)
+        return t(
+          'channelListItem.messageAttachments.ariaLabel',
+          'Message with attachments',
+        );
       const typeLabel = getAttachmentTypeLabel(realAttachments[0]?.type, t);
       return typeLabel
-        ? t('aria/Attachment {{ attachmentType }}', { attachmentType: typeLabel })
-        : t('aria/Attachment');
+        ? t(
+            'channelListItem.attachment.withAttachmentType.ariaLabel',
+            'Attachment {{ attachmentType }}',
+            { attachmentType: typeLabel },
+          )
+        : t('channelListItem.attachment.ariaLabel', 'Attachment');
     }
     case 'location':
-      return t('aria/Shared location');
+      return t('channelListItem.sharedLocation.ariaLabel', 'Shared location');
     case 'empty':
       // The visible preview says "Nothing yet..."; spell it out for assistive tech.
-      return t('aria/There are no messages in this chat.');
+      return t(
+        'channelListItem.noMessagesChat.ariaLabel',
+        'There are no messages in this chat.',
+      );
     case 'text':
       // `resolvedLatestMessage` guard is redundant at runtime (isUserMessageText implies it) but
       // narrows the optional type for `isMessageAIGenerated`.

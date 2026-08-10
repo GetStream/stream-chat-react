@@ -47,7 +47,11 @@ const ThreadHeaderSubtitle = ({
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );
   const hasTyping = channelConfig?.typing_events !== false && typingInThread.length > 0;
-  const replyCountText = t('replyCount', { count: replyCount ?? 0 });
+  const replyCountText = t('common.replyCount.label', {
+    count: replyCount ?? 0,
+    defaultValue_one: '1 reply',
+    defaultValue_other: '{{ count }} replies',
+  });
   const defaultSubtitle = threadDisplayName
     ? `${threadDisplayName} · ${replyCountText}`
     : replyCountText;
@@ -112,7 +116,9 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
         {isThreadsView && HeaderStartContent && <HeaderStartContent />}
       </div>
       <div className='str-chat__thread-header-details'>
-        <div className='str-chat__thread-header-title'>{t('Thread')}</div>
+        <div className='str-chat__thread-header-title'>
+          {t('thread.header.thread.text', 'Thread')}
+        </div>
         <ThreadHeaderSubtitle
           replyCount={replyCount}
           threadDisplayName={threadDisplayName}
@@ -127,7 +133,7 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
         <div className='str-chat__thread-header__end'>
           <Button
             appearance='ghost'
-            aria-label={t('aria/Close thread')}
+            aria-label={t('thread.header.closeThread.ariaLabel', 'Close thread')}
             circular
             className='str-chat__close-thread-button'
             data-testid='close-thread-button'

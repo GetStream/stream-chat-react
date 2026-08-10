@@ -23,6 +23,7 @@ import {
   initClientWithChannels,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
@@ -41,16 +42,7 @@ vi.mock('../../../context', async (importOriginal) => ({
   }),
 }));
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) => {
-  const interpolated = Object.entries(options || {}).reduce(
-    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-    key,
-  );
-
-  return interpolated.startsWith('aria/')
-    ? interpolated.replace('aria/', '')
-    : interpolated;
-};
+const mockTranslation = mockT;
 
 const renderComponent = async ({
   activeChannel,

@@ -55,7 +55,7 @@ export const ReactionSelectorWithButton = ({
       </DialogAnchor>
       <QuickMessageActionsButton
         aria-expanded={dialogIsOpen}
-        aria-label={t('aria/Open Reaction Selector')}
+        aria-label={t('common.openReactionSelector.ariaLabel', 'Open Reaction Selector')}
         className='str-chat__message-reactions-button'
         data-testid='message-reaction-action'
         onClick={() => dialog?.toggle()}

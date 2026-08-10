@@ -12,6 +12,7 @@ import {
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelFilesView } from '../ChannelFilesView';
+import { mockT } from '../../../../../mock-builders/translator';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -192,7 +193,7 @@ describe('ChannelFilesView', () => {
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string) => key,
+      t: mockT,
       tDateTimeParser: (input?: string | number | Date) => Dayjs(input),
     } as unknown as ReturnType<typeof useTranslationContext>);
 

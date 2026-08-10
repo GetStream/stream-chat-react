@@ -161,11 +161,18 @@ export const FileDragAndDropContent = ({
   return (
     <div className='str-chat__dropzone-container__content'>
       {isDragRejected ? (
-        <p>{t('Some of the files will not be accepted')}</p>
+        <p>
+          {t(
+            'messageComposer.dragDropUpload.someFilesNotAccepted.text',
+            'Some of the files will not be accepted',
+          )}
+        </p>
       ) : (
         <>
           <IconUpload />
-          <p>{t('Drag your files here')}</p>
+          <p>
+            {t('messageComposer.dragDropUpload.dragFiles.text', 'Drag your files here')}
+          </p>
         </>
       )}
     </div>

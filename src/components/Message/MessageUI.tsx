@@ -182,7 +182,7 @@ const MessageUIWithContext = ({
 
   const isMessageInnerInteractive = !!handleClick;
   const messageInnerAriaLabel = isMessageInnerInteractive
-    ? t('aria/Review bounced message')
+    ? t('message.ui.reviewBouncedMessage.ariaLabel', 'Review bounced message')
     : undefined;
 
   const handleMessageInnerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {

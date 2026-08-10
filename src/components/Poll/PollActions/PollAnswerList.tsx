@@ -41,8 +41,11 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
     <Viewer.Root className='str-chat__modal__poll-answer-list'>
       <Viewer.Header
         close={close}
-        description={t('Review comments submitted with poll answers')}
-        title={t('Poll comments')}
+        description={t(
+          'poll.answerList.description',
+          'Review comments submitted with poll answers',
+        )}
+        title={t('poll.answerList.pollComments.title', 'Poll Comments')}
       />
       <Viewer.Body className='str-chat__modal__poll-answer-list__body'>
         <div className='str-chat__poll-answer-list'>
@@ -64,7 +67,10 @@ export const PollAnswerList = ({ onUpdateOwnAnswerClick }: PollAnswerListProps) 
                       size='md'
                       variant='secondary'
                     >
-                      {t('Update your comment')}
+                      {t(
+                        'poll.addCommentPrompt.updateComment.label',
+                        'Update Your Comment',
+                      )}
                     </Button>
                   </div>
                 )}

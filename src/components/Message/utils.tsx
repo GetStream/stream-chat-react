@@ -342,25 +342,37 @@ export const getReadByTooltipText = (
   } else if (slicedArr.length === 2) {
     // joins all with "and" but =no commas
     // example: "bob and sam"
-    outStr = t('{{ firstUser }} and {{ secondUser }}', {
-      firstUser: slicedArr[0],
-      secondUser: slicedArr[1],
-    });
+    outStr = t(
+      'message.and.withFirstUserAndSecondUser.label',
+      '{{ firstUser }} and {{ secondUser }}',
+      {
+        firstUser: slicedArr[0],
+        secondUser: slicedArr[1],
+      },
+    );
   } else if (slicedArr.length > 2) {
     // joins all with commas, but last one gets ", and" (oxford comma!)
     // example: "bob, joe, sam and 4 more"
     if (restLength === 0) {
       // mutate slicedArr to remove last user to display it separately
       const lastUser = slicedArr.splice(slicedArr.length - 1, 1);
-      outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        lastUser,
-      });
+      outStr = t(
+        'message.and.withCommaSeparatedUsersAndLastUser.label',
+        '{{ commaSeparatedUsers }}, and {{ lastUser }}',
+        {
+          commaSeparatedUsers: slicedArr.join(', '),
+          lastUser,
+        },
+      );
     } else {
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        moreCount: restLength,
-      });
+      outStr = t(
+        'message.more.label',
+        '{{ commaSeparatedUsers }} and {{ moreCount }} more',
+        {
+          commaSeparatedUsers: slicedArr.join(', '),
+          moreCount: restLength,
+        },
+      );
     }
   }
 

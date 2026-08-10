@@ -93,88 +93,148 @@ const INTERACTION_MESSAGES: {
   // Confirms the new audio playback speed after the user cycles it with the playback-rate button.
   // Reuses the existing (already-localized) button label so the spoken text matches the control.
   'audioPlayer.playbackRateChanged': (t, params) =>
-    t('Playback speed {{ rate }}x', { rate: params.rate }),
+    t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', { rate: params.rate }),
   // Confirms which channel was opened after selecting it from the list. Delayed (see
   // INTERACTION_DELAY_MS) so it lands AFTER the screen reader's announcement of the newly-focused
   // element (the message composer auto-focuses on channel change) rather than competing with — and
   // being superseded by — that native focus read-out. A provider-managed delay (not a per-row
   // debounce) so it still fires when selecting the channel unmounts the list (mobile).
   'channel.opened': (t, params) =>
-    t('aria/Opened channel: {{ name }}', { name: params.name }),
+    t(
+      'a11y.interactionAnnouncements.openedChannel.ariaLabel',
+      'Opened channel: {{ name }}',
+      { name: params.name },
+    ),
   // Confirms which slash command was activated after picking it from the Instant Commands menu.
   // Delayed (INTERACTION_DELAY_MS) for the same reason as the "opened" confirmations: selecting a
   // command closes the menu and focuses the composer textarea (whose name changes, e.g. to
   // "Search GIFs"), so the screen reader reads that focus first — this lands after it. A provider
   // delay (not a debounce) because the menu that fired it unmounts on selection.
   'command.selected': (t, params) =>
-    t('aria/Command activated: {{ command }}', { command: params.command }),
-  'giphy.canceled': (t) => t('aria/Giphy canceled'),
-  'giphy.sent': (t) => t('aria/Giphy sent'),
+    t(
+      'a11y.interactionAnnouncements.commandActivated.ariaLabel',
+      'Command activated: {{ command }}',
+      { command: params.command },
+    ),
+  'giphy.canceled': (t) =>
+    t('a11y.interactionAnnouncements.giphyCanceled.ariaLabel', 'Giphy canceled'),
+  'giphy.sent': (t) =>
+    t('a11y.interactionAnnouncements.giphySent.ariaLabel', 'Giphy sent'),
   // Giphy payloads rarely carry a human title, so include it only when present; otherwise a
   // generic "changed" confirmation. Both literal keys are extracted by i18next-cli.
   'giphy.shuffled': (t, params) =>
     params.title
-      ? t('aria/Giphy image changed: {{ title }}', { title: params.title })
-      : t('aria/Giphy image changed'),
+      ? t(
+          'a11y.interactionAnnouncements.giphyImageChanged.withTitle.ariaLabel',
+          'Giphy image changed: {{ title }}',
+          { title: params.title },
+        )
+      : t(
+          'a11y.interactionAnnouncements.giphyImageChanged.ariaLabel',
+          'Giphy image changed',
+        ),
   // Spoken on poll-dialog open. Reuses the already-localized visible description for the middle
   // clause (so the spoken and visible text stay consistent) and adds two short aria-only phrases:
   // an explicit "opened" confirmation and the Enter affordance to step into the Question field.
   'poll.dialogOpened': (t) =>
-    `${t('aria/Poll dialog opened')}. ${t(
+    `${t('a11y.interactionAnnouncements.pollDialogOpened.ariaLabel', 'Poll dialog opened')}. ${t(
+      'common.createQuestionAddOptions.label',
       'Create a question, add options, and configure poll settings',
-    )}. ${t('aria/Press Enter to start typing')}.`,
+    )}. ${t('a11y.interactionAnnouncements.pressEnterStartTyping.ariaLabel', 'Press Enter to start typing')}.`,
   // Keyboard reorder pickup/drop. Assertive (see INTERACTION_PRIORITIES) — immediate drag feedback
   // that must not be queued behind other polite messages.
   'poll.optionDropped': (t, params) =>
-    t('aria/Dropped "{{ option }}" at position {{ position }}.', {
-      option: params.option,
-      position: params.position,
-    }),
+    t(
+      'a11y.interactionAnnouncements.droppedPosition.ariaLabel',
+      'Dropped "{{ option }}" at position {{ position }}.',
+      {
+        option: params.option,
+        position: params.position,
+      },
+    ),
   'poll.optionPickedUp': (t, params) =>
     t(
-      'aria/Picked up "{{ option }}". Use arrow keys to reorder. Press Space or Tab to drop.',
+      'a11y.interactionAnnouncements.pickedUpUseArrow.ariaLabel',
+      'Picked up "{{ option }}". Use arrow keys to reorder. Press Space or Tab to drop.',
       { option: params.option },
     ),
   // Confirms a poll option was removed, naming it by its text (or positional fallback). Polite so it
   // queues behind the focus move to the next option field instead of interrupting it.
   'poll.optionRemoved': (t, params) =>
-    t('aria/Removed option {{ option }}', { option: params.option }),
-  'poll.sent': (t) => t('aria/Poll sent'),
-  'search.cleared': (t) => t('aria/Search cleared'),
+    t(
+      'a11y.interactionAnnouncements.removedOption.ariaLabel',
+      'Removed option {{ option }}',
+      { option: params.option },
+    ),
+  'poll.sent': (t) => t('a11y.interactionAnnouncements.pollSent.ariaLabel', 'Poll sent'),
+  'search.cleared': (t) =>
+    t('a11y.interactionAnnouncements.searchCleared.ariaLabel', 'Search cleared'),
   // The number of items currently listed in the search results; an empty result set is spelled out
   // rather than announced as "0". When the list is fully loaded, the end-of-list status is folded
   // into THIS one announcement (reusing the visible footer's "All results loaded" text) instead of a
   // competing second live-region message that would supersede the count.
   'search.resultCount': (t, params) => {
-    if (params.count <= 0) return t('aria/No search results found');
-    const count = t('aria/{{ count }} search results', { count: params.count });
-    return params.allResultsLoaded ? `${count}. ${t('All results loaded')}` : count;
+    if (params.count <= 0)
+      return t(
+        'a11y.interactionAnnouncements.noSearchResultsFound.ariaLabel',
+        'No search results found',
+      );
+    const count = t('a11y.interactionAnnouncements.searchResults.ariaLabel', {
+      count: params.count,
+      defaultValue_one: '{{ count }} search result',
+      defaultValue_other: '{{ count }} search results',
+    });
+    return params.allResultsLoaded
+      ? `${count}. ${t('common.resultsLoaded.label', 'All results loaded')}`
+      : count;
   },
   // Name the suggestion type by reusing the already-localized list label ("5 Command
   // Suggestions") so the user knows what the results are; fall back to the bare count when no
   // label is given. Both literal keys are extracted.
   'suggestions.count': (t, params) =>
     params.suggestionsLabel
-      ? t('aria/{{ count }} {{ suggestionsLabel }}', {
+      ? t('a11y.interactionAnnouncements.suggestionsWithLabel.ariaLabel', {
           count: params.count,
+          defaultValue_one: '{{ count }} {{ suggestionsLabel }}',
+          defaultValue_other: '{{ count }} {{ suggestionsLabel }}',
           suggestionsLabel: params.suggestionsLabel,
         })
-      : t('aria/{{ count }} suggestions', { count: params.count }),
+      : t('a11y.interactionAnnouncements.suggestions.ariaLabel', {
+          count: params.count,
+          defaultValue_one: '{{ count }} suggestion',
+          defaultValue_other: '{{ count }} suggestions',
+        }),
   // Confirms which thread was opened after selecting it from the list; `name` is the thread's
   // channel display title. Delayed for the same reason as `channel.opened` (the thread composer
   // auto-focuses on open, and its focus announcement would otherwise supersede this one).
   'thread.opened': (t, params) =>
-    t('aria/Opened thread in {{ name }}', { name: params.name }),
+    t(
+      'a11y.interactionAnnouncements.openedThread.ariaLabel',
+      'Opened thread in {{ name }}',
+      { name: params.name },
+    ),
   'user.selected': (t, params) =>
-    t('aria/User selected: {{ user }}', { user: params.user }),
+    t(
+      'a11y.interactionAnnouncements.userSelected.ariaLabel',
+      'User selected: {{ user }}',
+      { user: params.user },
+    ),
   // Voice recorder lifecycle — discrete, immediate, polite confirmations. Cancellation is NOT here:
   // it already emits an app notification ("Voice message deleted") announced by NotificationAnnouncer,
   // and recording errors surface as error notifications; adding them here would double-announce.
-  'voiceRecording.attached': (t) => t('aria/Voice recording attached'),
-  'voiceRecording.paused': (t) => t('aria/Recording paused'),
-  'voiceRecording.resumed': (t) => t('aria/Recording resumed'),
-  'voiceRecording.sent': (t) => t('aria/Voice message sent'),
-  'voiceRecording.started': (t) => t('aria/Recording started'),
+  'voiceRecording.attached': (t) =>
+    t(
+      'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel',
+      'Voice recording attached',
+    ),
+  'voiceRecording.paused': (t) =>
+    t('a11y.interactionAnnouncements.recordingPaused.ariaLabel', 'Recording paused'),
+  'voiceRecording.resumed': (t) =>
+    t('a11y.interactionAnnouncements.recordingResumed.ariaLabel', 'Recording resumed'),
+  'voiceRecording.sent': (t) =>
+    t('a11y.interactionAnnouncements.voiceMessageSent.ariaLabel', 'Voice message sent'),
+  'voiceRecording.started': (t) =>
+    t('a11y.interactionAnnouncements.recordingStarted.ariaLabel', 'Recording started'),
 };
 
 /**

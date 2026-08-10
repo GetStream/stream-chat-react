@@ -18,7 +18,11 @@ export const ThreadStart = () => {
 
   return (
     <div className='str-chat__thread-start'>
-      {t('replyCount', { count: parentMessage.reply_count })}
+      {t('common.replyCount.label', {
+        count: parentMessage.reply_count,
+        defaultValue_one: '1 reply',
+        defaultValue_other: '{{ count }} replies',
+      })}
     </div>
   );
 };

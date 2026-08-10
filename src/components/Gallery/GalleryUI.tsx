@@ -200,7 +200,7 @@ export const GalleryUI = () => {
       <div className='str-chat__gallery__main'>
         <GalleryHeader currentItem={currentItem} />
         <NavButton
-          aria-label={t('Previous image')}
+          aria-label={t('gallery.ui.previousImage.ariaLabel', 'Previous image')}
           className={clsx(
             'str-chat__gallery__nav-button--prev',
             !hasPrevious && 'str-chat__gallery__nav-button--hidden',
@@ -248,7 +248,7 @@ export const GalleryUI = () => {
           </div>
         </div>
         <NavButton
-          aria-label={t('Next image')}
+          aria-label={t('gallery.ui.nextImage.ariaLabel', 'Next image')}
           className={clsx(
             'str-chat__gallery__nav-button--next',
             !hasNext && 'str-chat__gallery__nav-button--hidden',

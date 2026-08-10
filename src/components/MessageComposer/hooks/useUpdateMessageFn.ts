@@ -29,7 +29,10 @@ export const useUpdateMessageFn = () => {
       messageComposer.clear();
     } catch (error) {
       channel.getClient().notifications.addError({
-        message: t('Edit message request failed'),
+        message: t(
+          'messageComposer.updateMessageFn.editMessageRequestFailed.text',
+          'Edit message request failed',
+        ),
         // todo: Register notification translator
         options: {
           metadata: {

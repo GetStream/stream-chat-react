@@ -238,7 +238,10 @@ const SendDirectMessageAction = () => {
         context: { channel },
         emitter: 'ChannelMemberDetail',
         error: toError(error),
-        message: t('Error opening direct message'),
+        message: t(
+          'channelDetail.channelMemberActions.errorOpeningDirectMessage.text',
+          'Error opening direct message',
+        ),
         severity: 'error',
         type: 'api:channel:watch:failed',
       });
@@ -271,7 +274,10 @@ const SendDirectMessageAction = () => {
       LeadingIcon={SendDirectMessageActionIcon}
       RootElement='button'
       rootProps={rootProps}
-      title={t('Send direct message')}
+      title={t(
+        'channelDetail.channelMemberActions.sendDirectMessage.title',
+        'Send direct message',
+      )}
     />
   );
 };
@@ -301,7 +307,10 @@ const UserMuteAction = () => {
             addNotification({
               context: { channel },
               emitter: 'ChannelMemberDetail',
-              message: t('User unmuted'),
+              message: t(
+                'channelDetail.channelManagementActions.userUnmuted.text',
+                'User unmuted',
+              ),
               severity: 'success',
               type: 'api:user:unmute:success',
             }),
@@ -315,7 +324,10 @@ const UserMuteAction = () => {
               context: { channel },
               emitter: 'ChannelMemberDetail',
               error: toError(error),
-              message: t('Error unmuting user'),
+              message: t(
+                'channelDetail.channelManagementActions.errorUnmutingUser.text',
+                'Error unmuting user',
+              ),
               severity: 'error',
               type: 'api:user:unmute:failed',
             });
@@ -328,7 +340,10 @@ const UserMuteAction = () => {
           addNotification({
             context: { channel },
             emitter: 'ChannelMemberDetail',
-            message: t('User muted'),
+            message: t(
+              'channelDetail.channelManagementActions.userMuted.text',
+              'User muted',
+            ),
             severity: 'success',
             type: 'api:user:mute:success',
           }),
@@ -339,7 +354,10 @@ const UserMuteAction = () => {
             context: { channel },
             emitter: 'ChannelMemberDetail',
             error: toError(error),
-            message: t('Error muting user'),
+            message: t(
+              'channelDetail.channelManagementActions.errorMutingUser.text',
+              'Error muting user',
+            ),
             severity: 'error',
             type: 'api:user:mute:failed',
           });
@@ -386,7 +404,11 @@ const UserMuteAction = () => {
       LeadingIcon={optimisticUserMuted ? MemberUnmuteActionIcon : MemberMuteActionIcon}
       RootElement='button'
       rootProps={rootProps}
-      title={optimisticUserMuted ? t('Unmute user') : t('Mute user')}
+      title={
+        optimisticUserMuted
+          ? t('channelDetail.channelManagementActions.unmuteUser.title', 'Unmute user')
+          : t('channelDetail.channelManagementActions.muteUser.title', 'Mute user')
+      }
       TrailingSlot={TrailingSlot}
     />
   );
@@ -424,7 +446,7 @@ const BlockUserAction = () => {
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',
-        message: t('User unblocked'),
+        message: t('common.userUnblocked.text', 'User unblocked'),
         severity: 'success',
         type: 'api:user:unblock:success',
       });
@@ -433,7 +455,10 @@ const BlockUserAction = () => {
         context: { channel },
         emitter: 'ChannelMemberDetail',
         error: toError(error),
-        message: t('Error unblocking user'),
+        message: t(
+          'channelDetail.channelManagementActions.errorUnblockingUser.text',
+          'Error unblocking user',
+        ),
         severity: 'error',
         type: 'api:user:unblock:failed',
       });
@@ -452,7 +477,7 @@ const BlockUserAction = () => {
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',
-        message: t('User blocked'),
+        message: t('common.userBlocked.text', 'User blocked'),
         severity: 'success',
         type: 'api:user:block:success',
       });
@@ -461,7 +486,10 @@ const BlockUserAction = () => {
         context: { channel },
         emitter: 'ChannelMemberDetail',
         error: toError(error),
-        message: t('Error blocking user'),
+        message: t(
+          'channelDetail.channelManagementActions.errorBlockingUser.text',
+          'Error blocking user',
+        ),
         severity: 'error',
         type: 'api:user:block:failed',
       });
@@ -487,27 +515,47 @@ const BlockUserAction = () => {
         LeadingIcon={BlockUserActionIcon}
         RootElement='button'
         rootProps={rootProps}
-        title={isBlocked ? t('Unblock user') : t('Block user')}
+        title={
+          isBlocked
+            ? t('channelDetail.channelMemberActions.unblockUser.title', 'Unblock user')
+            : t('channelDetail.channelManagementActions.blockUser.title', 'Block user')
+        }
       />
       <Modal open={alertOpen} role='alertdialog'>
         <ChannelMemberConfirmationAlert
           action='blockUser'
-          cancelLabel={t('Cancel')}
-          confirmLabel={isBlocked ? t('Unblock user') : t('Block user')}
+          cancelLabel={t('common.cancel.label', 'Cancel')}
+          confirmLabel={
+            isBlocked
+              ? t('channelDetail.channelMemberActions.unblockUser.title', 'Unblock user')
+              : t('channelDetail.channelManagementActions.blockUser.title', 'Block user')
+          }
           description={
             isBlocked
-              ? t('{{ member }} will be able to message you again.', {
-                  member: memberDisplayName,
-                })
-              : t("{{ member }} won't be able to message you anymore.", {
-                  member: memberDisplayName,
-                })
+              ? t(
+                  'channelDetail.channelMemberActions.ableMessageAgain.description',
+                  '{{ member }} will be able to message you again.',
+                  {
+                    member: memberDisplayName,
+                  },
+                )
+              : t(
+                  'channelDetail.channelMemberActions.wonTAbleMessage.description',
+                  "{{ member }} won't be able to message you anymore.",
+                  {
+                    member: memberDisplayName,
+                  },
+                )
           }
           isSubmitting={userBlockInProgress}
           onCancel={closeBlockUserAlert}
           onConfirm={isBlocked ? unblockUser : blockUser}
           testId='channel-detail-block-member-alert'
-          title={isBlocked ? t('Unblock user') : t('Block user')}
+          title={
+            isBlocked
+              ? t('channelDetail.channelMemberActions.unblockUser.title', 'Unblock user')
+              : t('channelDetail.channelManagementActions.blockUser.title', 'Block user')
+          }
         />
       </Modal>
     </>
@@ -540,7 +588,7 @@ const RemoveUserAction = () => {
       addNotification({
         context: { channel },
         emitter: 'ChannelMemberDetail',
-        message: t('User removed'),
+        message: t('channelDetail.channelMemberActions.userRemoved.text', 'User removed'),
         severity: 'success',
         type: 'api:channel:remove-members:success',
       });
@@ -550,7 +598,10 @@ const RemoveUserAction = () => {
         context: { channel },
         emitter: 'ChannelMemberDetail',
         error: toError(error),
-        message: t('Error removing user'),
+        message: t(
+          'channelDetail.channelMemberActions.errorRemovingUser.text',
+          'Error removing user',
+        ),
         severity: 'error',
         type: 'api:channel:remove-members:failed',
       });
@@ -575,21 +626,28 @@ const RemoveUserAction = () => {
         LeadingIcon={RemoveUserActionIcon}
         RootElement='button'
         rootProps={rootProps}
-        title={t('Remove user')}
+        title={t('channelDetail.channelMemberActions.removeUser.title', 'Remove user')}
       />
       <Modal open={alertOpen} role='alertdialog'>
         <ChannelMemberConfirmationAlert
           action='removeUser'
-          cancelLabel={t('Cancel')}
-          confirmLabel={t('Remove user')}
-          description={t('Remove {{ member }} from this channel?', {
-            member: memberDisplayName,
-          })}
+          cancelLabel={t('common.cancel.label', 'Cancel')}
+          confirmLabel={t(
+            'channelDetail.channelMemberActions.removeUser.title',
+            'Remove user',
+          )}
+          description={t(
+            'channelDetail.channelMemberActions.removeChannel.description',
+            'Remove {{ member }} from this channel?',
+            {
+              member: memberDisplayName,
+            },
+          )}
           isSubmitting={removeMemberInProgress}
           onCancel={closeRemoveUserAlert}
           onConfirm={removeUser}
           testId='channel-detail-remove-member-alert'
-          title={t('Remove user')}
+          title={t('channelDetail.channelMemberActions.removeUser.title', 'Remove user')}
         />
       </Modal>
     </>

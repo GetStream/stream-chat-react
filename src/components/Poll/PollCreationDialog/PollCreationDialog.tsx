@@ -40,8 +40,11 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
     >
       <Prompt.Header
         close={close}
-        description={t('Create a question, add options, and configure poll settings')}
-        title={t('Create poll')}
+        description={t(
+          'common.createQuestionAddOptions.label',
+          'Create a question, add options, and configure poll settings',
+        )}
+        title={t('poll.creationDialog.createPoll.title', 'Create Poll')}
       />
       <Prompt.Body>
         <form autoComplete='off'>
@@ -51,7 +54,10 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
             <MultipleAnswersField />
             <SwitchField
               checked={voting_visibility === 'anonymous'}
-              description={t('Hide who voted')}
+              description={t(
+                'poll.creationDialog.hideWhoVoted.description',
+                'Hide Who Voted',
+              )}
               id='voting_visibility'
               onChange={(e) =>
                 pollComposer.updateFields({
@@ -60,27 +66,33 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
                     : VotingVisibility.public,
                 })
               }
-              title={t('Anonymous poll')}
+              title={t('poll.creationDialog.anonymousPoll.title', 'Anonymous Poll')}
             />
             <SwitchField
               checked={allow_user_suggested_options}
-              description={t('Let others add options')}
+              description={t(
+                'poll.creationDialog.letOthersAddOptions.description',
+                'Let Others Add Options',
+              )}
               id='allow_user_suggested_options'
               onChange={(e) =>
                 pollComposer.updateFields({
                   allow_user_suggested_options: e.target.checked,
                 })
               }
-              title={t('Suggest an option')}
+              title={t('poll.actions.suggestOption.label', 'Suggest an Option')}
             />
             <SwitchField
               checked={allow_answers}
-              description={t('Allow others to add comments')}
+              description={t(
+                'poll.creationDialog.allowOthersAddComments.description',
+                'Allow Others to Add Comments',
+              )}
               id='allow_answers'
               onChange={(e) =>
                 pollComposer.updateFields({ allow_answers: e.target.checked })
               }
-              title={t('Add a comment')}
+              title={t('poll.addCommentPrompt.addComment.label', 'Add a Comment')}
             />
           </div>
         </form>

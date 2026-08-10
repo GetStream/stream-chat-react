@@ -11,6 +11,7 @@ import {
 } from '../../../../../context';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
+import { mockT } from '../../../../../mock-builders/translator';
 
 vi.mock('../../../../../context');
 
@@ -72,8 +73,7 @@ describe('ChannelMemberDetail', () => {
     vi.clearAllMocks();
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { timestamp?: string }) =>
-        options?.timestamp ? `${key}:${options.timestamp}` : key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
 
     vi.mocked(useChatContext).mockReturnValue({

@@ -102,19 +102,43 @@ function getAttachmentFallbackText(
 ): string {
   switch (type) {
     case 'image':
-      return t('imageCount', { count });
+      return t('messagePreview.latestMessagePreview.imageCount.label', {
+        count,
+        defaultValue_one: 'Image',
+        defaultValue_other: '{{ count }} images',
+      });
     case 'video':
-      return t('videoCount', { count });
+      return t('messagePreview.latestMessagePreview.videoCount.label', {
+        count,
+        defaultValue_one: 'Video',
+        defaultValue_other: '{{ count }} videos',
+      });
     case 'voice':
-      return t('voiceMessageCount', { count });
+      return t('messagePreview.latestMessagePreview.voiceMessageCount.label', {
+        count,
+        defaultValue_one: 'Voice message',
+        defaultValue_other: '{{ count }} voice messages',
+      });
     case 'link':
-      return t('linkCount', { count });
+      return t('messagePreview.latestMessagePreview.linkCount.label', {
+        count,
+        defaultValue_one: 'Link',
+        defaultValue_other: '{{ count }} links',
+      });
     case 'file':
-      return t('fileCount', { count });
+      return t('messagePreview.latestMessagePreview.fileCount.label', {
+        count,
+        defaultValue_one: 'File',
+        defaultValue_other: '{{ count }} files',
+      });
     case 'unsupported':
-      return t('Unsupported attachment');
+      return t('common.unsupportedAttachment.text', 'Unsupported attachment');
     default:
-      return t('fileCount', { count });
+      return t('messagePreview.latestMessagePreview.fileCount.label', {
+        count,
+        defaultValue_one: 'File',
+        defaultValue_other: '{{ count }} files',
+      });
   }
 }
 
@@ -141,11 +165,20 @@ export const useLatestMessagePreview = ({
 
   return useMemo(() => {
     if (!latestMessage) {
-      return { text: t('Nothing yet...'), type: 'empty' as const };
+      return {
+        text: t('common.nothingYet.text', 'Nothing yet...'),
+        type: 'empty' as const,
+      };
     }
 
     if (latestMessage.status === 'failed' || latestMessage.type === 'error') {
-      return { text: t('Message failed to send'), type: 'error' as const };
+      return {
+        text: t(
+          'messagePreview.latestMessagePreview.messageFailedSend.text',
+          'Message failed to send',
+        ),
+        type: 'error' as const,
+      };
     }
 
     const isOwnMessage = latestMessage.user?.id === client.user?.id;
@@ -157,7 +190,7 @@ export const useLatestMessagePreview = ({
 
     let senderName: string | undefined;
     if (isOwnMessage) {
-      senderName = t('You');
+      senderName = t('common.you.label', 'You');
     } else if (!isOwnMessage && participantCount !== undefined && participantCount > 2) {
       senderName = latestMessage.user?.name || latestMessage.user?.id;
     }
@@ -166,7 +199,7 @@ export const useLatestMessagePreview = ({
       return {
         deliveryStatus,
         senderName,
-        text: t('Message deleted'),
+        text: t('common.messageDeleted.text', 'Message deleted'),
         type: 'deleted' as const,
       };
     }
@@ -175,7 +208,7 @@ export const useLatestMessagePreview = ({
       return {
         deliveryStatus,
         senderName,
-        text: t('Poll'),
+        text: t('common.poll.label', 'Poll'),
         type: 'poll' as const,
       };
     }
@@ -188,7 +221,7 @@ export const useLatestMessagePreview = ({
       return {
         deliveryStatus,
         senderName,
-        text: textContent || t('Location'),
+        text: textContent || t('common.location.text', 'Location'),
         type: 'location' as const,
       };
     }
@@ -255,7 +288,10 @@ export const useLatestMessagePreview = ({
       };
     }
 
-    return { text: t('Empty message...'), type: 'empty' as const };
+    return {
+      text: t('common.emptyMessage.text', 'Empty message...'),
+      type: 'empty' as const,
+    };
   }, [
     client.user?.id,
     latestMessage,

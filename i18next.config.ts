@@ -14,10 +14,14 @@ export default defineConfig({
     // `removeUnusedKeys` prunes anything the extractor cannot see in a `t()` call, so every
     // key resolved from a runtime value must be preserved explicitly here or it gets deleted.
     preservePatterns: [
-      // Integrator-overridable timestamp format strings; never referenced as a literal.
-      'timestamp/*',
-      // ISO language names, resolved via `t(languageKey)` in MessageTranslationIndicator.
-      'language/*',
+      // Values are formatter expressions ("{{ timestamp | timestampFormatter(...) }}"), not
+      // English copy, so call sites deliberately pass no inline default. Without preserving
+      // them, extraction would overwrite each value with its own key name.
+      'timestamp.*',
+      'duration.*',
+      'translationBuilderTopic.*',
+      // ISO language names, resolved via `t('language.' + code)` in MessageTranslationIndicator.
+      'language.*',
     ],
     removeUnusedKeys: true,
   },

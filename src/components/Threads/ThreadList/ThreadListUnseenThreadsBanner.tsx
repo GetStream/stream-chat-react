@@ -32,16 +32,20 @@ export const ThreadListUnseenThreadsBanner = () => {
         <>
           <IconRefresh />
           <span>
-            {t('ThreadListUnseenThreadsBanner/unreadThreads', {
-              count: unseenThreadIds.length,
-            })}
+            {t(
+              'threadList.unseenBanner.unreadThreads',
+              'ThreadListUnseenThreadsBanner/unreadThreads',
+              {
+                count: unseenThreadIds.length,
+              },
+            )}
           </span>
         </>
       )}
       {isLoading && (
         <>
           <LoadingIndicator />
-          <span>{t('ThreadListUnseenThreadsBanner/loading')}</span>
+          <span>{t('threadList.unseenBanner.loading', 'Loading...')}</span>
         </>
       )}
     </button>

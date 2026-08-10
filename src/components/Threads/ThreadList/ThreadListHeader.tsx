@@ -12,7 +12,9 @@ export const ThreadListHeader = () => {
   const hasActiveThread = useWorkspaceNavigation().openThreads.length > 0;
   return (
     <div className='str-chat__thread-list__header'>
-      <div className='str-chat__thread-list__header__title'>{t('Threads')}</div>
+      <div className='str-chat__thread-list__header__title'>
+        {t('common.threads.text', 'Threads')}
+      </div>
       {hasActiveThread && HeaderEndContent && <HeaderEndContent />}
     </div>
   );

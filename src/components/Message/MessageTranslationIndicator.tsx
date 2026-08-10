@@ -50,7 +50,7 @@ export const MessageTranslationIndicator = ({
   const sourceLanguageName = useMemo(() => {
     const sourceLanguageCode = message?.i18n?.language;
     if (!sourceLanguageCode) return '';
-    const languageKey = 'language/' + sourceLanguageCode;
+    const languageKey = 'language.' + sourceLanguageCode;
     const translatedName = t(languageKey);
     return translatedName && translatedName !== languageKey
       ? translatedName
@@ -65,10 +65,14 @@ export const MessageTranslationIndicator = ({
       <IconTranslate />
       <span className='str-chat__message-translation-indicator__sign'>
         {viewingOriginal
-          ? t('Original')
+          ? t('message.translationIndicator.original.text', 'Original')
           : sourceLanguageName
-            ? t('Translated from {{ language }}', { language: sourceLanguageName })
-            : t('Translated')}
+            ? t(
+                'message.translationIndicator.translated.withLanguage.text',
+                'Translated from {{ language }}',
+                { language: sourceLanguageName },
+              )
+            : t('message.translationIndicator.translated.text', 'Translated')}
       </span>
       <span> · </span>
       <Button
@@ -76,7 +80,9 @@ export const MessageTranslationIndicator = ({
         onClick={handleToggle}
         type='button'
       >
-        {viewingOriginal ? t('View translation') : t('View original')}
+        {viewingOriginal
+          ? t('message.translationIndicator.viewTranslation.text', 'View translation')
+          : t('message.translationIndicator.viewOriginal.text', 'View original')}
       </Button>
     </div>
   );

@@ -144,8 +144,10 @@ export const PollOptionSelector = ({
           )}
           <div className='str-chat__poll-option-vote-count'>
             {voteCountVerbose
-              ? t('{{count}} votes', {
+              ? t('poll.optionVotes.votes.text', {
                   count: vote_counts_by_option[option.id] ?? 0,
+                  defaultValue_one: '{{count}} vote',
+                  defaultValue_other: '{{count}} votes',
                 })
               : (vote_counts_by_option[option.id] ?? 0)}
           </div>

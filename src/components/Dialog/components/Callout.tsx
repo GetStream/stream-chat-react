@@ -58,7 +58,10 @@ const DefaultCalloutDialog = ({ children, className, onClose }: CalloutDialogPro
       {children}
       <Button
         appearance='ghost'
-        aria-label={t('aria/Close callout dialog')}
+        aria-label={t(
+          'dialog.callout.closeCalloutDialog.ariaLabel',
+          'Close callout dialog',
+        )}
         circular
         className={clsx(className, 'str-chat__callout__close-button')}
         onClick={onClose}

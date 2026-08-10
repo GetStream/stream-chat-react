@@ -80,15 +80,15 @@ function getRelativeCompactDateString(
   if (diffDays < 0) {
     return (then as Dayjs.Dayjs).format('DD/MM/YY');
   }
-  if (diffDays === 0) return t('timestamp/relativeToday');
-  if (diffDays === 1) return t('timestamp/relativeYesterday');
+  if (diffDays === 0) return t('timestamp.relativeToday', 'Today');
+  if (diffDays === 1) return t('timestamp.relativeYesterday', 'Yesterday');
   if (diffDays >= 2 && diffDays <= maxDays)
-    return t('timestamp/relativeDaysAgo', { count: diffDays });
+    return t('timestamp.relativeDaysAgo', '{{ count }}d ago', { count: diffDays });
   if (maxWeeks > 0) {
     const maxDaysForWeeks = maxWeeks * 7;
     if (diffDays >= 7 && diffDays <= maxDaysForWeeks) {
       const weeks = Math.ceil(diffDays / 7);
-      return t('timestamp/relativeWeeksAgo', { count: weeks });
+      return t('timestamp.relativeWeeksAgo', '{{ count }}w ago', { count: weeks });
     }
   }
   return (then as Dayjs.Dayjs).format('DD/MM/YY');
@@ -250,7 +250,37 @@ export const predefinedFormatters: PredefinedFormatters = {
     },
 };
 
-export const defaultTranslatorFunction = ((key: string) => key) as TFunction;
+/**
+ * Used before a `Streami18n` instance has initialised, and as the `TranslationContext` default
+ * outside `<Chat>`. Keys are opaque identifiers, so returning the key would render
+ * "messageComposer.sendButton.label" in the UI; the inline English `defaultValue` that every
+ * call site passes is rendered instead, with `{{ variable }}` placeholders interpolated.
+ */
+export const defaultTranslatorFunction = ((
+  key: string,
+  defaultValueOrOptions?: string | Record<string, unknown>,
+  maybeOptions?: Record<string, unknown>,
+) => {
+  const defaultValue =
+    typeof defaultValueOrOptions === 'string' ? defaultValueOrOptions : undefined;
+  const options =
+    (typeof defaultValueOrOptions === 'object' ? defaultValueOrOptions : maybeOptions) ??
+    {};
+
+  let template = defaultValue;
+  if (template === undefined && typeof options.count === 'number') {
+    template = (
+      options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+    ) as string | undefined;
+  }
+  template ??= options.defaultValue as string | undefined;
+  if (template === undefined) return key;
+
+  return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+    const value = options[name];
+    return value === undefined || value === null ? whole : String(value);
+  });
+}) as unknown as TFunction;
 
 export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
 

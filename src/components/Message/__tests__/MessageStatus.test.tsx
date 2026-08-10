@@ -17,6 +17,7 @@ import {
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
 const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-delivered';
@@ -46,7 +47,7 @@ const sendingMsg = { ...foreignMsg, status: 'sending', user };
 const sentMsg = { ...foreignMsg, user };
 const deliveredTo = [otherUser, user];
 const readByOthers = [otherUser, user];
-const t = vi.fn((s) => s);
+const t = vi.fn(mockT);
 
 const defaultMsgCtx = {
   isMyMessage: vi.fn().mockReturnValue(true),

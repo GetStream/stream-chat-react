@@ -7,12 +7,13 @@ import { AddCommentPrompt } from '../PollActions';
 import { PollProvider, TranslationProvider } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
 import { generatePoll, mockTranslationContextValue } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const close = vi.fn();
 const messageId = 'messageId';
 const newlyTypedValue = 'XX';
 
-const t = ((v: string) => v) as TranslationContextValue['t'];
+const t = mockT as TranslationContextValue['t'];
 
 const renderComponent = ({ poll, props }: any = {}) =>
   render(

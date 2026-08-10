@@ -3,23 +3,13 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage, StreamChat } from 'stream-chat';
 import type { TranslationContextValue } from '../../../../context/TranslationContext';
 
+import { mockT } from '../../../../mock-builders/translator';
 import {
   composeThreadListItemAccessibleLabel,
   DEFAULT_THREAD_LIST_ITEM_LABEL_ORDER,
 } from '../utils.a11y';
 
-// Mirrors the natural-language fallback: interpolate {{ name }} and drop the `aria/` prefix. The
-// `replyCount` plural key carries no placeholder in the key itself, so special-case it.
-const t = ((key: string, opts?: Record<string, unknown>) => {
-  if (key === 'replyCount') return `${opts?.count} replies`;
-  const interpolated = Object.entries(opts ?? {}).reduce(
-    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-    key,
-  );
-  return interpolated.startsWith('aria/')
-    ? interpolated.replace('aria/', '')
-    : interpolated;
-}) as TranslationContextValue['t'];
+const t = mockT as TranslationContextValue['t'];
 
 const tDateTimeParser = (() =>
   'recently') as unknown as TranslationContextValue['tDateTimeParser'];
@@ -40,7 +30,7 @@ const baseData = {
 describe('composeThreadListItemAccessibleLabel', () => {
   it('composes name, unread, parent message, reply count, and time in reading order', () => {
     expect(composeThreadListItemAccessibleLabel(baseData)).toBe(
-      'Chat: General. 2 unread message. Thread: hello world. 3 replies. Last activity: recently',
+      'Chat: General. 2 unread messages. Thread: hello world. 3 replies. Last activity: recently',
     );
   });
 
