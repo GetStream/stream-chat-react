@@ -9,6 +9,7 @@ import {
 import type { DeleteMessageOptions, LocalMessage } from 'stream-chat';
 import {
   Alert,
+  asDynamicKey,
   Button,
   ContextMenuButton,
   defaultMessageActionSet,
@@ -71,8 +72,14 @@ const CustomDeleteMessageAlert = ({
       data-testid='message-delete-alert'
     >
       <Alert.Header
-        description={t('Are you sure you want to delete this message?')}
-        title={t('Delete message')}
+        description={t(
+          'messageActions.deleteMessageAlert.description',
+          'Are you sure you want to delete this message?',
+        )}
+        title={t(
+          'messageActions.deleteMessageAlert.deleteMessage.title',
+          'Delete message',
+        )}
       />
       {enableOptionConfiguration && (
         <div className='app__custom-delete-message-alert__options'>
@@ -81,7 +88,10 @@ const CustomDeleteMessageAlert = ({
             id='delete-message-alert-delete-only-for-me-switch'
             onChange={(event) => setDeleteForMe(event.target.checked)}
           >
-            {t('Delete for me only')}
+            {t(
+              asDynamicKey('viteExample.deleteAlert.deleteForMeOnly.label'),
+              'Delete for me only',
+            )}
           </SwitchField>
           <SwitchField
             checked={hardDelete}
@@ -94,7 +104,7 @@ const CustomDeleteMessageAlert = ({
               if (!checked && !softDelete) setSoftDelete(true);
             }}
           >
-            {t('Hard delete')}
+            {t(asDynamicKey('viteExample.deleteAlert.hardDelete.label'), 'Hard delete')}
           </SwitchField>
           <SwitchField
             checked={softDelete}
@@ -107,7 +117,7 @@ const CustomDeleteMessageAlert = ({
               if (!checked && !hardDelete) setHardDelete(true);
             }}
           >
-            {t('Soft delete')}
+            {t(asDynamicKey('viteExample.deleteAlert.softDelete.label'), 'Soft delete')}
           </SwitchField>
         </div>
       )}
@@ -120,7 +130,7 @@ const CustomDeleteMessageAlert = ({
           size='md'
           variant='danger'
         >
-          {t('Delete message')}
+          {t('messageActions.deleteMessageAlert.deleteMessage.title', 'Delete message')}
         </Button>
         <Button
           appearance='outline'
@@ -133,7 +143,7 @@ const CustomDeleteMessageAlert = ({
           size='md'
           variant='secondary'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Button>
       </Alert.Actions>
     </Alert.Root>
@@ -174,7 +184,7 @@ const CustomDeleteMessageAction = () => {
 
   return (
     <ContextMenuButton
-      aria-label={t('aria/Delete Message')}
+      aria-label={t('messageActions.deleteMessage.ariaLabel', 'Delete Message')}
       className='str-chat__message-actions-list-item-button'
       Icon={IconDelete}
       onClick={() => {
@@ -183,7 +193,7 @@ const CustomDeleteMessageAction = () => {
       }}
       variant='destructive'
     >
-      {t('Delete message')}
+      {t('messageActions.deleteMessageAlert.deleteMessage.title', 'Delete message')}
     </ContextMenuButton>
   );
 };
@@ -198,7 +208,7 @@ const CustomMarkOwnUnreadMessageAction = () => {
 
   return (
     <ContextMenuButton
-      aria-label={t('aria/Mark Message Unread')}
+      aria-label={t('messageActions.markMessageUnread.ariaLabel', 'Mark Message Unread')}
       className='str-chat__message-actions-list-item-button'
       Icon={IconNotification}
       onClick={async (event) => {
@@ -209,7 +219,10 @@ const CustomMarkOwnUnreadMessageAction = () => {
               message,
             },
             emitter: 'MessageActions',
-            message: t('Message marked as unread'),
+            message: t(
+              'messageActions.messageMarkedUnread.text',
+              'Message marked as unread',
+            ),
             severity: 'success',
             type: 'api:message:markUnread:success',
           });
@@ -223,6 +236,7 @@ const CustomMarkOwnUnreadMessageAction = () => {
             message: getErrorMessage(
               error,
               t(
+                'messageActions.errorMarkingMessageUnread.text',
                 'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
               ),
             ),
@@ -234,7 +248,7 @@ const CustomMarkOwnUnreadMessageAction = () => {
         }
       }}
     >
-      {t('Mark as unread')}
+      {t('messageActions.markUnread.text', 'Mark as unread')}
     </ContextMenuButton>
   );
 };
@@ -465,7 +479,7 @@ export const ConfigurableMessageActions = (
                     message: deleteDialogTarget.message,
                   },
                   emitter: 'MessageActions',
-                  message: t('Message deleted'),
+                  message: t('common.messageDeleted.text', 'Message deleted'),
                   severity: 'success',
                   type: 'api:message:delete:success',
                 });
@@ -476,7 +490,10 @@ export const ConfigurableMessageActions = (
                   },
                   emitter: 'MessageActions',
                   error: getNotificationError(error),
-                  message: getErrorMessage(error, t('Error deleting message')),
+                  message: getErrorMessage(
+                    error,
+                    t('common.errorDeletingMessage.label', 'Error deleting message'),
+                  ),
                   severity: 'error',
                   type: 'api:message:delete:failed',
                 });

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { useSidebar } from '../ChatLayout/SidebarContext.tsx';
-import { Button, PopperTooltip, useTranslationContext } from 'stream-chat-react';
+import {
+  asDynamicKey,
+  Button,
+  PopperTooltip,
+  useTranslationContext,
+} from 'stream-chat-react';
 import { IconSidebar } from '../icons.tsx';
 
 export const SidebarToggle = () => {
@@ -10,11 +15,15 @@ export const SidebarToggle = () => {
   const [tooltipVisible, setTooltipVisible] = useState(false);
   const tooltipText = sidebarOpen ? 'Close sidebar' : 'Open sidebar';
 
+  const toggleLabel = sidebarOpen
+    ? t(asDynamicKey('viteExample.sidebar.collapse.ariaLabel'), 'Collapse sidebar')
+    : t(asDynamicKey('viteExample.sidebar.expand.ariaLabel'), 'Expand sidebar');
+
   return (
     <>
       <Button
         appearance='ghost'
-        aria-label={sidebarOpen ? t('aria/Collapse sidebar') : t('aria/Expand sidebar')}
+        aria-label={toggleLabel}
         circular
         className='str-chat__header-sidebar-toggle'
         onBlur={() => setTooltipVisible(false)}
