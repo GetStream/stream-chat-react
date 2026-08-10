@@ -100,7 +100,7 @@
     "emoji-regex": "^9.2.2",
     "fix-webm-duration": "^1.0.6",
     "hast-util-find-and-replace": "^5.0.1",
-    "i18next": "^25.10.10",
+    "i18next": "^26.3.6",
     "linkifyjs": "^4.3.3",
     "lodash.debounce": "^4.0.8",
     "lodash.mergewith": "^4.6.2",

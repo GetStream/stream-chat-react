@@ -227,7 +227,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.20.13, @babel/runtime@npm:^7.29.2":
+"@babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.20.13":
   version: 7.29.2
   resolution: "@babel/runtime@npm:7.29.2"
   checksum: 10c0/30b80a0140d16467792e1bbeb06f655b0dab70407da38dfac7fedae9c859f9ae9d846ef14ad77bd3814c064295fe9b1bc551f1541ea14646ae9f22b71a8bc17a
@@ -5355,17 +5355,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"i18next@npm:^25.10.10":
-  version: 25.10.10
-  resolution: "i18next@npm:25.10.10"
-  dependencies:
-    "@babel/runtime": "npm:^7.29.2"
+"i18next@npm:^26.3.6":
+  version: 26.3.6
+  resolution: "i18next@npm:26.3.6"
   peerDependencies:
-    typescript: ^5 || ^6
+    typescript: ^5 || ^6 || ^7
   peerDependenciesMeta:
     typescript:
       optional: true
-  checksum: 10c0/6ff601b52363c9c974ef293af4a6de04d9f76b4bf2ad9a56c8546235aaf19ff1a7c2109ddba3a73922d418e208ec5b688e5afb323eba6e27c75d629e93827ae1
+  checksum: 10c0/5920ac8fb6b647a2bdd439d121de04e5297246e52c4d95d13f5faae0824fd45b2faeb66038bcd61fc62362daa815f9c32fb992d6faa3787607d1dfe768e9a8b1
   languageName: node
   linkType: hard
 
@@ -9634,7 +9632,7 @@ __metadata:
     globals: "npm:^17.6.0"
     hast-util-find-and-replace: "npm:^5.0.1"
     husky: "npm:^9.1.7"
-    i18next: "npm:^25.10.10"
+    i18next: "npm:^26.3.6"
     jsdom: "npm:^29.1.1"
     linkifyjs: "npm:^4.3.3"
     lint-staged: "npm:^17.0.5"

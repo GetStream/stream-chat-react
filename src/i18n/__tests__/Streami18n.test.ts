@@ -419,6 +419,8 @@ describe('Streami18n timezone', () => {
       it('contains the default timestampFormatter', () => {
         expect(new Streami18n().formatters.timestampFormatter).toBeDefined();
       });
+      // `value` has to be supplied: an undefined interpolation value short-circuits before the
+      // formatter is consulted, so omitting it would assert nothing about formatter registration.
       it('allows to override the default timestampFormatter', async () => {
         const i18n = new Streami18n({
           formatters: { timestampFormatter: () => () => 'custom' },
@@ -427,7 +429,7 @@ describe('Streami18n timezone', () => {
           } as unknown as Streami18nOptions['translationsForLanguage'],
         });
         await i18n.init();
-        expect(i18n.t('abc')).toBe('custom');
+        expect(i18n.t('abc', { value: new Date(0) })).toBe('custom');
       });
       it('allows to add new custom formatter', async () => {
         const i18n = new Streami18n({
@@ -437,7 +439,7 @@ describe('Streami18n timezone', () => {
           } as unknown as Streami18nOptions['translationsForLanguage'],
         });
         await i18n.init();
-        expect(i18n.t('abc')).toBe('custom');
+        expect(i18n.t('abc', { value: 'anything' })).toBe('custom');
       });
     });
   });
