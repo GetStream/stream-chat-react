@@ -90,4 +90,7 @@ coverage.out
 # stream-chat-css/docusaurus files
 docusaurus/docs/React/theming
 docusaurus/docs/React/assets/stream-chat-css*
-sharedtsconfig.test.tsbuildinfo
+shared
+
+# TypeScript incremental build metadata
+*.tsbuildinfo
