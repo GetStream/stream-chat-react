@@ -91,7 +91,11 @@ instead. Do not assume the absence of an error means the app is migrated.
 **Renaming:** every old key maps to exactly one new key. The complete table is
 [`i18n-v15-key-map.json`](./i18n-v15-key-map.json) (603 rows, `{ "<old key>": { "key": "<new key>",
 "prose": bool, "plural"?: bool } }`). Entries with `"prose": false` hold formatter expressions
-rather than copy — override those to change date formatting, not to translate.
+rather than copy. Four of them nonetheless carry English words inside their `calendarFormats`
+argument — `timestamp.DateSeparator`, `timestamp.ReminderNotification`,
+`timestamp.ChannelPreviewTimestamp`, `timestamp.ChannelDetailPinnedMessageTimestamp` — and must be
+overridden to translate Today/Tomorrow/Yesterday/Last. `dayjsLocaleConfigForLanguage` does not
+reach them, because a per-key `calendarFormats` replaces the locale's calendar.
 
 Type the app's dictionaries as `TranslationDictionary` (exported from `stream-chat-react`) and
 TypeScript will flag every stale key. `LooseTranslationDictionary` is the escape hatch — it admits

@@ -110,8 +110,7 @@ export type Streami18nOptions = {
  * Only the keys that cannot carry inline English copy are bundled (see `runtimeDefaults`);
  * everything else renders from the copy passed inline at its call site.
  *
- * If you would like to override certain keys in the built-in English translation,
- * the UI will be automatically updated:
+ * Override built-in English copy — the UI updates automatically:
  *
  * ```
  * const i18n = new Streami18n({
@@ -121,7 +120,7 @@ export type Streami18nOptions = {
  * });
  * ```
  *
- * To add a language, use `registerTranslation`. You can add as many as you want:
+ * Add a language with `registerTranslation`, as many as you want:
  *
  * ```
  * const i18n = new Streami18n({ language: 'nl' });
@@ -132,110 +131,42 @@ export type Streami18nOptions = {
  *  'typing.twoUsers': '{{ typing }} zijn aan het typen',
  * });
  *
- * // Make sure to call setLanguage to reflect the new language in the UI.
+ * // setLanguage reflects the new language in the UI.
  * i18n.setLanguage('nl');
- * <Chat client={chatClient} i18nInstance={i18n}>
- *  ...
- * </Chat>
+ * <Chat client={chatClient} i18nInstance={i18n}>...</Chat>
  * ```
  *
- * Keys you do not supply fall back to the English copy that ships inline with each component, so
- * a partial dictionary is safe — as is no dictionary at all. Every language is layered over the
- * bundled `runtimeDefaults`, so the keys that carry no inline copy (`timestamp.*`, `duration.*`,
- * `language.*`) keep working whichever way you select a language; override them only if you
- * actually want a different format.
+ * Keys you do not supply fall back to the English copy that ships inline with each component, so a
+ * partial dictionary is safe — as is no dictionary at all. Every language is layered over the
+ * bundled `runtimeDefaults`.
  *
- * Type your dictionary as {@link TranslationDictionary} and a typo or a leftover v14 key is a
- * compile error instead of an override that silently never applies. Widen to
- * {@link LooseTranslationDictionary} only where you need keys of your own or extra plural
+ * Type your dictionary as {@link TranslationDictionary} to turn a typo or a leftover v14 key into a
+ * compile error; widen to {@link LooseTranslationDictionary} for keys of your own or extra plural
  * categories. {@link TranslationCatalog} maps every key to its English copy.
  *
  * ## Datetime i18n
  *
- * Stream react chat components uses [dayjs](https://day.js.org/en/) internally by default to format datetime stamp.
- * e.g., in ChannelPreview, MessageContent components.
- * Dayjs has locale support as well - https://day.js.org/docs/en/i18n/i18n
- * Dayjs is a lightweight alternative to Momentjs with the same modern API.
+ * Dates are formatted with [dayjs](https://day.js.org/docs/en/i18n/i18n) unless you pass your own
+ * `DateTimeParser` (dayjs or moment). Only the `en` dayjs locale is bundled: for any other
+ * language import the [locale](https://github.com/iamkun/dayjs/tree/dev/src/locale) and pass
+ * `dayjsLocaleConfigForLanguage`, including its `calendar` block.
  *
- * Dayjs provides locale config for plenty of languages, you can check the whole list of locale configs at following url
- * https://github.com/iamkun/dayjs/tree/dev/src/locale
- *
- * Only the `en` dayjs locale is bundled. For any other language you must import the dayjs
- * locale yourself (`import 'dayjs/locale/nl.js'`) and/or pass `dayjsLocaleConfigForLanguage`,
- * including the `calendar` block — the SDK no longer ships calendar formats for other languages.
- *
- * You can either provide the dayjs locale config while registering
- * language with Streami18n (either via constructor or registerTranslation()) or you can provide your own Dayjs or Moment instance
- * to Streami18n constructor, which will be then used internally (using the language locale) in components.
- *
- * 1. Via language registration
- *
- * e.g.,
  * ```
+ * import 'dayjs/locale/nl.js';
+ *
  * const i18n = new Streami18n({
  *  language: 'nl',
- *  dayjsLocaleConfigForLanguage: {
- *    months: [...],
- *    monthsShort: [...],
- *    calendar: {
- *      sameDay: ...'
- *    }
- *  }
+ *  dayjsLocaleConfigForLanguage: { months: [...], calendar: { sameDay: '[vandaag om] LT', ... } },
  * });
  * ```
  *
- * Similarly, you can add locale config for moment while registering translation via `registerTranslation` function.
+ * `registerTranslation(language, translation, customDayjsLocale)` takes the same config as its
+ * third argument. Set `disableDateTimeTranslations` to keep dates in English.
  *
- * e.g.,
- * ```
- * const i18n = new Streami18n();
- *
- * i18n.registerTranslation(
- *  'mr',
- *  {
- *    'emptyState.indicator.noConversationsYet.label': 'काहीही नाही ...',
- *    'typing.twoUsers': '{{ typing }} टीपी करत आहेत',
- *  },
- *  {
- *    months: [...],
- *    monthsShort: [...],
- *    calendar: {
- *      sameDay: ...'
- *    }
- *  }
- * );
- *```
- * 2. Provide your own Moment object
- *
- * ```js
- * import 'moment/locale/nl';
- * import 'moment/locale/it';
- * // or if you want to include all locales
- * import 'moment/min/locales';
- *
- * import Moment from moment
- *
- * const i18n = new Streami18n({
- *  language: 'nl',
- *  DateTimeParser: Moment
- * })
- * ```
- *
- * 3. Provide your own Dayjs object
- *
- * ```js
- * import Dayjs from 'dayjs'
- *
- * import 'dayjs/locale/nl.js';
- * import 'dayjs/locale/it.js';
- *
- * const i18n = new Streami18n({
- *  language: 'nl',
- *  DateTimeParser: Dayjs
- * })
- * ```
- * If you would like to stick with english language for datetimes in Stream components, you can set `disableDateTimeTranslations` to true.
- *
+ * That `calendar` block does not reach the four `timestamp.*` keys that pass their own
+ * `calendarFormats` (`DateSeparator`, `ReminderNotification`, `ChannelPreviewTimestamp`,
+ * `ChannelDetailPinnedMessageTimestamp`). Those carry English day words; translate them by
+ * overriding the keys — see `ai-docs/i18n-v15-migration.md`.
  */
 const defaultStreami18nOptions = {
   DateTimeParser: Dayjs,
@@ -261,14 +192,10 @@ const defaultStreami18nOptions = {
 /**
  * Wraps an integrator's `parseMissingKeyHandler` so it only sees genuinely missing translations.
  *
- * Prose keys are not in the bundled resource — each renders from the English copy passed inline at
- * its call site. i18next treats that as a missing key: it calls `parseMissingKeyHandler` and
- * **replaces the rendered string with whatever the handler returns**. An unguarded handler like
- * `(key) => \`[missing: ${key}]\`` would therefore blank out most of the UI.
- *
- * i18next passes the resolved default as the second argument (`usedDefault ? res : undefined`), so
- * "the SDK supplied this copy" is distinguishable from "no translation exists". We return the
- * default untouched in the first case, and defer to the handler only in the second.
+ * i18next counts every prose key as missing (they render from the inline `defaultValue`, not from
+ * the resource) and lets the handler's return value replace the rendered string — so an unguarded
+ * handler blanks out most of the UI. A resolved default arrives as the second argument, which is
+ * how the two cases are told apart.
  */
 const guardMissingKeyHandler =
   (handler: (key: string, defaultValue?: string) => string) =>
@@ -285,11 +212,7 @@ export class Streami18n {
   setLanguageCallback: (t: StreamTFunction) => void = () => null;
   initialized = false;
 
-  /**
-   * i18next's own `TFunction` accepts any string; the SDK's `StreamTFunction` narrows the key to
-   * the shipped catalog. The cast happens here, once, at the boundary where i18next hands the
-   * function over — see `init()`.
-   */
+  /** Narrowed from i18next's `TFunction` to the shipped catalog; cast once, in `init()`. */
   t: StreamTFunction = defaultTranslatorFunction;
   tDateTimeParser: TDateTimeParser;
 
@@ -302,11 +225,9 @@ export class Streami18n {
   };
 
   /**
-   * Languages an integrator has actually supplied a dictionary for.
-   *
-   * Deliberately narrower than `Object.keys(this.translations)`, which also holds the languages
-   * seeded with `runtimeDefaults` alone. Those render the SDK's copy in English, which is a
-   * supported configuration — but one worth telling the integrator about.
+   * Languages an integrator supplied a dictionary for. Narrower than
+   * `Object.keys(this.translations)`, which also holds languages seeded with `runtimeDefaults`
+   * alone.
    */
   private registeredLanguages = new Set<string>([defaultLng]);
 
@@ -510,13 +431,9 @@ export class Streami18n {
   };
 
   /**
-   * A dictionary layered over `runtimeDefaults`. Every write into `this.translations` goes
-   * through here.
-   *
-   * Those 71 entries (`timestamp.*`, `duration.*`, `language.*`, the postProcessor directive) are
-   * the only keys with no inline `defaultValue` to fall back on, and `fallbackLng` is false — so a
-   * language that lacks them renders raw dotted keys for `duration.*` and unformatted ISO
-   * timestamps everywhere a date is displayed.
+   * A dictionary layered over `runtimeDefaults`. Every write into `this.translations` goes through
+   * here: those keys have no inline `defaultValue` and `fallbackLng` is false, so a language
+   * missing them renders raw `duration.*` keys and unformatted ISO timestamps.
    */
   private mergeWithRuntimeDefaults = (
     language: TranslationLanguage,
@@ -528,12 +445,9 @@ export class Streami18n {
   });
 
   /**
-   * Guarantees `language` has a dictionary, so selecting a language nobody registered a
-   * translation for still formats dates and durations correctly — it just renders the SDK's copy
-   * in English, from the `defaultValue` at each call site.
-   *
-   * Also writes into i18next's own store when we are already initialized, which is the only way a
-   * language that appears after `init()` reaches the translator.
+   * Guarantees `language` has a dictionary, so a language nobody registered still formats dates and
+   * durations and renders the SDK's copy in English. Writes into i18next's store too when already
+   * initialized — the only route for a language added after `init()`.
    */
   private ensureLanguage = (language: TranslationLanguage) => {
     if (this.translations[language]) return;
@@ -547,11 +461,8 @@ export class Streami18n {
   };
 
   /**
-   * Warns when the current language has no registered dictionary.
-   *
-   * Not an error, and no longer a reason to fall back to `en`: the language renders English copy
-   * with its own date formats, and resetting it would silently discard the integrator's `language`
-   * and dayjs locale choice.
+   * Warns when the current language has no registered dictionary. Not an error and not a reason to
+   * fall back to `en` — the language renders English copy with its own date formats.
    */
   validateCurrentLanguage = () => {
     if (this.registeredLanguages.has(this.currentLanguage)) return;
@@ -568,12 +479,11 @@ export class Streami18n {
   getAvailableLanguages = () => Object.keys(this.translations);
 
   /**
-   * The resource dictionaries this instance will hand to i18next, keyed by language.
+   * The resource dictionaries this instance hands to i18next, keyed by language.
    *
-   * Not the full English catalog: the 562 prose keys render from the `defaultValue` passed inline
-   * at each call site and are never bundled, so `en` holds only the `runtimeDefaults` subset plus
-   * whatever has been registered. To enumerate every key with its English copy — to seed a new
-   * dictionary, for instance — use {@link TranslationCatalog} (or `yarn i18n:export` in a clone).
+   * Not the full English catalog — prose keys are never bundled, so `en` holds `runtimeDefaults`
+   * plus whatever has been registered. To enumerate every key with its copy, use
+   * {@link TranslationCatalog} or `yarn i18n:export`.
    */
   getTranslations = () => this.translations;
 
@@ -610,9 +520,7 @@ export class Streami18n {
       return;
     }
 
-    // Merged, not replaced: layering over `runtimeDefaults` keeps the keys that have no inline
-    // default (see `mergeWithRuntimeDefaults`), and keeping the existing entry makes repeated
-    // calls for the same language accumulate rather than clobber.
+    // Merged, not replaced, so repeated calls for one language accumulate.
     const merged = this.mergeWithRuntimeDefaults(language, translation);
     this.translations[language] = { [defaultNS]: merged };
     this.registeredLanguages.add(language);

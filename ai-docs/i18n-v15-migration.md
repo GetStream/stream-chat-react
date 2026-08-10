@@ -141,8 +141,21 @@ formatter expressions, not text:
 "timestamp.MessageTimestamp": "{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}"
 ```
 
-Override them to change _how_ a date is formatted, not to translate anything. `relativeTime.*`
-("Today", "{{ count }}d ago") is ordinary copy and does need translating.
+Most of them only need overriding to change _how_ a date is formatted. **Four of them also carry
+English words**, because dayjs takes the calendar wording as part of the format string:
+
+| Key                                             | English baked into `calendarFormats`           |
+| ----------------------------------------------- | ---------------------------------------------- |
+| `timestamp.DateSeparator`                       | `Today`, `Tomorrow`, `Yesterday`, `Last`       |
+| `timestamp.ReminderNotification`                | `Today`, `Tomorrow`, `Yesterday`, `Last`, `at` |
+| `timestamp.ChannelPreviewTimestamp`             | `Yesterday`                                    |
+| `timestamp.ChannelDetailPinnedMessageTimestamp` | `Yesterday`                                    |
+
+Translating those four means overriding the key itself — `dayjsLocaleConfigForLanguage` does not
+reach them. See [Date and time](#date-and-time) for the how and why.
+
+`relativeTime.*` ("Today", "{{ count }}d ago") is ordinary copy and translates normally, as does
+everything else.
 
 ## Keeping a language up to date across upgrades
 

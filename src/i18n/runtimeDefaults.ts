@@ -1,20 +1,21 @@
 /**
- * The only translation data bundled with the SDK. Edit this file by hand.
+ * The only translation data bundled with the SDK. Hand-maintained.
  *
- * Every *prose* key passes its English copy inline at the call site
- * (`t('message.status.sent.text', 'Sent')`), so i18next renders it from that `defaultValue` and
- * the string never ships as data. The keys below have no inline copy to fall back on:
+ * Prose keys are not here — they pass their English copy inline at the call site
+ * (`t('message.status.sent.text', 'Sent')`). These keys have no inline copy to fall back on:
  *
  * - `language.*` — the key is built from a runtime language code
  * - `timestamp.*`, `duration.*` — formatter expressions, passed around as prop values
  * - `translationBuilderTopic.*` — an i18next postProcessor directive
  *
- * Together with those inline defaults, this file *is* the catalog: `yarn build-translations`
- * joins the two to generate `src/i18n/keys.ts`, and fails if a key is called with no inline
- * default and no entry here (it would render as the raw dotted key), or if a key appears in both
- * (the bundled value wins, so the call site would silently have no effect).
+ * `yarn build-translations` joins this file with the inline defaults to generate
+ * `src/i18n/keys.ts`; `yarn i18n:export` writes the joined catalog as JSON.
  *
- * `yarn i18n:export` writes the full catalog out as JSON, for a translator or a TMS.
+ * Four `timestamp.*` entries carry English day words inside their `calendarFormats` argument —
+ * `DateSeparator`, `ReminderNotification`, `ChannelPreviewTimestamp`,
+ * `ChannelDetailPinnedMessageTimestamp`. Integrators translate those by overriding the key;
+ * `dayjsLocaleConfigForLanguage` does not reach them. Adding a fifth fails a guard in
+ * `__tests__/Streami18n.test.ts` that keeps `ai-docs/i18n-v15-migration.md` in sync.
  */
 export const runtimeDefaults = {
   'duration.messageReminder': '{{ milliseconds | durationFormatter(withSuffix: true) }}',

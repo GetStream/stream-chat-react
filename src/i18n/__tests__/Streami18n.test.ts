@@ -12,9 +12,16 @@ import 'dayjs/locale/nl';
 import 'dayjs/locale/fr';
 import localeData from 'dayjs/plugin/localeData';
 import { getDateString } from '../utils';
+import { runtimeDefaults } from '../runtimeDefaults';
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import type { TranslationTopicConstructor } from '../TranslationBuilder';
 Dayjs.extend(localeData);
+
+const relativeDay = (offset: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return date.toISOString();
+};
 
 const customDayjsLocaleConfig = {
   months:
@@ -178,11 +185,7 @@ describe('Streami18n - resolution without a bundled prose resource', () => {
 describe('Streami18n instance - with an integrator-registered language', () => {
   describe('datetime translations enabled', () => {
     const streami18n = new Streami18n({ language: 'nl', logger: () => null });
-    streami18n.registerTranslation(
-      'nl',
-      // @ts-expect-error partial translations for testing
-      dutchTranslations,
-    );
+    streami18n.registerTranslation('nl', dutchTranslations);
 
     it('should translate the registered keys', async () => {
       const { t: _t } = await streami18n.getTranslators();
@@ -210,11 +213,7 @@ describe('Streami18n instance - with an integrator-registered language', () => {
       disableDateTimeTranslations: true,
       logger: () => null,
     });
-    streami18n.registerTranslation(
-      'nl',
-      // @ts-expect-error partial translations for testing
-      dutchTranslations,
-    );
+    streami18n.registerTranslation('nl', dutchTranslations);
 
     it('should translate the registered keys', async () => {
       const { t: _t } = await streami18n.getTranslators();
@@ -298,12 +297,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
     text1: 'अनुवादित मजकूर 1',
     text2: 'अनुवादित मजकूर 2',
   };
-  streami18n.registerTranslation(
-    languageCode,
-    // @ts-expect-error partial translations for testing
-    translations,
-    customDayjsLocaleConfig,
-  );
+  streami18n.registerTranslation(languageCode, translations, customDayjsLocaleConfig);
 
   streami18n.setLanguage('mr');
 
@@ -343,11 +337,7 @@ describe('setLanguage - switch to a registered language', () => {
 
   it('should provide the french translator after switching', async () => {
     const streami18n = new Streami18n({ logger: () => null });
-    streami18n.registerTranslation(
-      'fr',
-      // @ts-expect-error partial translations for testing
-      frenchTranslations,
-    );
+    streami18n.registerTranslation('fr', frenchTranslations);
 
     // English before the switch: an unknown key resolves to itself.
     const { t: beforeT } = await streami18n.getTranslators();
@@ -769,5 +759,88 @@ describe('Streami18n - the unregistered-language warning', () => {
     expect(logger).not.toHaveBeenCalledWith(
       expect.stringContaining('no translation dictionary is registered'),
     );
+  });
+});
+
+describe('Streami18n - the calendar keys that carry English words', () => {
+  // dayjs takes the calendar wording as part of the format string, so a handful of `timestamp.*`
+  // values embed English day words. A per-key `calendarFormats` replaces the locale's calendar
+  // wholesale, so `dayjsLocaleConfigForLanguage` cannot translate them — only overriding the key
+  // can. The migration guide names these four; this keeps that list honest.
+  const KEYS_WITH_ENGLISH_WORDS = [
+    'timestamp.ChannelDetailPinnedMessageTimestamp',
+    'timestamp.ChannelPreviewTimestamp',
+    'timestamp.DateSeparator',
+    'timestamp.ReminderNotification',
+  ];
+
+  it('is exactly the set the migration guide documents', () => {
+    const found = Object.entries(runtimeDefaults)
+      .filter(([, value]) =>
+        [...value.matchAll(/\[([^\]]+)\]/g)].some(([, literal]) =>
+          /[A-Za-z]{2}/.test(literal),
+        ),
+      )
+      .map(([key]) => key)
+      .sort();
+
+    // A new one here means `ai-docs/i18n-v15-migration.md` ("Keys that are not copy" and
+    // "Date and time") needs the key added, or integrators will silently ship English.
+    expect(found).toEqual(KEYS_WITH_ENGLISH_WORDS);
+  });
+
+  it('renders English for a German app until the key is overridden', async () => {
+    const i18n = new Streami18n({
+      language: 'de' as 'en',
+      logger: () => null,
+      dayjsLocaleConfigForLanguage: {
+        calendar: {
+          sameDay: '[heute um] LT',
+          lastDay: '[gestern um] LT',
+          lastWeek: '[letzten] dddd [um] LT',
+          nextDay: '[morgen um] LT',
+          nextWeek: 'dddd [um] LT',
+          sameElse: 'L',
+        },
+      },
+    });
+    i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
+    const { t, tDateTimeParser } = await i18n.getTranslators();
+    const stamp = (key: string, when: string) =>
+      getDateString({
+        messageCreatedAt: when,
+        t,
+        tDateTimeParser,
+        timestampTranslationKey: key,
+      });
+
+    // A key that formats against the locale's own calendar picks the config up.
+    expect(stamp('timestamp.LiveLocation', relativeDay(0))).toContain('heute um');
+    // One that passes its own calendarFormats does not — this is the documented gap.
+    expect(stamp('timestamp.DateSeparator', relativeDay(0))).toBe('Today');
+    expect(stamp('timestamp.ChannelPreviewTimestamp', relativeDay(-1))).toBe('Yesterday');
+  });
+
+  it('translates once the key is overridden, exactly as documented', async () => {
+    const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
+    i18n.registerTranslation('de' as 'en', {
+      'timestamp.DateSeparator':
+        '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Heute]", "nextDay": "[Morgen]", "lastDay": "[Gestern]", "nextWeek": "dddd", "lastWeek": "[letzten] dddd", "sameElse": "ddd, D. MMM" }) }}',
+      'timestamp.ChannelPreviewTimestamp':
+        '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Gestern]", "lastWeek": "dddd", "sameElse": "L" }) }}',
+    });
+    const { t, tDateTimeParser } = await i18n.getTranslators();
+    const stamp = (key: string, when: string) =>
+      getDateString({
+        messageCreatedAt: when,
+        t,
+        tDateTimeParser,
+        timestampTranslationKey: key,
+      });
+
+    expect(stamp('timestamp.DateSeparator', relativeDay(0))).toBe('Heute');
+    expect(stamp('timestamp.DateSeparator', relativeDay(-1))).toBe('Gestern');
+    expect(stamp('timestamp.DateSeparator', relativeDay(1))).toBe('Morgen');
+    expect(stamp('timestamp.ChannelPreviewTimestamp', relativeDay(-1))).toBe('Gestern');
   });
 });
