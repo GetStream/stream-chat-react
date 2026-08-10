@@ -25,7 +25,7 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 ## Renaming your keys
 
 Every old key maps to exactly one new key. The full table (603 rows) is
-[`scripts/i18n-migration/key-map.json`](../scripts/i18n-migration/key-map.json):
+[`i18n-v15-key-map.json`](./i18n-v15-key-map.json):
 
 ```json
 {

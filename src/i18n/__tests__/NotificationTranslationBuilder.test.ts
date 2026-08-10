@@ -60,7 +60,7 @@ describe('NotificationTranslationTopic', () => {
       ...mockI18Next,
       t: vi.fn((key) =>
         key === 'notification.attachmentFileMissing' ? 'translated/file-required' : key,
-      ),
+      ) as unknown as i18n['t'],
     });
     const builder = new NotificationTranslationTopic({
       i18next,
@@ -89,7 +89,7 @@ describe('NotificationTranslationTopic', () => {
         key === 'Attachment upload failed due to {{reason}}'
           ? `translated/reason:${options.reason}`
           : key,
-      ),
+      ) as unknown as i18n['t'],
     });
     const builder = new NotificationTranslationTopic({
       i18next,
@@ -162,7 +162,9 @@ describe('NotificationTranslationTopic', () => {
   ])('translates known notification type %s', (type, key, copy) => {
     const i18next = fromPartial<i18n>({
       ...mockI18Next,
-      t: vi.fn((translationKey) => `translated:${translationKey}`),
+      t: vi.fn(
+        (translationKey) => `translated:${translationKey}`,
+      ) as unknown as i18n['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 
@@ -184,7 +186,7 @@ describe('NotificationTranslationTopic', () => {
         key === 'notification.pollCreateFailedWithReason'
           ? `translated/reason:${options.reason}`
           : key,
-      ),
+      ) as unknown as i18n['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 

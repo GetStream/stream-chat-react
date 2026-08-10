@@ -20,23 +20,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # (yarnPath). Any globally installed `yarn` shim launches it; no Corepack.
 yarn install              # Setup (installs root + examples/* workspaces)
 yarn build                # Full build (translations, Vite, types, SCSS)
-yarn test                 # Run Jest tests
+yarn test                 # Run Vitest
 yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
 yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
-yarn types                # TypeScript type checking (noEmit mode)
+
+# Type checking
+tsc -p tsconfig.lib.json --noEmit   # The library. THIS is the real check.
+yarn types:scripts                  # scripts/*.mts (Node strips types, it does not check them)
+
+# i18n (see the i18n System section)
+yarn build-translations   # Extract, sync en.json from inline defaults, regenerate keys.ts
+yarn validate-translations # Drift gate: regenerate and fail on any diff
 
 # Examples (workspaces under examples/*)
 yarn start:tutorial       # Start the tutorial example dev server
 yarn start:vite           # Start the vite example dev server
 yarn examples:build       # Build all examples
 
-# E2E
-yarn e2e-fixtures         # Generate e2e test fixtures
-yarn e2e                  # Run Playwright tests
-
 # Before committing
 yarn lint-fix             # ALWAYS run this first
 ```
+
+> **`yarn types` checks nothing — do not rely on it.** It runs `tsc` with no `--project`, so it
+> picks up the root `tsconfig.json`, which is a solution file with `"files": []`. It exits 0 even
+> with a deliberate type error in `src/`. Use `tsc -p tsconfig.lib.json --noEmit`.
+>
+> `yarn types:tests` (`tsconfig.test.json`) reports ~1200 pre-existing errors and is not wired into
+> CI. Treat it as unenforced.
 
 ## Architecture: Core Concepts
 
@@ -273,7 +283,8 @@ Closes #123
 
 - [ ] `yarn lint-fix` passed
 - [ ] `yarn test` passed
-- [ ] `yarn types` passed
+- [ ] `tsc -p tsconfig.lib.json --noEmit` passed (NOT `yarn types` — see Essential Commands)
+- [ ] `yarn validate-translations` passed, if any `t()` call changed
 - [ ] Tests added for changes
 - [ ] No new warnings (zero tolerance)
 - [ ] Screenshots for UI changes
@@ -355,6 +366,8 @@ renders English — and it keeps the copy visible at the call site.
 - **`yarn validate-translations`** regenerates and fails on any diff — that is the drift gate, and
   it is what keeps en.json, keys.ts and the call sites in agreement. It replaced the old
   zero-empty-string check.
+- **The v14 -> v15 key mapping** lives in `ai-docs/i18n-v15-key-map.json` (603 rows), which is what
+  the integrator-facing guide and the one-shot codemods in `scripts/i18n-migration/` both read.
 - **Date/time:** `Streami18n` wraps i18next + Dayjs. Only the `en` dayjs locale is bundled;
   integrators import their own and pass `dayjsLocaleConfigForLanguage`.
 
@@ -431,6 +444,6 @@ const channels = useStateStore(chatClient.state.channelsArray);
 - **Integration patterns:** See `AI.md`
 - **Repo structure:** See `AGENTS.md`
 - **Development guides:** See `developers/`
-- **i18n v15 migration (integrator-facing):** See `docs/i18n-v15-migration.md`
+- **i18n v15 migration (integrator-facing):** See `ai-docs/i18n-v15-migration.md`
 - **Component docs:** https://getstream.io/chat/docs/sdk/react/
 - **Stream Chat API:** https://getstream.io/chat/docs/javascript/

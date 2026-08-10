@@ -1,10 +1,14 @@
 {
   "compilerOptions": {
     "lib": ["es2022", "dom"],
+    // Explicit, so the library build does not silently pick up whatever `@types/*` happen to be
+    // installed. `node` is needed for the build-time `process.env.STREAM_CHAT_REACT_VERSION`
+    // define in Chat/hooks/useChat.ts.
+    "types": ["node"],
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
-    "module": "es2020",
-    "target": "es2020",
+    "module": "es2022",
+    "target": "es2022",
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
     "allowJs": true,

@@ -1,14 +1,15 @@
 import { getDateString, predefinedFormatters } from '../utils';
+import type { StreamTFunction } from '../types';
 import { Streami18n } from '../Streami18n';
 import Dayjs from 'dayjs';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { TFunction } from 'i18next';
+
 import type { TDateTimeParser } from '../types';
 import { mockT as sharedMockT } from '../../mock-builders/translator';
 
 vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 const messageCreatedAt = '1970-01-01T01:01:01.001Z';
-const t = vi.fn() as unknown as TFunction & ReturnType<typeof vi.fn>;
+const t = vi.fn() as unknown as StreamTFunction & ReturnType<typeof vi.fn>;
 const timestampTranslationKey = 'timestampTranslationKey';
 
 const FIXED_NOW = new Date('2025-02-19T12:00:00.000Z');
@@ -293,7 +294,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: FIXED_NOW.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Today');
@@ -307,7 +308,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: yesterday.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Yesterday');
@@ -321,7 +322,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: threeDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('3d ago');
@@ -339,7 +340,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('1w ago');
@@ -357,7 +358,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: twentyEightDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -371,7 +372,7 @@ describe('getDateString', () => {
       const result = getDateString({
         messageCreatedAt: tomorrow.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -386,7 +387,7 @@ describe('getDateString', () => {
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
         relativeCompactMaxWeeks: 0,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -402,7 +403,7 @@ describe('getDateString', () => {
         relativeCompact: true,
         relativeCompactMaxDays: 2,
         relativeCompactMaxWeeks: 0,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);

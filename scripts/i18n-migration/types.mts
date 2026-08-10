@@ -1,7 +1,7 @@
 // Shapes shared by the i18n migration scripts. These were implicit while the scripts were
 // plain JS; declaring them once is most of the value of the TypeScript conversion.
 
-/** One row of the reviewed old-key -> new-key mapping (`key-map.json`). */
+/** One row of the reviewed old-key -> new-key mapping (`ai-docs/i18n-v15-key-map.json`). */
 export type KeyMapEntry = {
   /** The namespaced replacement, e.g. `messageComposer.sendButton.send.ariaLabel`. */
   key: string;

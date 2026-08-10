@@ -26,7 +26,7 @@ if (!originalEnPath) {
 
 const DRY = process.argv.includes('--dry');
 const mapping = (
-  JSON.parse(fs.readFileSync('scripts/i18n-migration/key-map.json', 'utf8')) as KeyMap
+  JSON.parse(fs.readFileSync('ai-docs/i18n-v15-key-map.json', 'utf8')) as KeyMap
 ).keys;
 const originalEn = JSON.parse(fs.readFileSync(originalEnPath, 'utf8')) as EnglishCatalog;
 

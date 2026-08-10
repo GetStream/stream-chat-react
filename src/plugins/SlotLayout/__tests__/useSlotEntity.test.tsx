@@ -1,4 +1,5 @@
 import React from 'react';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
 import { StateStore } from 'stream-chat';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -76,7 +77,9 @@ const createChatContextValue = (): ChatContextValue =>
 const renderWithProviders = (ui: React.ReactNode) =>
   render(
     <ChatProvider value={createChatContextValue()}>
-      <TranslationProvider value={{ t: mockT, userLanguage: 'en' }}>
+      <TranslationProvider
+        value={{ t: mockT, userLanguage: 'en' } as TranslationContextValue}
+      >
         {ui}
       </TranslationProvider>
     </ChatProvider>,
