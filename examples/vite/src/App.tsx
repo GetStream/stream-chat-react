@@ -12,6 +12,7 @@ import {
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  createMentionsMiddleware,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -69,6 +70,11 @@ import {
 } from './CustomMessageUi';
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { InlineEditableMessage } from './InlineEditMessage';
+import {
+  createNicknameMentionCompositionMiddleware,
+  NicknameMentionsSearchSource,
+  withNicknameMentions,
+} from './ChannelNicknames';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 
@@ -221,6 +227,10 @@ const reactionsVariant = getReactionsVariant();
 const attachmentActionsVariant = getAttachmentActionsVariant();
 const globalDialogManager = 'globalDialogManager';
 
+// Composed at module scope so the slot component identity stays stable across renders. Wraps the
+// app's own message UI rather than replacing it, so inline editing and nickname mentions coexist.
+const MessageWithNicknameMentions = withNicknameMentions(InlineEditableMessage);
+
 const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
@@ -365,6 +375,24 @@ const App = () => {
         unique: true,
       });
 
+      // --- Channel nicknames in mentions (see src/ChannelNicknames) -------------------------
+      // `replace` matches on middleware id, so swapping in a mentions middleware backed by our
+      // own search source keeps the SDK's ordering intact. The search source is a documented
+      // injection point on `createMentionsMiddleware` — no fork, no patch.
+      composer.textComposer.middlewareExecutor.replace([
+        createMentionsMiddleware(composer.channel, {
+          searchSource: new NicknameMentionsSearchSource(composer.channel),
+        }) as TextComposerMiddleware,
+      ]);
+
+      // Records which display text each mention was written with. Must run after the SDK's
+      // text-composition middleware, which is what fills `mentioned_users`.
+      composer.compositionMiddlewareExecutor.insert({
+        middleware: [createNicknameMentionCompositionMiddleware(composer)],
+        position: { after: 'stream-io/message-composer-middleware/text-composition' },
+        unique: true,
+      });
+
       composer.updateConfig({
         linkPreviews: { enabled: true },
         location: { enabled: true },
@@ -425,7 +453,7 @@ const App = () => {
         HeaderStartContent: SidebarToggle,
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
-        Message: InlineEditableMessage,
+        Message: MessageWithNicknameMentions,
         ...messageUiOverrides,
       }}
     >
