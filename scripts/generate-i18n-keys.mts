@@ -1,37 +1,159 @@
-// Generates the two files derived from src/i18n/en.json:
+// Generates src/i18n/keys.ts — the type-only catalog of every translation key mapped to its
+// English copy. `src/i18n/types.ts` derives `TranslationKey` / `StreamTFunction` from it, so a
+// typo'd key is a compile error.
 //
-//   src/i18n/keys.ts            type-only catalog of every key -> its English copy. No runtime
-//                               value, so it costs nothing in the bundle. (Deriving the type from
-//                               `typeof import('./en.json')` would not work for consumers — tsc
-//                               does not copy JSON into dist/types.)
-//   src/i18n/runtimeDefaults.ts the *only* translation data that ships. Just the keys that have no
-//                               inline copy at their call site and therefore cannot fall back to a
-//                               `defaultValue`: `language.*` (resolved from a runtime code),
-//                               `timestamp.*` / `duration.*` (formatter expressions passed around
-//                               as prop values), and the postProcessor directive.
+// It is type-only on purpose: no runtime value is emitted, so it costs nothing in the bundle.
+// (Deriving the type from `typeof import('./en.json')` would not work for consumers either — tsc
+// does not copy JSON into dist/types.)
 //
-// en.json itself is NOT bundled. It is the complete reference — what a translator or TMS consumes,
-// and the source for keys.ts — but every prose key renders from the inline copy at its call site,
-// so shipping the JSON too would duplicate ~40 KB of strings already present in the code.
+// The catalog has exactly two sources, and both are the place the copy is actually used:
 //
-// Run by `yarn build-translations`, after extraction and the en.json sync.
+//   1. Inline defaults at the call sites — `t('message.status.sent.text', 'Sent')`. 562 keys.
+//      i18next renders these from the `defaultValue`, so they are never bundled as data.
+//   2. src/i18n/runtimeDefaults.ts — hand-maintained, and the only translation data that ships.
+//      Just the keys with no inline copy to fall back on: `language.*` (built from a runtime
+//      code), `timestamp.*` / `duration.*` (formatter expressions passed around as prop values),
+//      and the postProcessor directive. 71 keys.
+//
+// There is deliberately no checked-in en.json. It was a third copy of strings that already exist
+// in those two places, and keeping it in sync needed an extract pass plus a sync pass. Pass
+// `--json <path>` to write the full catalog out as JSON on demand, for a translator or a TMS.
+//
+// Run by `yarn build-translations`.
 import fs from 'node:fs';
+import ts from 'typescript';
 import { readCallSiteCopy } from './i18n-call-sites.mts';
 
-const EN = 'src/i18n/en.json';
+const RUNTIME_DEFAULTS = 'src/i18n/runtimeDefaults.ts';
 const KEYS_OUT = 'src/i18n/keys.ts';
-const RUNTIME_OUT = 'src/i18n/runtimeDefaults.ts';
 
-type Catalog = Record<string, unknown>;
+const jsonFlag = process.argv.indexOf('--json');
+const JSON_OUT = jsonFlag === -1 ? null : process.argv[jsonFlag + 1];
+if (jsonFlag !== -1 && !JSON_OUT) {
+  console.error('--json requires an output path');
+  process.exit(1);
+}
 
-const catalog = JSON.parse(fs.readFileSync(EN, 'utf8')) as Catalog;
-const keys = Object.keys(catalog).sort();
-const { copy: inlineCopy } = readCallSiteCopy();
+const fail = (message: string, lines: string[]) => {
+  console.error(`\n${message}`);
+  for (const line of lines) console.error(`  ${line}`);
+  process.exit(1);
+};
 
 // ---------------------------------------------------------------------------------------
-// keys.ts — types for every key
+// Read the hand-maintained runtime resource
 // ---------------------------------------------------------------------------------------
-const keyLines: string[] = [
+// Parsed rather than imported: `await import()` works under Node's type stripping but warns
+// MODULE_TYPELESS_PACKAGE_JSON on every run, and the package cannot be `"type": "module"`.
+const readRuntimeDefaults = (): Map<string, string> => {
+  const source = ts.createSourceFile(
+    RUNTIME_DEFAULTS,
+    fs.readFileSync(RUNTIME_DEFAULTS, 'utf8'),
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TS,
+  );
+  const out = new Map<string, string>();
+  let found = false;
+
+  ts.forEachChild(source, (node) => {
+    if (!ts.isVariableStatement(node)) return;
+    for (const declaration of node.declarationList.declarations) {
+      if (
+        !ts.isIdentifier(declaration.name) ||
+        declaration.name.text !== 'runtimeDefaults' ||
+        !declaration.initializer
+      ) {
+        continue;
+      }
+      // `export const runtimeDefaults = { … } as const` / `satisfies …` are both fine.
+      let initializer: ts.Expression = declaration.initializer;
+      while (ts.isAsExpression(initializer) || ts.isSatisfiesExpression(initializer)) {
+        initializer = initializer.expression;
+      }
+      if (!ts.isObjectLiteralExpression(initializer)) continue;
+      found = true;
+      for (const property of initializer.properties) {
+        if (!ts.isPropertyAssignment(property)) {
+          fail(`${RUNTIME_DEFAULTS} must be a flat object of string literals.`, [
+            property.getText(source).slice(0, 80),
+          ]);
+        }
+        const assignment = property as ts.PropertyAssignment;
+        if (
+          !ts.isStringLiteralLike(assignment.name) ||
+          !ts.isStringLiteralLike(assignment.initializer)
+        ) {
+          fail(`${RUNTIME_DEFAULTS} entries must be 'quoted.key': 'string literal'.`, [
+            assignment.getText(source).slice(0, 80),
+          ]);
+        }
+        out.set(
+          (assignment.name as ts.StringLiteralLike).text,
+          (assignment.initializer as ts.StringLiteralLike).text,
+        );
+      }
+    }
+  });
+
+  if (!found) {
+    fail(`could not find an exported \`runtimeDefaults\` object literal in`, [
+      RUNTIME_DEFAULTS,
+    ]);
+  }
+  return out;
+};
+
+const runtimeDefaults = readRuntimeDefaults();
+const { conflicts, copy: inlineCopy, withoutCopy } = readCallSiteCopy();
+
+// ---------------------------------------------------------------------------------------
+// Cross-check the two sources
+// ---------------------------------------------------------------------------------------
+if (conflicts.length) {
+  fail(
+    `${conflicts.length} key(s) used with conflicting inline copy — a key must render one thing:`,
+    conflicts.map(
+      (c) =>
+        `${c.key}\n    ${JSON.stringify(c.a)}\n    ${JSON.stringify(c.b)}  (${c.file})`,
+    ),
+  );
+}
+
+// A key called without inline copy resolves from the bundled resource or not at all — i18next
+// would render the raw dotted key in the UI.
+const unresolvable = [...withoutCopy].filter(([key]) => !runtimeDefaults.has(key));
+if (unresolvable.length) {
+  fail(
+    `${unresolvable.length} key(s) are called with no inline default and are missing from ${RUNTIME_DEFAULTS}.\n` +
+      `They would render as the raw key. Either pass the English copy inline — t('key', 'Copy') —\n` +
+      `or add an entry to ${RUNTIME_DEFAULTS}:`,
+    unresolvable.map(([key, file]) => `${key}  (${file})`),
+  );
+}
+
+// The bundled resource wins over a `defaultValue`, so a key in both places silently renders the
+// bundled string and ignores the copy at the call site.
+const shadowed = [...runtimeDefaults.keys()].filter((key) => inlineCopy.has(key));
+if (shadowed.length) {
+  fail(
+    `${shadowed.length} key(s) are in both ${RUNTIME_DEFAULTS} and an inline default.\n` +
+      `The bundled value wins, so editing the call site would silently change nothing.\n` +
+      `Remove the runtimeDefaults entry:`,
+    shadowed.map(
+      (key) =>
+        `${key}\n    bundled:   ${JSON.stringify(runtimeDefaults.get(key))}\n    call site: ${JSON.stringify(inlineCopy.get(key))}`,
+    ),
+  );
+}
+
+// ---------------------------------------------------------------------------------------
+// keys.ts
+// ---------------------------------------------------------------------------------------
+const catalog = new Map([...inlineCopy, ...runtimeDefaults]);
+const keys = [...catalog.keys()].sort();
+
+const lines: string[] = [
   '// AUTO-GENERATED by scripts/generate-i18n-keys.mts — do not edit by hand.',
   '// Regenerate with `yarn build-translations`. CI fails if this file is out of sync.',
   '//',
@@ -45,50 +167,23 @@ const keyLines: string[] = [
   ' */',
   'export type TranslationCatalog = {',
 ];
-let typed = 0;
 for (const key of keys) {
-  const value = catalog[key];
-  if (typeof value !== 'string') continue;
-  keyLines.push(`  ${JSON.stringify(key)}: ${JSON.stringify(value)};`);
-  typed++;
+  lines.push(`  ${JSON.stringify(key)}: ${JSON.stringify(catalog.get(key))};`);
 }
-keyLines.push('};', '');
-fs.writeFileSync(KEYS_OUT, keyLines.join('\n'));
+lines.push('};', '');
+fs.writeFileSync(KEYS_OUT, lines.join('\n'));
 
-// ---------------------------------------------------------------------------------------
-// runtimeDefaults.ts — the subset that has to ship
-// ---------------------------------------------------------------------------------------
-const runtimeKeys = keys.filter(
-  (key) => typeof catalog[key] === 'string' && !inlineCopy.has(key),
-);
-
-const runtimeLines: string[] = [
-  '// AUTO-GENERATED by scripts/generate-i18n-keys.mts — do not edit by hand.',
-  '// Regenerate with `yarn build-translations`. CI fails if this file is out of sync.',
-  '',
-  '/**',
-  ' * The only translation data bundled with the SDK.',
-  ' *',
-  ' * Every *prose* key passes its English copy inline at the call site',
-  " * (`t('message.status.sent.text', 'Sent')`), so i18next renders it from that `defaultValue` and",
-  ' * the string does not need to ship twice. The keys below have no inline copy to fall back on:',
-  ' *',
-  ' * - `language.*` — the key is built from a runtime language code',
-  ' * - `timestamp.*`, `duration.*` — formatter expressions, passed around as prop values',
-  ' * - `translationBuilderTopic.*` — an i18next postProcessor directive',
-  ' *',
-  ' * The complete key reference, for translators, is `src/i18n/en.json`.',
-  ' */',
-  'export const runtimeDefaults = {',
-];
-for (const key of runtimeKeys) {
-  runtimeLines.push(`  ${JSON.stringify(key)}: ${JSON.stringify(catalog[key])},`);
-}
-runtimeLines.push('};', '');
-fs.writeFileSync(RUNTIME_OUT, runtimeLines.join('\n'));
-
-console.log(`generated ${KEYS_OUT} (${typed} entries, type-only)`);
 console.log(
-  `generated ${RUNTIME_OUT} (${runtimeKeys.length} bundled entries; ` +
-    `${typed - runtimeKeys.length} render from inline copy)`,
+  `generated ${KEYS_OUT} (${keys.length} entries, type-only) — ` +
+    `${inlineCopy.size} from inline defaults, ${runtimeDefaults.size} bundled`,
 );
+
+// ---------------------------------------------------------------------------------------
+// Optional JSON export, for translators / a TMS
+// ---------------------------------------------------------------------------------------
+if (JSON_OUT) {
+  const asObject: Record<string, string> = {};
+  for (const key of keys) asObject[key] = catalog.get(key)!;
+  fs.writeFileSync(JSON_OUT, `${JSON.stringify(asObject, null, 2)}\n`);
+  console.log(`wrote ${JSON_OUT} (${keys.length} entries)`);
+}

@@ -1,10 +1,13 @@
-// Reads every `t()` call in the library source and reports which keys carry inline English copy.
+// Reads every `t()` call in the library source and reports the translation keys it declares.
 //
-// Two consumers depend on this, and they must agree exactly or the bundled runtime resource and
-// the generated types drift apart:
-//   - sync-en-from-call-sites.mts  makes the inline copy authoritative for en.json
-//   - generate-i18n-keys.mts       emits the key types, and the runtime resource for the keys
-//                                 that have *no* inline copy to fall back on
+// The call sites are the source of truth for the catalog. A prose key exists because some
+// component asks for it and passes its English copy inline; delete the call and the key is gone.
+// That is what removed the need for a checked-in en.json and for `i18next-cli`'s
+// extract/removeUnusedKeys pass.
+//
+// The only keys that cannot be described this way are the ones with no inline copy — a formatter
+// expression or a key built from a runtime value. Those live in `src/i18n/runtimeDefaults.ts`,
+// which is hand-maintained; `generate-i18n-keys.mts` joins the two and cross-checks them.
 import ts from 'typescript';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,6 +15,11 @@ import path from 'node:path';
 export type CallSiteCopy = {
   /** `key -> English copy` for every key written with an inline default. */
   copy: Map<string, string>;
+  /**
+   * `key -> file` for keys called with no inline copy — `t('timestamp.MessageTimestamp', {…})`.
+   * These must be present in `runtimeDefaults.ts` or they render as the raw key.
+   */
+  withoutCopy: Map<string, string>;
   /** Keys seen with two different inline copies — a key must render one thing. */
   conflicts: Array<{ key: string; a: string; b: string; file: string }>;
 };
@@ -38,7 +46,7 @@ export const sourceFiles = (root = 'src'): string[] => {
 
 export const readCallSiteCopy = (root = 'src'): CallSiteCopy => {
   const copy = new Map<string, string>();
-  const seenIn = new Map<string, string>();
+  const withoutCopy = new Map<string, string>();
   const conflicts: CallSiteCopy['conflicts'] = [];
 
   const record = (key: string, value: string, file: string) => {
@@ -48,7 +56,6 @@ export const readCallSiteCopy = (root = 'src'): CallSiteCopy => {
       return;
     }
     copy.set(key, value);
-    seenIn.set(key, file);
   };
 
   for (const file of sourceFiles(root)) {
@@ -69,23 +76,28 @@ export const readCallSiteCopy = (root = 'src'): CallSiteCopy => {
             // t('key', 'Copy')
             record(key, second.text, file);
           } else if (second && ts.isObjectLiteralExpression(second)) {
-            // t('key', { count, defaultValue_one, defaultValue_other })
+            // t('key', { count, defaultValue_one, defaultValue_other }) — the catalog holds the
+            // `_one` / `_other` forms, never the bare key.
+            let plurals = 0;
             for (const prop of second.properties) {
               if (!ts.isPropertyAssignment(prop)) continue;
               const name = prop.name.getText(sourceFile).replace(/['"]/g, '');
               const suffix = name.match(/^defaultValue_(\w+)$/)?.[1];
               if (suffix && ts.isStringLiteralLike(prop.initializer)) {
                 record(`${key}_${suffix}`, prop.initializer.text, file);
+                plurals++;
               }
             }
+            if (!plurals) withoutCopy.set(key, file);
+          } else {
+            // t('key') — carries no inline copy, so it has to resolve from runtimeDefaults.
+            withoutCopy.set(key, file);
           }
-          // Anything else — `t('timestamp.MessageTimestamp', { timestamp })` — carries no inline
-          // copy, so it must resolve from the bundled runtime resource.
         }
       }
       ts.forEachChild(node, visit);
     })(sourceFile);
   }
 
-  return { conflicts, copy };
+  return { conflicts, copy, withoutCopy };
 };

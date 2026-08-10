@@ -104,8 +104,8 @@ export type Streami18nOptions = {
  *
  * English (`en`) is the only built-in language. Every other language is supplied by the
  * integrator via `registerTranslation()` or `translationsForLanguage`. Keys are stable,
- * namespaced identifiers (e.g. `message.status.sent.text`) — see the key reference in
- * `src/i18n/en.json`, or the `TranslationKey` type for autocompletion.
+ * namespaced identifiers (e.g. `message.status.sent.text`); use the `TranslationKey` type for
+ * autocompletion, or `yarn i18n:export` for the whole catalog as JSON.
  *
  * Only the keys that cannot carry inline English copy are bundled (see `runtimeDefaults`);
  * everything else renders from the copy passed inline at its call site.
@@ -329,7 +329,7 @@ export class Streami18n {
    *    Language code e.g., en, tr
    *
    *  - translationsForLanguage (object)
-   *    Translations object, keyed by `TranslationKey`. src/i18n/en.json lists every key.
+   *    Translations object, keyed by `TranslationKey`, which is a union of every key.
    *
    *  - disableDateTimeTranslations (boolean) default: false
    *    Disable translations for date-times

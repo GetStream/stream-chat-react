@@ -84,8 +84,16 @@ TypeScript will flag the stale keys for you.
   through the same instance.
 - **`Partial<Record<TranslationKey, string>>`** — use this instead if you want unknown keys
   rejected outright.
-- **[`src/i18n/en.json`](../src/i18n/en.json)** — every key with its English copy. This is the file
-  to hand to translators.
+- **A JSON catalog** — every key with its English copy, which is the file to hand to translators.
+  The SDK does not check one in (the copy lives inline at each `t()` call site, so a committed
+  catalog would be a duplicate that can go stale). Generate it from a clone with:
+
+  ```bash
+  yarn i18n:export
+  ```
+
+  That writes `en.json` in the repo root. `ai-docs/i18n-v15-key-map.json` also lists every key,
+  alongside the v14 string it replaced.
 
 Keys are namespaced after the source tree, so they are predictable from the component:
 `message.*`, `messageComposer.*`, `poll.*`, `channelList.*`, with genuinely shared copy under

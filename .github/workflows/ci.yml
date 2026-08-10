@@ -53,11 +53,11 @@ jobs:
         run: yarn validate-esm
 
       - name: Validate translations are in sync with source
-        # `yarn build` above already ran build-translations, which regenerates both of these
-        # from the t() call sites. A diff here means the author changed a call site without
-        # regenerating. Scoped to the two generated files so unrelated edits under src/i18n
-        # (tests, Streami18n) do not trip it.
-        run: git diff --exit-code -- src/i18n/en.json src/i18n/keys.ts src/i18n/runtimeDefaults.ts
+        # `yarn build` above already ran build-translations, which regenerates keys.ts from the
+        # t() call sites and runtimeDefaults.ts. A diff here means the author changed a call site
+        # without regenerating. Scoped to the one generated file so unrelated edits under
+        # src/i18n (tests, Streami18n, runtimeDefaults) do not trip it.
+        run: git diff --exit-code -- src/i18n/keys.ts
 
       - name: Cache Build Output
         uses: actions/cache@v5

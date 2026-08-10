@@ -77,10 +77,10 @@ export type InteractionAnnouncementType = keyof InteractionAnnouncementParams;
 
 /**
  * One entry per interaction — the single place an interaction is registered. Each
- * resolver contains a LITERAL `t('aria/…')` call so that `i18next-cli extract`
- * (run via `yarn build-translations`) discovers and generates the key across all
- * locales. Keys must never be built dynamically (e.g. `t(someVariable)`) or
- * extraction silently misses them. Adding an interaction = one line here + one
+ * resolver contains a LITERAL `t(key, 'English copy')` call, which is what puts the key in the
+ * catalog: `yarn build-translations` parses the call sites to generate `src/i18n/keys.ts`. Keys
+ * must never be built dynamically (e.g. `t(someVariable)`) or they are missed, and an integrator
+ * has no way to discover them. Adding an interaction = one line here + one
  * line in {@link InteractionAnnouncementParams} (+ an override in
  * {@link INTERACTION_PRIORITIES} only if it is not `polite`).
  */
@@ -121,7 +121,7 @@ const INTERACTION_MESSAGES: {
   'giphy.sent': (t) =>
     t('a11y.interactionAnnouncements.giphySent.ariaLabel', 'Giphy sent'),
   // Giphy payloads rarely carry a human title, so include it only when present; otherwise a
-  // generic "changed" confirmation. Both literal keys are extracted by i18next-cli.
+  // generic "changed" confirmation. Both literal keys land in the catalog.
   'giphy.shuffled': (t, params) =>
     params.title
       ? t(

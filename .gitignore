@@ -94,3 +94,7 @@ shared
 
 # TypeScript incremental build metadata
 *.tsbuildinfo
+
+# On-demand translator/TMS catalog export (`yarn i18n:export`). Generated from the t() call
+# sites and src/i18n/runtimeDefaults.ts, so it is never checked in.
+/en.json
