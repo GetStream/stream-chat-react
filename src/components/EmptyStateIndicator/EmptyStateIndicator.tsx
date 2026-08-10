@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { IconMessageBubble, IconMessageBubbles } from '../Icons';
+import { asDynamicKey } from '../../i18n/utils';
 
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
@@ -33,7 +34,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
     // `messageText` is integrator-supplied and may itself be a translation key, so it is
     // passed through `t` as-is; only the built-in default carries a key + inline copy.
     const text = messageText
-      ? t(messageText)
+      ? t(asDynamicKey(messageText))
       : t(
           'emptyState.indicator.startConversation.label',
           'Send a message to start the conversation',

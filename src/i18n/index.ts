@@ -1,6 +1,7 @@
 export * from './Streami18n';
 export * from './TranslationBuilder';
 export {
+  asDynamicKey,
   defaultDateTimeParser,
   defaultTranslatorFunction,
   isDate,

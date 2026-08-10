@@ -6,6 +6,7 @@ import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { Button } from '../../../components';
+import { asDynamicKey } from '../../../i18n/utils';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   isActive: nextValue.isActive,
@@ -39,7 +40,7 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
     [t],
   );
 
-  const buttonContent = knownLabels[label] ?? t(label);
+  const buttonContent = knownLabels[label] ?? t(asDynamicKey(label));
   return (
     <Button
       appearance='outline'

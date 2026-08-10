@@ -28,6 +28,11 @@ jobs:
 
       - run: yarn lint
 
+      # scripts/ is outside the src tsconfigs and is not linted; Node 24 strips the types in
+      # the .mts build scripts without checking them, so check them here.
+      - name: Typecheck build scripts
+        run: yarn types:scripts
+
   build:
     runs-on: ubuntu-latest
     permissions:

@@ -5,17 +5,18 @@
 // Non-literal call forms (t(cond ? 'a' : 'b'), t(x || 'a'), and the notification-translator
 // option objects) are reported and left alone — they are handled by hand.
 import ts from 'typescript';
+import type { Edit, EnglishCatalog, KeyMap } from './types.mts';
 import fs from 'node:fs';
 import path from 'node:path';
 
 const DRY = process.argv.includes('--dry');
-const mapping = JSON.parse(
-  fs.readFileSync('scripts/i18n-migration/key-map.json', 'utf8'),
+const mapping = (
+  JSON.parse(fs.readFileSync('scripts/i18n-migration/key-map.json', 'utf8')) as KeyMap
 ).keys;
-const en = JSON.parse(fs.readFileSync('src/i18n/en.json', 'utf8'));
+const en = JSON.parse(fs.readFileSync('src/i18n/en.json', 'utf8')) as EnglishCatalog;
 
-const files = [];
-(function walk(dir) {
+const files: string[] = [];
+(function walk(dir: string) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) {
@@ -26,21 +27,22 @@ const files = [];
 })('src');
 
 // The inline default is the English *value*, not the key: `aria/Send` renders as "Send".
-const defaultFor = (oldKey) => en[oldKey] ?? oldKey.replace(/^aria\//, '');
-const pluralDefaults = (oldKey) => ({
+const defaultFor = (oldKey: string): string =>
+  en[oldKey] ?? oldKey.replace(/^aria\//, '');
+const pluralDefaults = (oldKey: string) => ({
   one: en[`${oldKey}_one`],
   other: en[`${oldKey}_other`],
 });
 
-const lit = (s) => JSON.stringify(s);
+const lit = (s: string): string => JSON.stringify(s);
 
-const isTCallee = (expr) =>
+const isTCallee = (expr: ts.Expression): boolean =>
   (ts.isIdentifier(expr) && expr.text === 't') ||
   (ts.isPropertyAccessExpression(expr) && expr.name.text === 't');
 
 let rewritten = 0;
-let skipped = [];
-const touchedFiles = [];
+const skipped: Array<{ file: string; key: string; why: string }> = [];
+const touchedFiles: string[] = [];
 
 for (const file of files) {
   const text = fs.readFileSync(file, 'utf8');
@@ -52,9 +54,9 @@ for (const file of files) {
     file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
 
-  const edits = [];
+  const edits: Edit[] = [];
 
-  const visit = (node) => {
+  const visit = (node: ts.Node) => {
     if (ts.isCallExpression(node) && isTCallee(node.expression)) {
       const [arg0, ...rest] = node.arguments;
       if (arg0 && ts.isStringLiteralLike(arg0)) {

@@ -32,13 +32,11 @@ export const ThreadListUnseenThreadsBanner = () => {
         <>
           <IconRefresh />
           <span>
-            {t(
-              'threadList.unseenBanner.unreadThreads',
-              'ThreadListUnseenThreadsBanner/unreadThreads',
-              {
-                count: unseenThreadIds.length,
-              },
-            )}
+            {t('threadList.unseenBanner.unreadThreads', {
+              count: unseenThreadIds.length,
+              defaultValue_one: '{{ count }} unread thread',
+              defaultValue_other: '{{ count }} unread threads',
+            })}
           </span>
         </>
       )}

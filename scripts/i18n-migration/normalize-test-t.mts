@@ -3,6 +3,7 @@
 // interpolation. Stubs inside `vi.mock` / `vi.hoisted` get an inlined copy, since a top-level
 // import is still in its TDZ when those run.
 import ts from 'typescript';
+import type { Edit } from './types.mts';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -39,8 +40,8 @@ const INLINE = `((
         });
       })`;
 
-const files = [];
-(function walk(dir) {
+const files: string[] = [];
+(function walk(dir: string) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p);
@@ -48,7 +49,7 @@ const files = [];
   }
 })('src');
 
-const relativeImport = (from) => {
+const relativeImport = (from: string): string => {
   const rel = path
     .relative(path.dirname(from), 'src/mock-builders/translator')
     .replace(/\\/g, '/');
@@ -70,8 +71,8 @@ for (const file of files) {
     file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
 
-  const hoistedRanges = [];
-  (function collect(node) {
+  const hoistedRanges: Array<[number, number]> = [];
+  (function collect(node: ts.Node) {
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
@@ -83,7 +84,8 @@ for (const file of files) {
     }
     ts.forEachChild(node, collect);
   })(sf);
-  const isHoisted = (pos) => hoistedRanges.some(([s, e]) => pos >= s && pos < e);
+  const isHoisted = (pos: number): boolean =>
+    hoistedRanges.some(([s, e]) => pos >= s && pos < e);
 
   // Names that hold a translator stub in these tests.
   const NAMES = new Set([
@@ -94,9 +96,9 @@ for (const file of files) {
     'mockTranslation',
     'translator',
   ]);
-  const edits = [];
-  (function visit(node) {
-    let target = null;
+  const edits: Array<Edit & { needsImport: boolean; viWrapped: boolean }> = [];
+  (function visit(node: ts.Node) {
+    let target: ts.Node | undefined;
     if (
       (ts.isPropertyAssignment(node) || ts.isVariableDeclaration(node)) &&
       ts.isIdentifier(node.name) &&
@@ -123,7 +125,14 @@ for (const file of files) {
           inner = inner.expression;
       }
       // Only rewrite function-shaped stubs; leave spies and references alone.
-      if (ts.isArrowFunction(inner) || ts.isFunctionExpression(inner)) {
+      // Skip stubs that are already normalised, or the script double-wraps its own output when
+      // re-run (it is not otherwise idempotent).
+      const alreadyNormalised =
+        ts.isIdentifier(inner) || inner.getText(sf).includes('defaultValue_other');
+      if (
+        !alreadyNormalised &&
+        (ts.isArrowFunction(inner) || ts.isFunctionExpression(inner))
+      ) {
         const hoisted = isHoisted(inner.getStart(sf));
         if (hoisted) inlined++;
         else shared++;

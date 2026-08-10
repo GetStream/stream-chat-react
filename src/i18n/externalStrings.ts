@@ -1,4 +1,5 @@
 import type { TranslationContextValue } from '../context/TranslationContext';
+import { asDynamicKey } from './utils';
 
 /**
  * `notification.message` values emitted by `stream-chat` (the LLC) are English sentences that
@@ -37,5 +38,5 @@ export const translateExternalString = (
   if (!raw) return '';
   const key = EXTERNAL_STRING_KEYS[raw];
   // `raw` doubles as the default so a mapped-but-untranslated key still renders English.
-  return key ? t(key, raw, options) : t(raw, raw, options);
+  return key ? t(asDynamicKey(key), raw, options) : t(asDynamicKey(raw), raw, options);
 };

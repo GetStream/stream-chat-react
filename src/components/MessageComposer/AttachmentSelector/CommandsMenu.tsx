@@ -19,6 +19,7 @@ import {
 } from '../../Icons';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
+import { asDynamicKey } from '../../../i18n/utils';
 
 const icons: Record<string, ComponentType> = {
   ban: IconUserRemove,
@@ -118,10 +119,12 @@ export const useCommandTranslation = (command: Command) => {
   );
 
   const args =
-    command.args && (knownArgsTranslations[command.name ?? ''] ?? t(command.args));
+    command.args &&
+    (knownArgsTranslations[command.name ?? ''] ?? t(asDynamicKey(command.args)));
   const description =
     command.description &&
-    (knownDescriptionTranslations[command.name ?? ''] ?? t(command.description));
+    (knownDescriptionTranslations[command.name ?? ''] ??
+      t(asDynamicKey(command.description)));
 
   return { args, description };
 };

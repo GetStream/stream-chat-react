@@ -213,7 +213,7 @@
     "clean": "rm -rf dist",
     "build": "yarn clean && concurrently 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
     "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css; cp -r src/styling/assets dist/css/assets",
-    "build-translations": "i18next-cli extract",
+    "build-translations": "i18next-cli extract && node scripts/generate-i18n-keys.mts",
     "coverage": "vitest run --coverage",
     "lint": "yarn prettier --list-different && yarn eslint",
     "lint-fix": "yarn prettier-fix && yarn eslint-fix",
@@ -237,7 +237,8 @@
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
-    "build:all": "yarn workspaces foreach -A -tpv run build"
+    "build:all": "yarn workspaces foreach -A -tpv run build",
+    "types:scripts": "tsc -p tsconfig.scripts.json"
   },
   "resolutions": {
     "ast-types": "^0.14.0",

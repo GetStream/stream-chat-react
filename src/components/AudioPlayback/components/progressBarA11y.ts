@@ -1,11 +1,11 @@
-import type { TFunction } from 'i18next';
 import { formatTime } from './formatTime';
+import type { StreamTFunction } from '../../../i18n/types';
 
 type GetAudioTrackSliderAriaValueTextParams = {
   durationSeconds?: number;
   progress: number;
   secondsElapsed?: number;
-  t: TFunction;
+  t: StreamTFunction;
 };
 
 export const getAudioTrackSliderAriaValueText = ({

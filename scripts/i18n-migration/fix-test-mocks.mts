@@ -7,6 +7,7 @@
 //     be in its TDZ when the hoisted factory runs)
 //   - anywhere else                           -> the shared `mockT` from mock-builders
 import ts from 'typescript';
+import type { Edit } from './types.mts';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -14,8 +15,8 @@ const INLINE =
   '(key: string, defaultValue?: unknown) =>\n' +
   "        typeof defaultValue === 'string' ? defaultValue : key";
 
-const files = [];
-(function walk(dir) {
+const files: string[] = [];
+(function walk(dir: string) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
     if (e.isDirectory()) walk(p);
@@ -23,7 +24,7 @@ const files = [];
   }
 })('src');
 
-const relativeImport = (from) => {
+const relativeImport = (from: string): string => {
   const rel = path
     .relative(path.dirname(from), 'src/mock-builders/translator')
     .replace(/\\/g, '/');
@@ -31,7 +32,7 @@ const relativeImport = (from) => {
 };
 
 // An arrow function whose body is exactly its single parameter: `(k) => k`, `(k: string) => k`.
-const isIdentityArrow = (node, sf) => {
+const isIdentityArrow = (node: ts.Node, sf: ts.SourceFile): boolean => {
   if (!ts.isArrowFunction(node)) return false;
   if (node.parameters.length !== 1) return false;
   const param = node.parameters[0];
@@ -62,8 +63,8 @@ for (const file of files) {
   );
 
   // Ranges covered by hoisted vi.mock factories.
-  const hoisted = [];
-  (function collect(node) {
+  const hoisted: Array<[number, number]> = [];
+  (function collect(node: ts.Node) {
     if (
       ts.isCallExpression(node) &&
       ts.isPropertyAccessExpression(node.expression) &&
@@ -75,12 +76,13 @@ for (const file of files) {
     }
     ts.forEachChild(node, collect);
   })(sf);
-  const isHoisted = (pos) => hoisted.some(([s, e]) => pos >= s && pos < e);
+  const isHoisted = (pos: number): boolean =>
+    hoisted.some(([s, e]) => pos >= s && pos < e);
 
   // Find identity arrows bound to a `t` property or a `t` variable.
-  const edits = [];
-  (function visit(node) {
-    let target = null;
+  const edits: Array<Edit & { needsImport: boolean; viWrapped?: boolean }> = [];
+  (function visit(node: ts.Node) {
+    let target: ts.Node | undefined;
     if (
       ts.isPropertyAssignment(node) &&
       ts.isIdentifier(node.name) &&

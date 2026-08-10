@@ -4,6 +4,7 @@ import type { Notification } from 'stream-chat';
 import type { NotificationTranslatorOptions } from './types';
 import { translatorsByNotificationType } from './translatorsByNotificationType';
 import type { TranslationTopicOptions, Translator } from '../../index';
+import type { StreamTFunction } from '../../types';
 
 const translateByNotificationType: Translator<NotificationTranslatorOptions> = ({
   options: { notification },
@@ -34,20 +35,23 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
 
   translate = (value: string, key: string, options: { notification?: Notification }) => {
     const { notification } = options;
+    // i18next hands over its own untyped `TFunction`; the translators take the SDK's narrowed
+    // `StreamTFunction`. Narrowed once here rather than at each of the four use sites below.
+    const t = this.i18next.t as unknown as StreamTFunction;
     if (!notification) return value;
     const byType = notification.type
       ? this.translators.get(notification.type)
       : undefined;
-    if (byType) return byType({ key, options, t: this.i18next.t, value }) || value;
+    if (byType) return byType({ key, options, t, value }) || value;
 
     const byFallback = this.translators.get('*');
-    const translated = byFallback?.({ key, options, t: this.i18next.t, value }) ?? null;
+    const translated = byFallback?.({ key, options, t, value }) ?? null;
     if (translated) return translated;
     if (!notification.message) return value;
 
     // Final fallback: the message is an English string from `stream-chat`, so map it to a
     // stable key where we know one and otherwise render it as-is.
-    return translateExternalString(this.i18next.t, notification.message, {
+    return translateExternalString(t, notification.message, {
       ...(notification.metadata ?? {}),
       value: notification.message,
     });

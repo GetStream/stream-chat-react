@@ -11,13 +11,19 @@ import timezone from 'dayjs/plugin/timezone.js';
 import { NotificationTranslationTopic, TranslationBuilder } from './TranslationBuilder';
 import { defaultTranslatorFunction, predefinedFormatters } from './utils';
 
-import type { i18n as I18n, TFunction } from 'i18next';
+import type { i18n as I18n } from 'i18next';
 import type momentTimezone from 'moment-timezone';
 import type { TranslationLanguage } from 'stream-chat';
 
 import type { TranslationTopicConstructor } from './TranslationBuilder';
 import type { UnknownType } from '../types/types';
-import type { CustomFormatters, PredefinedFormatters, TDateTimeParser } from './types';
+import type {
+  CustomFormatters,
+  PredefinedFormatters,
+  StreamTFunction,
+  TDateTimeParser,
+  TranslationDictionary,
+} from './types';
 
 import enTranslations from './en.json';
 
@@ -89,7 +95,7 @@ export type Streami18nOptions = {
   translationBuilderTopics?: Record<string, TranslationTopicConstructor>;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
-  translationsForLanguage?: Partial<typeof enTranslations>;
+  translationsForLanguage?: TranslationDictionary;
 };
 
 /**
@@ -175,8 +181,8 @@ export type Streami18nOptions = {
  * i18n.registerTranslation(
  *  'mr',
  *  {
- *    'Nothing yet...': 'काहीही नाही  ...',
- *    '{{ firstUser }} and {{ secondUser }} are typing...': '{{ firstUser }} आणि {{ secondUser }} टीपी करत आहेत ',
+ *    'messageList.empty': 'काहीही नाही ...',
+ *    'typing.twoUsers': '{{ typing }} टीपी करत आहेत',
  *  },
  *  {
  *    months: [...],
@@ -245,15 +251,20 @@ export class Streami18n {
   translationBuilder: TranslationBuilder;
   private translationBuilderTopics: Record<string, TranslationTopicConstructor> = {};
   Dayjs = null;
-  setLanguageCallback: (t: TFunction) => void = () => null;
+  setLanguageCallback: (t: StreamTFunction) => void = () => null;
   initialized = false;
 
-  t: TFunction = defaultTranslatorFunction;
+  /**
+   * i18next's own `TFunction` accepts any string; the SDK's `StreamTFunction` narrows the key to
+   * the shipped catalog. The cast happens here, once, at the boundary where i18next hands the
+   * function over — see `init()`.
+   */
+  t: StreamTFunction = defaultTranslatorFunction;
   tDateTimeParser: TDateTimeParser;
 
   translations: {
     [key: string]: {
-      [key: string]: typeof enTranslations | UnknownType;
+      [key: string]: TranslationDictionary | UnknownType;
     };
   } = {
     en: { [defaultNS]: enTranslations },
@@ -432,11 +443,11 @@ export class Streami18n {
     this.validateCurrentLanguage();
 
     try {
-      this.t = await this.i18nInstance.init({
+      this.t = (await this.i18nInstance.init({
         ...this.i18nextConfig,
         lng: this.currentLanguage,
         resources: this.translations,
-      });
+      })) as unknown as StreamTFunction;
       this.initialized = true;
       if (this.formatters) {
         Object.entries(this.formatters).forEach(([name, formatterFactory]) => {
@@ -511,7 +522,7 @@ export class Streami18n {
 
   registerTranslation(
     language: TranslationLanguage,
-    translation: typeof enTranslations,
+    translation: TranslationDictionary,
     customDayjsLocale?: Partial<ILocale>,
   ) {
     if (!translation) {
@@ -566,7 +577,7 @@ export class Streami18n {
         );
       }
 
-      this.setLanguageCallback(t);
+      this.setLanguageCallback(t as unknown as StreamTFunction);
       return t;
     } catch (error) {
       this.logger(`Failed to set language: ${JSON.stringify(error)}`);
@@ -574,7 +585,7 @@ export class Streami18n {
     }
   }
 
-  registerSetLanguageCallback(callback: (t: TFunction) => void) {
+  registerSetLanguageCallback(callback: (t: StreamTFunction) => void) {
     this.setLanguageCallback = callback;
   }
 }

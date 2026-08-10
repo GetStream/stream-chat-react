@@ -2,17 +2,42 @@
 // migration. The draft is meant to be reviewed by hand; the collision and review reports it
 // prints are the parts that need human judgment.
 import fs from 'node:fs';
+import type { CallSiteReport, EnglishCatalog, KeyMapEntry } from './types.mts';
+
+type MechanicalRule = {
+  re: RegExp;
+  to: (m: RegExpMatchArray) => string;
+  prose: boolean;
+};
+
+type DraftMeta = {
+  prose: boolean;
+  mechanical?: boolean;
+  override?: boolean;
+  shared?: boolean;
+  sites: number;
+  plural?: boolean;
+  interpolations?: string[];
+  files?: string[];
+};
+
+type ReviewNote = {
+  key: string;
+  newKey: string | null;
+  why: string;
+  namespaces?: string[];
+};
 
 const CALLSITES = process.argv[2];
 const OUT = process.argv[3];
 
-const callsites = JSON.parse(fs.readFileSync(CALLSITES, 'utf8'));
-const en = JSON.parse(fs.readFileSync('src/i18n/en.json', 'utf8'));
+const callsites = JSON.parse(fs.readFileSync(CALLSITES, 'utf8')) as CallSiteReport;
+const en = JSON.parse(fs.readFileSync('src/i18n/en.json', 'utf8')) as EnglishCatalog;
 
 // ---------------------------------------------------------------------------------------
 // Namespaces follow the source tree so that a dev editing a component can predict its keys.
 // ---------------------------------------------------------------------------------------
-const NAMESPACES = {
+const NAMESPACES: Record<string, string> = {
   'plugins/ChannelDetail': 'channelDetail',
   'plugins/Emojis': 'emojiPicker',
   'plugins/SlotLayout': 'slotLayout',
@@ -57,7 +82,7 @@ const NAMESPACES = {
 
 // Keys resolved from a runtime value, or whose value is a formatter expression rather than
 // prose. These get mechanical renames and must keep resolving from en.json (no inline default).
-const MECHANICAL = [
+const MECHANICAL: MechanicalRule[] = [
   { re: /^language\/(.+)$/, to: (m) => `language.${m[1]}`, prose: true },
   // timestamp/relative* are real copy ("Today", "{{count}}d ago"); the PascalCase entries are
   // formatter expressions and must keep resolving from en.json.
@@ -101,7 +126,7 @@ const MECHANICAL = [
 // Hand-authored names for keys where a copy-derived leaf reads badly. The notification set is
 // named after the `translatorsByNotificationType` keys rather than the English sentence, so the
 // key survives copy edits and lines up with the notification type it renders.
-const OVERRIDES = {
+const OVERRIDES: Record<string, string> = {
   // notifications (see src/i18n/TranslationBuilder/notifications/)
   'Error uploading attachment': 'notification.attachmentUploadFailed',
   'Attachment upload failed due to {{reason}}':
@@ -161,7 +186,7 @@ const OVERRIDES = {
     'mediaRecorder.permissionDenied.camera.body',
 };
 
-function words(s) {
+function words(s: string): string[] {
   return String(s)
     .replace(/\{\{[^}]*\}\}/g, ' ') // drop interpolation placeholders
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2') // fooBar -> foo Bar
@@ -220,7 +245,7 @@ const STOPWORDS = new Set([
   'my',
 ]);
 
-function camel(s, maxWords = 4) {
+function camel(s: string, maxWords = 4): string {
   let w = words(s);
   if (!w.length) return 'text';
   // Keep stopwords only if dropping them would leave nothing.
@@ -237,7 +262,7 @@ function camel(s, maxWords = 4) {
 
 // The component segment: the file's own name, unless the file is a helper (utils/index/
 // *.defaults/*.a11y), in which case the containing directory is more meaningful.
-function componentSegment(file) {
+function componentSegment(file: string): string {
   const parts = file.replace(/\.tsx?$/, '').split('/');
   let base = parts[parts.length - 1];
   const helper = /^(index|utils|utils\.a11y|constants|types|hooks)$/i.test(base);
@@ -250,15 +275,15 @@ function componentSegment(file) {
   return camel(base, 3);
 }
 
-function namespaceOf(file) {
+function namespaceOf(file: string): string {
   const m = file.match(/^src\/(components|plugins)\/([^/]+)/);
   if (m) return NAMESPACES[`${m[1]}/${m[2]}`] ?? camel(m[2]);
   const dir = file.split('/').slice(0, 2).join('/');
-  return NAMESPACES[dir] ?? camel(dir.split('/').pop());
+  return NAMESPACES[dir] ?? camel(dir.split('/').pop() ?? dir);
 }
 
 // Modality suffix, from the JSX attribute / object property the call sits in.
-function suffixOf(rec, isAria) {
+function suffixOf(rec: CallSiteReport['records'][number], isAria: boolean): string {
   const n = (rec.ctxName ?? '').toLowerCase();
   if (isAria) return n.includes('describedby') ? 'description' : 'ariaLabel';
   if (n === 'aria-label' || n === 'arialabel') return 'ariaLabel';
@@ -271,7 +296,7 @@ function suffixOf(rec, isAria) {
   return 'label';
 }
 
-const bare = (k) => k.replace(/_(one|other|zero|two|few|many)$/, '');
+const bare = (k: string): string => k.replace(/_(one|other|zero|two|few|many)$/, '');
 const pluralBases = new Set(
   Object.keys(en)
     .filter((k) => /_(one|other|zero|two|few|many)$/.test(k))
@@ -283,16 +308,20 @@ const pluralBases = new Set(
 // ---------------------------------------------------------------------------------------
 // One old key can appear at several call sites; pick the first (files are walked in a stable
 // order) and record the rest so review can spot keys shared across unrelated components.
-const byKey = new Map();
+const byKey = new Map<string, CallSiteReport['records']>();
 for (const r of callsites.records) {
-  if (!byKey.has(r.key)) byKey.set(r.key, []);
-  byKey.get(r.key).push(r);
+  const forKey = byKey.get(r.key) ?? [];
+  forKey.push(r);
+  byKey.set(r.key, forKey);
 }
 
-const map = {};
-const meta = {};
-const parts = {};
-const review = [];
+const map: Record<string, string> = {};
+const meta: Record<string, DraftMeta> = {};
+const parts: Record<
+  string,
+  { ns: string; comp: string; leaf: string; suffix: string; triple?: string }
+> = {};
+const review: ReviewNote[] = [];
 
 for (const [key, recs] of byKey) {
   if (OVERRIDES[key]) {
@@ -309,9 +338,15 @@ for (const [key, recs] of byKey) {
   }
   const mech = MECHANICAL.find((m) => m.re.test(key));
   if (mech) {
-    const newKey = mech.to(key.match(mech.re));
+    // `mech` was found via `mech.re.test(key)`, so the match cannot be null here.
+    const newKey = mech.to(key.match(mech.re) as RegExpMatchArray);
     map[key] = newKey;
-    meta[key] = { prose: mech.prose, mechanical: true, sites: recs.length };
+    meta[key] = {
+      prose: mech.prose,
+      mechanical: true,
+      sites: recs.length,
+      plural: pluralBases.has(key),
+    };
     continue;
   }
 
@@ -362,7 +397,7 @@ for (const k of Object.keys(en).map(bare)) {
   if (map[k]) continue;
   const mech = MECHANICAL.find((m) => m.re.test(k));
   if (mech) {
-    map[k] = mech.to(k.match(mech.re));
+    map[k] = mech.to(k.match(mech.re) as RegExpMatchArray);
     meta[k] = { prose: mech.prose, mechanical: true, sites: 0 };
   } else {
     review.push({ key: k, newKey: null, why: 'no call site and no mechanical rule' });
@@ -373,7 +408,7 @@ for (const k of Object.keys(en).map(bare)) {
 // nothing ("poll.endPollAlert.wantEndPollNow.description"). Where `<ns>.<comp>.<suffix>` is
 // already unique, drop the leaf and let the component + role name the key.
 {
-  const tripleCount = {};
+  const tripleCount: Record<string, number> = {};
   for (const [key, p] of Object.entries(parts)) {
     if (!p.comp) continue;
     const triple = `${p.ns}.${p.comp}.${p.suffix}`;
@@ -394,10 +429,11 @@ for (const k of Object.keys(en).map(bare)) {
 // Disambiguate by folding the interpolation variables into the key, which is also the more
 // descriptive name; fall back to a numeric suffix only if that is still not unique.
 const groupByNewKey = () => {
-  const rev = new Map();
+  const rev = new Map<string, string[]>();
   for (const [oldK, newK] of Object.entries(map)) {
-    if (!rev.has(newK)) rev.set(newK, []);
-    rev.get(newK).push(oldK);
+    const olds = rev.get(newK) ?? [];
+    olds.push(oldK);
+    rev.set(newK, olds);
   }
   return rev;
 };
@@ -430,7 +466,7 @@ const collisions = [...groupByNewKey().entries()].filter(([, v]) => v.length > 1
 
 // Emit sorted by new key so the file reads as a browsable table and diffs stay stable.
 const entries = Object.entries(map).sort((a, b) => a[1].localeCompare(b[1]));
-const keys = {};
+const keys: Record<string, KeyMapEntry> = {};
 for (const [oldKey, newKey] of entries) {
   const m = meta[oldKey] ?? {};
   keys[oldKey] = {

@@ -1,8 +1,8 @@
 import type { AudioPlayerPlugin } from './AudioPlayerPlugin';
 import { type AudioPlayerErrorCode } from '../AudioPlayer';
-import type { TFunction } from 'i18next';
 import type { AddNotification } from '../../Notifications/hooks/useNotificationApi';
 import type { NotificationTargetPanel } from '../../Notifications/notificationTarget';
+import type { StreamTFunction } from '../../../i18n/types';
 
 const SEEK_NOT_SUPPORTED_NOTIFICATION_DEBOUNCE_INTERVAL_MS = 1000;
 
@@ -13,7 +13,7 @@ export const audioPlayerNotificationsPluginFactory = ({
 }: {
   addNotification: AddNotification;
   panel?: NotificationTargetPanel;
-  t: TFunction;
+  t: StreamTFunction;
 }): AudioPlayerPlugin => {
   const errors: Record<AudioPlayerErrorCode, Error> = {
     'failed-to-start': new Error(

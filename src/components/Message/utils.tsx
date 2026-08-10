@@ -2,7 +2,6 @@ import deepequal from 'react-fast-compare';
 
 import { EMOJI_REGEX } from './emojiRegex';
 
-import type { TFunction } from 'i18next';
 import type {
   ChannelConfigWithInfo,
   LocalMessage,
@@ -13,6 +12,7 @@ import type {
 } from 'stream-chat';
 import type { MessageProps } from './types';
 import type { MessageContextValue } from '../../context';
+import type { StreamTFunction } from '../../i18n/types';
 
 /**
  * Following function validates a function which returns notification message.
@@ -312,7 +312,7 @@ export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || u
 
 export const getReadByTooltipText = (
   users: UserResponse[],
-  t: TFunction,
+  t: StreamTFunction,
   client: StreamChat,
   tooltipUserNameMapper: TooltipUsernameMapper,
 ) => {
@@ -355,7 +355,7 @@ export const getReadByTooltipText = (
     // example: "bob, joe, sam and 4 more"
     if (restLength === 0) {
       // mutate slicedArr to remove last user to display it separately
-      const lastUser = slicedArr.splice(slicedArr.length - 1, 1);
+      const [lastUser] = slicedArr.splice(slicedArr.length - 1, 1);
       outStr = t(
         'message.and.withCommaSeparatedUsersAndLastUser.label',
         '{{ commaSeparatedUsers }}, and {{ lastUser }}',

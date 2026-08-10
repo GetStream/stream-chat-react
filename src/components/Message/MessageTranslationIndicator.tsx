@@ -7,6 +7,7 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
+import { asDynamicKey } from '../../i18n/utils';
 
 export type TranslationIndicatorProps = {
   message?: LocalMessage;
@@ -51,7 +52,7 @@ export const MessageTranslationIndicator = ({
     const sourceLanguageCode = message?.i18n?.language;
     if (!sourceLanguageCode) return '';
     const languageKey = 'language.' + sourceLanguageCode;
-    const translatedName = t(languageKey);
+    const translatedName = t(asDynamicKey(languageKey));
     return translatedName && translatedName !== languageKey
       ? translatedName
       : sourceLanguageCode;

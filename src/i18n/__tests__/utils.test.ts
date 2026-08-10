@@ -297,7 +297,7 @@ describe('getDateString', () => {
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Today');
-      expect(mockT).toHaveBeenCalledWith('timestamp.relativeToday', 'Today');
+      expect(mockT).toHaveBeenCalledWith('relativeTime.today', 'Today');
     });
 
     it('returns "Yesterday" for 1 day ago', () => {
@@ -311,7 +311,7 @@ describe('getDateString', () => {
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Yesterday');
-      expect(mockT).toHaveBeenCalledWith('timestamp.relativeYesterday', 'Yesterday');
+      expect(mockT).toHaveBeenCalledWith('relativeTime.yesterday', 'Yesterday');
     });
 
     it('returns "Nd ago" for 2–6 days ago', () => {
@@ -325,13 +325,11 @@ describe('getDateString', () => {
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('3d ago');
-      expect(mockT).toHaveBeenCalledWith(
-        'timestamp.relativeDaysAgo',
-        '{{ count }}d ago',
-        {
-          count: 3,
-        },
-      );
+      expect(mockT).toHaveBeenCalledWith('relativeTime.daysAgo', {
+        count: 3,
+        defaultValue_one: '{{ count }}d ago',
+        defaultValue_other: '{{ count }}d ago',
+      });
     });
 
     it('returns "Nw ago" for 1–3 weeks ago', () => {
@@ -345,13 +343,11 @@ describe('getDateString', () => {
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('1w ago');
-      expect(mockT).toHaveBeenCalledWith(
-        'timestamp.relativeWeeksAgo',
-        '{{ count }}w ago',
-        {
-          count: 1,
-        },
-      );
+      expect(mockT).toHaveBeenCalledWith('relativeTime.weeksAgo', {
+        count: 1,
+        defaultValue_one: '{{ count }}w ago',
+        defaultValue_other: '{{ count }}w ago',
+      });
     });
 
     it('returns DD/MM/YY for 4+ weeks ago', () => {

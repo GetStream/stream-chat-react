@@ -4,6 +4,7 @@ import { useMessageComposerContext, useTranslationContext } from '../../../conte
 import { useStateStore } from '../../../store';
 import { useCooldownRemaining } from '../../MessageComposer/hooks/useCooldownRemaining';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
+import { asDynamicKey } from '../../../i18n/utils';
 
 type UseTextareaPlaceholderProps = {
   placeholder?: string;
@@ -35,7 +36,8 @@ export const useTextareaPlaceholder = ({
   );
 
   const commandArgs =
-    command?.args && (knownArgsTranslations[command.name ?? ''] ?? t(command.args));
+    command?.args &&
+    (knownArgsTranslations[command.name ?? ''] ?? t(asDynamicKey(command.args)));
   const commandPlaceholder =
     command?.name === 'giphy'
       ? t('textareaComposer.textareaPlaceholder.searchGiFs.label', 'Search GIFs')

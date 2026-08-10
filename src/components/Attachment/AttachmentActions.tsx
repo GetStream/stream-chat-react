@@ -10,6 +10,7 @@ import { Button } from '../Button';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { useStableId } from '../UtilityComponents/useStableId';
 import clsx from 'clsx';
+import { asDynamicKey } from '../../i18n/utils';
 
 export type AttachmentActionsProps = Attachment & {
   /** A list of actions */
@@ -155,7 +156,7 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
         <span>{text}</span>
         {actions.map((action, index) => {
           const label = action.text
-            ? (knownActionText[action.text] ?? t(action.text))
+            ? (knownActionText[action.text] ?? t(asDynamicKey(action.text)))
             : null;
 
           return (

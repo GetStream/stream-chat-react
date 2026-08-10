@@ -2,7 +2,156 @@ import type { Streami18n } from './Streami18n';
 import type Dayjs from 'dayjs';
 import type { Moment } from 'moment-timezone';
 import type { MessageContextValue } from '../context';
-import type { TFunction } from 'i18next';
+import type { TOptions } from 'i18next';
+import type { TranslationCatalog } from './keys';
+
+type Whitespace = ' ' | '\n' | '\t';
+type Trim<S extends string> = S extends `${Whitespace}${infer R}`
+  ? Trim<R>
+  : S extends `${infer R}${Whitespace}`
+    ? Trim<R>
+    : S;
+
+/** `{{ value, formatter }}` and `{{ value | formatter(...) }}` — the name is the leading part. */
+type VarName<S extends string> = Trim<
+  S extends `${infer Name},${string}`
+    ? Name
+    : S extends `${infer Name}|${string}`
+      ? Name
+      : S
+>;
+
+/**
+ * The interpolation variables a copy string requires.
+ *
+ * i18next ships `InterpolationMap`, but it does not trim the placeholder, so `{{ setting }}`
+ * yields a property literally named `" setting "`. The SDK's copy uses spaced placeholders
+ * throughout, so we parse them ourselves.
+ */
+type InterpolationVars<S extends string> =
+  S extends `${string}{{${infer V}}}${infer Rest}`
+    ? (VarName<V> extends '' ? never : VarName<V>) | InterpolationVars<Rest>
+    : never;
+
+type InterpolationArgs<S extends string> = [InterpolationVars<S>] extends [never]
+  ? Record<never, never>
+  : { [K in InterpolationVars<S>]: number | string };
+
+type PluralSuffix = 'zero' | 'one' | 'two' | 'few' | 'many' | 'other';
+type CatalogKey = keyof TranslationCatalog & string;
+
+/**
+ * Keys whose catalog entries are plural forms (`<key>_one` / `<key>_other`). Call sites use the
+ * bare key and pass `count`; the suffixed forms are never referenced directly.
+ */
+export type PluralTranslationKey = CatalogKey extends infer K
+  ? K extends `${infer Base}_other`
+    ? Base
+    : never
+  : never;
+
+/**
+ * Every key the SDK's `t` accepts: the singular entries plus the bare handle for each plural.
+ *
+ * Integrators can use this to type their own dictionaries strictly:
+ * `const de: Record<TranslationKey, string> = { … }`.
+ */
+export type TranslationKey =
+  | Exclude<CatalogKey, `${string}_${PluralSuffix}`>
+  | PluralTranslationKey;
+
+/**
+ * A translation dictionary for `Streami18n.registerTranslation()` / `translationsForLanguage`.
+ *
+ * Known SDK keys are autocompleted and their spelling is checked; additional keys are allowed so
+ * that integrators can register copy for their own components through the same instance. Use
+ * `Partial<Record<TranslationKey, string>>` instead if you want unknown keys rejected.
+ */
+export type TranslationDictionary = Partial<Record<TranslationKey, string>> &
+  Record<string, string>;
+
+/** The English copy for a key, used to infer that key's interpolation variables. */
+type CopyFor<K extends string> = K extends CatalogKey
+  ? TranslationCatalog[K]
+  : `${K}_other` extends CatalogKey
+    ? TranslationCatalog[`${K}_other` & CatalogKey]
+    : string;
+
+/**
+ * Keys whose value is a formatter expression or postProcessor directive rather than English copy.
+ * They resolve from en.json, so call sites pass no inline default. Matched by prefix pattern
+ * rather than by enumerating the union, which keeps the overload resolution cheap.
+ */
+type FormatterKey =
+  | `timestamp.${string}`
+  | `duration.${string}`
+  | `translationBuilderTopic.${string}`;
+
+/** Keys whose value is English copy, passed inline as the `defaultValue`. */
+type ProseKey = Exclude<TranslationKey, FormatterKey | PluralTranslationKey>;
+
+/**
+ * The SDK's translation function.
+ *
+ * Every call site passes its English copy inline as i18next's `defaultValue`, so the key stays
+ * stable across copy edits and a key missing from a custom dictionary still renders English.
+ * Interpolation variables are inferred from that copy, and plural keys require `count`.
+ *
+ * Deliberately *not* installed via i18next's `CustomTypeOptions`: that augmentation is global and
+ * would force an integrator's own unrelated `t()` calls to satisfy the SDK's key union.
+ */
+export type StreamTFunction = {
+  /** Plural key: `count` selects between the `_one` / `_other` copy. */
+  <K extends PluralTranslationKey>(
+    key: K,
+    options: TOptions & { count: number } & InterpolationArgs<CopyFor<K>>,
+  ): string;
+  /**
+   * Formatter/plumbing key: resolves from en.json, so no inline default. Options stay loose —
+   * the value is a formatter expression, so inferring its variables is neither useful nor cheap
+   * (`CopyFor` over a template-literal key pattern blows the union size limit).
+   */
+  (key: FormatterKey, options?: TOptions & Record<string, unknown>): string;
+  /**
+   * Prose key with its English copy inline.
+   *
+   * Neither `defaultValue` nor `options` is tied to the key's exact copy. Doing so means
+   * materialising `CopyFor<ProseKey>` — the union of ~540 copy strings — which exceeds
+   * TypeScript's union size limit (TS2590). The two checks that would buy are covered elsewhere:
+   * the default matching en.json is enforced by the extraction drift gate, and missing
+   * interpolation variables surface as a literal `{{ placeholder }}` in the rendered output,
+   * which the test suite asserts on.
+   *
+   * Plural keys keep precise typing (see the first overload) because that union is small.
+   */
+  <K extends ProseKey>(
+    key: K,
+    defaultValue: string,
+    options?: TOptions & Record<string, unknown>,
+  ): string;
+  /**
+   * Escape hatch for keys only known at runtime — a `notification.message` from `stream-chat`,
+   * slash-command metadata from the API, or an integrator-supplied prop. The raw string doubles
+   * as the default so it still renders verbatim when no translation exists.
+   */
+  (
+    key: DynamicTranslationKey,
+    defaultValueOrOptions?: string | (TOptions & Record<string, unknown>),
+    options?: TOptions & Record<string, unknown>,
+  ): string;
+};
+
+/**
+ * A translation key resolved from a runtime value rather than written literally.
+ *
+ * The brand is *required*, so a plain `string` is not assignable and the escape hatch has to be
+ * taken deliberately via `asDynamicKey()` — which also makes every such site greppable.
+ *
+ * @example t(asDynamicKey(command.description))
+ */
+export type DynamicTranslationKey = string & {
+  readonly __dynamicTranslationKey: true;
+};
 
 export type FormatterFactory<V> = (
   streamI18n: Streami18n,
@@ -25,14 +174,14 @@ export type TimestampFormatterOptions = {
    * You can change the words used (e.g. "Hoy" instead of "Today") by adding or overriding
    * these keys in your locale JSON. Example (paste into your translation JSON):
    *
-   *   "timestamp/relativeToday": "Today",
-   *   "timestamp/relativeYesterday": "Yesterday",
-   *   "timestamp/relativeDaysAgo": "{{ count }}d ago",
-   *   "timestamp/relativeWeeksAgo": "{{ count }}w ago",
-   *   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}"
+   *   "relativeTime.today": "Today",
+   *   "relativeTime.yesterday": "Yesterday",
+   *   "relativeTime.daysAgo": "{{ count }}d ago",
+   *   "relativeTime.weeksAgo": "{{ count }}w ago",
+   *   "timestamp.PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}"
    *
    * Only days, no weeks (7+ days show as date):
-   *   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactMaxWeeks: 0) }}"
+   *   "timestamp.PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactMaxWeeks: 0) }}"
    */
   relativeCompact?: boolean;
   /**
@@ -115,7 +264,7 @@ export type SupportedTranslations = 'en';
 export type DateFormatterOptions = TimestampFormatterOptions & {
   formatDate?: MessageContextValue['formatDate'];
   messageCreatedAt?: string | Date;
-  t?: TFunction;
+  t?: StreamTFunction;
   tDateTimeParser?: TDateTimeParser;
   timestampTranslationKey?: string;
 };
