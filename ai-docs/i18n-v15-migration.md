@@ -144,6 +144,52 @@ formatter expressions, not text:
 Override them to change _how_ a date is formatted, not to translate anything. `relativeTime.*`
 ("Today", "{{ count }}d ago") is ordinary copy and does need translating.
 
+## Keeping a language up to date across upgrades
+
+When a later SDK release adds a key, **your build stays green.** `TranslationDictionary` is
+`Partial`, so nothing is required; the new string renders its inline English until you translate it.
+That is deliberate — a partial dictionary is always safe, and no key ever renders as a raw dotted
+path — but it does mean new copy arrives untranslated without telling you.
+
+To be told, diff your dictionary against the catalog at the type level. Declare it `as const` so
+TypeScript keeps the literal keys, then `Exclude` them from the catalog:
+
+```ts
+import type { TranslationCatalog, TranslationDictionary } from 'stream-chat-react';
+
+export const de = {
+  'common.cancel.label': 'Abbrechen',
+  'common.back.label': 'Zurück',
+} as const satisfies TranslationDictionary;
+
+/** Every key still needing German. Hover it to read the list. */
+type Untranslated = Exclude<keyof TranslationCatalog, keyof typeof de>;
+```
+
+Hovering `Untranslated` in your editor lists the missing keys, and it shrinks as you add them. To
+turn "am I complete?" into a build failure — useful in CI after a dependency bump — assert the diff
+is empty:
+
+```ts
+type AssertEmpty<T extends never> = T;
+type TranslationsComplete = AssertEmpty<Untranslated>;
+// ^ compile error naming a missing key until `de` covers the whole catalog
+```
+
+`satisfies` is doing real work here: it still type-checks every key against the catalog (so a typo
+is an error) while `as const` preserves the literal keys that `keyof typeof de` needs. Using a plain
+`: TranslationDictionary` annotation would widen `keyof typeof de` to the whole catalog and the diff
+would always be empty.
+
+Two caveats:
+
+- If your language needs plural categories the catalog does not carry (`_few`, `_many`, `_zero`),
+  type the dictionary as `LooseTranslationDictionary` instead. You lose the diff, because that type
+  admits any key.
+- There is no _runtime_ list of keys to diff against — `TranslationCatalog` is a type, which is what
+  keeps the typed surface free at runtime. So this check is compile-time only; a script cannot ask
+  the installed package "which keys exist?".
+
 ## Supplying a language the SDK used to ship
 
 The last published dictionaries are in git history. To recover one:
