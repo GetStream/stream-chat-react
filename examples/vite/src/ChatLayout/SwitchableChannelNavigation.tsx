@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type {
   Channel,
+  ChannelManagerState,
   ChannelPaginator,
-  ChannelPaginatorsOrchestratorState,
   ChannelPaginatorState,
   PaginatorIntervalViews,
   SearchControllerState,
@@ -47,7 +47,7 @@ const itemCountSelector = (state: ChannelPaginatorState) => ({
   count: state.items?.length ?? 0,
 });
 
-const paginatorsSelector = (state: ChannelPaginatorsOrchestratorState) => ({
+const paginatorsSelector = (state: ChannelManagerState) => ({
   paginators: state.paginators,
 });
 const searchControllerStateSelector = (state: SearchControllerState) => ({
@@ -162,7 +162,7 @@ const ChannelListSwitcher = ({
 };
 
 // Channels ingested into the active paginator out of pagination order (surfaced via
-// `orchestrator.ingestChannel` on a deep-link restore, search result, or new DM) land in one of the
+// `channelManager.ingestChannel` on a deep-link restore, search result, or new DM) land in one of the
 // paginator's logical intervals when their sort position falls outside the loaded pages: the logical
 // HEAD when newer than the loaded window, the logical TAIL when older (e.g. deep-linking a channel
 // far down the list). Neither shows in the paginated `ChannelList` (which follows the active
@@ -190,7 +190,7 @@ const SideloadedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
 
 /**
  * Example channel navigation that shows exactly ONE channel list at a time plus a menu to
- * switch between the lists held by the `ChannelPaginatorsOrchestrator`. It mirrors the SDK's
+ * switch between the lists held by the `ChannelManager`. It mirrors the SDK's
  * `ChannelNavigation` (header, search, notifications) but replaces the SDK's stacked
  * `ChannelLists` (one `<ChannelList>` per paginator, empty ones included) with a switcher +
  * the active list. This keeps the empty "Opened" fallback from rendering below the primary
@@ -199,11 +199,8 @@ const SideloadedChannels = ({ paginator }: { paginator: ChannelPaginator }) => {
 export const SwitchableChannelNavigation = () => {
   const { NotificationList = DefaultNotificationList, Search = DefaultSearch } =
     useComponentContext();
-  const { channelPaginatorsOrchestrator, searchController } = useChatContext();
-  const { paginators } = useStateStore(
-    channelPaginatorsOrchestrator.state,
-    paginatorsSelector,
-  );
+  const { channelManager, searchController } = useChatContext();
+  const { paginators } = useStateStore(channelManager.state, paginatorsSelector);
   const { isActive } = useStateStore(
     searchController.state,
     searchControllerStateSelector,

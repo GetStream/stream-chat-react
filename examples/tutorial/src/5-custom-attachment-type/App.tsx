@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import type {
   Attachment as AttachmentType,
+  ClientUser,
   Channel as StreamChannel,
-  User,
 } from 'stream-chat';
 import {
   Attachment,
@@ -20,7 +20,7 @@ import {
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -28,10 +28,14 @@ const user: User = {
 
 const attachments: AttachmentType[] = [
   {
-    image: 'https://images-na.ssl-images-amazon.com/images/I/71k0cry-ceL._SL1500_.jpg',
-    name: 'iPhone',
     type: 'product',
-    url: 'https://goo.gl/ppFmcR',
+    // fields that are not part of the Attachment API go under `custom` — this example declares them
+    // through module augmentation in ./stream-chat.d.ts
+    custom: {
+      image: 'https://images-na.ssl-images-amazon.com/images/I/71k0cry-ceL._SL1500_.jpg',
+      name: 'iPhone',
+      url: 'https://goo.gl/ppFmcR',
+    },
   },
 ];
 
@@ -55,14 +59,16 @@ const CustomAttachment = (props: AttachmentProps) => {
         <div style={{ color: '#0f172a', fontSize: '12px', fontWeight: 700 }}>
           Product recommendation
         </div>
-        <a href={attachment.url} rel='noreferrer' target='_blank'>
+        <a href={attachment.custom?.url} rel='noreferrer' target='_blank'>
           <img
             alt='custom-attachment'
             height='120'
-            src={attachment.image}
+            src={attachment.custom?.image}
             style={{ borderRadius: '18px', marginTop: '8px', objectFit: 'cover' }}
           />
-          <div style={{ color: '#334155', marginTop: '8px' }}>{attachment.name}</div>
+          <div style={{ color: '#334155', marginTop: '8px' }}>
+            {attachment.custom?.name}
+          </div>
         </a>
       </div>
     );
@@ -84,21 +90,27 @@ const App = () => {
 
     const initChannel = async () => {
       const channel = client.channel('messaging', 'react-tutorial-products', {
-        image: 'https://getstream.io/random_png/?name=products',
-        name: 'Product recommendations',
         members: [userId],
+        custom: {
+          image: 'https://getstream.io/random_png/?name=products',
+          name: 'Product recommendations',
+        },
       });
 
       await channel.watch();
 
-      const hasProductMessage = channel.state.messages.some((message) =>
+      // messages are no longer kept on channel.state — the paginator owns the list
+      const hasProductMessage = (channel.messagePaginator.items ?? []).some((message) =>
         message.attachments?.some(isProductAttachment),
       );
 
       if (!hasProductMessage) {
+        // the message payload is nested under `message` since v10
         await channel.sendMessage({
-          text: 'Your selected product is out of stock, would you like to select one of these alternatives?',
-          attachments,
+          message: {
+            text: 'Your selected product is out of stock, would you like to select one of these alternatives?',
+            attachments,
+          },
         });
       }
 

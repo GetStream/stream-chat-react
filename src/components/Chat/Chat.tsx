@@ -2,8 +2,6 @@ import type { PropsWithChildren } from 'react';
 import React, { useMemo } from 'react';
 import type { StreamChat } from 'stream-chat';
 import {
-  ChannelPaginator,
-  ChannelPaginatorsOrchestrator,
   ChannelSearchSource,
   MessageSearchSource,
   SearchController,
@@ -90,12 +88,6 @@ const ModalNotificationConfiguration = ({
 export type ChatProps = {
   /** The StreamChat client object */
   client: StreamChat;
-  /**
-   * Orchestrator managing the channel-list paginators (data source + cross-list
-   * ownership). Defaults to a single `channels:default` paginator over the current
-   * user's channels.
-   */
-  channelPaginatorsOrchestrator?: ChannelPaginatorsOrchestrator;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
@@ -124,7 +116,6 @@ export type ChatProps = {
  */
 export const Chat = (props: PropsWithChildren<ChatProps>) => {
   const {
-    channelPaginatorsOrchestrator: customChannelPaginatorsOrchestrator,
     children,
     client,
     customClasses,
@@ -156,29 +147,8 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     [client, customChannelSearchController],
   );
 
-  const channelPaginatorsOrchestrator = useMemo(
-    () =>
-      customChannelPaginatorsOrchestrator ??
-      new ChannelPaginatorsOrchestrator({
-        client,
-        paginators: [
-          new ChannelPaginator({
-            client,
-            filters: client.user?.id ? { members: { $in: [client.user.id] } } : {},
-            id: 'channels:default',
-            sort: [
-              { direction: -1, field: 'last_message_at' },
-              { direction: 1, field: 'pinned_at' },
-              { direction: -1, field: 'updated_at' },
-            ],
-          }),
-        ],
-      }),
-    [client, customChannelPaginatorsOrchestrator],
-  );
-
   const chatContextValue = useCreateChatContext({
-    channelPaginatorsOrchestrator,
+    channelManager: client.channelManager,
     client,
     customClasses,
     getAppSettings,

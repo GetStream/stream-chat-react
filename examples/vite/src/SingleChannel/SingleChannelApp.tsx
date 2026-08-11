@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type {
-  ChannelPaginatorsOrchestrator,
-  ChannelPaginatorsOrchestratorState,
+  ChannelManager,
+  ChannelManagerState,
   Channel as StreamChannel,
   StreamChat,
 } from 'stream-chat';
@@ -36,11 +36,11 @@ const SINGLE_CHANNEL_DIALOG_ID = 'app-single-channel-modal';
 export const resolveSingleChannel = ({
   channelKey,
   client,
-  orchestrator,
+  channelManager,
 }: {
   channelKey?: string;
   client: StreamChat;
-  orchestrator?: ChannelPaginatorsOrchestrator;
+  channelManager?: ChannelManager;
 }): StreamChannel => {
   if (channelKey) {
     const separatorIndex = channelKey.indexOf(':');
@@ -51,7 +51,7 @@ export const resolveSingleChannel = ({
     return client.channel(type, id);
   }
 
-  const loadedChannel = orchestrator?.paginators.flatMap(
+  const loadedChannel = channelManager?.paginators.flatMap(
     (paginator) => paginator.items ?? [],
   )[0];
   if (loadedChannel) return loadedChannel;
@@ -67,7 +67,7 @@ const setSingleChannel = (channelCid: string | undefined) =>
     layout: { ...appSettingsStore.getLatestValue().layout, channelCid },
   });
 
-const paginatorsSelector = (state: ChannelPaginatorsOrchestratorState) => ({
+const paginatorsSelector = (state: ChannelManagerState) => ({
   paginators: state.paginators,
 });
 
@@ -77,11 +77,8 @@ const paginatorsSelector = (state: ChannelPaginatorsOrchestratorState) => ({
  * are the channels the paginators have loaded, with the current channel always present.
  */
 const SingleChannelTitle = ({ channel }: { channel: StreamChannel }) => {
-  const { channelPaginatorsOrchestrator } = useChatContext();
-  const { paginators } = useStateStore(
-    channelPaginatorsOrchestrator.state,
-    paginatorsSelector,
-  );
+  const { channelManager } = useChatContext();
+  const { paginators } = useStateStore(channelManager.state, paginatorsSelector);
 
   const options = useMemo<SearchableSelectOption<string>[]>(() => {
     const loaded = Array.from(

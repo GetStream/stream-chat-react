@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { User } from 'stream-chat';
+import type { ClientUser } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -20,7 +20,7 @@ import data from '@emoji-mart/data';
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -62,9 +62,12 @@ const App = () => {
 
     const initChannel = async () => {
       const channel = client.channel('messaging', 'react-tutorial', {
-        image: 'https://getstream.io/random_png/?name=react-v14',
-        name: 'Talk about React',
         members: [userId],
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://getstream.io/random_png/?name=react-v14',
+          name: 'Talk about React',
+        },
       });
 
       await channel.watch();

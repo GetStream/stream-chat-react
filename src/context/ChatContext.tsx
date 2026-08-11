@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type {
-  ChannelPaginatorsOrchestrator,
+  ChannelManager,
   SearchController,
   StreamChat,
   UserMuteResponse,
@@ -27,10 +27,12 @@ type ChannelConfId = string; // e.g.: "messaging:general"
 
 export type ChatContextValue = {
   /**
-   * `ChannelPaginatorsOrchestrator` used to query and manage channels across one or
-   * more channel lists (the channel-list data source + cross-list ownership).
+   * The client's `ChannelManager` (`client.channelManager`) — used to query and manage channels
+   * across one or more channel lists (the channel-list data source + cross-list ownership). The
+   * lists themselves are registered on it by the application
+   * (`client.channelManager.insertPaginator({ paginator })`); the SDK creates none.
    */
-  channelPaginatorsOrchestrator: ChannelPaginatorsOrchestrator;
+  channelManager: ChannelManager;
   getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
   latestMessageDatesByChannels: Record<ChannelConfId, Date>;
   mutes: Array<UserMuteResponse>;

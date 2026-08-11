@@ -27,7 +27,7 @@ vi.mock('../../../../context', () => ({
     query: mocks.query,
   }),
   useChatContext: () => ({
-    channelPaginatorsOrchestrator: { ingestChannel: mocks.ingestChannel },
+    channelManager: { ingestChannel: mocks.ingestChannel },
     client: {
       getThread: vi.fn(),
       notifications: { addError: vi.fn() },
