@@ -13,7 +13,6 @@ import { defaultTranslatorFunction, predefinedFormatters } from './utils';
 
 import type { i18n as I18n } from 'i18next';
 import type momentTimezone from 'moment-timezone';
-import type { TranslationLanguage } from 'stream-chat';
 
 import type { TranslationTopicConstructor } from './TranslationBuilder';
 import type { UnknownType } from '../types/types';
@@ -91,13 +90,48 @@ export type Streami18nOptions = {
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   formatters?: Partial<PredefinedFormatters> & CustomFormatters;
-  language?: TranslationLanguage;
+  language?: string;
   logger?: (message?: string) => void;
   translationBuilderTopics?: Record<string, TranslationTopicConstructor>;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
   translationsForLanguage?: TranslationDictionary;
 };
+
+const defaultStreami18nOptions = {
+  DateTimeParser: Dayjs,
+  debug: false,
+  disableDateTimeTranslations: false,
+  language: 'en',
+  logger: (message?: string) => console.warn(message),
+  /**
+   * Key in the translationBuilderTopics has to match postProcessorName in the translation value.
+   *
+   * {
+   *   "key": "{{value, postProcessorName}}"
+   * }
+   *
+   * At least the default topics will be supported.
+   */
+  translationBuilderTopics: {
+    notification: NotificationTranslationTopic,
+  },
+};
+
+/**
+ * Wraps an integrator's `parseMissingKeyHandler` so it only sees genuinely missing translations.
+ *
+ * i18next counts every prose key as missing (they render from the inline `defaultValue`, not from
+ * the resource) and lets the handler's return value replace the rendered string — so an unguarded
+ * handler blanks out most of the UI. A resolved default arrives as the second argument, which is
+ * how the two cases are told apart.
+ */
+const guardMissingKeyHandler =
+  (handler: (key: string, defaultValue?: string) => string) =>
+  (key: string, defaultValue?: string) => {
+    if (typeof defaultValue === 'string') return defaultValue;
+    return handler(key, defaultValue);
+  };
 
 /**
  * Wrapper around [i18next](https://www.i18next.com/) class for Stream related i18n.
@@ -170,42 +204,6 @@ export type Streami18nOptions = {
  * `ChannelDetailPinnedMessageTimestamp`). Those carry English day words; translate them by
  * overriding the keys — see `ai-docs/i18n-v15-migration.md`.
  */
-const defaultStreami18nOptions = {
-  DateTimeParser: Dayjs,
-  dayjsLocaleConfigForLanguage: null,
-  debug: false,
-  disableDateTimeTranslations: false,
-  language: 'en' as TranslationLanguage,
-  logger: (message?: string) => console.warn(message),
-  /**
-   * Key in the translationBuilderTopics has to match postProcessorName in the translation value.
-   *
-   * {
-   *   "key": "{{value, postProcessorName}}"
-   * }
-   *
-   * At least the default topics will be supported.
-   */
-  translationBuilderTopics: {
-    notification: NotificationTranslationTopic,
-  },
-};
-
-/**
- * Wraps an integrator's `parseMissingKeyHandler` so it only sees genuinely missing translations.
- *
- * i18next counts every prose key as missing (they render from the inline `defaultValue`, not from
- * the resource) and lets the handler's return value replace the rendered string — so an unguarded
- * handler blanks out most of the UI. A resolved default arrives as the second argument, which is
- * how the two cases are told apart.
- */
-const guardMissingKeyHandler =
-  (handler: (key: string, defaultValue?: string) => string) =>
-  (key: string, defaultValue?: string) => {
-    if (typeof defaultValue === 'string') return defaultValue;
-    return handler(key, defaultValue);
-  };
-
 export class Streami18n {
   i18nInstance: I18n = i18n.createInstance();
   translationBuilder: TranslationBuilder;
@@ -231,7 +229,7 @@ export class Streami18n {
    * `Object.keys(this.translations)`, which also holds languages seeded with `runtimeDefaults`
    * alone.
    */
-  private registeredLanguages = new Set<string>([defaultLng]);
+  registeredLanguages = new Set<string>([defaultLng]);
 
   /**
    * dayjs.defineLanguage('nl') also changes the global locale. We don't want to do that
@@ -246,7 +244,7 @@ export class Streami18n {
    * Initialize properties used in constructor
    */
   logger: (msg?: string) => void;
-  currentLanguage: TranslationLanguage;
+  currentLanguage: string;
   DateTimeParser: DateTimeParserModule;
   formatters: PredefinedFormatters & CustomFormatters = predefinedFormatters;
   isCustomDateTimeParser: boolean;
@@ -295,10 +293,9 @@ export class Streami18n {
       ...defaultStreami18nOptions,
       ...options,
     };
-    // Prepare the i18next configuration.
     this.logger = finalOptions.logger;
     this.currentLanguage = finalOptions.language;
-    this.DateTimeParser = finalOptions.DateTimeParser;
+    const dateTimeParser = (this.DateTimeParser = finalOptions.DateTimeParser);
     this.timezone = finalOptions.timezone;
     this.formatters = { ...predefinedFormatters, ...options?.formatters };
     this.translationBuilder = new TranslationBuilder(this.i18nInstance);
@@ -307,18 +304,12 @@ export class Streami18n {
       ...options.translationBuilderTopics,
     };
 
-    try {
-      if (this.DateTimeParser && isDayJs(this.DateTimeParser)) {
-        this.DateTimeParser.extend(LocalizedFormat);
-        this.DateTimeParser.extend(calendar);
-        this.DateTimeParser.extend(localeData);
-        this.DateTimeParser.extend(relativeTime);
-        this.DateTimeParser.extend(duration);
-      }
-    } catch (error) {
-      throw Error(
-        `Streami18n: Looks like you wanted to provide Dayjs instance, but something went wrong while adding plugins ${error}`,
-      );
+    if (dateTimeParser && isDayJs(dateTimeParser)) {
+      dateTimeParser.extend(LocalizedFormat);
+      dateTimeParser.extend(calendar);
+      dateTimeParser.extend(localeData);
+      dateTimeParser.extend(relativeTime);
+      dateTimeParser.extend(duration);
     }
 
     this.isCustomDateTimeParser = !!options.DateTimeParser;
@@ -378,16 +369,17 @@ export class Streami18n {
           ? defaultLng
           : this.currentLanguage;
 
-      if (isDayJs(this.DateTimeParser)) {
-        return supportsTz(this.DateTimeParser)
-          ? this.DateTimeParser(timestamp).tz(this.timezone).locale(language)
-          : this.DateTimeParser(timestamp).locale(language);
+      const dateTimeParser = this.DateTimeParser;
+      if (isDayJs(dateTimeParser)) {
+        return supportsTz(dateTimeParser)
+          ? dateTimeParser(timestamp).tz(this.timezone).locale(language)
+          : dateTimeParser(timestamp).locale(language);
       }
 
-      if (supportsTz(this.DateTimeParser) && this.timezone) {
-        return this.DateTimeParser(timestamp).tz(this.timezone).locale(language);
+      if (supportsTz(dateTimeParser) && this.timezone) {
+        return dateTimeParser(timestamp).tz(this.timezone).locale(language);
       }
-      return this.DateTimeParser(timestamp).locale(language);
+      return dateTimeParser(timestamp).locale(language);
     };
   }
 
@@ -426,7 +418,7 @@ export class Streami18n {
     };
   }
 
-  localeExists = (language: TranslationLanguage) => {
+  localeExists = (language: string) => {
     if (this.isCustomDateTimeParser) return true;
 
     return Object.keys(Dayjs.Ls).indexOf(language) > -1;
@@ -438,7 +430,7 @@ export class Streami18n {
    * missing them renders raw `duration.*` keys and unformatted ISO timestamps.
    */
   private mergeWithRuntimeDefaults = (
-    language: TranslationLanguage,
+    language: string,
     translation?: LooseTranslationDictionary,
   ): LooseTranslationDictionary => ({
     ...runtimeDefaults,
@@ -451,7 +443,7 @@ export class Streami18n {
    * durations and renders the SDK's copy in English. Writes into i18next's store too when already
    * initialized — the only route for a language added after `init()`.
    */
-  private ensureLanguage = (language: TranslationLanguage) => {
+  private ensureLanguage = (language: string) => {
     if (this.translations[language]) return;
 
     const translation = this.mergeWithRuntimeDefaults(language);
@@ -502,26 +494,19 @@ export class Streami18n {
       }
 
       return await this.init();
-    } else {
-      return {
-        t: this.t,
-        tDateTimeParser: this.tDateTimeParser,
-      };
     }
+
+    return {
+      t: this.t,
+      tDateTimeParser: this.tDateTimeParser,
+    };
   }
 
   registerTranslation(
-    language: TranslationLanguage,
+    language: string,
     translation: TranslationDictionary,
     customDayjsLocale?: Partial<ILocale>,
   ) {
-    if (!translation) {
-      this.logger(
-        `Streami18n: registerTranslation(language, translation, customDayjsLocale) called without translation`,
-      );
-      return;
-    }
-
     // Merged, not replaced, so repeated calls for one language accumulate.
     const merged = this.mergeWithRuntimeDefaults(language, translation);
     this.translations[language] = { [defaultNS]: merged };
@@ -531,7 +516,7 @@ export class Streami18n {
       this.dayjsLocales[language] = { ...customDayjsLocale };
     } else if (!this.localeExists(language)) {
       this.logger(
-        `Streami18n: registerTranslation(language, translation, customDayjsLocale) - ` +
+        `Streami18n: registerTranslation - ` +
           `Locale config for ${language} does not exist in Dayjs.` +
           `Please import the locale file using "import 'dayjs/locale/${language}.js';" in your app or ` +
           `register the locale config with Streami18n using registerTranslation(language, translation, customDayjsLocale)`,
@@ -545,7 +530,7 @@ export class Streami18n {
     }
   }
 
-  addOrUpdateLocale(key: TranslationLanguage, config: Partial<ILocale>) {
+  addOrUpdateLocale(key: string, config: Partial<ILocale>) {
     if (this.localeExists(key)) {
       Dayjs.updateLocale(key, { ...config });
     } else {
@@ -554,7 +539,7 @@ export class Streami18n {
     }
   }
 
-  async setLanguage(language: TranslationLanguage) {
+  async setLanguage(language: string) {
     this.currentLanguage = language;
     this.ensureLanguage(language);
 

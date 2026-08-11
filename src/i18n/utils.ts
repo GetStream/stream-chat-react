@@ -8,16 +8,10 @@ import type {
   DynamicTranslationKey,
   PredefinedFormatters,
   StreamTFunction,
-  SupportedTranslations,
   TDateTimeParserInput,
   TDateTimeParserOutput,
   TimestampFormatterOptions,
 } from './types';
-
-export const notValidDateWarning =
-  'MessageTimestamp was called without a message, or message has invalid created_at date.';
-export const noParsingFunctionWarning =
-  'MessageTimestamp was called but there is no datetime parsing function available';
 
 export const isNumberOrString = (
   output: TDateTimeParserOutput,
@@ -299,10 +293,3 @@ export const defaultTranslatorFunction = ((
 export const asDynamicKey = (key: string) => key as DynamicTranslationKey;
 
 export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
-
-export const isLanguageSupported = (
-  language: string,
-): language is SupportedTranslations => {
-  const translations: string[] = ['en'];
-  return translations.some((translation) => language === translation);
-};

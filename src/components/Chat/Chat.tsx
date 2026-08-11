@@ -33,7 +33,6 @@ import {
   modalDialogManagerId,
   ModalDialogManagerProvider,
 } from '../../context';
-import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 
 const NetworkConnectionNotificationReporter = () => {
@@ -99,7 +98,7 @@ export type ChatProps = {
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
   /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
-  defaultLanguage?: SupportedTranslations;
+  defaultLanguage?: string;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
   /** Instance of SearchController class that allows to control all the search operations. */

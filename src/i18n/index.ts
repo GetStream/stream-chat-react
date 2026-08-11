@@ -6,7 +6,6 @@ export {
   defaultTranslatorFunction,
   isDate,
   isDayOrMoment,
-  isLanguageSupported,
   isNumberOrString,
 } from './utils';
 export * from './types';

@@ -12,6 +12,7 @@ import type {
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
+  TranslationLanguage,
 } from 'stream-chat';
 import {
   ChannelPaginator,
@@ -230,14 +231,8 @@ const ConfigurableNotificationList = (props: NotificationListProps) => {
   return <NotificationList {...props} verticalAlignment={verticalAlignment} />;
 };
 
-const language = new URLSearchParams(window.location.search).get('language');
-const i18nInstance = language
-  ? new Streami18n({
-      language: language as NonNullable<
-        ConstructorParameters<typeof Streami18n>[0]
-      >['language'],
-    })
-  : undefined;
+const language = new URLSearchParams(window.location.search).get('language') as string;
+const i18nInstance = language ? new Streami18n({ language }) : undefined;
 
 const messageUiVariant = getMessageUiVariant();
 const MessageUiOverride = messageUiVariant
