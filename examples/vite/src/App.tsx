@@ -130,6 +130,7 @@ const requestOptions: ChannelPaginatorRequestOptions = {
 };
 
 const sort: ChannelSort = [
+  { direction: -1, field: 'pinned_at' },
   { direction: -1, field: 'last_message_at' },
   { direction: -1, field: 'updated_at' },
 ];
@@ -342,8 +343,11 @@ const App = () => {
     });
   }, [chatClient]);
 
-  const filters: ChannelFilters = useMemo(
-    () => ({
+  useEffect(() => {
+    if (!chatClient) return;
+    const { channelManager } = chatClient;
+
+    const filters: ChannelFilters = {
       $or: [
         {
           members: { $in: [userId] },
@@ -365,42 +369,8 @@ const App = () => {
           ],
         },
       ],
-    }),
-    [userId],
-  );
+    };
 
-  // Four channel lists driven by one orchestrator:
-  //  - `channels:default` (main): the app `filters`, minus archived and muted channels.
-  //  - `channels:archived`: the user's archived channels.
-  //  - `channels:muted`: the user's muted channels.
-  //  - `channels:opened` (fallback): empty filter, seeded empty so it never auto-queries — holds
-  //    channels opened from search that don't match any of the above.
-  // The priority ownership resolver decides where a channel that matches several lists lands
-  // (archived > muted > default > opened), so e.g. an archived channel stays out of the main list.
-  // `orchestrator.ingestChannel` (search/DM open, and the mute handler below) re-evaluates a
-  // channel against every list and routes it accordingly.
-  const channelManager = useMemo(() => {
-    if (!chatClient) return undefined;
-    const main = new ChannelPaginator({
-      client: chatClient,
-      filters: { ...filters, archived: false, muted: false },
-      id: 'channels:default',
-      paginatorOptions: { pageSize: CHANNELS_PAGE_SIZE },
-      requestOptions,
-      sort,
-    });
-    const archived = new ChannelPaginator({
-      client: chatClient,
-      filters: { ...filters, archived: true },
-      id: 'channels:archived',
-      sort,
-    });
-    const muted = new ChannelPaginator({
-      client: chatClient,
-      filters: { ...filters, muted: true },
-      id: 'channels:muted',
-      sort,
-    });
     const fallback = new ChannelPaginator({
       client: chatClient,
       filters: {},
@@ -409,39 +379,45 @@ const App = () => {
     // Seed an empty loaded page so the catch-all list doesn't auto-query on mount.
     fallback.setItems({ isLastPage: true, valueOrFactory: [] });
 
-    // The orchestrator has no built-in mute handler, so muting/unmuting wouldn't move a channel
-    // between lists on its own. Enrich the default handlers: when the user's channel mutes change,
-    // re-route every loaded channel (ingestChannel re-evaluates ownership per channel, so a newly
-    // muted channel leaves the main list for the muted one and an unmuted channel returns).
-    const eventHandlers = ChannelManager.getDefaultHandlers();
-    eventHandlers['notification.channel_mutes_updated'] = [
-      {
-        id: 'example:channel-mutes-updated',
-        handle: ({ ctx: { channelManager } }) => {
-          const seen = new Set<string>();
-          channelManager.paginators.forEach((paginator) => {
-            (paginator.items ?? []).forEach((channel) => {
-              if (seen.has(channel.cid)) return;
-              seen.add(channel.cid);
-              channelManager.ingestChannel(channel);
-            });
-          });
-        },
-      },
-    ];
+    // One state update for the whole set — inserting them one by one would publish (and re-render)
+    // four times.
+    channelManager.setPaginators([
+      new ChannelPaginator({
+        client: chatClient,
+        filters: { ...filters, archived: false, muted: false },
+        id: 'channels:default',
+        paginatorOptions: { pageSize: CHANNELS_PAGE_SIZE },
+        requestOptions,
+        sort,
+      }),
+      new ChannelPaginator({
+        client: chatClient,
+        filters: { ...filters, archived: true },
+        id: 'channels:archived',
+        sort,
+      }),
+      new ChannelPaginator({
+        client: chatClient,
+        filters: { ...filters, muted: true },
+        id: 'channels:muted',
+        sort,
+      }),
+      fallback,
+    ]);
 
-    return new ChannelManager({
-      client: chatClient,
-      eventHandlers,
-      ownershipResolver: [
-        'channels:archived',
-        'channels:muted',
-        'channels:default',
-        'channels:opened',
-      ],
-      paginators: [main, archived, muted, fallback],
-    });
-  }, [chatClient, filters]);
+    channelManager.setOwnershipResolver([
+      'channels:archived',
+      'channels:muted',
+      'channels:default',
+      'channels:opened',
+    ]);
+
+    return () => {
+      // this app is the only one registering lists on the manager, so it can drop them all at once
+      channelManager.clearPaginators();
+      channelManager.setOwnershipResolver();
+    };
+  }, [chatClient, userId]);
 
   useEffect(() => {
     if (!chatClient) return;
@@ -567,7 +543,6 @@ const App = () => {
     >
       <SidebarProvider initialOpen={initialSidebarOpen}>
         <Chat
-          channelManager={channelManager}
           client={chatClient}
           i18nInstance={i18nInstance}
           isMessageAIGenerated={isMessageAIGenerated}
@@ -631,7 +606,7 @@ const App = () => {
               channel={resolveSingleChannel({
                 channelKey: singleChannelCid,
                 client: chatClient,
-                orchestrator: channelManager,
+                channelManager: chatClient.channelManager,
               })}
               referenceElement={singleChannelAnchor}
             />

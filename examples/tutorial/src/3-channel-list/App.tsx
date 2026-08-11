@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import type { ChannelFilters, ChannelSort, ClientUser } from 'stream-chat';
-import { ChannelManager, ChannelPaginator } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -60,24 +60,28 @@ const App = () => {
     userData: user,
   });
 
-  // Channel-list query config (filters/sort) now lives on a `ChannelPaginator`,
-  // coordinated by the `ChannelManager` passed to `<Chat>`.
-  const channelManager = useMemo(
-    () =>
-      client &&
-      new ChannelManager({
-        client,
-        paginators: [
-          new ChannelPaginator({ client, filters, id: 'channels:default', sort }),
-        ],
-      }),
-    [client],
-  );
+  // Channel-list query config (filters/sort) lives on a `ChannelPaginator`. The list is registered
+  // on `client.channelManager` — the orchestrator instantiated together with the client, which
+  // keeps every registered list in sync with WS events. `<ChannelNavigation>` renders one list per
+  // registered paginator.
+  useEffect(() => {
+    if (!client) return;
+    const paginator = new ChannelPaginator({
+      client,
+      filters,
+      id: 'channels:default',
+      sort,
+    });
+    client.channelManager.insertPaginator({ paginator });
+    return () => {
+      client.channelManager.removePaginator(paginator);
+    };
+  }, [client]);
 
-  if (!client || !channelManager) return <div>Setting up client & connection...</div>;
+  if (!client) return <div>Setting up client & connection...</div>;
 
   return (
-    <Chat channelManager={channelManager} client={client} theme='custom-theme'>
+    <Chat client={client} theme='custom-theme'>
       <ChatView layouts={chatViewLayouts} views={{ channels: <ChannelsWorkspace /> }} />
     </Chat>
   );

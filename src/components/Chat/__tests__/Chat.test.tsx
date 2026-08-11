@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { OwnUserResponse } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -219,6 +220,100 @@ describe('Chat', () => {
     await waitFor(() => {
       expect(context.client).toBe(newClient);
       expect(context.theme).toBe(newTheme);
+    });
+  });
+
+  describe('channel manager', () => {
+    it('exposes the client channel manager on the context', async () => {
+      const client = getTestClient();
+      let context: ChatContextValue;
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <ChatContextConsumer
+              fn={(ctx) => {
+                context = ctx;
+              }}
+            />
+          </Chat>,
+        );
+      });
+
+      await waitFor(() => expect(context.channelManager).toBe(client.channelManager));
+    });
+
+    it('does not register any channel list of its own', async () => {
+      const client = await getTestClientWithUser({ id: 'user_x' });
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <div data-testid='children' />
+          </Chat>,
+        );
+      });
+
+      await waitFor(() => expect(screen.getByTestId('children')).toBeInTheDocument());
+      expect(client.channelManager.paginators).toEqual([]);
+    });
+
+    it('leaves the lists registered on the manager untouched', async () => {
+      const client = getTestClient();
+      const paginator = new ChannelPaginator({ client, id: 'channels:app-owned' });
+      client.channelManager.insertPaginator({ paginator });
+
+      let unmount: () => void;
+      await act(() => {
+        ({ unmount } = render(
+          <Chat client={client}>
+            <div data-testid='children' />
+          </Chat>,
+        ));
+      });
+
+      await waitFor(() => {
+        expect(client.channelManager.paginators).toStrictEqual([paginator]);
+      });
+
+      await act(() => {
+        unmount();
+      });
+
+      // the app owns its lists — unmounting Chat must not drop them
+      expect(client.channelManager.paginators).toStrictEqual([paginator]);
+    });
+
+    it('keeps exposing the same manager when the client changes', async () => {
+      const client = getTestClient();
+      const nextClient = getTestClient();
+      let context: ChatContextValue;
+
+      const { rerender } = render(
+        <Chat client={client}>
+          <ChatContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          />
+        </Chat>,
+      );
+
+      await waitFor(() => expect(context.channelManager).toBe(client.channelManager));
+
+      await act(() => {
+        rerender(
+          <Chat client={nextClient}>
+            <ChatContextConsumer
+              fn={(ctx) => {
+                context = ctx;
+              }}
+            />
+          </Chat>,
+        );
+      });
+
+      await waitFor(() => expect(context.channelManager).toBe(nextClient.channelManager));
     });
   });
 

@@ -20,6 +20,10 @@ export type ChannelListProps = {
 };
 
 const channelPaginatorStateSelector = (state: ChannelPaginatorState) => ({
+  // `items === undefined` means "never queried" — the state a paginator starts in and returns to
+  // when its data is discarded (e.g. `client.disconnectUser` resets every registered list). An
+  // empty array is a loaded empty page and must not trigger a query.
+  isUnloaded: state.items === undefined,
   lastQueryError: state.lastQueryError,
 });
 
@@ -37,7 +41,7 @@ export const ChannelList = ({
 }: ChannelListProps) => {
   const { channelManager, client } = useChatContext();
   const { t } = useTranslationContext();
-  const { lastQueryError } = useStateStore(
+  const { isUnloaded, lastQueryError } = useStateStore(
     paginator.state,
     channelPaginatorStateSelector,
   );
@@ -62,10 +66,13 @@ export const ChannelList = ({
   // Ref-counted: safe whether called here, from <ChannelLists/>, or from <Chat>.
   useEffect(() => channelManager.registerSubscriptions(), [channelManager]);
 
+  // Loads the first page, and reloads it whenever the list is emptied back to "never queried" —
+  // the paginator outlives this component (it is registered on `client.channelManager`), so
+  // querying only on mount would leave a list reset after a disconnect/reconnect permanently empty.
   useEffect(() => {
-    if (paginator.items) return;
-    paginator.nextDebounced();
-  }, [paginator]);
+    if (!isUnloaded) return;
+    paginator.toTailDebounced();
+  }, [isUnloaded, paginator]);
 
   useEffect(() => {
     if (!lastQueryError) return;

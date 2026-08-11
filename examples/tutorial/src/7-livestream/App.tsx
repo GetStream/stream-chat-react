@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { Channel as StreamChannel, ClientUser } from 'stream-chat';
+import type { ClientUser, Channel as StreamChannel } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
