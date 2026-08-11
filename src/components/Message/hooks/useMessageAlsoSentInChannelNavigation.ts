@@ -30,7 +30,7 @@ export type MessageAlsoSentInChannelNavigation = {
  */
 export const useMessageAlsoSentInChannelNavigation =
   (): MessageAlsoSentInChannelNavigation => {
-    const { channelPaginatorsOrchestrator, client } = useChatContext();
+    const { channelManager, client } = useChatContext();
     const { t } = useTranslationContext();
     const channel = useChannel();
     const { isChannelActive, openChannel, openThread } = useWorkspaceNavigation();
@@ -62,7 +62,7 @@ export const useMessageAlsoSentInChannelNavigation =
       await channel.messagePaginator.jumpToMessage(messageId);
 
       if (needsNavigation) {
-        channelPaginatorsOrchestrator.ingestChannel(channel);
+        channelManager.ingestChannel(channel);
       }
     };
 

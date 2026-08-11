@@ -10,12 +10,7 @@ import {
   useChatViewContext,
   useChatViewNavigation,
 } from 'stream-chat-react/slot-layout';
-import type {
-  Channel,
-  ChannelPaginatorsOrchestrator,
-  StreamChat,
-  Thread,
-} from 'stream-chat';
+import type { Channel, ChannelManager, StreamChat, Thread } from 'stream-chat';
 
 /**
  * Full-workspace URL sync for the vite example.
@@ -284,7 +279,7 @@ const waitForState = <T,>(
   });
 
 /** Wait for the channel-list paginator(s) to load their first page (so listed channels are watched). */
-const waitForChannelList = async (orchestrator: ChannelPaginatorsOrchestrator) => {
+const waitForChannelList = async (orchestrator: ChannelManager) => {
   await waitForState(orchestrator.state, (s) => s.paginators.length > 0);
   const paginator = orchestrator.paginators[0];
   if (!paginator) return;
@@ -312,7 +307,7 @@ const workspaceEncodedSelector = (state: ChatViewLayoutState) => ({
  * Afterwards it keeps the `?workspace=` param in sync with every layout change.
  */
 export const WorkspaceUrlSync = () => {
-  const { channelPaginatorsOrchestrator, client } = useChatContext();
+  const { channelManager, client } = useChatContext();
   const { layoutController } = useChatViewContext();
   const { openView } = useChatViewNavigation();
 
@@ -357,9 +352,7 @@ export const WorkspaceUrlSync = () => {
           .flatMap((s) => [s.base.kind, ...s.layers.map((l) => l.kind)]),
       );
       await Promise.all([
-        activeKinds.has('channel')
-          ? waitForChannelList(channelPaginatorsOrchestrator)
-          : undefined,
+        activeKinds.has('channel') ? waitForChannelList(channelManager) : undefined,
         target.activeView === 'threads' && activeKinds.has('thread')
           ? waitForThreadList(client)
           : undefined,
@@ -370,12 +363,12 @@ export const WorkspaceUrlSync = () => {
         target.slots.map(async (entry) => {
           const base = await resolveBinding(client, entry.base);
           if (!base) return undefined;
-          if (base.channel) channelPaginatorsOrchestrator.ingestChannel(base.channel);
+          if (base.channel) channelManager.ingestChannel(base.channel);
           const layers: ChatViewEntityBinding[] = [];
           for (const layerToken of entry.layers) {
             const layer = await resolveBinding(client, layerToken);
             if (!layer) continue;
-            if (layer.channel) channelPaginatorsOrchestrator.ingestChannel(layer.channel);
+            if (layer.channel) channelManager.ingestChannel(layer.channel);
             layers.push(layer.binding);
           }
           return { base: base.binding, layers, slot: entry.slot, view: entry.view };
@@ -433,7 +426,7 @@ export const WorkspaceUrlSync = () => {
         return { ...current, activeView: target.activeView, layouts };
       });
     },
-    [channelPaginatorsOrchestrator, client, layoutController],
+    [channelManager, client, layoutController],
   );
 
   // (1)+(2) Go straight to the active view before the browser paints — the channels view never shows.

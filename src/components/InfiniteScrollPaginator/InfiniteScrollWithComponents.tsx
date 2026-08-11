@@ -35,7 +35,7 @@ type InfiniteScrollWithComponentsComponent = <TItem extends { id?: string }>(
 
 /**
  * Renders any paginator-backed list with pluggable indicator/item components,
- * driven by the paginator's reactive `state`. Used by the orchestrator-driven
+ * driven by the paginator's reactive `state`. Used by the ChannelManager-driven
  * channel list. `forwardRef` so callers can put the scroll root's DOM node to use
  * (e.g. the channel list marks it `role="listbox"` and drives keyboard roving off it).
  */

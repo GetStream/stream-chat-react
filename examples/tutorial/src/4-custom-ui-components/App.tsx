@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import type { User } from 'stream-chat';
+import { useEffect, useState } from 'react';
+import type { ClientUser } from 'stream-chat';
 import {
   Channel,
   ChannelAvatar,
@@ -9,6 +9,7 @@ import {
   Chat,
   MessageComposer,
   MessageList,
+  SummarizedMessagePreview,
   Thread,
   useCreateChatClient,
   useMessageContext,
@@ -23,7 +24,7 @@ import {
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -34,7 +35,7 @@ const CustomChannelListItem = ({
   channel,
   displayImage,
   displayTitle,
-  latestMessagePreview,
+  previewedMessage,
 }: ChannelListItemUIProps) => {
   // Selection is one navigation model: open the channel into a layout slot.
   const { open } = useChatViewNavigation();
@@ -59,14 +60,16 @@ const CustomChannelListItem = ({
       type='button'
     >
       <ChannelAvatar
-        imageUrl={displayImage ?? channel.data?.image}
+        imageUrl={displayImage ?? channel.data?.custom?.image}
         size='xl'
-        userName={displayTitle ?? channel.data?.name ?? 'Channel'}
+        userName={displayTitle ?? channel.data?.custom?.name ?? 'Channel'}
       />
       <div style={{ flex: 1 }}>
-        <div>{displayTitle ?? channel.data?.name ?? 'Unnamed Channel'}</div>
-        {latestMessagePreview ? (
-          <div style={{ fontSize: '14px', opacity: 0.75 }}>{latestMessagePreview}</div>
+        <div>{displayTitle ?? channel.data?.custom?.name ?? 'Unnamed Channel'}</div>
+        {previewedMessage ? (
+          <div style={{ fontSize: '14px', opacity: 0.75 }}>
+            <SummarizedMessagePreview latestMessage={previewedMessage} />
+          </div>
         ) : null}
       </div>
     </button>
@@ -137,9 +140,12 @@ const App = () => {
 
     const initChannel = async () => {
       const channel = client.channel('messaging', 'react-tutorial', {
-        image: 'https://getstream.io/random_png/?name=react-v14',
-        name: 'Talk about React',
         members: [userId],
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://getstream.io/random_png/?name=react-v14',
+          name: 'Talk about React',
+        },
       });
 
       await channel.watch();

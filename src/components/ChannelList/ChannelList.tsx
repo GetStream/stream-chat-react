@@ -20,12 +20,16 @@ export type ChannelListProps = {
 };
 
 const channelPaginatorStateSelector = (state: ChannelPaginatorState) => ({
+  // `items === undefined` means "never queried" — the state a paginator starts in and returns to
+  // when its data is discarded (e.g. `client.disconnectUser` resets every registered list). An
+  // empty array is a loaded empty page and must not trigger a query.
+  isUnloaded: state.items === undefined,
   lastQueryError: state.lastQueryError,
 });
 
 /**
  * Channel list driven by a single `ChannelPaginator`. The paginator is created +
- * coordinated by the `ChannelPaginatorsOrchestrator` on `ChatContext`; this component
+ * coordinated by the `ChannelManager` on `ChatContext`; this component
  * only renders its reactive `state` and drives pagination. Selection is not this
  * component's concern — the `ChannelListItem` default `ListItem` opens the channel via
  * ChatView navigation.
@@ -35,9 +39,9 @@ export const ChannelList = ({
   loadMoreThresholdPx,
   paginator,
 }: ChannelListProps) => {
-  const { channelPaginatorsOrchestrator, client } = useChatContext('ChannelList');
-  const { t } = useTranslationContext('ChannelList');
-  const { lastQueryError } = useStateStore(
+  const { channelManager, client } = useChatContext();
+  const { t } = useTranslationContext();
+  const { isUnloaded, lastQueryError } = useStateStore(
     paginator.state,
     channelPaginatorStateSelector,
   );
@@ -60,15 +64,15 @@ export const ChannelList = ({
   const { onClickCapture, onKeyDown } = useChannelListKeyboardNavigation(listboxRef);
 
   // Ref-counted: safe whether called here, from <ChannelLists/>, or from <Chat>.
-  useEffect(
-    () => channelPaginatorsOrchestrator.registerSubscriptions(),
-    [channelPaginatorsOrchestrator],
-  );
+  useEffect(() => channelManager.registerSubscriptions(), [channelManager]);
 
+  // Loads the first page, and reloads it whenever the list is emptied back to "never queried" —
+  // the paginator outlives this component (it is registered on `client.channelManager`), so
+  // querying only on mount would leave a list reset after a disconnect/reconnect permanently empty.
   useEffect(() => {
-    if (paginator.items) return;
-    paginator.nextDebounced();
-  }, [paginator]);
+    if (!isUnloaded) return;
+    paginator.toTailDebounced();
+  }, [isUnloaded, paginator]);
 
   useEffect(() => {
     if (!lastQueryError) return;

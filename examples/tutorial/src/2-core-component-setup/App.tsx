@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import type { Channel as StreamChannel } from 'stream-chat';
-import { type User } from 'stream-chat';
+import { type ClientUser } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -15,7 +15,7 @@ import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -33,9 +33,12 @@ const App = () => {
     if (!client) return;
 
     const channel = client.channel('messaging', 'custom_channel_id', {
-      image: 'https://getstream.io/random_png/?name=react',
-      name: 'Talk about React',
       members: [userId],
+      // custom channel fields live under `custom` since v10
+      custom: {
+        image: 'https://getstream.io/random_png/?name=react',
+        name: 'Talk about React',
+      },
     });
 
     setChannel(channel);

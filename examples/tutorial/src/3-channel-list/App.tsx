@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
-import type { ChannelFilters, ChannelSort, User } from 'stream-chat';
-import { ChannelPaginator, ChannelPaginatorsOrchestrator } from 'stream-chat';
+import { useEffect } from 'react';
+import type { ChannelFilters, ChannelSort, ClientUser } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -16,7 +16,7 @@ import { ChatView, useSlotChannels } from 'stream-chat-react/slot-layout';
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -60,29 +60,28 @@ const App = () => {
     userData: user,
   });
 
-  // Channel-list query config (filters/sort) now lives on a `ChannelPaginator`,
-  // coordinated by the `ChannelPaginatorsOrchestrator` passed to `<Chat>`.
-  const channelPaginatorsOrchestrator = useMemo(
-    () =>
-      client &&
-      new ChannelPaginatorsOrchestrator({
-        client,
-        paginators: [
-          new ChannelPaginator({ client, filters, id: 'channels:default', sort }),
-        ],
-      }),
-    [client],
-  );
+  // Channel-list query config (filters/sort) lives on a `ChannelPaginator`. The list is registered
+  // on `client.channelManager` — the orchestrator instantiated together with the client, which
+  // keeps every registered list in sync with WS events. `<ChannelNavigation>` renders one list per
+  // registered paginator.
+  useEffect(() => {
+    if (!client) return;
+    const paginator = new ChannelPaginator({
+      client,
+      filters,
+      id: 'channels:default',
+      sort,
+    });
+    client.channelManager.insertPaginator({ paginator });
+    return () => {
+      client.channelManager.removePaginator(paginator);
+    };
+  }, [client]);
 
-  if (!client || !channelPaginatorsOrchestrator)
-    return <div>Setting up client & connection...</div>;
+  if (!client) return <div>Setting up client & connection...</div>;
 
   return (
-    <Chat
-      channelPaginatorsOrchestrator={channelPaginatorsOrchestrator}
-      client={client}
-      theme='custom-theme'
-    >
+    <Chat client={client} theme='custom-theme'>
       <ChatView layouts={chatViewLayouts} views={{ channels: <ChannelsWorkspace /> }} />
     </Chat>
   );

@@ -59,7 +59,7 @@ There is no `setActiveChannel` on `ChatContext`. Bind a channel by:
 - passing it directly as the `channel` prop: `<Channel channel={channel}>…</Channel>` (the `Channel` component takes `channel` as a prop; it no longer reads it from context), and/or
 - opening it in a `ChatView` layout slot — e.g. `open({ key: channel.cid, kind: 'channel', source: channel })` — the mechanism `ChannelListItemUI` uses on selection.
 
-To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the paginators, use `channelPaginatorsOrchestrator.ingestChannel(channel)`. Confirm the exact `open()` / orchestrator signatures against the installed source.
+To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the paginators, use `channelManager.ingestChannel(channel)`. Confirm the exact `open()` / orchestrator signatures against the installed source.
 
 ### `ChatContext.channelsQueryState` → removed
 
