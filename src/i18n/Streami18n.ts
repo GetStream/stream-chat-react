@@ -41,6 +41,15 @@ type CalendarLocaleConfig = {
   sameElse: string;
 };
 
+/**
+ * A dayjs locale config, as accepted by `dayjsLocaleConfigForLanguage` and by
+ * `registerTranslation`'s third argument.
+ *
+ * `calendar` is not part of dayjs's own `ILocale` — it comes from the calendar plugin — so it has to
+ * be added here. Supplying it is how relative wording ("heute um", "ieri alle") gets localized.
+ */
+export type DayjsLocaleConfig = Partial<ILocale> & { calendar?: CalendarLocaleConfig };
+
 Dayjs.extend(updateLocale);
 Dayjs.extend(utc);
 Dayjs.extend(timezone);
@@ -86,7 +95,7 @@ const supportsTz = (dateTimeParser: unknown): dateTimeParser is TimezoneParser =
 
 export type Streami18nOptions = {
   DateTimeParser?: DateTimeParserModule;
-  dayjsLocaleConfigForLanguage?: Partial<ILocale> & { calendar?: CalendarLocaleConfig };
+  dayjsLocaleConfigForLanguage?: DayjsLocaleConfig;
   debug?: boolean;
   disableDateTimeTranslations?: boolean;
   formatters?: Partial<PredefinedFormatters> & CustomFormatters;
@@ -237,7 +246,7 @@ export class Streami18n {
    * given to registerTranslation() function in `dayjsLocales` object, and register the required locale
    * with moment, when setLanguage is called.
    * */
-  dayjsLocales: { [key: string]: Partial<ILocale> } = {};
+  dayjsLocales: { [key: string]: DayjsLocaleConfig } = {};
   // dayjsLocales = {};
 
   /**
@@ -505,7 +514,7 @@ export class Streami18n {
   registerTranslation(
     language: string,
     translation: TranslationDictionary,
-    customDayjsLocale?: Partial<ILocale>,
+    customDayjsLocale?: DayjsLocaleConfig,
   ) {
     // Merged, not replaced, so repeated calls for one language accumulate.
     const merged = this.mergeWithRuntimeDefaults(language, translation);
@@ -530,7 +539,7 @@ export class Streami18n {
     }
   }
 
-  addOrUpdateLocale(key: string, config: Partial<ILocale>) {
+  addOrUpdateLocale(key: string, config: DayjsLocaleConfig) {
     if (this.localeExists(key)) {
       Dayjs.updateLocale(key, { ...config });
     } else {

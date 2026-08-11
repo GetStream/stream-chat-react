@@ -12,7 +12,6 @@ import type {
   ChannelSort,
   LocalMessage,
   TextComposerMiddleware,
-  TranslationLanguage,
 } from 'stream-chat';
 import {
   ChannelPaginator,
@@ -36,7 +35,6 @@ import {
   type NotificationListProps,
   type ReactionOptions,
   Search,
-  Streami18n,
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
@@ -93,6 +91,7 @@ import {
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import { streamI18n } from './i18n';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -230,9 +229,6 @@ const ConfigurableNotificationList = (props: NotificationListProps) => {
 
   return <NotificationList {...props} verticalAlignment={verticalAlignment} />;
 };
-
-const language = new URLSearchParams(window.location.search).get('language') as string;
-const i18nInstance = language ? new Streami18n({ language }) : undefined;
 
 const messageUiVariant = getMessageUiVariant();
 const MessageUiOverride = messageUiVariant
@@ -564,7 +560,7 @@ const App = () => {
         <Chat
           channelPaginatorsOrchestrator={channelPaginatorsOrchestrator}
           client={chatClient}
-          i18nInstance={i18nInstance}
+          i18nInstance={streamI18n}
           isMessageAIGenerated={isMessageAIGenerated}
           searchController={searchController}
           theme={chatTheme}
