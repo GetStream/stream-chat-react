@@ -82,9 +82,9 @@ const de: TranslationDictionary = {
 };
 ```
 
-Widen to `LooseTranslationDictionary` only where you need keys of your own, or the extra plural
-categories some languages use (`_few`, `_many`, `_zero`) — it admits any key, so nothing catches a
-stale one there.
+Widen to `LooseTranslationDictionary` only where you need keys of your own — it admits any key, so
+nothing catches a stale one there. The extra plural categories some languages use (`_few`, `_many`,
+`_zero`) do **not** need it; `TranslationDictionary` accepts those already.
 
 > Do **not** key a dictionary on `Partial<Record<TranslationKey, string>>`. `TranslationKey` is the
 > set `t()` accepts, where a plural is the bare `<key>`; a dictionary needs the `_one` / `_other`
@@ -92,26 +92,42 @@ stale one there.
 
 ## Discovering the keys
 
-- **`TranslationDictionary`** — the one to reach for: every SDK key including the `_one` /
-  `_other` plural forms, and nothing else. A typo or a stale v14 key is a compile error.
-- **`LooseTranslationDictionary`** — the same, plus any key you like. What
-  `registerTranslation()` and `translationsForLanguage` accept, so one instance can also carry your
-  app's own copy and extra plural categories. Nothing catches a stale key here.
+- **`TranslationDictionary`** — the one to reach for: every SDK key, including the plural forms, and
+  nothing else. A typo or a stale v14 key is a compile error. A plural key takes any category
+  `Intl.PluralRules` can select, so `_few` / `_many` / `_zero` are checked too; a plural suffix on a
+  key that is not plural is rejected.
+- **`LooseTranslationDictionary`** — the same, plus any key you like, so one instance can also carry
+  your app's own copy and extra plural categories. Nothing catches a stale key here. Opt in by
+  annotating the variable you pass; `registerTranslation()` and `translationsForLanguage` take
+  `TranslationDictionary`, so a key typed inline is checked:
+
+  ```ts
+  i18n.registerTranslation('de', { 'common.cancel.lable': 'Abbrechen' }); // ← compile error
+
+  const withOwnKeys: LooseTranslationDictionary = { 'myApp.somethingElse': 'Hallo' };
+  i18n.registerTranslation('de', withOwnKeys); // ← fine
+  ```
+
 - **`TranslationKey`** — the union `t()` accepts (a plural appears as the bare key). Use it to type
   a `t` parameter; it is not the right key type for a dictionary.
 - **`TranslationCatalog`** — every key mapped to its English copy, exported from
   `stream-chat-react`. Type-only, so it adds nothing to your bundle; hover a key to see what it
   renders, or index it (`TranslationCatalog['common.cancel.label']` is `'Cancel'`).
-- **A JSON catalog** — every key with its English copy, which is the file to hand to translators.
-  The SDK does not check one in (the copy lives inline at each `t()` call site, so a committed
-  catalog would be a duplicate that can go stale). Generate it from a clone with:
+- **A JSON catalog** — the file to hand to translators. The SDK does not check one in (the copy
+  lives inline at each `t()` call site, so a committed catalog would be a duplicate that can go
+  stale). Generate it from a clone with:
 
   ```bash
   yarn i18n:export
   ```
 
-  That writes `en.json` in the repo root. `ai-docs/i18n-v15-key-map.json` also lists every key,
-  alongside the v14 string it replaced.
+  That writes `en.json` in the repo root with the 619 translatable keys. The 14 `timestamp.*`,
+  `duration.*` and `translationBuilderTopic.*` entries are left out on purpose — they are dayjs and
+  i18next expressions, and a TMS that "translates" `{{value, notification}}` breaks notifications
+  outright. Four of them do carry English day words; those are handled by overriding the key, see
+  [Date and time](#date-and-time). Pass `--all` for the complete 633-key catalog.
+
+  `ai-docs/i18n-v15-key-map.json` also lists every key, alongside the v14 string it replaced.
 
 Keys are namespaced after the source tree, so they are predictable from the component:
 `message.*`, `messageComposer.*`, `poll.*`, `channelList.*`, with genuinely shared copy under
@@ -120,9 +136,9 @@ Keys are namespaced after the source tree, so they are predictable from the comp
 
 ### Plurals
 
-Plural entries are stored as `<key>_one` / `<key>_other`. Supply whichever categories your language
+The SDK's own copy only needs `<key>_one` / `<key>_other`. Supply whichever categories your language
 needs — i18next selects between them with `Intl.PluralRules`, so Russian or Arabic can add `_few`,
-`_many` and `_zero`:
+`_many` and `_zero` and still have every key checked:
 
 ```ts
 i18n.registerTranslation('ru', {
@@ -194,14 +210,12 @@ is an error) while `as const` preserves the literal keys that `keyof typeof de` 
 `: TranslationDictionary` annotation would widen `keyof typeof de` to the whole catalog and the diff
 would always be empty.
 
-Two caveats:
+One caveat: there is no _runtime_ list of keys to diff against — `TranslationCatalog` is a type,
+which is what keeps the typed surface free at runtime. So this check is compile-time only; a script
+cannot ask the installed package "which keys exist?".
 
-- If your language needs plural categories the catalog does not carry (`_few`, `_many`, `_zero`),
-  type the dictionary as `LooseTranslationDictionary` instead. You lose the diff, because that type
-  admits any key.
-- There is no _runtime_ list of keys to diff against — `TranslationCatalog` is a type, which is what
-  keeps the typed surface free at runtime. So this check is compile-time only; a script cannot ask
-  the installed package "which keys exist?".
+Extra plural categories are safe here: they are accepted by `TranslationDictionary` but are not
+catalog keys, so they neither break the `satisfies` check nor shrink the diff.
 
 ## Supplying a language the SDK used to ship
 

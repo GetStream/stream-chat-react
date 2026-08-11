@@ -97,10 +97,11 @@ argument — `timestamp.DateSeparator`, `timestamp.ReminderNotification`,
 overridden to translate Today/Tomorrow/Yesterday/Last. `dayjsLocaleConfigForLanguage` does not
 reach them, because a per-key `calendarFormats` replaces the locale's calendar.
 
-Type the app's dictionaries as `TranslationDictionary` (exported from `stream-chat-react`) and
-TypeScript will flag every stale key. `LooseTranslationDictionary` is the escape hatch — it admits
-any key, so an app can register its own copy through the same instance, and it will **not** flag a
-stale one.
+`registerTranslation()` and `translationsForLanguage` take `TranslationDictionary` (exported from
+`stream-chat-react`), so TypeScript flags every stale key in a dictionary written inline. Plural keys
+accept any `Intl.PluralRules` category, so a language needing `_few` / `_many` / `_zero` stays
+checked. Only if the app needs keys the SDK does not define, annotate the variable it passes as
+`LooseTranslationDictionary` — that admits any key and will **not** flag a stale one.
 
 Full detail, including plurals for languages needing `_few` / `_many` and how to recover a deleted
 dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).

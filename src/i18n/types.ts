@@ -69,8 +69,11 @@ export type TranslationKey =
  * an override that silently never applies. Keyed on the catalog rather than on
  * {@link TranslationKey}, so the `_one` / `_other` plural entries are accepted.
  *
- * Widen to {@link LooseTranslationDictionary} when you need keys of your own, or the extra plural
- * categories some languages use (`_few`, `_many`, `_zero`).
+ * The SDK's own copy only needs `_one` / `_other`, but a plural key accepts every category
+ * `Intl.PluralRules` can select, so Russian or Arabic can supply `_few`, `_many` and `_zero` and
+ * still have its keys checked. A plural suffix on a key that is not plural is rejected.
+ *
+ * Widen to {@link LooseTranslationDictionary} only when you need keys the SDK does not define.
  *
  * @example
  * const de: TranslationDictionary = {
@@ -78,19 +81,26 @@ export type TranslationKey =
  *   'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
  *   'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
  * };
+ *
+ * @example
+ * const ru: TranslationDictionary = {
+ *   'channelDetail.channelMembersView.members.title_one': '{{ count }} участник',
+ *   'channelDetail.channelMembersView.members.title_few': '{{ count }} участника',
+ *   'channelDetail.channelMembersView.members.title_many': '{{ count }} участников',
+ * };
  */
-export type TranslationDictionary = Partial<Record<CatalogKey, string>>;
+export type TranslationDictionary = Partial<Record<CatalogKey, string>> &
+  Partial<Record<`${PluralTranslationKey}_${PluralSuffix}`, string>>;
 
 /**
- * A translation dictionary that also admits keys the SDK does not define.
+ * A translation dictionary that also admits keys the SDK does not define, so one `Streami18n`
+ * instance can carry an application's own copy alongside the SDK's.
  *
- * This is what `registerTranslation()` and `translationsForLanguage` accept, so that one
- * `Streami18n` instance can carry an application's own copy alongside the SDK's, and so a language
- * can supply plural categories the catalog does not have (`_few`, `_many`, `_zero`). A
- * {@link TranslationDictionary} is assignable to it.
- *
- * The cost is that nothing catches a mistyped or stale SDK key here — it compiles, and then never
- * matches at runtime. Prefer {@link TranslationDictionary} and widen only where you need to.
+ * `registerTranslation()` and `translationsForLanguage` take the strict
+ * {@link TranslationDictionary}; annotate the variable you pass with this type to widen. Nothing
+ * catches a mistyped or stale SDK key here — it compiles, and then never matches at runtime. Note
+ * that {@link TranslationDictionary} already covers the extra plural categories, so a language
+ * needing `_few` / `_many` / `_zero` does not have to give up key checking.
  */
 export type LooseTranslationDictionary = Partial<Record<CatalogKey, string>> &
   Record<string, string>;

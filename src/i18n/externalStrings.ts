@@ -15,6 +15,10 @@ import { asDynamicKey } from './utils';
  * deliberately *not* here: their components declare those keys in local lookup tables, which
  * keeps them visible to the extractor. Renaming the notification messages at the source needs
  * a `stream-chat` change; until then this table is the seam.
+ *
+ * The string on the left is what renders in English, so `yarn build-translations` requires it to
+ * match the key's catalog copy — two entries below say the same thing in different words and are
+ * allowlisted as `REPHRASED_EXTERNAL_STRINGS` in `scripts/generate-i18n-keys.mts`.
  */
 export const EXTERNAL_STRING_KEYS: Record<string, TranslationKey> = {
   'Command not ready to be sent': 'notification.commandDisabled',

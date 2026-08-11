@@ -23,6 +23,7 @@ import type {
   PredefinedFormatters,
   StreamTFunction,
   TDateTimeParser,
+  TranslationDictionary,
 } from './types';
 
 import { runtimeDefaults } from './runtimeDefaults';
@@ -95,7 +96,7 @@ export type Streami18nOptions = {
   translationBuilderTopics?: Record<string, TranslationTopicConstructor>;
   parseMissingKeyHandler?: (key: string, defaultValue?: string) => string;
   timezone?: string;
-  translationsForLanguage?: LooseTranslationDictionary;
+  translationsForLanguage?: TranslationDictionary;
 };
 
 /**
@@ -141,8 +142,9 @@ export type Streami18nOptions = {
  * bundled `runtimeDefaults`.
  *
  * Type your dictionary as {@link TranslationDictionary} to turn a typo or a leftover v14 key into a
- * compile error; widen to {@link LooseTranslationDictionary} for keys of your own or extra plural
- * categories. {@link TranslationCatalog} maps every key to its English copy.
+ * compile error; it accepts every plural category, so Russian or Arabic stays checked too. Widen to
+ * {@link LooseTranslationDictionary} only for keys the SDK does not define.
+ * {@link TranslationCatalog} maps every key to its English copy.
  *
  * ## Datetime i18n
  *
@@ -510,7 +512,7 @@ export class Streami18n {
 
   registerTranslation(
     language: TranslationLanguage,
-    translation: LooseTranslationDictionary,
+    translation: TranslationDictionary,
     customDayjsLocale?: Partial<ILocale>,
   ) {
     if (!translation) {

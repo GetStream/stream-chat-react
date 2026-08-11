@@ -1,7 +1,8 @@
 /* eslint-disable */
 import { Streami18n } from '../Streami18n';
 import type { Streami18nOptions } from '../Streami18n';
-import type { TranslationDictionary } from '../types';
+import type { LooseTranslationDictionary, TranslationDictionary } from '../types';
+import type { TranslationCatalog } from '../keys';
 import { nanoid } from 'nanoid';
 import { default as Dayjs } from 'dayjs';
 import moment from 'moment-timezone';
@@ -101,7 +102,9 @@ describe('Streami18n instance - default', () => {
 
 // `en` is the only bundled language. Non-English support is entirely integrator-supplied,
 // so these tests exercise that path rather than deleted built-in dictionaries.
-const dutchTranslations = {
+// Loose-typed on purpose: these keys are not in the catalog, which is what makes them useful for
+// exercising resolution. `TranslationDictionary` would (correctly) reject them.
+const dutchTranslations: LooseTranslationDictionary = {
   'messageList.empty': 'Nog niets...',
   'messageComposer.sendButton.label': 'Verstuur bericht',
 };
@@ -259,7 +262,7 @@ describe('Streami18n instance - with custom translations', () => {
     const textValue1 = '这是文字一';
     const textKey2 = 'this is text two';
     const textValue2 = '这是文字二';
-    const translations = {
+    const translations: LooseTranslationDictionary = {
       [textKey1]: textValue1,
       [textKey2]: textValue2,
     };
@@ -293,7 +296,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   };
   const streami18n = new Streami18n(streami18nOptions);
   const languageCode = 'mr';
-  const translations = {
+  const translations: LooseTranslationDictionary = {
     text1: 'अनुवादित मजकूर 1',
     text2: 'अनुवादित मजकूर 2',
   };
@@ -330,7 +333,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
 });
 
 describe('setLanguage - switch to a registered language', () => {
-  const frenchTranslations = {
+  const frenchTranslations: LooseTranslationDictionary = {
     'messageList.empty': 'Rien pour le moment...',
     'messageComposer.sendButton.label': 'Envoyer le message',
   };
@@ -569,6 +572,85 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
 });
 
 describe('Streami18n - dictionary key types', () => {
+  // The SDK only ships `_one`/`_other`, but a plural key accepts every `Intl.PluralRules` category
+  // so a language needing `_few`/`_many`/`_zero` keeps its keys checked instead of widening to
+  // LooseTranslationDictionary.
+  it('accepts every plural category on a plural key, and resolves them at runtime', async () => {
+    const K = 'channelDetail.channelMembersView.members.title';
+    const ru: TranslationDictionary = {
+      'channelDetail.channelMembersView.members.title_one': '{{ count }} участник',
+      'channelDetail.channelMembersView.members.title_few': '{{ count }} участника',
+      'channelDetail.channelMembersView.members.title_many': '{{ count }} участников',
+      'channelDetail.channelMembersView.members.title_zero': 'нет участников',
+    };
+
+    const rejected: TranslationDictionary = {
+      // @ts-expect-error common.cancel.label is not a plural key, so it takes no plural suffix
+      'common.cancel.label_few': 'x',
+    };
+    expect(rejected).toBeDefined();
+
+    const i18n = new Streami18n({ language: 'ru' as 'en', logger: () => null });
+    i18n.registerTranslation('ru' as 'en', ru);
+    const { t } = await i18n.getTranslators();
+    const options = {
+      defaultValue_one: '{{ count }} member',
+      defaultValue_other: '{{ count }} members',
+    };
+
+    expect(t(K, { ...options, count: 1 })).toBe('1 участник');
+    expect(t(K, { ...options, count: 3 })).toBe('3 участника');
+    expect(t(K, { ...options, count: 7 })).toBe('7 участников');
+  });
+
+  // The completeness diff in ai-docs/i18n-v15-migration.md relies on `as const satisfies`, which
+  // has to keep working now that the type is an intersection.
+  it('supports the documented `as const satisfies` completeness diff', () => {
+    const de = {
+      'common.cancel.label': 'Abbrechen',
+      'channelDetail.channelMembersView.members.title_few': '{{ count }} Mitglieder',
+    } as const satisfies TranslationDictionary;
+
+    type Untranslated = Exclude<keyof TranslationCatalog, keyof typeof de>;
+    // The diff is non-empty and still excludes what `de` covers.
+    const covered: Untranslated extends 'common.cancel.label' ? false : true = true;
+    expect(covered).toBe(true);
+    expect(Object.keys(de)).toHaveLength(2);
+  });
+
+  // The params are strict, so the default call shape — an inline object literal — is checked.
+  // A typo here used to compile and then silently never apply at runtime.
+  it('rejects an unknown key passed inline, and still accepts a loose dictionary', () => {
+    const i18n = new Streami18n({ logger: () => null });
+
+    i18n.registerTranslation('en', {
+      // @ts-expect-error 'lable' is a typo: not a key in the catalog
+      'common.cancel.lable': 'Dismiss',
+    });
+
+    new Streami18n({
+      logger: () => null,
+      translationsForLanguage: {
+        // @ts-expect-error v14 natural-language key
+        Cancel: 'Dismiss',
+      },
+    });
+
+    // The escape hatch: a loose-typed variable is still assignable, so an app can carry its own
+    // keys and the extra plural categories some languages need.
+    const withOwnKeys: LooseTranslationDictionary = {
+      'common.cancel.label': 'Dismiss',
+      'myApp.somethingElse': 'Hello',
+    };
+    i18n.registerTranslation('en', withOwnKeys);
+    new Streami18n({ logger: () => null, translationsForLanguage: withOwnKeys });
+
+    expect(i18n.getTranslations().en.translation).toHaveProperty(
+      'myApp.somethingElse',
+      'Hello',
+    );
+  });
+
   // Compile-time contract, asserted here so it cannot regress silently. TranslationDictionary
   // must accept the `_one`/`_other` plural entries a translator has to supply — keying a dictionary
   // on TranslationKey rejects them, because that union is what `t()` takes (the bare handle).
