@@ -118,19 +118,39 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
-    const handleEvent = (event: Event) => {
+    // Channel-scoped read-state events. These are delivered after
+    // `Channel._handleChannelEvent` has already updated `channel.state.unreadCount`,
+    // so recomputing from `countUnread()` here always sees fresh state.
+    const handleChannelReadStateChange = (event: Event) => {
       if (channel.cid !== event.cid) return;
       if (event.user?.id !== client.user?.id) return;
       setUnread(channel.countUnread());
     };
 
-    client.on('notification.mark_read', handleEvent);
-    channel.on('notification.mark_unread', handleEvent);
-    channel.on('message.read_locally', handleEvent);
+    // `notification.mark_read` is a personal event and needs separate handling:
+    // `cid` and `user` are both optional on it, and — unlike `message.read` — it has no
+    // case in `Channel._handleChannelEvent`, so `channel.state.unreadCount` may still be
+    // stale when it arrives. Zero the badge directly instead of recomputing, which keeps
+    // the result independent of the `message.read` / `notification.mark_read` arrival order.
+    const handleMarkRead = (event: Event) => {
+      // a thread was marked read, which does not clear the channel's unread count
+      if (event.thread_id) return;
+      if (event.user && client.user && event.user.id !== client.user.id) return;
+      // a missing `cid` means every channel was marked read
+      if (!event.cid) return setUnread(0);
+      if (channel.cid !== event.cid) return;
+      setUnread(0);
+    };
+
+    client.on('notification.mark_read', handleMarkRead);
+    channel.on('notification.mark_unread', handleChannelReadStateChange);
+    channel.on('message.read_locally', handleChannelReadStateChange);
+    channel.on('message.read', handleChannelReadStateChange);
     return () => {
-      client.off('notification.mark_read', handleEvent);
-      channel.off('notification.mark_unread', handleEvent);
-      channel.off('message.read_locally', handleEvent);
+      client.off('notification.mark_read', handleMarkRead);
+      channel.off('notification.mark_unread', handleChannelReadStateChange);
+      channel.off('message.read_locally', handleChannelReadStateChange);
+      channel.off('message.read', handleChannelReadStateChange);
     };
   }, [channel, client]);
 
