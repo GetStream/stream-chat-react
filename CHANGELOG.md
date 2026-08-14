@@ -1,3 +1,9 @@
+## [14.11.1](https://github.com/GetStream/stream-chat-react/compare/v14.11.0...v14.11.1) (2026-08-14)
+
+### Bug Fixes
+
+* **ChannelListItem:** clear unread badge regardless of read event delivery order ([#3265](https://github.com/GetStream/stream-chat-react/issues/3265)) ([7e8baee](https://github.com/GetStream/stream-chat-react/commit/7e8baeeebffa71ea5b8d263eb2f158d897eb410f))
+
 ## [14.11.0](https://github.com/GetStream/stream-chat-react/compare/v14.10.0...v14.11.0) (2026-08-07)
 
 ### Bug Fixes
