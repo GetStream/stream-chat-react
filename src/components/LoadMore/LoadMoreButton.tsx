@@ -16,7 +16,7 @@ const UnMemoizedLoadMoreButton = ({
   isLoading,
   onClick,
 }: PropsWithChildren<LoadMoreButtonProps>) => {
-  const { t } = useTranslationContext('UnMemoizedLoadMoreButton');
+  const { t } = useTranslationContext();
 
   const childrenOrDefaultString =
     children ?? t('loadMore.button.loadMore.label', 'Load more');

@@ -35,7 +35,7 @@ export const OptionFieldSet = () => {
     pollComposer.state,
     pollComposerStateSelector,
   );
-  const { t } = useTranslationContext('OptionFieldSet');
+  const { t } = useTranslationContext();
   const announce = useAriaLiveAnnouncer();
   const { announceInteraction } = useInteractionAnnouncements();
   const optionInputRefs = useRef<Array<HTMLInputElement | null>>([]);

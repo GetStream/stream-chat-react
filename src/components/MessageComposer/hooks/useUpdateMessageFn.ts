@@ -10,7 +10,7 @@ export const useUpdateMessageFn = () => {
   const channel = useChannel();
   const thread = useThreadContext();
   const messageComposer = useMessageComposerController();
-  const { t } = useTranslationContext('useUpdateMessageFn');
+  const { t } = useTranslationContext();
 
   return useCallback(async () => {
     const composition = await messageComposer.compose();

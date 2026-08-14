@@ -1,12 +1,18 @@
 import { createContext, useContext } from 'react';
+import type { UserResponse } from 'stream-chat';
 
+import { requireContext } from '../../context/requireContext';
 import { toBaseImageDescriptors } from '../BaseImage';
 import type { BaseImageProps } from '../BaseImage';
 import type { Dimensions } from '../../types/types';
 
 export type GalleryItem = Omit<BaseImageProps, 'src'> & {
+  /** When the media was shared; drives the gallery header timestamp. */
+  createdAt?: string | Date;
   dimensions?: Dimensions;
   imageUrl?: string;
+  /** User who shared the media; drives the gallery header title. */
+  user?: UserResponse;
   videoThumbnailUrl?: string;
   videoUrl?: string;
 };
@@ -51,16 +57,5 @@ export type GalleryContextValue = {
 
 export const GalleryContext = createContext<GalleryContextValue | undefined>(undefined);
 
-export const useGalleryContext = () => {
-  const contextValue = useContext(GalleryContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useGalleryContext hook was called outside of the GalleryContext provider. Make sure this hook is called within a child of the Gallery component.`,
-    );
-
-    return {} as GalleryContextValue;
-  }
-
-  return contextValue;
-};
+export const useGalleryContext = () =>
+  requireContext(useContext(GalleryContext), 'useGalleryContext', 'Gallery');

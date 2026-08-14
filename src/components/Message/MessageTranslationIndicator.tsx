@@ -21,7 +21,7 @@ export const MessageTranslationIndicator = ({
     message: contextMessage,
     setTranslationView,
     translationView,
-  } = useMessageContext('MessageTranslationIndicator');
+  } = useMessageContext();
   const message = propMessage ?? contextMessage;
 
   const translatedTextForUser = useMemo(

@@ -8,7 +8,7 @@ export type UnsupportedAttachmentProps = {
 };
 
 export const UnsupportedAttachment = () => {
-  const { t } = useTranslationContext('UnsupportedAttachment');
+  const { t } = useTranslationContext();
   return (
     <div
       className='str-chat__message-attachment-unsupported'

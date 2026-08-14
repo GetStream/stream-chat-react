@@ -1,9 +1,9 @@
 import { type AudioPlayerState, ProgressBar, useAudioPlayer } from '../../AudioPlayback';
-import { useMessageContext } from '../../../context';
+import { MessageContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { PlayButton } from '../../Button';
 import type { AudioProps } from '../Audio';
-import React from 'react';
+import React, { useContext } from 'react';
 import { IconLink } from '../../Icons';
 import { SafeAnchor } from '../../SafeAnchor';
 import type { CardProps } from './Card';
@@ -56,7 +56,9 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message } = useMessageContext() ?? {};
+  // Rendered both inside a message and standalone, so the message context is genuinely
+  // optional here — read the context directly rather than through the throwing hook.
+  const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({

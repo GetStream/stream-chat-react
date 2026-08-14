@@ -37,7 +37,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   }: PartialSelected<FileInputProps, 'onFileChange'>,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { t } = useTranslationContext('UploadFileInput');
+  const { t } = useTranslationContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const { attachmentManager } = messageComposer;

@@ -8,7 +8,7 @@ const channelConfigsSelector = (value: ChannelConfigsState) => ({
 
 // todo: why is channel config stored on client?
 export const useChannelConfig = ({ cid }: { cid: string | undefined }) => {
-  const { client } = useChatContext('useChannelConfig');
+  const { client } = useChatContext();
   const channelConfigsState = useStateStore(client.configsStore, channelConfigsSelector);
 
   if (!cid) return undefined;

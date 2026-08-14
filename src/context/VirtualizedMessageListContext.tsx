@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
+import { requireContext } from './requireContext';
 
 export type VirtualizedMessageListContextValue = {
   /** Function that scrolls the list to the bottom. */
@@ -27,4 +28,8 @@ export const VirtualizedMessageListContextProvider = ({
 );
 
 export const useVirtualizedMessageListContext = () =>
-  useContext(VirtualizedMessageListContext) as VirtualizedMessageListContextValue;
+  requireContext(
+    useContext(VirtualizedMessageListContext),
+    'useVirtualizedMessageListContext',
+    'VirtualizedMessageListContextProvider',
+  );

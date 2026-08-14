@@ -1,4 +1,32 @@
-## Decision: useGalleryContext uses console.warn instead of throw
+## Decision: useGalleryContext throws when used outside its provider
+
+**Date:** 2026-08-14 (supersedes the 2026-02-09 decision below)
+
+**Context:**
+REACT-1026 normalized missing-provider behavior across every context hook in `src/`. Required
+contexts now throw via the shared `requireContext` helper (`src/context/requireContext.ts`);
+contexts with a meaningful default keep it and carry an honest type.
+
+**Decision:**
+`useGalleryContext` throws. Its sole consumer, `GalleryUI`, destructures ~9 required fields and
+renders from them, so an empty object was never a usable value.
+
+**Reasoning:**
+This reverses the decision recorded below, whose stated rationale — "all existing context hooks in
+the project use `console.warn`" — no longer holds: that pattern is what REACT-1026 removed. The
+`{} as GalleryContextValue` cast was a typed lie that deferred the failure to a downstream
+`Cannot read properties of undefined` several frames from the actual mistake.
+
+**Tradeoffs / Consequences:**
+
+- Rendering a gallery child outside `<Gallery>` now fails immediately, naming the hook and provider,
+  instead of rendering blank and warning.
+- `src/context/__tests__/missingProviderContract.test.tsx` pins this contract alongside the other
+  required contexts.
+
+---
+
+## Decision (superseded 2026-08-14): useGalleryContext uses console.warn instead of throw
 
 **Date:** 2026-02-09
 

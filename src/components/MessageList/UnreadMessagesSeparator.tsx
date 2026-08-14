@@ -21,9 +21,9 @@ export const UnreadMessagesSeparator = ({
   showCount = true,
   unreadCount,
 }: UnreadMessagesSeparatorProps) => {
-  const { t } = useTranslationContext('UnreadMessagesSeparator');
+  const { t } = useTranslationContext();
   const channel = useChannel();
-  const { client } = useChatContext('UnreadMessagesSeparator');
+  const { client } = useChatContext();
   const messagePaginator = useMessagePaginator();
   return (
     <div

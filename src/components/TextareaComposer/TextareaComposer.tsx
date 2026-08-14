@@ -122,7 +122,7 @@ const TextareaComposerWithLiveAnnouncements = ({
   } = useMessageComposerContext();
   const cooldownRemaining = useCooldownRemaining();
 
-  const { t } = useTranslationContext('TextareaComposer');
+  const { t } = useTranslationContext();
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
   const announce = useAriaLiveAnnouncer();
   const { announceInteraction } = useInteractionAnnouncements();

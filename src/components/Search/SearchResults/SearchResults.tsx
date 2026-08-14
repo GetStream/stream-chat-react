@@ -19,7 +19,7 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 });
 
 export const SearchResults = () => {
-  const { t } = useTranslationContext('ResultsContainer');
+  const { t } = useTranslationContext();
   const {
     SearchResultsHeader = DefaultSearchResultsHeader,
     SearchResultsPresearch = DefaultSearchResultsPresearch,

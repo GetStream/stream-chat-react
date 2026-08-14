@@ -27,7 +27,7 @@ export const PollOptionList = ({
   PollOptionsFullList = DefaultPollOptionsFullList,
 }: PollOptionListProps) => {
   const { PollOptionSelector = DefaultPollOptionSelector } = useComponentContext();
-  const { t } = useTranslationContext('PollOptionList');
+  const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
   const [viewAllOptionsOpen, setViewAllOptionsOpen] = useState(false);

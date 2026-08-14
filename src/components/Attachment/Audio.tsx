@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import {
@@ -8,7 +8,7 @@ import {
 import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
-import { useComponentContext, useMessageContext } from '../../context';
+import { MessageContext, useComponentContext } from '../../context';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button/PlayButton';
 import { FileIcon } from '../FileIcon';
@@ -102,7 +102,9 @@ export const Audio = (props: AudioProps) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message } = useMessageContext() ?? {};
+  // Rendered both inside a message and standalone, so the message context is genuinely
+  // optional here — read the context directly rather than through the throwing hook.
+  const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({

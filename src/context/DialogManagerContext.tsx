@@ -192,13 +192,15 @@ export const useDialogManager = ({
     };
   }, [dialogId, dialogManagerId, nearestDialogManagerContext?.dialogManager]);
 
+  // Every caller dereferences `dialogManager` unguarded, so an absent manager already failed here —
+  // just as an opaque TypeError one frame later. Resolves the `fixme` above.
   if (!dialogManagerContext?.dialogManager) {
-    console.warn(
-      `Dialog manager (manager id: ${dialogManagerId}, dialog id: ${dialogId}) is not available`,
+    throw new Error(
+      `useDialogManager could not resolve a dialog manager (manager id: ${dialogManagerId}, dialog id: ${dialogId}). Make sure the caller is rendered within <DialogManagerProvider>.`,
     );
   }
 
-  return dialogManagerContext as DialogManagerProviderContextValue;
+  return dialogManagerContext;
 };
 
 export const modalDialogManagerId = 'modal-dialog-manager' as const;

@@ -46,8 +46,8 @@ export const usePinHandler = (
   const { getErrorNotification, notify } = notifications;
 
   const messagePaginator = useMessagePaginator();
-  const { client } = useChatContext('usePinHandler');
-  const { t } = useTranslationContext('usePinHandler');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
 
   const handlePin: ReactEventHandler = async (event) => {
     event.preventDefault();

@@ -1,7 +1,7 @@
 import { useTranslationContext } from '../../context/TranslationContext';
 
 export const UploadIcon = () => {
-  const { t } = useTranslationContext('UploadIcon');
+  const { t } = useTranslationContext();
   return (
     <svg
       data-testid='attach-icon'

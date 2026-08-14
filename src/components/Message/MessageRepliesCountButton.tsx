@@ -1,12 +1,12 @@
 import type { MouseEventHandler } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import {
+  MessageContext,
   useChannel,
   useComponentContext,
-  useMessageContext,
   useWorkspaceNavigation,
 } from '../../context';
 import { useStateStore } from '../../store';
@@ -29,7 +29,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   const {
     AvatarStack = DefaultAvatarStack,
     extractDisplayInfo = defaultExtractDisplayInfo,
-  } = useComponentContext(MessageRepliesCountButton.name);
+  } = useComponentContext();
   const {
     labelPlural,
     labelSingle,
@@ -37,7 +37,9 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     reply_count: replyCountFromProps = 0,
     thread_participants: threadParticipantsFromProps = [],
   } = props;
-  const { message: contextMessage } = useMessageContext(MessageRepliesCountButton.name);
+  // Rendered both inside a message and standalone, so the message context is genuinely
+  // optional here — read the context directly rather than through the throwing hook.
+  const { message: contextMessage } = useContext(MessageContext) ?? {};
   const channel = useChannel();
   const { openThread } = useWorkspaceNavigation();
   const replyMetadataSelector = useMemo(
@@ -59,7 +61,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   const threadParticipants =
     threadParticipantsFromPaginator ?? threadParticipantsFromProps;
 
-  const { t } = useTranslationContext('MessageRepliesCountButton');
+  const { t } = useTranslationContext();
 
   const avatarStackDisplayInfo = useMemo(
     () => threadParticipants.slice(0, 3).map((user) => extractDisplayInfo({ user })),

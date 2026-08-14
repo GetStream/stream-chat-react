@@ -69,7 +69,7 @@ const MessageUIWithContext = ({
   const channel = useChannel();
   const threadInstance = useThreadContext();
   const { client } = useChatContext();
-  const { t } = useTranslationContext('MessageUI');
+  const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
 
@@ -93,7 +93,7 @@ const MessageUIWithContext = ({
     QuotedMessage = DefaultQuotedMessage,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
-  } = useComponentContext('MessageUI');
+  } = useComponentContext();
 
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
@@ -287,7 +287,7 @@ const MemoizedMessageUI = React.memo(
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
 export const MessageUI = (props: MessageUIComponentProps) => {
-  const messageContext = useMessageContext('MessageUI');
+  const messageContext = useMessageContext();
 
   return <MemoizedMessageUI {...messageContext} {...props} />;
 };

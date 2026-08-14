@@ -16,7 +16,7 @@ export type PollCreationDialogControlsProps = {
 export const PollCreationDialogControls = ({
   close,
 }: PollCreationDialogControlsProps) => {
-  const { t } = useTranslationContext('PollCreationDialogControls');
+  const { t } = useTranslationContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const sendMessage = useSendMessageFn();

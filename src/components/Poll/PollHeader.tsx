@@ -19,7 +19,7 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export const PollHeader = () => {
-  const { t } = useTranslationContext('PollHeader');
+  const { t } = useTranslationContext();
 
   const { poll } = usePollContext();
   const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } =

@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import React, { createContext, useContext } from 'react';
 import type { SearchSource } from 'stream-chat';
+import { requireContext } from '../../context/requireContext';
 
 export type SearchSourceResultsContextValue = {
   searchSource: SearchSource;
@@ -26,7 +27,9 @@ export const SearchSourceResultsContextProvider = ({
   </SearchSourceResultsContext.Provider>
 );
 
-export const useSearchSourceResultsContext = () => {
-  const contextValue = useContext(SearchSourceResultsContext);
-  return contextValue as unknown as SearchSourceResultsContextValue;
-};
+export const useSearchSourceResultsContext = () =>
+  requireContext(
+    useContext(SearchSourceResultsContext),
+    'useSearchSourceResultsContext',
+    'SearchSourceResultsProvider',
+  );

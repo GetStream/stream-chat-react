@@ -22,6 +22,7 @@ import { useComponentContext, useTranslationContext } from '../../../context';
 import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
 import { VisuallyHidden } from '../../VisuallyHidden';
 import { useStableId } from '../../UtilityComponents/useStableId';
+import { requireContext } from '../../../context/requireContext';
 
 /**
  * ContextMenu module
@@ -589,7 +590,7 @@ const ContextMenuContext = React.createContext<ContextMenuContextValue | undefin
 );
 
 export const useContextMenuContext = () =>
-  useContext(ContextMenuContext) as ContextMenuContextValue;
+  requireContext(useContext(ContextMenuContext), 'useContextMenuContext', 'ContextMenu');
 
 type ContextMenuLevel = {
   focusRestoreRequest?: ContextMenuFocusRestoreRequest;

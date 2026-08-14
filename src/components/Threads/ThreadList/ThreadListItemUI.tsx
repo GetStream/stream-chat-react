@@ -88,7 +88,7 @@ export const ThreadListItemUI = ({
   );
 
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
-  const { t, tDateTimeParser, userLanguage } = useTranslationContext('ThreadListItemUI');
+  const { t, tDateTimeParser, userLanguage } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const { isThreadActive, openThread } = useWorkspaceNavigation();
   const {

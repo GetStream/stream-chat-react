@@ -32,7 +32,7 @@ export const useMediaRecorder = ({
   generateRecordingTitle,
   recordingConfig,
 }: UseMediaRecorderParams): RecordingController => {
-  const { t } = useTranslationContext('useMediaRecorder');
+  const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
   const sendMessageFn = useSendMessageFn();

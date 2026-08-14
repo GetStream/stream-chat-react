@@ -66,13 +66,13 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   } = props;
 
   const channel = useChannel();
-  const { isMessageAIGenerated } = useChatContext('Message');
+  const { isMessageAIGenerated } = useChatContext();
   const channelConfig = useChannelConfig({ cid: channel.cid });
   const {
     Message: contextMessage = DefaultMessageUI,
     // TODO: remove this passthrough once we drop Message from the ComponentContext
     MessageUI: contextMessageUI = contextMessage,
-  } = useComponentContext('Message');
+  } = useComponentContext();
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
 

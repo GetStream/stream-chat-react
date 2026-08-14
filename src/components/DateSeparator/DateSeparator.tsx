@@ -32,7 +32,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
     ...restTimestampFormatterOptions
   } = props;
 
-  const { t, tDateTimeParser } = useTranslationContext('DateSeparator');
+  const { t, tDateTimeParser } = useTranslationContext();
 
   const formattedDate = getDateString({
     calendar,

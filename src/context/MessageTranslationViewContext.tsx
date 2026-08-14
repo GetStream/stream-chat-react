@@ -107,8 +107,6 @@ export const MessageTranslationViewProvider = ({
   );
 };
 
-export const useMessageTranslationViewContext =
-  (): MessageTranslationViewContextValue => {
-    const context = useContext(MessageTranslationViewContext);
-    return context ?? defaultContextValue;
-  };
+// The context is created with `defaultContextValue`, so there is no missing-provider case to guard.
+export const useMessageTranslationViewContext = () =>
+  useContext(MessageTranslationViewContext);

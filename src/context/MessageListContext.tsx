@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { RenderedMessage } from '../components';
+import { requireContext } from './requireContext';
 
 export type MessageListContextValue = {
   /** Enriched message list, including date separators and intro message (if enabled) */
@@ -29,16 +30,9 @@ export const MessageListContextProvider = ({
   </MessageListContext.Provider>
 );
 
-export const useMessageListContext = (componentName?: string) => {
-  const contextValue = useContext(MessageListContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useMessageListContext hook was called outside of the MessageListContext provider. Make sure this hook is called within the MessageList component. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as MessageListContextValue;
-  }
-
-  return contextValue as MessageListContextValue;
-};
+export const useMessageListContext = () =>
+  requireContext(
+    useContext(MessageListContext),
+    'useMessageListContext',
+    'MessageListContextProvider',
+  );

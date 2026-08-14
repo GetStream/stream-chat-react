@@ -1,6 +1,7 @@
 import type { ReactEventHandler } from 'react';
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { useMessageContext } from './MessageContext';
+import { requireContext } from './requireContext';
 import { useChannel } from './useChannel';
 import {
   isMessageBounced,
@@ -22,23 +23,17 @@ const MessageBounceContext = createContext<MessageBounceContextValue | undefined
   undefined,
 );
 
-export function useMessageBounceContext(componentName?: string) {
-  const contextValue = useContext(MessageBounceContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useMessageBounceContext hook was called outside of the MessageBounceContext provider. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as MessageBounceContextValue;
-  }
-
-  return contextValue;
+export function useMessageBounceContext() {
+  return requireContext(
+    useContext(MessageBounceContext),
+    'useMessageBounceContext',
+    'MessageBounceProvider',
+  );
 }
 
 export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   const messageComposer = useMessageComposerController();
-  const { message } = useMessageContext('MessageBounceProvider');
+  const { message } = useMessageContext();
   const doHandleRetry = useRetryHandler();
 
   if (!isMessageBounced(message)) {

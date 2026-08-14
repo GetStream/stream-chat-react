@@ -40,8 +40,8 @@ const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
     ChannelListItemActionButtons = DefaultChannelListItemActionButtons,
     SummarizedMessagePreview = DefaultSummarizedMessagePreview,
   } = useComponentContext();
-  const { client, isMessageAIGenerated } = useChatContext('ChannelListItemUI');
-  const { t, tDateTimeParser, userLanguage } = useTranslationContext('ChannelListItemUI');
+  const { client, isMessageAIGenerated } = useChatContext();
+  const { t, tDateTimeParser, userLanguage } = useTranslationContext();
   const { openChannel } = useWorkspaceNavigation();
   const { announceInteraction } = useInteractionAnnouncements();
 

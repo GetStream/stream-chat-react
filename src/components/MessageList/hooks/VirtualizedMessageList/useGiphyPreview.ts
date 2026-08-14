@@ -7,7 +7,7 @@ import type { EventPayload, LocalMessage } from 'stream-chat';
 export const useGiphyPreview = (separateGiphyPreview: boolean) => {
   const [giphyPreviewMessage, setGiphyPreviewMessage] = useState<LocalMessage>();
 
-  const { client } = useChatContext('useGiphyPreview');
+  const { client } = useChatContext();
 
   useEffect(() => {
     if (!separateGiphyPreview) return;

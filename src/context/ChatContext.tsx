@@ -8,6 +8,7 @@ import type {
 } from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
+import { requireContext } from './requireContext';
 
 type CSSClasses =
   | 'chat'
@@ -59,16 +60,5 @@ export const ChatProvider = ({
   </ChatContext.Provider>
 );
 
-export const useChatContext = (componentName?: string) => {
-  const contextValue = useContext(ChatContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as ChatContextValue;
-  }
-
-  return contextValue as unknown as ChatContextValue;
-};
+export const useChatContext = () =>
+  requireContext(useContext(ChatContext), 'useChatContext', 'Chat');

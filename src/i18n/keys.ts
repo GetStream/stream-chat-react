@@ -631,6 +631,7 @@ export type TranslationCatalog = {
   'timestamp.ChannelMembersLastActive': '{{ timestamp | timestampFormatter(relativeCompact: true) }}';
   'timestamp.ChannelPreviewTimestamp': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Yesterday]", "lastWeek": "dddd", "sameElse": "L" }) }}';
   'timestamp.DateSeparator': '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today]", "nextDay": "[Tomorrow]", "lastDay": "[Yesterday]", "nextWeek": "dddd", "lastWeek": "[Last] dddd", "sameElse": "ddd, D MMM" }) }}';
+  'timestamp.GalleryTimestamp': '{{ timestamp | timestampFormatter(calendar: true) }}';
   'timestamp.LiveLocation': '{{ timestamp | timestampFormatter(calendar: true) }}';
   'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}';
   'timestamp.PollVote': '{{ timestamp | timestampFormatter(relativeCompact: true) }}';

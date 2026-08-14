@@ -25,7 +25,7 @@ export const ProgressBar = ({
   secondsElapsed,
   seek,
 }: ProgressBarProps) => {
-  const { t } = useTranslationContext('ProgressBar');
+  const { t } = useTranslationContext();
   const {
     handleDrag,
     handleDragStart,

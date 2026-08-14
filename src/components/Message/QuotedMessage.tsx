@@ -7,7 +7,7 @@ import { useMessagePaginator } from '../../hooks';
 export type QuotedMessageProps = Pick<MessageContextValue, 'renderText'>;
 
 export const QuotedMessage = ({ renderText: propsRenderText }: QuotedMessageProps) => {
-  const { message, renderText: contextRenderText } = useMessageContext('QuotedMessage');
+  const { message, renderText: contextRenderText } = useMessageContext();
   const messagePaginator = useMessagePaginator();
 
   const renderText = propsRenderText ?? contextRenderText;

@@ -43,15 +43,15 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
   const {
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
-  } = useComponentContext('ReactionSelector');
+  } = useComponentContext();
 
   const {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
     message,
     threadList,
-  } = useMessageContext('ReactionSelector');
-  const { t } = useTranslationContext('ReactionSelector');
+  } = useMessageContext();
+  const { t } = useTranslationContext();
   const dialogId =
     propDialogId ??
     ReactionSelector.getDialogId({
@@ -180,15 +180,13 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
   handleReaction: propHandleReaction,
   own_reactions: propOwnReactions,
 }) {
-  const { reactionOptions = defaultReactionOptions } = useComponentContext(
-    'ReactionSelector.ExtendedList',
-  );
+  const { reactionOptions = defaultReactionOptions } = useComponentContext();
   const {
     closeReactionSelectorOnClick,
     handleReaction: contextHandleReaction,
     message,
-  } = useMessageContext('ReactionSelector');
-  const { t } = useTranslationContext('ReactionSelector');
+  } = useMessageContext();
+  const { t } = useTranslationContext();
 
   const handleReaction = propHandleReaction ?? contextHandleReaction;
   const ownReactions = propOwnReactions ?? message?.own_reactions ?? stableOwnReactions;

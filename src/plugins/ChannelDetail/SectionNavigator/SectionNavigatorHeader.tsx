@@ -16,7 +16,7 @@ export type SectionNavigatorHeaderProps = Omit<PromptHeaderProps, 'LeadingConten
  * (`goBack`), where it would compete with the back affordance.
  */
 export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
-  const { t } = useTranslationContext('SectionNavigatorHeader');
+  const { t } = useTranslationContext();
   const { layout, openNavigation } = useSectionNavigatorContext();
 
   const MenuButton = useMemo(() => {

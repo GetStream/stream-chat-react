@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import type { BaseImageProps } from '../BaseImage';
@@ -7,7 +7,11 @@ import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
 import { GlobalModal, type ModalCloseSource } from '../Modal';
-import { useComponentContext, useTranslationContext } from '../../context';
+import {
+  MessageContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import { IconRetry } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
@@ -56,8 +60,23 @@ export const ModalGallery = ({
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
+  // Rendered both inside a message and standalone (ModalGallery is a public export and a
+  // ComponentContext slot), so the message context is genuinely optional here — read the context
+  // directly rather than through the throwing hook.
+  const { message } = useContext(MessageContext) ?? {};
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  // The gallery header renders outside this MessageProvider, so the sender and timestamp travel
+  // with the items rather than being read from message context down there.
+  const itemsWithSender = useMemo(
+    () =>
+      items.map((item) => ({
+        ...item,
+        createdAt: item.createdAt ?? message?.created_at,
+        user: item.user ?? message?.user ?? undefined,
+      })),
+    [items, message?.created_at, message?.user],
+  );
   const usesDefaultBaseImage = BaseImage === DefaultBaseImage;
 
   const closeModal = useCallback(() => {
@@ -114,7 +133,7 @@ export const ModalGallery = ({
           closeOnBackgroundClick={closeOnBackgroundClick}
           GalleryUI={GalleryUI}
           initialIndex={selectedIndex}
-          items={items}
+          items={itemsWithSender}
           onRequestClose={closeModal}
         />
       </Modal>

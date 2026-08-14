@@ -48,7 +48,7 @@ const ChannelFilesGroup = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
 );
 
 const ChannelFilesSectionHeader = ({ timestamp }: { timestamp?: string }) => {
-  const { t, tDateTimeParser } = useTranslationContext('ChannelFilesView');
+  const { t, tDateTimeParser } = useTranslationContext();
   const label = getDateString({
     format: 'MMMM YYYY',
     messageCreatedAt: timestamp,

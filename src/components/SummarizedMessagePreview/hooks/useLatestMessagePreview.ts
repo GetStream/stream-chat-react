@@ -160,8 +160,8 @@ export const useLatestMessagePreview = ({
   messageDeliveryStatus,
   participantCount,
 }: UseLatestMessagePreviewParams): LatestMessagePreviewData => {
-  const { client } = useChatContext('useLatestMessagePreview');
-  const { t, userLanguage } = useTranslationContext('useLatestMessagePreview');
+  const { client } = useChatContext();
+  const { t, userLanguage } = useTranslationContext();
 
   return useMemo(() => {
     if (!latestMessage) {

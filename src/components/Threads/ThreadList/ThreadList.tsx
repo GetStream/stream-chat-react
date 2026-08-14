@@ -104,7 +104,7 @@ const useThreadHighlighting = (threadManager: ThreadManager) => {
 
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
-  const { t } = useTranslationContext('ThreadList');
+  const { t } = useTranslationContext();
   const {
     NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,

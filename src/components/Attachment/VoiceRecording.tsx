@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
 import { FileIcon } from '../FileIcon';
 import {
+  MessageContext,
   useComponentContext,
-  useMessageContext,
   useTranslationContext,
 } from '../../context';
 import {
@@ -122,7 +122,9 @@ export const VoiceRecordingPlayer = ({
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message } = useMessageContext() ?? {};
+  // Rendered both inside a message and standalone, so the message context is genuinely
+  // optional here — read the context directly rather than through the throwing hook.
+  const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({

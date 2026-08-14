@@ -46,7 +46,7 @@ export const WorkspaceNavigationAdapter = ({
 }: PropsWithChildren<WorkspaceNavigationAdapterProps>) => {
   const { close, open } = useChatViewNavigation();
   const { activeView } = useChatViewContext();
-  const { client } = useChatContext('WorkspaceNavigationAdapter');
+  const { client } = useChatContext();
   const { availableSlots, slotBindings } = useLayoutViewState();
 
   const value = useMemo<WorkspaceNavigation>(() => {

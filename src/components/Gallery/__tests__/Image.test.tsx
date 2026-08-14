@@ -6,7 +6,7 @@ import { ImageComponent } from '../../Attachment/Image';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-import { WithComponents } from '../../../context';
+import { ChatProvider, WithComponents } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
@@ -14,6 +14,7 @@ import {
   mockComponentContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockChatContext } from '../../../mock-builders/context';
 
 const mockImageUrl = 'https://placeimg.com/640/480/any';
 
@@ -22,11 +23,14 @@ const NoOpModal = ({ children }) => <div>{children}</div>;
 
 const renderWithProviders = (ui) =>
   render(
-    <TranslationProvider value={mockTranslationContextValue()}>
-      <ComponentProvider value={mockComponentContext({ Modal: NoOpModal })}>
-        {ui}
-      </ComponentProvider>
-    </TranslationProvider>,
+    <ChatProvider value={mockChatContext({ client: { userID: 'me' } })}>
+      <TranslationProvider value={mockTranslationContextValue()}>
+        {/* deliberately no MessageProvider: ModalGallery must render standalone */}
+        <ComponentProvider value={mockComponentContext({ Modal: NoOpModal })}>
+          {ui}
+        </ComponentProvider>
+      </TranslationProvider>
+    </ChatProvider>,
   );
 
 describe('Image', () => {

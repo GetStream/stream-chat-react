@@ -46,7 +46,7 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
     title,
     type,
   } = props;
-  const { t } = useTranslationContext('UnMemoizedAttachmentActions');
+  const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const { reserve: reserveFocusReturn, restore: restoreFocusReturn } = useFocusReturn();
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);

@@ -36,11 +36,11 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     renderText: contextRenderText,
     translationView = 'translated',
     unsafeHTML,
-  } = useMessageContext('MessageText');
+  } = useMessageContext();
 
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
-  const { t, userLanguage } = useTranslationContext('MessageText');
+  const { t, userLanguage } = useTranslationContext();
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
   const messageContextId = useStableId();

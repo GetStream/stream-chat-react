@@ -87,10 +87,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   const [selectedReactionType, setSelectedReactionType] = useState<ReactionType | null>(
     null,
   );
-  const { t } = useTranslationContext('MessageReactions');
+  const { t } = useTranslationContext();
   const { MessageReactionsDetail = DefaultMessageReactionsDetail } =
     useComponentContext();
-  const { isMyMessage, message } = useMessageContext('MessageReactions');
+  const { isMyMessage, message } = useMessageContext();
 
   const divRef = useRef<ComponentRef<'div'>>(null);
   const dialogId = DefaultMessageReactionsDetail.getDialogId({

@@ -52,7 +52,7 @@ const getPinnedMessagePreview = (
 };
 
 const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
-  const { t, tDateTimeParser } = useTranslationContext('PinnedMessageDate');
+  const { t, tDateTimeParser } = useTranslationContext();
   const normalizedTimestamp = normalizeTimestamp(message.created_at);
 
   const when = useMemo(

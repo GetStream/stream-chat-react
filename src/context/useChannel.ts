@@ -10,10 +10,9 @@ export const useChannel = (): Channel => {
   const channel = channelFromThread ?? channelFromInstanceContext;
 
   if (!channel) {
-    console.warn(
+    throw new Error(
       'The useChannel hook could not resolve a channel. Make sure this hook is called within a Thread subtree or within a child of Channel (ChannelInstanceContext provider).',
     );
-    throw new Error('The useChannel hook could not resolve a channel.');
   }
 
   return channel;

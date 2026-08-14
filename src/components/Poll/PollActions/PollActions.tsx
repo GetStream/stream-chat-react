@@ -59,9 +59,9 @@ export const PollActions = ({
 }: PollActionsProps) => {
   const channel = useChannel();
   const { client } = useChatContext();
-  const { t } = useTranslationContext('PollActions');
+  const { t } = useTranslationContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
-  const { message } = useMessageContext('PollActions');
+  const { message } = useMessageContext();
   const { poll } = usePollContext();
   const {
     allow_answers,

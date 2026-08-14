@@ -29,7 +29,7 @@ export const useSendMessageFn = () => {
   const channel = useChannel();
   const thread = useThreadContext();
   const messageComposer = useMessageComposerController();
-  const { t } = useTranslationContext('useSendMessageFn');
+  const { t } = useTranslationContext();
 
   /**
    * Resolves with `true` when the message was sent, `false` when there was nothing to send or the

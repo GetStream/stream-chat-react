@@ -41,16 +41,9 @@ export const AriaLiveAnnouncerContext = createContext<
   AriaLiveAnnouncerContextValue | undefined
 >(undefined);
 
-export const useAriaLiveAnnouncer = () => {
-  const contextValue = useContext(AriaLiveAnnouncerContext);
-
-  if (!contextValue) {
-    console.warn(
-      'The useAriaLiveAnnouncer hook was called outside of an AriaLiveAnnouncerProvider.',
-    );
-
-    return noopAnnounce;
-  }
-
-  return contextValue.announce;
-};
+/**
+ * Deliberately does not throw: announcements are a progressive enhancement, so outside an
+ * `AriaLiveAnnouncerProvider` this degrades to a no-op rather than breaking the caller.
+ */
+export const useAriaLiveAnnouncer = () =>
+  useContext(AriaLiveAnnouncerContext)?.announce ?? noopAnnounce;

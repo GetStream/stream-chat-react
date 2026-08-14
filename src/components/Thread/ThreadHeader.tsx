@@ -39,7 +39,7 @@ const ThreadHeaderSubtitle = ({
   const channelConfig = useChannelConfig({ cid: channel?.cid });
   const threadInstance = useThreadContext();
   const parentId = threadInstance?.id;
-  const { client } = useChatContext('ThreadHeaderSubtitle');
+  const { client } = useChatContext();
   const messageComposer = useMessageComposerController();
   const { typing = {} } =
     useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
