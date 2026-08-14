@@ -9,15 +9,12 @@ describe('ProgressBar', () => {
 
     const root = screen.getByTestId('audio-progress');
     expect(root).toHaveAttribute('role', 'slider');
-    expect(root).toHaveAttribute('aria-label', 'aria/Seek audio position');
+    expect(root).toHaveAttribute('aria-label', 'Seek audio position');
     expect(root).toHaveAttribute('tabindex', '0');
     expect(root).toHaveAttribute('aria-valuemin', '0');
     expect(root).toHaveAttribute('aria-valuemax', '100');
     expect(root).toHaveAttribute('aria-valuenow', '40');
-    expect(root).toHaveAttribute(
-      'aria-valuetext',
-      'aria/Audio position {{ progress }} percent',
-    );
+    expect(root).toHaveAttribute('aria-valuetext', 'Audio position 40 percent');
   });
 
   it('seeks forward with ArrowRight key', () => {
@@ -71,9 +68,6 @@ describe('ProgressBar', () => {
     );
 
     const root = screen.getByTestId('audio-progress');
-    expect(root).toHaveAttribute(
-      'aria-valuetext',
-      'aria/Audio position {{ elapsed }} of {{ duration }}',
-    );
+    expect(root).toHaveAttribute('aria-valuetext', 'Audio position 01:20 of 03:20');
   });
 });

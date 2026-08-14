@@ -10,6 +10,7 @@ import {
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
 import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
+import { mockT } from '../../../../../mock-builders/translator';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -115,11 +116,7 @@ describe('ChannelMembersBrowseView', () => {
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { count?: number; timestamp?: string }) => {
-        if (options?.count) return `${key}:${options.count}`;
-        if (options?.timestamp) return `${key}:${options.timestamp}`;
-        return key;
-      },
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
     vi.mocked(useChatContext).mockReturnValue({
       mutes: [],

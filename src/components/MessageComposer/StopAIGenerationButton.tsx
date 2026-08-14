@@ -10,7 +10,10 @@ export const StopAIGenerationButton = ({
   const { t } = useTranslationContext();
   return (
     <button
-      aria-label={t('aria/Stop AI Generation')}
+      aria-label={t(
+        'messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel',
+        'Stop AI Generation',
+      )}
       className='str-chat__stop-ai-generation-button'
       data-testid='stop-ai-generation-button'
       onClick={onClick}

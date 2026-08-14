@@ -172,7 +172,7 @@ const ThumbnailButton = ({
   };
 
   const buttonLabel = showRetryIndicator
-    ? t('aria/Retry upload')
+    ? t('common.retryUpload.ariaLabel', 'Retry upload')
     : itemCountAwareLabel({ imageIndex: index + 1, itemCount, t });
 
   return (
@@ -186,11 +186,14 @@ const ThumbnailButton = ({
       type='button'
     >
       {item.videoThumbnailUrl ? (
-        <VideoThumbnail alt={t('User uploaded content')} src={item.videoThumbnailUrl} />
+        <VideoThumbnail
+          alt={t('common.userUploadedContent.label', 'User uploaded content')}
+          src={item.videoThumbnailUrl}
+        />
       ) : (
         <BaseImage
           {...baseImageProps}
-          alt={item.alt ?? t('User uploaded content')}
+          alt={item.alt ?? t('common.userUploadedContent.label', 'User uploaded content')}
           onError={(event) => {
             setIsImageLoading(false);
             setIsLoadFailed(true);
@@ -242,10 +245,14 @@ const itemCountAwareLabel = ({
   t: ReturnType<typeof useTranslationContext>['t'];
 }) =>
   itemCount === 1
-    ? t('Open image in gallery')
-    : t('Open gallery at image {{ index }}', {
-        index: imageIndex,
-      });
+    ? t('attachment.modalGallery.openImageGallery.label', 'Open image in gallery')
+    : t(
+        'attachment.modalGallery.openGalleryImage.label',
+        'Open gallery at image {{ index }}',
+        {
+          index: imageIndex,
+        },
+      );
 
 const getBaseImageProps = (item: GalleryItem): BaseImagePropsWithoutSrc => {
   const baseImageProps: PartialBaseImagePropMap = {};

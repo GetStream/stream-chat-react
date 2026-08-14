@@ -50,7 +50,10 @@ export function useFetchReactions(options: FetchReactionsOptions) {
           addNotification({
             emitter: 'Reactions',
             error: e instanceof Error ? e : undefined,
-            message: t('Error fetching reactions'),
+            message: t(
+              'reactions.fetchReactions.errorFetchingReactions.text',
+              'Error loading reactions',
+            ),
             severity: 'error',
             type: 'api:message:reactions:fetch:failed',
           });

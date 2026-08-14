@@ -50,9 +50,12 @@ export const PollResults = () => {
         <>
           <Viewer.Header
             close={close}
-            description={t('Review who voted for this option')}
+            description={t(
+              'poll.results.reviewWhoVotedOption.description',
+              'Review who voted for this option',
+            )}
             goBack={goBack}
-            title={t('Votes')}
+            title={t('poll.results.votes.title', 'Votes')}
           />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
             <PollOptionWithVotesList
@@ -66,9 +69,10 @@ export const PollResults = () => {
           <Viewer.Header
             close={close}
             description={t(
+              'poll.results.reviewPollResultsOpen.description',
               'Review poll results and open an option to see detailed votes',
             )}
-            title={t('Poll results')}
+            title={t('poll.results.pollResults.title', 'Poll Results')}
           />
           <Viewer.Body className='str-chat__modal__poll-results__body'>
             <PollQuestion question={name} />
@@ -98,7 +102,11 @@ export const PollResults = () => {
               </div>
               <div className='str-chat__modal__poll-results__options__footer'>
                 <div className='str-chat__modal__poll-results__options-total-count'>
-                  {t('totalVoteCount', { count: vote_count })}
+                  {t('poll.results.totalVoteCount.text', {
+                    count: vote_count,
+                    defaultValue_one: '1 vote total',
+                    defaultValue_other: '{{ count }} votes total',
+                  })}
                 </div>
               </div>
             </div>

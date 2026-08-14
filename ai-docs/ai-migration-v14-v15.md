@@ -65,6 +65,47 @@ To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the 
 
 `Channel` no longer reflects the channel-list query state. Its loading / error / empty rendering is driven by the channel's own `watch()` bootstrap (`LoadingIndicator` while watching, `LoadingErrorIndicator` on watch failure, `EmptyPlaceholder` when no channel is provided). The channel-list query state is the `ChannelList`'s concern, not `Channel`'s.
 
+## i18n: English-only bundle, namespaced translation keys
+
+Two breaking changes, both of which fail **silently** — no error, no compile break unless the app
+is typed against the new surface. Check for them explicitly.
+
+1. **The 11 non-English dictionaries are removed** (`de`, `es`, `fr`, `hi`, `it`, `ja`, `ko`, `nl`,
+   `pt`, `ru`, `tr`), along with their `dayjs` locale data. The `deTranslations` …
+   `trTranslations` exports are gone.
+2. **Keys are namespaced identifiers, not the English text.**
+   `t('Send Message')` → `t('messageComposer.sendButton.send.ariaLabel', 'Send')`.
+
+**What to look for in the app:**
+
+| Symptom                                                          | Cause                                 | Fix                                                            |
+| ---------------------------------------------------------------- | ------------------------------------- | -------------------------------------------------------------- |
+| `registerTranslation(...)` / `translationsForLanguage` present   | keys are the old English strings      | rename every key                                               |
+| `language: 'de'` (or any non-`en`) with no dictionary registered | the built-in one is gone              | register a dictionary                                          |
+| non-English dates render in English                              | the dayjs locale is no longer bundled | `import 'dayjs/locale/de.js'` + `dayjsLocaleConfigForLanguage` |
+| imports of `deTranslations` etc.                                 | exports removed                       | recover from a v14 tag, then rename                            |
+
+An unrenamed key does **not** throw — it simply never matches, and the English copy renders
+instead. Do not assume the absence of an error means the app is migrated.
+
+**Renaming:** every old key maps to exactly one new key. The complete table is
+[`i18n-v15-key-map.json`](./i18n-v15-key-map.json) (603 rows, `{ "<old key>": { "key": "<new key>",
+"prose": bool, "plural"?: bool } }`). Entries with `"prose": false` hold formatter expressions
+rather than copy. Four of them nonetheless carry English words inside their `calendarFormats`
+argument — `timestamp.DateSeparator`, `timestamp.ReminderNotification`,
+`timestamp.ChannelPreviewTimestamp`, `timestamp.ChannelDetailPinnedMessageTimestamp` — and must be
+overridden to translate Today/Tomorrow/Yesterday/Last. `dayjsLocaleConfigForLanguage` does not
+reach them, because a per-key `calendarFormats` replaces the locale's calendar.
+
+`registerTranslation()` and `translationsForLanguage` take `TranslationDictionary` (exported from
+`stream-chat-react`), so TypeScript flags every stale key in a dictionary written inline. Plural keys
+accept any `Intl.PluralRules` category, so a language needing `_few` / `_many` / `_zero` stays
+checked. Only if the app needs keys the SDK does not define, annotate the variable it passes as
+`LooseTranslationDictionary` — that admits any key and will **not** flag a stale one.
+
+Full detail, including plurals for languages needing `_few` / `_many` and how to recover a deleted
+dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
+
 ### `ChannelProps.EmptyPlaceholder` accepts `null`
 
 `Channel`'s `EmptyPlaceholder` prop is now typed `React.ReactElement | null` (the default is `null`) — pass `null` to render an empty container when no channel is set. (Non-breaking widening; noted for completeness.)

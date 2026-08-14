@@ -17,6 +17,7 @@ import {
   querySelectableMemberButton,
   renderWithChannel,
 } from './testUtils';
+import { mockT } from '../../../../../mock-builders/translator';
 
 const mocks = vi.hoisted(() => ({
   virtuosoRenderCount: 0,
@@ -88,8 +89,7 @@ describe('ChannelMembersAddView', () => {
     mocks.virtuosoRenderCount = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { count?: number }) =>
-        options?.count ? `${key}:${options.count}` : key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
 
     vi.mocked(useChatContext).mockReturnValue({
@@ -148,11 +148,9 @@ describe('ChannelMembersAddView', () => {
     fireEvent.click(getSelectableMemberButton('Bob'));
     fireEvent.click(getSelectableMemberButton('Carol'));
 
-    expect(
-      screen.getByRole('button', { name: 'Add {{ count }} members:2' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add 2 members' })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add {{ count }} members:2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add 2 members' }));
 
     await waitFor(() => {
       expect(channel.addMembers).toHaveBeenCalledWith(['user-2', 'user-3']);
@@ -204,16 +202,14 @@ describe('ChannelMembersAddView', () => {
     );
 
     fireEvent.click(getSelectableMemberButton('Bob'));
-    expect(
-      screen.getByRole('button', { name: /Add {{ count }} members/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Add \d+ members?/ })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add {{ count }} members/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Add \d+ members?/ }));
 
     await waitFor(() => expect(channel.addMembers).toHaveBeenCalledWith(['user-2']));
 
     expect(
-      screen.queryByRole('button', { name: /Add {{ count }} members/ }),
+      screen.queryByRole('button', { name: /Add \d+ members?/ }),
     ).not.toBeInTheDocument();
   });
 
@@ -235,7 +231,7 @@ describe('ChannelMembersAddView', () => {
       document.querySelector('.str-chat__channel-detail__channel-members-view__checkbox'),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /Add {{ count }} members/ }),
+      screen.queryByRole('button', { name: /Add \d+ members?/ }),
     ).not.toBeInTheDocument();
   });
 

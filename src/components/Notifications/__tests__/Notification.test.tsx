@@ -7,6 +7,7 @@ import { TranslationProvider } from '../../../context';
 import { mockTranslationContextValue } from '../../../mock-builders';
 
 import type { Notification as NotificationModel } from 'stream-chat';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../hooks/useNotificationApi', () => ({
   useNotificationApi: vi.fn(),
@@ -14,20 +15,7 @@ vi.mock('../hooks/useNotificationApi', () => ({
 
 const mockedUseNotificationApi = vi.mocked(useNotificationApi);
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) => {
-  if (typeof options?.value === 'string') {
-    return options.value;
-  }
-
-  const interpolated = Object.entries(options || {}).reduce((value, [name, arg]) => {
-    if (name === 'value') return value;
-    return value.replace(`{{ ${name} }}`, String(arg));
-  }, key);
-
-  return interpolated.startsWith('aria/')
-    ? interpolated.replace('aria/', '')
-    : interpolated;
-};
+const mockTranslation = mockT;
 
 describe('Notification', () => {
   const removeNotification = vi.fn();

@@ -32,12 +32,22 @@ export const UnreadMessagesSeparator = ({
     >
       <div className={'str-chat__unread-messages-separator__text'}>
         {unreadCount && showCount
-          ? t('{{count}} unread', { count: unreadCount })
-          : t('Unread messages')}
+          ? t('messageList.unreadMessagesNotification.unread.text', {
+              count: unreadCount,
+              defaultValue_one: '{{count}} unread',
+              defaultValue_other: '{{count}} unread',
+            })
+          : t(
+              'messageList.unreadMessagesNotification.unreadMessages.text',
+              'Unread messages',
+            )}
       </div>
       <Button
         appearance='ghost'
-        aria-label={t('aria/Mark messages as read')}
+        aria-label={t(
+          'messageList.unreadMessagesNotification.markMessagesRead.ariaLabel',
+          'Mark messages as read',
+        )}
         circular
         onClick={() => {
           client.messageDeliveryReporter.throttledMarkRead(channel);

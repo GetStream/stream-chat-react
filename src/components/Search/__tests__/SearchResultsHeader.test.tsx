@@ -5,6 +5,7 @@ import { SearchResultsHeader } from '../SearchResults';
 import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../SearchContext');
 vi.mock('../../../context');
@@ -43,7 +44,7 @@ describe('SearchResultsHeader', () => {
     });
 
     useTranslationContext['mockReturnValue']({
-      t: (key) => key,
+      t: mockT,
     });
 
     useStateStore['mockReturnValue']({ isActive: false });
@@ -65,24 +66,19 @@ describe('SearchResultsHeader', () => {
       const buttons = screen.getAllByRole('button');
       expect(buttons).toHaveLength(3);
 
-      expect(
-        screen.getByText('search-results-header-filter-source-button-label--channels'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('search-results-header-filter-source-button-label--messages'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText('search-results-header-filter-source-button-label--users'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('channels')).toBeInTheDocument();
+      expect(screen.getByText('messages')).toBeInTheDocument();
+      expect(screen.getByText('users')).toBeInTheDocument();
     });
 
     it('applies correct aria-labels to all buttons', () => {
       render(<SearchResultsHeader />);
       const buttons = screen.getAllByRole('button');
-      buttons.forEach((button) => {
-        expect(button).toHaveAttribute(
+      // Each button names its own source, interpolated into the shared label.
+      ['channels', 'messages', 'users'].forEach((source, index) => {
+        expect(buttons[index]).toHaveAttribute(
           'aria-label',
-          'aria/Search results header filter button for: {{ source }}',
+          `Search results header filter button for: ${source}`,
         );
       });
     });
@@ -93,9 +89,7 @@ describe('SearchResultsHeader', () => {
       useStateStore['mockReturnValue']({ isActive: true });
       render(<SearchResultsHeader />);
 
-      const label = screen.getByText(
-        'search-results-header-filter-source-button-label--messages',
-      );
+      const label = screen.getByText('messages');
       const button = label.closest('button');
       expect(button).toHaveClass(
         'str-chat__search-results-header__filter-source-button--active',
@@ -106,9 +100,7 @@ describe('SearchResultsHeader', () => {
       useStateStore['mockReturnValue']({ isActive: false });
       render(<SearchResultsHeader />);
 
-      const label = screen.getByText(
-        'search-results-header-filter-source-button-label--messages',
-      );
+      const label = screen.getByText('messages');
       const button = label.closest('button');
       expect(button).not.toHaveClass(
         'str-chat__search-results-header__filter-source-button--active',
@@ -124,9 +116,7 @@ describe('SearchResultsHeader', () => {
       });
       render(<SearchResultsHeader />);
 
-      fireEvent.click(
-        screen.getByText('search-results-header-filter-source-button-label--messages'),
-      );
+      fireEvent.click(screen.getByText('messages'));
       expect(mockSearchController.deactivateSource).toHaveBeenCalledWith('messages');
       expect(mockSearchController.activateSource).not.toHaveBeenCalled();
 
@@ -138,9 +128,7 @@ describe('SearchResultsHeader', () => {
 
     it('activates and searches source with no items', () => {
       render(<SearchResultsHeader />);
-      fireEvent.click(
-        screen.getByText('search-results-header-filter-source-button-label--channels'),
-      );
+      fireEvent.click(screen.getByText('channels'));
 
       expect(mockSearchController.activateSource).toHaveBeenCalledWith('channels');
       expect(mockSources.channels.search).toHaveBeenCalledWith('test query');
@@ -148,9 +136,7 @@ describe('SearchResultsHeader', () => {
 
     it('only performs search upon activation if it does not have items loaded', () => {
       render(<SearchResultsHeader />);
-      fireEvent.click(
-        screen.getByText('search-results-header-filter-source-button-label--messages'),
-      );
+      fireEvent.click(screen.getByText('messages'));
 
       expect(mockSearchController.activateSource).toHaveBeenCalledWith('messages');
       expect(mockSources.messages.search).not.toHaveBeenCalled();
@@ -160,9 +146,7 @@ describe('SearchResultsHeader', () => {
       mockSearchController.searchQuery = '';
       render(<SearchResultsHeader />);
 
-      fireEvent.click(
-        screen.getByText('search-results-header-filter-source-button-label--channels'),
-      );
+      fireEvent.click(screen.getByText('channels'));
       expect(mockSearchController.activateSource).toHaveBeenCalledWith('channels');
       expect(mockSources.channels.search).not.toHaveBeenCalled();
     });

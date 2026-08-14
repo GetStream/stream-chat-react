@@ -90,7 +90,7 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
 
   return (
     <div
-      aria-label={t('aria/Reaction list')}
+      aria-label={t('reactions.messageReactions.reactionList.ariaLabel', 'Reaction list')}
       className='str-chat__reaction-selector'
       data-testid='reaction-selector'
       role='group'
@@ -105,9 +105,13 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
               ({ Component, name: reactionName, type: reactionType }) => (
                 <li className='str-chat__reaction-list-selector__item' key={reactionType}>
                   <button
-                    aria-label={t('aria/Select Reaction: {{ reactionName }}', {
-                      reactionName: reactionName || reactionType,
-                    })}
+                    aria-label={t(
+                      'reactions.messageReactions.selectReaction.ariaLabel',
+                      'Select Reaction: {{ reactionName }}',
+                      {
+                        reactionName: reactionName || reactionType,
+                      },
+                    )}
                     aria-pressed={typeof ownReactionByType[reactionType] !== 'undefined'}
                     className={clsx('str-chat__reaction-selector-list__item-button')}
                     data-testid='select-reaction-button'
@@ -131,7 +135,10 @@ export const ReactionSelector: ReactionSelectorInterface = (props) => {
           {hasExtendedReactions && (
             <Button
               appearance='outline'
-              aria-label={t('aria/Open Reaction Selector')}
+              aria-label={t(
+                'common.openReactionSelector.ariaLabel',
+                'Open Reaction Selector',
+              )}
               circular
               className='str-chat__reaction-selector__add-button'
               data-testid='reaction-selector-add-button'
@@ -204,7 +211,7 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
 
   return (
     <div
-      aria-label={t('aria/Reaction list')}
+      aria-label={t('reactions.messageReactions.reactionList.ariaLabel', 'Reaction list')}
       className='str-chat__reaction-selector-extended-list'
       data-testid='reaction-selector-extended-list'
       role='group'
@@ -212,9 +219,13 @@ ReactionSelector.ExtendedList = function ReactionSelectorExtendedList({
       {Object.entries(reactionOptions.extended).map(
         ([reactionType, { Component, name: reactionName }]) => (
           <button
-            aria-label={t('aria/Select Reaction: {{ reactionName }}', {
-              reactionName: reactionName || reactionType,
-            })}
+            aria-label={t(
+              'reactions.messageReactions.selectReaction.ariaLabel',
+              'Select Reaction: {{ reactionName }}',
+              {
+                reactionName: reactionName || reactionType,
+              },
+            )}
             aria-pressed={typeof ownReactionByType[reactionType] !== 'undefined'}
             className='str-chat__reaction-selector-extended-list__button str-chat__button str-chat__button--ghost str-chat__button--size-sm str-chat__button--circular'
             data-testid='select-reaction-button'

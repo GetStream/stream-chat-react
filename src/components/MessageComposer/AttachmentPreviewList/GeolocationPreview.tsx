@@ -28,7 +28,9 @@ export const GeolocationPreview = ({
 }: GeolocationPreviewProps) => {
   const { t } = useTranslationContext();
   const shareDuration = (location as LiveLocationPreview).durationMs;
-  const title = shareDuration ? t('Live location') : t('Current location');
+  const title = shareDuration
+    ? t('common.liveLocation.text', 'Live location')
+    : t('common.currentLocation.text', 'Current location');
 
   return (
     <div className='str-chat__location-preview' data-testid='location-preview'>
@@ -36,19 +38,26 @@ export const GeolocationPreview = ({
       <div className='str-chat__location-preview__data'>
         <div
           className='str-chat__location-preview__data__title'
-          title={t('Shared location')}
+          title={t(
+            'messageComposer.geolocationPreview.sharedLocation.title',
+            'Shared location',
+          )}
         >
           {title}
         </div>
         <div className='str-chat__location-preview__data__subtitle'>
-          {t('Location: {{ coordinates }}', {
-            coordinates: `${location.latitude}, ${location.longitude}`,
-          })}
+          {t(
+            'messageComposer.geolocationPreview.location.text',
+            'Location: {{ coordinates }}',
+            {
+              coordinates: `${location.latitude}, ${location.longitude}`,
+            },
+          )}
         </div>
         {shareDuration && (
           <div className='str-chat__location-preview__data__sharing-duration'>
-            {t('Live for {{duration}}', {
-              duration: t('duration/Share Location', {
+            {t('messageComposer.geolocationPreview.live.text', 'Live for {{duration}}', {
+              duration: t('duration.shareLocation', {
                 milliseconds: shareDuration,
               }),
             })}
@@ -57,7 +66,10 @@ export const GeolocationPreview = ({
       </div>
       {remove && (
         <RemoveAttachmentPreviewButton
-          aria-label={t('aria/Remove location attachment')}
+          aria-label={t(
+            'messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel',
+            'Remove location attachment',
+          )}
           className='str-chat__attachment-preview__remove-button'
           data-testid='location-preview-item-delete-button'
           onClick={remove}

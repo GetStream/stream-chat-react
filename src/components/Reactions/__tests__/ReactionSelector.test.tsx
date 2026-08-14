@@ -17,21 +17,13 @@ import {
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const handleReactionMock = vi.fn();
 
 const defaultMessage = generateMessage();
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) => {
-  const interpolated = Object.entries(options || {}).reduce(
-    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-    key,
-  );
-
-  return interpolated.startsWith('aria/')
-    ? interpolated.replace('aria/', '')
-    : interpolated;
-};
+const mockTranslation = mockT;
 
 const renderComponent = ({
   reactionOptions,

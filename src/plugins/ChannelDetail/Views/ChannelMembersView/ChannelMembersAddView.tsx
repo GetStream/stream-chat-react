@@ -112,7 +112,11 @@ const ChannelMembersAddViewItem = ({
     <ListItemLayout
       LeadingSlot={LeadingSlot}
       rootProps={readOnlyRootProps}
-      subtitle={isMember ? t('Already a member') : undefined}
+      subtitle={
+        isMember
+          ? t('channelDetail.channelMembersAdd.alreadyMember.label', 'Already a member')
+          : undefined
+      }
       title={displayName}
       TrailingSlot={isMuted ? MuteIndicator : undefined}
     />
@@ -207,7 +211,11 @@ export const ChannelMembersAddView = ({
     () =>
       function ChannelMembersAddEmptyPlaceholder() {
         if (isLoading || !users) return null;
-        return <ChannelDetailEmptyList>{t('No user found')}</ChannelDetailEmptyList>;
+        return (
+          <ChannelDetailEmptyList>
+            {t('channelDetail.channelMembersAdd.noUserFound.text', 'No user found')}
+          </ChannelDetailEmptyList>
+        );
       },
     [isLoading, t, users],
   );
@@ -229,7 +237,11 @@ export const ChannelMembersAddView = ({
       addNotification({
         context: { channel },
         emitter: 'ChannelMembersView',
-        message: t('{{ count }} members added', { count: selectedUserIds.length }),
+        message: t('channelDetail.channelMembersAdd.membersAdded.text', {
+          count: selectedUserIds.length,
+          defaultValue_one: '{{ count }} member added',
+          defaultValue_other: '{{ count }} members added',
+        }),
         severity: 'success',
         type: 'api:channel:addMembers:success',
       });
@@ -242,7 +254,10 @@ export const ChannelMembersAddView = ({
         context: { channel },
         emitter: 'ChannelMembersView',
         error: error as Error,
-        message: t('Error adding members'),
+        message: t(
+          'channelDetail.channelMembersAdd.errorAddingMembers.text',
+          'Error adding members',
+        ),
         severity: 'error',
         type: 'api:channel:addMembers:failed',
       });
@@ -267,7 +282,11 @@ export const ChannelMembersAddView = ({
         <Prompt.Footer>
           <Prompt.FooterControls>
             <Prompt.FooterControlsButtonPrimary disabled={isSaving} onClick={handleSave}>
-              {t('Add {{ count }} members', { count: selectedUserIds.length })}
+              {t('channelDetail.channelMembersAdd.addMembers.text', {
+                count: selectedUserIds.length,
+                defaultValue_one: 'Add {{ count }} member',
+                defaultValue_other: 'Add {{ count }} members',
+              })}
             </Prompt.FooterControlsButtonPrimary>
           </Prompt.FooterControls>
         </Prompt.Footer>

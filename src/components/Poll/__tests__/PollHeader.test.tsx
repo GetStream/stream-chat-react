@@ -7,11 +7,12 @@ import { Poll } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { generatePoll, mockTranslationContextValue } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const TITLE_SELECTOR = '.str-chat__poll-title';
 const SUBTITLE_SELECTOR = '.str-chat__poll-subtitle';
 
-const t = ((v: string) => v) as TranslationContextValue['t'];
+const t = mockT as TranslationContextValue['t'];
 
 const renderComponent = ({ poll }) =>
   render(
@@ -61,7 +62,7 @@ describe('PollHeader', () => {
     const nameDiv = container.querySelector(TITLE_SELECTOR);
     const subtitleDiv = container.querySelector(SUBTITLE_SELECTOR);
     expect(nameDiv).toHaveTextContent(pollData.name);
-    expect(subtitleDiv).toHaveTextContent('Select up to {{count}}');
+    expect(subtitleDiv).toHaveTextContent('Select up to 2');
   });
 
   it('should render Select one or more header', () => {

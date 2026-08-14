@@ -51,7 +51,7 @@ const useMuteAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('Channel unmuted'),
+          message: t('common.channelUnmuted.text', 'Channel unmuted'),
           severity: 'success',
           type: 'api:channel:unmute:success',
         });
@@ -60,7 +60,7 @@ const useMuteAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('Channel muted'),
+          message: t('common.channelMuted.text', 'Channel muted'),
           severity: 'success',
           type: 'api:channel:mute:success',
         });
@@ -70,14 +70,21 @@ const useMuteAction = (): ChannelActionBehavior => {
         context: { channel },
         emitter: ChannelListItemActionButtons.name,
         error: error instanceof Error ? error : new Error('An unknown error occurred'),
-        message: t('Failed to update channel mute status'),
+        message: t(
+          'channelListItem.failedUpdateChannelMute.text',
+          'Failed to update channel mute status',
+        ),
         severity: 'error',
         type: 'api:channel:mute:failed',
       });
     }
   };
 
-  return { 'aria-pressed': isMuted, title: isMuted ? t('Unmute') : t('Mute'), toggle };
+  return {
+    'aria-pressed': isMuted,
+    title: isMuted ? t('common.unmute.title', 'Unmute') : t('common.mute.title', 'Mute'),
+    toggle,
+  };
 };
 
 // Core archive/unarchive action — performs the API call and reports the result.
@@ -94,7 +101,7 @@ const useArchiveAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('Channel unarchived'),
+          message: t('channelListItem.channelUnarchived.text', 'Channel unarchived'),
           severity: 'success',
           type: 'api:channel:unarchive:success',
         });
@@ -103,7 +110,7 @@ const useArchiveAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('Channel archived'),
+          message: t('channelListItem.channelArchived.text', 'Channel archived'),
           severity: 'success',
           type: 'api:channel:archive:success',
         });
@@ -113,7 +120,10 @@ const useArchiveAction = (): ChannelActionBehavior => {
         context: { channel },
         emitter: ChannelListItemActionButtons.name,
         error: error instanceof Error ? error : new Error('An unknown error occurred'),
-        message: t('Failed to update channel archive status'),
+        message: t(
+          'channelListItem.failedUpdateChannelArchive.text',
+          'Failed to update channel archive status',
+        ),
         severity: 'error',
         type: 'api:channel:archive:failed',
       });
@@ -122,7 +132,9 @@ const useArchiveAction = (): ChannelActionBehavior => {
 
   return {
     'aria-pressed': typeof membership.archived_at === 'string',
-    title: membership.archived_at ? t('Unarchive') : t('Archive'),
+    title: membership.archived_at
+      ? t('channelListItem.unarchive.title', 'Unarchive')
+      : t('channelListItem.archive.title', 'Archive'),
     toggle,
   };
 };
@@ -213,7 +225,7 @@ const useBanAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('User unblocked'),
+          message: t('common.userUnblocked.text', 'User unblocked'),
           severity: 'success',
           type: 'api:user:unban:success',
         });
@@ -222,7 +234,7 @@ const useBanAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('User blocked'),
+          message: t('common.userBlocked.text', 'User blocked'),
           severity: 'success',
           type: 'api:user:ban:success',
         });
@@ -232,7 +244,7 @@ const useBanAction = (): ChannelActionBehavior => {
         context: { channel },
         emitter: ChannelListItemActionButtons.name,
         error: error instanceof Error ? error : new Error('An unknown error occurred'),
-        message: t('Failed to block user'),
+        message: t('channelListItem.failedBlockUser.text', 'Failed to block user'),
         severity: 'error',
         type: 'api:user:ban:failed',
       });
@@ -241,7 +253,9 @@ const useBanAction = (): ChannelActionBehavior => {
 
   return {
     'aria-pressed': isUserBanned,
-    title: isUserBanned ? t('Unblock User') : t('Block User'),
+    title: isUserBanned
+      ? t('channelListItem.unblockUser.title', 'Unblock User')
+      : t('common.blockUser.title', 'Block User'),
     toggle,
   };
 };
@@ -260,7 +274,7 @@ const useLeaveAction = (): ChannelActionBehavior => {
       addNotification({
         context: { channel },
         emitter: ChannelListItemActionButtons.name,
-        message: t('Left channel'),
+        message: t('common.leftChannel.text', 'Left channel'),
         severity: 'success',
         type: 'api:channel:leave:success',
       });
@@ -269,14 +283,14 @@ const useLeaveAction = (): ChannelActionBehavior => {
         context: { channel },
         emitter: ChannelListItemActionButtons.name,
         error: error instanceof Error ? error : new Error('An unknown error occurred'),
-        message: t('Failed to leave channel'),
+        message: t('common.failedLeaveChannel.text', 'Failed to leave channel'),
         severity: 'error',
         type: 'api:channel:leave:failed',
       });
     }
   };
 
-  return { title: t('Leave Channel'), toggle };
+  return { title: t('channelListItem.leaveChannel.title', 'Leave Channel'), toggle };
 };
 
 // Core pin/unpin action.
@@ -293,7 +307,7 @@ const usePinAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('Channel unpinned'),
+          message: t('channelListItem.channelUnpinned.text', 'Channel unpinned'),
           severity: 'success',
           type: 'api:channel:unpin:success',
         });
@@ -302,7 +316,7 @@ const usePinAction = (): ChannelActionBehavior => {
         addNotification({
           context: { channel },
           emitter: ChannelListItemActionButtons.name,
-          message: t('Channel pinned'),
+          message: t('channelListItem.channelPinned.text', 'Channel pinned'),
           severity: 'success',
           type: 'api:channel:pin:success',
         });
@@ -312,7 +326,10 @@ const usePinAction = (): ChannelActionBehavior => {
         context: { channel },
         emitter: ChannelListItemActionButtons.name,
         error: error instanceof Error ? error : new Error('An unknown error occurred'),
-        message: t('Failed to update channel pinned status'),
+        message: t(
+          'channelListItem.failedUpdateChannelPinned.text',
+          'Failed to update channel pinned status',
+        ),
         severity: 'error',
         type: 'api:channel:pin:failed',
       });
@@ -321,7 +338,9 @@ const usePinAction = (): ChannelActionBehavior => {
 
   return {
     'aria-pressed': !!membership.pinned_at,
-    title: membership.pinned_at ? t('Unpin') : t('Pin'),
+    title: membership.pinned_at
+      ? t('common.unpin.title', 'Unpin')
+      : t('common.pin.title', 'Pin'),
     toggle,
   };
 };
@@ -461,7 +480,10 @@ const defaultComponents = {
       <Button
         appearance='ghost'
         aria-expanded={dialogIsOpen}
-        aria-label={t('aria/Open Channel Actions Menu')}
+        aria-label={t(
+          'channelListItem.openChannelActionsMenu.ariaLabel',
+          'Open Channel Actions Menu',
+        )}
         aria-pressed={dialogIsOpen}
         circular
         data-testid='channel-list-item-dropdown-toggle'

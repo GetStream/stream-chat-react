@@ -8,6 +8,7 @@ import type { SearchContextValue } from '../SearchContext';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
 import { useStateStore } from '../../../store';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../SearchContext');
 vi.mock('../../../context');
@@ -27,7 +28,7 @@ const mockedUseStateStore = vi.mocked(useStateStore);
 const SOURCE_RESULTS_TEST_ID = 'default-source-results';
 const SEARCH_RESULTS_HEADER_TEST_ID = 'default-header';
 const PRESEARCH_TEST_ID = 'default-presearch';
-const SEARCH_RESULTS_ARIA_LABEL = 'aria/Search results';
+const SEARCH_RESULTS_ARIA_LABEL = 'Search results';
 describe('SearchResults', () => {
   const mockSearchSource = {
     isActive: true,
@@ -81,7 +82,7 @@ describe('SearchResults', () => {
 
     mockedUseTranslationContext.mockReturnValue(
       fromPartial<TranslationContextValue>({
-        t: (key) => key,
+        t: mockT,
       }),
     );
 

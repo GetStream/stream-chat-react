@@ -34,7 +34,6 @@ import {
   type NotificationListProps,
   type ReactionOptions,
   Search,
-  Streami18n,
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
@@ -91,6 +90,7 @@ import {
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import { streamI18n } from './i18n';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -229,15 +229,6 @@ const ConfigurableNotificationList = (props: NotificationListProps) => {
 
   return <NotificationList {...props} verticalAlignment={verticalAlignment} />;
 };
-
-const language = new URLSearchParams(window.location.search).get('language');
-const i18nInstance = language
-  ? new Streami18n({
-      language: language as NonNullable<
-        ConstructorParameters<typeof Streami18n>[0]
-      >['language'],
-    })
-  : undefined;
 
 const messageUiVariant = getMessageUiVariant();
 const MessageUiOverride = messageUiVariant
@@ -543,7 +534,7 @@ const App = () => {
       <SidebarProvider initialOpen={initialSidebarOpen}>
         <Chat
           client={chatClient}
-          i18nInstance={i18nInstance}
+          i18nInstance={streamI18n}
           isMessageAIGenerated={isMessageAIGenerated}
           searchController={searchController}
           theme={chatTheme}

@@ -43,7 +43,10 @@ export const AvatarWithChannelDetail = ({
   return (
     <>
       <button
-        aria-label={t('aria/Open channel details')}
+        aria-label={t(
+          'channelDetail.avatarChannelDetail.openChannelDetails.ariaLabel',
+          'Open channel details',
+        )}
         className='str-chat__avatar-with-channel-detail-button'
         onClick={openModal}
         type='button'
@@ -57,7 +60,10 @@ export const AvatarWithChannelDetail = ({
         />
       </button>
       <Modal
-        aria-label={t('aria/Channel details')}
+        aria-label={t(
+          'channelDetail.avatarChannelDetail.channelDetails.ariaLabel',
+          'Channel details',
+        )}
         dialogRootProps={avatarWithChannelDetailDialogRootProps}
         onClose={closeModal}
         open={isModalOpen}

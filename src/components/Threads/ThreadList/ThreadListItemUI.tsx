@@ -211,7 +211,11 @@ export const ThreadListItemUI = ({
             <div className='str-chat__thread-list-item__reply-information'>
               <AvatarStack displayInfo={displayInfo} size='sm' />
               <span className='str-chat__thread-list-item__reply-count'>
-                {t('replyCount', { count: replyCount })}
+                {t('common.replyCount.label', {
+                  count: replyCount,
+                  defaultValue_one: '1 reply',
+                  defaultValue_other: '{{ count }} replies',
+                })}
               </span>
             </div>
             <Timestamp

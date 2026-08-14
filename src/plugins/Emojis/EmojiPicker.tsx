@@ -124,7 +124,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
       <Button
         appearance='ghost'
         aria-expanded={displayPicker}
-        aria-label={t('aria/Emoji picker')}
+        aria-label={t('emojiPicker.emojiPicker.ariaLabel', 'Emoji picker')}
         circular
         className={props.buttonClassName ?? defaultButtonClassName}
         disabled={isCooldownActive}

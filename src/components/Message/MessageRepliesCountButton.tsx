@@ -81,7 +81,11 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
 
   if (!replyCount) return null;
 
-  let replyCountText = t('replyCount', { count: replyCount });
+  let replyCountText = t('common.replyCount.label', {
+    count: replyCount,
+    defaultValue_one: '1 reply',
+    defaultValue_other: '{{ count }} replies',
+  });
 
   if (labelPlural && replyCount > 1) {
     replyCountText = `${replyCount} ${labelPlural}`;

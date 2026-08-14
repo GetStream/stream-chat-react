@@ -65,7 +65,7 @@ export const PollOptionWithVotes = ({
               size='md'
               variant='secondary'
             >
-              {t('View all')}
+              {t('poll.optionVotes.view.text', 'View all')}
             </Button>
           </div>
         )}

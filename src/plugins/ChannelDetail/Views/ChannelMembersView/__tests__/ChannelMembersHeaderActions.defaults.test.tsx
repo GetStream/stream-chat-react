@@ -19,6 +19,7 @@ import type {
   ChannelMembersModeController,
   ChannelMembersViewMode,
 } from '../ChannelMembersView';
+import { mockT } from '../../../../../mock-builders/translator';
 
 vi.mock('../../../../../context');
 
@@ -75,7 +76,7 @@ describe('ChannelMembersHeaderActions.defaults', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string) => key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
     vi.mocked(useModalContext).mockReturnValue({} as ReturnType<typeof useModalContext>);
     vi.mocked(useComponentContext).mockReturnValue(

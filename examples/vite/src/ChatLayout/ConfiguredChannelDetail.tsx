@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useTranslationContext } from 'stream-chat-react';
+import { asDynamicKey, useTranslationContext } from 'stream-chat-react';
 import {
   AvatarWithChannelDetail,
   type AvatarWithChannelDetailProps,
@@ -18,7 +18,11 @@ import { ChannelMembersRemoveView } from './ChannelMembersRemoveView';
 
 const ChannelMembersRemoveTitle = () => {
   const { t } = useTranslationContext();
-  return <>{t('Manage members')}</>;
+  return (
+    <>
+      {t(asDynamicKey('viteExample.channelDetail.manageMembers.title'), 'Manage members')}
+    </>
+  );
 };
 
 // Register the app-provided bulk-remove mode. The SDK ships no bulk removal; the

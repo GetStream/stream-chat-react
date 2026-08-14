@@ -6,6 +6,7 @@ import { useSearchContext } from '../SearchContext';
 import { useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { Button } from '../../../components';
+import { asDynamicKey } from '../../../i18n/utils';
 
 const searchSourceStateSelector = (nextValue: SearchSourceState) => ({
   isActive: nextValue.isActive,
@@ -24,25 +25,32 @@ const SearchSourceFilterButton = ({ source }: SearchSourceFilterButtonProps) => 
   const knownLabels = useMemo<Record<string, string>>(
     () => ({
       'search-results-header-filter-source-button-label--channels': t(
-        'search-results-header-filter-source-button-label--channels',
+        'search.resultsHeader.filterSource.channels',
+        'channels',
       ),
       'search-results-header-filter-source-button-label--messages': t(
-        'search-results-header-filter-source-button-label--messages',
+        'search.resultsHeader.filterSource.messages',
+        'messages',
       ),
       'search-results-header-filter-source-button-label--users': t(
-        'search-results-header-filter-source-button-label--users',
+        'search.resultsHeader.filterSource.users',
+        'users',
       ),
     }),
     [t],
   );
 
-  const buttonContent = knownLabels[label] ?? t(label);
+  const buttonContent = knownLabels[label] ?? t(asDynamicKey(label));
   return (
     <Button
       appearance='outline'
-      aria-label={t('aria/Search results header filter button for: {{ source }}', {
-        source: buttonContent,
-      })}
+      aria-label={t(
+        'search.resultsHeader.ariaLabel',
+        'Search results header filter button for: {{ source }}',
+        {
+          source: buttonContent,
+        },
+      )}
       aria-pressed={isActive}
       className={clsx('str-chat__search-results-header__filter-source-button', {
         'str-chat__search-results-header__filter-source-button--active': isActive,

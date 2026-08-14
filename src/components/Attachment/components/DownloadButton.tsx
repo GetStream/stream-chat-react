@@ -32,7 +32,7 @@ export const DownloadButton = ({
 
   return (
     <a
-      aria-label={t('aria/Download attachment')}
+      aria-label={t('common.downloadAttachment.ariaLabel', 'Download attachment')}
       className={clsx(
         'str-chat__button',
         'str-chat__button--secondary',
@@ -46,7 +46,7 @@ export const DownloadButton = ({
       href={href}
       rel='noopener noreferrer'
       target='_blank'
-      title={tooltipTitle ?? t('Download Attachment')}
+      title={tooltipTitle ?? t('common.downloadAttachment.title', 'Download Attachment')}
     >
       <div className='str-chat__button__content'>
         <IconDownload className='str-chat__icon str-chat__audio-attachment-download-button__icon' />

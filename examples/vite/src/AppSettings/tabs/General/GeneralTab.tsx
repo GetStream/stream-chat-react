@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import type { ChannelManagerState } from 'stream-chat';
 import { Button, useChatContext, useStateStore } from 'stream-chat-react';
 import { appSettingsStore, useAppSettingsState } from '../../state';
+import { availableLanguages } from '../../../i18n';
 import { SearchableSelect, type SearchableSelectOption } from '../../SearchableSelect';
 import {
   SettingsTabBody,
@@ -18,6 +19,7 @@ const paginatorsSelector = (state: ChannelManagerState) => ({
 
 export const GeneralTab = ({ close }: GeneralTabProps) => {
   const {
+    language,
     messageList,
     theme,
     theme: { direction },
@@ -60,6 +62,27 @@ export const GeneralTab = ({ close }: GeneralTabProps) => {
       />
 
       <SettingsTabBody>
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Language</div>
+          <div>
+            Switches the SDK&apos;s UI language live — every language is registered on one{' '}
+            <code>Streami18n</code> instance and this calls <code>setLanguage()</code>.
+            English is built in; German and Italian are supplied by this app in{' '}
+            <code>src/i18n/</code>.
+          </div>
+          <div className='app__settings-modal__options-row'>
+            {availableLanguages.map(({ code, label }) => (
+              <Button
+                aria-pressed={language.code === code}
+                className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+                key={code}
+                onClick={() => appSettingsStore.partialNext({ language: { code } })}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
         <div className='app__settings-modal__field'>
           <div className='app__settings-modal__field-label'>Text direction</div>
           <div className='app__settings-modal__options-row'>

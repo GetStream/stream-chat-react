@@ -100,7 +100,7 @@ describe.each([
     );
     expect(screen.queryByTestId(BUTTON_TEST_ID)).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'aria/Jump to latest message' }),
+      screen.getByRole('button', { name: 'Jump to latest message' }),
     ).toBeInTheDocument();
   });
 

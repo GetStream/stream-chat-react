@@ -1,6 +1,7 @@
 import type { ChannelMemberResponse, UserResponse } from 'stream-chat';
 import { useMemo, useState } from 'react';
 import {
+  asDynamicKey,
   Avatar,
   Checkbox,
   InfiniteScrollPaginator,
@@ -38,17 +39,21 @@ const getPresenceStatusText = (
   user: ChannelMemberResponse['user'],
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if (user?.online) return t('Online');
+  if (user?.online) return t('common.online.label', 'Online');
 
   if (user?.last_active) {
-    return t('Last seen {{ timestamp }}', {
-      timestamp: t('timestamp/ChannelMembersLastActive', {
-        timestamp: user.last_active,
-      }),
-    });
+    return t(
+      'channelDetail.channelMemberDetail.lastSeen.label',
+      'Last seen {{ timestamp }}',
+      {
+        timestamp: t('timestamp.ChannelMembersLastActive', {
+          timestamp: user.last_active,
+        }),
+      },
+    );
   }
 
-  return t('Offline');
+  return t('common.offline.label', 'Offline');
 };
 
 export const ChannelMembersRemoveView = ({
@@ -89,7 +94,11 @@ export const ChannelMembersRemoveView = ({
       addNotification({
         context: { channel },
         emitter: 'ChannelMembersRemoveView',
-        message: t('Removed {{ count }} members', { count: memberCount }),
+        message: t(asDynamicKey('viteExample.removeMembers.removed.text'), {
+          count: memberCount,
+          defaultValue_one: 'Removed {{ count }} member',
+          defaultValue_other: 'Removed {{ count }} members',
+        }),
         severity: 'success',
         type: 'api:channel:remove-members:success',
       });
@@ -101,7 +110,10 @@ export const ChannelMembersRemoveView = ({
         context: { channel },
         emitter: 'ChannelMembersRemoveView',
         error: toError(error),
-        message: t('Error removing members'),
+        message: t(
+          asDynamicKey('viteExample.removeMembers.error.text'),
+          'Error removing members',
+        ),
         severity: 'error',
         type: 'api:channel:remove-members:failed',
       });
@@ -155,7 +167,12 @@ export const ChannelMembersRemoveView = ({
               );
             })
           ) : (
-            <ChannelDetailEmptyList>{t('No member found')}</ChannelDetailEmptyList>
+            <ChannelDetailEmptyList>
+              {t(
+                'channelDetail.channelMembersBrowse.noMemberFound.text',
+                'No member found',
+              )}
+            </ChannelDetailEmptyList>
           )}
           <ChannelDetailListLoadingIndicator searchSource={membersSearchSource} />
         </InfiniteScrollPaginator>
@@ -167,7 +184,11 @@ export const ChannelMembersRemoveView = ({
               disabled={isRemoving}
               onClick={handleRemove}
             >
-              {t('Remove {{ count }} members', { count: selectedMemberUserIds.length })}
+              {t(asDynamicKey('viteExample.removeMembers.submit.label'), {
+                count: selectedMemberUserIds.length,
+                defaultValue_one: 'Remove {{ count }} member',
+                defaultValue_other: 'Remove {{ count }} members',
+              })}
             </Prompt.FooterControlsButtonPrimary>
           </Prompt.FooterControls>
         </Prompt.Footer>

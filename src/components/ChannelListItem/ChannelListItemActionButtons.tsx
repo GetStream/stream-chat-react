@@ -79,7 +79,7 @@ export const ChannelListItemActionButtons: ChannelListItemActionButtonsInterface
         <Component key={type} />
       ))}
       <ContextMenuComponent
-        aria-label={t('aria/Channel Actions')}
+        aria-label={t('channelListItem.channelActions.ariaLabel', 'Channel Actions')}
         className='str-chat__channel-list-item__action-buttons-context-menu'
         data-testid='channel-list-item-context-menu'
         dialogManagerId={dialogManager?.id}

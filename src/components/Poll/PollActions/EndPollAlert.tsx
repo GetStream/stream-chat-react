@@ -14,9 +14,10 @@ export const EndPollAlert = () => {
     <Alert.Root className={'str-chat__end-poll-alert'}>
       <Alert.Header
         description={t(
+          'poll.endPollAlert.description',
           'Do you want to end this poll now? Nobody will be able to vote in this poll anymore.',
         )}
-        title={t('End this poll?')}
+        title={t('poll.endPollAlert.endPoll.title', 'End this Poll?')}
       ></Alert.Header>
       <Alert.Actions>
         <Button
@@ -29,7 +30,7 @@ export const EndPollAlert = () => {
               close();
               addNotification({
                 emitter: 'EndPollAlert',
-                message: t('Poll ended'),
+                message: t('notification.pollEndSuccess', 'Poll Ended'),
                 severity: 'success',
                 type: 'api:poll:end:success',
               });
@@ -37,7 +38,7 @@ export const EndPollAlert = () => {
               addNotification({
                 emitter: 'EndPollAlert',
                 error: e instanceof Error ? e : undefined,
-                message: t('Failed to end the poll'),
+                message: t('notification.pollEndFailed', 'Failed to end the poll'),
                 severity: 'error',
                 type: 'api:poll:end:failed',
               });
@@ -46,7 +47,7 @@ export const EndPollAlert = () => {
           size='md'
           variant='danger'
         >
-          {t('End poll')}
+          {t('poll.endPollAlert.endPoll.text', 'End Poll')}
         </Button>
         <Button
           appearance='outline'
@@ -56,7 +57,7 @@ export const EndPollAlert = () => {
           size='md'
           variant='secondary'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Button>
       </Alert.Actions>
     </Alert.Root>

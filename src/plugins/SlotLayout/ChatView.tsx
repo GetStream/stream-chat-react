@@ -657,13 +657,16 @@ export const ChatViewChannelsSelectorButton = ({
   return (
     <ChatViewSelectorButton
       ActiveIcon={IconMessageBubbleFill}
-      aria-label={t('aria/Open channels view')}
+      aria-label={t(
+        'slotLayout.chatView.openChannelsView.ariaLabel',
+        'Open channels view',
+      )}
       Icon={IconMessageBubble}
       iconOnly={iconOnly}
       isActive={isActive}
       onClick={() => setActiveView('channels')}
       onPointerDown={() => setActiveView('channels')}
-      text={t('Channels')}
+      text={t('slotLayout.chatView.channels.text', 'Channels')}
     />
   );
 };
@@ -684,10 +687,12 @@ export const ChatViewThreadsSelectorButton = ({
   const isActive = activeView === 'threads';
   const label =
     unreadThreadCount > 0
-      ? t('aria/Open threads view with unread threads', {
+      ? t('slotLayout.chatView.openThreadsViewUnread.ariaLabel', {
           count: unreadThreadCount,
+          defaultValue_one: 'Open threads view, {{ count }} unread thread',
+          defaultValue_other: 'Open threads view, {{ count }} unread threads',
         })
-      : t('aria/Open threads view');
+      : t('slotLayout.chatView.openThreadsView.ariaLabel', 'Open threads view');
 
   return (
     <ChatViewSelectorButton
@@ -698,7 +703,7 @@ export const ChatViewThreadsSelectorButton = ({
       isActive={isActive}
       onClick={() => setActiveView('threads')}
       onPointerDown={() => setActiveView('threads')}
-      text={t('Threads')}
+      text={t('common.threads.text', 'Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
         {isActive ? <IconThreadFill /> : <IconThread />}
@@ -738,7 +743,10 @@ const ChatViewSelector = ({
 
   return (
     <div
-      aria-label={t('aria/Chat view controls')}
+      aria-label={t(
+        'slotLayout.chatView.chatViewControls.ariaLabel',
+        'Chat view controls',
+      )}
       className='str-chat__chat-view__selector'
       role='navigation'
     >

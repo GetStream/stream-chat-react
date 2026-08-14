@@ -13,6 +13,7 @@ import { TranslationProvider } from '../../../context';
 import { mockTranslationContextValue } from 'mock-builders';
 
 import type { Notification } from '../../../../../stream-chat-js/src';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../../Notifications/hooks/useNotifications', () => ({
   useNotifications: vi.fn(),
@@ -28,16 +29,7 @@ const notificationBase: Notification = {
   severity: 'info',
 };
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) => {
-  if (
-    key === 'translationBuilderTopic/notification' &&
-    typeof options?.value === 'string'
-  ) {
-    return options.value;
-  }
-
-  return key;
-};
+const mockTranslation = mockT;
 
 type RenderNotificationAnnouncerProps = {
   buildNotificationAnnouncement?: NotificationAnnouncementBuilder;

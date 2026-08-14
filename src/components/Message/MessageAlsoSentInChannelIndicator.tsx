@@ -30,14 +30,18 @@ export const MessageAlsoSentInChannelIndicator = ({
   return (
     <div className='str-chat__message-also-sent-in-channel' role='status'>
       <IconArrowUpRight />
-      <span>{isInThread ? t('Also sent in channel') : t('Replied to a thread')}</span>
+      <span>
+        {isInThread
+          ? t('message.alsoSent.alsoSentChannel.text', 'Also sent in channel')
+          : t('message.alsoSent.repliedThread.text', 'Replied to a thread')}
+      </span>
       <span> · </span>
       <button
         className='str-chat__message-also-sent-in-channel__link-button'
         onClick={onView ?? viewReference}
         type='button'
       >
-        {t('View')}
+        {t('message.alsoSent.view.text', 'View')}
       </button>
     </div>
   );

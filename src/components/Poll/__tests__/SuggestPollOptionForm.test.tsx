@@ -11,12 +11,13 @@ import {
   mockChatContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const SUBMIT_BUTTON_TEXT = 'Send';
 
 const newlyTypedValue = 'XX';
 
-const t = ((v: string) => v) as TranslationContextValue['t'];
+const t = mockT as TranslationContextValue['t'];
 
 const renderComponent = ({ client, poll, props }: any) =>
   render(

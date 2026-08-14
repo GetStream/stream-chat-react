@@ -1,4 +1,5 @@
 import { fromPartial } from '@total-typescript/shoehorn';
+import { mockT } from './translator';
 import type {
   ChannelActionContextValue,
   ChannelListContextValue,
@@ -31,7 +32,7 @@ export const mockChannelActionContext = (overrides: Record<string, unknown> = {}
 
 export const mockTranslationContextValue = (overrides: Record<string, unknown> = {}) =>
   fromPartial<TranslationContextValue>({
-    t: ((key: string) => key.split('/').pop()) as TranslationContextValue['t'],
+    t: mockT as TranslationContextValue['t'],
     tDateTimeParser: ((input) => ({
       calendar: () => String(input),
       format: () => String(input),

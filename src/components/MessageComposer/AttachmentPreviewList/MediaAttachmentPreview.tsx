@@ -108,7 +108,7 @@ export const MediaAttachmentPreview = ({
           {hasRetriableError && (
             <Button
               appearance='solid'
-              aria-label={t('aria/Retry upload')}
+              aria-label={t('common.retryUpload.ariaLabel', 'Retry upload')}
               circular
               className='str-chat__attachment-preview-media__retry-upload-button'
               data-testid='video-preview-item-retry-button'

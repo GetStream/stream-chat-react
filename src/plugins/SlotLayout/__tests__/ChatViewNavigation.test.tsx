@@ -1,4 +1,5 @@
 import React from 'react';
+import type { TranslationContextValue } from '../../../context/TranslationContext';
 import { StateStore } from 'stream-chat';
 import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -15,6 +16,7 @@ import { TranslationProvider } from '../../../context/TranslationContext';
 import type { Channel as StreamChannel, Thread as StreamThread } from 'stream-chat';
 import type { ChatContextValue } from '../../../context/ChatContext';
 import type { LayoutController } from '../layoutController/layoutControllerTypes';
+import { mockT } from '../../../mock-builders/translator';
 
 const makeChannel = (cid: string) => ({ cid }) as unknown as StreamChannel;
 const makeThread = (id: string) => ({ id }) as unknown as StreamThread;
@@ -47,7 +49,9 @@ const createChatContextValue = (): ChatContextValue =>
 const renderWithProviders = (ui: React.ReactNode) =>
   render(
     <ChatProvider value={createChatContextValue()}>
-      <TranslationProvider value={{ t: (key: string) => key, userLanguage: 'en' }}>
+      <TranslationProvider
+        value={{ t: mockT, userLanguage: 'en' } as TranslationContextValue}
+      >
         {ui}
       </TranslationProvider>
     </ChatProvider>,

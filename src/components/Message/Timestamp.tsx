@@ -31,7 +31,7 @@ export function Timestamp(props: TimestampProps) {
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey: 'timestamp/MessageTimestamp',
+        timestampTranslationKey: 'timestamp.MessageTimestamp',
       }),
     [
       calendar,

@@ -59,12 +59,22 @@ export const UnreadMessagesNotification = ({
       >
         <IconArrowUp />
         {unreadCount && showCount
-          ? t('{{count}} unread', { count: unreadCount })
-          : t('Unread messages')}
+          ? t('messageList.unreadMessagesNotification.unread.text', {
+              count: unreadCount,
+              defaultValue_one: '{{count}} unread',
+              defaultValue_other: '{{count}} unread',
+            })
+          : t(
+              'messageList.unreadMessagesNotification.unreadMessages.text',
+              'Unread messages',
+            )}
       </Button>
       <Button
         appearance='outline'
-        aria-label={t('aria/Mark messages as read')}
+        aria-label={t(
+          'messageList.unreadMessagesNotification.markMessagesRead.ariaLabel',
+          'Mark messages as read',
+        )}
         onClick={() => {
           messagePaginator.clearUnreadSnapshot();
           client.messageDeliveryReporter.throttledMarkRead(thread ?? channel);

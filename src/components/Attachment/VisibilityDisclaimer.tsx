@@ -7,7 +7,7 @@ export const VisibilityDisclaimer = () => {
   return (
     <div className='str-chat__visibility-disclaimer'>
       <IconEyeFill />
-      {t('Only visible to you')}
+      {t('attachment.visibilityDisclaimer.onlyVisible.text', 'Only visible to you')}
     </div>
   );
 };

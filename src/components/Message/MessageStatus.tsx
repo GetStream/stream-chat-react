@@ -101,7 +101,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Sending...')}
+              {t('message.status.sending.text', 'Sending...')}
             </PopperTooltip>
             <IconClock className='str-chat__message-status-sending' />
           </>
@@ -117,7 +117,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Sent')}
+              {t('message.status.sent.text', 'Sent')}
             </PopperTooltip>
             <IconCheckmark1Small className='str-chat__message-status-sent' />
           </>
@@ -133,7 +133,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Delivered')}
+              {t('message.status.delivered.text', 'Delivered')}
             </PopperTooltip>
             <IconChecks className='str-chat__message-status-delivered' />
           </>

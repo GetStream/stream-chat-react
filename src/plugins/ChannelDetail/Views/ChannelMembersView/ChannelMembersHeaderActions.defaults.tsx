@@ -75,13 +75,16 @@ const AddMembersHeaderAction = ({
   return (
     <Button
       appearance='outline'
-      aria-label={t('Add channel members')}
+      aria-label={t(
+        'channelDetail.channelMembersHeader.addChannelMembers.ariaLabel',
+        'Add channel members',
+      )}
       className='str-chat__channel-detail__channel-members-view__add-button'
       onClick={() => modeController.setMode('add')}
       size='md'
       variant='secondary'
     >
-      {t('Add')}
+      {t('channelDetail.channelMembersHeader.add.text', 'Add')}
     </Button>
   );
 };
@@ -96,14 +99,17 @@ const AddMembersMenuAction = ({
 
   return (
     <ContextMenuButton
-      aria-label={t('Add channel members')}
+      aria-label={t(
+        'channelDetail.channelMembersHeader.addChannelMembers.ariaLabel',
+        'Add channel members',
+      )}
       Icon={IconUserAdd}
       onClick={() => {
         modeController.setMode('add');
         closeMenu?.();
       }}
     >
-      {t('Add')}
+      {t('channelDetail.channelMembersHeader.add.text', 'Add')}
     </ContextMenuButton>
   );
 };
@@ -136,14 +142,17 @@ export const DefaultHeaderActionsMenuTrigger = ({
   return (
     <Button
       appearance='outline'
-      aria-label={t('Open members actions')}
+      aria-label={t(
+        'channelDetail.channelMembersHeader.openMembersActions.ariaLabel',
+        'Open members actions',
+      )}
       className='str-chat__channel-detail__channel-members-view__actions-button'
       ref={referenceRef}
       size='md'
       variant='secondary'
       {...props}
     >
-      {t('Actions')}
+      {t('channelDetail.channelMembersHeader.actions.text', 'Actions')}
     </Button>
   );
 };

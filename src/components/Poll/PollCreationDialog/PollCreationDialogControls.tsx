@@ -31,7 +31,7 @@ export const PollCreationDialogControls = ({
           onClick={close}
           type='button'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
           className={clsx('str-chat__prompt__footer__controls-button--submit')}
@@ -70,7 +70,7 @@ export const PollCreationDialogControls = ({
               // last (confusing). Assertive lets the confirmation be heard promptly.
               ariaLive: 'assertive',
               emitter: 'PollCreationDialog',
-              message: t('Poll sent'),
+              message: t('poll.creationDialog.pollSent.text', 'Poll sent'),
               severity: 'success',
               type: 'api:poll:create:success',
             });
@@ -78,7 +78,7 @@ export const PollCreationDialogControls = ({
           type='submit'
         >
           <IconSend />
-          {t('Send poll')}
+          {t('poll.creationDialog.sendPoll.text', 'Send Poll')}
         </Prompt.FooterControlsButtonPrimary>
       </Prompt.FooterControls>
     </Prompt.Footer>

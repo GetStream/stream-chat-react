@@ -1,21 +1,19 @@
+import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar.js';
 import localizedFormat from 'dayjs/plugin/localizedFormat.js';
-import type { PropsWithChildren } from 'react';
-import type { TFunction } from 'i18next';
-import type { TranslationLanguage } from 'stream-chat';
 
 import { defaultDateTimeParser, defaultTranslatorFunction } from '../i18n/utils';
-import type { TDateTimeParser } from '../i18n/types';
+import type { StreamTFunction, TDateTimeParser } from '../i18n/types';
 
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
 
 export type TranslationContextValue = {
-  t: TFunction;
+  t: StreamTFunction;
   tDateTimeParser: TDateTimeParser;
-  userLanguage: TranslationLanguage;
+  userLanguage: string;
 };
 
 export const TranslationContext = React.createContext<TranslationContextValue>({

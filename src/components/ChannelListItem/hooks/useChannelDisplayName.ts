@@ -47,7 +47,10 @@ export const useChannelDisplayName = (
 ): string | undefined => {
   const { client } = useChatContext('useChannelDisplayName');
   const { t } = useTranslationContext('useChannelDisplayName');
-  const directMessageLabel = t('Direct message');
+  const directMessageLabel = t(
+    'channelListItem.channelDisplayName.directMessage.label',
+    'Direct message',
+  );
 
   const [displayName, setDisplayName] = useState<string | undefined>(() =>
     channel

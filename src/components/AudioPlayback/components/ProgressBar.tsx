@@ -44,7 +44,10 @@ export const ProgressBar = ({
 
   return (
     <div
-      aria-label={t('aria/Seek audio position')}
+      aria-label={t(
+        'audioPlayback.progressBar.seekAudioPosition.ariaLabel',
+        'Seek audio position',
+      )}
       aria-orientation='horizontal'
       aria-valuemax={100}
       aria-valuemin={0}

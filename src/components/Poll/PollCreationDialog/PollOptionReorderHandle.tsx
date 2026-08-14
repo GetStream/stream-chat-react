@@ -36,7 +36,9 @@ export const PollOptionReorderHandle = ({
   const focusAnnouncementFrameRef = useRef<number | null>(null);
 
   const position = index + 1;
-  const optionLabel = option.text.trim() || t('aria/Option {{ position }}', { position });
+  const optionLabel =
+    option.text.trim() ||
+    t('poll.optionFieldSet.option.ariaLabel', 'Option {{ position }}', { position });
   // While picked up, fold the option text + new position into the aria-label
   // so VoiceOver speaks "Reorder 'option B' at position 1 of 3" on the focus
   // event triggered by ArrowUp/ArrowDown. That replaces the otherwise
@@ -44,12 +46,18 @@ export const PollOptionReorderHandle = ({
   // and removes the need for a duplicate live-region "moved to position"
   // message.
   const ariaLabel = isActive
-    ? t('aria/Reorder "{{ option }}" at position {{ position }} of {{ total }}', {
-        option: optionLabel,
+    ? t(
+        'poll.optionReorder.reorderPosition.ariaLabel',
+        'Reorder "{{ option }}" at position {{ position }} of {{ total }}',
+        {
+          option: optionLabel,
+          position,
+          total: totalOptionCount,
+        },
+      )
+    : t('poll.optionReorder.reorderOption.ariaLabel', 'Reorder option {{ position }}', {
         position,
-        total: totalOptionCount,
-      })
-    : t('aria/Reorder option {{ position }}', { position });
+      });
 
   useEffect(
     () => () => {
@@ -108,7 +116,8 @@ export const PollOptionReorderHandle = ({
         focusAnnouncementFrameRef.current = requestAnimationFrame(() => {
           announce(
             t(
-              'aria/Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.',
+              'poll.optionReorder.pressSpaceSelectOption.ariaLabel',
+              'Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.',
             ),
             { priority: 'assertive' },
           );

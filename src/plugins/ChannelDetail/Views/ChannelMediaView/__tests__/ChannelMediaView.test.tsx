@@ -12,6 +12,7 @@ import {
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMediaView } from '../ChannelMediaView';
+import { mockT } from '../../../../../mock-builders/translator';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -126,7 +127,7 @@ describe('ChannelMediaView', () => {
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string) => key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
 
     vi.mocked(useChatContext).mockReturnValue({
@@ -243,8 +244,8 @@ describe('ChannelMediaView', () => {
     renderView();
 
     expect(getMediaItems()).toHaveLength(30);
-    expect(screen.queryByRole('button', { name: 'aria/Previous page' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'aria/Next page' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Previous page' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Next page' })).toBeNull();
   });
 
   it('paginates 30 items per page through the previous/next buttons', () => {
@@ -258,8 +259,8 @@ describe('ChannelMediaView', () => {
 
     // First page: 30 items, previous disabled, next enabled.
     expect(getMediaItems()).toHaveLength(30);
-    const previous = screen.getByRole('button', { name: 'aria/Previous page' });
-    const next = screen.getByRole('button', { name: 'aria/Next page' });
+    const previous = screen.getByRole('button', { name: 'Previous page' });
+    const next = screen.getByRole('button', { name: 'Next page' });
     expect(previous).toBeDisabled();
     expect(next).toBeEnabled();
 
@@ -286,7 +287,7 @@ describe('ChannelMediaView', () => {
     renderView();
 
     // First page is full and the source has more, so next stays enabled.
-    const next = screen.getByRole('button', { name: 'aria/Next page' });
+    const next = screen.getByRole('button', { name: 'Next page' });
     expect(next).toBeEnabled();
 
     mocks.searchSourceSearch.mockClear();
@@ -343,12 +344,12 @@ describe('ChannelMediaView', () => {
 
     // First page shows 10 (not the default 30); 35 items spread across 4 pages.
     expect(getMediaItems()).toHaveLength(10);
-    expect(screen.getByRole('button', { name: 'aria/Previous page' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'aria/Next page' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeEnabled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'aria/Next page' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
 
     expect(getMediaItems()).toHaveLength(10);
-    expect(screen.getByRole('button', { name: 'aria/Previous page' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeEnabled();
   });
 });

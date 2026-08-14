@@ -54,8 +54,10 @@ export const PollOptionList = ({
       </div>
       {showMoreOptionsButton && (
         <PollAction
-          buttonText={t('+{{count}} more options', {
+          buttonText={t('poll.optionList.moreOptions.label', {
             count: options.length,
+            defaultValue_one: '+{{count}} more option',
+            defaultValue_other: '+{{count}} more options',
           })}
           closeModal={closeViewAllOptions}
           isAdditionalAction

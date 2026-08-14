@@ -378,7 +378,9 @@ export const ContextMenuBackButton = ({
   const { t } = useTranslationContext();
   const generatedBackNavigationLabelId = useStableId();
   const generatedVisibleLabelId = useStableId();
-  const resolvedAriaLabel = ariaLabel ?? t('aria/Back to parent menu button');
+  const resolvedAriaLabel =
+    ariaLabel ??
+    t('dialog.contextMenu.backParentMenuButton.ariaLabel', 'Back to parent menu button');
   const resolvedAriaLabelledBy =
     ariaLabelledBy ?? `${generatedVisibleLabelId} ${generatedBackNavigationLabelId}`;
 
@@ -671,7 +673,7 @@ export function ContextMenuContent({
   ...props
 }: ContextMenuContentProps) {
   const { t } = useTranslationContext();
-  const resolvedBackLabel = backLabel ?? t('Back');
+  const resolvedBackLabel = backLabel ?? t('common.back.label', 'Back');
   const {
     ['aria-describedby']: rootAriaDescribedBy,
     ['aria-label']: rootAriaLabel,
@@ -863,7 +865,11 @@ export function ContextMenuContent({
     >
       <ContextMenuRoot
         aria-describedby={isSubmenuLevel ? undefined : rootAriaDescribedBy}
-        aria-label={isSubmenuLevel ? t('aria/Submenu') : rootAriaLabel}
+        aria-label={
+          isSubmenuLevel
+            ? t('dialog.contextMenu.submenu.ariaLabel', 'Submenu')
+            : rootAriaLabel
+        }
         aria-labelledby={isSubmenuLevel ? undefined : rootAriaLabelledBy}
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}

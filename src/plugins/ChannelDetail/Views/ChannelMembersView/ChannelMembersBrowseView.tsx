@@ -22,10 +22,12 @@ const getMemberRoleTranslation = (
   member: ChannelMemberResponse,
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if ([member.user?.role, member.channel_role].includes('admin')) return t('Admin');
+  if ([member.user?.role, member.channel_role].includes('admin'))
+    return t('channelDetail.channelMembersBrowse.admin.label', 'Admin');
   if (member.channel_role === 'channel_moderator' || member.channel_role === 'moderator')
-    return t('Moderator');
-  if (member.role === 'owner') return t('Owner');
+    return t('channelDetail.channelMembersBrowse.moderator.label', 'Moderator');
+  if (member.role === 'owner')
+    return t('channelDetail.channelMembersBrowse.owner.label', 'Owner');
 
   return undefined;
 };
@@ -34,17 +36,21 @@ const getPresenceStatusText = (
   user: ChannelMemberResponse['user'],
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if (user?.online) return t('Online');
+  if (user?.online) return t('common.online.label', 'Online');
 
   if (user?.last_active) {
-    return t('Last seen {{ timestamp }}', {
-      timestamp: t('timestamp/ChannelMembersLastActive', {
-        timestamp: user.last_active,
-      }),
-    });
+    return t(
+      'channelDetail.channelMemberDetail.lastSeen.label',
+      'Last seen {{ timestamp }}',
+      {
+        timestamp: t('timestamp.ChannelMembersLastActive', {
+          timestamp: user.last_active,
+        }),
+      },
+    );
   }
 
-  return t('Offline');
+  return t('common.offline.label', 'Offline');
 };
 
 const ChannelMembersBrowseViewItem = ({
@@ -94,9 +100,13 @@ const ChannelMembersBrowseViewItem = ({
 
   const rootProps = useMemo(
     () => ({
-      'aria-label': t('View member details for {{ member }}', {
-        member: displayName,
-      }),
+      'aria-label': t(
+        'channelDetail.channelMembersBrowse.viewMemberDetails.ariaLabel',
+        'View member details for {{ member }}',
+        {
+          member: displayName,
+        },
+      ),
       className: 'str-chat__channel-detail__channel-members-view__list-item',
       onClick: () => onMemberSelect?.(member),
     }),
@@ -160,7 +170,14 @@ export const ChannelMembersBrowseView = ({
   const EmptyPlaceholder = useMemo(
     () =>
       function ChannelMembersEmptyPlaceholder() {
-        return <ChannelDetailEmptyList>{t('No member found')}</ChannelDetailEmptyList>;
+        return (
+          <ChannelDetailEmptyList>
+            {t(
+              'channelDetail.channelMembersBrowse.noMemberFound.text',
+              'No member found',
+            )}
+          </ChannelDetailEmptyList>
+        );
       },
     [t],
   );

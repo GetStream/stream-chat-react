@@ -24,7 +24,7 @@ export function ChannelListItemTimestamp({
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey: 'timestamp/ChannelPreviewTimestamp',
+        timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
       }),
     [normalizedTimestamp, t, tDateTimeParser],
   );

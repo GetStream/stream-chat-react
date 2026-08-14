@@ -148,7 +148,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
   return (
     <>
       <div
-        aria-label={t('aria/Reaction list')}
+        aria-label={t(
+          'reactions.messageReactions.reactionList.ariaLabel',
+          'Reaction list',
+        )}
         className={clsx('str-chat__message-reactions', {
           [`str-chat__message-reactions--flipped-horizontally`]: flipHorizontalPosition,
           [`str-chat__message-reactions--${verticalPosition}`]:
@@ -161,7 +164,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
       >
         <FragmentOrButton
           aria-expanded={isDialogOpen}
-          aria-label={t('aria/Reaction list')}
+          aria-label={t(
+            'reactions.messageReactions.reactionList.ariaLabel',
+            'Reaction list',
+          )}
           aria-pressed={isDialogOpen}
           buttonIf={visualStyle === 'clustered'}
           className='str-chat__message-reactions__list-button'
@@ -178,9 +184,13 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
                     key={reactionType}
                   >
                     <FragmentOrButton
-                      aria-label={t('aria/Select Reaction: {{ reactionName }}', {
-                        reactionName: reactionType,
-                      })}
+                      aria-label={t(
+                        'reactions.messageReactions.selectReaction.ariaLabel',
+                        'Select Reaction: {{ reactionName }}',
+                        {
+                          reactionName: reactionType,
+                        },
+                      )}
                       buttonIf={visualStyle === 'segmented'}
                       className='str-chat__message-reactions__list-item-button'
                       onClick={() => handleReactionButtonClick(reactionType)}
@@ -208,7 +218,10 @@ const UnMemoizedMessageReactions = (props: MessageReactionsProps) => {
               visualStyle === 'segmented' && (
                 <li className='str-chat__message-reactions__list-item str-chat__message-reactions__list-item--more'>
                   <button
-                    aria-label={t('aria/Reaction list')}
+                    aria-label={t(
+                      'reactions.messageReactions.reactionList.ariaLabel',
+                      'Reaction list',
+                    )}
                     className='str-chat__message-reactions__list-item-button'
                     onClick={() => handleReactionButtonClick(null)}
                     type='button'

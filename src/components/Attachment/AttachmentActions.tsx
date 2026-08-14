@@ -10,6 +10,7 @@ import { Button } from '../Button';
 import { VisuallyHidden } from '../VisuallyHidden';
 import { useStableId } from '../UtilityComponents/useStableId';
 import clsx from 'clsx';
+import { asDynamicKey } from '../../i18n/utils';
 
 export type AttachmentActionsProps = Attachment & {
   /** A list of actions */
@@ -97,9 +98,9 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
 
   const knownActionText = useMemo<Record<string, string>>(
     () => ({
-      Cancel: t('Cancel'),
-      Send: t('Send'),
-      Shuffle: t('Shuffle'),
+      Cancel: t('common.cancel.label', 'Cancel'),
+      Send: t('common.send.label', 'Send'),
+      Shuffle: t('attachment.actions.shuffle.label', 'Shuffle'),
     }),
     [t],
   );
@@ -143,7 +144,10 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
   }, [announceInteraction, descriptiveTitle, giphyImageIdentity, isGiphy]);
 
   const groupProps = isGiphy
-    ? { 'aria-label': t('aria/Giphy actions'), role: 'group' as const }
+    ? {
+        'aria-label': t('attachment.actions.giphyActions.ariaLabel', 'Giphy actions'),
+        role: 'group' as const,
+      }
     : {};
 
   return (
@@ -152,7 +156,7 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
         <span>{text}</span>
         {actions.map((action, index) => {
           const label = action.text
-            ? (knownActionText[action.text] ?? t(action.text))
+            ? (knownActionText[action.text] ?? t(asDynamicKey(action.text)))
             : null;
 
           return (
@@ -189,7 +193,8 @@ const UnMemoizedAttachmentActions = (props: AttachmentActionsProps) => {
         {isGiphy && (
           <VisuallyHidden id={giphyDescriptionId}>
             {t(
-              'aria/Giphy preview, only visible to you. Use the Send, Shuffle, or Cancel actions.',
+              'attachment.actions.giphyPreviewOnlyVisible.ariaLabel',
+              'Giphy preview, only visible to you. Use the Send, Shuffle, or Cancel actions.',
             )}
           </VisuallyHidden>
         )}

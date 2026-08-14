@@ -379,42 +379,54 @@ export const QuotedMessagePreviewUI = ({
     let renderedText: ReactNode | undefined;
 
     if (isDeletedMessage(quotedMessage)) {
-      renderedText = t('Message deleted');
+      renderedText = t('common.messageDeleted.text', 'Message deleted');
     } else if (!quotedMessageText) {
       if (previewType === 'poll') {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         renderedText = quotedMessage.poll!.name;
       } else if (previewType === 'location') {
-        renderedText = t('Live location');
+        renderedText = t('common.liveLocation.text', 'Live location');
       } else if (previewType === 'voice') {
         {
           const voiceRecording = groupedAttachments
             .voiceRecordings[0] as VoiceRecordingAttachment;
-          renderedText = t('Voice message {{ duration }}', {
-            duration: displayDuration(voiceRecording?.custom?.duration),
-          });
+          renderedText = t(
+            'messageComposer.quotedMessagePreview.voiceMessage.label',
+            'Voice message {{ duration }}',
+            {
+              duration: displayDuration(voiceRecording?.custom?.duration),
+            },
+          );
         }
       } else if (previewType === 'giphy') {
         renderedText = QUOTED_GIPHY_PREVIEW_LABEL;
       } else if (previewType === 'link') {
         renderedText = groupedAttachments.links[0].title;
       } else if (previewType === 'mixed') {
-        renderedText = t('{{ count }} files', { count: groupedAttachments.total });
+        renderedText = t('messageComposer.quotedMessagePreview.files.label', {
+          count: groupedAttachments.total,
+          defaultValue_one: '{{ count }} file',
+          defaultValue_other: '{{ count }} files',
+        });
       } else if (previewType === 'video') {
         renderedText =
           groupedAttachments.videos.length === 1
-            ? t('Video')
-            : t('{{ count }} videos', {
+            ? t('messageComposer.quotedMessagePreview.video.label', 'Video')
+            : t('messageComposer.quotedMessagePreview.videos.label', {
                 count: groupedAttachments.videos.length,
+                defaultValue_one: '{{ count }} video',
+                defaultValue_other: '{{ count }} videos',
               });
       } else if (previewType === 'file') {
         renderedText = groupedAttachments.documents[0].title;
       } else if (previewType === 'image') {
         renderedText =
           groupedAttachments.images.length === 1
-            ? t('Photo')
-            : t('{{ count }} photos', {
+            ? t('messageComposer.quotedMessagePreview.photo.label', 'Photo')
+            : t('messageComposer.quotedMessagePreview.photos.label', {
                 count: groupedAttachments.images.length,
+                defaultValue_one: '{{ count }} photo',
+                defaultValue_other: '{{ count }} photos',
               });
       }
     } else if (renderText) {
@@ -454,7 +466,14 @@ export const QuotedMessagePreviewUI = ({
   const authorName = getQuotedMessageAuthor?.(quotedMessage) ?? quotedMessage.user?.name;
   return (
     <div
-      aria-label={isInteractive ? t('aria/Jump to quoted message') : undefined}
+      aria-label={
+        isInteractive
+          ? t(
+              'messageComposer.quotedMessagePreview.jumpQuotedMessage.ariaLabel',
+              'Jump to quoted message',
+            )
+          : undefined
+      }
       className={clsx('str-chat__quoted-message-preview', className, {
         'str-chat__quoted-message-preview--own': isOwnMessage,
       })}
@@ -469,10 +488,14 @@ export const QuotedMessagePreviewUI = ({
         <div className='str-chat__quoted-message-preview__author'>
           {authorLabel ??
             (isOwnMessage
-              ? t('You')
+              ? t('common.you.label', 'You')
               : authorName
-                ? t('Reply to {{ authorName }}', { authorName })
-                : t('Reply'))}
+                ? t(
+                    'messageComposer.quotedMessagePreview.reply.withAuthorName.text',
+                    'Reply to {{ authorName }}',
+                    { authorName },
+                  )
+                : t('messageComposer.quotedMessagePreview.reply.text', 'Reply'))}
         </div>
 
         <div
@@ -491,7 +514,10 @@ export const QuotedMessagePreviewUI = ({
 
       {onRemove && (
         <RemoveAttachmentPreviewButton
-          aria-label={t('aria/Cancel Reply')}
+          aria-label={t(
+            'messageComposer.quotedMessagePreview.cancelReply.ariaLabel',
+            'Cancel Reply',
+          )}
           data-testid='quoted-message-preview-dismiss-btn'
           onClick={onRemove}
         />

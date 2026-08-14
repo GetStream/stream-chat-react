@@ -14,6 +14,7 @@ import {
 import type { ChannelMembersHeaderActionItem } from '../ChannelMembersHeaderActions.defaults';
 import { useChannelMemberCount } from '../useChannelMemberCount';
 import { createChannel, renderWithChannel } from './testUtils';
+import { mockT } from '../../../../../mock-builders/translator';
 
 vi.mock('../useChannelMemberCount');
 
@@ -209,8 +210,7 @@ describe('ChannelMembersView', () => {
     vi.clearAllMocks();
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { count?: number }) =>
-        options?.count ? `${key}:${options.count}` : key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
 
     vi.mocked(useModalContext).mockReturnValue({
@@ -347,9 +347,7 @@ describe('ChannelMembersView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Go back' }));
 
     expect(screen.getByTestId('channel-members-browse-view')).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: '{{ count }} members:2' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '2 members' })).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Remove channel members' }),
     ).toBeInTheDocument();

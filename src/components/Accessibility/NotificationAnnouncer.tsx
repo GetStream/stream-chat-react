@@ -100,7 +100,7 @@ export const NotificationAnnouncer = ({
       seenNotificationIdsRef.current.add(notification.id);
       if (!notificationFilter(notification)) return;
 
-      const message = t('translationBuilderTopic/notification', {
+      const message = t('translationBuilderTopic.notification', {
         notification,
         value: notification.message,
       });

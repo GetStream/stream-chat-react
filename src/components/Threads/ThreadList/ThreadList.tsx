@@ -154,7 +154,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
       {/* TODO: allow re-load on stale ThreadManager state */}
       <ThreadListUnseenThreadsBanner />
       <Virtuoso
-        aria-label={t('aria/Thread list')}
+        aria-label={t('threadList.threadList.ariaLabel', 'Thread list')}
         atBottomStateChange={(atBottom) => atBottom && client.threads.loadNextPage()}
         className='str-chat__thread-list'
         components={{

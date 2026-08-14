@@ -31,7 +31,10 @@ export const useReportLostConnectionSystemNotification = () => {
         connectionLostNotificationIdRef.current = addSystemNotification({
           duration: 0,
           emitter: 'Chat',
-          message: t('Waiting for network…'),
+          message: t(
+            'chat.reportLostConnection.waitingNetwork.text',
+            'Waiting for network…',
+          ),
           severity: 'loading',
           type: 'system:network:connection:lost',
         });

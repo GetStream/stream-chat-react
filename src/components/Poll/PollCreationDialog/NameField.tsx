@@ -16,7 +16,10 @@ export const NameField = () => {
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
-      'Question is required': t('Question is required'),
+      'Question is required': t(
+        'poll.nameField.questionRequired.label',
+        'Question is required',
+      ),
     }),
     [t],
   );
@@ -32,19 +35,19 @@ export const NameField = () => {
       errorMessage={
         error ? (
           <span data-testid='poll-name-input-field-error'>
-            {knownValidationErrors[error] ?? t('Error')}
+            {knownValidationErrors[error] ?? t('poll.nameField.error.text', 'Error')}
           </span>
         ) : undefined
       }
       id='name'
-      label={t('Question')}
+      label={t('poll.question.question.text', 'Question')}
       onBlur={() => {
         pollComposer.handleFieldBlur('name');
       }}
       onChange={(e) => {
         pollComposer.updateFields({ name: e.target.value });
       }}
-      placeholder={t('Ask a question')}
+      placeholder={t('poll.nameField.askQuestion.placeholder', 'Ask a Question')}
       type='text'
       value={name}
     />

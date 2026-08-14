@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["es2023"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": false,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    // Node 24 strips types rather than compiling, so nothing is emitted and the scripts import
+    // each other by their real `.mts` paths.
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    // Type stripping cannot handle syntax that needs codegen (enums, namespaces, parameter
+    // properties). Fail here rather than at run time.
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "isolatedModules": true
+  },
+  "include": ["scripts/**/*.mts"]
+}

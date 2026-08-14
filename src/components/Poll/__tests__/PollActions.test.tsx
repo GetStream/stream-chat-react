@@ -21,6 +21,7 @@ import {
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
 // `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
@@ -41,13 +42,13 @@ const makeChannel = (capabilities: Record<string, boolean> = {}) =>
     },
   });
 
-const SUGGEST_OPTION_ACTION_TEXT = 'Suggest an option';
-const UPDATE_COMMENT_ACTION_TEXT = 'Update your comment';
-const VIEW_COMMENTS_ACTION_TEXT = 'View {{count}} comments';
-const VIEW_RESULTS_ACTION_TEXT = 'View results';
-const END_VOTE_ACTION_TEXT = 'End poll';
+const SUGGEST_OPTION_ACTION_TEXT = 'Suggest an Option';
+const UPDATE_COMMENT_ACTION_TEXT = 'Update Your Comment';
+const VIEW_COMMENTS_ACTION_TEXT = 'View 1 Comment';
+const VIEW_RESULTS_ACTION_TEXT = 'View Results';
+const END_VOTE_ACTION_TEXT = 'End Poll';
 
-const t = (v: any) => v;
+const t = mockT;
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'cast-poll-vote': true, 'query-poll-votes': true },

@@ -158,9 +158,13 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
   return (
     <div className='str-chat__search-result-container'>
       <button
-        aria-label={t('aria/Select User Channel: {{ name }}', {
-          name: item.name || '',
-        })}
+        aria-label={t(
+          'search.resultItem.selectUserChannel.ariaLabel',
+          'Select User Channel: {{ name }}',
+          {
+            name: item.name || '',
+          },
+        )}
         className='str-chat__search-result str-chat__search-result--user'
         data-testid='search-result-user'
         onClick={onClick}
