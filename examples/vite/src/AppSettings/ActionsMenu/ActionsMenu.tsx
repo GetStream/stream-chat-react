@@ -23,7 +23,16 @@ import {
   webSocketEventPromptDialogId,
 } from './WebSocketEventPromptDialog';
 
+import {
+  isServerSideClientEnabled,
+  ServerSideClientPromptDialog,
+  serverSideClientPromptDialogId,
+} from './ServerSideClientPromptDialog';
+
 const actionsMenuDialogId = 'app-actions-menu';
+
+// Read once at module scope — the flag comes from the URL and does not change within a session.
+const serverSideClientEnabled = isServerSideClientEnabled();
 
 const ActionsMenuButton = ({
   iconOnly,
@@ -79,6 +88,9 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const { dialog: webSocketEventDialog } = useDialogOnNearestManager({
     id: webSocketEventPromptDialogId,
   });
+  const { dialog: serverSideClientDialog } = useDialogOnNearestManager({
+    id: serverSideClientPromptDialogId,
+  });
   const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
   return (
@@ -103,10 +115,16 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         <TriggerNotificationAction onTrigger={notificationDialog.open} />
         <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
         <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
+        {serverSideClientEnabled && (
+          <TriggerServerSideClientAction onTrigger={serverSideClientDialog.open} />
+        )}
       </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
       <AttachmentPromptDialog referenceElement={menuButtonElement} />
       <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
+      {serverSideClientEnabled && (
+        <ServerSideClientPromptDialog referenceElement={menuButtonElement} />
+      )}
     </div>
   );
 };
@@ -145,6 +163,20 @@ function TriggerWebSocketEventAction({ onTrigger }: { onTrigger: () => void }) {
   return (
     <ContextMenuButton
       label='Trigger WS Event'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerServerSideClientAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Server-side Client'
       onClick={() => {
         closeMenu();
         onTrigger();
