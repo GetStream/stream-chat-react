@@ -15,8 +15,7 @@ export interface TimestampProps extends TimestampFormatterOptions {
 export function Timestamp(props: TimestampProps) {
   const { calendar, calendarFormats, customClass, format, timestamp } = props;
 
-  // Rendered both inside a message and standalone, so the message context is genuinely
-  // optional here — read the context directly rather than through the throwing hook.
+  // also rendered outside a message (channel list items, composer previews)
   const { formatDate } = useContext(MessageContext) ?? {};
   const { t, tDateTimeParser } = useTranslationContext();
 

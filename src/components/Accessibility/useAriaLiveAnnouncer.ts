@@ -42,8 +42,8 @@ export const AriaLiveAnnouncerContext = createContext<
 >(undefined);
 
 /**
- * Deliberately does not throw: announcements are a progressive enhancement, so outside an
- * `AriaLiveAnnouncerProvider` this degrades to a no-op rather than breaking the caller.
+ * Announcements are a progressive enhancement: outside an `AriaLiveAnnouncerProvider` this is a
+ * no-op rather than an error.
  */
 export const useAriaLiveAnnouncer = () =>
   useContext(AriaLiveAnnouncerContext)?.announce ?? noopAnnounce;

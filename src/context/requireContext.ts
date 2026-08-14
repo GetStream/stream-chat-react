@@ -1,13 +1,10 @@
 /**
- * Guard for context hooks whose provider is mandatory. Returns the context value, or throws a
- * consistently shaped error naming the hook and the provider the caller is missing.
+ * Guard for context hooks whose provider is mandatory: returns the value, or throws an error naming
+ * the hook and the missing provider. Contexts with a meaningful default return that default
+ * instead, so their components keep rendering outside a provider.
  *
- * Only for required contexts. Contexts with a meaningful default — `ComponentContext`,
- * `TranslationContext`, `WorkspaceNavigationContext`, … — must return that default instead, so that
- * components relying on it keep rendering outside a provider.
- *
- * Guards on `undefined` rather than falsiness so that a context legitimately holding `null`, `0` or
- * `''` is not misdiagnosed as missing.
+ * Compares against `undefined` so a context legitimately holding `null`, `0` or `''` still counts
+ * as present.
  */
 export const requireContext = <T>(
   value: T | undefined,

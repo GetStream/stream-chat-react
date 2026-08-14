@@ -217,9 +217,7 @@ const resolveSlotTopology = ({
   };
 };
 
-// Deliberately defaulted to `undefined`: the previous default carried a module-level
-// `LayoutController` singleton, so every out-of-tree caller shared one instance and writes from
-// unrelated subtrees collided silently. Callers must now be inside a ChatView.
+// No default: a shared `LayoutController` would let unrelated subtrees write to one instance.
 export const ChatViewContext = createContext<ChatViewContextValue | undefined>(undefined);
 const ChatViewA11yContext = createContext<ChatViewA11yContextValue>(
   DEFAULT_CHAT_VIEW_A11Y_CONTEXT_VALUE,

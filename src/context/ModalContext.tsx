@@ -15,13 +15,11 @@ export const ModalContextProvider = ({
   value: ModalContextValue;
 }>) => <ModalContext.Provider value={value}>{children}</ModalContext.Provider>;
 
-// Module-level so the fallback keeps a stable identity across renders — standalone dialog
-// primitives (Alert, Prompt, Viewer) render outside a modal and would otherwise see a new `close`
-// on every render.
+// module-level to keep a stable identity across renders
 const NO_MODAL_FALLBACK: ModalContextValue = { close: () => undefined };
 
 /**
- * Deliberately does not throw: `Alert`, `Prompt` and `Viewer` are usable standalone, reading only
- * `dialogId` for aria wiring, and degrade to a no-op `close`.
+ * Works outside a modal: `Alert`, `Prompt` and `Viewer` are usable standalone, reading only
+ * `dialogId` for aria wiring, and get a no-op `close`.
  */
 export const useModalContext = () => useContext(ModalContext) ?? NO_MODAL_FALLBACK;

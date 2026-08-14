@@ -25,10 +25,7 @@ import { useSearchSourceResultsContext } from '../../components/Search/SearchSou
 import { useAriaLiveAnnouncer } from '../../components/Accessibility/useAriaLiveAnnouncer';
 import { useChatViewContext } from '../../plugins/SlotLayout/ChatView';
 
-/**
- * These two lists are the contract: a required context fails loudly and names itself, an optional
- * one keeps rendering. Moving a hook between them is a deliberate API change, not an accident.
- */
+/** Moving a hook between these two lists is an API change, not an accident. */
 const REQUIRED_HOOKS: Array<[name: string, hook: () => unknown]> = [
   ['useChatContext', useChatContext],
   ['useMessageListContext', useMessageListContext],
@@ -95,8 +92,7 @@ describe('context hooks outside their provider', () => {
     });
 
     it('MessageContext can still be read directly by components that render both inside and outside a message', () => {
-      // Audio, VoiceRecording, CardAudio, Timestamp, MessageRepliesCountButton and
-      // MessageComposerUI rely on this: the hook throws, the raw context does not.
+      // the hook throws, the raw context does not
       const { result } = renderHook(() => useContext(MessageContext));
       expect(result.current).toBeUndefined();
     });

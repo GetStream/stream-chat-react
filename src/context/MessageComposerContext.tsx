@@ -31,10 +31,8 @@ export const useMessageComposerContext = () =>
   );
 
 /**
- * Reports whether the caller is rendered beneath a `MessageComposerContextProvider`, without
- * requiring the context value itself. For components that legitimately render both inside and
- * outside a composer — see `WithDragAndDropUpload`, which uses it to decide whether to upload
- * straight to the surrounding composer or to fan drops out to subscribed composers.
+ * Whether the caller sits beneath a `MessageComposerContextProvider`, for components that render
+ * both inside and outside a composer. See `WithDragAndDropUpload`.
  */
 export const useIsWithinMessageComposerContext = () =>
   useContext(MessageComposerContext) !== undefined;

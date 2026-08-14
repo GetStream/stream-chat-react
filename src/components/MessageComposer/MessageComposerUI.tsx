@@ -138,8 +138,7 @@ const MessageComposerPreviews = () => {
 };
 
 export const MessageComposerUI = () => {
-  // Rendered both inside a message and standalone, so the message context is genuinely
-  // optional here — read the context directly rather than through the throwing hook.
+  // a message is present only while editing
   const { message } = useContext(MessageContext) ?? {};
   const { recordingController } = useMessageComposerContext();
   const messageComposerController = useMessageComposerController();

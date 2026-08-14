@@ -67,8 +67,7 @@ export const toChannelMediaItems = (
           typeof attachmentDuration === 'number' ? attachmentDuration : undefined,
         galleryItem: {
           ...descriptor,
-          // the gallery header renders outside a MessageProvider, so it reads the sender and
-          // timestamp off the item itself
+          // the gallery header reads sender and timestamp off the item
           createdAt: message.created_at,
           user: message.user ?? undefined,
         },

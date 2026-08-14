@@ -60,14 +60,11 @@ export const ModalGallery = ({
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
-  // Rendered both inside a message and standalone (ModalGallery is a public export and a
-  // ComponentContext slot), so the message context is genuinely optional here — read the context
-  // directly rather than through the throwing hook.
+  // ModalGallery is also usable standalone, outside a message
   const { message } = useContext(MessageContext) ?? {};
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  // The gallery header renders outside this MessageProvider, so the sender and timestamp travel
-  // with the items rather than being read from message context down there.
+  // the gallery header renders outside this provider, so sender and timestamp travel on the items
   const itemsWithSender = useMemo(
     () =>
       items.map((item) => ({

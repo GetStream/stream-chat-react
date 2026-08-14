@@ -30,9 +30,7 @@ export const TranslationProvider = ({
 );
 
 /**
- * `TranslationContext` carries a real default (see the `createContext` call above), so this hook
- * keeps working outside `<Chat>`: `defaultTranslatorFunction` renders the inline English
- * `defaultValue` that every `t()` call site passes. That is what lets an SDK primitive render
- * standalone, so this hook deliberately does not throw.
+ * Works outside `<Chat>`: the context default's `defaultTranslatorFunction` renders the inline
+ * English `defaultValue` every `t()` call site passes, so SDK primitives render standalone.
  */
 export const useTranslationContext = () => useContext(TranslationContext);

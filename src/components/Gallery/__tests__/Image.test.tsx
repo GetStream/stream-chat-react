@@ -25,7 +25,7 @@ const renderWithProviders = (ui) =>
   render(
     <ChatProvider value={mockChatContext({ client: { userID: 'me' } })}>
       <TranslationProvider value={mockTranslationContextValue()}>
-        {/* deliberately no MessageProvider: ModalGallery must render standalone */}
+        {/* no MessageProvider: ModalGallery must render standalone */}
         <ComponentProvider value={mockComponentContext({ Modal: NoOpModal })}>
           {ui}
         </ComponentProvider>

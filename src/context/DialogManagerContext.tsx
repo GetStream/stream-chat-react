@@ -178,7 +178,7 @@ export const useDialogManager = ({
         if (!managerInPrevState || managerInNewState?.id !== managerInPrevState.id) {
           setDialogManagerContext((prevState) => {
             if (prevState?.dialogManager.id === managerInNewState?.id) return prevState;
-            // fixme: need to handle the possibility that the dialogManager is undefined
+            // an unresolved manager is caught by the guard below
             return {
               dialogManager:
                 managerInNewState || nearestDialogManagerContext?.dialogManager,
@@ -192,8 +192,6 @@ export const useDialogManager = ({
     };
   }, [dialogId, dialogManagerId, nearestDialogManagerContext?.dialogManager]);
 
-  // Every caller dereferences `dialogManager` unguarded, so an absent manager already failed here —
-  // just as an opaque TypeError one frame later. Resolves the `fixme` above.
   if (!dialogManagerContext?.dialogManager) {
     throw new Error(
       `useDialogManager could not resolve a dialog manager (manager id: ${dialogManagerId}, dialog id: ${dialogId}). Make sure the caller is rendered within <DialogManagerProvider>.`,

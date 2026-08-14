@@ -56,8 +56,7 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  // Rendered both inside a message and standalone, so the message context is genuinely
-  // optional here — read the context directly rather than through the throwing hook.
+  // also rendered from link previews, where there is no message
   const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 

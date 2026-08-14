@@ -22,9 +22,8 @@ export const ChannelInstanceProvider = ({
 );
 
 /**
- * Deliberately does not throw outside a `Channel` subtree — it is the non-throwing counterpart to
- * {@link useChannel}, used to probe whether a channel is in scope (see `useNotificationTarget`).
- * The `Partial` return keeps that honest: `channel` is genuinely absent outside the provider.
+ * Non-throwing counterpart to {@link useChannel}: returns an empty object outside a `Channel`
+ * subtree, for callers that only need to know whether a channel is in scope.
  */
 export const useChannelInstanceContext = (): Partial<ChannelInstanceContextValue> =>
   useContext(ChannelInstanceContext) ?? {};

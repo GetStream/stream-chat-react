@@ -17,8 +17,8 @@ const normalizeTimestamp = (timestamp: GalleryItem['createdAt']) => {
 };
 
 /**
- * The gallery renders outside any `MessageProvider` — channel media flattens many messages into a
- * single item list — so the timestamp is derived from the item rather than from message context.
+ * Reads the timestamp off the gallery item: the gallery renders outside any `MessageProvider`, and
+ * channel media mixes items from many messages.
  */
 const GalleryTimestamp = ({ createdAt }: Pick<GalleryItem, 'createdAt'>) => {
   const { t, tDateTimeParser } = useTranslationContext();
