@@ -17,6 +17,7 @@ import { VirtualizedMessageList } from '../VirtualizedMessageList';
 
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { useComponentContext, WithComponents } from '../../../context';
 
 vi.mock('react-virtuoso', async () => {
   const { Virtuoso } = await import('react-virtuoso');
@@ -98,6 +99,81 @@ describe('VirtualizedMessageList', () => {
       );
     });
     expect(result.container).toMatchSnapshot();
+  });
+
+  // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered
+  // by this list. The list applies it by overriding `MessageUI` for its own subtree, so
+  // these assert on what `useComponentContext()` resolves to inside vs. outside the list.
+  // Virtuoso renders no items under jsdom (it measures document height), so `head` is the
+  // in-subtree render point available to us — it is the same provider subtree the items
+  // render into.
+  describe('VirtualMessage override', () => {
+    const CustomMessageUI = () => <div />;
+    const CustomVirtualMessage = () => <div />;
+
+    const ResolvedMessageUIProbe = ({ label }: { label: string }) => {
+      const { MessageUI } = useComponentContext();
+      return (
+        <div
+          data-probe={label}
+          data-resolved={(MessageUI as { name?: string } | undefined)?.name ?? 'none'}
+        />
+      );
+    };
+
+    const resolvedAt = (container: HTMLElement, label: string) =>
+      container.querySelector(`[data-probe="${label}"]`)?.getAttribute('data-resolved') ??
+      null;
+
+    const renderWithOverrides = async (
+      overrides: Parameters<typeof WithComponents>[0]['overrides'],
+    ) => {
+      const { channel, client } = await createChannel();
+      vi.mocked(nanoid).mockReturnValue('mockedId');
+
+      let result: RenderResult;
+      await act(() => {
+        result = render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <WithComponents overrides={overrides}>
+                <ResolvedMessageUIProbe label='outside' />
+                <VirtualizedMessageList
+                  head={<ResolvedMessageUIProbe label='inside' />}
+                />
+              </WithComponents>
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      return result!.container;
+    };
+
+    it('takes precedence over MessageUI for messages rendered by the list', async () => {
+      const container = await renderWithOverrides({
+        MessageUI: CustomMessageUI,
+        VirtualMessage: CustomVirtualMessage,
+      });
+
+      expect(resolvedAt(container, 'inside')).toBe('CustomVirtualMessage');
+    });
+
+    it('does not leak outside the list', async () => {
+      const container = await renderWithOverrides({
+        MessageUI: CustomMessageUI,
+        VirtualMessage: CustomVirtualMessage,
+      });
+
+      expect(resolvedAt(container, 'outside')).toBe('CustomMessageUI');
+    });
+
+    it('leaves the MessageUI override in place when unset', async () => {
+      const container = await renderWithOverrides({ MessageUI: CustomMessageUI });
+
+      expect(resolvedAt(container, 'inside')).toBe('CustomMessageUI');
+      expect(resolvedAt(container, 'outside')).toBe('CustomMessageUI');
+    });
   });
 });
 

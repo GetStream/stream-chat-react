@@ -19,7 +19,6 @@ import {
   mockComponentContext,
 } from '../../../mock-builders';
 
-import { Message as MessageMock } from '../../Message/Message';
 import { MessageComposer as MessageInputMock } from '../../MessageComposer/MessageComposer';
 import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
@@ -138,12 +137,7 @@ describe('Thread', () => {
     const additionalMessageListProps = {
       loadingMore: false,
     };
-    renderComponent({
-      threadProps: {
-        additionalMessageListProps,
-        Message: MessageMock as ThreadProps['Message'],
-      },
-    });
+    renderComponent({ threadProps: { additionalMessageListProps } });
 
     expect(MessageListMock).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -151,7 +145,6 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        Message: MessageMock,
         messageActions: expect.any(Array),
         ...additionalMessageListProps,
       }),
@@ -164,11 +157,7 @@ describe('Thread', () => {
       loadingMore: false,
     };
     renderComponent({
-      threadProps: {
-        additionalMessageListProps,
-        enableDateSeparator: true,
-        Message: MessageMock as ThreadProps['Message'],
-      },
+      threadProps: { additionalMessageListProps, enableDateSeparator: true },
     });
 
     expect(MessageListMock).toHaveBeenCalledWith(
@@ -177,7 +166,6 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        Message: MessageMock,
         messageActions: expect.any(Array),
         ...additionalMessageListProps,
       }),

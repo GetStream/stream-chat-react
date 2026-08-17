@@ -33,8 +33,7 @@ import { NewMessageNotification as DefaultNewMessageNotification } from './NewMe
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
 import { getGroupStyles, getLastReceived, processMessages } from './utils';
-import type { MessageProps, MessageUIComponentProps } from '../Message';
-import { MessageUI } from '../Message';
+import type { MessageProps } from '../Message';
 import { UnreadMessagesNotification as DefaultUnreadMessagesNotification } from './UnreadMessagesNotification';
 import {
   calculateFirstItemIndex,
@@ -53,7 +52,7 @@ import {
 import { DateSeparator as DefaultDateSeparator } from '../DateSeparator';
 import { EventComponent as DefaultMessageSystem } from '../EventComponent';
 
-import { DialogManagerProvider, useChannel } from '../../context';
+import { DialogManagerProvider, useChannel, WithComponents } from '../../context';
 import type { ChatContextValue } from '../../context/ChatContext';
 import { useChatContext } from '../../context/ChatContext';
 import type { ComponentContextValue } from '../../context/ComponentContext';
@@ -93,7 +92,6 @@ type VirtualizedMessageListPropsForContext =
   | 'customMessageRenderer'
   | 'head'
   // | 'loadingMore'
-  | 'Message'
   | 'returnAllReadData'
   | 'shouldGroupByUser';
 
@@ -227,7 +225,6 @@ const VirtualizedMessageListWithContext = (
     // loadMore,
     // loadMoreNewer,
     maxTimeBetweenGroupedMessages,
-    Message: MessageUIComponentFromProps,
     messageActions,
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
@@ -272,9 +269,15 @@ const VirtualizedMessageListWithContext = (
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
-    VirtualMessage: MessageUIComponentFromContext = MessageUI,
+    VirtualMessage,
   } = useComponentContext();
-  const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
+  // `VirtualMessage` overrides `MessageUI` for the messages this list renders, so it is
+  // applied to this subtree's `ComponentContext` rather than drilled down to each `Message`.
+  // Memoized so the provider does not hand every consumer below a new value each render.
+  const virtualMessageOverrides = useMemo(
+    () => ({ MessageUI: VirtualMessage }),
+    [VirtualMessage],
+  );
 
   const { client, customClasses } = useChatContext();
   const messagePaginator = useMessagePaginator();
@@ -531,7 +534,7 @@ const VirtualizedMessageListWithContext = (
     ? `virtualized-message-list-dialog-manager-thread-${id}`
     : `virtualized-message-list-dialog-manager-${id}`;
 
-  return (
+  const list = (
     <VirtualizedMessageListContextProvider value={{ scrollToBottom }}>
       <MessageTranslationViewProvider>
         <MessageListMainPanel>
@@ -580,7 +583,6 @@ const VirtualizedMessageListWithContext = (
                   lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
                   lastReceivedMessageId,
                   loadingMore: isLoading,
-                  Message: MessageUIComponent,
                   messageActions,
                   messageGroupStyles,
                   MessageSystem,
@@ -648,6 +650,13 @@ const VirtualizedMessageListWithContext = (
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>
   );
+
+  // Only wrap when there is something to override, so the common case adds no provider.
+  return VirtualMessage ? (
+    <WithComponents overrides={virtualMessageOverrides}>{list}</WithComponents>
+  ) : (
+    list
+  );
 };
 
 export type VirtualizedMessageListProps = Partial<
@@ -699,8 +708,6 @@ export type VirtualizedMessageListProps = Partial<
   // loadMoreNewer?: () => Promise<void>;
   /** Maximum time in milliseconds that should occur between messages to still consider them grouped together */
   maxTimeBetweenGroupedMessages?: number;
-  /** Custom UI component to display a message, defaults to and accepts same props as [MessageSimple](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageSimple.tsx) */
-  Message?: React.ComponentType<MessageUIComponentProps>;
   // /** The limit to use when paginating messages */
   // messageLimit?: number;
   /** Optional prop to override the messages available from the active message paginator. */

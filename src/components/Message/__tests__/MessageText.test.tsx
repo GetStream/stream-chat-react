@@ -96,7 +96,7 @@ async function renderMessageText({ customProps = {} } = {}) {
             value={mockComponentContext({
               Attachment,
 
-              Message: () => <MessageUI />,
+              MessageUI: () => <MessageUI />,
               reactionOptions: defaultReactionOptions,
             })}
           >

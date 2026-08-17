@@ -57,7 +57,6 @@ type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
 
 const MessageWithContext = (props: MessageWithContextProps) => {
   const {
-    Message: propMessage,
     message,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     onUserClick: propOnUserClick,
@@ -68,11 +67,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   const channel = useChannel();
   const { isMessageAIGenerated } = useChatContext();
   const channelConfig = useChannelConfig({ cid: channel.cid });
-  const {
-    Message: contextMessage = DefaultMessageUI,
-    // TODO: remove this passthrough once we drop Message from the ComponentContext
-    MessageUI: contextMessageUI = contextMessage,
-  } = useComponentContext();
+  const { MessageUI: MessageUIComponent = DefaultMessageUI } = useComponentContext();
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
 
@@ -83,7 +78,6 @@ const MessageWithContext = (props: MessageWithContextProps) => {
   );
 
   const actionsEnabled = message.type === 'regular' && message.status === 'received';
-  const MessageUIComponent = propMessage ?? contextMessageUI;
 
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
@@ -241,7 +235,6 @@ export const Message = (props: MessageProps) => {
       lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}
       message={message}
-      Message={props.Message}
       messageActions={props.messageActions}
       messageListRect={props.messageListRect}
       onMentionsClickMessage={onMentionsClick}

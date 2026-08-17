@@ -20,7 +20,7 @@ import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
 import { useThreadRequestHandlers } from './hooks/useThreadRequestHandlers';
 
-import type { MessageProps, MessageUIComponentProps } from '../Message/types';
+import type { MessageProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 import type {
   DeleteMessageOptions,
@@ -52,8 +52,6 @@ export type ThreadProps = {
   autoFocus?: boolean;
   /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
   enableDateSeparator?: boolean;
-  /** Custom thread message UI component used to override the default `Message` value stored in `ComponentContext` */
-  Message?: React.ComponentType<MessageUIComponentProps>;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
   /** Custom action handler to override the default `client.deleteMessage(message.id)` function in thread flows */
@@ -137,18 +135,13 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     doSendMessageRequest,
     doUpdateMessageRequest,
     enableDateSeparator = false,
-    Message: PropMessage,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
   } = props;
   const threadInstance = useThreadContext();
   const { client, customClasses } = useChatContext();
-  const {
-    Message: ContextMessage,
-    ThreadHead = DefaultThreadHead,
-    ThreadHeader = DefaultThreadHeader,
-    VirtualMessage,
-  } = useComponentContext();
+  const { ThreadHead = DefaultThreadHead, ThreadHeader = DefaultThreadHeader } =
+    useComponentContext();
 
   const { isStateStale, parentMessage } =
     useStateStore(threadInstance?.state, selector) ?? {};
@@ -176,10 +169,8 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     threadInstance?.deactivate();
   }, [closeThreadPanel, threadInstance]);
 
-  const ThreadMessage = PropMessage || additionalMessageListProps?.Message;
-  const FallbackMessage = virtualized && VirtualMessage ? VirtualMessage : ContextMessage;
-  const MessageUIComponent = ThreadMessage || FallbackMessage;
-
+  // The thread message UI comes from `ComponentContext` (`MessageUI`, or `VirtualMessage`
+  // which the virtualized list applies to its own subtree), so nothing is resolved here.
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
   useThreadRequestHandlers({
     doDeleteMessageRequest,
@@ -244,7 +235,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     <ThreadHead
       key={parentMessage.id}
       message={parentMessage}
-      Message={MessageUIComponent}
       {...additionalParentMessageProps}
     />
   );
@@ -265,7 +255,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           <ThreadMessageList
             disableDateSeparator={!enableDateSeparator}
             head={head}
-            Message={MessageUIComponent}
             messageActions={messageActions}
             {...(virtualized
               ? additionalVirtualizedMessageListProps
