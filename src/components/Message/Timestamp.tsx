@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useContext, useMemo } from 'react';
 
-import { useMessageContext } from '../../context/MessageContext';
+import { MessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString, isDate } from '../../i18n/utils';
 import type { TimestampFormatterOptions } from '../../i18n/types';
@@ -15,8 +15,9 @@ export interface TimestampProps extends TimestampFormatterOptions {
 export function Timestamp(props: TimestampProps) {
   const { calendar, calendarFormats, customClass, format, timestamp } = props;
 
-  const { formatDate } = useMessageContext('MessageTimestamp');
-  const { t, tDateTimeParser } = useTranslationContext('MessageTimestamp');
+  // also rendered outside a message (channel list items, composer previews)
+  const { formatDate } = useContext(MessageContext) ?? {};
+  const { t, tDateTimeParser } = useTranslationContext();
 
   const normalizedTimestamp =
     timestamp && isDate(timestamp) ? timestamp.toISOString() : timestamp;

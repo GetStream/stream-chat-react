@@ -39,11 +39,11 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client } = useChatContext('MessageStatus');
+  const { client } = useChatContext();
   const threadInstance = useThreadContext();
   const { deliveredTo, isMyMessage, lastOwnMessage, message, readBy, returnAllReadData } =
-    useMessageContext('MessageStatus');
-  const { t } = useTranslationContext('MessageStatus');
+    useMessageContext();
+  const { t } = useTranslationContext();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
   if (!isMyMessage() || message.type === 'error') return null;

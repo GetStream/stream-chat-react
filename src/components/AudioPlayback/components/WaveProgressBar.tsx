@@ -37,7 +37,7 @@ export const WaveProgressBar = ({
   seek,
   waveformData,
 }: WaveProgressBarProps) => {
-  const { t } = useTranslationContext('WaveProgressBar');
+  const { t } = useTranslationContext();
   const [trackAxisX, setTrackAxisX] = useState<{
     barCount: number;
     barWidth: number;

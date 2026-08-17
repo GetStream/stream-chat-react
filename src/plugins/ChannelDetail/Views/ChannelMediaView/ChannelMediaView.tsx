@@ -51,7 +51,7 @@ const ChannelMediaGridItem = ({
   item,
   onClick,
 }: ChannelMediaGridItemProps) => {
-  const { t } = useTranslationContext('ChannelMediaView');
+  const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
   const displayName = getUserDisplayName(item.user);
@@ -127,7 +127,7 @@ const ChannelMediaPagination = ({
   onPrevious,
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
-  const { t } = useTranslationContext('ChannelMediaView');
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__channel-detail__media-view__pagination'>

@@ -31,7 +31,7 @@ export const UnreadMessagesNotification = ({
 }: UnreadMessagesNotificationProps) => {
   // todo: move into a hook dedicated to unread count from the snapshot
   const channel = useChannel();
-  const { client } = useChatContext('UnreadMessagesNotification');
+  const { client } = useChatContext();
   const thread = useThreadContext();
   const messagePaginator = useMessagePaginator();
   const { unreadCount } = useStateStore(
@@ -39,7 +39,7 @@ export const UnreadMessagesNotification = ({
     unreadStateSnapshotSelector,
   );
 
-  const { t } = useTranslationContext('UnreadMessagesNotification');
+  const { t } = useTranslationContext();
 
   return (
     <div

@@ -21,7 +21,7 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
     renderText,
     streamingLetterIntervalMs,
   } = props;
-  const { message: messageFromContext } = useMessageContext('StreamedMessageText');
+  const { message: messageFromContext } = useMessageContext();
   const channel = useChannel();
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;

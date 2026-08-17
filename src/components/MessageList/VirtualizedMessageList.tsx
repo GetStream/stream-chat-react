@@ -273,10 +273,10 @@ const VirtualizedMessageListWithContext = (
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
     VirtualMessage: MessageUIComponentFromContext = MessageUI,
-  } = useComponentContext('VirtualizedMessageList');
+  } = useComponentContext();
   const MessageUIComponent = MessageUIComponentFromProps || MessageUIComponentFromContext;
 
-  const { client, customClasses } = useChatContext('VirtualizedMessageList');
+  const { client, customClasses } = useChatContext();
   const messagePaginator = useMessagePaginator();
 
   const { hasMoreNewer, isLoading, messages } = useStateStore(

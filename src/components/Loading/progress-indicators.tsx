@@ -12,7 +12,7 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 /** Circular progress indicator with input from 0 to 100. */
 export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
-  const { t } = useTranslationContext('CircularProgressIndicator');
+  const { t } = useTranslationContext();
   const dashOffset = RING_CIRCUMFERENCE * (1 - percent / 100);
 
   return (

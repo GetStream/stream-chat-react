@@ -112,7 +112,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
-  const { customClasses } = useChatContext('MessageList');
+  const { customClasses } = useChatContext();
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -123,7 +123,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     NotificationList = DefaultNotificationList,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
-  } = useComponentContext('MessageList');
+  } = useComponentContext();
   const messagePaginator = useMessagePaginator();
 
   const { hasMoreNewer, isLoading, messages } = useStateStore(

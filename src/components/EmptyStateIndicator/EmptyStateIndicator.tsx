@@ -13,7 +13,7 @@ export type EmptyStateIndicatorProps = {
 const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   const { listType, messageText } = props;
 
-  const { t } = useTranslationContext('EmptyStateIndicator');
+  const { t } = useTranslationContext();
 
   if (listType === 'thread') return null;
 

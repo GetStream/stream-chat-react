@@ -106,11 +106,6 @@ const renderComponent = ({
   );
 
 describe('MessageReactionsDetail', () => {
-  beforeEach(() => {
-    // disable warnings (unreachable context)
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
   afterEach(() => {
     vi.clearAllMocks();
   });

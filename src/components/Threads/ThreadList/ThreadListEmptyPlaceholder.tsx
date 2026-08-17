@@ -4,7 +4,7 @@ import { useTranslationContext } from '../../../context';
 import { IconMessageBubbles } from '../../Icons';
 
 export const ThreadListEmptyPlaceholder = () => {
-  const { t } = useTranslationContext('ThreadListEmptyPlaceholder');
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__thread-list-empty-placeholder'>

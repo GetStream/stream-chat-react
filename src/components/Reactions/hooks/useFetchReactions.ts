@@ -15,9 +15,8 @@ export interface FetchReactionsOptions {
 
 export function useFetchReactions(options: FetchReactionsOptions) {
   const { addNotification } = useNotificationApi();
-  const { handleFetchReactions: contextHandleFetchReactions } =
-    useMessageContext('useFetchReactions');
-  const { t } = useTranslationContext('useFetchReactions');
+  const { handleFetchReactions: contextHandleFetchReactions } = useMessageContext();
+  const { t } = useTranslationContext();
   const [reactions, setReactions] = useState<ReactionResponse[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,

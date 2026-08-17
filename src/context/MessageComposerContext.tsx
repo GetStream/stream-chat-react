@@ -3,12 +3,13 @@ import type { PropsWithChildren } from 'react';
 
 import type { MessageComposerProps } from '../components/MessageComposer';
 import type { UseMessageComposerBindingsParams } from '../components/MessageComposer/hooks/useMessageComposerBindings';
+import { requireContext } from './requireContext';
 
 export type MessageComposerContextValue = UseMessageComposerBindingsParams &
   Omit<MessageComposerProps, 'Input'>;
 
 export const MessageComposerContext = createContext<
-  UseMessageComposerBindingsParams | undefined
+  MessageComposerContextValue | undefined
 >(undefined);
 
 export const MessageComposerContextProvider = ({
@@ -17,22 +18,21 @@ export const MessageComposerContextProvider = ({
 }: PropsWithChildren<{
   value: MessageComposerContextValue;
 }>) => (
-  <MessageComposerContext.Provider
-    value={value as unknown as MessageComposerContextValue}
-  >
+  <MessageComposerContext.Provider value={value}>
     {children}
   </MessageComposerContext.Provider>
 );
 
-export const useMessageComposerContext = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  componentName?: string,
-) => {
-  const contextValue = useContext(MessageComposerContext);
+export const useMessageComposerContext = () =>
+  requireContext(
+    useContext(MessageComposerContext),
+    'useMessageComposerContext',
+    'MessageComposerContextProvider',
+  );
 
-  if (!contextValue) {
-    return {} as MessageComposerContextValue;
-  }
-
-  return contextValue as unknown as MessageComposerContextValue;
-};
+/**
+ * Whether the caller sits beneath a `MessageComposerContextProvider`, for components that render
+ * both inside and outside a composer. See `WithDragAndDropUpload`.
+ */
+export const useIsWithinMessageComposerContext = () =>
+  useContext(MessageComposerContext) !== undefined;

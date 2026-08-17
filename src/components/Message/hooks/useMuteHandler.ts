@@ -20,8 +20,8 @@ export const useMuteHandler = (
   message?: LocalMessage,
   notifications: MuteUserNotifications = {},
 ): ReactEventHandler => {
-  const { client } = useChatContext('useMuteHandler');
-  const { t } = useTranslationContext('useMuteHandler');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
 
   return async (event) => {
     event.preventDefault();

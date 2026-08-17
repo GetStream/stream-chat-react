@@ -39,8 +39,8 @@ export const useEnrichedMessages = (args: {
     reviewProcessedMessage,
   } = args;
 
-  const { client } = useChatContext('useEnrichedMessages');
-  const { HeaderComponent } = useComponentContext('useEnrichedMessages');
+  const { client } = useChatContext();
+  const { HeaderComponent } = useComponentContext();
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 

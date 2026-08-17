@@ -2,7 +2,7 @@ import { useTranslationContext } from '../../../../context';
 import { IconFolder } from '../../../../components/Icons';
 
 export const ChannelFilesEmptyList = () => {
-  const { t } = useTranslationContext('ChannelFilesEmptyList');
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__channel-detail__files-view__empty-state'>

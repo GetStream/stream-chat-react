@@ -2,12 +2,13 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { ModalGallery } from '../../Attachment/ModalGallery';
-import { TranslationProvider } from '../../../context';
+import { ChatProvider, TranslationProvider } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import {
   mockComponentContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockChatContext } from '../../../mock-builders/context';
 
 const makeImageItem = (overrides = {}) => ({
   fallback: 'test.png',
@@ -19,17 +20,20 @@ const makeImageItem = (overrides = {}) => ({
 
 const renderComponent = (props = {}, componentOverrides = {}) =>
   render(
-    <TranslationProvider value={mockTranslationContextValue()}>
-      <ComponentProvider
-        value={mockComponentContext({
-          Modal: ({ children, className, open }: any) =>
-            open ? <div className={className}>{children}</div> : null,
-          ...componentOverrides,
-        })}
-      >
-        <ModalGallery items={[]} {...props} />
-      </ComponentProvider>
-    </TranslationProvider>,
+    <ChatProvider value={mockChatContext({ client: { userID: 'me' } })}>
+      <TranslationProvider value={mockTranslationContextValue()}>
+        {/* no MessageProvider: ModalGallery must render standalone */}
+        <ComponentProvider
+          value={mockComponentContext({
+            Modal: ({ children, className, open }: any) =>
+              open ? <div className={className}>{children}</div> : null,
+            ...componentOverrides,
+          })}
+        >
+          <ModalGallery items={[]} {...props} />
+        </ComponentProvider>
+      </TranslationProvider>
+    </ChatProvider>,
   );
 
 describe('ModalGallery', () => {

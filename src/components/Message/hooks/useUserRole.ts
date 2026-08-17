@@ -4,7 +4,7 @@ import type { LocalMessage } from 'stream-chat';
 
 export const useUserRole = (message: LocalMessage, disableQuotedMessages?: boolean) => {
   const channel = useChannel();
-  const { client } = useChatContext('useUserRole');
+  const { client } = useChatContext();
   const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
 
   /**

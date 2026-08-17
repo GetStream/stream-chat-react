@@ -4,14 +4,17 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Gallery } from '../Gallery';
 import { GalleryUI } from '../GalleryUI';
 import {
-  MessageProvider,
+  ChatProvider,
   ModalContextProvider,
   TranslationProvider,
 } from '../../../context';
-import { mockTranslationContextValue } from '../../../mock-builders';
+import {
+  mockChatContext,
+  mockTranslationContextValue,
+} from '../../../mock-builders/context';
 
 import type { GalleryProps } from '../Gallery';
-import type { MessageContextValue, ModalContextValue } from '../../../context';
+import type { ModalContextValue } from '../../../context';
 import type { GalleryItem } from '../GalleryContext';
 
 const makeImageItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
@@ -33,17 +36,7 @@ const makeVideoItem = (overrides: Partial<GalleryItem> = {}): GalleryItem =>
     ...overrides,
   }) as unknown as GalleryItem;
 
-const makeMessageContext = (
-  overrides: Partial<MessageContextValue> = {},
-): MessageContextValue =>
-  ({
-    isMyMessage: () => false,
-    message: {
-      created_at: new Date('2025-01-01T12:34:56.000Z'),
-      user: { id: 'jenny', name: 'Jenny' },
-    },
-    ...overrides,
-  }) as MessageContextValue;
+const CURRENT_USER_ID = 'me';
 
 const getSlideContainer = (container: HTMLElement) => {
   const slideContainer = container.querySelector('.str-chat__gallery__slide-container');
@@ -58,12 +51,10 @@ const renderGalleryUI = (
   {
     galleryProps,
     initialIndex = 0,
-    messageContext,
     modalContext,
   }: {
     galleryProps?: Partial<GalleryProps>;
     initialIndex?: number;
-    messageContext?: MessageContextValue;
     modalContext?: ModalContextValue;
   } = {},
 ) => {
@@ -76,10 +67,6 @@ const renderGalleryUI = (
     />
   );
 
-  if (messageContext) {
-    children = <MessageProvider value={messageContext}>{children}</MessageProvider>;
-  }
-
   if (modalContext) {
     children = (
       <ModalContextProvider value={modalContext}>{children}</ModalContextProvider>
@@ -87,9 +74,11 @@ const renderGalleryUI = (
   }
 
   return render(
-    <TranslationProvider value={mockTranslationContextValue()}>
-      {children}
-    </TranslationProvider>,
+    <ChatProvider value={mockChatContext({ client: { userID: CURRENT_USER_ID } })}>
+      <TranslationProvider value={mockTranslationContextValue()}>
+        {children}
+      </TranslationProvider>
+    </ChatProvider>,
   );
 };
 
@@ -248,18 +237,48 @@ describe('GalleryUI', () => {
   });
 
   describe('Header metadata and actions', () => {
-    it('should render sender metadata in the header when message context is available', () => {
-      const items = [makeImageItem({ title: 'beach.png' })];
+    it('should render sender metadata in the header from the current item', () => {
+      const items = [
+        makeImageItem({
+          createdAt: new Date('2025-01-01T12:34:56.000Z'),
+          title: 'beach.png',
+          user: { id: CURRENT_USER_ID, name: 'Me' },
+        }),
+      ];
 
-      const { container } = renderGalleryUI(items, {
-        messageContext: makeMessageContext({ isMyMessage: () => true }),
-      });
+      const { container } = renderGalleryUI(items);
 
       expect(screen.getByText('You')).toBeInTheDocument();
       expect(container.querySelector('.str-chat__gallery__timestamp')).toHaveAttribute(
         'datetime',
         '2025-01-01T12:34:56.000Z',
       );
+    });
+
+    it("should render another user's name in the header", () => {
+      const items = [
+        makeImageItem({
+          createdAt: new Date('2025-01-01T12:34:56.000Z'),
+          title: 'beach.png',
+          user: { id: 'jenny', name: 'Jenny' },
+        }),
+      ];
+
+      renderGalleryUI(items);
+
+      expect(screen.getByText('Jenny')).toBeInTheDocument();
+      expect(screen.queryByText('You')).not.toBeInTheDocument();
+    });
+
+    it('should fall back to the item title and omit the timestamp when the item has no sender', () => {
+      const items = [makeImageItem({ title: 'beach.png' })];
+
+      const { container } = renderGalleryUI(items);
+
+      expect(screen.getByText('beach.png')).toBeInTheDocument();
+      expect(
+        container.querySelector('.str-chat__gallery__timestamp'),
+      ).not.toBeInTheDocument();
     });
 
     it('should render a download action for the current item', () => {

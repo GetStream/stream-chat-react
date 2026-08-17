@@ -39,9 +39,9 @@ export const useMessageListElements = (props: UseMessageListElementsProps) => {
     returnAllReadData,
   } = props;
 
-  const { customClasses } = useChatContext('useMessageListElements');
+  const { customClasses } = useChatContext();
   const channel = useChannel();
-  const components = useComponentContext('useMessageListElements');
+  const components = useComponentContext();
   const channelUnreadUiState = useStateStore(
     channel.messagePaginator.unreadStateSnapshot,
     unreadStateSnapshotSelector,

@@ -23,10 +23,9 @@ type ReactionSelectorWithButtonProps = {
 export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
-  const { t } = useTranslationContext('ReactionSelectorWithButton');
-  const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
-  const { ReactionSelector = DefaultReactionSelector } =
-    useComponentContext('MessageOptions');
+  const { t } = useTranslationContext();
+  const { isMyMessage, message, threadList } = useMessageContext();
+  const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
   const buttonRef = useRef<ComponentRef<'button'>>(null);
   // MUST match the id `MessageActions` derives via `ReactionSelector.getDialogId` — it
   // uses that to keep `.str-chat__message-options--active` applied while the reaction

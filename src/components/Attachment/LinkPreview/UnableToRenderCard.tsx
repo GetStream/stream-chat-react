@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 export const UnableToRenderCard = ({ type }: { type?: Attachment['type'] }) => {
-  const { t } = useTranslationContext('Card');
+  const { t } = useTranslationContext();
 
   return (
     <div

@@ -16,7 +16,7 @@ const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing 
 const ChannelHeaderSubtitle = () => {
   const channel = useChannel();
   const channelConfig = useChannelConfig({ cid: channel.cid });
-  const { client } = useChatContext('ChannelHeaderSubtitle');
+  const { client } = useChatContext();
   const messageComposer = useMessageComposerController();
   const { typing = {} } =
     useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};

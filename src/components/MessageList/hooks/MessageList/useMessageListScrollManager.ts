@@ -99,7 +99,7 @@ export function useMessageListScrollManager(params: UseMessageListScrollManagerP
     suppressAutoscroll = false,
   } = params;
 
-  const { client } = useChatContext('useMessageListScrollManager');
+  const { client } = useChatContext();
 
   const measures = useRef<ContainerMeasures>({
     offsetHeight: 0,

@@ -35,7 +35,7 @@ export const useMessageAlsoSentInChannelNavigation =
     const channel = useChannel();
     const { isChannelActive, openChannel, openThread } = useWorkspaceNavigation();
     const thread = useThreadContext();
-    const { message } = useMessageContext('useMessageAlsoSentInChannelNavigation');
+    const { message } = useMessageContext();
 
     const addThreadNotFoundNotification = (error: Error) => {
       client.notifications.addError({

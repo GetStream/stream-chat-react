@@ -2,7 +2,7 @@ import { useTranslationContext } from '../../../../context';
 import { IconImage } from '../../../../components/Icons';
 
 export const ChannelMediaEmptyList = () => {
-  const { t } = useTranslationContext('ChannelMediaEmptyList');
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__channel-detail__media-view__empty-state'>

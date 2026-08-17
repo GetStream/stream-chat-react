@@ -76,7 +76,7 @@ export type MessageComposerProps = {
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
   const messageComposerBindings = useMessageComposerBindings(props);
-  const { emojiSearchIndex } = useComponentContext('MessageComposer');
+  const { emojiSearchIndex } = useComponentContext();
 
   const messageComposerContextValue = useCreateMessageComposerContext({
     ...messageComposerBindings,
@@ -123,8 +123,7 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 };
 
 const UnMemoizedMessageComposer = (props: MessageComposerProps) => {
-  const { MessageComposerUI = DefaultMessageComposerUI } =
-    useComponentContext('MessageComposer');
+  const { MessageComposerUI = DefaultMessageComposerUI } = useComponentContext();
   const messageComposer = useMessageComposerController();
   const id = useStableId();
 

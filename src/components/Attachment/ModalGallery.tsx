@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import type { BaseImageProps } from '../BaseImage';
@@ -7,7 +7,11 @@ import { BaseImage as DefaultBaseImage } from '../BaseImage';
 import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
 import { GlobalModal, type ModalCloseSource } from '../Modal';
-import { useComponentContext, useTranslationContext } from '../../context';
+import {
+  MessageContext,
+  useComponentContext,
+  useTranslationContext,
+} from '../../context';
 import { IconRetry } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
@@ -56,8 +60,20 @@ export const ModalGallery = ({
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
+  // ModalGallery is also usable standalone, outside a message
+  const { message } = useContext(MessageContext) ?? {};
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  // the gallery header renders outside this provider, so sender and timestamp travel on the items
+  const itemsWithSender = useMemo(
+    () =>
+      items.map((item) => ({
+        ...item,
+        createdAt: item.createdAt ?? message?.created_at,
+        user: item.user ?? message?.user ?? undefined,
+      })),
+    [items, message?.created_at, message?.user],
+  );
   const usesDefaultBaseImage = BaseImage === DefaultBaseImage;
 
   const closeModal = useCallback(() => {
@@ -114,7 +130,7 @@ export const ModalGallery = ({
           closeOnBackgroundClick={closeOnBackgroundClick}
           GalleryUI={GalleryUI}
           initialIndex={selectedIndex}
-          items={items}
+          items={itemsWithSender}
           onRequestClose={closeModal}
         />
       </Modal>

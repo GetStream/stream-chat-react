@@ -16,19 +16,14 @@ export const ChannelInstanceProvider = ({
 }: PropsWithChildren<{
   value: ChannelInstanceContextValue;
 }>) => (
-  <ChannelInstanceContext.Provider
-    value={value as unknown as ChannelInstanceContextValue}
-  >
+  <ChannelInstanceContext.Provider value={value}>
     {children}
   </ChannelInstanceContext.Provider>
 );
 
-export const useChannelInstanceContext = () => {
-  const contextValue = useContext(ChannelInstanceContext);
-
-  if (!contextValue) {
-    return {} as ChannelInstanceContextValue;
-  }
-
-  return contextValue as unknown as ChannelInstanceContextValue;
-};
+/**
+ * Non-throwing counterpart to {@link useChannel}: returns an empty object outside a `Channel`
+ * subtree, for callers that only need to know whether a channel is in scope.
+ */
+export const useChannelInstanceContext = (): Partial<ChannelInstanceContextValue> =>
+  useContext(ChannelInstanceContext) ?? {};

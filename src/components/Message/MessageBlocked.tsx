@@ -7,7 +7,7 @@ import { useMessageContext } from '../../context';
 
 export const MessageBlocked = () => {
   const { message } = useMessageContext();
-  const { t } = useTranslationContext('MessageBlocked');
+  const { t } = useTranslationContext();
 
   const { isMyMessage } = useUserRole(message);
 

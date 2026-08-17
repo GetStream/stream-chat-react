@@ -71,14 +71,14 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
-  } = useComponentContext(MessageReactionsDetail.name);
+  } = useComponentContext();
   const { t } = useTranslationContext();
 
   const {
     handleReaction: contextHandleReaction,
     message,
     reactionDetailsSort: contextReactionDetailsSort,
-  } = useMessageContext(MessageReactionsDetail.name);
+  } = useMessageContext();
 
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;

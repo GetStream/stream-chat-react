@@ -331,16 +331,6 @@ export const ComponentProvider = ({
   value,
 }: PropsWithChildren<{
   value: Partial<ComponentContextValue>;
-}>) => (
-  <ComponentContext.Provider value={value as unknown as ComponentContextValue}>
-    {children}
-  </ComponentContext.Provider>
-);
+}>) => <ComponentContext.Provider value={value}>{children}</ComponentContext.Provider>;
 
-export const useComponentContext = (
-  /**
-   * @deprecated
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _componentName?: string,
-) => useContext(ComponentContext) as unknown as ComponentContextValue;
+export const useComponentContext = () => useContext(ComponentContext);

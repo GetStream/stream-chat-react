@@ -86,6 +86,9 @@ export const runtimeDefaults = {
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Yesterday]", "lastWeek": "dddd", "sameElse": "L" }) }}',
   'timestamp.DateSeparator':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today]", "nextDay": "[Tomorrow]", "lastDay": "[Yesterday]", "nextWeek": "dddd", "lastWeek": "[Last] dddd", "sameElse": "ddd, D MMM" }) }}',
+  // No `calendarFormats` override, so the dayjs locale supplies the calendar wording and the key
+  // stays translatable via `dayjsLocaleConfigForLanguage`.
+  'timestamp.GalleryTimestamp': '{{ timestamp | timestampFormatter(calendar: true) }}',
   'timestamp.LiveLocation': '{{ timestamp | timestampFormatter(calendar: true) }}',
   'timestamp.MessageTimestamp':
     '{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}',

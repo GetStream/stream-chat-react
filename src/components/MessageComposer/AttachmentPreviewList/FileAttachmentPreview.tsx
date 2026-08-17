@@ -19,7 +19,7 @@ export const FileAttachmentPreview = ({
   handleRetry,
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
-  const { t } = useTranslationContext('FilePreview');
+  const { t } = useTranslationContext();
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
 

@@ -19,9 +19,9 @@ export type MessageEditedIndicatorProps = TimestampFormatterOptions & {
 
 const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) => {
   const { customClass, message: propMessage, ...timestampProps } = props;
-  const { message: contextMessage } = useMessageContext('MessageEditedIndicator');
-  const { t } = useTranslationContext('MessageEditedIndicator');
-  const { Timestamp = DefaultTimestamp } = useComponentContext('MessageEditedIndicator');
+  const { message: contextMessage } = useMessageContext();
+  const { t } = useTranslationContext();
+  const { Timestamp = DefaultTimestamp } = useComponentContext();
   const message = propMessage ?? contextMessage;
 
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);

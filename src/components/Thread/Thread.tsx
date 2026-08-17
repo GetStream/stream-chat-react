@@ -142,13 +142,13 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     virtualized,
   } = props;
   const threadInstance = useThreadContext();
-  const { client, customClasses } = useChatContext('Thread');
+  const { client, customClasses } = useChatContext();
   const {
     Message: ContextMessage,
     ThreadHead = DefaultThreadHead,
     ThreadHeader = DefaultThreadHeader,
     VirtualMessage,
-  } = useComponentContext('Thread');
+  } = useComponentContext();
 
   const { isStateStale, parentMessage } =
     useStateStore(threadInstance?.state, selector) ?? {};

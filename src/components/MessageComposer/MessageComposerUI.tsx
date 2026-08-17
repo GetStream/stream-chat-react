@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import clsx from 'clsx';
 
 import {
@@ -17,7 +17,7 @@ import { SendToChannelCheckbox as DefaultSendToChannelCheckbox } from './SendToC
 import { TextareaComposer as DefaultTextareaComposer } from '../TextareaComposer';
 import { useMessageComposerContext as useMessageComposerContext } from '../../context/MessageComposerContext';
 import { useComponentContext } from '../../context/ComponentContext';
-import { useMessageContext } from '../../context';
+import { MessageContext } from '../../context';
 import { restorePreEditSnapshot } from './preEditSnapshot';
 import { WithDragAndDropUpload } from './WithDragAndDropUpload';
 import {
@@ -138,7 +138,8 @@ const MessageComposerPreviews = () => {
 };
 
 export const MessageComposerUI = () => {
-  const { message } = useMessageContext();
+  // a message is present only while editing
+  const { message } = useContext(MessageContext) ?? {};
   const { recordingController } = useMessageComposerContext();
   const messageComposerController = useMessageComposerController();
   const { command } = useStateStore(

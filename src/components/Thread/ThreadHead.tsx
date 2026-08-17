@@ -8,7 +8,7 @@ import { useComponentContext } from '../../context';
 import { DateSeparator } from '../DateSeparator';
 
 export const ThreadHead = (props: MessageProps) => {
-  const { ThreadStart = DefaultThreadStart } = useComponentContext('ThreadHead');
+  const { ThreadStart = DefaultThreadStart } = useComponentContext();
   return (
     <div className='str-chat__parent-message-li'>
       <DateSeparator date={props.message.created_at} />

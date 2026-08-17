@@ -154,9 +154,8 @@ const ChannelInner = (
   const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
     useComponentContext();
 
-  const { client, latestMessageDatesByChannels, searchController } =
-    useChatContext('Channel');
-  const { t } = useTranslationContext('Channel');
+  const { client, latestMessageDatesByChannels, searchController } = useChatContext();
+  const { t } = useTranslationContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
   const channelConfig = useChannelConfig({ cid: channel.cid });

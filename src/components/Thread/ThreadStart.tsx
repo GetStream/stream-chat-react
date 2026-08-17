@@ -11,7 +11,7 @@ const threadStartSelector = ({ parentMessage }: ThreadState) => ({
 
 export const ThreadStart = () => {
   const thread = useThreadContext();
-  const { t } = useTranslationContext('ThreadStart');
+  const { t } = useTranslationContext();
   const { parentMessage } = useStateStore(thread?.state, threadStartSelector) ?? {};
 
   if (!parentMessage?.reply_count) return null;

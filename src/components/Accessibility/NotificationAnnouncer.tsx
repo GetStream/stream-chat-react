@@ -60,8 +60,7 @@ const defaultNotificationFilter: NotificationAnnouncementFilter = () => true;
  * satisfies this and no extra setup is needed.
  *
  * Rendered **without** a provider ancestor it mounts successfully but **announces nothing** —
- * `useAriaLiveAnnouncer()` returns a no-op and logs a `console.warn` ("… called outside of an
- * AriaLiveAnnouncerProvider"). This is intentional post-F4: the component no longer carries a
+ * `useAriaLiveAnnouncer()` returns a no-op. This is intentional post-F4: the component no longer carries a
  * fallback live region, so a single announcer owns all output and there are no duplicate/competing
  * regions. If you render it outside `Chat`, wrap it in `AriaLiveAnnouncerProvider` + `AriaLiveOutlet`
  * yourself.

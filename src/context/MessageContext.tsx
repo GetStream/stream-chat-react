@@ -16,6 +16,7 @@ import type { GroupStyle } from '../components/MessageList/utils';
 import type { ReactionsComparator, ReactionType } from '../components/Reactions/types';
 
 import type { RenderTextFunction } from '../components/Message/renderText';
+import { requireContext } from './requireContext';
 
 export type MessageContextValue = {
   /** If actions such as edit, delete, flag, mute are enabled on Message */
@@ -136,15 +137,5 @@ export const MessageProvider = ({
   </MessageContext.Provider>
 );
 
-export const useMessageContext = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _componentName?: string,
-) => {
-  const contextValue = useContext(MessageContext);
-
-  if (!contextValue) {
-    return {} as MessageContextValue;
-  }
-
-  return contextValue as unknown as MessageContextValue;
-};
+export const useMessageContext = () =>
+  requireContext(useContext(MessageContext), 'useMessageContext', 'MessageProvider');

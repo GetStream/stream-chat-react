@@ -22,6 +22,7 @@ import {
   useWorkspaceNavigation,
 } from '../../context';
 import { useChannelMembershipState } from '../ChannelList';
+import { requireContext } from '../../context/requireContext';
 
 export type ChannelListItemUIProps = ChannelListItemProps & {
   /**
@@ -73,11 +74,16 @@ export type ChannelListItemProps = {
   watchers?: { limit?: number; offset?: number };
 };
 
-const ChannelListItemContext = React.createContext<{ channel: Channel }>({
-  channel: null as unknown as Channel,
-});
+const ChannelListItemContext = React.createContext<{ channel: Channel } | undefined>(
+  undefined,
+);
 
-export const useChannelListItemContext = () => useContext(ChannelListItemContext);
+export const useChannelListItemContext = () =>
+  requireContext(
+    useContext(ChannelListItemContext),
+    'useChannelListItemContext',
+    'ChannelListItemUI',
+  );
 
 const lastMessageSelector = ({ lastMessage }: MessagePaginatorAggregateState) => ({
   lastMessage: lastMessage ?? undefined,
@@ -86,7 +92,7 @@ const lastMessageSelector = ({ lastMessage }: MessagePaginatorAggregateState) =>
 export const ChannelListItem = (props: ChannelListItemProps) => {
   const { active, channel, channelUpdateCount } = props;
   const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
-  const { client } = useChatContext('ChannelPreview');
+  const { client } = useChatContext();
   // Active = THIS channel is currently open in the workspace. Keyed on the channel's own
   // cid (never "the first channel slot"), so multiple open channels each highlight independently.
   const channelOpenInSlot = useWorkspaceNavigation().isChannelActive(
