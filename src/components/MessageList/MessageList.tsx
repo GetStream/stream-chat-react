@@ -211,7 +211,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
-      Message: props.Message,
       messageActions,
       messageListRect: wrapperRect,
       onMentionsClick: props.onMentionsClick,
@@ -439,7 +438,6 @@ type PropsDrilledToMessage =
   | 'closeReactionSelectorOnClick'
   | 'disableQuotedMessages'
   | 'formatDate'
-  | 'Message'
   | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'

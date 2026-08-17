@@ -118,7 +118,6 @@ export const messageRenderer = (
     lastReadDate,
     lastReadMessageId,
     lastReceivedMessageId,
-    Message: MessageUIComponent,
     messageActions,
     messageGroupStyles,
     MessageSystem,
@@ -185,7 +184,6 @@ export const messageRenderer = (
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}
-        Message={MessageUIComponent}
         messageActions={messageActions}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}

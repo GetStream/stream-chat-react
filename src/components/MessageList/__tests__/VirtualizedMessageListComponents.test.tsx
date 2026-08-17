@@ -321,7 +321,7 @@ describe('VirtualizedMessageComponents', () => {
       it('should forward message group styles', () => {
         const virtuosoRef = { current: {} };
         let groupStylesMessageContext: GroupStyle[];
-        const Message = () => {
+        const GroupStylesProbe = () => {
           const { groupStyles } = useMessageContext();
           groupStylesMessageContext = groupStyles;
           return null;
@@ -332,7 +332,6 @@ describe('VirtualizedMessageComponents', () => {
           <>
             {processedMessages.map((_, numItemsPrepended) => {
               const virtuosoContext = {
-                Message,
                 messageGroupStyles,
                 numItemsPrepended,
                 ownMessagesDeliveredToOthers: {},
@@ -352,6 +351,7 @@ describe('VirtualizedMessageComponents', () => {
               );
             })}
           </>,
+          { MessageUI: GroupStylesProbe },
         );
         expect(groupStylesMessageContext).toStrictEqual([
           messageGroupStyles[processedMessages[0].id],
@@ -466,7 +466,7 @@ describe('VirtualizedMessageComponents', () => {
           }),
         );
 
-        const Message = () => <div className='message-component' />;
+        const MessageUI = () => <div className='message-component' />;
 
         const renderMarkUnread = async ({
           virtuosoContext,
@@ -491,7 +491,7 @@ describe('VirtualizedMessageComponents', () => {
             result = render(
               <Chat client={markUnreadClient}>
                 <ChannelComponent channel={markUnreadChannel}>
-                  <ComponentProvider value={mockComponentContext()}>
+                  <ComponentProvider value={mockComponentContext({ MessageUI })}>
                     {messageRenderer(virtuosoIndex ?? PREPEND_OFFSET, undefined, ctx)}
                   </ComponentProvider>
                 </ChannelComponent>
@@ -507,7 +507,6 @@ describe('VirtualizedMessageComponents', () => {
               lastReadDate: new Date(messages[0].created_at),
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
-              Message,
               messageGroupStyles: {},
               numItemsPrepended: 1,
               ownMessagesDeliveredToOthers: {},
@@ -533,7 +532,6 @@ describe('VirtualizedMessageComponents', () => {
               lastReadDate: new Date(messages[1].created_at),
               lastReadMessageId: messages[1].id,
               lastReceivedMessageId: messages[1].id,
-              Message,
               messageGroupStyles: {},
               numItemsPrepended: 1,
               ownMessagesDeliveredToOthers: {},
@@ -560,7 +558,6 @@ describe('VirtualizedMessageComponents', () => {
               firstUnreadMessageId: messages[1].id,
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
-              Message,
               messageGroupStyles: {},
               numItemsPrepended: 1,
               ownMessagesDeliveredToOthers: {},
@@ -582,7 +579,6 @@ describe('VirtualizedMessageComponents', () => {
             virtuosoContext: {
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
-              Message,
               messageGroupStyles: {},
               numItemsPrepended: 1,
               ownMessagesDeliveredToOthers: {},
@@ -604,7 +600,6 @@ describe('VirtualizedMessageComponents', () => {
             virtuosoContext: {
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
-              Message,
               messageGroupStyles: {},
               numItemsPrepended: 0,
               ownMessagesDeliveredToOthers: {},
@@ -664,7 +659,6 @@ describe('VirtualizedMessageComponents', () => {
             <>
               {processedMessages.map((_, numItemsPrepended) => {
                 const virtuosoContext = {
-                  Message: MessageUI,
                   messageGroupStyles,
                   numItemsPrepended,
                   ownMessagesDeliveredToOthers: {},
@@ -685,6 +679,7 @@ describe('VirtualizedMessageComponents', () => {
                 );
               })}
             </>,
+            { MessageUI },
           );
           const messageElements = container.querySelectorAll('.str-chat__message');
 

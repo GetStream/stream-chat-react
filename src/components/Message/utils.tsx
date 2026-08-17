@@ -208,11 +208,11 @@ export const areMessagePropsEqual = (
     showDetailedReactions?: boolean;
   },
 ) => {
-  const { message: prevMessage, Message: prevMessageUI } = prevProps;
-  const { message: nextMessage, Message: nextMessageUI } = nextProps;
+  const { message: prevMessage } = prevProps;
+  const { message: nextMessage } = nextProps;
 
-  if (prevMessageUI !== nextMessageUI) return false;
-
+  // The message UI component itself is not compared here: it is resolved from
+  // `ComponentContext`, and context updates re-render consumers regardless of `React.memo`.
   if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
     return false;
   }

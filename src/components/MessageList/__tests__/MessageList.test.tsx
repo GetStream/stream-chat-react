@@ -1679,7 +1679,7 @@ describe('MessageList', () => {
     });
   });
 
-  describe('props forwarded to Message', () => {
+  describe('MessageUI override', () => {
     it.each([[true], [false]])(
       'invokes handleMarkUnread from Message context (shouldFail: %s)',
       async (shouldFail) => {
@@ -1687,7 +1687,7 @@ describe('MessageList', () => {
         if (shouldFail) markUnreadSpy.mockRejectedValueOnce(undefined!);
 
         const message = generateMessage();
-        const Message = () => {
+        const MessageUI = () => {
           const { handleMarkUnread } = useMessageContext();
           useEffect(() => {
             const event = fromPartial<React.BaseSyntheticEvent>({
@@ -1702,7 +1702,8 @@ describe('MessageList', () => {
           renderComponent({
             channelProps: { channel },
             chatClient,
-            msgListProps: { Message, messages: [message] },
+            components: { MessageUI },
+            msgListProps: { messages: [message] },
           });
         });
 

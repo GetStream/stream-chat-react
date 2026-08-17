@@ -170,7 +170,7 @@ describe('<MessageSimple />', () => {
             <WithComponents
               overrides={{
                 Attachment: AttachmentMock,
-                Message: () => <MessageUI {...props} />,
+                MessageUI: () => <MessageUI {...props} />,
                 reactionOptions: defaultReactionOptions,
                 ...components,
               }}

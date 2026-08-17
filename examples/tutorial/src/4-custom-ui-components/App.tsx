@@ -164,7 +164,7 @@ const App = () => {
     <WithComponents
       overrides={{
         ChannelListItemUI: CustomChannelListItem,
-        Message: CustomMessage,
+        MessageUI: CustomMessage,
       }}
     >
       <Chat client={client} theme='custom-theme'>

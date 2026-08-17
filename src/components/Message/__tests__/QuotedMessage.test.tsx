@@ -76,7 +76,7 @@ async function renderQuotedMessage({
         >
           <ComponentProvider
             value={mockComponentContext({
-              Message: () => <MessageUI />,
+              MessageUI: () => <MessageUI />,
               ...componentContext,
             })}
           >
