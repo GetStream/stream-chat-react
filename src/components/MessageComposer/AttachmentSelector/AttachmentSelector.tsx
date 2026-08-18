@@ -280,7 +280,7 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
     PollCreationDialog = DefaultPollCreationDialog,
     ShareLocationDialog = DefaultLocationDialog,
   } = useComponentContext();
-  const { isUploadEnabled } = useAttachmentManagerState();
+  const { isUploadEnabled, locationEnabled, pollsEnabled } = useAttachmentManagerState();
   const messageComposer = useMessageComposerController();
   const channelCapabilities = useChannelCapabilities({
     cid: messageComposer.channel.cid,
@@ -291,26 +291,21 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
     () =>
       original
         .filter((action) => {
-          if (action.type === 'uploadFile')
-            return (
-              channelCapabilities.has('upload-file') &&
-              channelConfig?.uploads &&
-              isUploadEnabled
-            );
+          if (action.type === 'uploadFile') return isUploadEnabled;
 
           if (action.type === 'createPoll')
             return (
               channelCapabilities.has('send-poll') &&
               !messageComposer.threadId &&
-              channelConfig?.polls
+              pollsEnabled
             );
 
           if (action.type === 'addLocation') {
-            return channelConfig?.shared_locations && !messageComposer.threadId;
+            return locationEnabled && !messageComposer.threadId;
           }
 
           if (action.type === 'selectCommand') {
-            return !!channelConfig?.commands?.some((command) => !!command.name);
+            return !!channelConfig?.availableCommands.some((command) => !!command.name);
           }
 
           return true;
@@ -330,8 +325,10 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
       channelCapabilities,
       channelConfig,
       isUploadEnabled,
+      locationEnabled,
       messageComposer.threadId,
       original,
+      pollsEnabled,
     ],
   );
 };

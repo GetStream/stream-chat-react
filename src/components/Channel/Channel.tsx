@@ -4,16 +4,8 @@ import clsx from 'clsx';
 import type {
   ChannelGetOrCreateRequest,
   ChannelMemberResponse,
-  DeleteMessageOptions,
   Event,
-  LocalMessage,
-  MarkReadRequest,
-  MessageRequest,
-  MessageResponse,
-  SendMessageOptions,
   Channel as StreamChannel,
-  StreamChat,
-  UpdateMessageOptions,
 } from 'stream-chat';
 import { useChannelConfig } from './hooks/useChannelConfig';
 
@@ -36,7 +28,6 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { useChannelRequestHandlers } from './hooks/useChannelRequestHandlers';
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -55,28 +46,6 @@ export type ChannelProps = {
    * then the channel query will be skipped and channelQueryOptions will not be applied.
    */
   channelQueryOptions?: ChannelGetOrCreateRequest;
-  /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-  doDeleteMessageRequest?: (
-    message: LocalMessage,
-    options?: DeleteMessageOptions,
-  ) => Promise<MessageResponse>;
-  /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
-  doMarkReadRequest?: (
-    channel: StreamChannel,
-    options?: MarkReadRequest,
-  ) => ReturnType<StreamChannel['markRead']> | void;
-  /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
-  doSendMessageRequest?: (
-    channel: StreamChannel,
-    message: MessageRequest,
-    options?: SendMessageOptions,
-  ) => ReturnType<StreamChannel['sendMessage']> | void;
-  /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
-  doUpdateMessageRequest?: (
-    cid: string,
-    updatedMessage: LocalMessage | MessageResponse,
-    options?: UpdateMessageOptions,
-  ) => ReturnType<StreamChat['updateMessage']>;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
   EmptyPlaceholder?: React.ReactElement | null;
   /**
@@ -144,10 +113,6 @@ const ChannelInner = (
     channel,
     channelQueryOptions,
     children,
-    doDeleteMessageRequest,
-    doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
     initializeOnMount = true,
   } = props;
 
@@ -159,14 +124,7 @@ const ChannelInner = (
   const { t } = useTranslationContext('Channel');
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
-  const channelConfig = useChannelConfig({ cid: channel.cid });
-  useChannelRequestHandlers({
-    channel,
-    doDeleteMessageRequest,
-    doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
-  });
+  const channelConfig = useChannelConfig({ channel, cid: channel.cid });
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
   const originalTitle = useRef('');
@@ -200,7 +158,7 @@ const ChannelInner = (
       if (mainChannelUpdated) {
         if (
           document.hidden &&
-          channelConfig?.read_events &&
+          channelConfig?.readEvents.enabled &&
           !channel.muteStatus().muted
         ) {
           const unread = channel.countUnread();
@@ -336,7 +294,12 @@ const ChannelInner = (
       client.off('user.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel.cid, channelQueryOptions, channelConfig?.read_events, initializeOnMount]);
+  }, [
+    channel.cid,
+    channelQueryOptions,
+    channelConfig?.readEvents.enabled,
+    initializeOnMount,
+  ]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;

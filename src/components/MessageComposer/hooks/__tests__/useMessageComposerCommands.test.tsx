@@ -9,7 +9,7 @@ const mockedUseMessageComposerController = vi.hoisted(() => vi.fn());
 
 let commands: CommandResponse[];
 let messageComposer: {
-  channel: { getConfig: ReturnType<typeof vi.fn> };
+  channel: { readonly config: { availableCommands: CommandResponse[] } };
   getCommandDisabledReason: ReturnType<typeof vi.fn>;
   isCommandDisabled: ReturnType<typeof vi.fn>;
   state: StateStore<MessageComposerState>;
@@ -46,9 +46,11 @@ describe('useMessageComposerCommands', () => {
     ];
     messageComposer = {
       channel: {
-        getConfig: vi.fn(() => ({
-          commands,
-        })),
+        // A getter, not a value: `commands` is reassigned per test, and the original `vi.fn` closure
+        // read it lazily. A plain object would snapshot it at construction.
+        get config() {
+          return { availableCommands: commands };
+        },
       },
       getCommandDisabledReason: vi.fn((command: CommandResponse) => {
         const latestState = state.getLatestValue();

@@ -46,7 +46,8 @@ const ThreadHeaderSubtitle = ({
   const typingInThread = (Object.values(typing) as EventPayload<'typing.start'>[]).filter(
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );
-  const hasTyping = channelConfig?.typing_events !== false && typingInThread.length > 0;
+  const hasTyping =
+    channelConfig?.typingEvents.enabled !== false && typingInThread.length > 0;
   const replyCountText = t('replyCount', { count: replyCount ?? 0 });
   const defaultSubtitle = threadDisplayName
     ? `${threadDisplayName} · ${replyCountText}`

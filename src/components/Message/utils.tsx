@@ -4,7 +4,7 @@ import { EMOJI_REGEX } from './emojiRegex';
 
 import type { TFunction } from 'i18next';
 import type {
-  ChannelConfigWithInfo,
+  ChannelConfig,
   LocalMessage,
   MessageResponse,
   StreamChat,
@@ -94,7 +94,7 @@ export const getMessageActions = (
     canReact,
     canReply,
   }: Capabilities,
-  channelConfig?: ChannelConfigWithInfo,
+  channelConfig?: ChannelConfig,
 ): MessageActionsArray => {
   const messageActionsAfterPermission: MessageActionsArray = [];
   let messageActions: MessageActionsArray = [];
@@ -149,7 +149,7 @@ export const getMessageActions = (
   }
 
   if (
-    channelConfig?.['user_message_reminders'] &&
+    channelConfig?.userMessageReminders.enabled &&
     messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1
   ) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
@@ -160,7 +160,7 @@ export const getMessageActions = (
   }
 
   if (
-    channelConfig?.['user_message_reminders'] &&
+    channelConfig?.userMessageReminders.enabled &&
     messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1
   ) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);

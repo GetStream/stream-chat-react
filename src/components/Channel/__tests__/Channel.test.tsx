@@ -128,7 +128,12 @@ const initClient = async ({
   useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
   const channel = chatClient.channel('messaging', mockedChannel.channel.id);
 
-  vi.spyOn(channel, 'getConfig').mockImplementation(() => mockedChannel.channel.config);
+  chatClient.channelConfigsByTypeStore.partialNext({
+    configs: {
+      ...chatClient.channelConfigsByType,
+      messaging: mockedChannel.channel.config as never,
+    },
+  });
   return { channel, chatClient };
 };
 
@@ -504,18 +509,17 @@ describe('Channel', () => {
         });
       });
 
-      it('should use the doSendMessageRequest prop to send messages if that is defined', async () => {
+      it('sends through a request handler registered on client.config', async () => {
+        // Successor to the removed `doSendMessageRequest` prop. Registration is declarative now, so
+        // there is one place to install a handler and no mount-order arbitration between components.
         const { channel, chatClient } = await setup();
         const message = generateMessage();
-        const doSendMessageRequest = vi.fn((_channel, sentMessage) =>
+        const sendMessageRequest = vi.fn(({ message: sentMessage }) =>
           Promise.resolve({ message: sentMessage }),
-        ) as unknown as ChannelProps['doSendMessageRequest'];
+        );
+        chatClient.config.set({ channel: { requestHandlers: { sendMessageRequest } } });
 
-        await renderComponent({
-          channel,
-          chatClient,
-          doSendMessageRequest,
-        });
+        await renderComponent({ channel, chatClient });
 
         await act(async () => {
           await channel
@@ -526,10 +530,8 @@ describe('Channel', () => {
             .catch(() => {});
         });
 
-        expect(doSendMessageRequest).toHaveBeenCalledWith(
-          channel,
-          expect.objectContaining(message),
-          undefined,
+        expect(sendMessageRequest).toHaveBeenCalledWith(
+          expect.objectContaining({ message: expect.objectContaining(message) }),
         );
       });
 
@@ -559,18 +561,21 @@ describe('Channel', () => {
           );
         });
 
-        it('should call the custom doDeleteMessageRequest instead of client.deleteMessage()', async () => {
+        it('calls a registered deleteMessageRequest instead of client.deleteMessage()', async () => {
           const { channel, chatClient } = await setup();
           const message = generateMessage();
           const deleteMessageOptions = { deleteForMe: true, hard: false };
-          const doDeleteMessageRequest = vi.fn(() =>
-            Promise.resolve(message),
-          ) as unknown as ChannelProps['doDeleteMessageRequest'];
+          const deleteMessageRequest = vi.fn(() =>
+            Promise.resolve({ message: toMessageResponse(message) }),
+          );
           const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
             .mockResolvedValue(fromPartial({ message: toMessageResponse(message) }));
+          chatClient.config.set({
+            channel: { requestHandlers: { deleteMessageRequest } },
+          });
 
-          await renderComponent({ channel, chatClient, doDeleteMessageRequest });
+          await renderComponent({ channel, chatClient });
 
           await act(async () => {
             await channel
@@ -583,9 +588,8 @@ describe('Channel', () => {
 
           await waitFor(() => {
             expect(clientDeleteMessageSpy).not.toHaveBeenCalled();
-            expect(doDeleteMessageRequest).toHaveBeenCalledWith(
-              message,
-              deleteMessageOptions,
+            expect(deleteMessageRequest).toHaveBeenCalledWith(
+              expect.objectContaining({ options: deleteMessageOptions }),
             );
           });
         });
@@ -614,13 +618,14 @@ describe('Channel', () => {
         );
       });
 
-      it('should use doUpdateMessageRequest for the editMessage callback if provided', async () => {
+      it('uses a registered updateMessageRequest for the edit path', async () => {
         const { channel, chatClient, messages } = await setup();
-        const doUpdateMessageRequest = vi.fn((channelId, message) => ({
-          message,
-        })) as unknown as ChannelProps['doUpdateMessageRequest'];
+        const updateMessageRequest = vi.fn(({ localMessage }) =>
+          Promise.resolve({ message: localMessage }),
+        );
+        chatClient.config.set({ channel: { requestHandlers: { updateMessageRequest } } });
 
-        await renderComponent({ channel, chatClient, doUpdateMessageRequest });
+        await renderComponent({ channel, chatClient });
 
         await act(async () => {
           await channel
@@ -629,10 +634,10 @@ describe('Channel', () => {
         });
 
         await waitFor(() =>
-          expect(doUpdateMessageRequest).toHaveBeenCalledWith(
-            channel.cid,
-            messages[0],
-            undefined,
+          expect(updateMessageRequest).toHaveBeenCalledWith(
+            expect.objectContaining({
+              localMessage: expect.objectContaining({ id: messages[0].id }),
+            }),
           ),
         );
       });

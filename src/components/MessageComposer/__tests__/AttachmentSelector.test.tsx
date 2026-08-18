@@ -41,7 +41,7 @@ const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 // Capabilities & config now live on the channel (own_capabilities +
-// client.configsStore) rather than in a ChannelStateContext. These defaults grant every
+// client.channelConfigsByTypeStore) rather than in a ChannelStateContext. These defaults grant every
 // attachment option so the full AttachmentSelector menu renders.
 const DEFAULT_OWN_CAPABILITIES = ['upload-file', 'send-poll'];
 const DEFAULT_CONFIG = { polls: true, shared_locations: true, uploads: true };
@@ -299,6 +299,163 @@ describe('AttachmentSelector', () => {
     expect(menu).not.toHaveTextContent('Poll');
     expect(menu).toHaveTextContent('Location');
   });
+
+  it('hides location when the client disables it, even though the server allows it', async () => {
+    // The composer resolves `location.enabled` by ANDing the integrator's declarative configuration with
+    // the channel type's `shared_locations`, so either side can switch the feature off. This menu used to
+    // read the raw server flag instead, which meant it saw only the server's half of that answer: with a
+    // permissive server it offered an action the composer had already disabled and would refuse to
+    // compose. Reading the composer's resolved config is what makes the two agree.
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            cid: 'type:id',
+            config: { polls: false, shared_locations: true, uploads: false },
+            id: 'id',
+            own_capabilities: [],
+            type: 'type',
+          },
+        },
+      ],
+    });
+
+    customClient.config.set({ messageComposer: { location: { enabled: false } } });
+
+    await renderComponent({ customChannel, customClient });
+
+    // The two halves of the answer, so a future reader can see the divergence this pins down.
+    expect(customChannel.messageComposer.config.location.enabled).toBe(false);
+    expect(customChannel.serverConfig?.shared_locations).toBe(true);
+
+    await invokeMenu();
+    expect(
+      screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).not.toHaveTextContent('Location');
+  });
+
+  it.each([
+    {
+      change: (client) => {
+        client.config.set({ messageComposer: { attachments: { enabled: false } } });
+      },
+      name: 'the composer configuration changes',
+    },
+  ])('drops the File action while the menu is open when $name', async ({ change }) => {
+    // `isUploadEnabled` is a getter, so nothing re-renders on its own. This hook subscribes to the
+    // configuration and the capability store precisely so that a change to either reaches the screen;
+    // without those subscriptions the only trigger was the attachment list moving, and an action the SDK
+    // had already stopped honouring stayed on offer until something unrelated happened.
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            cid: 'type:id',
+            config: DEFAULT_CONFIG,
+            id: 'id',
+            own_capabilities: DEFAULT_OWN_CAPABILITIES,
+            type: 'type',
+          },
+        },
+      ],
+    });
+
+    await renderComponent({ customChannel, customClient });
+    await invokeMenu();
+    expect(
+      screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).toHaveTextContent('File');
+
+    // No re-open, no unrelated state change — the open menu has to update by itself.
+    act(() => {
+      change(customClient);
+    });
+
+    expect(
+      screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).not.toHaveTextContent('File');
+  });
+
+  it('offers File without the upload-file capability when files go to storage outside Stream', async () => {
+    // `attachments.customCdn` declares that bytes never reach Stream, so Stream's `upload-file` capability
+    // has nothing to permit or refuse. The menu asks the composer rather than the capability directly,
+    // which is what lets the two agree.
+    const {
+      channels: [customChannel],
+      client: customClient,
+    } = await initClientWithChannels({
+      channelsData: [
+        {
+          channel: {
+            cid: 'type:id',
+            config: DEFAULT_CONFIG,
+            id: 'id',
+            own_capabilities: [],
+            type: 'type',
+          },
+        },
+      ],
+    });
+
+    customClient.config.set({
+      messageComposer: { attachments: { customCdn: true } },
+    });
+
+    await renderComponent({ customChannel, customClient });
+
+    expect(customChannel.messageComposer.attachmentManager.hasUploadPermission).toBe(
+      false,
+    );
+    expect(customChannel.messageComposer.attachmentManager.isUploadEnabled).toBe(true);
+
+    await invokeMenu();
+    expect(
+      screen.getByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+    ).toHaveTextContent('File');
+  });
+
+  it.each([
+    { action: 'File', path: 'attachments' },
+    { action: 'Poll', path: 'polls' },
+  ])(
+    'hides $action when the client disables $path, even though the server allows it',
+    async ({ action, path }) => {
+      // Same reconciliation as location: the composer ANDs `attachments.enabled` with the channel type's
+      // `uploads`, and `polls.enabled` with `polls`. The menu reads the composer's answer, so an
+      // integrator can switch either feature off against a permissive server.
+      const {
+        channels: [customChannel],
+        client: customClient,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            channel: {
+              cid: 'type:id',
+              config: DEFAULT_CONFIG,
+              id: 'id',
+              own_capabilities: DEFAULT_OWN_CAPABILITIES,
+              type: 'type',
+            },
+          },
+        ],
+      });
+
+      customClient.config.set({ messageComposer: { [path]: { enabled: false } } });
+
+      await renderComponent({ customChannel, customClient });
+
+      await invokeMenu();
+      expect(
+        screen.queryByTestId(ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID),
+      ).not.toHaveTextContent(action);
+    },
+  );
 
   it('falls back to SimpleAttachmentSelector if only file uploads are enabled', async () => {
     const {

@@ -1,8 +1,13 @@
 import { useCallback, useEffect } from 'react';
 import { useChannel, useChatContext } from '../../../context';
 import { useMessagePaginator } from '../../../hooks';
+import { useStateStore } from '../../../store';
 import { useThreadContext } from '../../Threads';
-import type { Channel, EventPayload } from 'stream-chat';
+import type { Channel, ChannelConfig, EventPayload } from 'stream-chat';
+
+const readEventsSelector = ({ readEvents }: ChannelConfig) => ({
+  readEventsEnabled: readEvents.enabled,
+});
 
 const hasReadLastMessage = (channel: Channel, userId: string) => {
   const latestMessageIdInChannel = channel.messagePaginator.headmostItem?.id;
@@ -29,6 +34,7 @@ export const useMarkRead = ({
 }: UseMarkReadParams) => {
   const { client } = useChatContext();
   const channel = useChannel();
+  const { readEventsEnabled } = useStateStore(channel.configState, readEventsSelector);
   const thread = useThreadContext();
   const messagePaginator = useMessagePaginator();
 
@@ -73,7 +79,7 @@ export const useMarkRead = ({
   }, [hasMoreNewer, isMessageListScrolledToBottom, messagePaginator]);
 
   useEffect(() => {
-    if (!channel.getConfig()?.read_events) return;
+    if (!readEventsEnabled) return;
     const shouldMarkRead = () => {
       const wasMarkedUnread =
         !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;
@@ -125,6 +131,7 @@ export const useMarkRead = ({
     resetUnreadSnapshot,
     isThreadList,
     messagePaginator,
+    readEventsEnabled,
     thread,
   ]);
 };

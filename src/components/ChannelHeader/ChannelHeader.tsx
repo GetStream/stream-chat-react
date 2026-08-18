@@ -24,7 +24,8 @@ const ChannelHeaderSubtitle = () => {
   const typingInChannel = (
     Object.values(typing) as EventPayload<'typing.start' | 'typing.stop'>[]
   ).filter(({ parent_id, user }) => user?.id !== client.user?.id && !parent_id);
-  const hasTyping = channelConfig?.typing_events !== false && typingInChannel.length > 0;
+  const hasTyping =
+    channelConfig?.typingEvents.enabled !== false && typingInChannel.length > 0;
 
   if (!hasTyping && !onlineStatusText) return null;
 

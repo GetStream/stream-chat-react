@@ -167,6 +167,31 @@ window.getComputedStyle = function (element: Element, pseudoElt?: string | null)
 };
 
 const sendMessageMock = vi.fn();
+
+/**
+ * Registers the interception the removed `doSendMessageRequest` prop used to provide.
+ *
+ * Declarative registration is the replacement for the per-component props: one place, no mount-order
+ * arbitration. The adapter below is what the deleted hook did internally — call the spy, and fall back
+ * to the real send when it returns nothing, so tests that only assert *that* a send was intercepted keep
+ * working without stubbing a whole response.
+ */
+const registerSendInterceptor = (client, channel) =>
+  client.config.set({
+    channel: {
+      requestHandlers: {
+        sendMessageRequest: async (params) => {
+          const response = await sendMessageMock(channel, params.message, params.options);
+          if (response?.message) return { message: response.message };
+          const fallback = await channel.sendMessage({
+            message: params.message,
+            ...params.options,
+          });
+          return { message: fallback.message };
+        },
+      },
+    },
+  });
 const mockAddNotification = vi.fn();
 
 vi.mock('../../Channel/utils', async (importOriginal) => ({
@@ -258,6 +283,8 @@ const renderComponent = async ({
     channel = result.channels[0];
     client = result.client;
   }
+  registerSendInterceptor(client, channel);
+
   let renderResult: RenderResult;
 
   await act(() => {
@@ -275,11 +302,7 @@ const renderComponent = async ({
             {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
             <AriaLiveOutlet />
             <DialogManagerProvider id='message-input-test-dialog-manager'>
-              <Channel
-                channel={channel}
-                doSendMessageRequest={sendMessageMock}
-                {...channelProps}
-              >
+              <Channel channel={channel} {...channelProps}>
                 <MessageProvider
                   value={fromPartial<MessageContextValue>({
                     ...defaultMessageContextValue,

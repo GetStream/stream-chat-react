@@ -20,7 +20,7 @@ export const GeneralTab = ({ close }: GeneralTabProps) => {
   const {
     messageList,
     theme,
-    theme: { direction },
+    theme: { direction, mode },
   } = useAppSettingsState();
 
   // The channel picked here is a draft — it doesn't open the modal until "Open" commits it to
@@ -55,11 +55,40 @@ export const GeneralTab = ({ close }: GeneralTabProps) => {
     <div className='app__settings-modal__content-stack'>
       <SettingsTabLayoutHeader
         close={close}
-        description='Configure global demo behavior such as text direction and message list rendering.'
+        description='Configure global demo behavior such as theme, text direction and message list rendering.'
         title='General'
       />
 
       <SettingsTabBody>
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Theme</div>
+          <div className='app__settings-modal__options-row'>
+            <Button
+              aria-pressed={mode === 'light'}
+              className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+              onClick={() =>
+                appSettingsStore.partialNext({ theme: { ...theme, mode: 'light' } })
+              }
+            >
+              Light
+            </Button>
+            <Button
+              aria-pressed={mode === 'dark'}
+              className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+              onClick={() =>
+                appSettingsStore.partialNext({ theme: { ...theme, mode: 'dark' } })
+              }
+            >
+              Dark
+            </Button>
+          </div>
+          <div className='app__settings-modal__field-comment'>
+            <p>
+              The same setting as the sidebar toggle — both write <code>theme.mode</code>,
+              so they stay in step and the choice survives a reload.
+            </p>
+          </div>
+        </div>
         <div className='app__settings-modal__field'>
           <div className='app__settings-modal__field-label'>Text direction</div>
           <div className='app__settings-modal__options-row'>

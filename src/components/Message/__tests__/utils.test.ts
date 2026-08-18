@@ -126,21 +126,21 @@ describe('Message utils', () => {
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
       const result = getMessageActions(['remindMe'], defaultCapabilities, {
-        user_message_reminders: true,
+        userMessageReminders: { enabled: true },
       } as ChannelConfigWithInfo);
       expect(result).toStrictEqual(['remindMe']);
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
       const result = getMessageActions(['saveForLater'], defaultCapabilities, {
-        user_message_reminders: true,
+        userMessageReminders: { enabled: true },
       } as ChannelConfigWithInfo);
       expect(result).toStrictEqual(['saveForLater']);
     });
 
     it('should include reminder actions if enabled in channel config', () => {
       const result = getMessageActions(true, defaultCapabilities, {
-        user_message_reminders: true,
+        userMessageReminders: { enabled: true },
       } as ChannelConfigWithInfo);
       expect(result).toEqual(actions);
     });

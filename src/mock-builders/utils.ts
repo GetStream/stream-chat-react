@@ -75,9 +75,17 @@ export const initChannelFromData = async ({
     mockedChannelData.channel.id,
   );
   await channel.watch();
-  vi.spyOn(channel, 'getConfig').mockReturnValue(
-    mockedChannelData.channel.config as ChannelConfigWithInfo,
-  );
+  // Written into the client's store rather than stubbed onto the channel: `getConfig()` is gone, and
+  // its replacement `serverConfig` is a getter reading this store. Going through the store also drives
+  // the channel's own derivation, so `channel.config` — where six of these flags are reconciled with
+  // the integrator's configuration — is correct too. Stubbing an accessor would leave it stale.
+  client.channelConfigsByTypeStore.partialNext({
+    configs: {
+      ...client.channelConfigsByType,
+      [mockedChannelData.channel.type]: mockedChannelData.channel
+        .config as ChannelConfigWithInfo,
+    },
+  });
   vi.spyOn(channel, 'getDraft').mockResolvedValue({
     draft: generateMessageDraft({ channel_cid: channel.cid }),
   } as GetDraftResponse);

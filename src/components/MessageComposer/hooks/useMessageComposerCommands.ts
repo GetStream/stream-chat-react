@@ -19,7 +19,7 @@ export type MessageComposerCommand = {
 
 export const useMessageComposerCommands = () => {
   const messageComposer = useMessageComposerController();
-  const channelConfig = messageComposer.channel.getConfig();
+  const channelConfig = messageComposer.channel.config;
   const { editedMessage, quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
@@ -27,7 +27,7 @@ export const useMessageComposerCommands = () => {
 
   return useMemo<MessageComposerCommand[]>(
     () =>
-      (channelConfig?.commands ?? [])
+      (channelConfig?.availableCommands ?? [])
         .filter((command): command is Command & { name: string } => !!command.name)
         .map((command) => ({
           command,

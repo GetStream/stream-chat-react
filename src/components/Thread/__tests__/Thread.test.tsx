@@ -83,8 +83,8 @@ const makeThread = (
   const thread = fromPartial<StreamThread>({
     channel: fromPartial({
       cid: 'messaging:thread-test',
-      configState: undefined,
-      getConfig: () => ({ replies }),
+      config: { replies: { enabled: replies } },
+      configState: { getLatestValue: () => ({ replies: { enabled: replies } }) },
     }),
     configState: undefined,
     deactivate,

@@ -89,7 +89,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     if (showIndicator && isMessageListScrolledToBottom) scrollToBottom?.();
   }, [scrollToBottom, isMessageListScrolledToBottom, showIndicator]);
 
-  if (channelConfig?.typing_events === false) {
+  if (channelConfig?.typingEvents.enabled === false) {
     return null;
   }
 

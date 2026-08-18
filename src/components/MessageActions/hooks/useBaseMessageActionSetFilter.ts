@@ -106,8 +106,8 @@ export const useBaseMessageActionSetFilter = (
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
         (type === 'reply' && !canReply) ||
-        (type === 'remindMe' && !channelConfig?.['user_message_reminders']) ||
-        (type === 'saveForLater' && !channelConfig?.['user_message_reminders'])
+        (type === 'remindMe' && !channelConfig?.userMessageReminders.enabled) ||
+        (type === 'saveForLater' && !channelConfig?.userMessageReminders.enabled)
       )
         return false;
 

@@ -23,7 +23,7 @@ export type TypingIndicatorHeaderProps = {
 
 /**
  * Inline typing indicator for ChannelHeader or ThreadHeader: text (1/2/3+ people) followed by animated dots.
- * Only shows other participants; respects channelConfig.typing_events.
+ * Only shows other participants; respects the channel's resolved `typingEvents.enabled`.
  */
 export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { threadList = false } = props;
@@ -58,7 +58,7 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const label = getTypingStatusMessage(displayUsers, t);
 
-  if (channelConfig?.typing_events === false || displayUsers.length === 0) {
+  if (channelConfig?.typingEvents.enabled === false || displayUsers.length === 0) {
     return null;
   }
 
