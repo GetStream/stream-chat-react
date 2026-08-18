@@ -280,6 +280,39 @@ const { t } = i18n.state.getLatestValue();
 The returned translator was removed deliberately: it went stale on the next language change, so
 holding onto it was always a latent bug.
 
+### `getTranslations()` and `getAvailableLanguages()` are gone
+
+Both were public in v14, both leaked internal bookkeeping, and neither had a consumer in this SDK.
+
+```ts
+// v14 — reading the raw i18next resource map
+i18n.getTranslations().en.translation['some.key'];
+
+// v15 — render the key instead; that is the thing you actually wanted to know
+i18n.t('some.key');
+```
+
+`getTranslations()` never held this SDK's English copy in the first place: prose renders from the
+inline `defaultValue` at each call site, so the resource map only ever contained the bundled formatter
+expressions plus whatever had been registered.
+
+```ts
+// v14 — "available" included languages created only to carry the bundled defaults,
+// so a language nobody registered showed up here
+i18n.getAvailableLanguages().includes('de');
+
+// v15
+i18n.registeredLanguages.has('de');
+```
+
+`registeredLanguages` is now a `ReadonlySet<string>`. Reading it is unchanged; `.add()` no longer
+compiles — use `registerTranslation()`, since adding to the set would claim a language is registered
+with no dictionary behind it.
+
+Also now internal, none of them documented before: `translations`, `dayjsLocales`,
+`isCustomDateTimeParser`, `localeExists()`, `addOrUpdateLocale()`, `validateCurrentLanguage()`. To
+register a dayjs locale directly, `stream-chat/i18n` exports `addOrUpdateDayjsLocale()`.
+
 ### You no longer need `i18next` or `dayjs` in your own dependencies
 
 `stream-chat` depends on both, so they arrive transitively. If you declared them only for this SDK,

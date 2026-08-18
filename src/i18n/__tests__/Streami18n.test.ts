@@ -3,7 +3,7 @@ import { Streami18n } from '../Streami18n';
 import type { Streami18nOptions } from '../Streami18n';
 import type { LooseTranslationDictionary, TranslationDictionary } from '../types';
 import type { TranslationCatalog } from '../keys';
-import { getDateString } from '../utils';
+import { asDynamicKey, getDateString } from '../utils';
 import { runtimeDefaults } from '../runtimeDefaults';
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import type { TranslationTopicConstructor } from '../TranslationBuilder';
@@ -201,7 +201,7 @@ describe('Streami18n - dictionary key types', () => {
 
   // The params are strict, so the default call shape — an inline object literal — is checked.
   // A typo here used to compile and then silently never apply at runtime.
-  it('rejects an unknown key passed inline, and still accepts a loose dictionary', () => {
+  it('rejects an unknown key passed inline, and still accepts a loose dictionary', async () => {
     const i18n = new Streami18n({ logger: () => null });
 
     i18n.registerTranslation('en', {
@@ -226,10 +226,11 @@ describe('Streami18n - dictionary key types', () => {
     i18n.registerTranslation('en', withOwnKeys);
     new Streami18n({ logger: () => null, translationsForLanguage: withOwnKeys });
 
-    expect(i18n.getTranslations().en.translation).toHaveProperty(
-      'myApp.somethingElse',
-      'Hello',
-    );
+    // Asserted by rendering rather than by reading the resource store, which is no longer exposed:
+    // whether the app's own key resolves is the thing that matters, and `getTranslations()` only ever
+    // confirmed it had been written down.
+    const { t } = await i18n.init();
+    expect(t(asDynamicKey('myApp.somethingElse'))).toBe('Hello');
   });
 
   // Compile-time contract, asserted here so it cannot regress silently. TranslationDictionary
