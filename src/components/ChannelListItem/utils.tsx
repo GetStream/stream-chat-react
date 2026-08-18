@@ -222,8 +222,9 @@ const getLatestMessagePreviewParts = (
 
 /**
  * Maps a known attachment `type` to a localized, human-readable word (e.g. "image" → "Image"). The
- * cases are literal `t('aria/…')` calls so `i18next-cli` extracts them. Unknown/custom types return
- * `undefined`, so the announcement falls back to a generic "Attachment".
+ * cases are literal `t()` calls so the catalog generator sees them -- `i18next-cli` and the `aria/`
+ * prefix are both gone. Unknown/custom types return `undefined`, so the announcement falls back to a
+ * generic "Attachment".
  */
 const getAttachmentTypeLabel = (
   type: string | undefined,
