@@ -24,7 +24,6 @@ import type { MessageProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 import type {
   DeleteMessageOptions,
-  EventAPIResponse,
   LocalMessage,
   MarkReadRequest,
   MessageRequest,
@@ -64,7 +63,7 @@ export type ThreadProps = {
   doMarkReadRequest?: (params: {
     thread: StreamThread;
     options?: MarkReadRequest;
-  }) => Promise<EventAPIResponse | null> | void;
+  }) => ReturnType<StreamChannel['markRead']> | void;
   /** Custom action handler to override the default `channel.sendMessage` request function in thread flows */
   doSendMessageRequest?: (
     thread: StreamThread,
