@@ -331,6 +331,9 @@ Vite 8 / Rolldown specifics baked into `vite.config.ts` (do not "simplify" these
 - Externals are regexes (`^dep(\/.+)?$`) so **subpath** imports (`dayjs/locale/de`) stay external; otherwise CJS `require()` glue leaks into the ESM output
 - No minification, sourcemaps on, target from `tsconfig.lib.json` (`es2020`), all deps/peerDeps externalized
 - Rolldown's strict CJS interop means default-imported CJS deps may need `.default` unwrapping at the call site
+- `preserveModules` is on for the **ESM output only**, so `dist/es` mirrors `src` one file per module. Consumer bundlers drop whole unused modules first (guided by our `sideEffects` field) and only then attempt statement-level elimination — a single merged chunk leaves them nothing to drop. CJS stays chunked, since consumers do not tree-shake CJS
+- `emptyOutDir` stays `false` because the four parallel build steps share `dist/`; `yarn build` already wipes it up front via `yarn clean`
+- **`sideEffects` in `package.json` is load-bearing.** With one ESM file per module, consumer bundlers drop modules individually, so any module that runs code at import time must be listed there or it can be deleted out from under a consumer. Today that is `i18n/Streami18n` and `context/TranslationContext` (both call `Dayjs.extend` / `Dayjs.updateLocale` at module scope). Add an entry whenever you introduce module-level side effects
 
 ## Styling architecture
 
