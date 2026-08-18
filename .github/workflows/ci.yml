@@ -28,6 +28,11 @@ jobs:
 
       - run: yarn lint
 
+      # scripts/ is outside the src tsconfigs and is not linted; Node 24 strips the types in
+      # the .mts build scripts without checking them, so check them here.
+      - name: Typecheck build scripts
+        run: yarn types:scripts
+
   build:
     runs-on: ubuntu-latest
     permissions:
@@ -47,8 +52,12 @@ jobs:
       - name: Validate ESM bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-esm
 
-      - name: Validate translations
-        run: yarn validate-translations
+      - name: Validate translations are in sync with source
+        # `yarn build` above already ran build-translations, which regenerates keys.ts from the
+        # t() call sites and runtimeDefaults.ts. A diff here means the author changed a call site
+        # without regenerating. Scoped to the one generated file so unrelated edits under
+        # src/i18n (tests, Streami18n, runtimeDefaults) do not trip it.
+        run: git diff --exit-code -- src/i18n/keys.ts
 
       - name: Cache Build Output
         uses: actions/cache@v5

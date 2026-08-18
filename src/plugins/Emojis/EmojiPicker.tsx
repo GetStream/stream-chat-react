@@ -49,8 +49,8 @@ const classNames: Pick<
 };
 
 export const EmojiPicker = (props: EmojiPickerProps) => {
-  const { t } = useTranslationContext('EmojiPicker');
-  const { textareaRef } = useMessageComposerContext('EmojiPicker');
+  const { t } = useTranslationContext();
+  const { textareaRef } = useMessageComposerContext();
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);
@@ -124,7 +124,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
       <Button
         appearance='ghost'
         aria-expanded={displayPicker}
-        aria-label={t('aria/Emoji picker')}
+        aria-label={t('emojiPicker.emojiPicker.ariaLabel', 'Emoji picker')}
         circular
         className={props.buttonClassName ?? defaultButtonClassName}
         disabled={isCooldownActive}

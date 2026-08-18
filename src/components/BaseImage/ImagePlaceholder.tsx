@@ -11,7 +11,10 @@ export const ImagePlaceholder = ({ className }: ImagePlaceholderProps) => {
   const { t } = useTranslationContext();
   return (
     <div
-      aria-label={t('aria/Image failed to load')}
+      aria-label={t(
+        'baseImage.imagePlaceholder.imageFailedLoad.ariaLabel',
+        'Image failed to load',
+      )}
       className={clsx('str-chat__image-placeholder', className)}
       data-testid='str-chat__base-image-placeholder'
       role='img'

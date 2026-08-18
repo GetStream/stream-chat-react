@@ -29,7 +29,12 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
       comment: (v: string) => {
         const trimmed = typeof v === 'string' ? v.trim() : '';
         if (!trimmed) {
-          return new Error(t('This field cannot be empty or contain only spaces'));
+          return new Error(
+            t(
+              'poll.addCommentPrompt.fieldCannotEmptyContain.label',
+              'This field cannot be empty or contain only spaces',
+            ),
+          );
         }
         return undefined;
       },
@@ -55,10 +60,18 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
     input?.focus();
   }, [input]);
 
-  const title = ownAnswer ? t('Update your comment') : t('Add a comment');
+  const title = ownAnswer
+    ? t('poll.addCommentPrompt.updateComment.label', 'Update Your Comment')
+    : t('poll.addCommentPrompt.addComment.label', 'Add a Comment');
   const description = ownAnswer
-    ? t('Update the comment attached to your poll answer')
-    : t('Add a comment to your poll answer');
+    ? t(
+        'poll.addCommentPrompt.updateCommentAttachedPoll.label',
+        'Update the comment attached to your poll answer',
+      )
+    : t(
+        'poll.addCommentPrompt.addCommentPollAnswer.label',
+        'Add a comment to your poll answer',
+      );
   const submitDisabled =
     !value.comment?.trim() || value.comment === ownAnswer?.answer_text;
 
@@ -74,7 +87,7 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
             id='comment'
             name='comment'
             onChange={(e) => setFieldValue('comment', e.target.value)}
-            placeholder={t('placeholder/PollComment')}
+            placeholder={t('poll.pollComment.placeholder', 'Your comment')}
             ref={setInput}
             required
             type='text'
@@ -88,14 +101,16 @@ export const AddCommentPrompt = ({ messageId }: AddCommentPromptProps) => {
               onClick={close}
               type='button'
             >
-              {t('Cancel')}
+              {t('common.cancel.label', 'Cancel')}
             </Prompt.FooterControlsButtonSecondary>
             <Prompt.FooterControlsButtonPrimary
               className='str-chat__prompt__footer__controls-button--submit'
               disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
               type='submit'
             >
-              {initialComment ? t('Update') : t('Send')}
+              {initialComment
+                ? t('poll.addCommentPrompt.update.text', 'Update')
+                : t('common.send.label', 'Send')}
             </Prompt.FooterControlsButtonPrimary>
           </Prompt.FooterControls>
         </Prompt.Footer>

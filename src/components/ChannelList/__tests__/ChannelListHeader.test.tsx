@@ -5,8 +5,9 @@ import { WithComponents, WorkspaceNavigationProvider } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import { mockTranslationContextValue } from '../../../mock-builders';
 import { ChannelListHeader } from '../ChannelListHeader';
+import { mockT } from '../../../mock-builders/translator';
 
-const t = vi.fn((key: string) => key);
+const t = vi.fn(mockT);
 const HeaderEndContent = () => <div data-testid='sidebar-toggle' />;
 
 afterEach(cleanup);

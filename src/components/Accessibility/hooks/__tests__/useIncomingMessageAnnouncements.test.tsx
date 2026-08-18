@@ -7,16 +7,24 @@ import type { Channel, Event, LocalMessage } from 'stream-chat';
 
 const { announceMock, tMock } = vi.hoisted(() => ({
   announceMock: vi.fn(),
-  tMock: vi.fn((key: string, options?: { count?: number; user?: string }) => {
-    if (key === '{{count}} new messages') {
-      return `${options?.count} new messages`;
+  tMock: vi.fn((key: string, second?: unknown, third?: unknown) => {
+    const defaultValue = typeof second === 'string' ? second : undefined;
+    const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+      string,
+      unknown
+    >;
+    let template = defaultValue;
+    if (template === undefined && typeof options.count === 'number') {
+      template = (
+        options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+      ) as string | undefined;
     }
-
-    if (key === 'New message from {{user}}') {
-      return `New message from ${options?.user}`;
-    }
-
-    return key;
+    template ??= options.defaultValue as string | undefined;
+    template ??= key;
+    return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+      const value = options[name];
+      return value === undefined || value === null ? whole : String(value);
+    });
   }),
 }));
 

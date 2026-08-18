@@ -20,7 +20,7 @@ const getMuteStatus = (channel: Channel) =>
     : { createdAt: null, expiresAt: null, muted: false };
 
 export const useIsChannelMuted = (channel: Channel) => {
-  const { client } = useChatContext('useIsChannelMuted');
+  const { client } = useChatContext();
 
   const [muted, setMuted] = useState(() => getMuteStatus(channel));
 

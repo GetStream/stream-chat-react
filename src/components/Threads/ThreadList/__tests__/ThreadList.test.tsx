@@ -5,6 +5,7 @@ import type { StreamChat } from 'stream-chat';
 
 import { ThreadList } from '../ThreadList';
 import { initClientWithChannels } from '../../../../mock-builders';
+import { mockT } from '../../../../mock-builders/translator';
 
 const mockUseChatContext = vi.fn();
 const mockUseComponentContext = vi.fn();
@@ -95,7 +96,7 @@ describe('ThreadList', () => {
     vi.spyOn(client.threads, 'reload').mockResolvedValue(undefined);
     mockUseChatContext.mockReturnValue({ client });
     mockUseComponentContext.mockReturnValue({});
-    mockUseTranslationContext.mockReturnValue({ t: (value: string) => value });
+    mockUseTranslationContext.mockReturnValue({ t: mockT });
     mockUseStateStore.mockReturnValue({ isLoading: false, threads: [] });
   });
 
@@ -129,7 +130,7 @@ describe('ThreadList', () => {
     expect(screen.queryByTestId('loading-channels')).not.toBeInTheDocument();
     expect(mockVirtuoso).toHaveBeenCalledTimes(1);
     expect(mockVirtuoso.mock.calls[0][0]).toMatchObject({
-      'aria-label': 'aria/Thread list',
+      'aria-label': 'Thread list',
       role: 'listbox',
     });
   });

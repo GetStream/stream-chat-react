@@ -35,7 +35,7 @@ export const OptionFieldSet = () => {
     pollComposer.state,
     pollComposerStateSelector,
   );
-  const { t } = useTranslationContext('OptionFieldSet');
+  const { t } = useTranslationContext();
   const announce = useAriaLiveAnnouncer();
   const { announceInteraction } = useInteractionAnnouncements();
   const optionInputRefs = useRef<Array<HTMLInputElement | null>>([]);
@@ -45,15 +45,19 @@ export const OptionFieldSet = () => {
 
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
-      'Option already exists': t('Option already exists'),
-      'Option is empty': t('Option is empty'),
+      'Option already exists': t(
+        'poll.suggestPollOption.optionAlreadyExists.label',
+        'Option already exists',
+      ),
+      'Option is empty': t('poll.optionFieldSet.optionEmpty.label', 'Option is empty'),
     }),
     [t],
   );
 
   const labelForOption = useCallback(
     (option: PollComposerOption, position: number) =>
-      option.text.trim() || t('aria/Option {{ position }}', { position }),
+      option.text.trim() ||
+      t('poll.optionFieldSet.option.ariaLabel', 'Option {{ position }}', { position }),
     [t],
   );
 
@@ -188,7 +192,10 @@ export const OptionFieldSet = () => {
 
   useSettledAnnouncement(announce, {
     active: draggable,
-    message: t('aria/Options can now be reordered and removed.'),
+    message: t(
+      'poll.optionFieldSet.optionsCanNowReordered.ariaLabel',
+      'Options can now be reordered and removed.',
+    ),
     settleKey: options,
   });
 
@@ -196,7 +203,7 @@ export const OptionFieldSet = () => {
     <>
       <TextInputFieldSet
         draggable={draggable}
-        label={t('Options')}
+        label={t('poll.optionFieldSet.options.label', 'Options')}
         onSetNewOrder={onSetNewOrder}
       >
         {options.map((option, i) => {
@@ -232,7 +239,8 @@ export const OptionFieldSet = () => {
                 message={
                   error ? (
                     <span data-testid='poll-option-input-field-error'>
-                      {knownValidationErrors[error] ?? t('Error')}
+                      {knownValidationErrors[error] ??
+                        t('poll.nameField.error.text', 'Error')}
                     </span>
                   ) : undefined
                 }
@@ -250,7 +258,10 @@ export const OptionFieldSet = () => {
                     optionInputRefs.current[i + 1]?.focus();
                   }
                 }}
-                placeholder={t('Add an option')}
+                placeholder={t(
+                  'poll.optionFieldSet.addOption.placeholder',
+                  'Add an Option',
+                )}
                 ref={(element) => {
                   optionInputRefs.current[i] = element;
                 }}
@@ -258,9 +269,13 @@ export const OptionFieldSet = () => {
                   draggable ? (
                     <RemoveOptionButton
                       // Name each button by its option so SR users can tell the rows apart.
-                      aria-label={t('aria/Remove option: {{ option }}', {
-                        option: labelForOption(option, i + 1),
-                      })}
+                      aria-label={t(
+                        'poll.optionFieldSet.removeOption.ariaLabel',
+                        'Remove option: {{ option }}',
+                        {
+                          option: labelForOption(option, i + 1),
+                        },
+                      )}
                       onClick={() => clearOption(option.id)}
                     />
                   ) : undefined
@@ -274,7 +289,10 @@ export const OptionFieldSet = () => {
       </TextInputFieldSet>
       {draggable && (
         <VisuallyHidden id={optionsHintId}>
-          {t('aria/This option can be reordered and removed.')}
+          {t(
+            'poll.optionFieldSet.optionCanReorderedRemoved.ariaLabel',
+            'This option can be reordered and removed.',
+          )}
         </VisuallyHidden>
       )}
     </>

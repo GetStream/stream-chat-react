@@ -19,8 +19,14 @@ export const SendToChannelCheckbox = () => {
 
   const labelText =
     Object.keys(messageComposer.channel.state.members).length === 2
-      ? t('Also send as a direct message')
-      : t('Also send in channel');
+      ? t(
+          'messageComposer.sendChannelCheckbox.alsoSendDirectMessage.label',
+          'Also send as a direct message',
+        )
+      : t(
+          'messageComposer.sendChannelCheckbox.alsoSendChannel.label',
+          'Also send in channel',
+        );
 
   return (
     <div

@@ -156,8 +156,8 @@ describe('AttachmentSelector', () => {
 
   it('keeps Commands visible and disables it when all commands are unavailable', async () => {
     const disabledCommand = fromPartial<Command>({
-      args: 'ban-command-args',
-      description: 'ban-command-description',
+      args: '[@username] [text]',
+      description: 'Ban a user',
       name: 'ban',
       set: 'moderation_set',
     });
@@ -1009,8 +1009,8 @@ describe('SimpleAttachmentSelector', () => {
 
   describe('command-active inert behavior', () => {
     const giphyCommand = fromPartial<Command>({
-      args: 'giphy-command-args',
-      description: 'giphy-command-description',
+      args: '[text]',
+      description: 'Post a random gif to the channel',
       name: 'giphy',
     });
 

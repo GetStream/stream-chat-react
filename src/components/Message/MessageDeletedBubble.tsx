@@ -17,7 +17,7 @@ export const MessageDeletedBubble = () => {
     <MessageBubble data-testid={'message-deleted-bubble'}>
       <div className='str-chat__message-text'>
         <IconNoSign />
-        <span>{t('Message deleted')}</span>
+        <span>{t('common.messageDeleted.text', 'Message deleted')}</span>
       </div>
     </MessageBubble>
   );

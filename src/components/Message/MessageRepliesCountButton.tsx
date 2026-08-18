@@ -1,12 +1,12 @@
 import type { MouseEventHandler } from 'react';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import type { UserResponse } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import {
+  MessageContext,
   useChannel,
   useComponentContext,
-  useMessageContext,
   useWorkspaceNavigation,
 } from '../../context';
 import { useStateStore } from '../../store';
@@ -29,7 +29,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   const {
     AvatarStack = DefaultAvatarStack,
     extractDisplayInfo = defaultExtractDisplayInfo,
-  } = useComponentContext(MessageRepliesCountButton.name);
+  } = useComponentContext();
   const {
     labelPlural,
     labelSingle,
@@ -37,7 +37,8 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
     reply_count: replyCountFromProps = 0,
     thread_participants: threadParticipantsFromProps = [],
   } = props;
-  const { message: contextMessage } = useMessageContext(MessageRepliesCountButton.name);
+  // reply counts also render outside a message, from props alone
+  const { message: contextMessage } = useContext(MessageContext) ?? {};
   const channel = useChannel();
   const { openThread } = useWorkspaceNavigation();
   const replyMetadataSelector = useMemo(
@@ -59,7 +60,7 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
   const threadParticipants =
     threadParticipantsFromPaginator ?? threadParticipantsFromProps;
 
-  const { t } = useTranslationContext('MessageRepliesCountButton');
+  const { t } = useTranslationContext();
 
   const avatarStackDisplayInfo = useMemo(
     () => threadParticipants.slice(0, 3).map((user) => extractDisplayInfo({ user })),
@@ -81,7 +82,11 @@ function UnMemoizedMessageRepliesCountButton(props: MessageRepliesCountButtonPro
 
   if (!replyCount) return null;
 
-  let replyCountText = t('replyCount', { count: replyCount });
+  let replyCountText = t('common.replyCount.label', {
+    count: replyCount,
+    defaultValue_one: '1 reply',
+    defaultValue_other: '{{ count }} replies',
+  });
 
   if (labelPlural && replyCount > 1) {
     replyCountText = `${replyCount} ${labelPlural}`;

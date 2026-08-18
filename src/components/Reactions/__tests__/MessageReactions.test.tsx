@@ -54,9 +54,6 @@ const renderComponent = ({
 describe('MessageReactions', () => {
   afterEach(vi.clearAllMocks);
 
-  // disable warnings (unreachable context)
-  vi.spyOn(console, 'warn').mockImplementation(null);
-
   it('should render the total reaction count in clustered mode', async () => {
     const { container, getByTestId } = renderComponent({
       reaction_groups: {

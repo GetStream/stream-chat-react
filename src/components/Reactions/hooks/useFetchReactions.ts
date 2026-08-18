@@ -15,9 +15,8 @@ export interface FetchReactionsOptions {
 
 export function useFetchReactions(options: FetchReactionsOptions) {
   const { addNotification } = useNotificationApi();
-  const { handleFetchReactions: contextHandleFetchReactions } =
-    useMessageContext('useFetchReactions');
-  const { t } = useTranslationContext('useFetchReactions');
+  const { handleFetchReactions: contextHandleFetchReactions } = useMessageContext();
+  const { t } = useTranslationContext();
   const [reactions, setReactions] = useState<ReactionResponse[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,
@@ -50,7 +49,10 @@ export function useFetchReactions(options: FetchReactionsOptions) {
           addNotification({
             emitter: 'Reactions',
             error: e instanceof Error ? e : undefined,
-            message: t('Error fetching reactions'),
+            message: t(
+              'reactions.fetchReactions.errorFetchingReactions.text',
+              'Error loading reactions',
+            ),
             severity: 'error',
             type: 'api:message:reactions:fetch:failed',
           });

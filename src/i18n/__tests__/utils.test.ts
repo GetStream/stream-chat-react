@@ -1,13 +1,15 @@
 import { getDateString, predefinedFormatters } from '../utils';
+import type { StreamTFunction } from '../types';
 import { Streami18n } from '../Streami18n';
 import Dayjs from 'dayjs';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { TFunction } from 'i18next';
+
 import type { TDateTimeParser } from '../types';
+import { mockT as sharedMockT } from '../../mock-builders/translator';
 
 vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
 const messageCreatedAt = '1970-01-01T01:01:01.001Z';
-const t = vi.fn() as unknown as TFunction & ReturnType<typeof vi.fn>;
+const t = vi.fn() as unknown as StreamTFunction & ReturnType<typeof vi.fn>;
 const timestampTranslationKey = 'timestampTranslationKey';
 
 const FIXED_NOW = new Date('2025-02-19T12:00:00.000Z');
@@ -288,81 +290,75 @@ describe('getDateString', () => {
     });
 
     it('returns "Today" for same calendar day', () => {
-      const mockT = vi.fn((key: string) => {
-        if (key === 'timestamp/relativeToday') return 'Today';
-        return key;
-      });
+      const mockT = vi.fn(sharedMockT);
       const result = getDateString({
         messageCreatedAt: FIXED_NOW.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Today');
-      expect(mockT).toHaveBeenCalledWith('timestamp/relativeToday');
+      expect(mockT).toHaveBeenCalledWith('relativeTime.today', 'Today');
     });
 
     it('returns "Yesterday" for 1 day ago', () => {
-      const mockT = vi.fn((key: string) => {
-        if (key === 'timestamp/relativeYesterday') return 'Yesterday';
-        return key;
-      });
+      const mockT = vi.fn(sharedMockT);
       const yesterday = new Date(FIXED_NOW);
       yesterday.setUTCDate(yesterday.getUTCDate() - 1);
       const result = getDateString({
         messageCreatedAt: yesterday.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('Yesterday');
-      expect(mockT).toHaveBeenCalledWith('timestamp/relativeYesterday');
+      expect(mockT).toHaveBeenCalledWith('relativeTime.yesterday', 'Yesterday');
     });
 
     it('returns "Nd ago" for 2–6 days ago', () => {
-      const mockT = vi.fn((key: string, opts?: Record<string, unknown>) => {
-        if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
-          return `${opts.count}d ago`;
-        return key;
-      });
+      const mockT = vi.fn(sharedMockT);
       const threeDaysAgo = new Date(FIXED_NOW);
       threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
       const result = getDateString({
         messageCreatedAt: threeDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('3d ago');
-      expect(mockT).toHaveBeenCalledWith('timestamp/relativeDaysAgo', { count: 3 });
+      expect(mockT).toHaveBeenCalledWith('relativeTime.daysAgo', {
+        count: 3,
+        defaultValue_one: '{{ count }}d ago',
+        defaultValue_other: '{{ count }}d ago',
+      });
     });
 
     it('returns "Nw ago" for 1–3 weeks ago', () => {
-      const mockT = vi.fn((key: string, opts?: Record<string, unknown>) => {
-        if (key === 'timestamp/relativeWeeksAgo' && opts && opts.count)
-          return `${opts.count}w ago`;
-        return key;
-      });
+      const mockT = vi.fn(sharedMockT);
       const sevenDaysAgo = new Date(FIXED_NOW);
       sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
       const result = getDateString({
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toBe('1w ago');
-      expect(mockT).toHaveBeenCalledWith('timestamp/relativeWeeksAgo', { count: 1 });
+      expect(mockT).toHaveBeenCalledWith('relativeTime.weeksAgo', {
+        count: 1,
+        defaultValue_one: '{{ count }}w ago',
+        defaultValue_other: '{{ count }}w ago',
+      });
     });
 
     it('returns DD/MM/YY for 4+ weeks ago', () => {
-      const mockT = vi.fn((key: string) => key);
+      const mockT = vi.fn(sharedMockT);
       const twentyEightDaysAgo = new Date(FIXED_NOW);
       twentyEightDaysAgo.setUTCDate(twentyEightDaysAgo.getUTCDate() - 28);
       const result = getDateString({
         messageCreatedAt: twentyEightDaysAgo.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -370,13 +366,13 @@ describe('getDateString', () => {
     });
 
     it('returns DD/MM/YY for future date', () => {
-      const mockT = vi.fn((key: string) => key);
+      const mockT = vi.fn(sharedMockT);
       const tomorrow = new Date(FIXED_NOW);
       tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
       const result = getDateString({
         messageCreatedAt: tomorrow.toISOString(),
         relativeCompact: true,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -384,14 +380,14 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxWeeks: 0 (no "Nw ago", 7+ days show as date)', () => {
-      const mockT = vi.fn((key: string) => key);
+      const mockT = vi.fn(sharedMockT);
       const sevenDaysAgo = new Date(FIXED_NOW);
       sevenDaysAgo.setUTCDate(sevenDaysAgo.getUTCDate() - 7);
       const result = getDateString({
         messageCreatedAt: sevenDaysAgo.toISOString(),
         relativeCompact: true,
         relativeCompactMaxWeeks: 0,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -399,11 +395,7 @@ describe('getDateString', () => {
     });
 
     it('respects relativeCompactMaxDays (only 2–N days show "Nd ago")', () => {
-      const mockT = vi.fn((key: string, opts?: Record<string, unknown>) => {
-        if (key === 'timestamp/relativeDaysAgo' && opts && opts.count)
-          return `${opts.count}d ago`;
-        return key;
-      });
+      const mockT = vi.fn(sharedMockT);
       const threeDaysAgo = new Date(FIXED_NOW);
       threeDaysAgo.setUTCDate(threeDaysAgo.getUTCDate() - 3);
       const result = getDateString({
@@ -411,7 +403,7 @@ describe('getDateString', () => {
         relativeCompact: true,
         relativeCompactMaxDays: 2,
         relativeCompactMaxWeeks: 0,
-        t: mockT as unknown as TFunction,
+        t: mockT as unknown as StreamTFunction,
         tDateTimeParser: tDateTimeParserDayjs,
       });
       expect(result).toMatch(/^\d{2}\/\d{2}\/\d{2}$/);
@@ -537,14 +529,16 @@ describe('predefinedFormatters', () => {
         const thirtyDaysAgo = new Date(FIXED_NOW);
         thirtyDaysAgo.setUTCDate(thirtyDaysAgo.getUTCDate() - 30);
         expect(timestampFormatter(todayIso, 'en', { relativeCompact: true })).toBe(
-          'timestamp/relativeToday',
+          'Today',
         );
         expect(
           timestampFormatter(yesterday.toISOString(), 'en', { relativeCompact: true }),
-        ).toBe('timestamp/relativeYesterday');
+        ).toBe('Yesterday');
+        // `count` is interpolated into the inline default, so this reads as real copy rather
+        // than the raw "{{ count }}d ago" template the identity translator used to return.
         expect(
           timestampFormatter(threeDaysAgo.toISOString(), 'en', { relativeCompact: true }),
-        ).toBe('timestamp/relativeDaysAgo');
+        ).toBe('3d ago');
         expect(
           timestampFormatter(thirtyDaysAgo.toISOString(), 'en', {
             relativeCompact: true,

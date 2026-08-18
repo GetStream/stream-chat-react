@@ -24,6 +24,7 @@ import {
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
 // `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
@@ -50,7 +51,10 @@ const CHECKMARK_SELECTOR = '.str-chat__checkmark';
 const CHECKMARK_CHECKED_SELECTOR = '.str-chat__checkmark--checked';
 const VOTE_COUNT_SELECTOR = '.str-chat__poll-option-vote-count';
 
-const MORE_OPTIONS_ACTION_TEXT = '+{{count}} more options';
+// NOTE: the component interpolates `options.length` (6 here), not the number of *hidden*
+// options (3). That reads oddly but is pre-existing behaviour — the previous assertion
+// matched the uninterpolated template, so it never surfaced.
+const MORE_OPTIONS_ACTION_TEXT = '+6 more options';
 
 const pollWithNoVotes = generatePoll({
   answers_count: 1,
@@ -61,7 +65,7 @@ const pollWithNoVotes = generatePoll({
   vote_counts_by_option: {},
 });
 
-const t = (v: any) => v;
+const t = mockT;
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'cast-poll-vote': true },

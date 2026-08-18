@@ -37,7 +37,7 @@ export const WaveProgressBar = ({
   seek,
   waveformData,
 }: WaveProgressBarProps) => {
-  const { t } = useTranslationContext('WaveProgressBar');
+  const { t } = useTranslationContext();
   const [trackAxisX, setTrackAxisX] = useState<{
     barCount: number;
     barWidth: number;
@@ -132,7 +132,10 @@ export const WaveProgressBar = ({
 
   return (
     <div
-      aria-label={t('aria/Seek audio position')}
+      aria-label={t(
+        'audioPlayback.progressBar.seekAudioPosition.ariaLabel',
+        'Seek audio position',
+      )}
       aria-orientation='horizontal'
       aria-valuemax={100}
       aria-valuemin={0}

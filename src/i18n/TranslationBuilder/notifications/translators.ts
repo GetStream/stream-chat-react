@@ -1,7 +1,8 @@
 import type { Notification } from 'stream-chat';
 
+import { translateExternalString } from '../../externalStrings';
 import type { NotificationTranslatorOptions } from './types';
-import type { TranslationTopicOptions, Translator } from '../../index';
+import type { Translator } from '../../index';
 
 const normalizeReason = (notification?: Notification) => {
   const reason = notification?.metadata?.reason;
@@ -9,68 +10,71 @@ const normalizeReason = (notification?: Notification) => {
   return reason.toLowerCase();
 };
 
-const withReasonFallback = ({
-  fallbackTranslationKey,
-  notification,
-  reasonTranslationKey,
-  t,
-}: {
-  fallbackTranslationKey: string;
-  notification?: Notification;
-  reasonTranslationKey: string;
-  t: TranslationTopicOptions['i18next']['t'];
-}) => {
-  const reason = normalizeReason(notification);
-  if (!reason) return t(fallbackTranslationKey);
-  return t(reasonTranslationKey, { reason });
-};
-
 export const translateAttachmentUploadBlocked: Translator<
   NotificationTranslatorOptions
 > = ({ options: { notification }, t }) => {
   const rawReason = notification?.metadata?.reason;
-  let reason = t('unsupported file type');
-  if (typeof rawReason !== 'string') reason = t('unknown error');
-  if (rawReason === 'size_limit') reason = t('size limit');
-  return t('Attachment upload blocked due to {{reason}}', { reason });
+  let reason = t('notification.reason.unsupportedFileType', 'unsupported file type');
+  if (typeof rawReason !== 'string')
+    reason = t('notification.reason.unknownError', 'unknown error');
+  if (rawReason === 'size_limit')
+    reason = t('notification.reason.sizeLimit', 'size limit');
+  return t(
+    'notification.attachmentUploadBlockedWithReason',
+    'Attachment upload blocked due to {{reason}}',
+    { reason },
+  );
 };
 
+// The reason-or-fallback pairs below are written out at each call site rather than routed
+// through a helper: the extractor only sees keys that appear literally in a `t()` call.
 export const translateAttachmentUploadFailed: Translator<
   NotificationTranslatorOptions
-> = ({ options: { notification }, t }) =>
-  withReasonFallback({
-    fallbackTranslationKey: 'Error uploading attachment',
-    notification,
-    reasonTranslationKey: 'Attachment upload failed due to {{reason}}',
-    t,
-  });
+> = ({ options: { notification }, t }) => {
+  const reason = normalizeReason(notification);
+  return reason
+    ? t(
+        'notification.attachmentUploadFailedWithReason',
+        'Attachment upload failed due to {{reason}}',
+        { reason },
+      )
+    : t('notification.attachmentUploadFailed', 'Error uploading attachment');
+};
 
 export const translatePollCreateFailed: Translator<NotificationTranslatorOptions> = ({
   options: { notification },
   t,
-}) =>
-  withReasonFallback({
-    fallbackTranslationKey: 'Failed to create the poll',
-    notification,
-    reasonTranslationKey: 'Failed to create the poll due to {{reason}}',
-    t,
-  });
+}) => {
+  const reason = normalizeReason(notification);
+  return reason
+    ? t(
+        'notification.pollCreateFailedWithReason',
+        'Failed to create the poll due to {{reason}}',
+        { reason },
+      )
+    : t('notification.pollCreateFailed', 'Failed to create the poll');
+};
 
 export const translatePollEndFailed: Translator<NotificationTranslatorOptions> = ({
   options: { notification },
   t,
-}) =>
-  withReasonFallback({
-    fallbackTranslationKey: 'Failed to end the poll',
-    notification,
-    reasonTranslationKey: 'Failed to end the poll due to {{reason}}',
-    t,
-  });
+}) => {
+  const reason = normalizeReason(notification);
+  return reason
+    ? t(
+        'notification.pollEndFailedWithReason',
+        'Failed to end the poll due to {{reason}}',
+        { reason },
+      )
+    : t('notification.pollEndFailed', 'Failed to end the poll');
+};
 
 export const translateBrowserAudioPlaybackError: Translator<
   NotificationTranslatorOptions
 > = ({ options: { notification }, t }) =>
-  notification?.message ? t(notification.message) : t('Error reproducing the recording');
+  notification?.message
+    ? translateExternalString(t, notification.message)
+    : t('notification.audioPlaybackError', 'Error reproducing the recording');
 
 export const translateCommandDisabled: Translator<NotificationTranslatorOptions> = ({
   options: { notification },
@@ -79,12 +83,20 @@ export const translateCommandDisabled: Translator<NotificationTranslatorOptions>
   const reason = normalizeReason(notification);
 
   if (reason === 'editing') {
-    return t('Command not available while editing');
+    return t(
+      'notification.commandDisabledWhileEditing',
+      'Command not available while editing',
+    );
   }
 
   if (reason === 'quoted_message') {
-    return t('Command not available while replying');
+    return t(
+      'notification.commandDisabledWhileReplying',
+      'Command not available while replying',
+    );
   }
 
-  return t(notification?.message || 'Command not available');
+  return notification?.message
+    ? translateExternalString(t, notification.message)
+    : t('notification.commandDisabled', 'Command not available');
 };

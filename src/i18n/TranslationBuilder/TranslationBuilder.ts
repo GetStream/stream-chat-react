@@ -1,10 +1,16 @@
-import type { i18n, TFunction } from 'i18next';
+import type { i18n } from 'i18next';
+import type { StreamTFunction } from '../types';
 
 type TopicName = string;
 type TranslatorName = string;
 
 export type Translator<O extends Record<string, unknown> = Record<string, unknown>> =
-  (params: { key: string; value: string; t: TFunction; options: O }) => string | null;
+  (params: {
+    key: string;
+    value: string;
+    t: StreamTFunction;
+    options: O;
+  }) => string | null;
 
 export type TranslationTopicOptions<
   O extends Record<string, unknown> = Record<string, unknown>,

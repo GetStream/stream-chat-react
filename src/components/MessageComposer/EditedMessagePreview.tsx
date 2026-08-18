@@ -16,7 +16,7 @@ export const EditedMessagePreview = ({
 
   return (
     <QuotedMessagePreviewUI
-      authorLabel={t('Edit Message')}
+      authorLabel={t('common.editMessage.text', 'Edit Message')}
       onRemove={onCancel}
       quotedMessage={message}
     />

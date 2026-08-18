@@ -3,6 +3,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { axe } from '../../../../../axe-helper';
 
 import { ThreadListItemUI } from '../ThreadListItemUI';
+import { mockT } from '../../../../mock-builders/translator';
 
 const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
 
@@ -77,16 +78,7 @@ describe('ThreadListItemUI', () => {
   beforeEach(() => {
     mockUseChatContext.mockReturnValue({ client: { userID: 'martin' } });
     mockUseTranslationContext.mockReturnValue({
-      t: (key: string, values?: Record<string, unknown>) => {
-        if (key === 'replyCount') return `${values?.count ?? 0} replies`;
-        const interpolated = Object.entries(values ?? {}).reduce(
-          (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-          key,
-        );
-        return interpolated.startsWith('aria/')
-          ? interpolated.replace('aria/', '')
-          : interpolated;
-      },
+      t: mockT,
       tDateTimeParser: () => 'recently',
       userLanguage: 'en',
     });

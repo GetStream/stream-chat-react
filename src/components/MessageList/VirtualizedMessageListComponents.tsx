@@ -67,9 +67,7 @@ export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentP
   );
 };
 export const Header = ({ context }: CommonVirtuosoComponentProps) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
-    'VirtualizedMessageListHeader',
-  );
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
 
   return (
     <>
@@ -85,9 +83,7 @@ export const Header = ({ context }: CommonVirtuosoComponentProps) => {
 export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
   const thread = useThreadContext();
   const isThreadList = !!thread;
-  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext(
-    'VirtualizedMessageList',
-  );
+  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext();
   // prevent showing that there are no messages if there actually are messages (for some reason virtuoso decides to render empty placeholder first, even though it has the totalCount prop > 0)
   if (
     typeof context?.processedMessages !== 'undefined' &&
@@ -122,7 +118,6 @@ export const messageRenderer = (
     lastReadDate,
     lastReadMessageId,
     lastReceivedMessageId,
-    Message: MessageUIComponent,
     messageActions,
     messageGroupStyles,
     MessageSystem,
@@ -189,7 +184,6 @@ export const messageRenderer = (
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}
-        Message={MessageUIComponent}
         messageActions={messageActions}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}

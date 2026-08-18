@@ -46,7 +46,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
   } = useComponentContext();
   const messageComposer = useMessageComposerController();
   const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
-  const { client } = useChatContext('TypingIndicator');
+  const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { typing = {} } =
     useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};

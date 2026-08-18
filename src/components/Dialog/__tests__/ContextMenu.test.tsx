@@ -238,7 +238,7 @@ describe('ContextMenu keyboard navigation', () => {
     parentItem.focus();
 
     fireEvent.click(parentItem);
-    expect(screen.getByRole('menu')).toHaveAttribute('aria-label', 'aria/Submenu');
+    expect(screen.getByRole('menu')).toHaveAttribute('aria-label', 'Submenu');
 
     const submenuItems = screen.getAllByRole('menuitem') as HTMLButtonElement[];
     // The back button (rendered by default ContextMenuBackButton) should be
@@ -247,7 +247,7 @@ describe('ContextMenu keyboard navigation', () => {
       item.classList.contains('str-chat__context-menu__back-button'),
     );
     expect(backButton).toBeDefined();
-    expect(backButton).toHaveAccessibleName(/aria\/Back to parent menu/i);
+    expect(backButton).toHaveAccessibleName(/Back to parent menu/i);
 
     const submenuItem = screen.getByRole('menuitem', { name: 'Back from submenu' });
     submenuItem.focus();

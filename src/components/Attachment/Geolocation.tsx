@@ -57,7 +57,10 @@ export const Geolocation = ({
       <div className='str-chat__message-attachment-geolocation__status'>
         {isLiveLocation ? (
           stoppedSharing ? (
-            t('Location sharing ended')
+            t(
+              'attachment.geolocation.locationSharingEnded.text',
+              'Location sharing ended',
+            )
           ) : isMyLocation ? (
             <div className='str-chat__message-attachment-geolocation__status--active'>
               <Button
@@ -67,28 +70,40 @@ export const Geolocation = ({
                 size='sm'
                 variant='secondary'
               >
-                {t('Stop sharing')}
+                {t('attachment.geolocation.stopSharing.text', 'Stop sharing')}
               </Button>
               <div className='str-chat__message-attachment-geolocation__status--active-until'>
-                {t('Live until {{ timestamp }}', {
-                  timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
-                })}
+                {t(
+                  'attachment.geolocation.liveUntil.text',
+                  'Live until {{ timestamp }}',
+                  {
+                    timestamp: t('timestamp.LiveLocation', {
+                      timestamp: location.end_at,
+                    }),
+                  },
+                )}
               </div>
             </div>
           ) : (
             <div className='str-chat__message-attachment-geolocation__status--active'>
               <div className='str-chat__message-attachment-geolocation__status--active-status'>
-                {t('Live location')}
+                {t('common.liveLocation.text', 'Live location')}
               </div>
               <div className='str-chat__message-attachment-geolocation__status--active-until'>
-                {t('Live until {{ timestamp }}', {
-                  timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
-                })}
+                {t(
+                  'attachment.geolocation.liveUntil.text',
+                  'Live until {{ timestamp }}',
+                  {
+                    timestamp: t('timestamp.LiveLocation', {
+                      timestamp: location.end_at,
+                    }),
+                  },
+                )}
               </div>
             </div>
           )
         ) : (
-          t('Current location')
+          t('common.currentLocation.text', 'Current location')
         )}
       </div>
     </div>
@@ -111,7 +126,10 @@ const DefaultGeolocationAttachmentMapPlaceholder = ({
     >
       <IconLocation />
       <a
-        aria-label={t('Open location in a map')}
+        aria-label={t(
+          'attachment.geolocation.openLocationMap.ariaLabel',
+          'Open location in a map',
+        )}
         className='str-chat__message-attachment-geolocation__placeholder-link'
         href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}
         rel='noreferrer'

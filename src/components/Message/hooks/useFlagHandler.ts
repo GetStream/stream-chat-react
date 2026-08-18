@@ -8,8 +8,8 @@ export const missingUseFlagHandlerParameterWarning =
   'useFlagHandler was called but it is missing one or more necessary parameters.';
 
 export const useFlagHandler = (message?: LocalMessage): ReactEventHandler => {
-  const { client } = useChatContext('useFlagHandler');
-  const { t } = useTranslationContext('useFlagHandler');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
 
   return async (event) => {
     event.preventDefault();

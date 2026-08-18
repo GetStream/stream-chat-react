@@ -1,0 +1,2502 @@
+{
+  "$comment": "Migration table: natural-language translation key (v14) -> namespaced key (v15). Hand-reviewed; nothing regenerates it. Integrators who passed translationsForLanguage/registerTranslation dictionaries keyed on the old strings should use this to rename their keys. See ai-docs/i18n-v15-migration.md.",
+  "count": 603,
+  "keys": {
+    "aria/Active": {
+      "key": "a11y.accessibleLabel.active.ariaLabel",
+      "prose": true
+    },
+    "aria/{{ count }} unread message": {
+      "key": "a11y.accessibleLabel.unreadMessage.ariaLabel",
+      "prose": true,
+      "plural": true
+    },
+    "New message from {{user}}": {
+      "key": "a11y.incomingMessageAnnouncements.newMessage.label",
+      "prose": true
+    },
+    "aria/Command activated: {{ command }}": {
+      "key": "a11y.interactionAnnouncements.commandActivated.ariaLabel",
+      "prose": true
+    },
+    "aria/Dropped \"{{ option }}\" at position {{ position }}.": {
+      "key": "a11y.interactionAnnouncements.droppedPosition.ariaLabel",
+      "prose": true
+    },
+    "aria/Giphy canceled": {
+      "key": "a11y.interactionAnnouncements.giphyCanceled.ariaLabel",
+      "prose": true
+    },
+    "aria/Giphy image changed": {
+      "key": "a11y.interactionAnnouncements.giphyImageChanged.ariaLabel",
+      "prose": true
+    },
+    "aria/Giphy image changed: {{ title }}": {
+      "key": "a11y.interactionAnnouncements.giphyImageChanged.withTitle.ariaLabel",
+      "prose": true
+    },
+    "aria/Giphy sent": {
+      "key": "a11y.interactionAnnouncements.giphySent.ariaLabel",
+      "prose": true
+    },
+    "aria/No search results found": {
+      "key": "a11y.interactionAnnouncements.noSearchResultsFound.ariaLabel",
+      "prose": true
+    },
+    "aria/Opened channel: {{ name }}": {
+      "key": "a11y.interactionAnnouncements.openedChannel.ariaLabel",
+      "prose": true
+    },
+    "aria/Opened thread in {{ name }}": {
+      "key": "a11y.interactionAnnouncements.openedThread.ariaLabel",
+      "prose": true
+    },
+    "aria/Picked up \"{{ option }}\". Use arrow keys to reorder. Press Space or Tab to drop.": {
+      "key": "a11y.interactionAnnouncements.pickedUpUseArrow.ariaLabel",
+      "prose": true
+    },
+    "aria/Poll dialog opened": {
+      "key": "a11y.interactionAnnouncements.pollDialogOpened.ariaLabel",
+      "prose": true
+    },
+    "aria/Poll sent": {
+      "key": "a11y.interactionAnnouncements.pollSent.ariaLabel",
+      "prose": true
+    },
+    "aria/Press Enter to start typing": {
+      "key": "a11y.interactionAnnouncements.pressEnterStartTyping.ariaLabel",
+      "prose": true
+    },
+    "aria/Recording paused": {
+      "key": "a11y.interactionAnnouncements.recordingPaused.ariaLabel",
+      "prose": true
+    },
+    "aria/Recording resumed": {
+      "key": "a11y.interactionAnnouncements.recordingResumed.ariaLabel",
+      "prose": true
+    },
+    "aria/Recording started": {
+      "key": "a11y.interactionAnnouncements.recordingStarted.ariaLabel",
+      "prose": true
+    },
+    "aria/Removed option {{ option }}": {
+      "key": "a11y.interactionAnnouncements.removedOption.ariaLabel",
+      "prose": true
+    },
+    "aria/Search cleared": {
+      "key": "a11y.interactionAnnouncements.searchCleared.ariaLabel",
+      "prose": true
+    },
+    "aria/{{ count }} search results": {
+      "key": "a11y.interactionAnnouncements.searchResults.ariaLabel",
+      "prose": true,
+      "plural": true
+    },
+    "aria/{{ count }} suggestions": {
+      "key": "a11y.interactionAnnouncements.suggestions.ariaLabel",
+      "prose": true,
+      "plural": true
+    },
+    "aria/{{ count }} {{ suggestionsLabel }}": {
+      "key": "a11y.interactionAnnouncements.suggestionsWithLabel.ariaLabel",
+      "prose": true,
+      "plural": true
+    },
+    "aria/User selected: {{ user }}": {
+      "key": "a11y.interactionAnnouncements.userSelected.ariaLabel",
+      "prose": true
+    },
+    "aria/Voice message sent": {
+      "key": "a11y.interactionAnnouncements.voiceMessageSent.ariaLabel",
+      "prose": true
+    },
+    "aria/Voice recording attached": {
+      "key": "a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel",
+      "prose": true
+    },
+    "Generating...": {
+      "key": "aiState.indicator.generating.label",
+      "prose": true
+    },
+    "Thinking...": {
+      "key": "aiState.indicator.thinking.label",
+      "prose": true
+    },
+    "aria/Giphy actions": {
+      "key": "attachment.actions.giphyActions.ariaLabel",
+      "prose": true
+    },
+    "aria/Giphy preview, only visible to you. Use the Send, Shuffle, or Cancel actions.": {
+      "key": "attachment.actions.giphyPreviewOnlyVisible.ariaLabel",
+      "prose": true
+    },
+    "Shuffle": {
+      "key": "attachment.actions.shuffle.label",
+      "prose": true
+    },
+    "Live until {{ timestamp }}": {
+      "key": "attachment.geolocation.liveUntil.text",
+      "prose": true
+    },
+    "Location sharing ended": {
+      "key": "attachment.geolocation.locationSharingEnded.text",
+      "prose": true
+    },
+    "Open location in a map": {
+      "key": "attachment.geolocation.openLocationMap.ariaLabel",
+      "prose": true
+    },
+    "Stop sharing": {
+      "key": "attachment.geolocation.stopSharing.text",
+      "prose": true
+    },
+    "aria/Animated GIF": {
+      "key": "attachment.giphy.animatedGif.ariaLabel",
+      "prose": true
+    },
+    "aria/Animated GIF: {{ title }}": {
+      "key": "attachment.giphy.animatedGif.withTitle.ariaLabel",
+      "prose": true
+    },
+    "Open gallery at image {{ index }}": {
+      "key": "attachment.modalGallery.openGalleryImage.label",
+      "prose": true
+    },
+    "Open image in gallery": {
+      "key": "attachment.modalGallery.openImageGallery.label",
+      "prose": true
+    },
+    "this content could not be displayed": {
+      "key": "attachment.unableRenderCard.text",
+      "prose": true
+    },
+    "Only visible to you": {
+      "key": "attachment.visibilityDisclaimer.onlyVisible.text",
+      "prose": true
+    },
+    "Cannot seek in the recording": {
+      "key": "audioPlayback.audioPlayerNotifications.cannotSeekRecording.label",
+      "prose": true
+    },
+    "Failed to play the recording": {
+      "key": "audioPlayback.audioPlayerNotifications.failedPlayRecording.label",
+      "prose": true
+    },
+    "Recording format is not supported and cannot be reproduced": {
+      "key": "audioPlayback.audioPlayerNotifications.recordingFormatNotSupported.label",
+      "prose": true
+    },
+    "aria/Seek audio position": {
+      "key": "audioPlayback.progressBar.seekAudioPosition.ariaLabel",
+      "prose": true
+    },
+    "aria/Audio position {{ elapsed }} of {{ duration }}": {
+      "key": "audioPlayback.progressBarA11y.audioPosition.ariaLabel",
+      "prose": true
+    },
+    "aria/Audio position {{ progress }} percent": {
+      "key": "audioPlayback.progressBarA11y.audioPositionPercent.ariaLabel",
+      "prose": true
+    },
+    "aria/Image failed to load": {
+      "key": "baseImage.imagePlaceholder.imageFailedLoad.ariaLabel",
+      "prose": true
+    },
+    "Channel Missing": {
+      "key": "channel.channelMissing.text",
+      "prose": true
+    },
+    "aria/Channel details": {
+      "key": "channelDetail.avatarChannelDetail.channelDetails.ariaLabel",
+      "prose": true
+    },
+    "aria/Open channel details": {
+      "key": "channelDetail.avatarChannelDetail.openChannelDetails.ariaLabel",
+      "prose": true
+    },
+    "No files": {
+      "key": "channelDetail.channelFilesEmpty.noFiles.text",
+      "prose": true
+    },
+    "Share a file to see it here": {
+      "key": "channelDetail.channelFilesEmpty.shareFileSee.text",
+      "prose": true
+    },
+    "Files": {
+      "key": "channelDetail.channelFilesView.files.title",
+      "prose": true
+    },
+    "Block user": {
+      "key": "channelDetail.channelManagementActions.blockUser.title",
+      "prose": true
+    },
+    "Chat deleted": {
+      "key": "channelDetail.channelManagementActions.chatDeleted.text",
+      "prose": true
+    },
+    "Delete chat": {
+      "key": "channelDetail.channelManagementActions.deleteChat.title",
+      "prose": true
+    },
+    "Error blocking user": {
+      "key": "channelDetail.channelManagementActions.errorBlockingUser.text",
+      "prose": true
+    },
+    "Error deleting chat": {
+      "key": "channelDetail.channelManagementActions.errorDeletingChat.text",
+      "prose": true
+    },
+    "Error muting channel": {
+      "key": "channelDetail.channelManagementActions.errorMutingChannel.text",
+      "prose": true
+    },
+    "Error muting user": {
+      "key": "channelDetail.channelManagementActions.errorMutingUser.text",
+      "prose": true
+    },
+    "Error unblocking user": {
+      "key": "channelDetail.channelManagementActions.errorUnblockingUser.text",
+      "prose": true
+    },
+    "Error unmuting channel": {
+      "key": "channelDetail.channelManagementActions.errorUnmutingChannel.text",
+      "prose": true
+    },
+    "Error unmuting user": {
+      "key": "channelDetail.channelManagementActions.errorUnmutingUser.text",
+      "prose": true
+    },
+    "Leave chat": {
+      "key": "channelDetail.channelManagementActions.leaveChat.title",
+      "prose": true
+    },
+    "Mute chat": {
+      "key": "channelDetail.channelManagementActions.muteChat.title",
+      "prose": true
+    },
+    "Mute user": {
+      "key": "channelDetail.channelManagementActions.muteUser.title",
+      "prose": true
+    },
+    "This permanently deletes your message history with {{ user }}. This can't be undone.": {
+      "key": "channelDetail.channelManagementActions.permanentlyDeletesMessageHistory.description",
+      "prose": true
+    },
+    "Are you sure you want to leave this channel?": {
+      "key": "channelDetail.channelManagementActions.sureWantLeaveChannel.description",
+      "prose": true
+    },
+    "Unmute chat": {
+      "key": "channelDetail.channelManagementActions.unmuteChat.title",
+      "prose": true
+    },
+    "Unmute user": {
+      "key": "channelDetail.channelManagementActions.unmuteUser.title",
+      "prose": true
+    },
+    "This user will be able to message you again.": {
+      "key": "channelDetail.channelManagementActions.userAbleMessageAgain.description",
+      "prose": true
+    },
+    "User muted": {
+      "key": "channelDetail.channelManagementActions.userMuted.text",
+      "prose": true
+    },
+    "User unmuted": {
+      "key": "channelDetail.channelManagementActions.userUnmuted.text",
+      "prose": true
+    },
+    "This user won't be able to message you anymore. You can unblock them anytime.": {
+      "key": "channelDetail.channelManagementActions.userWonTAble.description",
+      "prose": true
+    },
+    "Changes saved": {
+      "key": "channelDetail.channelManagementView.changesSaved.text",
+      "prose": true
+    },
+    "Contact info": {
+      "key": "channelDetail.channelManagementView.contactInfo.label",
+      "prose": true
+    },
+    "Contact name": {
+      "key": "channelDetail.channelManagementView.contactName.label",
+      "prose": true
+    },
+    "Edit": {
+      "key": "channelDetail.channelManagementView.edit.text",
+      "prose": true
+    },
+    "Edit chat data": {
+      "key": "channelDetail.channelManagementView.editChatData.ariaLabel",
+      "prose": true
+    },
+    "Edit contact": {
+      "key": "channelDetail.channelManagementView.editContact.label",
+      "prose": true
+    },
+    "Edit group": {
+      "key": "channelDetail.channelManagementView.editGroup.label",
+      "prose": true
+    },
+    "Failed to save changes": {
+      "key": "channelDetail.channelManagementView.failedSaveChanges.text",
+      "prose": true
+    },
+    "Group info": {
+      "key": "channelDetail.channelManagementView.groupInfo.label",
+      "prose": true
+    },
+    "Group name": {
+      "key": "channelDetail.channelManagementView.groupName.label",
+      "prose": true
+    },
+    "Manage channel": {
+      "key": "channelDetail.channelManagementView.manageChannel.description",
+      "prose": true
+    },
+    "Save": {
+      "key": "channelDetail.channelManagementView.save.text",
+      "prose": true
+    },
+    "Upload Picture": {
+      "key": "channelDetail.channelManagementView.uploadPicture.text",
+      "prose": true
+    },
+    "No photos or videos": {
+      "key": "channelDetail.channelMediaEmpty.noPhotosVideos.text",
+      "prose": true
+    },
+    "Share a photo or video to see it here": {
+      "key": "channelDetail.channelMediaEmpty.sharePhotoVideoSee.text",
+      "prose": true
+    },
+    "Next": {
+      "key": "channelDetail.channelMediaView.next.text",
+      "prose": true
+    },
+    "aria/Next page": {
+      "key": "channelDetail.channelMediaView.nextPage.ariaLabel",
+      "prose": true
+    },
+    "aria/Open image shared by {{ name }}": {
+      "key": "channelDetail.channelMediaView.openImageShared.ariaLabel",
+      "prose": true
+    },
+    "aria/Open video shared by {{ name }}": {
+      "key": "channelDetail.channelMediaView.openVideoShared.ariaLabel",
+      "prose": true
+    },
+    "Photos & videos": {
+      "key": "channelDetail.channelMediaView.photosVideos.title",
+      "prose": true
+    },
+    "Previous": {
+      "key": "channelDetail.channelMediaView.previous.text",
+      "prose": true
+    },
+    "aria/Previous page": {
+      "key": "channelDetail.channelMediaView.previousPage.ariaLabel",
+      "prose": true
+    },
+    "{{ member }} will be able to message you again.": {
+      "key": "channelDetail.channelMemberActions.ableMessageAgain.description",
+      "prose": true
+    },
+    "Error opening direct message": {
+      "key": "channelDetail.channelMemberActions.errorOpeningDirectMessage.text",
+      "prose": true
+    },
+    "Error removing user": {
+      "key": "channelDetail.channelMemberActions.errorRemovingUser.text",
+      "prose": true
+    },
+    "Remove {{ member }} from this channel?": {
+      "key": "channelDetail.channelMemberActions.removeChannel.description",
+      "prose": true
+    },
+    "Remove user": {
+      "key": "channelDetail.channelMemberActions.removeUser.title",
+      "prose": true
+    },
+    "Send direct message": {
+      "key": "channelDetail.channelMemberActions.sendDirectMessage.title",
+      "prose": true
+    },
+    "Unblock user": {
+      "key": "channelDetail.channelMemberActions.unblockUser.title",
+      "prose": true
+    },
+    "User removed": {
+      "key": "channelDetail.channelMemberActions.userRemoved.text",
+      "prose": true
+    },
+    "{{ member }} won't be able to message you anymore.": {
+      "key": "channelDetail.channelMemberActions.wonTAbleMessage.description",
+      "prose": true
+    },
+    "Last seen {{ timestamp }}": {
+      "key": "channelDetail.channelMemberDetail.lastSeen.label",
+      "prose": true
+    },
+    "Member detail": {
+      "key": "channelDetail.channelMemberDetail.memberDetail.title",
+      "prose": true
+    },
+    "Add {{ count }} members": {
+      "key": "channelDetail.channelMembersAdd.addMembers.text",
+      "prose": true,
+      "plural": true
+    },
+    "Already a member": {
+      "key": "channelDetail.channelMembersAdd.alreadyMember.label",
+      "prose": true
+    },
+    "Error adding members": {
+      "key": "channelDetail.channelMembersAdd.errorAddingMembers.text",
+      "prose": true
+    },
+    "{{ count }} members added": {
+      "key": "channelDetail.channelMembersAdd.membersAdded.text",
+      "prose": true,
+      "plural": true
+    },
+    "No user found": {
+      "key": "channelDetail.channelMembersAdd.noUserFound.text",
+      "prose": true
+    },
+    "Admin": {
+      "key": "channelDetail.channelMembersBrowse.admin.label",
+      "prose": true
+    },
+    "Moderator": {
+      "key": "channelDetail.channelMembersBrowse.moderator.label",
+      "prose": true
+    },
+    "No member found": {
+      "key": "channelDetail.channelMembersBrowse.noMemberFound.text",
+      "prose": true
+    },
+    "Owner": {
+      "key": "channelDetail.channelMembersBrowse.owner.label",
+      "prose": true
+    },
+    "View member details for {{ member }}": {
+      "key": "channelDetail.channelMembersBrowse.viewMemberDetails.ariaLabel",
+      "prose": true
+    },
+    "Actions": {
+      "key": "channelDetail.channelMembersHeader.actions.text",
+      "prose": true
+    },
+    "Add": {
+      "key": "channelDetail.channelMembersHeader.add.text",
+      "prose": true
+    },
+    "Add channel members": {
+      "key": "channelDetail.channelMembersHeader.addChannelMembers.ariaLabel",
+      "prose": true
+    },
+    "Open members actions": {
+      "key": "channelDetail.channelMembersHeader.openMembersActions.ariaLabel",
+      "prose": true
+    },
+    "Add members": {
+      "key": "channelDetail.channelMembersView.addMembers.label",
+      "prose": true
+    },
+    "Browse channel members": {
+      "key": "channelDetail.channelMembersView.browseChannelMembers.description",
+      "prose": true
+    },
+    "{{ count }} members": {
+      "key": "channelDetail.channelMembersView.members.title",
+      "prose": true,
+      "plural": true
+    },
+    "No pinned messages": {
+      "key": "channelDetail.pinnedMessagesEmpty.noPinnedMessages.text",
+      "prose": true
+    },
+    "Pin a message to see it here": {
+      "key": "channelDetail.pinnedMessagesEmpty.pinMessageSee.text",
+      "prose": true
+    },
+    "Browse pinned messages": {
+      "key": "channelDetail.pinnedMessagesView.browsePinnedMessages.description",
+      "prose": true
+    },
+    "No messages found": {
+      "key": "channelDetail.pinnedMessagesView.noMessagesFound.text",
+      "prose": true
+    },
+    "Pinned message": {
+      "key": "channelDetail.pinnedMessagesView.pinnedMessage.label",
+      "prose": true
+    },
+    "Pinned messages": {
+      "key": "channelDetail.pinnedMessagesView.pinnedMessages.title",
+      "prose": true
+    },
+    "Open menu": {
+      "key": "channelDetail.sectionNavigatorHeader.openMenu.ariaLabel",
+      "prose": true
+    },
+    "{{ memberCount }} members": {
+      "key": "channelHeader.online.members.label",
+      "prose": true
+    },
+    "{{ watcherCount }} online": {
+      "key": "channelHeader.online.online.label",
+      "prose": true
+    },
+    "aria/Channel list": {
+      "key": "channelList.channelList.ariaLabel",
+      "prose": true
+    },
+    "Chats": {
+      "key": "channelList.header.chats.text",
+      "prose": true
+    },
+    "Archive": {
+      "key": "channelListItem.archive.title",
+      "prose": true
+    },
+    "aria/Attachment": {
+      "key": "channelListItem.attachment.ariaLabel",
+      "prose": true
+    },
+    "🏙 Attachment...": {
+      "key": "channelListItem.attachment.text",
+      "prose": true
+    },
+    "aria/Attachment {{ attachmentType }}": {
+      "key": "channelListItem.attachment.withAttachmentType.ariaLabel",
+      "prose": true
+    },
+    "aria/{{ count }} attachment": {
+      "key": "channelListItem.attachmentCount.ariaLabel",
+      "prose": true,
+      "plural": true
+    },
+    "aria/audio": {
+      "key": "channelListItem.audio.ariaLabel",
+      "prose": true
+    },
+    "aria/Channel Actions": {
+      "key": "channelListItem.channelActions.ariaLabel",
+      "prose": true
+    },
+    "Channel archived": {
+      "key": "channelListItem.channelArchived.text",
+      "prose": true
+    },
+    "Direct message": {
+      "key": "channelListItem.channelDisplayName.directMessage.label",
+      "prose": true
+    },
+    "Channel pinned": {
+      "key": "channelListItem.channelPinned.text",
+      "prose": true
+    },
+    "Channel unarchived": {
+      "key": "channelListItem.channelUnarchived.text",
+      "prose": true
+    },
+    "Channel unpinned": {
+      "key": "channelListItem.channelUnpinned.text",
+      "prose": true
+    },
+    "📊 {{createdBy}} created: {{ pollName}}": {
+      "key": "channelListItem.created.text",
+      "prose": true
+    },
+    "aria/Delivered": {
+      "key": "channelListItem.delivered.ariaLabel",
+      "prose": true
+    },
+    "aria/Delivery status: {{ deliveryStatus }}": {
+      "key": "channelListItem.deliveryStatus.ariaLabel",
+      "prose": true
+    },
+    "Failed to block user": {
+      "key": "channelListItem.failedBlockUser.text",
+      "prose": true
+    },
+    "Failed to update channel archive status": {
+      "key": "channelListItem.failedUpdateChannelArchive.text",
+      "prose": true
+    },
+    "Failed to update channel mute status": {
+      "key": "channelListItem.failedUpdateChannelMute.text",
+      "prose": true
+    },
+    "Failed to update channel pinned status": {
+      "key": "channelListItem.failedUpdateChannelPinned.text",
+      "prose": true
+    },
+    "aria/file": {
+      "key": "channelListItem.file.ariaLabel",
+      "prose": true
+    },
+    "aria/GIF": {
+      "key": "channelListItem.gif.ariaLabel",
+      "prose": true
+    },
+    "aria/image": {
+      "key": "channelListItem.image.ariaLabel",
+      "prose": true
+    },
+    "aria/Last message: {{ messagePreview }}": {
+      "key": "channelListItem.lastMessage.withMessagePreview.ariaLabel",
+      "prose": true
+    },
+    "aria/Last message from {{ sender }}: {{ messagePreview }}": {
+      "key": "channelListItem.lastMessage.withSenderAndMessagePreview.ariaLabel",
+      "prose": true
+    },
+    "Leave Channel": {
+      "key": "channelListItem.leaveChannel.title",
+      "prose": true
+    },
+    "aria/Message with attachments": {
+      "key": "channelListItem.messageAttachments.ariaLabel",
+      "prose": true
+    },
+    "aria/There are no messages in this chat.": {
+      "key": "channelListItem.noMessagesChat.ariaLabel",
+      "prose": true
+    },
+    "aria/Open Channel Actions Menu": {
+      "key": "channelListItem.openChannelActionsMenu.ariaLabel",
+      "prose": true
+    },
+    "aria/Poll: {{ pollName }}": {
+      "key": "channelListItem.poll.ariaLabel",
+      "prose": true
+    },
+    "aria/Read": {
+      "key": "channelListItem.read.ariaLabel",
+      "prose": true
+    },
+    "aria/Sent": {
+      "key": "channelListItem.sent.ariaLabel",
+      "prose": true
+    },
+    "aria/Shared a link": {
+      "key": "channelListItem.sharedLink.ariaLabel",
+      "prose": true
+    },
+    "aria/Shared a link with title: {{ linkTitle }}": {
+      "key": "channelListItem.sharedLinkTitle.ariaLabel",
+      "prose": true
+    },
+    "aria/Shared location": {
+      "key": "channelListItem.sharedLocation.ariaLabel",
+      "prose": true
+    },
+    "📍Shared location": {
+      "key": "channelListItem.sharedLocation.text",
+      "prose": true
+    },
+    "Unarchive": {
+      "key": "channelListItem.unarchive.title",
+      "prose": true
+    },
+    "Unblock User": {
+      "key": "channelListItem.unblockUser.title",
+      "prose": true
+    },
+    "aria/video": {
+      "key": "channelListItem.video.ariaLabel",
+      "prose": true
+    },
+    "aria/voice message": {
+      "key": "channelListItem.voiceMessage.ariaLabel",
+      "prose": true
+    },
+    "📊 {{votedBy}} voted: {{pollOptionText}}": {
+      "key": "channelListItem.voted.text",
+      "prose": true
+    },
+    "Waiting for network…": {
+      "key": "chat.reportLostConnection.waitingNetwork.text",
+      "prose": true
+    },
+    "ban-command-args": {
+      "key": "command.ban.args",
+      "prose": true
+    },
+    "ban-command-description": {
+      "key": "command.ban.description",
+      "prose": true
+    },
+    "giphy-command-args": {
+      "key": "command.giphy.args",
+      "prose": true
+    },
+    "giphy-command-description": {
+      "key": "command.giphy.description",
+      "prose": true
+    },
+    "mute-command-args": {
+      "key": "command.mute.args",
+      "prose": true
+    },
+    "mute-command-description": {
+      "key": "command.mute.description",
+      "prose": true
+    },
+    "unban-command-args": {
+      "key": "command.unban.args",
+      "prose": true
+    },
+    "unban-command-description": {
+      "key": "command.unban.description",
+      "prose": true
+    },
+    "unmute-command-args": {
+      "key": "command.unmute.args",
+      "prose": true
+    },
+    "unmute-command-description": {
+      "key": "command.unmute.description",
+      "prose": true
+    },
+    "Add reaction": {
+      "key": "common.addReaction.text",
+      "prose": true,
+      "shared": true
+    },
+    "Anonymous": {
+      "key": "common.anonymous.label",
+      "prose": true,
+      "shared": true
+    },
+    "Back": {
+      "key": "common.back.label",
+      "prose": true,
+      "shared": true
+    },
+    "Block User": {
+      "key": "common.blockUser.title",
+      "prose": true,
+      "shared": true
+    },
+    "Cancel": {
+      "key": "common.cancel.label",
+      "prose": true,
+      "shared": true
+    },
+    "Channel muted": {
+      "key": "common.channelMuted.text",
+      "prose": true,
+      "shared": true
+    },
+    "Channel unmuted": {
+      "key": "common.channelUnmuted.text",
+      "prose": true,
+      "shared": true
+    },
+    "Close": {
+      "key": "common.close.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Create a question, add options, and configure poll settings": {
+      "key": "common.createQuestionAddOptions.label",
+      "prose": true,
+      "shared": true
+    },
+    "Current location": {
+      "key": "common.currentLocation.text",
+      "prose": true,
+      "shared": true
+    },
+    "Delete": {
+      "key": "common.delete.text",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Download attachment": {
+      "key": "common.downloadAttachment.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Download Attachment": {
+      "key": "common.downloadAttachment.title",
+      "prose": true,
+      "shared": true
+    },
+    "Edit Message": {
+      "key": "common.editMessage.text",
+      "prose": true,
+      "shared": true
+    },
+    "Empty message...": {
+      "key": "common.emptyMessage.text",
+      "prose": true,
+      "shared": true
+    },
+    "Error deleting message": {
+      "key": "common.errorDeletingMessage.label",
+      "prose": true,
+      "shared": true
+    },
+    "Error muting a user ...": {
+      "key": "common.errorMutingUser.label",
+      "prose": true,
+      "shared": true
+    },
+    "Error pinning message": {
+      "key": "common.errorPinningMessage.label",
+      "prose": true,
+      "shared": true
+    },
+    "Error removing message pin": {
+      "key": "common.errorRemovingMessagePin.label",
+      "prose": true,
+      "shared": true
+    },
+    "Error unmuting a user ...": {
+      "key": "common.errorUnmutingUser.label",
+      "prose": true,
+      "shared": true
+    },
+    "Failed to leave channel": {
+      "key": "common.failedLeaveChannel.text",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Last activity: {{ time }}": {
+      "key": "common.lastActivity.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Left channel": {
+      "key": "common.leftChannel.text",
+      "prose": true,
+      "shared": true
+    },
+    "Live location": {
+      "key": "common.liveLocation.text",
+      "prose": true,
+      "shared": true
+    },
+    "Location": {
+      "key": "common.location.text",
+      "prose": true,
+      "shared": true
+    },
+    "Message deleted": {
+      "key": "common.messageDeleted.text",
+      "prose": true,
+      "shared": true
+    },
+    "Message pinned": {
+      "key": "common.messagePinned.label",
+      "prose": true,
+      "shared": true
+    },
+    "Mute": {
+      "key": "common.mute.title",
+      "prose": true,
+      "shared": true
+    },
+    "{{ user }} has been muted": {
+      "key": "common.muted.label",
+      "prose": true,
+      "shared": true
+    },
+    "{{count}} new messages": {
+      "key": "common.newMessages.label",
+      "prose": true,
+      "plural": true,
+      "shared": true
+    },
+    "Nothing yet...": {
+      "key": "common.nothingYet.text",
+      "prose": true,
+      "shared": true
+    },
+    "Offline": {
+      "key": "common.offline.label",
+      "prose": true,
+      "shared": true
+    },
+    "Online": {
+      "key": "common.online.label",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Open Reaction Selector": {
+      "key": "common.openReactionSelector.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Pause": {
+      "key": "common.pause.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Pin": {
+      "key": "common.pin.title",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Play": {
+      "key": "common.play.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Playback speed {{ rate }}x": {
+      "key": "common.playbackSpeedX.label",
+      "prose": true,
+      "shared": true
+    },
+    "Poll": {
+      "key": "common.poll.label",
+      "prose": true,
+      "shared": true
+    },
+    "Reminder set": {
+      "key": "common.reminderSet.text",
+      "prose": true,
+      "shared": true
+    },
+    "replyCount": {
+      "key": "common.replyCount.label",
+      "prose": true,
+      "plural": true,
+      "shared": true
+    },
+    "All results loaded": {
+      "key": "common.resultsLoaded.label",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Retry upload": {
+      "key": "common.retryUpload.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Saved for later": {
+      "key": "common.savedLater.text",
+      "prose": true,
+      "shared": true
+    },
+    "Search": {
+      "key": "common.search.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Send": {
+      "key": "common.send.label",
+      "prose": true,
+      "shared": true
+    },
+    "Threads": {
+      "key": "common.threads.text",
+      "prose": true,
+      "shared": true
+    },
+    "Unblock": {
+      "key": "common.unblock.ariaLabel",
+      "prose": true,
+      "shared": true
+    },
+    "Unmute": {
+      "key": "common.unmute.title",
+      "prose": true,
+      "shared": true
+    },
+    "{{ user }} has been unmuted": {
+      "key": "common.unmuted.label",
+      "prose": true,
+      "shared": true
+    },
+    "Unpin": {
+      "key": "common.unpin.title",
+      "prose": true,
+      "shared": true
+    },
+    "Unsupported attachment": {
+      "key": "common.unsupportedAttachment.text",
+      "prose": true,
+      "shared": true
+    },
+    "User blocked": {
+      "key": "common.userBlocked.text",
+      "prose": true,
+      "shared": true
+    },
+    "User unblocked": {
+      "key": "common.userUnblocked.text",
+      "prose": true,
+      "shared": true
+    },
+    "User uploaded content": {
+      "key": "common.userUploadedContent.label",
+      "prose": true,
+      "shared": true
+    },
+    "Voice message": {
+      "key": "common.voiceMessage.label",
+      "prose": true,
+      "shared": true
+    },
+    "You": {
+      "key": "common.you.label",
+      "prose": true,
+      "shared": true
+    },
+    "aria/Close callout dialog": {
+      "key": "dialog.callout.closeCalloutDialog.ariaLabel",
+      "prose": true
+    },
+    "aria/Back to parent menu button": {
+      "key": "dialog.contextMenu.backParentMenuButton.ariaLabel",
+      "prose": true
+    },
+    "aria/Submenu": {
+      "key": "dialog.contextMenu.submenu.ariaLabel",
+      "prose": true
+    },
+    "Go back": {
+      "key": "dialog.prompt.goBack.ariaLabel",
+      "prose": true
+    },
+    "Close dialog": {
+      "key": "dialog.viewer.closeDialog.ariaLabel",
+      "prose": true
+    },
+    "duration/Message reminder": {
+      "key": "duration.messageReminder",
+      "prose": false
+    },
+    "duration/Remind Me": {
+      "key": "duration.remindMe",
+      "prose": false
+    },
+    "duration/Share Location": {
+      "key": "duration.shareLocation",
+      "prose": false
+    },
+    "aria/Emoji picker": {
+      "key": "emojiPicker.emojiPicker.ariaLabel",
+      "prose": true
+    },
+    "No conversations yet": {
+      "key": "emptyState.indicator.noConversationsYet.label",
+      "prose": true
+    },
+    "No items exist": {
+      "key": "emptyState.indicator.noItemsExist.text",
+      "prose": true
+    },
+    "Send a message to start the conversation": {
+      "key": "emptyState.indicator.sendMessageStartConversation.label",
+      "prose": true
+    },
+    "aria/File upload": {
+      "key": "fileUpload.uploadButton.fileUpload.ariaLabel",
+      "prose": true
+    },
+    "aria/Decrease value": {
+      "key": "form.numericInput.decreaseValue.ariaLabel",
+      "prose": true
+    },
+    "aria/Increase value": {
+      "key": "form.numericInput.increaseValue.ariaLabel",
+      "prose": true
+    },
+    "aria/{{ setting }} disabled": {
+      "key": "form.switchField.disabled.ariaLabel",
+      "prose": true
+    },
+    "aria/{{ setting }} enabled": {
+      "key": "form.switchField.enabled.ariaLabel",
+      "prose": true
+    },
+    "Next image": {
+      "key": "gallery.ui.nextImage.ariaLabel",
+      "prose": true
+    },
+    "Previous image": {
+      "key": "gallery.ui.previousImage.ariaLabel",
+      "prose": true
+    },
+    "language/af": {
+      "key": "language.af",
+      "prose": true
+    },
+    "language/am": {
+      "key": "language.am",
+      "prose": true
+    },
+    "language/ar": {
+      "key": "language.ar",
+      "prose": true
+    },
+    "language/az": {
+      "key": "language.az",
+      "prose": true
+    },
+    "language/bg": {
+      "key": "language.bg",
+      "prose": true
+    },
+    "language/bn": {
+      "key": "language.bn",
+      "prose": true
+    },
+    "language/bs": {
+      "key": "language.bs",
+      "prose": true
+    },
+    "language/cs": {
+      "key": "language.cs",
+      "prose": true
+    },
+    "language/da": {
+      "key": "language.da",
+      "prose": true
+    },
+    "language/de": {
+      "key": "language.de",
+      "prose": true
+    },
+    "language/el": {
+      "key": "language.el",
+      "prose": true
+    },
+    "language/en": {
+      "key": "language.en",
+      "prose": true
+    },
+    "language/es": {
+      "key": "language.es",
+      "prose": true
+    },
+    "language/es-MX": {
+      "key": "language.es-MX",
+      "prose": true
+    },
+    "language/et": {
+      "key": "language.et",
+      "prose": true
+    },
+    "language/fa": {
+      "key": "language.fa",
+      "prose": true
+    },
+    "language/fa-AF": {
+      "key": "language.fa-AF",
+      "prose": true
+    },
+    "language/fi": {
+      "key": "language.fi",
+      "prose": true
+    },
+    "language/fr": {
+      "key": "language.fr",
+      "prose": true
+    },
+    "language/fr-CA": {
+      "key": "language.fr-CA",
+      "prose": true
+    },
+    "language/ha": {
+      "key": "language.ha",
+      "prose": true
+    },
+    "language/he": {
+      "key": "language.he",
+      "prose": true
+    },
+    "language/hi": {
+      "key": "language.hi",
+      "prose": true
+    },
+    "language/hr": {
+      "key": "language.hr",
+      "prose": true
+    },
+    "language/ht": {
+      "key": "language.ht",
+      "prose": true
+    },
+    "language/hu": {
+      "key": "language.hu",
+      "prose": true
+    },
+    "language/id": {
+      "key": "language.id",
+      "prose": true
+    },
+    "language/it": {
+      "key": "language.it",
+      "prose": true
+    },
+    "language/ja": {
+      "key": "language.ja",
+      "prose": true
+    },
+    "language/ka": {
+      "key": "language.ka",
+      "prose": true
+    },
+    "language/ko": {
+      "key": "language.ko",
+      "prose": true
+    },
+    "language/lt": {
+      "key": "language.lt",
+      "prose": true
+    },
+    "language/lv": {
+      "key": "language.lv",
+      "prose": true
+    },
+    "language/ms": {
+      "key": "language.ms",
+      "prose": true
+    },
+    "language/nl": {
+      "key": "language.nl",
+      "prose": true
+    },
+    "language/no": {
+      "key": "language.no",
+      "prose": true
+    },
+    "language/pl": {
+      "key": "language.pl",
+      "prose": true
+    },
+    "language/ps": {
+      "key": "language.ps",
+      "prose": true
+    },
+    "language/pt": {
+      "key": "language.pt",
+      "prose": true
+    },
+    "language/ro": {
+      "key": "language.ro",
+      "prose": true
+    },
+    "language/ru": {
+      "key": "language.ru",
+      "prose": true
+    },
+    "language/sk": {
+      "key": "language.sk",
+      "prose": true
+    },
+    "language/sl": {
+      "key": "language.sl",
+      "prose": true
+    },
+    "language/so": {
+      "key": "language.so",
+      "prose": true
+    },
+    "language/sq": {
+      "key": "language.sq",
+      "prose": true
+    },
+    "language/sr": {
+      "key": "language.sr",
+      "prose": true
+    },
+    "language/sv": {
+      "key": "language.sv",
+      "prose": true
+    },
+    "language/sw": {
+      "key": "language.sw",
+      "prose": true
+    },
+    "language/ta": {
+      "key": "language.ta",
+      "prose": true
+    },
+    "language/th": {
+      "key": "language.th",
+      "prose": true
+    },
+    "language/tl": {
+      "key": "language.tl",
+      "prose": true
+    },
+    "language/tr": {
+      "key": "language.tr",
+      "prose": true
+    },
+    "language/uk": {
+      "key": "language.uk",
+      "prose": true
+    },
+    "language/ur": {
+      "key": "language.ur",
+      "prose": true
+    },
+    "language/vi": {
+      "key": "language.vi",
+      "prose": true
+    },
+    "language/zh": {
+      "key": "language.zh",
+      "prose": true
+    },
+    "language/zh-TW": {
+      "key": "language.zh-TW",
+      "prose": true
+    },
+    "Error: {{ errorMessage }}": {
+      "key": "loading.errorIndicator.error.text",
+      "prose": true
+    },
+    "aria/Percent complete": {
+      "key": "loading.progressIndicators.percentComplete.ariaLabel",
+      "prose": true
+    },
+    "Load more": {
+      "key": "loadMore.button.loadMore.label",
+      "prose": true
+    },
+    "Attach": {
+      "key": "location.shareLocationDialog.attach.text",
+      "prose": true
+    },
+    "Select your current location and optionally enable live location sharing": {
+      "key": "location.shareLocationDialog.description",
+      "prose": true
+    },
+    "Share": {
+      "key": "location.shareLocationDialog.share.text",
+      "prose": true
+    },
+    "Share live location for": {
+      "key": "location.shareLocationDialog.shareLiveLocation.title",
+      "prose": true
+    },
+    "Share Location": {
+      "key": "location.shareLocationDialog.shareLocation.title",
+      "prose": true
+    },
+    "aria/Cancel recording": {
+      "key": "mediaRecorder.audioRecorderRecording.cancelRecording.ariaLabel",
+      "prose": true
+    },
+    "aria/Complete recording": {
+      "key": "mediaRecorder.audioRecorderRecording.completeRecording.ariaLabel",
+      "prose": true
+    },
+    "aria/Pause recording": {
+      "key": "mediaRecorder.audioRecorderRecording.pauseRecording.ariaLabel",
+      "prose": true
+    },
+    "aria/Resume recording": {
+      "key": "mediaRecorder.audioRecorderRecording.resumeRecording.ariaLabel",
+      "prose": true
+    },
+    "Voice message deleted": {
+      "key": "mediaRecorder.audioRecorderRecording.voiceMessageDeleted.text",
+      "prose": true
+    },
+    "aria/Start recording audio": {
+      "key": "mediaRecorder.audioRecordingButton.startRecordingAudio.ariaLabel",
+      "prose": true
+    },
+    "An error has occurred during the recording processing": {
+      "key": "mediaRecorder.error.processing",
+      "prose": true
+    },
+    "An error has occurred during recording": {
+      "key": "mediaRecorder.error.recording",
+      "prose": true
+    },
+    "Error starting recording": {
+      "key": "mediaRecorder.error.start",
+      "prose": true
+    },
+    "To start recording, allow the camera access in your browser": {
+      "key": "mediaRecorder.permissionDenied.camera.body",
+      "prose": true
+    },
+    "Allow access to camera": {
+      "key": "mediaRecorder.permissionDenied.camera.heading",
+      "prose": true
+    },
+    "To start recording, allow the microphone access in your browser": {
+      "key": "mediaRecorder.permissionDenied.microphone.body",
+      "prose": true
+    },
+    "Allow access to microphone": {
+      "key": "mediaRecorder.permissionDenied.microphone.heading",
+      "prose": true
+    },
+    "mention/Channel Description": {
+      "key": "mention.channel.description",
+      "prose": true
+    },
+    "mention/Here Description": {
+      "key": "mention.here.description",
+      "prose": true
+    },
+    "Also sent in channel": {
+      "key": "message.alsoSent.alsoSentChannel.text",
+      "prose": true
+    },
+    "Replied to a thread": {
+      "key": "message.alsoSent.repliedThread.text",
+      "prose": true
+    },
+    "View": {
+      "key": "message.alsoSent.view.text",
+      "prose": true
+    },
+    "{{ commaSeparatedUsers }}, and {{ lastUser }}": {
+      "key": "message.and.withCommaSeparatedUsersAndLastUser.label",
+      "prose": true
+    },
+    "{{ firstUser }} and {{ secondUser }}": {
+      "key": "message.and.withFirstUserAndSecondUser.label",
+      "prose": true
+    },
+    "Message was blocked by moderation policies": {
+      "key": "message.blocked.text",
+      "prose": true
+    },
+    "Edited": {
+      "key": "message.editedIndicator.edited.text",
+      "prose": true
+    },
+    "{{ commaSeparatedUsers }} and {{ moreCount }} more": {
+      "key": "message.more.label",
+      "prose": true
+    },
+    "Pinned by You": {
+      "key": "message.pinIndicator.pinned.label",
+      "prose": true
+    },
+    "Pinned by {{ name }}": {
+      "key": "message.pinIndicator.pinned.withName.label",
+      "prose": true
+    },
+    "Due {{ timeLeft }}": {
+      "key": "message.reminderNotification.due.label",
+      "prose": true
+    },
+    "Due since {{ dueSince }}": {
+      "key": "message.reminderNotification.dueSince.label",
+      "prose": true
+    },
+    "Delivered": {
+      "key": "message.status.delivered.text",
+      "prose": true
+    },
+    "Sending...": {
+      "key": "message.status.sending.text",
+      "prose": true
+    },
+    "Sent": {
+      "key": "message.status.sent.text",
+      "prose": true
+    },
+    "aria/Message,": {
+      "key": "message.text.message.ariaLabel",
+      "prose": true
+    },
+    "aria/Message from {{ user }},": {
+      "key": "message.text.message.withUser.ariaLabel",
+      "prose": true
+    },
+    "Original": {
+      "key": "message.translationIndicator.original.text",
+      "prose": true
+    },
+    "Translated": {
+      "key": "message.translationIndicator.translated.text",
+      "prose": true
+    },
+    "Translated from {{ language }}": {
+      "key": "message.translationIndicator.translated.withLanguage.text",
+      "prose": true
+    },
+    "View original": {
+      "key": "message.translationIndicator.viewOriginal.text",
+      "prose": true
+    },
+    "View translation": {
+      "key": "message.translationIndicator.viewTranslation.text",
+      "prose": true
+    },
+    "aria/Review bounced message": {
+      "key": "message.ui.reviewBouncedMessage.ariaLabel",
+      "prose": true
+    },
+    "aria/Block User": {
+      "key": "messageActions.blockUser.ariaLabel",
+      "prose": true
+    },
+    "aria/Bookmark Message": {
+      "key": "messageActions.bookmarkMessage.ariaLabel",
+      "prose": true
+    },
+    "Copy Message": {
+      "key": "messageActions.copyMessage.text",
+      "prose": true
+    },
+    "aria/Copy Message Text": {
+      "key": "messageActions.copyMessageText.ariaLabel",
+      "prose": true
+    },
+    "aria/Delete Message": {
+      "key": "messageActions.deleteMessage.ariaLabel",
+      "prose": true
+    },
+    "Delete message": {
+      "key": "messageActions.deleteMessageAlert.deleteMessage.title",
+      "prose": true
+    },
+    "Are you sure you want to delete this message?": {
+      "key": "messageActions.deleteMessageAlert.description",
+      "prose": true
+    },
+    "Download {{ fileName }}": {
+      "key": "messageActions.downloadSubmenu.download.label",
+      "prose": true
+    },
+    "Download All": {
+      "key": "messageActions.downloadSubmenu.download.text",
+      "prose": true
+    },
+    "Download attachment {{ number }}": {
+      "key": "messageActions.downloadSubmenu.downloadAttachment.label",
+      "prose": true
+    },
+    "aria/Edit Message": {
+      "key": "messageActions.editMessage.ariaLabel",
+      "prose": true
+    },
+    "Error adding flag": {
+      "key": "messageActions.errorAddingFlag.text",
+      "prose": true
+    },
+    "Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.": {
+      "key": "messageActions.errorMarkingMessageUnread.text",
+      "prose": true
+    },
+    "Flag": {
+      "key": "messageActions.flag.text",
+      "prose": true
+    },
+    "aria/Flag Message": {
+      "key": "messageActions.flagMessage.ariaLabel",
+      "prose": true
+    },
+    "aria/Mark Message Unread": {
+      "key": "messageActions.markMessageUnread.ariaLabel",
+      "prose": true
+    },
+    "Mark as unread": {
+      "key": "messageActions.markUnread.text",
+      "prose": true
+    },
+    "aria/Message Actions": {
+      "key": "messageActions.messageActions.ariaLabel",
+      "prose": true
+    },
+    "Message marked as unread": {
+      "key": "messageActions.messageMarkedUnread.text",
+      "prose": true
+    },
+    "Message has been successfully flagged": {
+      "key": "messageActions.messageSuccessfullyFlagged.text",
+      "prose": true
+    },
+    "Message unpinned": {
+      "key": "messageActions.messageUnpinned.text",
+      "prose": true
+    },
+    "aria/Mute User": {
+      "key": "messageActions.muteUser.ariaLabel",
+      "prose": true
+    },
+    "aria/Open Message Actions Menu": {
+      "key": "messageActions.openMessageActionsMenu.ariaLabel",
+      "prose": true
+    },
+    "aria/Open Thread": {
+      "key": "messageActions.openThread.ariaLabel",
+      "prose": true
+    },
+    "aria/Pin Message": {
+      "key": "messageActions.pinMessage.ariaLabel",
+      "prose": true
+    },
+    "aria/Quote Message": {
+      "key": "messageActions.quoteMessage.ariaLabel",
+      "prose": true
+    },
+    "Quote Reply": {
+      "key": "messageActions.quoteReply.text",
+      "prose": true
+    },
+    "Remind me": {
+      "key": "messageActions.remindMe.text",
+      "prose": true
+    },
+    "aria/Remind Me Message": {
+      "key": "messageActions.remindMeMessage.ariaLabel",
+      "prose": true
+    },
+    "Remind Me": {
+      "key": "messageActions.remindMeSubmenu.remindMe.text",
+      "prose": true
+    },
+    "aria/Remove Reminder": {
+      "key": "messageActions.removeReminder.ariaLabel",
+      "prose": true
+    },
+    "Remove reminder": {
+      "key": "messageActions.removeReminder.text",
+      "prose": true
+    },
+    "aria/Remove Save For Later": {
+      "key": "messageActions.removeSaveLater.ariaLabel",
+      "prose": true
+    },
+    "Remove save for later": {
+      "key": "messageActions.removeSaveLater.text",
+      "prose": true
+    },
+    "Resend": {
+      "key": "messageActions.resend.text",
+      "prose": true
+    },
+    "aria/Resend Message": {
+      "key": "messageActions.resendMessage.ariaLabel",
+      "prose": true
+    },
+    "Save for later": {
+      "key": "messageActions.saveLater.text",
+      "prose": true
+    },
+    "Thread Reply": {
+      "key": "messageActions.threadReply.text",
+      "prose": true
+    },
+    "aria/Unmute User": {
+      "key": "messageActions.unmuteUser.ariaLabel",
+      "prose": true
+    },
+    "aria/Unpin Message": {
+      "key": "messageActions.unpinMessage.ariaLabel",
+      "prose": true
+    },
+    "Review this message and choose whether to delete it, edit it, or send it anyway": {
+      "key": "messageBounce.prompt.description",
+      "prose": true
+    },
+    "Send Anyway": {
+      "key": "messageBounce.prompt.sendAnyway.text",
+      "prose": true
+    },
+    "This message did not meet our content guidelines": {
+      "key": "messageBounce.prompt.title",
+      "prose": true
+    },
+    "aria/Show preview": {
+      "key": "messageComposer.attachmentPreviewRoot.showPreview.ariaLabel",
+      "prose": true
+    },
+    "aria/Attachment Actions": {
+      "key": "messageComposer.attachmentSelector.attachmentActions.ariaLabel",
+      "prose": true
+    },
+    "Commands": {
+      "key": "messageComposer.attachmentSelector.commands.text",
+      "prose": true
+    },
+    "File": {
+      "key": "messageComposer.attachmentSelector.file.text",
+      "prose": true
+    },
+    "aria/Open Attachment Selector": {
+      "key": "messageComposer.attachmentSelector.openAttachmentSelector.ariaLabel",
+      "prose": true
+    },
+    "File too large": {
+      "key": "messageComposer.audioAttachmentPreview.fileTooLarge.text",
+      "prose": true
+    },
+    "Retry upload": {
+      "key": "messageComposer.audioAttachmentPreview.retryUpload.text",
+      "prose": true
+    },
+    "Upload blocked": {
+      "key": "messageComposer.audioAttachmentPreview.uploadBlocked.text",
+      "prose": true
+    },
+    "Upload error": {
+      "key": "messageComposer.audioAttachmentPreview.uploadError.text",
+      "prose": true
+    },
+    "Upload failed": {
+      "key": "messageComposer.audioAttachmentPreview.uploadFailed.text",
+      "prose": true
+    },
+    "Exit command {{ command }}": {
+      "key": "messageComposer.commandChip.exitCommand.ariaLabel",
+      "prose": true
+    },
+    "aria/Back to attachments": {
+      "key": "messageComposer.commandsMenu.backAttachments.ariaLabel",
+      "prose": true
+    },
+    "Instant commands": {
+      "key": "messageComposer.commandsMenu.instantCommands.text",
+      "prose": true
+    },
+    "Drag your files here": {
+      "key": "messageComposer.dragDropUpload.dragFiles.text",
+      "prose": true
+    },
+    "Some of the files will not be accepted": {
+      "key": "messageComposer.dragDropUpload.someFilesNotAccepted.text",
+      "prose": true
+    },
+    "Live for {{duration}}": {
+      "key": "messageComposer.geolocationPreview.live.text",
+      "prose": true
+    },
+    "Location: {{ coordinates }}": {
+      "key": "messageComposer.geolocationPreview.location.text",
+      "prose": true
+    },
+    "aria/Remove location attachment": {
+      "key": "messageComposer.geolocationPreview.removeLocationAttachment.ariaLabel",
+      "prose": true
+    },
+    "Shared location": {
+      "key": "messageComposer.geolocationPreview.sharedLocation.title",
+      "prose": true
+    },
+    "Attach files": {
+      "key": "messageComposer.icons.attachFiles.text",
+      "prose": true
+    },
+    "aria/Cancel Reply": {
+      "key": "messageComposer.quotedMessagePreview.cancelReply.ariaLabel",
+      "prose": true
+    },
+    "{{ count }} files": {
+      "key": "messageComposer.quotedMessagePreview.files.label",
+      "prose": true,
+      "plural": true
+    },
+    "aria/Jump to quoted message": {
+      "key": "messageComposer.quotedMessagePreview.jumpQuotedMessage.ariaLabel",
+      "prose": true
+    },
+    "Photo": {
+      "key": "messageComposer.quotedMessagePreview.photo.label",
+      "prose": true
+    },
+    "{{ count }} photos": {
+      "key": "messageComposer.quotedMessagePreview.photos.label",
+      "prose": true,
+      "plural": true
+    },
+    "Reply": {
+      "key": "messageComposer.quotedMessagePreview.reply.text",
+      "prose": true
+    },
+    "Reply to {{ authorName }}": {
+      "key": "messageComposer.quotedMessagePreview.reply.withAuthorName.text",
+      "prose": true
+    },
+    "Video": {
+      "key": "messageComposer.quotedMessagePreview.video.label",
+      "prose": true
+    },
+    "{{ count }} videos": {
+      "key": "messageComposer.quotedMessagePreview.videos.label",
+      "prose": true,
+      "plural": true
+    },
+    "Voice message {{ duration }}": {
+      "key": "messageComposer.quotedMessagePreview.voiceMessage.label",
+      "prose": true
+    },
+    "aria/Remove attachment": {
+      "key": "messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel",
+      "prose": true
+    },
+    "aria/Send": {
+      "key": "messageComposer.sendButton.send.ariaLabel",
+      "prose": true
+    },
+    "Also send in channel": {
+      "key": "messageComposer.sendChannelCheckbox.alsoSendChannel.label",
+      "prose": true
+    },
+    "Also send as a direct message": {
+      "key": "messageComposer.sendChannelCheckbox.alsoSendDirectMessage.label",
+      "prose": true
+    },
+    "Send message request failed": {
+      "key": "messageComposer.sendMessageFn.sendMessageRequestFailed.text",
+      "prose": true
+    },
+    "aria/Stop AI Generation": {
+      "key": "messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel",
+      "prose": true
+    },
+    "Edit message request failed": {
+      "key": "messageComposer.updateMessageFn.editMessageRequestFailed.text",
+      "prose": true
+    },
+    "New Messages!": {
+      "key": "messageList.newMessageNotification.newMessages.label",
+      "prose": true
+    },
+    "aria/Jump to latest message": {
+      "key": "messageList.scrollLatestMessage.jumpLatestMessage.ariaLabel",
+      "prose": true
+    },
+    "aria/Mark messages as read": {
+      "key": "messageList.unreadMessagesNotification.markMessagesRead.ariaLabel",
+      "prose": true
+    },
+    "{{count}} unread": {
+      "key": "messageList.unreadMessagesNotification.unread.text",
+      "prose": true,
+      "plural": true
+    },
+    "Unread messages": {
+      "key": "messageList.unreadMessagesNotification.unreadMessages.text",
+      "prose": true
+    },
+    "fileCount": {
+      "key": "messagePreview.latestMessagePreview.fileCount.label",
+      "prose": true,
+      "plural": true
+    },
+    "imageCount": {
+      "key": "messagePreview.latestMessagePreview.imageCount.label",
+      "prose": true,
+      "plural": true
+    },
+    "linkCount": {
+      "key": "messagePreview.latestMessagePreview.linkCount.label",
+      "prose": true,
+      "plural": true
+    },
+    "Message failed to send": {
+      "key": "messagePreview.latestMessagePreview.messageFailedSend.text",
+      "prose": true
+    },
+    "videoCount": {
+      "key": "messagePreview.latestMessagePreview.videoCount.label",
+      "prose": true,
+      "plural": true
+    },
+    "voiceMessageCount": {
+      "key": "messagePreview.latestMessagePreview.voiceMessageCount.label",
+      "prose": true,
+      "plural": true
+    },
+    "File is required for upload attachment": {
+      "key": "notification.attachmentFileMissing",
+      "prose": true
+    },
+    "Local upload attachment missing local id": {
+      "key": "notification.attachmentIdMissing",
+      "prose": true
+    },
+    "Attachment upload blocked due to {{reason}}": {
+      "key": "notification.attachmentUploadBlockedWithReason",
+      "prose": true
+    },
+    "Error uploading attachment": {
+      "key": "notification.attachmentUploadFailed",
+      "prose": true
+    },
+    "Attachment upload failed due to {{reason}}": {
+      "key": "notification.attachmentUploadFailedWithReason",
+      "prose": true
+    },
+    "Wait until all attachments have uploaded": {
+      "key": "notification.attachmentUploadInProgress",
+      "prose": true
+    },
+    "Error reproducing the recording": {
+      "key": "notification.audioPlaybackError",
+      "prose": true
+    },
+    "Command not available": {
+      "key": "notification.commandDisabled",
+      "prose": true
+    },
+    "Command not available while editing": {
+      "key": "notification.commandDisabledWhileEditing",
+      "prose": true
+    },
+    "Command not available while replying": {
+      "key": "notification.commandDisabledWhileReplying",
+      "prose": true
+    },
+    "aria/Dismiss notification": {
+      "key": "notification.dismissNotification.ariaLabel",
+      "prose": true
+    },
+    "Failed to jump to the first unread message": {
+      "key": "notification.jumpToFirstUnreadFailed",
+      "prose": true
+    },
+    "aria/Notifications": {
+      "key": "notification.list.notifications.ariaLabel",
+      "prose": true
+    },
+    "Failed to retrieve location": {
+      "key": "notification.locationGetFailed",
+      "prose": true
+    },
+    "Failed to share location": {
+      "key": "notification.locationShareFailed",
+      "prose": true
+    },
+    "Failed to create the poll": {
+      "key": "notification.pollCreateFailed",
+      "prose": true
+    },
+    "Failed to create the poll due to {{reason}}": {
+      "key": "notification.pollCreateFailedWithReason",
+      "prose": true
+    },
+    "Failed to end the poll": {
+      "key": "notification.pollEndFailed",
+      "prose": true
+    },
+    "Failed to end the poll due to {{reason}}": {
+      "key": "notification.pollEndFailedWithReason",
+      "prose": true
+    },
+    "Poll ended": {
+      "key": "notification.pollEndSuccess",
+      "prose": true
+    },
+    "Reached the vote limit. Remove an existing vote first.": {
+      "key": "notification.pollVoteLimit",
+      "prose": true
+    },
+    "size limit": {
+      "key": "notification.reason.sizeLimit",
+      "prose": true
+    },
+    "unknown error": {
+      "key": "notification.reason.unknownError",
+      "prose": true
+    },
+    "unsupported file type": {
+      "key": "notification.reason.unsupportedFileType",
+      "prose": true
+    },
+    "Thread has not been found": {
+      "key": "notification.replySearchFailed",
+      "prose": true
+    },
+    "Suggest an option": {
+      "key": "poll.actions.suggestOption.label",
+      "prose": true
+    },
+    "View {{count}} comments": {
+      "key": "poll.actions.viewComments.label",
+      "prose": true,
+      "plural": true
+    },
+    "View results": {
+      "key": "poll.actions.viewResults.label",
+      "prose": true
+    },
+    "Add a comment": {
+      "key": "poll.addCommentPrompt.addComment.label",
+      "prose": true
+    },
+    "Add a comment to your poll answer": {
+      "key": "poll.addCommentPrompt.addCommentPollAnswer.label",
+      "prose": true
+    },
+    "This field cannot be empty or contain only spaces": {
+      "key": "poll.addCommentPrompt.fieldCannotEmptyContain.label",
+      "prose": true
+    },
+    "Update": {
+      "key": "poll.addCommentPrompt.update.text",
+      "prose": true
+    },
+    "Update your comment": {
+      "key": "poll.addCommentPrompt.updateComment.label",
+      "prose": true
+    },
+    "Update the comment attached to your poll answer": {
+      "key": "poll.addCommentPrompt.updateCommentAttachedPoll.label",
+      "prose": true
+    },
+    "Review comments submitted with poll answers": {
+      "key": "poll.answerList.description",
+      "prose": true
+    },
+    "Poll comments": {
+      "key": "poll.answerList.pollComments.title",
+      "prose": true
+    },
+    "Allow others to add comments": {
+      "key": "poll.creationDialog.allowOthersAddComments.description",
+      "prose": true
+    },
+    "Anonymous poll": {
+      "key": "poll.creationDialog.anonymousPoll.title",
+      "prose": true
+    },
+    "Create poll": {
+      "key": "poll.creationDialog.createPoll.title",
+      "prose": true
+    },
+    "Hide who voted": {
+      "key": "poll.creationDialog.hideWhoVoted.description",
+      "prose": true
+    },
+    "Let others add options": {
+      "key": "poll.creationDialog.letOthersAddOptions.description",
+      "prose": true
+    },
+    "Poll sent": {
+      "key": "poll.creationDialog.pollSent.text",
+      "prose": true
+    },
+    "Send poll": {
+      "key": "poll.creationDialog.sendPoll.text",
+      "prose": true
+    },
+    "Do you want to end this poll now? Nobody will be able to vote in this poll anymore.": {
+      "key": "poll.endPollAlert.description",
+      "prose": true
+    },
+    "End poll": {
+      "key": "poll.endPollAlert.endPoll.text",
+      "prose": true
+    },
+    "End this poll?": {
+      "key": "poll.endPollAlert.endPoll.title",
+      "prose": true
+    },
+    "Select one": {
+      "key": "poll.header.selectOne.label",
+      "prose": true
+    },
+    "Select one or more": {
+      "key": "poll.header.selectOneMore.label",
+      "prose": true
+    },
+    "Select up to {{count}}": {
+      "key": "poll.header.selectUp.label",
+      "prose": true,
+      "plural": true
+    },
+    "Vote ended": {
+      "key": "poll.header.voteEnded.label",
+      "prose": true
+    },
+    "Choose between 2 to 10 options": {
+      "key": "poll.multipleAnswersField.chooseBetween210.description",
+      "prose": true
+    },
+    "Enforce unique vote is enabled": {
+      "key": "poll.multipleAnswersField.enforceUniqueVoteEnabled.label",
+      "prose": true
+    },
+    "Limit votes per person": {
+      "key": "poll.multipleAnswersField.limitVotesPerPerson.title",
+      "prose": true
+    },
+    "Maximum votes per person": {
+      "key": "poll.multipleAnswersField.maximumVotesPerPerson.ariaLabel",
+      "prose": true
+    },
+    "Multiple votes": {
+      "key": "poll.multipleAnswersField.multipleVotes.title",
+      "prose": true
+    },
+    "Only numbers are allowed": {
+      "key": "poll.multipleAnswersField.onlyNumbersAllowed.label",
+      "prose": true
+    },
+    "Select more than one option": {
+      "key": "poll.multipleAnswersField.selectMoreThanOne.description",
+      "prose": true
+    },
+    "Type a number from 2 to 10": {
+      "key": "poll.multipleAnswersField.typeNumber210.label",
+      "prose": true
+    },
+    "Ask a question": {
+      "key": "poll.nameField.askQuestion.placeholder",
+      "prose": true
+    },
+    "Error": {
+      "key": "poll.nameField.error.text",
+      "prose": true
+    },
+    "Question is required": {
+      "key": "poll.nameField.questionRequired.label",
+      "prose": true
+    },
+    "Add an option": {
+      "key": "poll.optionFieldSet.addOption.placeholder",
+      "prose": true
+    },
+    "aria/Option {{ position }}": {
+      "key": "poll.optionFieldSet.option.ariaLabel",
+      "prose": true
+    },
+    "aria/This option can be reordered and removed.": {
+      "key": "poll.optionFieldSet.optionCanReorderedRemoved.ariaLabel",
+      "prose": true
+    },
+    "Option is empty": {
+      "key": "poll.optionFieldSet.optionEmpty.label",
+      "prose": true
+    },
+    "Options": {
+      "key": "poll.optionFieldSet.options.label",
+      "prose": true
+    },
+    "aria/Options can now be reordered and removed.": {
+      "key": "poll.optionFieldSet.optionsCanNowReordered.ariaLabel",
+      "prose": true
+    },
+    "aria/Remove option: {{ option }}": {
+      "key": "poll.optionFieldSet.removeOption.ariaLabel",
+      "prose": true
+    },
+    "+{{count}} more options": {
+      "key": "poll.optionList.moreOptions.label",
+      "prose": true,
+      "plural": true
+    },
+    "aria/Press Space to select this option, use the Up and Down arrow keys to move it, then press Space again to deselect it.": {
+      "key": "poll.optionReorder.pressSpaceSelectOption.ariaLabel",
+      "prose": true
+    },
+    "aria/Reorder option {{ position }}": {
+      "key": "poll.optionReorder.reorderOption.ariaLabel",
+      "prose": true
+    },
+    "aria/Reorder \"{{ option }}\" at position {{ position }} of {{ total }}": {
+      "key": "poll.optionReorder.reorderPosition.ariaLabel",
+      "prose": true
+    },
+    "Review all options available in this poll": {
+      "key": "poll.optionsFull.description",
+      "prose": true
+    },
+    "Poll options": {
+      "key": "poll.optionsFull.pollOptions.title",
+      "prose": true
+    },
+    "Question {{ optionOrderNumber}}": {
+      "key": "poll.optionVotes.question.text",
+      "prose": true
+    },
+    "View all": {
+      "key": "poll.optionVotes.view.text",
+      "prose": true
+    },
+    "{{count}} votes": {
+      "key": "poll.optionVotes.votes.text",
+      "prose": true,
+      "plural": true
+    },
+    "placeholder/PollComment": {
+      "key": "poll.pollComment.placeholder",
+      "prose": true
+    },
+    "placeholder/PollOptionSuggestion": {
+      "key": "poll.pollOptionSuggestion.placeholder",
+      "prose": true
+    },
+    "Question": {
+      "key": "poll.question.question.text",
+      "prose": true
+    },
+    "Poll results": {
+      "key": "poll.results.pollResults.title",
+      "prose": true
+    },
+    "Review poll results and open an option to see detailed votes": {
+      "key": "poll.results.reviewPollResultsOpen.description",
+      "prose": true
+    },
+    "Review who voted for this option": {
+      "key": "poll.results.reviewWhoVotedOption.description",
+      "prose": true
+    },
+    "totalVoteCount": {
+      "key": "poll.results.totalVoteCount.text",
+      "prose": true,
+      "plural": true
+    },
+    "Votes": {
+      "key": "poll.results.votes.title",
+      "prose": true
+    },
+    "Suggest a new option to add to this poll": {
+      "key": "poll.suggestPollOption.description",
+      "prose": true
+    },
+    "Option already exists": {
+      "key": "poll.suggestPollOption.optionAlreadyExists.label",
+      "prose": true
+    },
+    "Error fetching reactions": {
+      "key": "reactions.fetchReactions.errorFetchingReactions.text",
+      "prose": true
+    },
+    "aria/Reaction list": {
+      "key": "reactions.messageReactions.reactionList.ariaLabel",
+      "prose": true
+    },
+    "aria/Select Reaction: {{ reactionName }}": {
+      "key": "reactions.messageReactions.selectReaction.ariaLabel",
+      "prose": true
+    },
+    "{{ count }} reactions": {
+      "key": "reactions.messageReactionsDetail.reactions.text",
+      "prose": true,
+      "plural": true
+    },
+    "Tap to remove: {{ reactionName }}": {
+      "key": "reactions.messageReactionsDetail.tapRemove.ariaLabel",
+      "prose": true
+    },
+    "Tap to remove": {
+      "key": "reactions.messageReactionsDetail.tapRemove.text",
+      "prose": true
+    },
+    "aria/Clear search": {
+      "key": "search.bar.clearSearch.ariaLabel",
+      "prose": true
+    },
+    "aria/Exit search": {
+      "key": "search.bar.exitSearch.ariaLabel",
+      "prose": true
+    },
+    "aria/Select User Channel: {{ name }}": {
+      "key": "search.resultItem.selectUserChannel.ariaLabel",
+      "prose": true
+    },
+    "aria/Search results": {
+      "key": "search.results.searchResults.ariaLabel",
+      "prose": true
+    },
+    "aria/Search results header filter button for: {{ source }}": {
+      "key": "search.resultsHeader.ariaLabel",
+      "prose": true
+    },
+    "search-results-header-filter-source-button-label--channels": {
+      "key": "search.resultsHeader.filterSource.channels",
+      "prose": true
+    },
+    "search-results-header-filter-source-button-label--messages": {
+      "key": "search.resultsHeader.filterSource.messages",
+      "prose": true
+    },
+    "search-results-header-filter-source-button-label--users": {
+      "key": "search.resultsHeader.filterSource.users",
+      "prose": true
+    },
+    "Start typing to search": {
+      "key": "search.resultsPresearch.startTypingSearch.text",
+      "prose": true
+    },
+    "No results found": {
+      "key": "search.sourceResults.noResultsFound.text",
+      "prose": true
+    },
+    "Searching for {{ searchSourceType }}...": {
+      "key": "search.sourceResults.searching.text",
+      "prose": true
+    },
+    "Channels": {
+      "key": "slotLayout.chatView.channels.text",
+      "prose": true
+    },
+    "aria/Chat view controls": {
+      "key": "slotLayout.chatView.chatViewControls.ariaLabel",
+      "prose": true
+    },
+    "aria/Open channels view": {
+      "key": "slotLayout.chatView.openChannelsView.ariaLabel",
+      "prose": true
+    },
+    "aria/Open threads view": {
+      "key": "slotLayout.chatView.openThreadsView.ariaLabel",
+      "prose": true
+    },
+    "aria/Open threads view with unread threads": {
+      "key": "slotLayout.chatView.openThreadsViewUnread.ariaLabel",
+      "prose": true,
+      "plural": true
+    },
+    "aria/Message input": {
+      "key": "textareaComposer.messageInput.ariaLabel",
+      "prose": true
+    },
+    "Notify all {{ role }} members": {
+      "key": "textareaComposer.roleItem.notifyMembers.label",
+      "prose": true
+    },
+    "aria/Command Suggestions": {
+      "key": "textareaComposer.suggestionList.commandSuggestions.ariaLabel",
+      "prose": true
+    },
+    "aria/Emoji Suggestions": {
+      "key": "textareaComposer.suggestionList.emojiSuggestions.ariaLabel",
+      "prose": true
+    },
+    "aria/Mention Suggestions": {
+      "key": "textareaComposer.suggestionList.mentionSuggestions.ariaLabel",
+      "prose": true
+    },
+    "aria/Suggestions": {
+      "key": "textareaComposer.suggestionList.suggestions.ariaLabel",
+      "prose": true
+    },
+    "Search GIFs": {
+      "key": "textareaComposer.textareaPlaceholder.searchGiFs.label",
+      "prose": true
+    },
+    "Send a message": {
+      "key": "textareaComposer.textareaPlaceholder.sendMessage.label",
+      "prose": true
+    },
+    "Slow mode, wait {{ seconds }}s...": {
+      "key": "textareaComposer.textareaPlaceholder.slowModeWaitS.label",
+      "prose": true
+    },
+    "aria/Close thread": {
+      "key": "thread.header.closeThread.ariaLabel",
+      "prose": true
+    },
+    "Thread": {
+      "key": "thread.header.thread.text",
+      "prose": true
+    },
+    "aria/Chat: {{ channelName }}": {
+      "key": "threadList.chat.ariaLabel",
+      "prose": true
+    },
+    "Reply to a message to start a thread": {
+      "key": "threadList.empty.text",
+      "prose": true
+    },
+    "aria/Thread: {{ messagePreview }}": {
+      "key": "threadList.thread.ariaLabel",
+      "prose": true
+    },
+    "aria/Thread list": {
+      "key": "threadList.threadList.ariaLabel",
+      "prose": true
+    },
+    "ThreadListUnseenThreadsBanner/loading": {
+      "key": "threadList.unseenBanner.loading",
+      "prose": true
+    },
+    "ThreadListUnseenThreadsBanner/unreadThreads": {
+      "key": "threadList.unseenBanner.unreadThreads",
+      "prose": true
+    },
+    "timestamp/ChannelDetailPinnedMessageTimestamp": {
+      "key": "timestamp.ChannelDetailPinnedMessageTimestamp",
+      "prose": false
+    },
+    "timestamp/ChannelMembersLastActive": {
+      "key": "timestamp.ChannelMembersLastActive",
+      "prose": false
+    },
+    "timestamp/ChannelPreviewTimestamp": {
+      "key": "timestamp.ChannelPreviewTimestamp",
+      "prose": false
+    },
+    "timestamp/DateSeparator": {
+      "key": "timestamp.DateSeparator",
+      "prose": false
+    },
+    "timestamp/LiveLocation": {
+      "key": "timestamp.LiveLocation",
+      "prose": false
+    },
+    "timestamp/MessageTimestamp": {
+      "key": "timestamp.MessageTimestamp",
+      "prose": false
+    },
+    "timestamp/PollVote": {
+      "key": "timestamp.PollVote",
+      "prose": false
+    },
+    "timestamp/PollVoteTooltip": {
+      "key": "timestamp.PollVoteTooltip",
+      "prose": false
+    },
+    "timestamp/relativeDaysAgo": {
+      "key": "timestamp.relativeDaysAgo",
+      "prose": true
+    },
+    "timestamp/relativeToday": {
+      "key": "timestamp.relativeToday",
+      "prose": true
+    },
+    "timestamp/relativeWeeksAgo": {
+      "key": "timestamp.relativeWeeksAgo",
+      "prose": true
+    },
+    "timestamp/relativeYesterday": {
+      "key": "timestamp.relativeYesterday",
+      "prose": true
+    },
+    "timestamp/ReminderNotification": {
+      "key": "timestamp.ReminderNotification",
+      "prose": false
+    },
+    "timestamp/SystemMessage": {
+      "key": "timestamp.SystemMessage",
+      "prose": false
+    },
+    "translationBuilderTopic/notification": {
+      "key": "translationBuilderTopic.notification",
+      "prose": false
+    },
+    "{{ count }} people are typing": {
+      "key": "typing.manyUsers",
+      "prose": true,
+      "plural": true
+    },
+    "{{ typing }} is typing": {
+      "key": "typing.singleUser",
+      "prose": true
+    },
+    "{{ typing }} are typing": {
+      "key": "typing.twoUsers",
+      "prose": true
+    },
+    "Play video": {
+      "key": "videoPlayer.videoThumbnail.playVideo.ariaLabel",
+      "prose": true
+    }
+  }
+}

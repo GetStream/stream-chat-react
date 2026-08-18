@@ -112,7 +112,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(null);
 
-  const { customClasses } = useChatContext('MessageList');
+  const { customClasses } = useChatContext();
 
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
@@ -123,7 +123,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     NotificationList = DefaultNotificationList,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
-  } = useComponentContext('MessageList');
+  } = useComponentContext();
   const messagePaginator = useMessagePaginator();
 
   const { hasMoreNewer, isLoading, messages } = useStateStore(
@@ -211,7 +211,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
-      Message: props.Message,
       messageActions,
       messageListRect: wrapperRect,
       onMentionsClick: props.onMentionsClick,
@@ -439,7 +438,6 @@ type PropsDrilledToMessage =
   | 'closeReactionSelectorOnClick'
   | 'disableQuotedMessages'
   | 'formatDate'
-  | 'Message'
   | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'

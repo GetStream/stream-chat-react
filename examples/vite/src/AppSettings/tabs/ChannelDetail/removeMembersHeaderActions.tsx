@@ -1,4 +1,5 @@
 import {
+  asDynamicKey,
   Button,
   ContextMenuButton,
   IconUserRemove,
@@ -20,13 +21,16 @@ export const RemoveMembersHeaderAction = ({
   return (
     <Button
       appearance='outline'
-      aria-label={t('Remove channel members')}
+      aria-label={t(
+        asDynamicKey('viteExample.removeMembers.trigger.ariaLabel'),
+        'Remove channel members',
+      )}
       className='str-chat__channel-detail__channel-members-view__remove-button'
       onClick={() => modeController.setMode('remove')}
       size='md'
       variant='secondary'
     >
-      {t('Remove')}
+      {t(asDynamicKey('viteExample.removeMembers.trigger.label'), 'Remove')}
     </Button>
   );
 };
@@ -41,14 +45,17 @@ export const RemoveMembersMenuAction = ({
 
   return (
     <ContextMenuButton
-      aria-label={t('Remove channel members')}
+      aria-label={t(
+        asDynamicKey('viteExample.removeMembers.trigger.ariaLabel'),
+        'Remove channel members',
+      )}
       Icon={IconUserRemove}
       onClick={() => {
         modeController.setMode('remove');
         closeMenu?.();
       }}
     >
-      {t('Remove')}
+      {t(asDynamicKey('viteExample.removeMembers.trigger.label'), 'Remove')}
     </ContextMenuButton>
   );
 };

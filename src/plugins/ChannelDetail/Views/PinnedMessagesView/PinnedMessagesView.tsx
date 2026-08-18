@@ -45,11 +45,14 @@ const getPinnedMessagePreview = (
   const attachmentPreview =
     attachment?.title || attachment?.text || attachment?.fallback || attachment?.type;
 
-  return attachmentPreview || t('Pinned message');
+  return (
+    attachmentPreview ||
+    t('channelDetail.pinnedMessagesView.pinnedMessage.label', 'Pinned message')
+  );
 };
 
 const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
-  const { t, tDateTimeParser } = useTranslationContext('PinnedMessageDate');
+  const { t, tDateTimeParser } = useTranslationContext();
   const normalizedTimestamp = normalizeTimestamp(message.created_at);
 
   const when = useMemo(
@@ -58,7 +61,7 @@ const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey: 'timestamp/ChannelDetailPinnedMessageTimestamp',
+        timestampTranslationKey: 'timestamp.ChannelDetailPinnedMessageTimestamp',
       }),
     [normalizedTimestamp, t, tDateTimeParser],
   );
@@ -171,7 +174,12 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
         if (!hasPinnedMessages) return <PinnedMessagesEmptyList />;
         if (hasSearchResultsLoaded)
           return (
-            <ChannelDetailEmptyList>{t('No messages found')}</ChannelDetailEmptyList>
+            <ChannelDetailEmptyList>
+              {t(
+                'channelDetail.pinnedMessagesView.noMessagesFound.text',
+                'No messages found',
+              )}
+            </ChannelDetailEmptyList>
           );
         return null;
       },
@@ -192,8 +200,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     <div className='str-chat__channel-detail__pinned-messages-view'>
       <SectionNavigatorHeader
         close={close}
-        description={t('Browse pinned messages')}
-        title={t('Pinned messages')}
+        description={t(
+          'channelDetail.pinnedMessagesView.browsePinnedMessages.description',
+          'Browse pinned messages',
+        )}
+        title={t(
+          'channelDetail.pinnedMessagesView.pinnedMessages.title',
+          'Pinned messages',
+        )}
       />
       <Prompt.Body className='str-chat__channel-detail__pinned-messages-view__body'>
         {hasPinnedMessages && (

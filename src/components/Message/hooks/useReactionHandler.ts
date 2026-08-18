@@ -25,9 +25,8 @@ Make sure the ChannelAction and ChannelState contexts are properly set and the h
 export const useReactionHandler = (message?: LocalMessage) => {
   const channel = useChannel();
   const messagePaginator = useMessagePaginator();
-  const { client } = useChatContext('useReactionHandler');
-  const { reactionOptions = defaultReactionOptions } =
-    useComponentContext('useReactionHandler');
+  const { client } = useChatContext();
+  const { reactionOptions = defaultReactionOptions } = useComponentContext();
 
   const updateMessage = useCallback(
     (updatedMessage: LocalMessage | MessageResponse) => {

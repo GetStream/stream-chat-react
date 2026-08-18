@@ -44,6 +44,7 @@ vi.mock('../../../plugins/SlotLayout', () => ({
 import { useChannelPreviewInfo } from '../../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useChatViewContext } from '../../../plugins/SlotLayout';
 import { useThreadContext } from '../../Threads';
+import { mockT } from '../../../mock-builders/translator';
 
 const alice = { id: 'alice', name: 'Alice' };
 
@@ -85,14 +86,7 @@ const renderComponent = ({
       <ChannelInstanceProvider value={{ channel }}>
         <TranslationProvider
           value={fromPartial<TranslationContextValue>({
-            t: ((key: string, options?: Record<string, unknown>) => {
-              if (key === 'Thread') return 'Thread';
-              if (key === 'replyCount')
-                return `${(options as Record<string, number>)?.count} replies`;
-              if (key === 'aria/Close thread') return 'Close thread';
-
-              return key;
-            }) as TranslationContextValue['t'],
+            t: mockT as TranslationContextValue['t'],
           })}
         >
           <ThreadHeader

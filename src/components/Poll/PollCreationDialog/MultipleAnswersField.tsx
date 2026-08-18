@@ -24,8 +24,14 @@ export const MultipleAnswersField = () => {
 
   const knownValidationErrors = useMemo<Record<string, string>>(
     () => ({
-      'Enforce unique vote is enabled': t('Enforce unique vote is enabled'),
-      'Type a number from 2 to 10': t('Type a number from 2 to 10'),
+      'Enforce unique vote is enabled': t(
+        'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
+        'Enforce unique vote is enabled',
+      ),
+      'Type a number from 2 to 10': t(
+        'poll.multipleAnswersField.typeNumber210.label',
+        'Type a number from 2 to 10',
+      ),
     }),
     [t],
   );
@@ -39,13 +45,16 @@ export const MultipleAnswersField = () => {
     <div className='str-chat__form__switch-fieldset'>
       <SwitchField
         checked={multipleVotesEnabled}
-        description={t('Select more than one option')}
+        description={t(
+          'poll.multipleAnswersField.selectMoreThanOne.description',
+          'Select More Than One Option',
+        )}
         id='enforce_unique_vote'
         onChange={(e) => {
           setVoteLimitEnabled(false);
           pollComposer.updateFields({ enforce_unique_vote: !e.target.checked });
         }}
-        title={t('Multiple votes')}
+        title={t('poll.multipleAnswersField.multipleVotes.title', 'Multiple Votes')}
       />
       {multipleVotesEnabled && (
         <SwitchField
@@ -66,14 +75,23 @@ export const MultipleAnswersField = () => {
           <div className='str-chat__multiple-answers-field__votes-limit-field__numeric-field'>
             <SwitchFieldLabel
               asError={!!errorText}
-              description={t('Choose between 2 to 10 options')}
+              description={t(
+                'poll.multipleAnswersField.chooseBetween210.description',
+                'Choose Between 2 to 10 Options',
+              )}
               htmlFor={voteLimitSwitchId}
               id={voteLimitSwitchLabelId}
-              title={t('Limit votes per person')}
+              title={t(
+                'poll.multipleAnswersField.limitVotesPerPerson.title',
+                'Limit Votes per Person',
+              )}
             />
             {voteLimitEnabled && (
               <NumericInput
-                aria-label={t('Maximum votes per person')}
+                aria-label={t(
+                  'poll.multipleAnswersField.maximumVotesPerPerson.ariaLabel',
+                  'Maximum votes per person',
+                )}
                 id='max_votes_allowed'
                 max={10}
                 min={2}
@@ -84,7 +102,12 @@ export const MultipleAnswersField = () => {
                   const raw = e.target.value;
                   const nativeFieldValidation =
                     raw !== '' && !/^\d+$/.test(raw)
-                      ? { max_votes_allowed: t('Only numbers are allowed') }
+                      ? {
+                          max_votes_allowed: t(
+                            'poll.multipleAnswersField.onlyNumbersAllowed.label',
+                            'Only numbers are allowed',
+                          ),
+                        }
                       : undefined;
                   pollComposer.updateFields(
                     {

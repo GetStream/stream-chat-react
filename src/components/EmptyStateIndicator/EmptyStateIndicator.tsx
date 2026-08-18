@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { IconMessageBubble, IconMessageBubbles } from '../Icons';
+import { asDynamicKey } from '../../i18n/utils';
 
 export type EmptyStateIndicatorProps = {
   /** List Type: channel | message */
@@ -12,12 +13,15 @@ export type EmptyStateIndicatorProps = {
 const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   const { listType, messageText } = props;
 
-  const { t } = useTranslationContext('EmptyStateIndicator');
+  const { t } = useTranslationContext();
 
   if (listType === 'thread') return null;
 
   if (listType === 'channel') {
-    const text = t('No conversations yet');
+    const text = t(
+      'emptyState.indicator.noConversationsYet.label',
+      'No conversations yet',
+    );
     return (
       <div className='str-chat__channel-list-empty'>
         <IconMessageBubbles />
@@ -27,7 +31,14 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   }
 
   if (listType === 'message') {
-    const text = t(messageText || 'Send a message to start the conversation');
+    // `messageText` is integrator-supplied and may itself be a translation key, so it is
+    // passed through `t` as-is; only the built-in default carries a key + inline copy.
+    const text = messageText
+      ? t(asDynamicKey(messageText))
+      : t(
+          'emptyState.indicator.startConversation.label',
+          'Send a message to start the conversation',
+        );
     return (
       <div className='str-chat__empty-channel'>
         <IconMessageBubble />
@@ -38,7 +49,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
     );
   }
 
-  return <p>{t('No items exist')}</p>;
+  return <p>{t('emptyState.indicator.noItemsExist.text', 'No items exist')}</p>;
 };
 
 export const EmptyStateIndicator = React.memo(

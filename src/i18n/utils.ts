@@ -1,22 +1,17 @@
 import Dayjs from 'dayjs';
 import type { Duration as DayjsDuration } from 'dayjs/plugin/duration.js';
 
-import type { TFunction } from 'i18next';
 import type { Moment } from 'moment-timezone';
 import type {
   DateFormatterOptions,
   DurationFormatterOptions,
+  DynamicTranslationKey,
   PredefinedFormatters,
-  SupportedTranslations,
+  StreamTFunction,
   TDateTimeParserInput,
   TDateTimeParserOutput,
   TimestampFormatterOptions,
 } from './types';
-
-export const notValidDateWarning =
-  'MessageTimestamp was called without a message, or message has invalid created_at date.';
-export const noParsingFunctionWarning =
-  'MessageTimestamp was called but there is no datetime parsing function available';
 
 export const isNumberOrString = (
   output: TDateTimeParserOutput,
@@ -47,25 +42,25 @@ const DEFAULT_RELATIVE_COMPACT_MAX_WEEKS = 3;
  *
  * To change the wording or which label is used, add these to your locale JSON (example in English):
  *
- *   "timestamp/relativeToday": "Today",
- *   "timestamp/relativeYesterday": "Yesterday",
- *   "timestamp/relativeDaysAgo": "{{ count }}d ago",
- *   "timestamp/relativeWeeksAgo": "{{ count }}w ago",
+ *   "relativeTime.today": "Today",
+ *   "relativeTime.yesterday": "Yesterday",
+ *   "relativeTime.daysAgo": "{{ count }}d ago",
+ *   "relativeTime.weeksAgo": "{{ count }}w ago",
  *
  * To use this style for a timestamp (e.g. poll votes), add for example:
  *
- *   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}"
+ *   "timestamp.PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true) }}"
  *
  * Only "Xd ago", no "Xw ago" (anything 7+ days ago shows as a date):
  *
- *   "timestamp/PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactMaxWeeks: 0) }}"
+ *   "timestamp.PollVote": "{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactMaxWeeks: 0) }}"
  *
  * To change how far "days ago" and "weeks ago" go: use relativeCompactMaxDays and
  * relativeCompactMaxWeeks in the formatter (e.g. relativeCompactMaxWeeks: 2 for only 1w and 2w ago).
  */
 function getRelativeCompactDateString(
   messageCreatedAt: string | Date,
-  t: TFunction,
+  t: StreamTFunction,
   tDateTimeParser: (input?: TDateTimeParserInput) => TDateTimeParserOutput,
   maxDays: number = DEFAULT_RELATIVE_COMPACT_MAX_DAYS,
   maxWeeks: number = DEFAULT_RELATIVE_COMPACT_MAX_WEEKS,
@@ -80,15 +75,23 @@ function getRelativeCompactDateString(
   if (diffDays < 0) {
     return (then as Dayjs.Dayjs).format('DD/MM/YY');
   }
-  if (diffDays === 0) return t('timestamp/relativeToday');
-  if (diffDays === 1) return t('timestamp/relativeYesterday');
+  if (diffDays === 0) return t('relativeTime.today', 'Today');
+  if (diffDays === 1) return t('relativeTime.yesterday', 'Yesterday');
   if (diffDays >= 2 && diffDays <= maxDays)
-    return t('timestamp/relativeDaysAgo', { count: diffDays });
+    return t('relativeTime.daysAgo', {
+      count: diffDays,
+      defaultValue_one: '{{ count }}d ago',
+      defaultValue_other: '{{ count }}d ago',
+    });
   if (maxWeeks > 0) {
     const maxDaysForWeeks = maxWeeks * 7;
     if (diffDays >= 7 && diffDays <= maxDaysForWeeks) {
       const weeks = Math.ceil(diffDays / 7);
-      return t('timestamp/relativeWeeksAgo', { count: weeks });
+      return t('relativeTime.weeksAgo', {
+        count: weeks,
+        defaultValue_one: '{{ count }}w ago',
+        defaultValue_other: '{{ count }}w ago',
+      });
     }
   }
   return (then as Dayjs.Dayjs).format('DD/MM/YY');
@@ -150,7 +153,7 @@ export function getDateString({
       options.calendarFormats = calendarFormats;
     if (typeof format !== 'undefined' && format !== null) options.format = format;
 
-    const translatedTimestamp = t(timestampTranslationKey, {
+    const translatedTimestamp = t(asDynamicKey(timestampTranslationKey), {
       ...options,
       timestamp: new Date(messageCreatedAt),
     });
@@ -250,26 +253,43 @@ export const predefinedFormatters: PredefinedFormatters = {
     },
 };
 
-export const defaultTranslatorFunction = ((key: string) => key) as TFunction;
+/**
+ * Used before a `Streami18n` instance has initialised, and as the `TranslationContext` default
+ * outside `<Chat>`. Keys are opaque identifiers, so returning the key would render
+ * "messageComposer.sendButton.label" in the UI; the inline English `defaultValue` that every
+ * call site passes is rendered instead, with `{{ variable }}` placeholders interpolated.
+ */
+export const defaultTranslatorFunction = ((
+  key: string,
+  defaultValueOrOptions?: string | Record<string, unknown>,
+  maybeOptions?: Record<string, unknown>,
+) => {
+  const defaultValue =
+    typeof defaultValueOrOptions === 'string' ? defaultValueOrOptions : undefined;
+  const options =
+    (typeof defaultValueOrOptions === 'object' ? defaultValueOrOptions : maybeOptions) ??
+    {};
+
+  let template = defaultValue;
+  if (template === undefined && typeof options.count === 'number') {
+    template = (
+      options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+    ) as string | undefined;
+  }
+  template ??= options.defaultValue as string | undefined;
+  if (template === undefined) return key;
+
+  return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+    const value = options[name];
+    return value === undefined || value === null ? whole : String(value);
+  });
+}) as unknown as StreamTFunction;
+
+/**
+ * Marks a runtime-derived string as a translation key, for the small number of keys that are not
+ * known statically: `notification.message` from `stream-chat`, slash-command metadata from the
+ * API, language codes, and integrator-supplied props. See {@link DynamicTranslationKey}.
+ */
+export const asDynamicKey = (key: string) => key as DynamicTranslationKey;
 
 export const defaultDateTimeParser = (input?: TDateTimeParserInput) => Dayjs(input);
-
-export const isLanguageSupported = (
-  language: string,
-): language is SupportedTranslations => {
-  const translations = [
-    'de',
-    'en',
-    'es',
-    'fr',
-    'hi',
-    'it',
-    'ja',
-    'ko',
-    'nl',
-    'pt',
-    'ru',
-    'tr',
-  ];
-  return translations.some((translation) => language === translation);
-};

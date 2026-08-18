@@ -37,8 +37,10 @@ export function useChannelHeaderOnlineStatus(): string | null {
   if (!memberCount) return null;
 
   if (isDirectMessagingChannel) {
-    return hasMembersOnline ? t('Online') : t('Offline');
+    return hasMembersOnline
+      ? t('common.online.label', 'Online')
+      : t('common.offline.label', 'Offline');
   }
 
-  return `${t('{{ memberCount }} members', { memberCount })} · ${t('{{ watcherCount }} online', { watcherCount })}`;
+  return `${t('channelHeader.online.members.label', '{{ memberCount }} members', { memberCount })} · ${t('channelHeader.online.online.label', '{{ watcherCount }} online', { watcherCount })}`;
 }

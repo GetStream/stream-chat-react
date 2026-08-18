@@ -45,9 +45,12 @@ function computeChannelDisplayName(
 export const useChannelDisplayName = (
   channel: Channel | undefined,
 ): string | undefined => {
-  const { client } = useChatContext('useChannelDisplayName');
-  const { t } = useTranslationContext('useChannelDisplayName');
-  const directMessageLabel = t('Direct message');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
+  const directMessageLabel = t(
+    'channelListItem.channelDisplayName.directMessage.label',
+    'Direct message',
+  );
 
   const [displayName, setDisplayName] = useState<string | undefined>(() =>
     channel

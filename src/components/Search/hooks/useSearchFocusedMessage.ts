@@ -7,7 +7,7 @@ const searchControllerStateSelector = (nextValue: InternalSearchControllerState)
 });
 
 export const useSearchFocusedMessage = () => {
-  const { searchController } = useChatContext('Channel');
+  const { searchController } = useChatContext();
   const { focusedMessage } = useStateStore(
     searchController._internalState,
     searchControllerStateSelector,

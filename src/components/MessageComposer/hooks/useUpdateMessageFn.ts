@@ -10,7 +10,7 @@ export const useUpdateMessageFn = () => {
   const channel = useChannel();
   const thread = useThreadContext();
   const messageComposer = useMessageComposerController();
-  const { t } = useTranslationContext('useUpdateMessageFn');
+  const { t } = useTranslationContext();
 
   return useCallback(async () => {
     const composition = await messageComposer.compose();
@@ -29,7 +29,10 @@ export const useUpdateMessageFn = () => {
       messageComposer.clear();
     } catch (error) {
       channel.getClient().notifications.addError({
-        message: t('Edit message request failed'),
+        message: t(
+          'messageComposer.updateMessageFn.editMessageRequestFailed.text',
+          'Edit message request failed',
+        ),
         // todo: Register notification translator
         options: {
           metadata: {

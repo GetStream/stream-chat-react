@@ -36,11 +36,11 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     renderText: contextRenderText,
     translationView = 'translated',
     unsafeHTML,
-  } = useMessageContext('MessageText');
+  } = useMessageContext();
 
   const renderText = propsRenderText ?? contextRenderText ?? defaultRenderText;
 
-  const { t, userLanguage } = useTranslationContext('MessageText');
+  const { t, userLanguage } = useTranslationContext();
   const message = propMessage || contextMessage;
   const hasAttachment = messageHasAttachments(message);
   const messageContextId = useStableId();
@@ -83,8 +83,10 @@ const UnMemoizedMessageTextComponent = (props: MessageTextProps) => {
     hasMentions && typeof onMentionsClickMessage === 'function';
   const senderName = message.user?.name;
   const messageContext = senderName
-    ? t('aria/Message from {{ user }},', { user: senderName })
-    : t('aria/Message,');
+    ? t('message.text.message.withUser.ariaLabel', 'Message from {{ user }},', {
+        user: senderName,
+      })
+    : t('message.text.message.ariaLabel', 'Message,');
   // `aria-labelledby` accepts a space-separated list of element ids. We point to the
   // hidden message context and the rendered message text so screen readers announce both.
   const messageLabelledBy = `${messageContextId} ${messageTextId}`;

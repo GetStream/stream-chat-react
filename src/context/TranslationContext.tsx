@@ -1,21 +1,19 @@
+import type { PropsWithChildren } from 'react';
 import React, { useContext } from 'react';
 import Dayjs from 'dayjs';
 import calendar from 'dayjs/plugin/calendar.js';
 import localizedFormat from 'dayjs/plugin/localizedFormat.js';
-import type { PropsWithChildren } from 'react';
-import type { TFunction } from 'i18next';
-import type { TranslationLanguage } from 'stream-chat';
 
 import { defaultDateTimeParser, defaultTranslatorFunction } from '../i18n/utils';
-import type { TDateTimeParser } from '../i18n/types';
+import type { StreamTFunction, TDateTimeParser } from '../i18n/types';
 
 Dayjs.extend(calendar);
 Dayjs.extend(localizedFormat);
 
 export type TranslationContextValue = {
-  t: TFunction;
+  t: StreamTFunction;
   tDateTimeParser: TDateTimeParser;
-  userLanguage: TranslationLanguage;
+  userLanguage: string;
 };
 
 export const TranslationContext = React.createContext<TranslationContextValue>({
@@ -31,16 +29,8 @@ export const TranslationProvider = ({
   <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
 );
 
-export const useTranslationContext = (componentName?: string) => {
-  const contextValue = useContext(TranslationContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useTranslationContext hook was called outside of the TranslationContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as TranslationContextValue;
-  }
-
-  return contextValue;
-};
+/**
+ * Works outside `<Chat>`: the context default's `defaultTranslatorFunction` renders the inline
+ * English `defaultValue` every `t()` call site passes, so SDK primitives render standalone.
+ */
+export const useTranslationContext = () => useContext(TranslationContext);

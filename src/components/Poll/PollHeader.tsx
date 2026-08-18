@@ -19,20 +19,24 @@ const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue =
 });
 
 export const PollHeader = () => {
-  const { t } = useTranslationContext('PollHeader');
+  const { t } = useTranslationContext();
 
   const { poll } = usePollContext();
   const { enforce_unique_vote, is_closed, max_votes_allowed, name, options } =
     useStateStore(poll.state, pollStateSelector);
 
   const selectionInstructions = useMemo(() => {
-    if (is_closed) return t('Vote ended');
-    if (enforce_unique_vote || options.length === 1) return t('Select one');
+    if (is_closed) return t('poll.header.voteEnded.label', 'Vote ended');
+    if (enforce_unique_vote || options.length === 1)
+      return t('poll.header.selectOne.label', 'Select one');
     if (max_votes_allowed)
-      return t('Select up to {{count}}', {
+      return t('poll.header.selectUp.label', {
         count: max_votes_allowed > options.length ? options.length : max_votes_allowed,
+        defaultValue_one: 'Select up to {{count}}',
+        defaultValue_other: 'Select up to {{count}}',
       });
-    if (options.length > 1) return t('Select one or more');
+    if (options.length > 1)
+      return t('poll.header.selectOneMore.label', 'Select one or more');
     return '';
   }, [is_closed, enforce_unique_vote, max_votes_allowed, options.length, t]);
 

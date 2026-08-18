@@ -2,19 +2,30 @@ import { renderHook } from '@testing-library/react';
 
 import { useInteractionAnnouncements } from '../useInteractionAnnouncements';
 
+// Mirrors i18next: render the inline English `defaultValue` (positional, or the
+// `defaultValue_one`/`_other` plural forms) and interpolate `{{ variable }}` from the options.
+// Inlined rather than imported from mock-builders because `vi.hoisted` runs before imports.
 const { announceMock, tMock } = vi.hoisted(() => ({
   announceMock: vi.fn(),
-  tMock: vi.fn((key: string, params?: Record<string, number | string>) =>
-    Object.keys(params ?? {}).reduce(
-      (acc, paramKey) =>
-        acc.replace(
-          new RegExp(`\\{\\{\\s${paramKey}\\s\\}\\}`, 'g'),
-          String(params?.[paramKey]),
-        ),
-      // strip the `aria/` prefix to mimic the natural-language key fallback
-      key.replace(/^aria\//, ''),
-    ),
-  ),
+  tMock: vi.fn((key: string, second?: unknown, third?: unknown) => {
+    const defaultValue = typeof second === 'string' ? second : undefined;
+    const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+      string,
+      unknown
+    >;
+    let template = defaultValue;
+    if (template === undefined && typeof options.count === 'number') {
+      template = (
+        options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+      ) as string | undefined;
+    }
+    template ??= options.defaultValue as string | undefined;
+    template ??= key;
+    return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+      const value = options[name];
+      return value === undefined || value === null ? whole : String(value);
+    });
+  }),
 }));
 
 vi.mock('../../useAriaLiveAnnouncer', () => ({

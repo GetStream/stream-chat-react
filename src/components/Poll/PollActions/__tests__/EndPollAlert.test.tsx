@@ -16,6 +16,7 @@ import {
   mockTranslationContextValue,
 } from '../../../../mock-builders';
 import { Poll } from 'stream-chat';
+import { mockT } from '../../../../mock-builders/translator';
 
 describe('EndPollAlert', () => {
   it('closes modal and notifies on successful poll end', async () => {
@@ -29,7 +30,7 @@ describe('EndPollAlert', () => {
 
     render(
       <ChatProvider value={mockChatContext({ client })}>
-        <TranslationProvider value={mockTranslationContextValue({ t: (k: string) => k })}>
+        <TranslationProvider value={mockTranslationContextValue({ t: mockT })}>
           <PollProvider poll={poll}>
             <ModalContextProvider value={{ close }}>
               <EndPollAlert />
@@ -48,7 +49,7 @@ describe('EndPollAlert', () => {
       expect(close).toHaveBeenCalledTimes(1);
       expect(addSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Poll ended',
+          message: 'Poll Ended',
           options: expect.objectContaining({ severity: 'success' }),
         }),
       );
@@ -66,7 +67,7 @@ describe('EndPollAlert', () => {
 
     render(
       <ChatProvider value={mockChatContext({ client })}>
-        <TranslationProvider value={mockTranslationContextValue({ t: (k: string) => k })}>
+        <TranslationProvider value={mockTranslationContextValue({ t: mockT })}>
           <PollProvider poll={poll}>
             <ModalContextProvider value={{ close }}>
               <EndPollAlert />

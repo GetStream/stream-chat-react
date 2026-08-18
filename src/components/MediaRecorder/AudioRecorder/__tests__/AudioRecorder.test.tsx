@@ -19,10 +19,12 @@ import { MessageComposer } from '../../../MessageComposer';
 import { Chat } from '../../../Chat';
 import { Channel } from '../../../Channel';
 import {
+  ChatProvider,
   DialogManagerProvider,
   MessageComposerContextProvider,
   WithComponents,
 } from '../../../../context';
+import { mockChatContext } from '../../../../mock-builders/context';
 import {
   generateAudioAttachment,
   generateFileAttachment,
@@ -434,15 +436,18 @@ const DEFAULT_RECORDING_CONTROLLER = {
 
 const renderAudioRecorder = (controller = {}) =>
   render(
-    <WithAudioPlayback>
-      <MessageComposerContextProvider
-        value={fromPartial<MessageComposerContextValue>({
-          recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
-        })}
-      >
-        <AudioRecorder />
-      </MessageComposerContextProvider>
-    </WithAudioPlayback>,
+    // AudioRecorder reaches useChatContext through useNotificationApi, so it needs a ChatProvider.
+    <ChatProvider value={mockChatContext()}>
+      <WithAudioPlayback>
+        <MessageComposerContextProvider
+          value={fromPartial<MessageComposerContextValue>({
+            recordingController: { ...DEFAULT_RECORDING_CONTROLLER, ...controller },
+          })}
+        >
+          <AudioRecorder />
+        </MessageComposerContextProvider>
+      </WithAudioPlayback>
+    </ChatProvider>,
   );
 
 describe('AudioRecorder', () => {

@@ -71,6 +71,7 @@ import type {
   LayoutDescriptor,
 } from './slotBinding';
 import { getLayoutViewState } from './hooks';
+import { requireContext } from '../../context/requireContext';
 
 // Re-export the binding primitives + renderer types from their leaf modules so
 // existing `stream-chat-react` imports keep resolving through ChatView.
@@ -216,41 +217,14 @@ const resolveSlotTopology = ({
   };
 };
 
-const defaultLayoutController = new LayoutControllerClass({
-  initialState: {
-    activeView: 'channels',
-    layouts: {
-      channels: createLayoutRuntimeState({
-        availableSlots: createGeneratedSlotNames(DEFAULT_MAX_SLOTS),
-      }),
-    },
-  },
-});
-
-export const ChatViewContext = createContext<ChatViewContextValue>({
-  activeView: 'channels',
-  entityInferers: [],
-  layoutController: defaultLayoutController,
-  registerViewActionSlotResolvers: () => undefined,
-  resolveActionTargetSlot: () => undefined,
-  setActiveView: () => undefined,
-});
+// No default: a shared `LayoutController` would let unrelated subtrees write to one instance.
+export const ChatViewContext = createContext<ChatViewContextValue | undefined>(undefined);
 const ChatViewA11yContext = createContext<ChatViewA11yContextValue>(
   DEFAULT_CHAT_VIEW_A11Y_CONTEXT_VALUE,
 );
 
-export const useChatViewContext = () => {
-  const value = useContext(ChatViewContext);
-
-  if (!value) {
-    console.warn(
-      'The useChatViewContext hook was called outside of the ChatView provider.',
-    );
-    return {} as ChatViewContextValue;
-  }
-
-  return value;
-};
+export const useChatViewContext = () =>
+  requireContext(useContext(ChatViewContext), 'useChatViewContext', 'ChatView');
 
 const activeViewSelector = ({ activeView }: ChatViewLayoutState) => ({ activeView });
 const workspaceLayoutStateSelector = (state: ChatViewLayoutState) => ({
@@ -657,13 +631,16 @@ export const ChatViewChannelsSelectorButton = ({
   return (
     <ChatViewSelectorButton
       ActiveIcon={IconMessageBubbleFill}
-      aria-label={t('aria/Open channels view')}
+      aria-label={t(
+        'slotLayout.chatView.openChannelsView.ariaLabel',
+        'Open channels view',
+      )}
       Icon={IconMessageBubble}
       iconOnly={iconOnly}
       isActive={isActive}
       onClick={() => setActiveView('channels')}
       onPointerDown={() => setActiveView('channels')}
-      text={t('Channels')}
+      text={t('slotLayout.chatView.channels.text', 'Channels')}
     />
   );
 };
@@ -684,10 +661,12 @@ export const ChatViewThreadsSelectorButton = ({
   const isActive = activeView === 'threads';
   const label =
     unreadThreadCount > 0
-      ? t('aria/Open threads view with unread threads', {
+      ? t('slotLayout.chatView.openThreadsViewUnread.ariaLabel', {
           count: unreadThreadCount,
+          defaultValue_one: 'Open threads view, {{ count }} unread thread',
+          defaultValue_other: 'Open threads view, {{ count }} unread threads',
         })
-      : t('aria/Open threads view');
+      : t('slotLayout.chatView.openThreadsView.ariaLabel', 'Open threads view');
 
   return (
     <ChatViewSelectorButton
@@ -698,7 +677,7 @@ export const ChatViewThreadsSelectorButton = ({
       isActive={isActive}
       onClick={() => setActiveView('threads')}
       onPointerDown={() => setActiveView('threads')}
-      text={t('Threads')}
+      text={t('common.threads.text', 'Threads')}
     >
       <UnreadCountBadge count={unreadThreadCount} position='top-right'>
         {isActive ? <IconThreadFill /> : <IconThread />}
@@ -738,7 +717,10 @@ const ChatViewSelector = ({
 
   return (
     <div
-      aria-label={t('aria/Chat view controls')}
+      aria-label={t(
+        'slotLayout.chatView.chatViewControls.ariaLabel',
+        'Chat view controls',
+      )}
       className='str-chat__chat-view__selector'
       role='navigation'
     >

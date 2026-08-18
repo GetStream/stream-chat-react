@@ -29,7 +29,7 @@ export const useSendMessageFn = () => {
   const channel = useChannel();
   const thread = useThreadContext();
   const messageComposer = useMessageComposerController();
-  const { t } = useTranslationContext('useSendMessageFn');
+  const { t } = useTranslationContext();
 
   /**
    * Resolves with `true` when the message was sent, `false` when there was nothing to send or the
@@ -80,7 +80,10 @@ export const useSendMessageFn = () => {
         restoreComposerStateSnapshot();
         // todo: Register notification translator
         channel.getClient().notifications.addError({
-          message: t('Send message request failed'),
+          message: t(
+            'messageComposer.sendMessageFn.sendMessageRequestFailed.text',
+            'Send message request failed',
+          ),
           options: {
             metadata: {
               reason: (error as Error).message,

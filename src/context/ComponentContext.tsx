@@ -180,10 +180,6 @@ export type ComponentContextValue = {
   ProgressIndicator?: React.ComponentType<ProgressIndicatorProps>;
   /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   MessageUI?: React.ComponentType<MessageUIComponentProps>;
-  /** Custom UI component to display a message in the standard `MessageList`, defaults to and accepts the same props as: [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx)
-   * @deprecated use `MessageUI` instead
-   */
-  Message?: React.ComponentType<MessageUIComponentProps>;
   /** Custom UI component for message actions popup, accepts no props, all the defaults are set within [MessageActions (unstable)](https://github.com/GetStream/stream-chat-react/blob/master/src/experimental/MessageActions/MessageActions.tsx) */
   MessageActions?: React.ComponentType;
   /** Custom UI component to display the contents of a bounced message modal. Usually it allows to retry, edit, or delete the message. Defaults to and accepts the same props as: [MessageBouncePrompt](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageBounce/MessageBouncePrompt.tsx) */
@@ -331,16 +327,6 @@ export const ComponentProvider = ({
   value,
 }: PropsWithChildren<{
   value: Partial<ComponentContextValue>;
-}>) => (
-  <ComponentContext.Provider value={value as unknown as ComponentContextValue}>
-    {children}
-  </ComponentContext.Provider>
-);
+}>) => <ComponentContext.Provider value={value}>{children}</ComponentContext.Provider>;
 
-export const useComponentContext = (
-  /**
-   * @deprecated
-   */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _componentName?: string,
-) => useContext(ComponentContext) as unknown as ComponentContextValue;
+export const useComponentContext = () => useContext(ComponentContext);

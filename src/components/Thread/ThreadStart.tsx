@@ -11,14 +11,18 @@ const threadStartSelector = ({ parentMessage }: ThreadState) => ({
 
 export const ThreadStart = () => {
   const thread = useThreadContext();
-  const { t } = useTranslationContext('ThreadStart');
+  const { t } = useTranslationContext();
   const { parentMessage } = useStateStore(thread?.state, threadStartSelector) ?? {};
 
   if (!parentMessage?.reply_count) return null;
 
   return (
     <div className='str-chat__thread-start'>
-      {t('replyCount', { count: parentMessage.reply_count })}
+      {t('common.replyCount.label', {
+        count: parentMessage.reply_count,
+        defaultValue_one: '1 reply',
+        defaultValue_other: '{{ count }} replies',
+      })}
     </div>
   );
 };

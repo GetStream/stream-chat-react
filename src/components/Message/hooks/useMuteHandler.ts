@@ -20,8 +20,8 @@ export const useMuteHandler = (
   message?: LocalMessage,
   notifications: MuteUserNotifications = {},
 ): ReactEventHandler => {
-  const { client } = useChatContext('useMuteHandler');
-  const { t } = useTranslationContext('useMuteHandler');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
 
   return async (event) => {
     event.preventDefault();
@@ -46,7 +46,7 @@ export const useMuteHandler = (
         const successMessage =
           (getSuccessNotification &&
             validateAndGetMessage(getSuccessNotification, [message.user])) ||
-          t('{{ user }} has been muted', {
+          t('common.muted.label', '{{ user }} has been muted', {
             user: message.user.name || message.user.id,
           });
 
@@ -56,7 +56,7 @@ export const useMuteHandler = (
         const errorMessage =
           (getErrorNotification &&
             validateAndGetMessage(getErrorNotification, [message.user])) ||
-          t('Error muting a user ...');
+          t('common.errorMutingUser.label', 'Error muting a user ...');
 
         if (typeof errorMessage === 'string') notify(errorMessage, 'error');
       }
@@ -68,7 +68,7 @@ export const useMuteHandler = (
         const successMessage =
           (getSuccessNotification &&
             validateAndGetMessage(getSuccessNotification, [message.user])) ||
-          t('{{ user }} has been unmuted', {
+          t('common.unmuted.label', '{{ user }} has been unmuted', {
             user: message.user.name || message.user.id,
           });
 
@@ -78,7 +78,7 @@ export const useMuteHandler = (
         const errorMessage =
           (getErrorNotification &&
             validateAndGetMessage(getErrorNotification, [message.user])) ||
-          t('Error unmuting a user ...');
+          t('common.errorUnmutingUser.label', 'Error unmuting a user ...');
 
         if (typeof errorMessage === 'string') notify(errorMessage, 'error');
       }

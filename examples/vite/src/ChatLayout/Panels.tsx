@@ -338,7 +338,7 @@ const LayerThreadHeader = ({ thread }: ThreadHeaderProps) => {
       <div className='str-chat__thread-header__start'>
         <Button
           appearance='ghost'
-          aria-label={t('Back')}
+          aria-label={t('common.back.label', 'Back')}
           circular
           onClick={() => close(CHANNEL_THREAD_SLOT)}
           size='md'
@@ -348,11 +348,17 @@ const LayerThreadHeader = ({ thread }: ThreadHeaderProps) => {
         </Button>
       </div>
       <div className='str-chat__thread-header-details'>
-        <div className='str-chat__thread-header-title'>{t('Thread')}</div>
+        <div className='str-chat__thread-header-title'>
+          {t('thread.header.thread.text', 'Thread')}
+        </div>
         <div className='str-chat__thread-header-subtitle'>
-          {replyCount === 1
-            ? t('1 reply')
-            : t('{{ count }} replies', { count: replyCount })}
+          {/* One plural key rather than a hand-rolled count branch: i18next picks the form via
+              Intl.PluralRules, so a language with more categories works without touching this. */}
+          {t('common.replyCount.label', {
+            count: replyCount,
+            defaultValue_one: '1 reply',
+            defaultValue_other: '{{ count }} replies',
+          })}
         </div>
       </div>
     </div>

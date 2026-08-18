@@ -10,7 +10,6 @@ import {
   defaultChannelManagementActionSet,
   useBaseChannelManagementActionSetFilter,
 } from '../Views/ChannelManagementView/ChannelManagementActions.defaults';
-
 const mocks = vi.hoisted(() => {
   const addNotification = vi.fn();
   const blockUser = vi.fn();
@@ -19,7 +18,26 @@ const mocks = vi.hoisted(() => {
   const mute = vi.fn();
   const muteUser = vi.fn();
   const removeMembers = vi.fn();
-  const t = vi.fn((key: string) => key);
+  // Inlined rather than imported: `vi.hoisted` runs before module imports are initialized.
+  const t = vi.fn((key: string, second?: unknown, third?: unknown) => {
+    const defaultValue = typeof second === 'string' ? second : undefined;
+    const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+      string,
+      unknown
+    >;
+    let template = defaultValue;
+    if (template === undefined && typeof options.count === 'number') {
+      template = (
+        options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+      ) as string | undefined;
+    }
+    template ??= options.defaultValue as string | undefined;
+    template ??= key;
+    return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+      const value = options[name];
+      return value === undefined || value === null ? whole : String(value);
+    });
+  });
   const unblockUser = vi.fn();
   const unmute = vi.fn();
   const unmuteUser = vi.fn();
@@ -112,7 +130,11 @@ vi.mock('../../../context', () => ({
   }),
   useModalContext: () => ({ close: mocks.close }),
   useTranslationContext: () => ({
-    t: mocks.useStableTranslationFunction ? mocks.t : (key: string) => mocks.t(key),
+    // The unstable variant must still forward the inline defaultValue, or every call would
+    // resolve to the raw key.
+    t: mocks.useStableTranslationFunction
+      ? mocks.t
+      : (...args: unknown[]) => mocks.t(...args),
   }),
 }));
 

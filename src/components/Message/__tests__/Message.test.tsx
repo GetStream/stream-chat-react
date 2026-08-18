@@ -162,7 +162,9 @@ async function renderComponent({
       <Channel channel={channel}>
         <WithComponents
           overrides={{
-            Message: () => <CustomMessageUIComponent contextCallback={contextCallback} />,
+            MessageUI: () => (
+              <CustomMessageUIComponent contextCallback={contextCallback} />
+            ),
             reactionOptions: defaultReactionOptions,
             ...components,
           }}
@@ -879,7 +881,7 @@ describe('<Message /> component', () => {
     const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
     });
 
@@ -888,7 +890,7 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message: updatedMessage,
       renderer: rerender,
     });
@@ -901,7 +903,7 @@ describe('<Message /> component', () => {
     const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
     });
 
@@ -909,7 +911,7 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: { readBy: [bob] },
       renderer: rerender,
@@ -923,7 +925,7 @@ describe('<Message /> component', () => {
     const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: { groupStyles: ['bottom'] },
     });
@@ -932,7 +934,7 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: { groupStyles: ['bottom', 'left'] as any },
       renderer: rerender,
@@ -946,7 +948,7 @@ describe('<Message /> component', () => {
     const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: { lastReceivedId: 'last-received-id-1' },
     });
@@ -955,7 +957,7 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: { lastReceivedId: 'last-received-id-2' },
       renderer: rerender,
@@ -969,7 +971,7 @@ describe('<Message /> component', () => {
     const UIMock = vi.fn(() => <div>UI mock</div>);
 
     const { rerender } = await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: {
         messageListRect: fromPartial<DOMRect>({
@@ -985,7 +987,7 @@ describe('<Message /> component', () => {
     UIMock.mockClear();
 
     await renderComponent({
-      components: { Message: UIMock },
+      components: { MessageUI: UIMock },
       message,
       props: {
         messageListRect: fromPartial<DOMRect>({

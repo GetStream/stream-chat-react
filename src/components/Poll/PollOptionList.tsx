@@ -27,7 +27,7 @@ export const PollOptionList = ({
   PollOptionsFullList = DefaultPollOptionsFullList,
 }: PollOptionListProps) => {
   const { PollOptionSelector = DefaultPollOptionSelector } = useComponentContext();
-  const { t } = useTranslationContext('PollOptionList');
+  const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { options } = useStateStore(poll.state, pollStateSelector);
   const [viewAllOptionsOpen, setViewAllOptionsOpen] = useState(false);
@@ -54,8 +54,10 @@ export const PollOptionList = ({
       </div>
       {showMoreOptionsButton && (
         <PollAction
-          buttonText={t('+{{count}} more options', {
+          buttonText={t('poll.optionList.moreOptions.label', {
             count: options.length,
+            defaultValue_one: '+{{count}} more option',
+            defaultValue_other: '+{{count}} more options',
           })}
           closeModal={closeViewAllOptions}
           isAdditionalAction

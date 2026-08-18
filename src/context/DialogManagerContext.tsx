@@ -178,7 +178,7 @@ export const useDialogManager = ({
         if (!managerInPrevState || managerInNewState?.id !== managerInPrevState.id) {
           setDialogManagerContext((prevState) => {
             if (prevState?.dialogManager.id === managerInNewState?.id) return prevState;
-            // fixme: need to handle the possibility that the dialogManager is undefined
+            // an unresolved manager is caught by the guard below
             return {
               dialogManager:
                 managerInNewState || nearestDialogManagerContext?.dialogManager,
@@ -193,12 +193,12 @@ export const useDialogManager = ({
   }, [dialogId, dialogManagerId, nearestDialogManagerContext?.dialogManager]);
 
   if (!dialogManagerContext?.dialogManager) {
-    console.warn(
-      `Dialog manager (manager id: ${dialogManagerId}, dialog id: ${dialogId}) is not available`,
+    throw new Error(
+      `useDialogManager could not resolve a dialog manager (manager id: ${dialogManagerId}, dialog id: ${dialogId}). Make sure the caller is rendered within <DialogManagerProvider>.`,
     );
   }
 
-  return dialogManagerContext as DialogManagerProviderContextValue;
+  return dialogManagerContext;
 };
 
 export const modalDialogManagerId = 'modal-dialog-manager' as const;

@@ -1,6 +1,8 @@
 import { StateStore } from 'stream-chat';
 import { useStateStore } from 'stream-chat-react';
 
+import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
+
 export type ReactionsSettingsState = {
   flipHorizontalPosition: boolean;
   verticalPosition: 'top' | 'bottom';
@@ -18,6 +20,10 @@ export type ThemeSettingsState = {
 
 export type NotificationsSettingsState = {
   verticalAlignment: 'bottom' | 'top';
+};
+
+export type LanguageSettingsState = {
+  code: string;
 };
 
 export type MessageActionsSettingsState = {
@@ -79,6 +85,7 @@ export type LayoutSettingsState = {
 export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
+  language: LanguageSettingsState;
   layout: LayoutSettingsState;
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
@@ -92,6 +99,7 @@ const panelLayoutStorageKey = 'stream-chat-react:example-panel-layout';
 const themeStorageKey = 'stream-chat-react:example-theme-mode';
 const directionStorageKey = 'stream-chat-react:example-direction';
 const themeUrlParam = 'theme';
+const languageUrlParam = 'language';
 
 const clamp = (value: number, min: number, max?: number) => {
   const minClampedValue = Math.max(min, value);
@@ -123,6 +131,9 @@ const defaultAppSettingsState: AppSettingsState = {
   },
   chatView: {
     iconOnly: true,
+  },
+  language: {
+    code: DEFAULT_LANGUAGE,
   },
   layout: {},
   messageActions: {
@@ -254,6 +265,37 @@ const getThemeModeFromUrl = (): ThemeSettingsState['mode'] | undefined => {
   }
 };
 
+const getLanguageFromUrl = (): string | undefined => {
+  if (typeof window === 'undefined') return;
+
+  return new URLSearchParams(window.location.search).get(languageUrlParam) ?? undefined;
+};
+
+/** The store is the source of truth; this pushes the choice into the SDK. */
+const applyLanguage = (code: string) => {
+  void streamI18n.setLanguage(code);
+};
+
+const persistLanguageInUrl = (code: string) => {
+  if (typeof window === 'undefined') return;
+
+  const url = new URL(window.location.href);
+
+  if (url.searchParams.get(languageUrlParam) === code) return;
+
+  if (code === DEFAULT_LANGUAGE) {
+    url.searchParams.delete(languageUrlParam);
+  } else {
+    url.searchParams.set(languageUrlParam, code);
+  }
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  );
+};
+
 const persistDirection = (direction: ThemeSettingsState['direction']) => {
   if (typeof window === 'undefined') return;
 
@@ -307,6 +349,9 @@ const persistThemeModeInUrl = (themeMode: ThemeSettingsState['mode']) => {
 
 const initialAppSettingsState: AppSettingsState = {
   ...defaultAppSettingsState,
+  language: {
+    code: getLanguageFromUrl() ?? defaultAppSettingsState.language.code,
+  },
   panelLayout: getStoredPanelLayoutSettings() ?? defaultAppSettingsState.panelLayout,
   theme: {
     ...defaultAppSettingsState.theme,
@@ -331,6 +376,16 @@ appSettingsStore.subscribeWithSelector(
   ({ direction }) => {
     persistDirection(direction);
     applyDirection(direction);
+  },
+);
+
+// The switcher writes to the store; this is what makes the UI change language. `streamI18n` was
+// constructed with the initial code already, so the immediate invocation is a no-op.
+appSettingsStore.subscribeWithSelector(
+  ({ language }) => ({ code: language.code }),
+  ({ code }) => {
+    applyLanguage(code);
+    persistLanguageInUrl(code);
   },
 );
 

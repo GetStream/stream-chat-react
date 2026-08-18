@@ -24,7 +24,7 @@ export const DownloadSubmenuHeader = () => {
     <ContextMenuHeader>
       <ContextMenuBackButton onClick={goBack}>
         <IconChevronLeft />
-        <span>{t('Download Attachment')}</span>
+        <span>{t('common.downloadAttachment.title', 'Download Attachment')}</span>
       </ContextMenuBackButton>
     </ContextMenuHeader>
   );
@@ -44,8 +44,16 @@ export const DownloadSubmenu = () => {
       {downloadableAttachments.map((attachment, index) => {
         const fileName = attachment.localMetadata?.file?.name ?? attachment.title;
         const label = fileName
-          ? t('Download {{ fileName }}', { fileName })
-          : t('Download attachment {{ number }}', { number: index + 1 });
+          ? t(
+              'messageActions.downloadSubmenu.download.label',
+              'Download {{ fileName }}',
+              { fileName },
+            )
+          : t(
+              'messageActions.downloadSubmenu.downloadAttachment.label',
+              'Download attachment {{ number }}',
+              { number: index + 1 },
+            );
 
         return (
           <ContextMenuButton
@@ -74,7 +82,7 @@ export const DownloadSubmenu = () => {
           closeMenu();
         }}
       >
-        {t('Download All')}
+        {t('messageActions.downloadSubmenu.download.text', 'Download All')}
       </ContextMenuButton>
     </div>
   );

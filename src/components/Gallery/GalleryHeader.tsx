@@ -4,30 +4,58 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 import { type GalleryItem } from './GalleryContext';
 import { Button } from '../Button';
 import { IconArrowDownCircle, IconXmark } from '../Icons';
-import { MessageTimestamp as DefaultMessageTimestamp } from '../Message/MessageTimestamp';
-import {
-  ModalContext,
-  useComponentContext,
-  useMessageContext,
-  useTranslationContext,
-} from '../../context';
+import { ModalContext, useChatContext, useTranslationContext } from '../../context';
+import { getDateString, isDate } from '../../i18n/utils';
 
 type GalleryHeaderProps = {
   currentItem: GalleryItem;
 };
 
+const normalizeTimestamp = (timestamp: GalleryItem['createdAt']) => {
+  if (!timestamp) return undefined;
+  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
+};
+
+/**
+ * Reads the timestamp off the gallery item: the gallery renders outside any `MessageProvider`, and
+ * channel media mixes items from many messages.
+ */
+const GalleryTimestamp = ({ createdAt }: Pick<GalleryItem, 'createdAt'>) => {
+  const { t, tDateTimeParser } = useTranslationContext();
+  const normalizedTimestamp = normalizeTimestamp(createdAt);
+
+  const when = useMemo(
+    () =>
+      getDateString({
+        messageCreatedAt: normalizedTimestamp,
+        t,
+        tDateTimeParser,
+        timestampTranslationKey: 'timestamp.GalleryTimestamp',
+      }),
+    [normalizedTimestamp, t, tDateTimeParser],
+  );
+
+  if (!when) return null;
+
+  return (
+    <time className='str-chat__gallery__timestamp' dateTime={normalizedTimestamp}>
+      {when}
+    </time>
+  );
+};
+
 export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
   const { t } = useTranslationContext();
-  const { MessageTimestamp = DefaultMessageTimestamp } = useComponentContext('GalleryUI');
-  const { isMyMessage, message } = useMessageContext('GalleryUI');
+  const { client } = useChatContext();
   const modalContext = useContext(ModalContext);
+  const { createdAt, user } = currentItem;
 
   const headerTitle =
-    (isMyMessage?.() && t('You')) ||
-    message?.user?.name ||
-    message?.user?.id ||
+    (!!user?.id && user.id === client.userID && t('common.you.label', 'You')) ||
+    user?.name ||
+    user?.id ||
     currentItem.title ||
-    t('User uploaded content');
+    t('common.userUploadedContent.label', 'User uploaded content');
   const downloadUrl = useMemo(() => {
     const rawDownloadUrl = currentItem.videoUrl ?? currentItem.imageUrl;
 
@@ -37,16 +65,14 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
 
     return sanitizedUrl === 'about:blank' ? undefined : sanitizedUrl;
   }, [currentItem.imageUrl, currentItem.videoUrl]);
-  const downloadLabel = t('aria/Download attachment');
+  const downloadLabel = t('common.downloadAttachment.ariaLabel', 'Download attachment');
 
   return (
     <div className='str-chat__gallery__header'>
       <div aria-hidden='true' className='str-chat__gallery__header-spacer' />
       <div className='str-chat__gallery__header-meta'>
         <div className='str-chat__gallery__title'>{headerTitle}</div>
-        {message?.created_at ? (
-          <MessageTimestamp customClass='str-chat__gallery__timestamp' />
-        ) : null}
+        <GalleryTimestamp createdAt={createdAt} />
       </div>
       <div className='str-chat__gallery__header-actions'>
         {downloadUrl ? (
@@ -64,10 +90,10 @@ export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
         ) : null}
         {modalContext?.close ? (
           <Button
-            aria-label={t('Close')}
+            aria-label={t('common.close.ariaLabel', 'Close')}
             className='str-chat__gallery__action-button str-chat__gallery__action-button--close'
             onClick={modalContext.close}
-            title={t('Close')}
+            title={t('common.close.ariaLabel', 'Close')}
           >
             <IconXmark />
           </Button>

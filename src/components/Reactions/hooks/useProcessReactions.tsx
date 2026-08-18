@@ -28,10 +28,8 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
     reactions: propReactions,
     sortReactions: propSortReactions,
   } = params;
-  const { message, sortReactions: contextSortReactions } =
-    useMessageContext('useProcessReactions');
-  const { reactionOptions = defaultReactionOptions } =
-    useComponentContext('useProcessReactions');
+  const { message, sortReactions: contextSortReactions } = useMessageContext();
+  const { reactionOptions = defaultReactionOptions } = useComponentContext();
 
   const sortReactions = propSortReactions ?? contextSortReactions ?? defaultReactionsSort;
   const latestReactions = propReactions ?? message.latest_reactions;

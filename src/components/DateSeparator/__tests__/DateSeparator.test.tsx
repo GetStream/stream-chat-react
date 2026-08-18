@@ -44,7 +44,7 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator':
+            'timestamp.DateSeparator':
               '{{ timestamp | timestampFormatter(calendar: false, format: "YYYY") }}',
           },
         }),
@@ -80,7 +80,7 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator':
+            'timestamp.DateSeparator':
               '{{ timestamp | timestampFormatter(calendar: false, format: "YYYY") }}',
           },
         }),
@@ -108,7 +108,7 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator':
+            'timestamp.DateSeparator':
               '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
@@ -132,7 +132,7 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator':
+            'timestamp.DateSeparator':
               '{{ timestamp | timestampFormatter(calendar: false, format: "YYYY") }}',
           },
         }),
@@ -147,7 +147,7 @@ describe('DateSeparator', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/DateSeparator':
+            'timestamp.DateSeparator':
               '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),

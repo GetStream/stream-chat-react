@@ -11,11 +11,17 @@ export type LoadingErrorIndicatorProps = {
  * UI component for error indicator in a Channel
  */
 const UnMemoizedLoadingErrorIndicator = ({ error }: LoadingErrorIndicatorProps) => {
-  const { t } = useTranslationContext('LoadingErrorIndicator');
+  const { t } = useTranslationContext();
 
   if (!error) return null;
 
-  return <div>{t('Error: {{ errorMessage }}', { errorMessage: error.message })}</div>;
+  return (
+    <div>
+      {t('loading.errorIndicator.error.text', 'Error: {{ errorMessage }}', {
+        errorMessage: error.message,
+      })}
+    </div>
+  );
 };
 
 export const LoadingErrorIndicator = React.memo(

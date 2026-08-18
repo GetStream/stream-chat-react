@@ -22,7 +22,7 @@ vi.mock('../../../context/ChatContext', () => ({
   useChatContext: () => ({ client: mockClient }),
 }));
 vi.mock('../../../context/TranslationContext', () => ({
-  useTranslationContext: () => ({ t: (s) => tSpy(s) }),
+  useTranslationContext: () => ({ t: (...args) => tSpy(...args) }),
 }));
 vi.mock('../../Notifications', () => ({
   useNotificationApi: () => ({
@@ -35,7 +35,9 @@ vi.mock('../../Notifications', () => ({
 const mockClient = {
   notifications: { add: addNotificationSpy },
 };
-const tSpy = (s) => s;
+// Mirrors i18next: render the inline English defaultValue when one is given.
+const tSpy = (key, defaultValue) =>
+  typeof defaultValue === 'string' ? defaultValue : key;
 
 // capture created Audio() elements so we can assert src & dispatch events
 const createdAudios = []; //HTMLAudioElement[]

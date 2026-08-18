@@ -21,8 +21,8 @@ export const useDeleteHandler = (
 
   const channel = useChannel();
   const thread = useThreadContext();
-  const { client } = useChatContext('useDeleteHandler');
-  const { t } = useTranslationContext('useDeleteHandler');
+  const { client } = useChatContext();
+  const { t } = useTranslationContext();
   const messagePaginator = useMessagePaginator();
 
   return async (options?: DeleteMessageOptions) => {
@@ -47,7 +47,12 @@ export const useDeleteHandler = (
       const errorMessage =
         getErrorNotification && validateAndGetMessage(getErrorNotification, [message]);
 
-      if (notify) notify(errorMessage || t('Error deleting message'), 'error');
+      if (notify)
+        notify(
+          errorMessage ||
+            t('common.errorDeletingMessage.label', 'Error deleting message'),
+          'error',
+        );
     }
   };
 };

@@ -1456,4 +1456,195 @@
       box-shadow: none;
     }
   }
+
+  // Server-side client dialog — same shell/drag conventions as the other prompt dialogs.
+  .app__server-client-dialog {
+    min-width: min(560px, calc(100vw - 32px));
+    max-width: min(560px, calc(100vw - 32px));
+  }
+
+  .app__server-client-dialog__prompt {
+    display: flex;
+    flex-direction: column;
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(680px, calc(100vh - 32px));
+    overflow: hidden;
+    // Positioned ancestor for the dialog's own NotificationList, which is absolutely positioned.
+    position: relative;
+  }
+
+  .app__server-client-dialog__drag-handle {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .app__server-client-dialog__drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .app__server-client-dialog__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding-top: 4px;
+  }
+
+  .app__server-client-dialog__body-scroll {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 16px;
+    margin-inline-end: calc(var(--str-chat__spacing-xl) * -1);
+    min-height: 0;
+    overflow-y: auto;
+    padding-inline-end: var(--str-chat__spacing-xl);
+    scrollbar-color: var(--str-chat__border-core-default) transparent;
+    scrollbar-width: thin;
+  }
+
+  .app__server-client-dialog__warning {
+    margin: 0;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    background: var(--str-chat__surface-color);
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 8px 10px;
+  }
+
+  .app__server-client-dialog__step {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app__server-client-dialog__step-heading {
+    align-items: center;
+    color: var(--str-chat__text-primary);
+    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+    gap: 8px;
+  }
+
+  .app__server-client-dialog__step-index {
+    align-items: center;
+    background: var(--str-chat__surface-color);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 12px;
+    height: 20px;
+    justify-content: center;
+    width: 20px;
+  }
+
+  .app__server-client-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .app__server-client-dialog__field-label {
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+  }
+
+  .app__server-client-dialog__text-input {
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 0 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    font: inherit;
+  }
+
+  // The secret field is a `type="text"` input on purpose — see the comment at its call site.
+  // This is what masks it. `text-security` is the unprefixed form (Firefox 119+).
+  .app__server-client-dialog__secret-input {
+    -webkit-text-security: disc;
+    text-security: disc;
+  }
+
+  .app__server-client-dialog__text-input:focus-visible,
+  .app__server-client-dialog__textarea:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__server-client-dialog__inline-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__server-client-dialog__textarea,
+  .app__server-client-dialog__result {
+    width: 100%;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      SF Mono,
+      Menlo,
+      monospace;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__server-client-dialog__textarea {
+    min-height: 200px;
+    resize: vertical;
+  }
+
+  .app__server-client-dialog__result {
+    margin: 0;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .app__server-client-dialog__note {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__server-client-dialog__error {
+    margin: 0;
+    color: var(--text-error);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__server-client-dialog__footer {
+    flex-shrink: 0;
+  }
+
+  .app__server-client-dialog__footer-controls {
+    margin-inline-start: 0;
+  }
+
+  // Positioned anchor for the dialog's own NotificationList (which is `position: absolute`).
+  .app__server-client-dialog__notifications {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .app__server-client-dialog__notifications .str-chat__notification {
+    pointer-events: auto;
+  }
 }

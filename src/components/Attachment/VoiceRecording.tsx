@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
 import { FileIcon } from '../FileIcon';
 import {
+  MessageContext,
   useComponentContext,
-  useMessageContext,
   useTranslationContext,
 } from '../../context';
 import {
@@ -81,7 +81,7 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
         <PlaybackRateButton
-          aria-label={t('Playback speed {{ rate }}x', {
+          aria-label={t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', {
             rate: playbackRate?.toString() ?? '1',
           })}
           disabled={!canPlayRecord}
@@ -104,7 +104,8 @@ export const VoiceRecordingPlayer = ({
   playbackRates,
 }: VoiceRecordingPlayerProps) => {
   const { t } = useTranslationContext();
-  const { asset_url, title = t('Voice message') } = attachment;
+  const { asset_url, title = t('common.voiceMessage.label', 'Voice message') } =
+    attachment;
   const {
     duration = 0,
     file_size,
@@ -121,7 +122,8 @@ export const VoiceRecordingPlayer = ({
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message } = useMessageContext() ?? {};
+  // also rendered from composer previews, where there is no message
+  const { message } = useContext(MessageContext) ?? {};
   const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({

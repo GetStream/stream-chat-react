@@ -92,7 +92,9 @@ export const AudioAttachmentPreview = ({
 
       <div className='str-chat__attachment-preview-file__info'>
         <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
-          {isVoiceRecordingAttachment(attachment) ? t('Voice message') : attachment.title}
+          {isVoiceRecordingAttachment(attachment)
+            ? t('common.voiceMessage.label', 'Voice message')
+            : attachment.title}
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
@@ -134,18 +136,32 @@ export const AudioAttachmentPreview = ({
               <IconExclamationMark />
               <span>
                 {hasSizeLimitError
-                  ? t('File too large')
+                  ? t(
+                      'messageComposer.audioAttachmentPreview.fileTooLarge.text',
+                      'File too large',
+                    )
                   : uploadState === 'blocked'
-                    ? t('Upload blocked')
-                    : t('Upload failed')}
+                    ? t(
+                        'messageComposer.audioAttachmentPreview.uploadBlocked.text',
+                        'Upload blocked',
+                      )
+                    : t(
+                        'messageComposer.audioAttachmentPreview.uploadFailed.text',
+                        'Upload failed',
+                      )}
               </span>
             </div>
           ) : (
             <div className='str-chat__attachment-preview-file__retriable-error'>
               <IconExclamationTriangleFill />
-              <span>{t('Upload error')}</span>
+              <span>
+                {t(
+                  'messageComposer.audioAttachmentPreview.uploadError.text',
+                  'Upload error',
+                )}
+              </span>
               <button
-                aria-label={t('aria/Retry upload')}
+                aria-label={t('common.retryUpload.ariaLabel', 'Retry upload')}
                 className='str-chat__attachment-preview-file__retry-upload-button'
                 data-testid='file-preview-item-retry-button'
                 onClick={() => {
@@ -153,7 +169,10 @@ export const AudioAttachmentPreview = ({
                 }}
                 type='button'
               >
-                {t('Retry upload')}
+                {t(
+                  'messageComposer.audioAttachmentPreview.retryUpload.text',
+                  'Retry upload',
+                )}
               </button>
             </div>
           )}
@@ -161,7 +180,7 @@ export const AudioAttachmentPreview = ({
       </div>
       {audioPlayer && canPlayRecord && (
         <PlaybackRateButton
-          aria-label={t('Playback speed {{ rate }}x', {
+          aria-label={t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', {
             rate: playbackRate?.toString() ?? '1',
           })}
           onClick={audioPlayer.increasePlaybackRate}

@@ -61,7 +61,9 @@ export const defaultThreadListItemLabelParts = {
   active: activeLabelPart,
   name: ({ displayTitle, t }) =>
     displayTitle
-      ? t('aria/Chat: {{ channelName }}', { channelName: displayTitle })
+      ? t('threadList.chat.ariaLabel', 'Chat: {{ channelName }}', {
+          channelName: displayTitle,
+        })
       : undefined,
   // The message the thread is about (shown as the row's subtitle); same preview the subtitle shows.
   parentMessage: ({ parentMessagePreview, parentMessageSender, t }) => {
@@ -69,11 +71,17 @@ export const defaultThreadListItemLabelParts = {
     const preview = parentMessageSender
       ? `${parentMessageSender}: ${parentMessagePreview}`
       : parentMessagePreview;
-    return t('aria/Thread: {{ messagePreview }}', { messagePreview: preview });
+    return t('threadList.thread.ariaLabel', 'Thread: {{ messagePreview }}', {
+      messagePreview: preview,
+    });
   },
   replyCount: ({ replyCount, t }) =>
     typeof replyCount === 'number' && replyCount > 0
-      ? t('replyCount', { count: replyCount })
+      ? t('common.replyCount.label', {
+          count: replyCount,
+          defaultValue_one: '1 reply',
+          defaultValue_other: '{{ count }} replies',
+        })
       : undefined,
   time: ({ latestReply, t, tDateTimeParser }) => {
     const createdAt = latestReply?.created_at;
@@ -82,9 +90,13 @@ export const defaultThreadListItemLabelParts = {
       messageCreatedAt: createdAt.toISOString(),
       t,
       tDateTimeParser,
-      timestampTranslationKey: 'timestamp/ChannelPreviewTimestamp',
+      timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
     });
-    return when ? t('aria/Last activity: {{ time }}', { time: String(when) }) : undefined;
+    return when
+      ? t('common.lastActivity.ariaLabel', 'Last activity: {{ time }}', {
+          time: String(when),
+        })
+      : undefined;
   },
   unreadCount: unreadCountLabelPart,
 } satisfies Record<string, ThreadListItemLabelPart>;

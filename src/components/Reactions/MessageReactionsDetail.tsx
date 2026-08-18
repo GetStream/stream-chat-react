@@ -71,14 +71,14 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
-  } = useComponentContext(MessageReactionsDetail.name);
+  } = useComponentContext();
   const { t } = useTranslationContext();
 
   const {
     handleReaction: contextHandleReaction,
     message,
     reactionDetailsSort: contextReactionDetailsSort,
-  } = useMessageContext(MessageReactionsDetail.name);
+  } = useMessageContext();
 
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
@@ -133,7 +133,11 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     >
       {typeof totalReactionCount === 'number' && (
         <div className='str-chat__message-reactions-detail__total-count'>
-          {t('{{ count }} reactions', { count: totalReactionCount })}
+          {t('reactions.messageReactionsDetail.reactions.text', {
+            count: totalReactionCount,
+            defaultValue_one: '{{ count }} reaction',
+            defaultValue_other: '{{ count }} reactions',
+          })}
         </div>
       )}
       <div className='str-chat__message-reactions-detail__reaction-type-list-container'>
@@ -144,7 +148,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
           {hasExtendedReactions && (
             <li className='str-chat__message-reactions-detail__reaction-type-list-item'>
               <button
-                aria-label={t('Add reaction')}
+                aria-label={t('common.addReaction.text', 'Add reaction')}
                 className='str-chat__message-reactions-detail__reaction-type-list-item-button'
                 data-testid='add-reaction-button'
                 onClick={() => setExtendedReactionListOpen(true)}
@@ -165,9 +169,13 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                   key={reactionType}
                 >
                   <button
-                    aria-label={t('aria/Select Reaction: {{ reactionName }}', {
-                      reactionName: reactionType,
-                    })}
+                    aria-label={t(
+                      'reactions.messageReactions.selectReaction.ariaLabel',
+                      'Select Reaction: {{ reactionName }}',
+                      {
+                        reactionName: reactionType,
+                      },
+                    )}
                     aria-pressed={reactionType === selectedReactionType}
                     className='str-chat__message-reactions-detail__reaction-type-list-item-button'
                     onClick={() =>
@@ -224,13 +232,19 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                         className='str-chat__message-reactions-detail__user-list-item-username'
                         data-testid='reaction-user-username'
                       >
-                        {belongsToCurrentUser ? t('You') : user?.name || user?.id}
+                        {belongsToCurrentUser
+                          ? t('common.you.label', 'You')
+                          : user?.name || user?.id}
                       </span>
                       {belongsToCurrentUser && (
                         <button
-                          aria-label={t('Tap to remove: {{ reactionName }}', {
-                            reactionName,
-                          })}
+                          aria-label={t(
+                            'reactions.messageReactionsDetail.tapRemove.ariaLabel',
+                            'Tap to remove: {{ reactionName }}',
+                            {
+                              reactionName,
+                            },
+                          )}
                           className='str-chat__message-reactions-detail__user-list-item-button'
                           data-testid='remove-reaction-button'
                           onClick={async (e) => {
@@ -251,7 +265,10 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                           }}
                           type='button'
                         >
-                          {t('Tap to remove')}
+                          {t(
+                            'reactions.messageReactionsDetail.tapRemove.text',
+                            'Tap to remove',
+                          )}
                         </button>
                       )}
                     </div>

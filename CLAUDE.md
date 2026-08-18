@@ -20,23 +20,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 # (yarnPath). Any globally installed `yarn` shim launches it; no Corepack.
 yarn install              # Setup (installs root + examples/* workspaces)
 yarn build                # Full build (translations, Vite, types, SCSS)
-yarn test                 # Run Jest tests
+yarn test                 # Run Vitest
 yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
 yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
-yarn types                # TypeScript type checking (noEmit mode)
+
+# Type checking
+tsc -p tsconfig.lib.json --noEmit   # The library. THIS is the real check.
+yarn types:scripts                  # scripts/*.mts (Node strips types, it does not check them)
+
+# i18n (see the i18n System section)
+yarn build-translations   # Regenerate src/i18n/keys.ts from the t() call sites
+yarn validate-translations # Drift gate: regenerate and fail on any diff
 
 # Examples (workspaces under examples/*)
 yarn start:tutorial       # Start the tutorial example dev server
 yarn start:vite           # Start the vite example dev server
 yarn examples:build       # Build all examples
 
-# E2E
-yarn e2e-fixtures         # Generate e2e test fixtures
-yarn e2e                  # Run Playwright tests
-
 # Before committing
 yarn lint-fix             # ALWAYS run this first
 ```
+
+> **`yarn types` checks nothing — do not rely on it.** It runs `tsc` with no `--project`, so it
+> picks up the root `tsconfig.json`, which is a solution file with `"files": []`. It exits 0 even
+> with a deliberate type error in `src/`. Use `tsc -p tsconfig.lib.json --noEmit`.
+>
+> `yarn types:tests` (`tsconfig.test.json`) reports ~1200 pre-existing errors and is not wired into
+> CI. Treat it as unenforced.
 
 ## Architecture: Core Concepts
 
@@ -273,7 +283,8 @@ Closes #123
 
 - [ ] `yarn lint-fix` passed
 - [ ] `yarn test` passed
-- [ ] `yarn types` passed
+- [ ] `tsc -p tsconfig.lib.json --noEmit` passed (NOT `yarn types` — see Essential Commands)
+- [ ] `yarn validate-translations` passed, if any `t()` call changed
 - [ ] Tests added for changes
 - [ ] No new warnings (zero tolerance)
 - [ ] Screenshots for UI changes
@@ -288,7 +299,7 @@ When deprecating, use `@deprecated` JSDoc tag with reason and docs link. Commit 
 
 The build runs 4 steps in parallel via `concurrently`:
 
-1. **`build-translations`** — Extracts `t()` calls from source via `i18next-cli`
+1. **`build-translations`** — Regenerates `src/i18n/keys.ts` from the `t()` call sites
 2. **`vite build`** — Bundles 3 entry points (index, emojis, mp3-encoder) as CJS + ESM, no minification
 3. **`tsc`** — Generates `.d.ts` type declarations only (`tsconfig.lib.json`) to `dist/types/`
 4. **`build-styling`** — Compiles `src/styling/index.scss` → `dist/css/index.css`
@@ -315,12 +326,66 @@ See `examples/vite/src/index.scss` for reference implementation. Layers eliminat
 
 ## i18n System
 
-- **12 languages**: de, en, es, fr, hi, it, ja, ko, nl, pt, ru, tr (JSON files in `src/i18n/`)
-- **Keys are English text**: `t('Mute')`, `t('{{ user }} is typing...')`
-- **Extraction**: `i18next-cli extract` scans `t()` calls in source → updates JSON files
-- **Validation**: `yarn lint` runs `scripts/validate-translations.js` — fails on any empty translation string (zero tolerance)
-- **Date/time**: `Streami18n` class wraps i18next + Dayjs with per-locale calendar formats
-- **When adding translatable strings**: Use `t()` from `useTranslationContext()`, then run `yarn build-translations` to update JSON files. All 12 language files must have non-empty values.
+**English only.** Every other language is supplied by the integrator via
+`Streami18n.registerTranslation()`.
+
+**There is no checked-in `en.json`.** The catalog has exactly two sources, and both are where the
+copy is actually used: the inline `defaultValue` at each `t()` call site (562 keys), and
+`src/i18n/runtimeDefaults.ts` (71 keys — hand-maintained, and the only translation data that
+ships). A committed JSON locale was a third copy of the same strings that needed an extract pass
+and a sync pass to stay honest. `yarn i18n:export` writes one on demand for a translator or TMS.
+
+**Keys are stable dotted identifiers, with the English copy inline as i18next's `defaultValue`:**
+
+```ts
+const { t } = useTranslationContext();
+t('message.status.sent.text', 'Sent'); // singular
+t('channel.memberCount.title', {
+  // plural: `count` is required
+  count,
+  defaultValue_one: '{{ count }} member',
+  defaultValue_other: '{{ count }} members',
+});
+t('timestamp.MessageTimestamp', { timestamp }); // formatter key: no default
+```
+
+The inline default is what makes a partial custom dictionary safe — an unsupplied key still
+renders English — and it keeps the copy visible at the call site.
+
+- **Namespaces follow the source tree** (`message.*`, `messageComposer.*`, `poll.*`), so keys are
+  predictable from the component. Genuinely shared copy lives in `common.*`. Modality is the leaf:
+  `.label`, `.ariaLabel`, `.placeholder`, `.title`, `.description`, `.text`.
+- **`keySeparator: false` must stay.** Keys are flat strings that happen to contain dots; several
+  contain `...` in their copy, which `keySeparator: '.'` would mis-resolve.
+- **Typed keys:** `src/i18n/keys.ts` (generated, type-only) declares `TranslationCatalog`.
+  `src/i18n/types.ts` derives `TranslationKey`, `TranslationDictionary` (strict),
+  `LooseTranslationDictionary` and `StreamTFunction`,
+  which is what `useTranslationContext().t` is typed as — a typo is a compile error. Interpolation
+  variables are typed for plural keys only (see the note in `types.ts` for why).
+- **Runtime keys:** the ~10 keys resolved from a runtime value (a `stream-chat`
+  `notification.message`, slash-command metadata, a language code, an integrator prop) go through
+  `asDynamicKey()`. That brand is required, so every escape is deliberate and greppable.
+  `src/i18n/externalStrings.ts` maps the `stream-chat` messages we recognise onto stable keys.
+- **`yarn build-translations`** parses the `t()` call sites (`scripts/i18n-call-sites.mts`), joins
+  them with `runtimeDefaults.ts`, and regenerates `keys.ts`. It hard-fails on three things:
+  a key used with two different inline copies; a key called with no inline default and no
+  `runtimeDefaults` entry (it would render as the raw dotted key); and a key present in _both_
+  (the bundled value wins, so editing the call site would silently change nothing — this is the
+  bug class that used to hide behind the old en.json).
+- **`yarn validate-translations`** regenerates and fails on any diff to `keys.ts` — the drift gate.
+- **There is no `i18next-cli`.** Its extract/`removeUnusedKeys` pass existed only to maintain
+  en.json. Dead prose keys are now structurally impossible (a key exists because a call site
+  declares it), which also retires the `preservePatterns` footgun that once nearly deleted the 57
+  `language.*` keys.
+- **The v14 -> v15 key mapping** lives in `ai-docs/i18n-v15-key-map.json` (603 rows) and is read by
+  the integrator-facing guide. It is a hand-reviewed artifact — nothing regenerates it. The
+  one-shot codemods that produced it and rewrote the call sites were deleted once applied; recover
+  them from git history if a v14 -> v15 question ever needs re-deriving.
+- **Date/time:** `Streami18n` wraps i18next + Dayjs. Only the `en` dayjs locale is bundled;
+  integrators import their own and pass `dayjsLocaleConfigForLanguage`.
+
+**Adding a translatable string:** call `t('namespace.component.thing.label', 'English copy')`, then
+run `yarn build-translations`.
 
 ## Styling Architecture (Theming & Build Details)
 
@@ -346,7 +411,7 @@ See `examples/vite/src/index.scss` for the reference layer setup.
 
 `yarn build` runs 4 tasks in parallel via `concurrently`:
 
-1. `yarn build-translations` — Extracts `t()` calls via `i18next-cli`
+1. `yarn build-translations` — Regenerates `src/i18n/keys.ts` from the `t()` call sites
 2. `vite build` — Bundles 3 entry points (index, emojis, mp3-encoder) as ESM + CJS
 3. `tsc --project tsconfig.lib.json` — Generates `.d.ts` type declarations to `dist/types/`
 4. `yarn build-styling` — Compiles SCSS to `dist/css/index.css`
@@ -357,16 +422,13 @@ See `examples/vite/src/index.scss` for the reference layer setup.
 - `stream-chat-react/emojis` — Emoji picker plugin (`src/plugins/Emojis/`)
 - `stream-chat-react/mp3-encoder` — MP3 encoding for voice messages (`src/plugins/encoders/mp3.ts`)
 
-Vite config: no minification, sourcemaps enabled, all deps externalized. Target: ES2020.
+Vite config: no minification, sourcemaps enabled, all deps externalized. Target: ES2022
+(inherited from `tsconfig.lib.json`'s `compilerOptions.target`, so the two never drift).
 
 ### i18n System
 
-- 12 languages in `src/i18n/*.json` — **Natural language keys** (English text = key)
-- `yarn build-translations` extracts `t()` calls from source via `i18next-cli extract`
-- `yarn validate-translations` (runs during `yarn lint`) — **zero-tolerance: any empty string value fails the build**
-- `Streami18n` class (`src/i18n/Streami18n.ts`) wraps i18next, integrates Dayjs for date/time formatting
-- Interpolation: `t('Failed to update {{ field }}', { field })`, Plurals: `_one`/`_other` suffixes
-- Access via `useTranslationContext()` hook — only works inside `<Chat>`
+See the **i18n System** section above — English-only, dotted keys with the copy inline as
+i18next's `defaultValue`. Access via `useTranslationContext()`, which only works inside `<Chat>`.
 
 ## Key Patterns for Development
 
@@ -386,14 +448,18 @@ const channels = useStateStore(chatClient.state.channelsArray);
 
 ### Adding Translations
 
-1. Add strings to `src/i18n/`
-2. Run `yarn build-translations`
-3. Use: `const { t } = useTranslationContext();`
+1. Call `t('namespace.component.thing.label', 'English copy')` — the key is namespaced by the
+   source tree, the copy goes inline (see **i18n System**)
+2. Run `yarn build-translations` to regenerate `src/i18n/keys.ts`
+3. Never hand-edit `keys.ts` — it is generated, and CI fails on any drift. A key with no inline
+   copy (a formatter expression, or one built from a runtime value) goes in
+   `src/i18n/runtimeDefaults.ts` instead, which _is_ hand-maintained
 
 ## References
 
 - **Integration patterns:** See `AI.md`
 - **Repo structure:** See `AGENTS.md`
 - **Development guides:** See `developers/`
+- **i18n v15 migration (integrator-facing):** See `ai-docs/i18n-v15-migration.md`
 - **Component docs:** https://getstream.io/chat/docs/sdk/react/
 - **Stream Chat API:** https://getstream.io/chat/docs/javascript/

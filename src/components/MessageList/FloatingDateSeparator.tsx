@@ -30,9 +30,7 @@ export type FloatingDateSeparatorProps = BaseProps &
  * Use itemsRenderedRef for Virtuoso, listElement for non-virtualized MessageList.
  */
 export const FloatingDateSeparator = (props: FloatingDateSeparatorProps) => {
-  const { DateSeparator = DefaultDateSeparator } = useComponentContext(
-    'FloatingDateSeparator',
-  );
+  const { DateSeparator = DefaultDateSeparator } = useComponentContext();
   const { disableDateSeparator, processedMessages } = props;
 
   const listElement = 'listElement' in props ? props.listElement : null;

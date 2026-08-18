@@ -32,8 +32,10 @@ export const ThreadListUnseenThreadsBanner = () => {
         <>
           <IconRefresh />
           <span>
-            {t('ThreadListUnseenThreadsBanner/unreadThreads', {
+            {t('threadList.unseenBanner.unreadThreads', {
               count: unseenThreadIds.length,
+              defaultValue_one: '{{ count }} unread thread',
+              defaultValue_other: '{{ count }} unread threads',
             })}
           </span>
         </>
@@ -41,7 +43,7 @@ export const ThreadListUnseenThreadsBanner = () => {
       {isLoading && (
         <>
           <LoadingIndicator />
-          <span>{t('ThreadListUnseenThreadsBanner/loading')}</span>
+          <span>{t('threadList.unseenBanner.loading', 'Loading...')}</span>
         </>
       )}
     </button>

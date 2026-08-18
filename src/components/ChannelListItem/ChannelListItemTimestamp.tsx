@@ -12,7 +12,7 @@ export type ChannelListItemTimestampProps = {
 export function ChannelListItemTimestamp({
   previewedMessage,
 }: ChannelListItemTimestampProps) {
-  const { t, tDateTimeParser } = useTranslationContext('ChannelListItemTimestamp');
+  const { t, tDateTimeParser } = useTranslationContext();
 
   const timestamp = previewedMessage?.created_at;
   const normalizedTimestamp =
@@ -24,7 +24,7 @@ export function ChannelListItemTimestamp({
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey: 'timestamp/ChannelPreviewTimestamp',
+        timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
       }),
     [normalizedTimestamp, t, tDateTimeParser],
   );

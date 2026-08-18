@@ -48,7 +48,7 @@ const ChannelFilesGroup = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
 );
 
 const ChannelFilesSectionHeader = ({ timestamp }: { timestamp?: string }) => {
-  const { t, tDateTimeParser } = useTranslationContext('ChannelFilesView');
+  const { t, tDateTimeParser } = useTranslationContext();
   const label = getDateString({
     format: 'MMMM YYYY',
     messageCreatedAt: timestamp,
@@ -184,7 +184,10 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
 
   return (
     <div className='str-chat__channel-detail__files-view'>
-      <SectionNavigatorHeader close={close} title={t('Files')} />
+      <SectionNavigatorHeader
+        close={close}
+        title={t('channelDetail.channelFilesView.files.title', 'Files')}
+      />
       <Prompt.Body className='str-chat__channel-detail__files-view__body'>
         <GroupedVirtuoso
           atBottomStateChange={atBottomStateChange}

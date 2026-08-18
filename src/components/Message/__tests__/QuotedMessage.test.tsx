@@ -23,6 +23,7 @@ import { Message } from '../Message';
 import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
 import { renderText } from '../renderText';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -68,14 +69,14 @@ async function renderQuotedMessage({
       <Channel channel={activeChannel}>
         <TranslationProvider
           value={mockTranslationContextValue({
-            t: (key: any) => key,
+            t: mockT,
             tDateTimeParser: customDateTimeParser,
             userLanguage: 'en',
           })}
         >
           <ComponentProvider
             value={mockComponentContext({
-              Message: () => <MessageUI />,
+              MessageUI: () => <MessageUI />,
               ...componentContext,
             })}
           >
@@ -248,10 +249,7 @@ describe('QuotedMessage', () => {
     });
 
     const quotedMessagePreview = getByTestId(quotedMessagePreviewTestId);
-    expect(quotedMessagePreview).toHaveAttribute(
-      'aria-label',
-      'aria/Jump to quoted message',
-    );
+    expect(quotedMessagePreview).toHaveAttribute('aria-label', 'Jump to quoted message');
     expect(quotedMessagePreview).toHaveAttribute('role', 'button');
     expect(quotedMessagePreview).toHaveAttribute('tabindex', '0');
   });

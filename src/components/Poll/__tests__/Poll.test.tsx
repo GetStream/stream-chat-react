@@ -19,12 +19,13 @@ import {
   mockChatContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const POLL_ACTIONS__CLASS = '.str-chat__poll-actions';
 const POLL_OPTION_LIST__CLASS = '.str-chat__poll-option-list';
 const POLL_HEADER__CLASS = '.str-chat__poll-header';
 
-const t = (v) => v;
+const t = mockT;
 
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
 // `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),

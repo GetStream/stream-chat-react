@@ -26,6 +26,7 @@ import { composeChannelListItemAccessibleLabel } from '../utils.a11y';
 import { MessageDeliveryStatus } from '../hooks/useMessageDeliveryStatus';
 import { generateStaticLocationResponse } from '../../../mock-builders';
 import { render } from '@testing-library/react';
+import { mockT } from '../../../mock-builders/translator';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
@@ -109,7 +110,7 @@ describe('ChannelPreview utils', () => {
         channelWithHTMLInMessage,
       ],
     ])('should return %s for %s', async (expectedValue, testCaseName, c) => {
-      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(c);
       const preview = getLatestMessagePreview(channel, t);
       if (isReactMarkdownElement(preview)) {
@@ -123,7 +124,7 @@ describe('ChannelPreview utils', () => {
 
   describe('getLatestMessagePreviewText', () => {
     it('returns a plain string for a deleted message', async () => {
-      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(
         generateChannel({
           messages: [generateMessage({ deleted_at: new Date().toISOString() })],
@@ -133,7 +134,7 @@ describe('ChannelPreview utils', () => {
     });
 
     it('returns the raw message text (no markdown element) for a text message', async () => {
-      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(
         generateChannel({ messages: [generateMessage({ text: 'hey there' })] }),
       );
@@ -141,7 +142,7 @@ describe('ChannelPreview utils', () => {
     });
 
     it('strips markdown syntax so the announced text reads as words', async () => {
-      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(
         generateChannel({
           messages: [
@@ -153,7 +154,7 @@ describe('ChannelPreview utils', () => {
     });
 
     it('returns AI-generated text verbatim (not stripped), matching the display path', async () => {
-      const t = ((text: string) => text) as TranslationContextValue['t'];
+      const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(
         generateChannel({ messages: [generateMessage({ text: '**keep me**' })] }),
       );
@@ -162,17 +163,9 @@ describe('ChannelPreview utils', () => {
       );
     });
 
-    // Non-text previews get a concise, announcement-specific phrasing (distinct from the visible
-    // preview). t here interpolates and drops the `aria/` prefix.
-    const tAria = ((key: string, opts?: Record<string, unknown>) => {
-      const interpolated = Object.entries(opts ?? {}).reduce(
-        (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-        key,
-      );
-      return interpolated.startsWith('aria/')
-        ? interpolated.replace('aria/', '')
-        : interpolated;
-    }) as TranslationContextValue['t'];
+    // Non-text previews get a concise, announcement-specific phrasing (distinct from the
+    // visible preview).
+    const tAria = mockT as TranslationContextValue['t'];
 
     it('announces a poll by its question', async () => {
       const channel = await getQueriedChannelInstance(
@@ -191,7 +184,7 @@ describe('ChannelPreview utils', () => {
           ],
         }),
       );
-      // 'image' maps to the localized 'aria/image' label (here the mock yields "image").
+      // 'image' maps to the localized attachment-type label.
       expect(getLatestMessagePreviewText(channel, tAria)).toBe('Attachment image');
     });
 
@@ -252,16 +245,7 @@ describe('ChannelPreview utils', () => {
   });
 
   describe('composeChannelListItemAccessibleLabel', () => {
-    // t mirrors the natural-language fallback: interpolate {{ name }} and drop the `aria/` prefix.
-    const t = ((key: string, opts?: Record<string, unknown>) => {
-      const interpolated = Object.entries(opts ?? {}).reduce(
-        (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-        key,
-      );
-      return interpolated.startsWith('aria/')
-        ? interpolated.replace('aria/', '')
-        : interpolated;
-    }) as TranslationContextValue['t'];
+    const t = mockT as TranslationContextValue['t'];
     const tDateTimeParser = (() =>
       'recently') as unknown as TranslationContextValue['tDateTimeParser'];
 
@@ -283,7 +267,7 @@ describe('ChannelPreview utils', () => {
       });
 
       expect(label).toBe(
-        'Team chat. 3 unread message. Last message from Alice: hey there. Last activity: recently',
+        'Team chat. 3 unread messages. Last message from Alice: hey there. Last activity: recently',
       );
     });
 

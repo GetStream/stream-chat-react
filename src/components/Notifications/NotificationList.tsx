@@ -524,7 +524,7 @@ export const NotificationList = ({
 
   return (
     <div
-      aria-label={t('aria/Notifications')}
+      aria-label={t('notification.list.notifications.ariaLabel', 'Notifications')}
       className={clsx(
         'str-chat__notification-list',
         `str-chat__notification-list--enter-from-${notificationEnterFrom}`,

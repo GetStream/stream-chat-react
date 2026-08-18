@@ -17,8 +17,8 @@ export const AIStateIndicator = ({
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
   const allowedStates = {
-    [AIStates.Thinking]: t('Thinking...'),
-    [AIStates.Generating]: t('Generating...'),
+    [AIStates.Thinking]: t('aiState.indicator.thinking.label', 'Thinking...'),
+    [AIStates.Generating]: t('aiState.indicator.generating.label', 'Generating...'),
   };
 
   return aiState in allowedStates ? (
