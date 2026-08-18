@@ -60,7 +60,7 @@ describe('NotificationTranslationTopic', () => {
       ...mockI18Next,
       t: vi.fn((key) =>
         key === 'notification.attachmentFileMissing' ? 'translated/file-required' : key,
-      ) as unknown as i18n['t'],
+      ) as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({
       i18next,
@@ -83,7 +83,7 @@ describe('NotificationTranslationTopic', () => {
   it('does not interpolate metadata into an unrecognised message', () => {
     const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
-      t: vi.fn() as unknown as i18n['t'],
+      t: vi.fn() as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 
@@ -146,7 +146,7 @@ describe('NotificationTranslationTopic', () => {
       ...mockI18Next,
       t: vi.fn(
         (translationKey) => `translated:${translationKey}`,
-      ) as unknown as i18n['t'],
+      ) as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 
@@ -168,7 +168,7 @@ describe('NotificationTranslationTopic', () => {
         key === 'notification.pollCreateFailedWithReason'
           ? `translated/reason:${options.reason}`
           : key,
-      ) as unknown as i18n['t'],
+      ) as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 
