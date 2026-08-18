@@ -7,7 +7,6 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
-import { asDynamicKey } from '../../i18n/utils';
 
 export type TranslationIndicatorProps = {
   message?: LocalMessage;
@@ -51,11 +50,11 @@ export const MessageTranslationIndicator = ({
   const sourceLanguageName = useMemo(() => {
     const sourceLanguageCode = message?.i18n?.language;
     if (!sourceLanguageCode) return '';
-    const languageKey = 'language.' + sourceLanguageCode;
-    const translatedName = t(asDynamicKey(languageKey));
-    return translatedName && translatedName !== languageKey
-      ? translatedName
-      : sourceLanguageCode;
+    // `language.*` keys are part of the catalog now (core derives them from the same
+    // `TranslationLanguage` union this code is), so the key is checked at compile time rather than
+    // escaping through `asDynamicKey()`. That also retires the `translatedName !== languageKey`
+    // comparison this used to need to detect a name core had no entry for — the union guarantees one.
+    return t(`language.${sourceLanguageCode}`);
   }, [message?.i18n?.language, t]);
 
   if (!message?.i18n || !setTranslationView) return null;

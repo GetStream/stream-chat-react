@@ -1,3 +1,5 @@
+import { POLL_VALIDATION_CODE } from 'stream-chat';
+import type { PollValidationCode } from 'stream-chat';
 import clsx from 'clsx';
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { TextInput } from '../../Form/TextInput';
@@ -43,13 +45,16 @@ export const OptionFieldSet = () => {
   const pendingFocusIndexRef = useRef<number | null>(null);
   const [activeOptionId, setActiveOptionId] = useState<string | null>(null);
 
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  const knownValidationErrors = useMemo<Partial<Record<PollValidationCode, string>>>(
     () => ({
-      'Option already exists': t(
+      [POLL_VALIDATION_CODE.optionDuplicate]: t(
         'poll.suggestPollOption.optionAlreadyExists.label',
         'Option already exists',
       ),
-      'Option is empty': t('poll.optionFieldSet.optionEmpty.label', 'Option is empty'),
+      [POLL_VALIDATION_CODE.optionEmpty]: t(
+        'poll.optionFieldSet.optionEmpty.label',
+        'Option is empty',
+      ),
     }),
     [t],
   );
@@ -239,8 +244,7 @@ export const OptionFieldSet = () => {
                 message={
                   error ? (
                     <span data-testid='poll-option-input-field-error'>
-                      {knownValidationErrors[error] ??
-                        t('poll.nameField.error.text', 'Error')}
+                      {knownValidationErrors[error.code] ?? error.message}
                     </span>
                   ) : undefined
                 }

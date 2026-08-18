@@ -453,16 +453,20 @@ describe('predefinedFormatters', () => {
           }).startsWith('Yesterday'),
         ).toBeFalsy();
       });
-      it('should log error parsing invalid calendarFormats', () => {
-        const consoleErrorSpy = vi
-          .spyOn(console, 'error')
-          .mockImplementationOnce(() => null);
-        timestampFormatter(yesterday, 'en', { calendar: true, calendarFormats: '}' });
-        expect(consoleErrorSpy.mock.calls[0][0]).toBe('[TIMESTAMP FORMATTER]');
-        expect(
-          consoleErrorSpy.mock.calls[0][1].message.startsWith('Unexpected token'),
-        ).toBeTruthy();
-        consoleErrorSpy.mockRestore();
+      it('should report invalid calendarFormats through the instance logger', () => {
+        const logger = vi.fn();
+        // The instance doubles as the formatter context here, matching the suite's existing style.
+        const formatter = predefinedFormatters.timestampFormatter(
+          new Streami18n({ logger }) as never,
+        );
+
+        formatter(yesterday, 'en', { calendar: true, calendarFormats: '}' });
+
+        // Reported through `logger`, not `console.error`: it respects the `logger` option, and a
+        // malformed formatter argument is a diagnostic rather than something to render.
+        expect(logger).toHaveBeenCalledWith(
+          expect.stringContaining('calendarFormats is not valid JSON'),
+        );
       });
       it('should parse calendarFormats', () => {
         expect(
@@ -499,7 +503,7 @@ describe('predefinedFormatters', () => {
           calendarFormats: { sameElse: 'dddd L' },
           format: 'YYYY',
         }),
-      ).toBe('null');
+      ).toBe('');
     });
     it('should handle undefined value', () => {
       expect(
@@ -508,7 +512,7 @@ describe('predefinedFormatters', () => {
           calendarFormats: { sameElse: 'dddd L' },
           format: 'YYYY',
         }),
-      ).toBeUndefined();
+      ).toBe('');
     });
 
     describe('relativeCompact', () => {

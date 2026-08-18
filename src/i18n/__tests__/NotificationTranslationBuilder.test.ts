@@ -73,27 +73,19 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    expect(output).toBe('translated/file-required');
-    // Recognised stream-chat message -> stable key, with the raw English as the default.
-    expect(i18next.t).toHaveBeenCalledWith(
-      'notification.attachmentFileMissing',
-      'File is required for upload attachment',
-      { value: 'File is required for upload attachment' },
-    );
+    // An identifier no translator claims renders `notification.message` verbatim. It used to be run
+    // through a hand-maintained table of English sentences mapped onto keys; identifiers are the seam
+    // now, so prose matching would only mask a missing translator entry.
+    expect(output).toBe('File is required for upload attachment');
+    expect(i18next.t).not.toHaveBeenCalled();
   });
 
-  it('passes notification metadata to i18next for message interpolation fallback', () => {
+  it('does not interpolate metadata into an unrecognised message', () => {
     const i18next = fromPartial<i18n>({
       ...mockI18Next,
-      t: vi.fn((key, _defaultValue, options) =>
-        key === 'Attachment upload failed due to {{reason}}'
-          ? `translated/reason:${options.reason}`
-          : key,
-      ) as unknown as i18n['t'],
+      t: vi.fn() as unknown as i18n['t'],
     });
-    const builder = new NotificationTranslationTopic({
-      i18next,
-    });
+    const builder = new NotificationTranslationTopic({ i18next });
 
     const output = builder.translate('XXX', '', {
       notification: fromPartial<Notification>({
@@ -103,15 +95,15 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    expect(output).toBe('translated/reason:network error');
-    // Unrecognised message: passed through as its own key so it still renders verbatim.
-    expect(i18next.t).toHaveBeenCalledWith(
-      'Attachment upload failed due to {{reason}}',
-      'Attachment upload failed due to {{reason}}',
-      { reason: 'network error', value: 'Attachment upload failed due to {{reason}}' },
-    );
+    // Rendered verbatim, placeholder included. Interpolating into prose would require treating the
+    // sentence as a key, which is exactly what the identifier seam replaced.
+    expect(output).toBe('Attachment upload failed due to {{reason}}');
+    expect(i18next.t).not.toHaveBeenCalled();
   });
 
+  // `api:reply:search:failed` and `channel:jumpToFirstUnread:failed` were removed from the registry:
+  // both were copied between the two UI SDKs and neither is emitted by this one. The registry is now
+  // exhaustiveness-checked against `CoreNotificationType`, so a core identifier cannot go missing.
   it.each([
     [
       'api:location:create:failed',
@@ -123,21 +115,11 @@ describe('NotificationTranslationTopic', () => {
       'notification.locationShareFailed',
       'Failed to share location',
     ],
-    [
-      'api:reply:search:failed',
-      'notification.replySearchFailed',
-      'Thread has not been found',
-    ],
     ['api:poll:end:success', 'notification.pollEndSuccess', 'Poll Ended'],
     [
       'browser:location:get:failed',
       'notification.locationGetFailed',
       'Failed to retrieve location',
-    ],
-    [
-      'channel:jumpToFirstUnread:failed',
-      'notification.jumpToFirstUnreadFailed',
-      'Failed to jump to the first unread message',
     ],
     [
       'validation:attachment:file:missing',

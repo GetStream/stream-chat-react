@@ -1,6 +1,5 @@
 import type { Notification } from 'stream-chat';
 
-import { translateExternalString } from '../../externalStrings';
 import type { NotificationTranslatorOptions } from './types';
 import type { Translator } from '../../index';
 
@@ -71,10 +70,7 @@ export const translatePollEndFailed: Translator<NotificationTranslatorOptions> =
 
 export const translateBrowserAudioPlaybackError: Translator<
   NotificationTranslatorOptions
-> = ({ options: { notification }, t }) =>
-  notification?.message
-    ? translateExternalString(t, notification.message)
-    : t('notification.audioPlaybackError', 'Error reproducing the recording');
+> = ({ t }) => t('notification.audioPlaybackError', 'Error reproducing the recording');
 
 export const translateCommandDisabled: Translator<NotificationTranslatorOptions> = ({
   options: { notification },
@@ -96,7 +92,5 @@ export const translateCommandDisabled: Translator<NotificationTranslatorOptions>
     );
   }
 
-  return notification?.message
-    ? translateExternalString(t, notification.message)
-    : t('notification.commandDisabled', 'Command not available');
+  return t('notification.commandDisabled', 'Command not available');
 };
