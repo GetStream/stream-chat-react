@@ -259,11 +259,6 @@
       "built": true
     }
   },
-  "browserslist": [
-    ">0.2%",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
   "packageManager": "yarn@4.15.0",
   "workspaces": [
     "examples/*"

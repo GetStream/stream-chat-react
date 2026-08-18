@@ -422,7 +422,8 @@ See `examples/vite/src/index.scss` for the reference layer setup.
 - `stream-chat-react/emojis` — Emoji picker plugin (`src/plugins/Emojis/`)
 - `stream-chat-react/mp3-encoder` — MP3 encoding for voice messages (`src/plugins/encoders/mp3.ts`)
 
-Vite config: no minification, sourcemaps enabled, all deps externalized. Target: ES2020.
+Vite config: no minification, sourcemaps enabled, all deps externalized. Target: ES2022
+(inherited from `tsconfig.lib.json`'s `compilerOptions.target`, so the two never drift).
 
 ### i18n System
 
