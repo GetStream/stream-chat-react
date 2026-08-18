@@ -1,11 +1,14 @@
 # i18n changes in v15
 
-Two breaking changes, both in v15:
+Three breaking changes, all in v15:
 
 1. **English is the only bundled language.** The `de`, `es`, `fr`, `hi`, `it`, `ja`, `ko`, `nl`,
    `pt`, `ru` and `tr` dictionaries are gone, along with their `dayjs` locale data.
 2. **Translation keys are namespaced identifiers**, not the English text. `t('Send Message')`
    became `t('messageComposer.sendButton.send.ariaLabel', 'Send')`.
+3. **The translation runtime moved into `stream-chat`**, shared with the React Native SDK. The class
+   is renamed `StreamI18n`, two of its methods changed shape, and two timestamp edge cases render
+   differently — see [The shared runtime](#the-shared-runtime).
 
 Together these cut ~112 KB gzip (27%) from the bundle: the 11 dictionaries were statically
 imported and copied into `Streami18n` at construction, so they shipped even if you never set
@@ -13,14 +16,17 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Do I need to do anything?
 
-| If you…                                       | Action                                         |
-| --------------------------------------------- | ---------------------------------------------- |
-| use the SDK in English and never touched i18n | **Nothing.**                                   |
-| passed `translationsForLanguage`              | Rename your keys — see below                   |
-| called `registerTranslation()`                | Rename your keys — see below                   |
-| used a built-in non-English language          | Supply the dictionary yourself — see below     |
-| relied on non-English date formats            | Import the `dayjs` locale yourself — see below |
-| imported `deTranslations` … `trTranslations`  | Those exports are removed                      |
+| If you…                                          | Action                                               |
+| ------------------------------------------------ | ---------------------------------------------------- |
+| use the SDK in English and never touched i18n    | **Nothing.**                                         |
+| passed `translationsForLanguage`                 | Rename your keys — see below                         |
+| called `registerTranslation()`                   | Rename your keys — see below                         |
+| used a built-in non-English language             | Supply the dictionary yourself — see below           |
+| relied on non-English date formats               | Import the `dayjs` locale yourself — see below       |
+| imported `deTranslations` … `trTranslations`     | Those exports are removed                            |
+| construct `new Streami18n(...)`                  | Still works, now deprecated — rename to `StreamI18n` |
+| assign `i18n.t` or read `setLanguage()`'s return | Both changed — see below                             |
+| declared `i18next` or `dayjs` yourself           | You can drop them; `stream-chat` supplies both       |
 
 ## Renaming your keys
 
@@ -228,6 +234,63 @@ git show v14.11.0:src/i18n/de.json > de.json
 Then rename its keys with the mapping table above and register it. Note the old file's keys are the
 _old_ natural-language keys, so it needs the same rename as your own overrides.
 
+## The shared runtime
+
+`Streami18n` used to live in this package. It now lives in `stream-chat` and is shared with
+`stream-chat-react-native`, so both SDKs behave identically and a fix reaches both at once. You still
+import it from here, and it still carries this SDK's own key catalog and copy.
+
+### The class is renamed
+
+```ts
+// v14
+import { Streami18n } from 'stream-chat-react';
+const i18n = new Streami18n({ language: 'nl' });
+
+// v15
+import { StreamI18n } from 'stream-chat-react';
+const i18n = new StreamI18n({ language: 'nl' });
+```
+
+`Streami18n` remains exported as a deprecated alias for one release cycle, so nothing breaks
+immediately — but the rename is the one to make now.
+
+### `t` is read-only, and `setLanguage()` returns nothing
+
+`t` is published through a reactive store rather than being a mutable field, which is what lets
+`<Chat>` pick up a language change without remounting. Two consequences:
+
+```ts
+// v14 — assigning `t` directly
+(i18n as any).t = myTranslator;
+
+// v15 — publish it, and every subscriber updates
+i18n.overrideTFunction(myTranslator);
+```
+
+```ts
+// v14 — setLanguage returned a translator (sometimes; it had three return shapes)
+const t = await i18n.setLanguage('de');
+
+// v15 — it returns void. Read the current `t` from the instance, or let <Chat> re-render.
+await i18n.setLanguage('de');
+const { t } = i18n.state.getLatestValue();
+```
+
+The returned translator was removed deliberately: it went stale on the next language change, so
+holding onto it was always a latent bug.
+
+### You no longer need `i18next` or `dayjs` in your own dependencies
+
+`stream-chat` depends on both, so they arrive transitively. If you declared them only for this SDK,
+remove them — and if you keep them, **match `stream-chat`'s ranges**. Two copies of `dayjs` means
+your `import 'dayjs/locale/de'` registers the locale on a different instance than the one formatting
+dates, and dates silently stay English:
+
+```bash
+find . -maxdepth 4 -name dayjs -type d -path '*node_modules*'   # expect exactly one
+```
+
 ## Date and time
 
 Only the `en` dayjs locale is bundled, and the per-language `calendar` formats the SDK used to ship
@@ -253,6 +316,46 @@ const i18n = new Streami18n({
 
 Or pass your own preconfigured `DateTimeParser` (dayjs or moment).
 
+### Two edge cases render differently
+
+Both are confined to a `timestamp.*` key that specifies **no** format. Every key the SDK ships
+specifies one (`format: HH:mm`, `calendar: true`, and so on), so you only see these if you overrode a
+timestamp key with an expression that formats nothing.
+
+**A `null` or unparseable timestamp renders as empty**, where v14 rendered the value stringified —
+which for `null` was the literal text `null`:
+
+```ts
+// a key with no format
+'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(calendar: false) }}'
+
+// t('timestamp.MessageTimestamp', { timestamp: null })
+// v14 →  "null"
+// v15 →  ""
+```
+
+The same applies when you call `predefinedFormatters.timestampFormatter` yourself: it returns `''`
+rather than the stringified value. If you relied on that to spot a missing timestamp during
+development, check for the empty string instead — rendering the word `null` into a message list was
+never intentional.
+
+Note this is specifically about a value that _reaches_ the formatter. Passing no `timestamp` at all
+leaves i18next with nothing to interpolate, so the raw expression comes through unchanged — that was
+true in v14 too, and is a sign the option name is misspelled at the call site.
+
+**Unformatted output carries a numeric offset rather than `Z`:**
+
+```ts
+// v14 →  2019-04-03T14:42:47Z
+// v15 →  2019-04-03T14:42:47+00:00
+```
+
+Same instant, different ISO spelling. v14 called dayjs's `.tz()` on every parse even when no
+`timezone` was configured, which marks the instance as zoned and changes how `.format()` with no
+template renders. v15 applies `.tz()` only when you actually set `timezone`, matching what the React
+Native SDK already did. Configure a `format` on the key if you need a specific shape — relying on
+dayjs's default is fragile either way.
+
 ## Why keys changed at all
 
 The old keys _were_ the English copy, which meant:
@@ -266,8 +369,20 @@ Keys are now stable, and the English copy travels inline at the call site as i18
 `defaultValue`. That keeps the copy readable where it is used, and means a key you do not supply
 still renders English rather than a raw key path.
 
-The exception is the ~71 keys that carry no inline copy — `timestamp.*` and `duration.*` (formatter
-expressions), `language.*` (built from a runtime language code), and the postProcessor directive.
-Those are bundled in `runtimeDefaults` instead, and both `registerTranslation()` and
-`translationsForLanguage` merge your dictionary over them, so you inherit the working defaults
-without listing them. You only need to supply one if you want a different date format.
+The exception is the 15 keys that carry no inline copy — `timestamp.*` and `duration.*` (formatter
+expressions) and the postProcessor directive. Those are bundled in `runtimeDefaults` instead, and both
+`registerTranslation()` and `translationsForLanguage` merge your dictionary over them, so you inherit
+the working defaults without listing them. You only need to supply one if you want a different date
+format.
+
+Two more sets are still overridable but now come from `stream-chat`, because it owns the code that
+renders them:
+
+- **`language.*`** — the 57 language names used to say "Translated from German" on an auto-translated
+  message. They are derived from the same language union the API uses, so the set can no longer drift
+  out of sync with it.
+- **`relativeTime.*`** — `Today`, `Yesterday`, `{{ count }}d ago`, `{{ count }}w ago`, used by
+  `timestampFormatter(relativeCompact: true)`.
+
+Both are part of your catalog's types, so you override them exactly as before — `t('language.de')` is
+a checked key, and a typo in either is still a compile error.
