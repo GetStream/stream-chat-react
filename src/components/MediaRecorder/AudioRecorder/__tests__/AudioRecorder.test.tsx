@@ -333,7 +333,7 @@ describe('MessageInput', () => {
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
     vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
     const sendFileSpy = vi
-      .spyOn(channel, 'sendFile')
+      .spyOn(channel, 'uploadFile')
       .mockResolvedValue(fromPartial({ file: fileObjectURL }));
     await renderComponent({
       channelStateCtx: { channel },
@@ -366,7 +366,7 @@ describe('MessageInput', () => {
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
     vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
     const sendFileSpy = vi
-      .spyOn(channel, 'sendFile')
+      .spyOn(channel, 'uploadFile')
       .mockResolvedValue(fromPartial({ file: fileObjectURL }));
     const sendMessageSpy = vi
       .spyOn(channel, 'sendMessage')
@@ -402,7 +402,7 @@ describe('MessageInput', () => {
     });
 
     vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as AppSettingsAPIResponse);
-    vi.spyOn(channel, 'sendFile').mockResolvedValue({
+    vi.spyOn(channel, 'uploadFile').mockResolvedValue({
       file: fileObjectURL,
     } as SendFileAPIResponse);
 
