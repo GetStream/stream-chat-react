@@ -4,7 +4,7 @@ import type { TranslationContextValue } from '../../../context/TranslationContex
 import {
   defaultDateTimeParser,
   defaultTranslatorFunction,
-  StreamI18n,
+  Streami18n,
 } from '../../../i18n';
 
 import type {
@@ -17,7 +17,7 @@ import type {
 export type UseChatParams = {
   client: StreamChat;
   defaultLanguage?: string;
-  i18nInstance?: StreamI18n;
+  i18nInstance?: Streami18n;
 };
 
 export const useChat = ({
@@ -96,12 +96,12 @@ export const useChat = ({
     // Truthiness, deliberately -- not `instanceof`. An instance coming from a second copy of the
     // package would fail an identity check and be silently replaced by a fresh English default,
     // discarding every dictionary and formatter the integrator registered.
-    const streamI18n = i18nInstance || new StreamI18n({ language: userLanguage });
+    const streami18n = i18nInstance || new Streami18n({ language: userLanguage });
 
     // One subscription replaces the old `registerSetLanguageCallback`, which a second caller would
     // clobber for everyone. `subscribe` fires synchronously with the current value, so there is no
     // ordering to get right: whether this runs before or after `init()`, the live `t` arrives.
-    const unsubscribe = streamI18n.state.subscribeWithSelector(
+    const unsubscribe = streami18n.state.subscribeWithSelector(
       ({ t, tDateTimeParser }) => ({ t, tDateTimeParser }),
       ({ t, tDateTimeParser }) =>
         setTranslators({
@@ -111,7 +111,7 @@ export const useChat = ({
         }),
     );
 
-    streamI18n.init();
+    streami18n.init();
 
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps

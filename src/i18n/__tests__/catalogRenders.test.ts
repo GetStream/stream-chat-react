@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { StreamI18n } from '../Streami18n';
+import { Streami18n } from '../Streami18n';
 import catalog from './catalog.fixture.json';
 
 /**
@@ -71,7 +71,7 @@ describe('translation catalog renders', () => {
   });
 
   it('renders every singular key without leaking the key or a placeholder', async () => {
-    const { t } = await new StreamI18n({ logger: () => {} }).init();
+    const { t } = await new Streami18n({ logger: () => {} }).init();
     const render = t as unknown as (
       key: string,
       d?: string | Record<string, unknown>,
@@ -100,7 +100,7 @@ describe('translation catalog renders', () => {
   });
 
   it('renders every plural key at each count without leaking the key or a placeholder', async () => {
-    const { t } = await new StreamI18n({ logger: () => {} }).init();
+    const { t } = await new Streami18n({ logger: () => {} }).init();
     const render = t as unknown as (key: string, o: Record<string, unknown>) => string;
 
     const offenders: string[] = [];

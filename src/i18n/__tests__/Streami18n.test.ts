@@ -87,14 +87,14 @@ describe('Streami18n instance - default', () => {
   const streami18n = new Streami18n(streami18nOptions);
 
   it('should provide default english translator', async () => {
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
     const text = nanoid();
 
     expect(_t(text)).toBe(text);
   });
 
   it('should provide moment with default en locale', async () => {
-    const { tDateTimeParser } = await streami18n.getTranslators();
+    const { tDateTimeParser } = await streami18n.init();
     expect(tDateTimeParser() instanceof Dayjs).toBe(true);
     expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
   });
@@ -115,14 +115,14 @@ const dutchTranslations: LooseTranslationDictionary = {
 describe('Streami18n - resolution without a bundled prose resource', () => {
   it('renders a prose key from its inline default, not the key', async () => {
     const streami18n = new Streami18n({ logger: () => null });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
 
     expect(_t('message.status.sent.text', 'Sent')).toBe('Sent');
   });
 
   it('interpolates into an inline default', async () => {
     const streami18n = new Streami18n({ logger: () => null });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
 
     expect(
       _t(
@@ -137,7 +137,7 @@ describe('Streami18n - resolution without a bundled prose resource', () => {
 
   it('selects the plural form from the inline defaults', async () => {
     const streami18n = new Streami18n({ logger: () => null });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
     const options = {
       defaultValue_one: '{{ count }} member',
       defaultValue_other: '{{ count }} members',
@@ -153,7 +153,7 @@ describe('Streami18n - resolution without a bundled prose resource', () => {
 
   it('resolves the bundled keys that have no inline default', async () => {
     const streami18n = new Streami18n({ logger: () => null });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
 
     // language names are keyed off a runtime language code
     expect(_t('language.de')).toBe('German');
@@ -166,7 +166,7 @@ describe('Streami18n - resolution without a bundled prose resource', () => {
   it('does not report a prose key to parseMissingKeyHandler, and keeps its copy', async () => {
     const parseMissingKeyHandler = vi.fn(() => 'CLOBBERED');
     const streami18n = new Streami18n({ logger: () => null, parseMissingKeyHandler });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
 
     // Unguarded, i18next would replace the result with the handler's return value.
     expect(_t('message.status.sent.text', 'Sent')).toBe('Sent');
@@ -176,7 +176,7 @@ describe('Streami18n - resolution without a bundled prose resource', () => {
   it('still reports a genuinely unknown key to parseMissingKeyHandler', async () => {
     const parseMissingKeyHandler = vi.fn(() => 'HANDLED');
     const streami18n = new Streami18n({ logger: () => null, parseMissingKeyHandler });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
 
     const unknown = `nonexistent.${nanoid()}`;
     // @ts-expect-error deliberately outside the key union
@@ -191,20 +191,20 @@ describe('Streami18n instance - with an integrator-registered language', () => {
     streami18n.registerTranslation('nl', dutchTranslations);
 
     it('should translate the registered keys', async () => {
-      const { t: _t } = await streami18n.getTranslators();
+      const { t: _t } = await streami18n.init();
       for (const [key, value] of Object.entries(dutchTranslations)) {
         expect(_t(key)).toBe(value);
       }
     });
 
     it('should fall back to the key for unregistered keys', async () => {
-      const { t: _t } = await streami18n.getTranslators();
+      const { t: _t } = await streami18n.init();
       const missing = nanoid();
       expect(_t(missing)).toBe(missing);
     });
 
     it('should provide dayjs with `nl` locale', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
+      const { tDateTimeParser } = await streami18n.init();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
       expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('nl');
     });
@@ -219,14 +219,14 @@ describe('Streami18n instance - with an integrator-registered language', () => {
     streami18n.registerTranslation('nl', dutchTranslations);
 
     it('should translate the registered keys', async () => {
-      const { t: _t } = await streami18n.getTranslators();
+      const { t: _t } = await streami18n.init();
       for (const [key, value] of Object.entries(dutchTranslations)) {
         expect(_t(key)).toBe(value);
       }
     });
 
     it('should provide dayjs with default `en` locale', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
+      const { tDateTimeParser } = await streami18n.init();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
       expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
     });
@@ -240,7 +240,7 @@ describe('Streami18n instance - with an integrator-registered language', () => {
     const streami18n = new Streami18n(streami18nOptions);
 
     it('should provide moment with given custom locale config', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
+      const { tDateTimeParser } = await streami18n.init();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
       const localeConfig = (tDateTimeParser() as Dayjs.Dayjs).localeData();
       for (const key in streami18nOptions.dayjsLocaleConfigForLanguage) {
@@ -274,7 +274,7 @@ describe('Streami18n instance - with custom translations', () => {
     const streami18n = new Streami18n(streami18nOptions);
 
     it('should provide given (chinese in this case) translator', async () => {
-      const { t: _t } = await streami18n.getTranslators();
+      const { t: _t } = await streami18n.init();
 
       expect(_t(textKey1)).toBe(textValue1);
 
@@ -282,7 +282,7 @@ describe('Streami18n instance - with custom translations', () => {
     });
 
     it('should provide moment with default `en` locale', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
+      const { tDateTimeParser } = await streami18n.init();
       expect(tDateTimeParser() instanceof Dayjs).toBe(true);
       expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
     });
@@ -316,7 +316,7 @@ describe('registerTranslation - register new language `mr` (Marathi) ', () => {
   });
 
   it('should register moment locale config for Marathi translations', async () => {
-    const { tDateTimeParser } = await streami18n.getTranslators();
+    const { tDateTimeParser } = await streami18n.init();
     expect(tDateTimeParser() instanceof Dayjs).toBe(true);
 
     const localeConfig = (tDateTimeParser() as Dayjs.Dayjs).localeData();
@@ -343,12 +343,12 @@ describe('setLanguage - switch to a registered language', () => {
     streami18n.registerTranslation('fr', frenchTranslations);
 
     // English before the switch: an unknown key resolves to itself.
-    const { t: beforeT } = await streami18n.getTranslators();
+    const { t: beforeT } = await streami18n.init();
     expect(beforeT('messageList.empty')).toBe('messageList.empty');
 
     await streami18n.setLanguage('fr');
 
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
     for (const [key, value] of Object.entries(frenchTranslations)) {
       expect(_t(key)).toBe(value);
     }
@@ -358,7 +358,7 @@ describe('setLanguage - switch to a registered language', () => {
     // An unknown language gets an empty dictionary rather than being rejected, so every
     // key resolves to itself — which is the inline English default at each call site.
     const streami18n = new Streami18n({ language: 'zz', logger: () => null });
-    const { t: _t } = await streami18n.getTranslators();
+    const { t: _t } = await streami18n.init();
 
     expect(streami18n.currentLanguage).toBe('zz');
     expect(_t('messageComposer.sendButton.label')).toBe(
@@ -373,23 +373,23 @@ describe('Streami18n timezone', () => {
     ['moment', moment],
   ])('%s', (moduleName, module) => {
     it('is by default the local timezone', () => {
-      const streamI18n = new Streami18n({ DateTimeParser: module });
+      const streami18n = new Streami18n({ DateTimeParser: module });
       const date = new Date();
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).toBe(
+      expect((streami18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).toBe(
         date.getHours().toString(),
       );
     });
 
     it('can be set to different timezone on init', () => {
-      const streamI18n = new Streami18n({
+      const streami18n = new Streami18n({
         DateTimeParser: module,
         timezone: 'Europe/Prague',
       });
       const date = new Date();
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).not.toBe(
+      expect((streami18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).not.toBe(
         date.getHours().toString(),
       );
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).not.toBe(
+      expect((streami18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).not.toBe(
         (date.getUTCHours() - 2).toString(),
       );
     });
@@ -399,12 +399,12 @@ describe('Streami18n timezone', () => {
       const tz = moduleRecord.tz;
       delete moduleRecord.tz;
 
-      const streamI18n = new Streami18n({
+      const streami18n = new Streami18n({
         DateTimeParser: module,
         timezone: 'Europe/Prague',
       });
       const date = new Date();
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).toBe(
+      expect((streami18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).toBe(
         date.getHours().toString(),
       );
 
@@ -508,11 +508,11 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
     const i18n = new Streami18n({ language: language as 'en' });
     if (!afterInit)
       i18n.registerTranslation(language, { 'common.cancel.label': 'Abbrechen' });
-    const first = await i18n.getTranslators();
+    const first = await i18n.init();
     if (afterInit) {
       i18n.registerTranslation(language, { 'common.cancel.label': 'Abbrechen' });
     }
-    const { t } = afterInit ? await i18n.getTranslators() : first;
+    const { t } = afterInit ? await i18n.init() : first;
 
     expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
     expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
@@ -523,7 +523,7 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
       language: 'de' as 'en',
       translationsForLanguage: { 'common.cancel.label': 'Abbrechen' },
     });
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
 
     expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
     expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
@@ -532,7 +532,7 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
   it('overriding English does not drop the formatter keys', async () => {
     const i18n = new Streami18n();
     i18n.registerTranslation('en', { 'common.cancel.label': 'Dismiss' });
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
 
     expect(t('common.cancel.label', 'Cancel')).toBe('Dismiss');
     expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
@@ -543,7 +543,7 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
     i18n.registerTranslation('en', {
       'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(format: HH[h]) }}',
     });
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
 
     expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10h');
   });
@@ -552,7 +552,7 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
     const i18n = new Streami18n();
     i18n.registerTranslation('en', { 'common.cancel.label': 'Dismiss' });
     i18n.registerTranslation('en', { 'common.send.label': 'Fire away' });
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
 
     expect(t('common.cancel.label', 'Cancel')).toBe('Dismiss');
     expect(t('common.send.label', 'Send')).toBe('Fire away');
@@ -563,10 +563,10 @@ describe('Streami18n - a custom dictionary keeps the keys that have no inline co
     first.registerTranslation('en', {
       'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(format: HH[h]) }}',
     });
-    await first.getTranslators();
+    await first.init();
 
     const second = new Streami18n();
-    const { t } = await second.getTranslators();
+    const { t } = await second.init();
     expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
   });
 });
@@ -592,7 +592,7 @@ describe('Streami18n - dictionary key types', () => {
 
     const i18n = new Streami18n({ language: 'ru' as 'en', logger: () => null });
     i18n.registerTranslation('ru' as 'en', ru);
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
     const options = {
       defaultValue_one: '{{ count }} member',
       defaultValue_other: '{{ count }} members',
@@ -668,7 +668,7 @@ describe('Streami18n - dictionary key types', () => {
 
     const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
     i18n.registerTranslation('de' as 'en', de);
-    const { t: _t } = await i18n.getTranslators();
+    const { t: _t } = await i18n.init();
 
     const options = {
       defaultValue_one: '{{ count }} member',
@@ -702,7 +702,7 @@ describe('Streami18n - a language nobody registered still formats dates', () => 
 
   it('language is selected but no dictionary is registered', async () => {
     const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
 
     expect(stamp(i18n)).toBe('10:30');
     expect(stamp(i18n, 'timestamp.DateSeparator')).toBe('Mon, 1 Jan');
@@ -721,7 +721,7 @@ describe('Streami18n - a language nobody registered still formats dates', () => 
       logger: () => null,
       dayjsLocaleConfigForLanguage: customDayjsLocaleConfig,
     });
-    await i18n.getTranslators();
+    await i18n.init();
 
     expect(stamp(i18n)).toBe('10:30');
   });
@@ -731,7 +731,7 @@ describe('Streami18n - a language nobody registered still formats dates', () => 
     // constructor must not reset `currentLanguage` when the dictionary has not arrived yet.
     const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
     i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
-    const { t } = await i18n.getTranslators();
+    const { t } = await i18n.init();
 
     expect(i18n.currentLanguage).toBe('de');
     expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
@@ -757,10 +757,10 @@ describe('Streami18n - setLanguage to a language nobody registered', () => {
   ])('%s', async (_name, afterInit) => {
     const logger = vi.fn();
     const i18n = new Streami18n({ logger });
-    if (afterInit) await i18n.getTranslators();
+    if (afterInit) await i18n.init();
 
     await i18n.setLanguage('de' as 'en');
-    if (!afterInit) await i18n.getTranslators();
+    if (!afterInit) await i18n.init();
 
     expect(i18n.currentLanguage).toBe('de');
     expect(stamp(i18n)).toBe('10:30');
@@ -773,7 +773,7 @@ describe('Streami18n - setLanguage to a language nobody registered', () => {
   it('does not clobber a dictionary registered for that language', async () => {
     const i18n = new Streami18n({ logger: () => null });
     i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
-    await i18n.getTranslators();
+    await i18n.init();
     await i18n.setLanguage('de' as 'en');
 
     expect(i18n.t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
@@ -783,7 +783,7 @@ describe('Streami18n - setLanguage to a language nobody registered', () => {
   it('switching back and forth keeps both dictionaries', async () => {
     const i18n = new Streami18n({ logger: () => null });
     i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
-    await i18n.getTranslators();
+    await i18n.init();
 
     await i18n.setLanguage('de' as 'en');
     expect(i18n.t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
@@ -809,7 +809,7 @@ describe('Streami18n - the unregistered-language warning', () => {
   it('is emitted once, on init, when no dictionary ever arrives', async () => {
     const logger = vi.fn();
     const i18n = new Streami18n({ language: 'de' as 'en', logger });
-    await i18n.getTranslators();
+    await i18n.init();
 
     const warnings = logger.mock.calls.filter(([message]) =>
       String(message).includes('no translation dictionary is registered'),
@@ -822,7 +822,7 @@ describe('Streami18n - the unregistered-language warning', () => {
     const logger = vi.fn();
     const i18n = new Streami18n({ language: 'de' as 'en', logger });
     i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
-    await i18n.getTranslators();
+    await i18n.init();
 
     expect(logger).not.toHaveBeenCalledWith(
       expect.stringContaining('no translation dictionary is registered'),
@@ -836,7 +836,7 @@ describe('Streami18n - the unregistered-language warning', () => {
       logger,
       translationsForLanguage: { 'common.cancel.label': 'Abbrechen' },
     });
-    await i18n.getTranslators();
+    await i18n.init();
 
     expect(logger).not.toHaveBeenCalledWith(
       expect.stringContaining('no translation dictionary is registered'),
@@ -887,7 +887,7 @@ describe('Streami18n - the calendar keys that carry English words', () => {
       },
     });
     i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
-    const { t, tDateTimeParser } = await i18n.getTranslators();
+    const { t, tDateTimeParser } = await i18n.init();
     const stamp = (key: string, when: string) =>
       getDateString({
         messageCreatedAt: when,
@@ -911,7 +911,7 @@ describe('Streami18n - the calendar keys that carry English words', () => {
       'timestamp.ChannelPreviewTimestamp':
         '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Gestern]", "lastWeek": "dddd", "sameElse": "L" }) }}',
     });
-    const { t, tDateTimeParser } = await i18n.getTranslators();
+    const { t, tDateTimeParser } = await i18n.init();
     const stamp = (key: string, when: string) =>
       getDateString({
         messageCreatedAt: when,

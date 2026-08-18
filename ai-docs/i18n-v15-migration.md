@@ -7,8 +7,8 @@ Three breaking changes, all in v15:
 2. **Translation keys are namespaced identifiers**, not the English text. `t('Send Message')`
    became `t('messageComposer.sendButton.send.ariaLabel', 'Send')`.
 3. **The translation runtime moved into `stream-chat`**, shared with the React Native SDK. The class
-   is renamed `StreamI18n`, two of its methods changed shape, and two timestamp edge cases render
-   differently — see [The shared runtime](#the-shared-runtime).
+   keeps its name, two of its methods changed shape, and two timestamp edge cases render differently
+   — see [The shared runtime](#the-shared-runtime).
 
 Together these cut ~112 KB gzip (27%) from the bundle: the 11 dictionaries were statically
 imported and copied into `Streami18n` at construction, so they shipped even if you never set
@@ -16,17 +16,17 @@ imported and copied into `Streami18n` at construction, so they shipped even if y
 
 ## Do I need to do anything?
 
-| If you…                                          | Action                                               |
-| ------------------------------------------------ | ---------------------------------------------------- |
-| use the SDK in English and never touched i18n    | **Nothing.**                                         |
-| passed `translationsForLanguage`                 | Rename your keys — see below                         |
-| called `registerTranslation()`                   | Rename your keys — see below                         |
-| used a built-in non-English language             | Supply the dictionary yourself — see below           |
-| relied on non-English date formats               | Import the `dayjs` locale yourself — see below       |
-| imported `deTranslations` … `trTranslations`     | Those exports are removed                            |
-| construct `new Streami18n(...)`                  | Still works, now deprecated — rename to `StreamI18n` |
-| assign `i18n.t` or read `setLanguage()`'s return | Both changed — see below                             |
-| declared `i18next` or `dayjs` yourself           | You can drop them; `stream-chat` supplies both       |
+| If you…                                          | Action                                         |
+| ------------------------------------------------ | ---------------------------------------------- |
+| use the SDK in English and never touched i18n    | **Nothing.**                                   |
+| passed `translationsForLanguage`                 | Rename your keys — see below                   |
+| called `registerTranslation()`                   | Rename your keys — see below                   |
+| used a built-in non-English language             | Supply the dictionary yourself — see below     |
+| relied on non-English date formats               | Import the `dayjs` locale yourself — see below |
+| imported `deTranslations` … `trTranslations`     | Those exports are removed                      |
+| construct `new Streami18n(...)`                  | **Nothing** — same name, same options object   |
+| assign `i18n.t` or read `setLanguage()`'s return | Both changed — see below                       |
+| declared `i18next` or `dayjs` yourself           | You can drop them; `stream-chat` supplies both |
 
 ## Renaming your keys
 
@@ -240,20 +240,20 @@ _old_ natural-language keys, so it needs the same rename as your own overrides.
 `stream-chat-react-native`, so both SDKs behave identically and a fix reaches both at once. You still
 import it from here, and it still carries this SDK's own key catalog and copy.
 
-### The class is renamed
+### `getTranslators()` is now `init()`
+
+Same return value; the old name was a getter that initialized, which is what made it worth renaming.
 
 ```ts
 // v14
-import { Streami18n } from 'stream-chat-react';
-const i18n = new Streami18n({ language: 'nl' });
+const { t, tDateTimeParser } = await i18n.getTranslators();
 
 // v15
-import { StreamI18n } from 'stream-chat-react';
-const i18n = new StreamI18n({ language: 'nl' });
+const { t, tDateTimeParser } = await i18n.init();
 ```
 
-`Streami18n` remains exported as a deprecated alias for one release cycle, so nothing breaks
-immediately — but the rename is the one to make now.
+`init()` is idempotent and safe to call concurrently — the promise is memoized, which closes a
+re-entry window the old implementation left open.
 
 ### `t` is read-only, and `setLanguage()` returns nothing
 
