@@ -3,10 +3,7 @@ import type { Streami18nOptions as CoreStreami18nOptions } from 'stream-chat/i18
 
 import { NotificationTranslationTopic } from './TranslationBuilder';
 import { runtimeDefaults } from './runtimeDefaults';
-import type { TranslationCatalog } from './types';
-
-/** Keys resolved from bundled data rather than an inline default. Mirrors `types.ts`. */
-type BundledKey = `translationBuilderTopic.${string}` | `language.${string}`;
+import type { BundledKey, TranslationCatalog } from './types';
 
 /**
  * Options for {@link Streami18n}.

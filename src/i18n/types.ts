@@ -34,8 +34,12 @@ export type TranslationCatalog = GeneratedCatalog &
  * `timestamp.*` and `duration.*` are matched by prefix inside core. This adds the two prefixes specific
  * to this SDK: the post-processor directives, and the language names, which are looked up by a runtime
  * language code and so have no call site to carry a default.
+ *
+ * Exported so `Streami18n.ts` can parameterize the class from the same declaration `StreamTFunction`
+ * uses. It was declared twice; a third prefix added to one copy would have made the exported `t` type
+ * and the class instance's own `t` disagree about the same call.
  */
-type BundledKey = `translationBuilderTopic.${string}` | `language.${string}`;
+export type BundledKey = `translationBuilderTopic.${string}` | `language.${string}`;
 
 export type PluralTranslationKey = PluralTranslationKeyOf<TranslationCatalog>;
 export type TranslationKey = TranslationKeyOf<TranslationCatalog>;
