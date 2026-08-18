@@ -192,7 +192,6 @@
     "eslint-plugin-sort-destructure-keys": "^3.0.0",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
-    "i18next": "^26.3.6",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.5",
     "moment-timezone": "^0.5.48",

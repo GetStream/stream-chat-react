@@ -1,10 +1,10 @@
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import { defaultNotificationTranslators } from '../TranslationBuilder/notifications/NotificationTranslationTopic';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { i18n } from 'i18next';
+import type { I18nInstance } from 'stream-chat/i18n';
 import type { Notification } from 'stream-chat';
 
-const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
+const mockI18Next = fromPartial<I18nInstance>({ use: vi.fn() });
 describe('NotificationTranslationTopic', () => {
   it('gets initiated with defaults', () => {
     const builder = new NotificationTranslationTopic({ i18next: mockI18Next });
@@ -56,7 +56,7 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('falls back to translating notification.message when type has no translator', () => {
-    const i18next = fromPartial<i18n>({
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
       t: vi.fn((key) =>
         key === 'notification.attachmentFileMissing' ? 'translated/file-required' : key,
@@ -81,7 +81,7 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('does not interpolate metadata into an unrecognised message', () => {
-    const i18next = fromPartial<i18n>({
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
       t: vi.fn() as unknown as i18n['t'],
     });
@@ -142,7 +142,7 @@ describe('NotificationTranslationTopic', () => {
       'Reached the vote limit. Remove an existing vote first.',
     ],
   ])('translates known notification type %s', (type, key, copy) => {
-    const i18next = fromPartial<i18n>({
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
       t: vi.fn(
         (translationKey) => `translated:${translationKey}`,
@@ -162,7 +162,7 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('normalizes reason metadata in poll creation failure translation', () => {
-    const i18next = fromPartial<i18n>({
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
       t: vi.fn((key, _defaultValue, options) =>
         key === 'notification.pollCreateFailedWithReason'

@@ -1,9 +1,9 @@
 import { NotificationTranslationTopic, TranslationBuilder } from '../TranslationBuilder';
 import type { TranslationTopicConstructor } from '../TranslationBuilder';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { i18n } from 'i18next';
+import type { I18nInstance } from 'stream-chat/i18n';
 
-const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
+const mockI18Next = fromPartial<I18nInstance>({ use: vi.fn() });
 describe('TranslationBuilder and TranslationTopic', () => {
   it('gets initiated', () => {
     const manager = new TranslationBuilder(mockI18Next);
