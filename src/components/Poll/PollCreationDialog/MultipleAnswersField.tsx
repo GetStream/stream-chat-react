@@ -1,5 +1,5 @@
-import { POLL_VALIDATION_CODE, pollValidationError } from 'stream-chat';
-import type { PollValidationCode } from 'stream-chat';
+import { POLL_COMPOSER_VALIDATION_CODE, pollComposerValidationError } from 'stream-chat';
+import type { PollComposerValidationCode } from 'stream-chat';
 import React, { useMemo, useRef, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
@@ -24,17 +24,19 @@ export const MultipleAnswersField = () => {
   const [voteLimitEnabled, setVoteLimitEnabled] = useState(false);
   const maxVotesInputRef = useRef<HTMLInputElement | null>(null);
 
-  const knownValidationErrors = useMemo<Partial<Record<PollValidationCode, string>>>(
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      [POLL_VALIDATION_CODE.maxVotesNotNumeric]: t(
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric]: t(
         'poll.multipleAnswersField.onlyNumbersAllowed.label',
         'Only numbers are allowed',
       ),
-      [POLL_VALIDATION_CODE.maxVotesOutOfRange]: t(
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesOutOfRange]: t(
         'poll.multipleAnswersField.typeNumber210.label',
         'Type a number from 2 to 10',
       ),
-      [POLL_VALIDATION_CODE.maxVotesUniqueVoteEnforced]: t(
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesUniqueVoteEnforced]: t(
         'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
         'Enforce unique vote is enabled',
       ),
@@ -111,8 +113,8 @@ export const MultipleAnswersField = () => {
                       ? {
                           // Injected field errors take the same shape core produces, so the render
                           // path is identical whether the error came from here or from the composer.
-                          max_votes_allowed: pollValidationError(
-                            POLL_VALIDATION_CODE.maxVotesNotNumeric,
+                          max_votes_allowed: pollComposerValidationError(
+                            POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric,
                           ),
                         }
                       : undefined;
