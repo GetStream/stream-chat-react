@@ -313,6 +313,32 @@ Also now internal, none of them documented before: `translations`, `dayjsLocales
 `isCustomDateTimeParser`, `localeExists()`, `addOrUpdateLocale()`, `validateCurrentLanguage()`. To
 register a dayjs locale directly, `stream-chat/i18n` exports `addOrUpdateDayjsLocale()`.
 
+### `useChat` no longer returns `translators`
+
+The i18n wiring moved out of `useChat` into a dedicated `useStreami18n`, matching the hook
+`stream-chat-react-native` already had. `useChat` was doing five unrelated jobs — user-agent stamping,
+subsystem subscriptions, mutes, i18n and latest-message bookkeeping — and only held the translators to
+hand them straight to a provider.
+
+`useChat` is exported, so if you called it directly:
+
+```ts
+// v14
+const { translators } = useChat({ client, defaultLanguage, i18nInstance });
+
+// v15
+const { getAppSettings, latestMessageDatesByChannels, mutes } = useChat({ client });
+const translators = useStreami18n({ client, defaultLanguage, i18nInstance });
+```
+
+`useChat` no longer takes `defaultLanguage` or `i18nInstance` either — both moved to `useStreami18n`.
+Nothing changes for `<Chat>`: its props are the same and it wires both hooks internally.
+
+One behavioural improvement comes with it. `userLanguage` now tracks `client.user.language` reactively,
+so a user who connects _after_ `<Chat>` mounts gets their language applied; previously it was captured
+once and a late connection kept the browser or default language. Passing a value that is not a
+`Streami18n` now warns and falls back to a default instance rather than throwing at render.
+
 ### You no longer need `i18next` or `dayjs` in your own dependencies
 
 `stream-chat` depends on both, so they arrive transitively. If you declared them only for this SDK,

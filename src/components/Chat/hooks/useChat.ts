@@ -1,12 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { TranslationContextValue } from '../../../context/TranslationContext';
-import {
-  defaultDateTimeParser,
-  defaultTranslatorFunction,
-  Streami18n,
-} from '../../../i18n';
-
 import type {
   EventPayload,
   OwnUserResponse,
@@ -16,21 +9,9 @@ import type {
 
 export type UseChatParams = {
   client: StreamChat;
-  defaultLanguage?: string;
-  i18nInstance?: Streami18n;
 };
 
-export const useChat = ({
-  client,
-  defaultLanguage = 'en',
-  i18nInstance,
-}: UseChatParams) => {
-  const [translators, setTranslators] = useState<TranslationContextValue>({
-    t: defaultTranslatorFunction,
-    tDateTimeParser: defaultDateTimeParser,
-    userLanguage: 'en',
-  });
-
+export const useChat = ({ client }: UseChatParams) => {
   const [mutes, setMutes] = useState<Array<UserMuteResponse>>([]);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
@@ -84,40 +65,6 @@ export const useChat = ({
   }, [clientMutes?.length]);
 
   useEffect(() => {
-    let userLanguage = client.user?.language;
-
-    if (!userLanguage) {
-      const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
-      userLanguage = i18nInstance?.registeredLanguages.has(browserLanguage)
-        ? browserLanguage
-        : defaultLanguage;
-    }
-
-    // Truthiness, deliberately -- not `instanceof`. An instance coming from a second copy of the
-    // package would fail an identity check and be silently replaced by a fresh English default,
-    // discarding every dictionary and formatter the integrator registered.
-    const streami18n = i18nInstance || new Streami18n({ language: userLanguage });
-
-    // One subscription replaces the old `registerSetLanguageCallback`, which a second caller would
-    // clobber for everyone. `subscribe` fires synchronously with the current value, so there is no
-    // ordering to get right: whether this runs before or after `init()`, the live `t` arrives.
-    const unsubscribe = streami18n.state.subscribeWithSelector(
-      ({ t, tDateTimeParser }) => ({ t, tDateTimeParser }),
-      ({ t, tDateTimeParser }) =>
-        setTranslators({
-          t,
-          tDateTimeParser,
-          userLanguage: userLanguage || defaultLanguage,
-        }),
-    );
-
-    streami18n.init();
-
-    return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i18nInstance]);
-
-  useEffect(() => {
     setLatestMessageDatesByChannels({});
   }, [client.user?.id]);
 
@@ -125,6 +72,5 @@ export const useChat = ({
     getAppSettings,
     latestMessageDatesByChannels,
     mutes,
-    translators,
   };
 };

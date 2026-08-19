@@ -20,6 +20,7 @@ import {
   type NotificationDisplayFilter,
 } from '../Notifications';
 import { useChat } from './hooks/useChat';
+import { useStreami18n } from '../../i18n/useStreami18n';
 import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import type { CustomClasses } from '../../context/ChatContext';
@@ -127,11 +128,8 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     useImageFlagEmojisOnWindows = false,
   } = props;
 
-  const { getAppSettings, latestMessageDatesByChannels, mutes, translators } = useChat({
-    client,
-    defaultLanguage,
-    i18nInstance,
-  });
+  const { getAppSettings, latestMessageDatesByChannels, mutes } = useChat({ client });
+  const translators = useStreami18n({ client, defaultLanguage, i18nInstance });
 
   const searchController = useMemo(
     () =>
@@ -159,8 +157,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     useImageFlagEmojisOnWindows,
   });
   const { NotificationAnnouncer = DefaultNotificationAnnouncer } = useComponentContext();
-
-  if (!translators.t) return null;
 
   return (
     <ChatProvider value={chatContextValue}>
