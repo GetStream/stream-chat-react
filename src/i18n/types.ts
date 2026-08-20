@@ -1,4 +1,5 @@
 import type {
+  Streami18nState as CoreStreami18nState,
   LanguageNameCatalog,
   LooseTranslationDictionaryOf,
   PluralTranslationKeyOf,
@@ -48,6 +49,15 @@ export type LooseTranslationDictionary = LooseTranslationDictionaryOf<Translatio
 export type StreamTFunction = StreamTFunctionFor<TranslationCatalog, BundledKey>;
 
 /**
+ * The value held by `Streami18n.state`, parameterized for this SDK's catalog.
+ *
+ * Exported because `state` is public: a consumer subscribing to it needs to be able to name the
+ * type for a module-scope selector. The default-parameterized `Streami18nState` from core is not a
+ * substitute -- `t` is contravariant in its options, so that one is not assignable to this.
+ */
+export type Streami18nState = CoreStreami18nState<TranslationCatalog, BundledKey>;
+
+/**
  * Options for `getDateString`.
  *
  * Declared here rather than taken from core because `formatDate` is a component prop: core's own
@@ -65,6 +75,7 @@ export type DateFormatterOptions = TimestampFormatterOptions & {
 export type {
   AnyTranslationCatalog,
   CustomFormatters,
+  DayjsLocaleConfig,
   DurationFormatterOptions,
   DynamicTranslationKey,
   FormatterFactory,

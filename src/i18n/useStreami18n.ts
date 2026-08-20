@@ -1,21 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { Streami18n } from './Streami18n';
-import type { BundledKey, TranslationCatalog } from './types';
+import type { Streami18nState } from './types';
 import { useStateStore } from '../store';
 
 import type { StreamChat } from 'stream-chat';
-import type { Streami18nState } from 'stream-chat/i18n';
 import type { TranslationContextValue } from '../context/TranslationContext';
-
-/**
- * This SDK's instantiation of core's state shape.
- *
- * Spelled out rather than left to `Streami18nState`'s defaults: those default the catalog to
- * `AnyTranslationCatalog`, and `t` is contravariant in its options, so the concrete store is not
- * assignable to the default-parameterized one.
- */
-type SDKStreami18nState = Streami18nState<TranslationCatalog, BundledKey>;
 
 /**
  * Whether a value is a `Streami18n` from any copy of the package.
@@ -36,7 +26,7 @@ const isStreami18n = (value: unknown): value is Streami18n =>
   (value.constructor as typeof Streami18n | undefined)?.brand === Streami18n.brand;
 
 /** Module scope, so the subscription is not torn down and rebuilt on every render. */
-const selector = ({ t, tDateTimeParser }: SDKStreami18nState) => ({ t, tDateTimeParser });
+const selector = ({ t, tDateTimeParser }: Streami18nState) => ({ t, tDateTimeParser });
 
 export type UseStreami18nParams = {
   client: StreamChat;
