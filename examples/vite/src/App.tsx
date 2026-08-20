@@ -9,8 +9,8 @@ import {
 import type {
   ChannelFilters,
   ChannelPaginatorRequestOptions,
-  ChannelSort,
   LocalMessage,
+  SortParamRequest,
   TextComposerMiddleware,
 } from 'stream-chat';
 import {
@@ -128,7 +128,7 @@ const requestOptions: ChannelPaginatorRequestOptions = {
   state: true,
 };
 
-const sort: ChannelSort = [
+const sort: SortParamRequest[] = [
   { direction: -1, field: 'pinned_at' },
   { direction: -1, field: 'last_message_at' },
   { direction: -1, field: 'updated_at' },

@@ -3,7 +3,7 @@ import { useStableCallback } from '../../../utils/useStableCallback';
 import type {
   LocalMessage,
   ReactionResponse,
-  ReactionSort,
+  SortParamRequest,
   StreamChat,
 } from 'stream-chat';
 import type { ReactionType } from '../../Reactions/types';
@@ -13,7 +13,7 @@ export const MAX_MESSAGE_REACTIONS_TO_FETCH = 1000;
 export function useReactionsFetcher(message: LocalMessage) {
   const { client } = useChatContext();
 
-  return useStableCallback((reactionType?: ReactionType, sort?: ReactionSort) =>
+  return useStableCallback((reactionType?: ReactionType, sort?: SortParamRequest[]) =>
     fetchMessageReactions(client, message.id, reactionType, sort),
   );
 }
@@ -22,7 +22,7 @@ async function fetchMessageReactions(
   client: StreamChat,
   messageId: string,
   reactionType?: ReactionType,
-  sort?: ReactionSort,
+  sort?: SortParamRequest[],
 ) {
   const reactions: ReactionResponse[] = [];
   const limit = 25;

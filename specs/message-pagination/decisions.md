@@ -68,7 +68,7 @@ Cross-repo sequencing is required; React branch depends on upstream JS behavior 
 Extend `MessagePaginator` with optional `parentMessageId`:
 
 - when absent, query channel messages (`channel.query({ messages: ... })`) as before;
-- when present, query thread replies (`channel.getReplies(parentMessageId, ...)`);
+- when present, query thread replies (`client.getReplies({ parent_id, ... })`);
 - include `parent_id` in client-side filters only for thread mode.
 
 `Thread` now constructs `MessagePaginator` with `parentMessageId: thread.id`.
