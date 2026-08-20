@@ -1,5 +1,5 @@
 import React from 'react';
-import { Poll, StateStore, VotingVisibility } from 'stream-chat';
+import { Poll, StateStore } from 'stream-chat';
 import type { Channel, OwnCapabilitiesState, StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -268,7 +268,7 @@ describe('PollOptionList', () => {
   });
 
   it('does not renders voter avatars with options for anonymous poll', () => {
-    const pollData = generatePoll({ voting_visibility: VotingVisibility.anonymous });
+    const pollData = generatePoll({ voting_visibility: 'anonymous' });
     const { container } = renderComponent({
       poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });

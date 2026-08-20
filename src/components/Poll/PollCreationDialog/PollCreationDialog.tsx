@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import type { PollComposerState } from 'stream-chat';
-import { VotingVisibility } from 'stream-chat';
 import { MultipleAnswersField } from './MultipleAnswersField';
 import { NameField } from './NameField';
 import { OptionFieldSet } from './OptionFieldSet';
@@ -61,9 +60,7 @@ export const PollCreationDialog = ({ close }: PollCreationDialogProps) => {
               id='voting_visibility'
               onChange={(e) =>
                 pollComposer.updateFields({
-                  voting_visibility: e.target.checked
-                    ? VotingVisibility.anonymous
-                    : VotingVisibility.public,
+                  voting_visibility: e.target.checked ? 'anonymous' : 'public',
                 })
               }
               title={t('poll.creationDialog.anonymousPoll.title', 'Anonymous Poll')}
