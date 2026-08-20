@@ -85,9 +85,8 @@ const mocks = vi.hoisted(() => {
   const client = {
     blockedUsers,
     blockUser,
-    muteUser,
+    moderation: { mute: muteUser, unmute: unmuteUser },
     unblockUser,
-    unmuteUser,
     user: { id: 'own-user' },
     userID: 'own-user',
   };
@@ -282,7 +281,7 @@ describe('DefaultChannelManagementActions', () => {
 
     await advanceDebounce();
 
-    expect(mocks.muteUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.muteUser).toHaveBeenCalledWith({ target_ids: ['other-user'] });
     expect(screen.getByRole('button', { name: 'Mute user' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -328,7 +327,7 @@ describe('DefaultChannelManagementActions', () => {
 
     await advanceDebounce();
 
-    expect(mocks.unmuteUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.unmuteUser).toHaveBeenCalledWith({ target_ids: ['other-user'] });
     expect(mocks.muteUser).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Mute user' })).toHaveAttribute(
       'aria-pressed',
@@ -356,7 +355,7 @@ describe('DefaultChannelManagementActions', () => {
 
     await advanceDebounce();
 
-    expect(mocks.muteUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.muteUser).toHaveBeenCalledWith({ target_ids: ['other-user'] });
     expect(mocks.addNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'User muted',

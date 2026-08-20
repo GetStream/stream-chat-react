@@ -10,9 +10,10 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
 // MERGE-RECONCILE (test migration): the master merge removed ChannelStateContext.
-// `useFlagHandler` reads the client from ChatContext and flags through `client.flagMessage`.
+// `useFlagHandler` reads the client from ChatContext and flags through
+// `client.moderation.flagMessage`.
 // The wrapper now uses the real <Chat>/<Channel> providers and assertions spy on
-// `client.flagMessage` instead of stubbing it on a mocked client.
+// `client.moderation.flagMessage` instead of stubbing it on a mocked client.
 
 let channel: ChannelType;
 let client: StreamChat;
@@ -61,7 +62,9 @@ describe('useHandleFlag custom hook', () => {
 
   it('should allow to flag a message when it is successful', async () => {
     const message = generateMessage() as unknown as LocalMessage;
-    const flagSpy = vi.spyOn(client, 'flagMessage').mockResolvedValue(fromPartial({}));
+    const flagSpy = vi
+      .spyOn(client.moderation, 'flagMessage')
+      .mockResolvedValue(fromPartial({}));
     const handleFlag = await renderUseHandleFlagHook(message);
     await handleFlag(mouseEventMock);
     expect(flagSpy).toHaveBeenCalledWith(message.id);
@@ -70,7 +73,7 @@ describe('useHandleFlag custom hook', () => {
   it('should throw when flagging fails', async () => {
     const message = generateMessage() as unknown as LocalMessage;
     const flagSpy = vi
-      .spyOn(client, 'flagMessage')
+      .spyOn(client.moderation, 'flagMessage')
       .mockRejectedValue(new Error('flag failed'));
     const handleFlag = await renderUseHandleFlagHook(message);
     await expect(handleFlag(mouseEventMock)).rejects.toThrow('flag failed');

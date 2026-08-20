@@ -33,8 +33,8 @@ async function renderUseHandleMuteHook(
   { mutes = [] as Mute[] }: { mutes?: Mute[] } = {},
 ) {
   const client = await getTestClientWithUser(alice);
-  client.muteUser = muteUser;
-  client.unmuteUser = unmuteUser;
+  client.moderation.mute = muteUser;
+  client.moderation.unmute = unmuteUser;
   client.mutedUsersStore.partialNext({ mutedUsers: mutes });
 
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
@@ -65,7 +65,7 @@ describe('useHandleMute custom hook', () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
     const handleMute = await renderUseHandleMuteHook(message);
     await handleMute(mouseEventMock);
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
+    expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
   it('should notify (and not throw) when muting a user fails', async () => {
@@ -73,7 +73,7 @@ describe('useHandleMute custom hook', () => {
     muteUser.mockImplementationOnce(() => Promise.reject(new Error('mute failed')));
     const handleMute = await renderUseHandleMuteHook(message);
     await expect(handleMute(mouseEventMock)).resolves.toBeUndefined();
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
+    expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
     expect(notify).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 
@@ -84,7 +84,7 @@ describe('useHandleMute custom hook', () => {
       mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
     });
     await handleMute(mouseEventMock);
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
+    expect(unmuteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
   it('should notify (and not throw) when unmuting a user fails', async () => {
@@ -94,7 +94,7 @@ describe('useHandleMute custom hook', () => {
       mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
     });
     await expect(handleMute(mouseEventMock)).resolves.toBeUndefined();
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
+    expect(unmuteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
     expect(notify).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 });
