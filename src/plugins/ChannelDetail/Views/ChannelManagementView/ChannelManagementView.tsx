@@ -228,7 +228,7 @@ const useChannelManagementEditForm = ({
     async (file: File) => {
       const url = uploadImage
         ? await uploadImage(file)
-        : (await channel.sendImage(file)).file;
+        : (await channel.uploadImage({ file })).file;
       if (!url) throw new Error('Image upload did not return a URL');
       return url;
     },
