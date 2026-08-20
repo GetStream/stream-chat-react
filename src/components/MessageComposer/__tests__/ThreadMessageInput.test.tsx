@@ -68,10 +68,10 @@ const setup = async ({ channelData }: any = {}) => {
     customUser: user,
   });
   const sendImageSpy = vi
-    .spyOn(customChannel, 'sendImage')
+    .spyOn(customChannel, 'uploadImage')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
   const sendFileSpy = vi
-    .spyOn(customChannel, 'sendFile')
+    .spyOn(customChannel, 'uploadFile')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
   const getDraftSpy = vi
     .spyOn(customChannel, 'getDraft')

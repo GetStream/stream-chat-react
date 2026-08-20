@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { localMessageToNewMessagePayload } from 'stream-chat';
 import type {
   DeleteMessageOptions,
-  EventAPIResponse,
   LocalMessage,
   MarkReadRequest,
   MessageRequest,
@@ -24,7 +23,7 @@ export type ThreadRequestHandlersParams = {
   doMarkReadRequest?: (params: {
     thread: StreamThread;
     options?: MarkReadRequest;
-  }) => Promise<EventAPIResponse | null> | void;
+  }) => ReturnType<StreamChannel['markRead']> | void;
   doSendMessageRequest?: (
     thread: StreamThread,
     message: MessageRequest,

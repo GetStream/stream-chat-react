@@ -1,5 +1,5 @@
 import {
-  type APIErrorResponse,
+  type APIError,
   type ChannelState,
   type MessageResponse,
   StreamAPIError,
@@ -76,13 +76,26 @@ export const findInMsgSetByDate = (
   return { index: -1 };
 };
 /**
+ * Builds the `APIError` payload for a synthetic error response, for transport failures
+ * that never produced one.
+ */
+const buildErrorResponseData = (message: string, status: number, code = 0): APIError => ({
+  code,
+  details: [],
+  duration: '',
+  message,
+  more_info: '',
+  status_code: status,
+});
+
+/**
  * Compatibility adapter:
- * LocalMessage.error expects StreamAPIError<APIErrorResponse>, but some transport failures
+ * LocalMessage.error expects StreamAPIError<APIError>, but some transport failures
  * (for example Axios ERR_NETWORK while offline) do not have an HTTP response payload.
  */
 export const adaptMessageSendErrorToErrorFromResponse = (
   error: unknown,
-): StreamAPIError<APIErrorResponse> => {
+): StreamAPIError<APIError> => {
   if (error instanceof StreamAPIError) {
     return error;
   }
@@ -97,7 +110,7 @@ export const adaptMessageSendErrorToErrorFromResponse = (
       code?: unknown;
       message?: unknown;
       name?: unknown;
-      response?: StreamAPIError<APIErrorResponse>['response'];
+      response?: StreamAPIError<APIError>['response'];
       status?: unknown;
     };
 
@@ -108,20 +121,15 @@ export const adaptMessageSendErrorToErrorFromResponse = (
           : 'Network Error';
       status = maybeAxiosError.response?.status ?? 0;
 
-      return new StreamAPIError<APIErrorResponse>(message, {
+      return new StreamAPIError<APIError>(message, {
         code: undefined,
         response:
           maybeAxiosError.response ??
           ({
             // Compatibility shim: this is an intentionally incomplete AxiosResponse-like object.
-            data: {
-              duration: '',
-              message,
-              more_info: '',
-              StatusCode: status,
-            },
+            data: buildErrorResponseData(message, status),
             status,
-          } as StreamAPIError<APIErrorResponse>['response']),
+          } as StreamAPIError<APIError>['response']),
         status,
       });
     }
@@ -147,18 +155,13 @@ export const adaptMessageSendErrorToErrorFromResponse = (
     }
   }
 
-  return new StreamAPIError<APIErrorResponse>(message, {
+  return new StreamAPIError<APIError>(message, {
     code,
     response: {
       // Compatibility shim: this is an intentionally incomplete AxiosResponse-like object.
-      data: {
-        duration: '',
-        message,
-        more_info: '',
-        StatusCode: status,
-      },
+      data: buildErrorResponseData(message, status, code),
       status,
-    } as StreamAPIError<APIErrorResponse>['response'],
+    } as StreamAPIError<APIError>['response'],
     status,
   });
 };

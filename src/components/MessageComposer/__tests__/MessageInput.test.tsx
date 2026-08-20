@@ -328,12 +328,12 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce(
+  const sendImageSpy = vi.spyOn(customChannel, 'uploadImage').mockResolvedValueOnce(
     fromPartial<SendFileAPIResponse>({
       file: fileUploadUrl,
     }),
   );
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce(
+  const sendFileSpy = vi.spyOn(customChannel, 'uploadFile').mockResolvedValueOnce(
     fromPartial<SendFileAPIResponse>({
       file: fileUploadUrl,
     }),
@@ -351,13 +351,15 @@ const setupUploadRejected = async (error: unknown) => {
     channelsData: [mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockRejectedValueOnce(error);
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
+  const sendImageSpy = vi
+    .spyOn(customChannel, 'uploadImage')
+    .mockRejectedValueOnce(error);
+  const sendFileSpy = vi.spyOn(customChannel, 'uploadFile').mockRejectedValueOnce(error);
   customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, sendFileSpy, sendImageSpy };
 };
 
-/** `channel.sendImage` / `channel.sendFile` pass upload options (e.g. `onUploadProgress`) after the file. */
+/** `channel.uploadImage` / `channel.uploadFile` take `({ file }, requestOptions)`. */
 type UploadSpy = {
   mock: {
     calls: [unknown, ...unknown[]][];
@@ -367,7 +369,7 @@ type UploadSpy = {
 const expectChannelUploadCall = (spy: UploadSpy, expectedFile: File) => {
   expect(spy.mock.calls.length).toBeGreaterThan(0);
   const callArgs = spy.mock.calls[0];
-  expect(callArgs[0]).toBe(expectedFile);
+  expect(callArgs[0]).toEqual({ file: expectedFile });
   expect(callArgs[callArgs.length - 1]).toEqual(
     expect.objectContaining({ onUploadProgress: expect.any(Function) }),
   );

@@ -14,7 +14,6 @@ const mocks = vi.hoisted(() => ({
       member_count: 2,
       own_capabilities: ['update-channel'],
     },
-    sendImage: vi.fn(),
     state: {
       members: {
         'other-user': { user: { id: 'other-user' } },
@@ -23,6 +22,7 @@ const mocks = vi.hoisted(() => ({
       membership: {},
     },
     updatePartial: vi.fn(),
+    uploadImage: vi.fn(),
   },
   close: vi.fn(),
   displayImage: undefined as string | undefined,
@@ -187,9 +187,11 @@ describe('ChannelManagementView', () => {
       value: vi.fn(),
     });
     mocks.addNotification.mockReset();
-    mocks.channel.sendImage.mockReset();
+    mocks.channel.uploadImage.mockReset();
     mocks.channel.updatePartial.mockReset();
-    mocks.channel.sendImage.mockResolvedValue({ file: 'https://stream-upload.example' });
+    mocks.channel.uploadImage.mockResolvedValue({
+      file: 'https://stream-upload.example',
+    });
     mocks.channel.updatePartial.mockResolvedValue({});
     mocks.channel.data.custom.name = 'Test channel';
     mocks.channel.data.member_count = 2;
@@ -306,7 +308,7 @@ describe('ChannelManagementView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(1));
-    expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+    expect(mocks.channel.uploadImage).not.toHaveBeenCalled();
     expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
       set: { 'custom.image': 'https://custom-upload.example' },
     });
@@ -340,17 +342,17 @@ describe('ChannelManagementView', () => {
           set: { 'custom.name': 'Renamed channel' },
         }),
       );
-      expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+      expect(mocks.channel.uploadImage).not.toHaveBeenCalled();
     });
 
-    it('uploads via channel.sendImage when no custom upload is provided', async () => {
+    it('uploads via channel.uploadImage when no custom upload is provided', async () => {
       const { container } = renderChannelManagementView();
 
       enterEditMode();
       uploadFile(container);
       save();
 
-      await waitFor(() => expect(mocks.channel.sendImage).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(mocks.channel.uploadImage).toHaveBeenCalledTimes(1));
       expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
         set: { 'custom.image': 'https://stream-upload.example' },
       });
@@ -387,7 +389,7 @@ describe('ChannelManagementView', () => {
           unset: ['custom.image'],
         }),
       );
-      expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+      expect(mocks.channel.uploadImage).not.toHaveBeenCalled();
     });
 
     it('emits a success notification after saving', async () => {
@@ -427,7 +429,7 @@ describe('ChannelManagementView', () => {
     });
 
     it('does not persist when the upload returns no URL', async () => {
-      mocks.channel.sendImage.mockResolvedValueOnce({ file: undefined });
+      mocks.channel.uploadImage.mockResolvedValueOnce({ file: undefined });
       const { container } = renderChannelManagementView();
 
       enterEditMode();
