@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { Streami18n } from './Streami18n';
 import type { BundledKey, TranslationCatalog } from './types';
@@ -82,6 +82,30 @@ export const useStreami18n = ({
   }, [i18nInstance]);
 
   /**
+   * The browser's language, read **after mount** rather than during render.
+   *
+   * Two reasons, and both bite silently. There is no `window` on the server, so reading it in render
+   * throws during SSR — which is why `useChat` read it inside an effect, and why this keeps that
+   * timing. And a value that differs between the server render and the first client render is a
+   * hydration mismatch, so the first client render has to agree with the server's: the default.
+   *
+   * Lazily seeding this from `window` would save one render on the client, but it is the hydration
+   * mismatch in a different shape: the server would produce the default and the first client render
+   * something else. The render it saves does not propagate anyway — `userLanguage` is unchanged
+   * whenever the browser language is the default or is not registered, so the context value is
+   * memoized to the same object and no consumer re-renders.
+   *
+   * None of this makes `<Chat>` server-renderable today: `useStateStore` calls
+   * `useSyncExternalStore` with no `getServerSnapshot`, so any component reading a `StateStore`
+   * throws on the server. This hook is simply not the thing standing in the way.
+   */
+  const [browserLanguage, setBrowserLanguage] = useState<string>();
+  useEffect(() => {
+    // Language code only, not the country-specific variant.
+    setBrowserLanguage(window.navigator.language.slice(0, 2));
+  }, []);
+
+  /**
    * The language whose translations the UI should show.
    *
    * The browser's language only wins if the instance actually has a dictionary for it; otherwise
@@ -92,12 +116,10 @@ export const useStreami18n = ({
     const fromUser = client.user?.language;
     if (fromUser) return fromUser;
 
-    // Language code only, not the country-specific variant.
-    const browserLanguage = window.navigator.language.slice(0, 2);
-    return streami18n.registeredLanguages.has(browserLanguage)
+    return browserLanguage && streami18n.registeredLanguages.has(browserLanguage)
       ? browserLanguage
       : defaultLanguage;
-  }, [client.user?.language, defaultLanguage, streami18n]);
+  }, [browserLanguage, client.user?.language, defaultLanguage, streami18n]);
 
   useEffect(() => {
     streami18n.init();

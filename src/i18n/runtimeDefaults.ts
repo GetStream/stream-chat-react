@@ -24,7 +24,7 @@ export const runtimeDefaults = {
   'timestamp.ChannelDetailPinnedMessageTimestamp':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Yesterday]", "lastWeek": "dddd", "sameElse": "L" }) }}',
   'timestamp.ChannelMembersLastActive':
-    '{{ timestamp | timestampFormatter(relativeCompact: true) }}',
+    '{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactWeekRounding: ceil) }}',
   'timestamp.ChannelPreviewTimestamp':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Yesterday]", "lastWeek": "dddd", "sameElse": "L" }) }}',
   'timestamp.DateSeparator':
@@ -35,7 +35,8 @@ export const runtimeDefaults = {
   'timestamp.LiveLocation': '{{ timestamp | timestampFormatter(calendar: true) }}',
   'timestamp.MessageTimestamp':
     '{{ timestamp | timestampFormatter(calendar: false; format: HH:mm) }}',
-  'timestamp.PollVote': '{{ timestamp | timestampFormatter(relativeCompact: true) }}',
+  'timestamp.PollVote':
+    '{{ timestamp | timestampFormatter(relativeCompact: true; relativeCompactWeekRounding: ceil) }}',
   'timestamp.PollVoteTooltip': '{{ timestamp | timestampFormatter(calendar: true) }}',
   'timestamp.ReminderNotification':
     '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Today] [at] HH:mm", "nextDay": "[Tomorrow] [at] HH:mm", "lastDay": "[Yesterday] [at] HH:mm", "nextWeek": "dddd [at] HH:mm", "lastWeek": "[Last] dddd [at] HH:mm", "sameElse": "ddd, D MMM [at] HH:mm" }) }}',
