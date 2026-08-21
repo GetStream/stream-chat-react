@@ -13,7 +13,6 @@ import type {
   LocalAttachment,
   LocalMessage,
   SearchSourceState,
-  SendFileAPIResponse,
   StreamChat,
   TextComposerSuggestion,
   UserResponse,
@@ -329,12 +328,12 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     customUser: user,
   });
   const sendImageSpy = vi.spyOn(customChannel, 'uploadImage').mockResolvedValueOnce(
-    fromPartial<SendFileAPIResponse>({
+    fromPartial<Awaited<ReturnType<ChannelType['uploadImage']>>>({
       file: fileUploadUrl,
     }),
   );
   const sendFileSpy = vi.spyOn(customChannel, 'uploadFile').mockResolvedValueOnce(
-    fromPartial<SendFileAPIResponse>({
+    fromPartial<Awaited<ReturnType<ChannelType['uploadFile']>>>({
       file: fileUploadUrl,
     }),
   );

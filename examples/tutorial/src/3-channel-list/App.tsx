@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { ChannelFilters, ChannelSort, ClientUser } from 'stream-chat';
+import type { ChannelFilters, ClientUser, SortParamRequest } from 'stream-chat';
 import { ChannelPaginator } from 'stream-chat';
 import {
   Channel,
@@ -22,7 +22,7 @@ const user: ClientUser = {
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
 
-const sort: ChannelSort = [{ direction: -1, field: 'last_message_at' }];
+const sort: SortParamRequest[] = [{ direction: -1, field: 'last_message_at' }];
 const filters: ChannelFilters = {
   type: 'messaging',
   members: { $in: [userId] },

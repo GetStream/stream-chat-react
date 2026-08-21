@@ -50,7 +50,6 @@ import type {
   AppSettingsAPIResponse,
   Attachment,
   LocalAttachment,
-  SendFileAPIResponse,
 } from '../../../../../../stream-chat-js/src';
 import type { MessageComposerContextValue } from '../../../../context';
 
@@ -402,9 +401,9 @@ describe('MessageInput', () => {
     });
 
     vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as AppSettingsAPIResponse);
-    vi.spyOn(channel, 'uploadFile').mockResolvedValue({
-      file: fileObjectURL,
-    } as SendFileAPIResponse);
+    vi.spyOn(channel, 'uploadFile').mockResolvedValue(
+      fromPartial({ file: fileObjectURL }),
+    );
 
     await renderComponent({
       channelStateCtx: { channel },
