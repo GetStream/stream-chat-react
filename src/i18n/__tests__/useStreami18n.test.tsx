@@ -73,4 +73,45 @@ describe('useStreami18n', () => {
       expect(new Set(seen)).toEqual(new Set(['en']));
     });
   });
+
+  /**
+   * `init()` rejects on an i18next failure, so this hook is what stands between that and an unhandled
+   * rejection escaping an effect.
+   */
+  describe('a failed init()', () => {
+    /**
+     * `init()` itself is mocked to reject, rather than the i18next instance underneath it. What is
+     * under test is this hook's handling of a rejected `init()`, not core's decision to reject --
+     * core's own suite covers that. Mocking at this seam also keeps the test independent of which
+     * `stream-chat` version is installed, which matters while the rejecting contract is still rolling
+     * out through a release.
+     */
+    const failing = () => {
+      const logger = vi.fn();
+      const i18nInstance = new Streami18n({ logger });
+      vi.spyOn(i18nInstance, 'init').mockRejectedValue(new Error('i18next exploded'));
+      return { i18nInstance, logger };
+    };
+
+    it('reports through the instance logger', async () => {
+      const { i18nInstance, logger } = failing();
+
+      render(<Harness i18nInstance={i18nInstance} />);
+
+      await waitFor(() =>
+        expect(logger).toHaveBeenCalledWith(
+          expect.stringContaining('Streami18n failed to initialize'),
+        ),
+      );
+      expect(logger).toHaveBeenCalledWith(expect.stringContaining('i18next exploded'));
+    });
+
+    it('still renders, in English', async () => {
+      const { i18nInstance } = failing();
+
+      const { getByTestId } = render(<Harness i18nInstance={i18nInstance} />);
+
+      await waitFor(() => expect(getByTestId('lang')).toHaveTextContent('en'));
+    });
+  });
 });
