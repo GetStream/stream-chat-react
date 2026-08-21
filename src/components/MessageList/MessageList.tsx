@@ -531,8 +531,9 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
  * The MessageList component renders a list of Messages.
  * It is a consumer of the following contexts:
  * - `ChannelInstanceContext`
- * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
- * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
+ * - `ChatContext`
+ * - `ComponentContext`
+ * - `ThreadContext`
  */
 export const MessageList = (props: MessageListProps) => (
   <MessageListWithContext {...props} />
