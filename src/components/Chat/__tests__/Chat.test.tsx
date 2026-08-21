@@ -455,9 +455,11 @@ describe('Chat', () => {
 
     it('should use i18n provided in props', async () => {
       const i18nInstance = new Streami18n();
-      await i18nInstance.getTranslators();
-      (i18nInstance as any).t = 't';
-      (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
+      await i18nInstance.init();
+      // `t` is a state-backed getter now, so it cannot be assigned. Swapping the translator is what
+      // `overrideTFunction` is for -- it publishes to the store, which is what `<Chat>` subscribes to.
+      const overridden = (() => 'overridden') as never;
+      i18nInstance.overrideTFunction(overridden);
 
       let context: ChatContextValue;
       render(
@@ -471,16 +473,16 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe(i18nInstance.t);
+        expect(context.t).toBe(overridden);
         expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
       });
     });
 
     it('props change should update the context', async () => {
       const i18nInstance = new Streami18n();
-      await i18nInstance.getTranslators();
-      (i18nInstance as any).t = 't';
-      (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
+      await i18nInstance.init();
+      const firstT = (() => 'first') as never;
+      i18nInstance.overrideTFunction(firstT);
 
       let context: ChatContextValue;
       const { rerender } = render(
@@ -494,14 +496,14 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe(i18nInstance.t);
+        expect(context.t).toBe(firstT);
         expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
       });
 
       const newI18nInstance = new Streami18n();
-      await newI18nInstance.getTranslators();
-      (newI18nInstance as any).t = 'newT';
-      (newI18nInstance as any).tDateTimeParser = 'newtDateTimeParser';
+      await newI18nInstance.init();
+      const secondT = (() => 'second') as never;
+      newI18nInstance.overrideTFunction(secondT);
 
       rerender(
         <Chat client={chatClient} i18nInstance={newI18nInstance}>
@@ -513,10 +515,9 @@ describe('Chat', () => {
         </Chat>,
       );
       await waitFor(() => {
-        expect(context.t).toBe(newI18nInstance['t']);
-        expect(context.tDateTimeParser).toBe(newI18nInstance['tDateTimeParser']);
-        expect(context.t).not.toBe(i18nInstance['t']);
-        expect(context.tDateTimeParser).not.toBe(i18nInstance['tDateTimeParser']);
+        expect(context.t).toBe(secondT);
+        expect(context.t).not.toBe(firstT);
+        expect(context.tDateTimeParser).toBe(newI18nInstance.tDateTimeParser);
       });
     });
   });

@@ -1,4 +1,5 @@
 export * from './Streami18n';
+export * from './useStreami18n';
 export * from './TranslationBuilder';
 export {
   asDynamicKey,
@@ -9,4 +10,3 @@ export {
   isNumberOrString,
 } from './utils';
 export * from './types';
-export type { TranslationCatalog } from './keys';
