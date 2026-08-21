@@ -74,18 +74,9 @@ describe('useStreami18n', () => {
     });
   });
 
-  /**
-   * `init()` rejects on an i18next failure, so this hook is what stands between that and an unhandled
-   * rejection escaping an effect.
-   */
+  /** The hook is what stands between a rejected `init()` and an unhandled rejection. */
   describe('a failed init()', () => {
-    /**
-     * `init()` itself is mocked to reject, rather than the i18next instance underneath it. What is
-     * under test is this hook's handling of a rejected `init()`, not core's decision to reject --
-     * core's own suite covers that. Mocking at this seam also keeps the test independent of which
-     * `stream-chat` version is installed, which matters while the rejecting contract is still rolling
-     * out through a release.
-     */
+    /** `init()` is mocked, not the i18next instance under it: core's suite owns *why* it rejects. */
     const failing = () => {
       const logger = vi.fn();
       const i18nInstance = new Streami18n({ logger });
