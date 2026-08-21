@@ -41,7 +41,7 @@ const SIMPLE_ATTACHMENT_SELECTOR_TEST_ID = 'invoke-attachment-selector-button';
 const UPLOAD_INPUT_TEST_ID = 'file-input';
 
 // Capabilities & config now live on the channel (own_capabilities +
-// client.channelConfigsByTypeStore) rather than in a ChannelStateContext. These defaults grant every
+// client.channelServerConfigsStore) rather than in a ChannelStateContext. These defaults grant every
 // attachment option so the full AttachmentSelector menu renders.
 const DEFAULT_OWN_CAPABILITIES = ['upload-file', 'send-poll'];
 const DEFAULT_CONFIG = { polls: true, shared_locations: true, uploads: true };

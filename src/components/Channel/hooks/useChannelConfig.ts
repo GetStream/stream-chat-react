@@ -9,7 +9,7 @@ const identity = (state: ChannelConfig) => state;
  * A channel's **resolved** configuration, reactively.
  *
  * Replaces the previous implementation, which read the channel *type's* raw server configuration out of
- * `client.channelConfigsByTypeStore`. That answered only the server's half: every gate here is the
+ * `client.channelServerConfigsStore`. That answered only the server's half: every gate here is the
  * server flag ANDed with whatever the integrator registered through `client.config`, so a UI reading the
  * raw flag offered features the client had already disabled.
  *

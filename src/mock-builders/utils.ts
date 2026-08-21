@@ -79,11 +79,13 @@ export const initChannelFromData = async ({
   // its replacement `serverConfig` is a getter reading this store. Going through the store also drives
   // the channel's own derivation, so `channel.config` — where six of these flags are reconciled with
   // the integrator's configuration — is correct too. Stubbing an accessor would leave it stale.
-  client.channelConfigsByTypeStore.partialNext({
+  //
+  // Keyed by cid: a channel's own `config_overrides` narrow its type's settings for that channel alone,
+  // so the LLC caches one entry per channel.
+  client.channelServerConfigsStore.partialNext({
     configs: {
-      ...client.channelConfigsByType,
-      [mockedChannelData.channel.type]: mockedChannelData.channel
-        .config as ChannelConfigWithInfo,
+      ...client.channelServerConfigs,
+      [channel.cid]: mockedChannelData.channel.config as ChannelConfigWithInfo,
     },
   });
   vi.spyOn(channel, 'getDraft').mockResolvedValue({

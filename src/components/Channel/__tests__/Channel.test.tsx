@@ -128,10 +128,10 @@ const initClient = async ({
   useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
   const channel = chatClient.channel('messaging', mockedChannel.channel.id);
 
-  chatClient.channelConfigsByTypeStore.partialNext({
+  chatClient.channelServerConfigsStore.partialNext({
     configs: {
-      ...chatClient.channelConfigsByType,
-      messaging: mockedChannel.channel.config as never,
+      ...chatClient.channelServerConfigs,
+      [channel.cid]: mockedChannel.channel.config as never,
     },
   });
   return { channel, chatClient };

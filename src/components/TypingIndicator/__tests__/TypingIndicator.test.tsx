@@ -22,7 +22,7 @@ import {
 // MERGE-RECONCILE (test migration): PR #2909 rewrote TypingIndicator as a no-props component that
 // reads typing users from `channel.messageComposer.textComposer.typing`, the channel from
 // ChannelInstanceContext (via useChannel), the thread from ThreadContext, and the typing_events
-// config from `client.channelConfigsByTypeStore`. The former TypingContext/ChannelStateContext providers and
+// config from `client.channelServerConfigsStore`. The former TypingContext/ChannelStateContext providers and
 // scrollToBottom/threadList props are gone. The visible text is now a visually-hidden
 // `typing-indicator-status` live region whose content comes from `getTypingStatusMessage`
 // ('jessica is typing' / 'jessica and joris are typing' / '3 people are typing'), so
@@ -71,9 +71,10 @@ async function renderComponent(
   channel.messageComposer.textComposer.typing = typing;
   const channelConfig = value.channelConfig ?? channel.serverConfig;
 
-  client.channelConfigsByTypeStore.partialNext({
-    // Keyed by channel type: the LLC caches server channel config per type, not per cid.
-    configs: { [channel.type]: channelConfig },
+  client.channelServerConfigsStore.partialNext({
+    // Keyed by cid: a channel's own `config_overrides` narrow its type's settings for that channel
+    // alone, so the LLC caches one entry per channel rather than per type.
+    configs: { [channel.cid]: channelConfig },
   });
 
   return render(

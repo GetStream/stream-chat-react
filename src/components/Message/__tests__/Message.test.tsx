@@ -120,8 +120,8 @@ async function renderComponent({
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
     channel = client.channel(type, channelData.channel.id);
     await channel.watch();
-    client.channelConfigsByTypeStore.partialNext({
-      configs: { ...client.channelConfigsByType, [type]: config as never },
+    client.channelServerConfigsStore.partialNext({
+      configs: { ...client.channelServerConfigs, [channel.cid]: config as never },
     });
   } else {
     ({

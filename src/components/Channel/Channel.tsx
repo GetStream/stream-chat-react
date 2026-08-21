@@ -85,11 +85,6 @@ const ChannelContainer = ({
  */
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
-  // The channel is supplied via the `channel` prop (fed by a channel slot / the app's
-  // slot-bound <Channel>). NOTE: master's giphyVersion/imageAttachmentSizeHandler/
-  // videoAttachmentSizeHandler props + AttachmentContextProvider (custom attachment sizing)
-  // are NOT provided by this PR-base Channel — useAttachmentContext falls back to defaults.
-  // Re-graft the AttachmentContextProvider if custom sizing is needed.
   const channel = propsChannel;
 
   if (!channel?.cid) {
