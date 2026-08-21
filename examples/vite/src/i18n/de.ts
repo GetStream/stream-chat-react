@@ -594,11 +594,13 @@ export const deTranslations = {
   'notification.commandDisabled': 'Befehl nicht verfügbar',
   'notification.commandDisabledWhileEditing': 'Befehl beim Bearbeiten nicht verfügbar',
   'notification.commandDisabledWhileReplying': 'Befehl beim Antworten nicht verfügbar',
+  'notification.commandNotReady': 'Befehl kann noch nicht gesendet werden',
   'notification.dismissNotification.ariaLabel': 'Benachrichtigung schließen',
-  'notification.jumpToFirstUnreadFailed':
-    'Sprung zur ersten ungelesenen Nachricht fehlgeschlagen',
   'notification.list.notifications.ariaLabel': 'Benachrichtigungen',
   'notification.locationGetFailed': 'Standort konnte nicht ermittelt werden',
+  'notification.messageJumpFailed': 'Sprung zur Nachricht fehlgeschlagen',
+  'notification.messageJumpToLatestFailed':
+    'Sprung zur neuesten Nachricht fehlgeschlagen',
   'notification.locationShareFailed': 'Standort konnte nicht geteilt werden',
   'notification.pollCreateFailed': 'Umfrage konnte nicht erstellt werden',
   'notification.pollCreateFailedWithReason':
@@ -659,7 +661,6 @@ export const deTranslations = {
     'Mehr als eine Option auswählen',
   'poll.multipleAnswersField.typeNumber210.label': 'Gib eine Zahl von 2 bis 10 ein',
   'poll.nameField.askQuestion.placeholder': 'Stelle eine Frage',
-  'poll.nameField.error.text': 'Fehler',
   'poll.nameField.questionRequired.label': 'Eine Frage ist erforderlich',
   'poll.optionFieldSet.addOption.placeholder': 'Option hinzufügen',
   'poll.optionFieldSet.option.ariaLabel': 'Option {{ position }}',

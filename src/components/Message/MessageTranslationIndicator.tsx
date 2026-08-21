@@ -7,7 +7,6 @@ import {
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
-import { asDynamicKey } from '../../i18n/utils';
 
 export type TranslationIndicatorProps = {
   message?: LocalMessage;
@@ -51,11 +50,17 @@ export const MessageTranslationIndicator = ({
   const sourceLanguageName = useMemo(() => {
     const sourceLanguageCode = message?.i18n?.language;
     if (!sourceLanguageCode) return '';
-    const languageKey = 'language.' + sourceLanguageCode;
-    const translatedName = t(asDynamicKey(languageKey));
-    return translatedName && translatedName !== languageKey
-      ? translatedName
-      : sourceLanguageCode;
+    // `language.*` keys are part of the catalog now (core derives them from the same
+    // `TranslationLanguage` union this code is), so the key is checked at compile time rather than
+    // escaping through `asDynamicKey()`.
+    //
+    // The miss-detection stays, though: `message.i18n.language` is *server* data while the union is
+    // generated when the SDK is built, so a language the translation API learns after this release has
+    // no entry and i18next echoes the key back. Without the comparison the indicator reads
+    // "Translated from language.sw" rather than falling back to the bare code.
+    const languageKey = `language.${sourceLanguageCode}` as const;
+    const translatedName = t(languageKey);
+    return translatedName === languageKey ? sourceLanguageCode : translatedName;
   }, [message?.i18n?.language, t]);
 
   if (!message?.i18n || !setTranslationView) return null;

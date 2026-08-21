@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - master
+      # The v15 release branch. Without it this workflow does not run on any PR stacked onto it, so the
+      # i18n consolidation's central size claim -- that moving the runtime into `stream-chat/i18n`
+      # shrinks the root bundle -- goes unmeasured for the whole release.
+      - release-v15
     paths-ignore:
       - '**.test.*'
       - '**.md'

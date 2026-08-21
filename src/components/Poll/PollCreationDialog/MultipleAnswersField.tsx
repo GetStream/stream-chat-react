@@ -1,3 +1,5 @@
+import { POLL_COMPOSER_VALIDATION_CODE, pollComposerValidationError } from 'stream-chat';
+import type { PollComposerValidationCode } from 'stream-chat';
 import React, { useMemo, useRef, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
@@ -22,22 +24,28 @@ export const MultipleAnswersField = () => {
   const [voteLimitEnabled, setVoteLimitEnabled] = useState(false);
   const maxVotesInputRef = useRef<HTMLInputElement | null>(null);
 
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      'Enforce unique vote is enabled': t(
-        'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
-        'Enforce unique vote is enabled',
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric]: t(
+        'poll.multipleAnswersField.onlyNumbersAllowed.label',
+        'Only numbers are allowed',
       ),
-      'Type a number from 2 to 10': t(
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesOutOfRange]: t(
         'poll.multipleAnswersField.typeNumber210.label',
         'Type a number from 2 to 10',
+      ),
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesUniqueVoteEnforced]: t(
+        'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
+        'Enforce unique vote is enabled',
       ),
     }),
     [t],
   );
 
   const multipleVotesEnabled = !enforce_unique_vote;
-  const errorText = error && knownValidationErrors[error];
+  const errorText = error && (knownValidationErrors[error.code] ?? error.message);
   const voteLimitSwitchId = 'max_votes_allowed_enabled';
   const voteLimitSwitchLabelId = `${voteLimitSwitchId}-label`;
 
@@ -103,9 +111,10 @@ export const MultipleAnswersField = () => {
                   const nativeFieldValidation =
                     raw !== '' && !/^\d+$/.test(raw)
                       ? {
-                          max_votes_allowed: t(
-                            'poll.multipleAnswersField.onlyNumbersAllowed.label',
-                            'Only numbers are allowed',
+                          // Injected field errors take the same shape core produces, so the render
+                          // path is identical whether the error came from here or from the composer.
+                          max_votes_allowed: pollComposerValidationError(
+                            POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric,
                           ),
                         }
                       : undefined;

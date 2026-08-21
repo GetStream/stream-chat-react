@@ -1,3 +1,5 @@
+import { POLL_COMPOSER_VALIDATION_CODE } from 'stream-chat';
+import type { PollComposerValidationCode } from 'stream-chat';
 import React, { useMemo } from 'react';
 import { TextInput } from '../../Form';
 import { useTranslationContext } from '../../../context';
@@ -14,9 +16,13 @@ export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  // Keyed on the stable validation code rather than on the English sentence `stream-chat` produced.
+  // Matching on prose meant a copy edit in the LLC silently stopped the translation from applying.
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      'Question is required': t(
+      [POLL_COMPOSER_VALIDATION_CODE.nameRequired]: t(
         'poll.nameField.questionRequired.label',
         'Question is required',
       ),
@@ -35,7 +41,7 @@ export const NameField = () => {
       errorMessage={
         error ? (
           <span data-testid='poll-name-input-field-error'>
-            {knownValidationErrors[error] ?? t('poll.nameField.error.text', 'Error')}
+            {knownValidationErrors[error.code] ?? error.message}
           </span>
         ) : undefined
       }

@@ -592,12 +592,14 @@ export const itTranslations = {
     'Comando non disponibile durante la modifica',
   'notification.commandDisabledWhileReplying':
     'Comando non disponibile durante la risposta',
+  'notification.commandNotReady': "Comando non pronto per l'invio",
   'notification.dismissNotification.ariaLabel': 'Chiudi la notifica',
-  'notification.jumpToFirstUnreadFailed':
-    'Impossibile passare al primo messaggio non letto',
   'notification.list.notifications.ariaLabel': 'Notifiche',
   'notification.locationGetFailed': 'Impossibile recuperare la posizione',
   'notification.locationShareFailed': 'Impossibile condividere la posizione',
+  'notification.messageJumpFailed': 'Impossibile passare al messaggio',
+  'notification.messageJumpToLatestFailed':
+    'Impossibile passare al messaggio più recente',
   'notification.pollCreateFailed': 'Impossibile creare il sondaggio',
   'notification.pollCreateFailedWithReason':
     'Impossibile creare il sondaggio a causa di {{reason}}',
@@ -655,7 +657,6 @@ export const itTranslations = {
     'Seleziona più di una opzione',
   'poll.multipleAnswersField.typeNumber210.label': 'Inserisci un numero da 2 a 10',
   'poll.nameField.askQuestion.placeholder': 'Fai una domanda',
-  'poll.nameField.error.text': 'Errore',
   'poll.nameField.questionRequired.label': 'La domanda è obbligatoria',
   'poll.optionFieldSet.addOption.placeholder': 'Aggiungi un’opzione',
   'poll.optionFieldSet.option.ariaLabel': 'Opzione {{ position }}',

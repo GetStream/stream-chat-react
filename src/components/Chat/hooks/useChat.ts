@@ -1,12 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { TranslationContextValue } from '../../../context/TranslationContext';
-import {
-  defaultDateTimeParser,
-  defaultTranslatorFunction,
-  Streami18n,
-} from '../../../i18n';
-
 import type {
   EventPayload,
   OwnUserResponse,
@@ -16,21 +9,9 @@ import type {
 
 export type UseChatParams = {
   client: StreamChat;
-  defaultLanguage?: string;
-  i18nInstance?: Streami18n;
 };
 
-export const useChat = ({
-  client,
-  defaultLanguage = 'en',
-  i18nInstance,
-}: UseChatParams) => {
-  const [translators, setTranslators] = useState<TranslationContextValue>({
-    t: defaultTranslatorFunction,
-    tDateTimeParser: defaultDateTimeParser,
-    userLanguage: 'en',
-  });
-
+export const useChat = ({ client }: UseChatParams) => {
   const [mutes, setMutes] = useState<Array<UserMuteResponse>>([]);
   const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
@@ -84,31 +65,6 @@ export const useChat = ({
   }, [clientMutes?.length]);
 
   useEffect(() => {
-    let userLanguage = client.user?.language;
-
-    if (!userLanguage) {
-      const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
-      userLanguage = i18nInstance?.registeredLanguages.has(browserLanguage)
-        ? browserLanguage
-        : defaultLanguage;
-    }
-
-    const streami18n = i18nInstance || new Streami18n({ language: userLanguage });
-
-    streami18n.registerSetLanguageCallback((t) =>
-      setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
-    );
-
-    streami18n.getTranslators().then((translator) => {
-      setTranslators({
-        ...translator,
-        userLanguage: userLanguage || defaultLanguage,
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i18nInstance]);
-
-  useEffect(() => {
     setLatestMessageDatesByChannels({});
   }, [client.user?.id]);
 
@@ -116,6 +72,5 @@ export const useChat = ({
     getAppSettings,
     latestMessageDatesByChannels,
     mutes,
-    translators,
   };
 };

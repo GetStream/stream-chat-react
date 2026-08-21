@@ -1,5 +1,4 @@
 import { TranslationTopic } from '../../TranslationBuilder';
-import { translateExternalString } from '../../externalStrings';
 import type { Notification } from 'stream-chat';
 import type { NotificationTranslatorOptions } from './types';
 import { translatorsByNotificationType } from './translatorsByNotificationType';
@@ -49,11 +48,12 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
     if (translated) return translated;
     if (!notification.message) return value;
 
-    // Final fallback: the message is an English string from `stream-chat`, so map it to a
-    // stable key where we know one and otherwise render it as-is.
-    return translateExternalString(t, notification.message, {
-      ...(notification.metadata ?? {}),
-      value: notification.message,
-    });
+    // Final fallback for an identifier no translator claims -- a newer `stream-chat`, or one emitted
+    // by integrator code. Render the English message rather than a blank or a raw dotted key.
+    //
+    // This used to run the message through a hand-maintained table of English sentences mapped onto
+    // keys. That table is gone: identifiers are the seam now, so prose matching would only mask a
+    // missing translator entry.
+    return notification.message;
   };
 }
