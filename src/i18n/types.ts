@@ -2,11 +2,8 @@ import type {
   Streami18nState as CoreStreami18nState,
   LanguageNameCatalog,
   LooseTranslationDictionaryOf,
-  PluralTranslationKeyOf,
   RelativeTimeCatalog,
   StreamTFunctionFor,
-  TDateTimeParser,
-  TimestampFormatterOptions,
   TranslationDictionaryOf,
   TranslationKeyOf,
 } from 'stream-chat/i18n';
@@ -42,7 +39,6 @@ export type TranslationCatalog = GeneratedCatalog &
  */
 export type BundledKey = `translationBuilderTopic.${string}` | `language.${string}`;
 
-export type PluralTranslationKey = PluralTranslationKeyOf<TranslationCatalog>;
 export type TranslationKey = TranslationKeyOf<TranslationCatalog>;
 export type TranslationDictionary = TranslationDictionaryOf<TranslationCatalog>;
 export type LooseTranslationDictionary = LooseTranslationDictionaryOf<TranslationCatalog>;
@@ -57,31 +53,14 @@ export type StreamTFunction = StreamTFunctionFor<TranslationCatalog, BundledKey>
  */
 export type Streami18nState = CoreStreami18nState<TranslationCatalog, BundledKey>;
 
-/**
- * Options for `getDateString`.
- *
- * Declared here rather than taken from core because `formatDate` is a component prop: core's own
- * `GetDateStringParams` types it structurally as `(date: Date) => string`, which is the same shape, but
- * keeping the alias local means the prop and this option cannot drift apart.
- */
-export type DateFormatterOptions = TimestampFormatterOptions & {
-  formatDate?: (date: Date) => string;
-  messageCreatedAt?: string | Date;
-  t?: StreamTFunction;
-  tDateTimeParser?: TDateTimeParser;
-  timestampTranslationKey?: string;
-};
-
 export type {
-  AnyTranslationCatalog,
   CustomFormatters,
+  DateTimeParserModule,
   DayjsLocaleConfig,
   DurationFormatterOptions,
   DynamicTranslationKey,
   FormatterFactory,
-  LanguageNameCatalog,
   PredefinedFormatters,
-  RelativeTimeCatalog,
   TDateTimeParser,
   TDateTimeParserInput,
   TDateTimeParserOutput,

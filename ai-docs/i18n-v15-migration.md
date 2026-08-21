@@ -197,9 +197,18 @@ export const de = {
   'common.back.label': 'Zurück',
 } as const satisfies TranslationDictionary;
 
+/** Formatter keys hold `dayjs` / `i18next` expressions, not copy, so they are not "translated". */
+type TranslatableKey = Exclude<
+  keyof TranslationCatalog,
+  `duration.${string}` | `timestamp.${string}` | `translationBuilderTopic.${string}`
+>;
+
 /** Every key still needing German. Hover it to read the list. */
-type Untranslated = Exclude<keyof TranslationCatalog, keyof typeof de>;
+type Untranslated = Exclude<TranslatableKey, keyof typeof de>;
 ```
+
+`language.*` (ISO language names) and `relativeTime.*` are ordinary copy and stay in the diff — they
+render in the UI like anything else, so a complete language translates them too.
 
 Hovering `Untranslated` in your editor lists the missing keys, and it shrinks as you add them. To
 turn "am I complete?" into a build failure — useful in CI after a dependency bump — assert the diff
@@ -328,16 +337,33 @@ const { translators } = useChat({ client, defaultLanguage, i18nInstance });
 
 // v15
 const { getAppSettings, latestMessageDatesByChannels, mutes } = useChat({ client });
-const translators = useStreami18n({ client, defaultLanguage, i18nInstance });
+const translators = useStreami18n({ client, i18nInstance });
 ```
 
-`useChat` no longer takes `defaultLanguage` or `i18nInstance` either — both moved to `useStreami18n`.
-Nothing changes for `<Chat>`: its props are the same and it wires both hooks internally.
+`useChat` no longer takes `i18nInstance`, which moved to `useStreami18n`. `defaultLanguage` is gone
+from both, and from `<Chat>` — see below.
 
-One behavioural improvement comes with it. `userLanguage` now tracks `client.user.language` reactively,
-so a user who connects _after_ `<Chat>` mounts gets their language applied; previously it was captured
-once and a late connection kept the browser or default language. Passing a value that is not a
-`Streami18n` now warns and falls back to a default instance rather than throwing at render.
+### `defaultLanguage` is removed, and so is browser detection
+
+`<Chat defaultLanguage>` read as a fallback for UI translations, but it never drove them: the
+`Streami18n` instance does. All it fed was `userLanguage`, which is the key the SDK reads
+`message.i18n[<lang>_text]` with — and a fallback there cannot help, because with no
+`client.user.language` the API is not translating at all, so `message.i18n` is absent and the text
+falls through to `message.text` regardless.
+
+For the same reason `userLanguage` no longer falls back to the two-letter browser language when that
+language happens to have a registered dictionary. Having German UI copy says nothing about whether the
+API produces `message.i18n.de_text`, so that branch only ever produced lookups that missed.
+`stream-chat-react-native` never had it.
+
+`userLanguage` is now `client.user.language` and nothing else, which is what every one of its consumers
+already assumed. A non-English UI comes from registering a dictionary and setting `language` on the
+instance; translated messages come from `language` in `connectUser`. The two are independent.
+
+One behavioural improvement comes with it. `userLanguage` tracks `client.user.language` reactively, so
+a language changed after connect now reaches the message components — it used to be read as a `useMemo`
+dependency with no subscription, so it only refreshed if something else re-rendered. Passing a value
+that is not a `Streami18n` warns and falls back to a default instance rather than throwing at render.
 
 ### You no longer need `i18next` or `dayjs` in your own dependencies
 
