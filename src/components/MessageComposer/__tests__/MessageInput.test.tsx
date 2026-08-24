@@ -13,9 +13,11 @@ import type {
   LocalAttachment,
   LocalMessage,
   SearchSourceState,
-  SendFileAPIResponse,
   StreamChat,
+  StreamResponse,
   TextComposerSuggestion,
+  UploadChannelFileResponse,
+  UploadChannelResponse,
   UserResponse,
 } from 'stream-chat';
 import { LinkPreviewStatus, SearchController } from 'stream-chat';
@@ -351,19 +353,19 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce(
-    fromPartial<SendFileAPIResponse>({
+  const uploadImageSpy = vi.spyOn(customChannel, 'uploadImage').mockResolvedValueOnce(
+    fromPartial<StreamResponse<UploadChannelResponse>>({
       file: fileUploadUrl,
     }),
   );
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce(
-    fromPartial<SendFileAPIResponse>({
+  const uploadFileSpy = vi.spyOn(customChannel, 'uploadFile').mockResolvedValueOnce(
+    fromPartial<StreamResponse<UploadChannelFileResponse>>({
       file: fileUploadUrl,
     }),
   );
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+  return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
 const setupUploadRejected = async (error: unknown) => {
@@ -374,13 +376,16 @@ const setupUploadRejected = async (error: unknown) => {
     channelsData: [mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockRejectedValueOnce(error);
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
+  const uploadImageSpy = vi
+    .spyOn(customChannel, 'uploadImage')
+    .mockRejectedValueOnce(error);
+  const uploadFileSpy = vi
+    .spyOn(customChannel, 'uploadFile')
+    .mockRejectedValueOnce(error);
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+  return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
-/** `channel.sendImage` / `channel.sendFile` pass upload options (e.g. `onUploadProgress`) after the file. */
 type UploadSpy = {
   mock: {
     calls: [unknown, ...unknown[]][];
@@ -390,7 +395,7 @@ type UploadSpy = {
 const expectChannelUploadCall = (spy: UploadSpy, expectedFile: File) => {
   expect(spy.mock.calls.length).toBeGreaterThan(0);
   const callArgs = spy.mock.calls[0];
-  expect(callArgs[0]).toBe(expectedFile);
+  expect(callArgs[0]).toEqual(expect.objectContaining({ file: expectedFile }));
   expect(callArgs[callArgs.length - 1]).toEqual(
     expect.objectContaining({ onUploadProgress: expect.any(Function) }),
   );
@@ -590,7 +595,8 @@ describe(`MessageInputFlat`, () => {
 
   describe('Attachments', () => {
     it('Pasting images and files should result in uploading the files and showing previews', async () => {
-      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadFileSpy, uploadImageSpy } =
+        await setup();
       const { container } = await renderComponent({ customChannel, customClient });
       const file = getFile();
       const image = getImage();
@@ -617,8 +623,8 @@ describe(`MessageInputFlat`, () => {
       });
       const filenameTexts = await screen.findAllByTitle(filename);
       await waitFor(() => {
-        expectChannelUploadCall(sendFileSpy, file);
-        expectChannelUploadCall(sendImageSpy, image);
+        expectChannelUploadCall(uploadFileSpy, file);
+        expectChannelUploadCall(uploadImageSpy, image);
         expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
         expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
         filenameTexts.forEach((filenameText) => expect(filenameText).toBeInTheDocument());
@@ -632,7 +638,8 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('gives preference to pasting text over files', async () => {
-      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadFileSpy, uploadImageSpy } =
+        await setup();
       const { container } = await renderComponent({ customChannel, customClient });
       const pastedString = 'pasted string';
 
@@ -666,8 +673,8 @@ describe(`MessageInputFlat`, () => {
       });
 
       await waitFor(() => {
-        expect(sendFileSpy).not.toHaveBeenCalled();
-        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(uploadFileSpy).not.toHaveBeenCalled();
+        expect(uploadImageSpy).not.toHaveBeenCalled();
         expect(screen.queryByTestId(IMAGE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
         expect(screen.queryByTestId(FILE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
         expect(screen.queryByText(filename)).not.toBeInTheDocument();
@@ -684,7 +691,7 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('Should upload an image when it is dropped on the dropzone', async () => {
-      const { customChannel, customClient, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadImageSpy } = await setup();
       const { container } = await renderComponent({ customChannel, customClient });
       // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
@@ -693,7 +700,7 @@ describe(`MessageInputFlat`, () => {
         dropFile(file, formElement);
       });
       await waitFor(() => {
-        expectChannelUploadCall(sendImageSpy, file);
+        expectChannelUploadCall(uploadImageSpy, file);
       });
       const results = await axe(container, {
         rules: { 'nested-interactive': { enabled: false } },
@@ -888,9 +895,9 @@ describe(`MessageInputFlat`, () => {
 
     it('should show attachment preview list if not only failed uploads are available', async () => {
       const cause = new Error('failed to upload');
-      const { customChannel, customClient, sendFileSpy } =
+      const { customChannel, customClient, uploadFileSpy } =
         await setupUploadRejected(cause);
-      sendFileSpy.mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
+      uploadFileSpy.mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
       await renderComponent({
         customChannel,
         customClient,
@@ -921,7 +928,7 @@ describe(`MessageInputFlat`, () => {
     const channelData = { channel: { own_capabilities: [] } };
 
     it('pasting images and files should do nothing', async () => {
-      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup({
+      const { customChannel, customClient, uploadFileSpy, uploadImageSpy } = await setup({
         channelData,
       });
       const { container } = await renderComponent({
@@ -948,15 +955,15 @@ describe(`MessageInputFlat`, () => {
 
       await waitFor(() => {
         expect(screen.queryByText(filename)).not.toBeInTheDocument();
-        expect(sendFileSpy).not.toHaveBeenCalled();
-        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(uploadFileSpy).not.toHaveBeenCalled();
+        expect(uploadImageSpy).not.toHaveBeenCalled();
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
     it('Should not upload an image when it is dropped on the dropzone', async () => {
-      const { customChannel, customClient, sendImageSpy } = await setup({
+      const { customChannel, customClient, uploadImageSpy } = await setup({
         channelData,
       });
       const { container } = await renderComponent({
@@ -973,7 +980,7 @@ describe(`MessageInputFlat`, () => {
       });
 
       await waitFor(() => {
-        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(uploadImageSpy).not.toHaveBeenCalled();
       });
       await waitFor(axeNoViolations(container));
     });
@@ -1128,7 +1135,7 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should add image as attachment if a message is submitted with an image', async () => {
-      const { customChannel, customClient, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadImageSpy } = await setup();
       const { container, submit } = await renderComponent({
         customChannel,
         customClient,
@@ -1142,7 +1149,7 @@ describe(`MessageInputFlat`, () => {
 
       // wait for image uploading to complete before trying to send the message
 
-      await waitFor(() => expect(sendImageSpy).toHaveBeenCalled());
+      await waitFor(() => expect(uploadImageSpy).toHaveBeenCalled());
 
       await act(async () => await submit());
 

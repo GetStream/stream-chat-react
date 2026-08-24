@@ -5,7 +5,7 @@ import type {
   DeleteMessageOptions,
   LocalMessage,
   ReactionResponse,
-  ReactionSort,
+  SortParamRequest,
   UserResponse,
 } from 'stream-chat';
 
@@ -33,7 +33,7 @@ export type MessageContextValue = {
   /** Function to fetch the message reactions */
   handleFetchReactions: (
     reactionType?: ReactionType,
-    sort?: ReactionSort,
+    sort?: SortParamRequest[],
   ) => Promise<Array<ReactionResponse>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
@@ -95,7 +95,7 @@ export type MessageContextValue = {
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Sort options to provide to a reactions query */
-  reactionDetailsSort?: ReactionSort;
+  reactionDetailsSort?: SortParamRequest[];
   /** A list of users that have read this Message */
   readBy?: UserResponse[];
   /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */

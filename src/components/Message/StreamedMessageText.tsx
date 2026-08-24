@@ -32,9 +32,10 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
   });
 
   useEffect(() => {
-    channel?.on('ai_indicator.stop', () => {
+    const subscription = channel?.on('ai_indicator.stop', () => {
       skipAnimation();
     });
+    return () => subscription?.unsubscribe();
   }, [channel, skipAnimation]);
 
   return (

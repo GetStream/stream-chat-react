@@ -1,34 +1,32 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { StateStore } from 'stream-chat';
-import type { Channel, StreamChat, UserResponse, WatcherState } from 'stream-chat';
+import type { Channel, StreamChat, UserResponse } from 'stream-chat';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../../../context';
-import { mockChatContext } from '../../../../mock-builders';
+import { generateChannelState, mockChatContext } from '../../../../mock-builders';
 import { useChannelHasMembersOnline } from '../useChannelHasMembersOnline';
+
+import type { MockChannelState } from '../../../../mock-builders';
 
 // MERGE-RECONCILE (test migration): PR #2909 reworked useChannelHasMembersOnline from manual
 // `channel.on('user.watching.start/stop')` tracking (via the deleted ChannelStateContext) to a
-// reactive `channel.state.watcherStore` subscription (through useChannel). The test provides a
-// channel with a real StateStore watcherStore and asserts the "exclude the current user" logic
-// and reactivity to store changes.
+// reactive watcher-state subscription (through useChannel), now served by the unified
+// `channel.state`. The test provides a channel with a real state store and asserts the "exclude
+// the current user" logic and reactivity to store changes.
 
 const makeChannel = (watchers: Record<string, UserResponse> = {}) => {
-  const watcherStore = new StateStore<WatcherState>({
+  const state = generateChannelState({
     watcherCount: Object.keys(watchers).length,
     watchers,
   });
-  const channel = fromPartial<Channel>({ state: { watcherStore } });
-  return { channel, watcherStore };
+  const channel = fromPartial<Channel>({ state });
+  return { channel, state };
 };
 
-const setWatchers = (
-  watcherStore: StateStore<WatcherState>,
-  watchers: Record<string, UserResponse>,
-) =>
+const setWatchers = (state: MockChannelState, watchers: Record<string, UserResponse>) =>
   act(() =>
-    watcherStore.partialNext({
+    state.partialNext({
       watcherCount: Object.keys(watchers).length,
       watchers,
     }),
@@ -67,24 +65,24 @@ describe('useChannelHasMembersOnline', () => {
     expect(result.current).toBe(true);
   });
 
-  it('reactively reflects watcherStore changes', () => {
-    const { channel, watcherStore } = makeChannel();
+  it('reactively reflects watcher state changes', () => {
+    const { channel, state } = makeChannel();
 
     const { result } = renderForChannel(channel);
     expect(result.current).toBe(false);
 
-    setWatchers(watcherStore, { other: fromPartial<UserResponse>({ id: 'other' }) });
+    setWatchers(state, { other: fromPartial<UserResponse>({ id: 'other' }) });
     expect(result.current).toBe(true);
 
-    setWatchers(watcherStore, {});
+    setWatchers(state, {});
     expect(result.current).toBe(false);
   });
 
   it('ignores the current user starting to watch', () => {
-    const { channel, watcherStore } = makeChannel();
+    const { channel, state } = makeChannel();
 
     const { result } = renderForChannel(channel);
-    setWatchers(watcherStore, { me: fromPartial<UserResponse>({ id: 'me' }) });
+    setWatchers(state, { me: fromPartial<UserResponse>({ id: 'me' }) });
 
     expect(result.current).toBe(false);
   });

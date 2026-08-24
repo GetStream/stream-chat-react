@@ -1,5 +1,5 @@
 import type { BaseSyntheticEvent } from 'react';
-import type { LocalMessage, ReactionSort, UserResponse } from 'stream-chat';
+import type { LocalMessage, SortParamRequest, UserResponse } from 'stream-chat';
 
 import type { UserEventHandler } from './hooks';
 import type { CustomMentionHandler } from './hooks/useMentionsHandler';
@@ -55,7 +55,7 @@ export type MessageProps = {
   /** Custom open-thread handler; overrides the default ChatView-navigation thread opening */
   openThread?: (message: LocalMessage, event: BaseSyntheticEvent) => void;
   /** Sort options to provide to a reactions query */
-  reactionDetailsSort?: ReactionSort;
+  reactionDetailsSort?: SortParamRequest[];
   /** A list of users that have read this Message if the message is the last one and was posted by my user */
   readBy?: UserResponse[];
   /**

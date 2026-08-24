@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ReactionResponse, ReactionSort } from 'stream-chat';
+import type { ReactionResponse, SortParamRequest } from 'stream-chat';
 import type { MessageContextValue } from '../../../context';
 import { useMessageContext, useTranslationContext } from '../../../context';
 import { useNotificationApi } from '../../Notifications';
@@ -10,7 +10,7 @@ export interface FetchReactionsOptions {
   reactionType: ReactionType | null;
   shouldFetch: boolean;
   handleFetchReactions?: MessageContextValue['handleFetchReactions'];
-  sort?: ReactionSort;
+  sort?: SortParamRequest[];
 }
 
 export function useFetchReactions(options: FetchReactionsOptions) {

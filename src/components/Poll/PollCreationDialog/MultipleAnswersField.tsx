@@ -4,7 +4,8 @@ import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import type { PollComposerState } from 'stream-chat';
+import { POLL_COMPOSER_VALIDATION_CODE, pollComposerValidationError } from 'stream-chat';
+import type { PollComposerState, PollComposerValidationCode } from 'stream-chat';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   enforce_unique_vote: state.data.enforce_unique_vote,
@@ -22,13 +23,20 @@ export const MultipleAnswersField = () => {
   const [voteLimitEnabled, setVoteLimitEnabled] = useState(false);
   const maxVotesInputRef = useRef<HTMLInputElement | null>(null);
 
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  // Keyed by stable validation code — see the note in NameField.
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      'Enforce unique vote is enabled': t(
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesUniqueVoteEnforced]: t(
         'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
         'Enforce unique vote is enabled',
       ),
-      'Type a number from 2 to 10': t(
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric]: t(
+        'poll.multipleAnswersField.onlyNumbersAllowed.label',
+        'Only numbers are allowed',
+      ),
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesOutOfRange]: t(
         'poll.multipleAnswersField.typeNumber210.label',
         'Type a number from 2 to 10',
       ),
@@ -37,7 +45,12 @@ export const MultipleAnswersField = () => {
   );
 
   const multipleVotesEnabled = !enforce_unique_vote;
-  const errorText = error && knownValidationErrors[error];
+  // NOTE: this field never renders the copy — `errorText` only drives error styling on the label
+  // (`NumericInput` has no error-message slot). So the three strings in `knownValidationErrors`
+  // above are currently unreachable, and an unmapped code shows no error styling at all. Left as-is
+  // rather than changed here: displaying them needs a new NumericInput prop, and deleting them
+  // would drop three keys from the public translation catalog.
+  const errorText = error && knownValidationErrors[error.code];
   const voteLimitSwitchId = 'max_votes_allowed_enabled';
   const voteLimitSwitchLabelId = `${voteLimitSwitchId}-label`;
 
@@ -103,9 +116,8 @@ export const MultipleAnswersField = () => {
                   const nativeFieldValidation =
                     raw !== '' && !/^\d+$/.test(raw)
                       ? {
-                          max_votes_allowed: t(
-                            'poll.multipleAnswersField.onlyNumbersAllowed.label',
-                            'Only numbers are allowed',
+                          max_votes_allowed: pollComposerValidationError(
+                            POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric,
                           ),
                         }
                       : undefined;

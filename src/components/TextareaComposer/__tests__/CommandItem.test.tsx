@@ -2,7 +2,7 @@ import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { CommandResponse } from 'stream-chat';
+import type { Command } from 'stream-chat';
 
 import { CommandItem } from '../SuggestionList';
 
@@ -59,7 +59,7 @@ describe('commandItem', () => {
   });
 
   it('should render component with custom entity prop', () => {
-    const entity = fromPartial<CommandResponse>({
+    const entity = fromPartial<Command>({
       args: 'args',
       description: 'description',
       name: 'name',
@@ -89,7 +89,7 @@ describe('commandItem', () => {
   });
 
   it('renders disabled state for unavailable commands', () => {
-    const entity = fromPartial<CommandResponse>({
+    const entity = fromPartial<Command>({
       args: 'args',
       description: 'description',
       name: 'name',

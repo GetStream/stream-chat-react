@@ -4,7 +4,12 @@ import { TextInput } from '../../Form/TextInput';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import type { PollComposerOption, PollComposerState } from 'stream-chat';
+import { POLL_COMPOSER_VALIDATION_CODE } from 'stream-chat';
+import type {
+  PollComposerOption,
+  PollComposerState,
+  PollComposerValidationCode,
+} from 'stream-chat';
 import { IconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
@@ -43,13 +48,19 @@ export const OptionFieldSet = () => {
   const pendingFocusIndexRef = useRef<number | null>(null);
   const [activeOptionId, setActiveOptionId] = useState<string | null>(null);
 
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  // Keyed by stable validation code — see the note in NameField.
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      'Option already exists': t(
+      [POLL_COMPOSER_VALIDATION_CODE.optionDuplicate]: t(
         'poll.suggestPollOption.optionAlreadyExists.label',
         'Option already exists',
       ),
-      'Option is empty': t('poll.optionFieldSet.optionEmpty.label', 'Option is empty'),
+      [POLL_COMPOSER_VALIDATION_CODE.optionEmpty]: t(
+        'poll.optionFieldSet.optionEmpty.label',
+        'Option is empty',
+      ),
     }),
     [t],
   );
@@ -239,7 +250,7 @@ export const OptionFieldSet = () => {
                 message={
                   error ? (
                     <span data-testid='poll-option-input-field-error'>
-                      {knownValidationErrors[error] ??
+                      {knownValidationErrors[error.code] ??
                         t('poll.nameField.error.text', 'Error')}
                     </span>
                   ) : undefined

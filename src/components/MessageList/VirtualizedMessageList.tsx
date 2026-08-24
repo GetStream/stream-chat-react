@@ -765,10 +765,11 @@ export type VirtualizedMessageListProps = Partial<
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const channel = useChannel();
 
-  const { read } = useStateStore(channel?.state.readStore, channelReadSelector) ?? {};
+  const { read } = useStateStore(channel?.state, channelReadSelector) ?? {};
 
   const messages = props.messages; // || contextMessages;
 
+  // todo: finalize the props shape for VirtualizedMessageList
   return (
     <VirtualizedMessageListWithContext
       channel={channel}

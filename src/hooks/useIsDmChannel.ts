@@ -16,7 +16,7 @@ const membersSelector = (nextValue: MembersState) => ({
 /**
  * Reactively determines whether a channel is a direct-messaging channel.
  *
- * Subscribes to the channel's `membersStore` so the result recomputes when membership
+ * Subscribes to the channel's members state so the result recomputes when membership
  * changes, then delegates the actual check to the `isDmChannel` util. Defaults to the
  * channel from context; pass `channel` to check a specific one.
  */
@@ -27,7 +27,7 @@ export const useIsDmChannel = ({
   const channel = channelOverride ?? contextChannel;
   const { client } = useChatContext();
   // Subscribe for reactivity — re-run isDmChannel whenever membership changes.
-  useStateStore(channel.state.membersStore, membersSelector);
+  useStateStore(channel.state, membersSelector);
 
   return isDmChannel({ channel, ownUserId: client.user?.id });
 };

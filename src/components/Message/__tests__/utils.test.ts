@@ -6,7 +6,7 @@ import type {
   ChannelConfigWithInfo,
   LocalMessage,
   MessageResponse,
-  Mute,
+  UserMuteResponse,
 } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import {
@@ -62,7 +62,7 @@ describe('Message utils', () => {
   describe('isUserMuted function', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
-        fromPartial<Mute>({
+        fromPartial<UserMuteResponse>({
           created_at: new Date('2019-03-30T13:24:10').toISOString(),
           target: bob,
           user: alice,
@@ -80,7 +80,7 @@ describe('Message utils', () => {
 
     it('should return true if user was muted', () => {
       const mutes = [
-        fromPartial<Mute>({
+        fromPartial<UserMuteResponse>({
           created_at: new Date('2019-03-30T13:24:10').toISOString(),
           target: bob,
           user: alice,

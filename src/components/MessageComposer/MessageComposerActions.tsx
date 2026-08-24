@@ -7,7 +7,7 @@ import {
   useComponentContext,
   useMessageComposerContext,
 } from '../../context';
-import { AIStates, useAIState } from '../AIStateIndicator';
+import { useAIState } from '../AIStateIndicator';
 import {
   useMessageComposerController,
   useMessageContentIsEmpty,
@@ -16,10 +16,18 @@ import {
 } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
-import type { MessageComposerState, TextComposerState } from 'stream-chat';
+import { AIStates } from 'stream-chat';
+import type { AIState, MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { IconCheckmark, IconSend } from '../Icons';
 import { useInertWhenHidden } from '../Accessibility';
+
+// `AIStates` is imported from its owner rather than through the `../AIStateIndicator` barrel: that
+// barrel participates in an import cycle, which would leave the re-exported binding uninitialized
+// while this module-scope const evaluates.
+// Widened to `AIState` deliberately: `AIStates` is a literal-typed const, so an inferred array of
+// its members would reject the wide `AIState` that `useAIState` returns.
+const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
 
 const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
@@ -74,8 +82,7 @@ export const MessageComposerActions = () => {
   const { aiState } = useAIState(channel);
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
   const shouldDisplayStopAIGeneration =
-    [AIStates.Thinking, AIStates.Generating].includes(aiState) &&
-    !!StopAIGenerationButton;
+    STOPPABLE_AI_STATES.includes(aiState) && !!StopAIGenerationButton;
 
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
 

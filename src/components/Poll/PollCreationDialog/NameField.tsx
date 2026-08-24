@@ -3,7 +3,8 @@ import { TextInput } from '../../Form';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import type { PollComposerState } from 'stream-chat';
+import { POLL_COMPOSER_VALIDATION_CODE } from 'stream-chat';
+import type { PollComposerState, PollComposerValidationCode } from 'stream-chat';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   error: state.errors.name,
@@ -14,9 +15,14 @@ export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  // Keyed by the composer's stable validation codes rather than by the English message it used to
+  // carry: v10 turned a field error into `{ code, message }` precisely so UI SDKs could key their
+  // translation tables on an identifier that survives a copy change.
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      'Question is required': t(
+      [POLL_COMPOSER_VALIDATION_CODE.nameRequired]: t(
         'poll.nameField.questionRequired.label',
         'Question is required',
       ),
@@ -35,7 +41,7 @@ export const NameField = () => {
       errorMessage={
         error ? (
           <span data-testid='poll-name-input-field-error'>
-            {knownValidationErrors[error] ?? t('poll.nameField.error.text', 'Error')}
+            {knownValidationErrors[error.code] ?? t('poll.nameField.error.text', 'Error')}
           </span>
         ) : undefined
       }

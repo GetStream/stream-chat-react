@@ -3,13 +3,14 @@ import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import type {
   ChannelResponse,
+  ChannelStateResponse,
   Channel as ChannelType,
   Event,
   LocalMessage,
-  Message,
+  MessageRequest,
   MessageResponse,
-  QueryChannelAPIResponse,
   StreamChat,
+  StreamResponse,
   UserResponse,
 } from 'stream-chat';
 import { localMessageToNewMessagePayload } from 'stream-chat';
@@ -28,6 +29,7 @@ import type { GenerateChannelOptions } from '../../../mock-builders';
 import {
   dispatchChannelTruncatedEvent,
   dispatchConnectionChangedEvent,
+  dispatchConnectionRecoveredEvent,
   erroredPostApi,
   generateChannel,
   generateMember,
@@ -63,9 +65,9 @@ const OnChannelReady = ({ callback }: { callback: () => void }) => {
 };
 
 // The mock-builder generators produce LocalMessage objects, while the stream-chat write APIs and
-// mocked API responses are typed against Message / MessageResponse. The shapes are runtime-identical
+// mocked API responses are typed against MessageRequest / MessageResponse. The shapes are runtime-identical
 // for these tests, so bridge them explicitly rather than weakening assertions.
-const toMessage = (m: LocalMessage) => m as unknown as Message;
+const toMessage = (m: LocalMessage) => m as unknown as MessageRequest;
 const toMessageResponse = (m: LocalMessage) => m as unknown as MessageResponse;
 
 const renderComponent = async (
@@ -385,7 +387,7 @@ describe('Channel', () => {
     const watchSpy = vi
       .spyOn(channel, 'watch')
       .mockImplementationOnce(() =>
-        Promise.resolve(fromPartial<QueryChannelAPIResponse>({})),
+        Promise.resolve(fromPartial<StreamResponse<ChannelStateResponse>>({})),
       );
     await renderComponent({
       channel,
@@ -402,13 +404,68 @@ describe('Channel', () => {
     await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
 
+  describe('connection recovery', () => {
+    // The client's reconnect hydration skips re-seeding the message list of an `active` channel
+    // (Channel marks it active while mounted) and delegates that window to `channel.reload()`.
+    // Nothing else calls it, so these pin the SDK component as the thing that does.
+    it('reloads the channel when the connection is recovered', async () => {
+      const { channel, chatClient } = await setup();
+      await renderComponent({ channel, chatClient });
+
+      const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
+
+      await act(async () => {
+        dispatchConnectionRecoveredEvent(chatClient);
+        await Promise.resolve();
+      });
+
+      await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
+    });
+
+    it('does not reload a channel that is pending disposal', async () => {
+      const { channel, chatClient } = await setup();
+      await renderComponent({ channel, chatClient });
+
+      const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
+      // `reload()` goes through `getClient()`, which throws once the channel is pending disposal.
+      channel.pendingDisposal = true;
+
+      await act(async () => {
+        dispatchConnectionRecoveredEvent(chatClient);
+        await Promise.resolve();
+      });
+
+      expect(reloadSpy).not.toHaveBeenCalled();
+    });
+
+    it('keeps rendering when the reload fails', async () => {
+      const { channel, chatClient } = await setup();
+      const { container } = await renderComponent({ channel, chatClient });
+
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const reloadSpy = vi
+        .spyOn(channel, 'reload')
+        .mockRejectedValue(new Error('socket flapped'));
+
+      await act(async () => {
+        dispatchConnectionRecoveredEvent(chatClient);
+        await Promise.resolve();
+      });
+
+      await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
+      expect(container.querySelector('.str-chat__channel')).toBeInTheDocument();
+      warnSpy.mockRestore();
+    });
+  });
+
   describe('disconnected client (#2393)', () => {
     it('does not crash rendering when the client disconnects while the channel is mounted', async () => {
       const { channel, chatClient } = await setup();
       const { container } = await renderComponent({ channel, chatClient });
 
-      // the channel is initialized; the shared client then disconnects
-      channel.disconnected = true;
+      // the channel is initialized; the shared client then disconnects, leaving the channel
+      // pending disposal
+      channel.pendingDisposal = true;
 
       // a re-render that reads channel state must not throw
       // (channel.lastRead() throws once the client is disconnected)
@@ -433,7 +490,7 @@ describe('Channel', () => {
 
       const querySpy = vi.spyOn(channel, 'query');
       const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');
-      channel.disconnected = true;
+      channel.pendingDisposal = true;
 
       await act(async () => {
         dispatchConnectionChangedEvent(chatClient, false);

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Poll, StateStore } from 'stream-chat';
-import type { Channel, OwnCapabilitiesState, StreamChat } from 'stream-chat';
+import { Poll } from 'stream-chat';
+import type { Channel, StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { PollActions } from '../PollActions';
@@ -13,6 +13,7 @@ import {
   TranslationProvider,
 } from '../../../context';
 import {
+  generateChannelState,
   generateMessage,
   generatePoll,
   generateUser,
@@ -25,7 +26,7 @@ import { mockT } from '../../../mock-builders/translator';
 
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
 // `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
-// which subscribes to `channel.state.ownCapabilitiesStore` (a string[]). Convert the legacy
+// which subscribes to the unified `channel.state` (`ownCapabilities`, a string[]). Convert the legacy
 // `{ 'cap': boolean }` object into that string[] and seed a real ChannelInstanceProvider channel.
 const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
   Object.entries(capabilities)
@@ -35,11 +36,7 @@ const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
 const makeChannel = (capabilities: Record<string, boolean> = {}) =>
   fromPartial<Channel>({
     cid: 'messaging:poll-test',
-    state: {
-      ownCapabilitiesStore: new StateStore<OwnCapabilitiesState>({
-        ownCapabilities: toOwnCapabilities(capabilities),
-      }),
-    },
+    state: generateChannelState({ ownCapabilities: toOwnCapabilities(capabilities) }),
   });
 
 const SUGGEST_OPTION_ACTION_TEXT = 'Suggest an Option';

@@ -339,7 +339,7 @@ const UserMuteAction = () => {
       if (!targetUserId) return;
 
       if (!nextMuted) {
-        return client
+        return client.moderation
           .unmuteUser(targetUserId)
           .then(() =>
             addNotification({
@@ -373,8 +373,8 @@ const UserMuteAction = () => {
           });
       }
 
-      return client
-        .muteUser(targetUserId)
+      return client.moderation
+        .mute({ target_ids: [targetUserId] })
         .then(() =>
           addNotification({
             context: { channel },

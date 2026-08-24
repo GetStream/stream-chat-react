@@ -92,11 +92,11 @@ const setup = async ({ channelData }: any = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi
-    .spyOn(customChannel, 'sendImage')
+  const uploadImageSpy = vi
+    .spyOn(customChannel, 'uploadImage')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
-  const sendFileSpy = vi
-    .spyOn(customChannel, 'sendFile')
+  const uploadFileSpy = vi
+    .spyOn(customChannel, 'uploadFile')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
   const getDraftSpy = vi
     .spyOn(customChannel, 'getDraft')
@@ -104,7 +104,7 @@ const setup = async ({ channelData }: any = {}) => {
   vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue(fromPartial({}));
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
+  return { customChannel, customClient, getDraftSpy, uploadFileSpy, uploadImageSpy };
 };
 
 const renderComponent = async ({

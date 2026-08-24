@@ -1,25 +1,24 @@
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { StateStore } from 'stream-chat';
-import type { Channel, ChannelState, MembersState, StreamChat } from 'stream-chat';
+import type { Channel, ChannelState, StreamChat } from 'stream-chat';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../context';
-import { mockChatContext } from '../../mock-builders';
+import { generateChannelState, mockChatContext } from '../../mock-builders';
 import { useIsDmChannel } from '../useIsDmChannel';
 
-// useIsDmChannel subscribes to channel.state.membersStore for reactivity and delegates the
+// useIsDmChannel subscribes to the unified channel.state for reactivity and delegates the
 // actual check to the pure `isDmChannel` util (covered by its own test). These tests focus on
 // the hook wiring: it returns the isDmChannel result for the context channel and recomputes when
-// the membersStore emits.
+// the members slice emits.
 
 const makeChannel = (memberCount: number, members: ChannelState['members'] = {}) => {
-  const membersStore = new StateStore<MembersState>({ memberCount, members });
+  const state = generateChannelState({ memberCount, members });
   const channel = fromPartial<Channel>({
     data: { member_count: memberCount },
-    state: { members, membersStore },
+    state,
   });
-  return { channel, membersStore };
+  return { channel, state };
 };
 
 const renderForChannel = (channel: Channel) => {
@@ -69,15 +68,15 @@ describe('useIsDmChannel', () => {
     expect(result.current).toBe(false);
   });
 
-  it('recomputes reactively when the membersStore emits', () => {
-    const { channel, membersStore } = makeChannel(3);
+  it('recomputes reactively when the members slice emits', () => {
+    const { channel, state } = makeChannel(3);
 
     const { result } = renderForChannel(channel);
     expect(result.current).toBe(false);
 
-    // The channel becomes a DM; the membersStore emission triggers the recompute.
+    // The channel becomes a DM; the store emission triggers the recompute.
     if (channel.data) channel.data.member_count = 1;
-    act(() => membersStore.partialNext({ memberCount: 1, members: {} }));
+    act(() => state.partialNext({ memberCount: 1, members: {} }));
 
     expect(result.current).toBe(true);
   });

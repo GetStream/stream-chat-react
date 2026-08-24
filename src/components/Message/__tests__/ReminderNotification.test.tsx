@@ -38,7 +38,7 @@ describe('ReminderNotification', () => {
   it('displays text for reminder deadline if trespassed the refresh boundary', async () => {
     const reminder = new Reminder({
       data: generateReminderResponse({
-        data: { remind_at: new Date(0).toISOString() },
+        data: { remind_at: new Date(0) },
       }),
     });
     const { container } = await renderComponent({ reminder });

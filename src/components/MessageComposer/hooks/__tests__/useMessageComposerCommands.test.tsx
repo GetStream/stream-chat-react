@@ -1,15 +1,15 @@
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { CommandResponse, MessageComposerState } from 'stream-chat';
+import type { Command, MessageComposerState } from 'stream-chat';
 import { StateStore } from 'stream-chat';
 
 import { useMessageComposerCommands } from '../useMessageComposerCommands';
 
 const mockedUseMessageComposerController = vi.hoisted(() => vi.fn());
 
-let commands: CommandResponse[];
+let commands: Command[];
 let messageComposer: {
-  channel: { readonly config: { availableCommands: CommandResponse[] } };
+  channel: { readonly config: { availableCommands: Command[] } };
   getCommandDisabledReason: ReturnType<typeof vi.fn>;
   isCommandDisabled: ReturnType<typeof vi.fn>;
   state: StateStore<MessageComposerState>;
@@ -29,18 +29,18 @@ describe('useMessageComposerCommands', () => {
       }) as MessageComposerState,
     );
     commands = [
-      fromPartial<CommandResponse>({
+      fromPartial<Command>({
         args: '[text]',
         description: 'Post a random gif to the channel',
         name: 'giphy',
       }),
-      fromPartial<CommandResponse>({
+      fromPartial<Command>({
         args: '[@username] [text]',
         description: 'Ban a user',
         name: 'ban',
         set: 'moderation_set',
       }),
-      fromPartial<CommandResponse>({
+      fromPartial<Command>({
         description: 'missing-name',
       }),
     ];
@@ -52,7 +52,7 @@ describe('useMessageComposerCommands', () => {
           return { availableCommands: commands };
         },
       },
-      getCommandDisabledReason: vi.fn((command: CommandResponse) => {
+      getCommandDisabledReason: vi.fn((command: Command) => {
         const latestState = state.getLatestValue();
 
         if (latestState.editedMessage) {
@@ -69,7 +69,7 @@ describe('useMessageComposerCommands', () => {
         return undefined;
       }),
       isCommandDisabled: vi.fn(
-        (command: CommandResponse) => !!messageComposer.getCommandDisabledReason(command),
+        (command: Command) => !!messageComposer.getCommandDisabledReason(command),
       ),
       state,
     };

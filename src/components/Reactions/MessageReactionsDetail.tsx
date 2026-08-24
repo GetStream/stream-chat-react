@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import type { SortParamRequest } from 'stream-chat';
 
 import type { ReactionSummary, ReactionType } from './types';
 
@@ -12,7 +13,6 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
 import { IconEmojiAdd } from '../Icons';
@@ -24,12 +24,14 @@ export type MessageReactionsDetailProps = Partial<
   reactions: ReactionSummary[];
   selectedReactionType: ReactionType | null;
   onSelectedReactionTypeChange?: (reactionType: ReactionType | null) => void;
-  sort?: ReactionSort;
+  sort?: SortParamRequest[];
   totalReactionCount?: number;
   reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
 } & ReactionSelectorProps;
 
-const defaultReactionDetailsSort: ReactionSort = [{ direction: -1, field: 'created_at' }];
+const defaultReactionDetailsSort: SortParamRequest[] = [
+  { direction: -1, field: 'created_at' },
+];
 
 export const MessageReactionsDetailLoadingIndicator = () => {
   const elements = useMemo(

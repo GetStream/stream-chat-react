@@ -40,7 +40,7 @@ export const useMuteHandler = (
 
     if (!isUserMuted(message, mutes)) {
       try {
-        await client.muteUser(message.user.id);
+        await client.moderation.mute({ target_ids: [message.user.id] });
 
         if (!notify) return;
         const successMessage =
@@ -62,7 +62,7 @@ export const useMuteHandler = (
       }
     } else {
       try {
-        await client.unmuteUser(message.user.id);
+        await client.moderation.unmuteUser(message.user.id);
 
         if (!notify) return;
         const successMessage =

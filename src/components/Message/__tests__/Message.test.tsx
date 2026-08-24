@@ -478,7 +478,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const muteUser = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
-    vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
+    vi.spyOn(client.moderation, 'mute').mockImplementation(muteUser);
     let context: MessageContextValue;
 
     await renderComponent({
@@ -492,14 +492,14 @@ describe('<Message /> component', () => {
 
     await context.handleMute(mouseEventMock);
 
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
+    expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
   it('should throw when muting a user fails', async () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
     const muteUser = vi.fn(() => Promise.reject(new Error('mute failed')));
-    vi.spyOn(client, 'muteUser').mockImplementation(muteUser);
+    vi.spyOn(client.moderation, 'mute').mockImplementation(muteUser);
     let context: MessageContextValue;
 
     await renderComponent({
@@ -513,7 +513,7 @@ describe('<Message /> component', () => {
 
     await context.handleMute(mouseEventMock);
 
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
+    expect(muteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
   it('should allow to unmute a user when it is successful', async () => {
@@ -521,7 +521,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const unmuteUser = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
-    vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
+    vi.spyOn(client.moderation, 'unmuteUser').mockImplementation(unmuteUser);
     let context: MessageContextValue;
 
     await renderComponent({
@@ -544,7 +544,7 @@ describe('<Message /> component', () => {
     const message = generateMessage({ user: bob });
     const client = await getTestClientWithUser(alice);
     const unmuteUser = vi.fn(() => Promise.reject(new Error('unmute failed')));
-    vi.spyOn(client, 'unmuteUser').mockImplementation(unmuteUser);
+    vi.spyOn(client.moderation, 'unmuteUser').mockImplementation(unmuteUser);
     let context: MessageContextValue;
 
     await renderComponent({
@@ -733,7 +733,7 @@ describe('<Message /> component', () => {
     const client = await getTestClientWithUser(alice);
     const flagMessage = vi.fn(() => Promise.resolve());
     // @ts-expect-error - mock implementation has simplified signature
-    vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
+    vi.spyOn(client.moderation, 'flagMessage').mockImplementation(flagMessage);
     let context: MessageContextValue;
 
     await renderComponent({
@@ -753,7 +753,7 @@ describe('<Message /> component', () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
     const flagMessage = vi.fn(() => Promise.reject(new Error('flag failed')));
-    vi.spyOn(client, 'flagMessage').mockImplementation(flagMessage);
+    vi.spyOn(client.moderation, 'flagMessage').mockImplementation(flagMessage);
     let context: MessageContextValue;
 
     await renderComponent({
