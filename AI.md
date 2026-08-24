@@ -59,7 +59,7 @@ const App = () => {
 For a full-featured chat interface:
 
 ```tsx
-import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
+import type { ChannelFilters, ChannelOptions, SortParamRequest, User } from 'stream-chat';
 import {
   Chat,
   Channel,
@@ -86,7 +86,7 @@ const user: User = {
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
 
-const sort: ChannelSort = { last_message_at: -1 };
+const sort: SortParamRequest[] = [{ direction: -1, field: 'last_message_at' }];
 const filters: ChannelFilters = {
   type: 'messaging',
   members: { $in: [userId] },

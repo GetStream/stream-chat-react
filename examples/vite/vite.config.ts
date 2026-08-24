@@ -103,7 +103,24 @@ export default defineConfig(({ mode }) => {
       // Keep local `stream-chat` out of Vite's prebundle so the browser loads the
       // SDK build directly and DevTools can follow its sourcemaps back to source files.
       // Its local ESM build still imports a few CommonJS deps that need Vite interop.
-      include: ['base64-js', 'form-data', 'isomorphic-ws', 'axios'],
+      include: [
+        'base64-js',
+        'form-data',
+        'isomorphic-ws',
+        'axios',
+        // The shared i18n layer in `stream-chat` pulls in dayjs, which ships as a
+        // UMD bundle with no ESM entry. Excluded deps are not crawled by the
+        // dep scanner, so these have to be named explicitly to get CJS interop.
+        'dayjs',
+        'dayjs/plugin/calendar.js',
+        'dayjs/plugin/duration.js',
+        'dayjs/plugin/localeData.js',
+        'dayjs/plugin/localizedFormat.js',
+        'dayjs/plugin/relativeTime.js',
+        'dayjs/plugin/timezone.js',
+        'dayjs/plugin/updateLocale.js',
+        'dayjs/plugin/utc.js',
+      ],
       exclude: localStreamChatEntry ? ['stream-chat'] : [],
     },
     server: {

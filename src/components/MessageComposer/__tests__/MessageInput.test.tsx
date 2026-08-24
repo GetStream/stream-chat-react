@@ -194,13 +194,6 @@ const registerSendInterceptor = (client, channel) =>
       },
     },
   });
-const mockAddNotification = vi.fn();
-
-vi.mock('../../Channel/utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../Channel/utils')>()),
-  makeAddNotifications: () => mockAddNotification,
-}));
-
 const defaultMessageContextValue = fromPartial<MessageContextValue>({
   getMessageActions: () => ['delete', 'edit', 'quote'],
   handleDelete: () => {},

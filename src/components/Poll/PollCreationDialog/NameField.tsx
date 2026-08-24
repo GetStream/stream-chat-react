@@ -15,9 +15,8 @@ export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
-  // Keyed by the composer's stable validation codes rather than by the English message it used to
-  // carry: v10 turned a field error into `{ code, message }` precisely so UI SDKs could key their
-  // translation tables on an identifier that survives a copy change.
+  // Keyed on the stable validation code rather than on the English sentence `stream-chat` produced.
+  // Matching on prose meant a copy edit in the LLC silently stopped the translation from applying.
   const knownValidationErrors = useMemo<
     Partial<Record<PollComposerValidationCode, string>>
   >(
@@ -41,7 +40,7 @@ export const NameField = () => {
       errorMessage={
         error ? (
           <span data-testid='poll-name-input-field-error'>
-            {knownValidationErrors[error.code] ?? t('poll.nameField.error.text', 'Error')}
+            {knownValidationErrors[error.code] ?? error.message}
           </span>
         ) : undefined
       }

@@ -302,7 +302,7 @@ const UserMuteAction = () => {
 
       if (!nextMuted) {
         return client.moderation
-          .unmuteUser(userId)
+          .unmute({ target_ids: [userId] })
           .then(() =>
             addNotification({
               context: { channel },

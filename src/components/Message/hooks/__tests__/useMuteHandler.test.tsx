@@ -21,10 +21,10 @@ import type { LocalMessage, MessageResponse, UserMuteResponse } from 'stream-cha
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
-// v10 moved user mute/unmute onto `client.moderation`: there is no single-target `muteUser`
-// any more, so muting goes through the generated `mute({ target_ids })`.
+// v10 moved user mute/unmute onto `client.moderation`, as the symmetric generated pair
+// `mute({ target_ids })` / `unmute({ target_ids })`.
 const mute = vi.fn();
-const unmuteUser = vi.fn();
+const unmute = vi.fn();
 const notify = vi.fn();
 const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
@@ -36,7 +36,7 @@ async function renderUseHandleMuteHook(
 ) {
   const client = await getTestClientWithUser(alice);
   client.moderation.mute = mute;
-  client.moderation.unmuteUser = unmuteUser;
+  client.moderation.unmute = unmute;
   client.mutedUsersStore.partialNext({ mutedUsers: mutes });
 
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
@@ -81,22 +81,22 @@ describe('useHandleMute custom hook', () => {
 
   it('should allow to unmute a user when it is successful', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    unmuteUser.mockImplementationOnce(() => Promise.resolve());
+    unmute.mockImplementationOnce(() => Promise.resolve());
     const handleMute = await renderUseHandleMuteHook(message, {
       mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
     });
     await handleMute(mouseEventMock);
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
+    expect(unmute).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
   it('should notify (and not throw) when unmuting a user fails', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    unmuteUser.mockImplementationOnce(() => Promise.reject(new Error('unmute failed')));
+    unmute.mockImplementationOnce(() => Promise.reject(new Error('unmute failed')));
     const handleMute = await renderUseHandleMuteHook(message, {
       mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
     });
     await expect(handleMute(mouseEventMock)).resolves.toBeUndefined();
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
+    expect(unmute).toHaveBeenCalledWith({ target_ids: [bob.id] });
     expect(notify).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 });

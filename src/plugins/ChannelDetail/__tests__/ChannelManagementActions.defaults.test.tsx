@@ -40,7 +40,7 @@ const mocks = vi.hoisted(() => {
   });
   const unblockUser = vi.fn();
   const unmute = vi.fn();
-  const moderationUnmuteUser = vi.fn();
+  const moderationUnmute = vi.fn();
   const blockedUsers = (() => {
     let currentValue = { userIds: [] as string[] };
     const listeners = new Set<() => void>();
@@ -85,7 +85,7 @@ const mocks = vi.hoisted(() => {
   const client = {
     blockedUsers,
     blockUser,
-    moderation: { mute: moderationMute, unmuteUser: moderationUnmuteUser },
+    moderation: { mute: moderationMute, unmute: moderationUnmute },
     unblockUser,
     user: { id: 'own-user' },
     userID: 'own-user',
@@ -100,7 +100,7 @@ const mocks = vi.hoisted(() => {
     close,
     deleteChannel,
     moderationMute,
-    moderationUnmuteUser,
+    moderationUnmute,
     mute,
     mutes: [] as Array<{ target: { id: string } }>,
     removeMembers,
@@ -203,7 +203,7 @@ describe('DefaultChannelManagementActions', () => {
     mocks.t.mockClear();
     mocks.unblockUser.mockReset();
     mocks.unmute.mockReset();
-    mocks.moderationUnmuteUser.mockReset();
+    mocks.moderationUnmute.mockReset();
     mocks.useStableTranslationFunction = true;
     mocks.channelMuted = false;
     mocks.channel.data.member_count = 2;
@@ -318,7 +318,7 @@ describe('DefaultChannelManagementActions', () => {
   });
 
   it('reconciles user mute to the truth source after a coalesced failed toggle', async () => {
-    mocks.moderationUnmuteUser.mockRejectedValueOnce(new Error('unmute failed'));
+    mocks.moderationUnmute.mockRejectedValueOnce(new Error('unmute failed'));
 
     renderAction(<DefaultChannelManagementActions.MuteUser />);
 
@@ -327,7 +327,7 @@ describe('DefaultChannelManagementActions', () => {
 
     await advanceDebounce();
 
-    expect(mocks.moderationUnmuteUser).toHaveBeenCalledWith('other-user');
+    expect(mocks.moderationUnmute).toHaveBeenCalledWith({ target_ids: ['other-user'] });
     expect(mocks.moderationMute).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Mute user' })).toHaveAttribute(
       'aria-pressed',

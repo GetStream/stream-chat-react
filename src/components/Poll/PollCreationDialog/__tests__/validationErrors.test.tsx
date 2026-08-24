@@ -29,14 +29,12 @@ const localizedT = ((key: string) => marker(key)) as ReturnType<
 const NAME_ERROR_TEST_ID = 'poll-name-input-field-error';
 const OPTION_ERROR_TEST_ID = 'poll-option-input-field-error';
 
-const GENERIC_ERROR_KEY = 'poll.nameField.error.text';
-
 /**
- * Models the realistic regression: the client ships a NEW validation code before this SDK maps it.
- * Such an error still carries the client's untranslated English `message`, so a component that
- * falls back to `message` renders English where a localized app expects translated copy.
- * (`pollComposerValidationError` leaves `message` undefined for an unrecognized code, which would
- * not exercise the fallback at all — hence the literal here.)
+ * A code the client emits that this SDK's copy tables do not map — e.g. one added to the client
+ * before the SDK catches up. Such an error still carries the client's untranslated English
+ * `message`, which is deliberately what the fields fall back to: it degrades to readable text
+ * rather than to a blank field. (`pollComposerValidationError` leaves `message` undefined for an
+ * unrecognized code, so the literal here is what actually exercises that fallback.)
  */
 const UNMAPPED_CODE = 'validation:poll:unknown:future' as PollComposerValidationCode;
 const UNMAPPED_MESSAGE = 'A future validation failure';
@@ -85,13 +83,12 @@ describe('poll field validation errors', () => {
       expect(error).not.toHaveTextContent('Question is required');
     });
 
-    it('falls back to the translated generic for an unmapped code', async () => {
+    it("falls back to the client's message for an unmapped code", async () => {
       await renderField(<NameField />, () => ({ name: unmappedError }));
 
       const error = screen.getByTestId(NAME_ERROR_TEST_ID);
-      expect(error).toHaveTextContent(marker(GENERIC_ERROR_KEY));
-      // the guard: neither the raw code nor the client's untranslated message may be shown
-      expect(error).not.toHaveTextContent(UNMAPPED_MESSAGE);
+      expect(error).toHaveTextContent(UNMAPPED_MESSAGE);
+      // the raw identifier must never be what the user sees
       expect(error).not.toHaveTextContent(UNMAPPED_CODE);
     });
   });
@@ -116,14 +113,13 @@ describe('poll field validation errors', () => {
       );
     });
 
-    it('falls back to the translated generic for an unmapped code', async () => {
+    it("falls back to the client's message for an unmapped code", async () => {
       await renderField(<OptionFieldSet />, (optionId) => ({
         options: { [optionId]: unmappedError },
       }));
 
       const error = screen.getByTestId(OPTION_ERROR_TEST_ID);
-      expect(error).toHaveTextContent(marker(GENERIC_ERROR_KEY));
-      expect(error).not.toHaveTextContent(UNMAPPED_MESSAGE);
+      expect(error).toHaveTextContent(UNMAPPED_MESSAGE);
       expect(error).not.toHaveTextContent(UNMAPPED_CODE);
     });
   });
@@ -167,8 +163,8 @@ describe('poll field validation errors', () => {
       await renderField(field, seed(code));
       const error = screen.getByTestId(testId);
       expect(error).toHaveTextContent(marker(key));
-      // not the generic — proves this specific code is mapped, not merely handled
-      expect(error).not.toHaveTextContent(marker(GENERIC_ERROR_KEY));
+      // not the client's untranslated English — proves this code is mapped, not merely handled
+      expect(error).not.toHaveTextContent(UNMAPPED_MESSAGE);
     }
   });
 

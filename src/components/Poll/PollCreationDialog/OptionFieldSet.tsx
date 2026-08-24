@@ -48,7 +48,6 @@ export const OptionFieldSet = () => {
   const pendingFocusIndexRef = useRef<number | null>(null);
   const [activeOptionId, setActiveOptionId] = useState<string | null>(null);
 
-  // Keyed by stable validation code — see the note in NameField.
   const knownValidationErrors = useMemo<
     Partial<Record<PollComposerValidationCode, string>>
   >(
@@ -250,8 +249,7 @@ export const OptionFieldSet = () => {
                 message={
                   error ? (
                     <span data-testid='poll-option-input-field-error'>
-                      {knownValidationErrors[error.code] ??
-                        t('poll.nameField.error.text', 'Error')}
+                      {knownValidationErrors[error.code] ?? error.message}
                     </span>
                   ) : undefined
                 }

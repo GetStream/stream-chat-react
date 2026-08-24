@@ -1,11 +1,11 @@
+import { POLL_COMPOSER_VALIDATION_CODE, pollComposerValidationError } from 'stream-chat';
+import type { PollComposerState, PollComposerValidationCode } from 'stream-chat';
 import React, { useMemo, useRef, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import { POLL_COMPOSER_VALIDATION_CODE, pollComposerValidationError } from 'stream-chat';
-import type { PollComposerState, PollComposerValidationCode } from 'stream-chat';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   enforce_unique_vote: state.data.enforce_unique_vote,
@@ -23,7 +23,6 @@ export const MultipleAnswersField = () => {
   const [voteLimitEnabled, setVoteLimitEnabled] = useState(false);
   const maxVotesInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Keyed by stable validation code — see the note in NameField.
   const knownValidationErrors = useMemo<
     Partial<Record<PollComposerValidationCode, string>>
   >(
@@ -45,12 +44,7 @@ export const MultipleAnswersField = () => {
   );
 
   const multipleVotesEnabled = !enforce_unique_vote;
-  // NOTE: this field never renders the copy — `errorText` only drives error styling on the label
-  // (`NumericInput` has no error-message slot). So the three strings in `knownValidationErrors`
-  // above are currently unreachable, and an unmapped code shows no error styling at all. Left as-is
-  // rather than changed here: displaying them needs a new NumericInput prop, and deleting them
-  // would drop three keys from the public translation catalog.
-  const errorText = error && knownValidationErrors[error.code];
+  const errorText = error && (knownValidationErrors[error.code] ?? error.message);
   const voteLimitSwitchId = 'max_votes_allowed_enabled';
   const voteLimitSwitchLabelId = `${voteLimitSwitchId}-label`;
 
@@ -116,6 +110,8 @@ export const MultipleAnswersField = () => {
                   const nativeFieldValidation =
                     raw !== '' && !/^\d+$/.test(raw)
                       ? {
+                          // Injected field errors take the same shape core produces, so the render
+                          // path is identical whether the error came from here or from the composer.
                           max_votes_allowed: pollComposerValidationError(
                             POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric,
                           ),

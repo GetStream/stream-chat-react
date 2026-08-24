@@ -127,6 +127,12 @@ describe('<MessageTimestamp />', () => {
     expect(container.children).toHaveLength(0);
   });
 
+  // These two assert the *unformatted* fallback, which is the only place the shared i18n layer's
+  // timezone handling is visible. The web SDK used to call `.tz()` on every parse even with no
+  // timezone configured, which marks the dayjs instance as zoned and renders `…Z`; the shared
+  // implementation applies `.tz()` only when a timezone is actually set, so plain dayjs formatting
+  // (`…+00:00`) comes through. Every key the SDK ships specifies a format, so this is not reachable
+  // outside a key that deliberately disables formatting.
   it('should render with no format if provided i18n config disables formatting', async () => {
     const { container } = await renderComponent({
       chatProps: {
@@ -138,7 +144,7 @@ describe('<MessageTimestamp />', () => {
         }),
       },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
   });
 
   it('should render with custom format provided via i18n service', async () => {
@@ -193,7 +199,7 @@ describe('<MessageTimestamp />', () => {
       },
       props: { calendarFormats },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
   });
 
   it('should reflect the custom calendarFormats if calendar is enabled', async () => {
