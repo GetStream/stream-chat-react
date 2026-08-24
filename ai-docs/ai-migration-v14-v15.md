@@ -235,6 +235,13 @@ These hooks are unchanged and still work outside their provider — no action ne
 - The gallery header renders the gallery item's own timestamp and no longer honors the
   `ComponentContext.MessageTimestamp` override.
 
+## Configuration: components read the resolved config, not raw server flags
+
+The client combines each server flag with whatever the integrator registers through `client.config`, and
+that combined value is what it enforces. Components used to read only the server's half, so a UI could
+offer an action the client had already disabled. The sections below are the consequences of closing that
+gap; they are all one change.
+
 ### Attachment/poll availability now reads the composer's resolved config, not raw server flags
 
 `AttachmentSelector` used to decide which actions to offer by reading the channel type's raw server flags
@@ -340,3 +347,119 @@ Fields of `ChannelConfigWithInfo` that have no client-side counterpart are no lo
 The hook takes an optional `channel` now, for callers outside a channel subtree. It resolves from context otherwise, and deliberately does **not** throw when there is none — `Channel` calls it while establishing that very context.
 
 **Everything the React SDK reads now goes through the resolved configuration.** `serverConfig` has no callers left in `src/`.
+
+## Channel state moves to a single reactive store
+
+The client replaced the per-domain stores on `channel.state` with one
+`StateStore<ChannelStateData>`, subscribed to exactly like `thread.state`. Consumers previously had to
+know which of ~6 sub-stores held a given field; there is now one store and one selector.
+
+### The `*Store` handles are removed
+
+`readStore`, `typingStore`, `membersStore`, `watcherStore`, `ownCapabilitiesStore` and `mutedUsersStore`
+are gone from `ChannelState`. Subscribe to `channel.state` itself:
+
+```ts
+// v14
+useStateStore(channel.state.ownCapabilitiesStore, ownCapabilitiesSelector);
+
+// v15
+useStateStore(channel.state, ownCapabilitiesSelector);
+```
+
+**The selector does not change.** `ChannelStateData` is flat and keeps the same top-level keys the old
+per-store shapes used, so an existing `(s: OwnCapabilitiesState) => O` stays contravariantly assignable
+to `(s: ChannelStateData) => O`. In practice the migration is: delete the `.<X>Store` segment.
+
+The state gained the channel-level slices UI SDKs used to re-derive by hand — `data`, `membership`,
+`muteStatus`, `initialized` / `offlineMode` / `pendingDisposal`, `active`, `aiState`, `watchStatus`,
+`memberCount`. `messagePaginator`, `pinnedMessagesPaginator`, `messageComposer` and `configState` stay
+separate.
+
+Two type renames come with it:
+
+| v14                    | v15                                                                    |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)    |
+| `channel.disconnected` | `channel.pendingDisposal` (**removed outright — no deprecated alias**) |
+
+`pendingDisposal` is one-way and terminal: the paginators are disposed, subscriptions unregistered, and
+the client drops the channel from `activeChannels`, so the instance is never revived. `getClient()`
+throws on such a channel — a reference held across a `disconnectUser()` now fails loudly rather than
+quietly requesting on a client with no user.
+
+### Reading channel state without re-rendering
+
+The convenience getters (`channel.state.members` / `.read` / `.typing` / `.watchers`) are **not
+reactive** — they return a one-shot snapshot. Use `useStateStore(channel.state, selector)` for anything
+that must re-render. Two rules that bite:
+
+- **Selectors must be module-scope**, because `useStateStore` keys its subscription on
+  `[store, selector]`; an inline `(s) => ({ … })` re-subscribes every render.
+- **Selectors must return direct slice references**, not freshly-computed values. `(s) => ({ read: s.read })`
+  is fine; `(s) => ({ members: Object.values(s.members) })` returns a new array every call and re-renders
+  forever. Derive in the component, after the selector.
+
+Drive unread badges off `read`, not `unreadCount`: the latter is a non-reactive getter derived from
+`read[ownUserId].unread_messages`, so there is nothing separate to select.
+
+### `AIStates` moves to `stream-chat`
+
+`stream-chat-react` no longer exports it.
+
+```ts
+// v14
+import { AIStates } from 'stream-chat-react';
+
+// v15
+import { AIStates } from 'stream-chat';
+```
+
+The values are unchanged, but it is now a literal-typed `as const`, so an inferred array of its members
+no longer accepts the wide `AIState` that `useAIState` returns. Widen the array:
+
+```ts
+const STOPPABLE: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
+STOPPABLE.includes(aiState);
+```
+
+`useAIState`'s public shape (`{ aiState }`) is unchanged, but it now reads the reactive slice instead of
+holding its own `ai_indicator.*` subscriptions — so it also honors `ai_indicator.stop` and the
+connection-loss reset, which the event-based version had no way to do. `useIsChannelMuted` likewise
+reads `muteStatus` instead of subscribing to `notification.channel_mutes_updated`.
+
+### `<Channel>` declares the channel active, and owns its message window
+
+`<Channel>` now calls `channel.activate()` on mount and `channel.deactivate()` on unmount (refcounted,
+so several consumers can hold one instance), and calls `channel.reload()` on `connection.recovered`.
+
+These two go together and **a custom channel surface must do both**. While a channel is active, the
+client deliberately skips re-seeding its message list on channel-list hydration and on reconnect — its
+smaller page would perturb a larger scrolled-back window — and hands that window to the consumer.
+Nothing in the client calls `reload()` for you:
+
+```ts
+useEffect(() => {
+  channel.activate();
+  return () => channel.deactivate();
+}, [channel]);
+
+client.on('connection.recovered', () => {
+  if (!channel.pendingDisposal) channel.reload().catch(handleError);
+});
+```
+
+Skip the reload and the failure is quiet: the list keeps whatever it held while offline, and hard
+deletes that happened meanwhile are never reconciled — they reach other clients via no event, so only a
+re-query surfaces them. Guard on `pendingDisposal` because `reload()` goes through `getClient()`.
+
+### Test mocks
+
+`channel.state` **is** a `StateStore` now, so a plain-object mock crashes the `useStateStore` hooks with
+`getLatestValue is not a function`. Build a real store (the SDK ships
+`mock-builders/generator/channelState.ts` for its own suite). Also:
+
+| v14 mock                          | v15                                              |
+| --------------------------------- | ------------------------------------------------ |
+| `vi.spyOn(channel, 'muteStatus')` | seed `channel.state.partialNext({ muteStatus })` |
+| `channel.disconnected = true`     | `channel.pendingDisposal = true`                 |
