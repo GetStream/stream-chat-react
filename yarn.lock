@@ -3752,13 +3752,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dayjs@npm:^1.11.13":
-  version: 1.11.23
-  resolution: "dayjs@npm:1.11.23"
-  checksum: 10c0/69ab04bf19c676e44ab50cc2fca223d265f3dafd107151ef3b0f3ad74d360c37caa602abe62f87cb25d90bd9f6bee003698af47df5b0dbf10a998b7b5f3bb3f1
-  languageName: node
-  linkType: hard
-
 "dayjs@npm:^1.11.13, dayjs@npm:^1.11.20":
   version: 1.11.23
   resolution: "dayjs@npm:1.11.23"
@@ -9541,7 +9534,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: 10.0.0-rc.6
+    stream-chat: 10.0.0-rc.7
   dependenciesMeta:
     "@parcel/watcher":
       built: true
