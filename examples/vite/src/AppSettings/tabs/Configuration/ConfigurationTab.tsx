@@ -7,7 +7,8 @@ import {
   SettingsTabLayoutHeader,
 } from '../SettingsTabLayoutComponents.tsx';
 import { SearchableSelect } from '../../SearchableSelect';
-import { INSTANCE_CONFIG_TREE_KEYS } from 'stream-chat';
+import { BUILT_IN_INSTANCE_KEYS, INSTANCE_CONFIG_TREE_KEYS } from 'stream-chat';
+import type { InstanceSetupKey } from 'stream-chat';
 import {
   type ConfigTreePatch,
   diffAgainstCurrent,
@@ -50,6 +51,17 @@ const paginatorsSelector = (state: ChannelManagerState) => ({
 });
 
 const threadsSelector = (state: ThreadManagerState) => ({ threads: state.threads });
+
+/**
+ * `client.config` keys its methods on the real key unions, so a segment parsed out of a dotted path
+ * has to be narrowed before it can be passed in. Both sets are exported by the client, so these stay
+ * correct as keys are added.
+ */
+const isTreeKey = (key: string): key is TreeKey =>
+  (INSTANCE_CONFIG_TREE_KEYS as readonly string[]).includes(key);
+
+const isSetupKey = (key: string): key is InstanceSetupKey =>
+  (BUILT_IN_INSTANCE_KEYS as readonly string[]).includes(key);
 
 export const ConfigurationTab = ({ close }: ConfigurationTabProps) => {
   const { channelManager, client } = useChatContext();
@@ -225,11 +237,13 @@ export const ConfigurationTab = ({ close }: ConfigurationTabProps) => {
   const unregister = useCallback(
     (paths: readonly string[]) => {
       const registeredNow = client.config.getTree() as Plain;
-      const byKey = new Map<string, string[]>();
+      const byKey = new Map<TreeKey, string[]>();
 
       for (const path of paths) {
         const [key, ...rest] = path.split('.');
-        if (!rest.length) continue;
+        // A first segment that is not a configuration key cannot have registered anything, so there
+        // is nothing to take away — skip rather than hand the registry a key it does not accept.
+        if (!rest.length || !isTreeKey(key)) continue;
         byKey.set(key, [...(byKey.get(key) ?? []), rest.join('.')]);
       }
 
@@ -246,13 +260,18 @@ export const ConfigurationTab = ({ close }: ConfigurationTabProps) => {
         if (!held.length) continue;
 
         const survivors = omitPaths(subtree, held);
-        const setupFunction = client.config.getSetupFunction(key);
+        // Setup functions exist only for the built-in instances, a subset of the config tree keys —
+        // `reset` clears one, so preserve it across the reset when this key can have one at all.
+        const setupKey = isSetupKey(key) ? key : undefined;
+        const setupFunction = setupKey ? client.config.getSetupFunction(setupKey) : null;
 
         client.config.reset(key);
         if (Object.keys(survivors).length) {
           client.config.setConfig(key, survivors as never);
         }
-        if (setupFunction) client.config.setSetupFunction(key, setupFunction);
+        if (setupKey && setupFunction) {
+          client.config.setSetupFunction(setupKey, setupFunction);
+        }
 
         unregistered.push(...held.map((path) => `${key}.${path}`));
       }
