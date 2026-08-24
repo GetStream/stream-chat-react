@@ -24,6 +24,7 @@ export default defineConfig({
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
       },
     },
+    // `yarn build` already wipes dist up front via `yarn clean`
     emptyOutDir: false,
     outDir: 'dist',
     minify: false,
@@ -43,6 +44,11 @@ export default defineConfig({
           chunkFileNames: `${dir}/[name].[hash].${extension}`,
           entryFileNames: `${dir}/[name].${extension}`,
           hashCharacters: 'hex',
+          // Emit the ESM build as one file per source module. Consumer bundlers
+          // drop whole modules (guided by our package.json `sideEffects`) before
+          // they attempt statement-level elimination. The CJS build stays chunked,
+          // as CJS is not tree-shaken by consumers either way.
+          preserveModules: format === 'es',
         };
       }),
     },
