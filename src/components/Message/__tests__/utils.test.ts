@@ -2,12 +2,7 @@ import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import type { StreamTFunction } from '../../../i18n/types';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-import type {
-  ChannelConfigWithInfo,
-  LocalMessage,
-  MessageResponse,
-  Mute,
-} from 'stream-chat';
+import type { LocalMessage, MessageResponse, UserMuteResponse } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import {
   countReactions,
@@ -62,7 +57,7 @@ describe('Message utils', () => {
   describe('isUserMuted function', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
-        fromPartial<Mute>({
+        fromPartial<UserMuteResponse>({
           created_at: new Date('2019-03-30T13:24:10').toISOString(),
           target: bob,
           user: alice,
@@ -80,7 +75,7 @@ describe('Message utils', () => {
 
     it('should return true if user was muted', () => {
       const mutes = [
-        fromPartial<Mute>({
+        fromPartial<UserMuteResponse>({
           created_at: new Date('2019-03-30T13:24:10').toISOString(),
           target: bob,
           user: alice,
@@ -126,24 +121,24 @@ describe('Message utils', () => {
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['remindMe'], defaultCapabilities, {
-        user_message_reminders: true,
-      } as ChannelConfigWithInfo);
+      const result = getMessageActions(['remindMe'], defaultCapabilities, true);
       expect(result).toStrictEqual(['remindMe']);
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['saveForLater'], defaultCapabilities, {
-        user_message_reminders: true,
-      } as ChannelConfigWithInfo);
+      const result = getMessageActions(['saveForLater'], defaultCapabilities, true);
       expect(result).toStrictEqual(['saveForLater']);
     });
 
     it('should include reminder actions if enabled in channel config', () => {
-      const result = getMessageActions(true, defaultCapabilities, {
-        user_message_reminders: true,
-      } as ChannelConfigWithInfo);
+      const result = getMessageActions(true, defaultCapabilities, true);
       expect(result).toEqual(actions);
+    });
+
+    it('should exclude reminder actions if disabled in channel config', () => {
+      const result = getMessageActions(true, defaultCapabilities, false);
+      expect(result).not.toContain(MESSAGE_ACTIONS.remindMe);
+      expect(result).not.toContain(MESSAGE_ACTIONS.saveForLater);
     });
 
     it.each([

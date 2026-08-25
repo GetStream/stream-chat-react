@@ -1,7 +1,8 @@
 import React from 'react';
-import type { Channel } from 'stream-chat';
+import { AIStates } from 'stream-chat';
+import type { AIState, Channel } from 'stream-chat';
 
-import { AIStates, useAIState } from './hooks/useAIState';
+import { useAIState } from './hooks/useAIState';
 
 import { useChannel, useTranslationContext } from '../../context';
 
@@ -16,7 +17,7 @@ export const AIStateIndicator = ({
   const channelFromContext = useChannel();
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
-  const allowedStates = {
+  const allowedStates: Partial<Record<AIState, string>> = {
     [AIStates.Thinking]: t('aiState.indicator.thinking.label', 'Thinking...'),
     [AIStates.Generating]: t('aiState.indicator.generating.label', 'Generating...'),
   };

@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import type { SortParamRequest } from 'stream-chat';
 
 import type { ReactionSummary, ReactionType } from './types';
 
@@ -12,7 +13,6 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-import type { SortParamRequest } from 'stream-chat';
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
 import { IconEmojiAdd } from '../Icons';

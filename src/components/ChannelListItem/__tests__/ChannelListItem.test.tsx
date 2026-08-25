@@ -160,12 +160,6 @@ describe('ChannelPreview', () => {
       .mockImplementation(() => 0)
       .mockImplementationOnce(() => originalUnreadCount)
       .mockImplementationOnce(() => newUnreadCount);
-    vi.spyOn(c0, 'muteStatus').mockReturnValue({
-      createdAt: new Date(),
-      expiresAt: new Date(),
-      muted: false,
-    });
-
     const { getByTestId, rerender } = renderComponent(
       {
         activeChannel: c1,
@@ -330,9 +324,13 @@ describe('ChannelPreview', () => {
       });
 
       it('should set unreadCount to 0, in case of muted channel', async () => {
-        const channelMuteSpy = vi
-          .spyOn(c0, 'muteStatus')
-          .mockReturnValue({ createdAt: new Date(), expiresAt: new Date(), muted: true });
+        // The mute status is read off the channel's reactive `muteStatus` slice (the client keeps
+        // it in sync with its own `mutedChannels`), not the imperative `channel.muteStatus()`.
+        act(() =>
+          c0.state.partialNext({
+            muteStatus: { createdAt: new Date(), expiresAt: new Date(), muted: true },
+          }),
+        );
 
         const { getByTestId } = renderComponent(
           {
@@ -341,10 +339,6 @@ describe('ChannelPreview', () => {
           },
           render,
         );
-
-        await waitFor(() => {
-          expect(channelMuteSpy).toHaveBeenCalledWith();
-        });
 
         await expectUnreadCountToBe(getByTestId, 0);
 

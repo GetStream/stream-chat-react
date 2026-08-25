@@ -412,7 +412,7 @@ const App = () => {
   useEffect(() => {
     if (!chatClient) return;
 
-    chatClient.setMessageComposerSetupFunction(({ composer }) => {
+    chatClient.config.setSetupFunction('messageComposer', ({ composer }) => {
       // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
       composer.compositionMiddlewareExecutor.insert({
         middleware: [createCommandInjectionMiddleware(composer)],

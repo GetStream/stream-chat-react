@@ -51,8 +51,12 @@ import {
   CommandsMenuClassName,
   CommandsSubmenuHeader,
 } from './CommandsMenu';
-import { useChannelConfig } from '../../Channel/hooks/useChannelConfig';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
+import type { ChannelConfig } from 'stream-chat';
+
+const availableCommandsStateSelector = ({ availableCommands }: ChannelConfig) => ({
+  availableCommands,
+});
 
 const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
 
@@ -283,37 +287,35 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
     PollCreationDialog = DefaultPollCreationDialog,
     ShareLocationDialog = DefaultLocationDialog,
   } = useComponentContext();
-  const { isUploadEnabled } = useAttachmentManagerState();
+  const { isUploadEnabled, locationEnabled, pollsEnabled } = useAttachmentManagerState();
   const messageComposer = useMessageComposerController();
   const channelCapabilities = useChannelCapabilities({
     cid: messageComposer.channel.cid,
   });
-  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
+  const { availableCommands } = useStateStore(
+    messageComposer.channel.configState,
+    availableCommandsStateSelector,
+  );
 
   return useMemo(
     () =>
       original
         .filter((action) => {
-          if (action.type === 'uploadFile')
-            return (
-              channelCapabilities.has('upload-file') &&
-              channelConfig?.uploads &&
-              isUploadEnabled
-            );
+          if (action.type === 'uploadFile') return isUploadEnabled;
 
           if (action.type === 'createPoll')
             return (
               channelCapabilities.has('send-poll') &&
               !messageComposer.threadId &&
-              channelConfig?.polls
+              pollsEnabled
             );
 
           if (action.type === 'addLocation') {
-            return channelConfig?.shared_locations && !messageComposer.threadId;
+            return locationEnabled && !messageComposer.threadId;
           }
 
           if (action.type === 'selectCommand') {
-            return !!channelConfig?.commands?.some((command) => !!command.name);
+            return !!availableCommands.some((command) => !!command.name);
           }
 
           return true;
@@ -331,10 +333,12 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
       PollCreationDialog,
       ShareLocationDialog,
       channelCapabilities,
-      channelConfig,
+      availableCommands,
       isUploadEnabled,
+      locationEnabled,
       messageComposer.threadId,
       original,
+      pollsEnabled,
     ],
   );
 };

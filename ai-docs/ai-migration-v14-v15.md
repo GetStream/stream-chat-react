@@ -43,13 +43,13 @@ The single largest v15 change: the React SDK no longer owns channel message stat
 - `loadMore` / `loadMoreNewer` → `channel.messagePaginator.prev()` / `.next()` (and `.toHead()` / `.toTail()`)
 - `jumpToMessage` → `channel.messagePaginator.jumpToMessage(id)`
 
-These `*WithLocalUpdate` methods delegate to `channel.messageOperations`, which honours per-request overrides registered through the `Channel` props (see below).
+These `*WithLocalUpdate` methods delegate to `channel.messageOperations`, which honours request handlers registered through `client.config` (see below).
 
 ### `MessageComposer` `overrideSubmitHandler` prop → removed
 
 `MessageComposer` (formerly `MessageInput`) now owns the submission flow (`messageComposer.compose()` → `channel.sendMessageWithLocalUpdate()`), so the `overrideSubmitHandler` prop is gone. To customise sending:
 
-- **Intercept the outgoing request** → pass `Channel`'s `doSendMessageRequest` (also `doUpdateMessageRequest` / `doDeleteMessageRequest` / `doMarkReadRequest`). These are wired into `channel.messageOperations` and used instead of the default request.
+- **Intercept the outgoing request** → register a `sendMessageRequest` handler on `client.config` (also `updateMessageRequest` / `deleteMessageRequest` / `markReadRequest`). `channel.messageOperations` uses it instead of the default request. The `do*Request` props that did this in v14 are removed — see "Per-component request-handler props removed" below.
 - **Transform the composed message** → register composition middleware on `messageComposer`.
 
 ### `ChatContext.setActiveChannel` → removed
@@ -234,3 +234,271 @@ These hooks are unchanged and still work outside their provider — no action ne
 - `MessageComposerContext` is typed `MessageComposerContextValue | undefined`.
 - The gallery header renders the gallery item's own timestamp and no longer honors the
   `ComponentContext.MessageTimestamp` override.
+
+## Configuration: components read the resolved config, not raw server flags
+
+The client combines each server flag with whatever the integrator registers through `client.config`, and
+that combined value is what it enforces. Components used to read only the server's half, so a UI could
+offer an action the client had already disabled. The sections below are the consequences of closing that
+gap; they are all one change.
+
+### Attachment/poll availability now reads the composer's resolved config, not raw server flags
+
+`AttachmentSelector` used to decide which actions to offer by reading the channel type's raw server flags
+off `ChannelStateContext` (`channelConfig?.uploads` / `.polls` / `.shared_locations`). It now reads the composer's **resolved**
+configuration, which is those server flags already reconciled with whatever the integrator registered
+through `client.config`. No React API changed — no prop, override key, or hook signature — but two
+behaviours differ.
+
+- **Declarative configuration now reaches the UI.** `client.config.set({ messageComposer: { attachments: { enabled: false } } })` (and the same for `polls` / `location`) hides the corresponding action. Previously only the server flag was consulted, so the menu offered actions the composer would refuse to compose. Either side can switch a feature off; neither can widen — see the LLC's `docs/instance-configuration.md`.
+- **A custom `doUploadRequest` no longer implies a custom upload destination.** If yours uploads to storage Stream does not host, you must now declare it, or the File action disappears for users without the `upload-file` capability:
+
+  ```ts
+  client.config.set({
+    messageComposer: { attachments: { customCdn: true } },
+  });
+  ```
+
+  If your custom upload function still posts to Stream (a wrapper adding retries or headers, a proxy
+  through your own backend), leave `customCdn` alone — Stream's capability correctly applies again.
+
+`useAttachmentManagerState` additionally subscribes to the composer's configuration, so `isUploadEnabled`
+and its siblings now re-render when that configuration changes. Purely additive; consumers need no change.
+
+> Note: `isUploadEnabled` still does **not** re-render on an `own_capabilities` change. That predates v15
+> and is unchanged here. Components that need it subscribe via `useChannelCapabilities`.
+
+### `channel.getConfig()` → `channel.serverConfig`; `channel.config` is new
+
+The LLC renamed the channel's server-configuration accessor to a getter that says what it returns, which freed `config` to mean on `Channel` what it means on every other configurable class:
+
+| Read this                                                  | For                                                                              |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| `channel.serverConfig`                                     | The channel **type's** server flags (`replies`, `commands`, `url_enrichment`, …) |
+| `useStateStore(channel.configState, …)` / `channel.config` | The **resolved** configuration — server flags ANDed with what you registered     |
+
+`channel.getConfig()` is **removed** — `channel.serverConfig` is a getter returning the same value, so migrating is dropping the parentheses. **If you mock it in tests, note it is a getter** — `vi.fn()` cannot stand in for one; use `Object.defineProperty(channel, 'serverConfig', { get: … })` or a plain value.
+
+The React SDK's own `useMarkRead` switched from `channel.getConfig()?.read_events` to the resolved `readEvents.enabled` via `useStateStore`, so it now honours `client.config.set({ channel: { readEvents: { enabled: false } } })` **and** re-runs when that changes — a plain method call could not, being outside React's dependency graph.
+
+### `useAttachmentManagerState`: `hasCustomDoUploadRequest` → `customCdn`, plus the location and poll gates
+
+`hasCustomDoUploadRequest` is **removed**. It answered "is a custom upload function installed?", which was only ever consulted as a proxy for "do uploads bypass Stream's rules?" — and the LLC now shows those are different questions: an upload function that still posts to Stream stays subject to them. Read `customCdn` instead, which is the flag that actually decides.
+
+```ts
+// v14
+const { hasCustomDoUploadRequest } = useAttachmentManagerState();
+
+// v15
+const { customCdn } = useAttachmentManagerState();
+```
+
+The hook also now returns `attachmentsEnabled`, `locationEnabled`, `pollsEnabled` and `maxNumberOfFilesPerMessage`. The three gates are the composer's **resolved** answers, each already ANDed with the matching channel-type flag (`uploads`, `shared_locations`, `polls`) — so a menu can ask one hook instead of combining `channel.serverConfig` with client configuration itself. `location` and `polls` have no getter on the attachment manager; they exist only on the resolved configuration, which is why they are selected rather than read off the instance.
+
+### Per-component request-handler props removed — register them on `client.config`
+
+`doSendMessageRequest`, `doUpdateMessageRequest`, `doDeleteMessageRequest` and `doMarkReadRequest` are **removed** from both `<Channel>` and `<Thread>`. Register the handlers declaratively instead:
+
+```tsx
+// v14
+<Channel channel={channel} doSendMessageRequest={mySend}>
+  …
+</Channel>;
+
+// v15
+client.config.set({
+  channel: {
+    requestHandlers: {
+      sendMessageRequest: async ({ localMessage, message, options }) => ({
+        message: await mySend(message, options),
+      }),
+    },
+  },
+});
+<Channel channel={channel}>…</Channel>;
+```
+
+Three things change with it:
+
+- **The handler signature is the LLC's, not the prop's.** Handlers take a single params object (`{ localMessage, message, options }`) and must return `{ message }`. The props took positional arguments and tolerated a `void` return, because an adapter inside the SDK filled in the rest.
+- **`thread` variants are gone as a separate shape.** Thread flows register under the `thread` key (`client.config.set({ thread: { requestHandlers: … } })`); the LLC resolves per instance.
+- **Registration is global to the client**, not scoped to a mounted subtree. If you were passing different handlers to different `<Channel>` instances, branch inside one handler on the `channel`/`cid` you receive.
+
+`useChannelEditMessageHandler` is removed with them. It existed to apply `doUpdateMessageRequest` to the edit path and fell back to `client.updateMessage` when no handler was passed — with the prop gone it wrapped nothing. Register an `updateMessageRequest` handler as above; `channel.updateMessageWithLocalUpdate` already routes through it.
+
+**Why.** The props and declarative registration wrote to the same slot, so the SDK carried a coordinator that tracked which mounted component owned each handler, restored the previous claimant on unmount, and re-applied everything whenever the LLC re-derived its configuration. All of that existed only to reconcile two ways of doing one thing. Removing the props deletes it — the SDK no longer arbitrates ownership, because there is only one owner.
+
+### Channel configuration: `ChannelStateContext.channelConfig` → `channel.configState`
+
+In v14 a component read the channel's configuration from `ChannelStateContext` as
+`ChannelConfigWithInfo` — the channel type's raw server flags, copied into React state by `Channel`.
+That context is gone, and so is the copy: configuration now lives on the channel as a reactive store.
+
+```ts
+// v14
+const { channelConfig } = useChannelStateContext();
+if (channelConfig?.typing_events) {
+  /* … */
+}
+
+// v15
+const configStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
+
+const channel = useChannel();
+const { typingEventsEnabled } = useStateStore(channel.configState, configStateSelector);
+```
+
+Two things change at once.
+
+**The value is now _resolved_, not raw.** Every gate is the server flag ANDed with whatever the
+integrator registered through `client.config`, so it is the whole answer to "may this channel do X".
+Reading the raw flag is what let a UI offer features the client had already disabled. Field names
+change with the shape:
+
+| v14 (raw server flag)                   | v15 (resolved)                 |
+| --------------------------------------- | ------------------------------ |
+| `channelConfig?.typing_events`          | `typingEvents.enabled`         |
+| `channelConfig?.read_events`            | `readEvents.enabled`           |
+| `channelConfig?.replies`                | `replies.enabled`              |
+| `channelConfig?.user_message_reminders` | `userMessageReminders.enabled` |
+| `channelConfig?.commands`               | `availableCommands`            |
+
+`availableCommands` is the server's list, unchanged in shape — it is a list, not a gate, so there is
+nothing to reconcile. It is renamed for two reasons: whether a command is _usable_ right now is
+`messageComposer.isCommandDisabled(command)` and depends on the message context, so "enabled" would be
+wrong; and `messageComposer.config.commands` is an unrelated field holding `{ sendValidator }`.
+
+**You subscribe rather than read.** Select only the settings you use: the controller keeps the
+reference of every subtree a write does not touch, so a narrow selector means an unrelated
+configuration change does not re-render you. The selector must live at module scope, since
+`useStateStore` keys its subscription on it.
+
+`channel.config` holds the same resolved value as a plain getter. It does **not** subscribe, so a
+`client.config.set()` will not reach the screen — use it only where you are already re-rendering for
+another reason.
+
+Fields of `ChannelConfigWithInfo` that have no client-side counterpart are not on the resolved
+configuration. Read them from `channel.serverConfig`, and be aware of what that means: you are getting
+the server's half only, which is correct for a purely server-owned setting and wrong for anything the
+integrator can also configure.
+
+**Everything the React SDK reads now goes through the resolved configuration.** `serverConfig` has no
+callers left in `src/`.
+
+## Channel state moves to a single reactive store
+
+The client replaced the per-domain stores on `channel.state` with one
+`StateStore<ChannelStateData>`, subscribed to exactly like `thread.state`. Consumers previously had to
+know which of ~6 sub-stores held a given field; there is now one store and one selector.
+
+### The `*Store` handles are removed
+
+`readStore`, `typingStore`, `membersStore`, `watcherStore`, `ownCapabilitiesStore` and `mutedUsersStore`
+are gone from `ChannelState`. Subscribe to `channel.state` itself:
+
+```ts
+// v14
+useStateStore(channel.state.ownCapabilitiesStore, ownCapabilitiesSelector);
+
+// v15
+useStateStore(channel.state, ownCapabilitiesSelector);
+```
+
+**The selector does not change.** `ChannelStateData` is flat and keeps the same top-level keys the old
+per-store shapes used, so an existing `(s: OwnCapabilitiesState) => O` stays contravariantly assignable
+to `(s: ChannelStateData) => O`. In practice the migration is: delete the `.<X>Store` segment.
+
+The state gained the channel-level slices UI SDKs used to re-derive by hand — `data`, `membership`,
+`muteStatus`, `initialized` / `offlineMode` / `pendingDisposal`, `active`, `aiState`, `watchStatus`,
+`memberCount`. `messagePaginator`, `pinnedMessagesPaginator`, `messageComposer` and `configState` stay
+separate.
+
+Two type renames come with it:
+
+| v14                    | v15                                                                    |
+| ---------------------- | ---------------------------------------------------------------------- |
+| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)    |
+| `channel.disconnected` | `channel.pendingDisposal` (**removed outright — no deprecated alias**) |
+
+`pendingDisposal` is one-way and terminal: the paginators are disposed, subscriptions unregistered, and
+the client drops the channel from `activeChannels`, so the instance is never revived. `getClient()`
+throws on such a channel — a reference held across a `disconnectUser()` now fails loudly rather than
+quietly requesting on a client with no user.
+
+### Reading channel state without re-rendering
+
+The convenience getters (`channel.state.members` / `.read` / `.typing` / `.watchers`) are **not
+reactive** — they return a one-shot snapshot. Use `useStateStore(channel.state, selector)` for anything
+that must re-render. Two rules that bite:
+
+- **Selectors must be module-scope**, because `useStateStore` keys its subscription on
+  `[store, selector]`; an inline `(s) => ({ … })` re-subscribes every render.
+- **Selectors must return direct slice references**, not freshly-computed values. `(s) => ({ read: s.read })`
+  is fine; `(s) => ({ members: Object.values(s.members) })` returns a new array every call and re-renders
+  forever. Derive in the component, after the selector.
+
+Drive unread badges off `read`, not `unreadCount`: the latter is a non-reactive getter derived from
+`read[ownUserId].unread_messages`, so there is nothing separate to select.
+
+### `AIStates` moves to `stream-chat`
+
+`stream-chat-react` no longer exports it.
+
+```ts
+// v14
+import { AIStates } from 'stream-chat-react';
+
+// v15
+import { AIStates } from 'stream-chat';
+```
+
+The values are unchanged, but it is now a literal-typed `as const`, so an inferred array of its members
+no longer accepts the wide `AIState` that `useAIState` returns. Widen the array:
+
+```ts
+const STOPPABLE: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
+STOPPABLE.includes(aiState);
+```
+
+`useAIState`'s public shape (`{ aiState }`) is unchanged, but it now reads the reactive slice instead of
+holding its own `ai_indicator.*` subscriptions — so it also honors `ai_indicator.stop` and the
+connection-loss reset, which the event-based version had no way to do. `useIsChannelMuted` likewise
+reads `muteStatus` instead of subscribing to `notification.channel_mutes_updated`.
+
+### `<Channel>` declares the channel active, and owns its message window
+
+`<Channel>` now calls `channel.activate()` on mount and `channel.deactivate()` on unmount (refcounted,
+so several consumers can hold one instance), and calls `channel.reload()` on `connection.recovered`.
+
+These two go together and **a custom channel surface must do both**. While a channel is active, the
+client deliberately skips re-seeding its message list on channel-list hydration and on reconnect — its
+smaller page would perturb a larger scrolled-back window — and hands that window to the consumer.
+Nothing in the client calls `reload()` for you:
+
+```ts
+useEffect(() => {
+  channel.activate();
+  return () => channel.deactivate();
+}, [channel]);
+
+client.on('connection.recovered', () => {
+  if (!channel.pendingDisposal) channel.reload().catch(handleError);
+});
+```
+
+Skip the reload and the failure is quiet: the list keeps whatever it held while offline, and hard
+deletes that happened meanwhile are never reconciled — they reach other clients via no event, so only a
+re-query surfaces them. Guard on `pendingDisposal` because `reload()` goes through `getClient()`.
+
+### Test mocks
+
+`channel.state` **is** a `StateStore` now, so a plain-object mock crashes the `useStateStore` hooks with
+`getLatestValue is not a function`. Build a real store (the SDK ships
+`mock-builders/generator/channelState.ts` for its own suite). Also:
+
+| v14 mock                          | v15                                              |
+| --------------------------------- | ------------------------------------------------ |
+| `vi.spyOn(channel, 'muteStatus')` | seed `channel.state.partialNext({ muteStatus })` |
+| `channel.disconnected = true`     | `channel.pendingDisposal = true`                 |

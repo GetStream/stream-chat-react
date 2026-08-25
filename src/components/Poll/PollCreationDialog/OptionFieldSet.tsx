@@ -1,12 +1,15 @@
-import { POLL_COMPOSER_VALIDATION_CODE } from 'stream-chat';
-import type { PollComposerValidationCode } from 'stream-chat';
 import clsx from 'clsx';
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { TextInput } from '../../Form/TextInput';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import type { PollComposerOption, PollComposerState } from 'stream-chat';
+import { POLL_COMPOSER_VALIDATION_CODE } from 'stream-chat';
+import type {
+  PollComposerOption,
+  PollComposerState,
+  PollComposerValidationCode,
+} from 'stream-chat';
 import { IconMinusCircle } from '../../Icons';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';

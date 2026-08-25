@@ -4,18 +4,9 @@ import clsx from 'clsx';
 import type {
   ChannelGetOrCreateRequest,
   ChannelMemberResponse,
-  DeleteMessageOptions,
   Event,
-  LocalMessage,
-  MarkReadRequest,
-  MessageRequest,
-  MessageResponse,
-  SendMessageOptions,
   Channel as StreamChannel,
-  StreamChat,
-  UpdateMessageOptions,
 } from 'stream-chat';
-import { useChannelConfig } from './hooks/useChannelConfig';
 
 import { LoadingChannel as DefaultLoadingIndicator } from '../Loading';
 
@@ -36,15 +27,24 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { useChannelRequestHandlers } from './hooks/useChannelRequestHandlers';
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
+import type { ChannelConfig } from 'stream-chat';
+import { useStateStore } from '../../store';
+
+// Selects the flag, not the `readEvents` subtree: comparing a boolean means this only
+// re-renders when the setting actually flips.
+const readEventsStateSelector = ({ readEvents }: ChannelConfig) => ({
+  readEventsEnabled: readEvents.enabled,
+});
 
 export type ChannelProps = {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
+  // todo: remove from props
   activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
+  // todo: move WithAudioPlayback outside the Channel component
   allowConcurrentAudioPlayback?: boolean;
   /** The connected and active channel */
   channel?: StreamChannel;
@@ -54,30 +54,10 @@ export type ChannelProps = {
    * If the channel instance has already been initialized (channel has been queried),
    * then the channel query will be skipped and channelQueryOptions will not be applied.
    */
+  // todo: remove from props
   channelQueryOptions?: ChannelGetOrCreateRequest;
-  /** Custom action handler to override the default `client.deleteMessage(message.id)` function */
-  doDeleteMessageRequest?: (
-    message: LocalMessage,
-    options?: DeleteMessageOptions,
-  ) => Promise<MessageResponse>;
-  /** Custom action handler to override the default `channel.markRead` request function (advanced usage only) */
-  doMarkReadRequest?: (
-    channel: StreamChannel,
-    options?: MarkReadRequest,
-  ) => ReturnType<StreamChannel['markRead']> | void;
-  /** Custom action handler to override the default `channel.sendMessage` request function (advanced usage only) */
-  doSendMessageRequest?: (
-    channel: StreamChannel,
-    message: MessageRequest,
-    options?: SendMessageOptions,
-  ) => ReturnType<StreamChannel['sendMessage']> | void;
-  /** Custom action handler to override the default `client.updateMessage` request function (advanced usage only) */
-  doUpdateMessageRequest?: (
-    cid: string,
-    updatedMessage: LocalMessage | MessageResponse,
-    options?: UpdateMessageOptions,
-  ) => ReturnType<StreamChat['updateMessage']>;
   /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
+  // todo: Channel should not be showing "no channel" content if the channel does not exist
   EmptyPlaceholder?: React.ReactElement | null;
   /**
    * Allows to prevent triggering the channel.watch() call when mounting the component.
@@ -104,23 +84,8 @@ const ChannelContainer = ({
   );
 };
 
-/**
- * A wrapper component that provides channel data and renders children.
- * The Channel component provides the following contexts:
- * - [ComponentContext](https://getstream.io/chat/docs/sdk/react/contexts/component_context/)
- * - [TypingContext](https://getstream.io/chat/docs/sdk/react/contexts/typing_context/)
- *
- * Not wrapped in `React.memo`: `Channel` always receives `children` (a fresh element every
- * parent render), so the default shallow comparison never matches and memo could never skip a
- * render. The heavy descendants (`MessageList`, etc.) memoize themselves.
- */
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { channel: propsChannel, EmptyPlaceholder = null } = props;
-  // The channel is supplied via the `channel` prop (fed by a channel slot / the app's
-  // slot-bound <Channel>). NOTE: master's giphyVersion/imageAttachmentSizeHandler/
-  // videoAttachmentSizeHandler props + AttachmentContextProvider (custom attachment sizing)
-  // are NOT provided by this PR-base Channel — useAttachmentContext falls back to defaults.
-  // Re-graft the AttachmentContextProvider if custom sizing is needed.
   const channel = propsChannel;
 
   if (!channel?.cid) {
@@ -144,10 +109,6 @@ const ChannelInner = (
     channel,
     channelQueryOptions,
     children,
-    doDeleteMessageRequest,
-    doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
     initializeOnMount = true,
   } = props;
 
@@ -158,14 +119,10 @@ const ChannelInner = (
   const { t } = useTranslationContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
-  const channelConfig = useChannelConfig({ cid: channel.cid });
-  useChannelRequestHandlers({
-    channel,
-    doDeleteMessageRequest,
-    doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
-  });
+  const { readEventsEnabled } = useStateStore(
+    channel.configState,
+    readEventsStateSelector,
+  );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
   const originalTitle = useRef('');
@@ -179,6 +136,7 @@ const ChannelInner = (
     !channel.initialized && initializeOnMount,
   );
 
+  // todo: can we remove this big event handler and keep only relevant UI-only logic (e.g. 'connection.recovered')?
   const handleEvent = async (event: Event) => {
     // ignore the event if it is not targeted at the current channel.
     // Event targeted at this channel or globally targeted event should lead to state refresh
@@ -192,16 +150,35 @@ const ChannelInner = (
       online.current = event.online;
     }
 
+    if (event.type === 'connection.recovered') {
+      // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
+      // skips re-seeding the message list of an `active` channel (we mark this one active while
+      // mounted) because its 25-message page would perturb a larger scrolled-back window — it hands
+      // that job to `channel.reload()`, which re-watches sized to the loaded window instead. Nothing
+      // calls it for us, so without this the list stays stale after a reconnect and hard deletes that
+      // happened while offline are never reconciled (they arrive via no event; only a re-query
+      // surfaces them). This is deliberately the SDK's opinion about how the default component
+      // behaves, not client-level policy.
+      //
+      // `recoverState` dispatches this only after re-querying the active channels, so the rest of the
+      // channel state is already fresh by now.
+      if (channel.pendingDisposal) return;
+      try {
+        await channel.reload();
+      } catch (error) {
+        // The socket can flap straight back down mid-reload. Keep the previously loaded window
+        // rather than tearing the view down — the next recovery re-runs this.
+        console.warn('Failed to reload the channel after connection recovery', error);
+      }
+      return;
+    }
+
     if (event.type === 'message.new') {
       const mainChannelUpdated =
         !event.message?.parent_id || event.message?.show_in_channel;
 
       if (mainChannelUpdated) {
-        if (
-          document.hidden &&
-          channelConfig?.read_events &&
-          !channel.muteStatus().muted
-        ) {
+        if (document.hidden && readEventsEnabled && !channel.muteStatus().muted) {
           const unread = channel.countUnread();
 
           if (activeUnreadHandler) {
@@ -248,6 +225,17 @@ const ChannelInner = (
       });
     }
   };
+
+  // Declare this channel as being consumed for as long as it is mounted. Refcounted in the client,
+  // so several consumers holding the same Channel instance are handled. This is what gates the
+  // client's no-destructive-reseed of an open channel's message list: channel-list hydration skips
+  // re-seeding an active channel, leaving the fuller window `channel.reload()` owns intact.
+  useEffect(() => {
+    channel.activate();
+    return () => {
+      channel.deactivate();
+    };
+  }, [channel]);
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
   useLayoutEffect(() => {
@@ -335,7 +323,7 @@ const ChannelInner = (
       client.off('user.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel.cid, channelQueryOptions, channelConfig?.read_events, initializeOnMount]);
+  }, [channel.cid, channelQueryOptions, readEventsEnabled, initializeOnMount]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;

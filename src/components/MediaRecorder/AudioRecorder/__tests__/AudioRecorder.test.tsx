@@ -47,10 +47,12 @@ import { AudioRecorder } from '../AudioRecorder';
 import { MediaRecordingState } from '../../classes';
 import { WithAudioPlayback } from '../../../AudioPlayback';
 import type {
-  AppSettingsAPIResponse,
   Attachment,
+  GetApplicationResponse,
   LocalAttachment,
-} from '../../../../../../stream-chat-js/src';
+  StreamResponse,
+  UploadChannelFileResponse,
+} from 'stream-chat';
 import type { MessageComposerContextValue } from '../../../../context';
 
 const PERM_DENIED_NOTIFICATION_TEXT =
@@ -331,7 +333,7 @@ describe('MessageInput', () => {
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
     vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
-    const sendFileSpy = vi
+    const uploadFileSpy = vi
       .spyOn(channel, 'uploadFile')
       .mockResolvedValue(fromPartial({ file: fileObjectURL }));
     await renderComponent({
@@ -350,7 +352,7 @@ describe('MessageInput', () => {
     fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
 
     await waitFor(() => {
-      expect(sendFileSpy).toHaveBeenCalledTimes(1);
+      expect(uploadFileSpy).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -364,7 +366,7 @@ describe('MessageInput', () => {
     });
     // Mock getAppSettings so the SDK's upload config check doesn't make a real network request
     vi.spyOn(client, 'getAppSettings').mockResolvedValue(fromPartial({}));
-    const sendFileSpy = vi
+    const uploadFileSpy = vi
       .spyOn(channel, 'uploadFile')
       .mockResolvedValue(fromPartial({ file: fileObjectURL }));
     const sendMessageSpy = vi
@@ -386,7 +388,7 @@ describe('MessageInput', () => {
     fireEvent.click(screen.getByTestId(AUDIO_RECORDER_STOP_BTN_TEST_ID));
 
     await waitFor(() => {
-      expect(sendFileSpy).toHaveBeenCalledTimes(1);
+      expect(uploadFileSpy).toHaveBeenCalledTimes(1);
     });
     expect(sendMessageSpy).not.toHaveBeenCalled();
   });
@@ -400,10 +402,12 @@ describe('MessageInput', () => {
       channelsData: [{ channel: { own_capabilities: ['upload-file'] } }],
     });
 
-    vi.spyOn(client, 'getAppSettings').mockResolvedValue({} as AppSettingsAPIResponse);
-    vi.spyOn(channel, 'uploadFile').mockResolvedValue(
-      fromPartial({ file: fileObjectURL }),
+    vi.spyOn(client, 'getAppSettings').mockResolvedValue(
+      {} as StreamResponse<GetApplicationResponse>,
     );
+    vi.spyOn(channel, 'uploadFile').mockResolvedValue({
+      file: fileObjectURL,
+    } as StreamResponse<UploadChannelFileResponse>);
 
     await renderComponent({
       channelStateCtx: { channel },

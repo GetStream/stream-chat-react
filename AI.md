@@ -369,8 +369,27 @@ body {
 - Initialize with `init({ data })` before rendering
 - For React 19, add package.json overrides if needed
 
+## Configuring SDK-created instances
+
+Message-list page size, thread reply page size, list render throttling, composer feature flags,
+notification durations and reminder offsets are configured on the client rather than through props,
+because the SDK creates those instances for you:
+
+```ts
+chatClient.config.set({
+  channel: { messagePaginator: { pageSize: 50, stateThrottleMs: 250 } },
+  thread: { messagePaginator: { pageSize: 25 } },
+  messageComposer: { drafts: { enabled: true } },
+});
+```
+
+Register it where you create the client, at module scope — not in an effect. See
+[Instance configuration in React](./ai-docs/instance-configuration.md) for where it goes, how it
+interacts with `<Channel>` / `<Thread>` request-handler props, and why there is no `<Chat>` prop for it.
+
 ## Resources
 
+- **Instance configuration**: [`ai-docs/instance-configuration.md`](./ai-docs/instance-configuration.md)
 - **Official Tutorial**: https://getstream.io/chat/react-chat/tutorial/
 - **Tutorial Source**: https://raw.githubusercontent.com/GetStream/getstream.io-tutorials/refs/heads/main/chat/tutorials/react-tutorial.mdx
 - **Component Docs**: https://getstream.io/chat/docs/sdk/react/

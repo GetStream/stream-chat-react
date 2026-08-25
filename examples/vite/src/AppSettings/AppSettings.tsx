@@ -18,6 +18,7 @@ import {
 
 import { ActionsMenu } from './ActionsMenu';
 import { ChannelDetailTab } from './tabs/ChannelDetail';
+import { ConfigurationTab } from './tabs/Configuration';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
@@ -28,13 +29,16 @@ import {
   IconGear,
   IconMoon,
   IconSidebar,
+  IconSliders,
   IconSun,
   IconTextDirection,
 } from '../icons.tsx';
 import clsx from 'clsx';
+import { FullscreenProvider } from './fullscreen';
 
 type TabId =
   | 'channelDetail'
+  | 'configuration'
   | 'general'
   | 'messageActions'
   | 'notifications'
@@ -74,6 +78,12 @@ const settingsSectionConfig: SettingsSectionConfig[] = [
   },
   { Content: SidebarTab, Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
   { Content: ReactionsTab, Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
+  {
+    Content: ConfigurationTab,
+    Icon: IconSliders,
+    id: 'configuration',
+    title: 'Configuration',
+  },
 ];
 
 const createSettingsNavButton = ({
@@ -178,6 +188,12 @@ const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
 export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const [open, setOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const toggleFullscreen = useCallback(() => setFullscreen((on) => !on), []);
+  const fullscreenState = useMemo(
+    () => ({ fullscreen, toggleFullscreen }),
+    [fullscreen, toggleFullscreen],
+  );
   const closeSettingsModal = useCallback(() => setOpen(false), []);
   const settingsSections = useMemo(
     () => createSettingsSections(closeSettingsModal),
@@ -198,17 +214,20 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         text='Settings'
       />
       <GlobalModal onClose={closeSettingsModal} open={open}>
-        <div
-          className={clsx('app__settings-modal', {
-            'app__settings-modal--inline': layout === SECTION_NAVIGATOR_LAYOUT.inline,
-          })}
-        >
-          <SectionNavigator
-            className='app__settings-modal__body'
-            sections={settingsSections}
-            onLayoutChange={setLayout}
-          />
-        </div>
+        <FullscreenProvider value={fullscreenState}>
+          <div
+            className={clsx('app__settings-modal', {
+              'app__settings-modal--fullscreen': fullscreen,
+              'app__settings-modal--inline': layout === SECTION_NAVIGATOR_LAYOUT.inline,
+            })}
+          >
+            <SectionNavigator
+              className='app__settings-modal__body'
+              sections={settingsSections}
+              onLayoutChange={setLayout}
+            />
+          </div>
+        </FullscreenProvider>
       </GlobalModal>
     </div>
   );

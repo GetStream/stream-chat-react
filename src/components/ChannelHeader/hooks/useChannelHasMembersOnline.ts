@@ -1,4 +1,4 @@
-import type { Channel, WatcherState } from 'stream-chat';
+import type { Channel, ChannelWatchState } from 'stream-chat';
 
 import { useChannel } from '../../../context';
 import { useChatContext } from '../../../context/ChatContext';
@@ -9,14 +9,14 @@ export type UseChannelHasMembersOnlineParams = {
   enabled?: boolean;
 };
 
-const watchersSelector = (nextValue: WatcherState) => ({
+const watchersSelector = (nextValue: ChannelWatchState) => ({
   watchers: nextValue.watchers,
 });
 
 /**
  * Reactively reports whether OTHER members are currently online (watching the channel).
  *
- * Subscribes to the channel's `watcherStore` instead of manually tracking
+ * Subscribes to the channel's watcher state instead of manually tracking
  * `user.watching.start/stop` events. Watchers include the current user, but "are other
  * members online" must reflect only other users — otherwise (e.g. in a DM) the other
  * participant looks online as soon as the local user starts watching.
@@ -28,7 +28,7 @@ export const useChannelHasMembersOnline = ({
   const contextChannel = useChannel();
   const channel = channelOverride ?? contextChannel;
   const { client } = useChatContext();
-  const { watchers } = useStateStore(channel.state.watcherStore, watchersSelector);
+  const { watchers } = useStateStore(channel.state, watchersSelector);
 
   if (!enabled) return false;
 

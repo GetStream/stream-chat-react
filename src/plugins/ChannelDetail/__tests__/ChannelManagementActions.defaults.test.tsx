@@ -16,7 +16,7 @@ const mocks = vi.hoisted(() => {
   const close = vi.fn();
   const deleteChannel = vi.fn();
   const mute = vi.fn();
-  const muteUser = vi.fn();
+  const moderationMute = vi.fn();
   const removeMembers = vi.fn();
   // Inlined rather than imported: `vi.hoisted` runs before module imports are initialized.
   const t = vi.fn((key: string, second?: unknown, third?: unknown) => {
@@ -40,7 +40,7 @@ const mocks = vi.hoisted(() => {
   });
   const unblockUser = vi.fn();
   const unmute = vi.fn();
-  const unmuteUser = vi.fn();
+  const moderationUnmute = vi.fn();
   const blockedUsers = (() => {
     let currentValue = { userIds: [] as string[] };
     const listeners = new Set<() => void>();
@@ -85,7 +85,7 @@ const mocks = vi.hoisted(() => {
   const client = {
     blockedUsers,
     blockUser,
-    moderation: { mute: muteUser, unmute: unmuteUser },
+    moderation: { mute: moderationMute, unmute: moderationUnmute },
     unblockUser,
     user: { id: 'own-user' },
     userID: 'own-user',
@@ -99,14 +99,14 @@ const mocks = vi.hoisted(() => {
     client,
     close,
     deleteChannel,
+    moderationMute,
+    moderationUnmute,
     mute,
     mutes: [] as Array<{ target: { id: string } }>,
-    muteUser,
     removeMembers,
     t,
     unblockUser,
     unmute,
-    unmuteUser,
     useStableTranslationFunction: true,
   };
 });
@@ -198,12 +198,12 @@ describe('DefaultChannelManagementActions', () => {
     mocks.close.mockReset();
     mocks.deleteChannel.mockReset();
     mocks.mute.mockReset();
-    mocks.muteUser.mockReset();
+    mocks.moderationMute.mockReset();
     mocks.removeMembers.mockReset();
     mocks.t.mockClear();
     mocks.unblockUser.mockReset();
     mocks.unmute.mockReset();
-    mocks.unmuteUser.mockReset();
+    mocks.moderationUnmute.mockReset();
     mocks.useStableTranslationFunction = true;
     mocks.channelMuted = false;
     mocks.channel.data.member_count = 2;
@@ -263,7 +263,7 @@ describe('DefaultChannelManagementActions', () => {
   });
 
   it('optimistically toggles user mute and rolls back when the request fails', async () => {
-    mocks.muteUser.mockRejectedValueOnce(new Error('mute failed'));
+    mocks.moderationMute.mockRejectedValueOnce(new Error('mute failed'));
 
     renderAction(<DefaultChannelManagementActions.MuteUser />);
 
@@ -277,11 +277,11 @@ describe('DefaultChannelManagementActions', () => {
       'aria-pressed',
       'true',
     );
-    expect(mocks.muteUser).not.toHaveBeenCalled();
+    expect(mocks.moderationMute).not.toHaveBeenCalled();
 
     await advanceDebounce();
 
-    expect(mocks.muteUser).toHaveBeenCalledWith({ target_ids: ['other-user'] });
+    expect(mocks.moderationMute).toHaveBeenCalledWith({ target_ids: ['other-user'] });
     expect(screen.getByRole('button', { name: 'Mute user' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -318,7 +318,7 @@ describe('DefaultChannelManagementActions', () => {
   });
 
   it('reconciles user mute to the truth source after a coalesced failed toggle', async () => {
-    mocks.unmuteUser.mockRejectedValueOnce(new Error('unmute failed'));
+    mocks.moderationUnmute.mockRejectedValueOnce(new Error('unmute failed'));
 
     renderAction(<DefaultChannelManagementActions.MuteUser />);
 
@@ -327,8 +327,8 @@ describe('DefaultChannelManagementActions', () => {
 
     await advanceDebounce();
 
-    expect(mocks.unmuteUser).toHaveBeenCalledWith({ target_ids: ['other-user'] });
-    expect(mocks.muteUser).not.toHaveBeenCalled();
+    expect(mocks.moderationUnmute).toHaveBeenCalledWith({ target_ids: ['other-user'] });
+    expect(mocks.moderationMute).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Mute user' })).toHaveAttribute(
       'aria-pressed',
       'false',
@@ -336,7 +336,7 @@ describe('DefaultChannelManagementActions', () => {
   });
 
   it('keeps the pending user mute request after the optimistic rerender', async () => {
-    mocks.muteUser.mockResolvedValueOnce(undefined);
+    mocks.moderationMute.mockResolvedValueOnce(undefined);
     mocks.useStableTranslationFunction = false;
     const channelData = mocks.channel.data as {
       members?: typeof mocks.channel.data.members;
@@ -351,11 +351,11 @@ describe('DefaultChannelManagementActions', () => {
       'aria-pressed',
       'true',
     );
-    expect(mocks.muteUser).not.toHaveBeenCalled();
+    expect(mocks.moderationMute).not.toHaveBeenCalled();
 
     await advanceDebounce();
 
-    expect(mocks.muteUser).toHaveBeenCalledWith({ target_ids: ['other-user'] });
+    expect(mocks.moderationMute).toHaveBeenCalledWith({ target_ids: ['other-user'] });
     expect(mocks.addNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         message: 'User muted',

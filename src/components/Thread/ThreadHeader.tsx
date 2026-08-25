@@ -3,7 +3,6 @@ import React from 'react';
 import { useChannel } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
-import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
@@ -16,6 +15,11 @@ import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
 import { IconXmark } from '../Icons';
 import { useWorkspaceNavigation } from '../../context';
+import type { ChannelConfig } from 'stream-chat';
+
+const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
 
 const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
@@ -36,7 +40,8 @@ const ThreadHeaderSubtitle = ({
 }) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const channelConfig = useChannelConfig({ cid: channel?.cid });
+  const { typingEventsEnabled } =
+    useStateStore(channel?.configState, typingEventsStateSelector) ?? {};
   const threadInstance = useThreadContext();
   const parentId = threadInstance?.id;
   const { client } = useChatContext();
@@ -46,7 +51,7 @@ const ThreadHeaderSubtitle = ({
   const typingInThread = (Object.values(typing) as EventPayload<'typing.start'>[]).filter(
     ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
   );
-  const hasTyping = channelConfig?.typing_events !== false && typingInThread.length > 0;
+  const hasTyping = typingEventsEnabled !== false && typingInThread.length > 0;
   const replyCountText = t('common.replyCount.label', {
     count: replyCount ?? 0,
     defaultValue_one: '1 reply',

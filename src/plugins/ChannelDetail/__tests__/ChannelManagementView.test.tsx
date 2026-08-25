@@ -353,6 +353,8 @@ describe('ChannelManagementView', () => {
       save();
 
       await waitFor(() => expect(mocks.channel.uploadImage).toHaveBeenCalledTimes(1));
+      // v10 takes the file in a request object rather than as a positional argument.
+      expect(mocks.channel.uploadImage).toHaveBeenCalledWith({ file: expect.any(File) });
       expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
         set: { 'custom.image': 'https://stream-upload.example' },
       });

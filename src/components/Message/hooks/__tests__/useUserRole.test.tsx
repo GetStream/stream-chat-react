@@ -1,19 +1,13 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { StateStore } from 'stream-chat';
-import type {
-  Channel,
-  ChannelState,
-  LocalMessage,
-  OwnCapabilitiesState,
-  StreamChat,
-} from 'stream-chat';
+import type { Channel, ChannelState, LocalMessage, StreamChat } from 'stream-chat';
 
 import { useUserRole } from '../useUserRole';
 
 import { ChannelInstanceProvider, ChatProvider } from '../../../../context';
 import {
+  generateChannelState,
   generateMessage,
   generateUser,
   getTestClientWithUser,
@@ -22,8 +16,8 @@ import {
 
 // MERGE-RECONCILE (test migration): PR #2909 / v14 moved useUserRole off the deleted
 // ChannelStateContext. It now reads the channel via `useChannel()` and capabilities via
-// `useChannelCapabilities({ cid })`, which subscribes to `channel.state.ownCapabilitiesStore`
-// (a string[] of enabled capabilities). The wrapper uses real ChatProvider/ChannelInstanceProvider
+// `useChannelCapabilities({ cid })`, which subscribes to the unified `channel.state`
+// (`ownCapabilities`, a string[] of enabled capabilities). The wrapper uses real ChatProvider/ChannelInstanceProvider
 // and seeds capabilities from the same `{ 'cap': boolean }` object the cases already pass, so the
 // test cases are unchanged. `onlySenderCanEdit` was removed in v14 (BC-061) and is not tested.
 
@@ -52,12 +46,12 @@ async function renderUserRoleHook({
   const client = clientContextValue.client ?? (await getTestClientWithUser(alice));
   const channel = fromPartial<Channel>({
     cid: 'messaging:role-test',
-    state: {
-      membership: channelProps.state?.membership ?? {},
-      ownCapabilitiesStore: new StateStore<OwnCapabilitiesState>({
-        ownCapabilities: toOwnCapabilities(channelStateContextValue.channelCapabilities),
-      }),
-    },
+    state: generateChannelState({
+      membership: fromPartial<ChannelState['membership']>(
+        channelProps.state?.membership ?? {},
+      ),
+      ownCapabilities: toOwnCapabilities(channelStateContextValue.channelCapabilities),
+    }),
   });
 
   const wrapper = ({ children }: React.PropsWithChildren) => (

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { defineConfig, loadEnv } from 'vite';
@@ -43,9 +43,27 @@ export default defineConfig(({ mode }) => {
 
   // Load shared .env file
   const env = loadEnv(mode, rootDir, '');
-  const streamChatJsRoot = env.STREAM_CHAT_JS_PATH
+  /**
+   * Resolved through any symlinks, which is not cosmetic.
+   *
+   * `STREAM_CHAT_JS_PATH` is normally `../../node_modules/stream-chat` — a symlink into a
+   * `stream-chat-js` worktree. Served under that literal path, every module of the SDK sits below
+   * `node_modules`, and Vite's watcher ignores `**\/node_modules/**` by default. Rebuilding the SDK then
+   * changes nothing the dev server can see: the browser keeps the module it loaded at startup and fails
+   * with "does not provide an export named …" for anything newly added, until the server is restarted.
+   *
+   * Pointing at the real directory puts the files back inside watched territory, so a rebuild reloads the
+   * page on its own.
+   */
+  const configuredStreamChatJsRoot = env.STREAM_CHAT_JS_PATH
     ? resolve(rootDir, env.STREAM_CHAT_JS_PATH)
     : undefined;
+  // `realpathSync` throws on a path that does not exist, which would replace the explicit error below
+  // with a raw ENOENT. Left as configured when missing, so the message that names the problem still wins.
+  const streamChatJsRoot =
+    configuredStreamChatJsRoot && existsSync(configuredStreamChatJsRoot)
+      ? realpathSync(configuredStreamChatJsRoot)
+      : configuredStreamChatJsRoot;
   const localStreamChatEntry = streamChatJsRoot
     ? resolve(streamChatJsRoot, 'dist/esm/index.mjs')
     : undefined;

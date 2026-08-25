@@ -1,12 +1,11 @@
 import { POLL_COMPOSER_VALIDATION_CODE, pollComposerValidationError } from 'stream-chat';
-import type { PollComposerValidationCode } from 'stream-chat';
+import type { PollComposerState, PollComposerValidationCode } from 'stream-chat';
 import React, { useMemo, useRef, useState } from 'react';
 import { NumericInput } from '../../Form/NumericInput';
 import { SwitchField, SwitchFieldLabel } from '../../Form/SwitchField';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import type { PollComposerState } from 'stream-chat';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   enforce_unique_vote: state.data.enforce_unique_vote,
@@ -28,6 +27,10 @@ export const MultipleAnswersField = () => {
     Partial<Record<PollComposerValidationCode, string>>
   >(
     () => ({
+      [POLL_COMPOSER_VALIDATION_CODE.maxVotesUniqueVoteEnforced]: t(
+        'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
+        'Enforce unique vote is enabled',
+      ),
       [POLL_COMPOSER_VALIDATION_CODE.maxVotesNotNumeric]: t(
         'poll.multipleAnswersField.onlyNumbersAllowed.label',
         'Only numbers are allowed',
@@ -35,10 +38,6 @@ export const MultipleAnswersField = () => {
       [POLL_COMPOSER_VALIDATION_CODE.maxVotesOutOfRange]: t(
         'poll.multipleAnswersField.typeNumber210.label',
         'Type a number from 2 to 10',
-      ),
-      [POLL_COMPOSER_VALIDATION_CODE.maxVotesUniqueVoteEnforced]: t(
-        'poll.multipleAnswersField.enforceUniqueVoteEnabled.label',
-        'Enforce unique vote is enabled',
       ),
     }),
     [t],

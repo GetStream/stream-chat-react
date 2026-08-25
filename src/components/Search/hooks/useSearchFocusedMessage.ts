@@ -7,6 +7,7 @@ const searchControllerStateSelector = (nextValue: InternalSearchControllerState)
 });
 
 export const useSearchFocusedMessage = () => {
+  // todo: searchController should be provided with SearchContextProvider that has to be introduced
   const { searchController } = useChatContext();
   const { focusedMessage } = useStateStore(
     searchController._internalState,

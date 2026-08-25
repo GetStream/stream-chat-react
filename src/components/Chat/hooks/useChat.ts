@@ -56,7 +56,7 @@ export const useChat = ({ client }: UseChatParams) => {
     setMutes(clientMutes);
 
     const handleEvent = (event: EventPayload<'notification.mutes_updated'>) => {
-      setMutes(event.me?.mutes || []);
+      setMutes(event.me.mutes);
     };
 
     const subscription = client.on('notification.mutes_updated', handleEvent);

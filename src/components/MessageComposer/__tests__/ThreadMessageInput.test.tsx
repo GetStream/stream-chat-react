@@ -28,6 +28,31 @@ import { MessageComposer } from '../MessageComposer';
 import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
 
 const sendMessageMock = vi.fn();
+
+/**
+ * Registers the interception the removed `doSendMessageRequest` prop used to provide.
+ *
+ * Declarative registration is the replacement for the per-component props: one place, no mount-order
+ * arbitration. The adapter below is what the deleted hook did internally — call the spy, and fall back
+ * to the real send when it returns nothing, so tests that only assert *that* a send was intercepted keep
+ * working without stubbing a whole response.
+ */
+const registerSendInterceptor = (client, channel) =>
+  client.config.set({
+    channel: {
+      requestHandlers: {
+        sendMessageRequest: async (params) => {
+          const response = await sendMessageMock(channel, params.message, params.options);
+          if (response?.message) return { message: response.message };
+          const fallback = await channel.sendMessage({
+            message: params.message,
+            ...params.options,
+          });
+          return { message: fallback.message };
+        },
+      },
+    },
+  });
 const fileUploadUrl = 'http://www.getstream.io';
 const cid = 'messaging:general';
 const userId = 'userId';
@@ -67,10 +92,10 @@ const setup = async ({ channelData }: any = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi
+  const uploadImageSpy = vi
     .spyOn(customChannel, 'uploadImage')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
-  const sendFileSpy = vi
+  const uploadFileSpy = vi
     .spyOn(customChannel, 'uploadFile')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
   const getDraftSpy = vi
@@ -79,7 +104,7 @@ const setup = async ({ channelData }: any = {}) => {
   vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue(fromPartial({}));
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
+  return { customChannel, customClient, getDraftSpy, uploadFileSpy, uploadImageSpy };
 };
 
 const renderComponent = async ({
@@ -102,16 +127,14 @@ const renderComponent = async ({
     client = result.client;
     vi.spyOn(channel, 'deleteDraft').mockResolvedValue({});
   }
+  registerSendInterceptor(client, channel);
+
   let renderResult: RenderResult;
 
   await act(() => {
     renderResult = render(
       <Chat client={client}>
-        <Channel
-          channel={channel}
-          doSendMessageRequest={sendMessageMock}
-          {...channelProps}
-        >
+        <Channel channel={channel} {...channelProps}>
           <LegacyThreadContext.Provider
             value={fromPartial<{ legacyThread: LocalMessage | undefined }>({
               legacyThread: thread ?? mainListMessage,
@@ -138,7 +161,7 @@ describe('MessageInput in Thread', () => {
     it('is queried when drafts are enabled', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
         });
       });
@@ -148,7 +171,7 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).toHaveBeenCalledTimes(1);
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: false } });
         });
       });
@@ -156,7 +179,7 @@ describe('MessageInput in Thread', () => {
     it('prevents querying if composition is not empty', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
           composer.textComposer.setText('abc');
         });
@@ -167,7 +190,7 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: false } });
         });
       });
@@ -175,7 +198,7 @@ describe('MessageInput in Thread', () => {
     it('prevents querying if not rendered inside a thread', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
           (composer as any).compositionContext = customChannel;
         });
@@ -186,7 +209,7 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: false } });
         });
       });

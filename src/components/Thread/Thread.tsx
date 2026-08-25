@@ -18,23 +18,15 @@ import {
 } from '../../context';
 import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
-import { useThreadRequestHandlers } from './hooks/useThreadRequestHandlers';
 
 import type { MessageProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
-import type {
-  DeleteMessageOptions,
-  LocalMessage,
-  MarkReadRequest,
-  MessageRequest,
-  MessageResponse,
-  SendMessageOptions,
-  Channel as StreamChannel,
-  StreamChat,
-  Thread as StreamThread,
-  ThreadState,
-  UpdateMessageOptions,
-} from 'stream-chat';
+import type { LocalMessage, Thread as StreamThread, ThreadState } from 'stream-chat';
+import type { ChannelConfig } from 'stream-chat';
+
+const repliesStateSelector = ({ replies }: ChannelConfig) => ({
+  repliesEnabled: replies.enabled,
+});
 
 export type ThreadProps = {
   /** Additional props for `MessageComposer` component: [available props](https://getstream.io/chat/docs/sdk/react/message-composer-components/message_composer/#props) */
@@ -53,29 +45,6 @@ export type ThreadProps = {
   enableDateSeparator?: boolean;
   /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
   messageActions?: MessageActionsArray;
-  /** Custom action handler to override the default `client.deleteMessage(message.id)` function in thread flows */
-  doDeleteMessageRequest?: (
-    thread: StreamThread,
-    message: LocalMessage,
-    options?: DeleteMessageOptions,
-  ) => Promise<MessageResponse>;
-  /** Custom action handler to override the default `thread.markAsRead` request function (advanced usage only) */
-  doMarkReadRequest?: (params: {
-    thread: StreamThread;
-    options?: MarkReadRequest;
-  }) => ReturnType<StreamChannel['markRead']> | void;
-  /** Custom action handler to override the default `channel.sendMessage` request function in thread flows */
-  doSendMessageRequest?: (
-    thread: StreamThread,
-    message: MessageRequest,
-    options?: SendMessageOptions,
-  ) => ReturnType<StreamChannel['sendMessage']> | void;
-  /** Custom action handler to override the default `client.updateMessage` request function in thread flows */
-  doUpdateMessageRequest?: (
-    thread: StreamThread,
-    updatedMessage: LocalMessage | MessageResponse,
-    options?: UpdateMessageOptions,
-  ) => ReturnType<StreamChat['updateMessage']>;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -85,10 +54,10 @@ export type ThreadProps = {
  */
 export const Thread = (props: ThreadProps) => {
   const threadInstance = useThreadContext();
+  const { repliesEnabled } =
+    useStateStore(threadInstance?.channel.configState, repliesStateSelector) ?? {};
 
-  if (!threadInstance) return null;
-  // todo: remove the use of channel.getConfig
-  if (threadInstance.channel.getConfig()?.replies === false) return null;
+  if (!threadInstance || repliesEnabled === false) return null;
 
   // todo: maybe this extra layer with ThreadInner could be removed?
   // the wrapper ensures a key variable is set and the component recreates on thread switch
@@ -129,10 +98,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     additionalVirtualizedMessageListProps,
     allowConcurrentAudioPlayback,
     autoFocus = true,
-    doDeleteMessageRequest,
-    doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
     enableDateSeparator = false,
     messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
@@ -171,13 +136,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   // The thread message UI comes from `ComponentContext` (`MessageUI`, or `VirtualMessage`
   // which the virtualized list applies to its own subtree), so nothing is resolved here.
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
-  useThreadRequestHandlers({
-    doDeleteMessageRequest,
-    doMarkReadRequest,
-    doSendMessageRequest,
-    doUpdateMessageRequest,
-    threadInstance,
-  });
 
   useEffect(() => {
     if (!threadInstance) return;

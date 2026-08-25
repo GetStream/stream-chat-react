@@ -9,8 +9,7 @@ const ownCapabilitiesSelector = ({ ownCapabilities }: OwnCapabilitiesState) => (
 
 export const useChannelCapabilities = ({ cid }: { cid: string | undefined }) => {
   const channel = useChannel();
-  const { ownCapabilities } =
-    useStateStore(channel.state.ownCapabilitiesStore, ownCapabilitiesSelector) ?? {};
+  const { ownCapabilities } = useStateStore(channel.state, ownCapabilitiesSelector) ?? {};
 
   return useMemo(() => {
     if (!cid || channel.cid !== cid) return new Set<string>();

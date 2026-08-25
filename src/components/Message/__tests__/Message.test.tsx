@@ -120,7 +120,9 @@ async function renderComponent({
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
     channel = client.channel(type, channelData.channel.id);
     await channel.watch();
-    vi.spyOn(channel, 'getConfig').mockReturnValue(config);
+    client.channelServerConfigsStore.partialNext({
+      configs: { ...client.channelServerConfigs, [channel.cid]: config as never },
+    });
   } else {
     ({
       channels: [channel],

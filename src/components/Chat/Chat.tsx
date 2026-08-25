@@ -132,6 +132,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     () =>
       customChannelSearchController ??
       new SearchController({
+        client,
         sources: [
           new ChannelSearchSource(client),
           new UserSearchSource(client),

@@ -1,8 +1,9 @@
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { StateStore } from 'stream-chat';
 import type {
+  ChannelConfig,
   LocalMessage,
   StreamChat,
   Thread as StreamThread,
@@ -82,8 +83,11 @@ const makeThread = (
   const thread = fromPartial<StreamThread>({
     channel: fromPartial({
       cid: 'messaging:thread-test',
-      configState: undefined,
-      getConfig: () => ({ replies }),
+      // A real store: `Thread` subscribes to the resolved configuration rather than reading the
+      // non-reactive `channel.config` getter, so a stub with only `getLatestValue` is not enough.
+      configState: new StateStore(
+        fromPartial<ChannelConfig>({ replies: { enabled: replies } }),
+      ),
     }),
     configState: undefined,
     deactivate,
@@ -295,6 +299,22 @@ describe('Thread', () => {
   it('should render null if replies is disabled', () => {
     const { thread } = makeThread({ replies: false });
     const { container } = renderComponent({ threadInstance: thread });
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('should stop rendering when replies is disabled after mount', () => {
+    // Guards the subscription: reading the non-reactive `channel.config` getter would leave an open
+    // thread rendered after `client.config` disabled replies.
+    const { thread } = makeThread({ replies: true });
+    const { container } = renderComponent({ threadInstance: thread });
+    expect(container).not.toBeEmptyDOMElement();
+
+    act(() => {
+      thread.channel.configState.partialNext(
+        fromPartial<ChannelConfig>({ replies: { enabled: false } }),
+      );
+    });
 
     expect(container).toBeEmptyDOMElement();
   });

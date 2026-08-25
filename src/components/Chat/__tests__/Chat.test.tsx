@@ -12,7 +12,7 @@ import { useNotificationConfigurationContext } from '../../Notifications';
 import { GlobalModal } from '../../Modal';
 import { Streami18n } from '../../../i18n';
 import type { Notification } from 'stream-chat';
-import type { Mute } from 'stream-chat';
+import type { UserMuteResponse } from 'stream-chat';
 import {
   dispatchConnectionChangedEvent,
   dispatchNotificationMutesUpdated,
@@ -366,12 +366,12 @@ describe('Chat', () => {
 
       const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
       act(() =>
-        dispatchNotificationMutesUpdated(chatClientWithUser, fromPartial<Mute[]>(mutes)),
+        dispatchNotificationMutesUpdated(
+          chatClientWithUser,
+          fromPartial<UserMuteResponse[]>(mutes),
+        ),
       );
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
-
-      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, null));
-      await waitFor(() => expect(context.mutes).toStrictEqual([]));
     });
   });
 

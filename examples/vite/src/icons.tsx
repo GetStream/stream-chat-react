@@ -46,3 +46,39 @@ export const IconTextDirection = createIcon(
     strokeLinejoin='round'
   />,
 );
+
+export const IconSliders = createIcon(
+  'IconSliders',
+  <path
+    d='M3.125 6.25H11.25M14.375 6.25H16.875M3.125 13.75H8.125M11.25 13.75H16.875M11.25 4.375V8.125M8.125 11.875V15.625'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);
+
+export const IconExpand = createIcon(
+  'IconExpand',
+  <path
+    d='M12.5 2.5H17.5V7.5M17.5 2.5L11.6667 8.33333M7.5 17.5H2.5V12.5M2.5 17.5L8.33333 11.6667'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);
+
+export const IconCollapse = createIcon(
+  'IconCollapse',
+  <path
+    d='M17.5 2.5L11.6667 8.33333M11.6667 8.33333H16.6667M11.6667 8.33333V3.33333M2.5 17.5L8.33333 11.6667M8.33333 11.6667H3.33333M8.33333 11.6667V16.6667'
+    fill='none'
+    stroke='currentColor'
+    strokeLinecap='round'
+    strokeLinejoin='round'
+    strokeWidth='1.5'
+  />,
+);

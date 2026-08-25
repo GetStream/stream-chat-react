@@ -10,8 +10,7 @@ import { Channel } from '../../../Channel';
 import { Chat } from '../../../Chat';
 
 // MERGE-RECONCILE (test migration): the master merge removed ChannelStateContext.
-// `useFlagHandler` reads the client from ChatContext and flags through
-// `client.moderation.flagMessage`.
+// `useFlagHandler` reads the client from ChatContext and flags through `client.moderation.flagMessage`.
 // The wrapper now uses the real <Chat>/<Channel> providers and assertions spy on
 // `client.moderation.flagMessage` instead of stubbing it on a mocked client.
 

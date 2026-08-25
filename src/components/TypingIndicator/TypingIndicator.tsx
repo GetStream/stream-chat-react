@@ -1,12 +1,16 @@
 import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
-import type { EventPayload, TextComposerState, ThreadState } from 'stream-chat';
+import type {
+  ChannelConfig,
+  EventPayload,
+  TextComposerState,
+  ThreadState,
+} from 'stream-chat';
 
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
 import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { VisuallyHidden } from '../VisuallyHidden';
-import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useThreadContext } from '../Threads/ThreadContext';
 import {
@@ -18,6 +22,10 @@ import { useStateStore } from '../../store';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
+
+const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
 
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
@@ -45,7 +53,10 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     extractDisplayInfo = defaultExtractDisplayInfo,
   } = useComponentContext();
   const messageComposer = useMessageComposerController();
-  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
+  const { typingEventsEnabled } = useStateStore(
+    messageComposer.channel.configState,
+    typingEventsStateSelector,
+  );
   const { client } = useChatContext();
   const { t } = useTranslationContext();
   const { typing = {} } =
@@ -89,11 +100,7 @@ const UnMemoizedTypingIndicator = (props: TypingIndicatorProps) => {
     if (showIndicator && isMessageListScrolledToBottom) scrollToBottom?.();
   }, [scrollToBottom, isMessageListScrolledToBottom, showIndicator]);
 
-  if (channelConfig?.typing_events === false) {
-    return null;
-  }
-
-  if (!showIndicator || !isMessageListScrolledToBottom) {
+  if (typingEventsEnabled === false || !showIndicator || !isMessageListScrolledToBottom) {
     return null;
   }
 
