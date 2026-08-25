@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Command, MessageComposerState } from 'stream-chat';
+import type { ChannelConfig, Command, MessageComposerState } from 'stream-chat';
 import { StateStore } from 'stream-chat';
 
 import { useMessageComposerCommands } from '../useMessageComposerCommands';
@@ -9,12 +9,13 @@ const mockedUseMessageComposerController = vi.hoisted(() => vi.fn());
 
 let commands: Command[];
 let messageComposer: {
-  channel: { readonly config: { availableCommands: Command[] } };
+  channel: { readonly configState: StateStore<ChannelConfig> };
   getCommandDisabledReason: ReturnType<typeof vi.fn>;
   isCommandDisabled: ReturnType<typeof vi.fn>;
   state: StateStore<MessageComposerState>;
 };
 let state: StateStore<MessageComposerState>;
+let configState: StateStore<ChannelConfig>;
 
 vi.mock('../useMessageComposerController', () => ({
   useMessageComposerController: mockedUseMessageComposerController,
@@ -44,14 +45,13 @@ describe('useMessageComposerCommands', () => {
         description: 'missing-name',
       }),
     ];
+    configState = new StateStore<ChannelConfig>(
+      fromPartial<ChannelConfig>({ availableCommands: commands }),
+    );
     messageComposer = {
-      channel: {
-        // A getter, not a value: `commands` is reassigned per test, and the original `vi.fn` closure
-        // read it lazily. A plain object would snapshot it at construction.
-        get config() {
-          return { availableCommands: commands };
-        },
-      },
+      // The hook subscribes to `configState`, so a config change re-renders it — reading the
+      // non-reactive `channel.config` getter would not.
+      channel: { configState },
       getCommandDisabledReason: vi.fn((command: Command) => {
         const latestState = state.getLatestValue();
 
@@ -102,6 +102,19 @@ describe('useMessageComposerCommands', () => {
       { command: expect.objectContaining({ name: 'giphy' }), enabled: false },
       { command: expect.objectContaining({ name: 'ban' }), enabled: false },
     ]);
+  });
+
+  it('re-renders when the resolved configuration changes the available commands', () => {
+    const { result } = renderHook(() => useMessageComposerCommands());
+    expect(result.current.map(({ command }) => command.name)).toEqual(['giphy', 'ban']);
+
+    act(() => {
+      configState.partialNext({
+        availableCommands: [fromPartial<Command>({ name: 'mute' })],
+      });
+    });
+
+    expect(result.current.map(({ command }) => command.name)).toEqual(['mute']);
   });
 
   it('marks quoted-message-disabled commands as disabled while keeping allowed ones enabled', () => {

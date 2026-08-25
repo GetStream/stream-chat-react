@@ -22,6 +22,11 @@ import { useStateStore } from '../../store';
 import type { MessageProps } from '../Message/types';
 import type { MessageActionsArray } from '../Message/utils';
 import type { LocalMessage, Thread as StreamThread, ThreadState } from 'stream-chat';
+import type { ChannelConfig } from 'stream-chat';
+
+const repliesStateSelector = ({ replies }: ChannelConfig) => ({
+  repliesEnabled: replies.enabled,
+});
 
 export type ThreadProps = {
   /** Additional props for `MessageComposer` component: [available props](https://getstream.io/chat/docs/sdk/react/message-composer-components/message_composer/#props) */
@@ -49,9 +54,10 @@ export type ThreadProps = {
  */
 export const Thread = (props: ThreadProps) => {
   const threadInstance = useThreadContext();
+  const { repliesEnabled } =
+    useStateStore(threadInstance?.channel.configState, repliesStateSelector) ?? {};
 
-  if (!threadInstance) return null;
-  if (threadInstance.channel.config.replies.enabled === false) return null;
+  if (!threadInstance || repliesEnabled === false) return null;
 
   // todo: maybe this extra layer with ThreadInner could be removed?
   // the wrapper ensures a key variable is set and the component recreates on thread switch

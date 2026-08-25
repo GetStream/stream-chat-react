@@ -17,8 +17,9 @@ import {
 } from './hooks';
 import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
 
-import type { LocalMessage } from 'stream-chat';
+import type { ChannelConfig, LocalMessage } from 'stream-chat';
 import type { MessageContextValue } from '../../context';
+import { useStateStore } from '../../store';
 import {
   MessageProvider,
   useChannel,
@@ -26,7 +27,6 @@ import {
   useComponentContext,
   useMessageTranslationViewContext,
 } from '../../context';
-import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 
 import { MessageUI as DefaultMessageUI } from './MessageUI';
 
@@ -66,7 +66,10 @@ const MessageWithContext = (props: MessageWithContextProps) => {
 
   const channel = useChannel();
   const { isMessageAIGenerated } = useChatContext();
-  const channelConfig = useChannelConfig({ cid: channel.cid });
+  const { userMessageRemindersEnabled } = useStateStore(
+    channel.configState,
+    userMessageRemindersStateSelector,
+  );
   const { MessageUI: MessageUIComponent = DefaultMessageUI } = useComponentContext();
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
@@ -112,7 +115,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
           canReact,
           canReply,
         },
-        channelConfig,
+        userMessageRemindersEnabled,
       ),
 
     [
@@ -126,7 +129,7 @@ const MessageWithContext = (props: MessageWithContextProps) => {
       canQuote,
       canReact,
       canReply,
-      channelConfig,
+      userMessageRemindersEnabled,
     ],
   );
 
@@ -166,6 +169,12 @@ const MemoizedMessage = React.memo(
  * The Message component is a context provider which implements all the logic required for rendering
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  */
+// Selects the one setting `getMessageActions` reads, so an unrelated configuration write does not
+// re-render every message in the list.
+const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConfig) => ({
+  userMessageRemindersEnabled: userMessageReminders.enabled,
+});
+
 export const Message = (props: MessageProps) => {
   const {
     closeReactionSelectorOnClick,

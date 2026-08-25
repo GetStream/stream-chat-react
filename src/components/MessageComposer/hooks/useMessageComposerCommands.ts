@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Command, MessageComposerState } from 'stream-chat';
+import type { ChannelConfig, Command, MessageComposerState } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
 import { useMessageComposerController } from './useMessageComposerController';
@@ -12,6 +12,10 @@ const messageComposerStateSelector = ({
   quotedMessage,
 });
 
+const channelConfigStateSelector = ({ availableCommands }: ChannelConfig) => ({
+  availableCommands,
+});
+
 export type MessageComposerCommand = {
   command: Command & { name: string };
   enabled: boolean;
@@ -19,7 +23,10 @@ export type MessageComposerCommand = {
 
 export const useMessageComposerCommands = () => {
   const messageComposer = useMessageComposerController();
-  const channelConfig = messageComposer.channel.config;
+  const { availableCommands } = useStateStore(
+    messageComposer.channel.configState,
+    channelConfigStateSelector,
+  );
   const { editedMessage, quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
@@ -27,7 +34,7 @@ export const useMessageComposerCommands = () => {
 
   return useMemo<MessageComposerCommand[]>(
     () =>
-      (channelConfig?.availableCommands ?? [])
+      (availableCommands ?? [])
         .filter((command): command is Command & { name: string } => !!command.name)
         .map((command) => ({
           command,
@@ -35,6 +42,6 @@ export const useMessageComposerCommands = () => {
         })),
     // editedMessage and quotedMessage are necessary in deps for reactivity
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [channelConfig, editedMessage, messageComposer, quotedMessage],
+    [availableCommands, editedMessage, messageComposer, quotedMessage],
   );
 };

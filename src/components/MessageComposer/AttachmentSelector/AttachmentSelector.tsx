@@ -51,8 +51,12 @@ import {
   CommandsMenuClassName,
   CommandsSubmenuHeader,
 } from './CommandsMenu';
-import { useChannelConfig } from '../../Channel/hooks/useChannelConfig';
 import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
+import type { ChannelConfig } from 'stream-chat';
+
+const availableCommandsStateSelector = ({ availableCommands }: ChannelConfig) => ({
+  availableCommands,
+});
 
 const textComposerStateSelector = ({ command }: TextComposerState) => ({ command });
 
@@ -288,7 +292,10 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
   const channelCapabilities = useChannelCapabilities({
     cid: messageComposer.channel.cid,
   });
-  const channelConfig = useChannelConfig({ cid: messageComposer.channel.cid });
+  const { availableCommands } = useStateStore(
+    messageComposer.channel.configState,
+    availableCommandsStateSelector,
+  );
 
   return useMemo(
     () =>
@@ -308,7 +315,7 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
           }
 
           if (action.type === 'selectCommand') {
-            return !!channelConfig?.availableCommands.some((command) => !!command.name);
+            return !!availableCommands.some((command) => !!command.name);
           }
 
           return true;
@@ -326,7 +333,7 @@ const useAttachmentSelectorActionsFiltered = (original: AttachmentSelectorAction
       PollCreationDialog,
       ShareLocationDialog,
       channelCapabilities,
-      channelConfig,
+      availableCommands,
       isUploadEnabled,
       locationEnabled,
       messageComposer.threadId,

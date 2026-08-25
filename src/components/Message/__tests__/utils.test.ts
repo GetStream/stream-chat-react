@@ -2,12 +2,7 @@ import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import type { StreamTFunction } from '../../../i18n/types';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-import type {
-  ChannelConfigWithInfo,
-  LocalMessage,
-  MessageResponse,
-  UserMuteResponse,
-} from 'stream-chat';
+import type { LocalMessage, MessageResponse, UserMuteResponse } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import {
   countReactions,
@@ -126,24 +121,24 @@ describe('Message utils', () => {
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['remindMe'], defaultCapabilities, {
-        userMessageReminders: { enabled: true },
-      } as ChannelConfigWithInfo);
+      const result = getMessageActions(['remindMe'], defaultCapabilities, true);
       expect(result).toStrictEqual(['remindMe']);
     });
 
     it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['saveForLater'], defaultCapabilities, {
-        userMessageReminders: { enabled: true },
-      } as ChannelConfigWithInfo);
+      const result = getMessageActions(['saveForLater'], defaultCapabilities, true);
       expect(result).toStrictEqual(['saveForLater']);
     });
 
     it('should include reminder actions if enabled in channel config', () => {
-      const result = getMessageActions(true, defaultCapabilities, {
-        userMessageReminders: { enabled: true },
-      } as ChannelConfigWithInfo);
+      const result = getMessageActions(true, defaultCapabilities, true);
       expect(result).toEqual(actions);
+    });
+
+    it('should exclude reminder actions if disabled in channel config', () => {
+      const result = getMessageActions(true, defaultCapabilities, false);
+      expect(result).not.toContain(MESSAGE_ACTIONS.remindMe);
+      expect(result).not.toContain(MESSAGE_ACTIONS.saveForLater);
     });
 
     it.each([

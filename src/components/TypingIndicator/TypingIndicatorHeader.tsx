@@ -5,7 +5,6 @@ import { TypingIndicatorDots } from './TypingIndicatorDots';
 import { useChannel } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useChannelConfig } from '../Channel/hooks/useChannelConfig';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
@@ -13,6 +12,11 @@ import type { EventPayload, TextComposerState } from 'stream-chat';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
+import type { ChannelConfig } from 'stream-chat';
+
+const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
 
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
@@ -30,7 +34,10 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
 
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const channelConfig = useChannelConfig({ cid: channel.cid });
+  const { typingEventsEnabled } = useStateStore(
+    channel.configState,
+    typingEventsStateSelector,
+  );
   const threadInstance = useThreadContext();
   const parentId = threadInstance?.id;
   const { client } = useChatContext();
@@ -58,7 +65,7 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const label = getTypingStatusMessage(displayUsers, t);
 
-  if (channelConfig?.typingEvents.enabled === false || displayUsers.length === 0) {
+  if (typingEventsEnabled === false || displayUsers.length === 0) {
     return null;
   }
 

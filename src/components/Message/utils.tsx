@@ -3,7 +3,6 @@ import deepequal from 'react-fast-compare';
 import { EMOJI_REGEX } from './emojiRegex';
 
 import type {
-  ChannelConfig,
   LocalMessage,
   MessageResponse,
   StreamChat,
@@ -94,7 +93,12 @@ export const getMessageActions = (
     canReact,
     canReply,
   }: Capabilities,
-  channelConfig?: ChannelConfig,
+  /**
+   * Whether the channel permits message reminders. A flag rather than the whole `ChannelConfig`:
+   * this is the only setting the function reads, and passing the object made every caller re-render
+   * on configuration changes that cannot affect the result.
+   */
+  userMessageRemindersEnabled?: boolean,
 ): MessageActionsArray => {
   const messageActionsAfterPermission: MessageActionsArray = [];
   let messageActions: MessageActionsArray = [];
@@ -149,7 +153,7 @@ export const getMessageActions = (
   }
 
   if (
-    channelConfig?.userMessageReminders.enabled &&
+    userMessageRemindersEnabled &&
     messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1
   ) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
@@ -160,7 +164,7 @@ export const getMessageActions = (
   }
 
   if (
-    channelConfig?.userMessageReminders.enabled &&
+    userMessageRemindersEnabled &&
     messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1
   ) {
     messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);

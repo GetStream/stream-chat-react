@@ -245,7 +245,7 @@ gap; they are all one change.
 ### Attachment/poll availability now reads the composer's resolved config, not raw server flags
 
 `AttachmentSelector` used to decide which actions to offer by reading the channel type's raw server flags
-(`channel.getConfig()?.uploads` / `.polls` / `.shared_locations`). It now reads the composer's **resolved**
+off `ChannelStateContext` (`channelConfig?.uploads` / `.polls` / `.shared_locations`). It now reads the composer's **resolved**
 configuration, which is those server flags already reconciled with whatever the integrator registered
 through `client.config`. No React API changed — no prop, override key, or hook signature — but two
 behaviours differ.
@@ -328,25 +328,64 @@ Three things change with it:
 
 **Why.** The props and declarative registration wrote to the same slot, so the SDK carried a coordinator that tracked which mounted component owned each handler, restored the previous claimant on unmount, and re-applied everything whenever the LLC re-derived its configuration. All of that existed only to reconcile two ways of doing one thing. Removing the props deletes it — the SDK no longer arbitrates ownership, because there is only one owner.
 
-### `useChannelConfig` returns the channel's resolved configuration, not the raw server config
+### Channel configuration: `ChannelStateContext.channelConfig` → `channel.configState`
 
-The hook used to read the channel _type's_ server configuration out of `client.channelConfigsByTypeStore`. It now returns the channel's **resolved** configuration — the same server flags, already ANDed with whatever the integrator registered through `client.config`. Field names and shape change with it:
+In v14 a component read the channel's configuration from `ChannelStateContext` as
+`ChannelConfigWithInfo` — the channel type's raw server flags, copied into React state by `Channel`.
+That context is gone, and so is the copy: configuration now lives on the channel as a reactive store.
 
-| v14 (raw server flag)                   | v15 (resolved)                                |
-| --------------------------------------- | --------------------------------------------- |
-| `channelConfig?.typing_events`          | `channelConfig?.typingEvents.enabled`         |
-| `channelConfig?.read_events`            | `channelConfig?.readEvents.enabled`           |
-| `channelConfig?.replies`                | `channelConfig?.replies.enabled`              |
-| `channelConfig?.user_message_reminders` | `channelConfig?.userMessageReminders.enabled` |
-| `channelConfig?.commands`               | `channelConfig?.availableCommands`            |
+```ts
+// v14
+const { channelConfig } = useChannelStateContext();
+if (channelConfig?.typing_events) {
+  /* … */
+}
 
-`availableCommands` is the server's list, unchanged in shape — it is a list, not a gate, so there is nothing to reconcile. It is renamed for two reasons: whether a command is _usable_ right now is `messageComposer.isCommandDisabled(command)` and depends on the message context, so "enabled" would be wrong; and `messageComposer.config.commands` is an unrelated field holding `{ sendValidator }`. It is carried on the resolved configuration anyway so that **every question about what a channel permits has one answer** — mixing two sources is what let a UI offer features the client had disabled.
+// v15
+const configStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
 
-Fields of `ChannelConfigWithInfo` that have no client-side counterpart are no longer reachable through this hook. Read them from `channel.serverConfig`, and be aware of what that means: you are getting the server's half only, which is correct for a purely server-owned setting and wrong for anything the integrator can also configure.
+const channel = useChannel();
+const { typingEventsEnabled } = useStateStore(channel.configState, configStateSelector);
+```
 
-The hook takes an optional `channel` now, for callers outside a channel subtree. It resolves from context otherwise, and deliberately does **not** throw when there is none — `Channel` calls it while establishing that very context.
+Two things change at once.
 
-**Everything the React SDK reads now goes through the resolved configuration.** `serverConfig` has no callers left in `src/`.
+**The value is now _resolved_, not raw.** Every gate is the server flag ANDed with whatever the
+integrator registered through `client.config`, so it is the whole answer to "may this channel do X".
+Reading the raw flag is what let a UI offer features the client had already disabled. Field names
+change with the shape:
+
+| v14 (raw server flag)                   | v15 (resolved)                 |
+| --------------------------------------- | ------------------------------ |
+| `channelConfig?.typing_events`          | `typingEvents.enabled`         |
+| `channelConfig?.read_events`            | `readEvents.enabled`           |
+| `channelConfig?.replies`                | `replies.enabled`              |
+| `channelConfig?.user_message_reminders` | `userMessageReminders.enabled` |
+| `channelConfig?.commands`               | `availableCommands`            |
+
+`availableCommands` is the server's list, unchanged in shape — it is a list, not a gate, so there is
+nothing to reconcile. It is renamed for two reasons: whether a command is _usable_ right now is
+`messageComposer.isCommandDisabled(command)` and depends on the message context, so "enabled" would be
+wrong; and `messageComposer.config.commands` is an unrelated field holding `{ sendValidator }`.
+
+**You subscribe rather than read.** Select only the settings you use: the controller keeps the
+reference of every subtree a write does not touch, so a narrow selector means an unrelated
+configuration change does not re-render you. The selector must live at module scope, since
+`useStateStore` keys its subscription on it.
+
+`channel.config` holds the same resolved value as a plain getter. It does **not** subscribe, so a
+`client.config.set()` will not reach the screen — use it only where you are already re-rendering for
+another reason.
+
+Fields of `ChannelConfigWithInfo` that have no client-side counterpart are not on the resolved
+configuration. Read them from `channel.serverConfig`, and be aware of what that means: you are getting
+the server's half only, which is correct for a purely server-owned setting and wrong for anything the
+integrator can also configure.
+
+**Everything the React SDK reads now goes through the resolved configuration.** `serverConfig` has no
+callers left in `src/`.
 
 ## Channel state moves to a single reactive store
 

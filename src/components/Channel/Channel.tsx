@@ -7,7 +7,6 @@ import type {
   Event,
   Channel as StreamChannel,
 } from 'stream-chat';
-import { useChannelConfig } from './hooks/useChannelConfig';
 
 import { LoadingChannel as DefaultLoadingIndicator } from '../Loading';
 
@@ -31,6 +30,14 @@ import {
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
+import type { ChannelConfig } from 'stream-chat';
+import { useStateStore } from '../../store';
+
+// Selects the flag, not the `readEvents` subtree: comparing a boolean means this only
+// re-renders when the setting actually flips.
+const readEventsStateSelector = ({ readEvents }: ChannelConfig) => ({
+  readEventsEnabled: readEvents.enabled,
+});
 
 export type ChannelProps = {
   /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
@@ -112,7 +119,10 @@ const ChannelInner = (
   const { t } = useTranslationContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
-  const channelConfig = useChannelConfig({ channel, cid: channel.cid });
+  const { readEventsEnabled } = useStateStore(
+    channel.configState,
+    readEventsStateSelector,
+  );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
   const originalTitle = useRef('');
@@ -168,11 +178,7 @@ const ChannelInner = (
         !event.message?.parent_id || event.message?.show_in_channel;
 
       if (mainChannelUpdated) {
-        if (
-          document.hidden &&
-          channelConfig?.readEvents.enabled &&
-          !channel.muteStatus().muted
-        ) {
+        if (document.hidden && readEventsEnabled && !channel.muteStatus().muted) {
           const unread = channel.countUnread();
 
           if (activeUnreadHandler) {
@@ -317,12 +323,7 @@ const ChannelInner = (
       client.off('user.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    channel.cid,
-    channelQueryOptions,
-    channelConfig?.readEvents.enabled,
-    initializeOnMount,
-  ]);
+  }, [channel.cid, channelQueryOptions, readEventsEnabled, initializeOnMount]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;
