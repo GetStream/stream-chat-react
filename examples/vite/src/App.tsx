@@ -24,6 +24,7 @@ import {
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
+import { UnreadChannelList } from './UnreadChannelList';
 
 init({ data });
 
@@ -43,19 +44,27 @@ const apiKey = params.key ?? (import.meta.env.VITE_STREAM_KEY as string);
 const userToken = params.ut ?? (import.meta.env.VITE_USER_TOKEN as string);
 const userId = parseUserIdFromToken(userToken);
 
-const filters: ChannelFilters = {
-  members: { $in: [userId] },
-  type: 'messaging',
-  archived: false,
-};
+// `?inbox` turns the channel list into an "Unread" inbox. `UnreadChannelList` is what
+// keeps such a list paginating correctly - see ./UnreadChannelList.tsx.
+// `?limit=<n>` sets the page size.
+const inbox = params.inbox !== null;
+const ChannelListComponent = inbox ? UnreadChannelList : ChannelList;
+
+const filters: ChannelFilters = inbox
+  ? { has_unread: true, members: { $in: [userId] }, type: 'messaging' }
+  : { members: { $in: [userId] }, type: 'messaging', archived: false };
 const options: ChannelOptions = {
   // limit: 10,
   // message_limit: 10,
   // member_limit: 10,
   presence: true,
   state: true,
+  // a small page size makes the pagination easy to follow
+  ...(inbox ? { limit: Number(params.limit) || 10, message_limit: 1 } : null),
 };
-const sort: ChannelSort = { pinned_at: 1, last_message_at: -1, updated_at: -1 };
+const sort: ChannelSort = inbox
+  ? { last_message_at: -1 }
+  : { pinned_at: 1, last_message_at: -1, updated_at: -1 };
 
 // @ts-ignore
 const isMessageAIGenerated = (message: LocalMessage) => !!message?.ai_generated;
@@ -108,12 +117,12 @@ const App = () => {
       <ChatView>
         <ChatView.Selector />
         <ChatView.Channels>
-          <ChannelList
+          <ChannelListComponent
             Avatar={ChannelAvatar}
             filters={filters}
             options={options}
             sort={sort}
-            showChannelSearch
+            showChannelSearch={!inbox}
             additionalChannelSearchProps={{ searchForChannels: true }}
           />
           <Channel emojiSearchIndex={SearchIndex} EmojiPicker={EmojiPicker}>
