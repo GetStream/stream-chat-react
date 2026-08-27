@@ -1,3 +1,4 @@
+export * from './AttachmentUploadedSizeIndicator';
 export * from './LoadingChannel';
 export * from './LoadingChannels';
 export * from './LoadingErrorIndicator';

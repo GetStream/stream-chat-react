@@ -71,6 +71,8 @@ import { ConfigurableMessageActions } from './CustomMessageActions';
 import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import { StreamDebugHandles } from './Debug';
+import { installSlowUploadHarness } from './SendWhilePendingUploads';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -228,6 +230,9 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
+  const { sendMessagesWithPendingUploads, slowUploads } = useAppSettingsSelector(
+    (state) => state.composer,
+  );
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
     () => new URLSearchParams(window.location.search),
@@ -335,6 +340,22 @@ const App = () => {
     if (!chatClient) return;
 
     chatClient.setMessageComposerSetupFunction(({ composer }) => {
+      // Dev-only: stretch uploads so the in-flight and confirmation-pending windows are
+      // observable. Independent of sendMessagesWithPendingUploads — a slow upload is just as
+      // useful for watching the default blocked behaviour.
+      //
+      // The delay is read from settings on every upload rather than captured here, so editing
+      // the number in Settings → Composer takes effect without re-running setup — which matters
+      // because a custom doUploadRequest cannot be un-set once installed.
+      if (slowUploads) {
+        installSlowUploadHarness(composer, () => {
+          const { slowUploadMs, slowUploads: armed } =
+            appSettingsStore.getLatestValue().composer;
+
+          return armed ? slowUploadMs : 0;
+        });
+      }
+
       // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
       composer.compositionMiddlewareExecutor.insert({
         middleware: [createCommandInjectionMiddleware(composer)],
@@ -342,19 +363,25 @@ const App = () => {
         unique: true,
       });
 
+      // `unique: true` on the inserts below matters now that this setup function re-runs
+      // whenever the Composer setting changes — without it each toggle would append another
+      // copy of the same middleware.
       composer.draftCompositionMiddlewareExecutor.insert({
         middleware: [createDraftCommandInjectionMiddleware(composer)],
         position: { after: 'stream-io/message-composer-middleware/draft-attachments' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
         middleware: [createActiveCommandGuardMiddleware() as TextComposerMiddleware],
         position: { before: 'stream-io/text-composer/commands-middleware' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
         middleware: [createCommandStringExtractionMiddleware() as TextComposerMiddleware],
         position: { after: 'stream-io/text-composer/commands-middleware' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
@@ -370,7 +397,7 @@ const App = () => {
         location: { enabled: true },
       });
     });
-  }, [chatClient]);
+  }, [chatClient, slowUploads]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(
@@ -435,9 +462,14 @@ const App = () => {
           i18nInstance={i18nInstance}
           isMessageAIGenerated={isMessageAIGenerated}
           searchController={searchController}
+          // App Settings → Composer, off by default.
+          // See src/SendWhilePendingUploads/README.md
+          sendMessagesWithPendingUploads={sendMessagesWithPendingUploads}
           theme={chatTheme}
         >
           <ChatSkipNavigation />
+          {/* Publishes window.streamDebug — see src/Debug/StreamDebugHandles.tsx */}
+          <StreamDebugHandles />
           <div
             className='app-chat-layout'
             data-variant={messageUiVariant ?? undefined}

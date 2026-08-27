@@ -83,11 +83,17 @@ $message-bubble-padding: var(--str-chat__spacing-xs);
       display: flex;
     }
 
-    .str-chat__message--other .str-chat__message-inner {
+    // Give up the reserved gutter only when the options are actually there to fill it.
+    // `MessageActions` renders nothing when every action is filtered out — a message still
+    // `sending`, a `system`/`ephemeral` message — and without the `:has()` guard the bubble
+    // would widen into the freed gutter on hover and snap back on leave. Normally invisible,
+    // since `sending` lasts a few hundred milliseconds; not invisible when an upload keeps a
+    // message in that state, or in a narrow list where the bubble is at its max width.
+    .str-chat__message--other .str-chat__message-inner:has(.str-chat__message-options) {
       margin-inline-end: 0;
     }
 
-    .str-chat__message--me .str-chat__message-inner {
+    .str-chat__message--me .str-chat__message-inner:has(.str-chat__message-options) {
       margin-inline-start: 0;
     }
   }

@@ -22,7 +22,6 @@ import {
   useComponentContext,
   useContextMenuContext,
   useDialogIsOpen,
-  useDialogOnNearestManager,
   useMessageContext,
   useModalContext,
   useNotificationApi,
@@ -34,6 +33,7 @@ import {
   MessageInfoPromptDialog,
   messageInfoPromptDialogId,
 } from '../AppSettings/ActionsMenu/MessageInfoPromptDialog';
+import { usePersistentDialog } from '../AppSettings/ActionsMenu/usePersistentDialog';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error && error.message ? error.message : fallback;
@@ -327,9 +327,9 @@ export const ConfigurableMessageActions = (
     useState<OpenMessageInfoDialogParams | null>(null);
   const { t } = useTranslationContext();
   const currentMessageInfoDialogId = `${messageInfoPromptDialogId}-${currentMessage.id}`;
-  const { dialog: messageInfoDialog, dialogManager } = useDialogOnNearestManager({
-    id: currentMessageInfoDialogId,
-  });
+  const { dialog: messageInfoDialog, dialogManager } = usePersistentDialog(
+    currentMessageInfoDialogId,
+  );
   const messageInfoDialogIsOpen = useDialogIsOpen(
     currentMessageInfoDialogId,
     dialogManager?.id,

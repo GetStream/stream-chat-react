@@ -2,8 +2,43 @@ import {
   type APIErrorResponse,
   type ChannelState,
   ErrorFromResponse,
+  isLocalImageAttachment,
+  isPendingUpload,
+  type LocalMessage,
+  type LocalNotImageAttachment,
+  type LocalUploadAttachment,
   type MessageResponse,
+  type MinimumUploadRequestResult,
+  type StreamChat,
 } from 'stream-chat';
+
+/** Writes the resolved URL onto the attachment and releases its local preview. */
+const applyUploadResult = (
+  attachment: LocalUploadAttachment,
+  response: MinimumUploadRequestResult,
+) => {
+  const enriched: LocalUploadAttachment = { ...attachment };
+
+  // Narrow on the copy, not the original, so the assignment type-checks.
+  if (isLocalImageAttachment(enriched)) {
+    enriched.image_url = response.file;
+  } else {
+    (enriched as LocalNotImageAttachment).asset_url = response.file;
+  }
+  if (response.thumb_url) {
+    (enriched as LocalNotImageAttachment).thumb_url = response.thumb_url;
+  }
+
+  // The message has owned this preview since the composition was handed over — see
+  // `createPostUploadAttachmentEnrichmentMiddleware`, which stops revoking once the composer
+  // no longer holds the attachment.
+  const { previewUri } = attachment.localMetadata;
+  if (previewUri?.startsWith('blob:')) URL.revokeObjectURL?.(previewUri);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- omit-by-destructure
+  const { localMetadata, ...rest } = enriched;
+  return rest;
+};
 
 /**
  * Utility function for jumpToFirstUnreadMessage
@@ -161,4 +196,69 @@ export const adaptMessageSendErrorToErrorFromResponse = (
     } as ErrorFromResponse<APIErrorResponse>['response'],
     status,
   });
+};
+
+/**
+ * Settles the uploads of any attachment that is still in flight, and reports the outcome.
+ *
+ * A message only ever reaches the send path with a pending attachment when
+ * `createSendWithPendingUploadsAttachmentsMiddleware` is installed — the default composition
+ * middleware discards such a composition instead. `UploadManager.upload()` is idempotent by
+ * `localMetadata.id`, so this awaits the request the composer already started rather than
+ * starting a second one; an attachment whose upload never started (a retry, an offline replay)
+ * is uploaded here for the first time.
+ *
+ * Resolved attachments come back carrying their URL and **without** `localMetadata`, and their
+ * local preview is revoked. Failed ones are returned untouched, `localMetadata` and all, so a
+ * retry re-uploads only what is still missing.
+ */
+export const settlePendingAttachmentUploads = async ({
+  attachments,
+  channelCid,
+  client,
+}: {
+  attachments: NonNullable<LocalMessage['attachments']>;
+  channelCid: string;
+  client: StreamChat;
+}): Promise<{
+  attachments: NonNullable<LocalMessage['attachments']>;
+  failureReason?: unknown;
+}> => {
+  const pendingIndexes = attachments.reduce<number[]>((indexes, attachment, index) => {
+    if (isPendingUpload(attachment)) indexes.push(index);
+    return indexes;
+  }, []);
+
+  if (!pendingIndexes.length) return { attachments };
+
+  const settled = await Promise.allSettled(
+    pendingIndexes.map((index) => {
+      const { file, id } = (attachments[index] as LocalUploadAttachment).localMetadata;
+      return client.uploadManager.upload({ channelCid, file, id });
+    }),
+  );
+
+  const nextAttachments = [...attachments];
+  let failureReason: unknown;
+
+  settled.forEach((result, position) => {
+    const index = pendingIndexes[position];
+    const attachment = nextAttachments[index] as LocalUploadAttachment;
+
+    if (result.status === 'fulfilled' && result.value) {
+      nextAttachments[index] = applyUploadResult(attachment, result.value);
+      return;
+    }
+
+    // Deliberately `allSettled`, and the resolved URLs above are kept even though the message as
+    // a whole now fails: a retry then only re-uploads what did not make it.
+    if (!failureReason) {
+      failureReason =
+        result.status === 'rejected'
+          ? result.reason
+          : new Error('Attachment upload returned no result');
+    }
+  });
+
+  return { attachments: nextAttachments, failureReason };
 };

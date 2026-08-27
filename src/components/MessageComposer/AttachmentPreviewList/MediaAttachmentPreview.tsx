@@ -21,6 +21,7 @@ import clsx from 'clsx';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
+import { isUploadConfirmationPending } from '../../Attachment/hooks/useAttachmentUploadState';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { MediaBadge } from '../../Badge/MediaBadge';
 
@@ -100,7 +101,14 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && <UploadProgressIndicator uploadProgress={uploadProgress} />}
+          {isUploading && (
+            <UploadProgressIndicator
+              uploadConfirmationPending={isUploadConfirmationPending(
+                attachment.localMetadata,
+              )}
+              uploadProgress={uploadProgress}
+            />
+          )}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&

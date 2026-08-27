@@ -24,11 +24,11 @@ import {
   Prompt,
   TextInput,
   useDialogIsOpen,
-  useDialogOnNearestManager,
   useNotificationApi,
   Viewer,
 } from 'stream-chat-react';
 import { DraggableDialog } from './DraggableDialog';
+import { usePersistentDialog } from './usePersistentDialog';
 import {
   buildNotificationActions,
   entryDirectionOptions,
@@ -506,9 +506,7 @@ export const NotificationPromptDialog = ({
   const [globalModalOpen, setGlobalModalOpen] = useState(false);
   const chipIdRef = useRef(0);
   const { addNotification } = useNotificationApi();
-  const { dialog, dialogManager } = useDialogOnNearestManager({
-    id: notificationPromptDialogId,
-  });
+  const { dialog, dialogManager } = usePersistentDialog(notificationPromptDialogId);
   const dialogIsOpen = useDialogIsOpen(notificationPromptDialogId, dialogManager?.id);
 
   const resetState = useCallback(() => {

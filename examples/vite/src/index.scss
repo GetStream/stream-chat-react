@@ -7,12 +7,14 @@
 @import url('modern-normalize') layer(modern-normalize);
 @import url('stream-chat-react/dist/css/index.css') layer(stream-new);
 @import url('./AppSettings/AppSettings.scss') layer(stream-app-overrides);
+@import url('./AppSettings/ActionsMenu/DraggableDialog.scss') layer(stream-app-overrides);
 @import url('./CustomMessageActions/CustomMessageActions.scss')
 layer(stream-app-overrides);
 @import url('./InlineEditMessage/InlineEditMessage.scss') layer(stream-app-overrides);
 @import url('./SystemNotification/SystemNotification.scss') layer(stream-app-overrides);
 @import url('./AccessibilityNavigation/ReturnToSkipNavigation.scss')
 layer(stream-app-overrides);
+@import url('./Debug/ComposerInspector.scss') layer(stream-app-overrides);
 @import url('stream-chat-react/dist/css/emoji-picker.css') layer(stream-new-plugins);
 @import url('stream-chat-react/dist/css/channel-detail.css') layer(stream-new-plugins);
 
@@ -698,5 +700,9 @@ body {
       pointer-events: auto;
       transform: translateX(0);
     }
+  }
+  .app__upload-delay-numeric-field input {
+    width: unset;
+    max-width: 8ch;
   }
 }

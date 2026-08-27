@@ -44,8 +44,14 @@ import {
   SUPPORTED_VIDEO_FORMATS,
 } from './utils';
 import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useComponentContext } from '../../context/ComponentContext';
 import type { ImageAttachmentConfiguration } from '../../types/types';
 import { VisibilityDisclaimer } from './VisibilityDisclaimer';
+import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './components';
+import {
+  getAttachmentPreviewUrl,
+  hasPendingUploadState,
+} from './hooks/useAttachmentUploadState';
 import { VideoAttachment } from './VideoAttachment';
 import type { AttachmentProps } from './Attachment';
 
@@ -178,18 +184,38 @@ export const GiphyContainer = (props: RenderAttachmentProps) => {
   );
 };
 
+/**
+ * Whether there is anything to render the attachment from: a CDN url, or the local file while
+ * its upload is in flight — or after it failed, since a failed message can be retried and the
+ * user has to see what they are retrying.
+ *
+ * Deliberately non-reactive (payload only): `UploadManager` drops its record a microtask before
+ * the resolved URL is written back, and gating on the live record would blink the attachment out
+ * of the DOM in between.
+ */
+const hasRenderableSource = (attachment: Attachment | LocalAttachment) =>
+  hasPendingUploadState(attachment) ||
+  !!getAttachmentPreviewUrl(attachment, attachment.asset_url);
+
 export const FileContainer = (props: RenderAttachmentProps) => {
   const { attachment } = props;
 
+  // Audio and voice recordings render nothing without a source — `useAudioPlayer` needs one —
+  // but their containers would still occupy layout, so they are filtered here too.
   if (isVoiceRecordingAttachment(attachment)) {
-    return <VoiceRecordingContainer {...props} />;
+    return hasRenderableSource(attachment) ? (
+      <VoiceRecordingContainer {...props} />
+    ) : null;
   }
 
   if (isAudioAttachment(attachment)) {
-    return <AudioContainer {...props} />;
+    return hasRenderableSource(attachment) ? <AudioContainer {...props} /> : null;
   }
 
-  if (!attachment.asset_url || !isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)) {
+  if (
+    !hasRenderableSource(attachment) ||
+    !isFileAttachment(attachment, SUPPORTED_VIDEO_FORMATS)
+  ) {
     return null;
   }
 
@@ -200,10 +226,16 @@ export const GalleryContainer = ({
   attachment,
   ModalGallery = DefaultModalGallery,
 }: RenderGalleryProps) => {
+  const { AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator } =
+    useComponentContext();
   const items = useMemo<GalleryItem[]>(
     () =>
       attachment.items.reduce<GalleryItem[]>((acc, attachment) => {
-        const item = toGalleryItemDescriptors(attachment);
+        // Falls back to the local blob preview while the upload is still in flight.
+        const item = toGalleryItemDescriptors({
+          ...attachment,
+          image_url: getAttachmentPreviewUrl(attachment, attachment.image_url),
+        });
         if (item) acc.push(item);
         return acc;
       }, []),
@@ -212,12 +244,20 @@ export const GalleryContainer = ({
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='gallery'>
       <ModalGallery items={items} key='gallery' />
+      {/* One combined bar for the gallery — per-item overlays are not possible here,
+          because ModalGallery receives positioned descriptors, not the attachments. */}
+      <AttachmentUploadProgressIndicator
+        attachments={attachment.items}
+        variant='overlay'
+      />
     </AttachmentWithinContainer>
   );
 };
 
 export const ImageContainer = (props: RenderAttachmentProps) => {
   const { attachment, Image = DefaultImage } = props;
+  const { AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator } =
+    useComponentContext();
   const componentType = 'image';
   const imageElement = useRef<HTMLImageElement>(null);
   const { imageAttachmentSizeHandler } = useChannelStateContext();
@@ -232,7 +272,9 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
     }
   }, [imageElement, imageAttachmentSizeHandler, attachment]);
 
-  const imgUrlFromAttachment = attachment.image_url || attachment.thumb_url || '';
+  // Falls back to the local blob preview while the upload is still in flight.
+  const imgUrlFromAttachment =
+    getAttachmentPreviewUrl(attachment, attachment.image_url, attachment.thumb_url) || '';
 
   const imageConfig: GalleryItem = {
     ...toGalleryItemDescriptors({
@@ -248,6 +290,7 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
       <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
         <div className='str-chat__attachment'>
           <Image {...imageConfig} />
+          <AttachmentUploadProgressIndicator attachment={attachment} variant='overlay' />
           <AttachmentActionsContainer {...props} />
         </div>
       </AttachmentWithinContainer>
@@ -257,6 +300,7 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
   return (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
       <Image {...imageConfig} />
+      <AttachmentUploadProgressIndicator attachment={attachment} variant='overlay' />
     </AttachmentWithinContainer>
   );
 };
@@ -265,7 +309,8 @@ export const OtherFilesContainer = ({
   attachment,
   File = DefaultFile,
 }: RenderAttachmentProps) => {
-  if (!attachment.asset_url) return null;
+  // Same check as FileContainer, repeated because this is exported and used directly too.
+  if (!hasRenderableSource(attachment)) return null;
 
   return (
     <AttachmentWithinContainer attachment={attachment} componentType='file'>
@@ -301,18 +346,22 @@ export const VideoContainer = (
   props: Omit<AttachmentProps, 'attachments'> & { attachment: VideoAttachmentType },
 ) => {
   const { attachment, Media } = props;
+  const { AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator } =
+    useComponentContext();
   const componentType = 'media';
 
   return attachment.actions?.length ? (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
       <div className='str-chat__attachment'>
         <VideoAttachment attachment={attachment} VideoPlayer={Media} />
+        <AttachmentUploadProgressIndicator attachment={attachment} variant='overlay' />
         <AttachmentActionsContainer {...props} />
       </div>
     </AttachmentWithinContainer>
   ) : (
     <AttachmentWithinContainer attachment={attachment} componentType={componentType}>
       <VideoAttachment attachment={attachment} VideoPlayer={Media} />
+      <AttachmentUploadProgressIndicator attachment={attachment} variant='overlay' />
     </AttachmentWithinContainer>
   );
 };

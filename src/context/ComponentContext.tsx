@@ -78,6 +78,7 @@ import type { StopAIGenerationButtonProps } from '../components/MessageComposer/
 import type { VideoPlayerProps } from '../components/VideoPlayer';
 import type { EditedMessagePreviewProps } from '../components/MessageComposer/EditedMessagePreview';
 import type { FileIconProps } from '../components/FileIcon/FileIcon';
+import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
 import type { FileSizeIndicatorProps } from '../components/Attachment/components/FileSizeIndicator';
 import type { CommandChipProps } from '../components/MessageComposer/CommandChip';
 import type { ProgressIndicatorProps } from '../components/Loading/progress-indicators';
@@ -91,6 +92,8 @@ export type ComponentContextValue = {
   Attachment?: React.ComponentType<AttachmentProps>;
   /** Custom UI component for the file type icon shown on file attachments (e.g. PDF, doc). Accepts same props as [FileIcon](https://github.com/GetStream/stream-chat-react/blob/master/src/components/FileIcon/FileIcon.tsx) (e.g. mimeType, size, sizeConfig). Use this to override dimensions or provide a custom icon. */
   AttachmentFileIcon?: React.ComponentType<FileIconProps>;
+  /** Custom UI component rendering the progress of an attachment whose upload is still in flight, defaults to and accepts same props as: [AttachmentUploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/components/AttachmentUploadProgressIndicator.tsx) */
+  AttachmentUploadProgressIndicator?: React.ComponentType<AttachmentUploadProgressIndicatorProps>;
   /** Custom UI component to display an attachment previews in MessageComposer, defaults to and accepts same props as: [Attachment](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentPreviewList.tsx) */
   AttachmentPreviewList?: React.ComponentType<AttachmentPreviewListProps>;
   /** Custom UI component to control adding attachments to MessageComposer, defaults to and accepts same props as: [AttachmentSelector](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/AttachmentSelector.tsx) */

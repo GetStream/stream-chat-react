@@ -57,7 +57,7 @@ export type ChatContextValue = {
    */
   customClasses?: CustomClasses;
 } & Partial<Pick<ChatProps, 'isMessageAIGenerated'>> &
-  Required<Pick<ChatProps, 'theme' | 'client'>>;
+  Required<Pick<ChatProps, 'sendMessagesWithPendingUploads' | 'theme' | 'client'>>;
 
 export const ChatContext = React.createContext<ChatContextValue | undefined>(undefined);
 

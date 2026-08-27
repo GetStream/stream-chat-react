@@ -29,7 +29,7 @@ import type {
   StreamChat,
   UpdateMessageOptions,
 } from 'stream-chat';
-import { localMessageToNewMessagePayload } from 'stream-chat';
+import { localMessageToNewMessagePayload, withoutConcurrency } from 'stream-chat';
 
 import { initialState, makeChannelReducer } from './channelState';
 import { useCreateChannelStateContext } from './hooks/useCreateChannelStateContext';
@@ -74,6 +74,7 @@ import {
   adaptMessageSendErrorToErrorFromResponse,
   findInMsgSetByDate,
   findInMsgSetById,
+  settlePendingAttachmentUploads,
 } from './utils';
 import { useThreadContext } from '../Threads';
 import { getChannel } from '../../utils';
@@ -241,8 +242,14 @@ const ChannelInner = (
     LoadingIndicator = DefaultLoadingIndicator,
   } = useComponentContext();
 
-  const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
-    useChatContext('Channel');
+  const {
+    client,
+    customClasses,
+    latestMessageDatesByChannels,
+    mutes,
+    searchController,
+    sendMessagesWithPendingUploads,
+  } = useChatContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
@@ -917,7 +924,7 @@ const ChannelInner = (
     });
   };
 
-  const doSendMessage = async ({
+  const sendMessageRequest = async ({
     localMessage,
     message,
     options,
@@ -927,12 +934,47 @@ const ChannelInner = (
     options?: SendMessageOptions;
   }) => {
     try {
+      // With `ChatContext.sendMessagesWithPendingUploads`, a message can reach this point
+      // while its attachments are still uploading. Settling them here rather than in the
+      // composer's submit handler means `retrySendMessage` gets the same treatment, and an
+      // attachment that already has a URL is skipped — so a retry only re-uploads what failed.
+      const { attachments: settledAttachments, failureReason } =
+        await settlePendingAttachmentUploads({
+          attachments: localMessage.attachments ?? [],
+          channelCid: channel.cid,
+          client,
+        });
+
+      if (failureReason) {
+        // One failed upload fails the whole message: the send was already committed
+        // optimistically, so there is nobody left to ask whether to proceed without that
+        // attachment, and dropping it silently would alter what the user sent. Nothing is sent.
+        // `AttachmentManager` has already raised the per-upload error notification.
+        const failedMessage: LocalMessage = {
+          ...localMessage,
+          attachments: settledAttachments,
+          error: adaptMessageSendErrorToErrorFromResponse(failureReason),
+          status: 'failed',
+        };
+        updateMessage(failedMessage);
+        thread?.upsertReplyLocally({ message: failedMessage });
+        return;
+      }
+
+      // `settledAttachments` is the same array unless something was uploaded just now, in which
+      // case the payload has to be rebuilt from it: the composition middleware left
+      // `message.attachments` holding only the attachments that already had a URL.
+      const messageToSend =
+        settledAttachments === localMessage.attachments
+          ? message
+          : { ...message, attachments: settledAttachments };
+
       let messageResponse: void | SendMessageAPIResponse;
 
       if (doSendMessageRequest) {
-        messageResponse = await doSendMessageRequest(channel, message, options);
+        messageResponse = await doSendMessageRequest(channel, messageToSend, options);
       } else {
-        messageResponse = await channel.sendMessage(message, options);
+        messageResponse = await channel.sendMessage(messageToSend, options);
       }
 
       let existingMessage: LocalMessage | undefined = undefined;
@@ -998,6 +1040,24 @@ const ChannelInner = (
       }
     }
   };
+
+  /**
+   * With `sendMessagesWithPendingUploads`, sends are serialised per channel. Otherwise a text-only
+   * message would reach the server while an earlier message was still uploading, and since
+   * `created_at` is stamped when the request arrives, the channel would end up in a different
+   * order than the user watched happen. `withoutConcurrency` lets a failed send through without
+   * blocking the ones behind it.
+   */
+  const doSendMessage = (params: {
+    localMessage: LocalMessage;
+    message: Message;
+    options?: SendMessageOptions;
+  }) =>
+    sendMessagesWithPendingUploads
+      ? withoutConcurrency(`stream-chat-react/send-message/${channel.cid}`, () =>
+          sendMessageRequest(params),
+        )
+      : sendMessageRequest(params);
 
   const sendMessage = async ({
     localMessage,

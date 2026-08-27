@@ -5,10 +5,17 @@ import { CircularProgressIndicator as DefaultProgressIndicator } from './progres
 import { LoadingIndicator as DefaultLoadingIndicator } from './LoadingIndicator';
 
 export type UploadProgressIndicatorProps = {
+  /**
+   * Every byte has been sent, but the server has not confirmed yet — see
+   * `UploadRecord.uploadConfirmationPending` in `stream-chat`. Renders the indeterminate indicator, since
+   * a bar sitting at 100% would claim the upload is confirmed while it is not.
+   */
+  uploadConfirmationPending?: boolean;
   uploadProgress?: number;
 };
 
 export const UploadProgressIndicator = ({
+  uploadConfirmationPending,
   uploadProgress,
 }: UploadProgressIndicatorProps) => {
   const {
@@ -16,7 +23,7 @@ export const UploadProgressIndicator = ({
     ProgressIndicator = DefaultProgressIndicator,
   } = useComponentContext();
 
-  if (uploadProgress === undefined) {
+  if (uploadConfirmationPending || uploadProgress === undefined) {
     return <LoadingIndicator data-testid='loading-indicator' />;
   }
 

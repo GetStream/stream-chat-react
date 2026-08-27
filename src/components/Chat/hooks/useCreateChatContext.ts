@@ -13,6 +13,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
     latestMessageDatesByChannels,
     mutes,
     searchController,
+    sendMessagesWithPendingUploads,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
@@ -38,6 +39,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
       latestMessageDatesByChannels,
       mutes,
       searchController,
+      sendMessagesWithPendingUploads,
       setActiveChannel,
       theme,
       useImageFlagEmojisOnWindows,
@@ -52,6 +54,7 @@ export const useCreateChatContext = (value: ChatContextValue) => {
       searchController,
       mutedUsersLength,
       isMessageAIGenerated,
+      sendMessagesWithPendingUploads,
     ],
   );
 

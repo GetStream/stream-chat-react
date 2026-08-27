@@ -1,12 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { LocalAttachment } from 'stream-chat';
-import {
-  Prompt,
-  useChatContext,
-  useDialogIsOpen,
-  useDialogOnNearestManager,
-} from 'stream-chat-react';
+import { Prompt, useChatContext, useDialogIsOpen } from 'stream-chat-react';
 import { DraggableDialog } from './DraggableDialog';
+import { usePersistentDialog } from './usePersistentDialog';
 
 export const attachmentPromptDialogId = 'app-attachment-prompt-dialog';
 type AttachmentEditorTab = 'unsupported-file' | 'unsupported-object';
@@ -54,9 +50,7 @@ export const AttachmentPromptDialog = ({
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const { channel } = useChatContext();
-  const { dialog, dialogManager } = useDialogOnNearestManager({
-    id: attachmentPromptDialogId,
-  });
+  const { dialog, dialogManager } = usePersistentDialog(attachmentPromptDialogId);
   const dialogIsOpen = useDialogIsOpen(attachmentPromptDialogId, dialogManager?.id);
 
   useEffect(() => {
