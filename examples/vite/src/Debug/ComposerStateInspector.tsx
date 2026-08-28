@@ -132,6 +132,12 @@ export const ComposerStateInspector = ({
     <div className='app__composer-inspector__body'>
       <div className='app__composer-inspector__flags'>
         <Flag label='hasSendableData' on={composer.hasSendableData} />
+        {/*
+          Whether a composition middleware declaring `allowsPendingUploads` is installed - the
+          only way to see that the "Allow sending while attachments are still uploading" switch
+          reached the composer, since nothing else about the chain is observable.
+        */}
+        <Flag label='allowsPendingUploads' on={composer.allowsPendingUploads} />
         <Flag label='compositionIsEmpty' on={composer.compositionIsEmpty} />
         <Flag label='contentIsEmpty' on={composer.contentIsEmpty} />
         <Flag label='isCommandSendable' on={composer.isCommandSendable} />

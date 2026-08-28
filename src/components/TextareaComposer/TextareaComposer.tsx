@@ -134,8 +134,8 @@ const TextareaComposerWithLiveAnnouncements = ({
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
   const messageComposer = useMessageComposerController();
-  // Read through the hook rather than off the composer: with `Channel`'s `sendMessagesWithPendingUploads`
-  // the rule differs, and Enter-to-submit has to agree with the send button.
+  // Read through the hook rather than off the composer directly, so Enter-to-submit stays in
+  // agreement with the send button.
   const hasSendableData = useMessageComposerHasSendableData();
   const { textComposer } = messageComposer;
   const { selection, suggestions, text } = useStateStore(

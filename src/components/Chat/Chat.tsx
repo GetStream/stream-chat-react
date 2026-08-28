@@ -99,23 +99,6 @@ export type ChatProps = {
   searchController?: SearchController;
   /** Controls whether a notification can be displayed by a NotificationList. */
   notificationDisplayFilter?: NotificationDisplayFilter;
-  /**
-   * Lets a message be sent while its attachments are still uploading. Off by default.
-   *
-   * The message appears in the list immediately with live upload progress; the API request is
-   * made once the uploads settle, and requests are serialised per channel so a later message
-   * cannot overtake an earlier one still uploading. A message whose upload fails is marked
-   * failed and can be resent — a retry re-uploads only what did not make it.
-   *
-   * This is a `stream-chat-react` prop rather than a `MessageComposer` config option because the
-   * flow is only half implemented in `stream-chat`: the composer produces a composition whose
-   * attachments have no URL yet, and this SDK's send path is what awaits them. Other UI SDKs
-   * expose their own switch (`allowSendBeforeAttachmentsUpload` in stream-chat-react-native).
-   *
-   * Set here rather than on `Channel` so it also reaches the `Channel` instances the SDK creates
-   * itself — the threads (inbox) view gets one from `ThreadProvider`.
-   */
-  sendMessagesWithPendingUploads?: boolean;
   /** Used for injecting className/s to the Channel and ChannelList components */
   theme?: string;
   /**
@@ -142,7 +125,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     isMessageAIGenerated,
     notificationDisplayFilter,
     searchController: customChannelSearchController,
-    sendMessagesWithPendingUploads = false,
     theme = 'messaging light',
     useImageFlagEmojisOnWindows = false,
   } = props;
@@ -185,7 +167,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     latestMessageDatesByChannels,
     mutes,
     searchController,
-    sendMessagesWithPendingUploads,
     setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,

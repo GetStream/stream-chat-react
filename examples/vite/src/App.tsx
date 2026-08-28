@@ -4,14 +4,17 @@ import type {
   ChannelOptions,
   ChannelSort,
   LocalMessage,
+  MessageComposer,
   TextComposerMiddleware,
 } from 'stream-chat';
 import {
   ChannelSearchSource,
   createActiveCommandGuardMiddleware,
+  createAttachmentsCompositionMiddleware,
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  createSendWithPendingUploadsAttachmentsMiddleware,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -227,6 +230,22 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
 
+/**
+ * Swaps the composition middleware that decides whether a message may be composed while its
+ * attachments are still uploading. Installing it is the whole switch: `MessageComposer` reads
+ * `allowsPendingUploads` off the installed middleware for sendability, and `Channel`'s send path
+ * reads the same flag to serialise sends and await the uploads.
+ *
+ * Both middleware share an id, so `replace` keeps the position in the chain either way.
+ */
+const applyPendingUploadsMiddleware = (composer: MessageComposer, enabled: boolean) => {
+  composer.compositionMiddlewareExecutor.replace([
+    enabled
+      ? createSendWithPendingUploadsAttachmentsMiddleware(composer)
+      : createAttachmentsCompositionMiddleware(composer),
+  ]);
+};
+
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
@@ -339,6 +358,8 @@ const App = () => {
     if (!chatClient) return;
 
     chatClient.setMessageComposerSetupFunction(({ composer }) => {
+      applyPendingUploadsMiddleware(composer, sendMessagesWithPendingUploads);
+
       // Dev-only: stretch uploads so the in-flight and confirmation-pending windows are
       // observable, and/or make them fail so the failed-message and retry paths are reachable.
       // Independent of sendMessagesWithPendingUploads — both are just as useful for watching the
@@ -400,7 +421,24 @@ const App = () => {
         location: { enabled: true },
       });
     });
-  }, [chatClient, failUploads, slowUploads]);
+
+    // The setup function only runs when a composer is created, so composers the user already
+    // has open have to be updated too - otherwise the switch would need a reload to be seen.
+    Object.values(chatClient.activeChannels).forEach((channel) => {
+      applyPendingUploadsMiddleware(
+        channel.messageComposer,
+        sendMessagesWithPendingUploads,
+      );
+    });
+    chatClient.threads.state
+      .getLatestValue()
+      .threads.forEach((thread) =>
+        applyPendingUploadsMiddleware(
+          thread.messageComposer,
+          sendMessagesWithPendingUploads,
+        ),
+      );
+  }, [chatClient, failUploads, sendMessagesWithPendingUploads, slowUploads]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(
@@ -465,8 +503,6 @@ const App = () => {
           i18nInstance={i18nInstance}
           isMessageAIGenerated={isMessageAIGenerated}
           searchController={searchController}
-          // App Settings → Composer, off by default.
-          sendMessagesWithPendingUploads={sendMessagesWithPendingUploads}
           theme={chatTheme}
         >
           <ChatSkipNavigation />

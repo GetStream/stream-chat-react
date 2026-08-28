@@ -242,14 +242,8 @@ const ChannelInner = (
     LoadingIndicator = DefaultLoadingIndicator,
   } = useComponentContext();
 
-  const {
-    client,
-    customClasses,
-    latestMessageDatesByChannels,
-    mutes,
-    searchController,
-    sendMessagesWithPendingUploads,
-  } = useChatContext();
+  const { client, customClasses, latestMessageDatesByChannels, mutes, searchController } =
+    useChatContext();
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext('Channel');
   const chatContainerClass = getChatContainerClass(customClasses?.chatContainer);
@@ -934,8 +928,8 @@ const ChannelInner = (
     options?: SendMessageOptions;
   }) => {
     try {
-      // With `ChatContext.sendMessagesWithPendingUploads`, a message can reach this point
-      // while its attachments are still uploading. Settling them here rather than in the
+      // With a composition middleware that allows pending uploads, a message can reach this
+      // point while its attachments are still uploading. Settling them here rather than in the
       // composer's submit handler means `retrySendMessage` gets the same treatment, and an
       // attachment that already has a URL is skipped — so a retry only re-uploads what failed.
       const { attachments: settledAttachments, failureReason } =
@@ -1042,18 +1036,21 @@ const ChannelInner = (
   };
 
   /**
-   * With `sendMessagesWithPendingUploads`, sends are serialised per channel. Otherwise a text-only
-   * message would reach the server while an earlier message was still uploading, and since
-   * `created_at` is stamped when the request arrives, the channel would end up in a different
-   * order than the user watched happen. `withoutConcurrency` lets a failed send through without
-   * blocking the ones behind it.
+   * Sends are serialised per channel while a composition middleware declaring
+   * `allowsPendingUploads` is installed. Without it a text-only message would reach the server
+   * while an earlier message was still uploading, and since `created_at` is stamped when the
+   * request arrives, the channel would end up in a different order than the user watched happen.
+   * `withoutConcurrency` lets a failed send through without blocking the ones behind it.
+   *
+   * Read off the channel's composer, which is what the composer setup function configures — so
+   * whoever installs the middleware gets the matching send path with nothing else to switch on.
    */
   const doSendMessage = (params: {
     localMessage: LocalMessage;
     message: Message;
     options?: SendMessageOptions;
   }) =>
-    sendMessagesWithPendingUploads
+    channel.messageComposer.allowsPendingUploads
       ? withoutConcurrency(`stream-chat-react/send-message/${channel.cid}`, () =>
           sendMessageRequest(params),
         )

@@ -71,8 +71,11 @@ does not have to be rendered inside `<Channel>` to do it.
 
 Shows:
 
-- **Flags** — `hasSendableData`, `compositionIsEmpty`, `contentIsEmpty`, `isCommandSendable`,
-  colour-coded rather than printed as words.
+- **Flags** — `hasSendableData`, `allowsPendingUploads`, `compositionIsEmpty`, `contentIsEmpty`,
+  `isCommandSendable`, colour-coded rather than printed as words. `allowsPendingUploads` reports
+  whether a composition middleware declaring it is installed, which is how you confirm the
+  Composer tab's "Allow sending while attachments are still uploading" switch reached this
+  composer.
 - **Identity** — `tag`, `contextType`, `threadId`, `editedMessageId`, so it is unambiguous
   which instance you are looking at.
 - **Attachments** — a table of id / type / `uploadState` / live progress / preview. Progress is

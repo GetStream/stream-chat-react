@@ -88,7 +88,7 @@ describe('useSubmitHandler', () => {
   });
 
   it('publishes typing.stop before sending, without waiting for it', async () => {
-    // With `Chat`'s `sendMessagesWithPendingUploads` the send lasts as long as the upload, so
+    // When composing with pending uploads the send lasts as long as the upload, so
     // stopping typing
     // afterwards would leave the indicator up for the whole transfer.
     submitMocks.messageComposerMock.config.text.publishTypingEvents = true;

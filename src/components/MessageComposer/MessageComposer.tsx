@@ -3,7 +3,6 @@ import React, { useContext, useEffect } from 'react';
 
 import { MessageComposerUI as DefaultMessageComposerUI } from './MessageComposerUI';
 import { useMessageComposerController } from './hooks';
-import { useSendMessagesWithPendingUploads } from './hooks/useSendMessagesWithPendingUploads';
 import { useCreateMessageComposerContext } from './hooks/useCreateMessageComposerContext';
 import { useMessageComposerBindings } from './hooks/useMessageComposerBindings';
 import type { ComponentContextValue } from '../../context/ComponentContext';
@@ -172,10 +171,6 @@ const UnMemoizedMessageComposer = (props: MessageComposerProps) => {
     useComponentContext('MessageComposer');
   const messageComposer = useMessageComposerController();
   const id = useStableId();
-
-  // Installs the composition middleware that allows composing while attachments upload, for as
-  // long as `Channel`'s `sendMessagesWithPendingUploads` prop is on.
-  useSendMessagesWithPendingUploads();
 
   const dialogManagerId = messageComposer.threadId
     ? `message-input-dialog-manager-thread-${id}`
