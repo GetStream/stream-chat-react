@@ -4,14 +4,17 @@ import type {
   ChannelOptions,
   ChannelSort,
   LocalMessage,
+  MessageComposer,
   TextComposerMiddleware,
 } from 'stream-chat';
 import {
   ChannelSearchSource,
   createActiveCommandGuardMiddleware,
+  createAttachmentsCompositionMiddleware,
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  createSendWithPendingUploadsAttachmentsMiddleware,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -71,6 +74,8 @@ import { ConfigurableMessageActions } from './CustomMessageActions';
 import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import { StreamDebugHandles } from './Debug';
+import { installUploadHarness } from './SendWhilePendingUploads';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -225,9 +230,27 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
 
+/**
+ * Swaps the composition middleware that decides whether a message may be composed while its
+ * attachments are still uploading. Installing it is the whole switch: `MessageComposer` reads
+ * `allowsPendingUploads` off the installed middleware for sendability, and `Channel`'s send path
+ * reads the same flag to serialise sends and await the uploads.
+ *
+ * Both middleware share an id, so `replace` keeps the position in the chain either way.
+ */
+const applyPendingUploadsMiddleware = (composer: MessageComposer, enabled: boolean) => {
+  composer.compositionMiddlewareExecutor.replace([
+    enabled
+      ? createSendWithPendingUploadsAttachmentsMiddleware(composer)
+      : createAttachmentsCompositionMiddleware(composer),
+  ]);
+};
+
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
+  const { failUploads, sendMessagesWithPendingUploads, slowUploads } =
+    useAppSettingsSelector((state) => state.composer);
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
     () => new URLSearchParams(window.location.search),
@@ -335,6 +358,28 @@ const App = () => {
     if (!chatClient) return;
 
     chatClient.setMessageComposerSetupFunction(({ composer }) => {
+      applyPendingUploadsMiddleware(composer, sendMessagesWithPendingUploads);
+
+      // Dev-only: stretch uploads so the in-flight and confirmation-pending windows are
+      // observable, and/or make them fail so the failed-message and retry paths are reachable.
+      // Independent of sendMessagesWithPendingUploads — both are just as useful for watching the
+      // default blocked behaviour.
+      //
+      // Settings are read on every upload rather than captured here, so changing them in
+      // Settings → Composer takes effect without re-running setup — which matters because a
+      // custom doUploadRequest cannot be un-set once installed.
+      if (slowUploads || failUploads !== 'off') {
+        installUploadHarness(composer, () => {
+          const {
+            failUploads: failureMode,
+            slowUploadMs,
+            slowUploads: slowArmed,
+          } = appSettingsStore.getLatestValue().composer;
+
+          return { delayMs: slowArmed ? slowUploadMs : 0, failureMode };
+        });
+      }
+
       // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
       composer.compositionMiddlewareExecutor.insert({
         middleware: [createCommandInjectionMiddleware(composer)],
@@ -342,19 +387,25 @@ const App = () => {
         unique: true,
       });
 
+      // `unique: true` on the inserts below matters now that this setup function re-runs
+      // whenever the Composer setting changes — without it each toggle would append another
+      // copy of the same middleware.
       composer.draftCompositionMiddlewareExecutor.insert({
         middleware: [createDraftCommandInjectionMiddleware(composer)],
         position: { after: 'stream-io/message-composer-middleware/draft-attachments' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
         middleware: [createActiveCommandGuardMiddleware() as TextComposerMiddleware],
         position: { before: 'stream-io/text-composer/commands-middleware' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
         middleware: [createCommandStringExtractionMiddleware() as TextComposerMiddleware],
         position: { after: 'stream-io/text-composer/commands-middleware' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
@@ -370,7 +421,24 @@ const App = () => {
         location: { enabled: true },
       });
     });
-  }, [chatClient]);
+
+    // The setup function only runs when a composer is created, so composers the user already
+    // has open have to be updated too - otherwise the switch would need a reload to be seen.
+    Object.values(chatClient.activeChannels).forEach((channel) => {
+      applyPendingUploadsMiddleware(
+        channel.messageComposer,
+        sendMessagesWithPendingUploads,
+      );
+    });
+    chatClient.threads.state
+      .getLatestValue()
+      .threads.forEach((thread) =>
+        applyPendingUploadsMiddleware(
+          thread.messageComposer,
+          sendMessagesWithPendingUploads,
+        ),
+      );
+  }, [chatClient, failUploads, sendMessagesWithPendingUploads, slowUploads]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(
@@ -438,6 +506,8 @@ const App = () => {
           theme={chatTheme}
         >
           <ChatSkipNavigation />
+          {/* Publishes window.streamDebug — see src/Debug/StreamDebugHandles.tsx */}
+          <StreamDebugHandles />
           <div
             className='app-chat-layout'
             data-variant={messageUiVariant ?? undefined}

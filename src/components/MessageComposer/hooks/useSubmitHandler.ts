@@ -74,6 +74,15 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
           } else {
             messageComposer.clear();
           }
+          // Before the send, and not awaited. The composer is already cleared, so as far as the
+          // user is concerned they have stopped typing — and when composing with pending uploads
+          // the send lasts as long as the upload, which would leave everyone else watching a
+          // typing indicator for the whole transfer. Not awaited
+          // because publishing `typing.stop` is best-effort: it must neither delay the message by
+          // a round trip nor abort the send if it fails.
+          if (messageComposer.config.text.publishTypingEvents) {
+            messageComposer.channel.stopTyping().catch(() => undefined);
+          }
           // todo: get rid of overrideSubmitHandler once MessageComposer supports submission flow
           if (overrideSubmitHandler) {
             await overrideSubmitHandler({
@@ -85,8 +94,6 @@ export const useSubmitHandler = (props: MessageComposerProps) => {
           } else {
             await sendMessage({ localMessage, message, options: sendOptions });
           }
-          if (messageComposer.config.text.publishTypingEvents)
-            await messageComposer.channel.stopTyping();
         } catch (err) {
           restoreComposerStateSnapshot();
           addNotification({

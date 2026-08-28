@@ -58,8 +58,15 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const deliveredOnlyToMe =
     deliveredTo?.length === 1 && deliveredTo[0].id === client.user?.id;
   const sending = message.status === 'sending';
-  const read = !!(readBy?.length && !justReadByMe && !threadList);
-  const delivered = !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
+  // Delivery and read state comes from the other members' timestamp cursors
+  // (`MessageReceiptsTracker.deliveredForMessage` returns everyone whose cursor is at or past
+  // this message's `created_at`), not from the message itself. A message that never reached the
+  // server still carries a locally stamped `created_at`, so without this guard it is reported as
+  // delivered — a double tick on a message nobody received.
+  const failed = message.status === 'failed';
+  const read = !failed && !!(readBy?.length && !justReadByMe && !threadList);
+  const delivered =
+    !failed && !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
   const sent =
     (returnAllReadData || lastOwnMessage?.id === message.id) &&
     message.status === 'received' &&

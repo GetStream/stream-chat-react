@@ -1,4 +1,6 @@
 import { StateStore } from 'stream-chat';
+
+import type { UploadFailureMode } from '../SendWhilePendingUploads';
 import { useStateStore } from 'stream-chat-react';
 
 export type ReactionsSettingsState = {
@@ -70,9 +72,33 @@ export type MessageListSettingsState = {
   type: 'standard' | 'virtualized';
 };
 
+export type ComposerSettingsState = {
+  /**
+   * POC: allow sending a message while its attachments are still uploading.
+   * Off by default — it swaps composer middleware and shadows a prototype getter,
+   * so the app should behave exactly like stock until it is turned on.
+   */
+  sendMessagesWithPendingUploads: boolean;
+  /**
+   * Dev harness: which uploads should fail instead of completing. `prefixed` fails only files
+   * whose name starts with `fail-`, which is how a partial failure (and the retry that follows)
+   * can be reproduced.
+   */
+  failUploads: UploadFailureMode;
+  /** Delay (ms) applied to every upload while `slowUploads` is on. */
+  slowUploadMs: number;
+  /**
+   * Dev harness, independent of `sendMessagesWithPendingUploads`: stretches every upload over
+   * `slowUploadMs` so the in-flight and confirmation-pending windows last long enough to observe.
+   * Useful for watching the default blocked behaviour too.
+   */
+  slowUploads: boolean;
+};
+
 export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
+  composer: ComposerSettingsState;
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
@@ -116,6 +142,12 @@ const defaultAppSettingsState: AppSettingsState = {
   },
   chatView: {
     iconOnly: true,
+  },
+  composer: {
+    failUploads: 'off',
+    sendMessagesWithPendingUploads: false,
+    slowUploadMs: 20000,
+    slowUploads: false,
   },
   messageActions: {
     customMessageActions: {
@@ -237,6 +269,37 @@ const getStoredPanelLayoutSettings = (): PanelLayoutSettingsState | undefined =>
   }
 };
 
+const slowUploadUrlParam = 'slow_upload';
+
+/** Seeded from `?slow_upload=<ms>` so a link can carry a specific delay. */
+const getSlowUploadMsFromUrl = (): number | undefined => {
+  if (typeof window === 'undefined') return;
+
+  const raw = new URLSearchParams(window.location.search).get(slowUploadUrlParam);
+  if (raw === null) return;
+
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
+};
+
+const sendMessagesWithPendingUploadsUrlParam = 'send_messages_with_pending_uploads';
+
+/**
+ * Deliberately URL-seeded only — never persisted to localStorage. The POC mode has to be
+ * off on a fresh load, so a stale stored value must not be able to turn it on.
+ */
+const getSendMessagesWithPendingUploadsFromUrl = (): boolean | undefined => {
+  if (typeof window === 'undefined') return;
+
+  const raw = new URLSearchParams(window.location.search).get(
+    sendMessagesWithPendingUploadsUrlParam,
+  );
+
+  if (raw === null) return;
+
+  return raw !== '0' && raw !== 'false';
+};
+
 const getThemeModeFromUrl = (): ThemeSettingsState['mode'] | undefined => {
   if (typeof window === 'undefined') return;
 
@@ -300,6 +363,16 @@ const persistThemeModeInUrl = (themeMode: ThemeSettingsState['mode']) => {
 
 const initialAppSettingsState: AppSettingsState = {
   ...defaultAppSettingsState,
+  composer: {
+    ...defaultAppSettingsState.composer,
+    sendMessagesWithPendingUploads:
+      getSendMessagesWithPendingUploadsFromUrl() ??
+      defaultAppSettingsState.composer.sendMessagesWithPendingUploads,
+    slowUploadMs:
+      getSlowUploadMsFromUrl() ?? defaultAppSettingsState.composer.slowUploadMs,
+    // A delay in the URL means the harness is wanted, so it arms the switch too.
+    slowUploads: (getSlowUploadMsFromUrl() ?? 0) > 0,
+  },
   panelLayout: getStoredPanelLayoutSettings() ?? defaultAppSettingsState.panelLayout,
   theme: {
     ...defaultAppSettingsState.theme,

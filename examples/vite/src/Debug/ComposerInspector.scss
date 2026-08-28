@@ -1,0 +1,122 @@
+.app__composer-inspector-dialog__shell {
+  display: flex;
+  flex-direction: column;
+  width: min(520px, calc(100vw - 32px));
+  max-height: min(70vh, 720px);
+}
+
+.app__composer-inspector-dialog__drag-handle {
+  cursor: grab;
+}
+
+.app__composer-inspector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  font-size: 12px;
+}
+
+.app__composer-inspector__picker {
+  width: 100%;
+  padding: 4px 6px;
+  border: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 15%));
+  border-radius: 6px;
+  background: var(--str-chat__background-core-elevation-0, transparent);
+  color: inherit;
+  font: inherit;
+}
+
+.app__composer-inspector__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.app__composer-inspector__flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.app__composer-inspector__flag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Colour-coded rather than printed as `true`/`false` — these four flags are usually the
+   first thing you check, and reading them as shapes is faster than reading them as words. */
+.app__composer-inspector__flag--on {
+  background: color-mix(
+    in srgb,
+    var(--str-chat__accent-primary, #005fff) 18%,
+    transparent
+  );
+  color: var(--str-chat__accent-primary, #005fff);
+}
+
+.app__composer-inspector__flag--off {
+  background: rgb(0 0 0 / 8%);
+  opacity: 0.7;
+}
+
+.app__composer-inspector__section {
+  border: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 12%));
+  border-radius: 6px;
+  padding: 4px 8px;
+  min-width: 0;
+}
+
+.app__composer-inspector__section-title {
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+}
+
+.app__composer-inspector__json {
+  margin: 6px 0 2px;
+  padding: 6px;
+  border-radius: 4px;
+  background: rgb(0 0 0 / 5%);
+  /* Long values (blob URLs, base64) must scroll inside the block, never widen the dialog. */
+  overflow-x: auto;
+  max-height: 260px;
+  overflow-y: auto;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  line-height: 1.45;
+  white-space: pre;
+}
+
+.app__composer-inspector__table {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+
+  th,
+  td {
+    padding: 3px 6px;
+    text-align: start;
+    border-bottom: 1px solid var(--str-chat__border-core-default, rgb(0 0 0 / 8%));
+    white-space: nowrap;
+  }
+
+  th {
+    opacity: 0.7;
+    font-weight: 600;
+  }
+}
+
+.app__composer-inspector__empty {
+  padding: 6px 0;
+  opacity: 0.6;
+}
+
+.app__composer-inspector__copy {
+  align-self: flex-start;
+}

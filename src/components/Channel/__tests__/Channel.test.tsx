@@ -2064,6 +2064,138 @@ describe('Channel', () => {
         await waitFor(() => expect(filterErrorMessagesSpy).toHaveBeenCalledWith());
       });
 
+      describe('attachments still uploading', () => {
+        const pendingAttachment = (id: string) => ({
+          localMetadata: {
+            file: new File([''], `${id}.pdf`, { type: 'application/pdf' }),
+            id,
+            uploadState: 'uploading',
+          },
+          type: 'file',
+        });
+
+        it('awaits the upload, then sends with the resolved URL and no localMetadata', async () => {
+          const sendMessageSpy = vi
+            .spyOn(channel, 'sendMessage')
+            .mockResolvedValue(fromPartial({}));
+          let resolveUpload: (value: { file: string }) => void = () => undefined;
+          vi.spyOn(chatClient.uploadManager, 'upload').mockReturnValue(
+            new Promise((resolve) => {
+              resolveUpload = resolve as typeof resolveUpload;
+            }),
+          );
+          let hasSent = false;
+          const m = generateMessage();
+
+          await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
+            if (!hasSent) {
+              hasSent = true;
+              sendMessage({
+                localMessage: fromPartial({
+                  ...m,
+                  attachments: [pendingAttachment('upload-1')],
+                  status: 'sending',
+                }),
+                message: fromPartial<Message>({ ...m, attachments: [] }),
+              });
+            }
+          });
+
+          await waitFor(() =>
+            expect(chatClient.uploadManager.upload).toHaveBeenCalledWith(
+              expect.objectContaining({ id: 'upload-1' }),
+            ),
+          );
+          expect(sendMessageSpy).not.toHaveBeenCalled();
+
+          await act(() => {
+            resolveUpload({ file: 'https://cdn.example.com/upload-1.pdf' });
+            return Promise.resolve();
+          });
+
+          await waitFor(() => expect(sendMessageSpy).toHaveBeenCalledTimes(1));
+          const sentAttachments = sendMessageSpy.mock.calls[0][0].attachments;
+          expect(sentAttachments?.[0]).toMatchObject({
+            asset_url: 'https://cdn.example.com/upload-1.pdf',
+          });
+          expect(sentAttachments?.[0]).not.toHaveProperty('localMetadata');
+        });
+
+        it('fails the message without sending, keeping URLs that did resolve', async () => {
+          const sendMessageSpy = vi.spyOn(channel, 'sendMessage');
+          vi.spyOn(chatClient.uploadManager, 'upload').mockImplementation(({ id }) =>
+            id === 'ok'
+              ? Promise.resolve(fromPartial({ file: 'https://cdn.example.com/ok.pdf' }))
+              : Promise.reject(new Error('upload failed')),
+          );
+          let hasSent = false;
+          const m = generateMessage();
+
+          await renderComponent({ channel, chatClient }, ({ sendMessage }) => {
+            if (!hasSent) {
+              hasSent = true;
+              sendMessage({
+                localMessage: fromPartial({
+                  ...m,
+                  attachments: [pendingAttachment('ok'), pendingAttachment('boom')],
+                  status: 'sending',
+                }),
+                message: fromPartial<Message>({ ...m, attachments: [] }),
+              });
+            }
+          });
+
+          await waitFor(() => {
+            const failed = channel.state.messages.find((msg) => msg.id === m.id);
+            expect(failed?.status).toBe('failed');
+            // `error` as well as `status`: the failed-message action set is gated on it.
+            expect(failed?.error).toBeDefined();
+            // The upload that succeeded keeps its URL, so a retry only re-uploads the other one.
+            expect(failed?.attachments?.[0]).toMatchObject({
+              asset_url: 'https://cdn.example.com/ok.pdf',
+            });
+            expect(failed?.attachments?.[1]).toHaveProperty('localMetadata.id', 'boom');
+          });
+
+          expect(sendMessageSpy).not.toHaveBeenCalled();
+        });
+
+        it('re-uploads only what is still missing when the message is retried', async () => {
+          const sendMessageSpy = vi
+            .spyOn(channel, 'sendMessage')
+            .mockResolvedValue(fromPartial({}));
+          const uploadSpy = vi
+            .spyOn(chatClient.uploadManager, 'upload')
+            .mockResolvedValue(fromPartial({ file: 'https://cdn.example.com/boom.pdf' }));
+          let hasRetried = false;
+          const m = generateMessage();
+          const failedMessage = fromPartial<LocalMessage>({
+            ...m,
+            attachments: [
+              { asset_url: 'https://cdn.example.com/ok.pdf', type: 'file' },
+              pendingAttachment('boom'),
+            ],
+            status: 'failed',
+          });
+
+          await renderComponent({ channel, chatClient }, ({ retrySendMessage }) => {
+            if (!hasRetried) {
+              hasRetried = true;
+              retrySendMessage(failedMessage);
+            }
+          });
+
+          await waitFor(() => expect(sendMessageSpy).toHaveBeenCalledTimes(1));
+          expect(uploadSpy).toHaveBeenCalledTimes(1);
+          expect(uploadSpy).toHaveBeenCalledWith(expect.objectContaining({ id: 'boom' }));
+          const sentAttachments = sendMessageSpy.mock.calls[0][0].attachments;
+          expect(sentAttachments).toHaveLength(2);
+          expect(sentAttachments?.[1]).toMatchObject({
+            asset_url: 'https://cdn.example.com/boom.pdf',
+          });
+        });
+      });
+
       it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
         // flag to prevent infinite loop
         let hasSent = false;

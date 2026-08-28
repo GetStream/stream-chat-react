@@ -114,6 +114,13 @@ export type DialogAnchorProps = PropsWithChildren<Partial<DialogAnchorOptions>> 
    * If undefined, manager-level `DialogManager.closeOnClickOutside` is used.
    */
   closeOnClickOutside?: boolean;
+  /**
+   * Whether pressing Escape closes the dialog. Symmetric with `closeOnClickOutside`; set to
+   * `false` for a dialog that should only be dismissed through its own close control (e.g. a
+   * long-lived inspector panel kept open while the user works elsewhere).
+   * @default true
+   */
+  closeOnEscape?: boolean;
   id: string;
   /**
    * Delay (ms) before unmounting after dialog closes.
@@ -131,6 +138,7 @@ export const DialogAnchor = ({
   children,
   className,
   closeOnClickOutside,
+  closeOnEscape = true,
   closeTransitionMs = 0,
   dialogManagerId,
   focus = true,
@@ -211,7 +219,7 @@ export const DialogAnchor = ({
   });
 
   useEffect(() => {
-    if (!open) return;
+    if (!open || !closeOnEscape) return;
     const hideOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape' || event.defaultPrevented) return;
       dialog?.close();
@@ -222,7 +230,7 @@ export const DialogAnchor = ({
     return () => {
       document.removeEventListener('keyup', hideOnEscape);
     };
-  }, [dialog, open]);
+  }, [closeOnEscape, dialog, open]);
 
   // prevent rendering the dialog contents if the dialog should not be open / shown
   if (!shouldRender) {

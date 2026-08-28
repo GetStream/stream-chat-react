@@ -7,6 +7,7 @@ import {
   IconEmoji,
   IconMessageBubble,
   IconMessageBubbles,
+  IconUpload,
 } from 'stream-chat-react';
 import {
   SECTION_NAVIGATOR_LAYOUT,
@@ -18,6 +19,7 @@ import {
 
 import { ActionsMenu } from './ActionsMenu';
 import { ChannelDetailTab } from './tabs/ChannelDetail';
+import { ComposerTab } from './tabs/Composer';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
@@ -35,6 +37,7 @@ import clsx from 'clsx';
 
 type TabId =
   | 'channelDetail'
+  | 'composer'
   | 'general'
   | 'messageActions'
   | 'notifications'
@@ -66,6 +69,7 @@ const settingsSectionConfig: SettingsSectionConfig[] = [
     id: 'messageActions',
     title: 'Message Actions',
   },
+  { Content: ComposerTab, Icon: IconUpload, id: 'composer', title: 'Composer' },
   {
     Content: NotificationsTab,
     Icon: IconBell,

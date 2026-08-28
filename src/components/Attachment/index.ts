@@ -5,6 +5,7 @@ export * from './Audio';
 export * from './audioSampling';
 export * from './LinkPreview/Card';
 export * from './components';
+export * from './hooks/useAttachmentUploadState';
 export * from './FileAttachment';
 export * from './Geolocation';
 export * from './Image';

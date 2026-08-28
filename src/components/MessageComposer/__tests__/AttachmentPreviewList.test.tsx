@@ -331,6 +331,73 @@ describe('AttachmentPreviewList', () => {
         ]);
       });
 
+      it('cancels an in-flight upload from the preview', async () => {
+        if (!ATTACHMENT_TYPES_WITH_ACTION_CONTROLS.includes(type)) return;
+
+        // The remove button used to be disabled while `uploading`, which left no way to give up
+        // on a slow upload. `removeAttachments` forwards to `UploadManager.deleteUploadRecord`,
+        // which aborts the request, so it is actionable mid-flight.
+        const id = `${type}-id`;
+        const localAttachment = {
+          ...generate[type]({ title: `${type}-attachment-uploading` }),
+          localMetadata: { id, uploadState: 'uploading' },
+        };
+
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+        const removeAttachmentsSpy = vi.spyOn(
+          channel.messageComposer.attachmentManager,
+          'removeAttachments',
+        );
+
+        await renderComponent({ attachments: [localAttachment], channel, client });
+
+        const button = screen.getByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].delete);
+        expect(button).toBeEnabled();
+        expect(button).toHaveAccessibleName('Cancel upload');
+
+        fireEvent.click(button);
+
+        expect(removeAttachmentsSpy).toHaveBeenCalledWith([id]);
+      });
+
+      it('drops the attachment and its upload record when cancelled mid-upload', async () => {
+        if (!ATTACHMENT_TYPES_WITH_ACTION_CONTROLS.includes(type)) return;
+
+        // End to end through the real `removeAttachments`: the preview goes away and the record
+        // that keeps the request alive (and drives the progress UI) is gone with it.
+        const id = `${type}-id`;
+        const localAttachment = {
+          ...generate[type]({ title: `${type}-attachment-uploading` }),
+          localMetadata: { id, uploadState: 'uploading' },
+        };
+
+        const {
+          channels: [channel],
+          client,
+        } = await initClientWithChannels();
+
+        await renderComponent({ attachments: [localAttachment], channel, client });
+
+        act(() => {
+          client.uploadManager.state.partialNext({
+            uploads: { [id]: { id, uploadProgress: 40 } },
+          });
+        });
+
+        act(() => {
+          fireEvent.click(screen.getByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].delete));
+        });
+
+        expect(client.uploadManager.state.getLatestValue().uploads[id]).toBeUndefined();
+        expect(channel.messageComposer.attachmentManager.attachments).toHaveLength(0);
+        expect(
+          screen.queryByTestId(ATTACHMENT_PREVIEW_TEST_IDS[type].delete),
+        ).not.toBeInTheDocument();
+      });
+
       it('renders custom preview component', async () => {
         const title = `${type}-attachment`;
         const id = `${type}-id`;
@@ -377,6 +444,66 @@ describe('AttachmentPreviewList', () => {
             localMetadata: {
               id: 'a1',
               uploadProgress: 42,
+              uploadState: 'uploading',
+            },
+          },
+        ],
+      });
+
+      expect(screen.getByTestId('circular-progress-ring')).toBeInTheDocument();
+      expect(screen.queryByTestId(LOADING_INDICATOR_TEST_ID)).not.toBeInTheDocument();
+    });
+
+    it('shows the spinner once every byte is sent but the server has not confirmed', async () => {
+      // Upload progress counts bytes written to the connection, not bytes the server
+      // acknowledged, so it reaches 100% while the CDN is still ingesting. A ring parked at
+      // 100% would tell the user the upload is done before it is confirmed.
+      await renderComponent({
+        attachments: [
+          {
+            ...generateFileAttachment({ file_size: 1000, title: 'big.pdf' }),
+            localMetadata: {
+              id: 'a1',
+              uploadConfirmationPending: true,
+              uploadProgress: 100,
+              uploadState: 'uploading',
+            },
+          },
+        ],
+      });
+
+      expect(screen.getByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
+      expect(screen.queryByTestId('circular-progress-ring')).not.toBeInTheDocument();
+      // The byte readout stays truthful — those bytes really were sent.
+      expect(screen.getByTestId('upload-size-fraction')).toHaveTextContent(
+        '1000 B / 1000 B',
+      );
+    });
+
+    it('infers the awaiting window when uploadConfirmationPending is absent', async () => {
+      // Back-compat with a resolved stream-chat older than v9.51.
+      await renderComponent({
+        attachments: [
+          {
+            ...generateFileAttachment({ file_size: 1000, title: 'big.pdf' }),
+            localMetadata: { id: 'a1', uploadProgress: 100, uploadState: 'uploading' },
+          },
+        ],
+      });
+
+      expect(screen.getByTestId(LOADING_INDICATOR_TEST_ID)).toBeInTheDocument();
+      expect(screen.queryByTestId('circular-progress-ring')).not.toBeInTheDocument();
+    });
+
+    it('keeps the ring at 100% when the transport says confirmation is not pending', async () => {
+      await renderComponent({
+        attachments: [
+          {
+            ...generateFileAttachment({ file_size: 1000, title: 'big.pdf' }),
+            localMetadata: {
+              id: 'a1',
+              uploadConfirmationPending: false,
+              uploadProgress: 100,
               uploadState: 'uploading',
             },
           },

@@ -1007,9 +1007,19 @@
     font-weight: 600;
   }
 
+  // The navigator's content column is a block element that lets its child grow past it, so the
+  // stack has to be pinned to the column's height for the tab body's own `overflow-y: auto` to
+  // have anything to scroll against. Without this, a tall tab (Composer) is clipped by the
+  // modal's `overflow: hidden` instead of scrolling.
+  .app__settings-modal__body .str-chat__section-navigator__content {
+    min-height: 0;
+  }
+
   .app__settings-modal__content-stack {
     display: flex;
     flex-direction: column;
+    height: 100%;
+    min-height: 0;
   }
 
   .app__settings-modal__tab-header .str-chat__prompt__header__title {

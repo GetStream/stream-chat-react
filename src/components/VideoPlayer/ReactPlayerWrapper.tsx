@@ -16,11 +16,16 @@ const ReactPlayer =
  * `react-player` (~2 MB) out of the SDK's eager import graph — it is fetched
  * only when a default video player actually renders.
  */
-const ReactPlayerWrapper = ({ isPlaying, thumbnailUrl, videoUrl }: VideoPlayerProps) => (
+const ReactPlayerWrapper = ({
+  controls = true,
+  isPlaying,
+  thumbnailUrl,
+  videoUrl,
+}: VideoPlayerProps) => (
   <ReactPlayer
     className='react-player'
     config={{ file: { attributes: { poster: thumbnailUrl } } }}
-    controls
+    controls={controls}
     height='100%'
     playing={isPlaying}
     url={videoUrl}

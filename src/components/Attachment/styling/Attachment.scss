@@ -129,6 +129,20 @@
       // CDN resize requires max-height to be present on this element - React
       max-height: $maxHeight;
     }
+
+    // A video whose upload is still in flight has no CDN thumb_url, so
+    // getCssDimensionsVariables falls back to 1000000x1000000 and the clamp above resolves to
+    // a square box - letterboxing the video with dead space above and below it. Until the real
+    // dimensions are known, let the element lay out at its own intrinsic aspect ratio.
+    .str-chat__player-wrapper--uploading {
+      height: auto;
+
+      .react-player,
+      video {
+        height: auto;
+        max-height: $maxHeight;
+      }
+    }
   }
 
   .str-chat__message-attachment--svg-image {

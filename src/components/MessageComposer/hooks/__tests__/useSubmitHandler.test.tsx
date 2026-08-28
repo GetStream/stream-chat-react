@@ -26,6 +26,7 @@ const submitMocks = vi.hoisted(() => {
     editMessage: vi.fn(),
     messageComposerMock,
     sendMessage: vi.fn(),
+    updateMessage: vi.fn(),
   };
 });
 
@@ -42,6 +43,7 @@ vi.mock('../../../../context/ChannelActionContext', () => ({
   useChannelActionContext: () => ({
     editMessage: submitMocks.editMessage,
     sendMessage: submitMocks.sendMessage,
+    updateMessage: submitMocks.updateMessage,
   }),
 }));
 
@@ -57,6 +59,7 @@ describe('useSubmitHandler', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     submitMocks.messageComposerMock.editedMessage = undefined;
+    submitMocks.messageComposerMock.config.text.publishTypingEvents = false;
     vi.spyOn(submitMocks.messageComposerMock, 'compose')
       .mockImplementation()
       .mockResolvedValue({
@@ -82,6 +85,43 @@ describe('useSubmitHandler', () => {
         severity: 'error',
       }),
     );
+  });
+
+  it('publishes typing.stop before sending, without waiting for it', async () => {
+    // When composing with pending uploads the send lasts as long as the upload, so
+    // stopping typing
+    // afterwards would leave the indicator up for the whole transfer.
+    submitMocks.messageComposerMock.config.text.publishTypingEvents = true;
+    let sendResolved = false;
+    submitMocks.sendMessage.mockImplementationOnce(() => {
+      expect(submitMocks.messageComposerMock.channel.stopTyping).toHaveBeenCalled();
+      sendResolved = true;
+      return Promise.resolve();
+    });
+
+    const { result } = renderHook(() => useSubmitHandler({}));
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(sendResolved).toBe(true);
+  });
+
+  it('does not fail the send when typing.stop cannot be published', async () => {
+    submitMocks.messageComposerMock.config.text.publishTypingEvents = true;
+    submitMocks.messageComposerMock.channel.stopTyping.mockRejectedValueOnce(
+      new Error('typing event failed'),
+    );
+
+    const { result } = renderHook(() => useSubmitHandler({}));
+
+    await act(async () => {
+      await result.current.handleSubmit();
+    });
+
+    expect(submitMocks.sendMessage).toHaveBeenCalledTimes(1);
+    expect(submitMocks.addNotification).not.toHaveBeenCalled();
   });
 
   it('restores composer state and notifies when sendMessage fails', async () => {

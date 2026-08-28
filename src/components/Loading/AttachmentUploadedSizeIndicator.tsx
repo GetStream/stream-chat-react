@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useComponentContext } from '../../../context';
-import { FileSizeIndicator as DefaultFileSizeIndicator } from '../../Attachment/components/FileSizeIndicator';
-import { UploadedSizeIndicator as DefaultUploadedSizeIndicator } from '../../Loading/UploadedSizeIndicator';
+import { useComponentContext } from '../../context';
+import { FileSizeIndicator as DefaultFileSizeIndicator } from '../Attachment/components/FileSizeIndicator';
+import { UploadedSizeIndicator as DefaultUploadedSizeIndicator } from './UploadedSizeIndicator';
 
 function resolveAttachmentFullByteSize(attachment: {
   file_size?: number | string;
@@ -22,6 +22,12 @@ function resolveAttachmentFullByteSize(attachment: {
 }
 
 export type AttachmentUploadedSizeIndicatorProps = {
+  /**
+   * Live progress, overriding `localMetadata.uploadProgress`. Required when rendering an
+   * attachment carried by a message: the value stored there is a snapshot frozen when the
+   * message was composed, whereas `client.uploadManager` keeps reporting.
+   */
+  uploadProgress?: number;
   attachment: {
     file_size?: number | string;
     localMetadata?: {
@@ -34,12 +40,14 @@ export type AttachmentUploadedSizeIndicatorProps = {
 
 export const AttachmentUploadedSizeIndicator = ({
   attachment,
+  uploadProgress: liveUploadProgress,
 }: AttachmentUploadedSizeIndicatorProps) => {
   const {
     FileSizeIndicator = DefaultFileSizeIndicator,
     UploadedSizeIndicator = DefaultUploadedSizeIndicator,
   } = useComponentContext();
-  const { uploadProgress, uploadState } = attachment.localMetadata ?? {};
+  const { uploadState } = attachment.localMetadata ?? {};
+  const uploadProgress = liveUploadProgress ?? attachment.localMetadata?.uploadProgress;
   const fullBytes = resolveAttachmentFullByteSize(attachment);
   const uploaded =
     uploadProgress !== undefined && fullBytes !== undefined

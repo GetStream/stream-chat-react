@@ -8,10 +8,10 @@ import {
   Prompt,
   useChatContext,
   useDialogIsOpen,
-  useDialogOnNearestManager,
   useDropdownContext,
 } from 'stream-chat-react';
 import { DraggableDialog } from '../DraggableDialog';
+import { usePersistentDialog } from '../usePersistentDialog';
 import {
   buildFreshWebSocketEventPayload,
   createInitialSimulationState,
@@ -659,9 +659,7 @@ export const WebSocketEventPromptDialog = ({
   const [recentlyAddedIntervalId, setRecentlyAddedIntervalId] = useState<string | null>(
     null,
   );
-  const { dialog, dialogManager } = useDialogOnNearestManager({
-    id: webSocketEventPromptDialogId,
-  });
+  const { dialog, dialogManager } = usePersistentDialog(webSocketEventPromptDialogId);
   const dialogIsOpen = useDialogIsOpen(webSocketEventPromptDialogId, dialogManager?.id);
 
   useEffect(() => {

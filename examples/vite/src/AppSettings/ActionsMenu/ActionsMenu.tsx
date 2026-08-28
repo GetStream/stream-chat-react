@@ -22,6 +22,8 @@ import {
   WebSocketEventPromptDialog,
   webSocketEventPromptDialogId,
 } from './WebSocketEventPromptDialog';
+import { ComposerStateDialog, useComposerStateDialog } from '../../Debug';
+import { usePersistentDialog } from './usePersistentDialog';
 
 const actionsMenuDialogId = 'app-actions-menu';
 
@@ -70,15 +72,14 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const { dialog: actionsMenuDialog, dialogManager } = useDialogOnNearestManager({
     id: actionsMenuDialogId,
   });
-  const { dialog: notificationDialog } = useDialogOnNearestManager({
-    id: notificationPromptDialogId,
-  });
-  const { dialog: attachmentDialog } = useDialogOnNearestManager({
-    id: attachmentPromptDialogId,
-  });
-  const { dialog: webSocketEventDialog } = useDialogOnNearestManager({
-    id: webSocketEventPromptDialogId,
-  });
+  const { dialog: notificationDialog } = usePersistentDialog(notificationPromptDialogId);
+  const { dialog: attachmentDialog } = usePersistentDialog(attachmentPromptDialogId);
+  const { dialog: webSocketEventDialog } = usePersistentDialog(
+    webSocketEventPromptDialogId,
+  );
+  // Shared hook so the dialog is registered with closeOnClickOutside disabled regardless of
+  // which of the two call sites reaches getOrCreate first.
+  const { dialog: composerStateDialog } = useComposerStateDialog();
   const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
   return (
@@ -103,10 +104,12 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         <TriggerNotificationAction onTrigger={notificationDialog.open} />
         <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
         <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
+        <TriggerComposerStateInspectorAction onTrigger={composerStateDialog.open} />
       </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
       <AttachmentPromptDialog referenceElement={menuButtonElement} />
       <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
+      <ComposerStateDialog referenceElement={menuButtonElement} />
     </div>
   );
 };
@@ -145,6 +148,20 @@ function TriggerWebSocketEventAction({ onTrigger }: { onTrigger: () => void }) {
   return (
     <ContextMenuButton
       label='Trigger WS Event'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerComposerStateInspectorAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Composer State'
       onClick={() => {
         closeMenu();
         onTrigger();

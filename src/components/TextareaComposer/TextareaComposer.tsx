@@ -14,6 +14,7 @@ import Textarea from 'react-textarea-autosize';
 import { useCooldownRemaining } from '../MessageComposer/hooks/useCooldownRemaining';
 import { useMessageComposerCommands } from '../MessageComposer/hooks/useMessageComposerCommands';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
 import type {
   AttachmentManagerState,
   MessageComposerConfig,
@@ -133,6 +134,9 @@ const TextareaComposerWithLiveAnnouncements = ({
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
   const messageComposer = useMessageComposerController();
+  // Read through the hook rather than off the composer directly, so Enter-to-submit stays in
+  // agreement with the send button.
+  const hasSendableData = useMessageComposerHasSendableData();
   const { textComposer } = messageComposer;
   const { selection, suggestions, text } = useStateStore(
     textComposer.state,
@@ -298,11 +302,7 @@ const TextareaComposerWithLiveAnnouncements = ({
       ) {
         event.preventDefault();
         textComposer.clearCommand();
-      } else if (
-        shouldSubmit(event) &&
-        textareaRef.current &&
-        messageComposer.hasSendableData
-      ) {
+      } else if (shouldSubmit(event) && textareaRef.current && hasSendableData) {
         if (event.key === 'Enter') {
           // prevent adding newline when submitting a message with
           event.preventDefault();
@@ -313,11 +313,11 @@ const TextareaComposerWithLiveAnnouncements = ({
     [
       focusedItemIndex,
       handleSubmit,
-      messageComposer,
+      hasSendableData,
       onKeyDown,
       shouldSubmit,
-      textComposer,
       textareaRef,
+      textComposer,
     ],
   );
 
