@@ -43,6 +43,7 @@ const foreignMsg = {
 const ownMessage = generateMessage({ user });
 const errorMsg = { ...foreignMsg, type: 'error', user };
 const sendingMsg = { ...foreignMsg, status: 'sending', user };
+const failedMsg = { ...foreignMsg, status: 'failed', user };
 const sentMsg = { ...foreignMsg, user };
 const deliveredTo = [otherUser, user];
 const readByOthers = [otherUser, user];
@@ -92,6 +93,27 @@ describe('MessageStatus', () => {
       },
     });
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('reports neither delivered nor read for a message that failed to send', async () => {
+    // Delivery and read state comes from the other members' timestamp cursors, so a message that
+    // never reached the server was otherwise reported as delivered as soon as anyone's cursor
+    // moved past its locally stamped created_at — a double tick on a message nobody received.
+    const client = await getTestClientWithUser(user);
+    renderComponent({
+      chatCtx: { client },
+      messageCtx: {
+        deliveredTo,
+        message: failedMsg,
+        readBy: readByOthers,
+      },
+    });
+
+    expect(
+      screen.queryByTestId(MESSAGE_STATUS_DELIVERED_TEST_ID),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId(MESSAGE_STATUS_READ_TEST_ID)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(MESSAGE_STATUS_SENDING_TEST_ID)).not.toBeInTheDocument();
   });
 
   it('renders default sending UI', async () => {
