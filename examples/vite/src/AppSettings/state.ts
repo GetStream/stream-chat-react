@@ -1,4 +1,6 @@
 import { StateStore } from 'stream-chat';
+
+import type { UploadFailureMode } from '../SendWhilePendingUploads';
 import { useStateStore } from 'stream-chat-react';
 
 export type ReactionsSettingsState = {
@@ -75,9 +77,14 @@ export type ComposerSettingsState = {
    * POC: allow sending a message while its attachments are still uploading.
    * Off by default — it swaps composer middleware and shadows a prototype getter,
    * so the app should behave exactly like stock until it is turned on.
-   * See src/SendWhilePendingUploads/README.md
    */
   sendMessagesWithPendingUploads: boolean;
+  /**
+   * Dev harness: which uploads should fail instead of completing. `prefixed` fails only files
+   * whose name starts with `fail-`, which is how a partial failure (and the retry that follows)
+   * can be reproduced.
+   */
+  failUploads: UploadFailureMode;
   /** Delay (ms) applied to every upload while `slowUploads` is on. */
   slowUploadMs: number;
   /**
@@ -137,6 +144,7 @@ const defaultAppSettingsState: AppSettingsState = {
     iconOnly: true,
   },
   composer: {
+    failUploads: 'off',
     sendMessagesWithPendingUploads: false,
     slowUploadMs: 20000,
     slowUploads: false,

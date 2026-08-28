@@ -72,7 +72,7 @@ import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 import { StreamDebugHandles } from './Debug';
-import { installSlowUploadHarness } from './SendWhilePendingUploads';
+import { installUploadHarness } from './SendWhilePendingUploads';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -230,9 +230,8 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
-  const { sendMessagesWithPendingUploads, slowUploads } = useAppSettingsSelector(
-    (state) => state.composer,
-  );
+  const { failUploads, sendMessagesWithPendingUploads, slowUploads } =
+    useAppSettingsSelector((state) => state.composer);
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
   const initialSearchParams = useMemo(
     () => new URLSearchParams(window.location.search),
@@ -341,18 +340,22 @@ const App = () => {
 
     chatClient.setMessageComposerSetupFunction(({ composer }) => {
       // Dev-only: stretch uploads so the in-flight and confirmation-pending windows are
-      // observable. Independent of sendMessagesWithPendingUploads — a slow upload is just as
-      // useful for watching the default blocked behaviour.
+      // observable, and/or make them fail so the failed-message and retry paths are reachable.
+      // Independent of sendMessagesWithPendingUploads — both are just as useful for watching the
+      // default blocked behaviour.
       //
-      // The delay is read from settings on every upload rather than captured here, so editing
-      // the number in Settings → Composer takes effect without re-running setup — which matters
-      // because a custom doUploadRequest cannot be un-set once installed.
-      if (slowUploads) {
-        installSlowUploadHarness(composer, () => {
-          const { slowUploadMs, slowUploads: armed } =
-            appSettingsStore.getLatestValue().composer;
+      // Settings are read on every upload rather than captured here, so changing them in
+      // Settings → Composer takes effect without re-running setup — which matters because a
+      // custom doUploadRequest cannot be un-set once installed.
+      if (slowUploads || failUploads !== 'off') {
+        installUploadHarness(composer, () => {
+          const {
+            failUploads: failureMode,
+            slowUploadMs,
+            slowUploads: slowArmed,
+          } = appSettingsStore.getLatestValue().composer;
 
-          return armed ? slowUploadMs : 0;
+          return { delayMs: slowArmed ? slowUploadMs : 0, failureMode };
         });
       }
 
@@ -397,7 +400,7 @@ const App = () => {
         location: { enabled: true },
       });
     });
-  }, [chatClient, slowUploads]);
+  }, [chatClient, failUploads, slowUploads]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(
@@ -463,7 +466,6 @@ const App = () => {
           isMessageAIGenerated={isMessageAIGenerated}
           searchController={searchController}
           // App Settings → Composer, off by default.
-          // See src/SendWhilePendingUploads/README.md
           sendMessagesWithPendingUploads={sendMessagesWithPendingUploads}
           theme={chatTheme}
         >
