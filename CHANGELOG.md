@@ -1,3 +1,13 @@
+## [14.12.0](https://github.com/GetStream/stream-chat-react/compare/v14.11.1...v14.12.0) (2026-08-28)
+
+### Features
+
+* allow sending messages with pending uploads ([#3277](https://github.com/GetStream/stream-chat-react/issues/3277)) ([cf66d0e](https://github.com/GetStream/stream-chat-react/commit/cf66d0e79d3eb147d4e8ce6e37e505837b39dd85))
+
+### Performance Improvements
+
+* **build:** emit ESM per source module so consumers can tree-shake ([#3275](https://github.com/GetStream/stream-chat-react/issues/3275)) ([d70b8f9](https://github.com/GetStream/stream-chat-react/commit/d70b8f9a9699eb98d50a927ddb1fd1f2a4c2bfb3)), closes [#3269](https://github.com/GetStream/stream-chat-react/issues/3269) [#2483](https://github.com/GetStream/stream-chat-react/issues/2483)
+
 ## [14.11.1](https://github.com/GetStream/stream-chat-react/compare/v14.11.0...v14.11.1) (2026-08-14)
 
 ### Bug Fixes
