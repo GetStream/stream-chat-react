@@ -126,7 +126,8 @@ export type VirtuosoContext = Required<
     lastOwnMessage?: LocalMessage;
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
     firstUnreadMessageId: string | null;
-    lastReadDate: Date | null;
+    /** Unix nanoseconds, as `messagePaginator.unreadStateSnapshot.lastReadAt` carries it. */
+    lastReadDate: number | null;
     /**
      * The ID of the last message considered read by the current user in the current channel.
      * All the messages following this message are considered unread.

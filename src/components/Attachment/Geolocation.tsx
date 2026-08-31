@@ -7,6 +7,7 @@ import { useChannel, useChatContext, useTranslationContext } from '../../context
 import { ExternalLinkIcon } from './icons';
 import { IconLocation } from '../Icons';
 import { Button } from '../Button';
+import { convertTimestampToDate, nowNs, nsToMs } from 'stream-chat';
 
 export type GeolocationMapProps = Coords;
 
@@ -26,7 +27,7 @@ export const Geolocation = ({
   const { t } = useTranslationContext();
 
   const [stoppedSharing, setStoppedSharing] = useState(
-    !!location.end_at && new Date(location.end_at).getTime() < new Date().getTime(),
+    !!location.end_at && location.end_at < nowNs(),
   );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -38,7 +39,9 @@ export const Geolocation = ({
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(
       () => setStoppedSharing(true),
-      new Date(location.end_at).getTime() - Date.now(),
+      // Both operands are wire timestamps, so the difference is in nanoseconds. Passing it raw
+      // made `setTimeout` fire immediately and end sharing on mount.
+      Math.max(0, nsToMs(location.end_at - nowNs())),
     );
   }, [location.end_at]);
 
@@ -66,7 +69,12 @@ export const Geolocation = ({
               <Button
                 appearance='outline'
                 className='str-chat__message-attachment-geolocation__stop-sharing-button'
-                onClick={() => channel?.stopLiveLocationSharing(location)}
+                onClick={() =>
+                  // The request shape, not the whole response: `stopLiveLocationSharing` stamps
+                  // `end_at` itself, and the response's timestamps are wire numbers a request
+                  // field cannot take.
+                  channel?.stopLiveLocationSharing({ message_id: location.message_id })
+                }
                 size='sm'
                 variant='secondary'
               >
@@ -78,7 +86,7 @@ export const Geolocation = ({
                   'Live until {{ timestamp }}',
                   {
                     timestamp: t('timestamp.LiveLocation', {
-                      timestamp: location.end_at,
+                      timestamp: convertTimestampToDate(location.end_at),
                     }),
                   },
                 )}
@@ -95,7 +103,7 @@ export const Geolocation = ({
                   'Live until {{ timestamp }}',
                   {
                     timestamp: t('timestamp.LiveLocation', {
-                      timestamp: location.end_at,
+                      timestamp: convertTimestampToDate(location.end_at),
                     }),
                   },
                 )}

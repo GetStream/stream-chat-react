@@ -509,7 +509,7 @@ describe('Channel', () => {
       it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
         const { channel, chatClient } = await setup();
         const messageText = nanoid();
-        const m = generateMessage({ text: messageText });
+        const m = generateMessage({ cid: channel.cid, text: messageText });
         useMockedApis(chatClient, [sendMessageApi(m)]);
 
         await renderComponent({ channel, chatClient });
@@ -548,6 +548,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient, children: <MockMessageList /> });
 
         const m = generateMessage({
+          cid: channel.cid,
           id: messageId,
           status: 'sending',
           text: messageText,
@@ -702,6 +703,7 @@ describe('Channel', () => {
       it('should enable retrying message sending', async () => {
         const { channel, chatClient } = await setup();
         const messageObject = generateMessage({
+          cid: channel.cid,
           text: nanoid(),
         });
 

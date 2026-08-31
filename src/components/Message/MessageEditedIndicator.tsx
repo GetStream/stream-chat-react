@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import React, { useState } from 'react';
 import type { LocalMessage } from 'stream-chat';
 import type { TimestampFormatterOptions } from '../../i18n/types';
@@ -47,7 +48,14 @@ const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) =>
         referenceElement={referenceElement}
         visible={tooltipVisible}
       >
-        <Timestamp timestamp={message.message_text_updated_at} {...timestampProps} />
+        <Timestamp
+          timestamp={
+            message.message_text_updated_at
+              ? convertTimestampToDate(message.message_text_updated_at)
+              : undefined
+          }
+          {...timestampProps}
+        />
       </PopperTooltip>
     </span>
   );

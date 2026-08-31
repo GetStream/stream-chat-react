@@ -2,6 +2,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import type { Channel, Event, StreamChat, UserResponse } from 'stream-chat';
 
 import { generateUser } from '../generator';
+import { convertDateToTimestamp } from '../generator/time';
 
 export default ({
   channel,
@@ -20,7 +21,7 @@ export default ({
       channel_id: channel?.id,
       channel_type: channel?.type,
       cid: channel?.cid,
-      created_at: new Date().toISOString(),
+      created_at: convertDateToTimestamp(),
       last_read_message_id: 'user_id-rfh6ieeQ8XCqabLN-GCHo',
       total_unread_count: 3,
       type: 'notification.mark_read',

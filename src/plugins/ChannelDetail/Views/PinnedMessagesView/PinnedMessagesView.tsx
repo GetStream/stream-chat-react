@@ -7,7 +7,7 @@ import {
   useTranslationContext,
 } from '../../../../context';
 import { useChatViewNavigation } from '../../../SlotLayout';
-import { getDateString, isDate } from '../../../../i18n/utils';
+import { getDateString } from '../../../../i18n/utils';
 import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
@@ -24,15 +24,18 @@ import { PinnedMessagesEmptyList } from './PinnedMessagesEmptyList';
 import { usePinnedMessagesSearch } from './usePinnedMessagesSearch';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
+import { nsToDate } from 'stream-chat';
 
 type PinnedMessage = MessageResponse | LocalMessage;
 
 const computeItemKey = (_: number, message: PinnedMessage) => message.id;
 
-const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) => {
-  if (!timestamp) return undefined;
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
-};
+/**
+ * A wire timestamp as an ISO string, for `getDateString` and the `dateTime` attribute. `nsToDate`
+ * rather than `new Date`: a nanosecond value is out of Date's range.
+ */
+const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) =>
+  timestamp == null ? undefined : nsToDate(timestamp).toISOString();
 
 const getPinnedMessagePreview = (
   message: PinnedMessage,

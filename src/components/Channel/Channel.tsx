@@ -194,14 +194,14 @@ const ChannelInner = (
         event?.message?.created_at &&
         event?.message?.cid
       ) {
-        const messageDate = new Date(event.message.created_at);
+        const messageCreatedAt = event.message.created_at;
         const cid = event.message.cid;
 
         if (
           !latestMessageDatesByChannels[cid] ||
-          latestMessageDatesByChannels[cid].getTime() < messageDate.getTime()
+          latestMessageDatesByChannels[cid] < messageCreatedAt
         ) {
-          latestMessageDatesByChannels[cid] = messageDate;
+          latestMessageDatesByChannels[cid] = messageCreatedAt;
         }
       }
     }

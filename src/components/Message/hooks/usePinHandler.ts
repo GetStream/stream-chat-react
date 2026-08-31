@@ -6,6 +6,7 @@ import { useTranslationContext } from '../../../context/TranslationContext';
 
 import type { LocalMessage, UserResponse } from 'stream-chat';
 import type { ReactEventHandler } from '../types';
+import { nowNs } from 'stream-chat';
 
 // @deprecated in favor of `channelCapabilities` - TODO: remove in next major release
 export type PinEnabledUserRoles<T extends string = string> = Partial<
@@ -59,7 +60,7 @@ export const usePinHandler = (
         const optimisticMessage: LocalMessage = {
           ...message,
           pinned: true,
-          pinned_at: new Date(),
+          pinned_at: nowNs(),
           pinned_by: client.user as UserResponse | undefined,
         };
 

@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import React, { useState } from 'react';
 import { Avatar as DefaultAvatar } from '../Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../Avatar/utils';
@@ -11,12 +12,12 @@ import {
 
 import type { PollVoteResponseData as PollVoteType } from 'stream-chat';
 
-const PollVoteTimestamp = ({ timestamp }: { timestamp: string | Date }) => {
+const PollVoteTimestamp = ({ timestamp }: { timestamp?: string | Date }) => {
   const { t } = useTranslationContext();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
-  const timestampDate = new Date(timestamp);
+  const timestampDate = timestamp ? new Date(timestamp) : undefined;
   return (
     <div
       className='str-chat__poll-vote__timestamp'
@@ -71,7 +72,7 @@ const PollVoteAuthor = ({ vote }: PollVoteAuthor) => {
 export const PollVote = ({ vote }: PollVoteProps) => (
   <div className='str-chat__poll-vote'>
     <PollVoteAuthor vote={vote} />
-    <PollVoteTimestamp timestamp={vote.created_at} />
+    <PollVoteTimestamp timestamp={convertTimestampToDate(vote.created_at)} />
   </div>
 );
 

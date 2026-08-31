@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import React from 'react';
 
 import type { MessageProps } from '../Message';
@@ -11,7 +12,9 @@ export const ThreadHead = (props: MessageProps) => {
   const { ThreadStart = DefaultThreadStart } = useComponentContext();
   return (
     <div className='str-chat__parent-message-li'>
-      <DateSeparator date={props.message.created_at} />
+      <DateSeparator
+        date={convertTimestampToDate(props.message.created_at) ?? new Date()}
+      />
       <Message initialMessage {...props} />
       <ThreadStart />
     </div>

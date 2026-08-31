@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import type { RenderedMessage } from '../../utils';
 import { isDateSeparatorMessage, isIntroMessage } from '../../utils';
 import type { LocalMessage } from 'stream-chat';
+import { nsToDate } from 'stream-chat';
 
 export type UseFloatingDateSeparatorParams = {
   disableDateSeparator: boolean;
@@ -38,8 +39,8 @@ function getFloatingDateForFirstMessage(
   // No preceding date separator; use message's created_at
   const msg = firstMessage as LocalMessage;
   const created = msg.created_at;
-  if (created) {
-    const d = new Date(created);
+  if (created != null) {
+    const d = nsToDate(created);
     return isNaN(d.getTime()) ? null : d;
   }
   return null;

@@ -68,17 +68,17 @@ const othersLastMessage = () => {
 
 const lastMessageCreated = (messages) => [
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -86,17 +86,17 @@ const lastMessageCreated = (messages) => [
 
 const lastDeliveredOnlyToMe = (messages) => [
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -104,17 +104,17 @@ const lastDeliveredOnlyToMe = (messages) => [
 
 const lastReadOnlyByMe = (messages) => [
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[1].created_at.toISOString(),
+    last_read: messages[1].created_at,
     last_read_message_id: messages[1],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -122,17 +122,17 @@ const lastReadOnlyByMe = (messages) => [
 
 const lastMessageDelivered = (messages) => [
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -140,17 +140,17 @@ const lastMessageDelivered = (messages) => [
 
 const lastMessageRead = (messages) => [
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[1].created_at.toISOString(),
+    last_read: messages[1].created_at,
     unread_messages: 0,
     user: otherUser,
   },
@@ -203,7 +203,7 @@ describe('Message delivery status', () => {
           user: ownUser,
         },
         {
-          last_read: '1970-01-01T00:00:00.00Z',
+          last_read: 0,
           unread_messages: 1,
           user: otherUser,
         },

@@ -9,6 +9,7 @@ import {
 
 import { getGroupStyles, makeDateMessageId, processMessages } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
+import { convertTimestampToDate, msToNs } from 'stream-chat';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
 vi.mock('nanoid', () => ({
@@ -44,10 +45,12 @@ const runMessageProcessing = (msgData, processMsgParams = {}) => {
   };
 };
 
+// The separator is a view-model carrying a `Date`, built from the message's wire timestamp — so the
+// expectation has to go through the same conversion the list does.
 const makeDateSeparator = (message) => ({
   customType: 'message.date',
-  date: message.created_at,
-  id: makeDateMessageId(message.created_at),
+  date: convertTimestampToDate(message.created_at),
+  id: makeDateMessageId(convertTimestampToDate(message.created_at)),
 });
 
 const dateSeparatorInsertedAt = (
@@ -630,8 +633,8 @@ describe('getGroupStyles', () => {
 
   it('marks a message as bottom when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 10;
-    message = { ...message, created_at: new Date(12) };
-    nextMessage = { ...nextMessage, created_at: new Date(14) };
+    message = { ...message, created_at: msToNs(12) };
+    nextMessage = { ...nextMessage, created_at: msToNs(14) };
     expect(
       getGroupStyles(
         message,
@@ -645,7 +648,7 @@ describe('getGroupStyles', () => {
 
   it('marks a message as single when next and previous message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 10;
-    message = { ...message, created_at: new Date(12) };
+    message = { ...message, created_at: msToNs(12) };
     expect(
       getGroupStyles(
         message,

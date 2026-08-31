@@ -131,7 +131,7 @@ const useArchiveAction = (): ChannelActionBehavior => {
   };
 
   return {
-    'aria-pressed': typeof membership.archived_at === 'string',
+    'aria-pressed': membership.archived_at != null,
     title: membership.archived_at
       ? t('channelListItem.unarchive.title', 'Unarchive')
       : t('channelListItem.archive.title', 'Archive'),
