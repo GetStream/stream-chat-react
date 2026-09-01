@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { StateStore } from 'stream-chat';
+import { msToNs, StateStore } from 'stream-chat';
 import type {
   Channel,
   LocalMessage,
@@ -131,22 +131,22 @@ vi.mock('../../../../../components/Dialog', () => ({
 const pinnedMessages: LocalMessage[] = [
   fromPartial<LocalMessage>({
     cid: 'messaging:test-channel',
-    created_at: new Date('2026-01-01T15:53:00.000Z'),
+    created_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     id: 'message-1',
     pinned: true,
     text: 'Release timeline: Code freeze March 18',
     type: 'regular',
-    updated_at: new Date('2026-01-01T15:53:00.000Z'),
+    updated_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     user: { id: 'user-1', name: 'Alice' },
   }),
   fromPartial<LocalMessage>({
     attachments: [{ title: 'Roadmap.pdf', type: 'file' }],
     cid: 'messaging:test-channel',
-    created_at: new Date('2026-01-02T15:53:00.000Z'),
+    created_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     id: 'message-2',
     pinned: true,
     type: 'regular',
-    updated_at: new Date('2026-01-02T15:53:00.000Z'),
+    updated_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     user: { id: 'user-2', name: 'Bob' },
   }),
 ];
@@ -289,6 +289,21 @@ describe('PinnedMessagesView', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.getByText('Roadmap.pdf')).toBeInTheDocument();
+  });
+
+  it('renders each message at its real instant, not the epoch', () => {
+    // Fixtures must model the wire: a `Date` through `fromPartial` type-checks but renders as 1970.
+    mockSearchSourceState({ messages: pinnedMessages });
+
+    renderWithChannel(<PinnedMessagesView layout='tabs' />);
+
+    const stamps = screen
+      .getAllByRole('time')
+      .map((el) => el.getAttribute('dateTime') ?? el.getAttribute('datetime'));
+
+    expect(stamps).toContain('2026-01-01T15:53:00.000Z');
+    expect(stamps).toContain('2026-01-02T15:53:00.000Z');
+    expect(stamps.some((s) => s?.startsWith('1970'))).toBe(false);
   });
 
   it('searches pinned messages with the trimmed query', () => {

@@ -236,7 +236,8 @@ async function captureCustomNotification(browser: any) {
         cid: ch.cid,
         channel_id: ch.id,
         channel_type: ch.type,
-        message: { ...msg, text: msg.text, message_text_updated_at: new Date().toISOString() },
+        // Unix nanoseconds, as the wire carries it; no imports are available in page.evaluate.
+        message: { ...msg, text: msg.text, message_text_updated_at: Date.now() * 1e6 },
       });
     }
   })()`);

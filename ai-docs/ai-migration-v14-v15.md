@@ -103,12 +103,26 @@ The conversion boundary is where core data enters the component tree, so compone
 _render_ a date are unchanged — `DateSeparator`'s `date: Date` and `formatDate?: (date: Date) => string`,
 for instance. Convert at that boundary with the guarded helper `stream-chat` exports:
 
+`convertTimestampToDate` returns `Date | undefined` — `undefined` for an absent or non-finite value.
+**Handle that `undefined`; do not cast it away.** A prop typed `date: Date` will accept it through a
+cast and then fail somewhere further along: `DateSeparator`'s own `isDate(date)` type guard rejects it,
+so the list stops recognising the object as a separator and renders it as an ordinary message — an
+empty row where the day divider belonged, with no error and no type error.
+
 ```ts
 import { convertTimestampToDate } from 'stream-chat';
 
-// `undefined` for an absent or non-finite value, so an optional timestamp renders nothing
-// instead of throwing RangeError.
-<DateSeparator date={convertTimestampToDate(message.created_at)} />
+const createdAt = convertTimestampToDate(message.created_at);
+
+// Render nothing when there is no usable timestamp.
+{createdAt ? <DateSeparator date={createdAt} /> : null}
+```
+
+```ts
+// WRONG — the cast launders `undefined` into a required `Date`.
+<DateSeparator date={convertTimestampToDate(message.created_at) as Date} />
+// WRONG — invents "now", labelling a months-old message "Today".
+<DateSeparator date={convertTimestampToDate(message.created_at) ?? new Date()} />
 ```
 
 `nsToDate` / `dateToNs` / `nsToMs` / `msToNs` / `nowNs` are exported alongside it for values known to be
@@ -116,6 +130,19 @@ present. Note that **outgoing request** date fields are still `Date` (filter bou
 `created_at_before`, plus `remind_at` and `message_timestamp`) — `JSON.stringify` emits RFC3339 for a
 `Date`, which is what the request spec declares. Use `nsToDate` when handing a server-sent timestamp
 back to the API.
+
+### `MessageList`'s `headerPosition` prop changed unit, not type
+
+`headerPosition` is compared against `message.created_at`, so it is now **unix nanoseconds** — it was
+epoch milliseconds while `created_at` was a `Date`. The type is still `number`, so nothing warns.
+
+### Peer-dependency gate before release
+
+The SDK imports `convertTimestampToDate` / `nsToDate` / `nsToMs` from `stream-chat`, which only exist
+from the version that ships `utils/time`. Until that is published, `package.json` pins
+`stream-chat` exactly and the workspace resolves it through a local `portal:` — so a green local build
+says nothing about whether a consumer can resolve these imports. Before publishing, widen the peer
+range to the version that exports them and verify from a clean install with no `portal:` override.
 
 ### Test fixtures have to model the wire
 

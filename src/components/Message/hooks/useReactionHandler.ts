@@ -39,7 +39,11 @@ export const useReactionHandler = (message?: LocalMessage) => {
 
   const createMessagePreview = useCallback(
     (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
-      const newReactionGroups = message?.reaction_groups || {};
+      // Copied, not aliased. The assignments and `delete` below used to write straight into the
+      // message's own `reaction_groups`, so the optimistic message and the one it was derived from
+      // shared that object — and no comparator, identity or deep, could see a reaction-group
+      // change. `areMessagesEqual` compares it by reference.
+      const newReactionGroups = { ...(message?.reaction_groups ?? {}) };
       const reactionType = reaction.type;
       const hasReaction = !!newReactionGroups[reactionType];
 

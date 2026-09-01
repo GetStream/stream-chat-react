@@ -10,11 +10,10 @@ import { DateSeparator } from '../DateSeparator';
 
 export const ThreadHead = (props: MessageProps) => {
   const { ThreadStart = DefaultThreadStart } = useComponentContext();
+  const parentCreatedAt = convertTimestampToDate(props.message.created_at);
   return (
     <div className='str-chat__parent-message-li'>
-      <DateSeparator
-        date={convertTimestampToDate(props.message.created_at) ?? new Date()}
-      />
+      {parentCreatedAt ? <DateSeparator date={parentCreatedAt} /> : null}
       <Message initialMessage {...props} />
       <ThreadStart />
     </div>

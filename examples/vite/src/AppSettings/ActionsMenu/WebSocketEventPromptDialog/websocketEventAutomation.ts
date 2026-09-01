@@ -1,3 +1,4 @@
+import { nowNs } from 'stream-chat';
 import type {
   Channel,
   ChannelMemberResponse,
@@ -97,9 +98,7 @@ const buildReactionState = ({
     typeof reaction.score === 'number' && Number.isFinite(reaction.score)
       ? reaction.score
       : 1;
-  const reactionTimestamp = reaction.created_at
-    ? new Date(reaction.created_at)
-    : new Date();
+  const reactionTimestamp = reaction.created_at ?? nowNs();
 
   return {
     latest_reactions: [reaction],
@@ -160,7 +159,7 @@ const buildFreshContext = (
   simulationState: SimulationState,
 ): WebSocketEventTemplateContext => {
   const sequence = simulationState.nextSequence;
-  const createdAt = new Date().toISOString();
+  const createdAt = nowNs();
   const channelMembers = getChannelMembersForCid(
     templateContext.cid,
     simulationState,
@@ -389,12 +388,12 @@ export const buildFreshWebSocketEventPayload = ({
         created_at: freshContext.createdAt,
         message: {
           ...baseMessage,
-          created_at: new Date(freshContext.createdAt),
+          created_at: freshContext.createdAt,
           html: `<p>${text}</p>\n`,
           id: messageId,
           member,
           text,
-          updated_at: new Date(freshContext.createdAt),
+          updated_at: freshContext.createdAt,
           user,
         },
         message_id: messageId,
@@ -412,14 +411,14 @@ export const buildFreshWebSocketEventPayload = ({
       const reactionScore = eventType === 'reaction.updated' ? 2 : 1;
       const reaction = {
         ...baseReaction,
-        // `dispatchEvent` receives an already-parsed `Event`, so timestamps are `Date`s here
-        // (only the raw wire format uses ISO strings).
-        created_at: new Date(freshContext.createdAt),
+        // Server-sent dates are unix-nanosecond numbers everywhere now — on the raw wire frame and
+        // on the parsed `Event` that `dispatchEvent` receives alike.
+        created_at: freshContext.createdAt,
         // v10 requires `custom` on reaction responses.
         custom: {},
         message_id: messageId,
         type: reactionType,
-        updated_at: new Date(freshContext.createdAt),
+        updated_at: freshContext.createdAt,
         user,
         user_id: user.id,
         score: reactionScore,
@@ -437,7 +436,7 @@ export const buildFreshWebSocketEventPayload = ({
           ...baseMessage,
           id: messageId,
           member,
-          updated_at: new Date(freshContext.createdAt),
+          updated_at: freshContext.createdAt,
           user,
           ...buildReactionState({ reaction }),
         },
@@ -472,7 +471,7 @@ export const buildFreshWebSocketEventPayload = ({
           ...baseMessage,
           id: messageId,
           member,
-          updated_at: new Date(freshContext.createdAt),
+          updated_at: freshContext.createdAt,
           user,
         },
         user,

@@ -180,10 +180,15 @@ export const ACTIONS_NOT_WORKING_IN_THREAD = [
 ];
 
 function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
+  if (prevMessage === nextMessage) return true;
+
   const areBaseMessagesEqual = (prevMessage: LocalMessage, nextMessage: LocalMessage) =>
     prevMessage.deleted_at === nextMessage.deleted_at &&
-    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
-    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
+    prevMessage.attachments === nextMessage.attachments &&
+    prevMessage.latest_reactions === nextMessage.latest_reactions &&
+    prevMessage.own_reactions === nextMessage.own_reactions &&
+    prevMessage.reaction_groups === nextMessage.reaction_groups &&
+    prevMessage.shared_location === nextMessage.shared_location &&
     prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
     prevMessage.show_in_channel === nextMessage.show_in_channel &&

@@ -10,7 +10,7 @@ import type {
   MessageLabel,
   UnreadSnapshotState,
 } from 'stream-chat';
-import { convertTimestampToDate, nsToDate, nsToMs } from 'stream-chat';
+import { convertTimestampToDate, nsToMs } from 'stream-chat';
 
 type IntroMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.intro;
@@ -112,16 +112,16 @@ export const processMessages = (params: ProcessMessagesParams) => {
     }
 
     const changes: RenderedMessage[] = [];
-    // Nullish, not truthy: `0` is a legitimate wire timestamp (the epoch), and treating it as
-    // "no date" collapses the day-grouping key to '' and suppresses the separator.
-    const messageDate =
-      message.created_at != null ? nsToDate(message.created_at).toDateString() : '';
+    // `undefined` when the timestamp is unusable, so no separator is built for that message.
+    const messageCreatedAt = convertTimestampToDate(message.created_at);
+    const messageDate = messageCreatedAt ? messageCreatedAt.toDateString() : '';
     const previousMessage = messages[i - 1];
-    let prevMessageDate = messageDate;
-
-    if (enableDateSeparator && previousMessage?.created_at != null) {
-      prevMessageDate = nsToDate(previousMessage.created_at).toDateString();
-    }
+    // `''` when the previous message has no usable timestamp, so the current one still gets a
+    // separator.
+    const previousCreatedAt = enableDateSeparator
+      ? convertTimestampToDate(previousMessage?.created_at)
+      : undefined;
+    const prevMessageDate = previousCreatedAt ? previousCreatedAt.toDateString() : '';
 
     if (!unread && !hideNewMessageSeparator) {
       unread =
@@ -131,13 +131,19 @@ export const processMessages = (params: ProcessMessagesParams) => {
         false;
 
       // do not show date separator for current user's messages
-      if (enableDateSeparator && unread && message.user?.id !== userId) {
-        changes.push({
+      if (
+        enableDateSeparator &&
+        unread &&
+        messageCreatedAt &&
+        message.user?.id !== userId
+      ) {
+        const separator: DateSeparatorMessage = {
           customType: CUSTOM_MESSAGE_TYPE.date,
-          date: convertTimestampToDate(message.created_at),
-          id: makeDateMessageId(convertTimestampToDate(message.created_at)),
+          date: messageCreatedAt,
+          id: makeDateMessageId(messageCreatedAt),
           unread,
-        } as DateSeparatorMessage);
+        };
+        changes.push(separator);
       }
     }
 
@@ -153,14 +159,12 @@ export const processMessages = (params: ProcessMessagesParams) => {
     ) {
       lastDateSeparator = messageDate;
 
-      changes.push(
-        {
-          customType: CUSTOM_MESSAGE_TYPE.date,
-          date: convertTimestampToDate(message.created_at),
-          id: makeDateMessageId(convertTimestampToDate(message.created_at)),
-        } as DateSeparatorMessage,
-        message,
-      );
+      const separator: DateSeparatorMessage | undefined = messageCreatedAt && {
+        customType: CUSTOM_MESSAGE_TYPE.date,
+        date: messageCreatedAt,
+        id: makeDateMessageId(messageCreatedAt),
+      };
+      changes.push(...(separator ? [separator] : []), message);
     } else {
       changes.push(message);
     }
@@ -215,7 +219,7 @@ export const insertIntro = (messages: RenderedMessage[], headerPosition?: number
   const intro = makeIntroMessage();
 
   // if no headerPosition is set, HeaderComponent will go at the top
-  if (!headerPosition) {
+  if (headerPosition == null) {
     newMessages.unshift(intro);
     return newMessages;
   }
@@ -228,12 +232,12 @@ export const insertIntro = (messages: RenderedMessage[], headerPosition?: number
 
   // else loop over the messages
   for (let i = 0; i < messages.length; i += 1) {
-    const messageTime = (messages[i] as LocalMessage).created_at ?? null;
+    const messageTime = (messages[i] as LocalMessage).created_at;
 
     const nextMessageTime = (messages[i + 1] as LocalMessage)?.created_at ?? null;
 
     // header position is smaller than message time so comes after;
-    if (messageTime && messageTime < headerPosition) {
+    if (messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
       if (nextMessageTime && nextMessageTime < headerPosition) {
         if (messages[i + 1] && isDateSeparatorMessage(messages[i + 1])) continue;
@@ -379,7 +383,9 @@ export const getIsFirstUnreadMessage = ({
   const lastReadTimestamp = lastReadAt;
 
   const messageIsUnread =
-    !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;
+    createdAtTimestamp != null &&
+    lastReadTimestamp != null &&
+    createdAtTimestamp > lastReadTimestamp;
 
   const previousMessageIsLastRead =
     !!lastReadMessageId && lastReadMessageId === previousMessage?.id;

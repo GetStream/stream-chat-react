@@ -7,7 +7,13 @@ import {
   generateUser,
 } from '../../../mock-builders';
 
-import { getGroupStyles, makeDateMessageId, processMessages } from '../utils';
+import {
+  getGroupStyles,
+  insertIntro,
+  isDateSeparatorMessage,
+  makeDateMessageId,
+  processMessages,
+} from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 import { convertTimestampToDate, msToNs } from 'stream-chat';
 
@@ -155,21 +161,54 @@ describe('processMessages', () => {
         );
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
+    });
 
-      it('first message contains invalid date', () => {
+    // These fixtures hold an `Invalid Date`, which the wire normalizer turns into `NaN`. No
+    // separator can be built for such a message; the valid sibling still gets one.
+    describe('skipped for a message whose timestamp is unusable', () => {
+      it('omits the separator for an invalid first message, keeping the second', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesFirstInvalid,
           enableDateSeparatorParams,
         );
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+
+        expect(newMessageList).toHaveLength(messages.length + 1);
+        expect(isDateSeparatorMessage(newMessageList[0])).toBe(false);
+        expect(newMessageList[0]).toMatchObject(messages[0]);
+        expect(isDateSeparatorMessage(newMessageList[1])).toBe(true);
+        expect(newMessageList[1]).toMatchObject(makeDateSeparator(messages[1]));
+        expect(newMessageList[2]).toMatchObject(messages[1]);
       });
 
-      it('second message contains invalid date', () => {
+      it('omits the separator for an invalid second message, keeping the first', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesSecondInvalid,
           enableDateSeparatorParams,
         );
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+
+        expect(newMessageList).toHaveLength(messages.length + 1);
+        expect(isDateSeparatorMessage(newMessageList[0])).toBe(true);
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(isDateSeparatorMessage(newMessageList[2])).toBe(false);
+        expect(newMessageList[2]).toMatchObject(messages[1]);
+      });
+
+      it('never emits a separator object that is not a valid separator', () => {
+        for (const fixture of [
+          msgCreationDatesFirstInvalid,
+          msgCreationDatesSecondInvalid,
+        ]) {
+          const { newMessageList } = runMessageProcessing(
+            fixture,
+            enableDateSeparatorParams,
+          );
+          for (const entry of newMessageList) {
+            if ((entry as { customType?: string }).customType === 'message.date') {
+              expect(isDateSeparatorMessage(entry)).toBe(true);
+            }
+          }
+        }
       });
     });
 
@@ -708,6 +747,64 @@ describe('getGroupStyles', () => {
     nextMessage = undefined;
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'single',
+    );
+  });
+});
+
+describe('insertIntro', () => {
+  // `headerPosition` is a public prop compared against `message.created_at`, so unix nanoseconds.
+  const NS_PER_MS = 1e6;
+  const at = (iso: string) => Date.parse(iso) * NS_PER_MS;
+  const msg = (iso: string, id: string) =>
+    fromPartial<LocalMessage>({ created_at: at(iso), id, status: 'received' });
+  const isIntro = (entry: unknown) =>
+    (entry as { customType?: string })?.customType === CUSTOM_MESSAGE_TYPE.intro;
+
+  it('puts the intro at the top when no position is given', () => {
+    const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')]);
+
+    expect(isIntro(result[0])).toBe(true);
+  });
+
+  it('puts the intro at the top for an empty list', () => {
+    expect(isIntro(insertIntro([])[0])).toBe(true);
+  });
+
+  it('treats the epoch as a real position rather than "unset"', () => {
+    // `0` is falsy, so a truthiness guard would unshift the intro instead.
+    const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')], 0);
+
+    expect(isIntro(result[0])).toBe(false);
+  });
+
+  it('places the intro after messages older than the position, in nanoseconds', () => {
+    const messages = [
+      msg('2026-01-01T00:00:00Z', 'older'),
+      msg('2026-01-03T00:00:00Z', 'newer'),
+    ];
+
+    const result = insertIntro(messages, at('2026-01-02T00:00:00Z'));
+
+    expect(result.map((m) => (isIntro(m) ? 'intro' : m.id))).toEqual([
+      'older',
+      'intro',
+      'newer',
+    ]);
+  });
+
+  it('is in nanoseconds, not milliseconds — the unit the migration changed', () => {
+    const messages = [
+      msg('2026-01-01T00:00:00Z', 'older'),
+      msg('2026-01-03T00:00:00Z', 'newer'),
+    ];
+    // The epoch-millisecond value an integrator would have passed before the migration.
+    const asMilliseconds = Date.parse('2026-01-02T00:00:00Z');
+
+    const result = insertIntro([...messages], asMilliseconds);
+
+    expect(result.some(isIntro)).toBe(false);
+    expect(insertIntro([...messages], asMilliseconds * NS_PER_MS).some(isIntro)).toBe(
+      true,
     );
   });
 });
