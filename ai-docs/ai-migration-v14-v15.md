@@ -65,6 +65,65 @@ To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the 
 
 `Channel` no longer reflects the channel-list query state. Its loading / error / empty rendering is driven by the channel's own `watch()` bootstrap (`LoadingIndicator` while watching, `LoadingErrorIndicator` on watch failure, `EmptyPlaceholder` when no channel is provided). The channel-list query state is the `ChannelList`'s concern, not `Channel`'s.
 
+## Dates on response types are unix-nanosecond numbers
+
+`stream-chat` now types every **server-sent** date as the unix-nanosecond `number` the API puts on the
+wire — `created_at`, `updated_at`, `last_read`, and every sibling on a response or event. It is not a
+`Date` and not an ISO string, and the React types that carry those values through changed with it.
+
+Two failure modes are silent, because neither is a type error:
+
+- `new Date(ns)` is **out of range**. `Date` tops out near 8.64e15 ms while a current timestamp is
+  ~1.79e18, so you get an `Invalid Date` — and `.toISOString()` on one throws
+  `RangeError: Invalid time value`, usually mid-render.
+- Date libraries read a bare number as **milliseconds**, so `dayjs(created_at)` renders a date roughly
+  50,000 years out without complaining.
+
+### The three public React types that changed
+
+| Type                                                  | v14                           | v15                             |
+| ----------------------------------------------------- | ----------------------------- | ------------------------------- |
+| `ChatContextValue.latestMessageDatesByChannels`       | `Record<ChannelConfId, Date>` | `Record<ChannelConfId, number>` |
+| `ProcessMessagesParams.lastRead` (`processMessages`)  | `Date \| null`                | `number \| null`                |
+| `VirtualizedMessageList` render props: `lastReadDate` | `Date \| null`                | `number \| null`                |
+
+Comparisons get simpler, not harder — compare and sort the raw numbers and drop the `Date` round-trip:
+
+```ts
+// v14
+if (latestMessageDatesByChannels[cid].getTime() < new Date(message.created_at).getTime()) { … }
+
+// v15
+if (latestMessageDatesByChannels[cid] < message.created_at) { … }
+```
+
+### Presentational props still take `Date`
+
+The conversion boundary is where core data enters the component tree, so components that exist to
+_render_ a date are unchanged — `DateSeparator`'s `date: Date` and `formatDate?: (date: Date) => string`,
+for instance. Convert at that boundary with the guarded helper `stream-chat` exports:
+
+```ts
+import { convertTimestampToDate } from 'stream-chat';
+
+// `undefined` for an absent or non-finite value, so an optional timestamp renders nothing
+// instead of throwing RangeError.
+<DateSeparator date={convertTimestampToDate(message.created_at)} />
+```
+
+`nsToDate` / `dateToNs` / `nsToMs` / `msToNs` / `nowNs` are exported alongside it for values known to be
+present. Note that **outgoing request** date fields are still `Date` (filter bounds like
+`created_at_before`, plus `remind_at` and `message_timestamp`) — `JSON.stringify` emits RFC3339 for a
+`Date`, which is what the request spec declares. Use `nsToDate` when handing a server-sent timestamp
+back to the API.
+
+### Test fixtures have to model the wire
+
+A fixture that hands the SDK a `Date` cannot catch either failure mode above, and will diverge from
+runtime behavior. The SDK's own suite normalizes through
+`mock-builders/generator/time.ts` (`convertDateToTimestamp`), which accepts a `Date`, an ISO string or a
+raw wire number so tests stay readable while the value on the wire stays a number.
+
 ## i18n: English-only bundle, namespaced translation keys
 
 Two breaking changes, both of which fail **silently** — no error, no compile break unless the app
