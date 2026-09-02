@@ -39,7 +39,7 @@ const getPresenceStatusText = (
 ) => {
   if (user?.online) return t('common.online.label', 'Online');
 
-  if (user?.last_active) {
+  if (user?.last_active != null) {
     return t(
       'channelDetail.channelMemberDetail.lastSeen.label',
       'Last seen {{ timestamp }}',

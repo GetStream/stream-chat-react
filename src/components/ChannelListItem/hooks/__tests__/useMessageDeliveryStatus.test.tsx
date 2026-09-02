@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import type { Channel, LocalMessage, MessageResponse, StreamChat } from 'stream-chat';
+import { nsToMs } from 'stream-chat';
 import {
   MessageDeliveryStatus,
   useMessageDeliveryStatus,
@@ -328,9 +329,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: lastMessage.id,
           user: otherUser,
         });
@@ -348,9 +347,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: lastMessage.id,
           user: ownUser,
         });
@@ -368,9 +365,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: lastMessage.id,
           user: otherUser,
         });
@@ -388,9 +383,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: 'another-message-id',
           user: otherUser,
         });

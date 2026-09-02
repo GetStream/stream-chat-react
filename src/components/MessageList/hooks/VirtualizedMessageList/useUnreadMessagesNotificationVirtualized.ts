@@ -51,9 +51,9 @@ export const useUnreadMessagesNotificationVirtualized = ({
       const lastReadTime = lastReadAt ?? 0;
 
       const scrolledBelowSeparator =
-        !!lastReadTime && firstRenderedMessageTime > lastReadTime;
+        lastReadAt != null && firstRenderedMessageTime > lastReadTime;
       const scrolledAboveSeparator =
-        !!lastReadTime && lastRenderedMessageTime < lastReadTime;
+        lastReadAt != null && lastRenderedMessageTime < lastReadTime;
 
       setShow(
         showAlways

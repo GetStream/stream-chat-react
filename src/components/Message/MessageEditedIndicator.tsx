@@ -29,7 +29,7 @@ const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) =>
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
 
-  if (!message?.message_text_updated_at) {
+  if (message?.message_text_updated_at == null) {
     return null;
   }
 

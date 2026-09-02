@@ -24,7 +24,7 @@ import { useChannel, useMessageContext, WithComponents } from '../../../context'
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
-import { StateStore } from 'stream-chat';
+import { msToNs, StateStore } from 'stream-chat';
 import type {
   Channel as ChannelType,
   Event,
@@ -654,9 +654,7 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: convertDateToTimestamp(
-                  new Date(messages[2].created_at).toISOString(),
-                ),
+                last_read: messages[2].created_at,
                 last_read_message_id: messages[2].id,
                 unread_messages: 2,
                 user,
@@ -709,9 +707,7 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: convertDateToTimestamp(
-                  new Date(lastMessage.created_at).toISOString(),
-                ),
+                last_read: lastMessage.created_at,
                 last_read_message_id: lastMessage.id,
                 unread_messages: 0,
                 user,
@@ -750,9 +746,7 @@ describe('MessageList', () => {
       const lastReadMessage = messages[3];
       const replies = Array.from({ length: 3 }).map(() =>
         generateMessage({
-          created_at: convertDateToTimestamp(
-            new Date(new Date(parentMsg.created_at).getTime() + 1000 + 1).toISOString(),
-          ),
+          created_at: parentMsg.created_at + msToNs(1001),
           parent_id: parentMsg.id,
         }),
       );
@@ -765,9 +759,7 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: convertDateToTimestamp(
-                  new Date(lastReadMessage.created_at).toISOString(),
-                ),
+                last_read: lastReadMessage.created_at,
                 last_read_message_id: lastReadMessage.id,
                 unread_messages: 1,
                 user,

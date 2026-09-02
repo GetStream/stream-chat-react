@@ -418,7 +418,9 @@ export const isMessageBlocked = (
   (message.type === 'error' && message.moderation?.action === 'remove');
 
 export const isMessageDeleted = (message: LocalMessage): boolean =>
-  Boolean(message.deleted_at || message.type === 'deleted' || message.deleted_for_me);
+  Boolean(
+    message.deleted_at != null || message.type === 'deleted' || message.deleted_for_me,
+  );
 
 export const isMessageEdited = (message: Pick<LocalMessage, 'message_text_updated_at'>) =>
-  !!message.message_text_updated_at;
+  message.message_text_updated_at != null;
