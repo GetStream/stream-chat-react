@@ -309,10 +309,10 @@ export const CustomMessageUi_V7 = () => {
 
   return (
     <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
-      {message.deleted_at && (
+      {message.deleted_at != null && (
         <div className='custom-message-ui__body'>This message has been deleted...</div>
       )}
-      {!message.deleted_at && (
+      {message.deleted_at == null && (
         <>
           <div className='custom-message-ui__body'>
             <Avatar
@@ -345,10 +345,10 @@ export const CustomMessageUi_V8 = () => {
 
   return (
     <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
-      {message.deleted_at && (
+      {message.deleted_at != null && (
         <div className='custom-message-ui__body'>This message has been deleted...</div>
       )}
-      {!message.deleted_at && (
+      {message.deleted_at == null && (
         <>
           <div className='custom-message-ui__body'>
             <Avatar
