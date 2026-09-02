@@ -40,6 +40,7 @@ import {
   mockComponentContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const EMPTY_CHANNEL_PREVIEW_TEXT = 'Empty channel';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -113,7 +114,9 @@ describe('ChannelPreview', () => {
     const genMessages = () =>
       Array.from({ length: 5 }, (_, i) =>
         generateMessage({
-          created_at: new Date(Date.UTC(2020, 0, 1, 0, 0, i)).toISOString(),
+          created_at: convertDateToTimestamp(
+            new Date(Date.UTC(2020, 0, 1, 0, 0, i)).toISOString(),
+          ),
         }),
       );
     useMockedApis(client, [
@@ -419,19 +422,25 @@ describe('ChannelPreview', () => {
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1970-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1970-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1970-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1971-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1971-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1971-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
         ],
@@ -474,19 +483,25 @@ describe('ChannelPreview', () => {
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1970-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1970-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1970-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1971-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1971-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1971-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
         ],
@@ -697,7 +712,7 @@ describe('ChannelPreview', () => {
     it('should pass pinned=true when membership has pinned_at', async () => {
       c0.state.membership = fromPartial({
         ...c0.state.membership,
-        pinned_at: '2024-01-01T00:00:00Z',
+        pinned_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
       });
 
       renderComponent(

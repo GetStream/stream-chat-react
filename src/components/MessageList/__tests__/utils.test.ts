@@ -16,6 +16,7 @@ import {
 } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
 import { convertTimestampToDate, msToNs } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
 vi.mock('nanoid', () => ({
@@ -27,20 +28,44 @@ const otherUserId = 'otherUserId';
 const enableDateSeparatorParams = { enableDateSeparator: true };
 
 const msgCreationDatesSameDay = [
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
 ];
 const msgCreationDatesDifferentDay = [
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-  { created_at: new Date('1970-01-02'), updated_at: new Date('1970-01-02') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-02')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-02')),
+  },
 ];
 const msgCreationDatesFirstInvalid = [
-  { created_at: new Date('1970-01-00'), updated_at: new Date('1970-01-00') },
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-00')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-00')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
 ];
 const msgCreationDatesSecondInvalid = [
-  { created_at: new Date('1970-01-31'), updated_at: new Date('1970-01-31') },
-  { created_at: new Date('1970-02-00'), updated_at: new Date('1970-02-00') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-31')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-31')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-02-00')),
+    updated_at: convertDateToTimestamp(new Date('1970-02-00')),
+  },
 ];
 
 const runMessageProcessing = (msgData, processMsgParams = {}) => {
@@ -213,9 +238,9 @@ describe('processMessages', () => {
     });
 
     describe('replaces deleted messages', () => {
-      const date1 = new Date('1970-01-01');
-      const date2 = new Date('1970-01-02');
-      const date3 = new Date('1970-01-03');
+      const date1 = convertDateToTimestamp('1970-01-01');
+      const date2 = convertDateToTimestamp('1970-01-02');
+      const date3 = convertDateToTimestamp('1970-01-03');
 
       const deletedMessagesReplacedCorrectly = (messages, newMessageList) => {
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
@@ -362,12 +387,12 @@ describe('processMessages', () => {
       const shouldExpectUnreadSeparator = true;
       const lastRead = new Date();
       const oldMsg = {
-        created_at: new Date('1970-01-01'),
-        updated_at: new Date('1970-01-01'),
+        created_at: convertDateToTimestamp(new Date('1970-01-01')),
+        updated_at: convertDateToTimestamp(new Date('1970-01-01')),
       };
       const unreadMsg = {
-        created_at: new Date('9999-12-31'),
-        updated_at: new Date('9999-12-31'),
+        created_at: convertDateToTimestamp(new Date('9999-12-31')),
+        updated_at: convertDateToTimestamp(new Date('9999-12-31')),
       };
       const myNewMessages = [
         { user: { id: myUserId }, ...unreadMsg },
@@ -495,9 +520,15 @@ describe('getGroupStyles', () => {
   let nextMessage: LocalMessage;
   let noGroupByUser: boolean;
   beforeEach(() => {
-    message = generateMessage({ created_at: new Date(2), user });
-    previousMessage = generateMessage({ created_at: new Date(1), user });
-    nextMessage = generateMessage({ created_at: new Date(100), user });
+    message = generateMessage({ created_at: convertDateToTimestamp(new Date(2)), user });
+    previousMessage = generateMessage({
+      created_at: convertDateToTimestamp(new Date(1)),
+      user,
+    });
+    nextMessage = generateMessage({
+      created_at: convertDateToTimestamp(new Date(100)),
+      user,
+    });
     noGroupByUser = false;
   });
 
@@ -608,10 +639,13 @@ describe('getGroupStyles', () => {
     // deleted_at no longer affects grouping in v14
     it('is deleted', () => {
       if (position === 'bottom') {
-        nextMessage = { ...nextMessage, deleted_at: new Date() };
+        nextMessage = { ...nextMessage, deleted_at: convertDateToTimestamp(new Date()) };
       }
       if (position === 'top') {
-        previousMessage = { ...previousMessage, deleted_at: new Date() };
+        previousMessage = {
+          ...previousMessage,
+          deleted_at: convertDateToTimestamp(new Date()),
+        };
       }
       // deleted_at on adjacent messages does not break groups anymore
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
@@ -621,7 +655,10 @@ describe('getGroupStyles', () => {
   });
 
   it('marks a message as bottom when the message is edited', () => {
-    message = { ...message, message_text_updated_at: new Date().toISOString() };
+    message = {
+      ...message,
+      message_text_updated_at: convertDateToTimestamp(new Date().toISOString()),
+    };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',
     );
@@ -630,7 +667,7 @@ describe('getGroupStyles', () => {
   it('marks a message as top when the previous message is edited', () => {
     previousMessage = {
       ...previousMessage,
-      message_text_updated_at: new Date().toISOString(),
+      message_text_updated_at: convertDateToTimestamp(new Date().toISOString()),
     };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'top',
@@ -720,7 +757,7 @@ describe('getGroupStyles', () => {
 
   // deleted_at on the message itself no longer forces 'single' in v14
   it('marks message as middle even when deleted (deleted_at no longer affects grouping)', () => {
-    message = { ...message, deleted_at: new Date() };
+    message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'middle',
     );
@@ -735,7 +772,7 @@ describe('getGroupStyles', () => {
 
   // deleted_at no longer forces 'single'; at the bottom position it's just 'bottom'
   it('marks message at the bottom as bottom even when deleted', () => {
-    message = { ...message, deleted_at: new Date() };
+    message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     nextMessage = undefined;
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',

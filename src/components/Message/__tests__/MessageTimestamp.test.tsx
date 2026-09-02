@@ -3,7 +3,7 @@ import { act, cleanup, render, type RenderResult } from '@testing-library/react'
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage } from 'stream-chat';
 import { msToNs, nsToDate } from 'stream-chat';
-import { generateMessage } from 'mock-builders';
+import { convertDateToTimestamp, generateMessage } from 'mock-builders';
 import { MessageTimestamp } from '../MessageTimestamp';
 import { ComponentProvider, MessageProvider, TranslationContext } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
@@ -35,7 +35,7 @@ const formatDate = () => dateMock;
 const createdAt = new Date('2019-04-03T14:42:47.087869Z');
 
 const messageMock = generateMessage({
-  created_at: createdAt,
+  created_at: convertDateToTimestamp(createdAt),
 });
 
 const renderComponent = async ({
@@ -119,7 +119,9 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('should not render if message created_at is not a valid date', () => {
-    const message = generateMessage({ created_at: 'I am not a date' });
+    // An unusable wire timestamp is `NaN`, not a string — that is what `convertTimestampToDate`
+    // guards against and what a malformed payload actually produces.
+    const message = generateMessage({ created_at: NaN });
     const { container } = render(
       <MessageProvider value={mockMessageContext()}>
         <MessageTimestamp message={message} />

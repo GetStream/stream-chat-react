@@ -40,6 +40,7 @@ import { ThreadProvider } from '../../Threads';
 import { generateReminderResponse } from '../../../mock-builders/generator/reminder';
 import type { Channel, StreamChat, Thread } from 'stream-chat';
 import type { ComponentContextValue, MessageContextValue } from '../../../context';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 // MERGE-RECONCILE (test migration): thread opening moved from the deleted ChannelActionContext
 // `openThread` handler to the core workspace-navigation adapter `openThread`. We mock the
@@ -234,7 +235,7 @@ describe('<MessageSimple />', () => {
 
   it('should render deleted message with default MessageDelete component when message was deleted', async () => {
     const deletedMessage = generateAliceMessage({
-      deleted_at: new Date('2019-12-17T03:24:00').toISOString(),
+      deleted_at: convertDateToTimestamp(new Date('2019-12-17T03:24:00').toISOString()),
     });
     const { container, getByTestId } = await renderMessageSimple({
       message: deletedMessage,
@@ -270,7 +271,7 @@ describe('<MessageSimple />', () => {
 
   it('should render deleted message with custom component when message was deleted and a custom delete message component was passed', async () => {
     const deletedMessage = generateAliceMessage({
-      deleted_at: new Date('2019-12-25T03:24:00').toISOString(),
+      deleted_at: convertDateToTimestamp(new Date('2019-12-25T03:24:00').toISOString()),
     });
     const CustomMessageDeletedComponent = () => (
       <p data-testid='custom-message-deleted'>Gone!</p>
@@ -834,7 +835,7 @@ describe('<MessageSimple />', () => {
   it("should display message's timestamp", async () => {
     const messageDate = new Date('2019-12-12T03:33:00');
     const message = generateAliceMessage({
-      created_at: messageDate,
+      created_at: convertDateToTimestamp(messageDate),
     });
     const { container } = await renderMessageSimple({ message });
     const timeEl = container.querySelector('time.str-chat__message-metadata__timestamp');
@@ -1018,7 +1019,7 @@ describe('<MessageSimple />', () => {
 
   describe('edited label', () => {
     const editedMessageOptions = {
-      message_text_updated_at: '2024-03-05T09:56:22.487729Z',
+      message_text_updated_at: convertDateToTimestamp('2024-03-05T09:56:22.487729Z'),
     };
 
     it('should render error badge for bounced messages', async () => {

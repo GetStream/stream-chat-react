@@ -4,6 +4,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { useIncomingMessageAnnouncements } from '../useIncomingMessageAnnouncements';
 
 import type { Channel, Event, LocalMessage } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 const { announceMock, tMock } = vi.hoisted(() => ({
   announceMock: vi.fn(),
@@ -48,7 +49,7 @@ const createMessage = ({
   userName?: string;
 }) =>
   fromPartial<LocalMessage>({
-    created_at: new Date('2026-04-22T10:00:00.000Z'),
+    created_at: convertDateToTimestamp(new Date('2026-04-22T10:00:00.000Z')),
     id,
     parent_id: parentId,
     status: 'received',

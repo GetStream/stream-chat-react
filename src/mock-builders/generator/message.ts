@@ -1,31 +1,28 @@
 import { nanoid } from 'nanoid';
-import type { LocalMessage, MessageResponse } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 import type { DeepPartial } from '../../types/types';
 import { convertDateToTimestamp } from './time';
 
-type GenerateMessageOptions = Omit<
-  DeepPartial<MessageResponse>,
-  'created_at' | 'updated_at'
-> & {
-  created_at?: Date | number | string;
-  updated_at?: Date | number | string;
+/**
+ * Timestamp overrides are the unix-nanosecond numbers the API puts on the wire — a fixture holding
+ * a `Date` or an ISO string cannot catch the bugs that unit exists to prevent, and the compiler
+ * now says so. Where a test reads better against a date literal, convert at the call site with
+ * `convertDateToTimestamp`. `timestamp` is the shorthand for the common case of seeding
+ * both `created_at` and `updated_at` from one wall-clock value. It is deliberately not called
+ * `date`: `DateSeparatorMessage.date` is a real field on the rendered view-model, and a generator
+ * param of that name would swallow it.
+ */
+type GenerateMessageOptions = DeepPartial<LocalMessage> & {
+  timestamp?: Date | number | string;
 };
 
-/** The message fields the API sends as unix-nanosecond numbers. */
-const TIMESTAMP_FIELDS = [
-  'created_at',
-  'updated_at',
-  'deleted_at',
-  'pinned_at',
-  'pin_expires',
-  'message_text_updated_at',
-] as const;
-
 export const generateMessage = (options?: GenerateMessageOptions): LocalMessage => {
+  const { timestamp: seed, ...overrides } = options ?? {};
+  const timestamp = convertDateToTimestamp(seed);
   const data = {
     __html: '<p>regular</p>',
     attachments: [],
-    created_at: convertDateToTimestamp(),
+    created_at: timestamp,
     html: '<p>regular</p>',
     id: nanoid(),
     mentioned_users: [],
@@ -33,21 +30,10 @@ export const generateMessage = (options?: GenerateMessageOptions): LocalMessage 
     status: 'received',
     text: nanoid(),
     type: 'regular',
-    updated_at: convertDateToTimestamp(),
+    updated_at: timestamp,
     user: null,
-    ...options,
+    ...overrides,
   } as unknown as LocalMessage;
-  // Tests read better overriding a timestamp with a date literal, but the wire carries numbers —
-  // and a fixture handing the SDK a `Date` cannot catch the bugs that unit exists to prevent.
-  // Normalize every timestamp override here so no individual test has to.
-  for (const field of TIMESTAMP_FIELDS) {
-    const value = (data as unknown as Record<string, unknown>)[field];
-    if (value != null && typeof value !== 'number') {
-      (data as unknown as Record<string, unknown>)[field] = convertDateToTimestamp(
-        value as Date | number | string,
-      );
-    }
-  }
   if (data['reminder']) {
     (data['reminder'] as any).message_id = data.id;
   }

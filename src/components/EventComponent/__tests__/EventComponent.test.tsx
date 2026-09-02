@@ -9,6 +9,7 @@ import type { EventComponentProps } from '../EventComponent';
 import { Chat } from '../../Chat';
 import type { ChatProps } from '../../Chat';
 import { getTestClient } from '../../../mock-builders';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const SYSTEM_MSG_TEST_ID = 'message-system';
 
@@ -16,7 +17,7 @@ describe('EventComponent', () => {
   afterEach(cleanup);
 
   const message = fromPartial<LocalMessage>({
-    created_at: new Date('2020-03-13T10:18:38.148025Z'),
+    created_at: convertDateToTimestamp(new Date('2020-03-13T10:18:38.148025Z')),
     type: 'system',
   });
 
@@ -107,7 +108,7 @@ describe('EventComponent', () => {
   describe('Channel events', () => {
     it('should render null for member add event (channel events no longer rendered)', () => {
       const msg = fromPartial<LocalMessage>({
-        created_at: '2020-01-13T18:18:38.148025Z',
+        created_at: convertDateToTimestamp('2020-01-13T18:18:38.148025Z'),
         event: {
           type: 'member.added',
           user: { id: 'user_id', image: 'image_url', username: 'username' },
@@ -121,7 +122,7 @@ describe('EventComponent', () => {
 
     it('should render null for member remove event (channel events no longer rendered)', () => {
       const msg = fromPartial<LocalMessage>({
-        created_at: '2020-01-13T18:18:38.148025Z',
+        created_at: convertDateToTimestamp('2020-01-13T18:18:38.148025Z'),
         event: {
           type: 'member.removed',
           user: { id: 'user_id', image: 'image_url', username: 'username' },

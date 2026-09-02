@@ -27,6 +27,7 @@ import {
 } from '../utils';
 import type { MessageProps } from '../types';
 import type { GroupStyle } from '../../MessageList/utils';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -58,7 +59,9 @@ describe('Message utils', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
         fromPartial<UserMuteResponse>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+          created_at: convertDateToTimestamp(
+            new Date('2019-03-30T13:24:10').toISOString(),
+          ),
           target: bob,
           user: alice,
         }),
@@ -76,7 +79,9 @@ describe('Message utils', () => {
     it('should return true if user was muted', () => {
       const mutes = [
         fromPartial<UserMuteResponse>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+          created_at: convertDateToTimestamp(
+            new Date('2019-03-30T13:24:10').toISOString(),
+          ),
           target: bob,
           user: alice,
         }),
@@ -299,8 +304,8 @@ describe('Message utils', () => {
         ['updated_at', new Date(1).toISOString(), new Date(2).toISOString()],
         [
           'user',
-          { updated_at: new Date(1).toISOString() },
-          { updated_at: new Date(2).toISOString() },
+          { updated_at: convertDateToTimestamp(new Date(1).toISOString()) },
+          { updated_at: convertDateToTimestamp(new Date(2).toISOString()) },
         ],
       ];
       const message = generateMessage();

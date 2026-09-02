@@ -9,6 +9,7 @@ import {
   mockChatContext,
 } from '../../../../mock-builders';
 import type { LocalMessage, MessageResponse } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 describe('useReactionsFetcher', () => {
   it('paginates until next is empty', async () => {
@@ -18,11 +19,23 @@ describe('useReactionsFetcher', () => {
       .mockResolvedValueOnce({
         duration: '0',
         next: 'page-2',
-        reactions: [{ created_at: new Date(), type: 'like', updated_at: new Date() }],
+        reactions: [
+          {
+            created_at: convertDateToTimestamp(new Date()),
+            type: 'like',
+            updated_at: convertDateToTimestamp(new Date()),
+          },
+        ],
       } as never)
       .mockResolvedValueOnce({
         duration: '0',
-        reactions: [{ created_at: new Date(), type: 'love', updated_at: new Date() }],
+        reactions: [
+          {
+            created_at: convertDateToTimestamp(new Date()),
+            type: 'love',
+            updated_at: convertDateToTimestamp(new Date()),
+          },
+        ],
       } as never);
 
     const message = generateMessage() as MessageResponse & LocalMessage;

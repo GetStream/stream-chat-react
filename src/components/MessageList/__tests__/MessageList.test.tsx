@@ -36,6 +36,7 @@ import type { ComponentContextValue } from '../../../context';
 import type { MockInstance } from 'vitest';
 import type { ChannelProps } from '../../Channel';
 import type { MessageListProps } from '../MessageList';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 // MERGE-RECONCILE (test migration): PR #2909 moved the rendered message collection off the
 // `messages` prop / removed ChannelStateContext onto `channel.messagePaginator`. MessageList now
@@ -499,7 +500,11 @@ describe('MessageList', () => {
   describe('unread messages', () => {
     const timestamp = new Date().getTime();
     const messages = Array.from({ length: 5 }, (_, index) =>
-      generateMessage({ created_at: new Date(timestamp + index * 1000).toISOString() }),
+      generateMessage({
+        created_at: convertDateToTimestamp(
+          new Date(timestamp + index * 1000).toISOString(),
+        ),
+      }),
     );
 
     const unread_messages = 2;
@@ -636,7 +641,9 @@ describe('MessageList', () => {
     it('should display unread messages separator in main msg list', async () => {
       const user = generateUser();
       const messages = Array.from({ length: 5 }).map((_, i) =>
-        generateMessage({ created_at: new Date(i + 1000).toISOString() }),
+        generateMessage({
+          created_at: convertDateToTimestamp(new Date(i + 1000).toISOString()),
+        }),
       );
       const {
         channels: [channel],
@@ -647,7 +654,9 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: new Date(messages[2].created_at).toISOString(),
+                last_read: convertDateToTimestamp(
+                  new Date(messages[2].created_at).toISOString(),
+                ),
                 last_read_message_id: messages[2].id,
                 unread_messages: 2,
                 user,
@@ -685,7 +694,9 @@ describe('MessageList', () => {
     it('should not display unread messages separator in read main msg list', async () => {
       const user = generateUser();
       const messages = Array.from({ length: 5 }).map((_, i) =>
-        generateMessage({ created_at: new Date(i + 1000).toISOString() }),
+        generateMessage({
+          created_at: convertDateToTimestamp(new Date(i + 1000).toISOString()),
+        }),
       );
 
       const lastMessage = messages.slice(-1)[0];
@@ -698,7 +709,9 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: new Date(lastMessage.created_at).toISOString(),
+                last_read: convertDateToTimestamp(
+                  new Date(lastMessage.created_at).toISOString(),
+                ),
                 last_read_message_id: lastMessage.id,
                 unread_messages: 0,
                 user,
@@ -729,15 +742,17 @@ describe('MessageList', () => {
     it('should not display unread messages separator in threads', async () => {
       const user = generateUser();
       const messages = Array.from({ length: 5 }).map((_, i) =>
-        generateMessage({ created_at: new Date(i + 1000).toISOString() }),
+        generateMessage({
+          created_at: convertDateToTimestamp(new Date(i + 1000).toISOString()),
+        }),
       );
       const parentMsg = messages[4];
       const lastReadMessage = messages[3];
       const replies = Array.from({ length: 3 }).map(() =>
         generateMessage({
-          created_at: new Date(
-            new Date(parentMsg.created_at).getTime() + 1000 + 1,
-          ).toISOString(),
+          created_at: convertDateToTimestamp(
+            new Date(new Date(parentMsg.created_at).getTime() + 1000 + 1).toISOString(),
+          ),
           parent_id: parentMsg.id,
         }),
       );
@@ -750,7 +765,9 @@ describe('MessageList', () => {
             messages,
             read: [
               {
-                last_read: new Date(lastReadMessage.created_at).toISOString(),
+                last_read: convertDateToTimestamp(
+                  new Date(lastReadMessage.created_at).toISOString(),
+                ),
                 last_read_message_id: lastReadMessage.id,
                 unread_messages: 1,
                 user,

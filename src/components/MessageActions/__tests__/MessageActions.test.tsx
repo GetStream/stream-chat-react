@@ -27,6 +27,7 @@ import { ResizeObserverMock } from '../../../mock-builders/browser';
 import { Message } from '../../Message';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 (window as any).ResizeObserver = ResizeObserverMock;
 
@@ -262,7 +263,7 @@ describe('<MessageActions />', () => {
 
     it('should not show Delete when the message is already deleted', async () => {
       const message = generateMessage({
-        deleted_at: new Date().toISOString(),
+        deleted_at: convertDateToTimestamp(new Date().toISOString()),
         user: alice,
       });
       await renderMessageActions({
@@ -724,7 +725,7 @@ describe('<MessageActions />', () => {
     const lastReceivedId = message.id;
     const read = [
       {
-        last_read: new Date().toISOString(),
+        last_read: convertDateToTimestamp(new Date().toISOString()),
         last_read_message_id: message.id,
         unread_messages: 0,
         user: me,

@@ -11,6 +11,7 @@ import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
 import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
 import { mockT } from '../../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../../mock-builders';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -95,15 +96,15 @@ vi.mock('../../../../../components/Dialog', () => ({
 
 const members: ChannelMemberResponse[] = [
   {
-    created_at: '2026-01-01T00:00:00.000000000Z',
-    updated_at: '2026-01-01T00:00:00.000000000Z',
+    created_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
+    updated_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
     user: { id: 'user-1', name: 'Alice' },
     user_id: 'user-1',
   },
   {
     channel_role: 'admin',
-    created_at: '2026-01-01T00:00:00.000000000Z',
-    updated_at: '2026-01-01T00:00:00.000000000Z',
+    created_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
+    updated_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
     user: { id: 'user-2', name: 'Bob' },
     user_id: 'user-2',
   },

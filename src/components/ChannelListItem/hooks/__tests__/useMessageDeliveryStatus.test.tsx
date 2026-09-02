@@ -22,6 +22,7 @@ import {
 } from '../../../../mock-builders';
 import { act } from '@testing-library/react';
 import { dispatchMessageDeliveredEvent } from '../../../../mock-builders/event/messageDelivered';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 const ownUser = generateUser({ id: 'own-user' });
 const otherUser = generateUser();
@@ -50,8 +51,14 @@ const getClientAndChannel = async (channelData = {}, user = ownUser) => {
 
 const ownLastMessage = () => {
   const messages = [
-    generateMessage({ created_at: new Date(1000), user: otherUser }),
-    generateMessage({ created_at: new Date(2000), user: ownUser }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(1000)),
+      user: otherUser,
+    }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(2000)),
+      user: ownUser,
+    }),
   ];
   const lastMessage = messages.slice(-1)[0];
   return { lastMessage, messages };
@@ -59,8 +66,14 @@ const ownLastMessage = () => {
 
 const othersLastMessage = () => {
   const messages = [
-    generateMessage({ created_at: new Date(1000), user: ownUser }),
-    generateMessage({ created_at: new Date(2000), user: otherUser }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(1000)),
+      user: ownUser,
+    }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(2000)),
+      user: otherUser,
+    }),
   ];
   const lastMessage = messages.slice(-1)[0];
   return { lastMessage, messages };
@@ -268,7 +281,7 @@ describe('Message delivery status', () => {
 
       const { result } = renderComponent({ channel, client });
       const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
+        created_at: convertDateToTimestamp(new Date('1970-01-01T00:00:02.00Z')),
         user: otherUser,
       });
       await act(() => {
@@ -287,7 +300,7 @@ describe('Message delivery status', () => {
       const { channel, client } = await getClientAndChannel({ messages, read });
 
       const newMessage = generateMessage({
-        created_at: new Date(3000),
+        created_at: convertDateToTimestamp(new Date(3000)),
         user: ownUser,
       });
       const { rerender, result } = renderComponent({
@@ -442,7 +455,7 @@ describe('Message delivery status', () => {
 
       const updatedMessage = {
         ...lastMessage,
-        updated_at: new Date('1970-01-01T00:00:02.00Z'),
+        updated_at: convertDateToTimestamp(new Date('1970-01-01T00:00:02.00Z')),
       };
 
       await act(() => {
@@ -460,7 +473,7 @@ describe('Message delivery status', () => {
 
       const updatedMessage = {
         ...lastMessage,
-        updated_at: new Date(4000),
+        updated_at: convertDateToTimestamp(new Date(4000)),
       };
 
       await act(() => {
