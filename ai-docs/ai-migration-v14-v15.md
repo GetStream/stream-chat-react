@@ -71,21 +71,31 @@ To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the 
 wire — `created_at`, `updated_at`, `last_read`, and every sibling on a response or event. It is not a
 `Date` and not an ISO string, and the React types that carry those values through changed with it.
 
-Two failure modes are silent, because neither is a type error:
+Two failure modes, neither of which is a type error:
 
-- `new Date(ns)` is **out of range**. `Date` tops out near 8.64e15 ms while a current timestamp is
-  ~1.79e18, so you get an `Invalid Date` — and `.toISOString()` on one throws
-  `RangeError: Invalid time value`, usually mid-render.
-- Date libraries read a bare number as **milliseconds**, so `dayjs(created_at)` renders a date roughly
-  50,000 years out without complaining.
+- **Every `Date`-based path is out of range.** `Date` tops out near 8.64e15 ms while a current
+  timestamp is ~1.79e18, and a date library reads a bare number as **milliseconds** — so both land on
+  an invalid instance rather than on a plausible wrong date. `.toISOString()` throws
+  `RangeError: Invalid time value`, usually mid-render; `dayjs(created_at).format()` instead returns
+  the literal string `Invalid Date` and renders it on screen.
+- **A unit mix-up between two `number`s is the silent one.** Comparing a wire timestamp against
+  `Date.now()`, or adding a millisecond duration to one, produces a plausible-looking number and no
+  complaint at all — see `headerPosition` below for a case with no type change to warn you.
 
-### The three public React types that changed
+### The public React types that changed
 
 | Type                                                  | v14                           | v15                             |
 | ----------------------------------------------------- | ----------------------------- | ------------------------------- |
 | `ChatContextValue.latestMessageDatesByChannels`       | `Record<ChannelConfId, Date>` | `Record<ChannelConfId, number>` |
 | `ProcessMessagesParams.lastRead` (`processMessages`)  | `Date \| null`                | `number \| null`                |
 | `VirtualizedMessageList` render props: `lastReadDate` | `Date \| null`                | `number \| null`                |
+
+`DateSeparatorMessage` (a member of the exported `RenderedMessage` union) changed shape rather than
+type: it **lost its `type: MessageLabel` field**, and `unread` is now optional. The `type` field was
+never actually populated — every construction site cast the object into place without it — so reading
+it was already `undefined` at runtime; it now fails to compile. `unread` is set only by the unread
+separator; the plain day divider omits it. Narrow with `isDateSeparatorMessage` rather than checking
+either field.
 
 Comparisons get simpler, not harder — compare and sort the raw numbers and drop the `Date` round-trip:
 
@@ -105,9 +115,9 @@ for instance. Convert at that boundary with the guarded helper `stream-chat` exp
 
 `convertTimestampToDate` returns `Date | undefined` — `undefined` for an absent or non-finite value.
 **Handle that `undefined`; do not cast it away.** A prop typed `date: Date` will accept it through a
-cast and then fail somewhere further along: `DateSeparator`'s own `isDate(date)` type guard rejects it,
-so the list stops recognising the object as a separator and renders it as an ordinary message — an
-empty row where the day divider belonged, with no error and no type error.
+cast and then fail somewhere further along: `isDateSeparatorMessage` (`src/components/MessageList/utils.ts`)
+gates on `isDate(message.date)`, so the list stops recognising the object as a separator and renders it
+as an ordinary message — an empty row where the day divider belonged, with no error and no type error.
 
 ```ts
 import { convertTimestampToDate } from 'stream-chat';

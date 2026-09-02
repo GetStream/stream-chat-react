@@ -238,12 +238,8 @@ export const insertIntro = (messages: RenderedMessage[], headerPosition?: number
     // header position is smaller than message time so comes after;
     if (messageTime < headerPosition) {
       // if header position is also smaller than message time continue;
-      if (nextMessageTime && nextMessageTime < headerPosition) {
+      if (nextMessageTime != null && nextMessageTime < headerPosition) {
         if (messages[i + 1] && isDateSeparatorMessage(messages[i + 1])) continue;
-        if (!nextMessageTime) {
-          newMessages.push(intro);
-          return newMessages;
-        }
       } else {
         newMessages.splice(i + 1, 0, intro);
         return newMessages;

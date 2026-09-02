@@ -27,15 +27,15 @@ export const Geolocation = ({
   const { t } = useTranslationContext();
 
   const [stoppedSharing, setStoppedSharing] = useState(
-    !!location.end_at && location.end_at < nowNs(),
+    location.end_at != null && location.end_at < nowNs(),
   );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const isMyLocation = location.user_id === client.userID;
-  const isLiveLocation = !!location.end_at;
+  const isLiveLocation = location.end_at != null;
 
   useEffect(() => {
-    if (!location.end_at) return;
+    if (location.end_at == null) return;
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(
       () => setStoppedSharing(true),

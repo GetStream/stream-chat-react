@@ -378,6 +378,13 @@ find . -maxdepth 4 -name dayjs -type d -path '*node_modules*'   # expect exactly
 
 ## Date and time
 
+> **Before anything on this page:** every timestamp you hand a formatter is now a unix-**nanosecond**
+> number, and the `t('timestamp.X', { timestamp })` path is **not type-checked** — i18next's
+> interpolation bag is untyped, so a raw wire number compiles and renders the literal text
+> `Invalid Date`. `getDateString`'s `messageCreatedAt` _is_ typed (`string | Date`). If a timestamp is
+> rendering wrong or blank, check the conversion first; see
+> [Dates on response types are unix-nanosecond numbers](./ai-migration-v14-v15.md#dates-on-response-types-are-unix-nanosecond-numbers).
+
 Only the `en` dayjs locale is bundled, and the per-language `calendar` formats the SDK used to ship
 are gone. For any other language, import the locale and supply the calendar config:
 
