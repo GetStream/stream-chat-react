@@ -30,15 +30,17 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
   const stopRefreshBoundaryMs = reminder?.timer.stopRefreshBoundaryMs;
+  // Nullish, not truthy: `remindAt` is unix nanoseconds and `0` is a legitimate value (the epoch),
+  // so a truthiness guard leaves an overdue epoch reminder with no refresh boundary at all.
   const stopRefreshTimeStamp =
-    reminder?.remindAt && stopRefreshBoundaryMs
+    reminder?.remindAt != null && stopRefreshBoundaryMs != null
       ? nsToMs(reminder.remindAt) + stopRefreshBoundaryMs
       : undefined;
 
   const isBehindRefreshBoundary =
-    !!stopRefreshTimeStamp && new Date().getTime() > stopRefreshTimeStamp;
+    stopRefreshTimeStamp != null && new Date().getTime() > stopRefreshTimeStamp;
 
-  if (timeLeftMs === null || !reminder.remindAt) return null;
+  if (timeLeftMs === null || reminder.remindAt == null) return null;
 
   const nowMs = Date.now();
   const remindAtMs = nsToMs(reminder.remindAt);
@@ -105,7 +107,9 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
 export const ReminderNotification = ({ reminder }: ReminderNotificationProps) => {
   if (!reminder) return null;
 
-  if (!reminder.remindAt) {
+  // Nullish, not truthy: `remindAt` is `null` only when the message is saved for later without a
+  // deadline. `0` is a real deadline (the epoch) and must render as an overdue reminder.
+  if (reminder.remindAt == null) {
     return <SavedForLaterContent />;
   }
 

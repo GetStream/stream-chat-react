@@ -511,6 +511,50 @@ describe('processMessages', () => {
       expect(reviewProcessedMessage.mock.calls[i][0].changes[0].id).toBe(msg.id);
     });
   });
+
+  // The other separator assertions in this file use `toMatchObject`, which is a subset match and so
+  // pins nothing about the shape. These two do, because the shape is public: `customMessageRenderer`
+  // receives the enriched list, and integrators discriminate it on `customType`. In particular there
+  // is deliberately no `type` field — a separator is a view-model, not a message.
+  describe('the date separator shape', () => {
+    const expectedSeparator = (message: LocalMessage) => ({
+      customType: CUSTOM_MESSAGE_TYPE.date,
+      date: convertTimestampToDate(message.created_at),
+      id: makeDateMessageId(convertTimestampToDate(message.created_at)),
+    });
+
+    it('carries only customType, date and id for a plain day divider', () => {
+      const message = generateMessage({
+        created_at: convertDateToTimestamp('2026-01-01'),
+        user: { id: myUserId },
+      });
+
+      const [separator] = processMessages({
+        ...enableDateSeparatorParams,
+        messages: [message],
+        userId: myUserId,
+      });
+
+      expect(separator).toStrictEqual(expectedSeparator(message));
+    });
+
+    it('adds only `unread` for the unread separator', () => {
+      const message = generateMessage({
+        created_at: convertDateToTimestamp('2026-01-01'),
+        user: { id: otherUserId },
+      });
+
+      const [separator] = processMessages({
+        ...enableDateSeparatorParams,
+        // The epoch as "nothing read yet", so the message counts as unread.
+        lastRead: 0,
+        messages: [message],
+        userId: myUserId,
+      });
+
+      expect(separator).toStrictEqual({ ...expectedSeparator(message), unread: true });
+    });
+  });
 });
 
 describe('getGroupStyles', () => {
@@ -785,6 +829,46 @@ describe('getGroupStyles', () => {
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'single',
     );
+  });
+
+  // `created_at` is unix nanoseconds, so the epoch is `0` — a legitimate wire value that is falsy.
+  // A truthiness guard in front of the time-gap calculation skips the cutoff entirely, leaving
+  // messages grouped however far apart they are.
+  describe('with a message created at the epoch', () => {
+    it('applies the cutoff when the previous message is at the epoch', () => {
+      const maxTimeBetweenGroupedMessages = 10;
+      previousMessage = { ...previousMessage, created_at: 0 };
+      message = { ...message, created_at: msToNs(12) };
+
+      // 12ms apart, so the previous message must not be grouped with this one. A truthiness guard
+      // skips the comparison and reports 'bottom' instead.
+      expect(
+        getGroupStyles(
+          message,
+          previousMessage,
+          nextMessage,
+          noGroupByUser,
+          maxTimeBetweenGroupedMessages,
+        ),
+      ).toBe('single');
+    });
+
+    it('applies the cutoff when the message itself is at the epoch', () => {
+      const maxTimeBetweenGroupedMessages = 10;
+      message = { ...message, created_at: 0 };
+      nextMessage = { ...nextMessage, created_at: msToNs(12) };
+
+      // The symmetric branch: a truthiness guard reports 'middle' and glues the next message on.
+      expect(
+        getGroupStyles(
+          message,
+          previousMessage,
+          nextMessage,
+          noGroupByUser,
+          maxTimeBetweenGroupedMessages,
+        ),
+      ).toBe('bottom');
+    });
   });
 });
 

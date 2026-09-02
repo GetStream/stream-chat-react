@@ -331,7 +331,11 @@ describe('ChannelPreview', () => {
         // it in sync with its own `mutedChannels`), not the imperative `channel.muteStatus()`.
         act(() =>
           c0.state.partialNext({
-            muteStatus: { createdAt: new Date(), expiresAt: new Date(), muted: true },
+            muteStatus: {
+              createdAt: convertDateToTimestamp(new Date()),
+              expiresAt: convertDateToTimestamp(new Date()),
+              muted: true,
+            },
           }),
         );
 

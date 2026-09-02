@@ -36,9 +36,12 @@ describe('ReminderNotification', () => {
     expect(container).toMatchSnapshot();
   });
   it('displays text for reminder deadline if trespassed the refresh boundary', async () => {
+    // `remind_at` is unix nanoseconds, so the epoch is `0` — a `Date` here would type-check through
+    // the raw `data` override and exercise a path the wire never produces. `0` is falsy, so a
+    // truthiness guard renders "Saved for later" for what is really a long-overdue reminder.
     const reminder = new Reminder({
       data: generateReminderResponse({
-        data: { remind_at: new Date(0) },
+        data: { remind_at: 0 },
       }),
     });
     const { container } = await renderComponent({ reminder });

@@ -30,7 +30,11 @@ describe('ChannelListItemActionButtons defaults', () => {
 
   const setMuted = (channel: Channel) =>
     channel.state.partialNext({
-      muteStatus: { createdAt: new Date(), expiresAt: null, muted: true },
+      muteStatus: {
+        createdAt: convertDateToTimestamp(new Date()),
+        expiresAt: null,
+        muted: true,
+      },
     });
 
   beforeEach(() => {

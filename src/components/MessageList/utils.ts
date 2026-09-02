@@ -4,12 +4,7 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
 import { isDate } from '../../i18n';
 
-import type {
-  Channel,
-  LocalMessage,
-  MessageLabel,
-  UnreadSnapshotState,
-} from 'stream-chat';
+import type { Channel, LocalMessage, UnreadSnapshotState } from 'stream-chat';
 import { convertTimestampToDate, nsToMs } from 'stream-chat';
 
 type IntroMessage = {
@@ -26,8 +21,12 @@ type DateSeparatorMessage = {
    */
   date: Date;
   id: string;
-  type: MessageLabel;
-  unread: boolean;
+  /**
+   * Only the unread separator sets this; the plain day divider leaves it absent. There is
+   * deliberately no `type`: a separator is a view-model, not a message, and `IntroMessage` declares
+   * none either — every consumer narrows the union with `isDateSeparatorMessage` first.
+   */
+  unread?: boolean;
 };
 
 export type RenderedMessage = LocalMessage | DateSeparatorMessage | IntroMessage;
@@ -288,8 +287,10 @@ export const getGroupStyles = (
     (message.reaction_groups && isNonEmptyRecord(message.reaction_groups)) ||
     isMessageEdited(previousMessage) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
-      previousMessage.created_at &&
-      message.created_at &&
+      // Nullish, not truthy: `0` is a legitimate wire timestamp (the epoch), and skipping the
+      // cutoff for it would keep messages grouped past `maxTimeBetweenGroupedMessages`.
+      previousMessage.created_at != null &&
+      message.created_at != null &&
       nsToMs(message.created_at - previousMessage.created_at) >
         maxTimeBetweenGroupedMessages);
 
@@ -304,8 +305,8 @@ export const getGroupStyles = (
     (nextMessage.reaction_groups && isNonEmptyRecord(nextMessage.reaction_groups)) ||
     isMessageEdited(message) ||
     (maxTimeBetweenGroupedMessages !== undefined &&
-      nextMessage.created_at &&
-      message.created_at &&
+      nextMessage.created_at != null &&
+      message.created_at != null &&
       nsToMs(nextMessage.created_at - message.created_at) >
         maxTimeBetweenGroupedMessages);
 

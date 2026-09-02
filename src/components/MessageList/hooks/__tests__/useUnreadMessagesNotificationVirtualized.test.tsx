@@ -26,7 +26,7 @@ const render = async ({
   showAlways = false,
   unreadCount = 0,
 }: {
-  lastRead?: Date | null;
+  lastRead?: number | null;
   showAlways?: boolean;
   unreadCount?: number;
 } = {}) => {
@@ -122,7 +122,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
     ])(
       '%s show notification if the last rendered message was created earlier than last read when showUnreadNotificationAlways is %s',
       async (_, showUnreadNotificationAlways) => {
-        const now = new Date();
+        const now = nowNs();
         const firstRenderedMsgCreated = now - msToNs(1002);
         const lastRenderedMsgCreated = now - msToNs(1001);
         const lastRead = now - msToNs(1000);
@@ -147,7 +147,7 @@ describe('useUnreadMessagesNotificationVirtualized', () => {
     it.each([[true], [false]])(
       'should not show notification if the first rendered message was created earlier than last read when showUnreadNotificationAlways is %s',
       async (showUnreadNotificationAlways) => {
-        const now = new Date();
+        const now = nowNs();
         const firstRenderedMsgCreated = now - msToNs(1002);
         const lastRead = now - msToNs(1001);
         const messages = [

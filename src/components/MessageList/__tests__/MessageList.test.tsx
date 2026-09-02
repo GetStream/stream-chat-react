@@ -674,7 +674,7 @@ describe('MessageList', () => {
       // read state on a first-page query in production). Seed it here to mirror an unread channel.
       channel.messagePaginator.setUnreadSnapshot({
         firstUnreadMessageId: messages[3].id,
-        lastReadAt: new Date(messages[2].created_at),
+        lastReadAt: messages[2].created_at,
         lastReadMessageId: messages[2].id,
         unreadCount: 2,
       });

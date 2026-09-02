@@ -505,7 +505,7 @@ describe('VirtualizedMessageComponents', () => {
         it('should be rendered above the first unread message if unread count is non-zero', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
-              lastReadDate: new Date(messages[0].created_at),
+              lastReadDate: messages[0].created_at,
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               messageGroupStyles: {},
@@ -530,7 +530,7 @@ describe('VirtualizedMessageComponents', () => {
         it('should not be rendered below the last read message if the message is the newest in the channel', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
-              lastReadDate: new Date(messages[1].created_at),
+              lastReadDate: messages[1].created_at,
               lastReadMessageId: messages[1].id,
               lastReceivedMessageId: messages[1].id,
               messageGroupStyles: {},
