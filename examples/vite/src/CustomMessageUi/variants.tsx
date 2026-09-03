@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { convertTimestampToDate } from 'stream-chat';
 import type { LocalMessage, UserResponse } from 'stream-chat';
 import {
   Avatar,
@@ -175,7 +176,7 @@ const CustomMessageUiMetadata = ({
   return (
     <div className='custom-message-ui__metadata'>
       <div className='custom-message-ui__metadata-created-at'>
-        {createdAt?.toLocaleString()}
+        {convertTimestampToDate(createdAt)?.toLocaleString()}
       </div>
       <div className='custom-message-ui__metadata-read-status'>
         {statusIconMap[status]}
@@ -183,7 +184,7 @@ const CustomMessageUiMetadata = ({
       {messageTextUpdatedAt && (
         <div
           className='custom-message-ui__metadata-edited-status'
-          title={messageTextUpdatedAt.toLocaleString()}
+          title={convertTimestampToDate(messageTextUpdatedAt)?.toLocaleString()}
         >
           Edited
         </div>
@@ -308,10 +309,10 @@ export const CustomMessageUi_V7 = () => {
 
   return (
     <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
-      {message.deleted_at && (
+      {message.deleted_at != null && (
         <div className='custom-message-ui__body'>This message has been deleted...</div>
       )}
-      {!message.deleted_at && (
+      {message.deleted_at == null && (
         <>
           <div className='custom-message-ui__body'>
             <Avatar
@@ -344,10 +345,10 @@ export const CustomMessageUi_V8 = () => {
 
   return (
     <div className={messageUiClassNames.join(' ')} data-message-id={message.id}>
-      {message.deleted_at && (
+      {message.deleted_at != null && (
         <div className='custom-message-ui__body'>This message has been deleted...</div>
       )}
-      {!message.deleted_at && (
+      {message.deleted_at == null && (
         <>
           <div className='custom-message-ui__body'>
             <Avatar

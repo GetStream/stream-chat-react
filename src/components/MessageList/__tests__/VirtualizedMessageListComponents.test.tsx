@@ -29,6 +29,7 @@ import { MessageUI } from '../../Message';
 import { UnreadMessagesSeparator } from '../UnreadMessagesSeparator';
 import type { GroupStyle, RenderedMessage } from '../utils';
 import type { Channel, StreamChat, Thread } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 // EmptyPlaceholder derives thread-ness from useThreadContext() rather than context.threadList,
 // so a truthy thread must be provided to exercise the thread branch.
@@ -461,7 +462,7 @@ describe('VirtualizedMessageComponents', () => {
       describe('UnreadMessagesSeparator', () => {
         const messages = Array.from({ length: 2 }, (_, i) =>
           generateMessage({
-            created_at: new Date(i + 2).toISOString(),
+            created_at: convertDateToTimestamp(new Date(i + 2).toISOString()),
             id: String(i + 1),
           }),
         );
@@ -504,7 +505,7 @@ describe('VirtualizedMessageComponents', () => {
         it('should be rendered above the first unread message if unread count is non-zero', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
-              lastReadDate: new Date(messages[0].created_at),
+              lastReadDate: messages[0].created_at,
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               messageGroupStyles: {},
@@ -529,7 +530,7 @@ describe('VirtualizedMessageComponents', () => {
         it('should not be rendered below the last read message if the message is the newest in the channel', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
-              lastReadDate: new Date(messages[1].created_at),
+              lastReadDate: messages[1].created_at,
               lastReadMessageId: messages[1].id,
               lastReceivedMessageId: messages[1].id,
               messageGroupStyles: {},

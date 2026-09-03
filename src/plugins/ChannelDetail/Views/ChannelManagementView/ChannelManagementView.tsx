@@ -80,7 +80,7 @@ export const ChannelManagementInfoBody = ({
   // from context (useChannel) instead of an argument. Verify this view renders within a
   // Channel/ChannelInstance subtree so the context channel matches `channel`.
   const onlineStatusText = useChannelHeaderOnlineStatus();
-  const pinned = !!membership.pinned_at;
+  const pinned = membership.pinned_at != null;
 
   return (
     <Prompt.Body className='str-chat__channel-detail__channel-management-view__body'>

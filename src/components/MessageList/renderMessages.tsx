@@ -107,7 +107,7 @@ export function defaultRenderMessages({
         <MessageListItem
           data-index={index}
           data-message-id={message.id}
-          key={message.id || message.created_at.toISOString()}
+          key={message.id || String(message.created_at)}
         >
           <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
         </MessageListItem>,
@@ -130,7 +130,7 @@ export function defaultRenderMessages({
       });
 
       renderedMessages.push(
-        <Fragment key={message.id || message.created_at.toISOString()}>
+        <Fragment key={message.id || String(message.created_at)}>
           {isFirstUnreadMessage && UnreadMessagesSeparator && (
             <MessageListItem className='str-chat__li str-chat__unread-messages-separator-wrapper'>
               <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unreadCount} />

@@ -22,6 +22,7 @@ import {
 } from '../../../mock-builders';
 import { generateStaticLocationResponse } from '../../../mock-builders/generator/sharedLocation';
 import { generatePoll } from '../../../mock-builders/generator/poll';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const ownUser = generateUser({ id: 'own-user' });
 const otherUser = generateUser({ id: 'other-user', name: 'Other User' });
@@ -156,7 +157,10 @@ describe('useLatestMessagePreview', () => {
 
   describe('deleted message', () => {
     it.each([
-      ['deleted_at timestamp', { deleted_at: new Date().toISOString() }],
+      [
+        'deleted_at timestamp',
+        { deleted_at: convertDateToTimestamp(new Date().toISOString()) },
+      ],
       ['deleted type', { type: 'deleted' as const }],
       ['deleted for current user', { deleted_for_me: true }],
     ])(

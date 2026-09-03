@@ -51,8 +51,7 @@ const getLatestPollVote = (
   let latestVote: PollVoteResponseData | undefined;
   for (const optionVotes of Object.values(latestVotesByOption)) {
     optionVotes.forEach((vote) => {
-      if (latestVote && new Date(latestVote.updated_at) >= new Date(vote.created_at))
-        return;
+      if (latestVote && latestVote.updated_at >= vote.created_at) return;
       latestVote = vote;
     });
   }

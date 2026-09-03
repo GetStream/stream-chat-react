@@ -7,8 +7,16 @@ import {
   generateUser,
 } from '../../../mock-builders';
 
-import { getGroupStyles, makeDateMessageId, processMessages } from '../utils';
+import {
+  getGroupStyles,
+  insertIntro,
+  isDateSeparatorMessage,
+  makeDateMessageId,
+  processMessages,
+} from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
+import { convertTimestampToDate, msToNs } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
 vi.mock('nanoid', () => ({
@@ -20,20 +28,44 @@ const otherUserId = 'otherUserId';
 const enableDateSeparatorParams = { enableDateSeparator: true };
 
 const msgCreationDatesSameDay = [
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
 ];
 const msgCreationDatesDifferentDay = [
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
-  { created_at: new Date('1970-01-02'), updated_at: new Date('1970-01-02') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-02')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-02')),
+  },
 ];
 const msgCreationDatesFirstInvalid = [
-  { created_at: new Date('1970-01-00'), updated_at: new Date('1970-01-00') },
-  { created_at: new Date('1970-01-01'), updated_at: new Date('1970-01-01') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-00')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-00')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-01')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-01')),
+  },
 ];
 const msgCreationDatesSecondInvalid = [
-  { created_at: new Date('1970-01-31'), updated_at: new Date('1970-01-31') },
-  { created_at: new Date('1970-02-00'), updated_at: new Date('1970-02-00') },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-01-31')),
+    updated_at: convertDateToTimestamp(new Date('1970-01-31')),
+  },
+  {
+    created_at: convertDateToTimestamp(new Date('1970-02-00')),
+    updated_at: convertDateToTimestamp(new Date('1970-02-00')),
+  },
 ];
 
 const runMessageProcessing = (msgData, processMsgParams = {}) => {
@@ -44,10 +76,12 @@ const runMessageProcessing = (msgData, processMsgParams = {}) => {
   };
 };
 
+// The separator is a view-model carrying a `Date`, built from the message's wire timestamp — so the
+// expectation has to go through the same conversion the list does.
 const makeDateSeparator = (message) => ({
   customType: 'message.date',
-  date: message.created_at,
-  id: makeDateMessageId(message.created_at),
+  date: convertTimestampToDate(message.created_at),
+  id: makeDateMessageId(convertTimestampToDate(message.created_at)),
 });
 
 const dateSeparatorInsertedAt = (
@@ -152,28 +186,61 @@ describe('processMessages', () => {
         );
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
+    });
 
-      it('first message contains invalid date', () => {
+    // These fixtures hold an `Invalid Date`, which the wire normalizer turns into `NaN`. No
+    // separator can be built for such a message; the valid sibling still gets one.
+    describe('skipped for a message whose timestamp is unusable', () => {
+      it('omits the separator for an invalid first message, keeping the second', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesFirstInvalid,
           enableDateSeparatorParams,
         );
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+
+        expect(newMessageList).toHaveLength(messages.length + 1);
+        expect(isDateSeparatorMessage(newMessageList[0])).toBe(false);
+        expect(newMessageList[0]).toMatchObject(messages[0]);
+        expect(isDateSeparatorMessage(newMessageList[1])).toBe(true);
+        expect(newMessageList[1]).toMatchObject(makeDateSeparator(messages[1]));
+        expect(newMessageList[2]).toMatchObject(messages[1]);
       });
 
-      it('second message contains invalid date', () => {
+      it('omits the separator for an invalid second message, keeping the first', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesSecondInvalid,
           enableDateSeparatorParams,
         );
-        dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
+
+        expect(newMessageList).toHaveLength(messages.length + 1);
+        expect(isDateSeparatorMessage(newMessageList[0])).toBe(true);
+        expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
+        expect(newMessageList[1]).toMatchObject(messages[0]);
+        expect(isDateSeparatorMessage(newMessageList[2])).toBe(false);
+        expect(newMessageList[2]).toMatchObject(messages[1]);
+      });
+
+      it('never emits a separator object that is not a valid separator', () => {
+        for (const fixture of [
+          msgCreationDatesFirstInvalid,
+          msgCreationDatesSecondInvalid,
+        ]) {
+          const { newMessageList } = runMessageProcessing(
+            fixture,
+            enableDateSeparatorParams,
+          );
+          for (const entry of newMessageList) {
+            if ((entry as { customType?: string }).customType === 'message.date') {
+              expect(isDateSeparatorMessage(entry)).toBe(true);
+            }
+          }
+        }
       });
     });
 
     describe('replaces deleted messages', () => {
-      const date1 = new Date('1970-01-01');
-      const date2 = new Date('1970-01-02');
-      const date3 = new Date('1970-01-03');
+      const date1 = convertDateToTimestamp('1970-01-01');
+      const date2 = convertDateToTimestamp('1970-01-02');
+      const date3 = convertDateToTimestamp('1970-01-03');
 
       const deletedMessagesReplacedCorrectly = (messages, newMessageList) => {
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
@@ -320,12 +387,12 @@ describe('processMessages', () => {
       const shouldExpectUnreadSeparator = true;
       const lastRead = new Date();
       const oldMsg = {
-        created_at: new Date('1970-01-01'),
-        updated_at: new Date('1970-01-01'),
+        created_at: convertDateToTimestamp(new Date('1970-01-01')),
+        updated_at: convertDateToTimestamp(new Date('1970-01-01')),
       };
       const unreadMsg = {
-        created_at: new Date('9999-12-31'),
-        updated_at: new Date('9999-12-31'),
+        created_at: convertDateToTimestamp(new Date('9999-12-31')),
+        updated_at: convertDateToTimestamp(new Date('9999-12-31')),
       };
       const myNewMessages = [
         { user: { id: myUserId }, ...unreadMsg },
@@ -444,6 +511,50 @@ describe('processMessages', () => {
       expect(reviewProcessedMessage.mock.calls[i][0].changes[0].id).toBe(msg.id);
     });
   });
+
+  // The other separator assertions in this file use `toMatchObject`, which is a subset match and so
+  // pins nothing about the shape. These two do, because the shape is public: `customMessageRenderer`
+  // receives the enriched list, and integrators discriminate it on `customType`. In particular there
+  // is deliberately no `type` field — a separator is a view-model, not a message.
+  describe('the date separator shape', () => {
+    const expectedSeparator = (message: LocalMessage) => ({
+      customType: CUSTOM_MESSAGE_TYPE.date,
+      date: convertTimestampToDate(message.created_at),
+      id: makeDateMessageId(convertTimestampToDate(message.created_at)),
+    });
+
+    it('carries only customType, date and id for a plain day divider', () => {
+      const message = generateMessage({
+        created_at: convertDateToTimestamp('2026-01-01'),
+        user: { id: myUserId },
+      });
+
+      const [separator] = processMessages({
+        ...enableDateSeparatorParams,
+        messages: [message],
+        userId: myUserId,
+      });
+
+      expect(separator).toStrictEqual(expectedSeparator(message));
+    });
+
+    it('adds only `unread` for the unread separator', () => {
+      const message = generateMessage({
+        created_at: convertDateToTimestamp('2026-01-01'),
+        user: { id: otherUserId },
+      });
+
+      const [separator] = processMessages({
+        ...enableDateSeparatorParams,
+        // The epoch as "nothing read yet", so the message counts as unread.
+        lastRead: 0,
+        messages: [message],
+        userId: myUserId,
+      });
+
+      expect(separator).toStrictEqual({ ...expectedSeparator(message), unread: true });
+    });
+  });
 });
 
 describe('getGroupStyles', () => {
@@ -453,9 +564,15 @@ describe('getGroupStyles', () => {
   let nextMessage: LocalMessage;
   let noGroupByUser: boolean;
   beforeEach(() => {
-    message = generateMessage({ created_at: new Date(2), user });
-    previousMessage = generateMessage({ created_at: new Date(1), user });
-    nextMessage = generateMessage({ created_at: new Date(100), user });
+    message = generateMessage({ created_at: convertDateToTimestamp(new Date(2)), user });
+    previousMessage = generateMessage({
+      created_at: convertDateToTimestamp(new Date(1)),
+      user,
+    });
+    nextMessage = generateMessage({
+      created_at: convertDateToTimestamp(new Date(100)),
+      user,
+    });
     noGroupByUser = false;
   });
 
@@ -566,10 +683,13 @@ describe('getGroupStyles', () => {
     // deleted_at no longer affects grouping in v14
     it('is deleted', () => {
       if (position === 'bottom') {
-        nextMessage = { ...nextMessage, deleted_at: new Date() };
+        nextMessage = { ...nextMessage, deleted_at: convertDateToTimestamp(new Date()) };
       }
       if (position === 'top') {
-        previousMessage = { ...previousMessage, deleted_at: new Date() };
+        previousMessage = {
+          ...previousMessage,
+          deleted_at: convertDateToTimestamp(new Date()),
+        };
       }
       // deleted_at on adjacent messages does not break groups anymore
       expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
@@ -579,7 +699,10 @@ describe('getGroupStyles', () => {
   });
 
   it('marks a message as bottom when the message is edited', () => {
-    message = { ...message, message_text_updated_at: new Date().toISOString() };
+    message = {
+      ...message,
+      message_text_updated_at: convertDateToTimestamp(new Date().toISOString()),
+    };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',
     );
@@ -588,7 +711,7 @@ describe('getGroupStyles', () => {
   it('marks a message as top when the previous message is edited', () => {
     previousMessage = {
       ...previousMessage,
-      message_text_updated_at: new Date().toISOString(),
+      message_text_updated_at: convertDateToTimestamp(new Date().toISOString()),
     };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'top',
@@ -630,8 +753,8 @@ describe('getGroupStyles', () => {
 
   it('marks a message as bottom when next message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 10;
-    message = { ...message, created_at: new Date(12) };
-    nextMessage = { ...nextMessage, created_at: new Date(14) };
+    message = { ...message, created_at: msToNs(12) };
+    nextMessage = { ...nextMessage, created_at: msToNs(14) };
     expect(
       getGroupStyles(
         message,
@@ -645,7 +768,7 @@ describe('getGroupStyles', () => {
 
   it('marks a message as single when next and previous message is created later than maxTimeBetweenGroupedMessages milliseconds', () => {
     const maxTimeBetweenGroupedMessages = 10;
-    message = { ...message, created_at: new Date(12) };
+    message = { ...message, created_at: msToNs(12) };
     expect(
       getGroupStyles(
         message,
@@ -678,7 +801,7 @@ describe('getGroupStyles', () => {
 
   // deleted_at on the message itself no longer forces 'single' in v14
   it('marks message as middle even when deleted (deleted_at no longer affects grouping)', () => {
-    message = { ...message, deleted_at: new Date() };
+    message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'middle',
     );
@@ -693,7 +816,7 @@ describe('getGroupStyles', () => {
 
   // deleted_at no longer forces 'single'; at the bottom position it's just 'bottom'
   it('marks message at the bottom as bottom even when deleted', () => {
-    message = { ...message, deleted_at: new Date() };
+    message = { ...message, deleted_at: convertDateToTimestamp(new Date()) };
     nextMessage = undefined;
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'bottom',
@@ -706,5 +829,110 @@ describe('getGroupStyles', () => {
     expect(getGroupStyles(message, previousMessage, nextMessage, noGroupByUser)).toBe(
       'single',
     );
+  });
+
+  // `created_at` is unix nanoseconds, so the epoch is `0` — a legitimate wire value that is falsy.
+  // A truthiness guard in front of the time-gap calculation skips the cutoff entirely, leaving
+  // messages grouped however far apart they are.
+  describe('with a message created at the epoch', () => {
+    it('applies the cutoff when the previous message is at the epoch', () => {
+      const maxTimeBetweenGroupedMessages = 10;
+      previousMessage = { ...previousMessage, created_at: 0 };
+      message = { ...message, created_at: msToNs(12) };
+
+      // 12ms apart, so the previous message must not be grouped with this one. A truthiness guard
+      // skips the comparison and reports 'bottom' instead.
+      expect(
+        getGroupStyles(
+          message,
+          previousMessage,
+          nextMessage,
+          noGroupByUser,
+          maxTimeBetweenGroupedMessages,
+        ),
+      ).toBe('single');
+    });
+
+    it('applies the cutoff when the message itself is at the epoch', () => {
+      const maxTimeBetweenGroupedMessages = 10;
+      message = { ...message, created_at: 0 };
+      nextMessage = { ...nextMessage, created_at: msToNs(12) };
+
+      // The symmetric branch: a truthiness guard reports 'middle' and glues the next message on.
+      expect(
+        getGroupStyles(
+          message,
+          previousMessage,
+          nextMessage,
+          noGroupByUser,
+          maxTimeBetweenGroupedMessages,
+        ),
+      ).toBe('bottom');
+    });
+  });
+});
+
+describe('insertIntro', () => {
+  // `headerPosition` is a public prop compared against `message.created_at`, so unix nanoseconds.
+  const NS_PER_MS = 1e6;
+  const at = (iso: string) => Date.parse(iso) * NS_PER_MS;
+  const msg = (iso: string, id: string) =>
+    fromPartial<LocalMessage>({ created_at: at(iso), id, status: 'received' });
+  const isIntro = (entry: unknown) =>
+    (entry as { customType?: string })?.customType === CUSTOM_MESSAGE_TYPE.intro;
+
+  it('puts the intro at the top when no position is given', () => {
+    const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')]);
+
+    expect(isIntro(result[0])).toBe(true);
+  });
+
+  it('puts the intro at the top for an empty list', () => {
+    expect(isIntro(insertIntro([])[0])).toBe(true);
+  });
+
+  it('puts the intro at the top when the position precedes every message', () => {
+    // Asserts the whole list, not just `[0]`: a dropped intro and a moved one both satisfy
+    // `isIntro(result[0]) === false`.
+    const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')], 0);
+
+    expect(result.map((m) => (isIntro(m) ? 'intro' : m.id))).toEqual(['intro', 'a']);
+  });
+
+  it('places the intro after messages older than the position, in nanoseconds', () => {
+    const messages = [
+      msg('2026-01-01T00:00:00Z', 'older'),
+      msg('2026-01-03T00:00:00Z', 'newer'),
+    ];
+
+    const result = insertIntro(messages, at('2026-01-02T00:00:00Z'));
+
+    expect(result.map((m) => (isIntro(m) ? 'intro' : m.id))).toEqual([
+      'older',
+      'intro',
+      'newer',
+    ]);
+  });
+
+  it('is in nanoseconds, not milliseconds — the unit the migration changed', () => {
+    const messages = [
+      msg('2026-01-01T00:00:00Z', 'older'),
+      msg('2026-01-03T00:00:00Z', 'newer'),
+    ];
+    // The epoch-millisecond value an integrator would have passed before the migration.
+    const asMilliseconds = Date.parse('2026-01-02T00:00:00Z');
+
+    // A millisecond value precedes every message, so the intro lands at the top — wrong placement,
+    // but visible rather than dropped. Nanoseconds split the list where they should.
+    expect(
+      insertIntro([...messages], asMilliseconds).map((m) =>
+        isIntro(m) ? 'intro' : m.id,
+      ),
+    ).toEqual(['intro', 'older', 'newer']);
+    expect(
+      insertIntro([...messages], asMilliseconds * NS_PER_MS).map((m) =>
+        isIntro(m) ? 'intro' : m.id,
+      ),
+    ).toEqual(['older', 'intro', 'newer']);
   });
 });

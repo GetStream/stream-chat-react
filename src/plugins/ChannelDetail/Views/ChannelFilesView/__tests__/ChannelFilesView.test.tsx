@@ -13,6 +13,7 @@ import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelFilesView } from '../ChannelFilesView';
 import { mockT } from '../../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../../mock-builders/generator/time';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -134,10 +135,10 @@ const messages: MessageResponse[] = [
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-03-10T15:53:00.000Z',
+    created_at: convertDateToTimestamp('2026-03-10T15:53:00.000Z'),
     id: 'message-1',
     type: 'regular',
-    updated_at: '2026-03-10T15:53:00.000Z',
+    updated_at: convertDateToTimestamp('2026-03-10T15:53:00.000Z'),
     user: { id: 'user-1', name: 'Alice' },
   },
   {
@@ -150,10 +151,10 @@ const messages: MessageResponse[] = [
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-02-05T15:53:00.000Z',
+    created_at: convertDateToTimestamp('2026-02-05T15:53:00.000Z'),
     id: 'message-2',
     type: 'regular',
-    updated_at: '2026-02-05T15:53:00.000Z',
+    updated_at: convertDateToTimestamp('2026-02-05T15:53:00.000Z'),
     user: { id: 'user-2', name: 'Bob' },
   },
   {
@@ -169,10 +170,10 @@ const messages: MessageResponse[] = [
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-02-01T15:53:00.000Z',
+    created_at: convertDateToTimestamp('2026-02-01T15:53:00.000Z'),
     id: 'message-3',
     type: 'regular',
-    updated_at: '2026-02-01T15:53:00.000Z',
+    updated_at: convertDateToTimestamp('2026-02-01T15:53:00.000Z'),
     user: { id: 'user-1', name: 'Alice' },
   },
 ];

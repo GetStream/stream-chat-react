@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import type { Channel, MessageResponse } from 'stream-chat';
+import { msToNs } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
@@ -85,10 +86,10 @@ const messages: MessageResponse[] = [
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-01-01T15:53:00.000Z',
+    created_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     id: 'message-1',
     type: 'regular',
-    updated_at: '2026-01-01T15:53:00.000Z',
+    updated_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     user: { id: 'user-1', image: 'https://cdn.test/avatar-1.png', name: 'Alice' },
   },
   {
@@ -103,10 +104,10 @@ const messages: MessageResponse[] = [
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-01-02T15:53:00.000Z',
+    created_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     id: 'message-2',
     type: 'regular',
-    updated_at: '2026-01-02T15:53:00.000Z',
+    updated_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     user: { id: 'user-2', name: 'Bob' },
   },
 ];
@@ -220,10 +221,10 @@ describe('ChannelMediaView', () => {
         },
       ],
       cid: 'messaging:test-channel',
-      created_at: '2026-01-01T15:53:00.000Z',
+      created_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
       id: `message-${index}`,
       type: 'regular',
-      updated_at: '2026-01-01T15:53:00.000Z',
+      updated_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
       user: { id: 'user-1', name: 'Alice' },
     }));
 

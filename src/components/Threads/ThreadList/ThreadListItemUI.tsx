@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import type { ComponentPropsWithoutRef } from 'react';
 import React, { useCallback, useEffect, useMemo } from 'react';
 import clsx from 'clsx';
@@ -220,7 +221,7 @@ export const ThreadListItemUI = ({
             </div>
             <Timestamp
               customClass='str-chat__thread-list-item__timestamp'
-              timestamp={latestReply?.created_at}
+              timestamp={convertTimestampToDate(latestReply?.created_at)}
             />
           </div>
         </div>

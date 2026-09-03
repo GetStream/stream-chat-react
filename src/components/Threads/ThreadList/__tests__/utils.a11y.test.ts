@@ -8,6 +8,7 @@ import {
   composeThreadListItemAccessibleLabel,
   DEFAULT_THREAD_LIST_ITEM_LABEL_ORDER,
 } from '../utils.a11y';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 const t = mockT as TranslationContextValue['t'];
 
@@ -19,7 +20,9 @@ const client = fromPartial<StreamChat>({ userID: 'me' });
 const baseData = {
   client,
   displayTitle: 'General',
-  latestReply: fromPartial<LocalMessage>({ created_at: new Date() }),
+  latestReply: fromPartial<LocalMessage>({
+    created_at: convertDateToTimestamp(new Date()),
+  }),
   parentMessagePreview: 'hello world',
   replyCount: 3,
   t,

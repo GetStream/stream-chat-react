@@ -1,5 +1,6 @@
 import type { PollResponseData, PollVoteResponseData, UserResponse } from 'stream-chat';
 import type { DeepPartial } from '../../types/types';
+import { convertDateToTimestamp } from './time';
 
 const pollId = 'WD4SBRJvLoGwB4oAoCQGM';
 
@@ -13,33 +14,33 @@ const userResponseDefaults = {
 
 const user1 = {
   banned: false,
-  created_at: new Date('2022-03-08T09:46:56.840739Z'),
+  created_at: convertDateToTimestamp('2022-03-08T09:46:56.840739Z'),
   id: 'admin',
-  last_active: new Date('2024-10-23T08:14:23.299448386Z'),
+  last_active: convertDateToTimestamp('2024-10-23T08:14:23.299448386Z'),
   mutes: null,
   name: 'Test User',
   online: true,
   role: 'admin',
-  updated_at: new Date('2024-09-13T13:53:32.883409Z'),
+  updated_at: convertDateToTimestamp('2024-09-13T13:53:32.883409Z'),
   ...userResponseDefaults,
 } as UserResponse;
 
 const user1Votes = [
   {
-    created_at: new Date('2024-10-22T15:58:27.756166Z'),
+    created_at: convertDateToTimestamp('2024-10-22T15:58:27.756166Z'),
     id: '332da4fe-e38c-465c-8f74-e8df69680f13',
     option_id: '85610252-7d50-429c-8183-51a7eba46246',
     poll_id: pollId,
-    updated_at: new Date('2024-10-22T15:58:27.756166Z'),
+    updated_at: convertDateToTimestamp('2024-10-22T15:58:27.756166Z'),
     user: user1,
     user_id: user1.id,
   } as PollVoteResponseData,
   {
-    created_at: new Date('2024-10-22T15:58:25.886491Z'),
+    created_at: convertDateToTimestamp('2024-10-22T15:58:25.886491Z'),
     id: '5657da00-256e-41fc-a580-b7adabcbfbe1',
     option_id: 'dc22dcd6-4fc8-4c92-92c2-bfd63245724c',
     poll_id: pollId,
-    updated_at: new Date('2024-10-22T15:58:25.886491Z'),
+    updated_at: convertDateToTimestamp('2024-10-22T15:58:25.886491Z'),
     user: user1,
     user_id: user1.id,
   } as PollVoteResponseData,
@@ -47,34 +48,34 @@ const user1Votes = [
 
 const user2 = {
   banned: false,
-  created_at: new Date('2022-01-27T08:28:28.412254Z'),
+  created_at: convertDateToTimestamp('2022-01-27T08:28:28.412254Z'),
   id: 'SmithAnne',
   image: 'https://getstream.io/random_png/?name=SmithAnne',
-  last_active: new Date('2024-10-23T08:01:43.157632831Z'),
+  last_active: convertDateToTimestamp('2024-10-23T08:01:43.157632831Z'),
   name: 'SmithAnne',
   nickname: 'Ann',
   online: true,
   role: 'user',
-  updated_at: new Date('2024-09-26T10:12:23.427141Z'),
+  updated_at: convertDateToTimestamp('2024-09-26T10:12:23.427141Z'),
   ...userResponseDefaults,
 } as UserResponse;
 
 const user2Votes = [
   {
-    created_at: new Date('2024-10-22T16:00:50.2493Z'),
+    created_at: convertDateToTimestamp('2024-10-22T16:00:50.2493Z'),
     id: 'f428f353-3057-4353-b0b5-b33dcdeb1992',
     option_id: '7312e983-b042-4596-b5ce-f9e82deb363f',
     poll_id: pollId,
-    updated_at: new Date('2024-10-22T16:00:50.2493Z'),
+    updated_at: convertDateToTimestamp('2024-10-22T16:00:50.2493Z'),
     user: user2,
     user_id: user2.id,
   } as PollVoteResponseData,
   {
-    created_at: new Date('2024-10-22T16:00:54.410474Z'),
+    created_at: convertDateToTimestamp('2024-10-22T16:00:54.410474Z'),
     id: '75ba8774-bf17-4edd-8ced-39e7dc6aa7dd',
     option_id: '85610252-7d50-429c-8183-51a7eba46246',
     poll_id: pollId,
-    updated_at: new Date('2024-10-22T16:00:54.410474Z'),
+    updated_at: convertDateToTimestamp('2024-10-22T16:00:54.410474Z'),
     user: user2,
     user_id: user2.id,
   } as PollVoteResponseData,
@@ -82,24 +83,24 @@ const user2Votes = [
 
 const user1Answer = {
   answer_text: 'comment1',
-  created_at: new Date('2024-10-23T13:12:57.944913Z'),
+  created_at: convertDateToTimestamp('2024-10-23T13:12:57.944913Z'),
   id: 'dbb4506c-c5a8-4ca6-86ec-0c57498916fe',
   is_answer: true,
   option_id: '',
   poll_id: pollId,
-  updated_at: new Date('2024-10-23T13:12:57.944913Z'),
+  updated_at: convertDateToTimestamp('2024-10-23T13:12:57.944913Z'),
   user: user1,
   user_id: user1.id,
 } as PollVoteResponseData;
 
 const user2Answer = {
   answer_text: 'comment2',
-  created_at: new Date('2024-10-23T13:12:57.944913Z'),
+  created_at: convertDateToTimestamp('2024-10-23T13:12:57.944913Z'),
   id: 'dbb4506c-c5a8-4ca6-86ec-0c57498916xy',
   is_answer: true,
   option_id: '',
   poll_id: pollId,
-  updated_at: new Date('2024-10-23T13:12:57.944913Z'),
+  updated_at: convertDateToTimestamp('2024-10-23T13:12:57.944913Z'),
   user: user2,
   user_id: user2.id,
 } as PollVoteResponseData;
@@ -151,10 +152,10 @@ const pollEnrichData = {
 };
 
 const pollMetadata = {
-  created_at: new Date('2024-10-22T15:28:20.580523Z'),
+  created_at: convertDateToTimestamp('2024-10-22T15:28:20.580523Z'),
   created_by: user1,
   created_by_id: user1.id,
-  updated_at: new Date('2024-10-22T15:28:20.580523Z'),
+  updated_at: convertDateToTimestamp('2024-10-22T15:28:20.580523Z'),
 };
 
 export const generatePoll = (data: DeepPartial<PollResponseData> = {}) =>
@@ -172,22 +173,22 @@ export const generatePollVoteCastedEvent = ({
   pollVote,
 }: {
   cid?: string;
-  createdAt?: Date;
+  createdAt?: Date | number | string;
   poll?: DeepPartial<PollResponseData>;
   pollVote?: Partial<PollVoteResponseData>;
 } = {}) => {
   const resultingPoll = generatePoll(poll);
   return {
     cid: cid ?? 'messaging:1708683907031',
-    created_at: createdAt ?? new Date(),
+    created_at: convertDateToTimestamp(createdAt),
     custom: {},
     poll: resultingPoll,
     poll_vote: {
-      created_at: new Date(),
+      created_at: convertDateToTimestamp(),
       id: '4c552daf-8f72-409c-a2ee-313b9db9fcd0',
       option_id: resultingPoll.options[0].id,
       poll_id: resultingPoll.id,
-      updated_at: new Date(),
+      updated_at: convertDateToTimestamp(),
       user: user1,
       user_id: user1.id,
       ...pollVote,
@@ -203,22 +204,22 @@ export const generatePollVoteRemovedEvent = ({
   pollVote,
 }: {
   cid?: string;
-  createdAt?: Date;
+  createdAt?: Date | number | string;
   poll?: DeepPartial<PollResponseData>;
   pollVote?: Partial<PollVoteResponseData>;
 } = {}) => {
   const resultingPoll = generatePoll(poll);
   return {
     cid: cid ?? 'messaging:1708683907031',
-    created_at: createdAt ?? new Date(),
+    created_at: convertDateToTimestamp(createdAt),
     custom: {},
     poll: resultingPoll,
     poll_vote: {
-      created_at: new Date(),
+      created_at: convertDateToTimestamp(),
       id: '4c552daf-8f72-409c-a2ee-313b9db9fcd0',
       option_id: resultingPoll.options[0].id,
       poll_id: resultingPoll.id,
-      updated_at: new Date(),
+      updated_at: convertDateToTimestamp(),
       user: user1,
       user_id: user1.id,
       ...pollVote,

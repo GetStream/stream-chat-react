@@ -11,6 +11,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const ResizeObserverConstructor =
   ResizeObserverMock as unknown as typeof window.ResizeObserver;
@@ -29,7 +30,11 @@ describe('ChannelListItemActionButtons defaults', () => {
 
   const setMuted = (channel: Channel) =>
     channel.state.partialNext({
-      muteStatus: { createdAt: new Date(), expiresAt: null, muted: true },
+      muteStatus: {
+        createdAt: convertDateToTimestamp(new Date()),
+        expiresAt: null,
+        muted: true,
+      },
     });
 
   beforeEach(() => {
@@ -568,7 +573,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       // Simulate archived state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
-        archived_at: '2024-01-01T00:00:00Z',
+        archived_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
       });
       vi.spyOn(channel, 'unarchive').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');
@@ -673,7 +678,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       // Simulate pinned state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
-        pinned_at: '2024-01-01T00:00:00Z',
+        pinned_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
       });
       vi.spyOn(channel, 'unpin').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');

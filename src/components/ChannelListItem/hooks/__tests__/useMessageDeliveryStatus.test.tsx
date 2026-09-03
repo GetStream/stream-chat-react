@@ -1,6 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import type { Channel, LocalMessage, MessageResponse, StreamChat } from 'stream-chat';
+import { nsToMs } from 'stream-chat';
 import {
   MessageDeliveryStatus,
   useMessageDeliveryStatus,
@@ -22,6 +23,7 @@ import {
 } from '../../../../mock-builders';
 import { act } from '@testing-library/react';
 import { dispatchMessageDeliveredEvent } from '../../../../mock-builders/event/messageDelivered';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 const ownUser = generateUser({ id: 'own-user' });
 const otherUser = generateUser();
@@ -50,8 +52,14 @@ const getClientAndChannel = async (channelData = {}, user = ownUser) => {
 
 const ownLastMessage = () => {
   const messages = [
-    generateMessage({ created_at: new Date(1000), user: otherUser }),
-    generateMessage({ created_at: new Date(2000), user: ownUser }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(1000)),
+      user: otherUser,
+    }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(2000)),
+      user: ownUser,
+    }),
   ];
   const lastMessage = messages.slice(-1)[0];
   return { lastMessage, messages };
@@ -59,8 +67,14 @@ const ownLastMessage = () => {
 
 const othersLastMessage = () => {
   const messages = [
-    generateMessage({ created_at: new Date(1000), user: ownUser }),
-    generateMessage({ created_at: new Date(2000), user: otherUser }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(1000)),
+      user: ownUser,
+    }),
+    generateMessage({
+      created_at: convertDateToTimestamp(new Date(2000)),
+      user: otherUser,
+    }),
   ];
   const lastMessage = messages.slice(-1)[0];
   return { lastMessage, messages };
@@ -68,17 +82,17 @@ const othersLastMessage = () => {
 
 const lastMessageCreated = (messages) => [
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -86,17 +100,17 @@ const lastMessageCreated = (messages) => [
 
 const lastDeliveredOnlyToMe = (messages) => [
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -104,17 +118,17 @@ const lastDeliveredOnlyToMe = (messages) => [
 
 const lastReadOnlyByMe = (messages) => [
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[1].created_at.toISOString(),
+    last_read: messages[1].created_at,
     last_read_message_id: messages[1],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -122,17 +136,17 @@ const lastReadOnlyByMe = (messages) => [
 
 const lastMessageDelivered = (messages) => [
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     unread_messages: 1,
     user: otherUser,
   },
@@ -140,17 +154,17 @@ const lastMessageDelivered = (messages) => [
 
 const lastMessageRead = (messages) => [
   {
-    last_delivered_at: messages[0].created_at.toISOString(),
+    last_delivered_at: messages[0].created_at,
     last_delivered_message_id: messages[0].id,
-    last_read: messages[0].created_at.toISOString(),
+    last_read: messages[0].created_at,
     last_read_message_id: messages[0],
     unread_messages: 0,
     user: ownUser,
   },
   {
-    last_delivered_at: messages[1].created_at.toISOString(),
+    last_delivered_at: messages[1].created_at,
     last_delivered_message_id: messages[1].id,
-    last_read: messages[1].created_at.toISOString(),
+    last_read: messages[1].created_at,
     unread_messages: 0,
     user: otherUser,
   },
@@ -203,7 +217,7 @@ describe('Message delivery status', () => {
           user: ownUser,
         },
         {
-          last_read: '1970-01-01T00:00:00.00Z',
+          last_read: 0,
           unread_messages: 1,
           user: otherUser,
         },
@@ -268,7 +282,7 @@ describe('Message delivery status', () => {
 
       const { result } = renderComponent({ channel, client });
       const newMessage = generateMessage({
-        created_at: new Date('1970-01-01T00:00:02.00Z'),
+        created_at: convertDateToTimestamp(new Date('1970-01-01T00:00:02.00Z')),
         user: otherUser,
       });
       await act(() => {
@@ -287,7 +301,7 @@ describe('Message delivery status', () => {
       const { channel, client } = await getClientAndChannel({ messages, read });
 
       const newMessage = generateMessage({
-        created_at: new Date(3000),
+        created_at: convertDateToTimestamp(new Date(3000)),
         user: ownUser,
       });
       const { rerender, result } = renderComponent({
@@ -315,9 +329,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: lastMessage.id,
           user: otherUser,
         });
@@ -335,9 +347,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: lastMessage.id,
           user: ownUser,
         });
@@ -355,9 +365,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: lastMessage.id,
           user: otherUser,
         });
@@ -375,9 +383,7 @@ describe('Message delivery status', () => {
         dispatchMessageDeliveredEvent({
           channel,
           client,
-          deliveredAt: new Date(
-            new Date(lastMessage.created_at).getTime() + 1000,
-          ).toISOString(),
+          deliveredAt: new Date(nsToMs(lastMessage.created_at) + 1000).toISOString(),
           lastDeliveredMessageId: 'another-message-id',
           user: otherUser,
         });
@@ -442,7 +448,7 @@ describe('Message delivery status', () => {
 
       const updatedMessage = {
         ...lastMessage,
-        updated_at: new Date('1970-01-01T00:00:02.00Z'),
+        updated_at: convertDateToTimestamp(new Date('1970-01-01T00:00:02.00Z')),
       };
 
       await act(() => {
@@ -460,7 +466,7 @@ describe('Message delivery status', () => {
 
       const updatedMessage = {
         ...lastMessage,
-        updated_at: new Date(4000),
+        updated_at: convertDateToTimestamp(new Date(4000)),
       };
 
       await act(() => {
