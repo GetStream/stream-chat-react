@@ -247,6 +247,9 @@ export const insertIntro = (messages: RenderedMessage[], headerPosition?: number
     }
   }
 
+  // No message is older than the position, so it precedes the whole list and the intro goes first.
+  // Falling through without inserting dropped the intro entirely (what `headerPosition={0}` did).
+  newMessages.unshift(intro);
   return newMessages;
 };
 

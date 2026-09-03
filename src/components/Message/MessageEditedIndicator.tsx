@@ -49,11 +49,7 @@ const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) =>
         visible={tooltipVisible}
       >
         <Timestamp
-          timestamp={
-            message.message_text_updated_at
-              ? convertTimestampToDate(message.message_text_updated_at)
-              : undefined
-          }
+          timestamp={convertTimestampToDate(message.message_text_updated_at)}
           {...timestampProps}
         />
       </PopperTooltip>

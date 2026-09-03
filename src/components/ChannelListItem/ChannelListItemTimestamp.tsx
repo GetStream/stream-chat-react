@@ -3,7 +3,7 @@ import type { LocalMessage } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString } from '../../i18n/utils';
-import { nsToDate } from 'stream-chat';
+import { convertTimestampToDate } from 'stream-chat';
 
 export type ChannelListItemTimestampProps = {
   /** The message previewed by the item, used to extract the timestamp */
@@ -19,7 +19,7 @@ export function ChannelListItemTimestamp({
   // `isDate` correctly reports that a wire number is not a `Date`, so the old idiom here returned
   // `undefined` for every message and the timestamp vanished from the list. Convert instead.
   const normalizedTimestamp =
-    timestamp != null ? nsToDate(timestamp).toISOString() : undefined;
+    timestamp != null ? convertTimestampToDate(timestamp)?.toISOString() : undefined;
 
   const when = useMemo(
     () =>

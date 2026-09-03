@@ -891,11 +891,12 @@ describe('insertIntro', () => {
     expect(isIntro(insertIntro([])[0])).toBe(true);
   });
 
-  it('treats the epoch as a real position rather than "unset"', () => {
-    // `0` is falsy, so a truthiness guard would unshift the intro instead.
+  it('puts the intro at the top when the position precedes every message', () => {
+    // Asserts the whole list, not just `[0]`: a dropped intro and a moved one both satisfy
+    // `isIntro(result[0]) === false`.
     const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')], 0);
 
-    expect(isIntro(result[0])).toBe(false);
+    expect(result.map((m) => (isIntro(m) ? 'intro' : m.id))).toEqual(['intro', 'a']);
   });
 
   it('places the intro after messages older than the position, in nanoseconds', () => {
@@ -921,11 +922,17 @@ describe('insertIntro', () => {
     // The epoch-millisecond value an integrator would have passed before the migration.
     const asMilliseconds = Date.parse('2026-01-02T00:00:00Z');
 
-    const result = insertIntro([...messages], asMilliseconds);
-
-    expect(result.some(isIntro)).toBe(false);
-    expect(insertIntro([...messages], asMilliseconds * NS_PER_MS).some(isIntro)).toBe(
-      true,
-    );
+    // A millisecond value precedes every message, so the intro lands at the top — wrong placement,
+    // but visible rather than dropped. Nanoseconds split the list where they should.
+    expect(
+      insertIntro([...messages], asMilliseconds).map((m) =>
+        isIntro(m) ? 'intro' : m.id,
+      ),
+    ).toEqual(['intro', 'older', 'newer']);
+    expect(
+      insertIntro([...messages], asMilliseconds * NS_PER_MS).map((m) =>
+        isIntro(m) ? 'intro' : m.id,
+      ),
+    ).toEqual(['older', 'intro', 'newer']);
   });
 });

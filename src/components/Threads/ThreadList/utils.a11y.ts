@@ -10,7 +10,7 @@ import {
   unreadCountLabelPart,
 } from '../../../a11y/accessibleLabel';
 import { getDateString } from '../../../i18n/utils';
-import { nsToDate } from 'stream-chat';
+import { convertTimestampToDate } from 'stream-chat';
 
 /**
  * Everything a label part needs. Gathered by `ThreadListItemUI` from the thread state + contexts and
@@ -88,7 +88,7 @@ export const defaultThreadListItemLabelParts = {
     const createdAt = latestReply?.created_at;
     if (createdAt == null) return undefined;
     const when = getDateString({
-      messageCreatedAt: nsToDate(createdAt).toISOString(),
+      messageCreatedAt: convertTimestampToDate(createdAt)?.toISOString(),
       t,
       tDateTimeParser,
       timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',

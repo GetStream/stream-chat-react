@@ -24,18 +24,18 @@ import { PinnedMessagesEmptyList } from './PinnedMessagesEmptyList';
 import { usePinnedMessagesSearch } from './usePinnedMessagesSearch';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
-import { nsToDate } from 'stream-chat';
+import { convertTimestampToDate } from 'stream-chat';
 
 type PinnedMessage = MessageResponse | LocalMessage;
 
 const computeItemKey = (_: number, message: PinnedMessage) => message.id;
 
 /**
- * A wire timestamp as an ISO string, for `getDateString` and the `dateTime` attribute. `nsToDate`
+ * A wire timestamp as an ISO string, for `getDateString` and the `dateTime` attribute. `convertTimestampToDate`
  * rather than `new Date`: a nanosecond value is out of Date's range.
  */
 const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) =>
-  timestamp == null ? undefined : nsToDate(timestamp).toISOString();
+  timestamp == null ? undefined : convertTimestampToDate(timestamp)?.toISOString();
 
 const getPinnedMessagePreview = (
   message: PinnedMessage,

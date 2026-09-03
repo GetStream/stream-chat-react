@@ -12,7 +12,7 @@ import {
 import { getDateString } from '../../i18n/utils';
 import { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { getLatestMessagePreviewText } from './utils';
-import { nsToDate } from 'stream-chat';
+import { convertTimestampToDate } from 'stream-chat';
 
 /**
  * Everything a label part needs. Gathered by `ChannelListItemUI` from its props + contexts and
@@ -142,7 +142,7 @@ export const defaultChannelListItemLabelParts = {
     const createdAt = latestMessage?.created_at;
     if (createdAt == null) return undefined;
     const when = getDateString({
-      messageCreatedAt: nsToDate(createdAt).toISOString(),
+      messageCreatedAt: convertTimestampToDate(createdAt)?.toISOString(),
       t,
       tDateTimeParser,
       timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
