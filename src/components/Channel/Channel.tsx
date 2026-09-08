@@ -126,7 +126,6 @@ const ChannelInner = (
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
   const originalTitle = useRef('');
-  const online = useRef(true);
 
   const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -146,10 +145,6 @@ const ChannelInner = (
     if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
       return;
 
-    if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
-      online.current = event.online;
-    }
-
     if (event.type === 'connection.recovered') {
       // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
       // skips re-seeding the message list of an `active` channel (we mark this one active while
@@ -160,8 +155,9 @@ const ChannelInner = (
       // surfaces them). This is deliberately the SDK's opinion about how the default component
       // behaves, not client-level policy.
       //
-      // `recoverState` dispatches this only after re-querying the active channels, so the rest of the
-      // channel state is already fresh by now.
+      // `ConnectionRecoveryManager` dispatches this only after re-querying the active channels, so
+      // the rest of the channel state is already fresh by now. (It replaced `client.recoverState()`,
+      // which is what this comment used to name.)
       if (channel.pendingDisposal) return;
       try {
         await channel.reload();
