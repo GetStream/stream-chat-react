@@ -8,12 +8,29 @@ const token = 'dummy_token';
 
 const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
   new Promise<void>((resolve) => {
-    client['connectionId'] = 'dumm_connection_id';
+    // Mark the socket up, which is what "connected" means to the client: `channel.watch()` and
+    // `client.queryChannels()` wait for a live connection instead of degrading to `watch: false`.
+    //
+    // Written through the public store rather than the socket's internal `_setStatus`, which
+    // `no-underscore-dangle` rightly rejects — and a fixture standing in for a connection it never
+    // opens is exactly the case for setting the state directly. `lastOnlineAt` is stamped too, since
+    // online-without-a-timestamp is a state the real socket never produces.
+    //
+    // This replaces `client['connectionId'] = '…'`, which was dead — the client has no such field.
+    // The connection id lives on the socket, so that assignment never satisfied the old
+    // `_hasConnectionID()` guard, and every mocked `watch()` quietly took the downgrade path.
+    client.wsConnection.state.partialNext({
+      connectionId: 'dummy_connection_id',
+      isOnline: true,
+      lastOnlineAt: new Date(),
+    });
     client.user = { ...user, mutes: [] } as UserResponse;
     client['_user'] = { ...user } as UserResponse;
     // `userID` is a getter in v10 (derives from `client.user?.id`), so it can't be assigned;
     // setting `client.user` above is what populates it.
-    client['userToken'] = token;
+    // `userToken` was never a field on `StreamChat` — only `userTokenOrProvider`, a parameter — so
+    // this assignment wrote a property nothing reads. The `tokenManager` mock below is what actually
+    // supplies the token.
     client.wsPromise = Promise.resolve() as StreamChat['wsPromise'];
     resolve();
   });
