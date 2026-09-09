@@ -146,6 +146,11 @@ const ChannelInner = (
       return;
 
     if (event.type === 'connection.recovered') {
+      // Only the socket's recovery reloads the window. Nothing dispatches a `'network'` recovery
+      // today, but the guard means that if something ever does, requerying every open channel off a
+      // network edge is a deliberate decision rather than a silent behavior change.
+      if (event.connection !== 'ws') return;
+
       // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
       // skips re-seeding the message list of an `active` channel (we mark this one active while
       // mounted) because its 25-message page would perturb a larger scrolled-back window — it hands
@@ -302,7 +307,6 @@ const ChannelInner = (
         }
 
         // The more complex sync logic is done in Chat
-        client.on('connection.changed', handleEvent);
         client.on('connection.recovered', handleEvent);
         client.on('user.updated', handleEvent);
         client.on('user.deleted', handleEvent);
@@ -314,7 +318,6 @@ const ChannelInner = (
       isMounted = false;
       if (errored || !done) return;
       channel?.off(handleEvent);
-      client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
       client.off('user.deleted', handleEvent);
     };

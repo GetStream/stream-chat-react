@@ -393,13 +393,39 @@ describe('Chat', () => {
         );
 
       // Deliberately not awaiting anything first — the drop lands inside the init window.
-      act(() => dispatchConnectionChangedEvent(client, false));
+      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
       expect(chatNotifications()).toHaveLength(1);
 
       // Long enough for `init()` to resolve and `t` to be replaced.
       await act(async () => {
         await new Promise((resolve) => setTimeout(resolve, 50));
       });
+
+      expect(chatNotifications()).toHaveLength(1);
+    });
+
+    it('publishes nothing when the DEVICE network drops, only when the socket does', async () => {
+      // This notification reports the WebSocket, despite `network` in its type name, and
+      // `connection.changed` now arrives for both connections — so without a `connection` guard it
+      // would fire for a device that lost its network on a perfectly healthy socket. The compiler
+      // cannot catch a missing guard: both variants of the event have the same shape.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      const chatNotifications = () =>
+        client.notifications.notifications.filter(
+          (notification) => notification.origin.emitter === 'Chat',
+        );
+
+      act(() => dispatchConnectionChangedEvent(client, false, 'network'));
+
+      expect(chatNotifications()).toHaveLength(0);
+
+      // The socket variant does publish, which is what makes the assertion above meaningful.
+      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
 
       expect(chatNotifications()).toHaveLength(1);
     });

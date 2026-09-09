@@ -422,6 +422,24 @@ describe('Channel', () => {
       await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
     });
 
+    it('does not reload the channel on a recovery reported for the network', async () => {
+      // Nothing dispatches a `'network'` recovery today. The guard is what makes requerying every
+      // open channel off a network edge a deliberate decision if something ever does, rather than a
+      // silent behaviour change — and the compiler cannot catch its absence, because both variants
+      // of the event have the same shape.
+      const { channel, chatClient } = await setup();
+      await renderComponent({ channel, chatClient });
+
+      const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
+
+      await act(async () => {
+        dispatchConnectionRecoveredEvent(chatClient, 'network');
+        await Promise.resolve();
+      });
+
+      expect(reloadSpy).not.toHaveBeenCalled();
+    });
+
     it('does not reload a channel that is pending disposal', async () => {
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });

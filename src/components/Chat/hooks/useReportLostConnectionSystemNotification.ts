@@ -34,7 +34,16 @@ export const useReportLostConnectionSystemNotification = () => {
   useEffect(() => {
     if (!t || !client) return;
 
-    const handleConnectionChanged = ({ online }: EventPayload<'connection.changed'>) => {
+    const handleConnectionChanged = ({
+      connection,
+      online,
+    }: EventPayload<'connection.changed'>) => {
+      // Narrowed to the socket, which is what this hook has always reported — the notification type
+      // says `network`, but the fact behind it is the WebSocket. Now that the event also arrives for
+      // the device's network, the guard is what keeps that unchanged rather than silently doubling.
+      // Whether a lost *network* deserves its own notification is a separate question.
+      if (connection !== 'ws') return;
+
       if (!online) {
         if (connectionLostNotificationIdRef.current) return;
 
