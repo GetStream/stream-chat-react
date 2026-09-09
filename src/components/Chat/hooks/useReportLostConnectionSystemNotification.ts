@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import type { EventPayload } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -15,14 +15,24 @@ export const useReportLostConnectionSystemNotification = () => {
   const { addSystemNotification, removeNotification } = useNotificationApi();
   const connectionLostNotificationIdRef = useRef<string | null>(null);
 
+  const dismissConnectionLostNotification = useCallback(() => {
+    if (!connectionLostNotificationIdRef.current) return;
+    removeNotification(connectionLostNotificationIdRef.current);
+    connectionLostNotificationIdRef.current = null;
+  }, [removeNotification]);
+
+  /**
+   * Dismissal is scoped to the mount, not to the subscription below.
+   *
+   * The subscription's dependencies change for reasons that have nothing to do with the connection —
+   * `t` is replaced when `Streami18n.init()` resolves, asynchronously. When dismissal was part of
+   * that effect's cleanup, a socket dropping before init finished had its notification published and
+   * then immediately removed, leaving no banner on an offline app launch or behind a captive portal.
+   */
+  useEffect(() => dismissConnectionLostNotification, [dismissConnectionLostNotification]);
+
   useEffect(() => {
     if (!t || !client) return;
-
-    const dismissConnectionLostNotification = () => {
-      if (!connectionLostNotificationIdRef.current) return;
-      removeNotification(connectionLostNotificationIdRef.current);
-      connectionLostNotificationIdRef.current = null;
-    };
 
     const handleConnectionChanged = ({ online }: EventPayload<'connection.changed'>) => {
       if (!online) {
@@ -46,9 +56,6 @@ export const useReportLostConnectionSystemNotification = () => {
 
     const subscription = client.on('connection.changed', handleConnectionChanged);
 
-    return () => {
-      subscription.unsubscribe();
-      dismissConnectionLostNotification();
-    };
-  }, [addSystemNotification, client, removeNotification, t]);
+    return subscription.unsubscribe;
+  }, [addSystemNotification, client, dismissConnectionLostNotification, t]);
 };

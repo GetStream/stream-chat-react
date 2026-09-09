@@ -376,6 +376,34 @@ describe('Chat', () => {
   });
 
   describe('connection notifications', () => {
+    it('keeps the notification when the socket drops before i18n has initialized', async () => {
+      // The regression. `Streami18n.init()` is asynchronous and `t` changes identity when it
+      // resolves. With `t` in the effect's dependencies, a drop during that window published the
+      // notification and then had it dismissed by the effect's own cleanup — leaving no banner
+      // exactly when one is most wanted: an offline app launch, a captive portal, an expired token.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      const chatNotifications = () =>
+        client.notifications.notifications.filter(
+          (notification) => notification.origin.emitter === 'Chat',
+        );
+
+      // Deliberately not awaiting anything first — the drop lands inside the init window.
+      act(() => dispatchConnectionChangedEvent(client, false));
+      expect(chatNotifications()).toHaveLength(1);
+
+      // Long enough for `init()` to resolve and `t` to be replaced.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      expect(chatNotifications()).toHaveLength(1);
+    });
+
     it('publishes and removes system connection-lost notification on connection changes', async () => {
       const client = getTestClient();
       let connectionLostNotification;
