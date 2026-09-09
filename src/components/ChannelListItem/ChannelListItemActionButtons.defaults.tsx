@@ -96,7 +96,7 @@ const useArchiveAction = (): ChannelActionBehavior => {
 
   const toggle = async () => {
     try {
-      if (membership.archived_at) {
+      if (membership.archived_at != null) {
         await channel.unarchive();
         addNotification({
           context: { channel },
@@ -131,10 +131,11 @@ const useArchiveAction = (): ChannelActionBehavior => {
   };
 
   return {
-    'aria-pressed': typeof membership.archived_at === 'string',
-    title: membership.archived_at
-      ? t('channelListItem.unarchive.title', 'Unarchive')
-      : t('channelListItem.archive.title', 'Archive'),
+    'aria-pressed': membership.archived_at != null,
+    title:
+      membership.archived_at != null
+        ? t('channelListItem.unarchive.title', 'Unarchive')
+        : t('channelListItem.archive.title', 'Archive'),
     toggle,
   };
 };
@@ -302,7 +303,7 @@ const usePinAction = (): ChannelActionBehavior => {
 
   const toggle = async () => {
     try {
-      if (membership.pinned_at) {
+      if (membership.pinned_at != null) {
         await channel.unpin();
         addNotification({
           context: { channel },
@@ -337,10 +338,11 @@ const usePinAction = (): ChannelActionBehavior => {
   };
 
   return {
-    'aria-pressed': !!membership.pinned_at,
-    title: membership.pinned_at
-      ? t('common.unpin.title', 'Unpin')
-      : t('common.pin.title', 'Pin'),
+    'aria-pressed': membership.pinned_at != null,
+    title:
+      membership.pinned_at != null
+        ? t('common.unpin.title', 'Unpin')
+        : t('common.pin.title', 'Pin'),
     toggle,
   };
 };

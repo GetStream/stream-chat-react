@@ -1,5 +1,6 @@
 import {
   type Attachment,
+  convertTimestampToDate,
   isImageAttachment,
   isVideoAttachment,
   type LocalMessage,
@@ -68,7 +69,7 @@ export const toChannelMediaItems = (
         galleryItem: {
           ...descriptor,
           // the gallery header reads sender and timestamp off the item
-          createdAt: message.created_at,
+          createdAt: convertTimestampToDate(message.created_at),
           user: message.user ?? undefined,
         },
         id: `${message.id}-${index}`,

@@ -4,6 +4,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { useMentionsHandler } from '../useMentionsHandler';
 
 import { generateMessage, generateUser } from '../../../../mock-builders';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 // MERGE-RECONCILE (test migration): the master merge removed ChannelActionContext.
 // `useMentionsHandler` no longer reads `onMentionsClick`/`onMentionsHover` from context —
@@ -83,10 +84,10 @@ describe('useMentionsHandler custom hooks', () => {
       {
         mentioned_groups: [
           fromPartial({
-            created_at: '2026-05-28T00:00:00.000Z',
+            created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
             id: 'backend-team',
             name: 'Backend Team',
-            updated_at: '2026-05-28T00:00:00.000Z',
+            updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
           }),
         ],
       },

@@ -12,6 +12,7 @@ import {
   initClientWithChannels,
 } from '../../../../mock-builders';
 import { act } from 'react';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 // MERGE-RECONCILE (test migration): useMarkRead was rewritten (PR #2909). It no longer receives
 // `markRead`/`setChannelUnreadUiState` from the removed ChannelActionContext, and the manual
@@ -58,14 +59,14 @@ const render = async ({
 const unreadLastMessageChannelData = () => {
   const user = generateUser();
   const messages = [
-    generateMessage({ created_at: new Date(1) }),
-    generateMessage({ created_at: new Date(2) }),
+    generateMessage({ created_at: convertDateToTimestamp(new Date(1)) }),
+    generateMessage({ created_at: convertDateToTimestamp(new Date(2)) }),
   ];
   return {
     messages,
     read: [
       {
-        last_read: new Date(1).toISOString(),
+        last_read: convertDateToTimestamp(new Date(1).toISOString()),
         last_read_message_id: messages[0].id,
         unread_messages: 1,
         user,
@@ -77,15 +78,15 @@ const unreadLastMessageChannelData = () => {
 const readLastMessageChannelData = () => {
   const user = generateUser();
   const messages = [
-    generateMessage({ created_at: new Date(1) }),
-    generateMessage({ created_at: new Date(2) }),
+    generateMessage({ created_at: convertDateToTimestamp(new Date(1)) }),
+    generateMessage({ created_at: convertDateToTimestamp(new Date(2)) }),
   ];
   return {
     channel: { config: { read_events: true } },
     messages,
     read: [
       {
-        last_read: new Date(2).toISOString(),
+        last_read: convertDateToTimestamp(new Date(2).toISOString()),
         last_read_message_id: messages[1].id,
         unread_messages: 0,
         user,

@@ -8,4 +8,5 @@ export * from './poll';
 export * from './reaction';
 export * from './reminder';
 export * from './sharedLocation';
+export * from './time';
 export * from './user';

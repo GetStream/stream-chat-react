@@ -45,6 +45,7 @@ import { WithComponents } from '../../../context';
 import type { ChatContextValue, ComponentContextValue } from '../../../context';
 import { generateMessageDraft } from '../../../mock-builders/generator/messageDraft';
 import type { ChannelProps } from '../Channel';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 vi.mock('../../Loading', () => ({
   LoadingChannel: vi.fn(() => <div>Loading channel</div>),
@@ -168,7 +169,7 @@ describe('Channel', () => {
       Array.from({ length: 25 }, (_, i) =>
         generateMessage({
           cid: `${channelType}:${channelId}`,
-          created_at: new Date((i + 1) * 1000000),
+          created_at: convertDateToTimestamp(new Date((i + 1) * 1000000)),
           user,
         }),
       );
@@ -527,7 +528,7 @@ describe('Channel', () => {
       it('should add a preview for messages that are sent to the channel state, so that they are rendered even without API response', async () => {
         const { channel, chatClient } = await setup();
         const messageText = nanoid();
-        const m = generateMessage({ text: messageText });
+        const m = generateMessage({ cid: channel.cid, text: messageText });
         useMockedApis(chatClient, [sendMessageApi(m)]);
 
         await renderComponent({ channel, chatClient });
@@ -566,6 +567,7 @@ describe('Channel', () => {
         await renderComponent({ channel, chatClient, children: <MockMessageList /> });
 
         const m = generateMessage({
+          cid: channel.cid,
           id: messageId,
           status: 'sending',
           text: messageText,
@@ -720,6 +722,7 @@ describe('Channel', () => {
       it('should enable retrying message sending', async () => {
         const { channel, chatClient } = await setup();
         const messageObject = generateMessage({
+          cid: channel.cid,
           text: nanoid(),
         });
 
@@ -899,7 +902,7 @@ describe('Channel', () => {
             user: {
               ...user,
               ...updatedAttribute,
-              updated_at: new Date().toISOString(),
+              updated_at: convertDateToTimestamp(new Date().toISOString()),
             },
           },
           chatClient,
@@ -943,7 +946,7 @@ describe('Channel', () => {
                 messages: [generateMessage()],
                 read: [
                   {
-                    last_read: new Date().toISOString(),
+                    last_read: convertDateToTimestamp(new Date().toISOString()),
                     last_read_message_id: 'last_read_message_id-1',
                     unread_messages,
                     user,
@@ -954,7 +957,7 @@ describe('Channel', () => {
                 messages: [generateMessage()],
                 read: [
                   {
-                    last_read: new Date().toISOString(),
+                    last_read: convertDateToTimestamp(new Date().toISOString()),
                     last_read_message_id: 'last_read_message_id-2',
                     unread_messages,
                     user,

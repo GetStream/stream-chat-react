@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import type { ChannelMemberResponse, UserResponse } from 'stream-chat';
 import { useMemo, useState } from 'react';
 import {
@@ -41,13 +42,13 @@ const getPresenceStatusText = (
 ) => {
   if (user?.online) return t('common.online.label', 'Online');
 
-  if (user?.last_active) {
+  if (user?.last_active != null) {
     return t(
       'channelDetail.channelMemberDetail.lastSeen.label',
       'Last seen {{ timestamp }}',
       {
         timestamp: t('timestamp.ChannelMembersLastActive', {
-          timestamp: user.last_active,
+          timestamp: convertTimestampToDate(user.last_active),
         }),
       },
     );

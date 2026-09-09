@@ -18,6 +18,7 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
 const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-delivered';
@@ -29,7 +30,7 @@ const user = { id: 'me' };
 const foreignMsg = {
   __html: '<p>regular</p>',
   attachments: [],
-  created_at: '2024-05-28T15:13:20.899Z',
+  created_at: convertDateToTimestamp('2024-05-28T15:13:20.899Z'),
   html: '<p>regular</p>',
   id: '5kIE4fIArv11V4YHYdXKO',
   mentioned_users: [],
@@ -37,7 +38,7 @@ const foreignMsg = {
   status: 'received',
   text: 'udSNfyk7Z-0MRn17WUQwY',
   type: 'regular',
-  updated_at: '2024-05-28T15:13:20.900Z',
+  updated_at: convertDateToTimestamp('2024-05-28T15:13:20.900Z'),
   user: otherUser,
 };
 

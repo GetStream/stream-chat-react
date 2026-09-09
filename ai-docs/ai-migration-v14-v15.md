@@ -65,6 +65,102 @@ To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the 
 
 `Channel` no longer reflects the channel-list query state. Its loading / error / empty rendering is driven by the channel's own `watch()` bootstrap (`LoadingIndicator` while watching, `LoadingErrorIndicator` on watch failure, `EmptyPlaceholder` when no channel is provided). The channel-list query state is the `ChannelList`'s concern, not `Channel`'s.
 
+## Dates on response types are unix-nanosecond numbers
+
+`stream-chat` now types every **server-sent** date as the unix-nanosecond `number` the API puts on the
+wire — `created_at`, `updated_at`, `last_read`, and every sibling on a response or event. It is not a
+`Date` and not an ISO string, and the React types that carry those values through changed with it.
+
+Two failure modes, neither of which is a type error:
+
+- **Every `Date`-based path is out of range.** `Date` tops out near 8.64e15 ms while a current
+  timestamp is ~1.79e18, and a date library reads a bare number as **milliseconds** — so both land on
+  an invalid instance rather than on a plausible wrong date. `.toISOString()` throws
+  `RangeError: Invalid time value`, usually mid-render; `dayjs(created_at).format()` instead returns
+  the literal string `Invalid Date` and renders it on screen.
+- **A unit mix-up between two `number`s is the silent one.** Comparing a wire timestamp against
+  `Date.now()`, or adding a millisecond duration to one, produces a plausible-looking number and no
+  complaint at all — see `headerPosition` below for a case with no type change to warn you.
+
+### The public React types that changed
+
+| Type                                                  | v14                           | v15                             |
+| ----------------------------------------------------- | ----------------------------- | ------------------------------- |
+| `ChatContextValue.latestMessageDatesByChannels`       | `Record<ChannelConfId, Date>` | `Record<ChannelConfId, number>` |
+| `ProcessMessagesParams.lastRead` (`processMessages`)  | `Date \| null`                | `number \| null`                |
+| `VirtualizedMessageList` render props: `lastReadDate` | `Date \| null`                | `number \| null`                |
+
+`DateSeparatorMessage` (a member of the exported `RenderedMessage` union) changed shape rather than
+type: it **lost its `type: MessageLabel` field**, and `unread` is now optional. The `type` field was
+never actually populated — every construction site cast the object into place without it — so reading
+it was already `undefined` at runtime; it now fails to compile. `unread` is set only by the unread
+separator; the plain day divider omits it. Narrow with `isDateSeparatorMessage` rather than checking
+either field.
+
+Comparisons get simpler, not harder — compare and sort the raw numbers and drop the `Date` round-trip:
+
+```ts
+// v14
+if (latestMessageDatesByChannels[cid].getTime() < new Date(message.created_at).getTime()) { … }
+
+// v15
+if (latestMessageDatesByChannels[cid] < message.created_at) { … }
+```
+
+### Presentational props still take `Date`
+
+The conversion boundary is where core data enters the component tree, so components that exist to
+_render_ a date are unchanged — `DateSeparator`'s `date: Date` and `formatDate?: (date: Date) => string`,
+for instance. Convert at that boundary with the guarded helper `stream-chat` exports:
+
+`convertTimestampToDate` returns `Date | undefined` — `undefined` for an absent or non-finite value.
+**Handle that `undefined`; do not cast it away.** A prop typed `date: Date` will accept it through a
+cast and then fail somewhere further along: `isDateSeparatorMessage` (`src/components/MessageList/utils.ts`)
+gates on `isDate(message.date)`, so the list stops recognising the object as a separator and renders it
+as an ordinary message — an empty row where the day divider belonged, with no error and no type error.
+
+```ts
+import { convertTimestampToDate } from 'stream-chat';
+
+const createdAt = convertTimestampToDate(message.created_at);
+
+// Render nothing when there is no usable timestamp.
+{createdAt ? <DateSeparator date={createdAt} /> : null}
+```
+
+```ts
+// WRONG — the cast launders `undefined` into a required `Date`.
+<DateSeparator date={convertTimestampToDate(message.created_at) as Date} />
+// WRONG — invents "now", labelling a months-old message "Today".
+<DateSeparator date={convertTimestampToDate(message.created_at) ?? new Date()} />
+```
+
+`nsToDate` / `dateToNs` / `nsToMs` / `msToNs` / `nowNs` are exported alongside it for values known to be
+present. Note that **outgoing request** date fields are still `Date` (filter bounds like
+`created_at_before`, plus `remind_at` and `message_timestamp`) — `JSON.stringify` emits RFC3339 for a
+`Date`, which is what the request spec declares. Use `nsToDate` when handing a server-sent timestamp
+back to the API.
+
+### `MessageList`'s `headerPosition` prop changed unit, not type
+
+`headerPosition` is compared against `message.created_at`, so it is now **unix nanoseconds** — it was
+epoch milliseconds while `created_at` was a `Date`. The type is still `number`, so nothing warns.
+
+### Peer-dependency gate before release
+
+The SDK imports `convertTimestampToDate` / `nsToDate` / `nsToMs` from `stream-chat`, which only exist
+from the version that ships `utils/time`. Until that is published, `package.json` pins
+`stream-chat` exactly and the workspace resolves it through a local `portal:` — so a green local build
+says nothing about whether a consumer can resolve these imports. Before publishing, widen the peer
+range to the version that exports them and verify from a clean install with no `portal:` override.
+
+### Test fixtures have to model the wire
+
+A fixture that hands the SDK a `Date` cannot catch either failure mode above, and will diverge from
+runtime behavior. The SDK's own suite normalizes through
+`mock-builders/generator/time.ts` (`convertDateToTimestamp`), which accepts a `Date`, an ISO string or a
+raw wire number so tests stay readable while the value on the wire stays a number.
+
 ## i18n: English-only bundle, namespaced translation keys
 
 Two breaking changes, both of which fail **silently** — no error, no compile break unless the app

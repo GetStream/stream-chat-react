@@ -62,6 +62,7 @@ import {
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 import type { ChannelProps } from '../../Channel';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const IMAGE_PREVIEW_TEST_ID = 'attachment-preview-media';
 const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
@@ -1115,8 +1116,8 @@ describe(`MessageInputFlat`, () => {
         messageContextOverrides: {
           message: fromPartial<LocalMessage>({
             cid: customChannel.cid,
-            created_at: new Date(),
-            updated_at: new Date(),
+            created_at: convertDateToTimestamp(new Date()),
+            updated_at: convertDateToTimestamp(new Date()),
           }),
         },
       });

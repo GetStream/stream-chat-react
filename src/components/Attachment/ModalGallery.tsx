@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
@@ -69,7 +70,7 @@ export const ModalGallery = ({
     () =>
       items.map((item) => ({
         ...item,
-        createdAt: item.createdAt ?? message?.created_at,
+        createdAt: item.createdAt ?? convertTimestampToDate(message?.created_at),
         user: item.user ?? message?.user ?? undefined,
       })),
     [items, message?.created_at, message?.user],

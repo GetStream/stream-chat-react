@@ -5,6 +5,7 @@ import { defaultReactionOptions } from '../reactionOptions';
 
 import type { MessageReactionsProps } from '../MessageReactions';
 import type { ReactionsComparator, ReactionSummary } from '../types';
+import { nsToDate } from 'stream-chat';
 
 export type UseProcessReactionsParams = Pick<
   MessageReactionsProps,
@@ -128,9 +129,10 @@ export const useProcessReactions = (params: UseProcessReactionsParams) => {
         return [
           {
             EmojiComponent: getEmojiByReactionType(reactionType),
-            firstReactionAt: first_reaction_at ? new Date(first_reaction_at) : null,
+            firstReactionAt:
+              first_reaction_at != null ? nsToDate(first_reaction_at) : null,
             isOwnReaction: isOwnReaction(reactionType),
-            lastReactionAt: last_reaction_at ? new Date(last_reaction_at) : null,
+            lastReactionAt: last_reaction_at != null ? nsToDate(last_reaction_at) : null,
             latestReactedUserNames,
             reactionCount: count,
             reactionType,

@@ -27,6 +27,7 @@ import {
 } from '../utils';
 import type { MessageProps } from '../types';
 import type { GroupStyle } from '../../MessageList/utils';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -58,7 +59,9 @@ describe('Message utils', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
         fromPartial<UserMuteResponse>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+          created_at: convertDateToTimestamp(
+            new Date('2019-03-30T13:24:10').toISOString(),
+          ),
           target: bob,
           user: alice,
         }),
@@ -76,7 +79,9 @@ describe('Message utils', () => {
     it('should return true if user was muted', () => {
       const mutes = [
         fromPartial<UserMuteResponse>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+          created_at: convertDateToTimestamp(
+            new Date('2019-03-30T13:24:10').toISOString(),
+          ),
           target: bob,
           user: alice,
         }),
@@ -183,6 +188,100 @@ describe('Message utils', () => {
       expect(shouldUpdate).toBe(false);
     });
 
+    // `formatMessage` runs only on the write path, so an unchanged message keeps its reference and
+    // the memo always bailed for it. What changed with numbers: `updated_at` is no longer a fresh
+    // `Date` per ingest, so it no longer forces a repaint on every re-ingest — which is what makes
+    // the compared-field list load-bearing. These pin the fields that list has to cover.
+    describe('memoization with nanosecond timestamps', () => {
+      it('bails out for an identical message, which a fresh Date used to prevent', () => {
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message: { ...message } }),
+            fromPartial<MessageProps>({ message: { ...message } }),
+          ),
+        ).toBe(true);
+      });
+
+      it('sees a changed updated_at', () => {
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({
+              message: { ...message, updated_at: (message.updated_at as number) + 1e9 },
+            }),
+            fromPartial<MessageProps>({ message }),
+          ),
+        ).toBe(false);
+      });
+
+      it('sees an attachments swap', () => {
+        // Compared by reference: the SDK builds a new array for any real change, so this needs no
+        // deep equality. An upload thumbnail resolving used to leave the row stale.
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({
+              message: {
+                ...message,
+                attachments: [{ image_url: 'resolved', type: 'image' }],
+              },
+            }),
+            fromPartial<MessageProps>({ message: { ...message, attachments: [] } }),
+          ),
+        ).toBe(false);
+      });
+
+      it('sees a reaction change that leaves the reaction list length untouched', () => {
+        // The case a `length` comparison structurally cannot catch: an `enforce_unique` swap takes
+        // one reaction out and puts one in, so the count holds and `updated_at` never moves.
+        const message = generateMessage({ id: 'm' });
+        const withReaction = (type: string) => ({
+          ...message,
+          latest_reactions: [{ type, user_id: 'u1' }],
+          reaction_groups: { [type]: { count: 1, sum_scores: 1 } },
+        });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message: withReaction('like') }),
+            fromPartial<MessageProps>({ message: withReaction('love') }),
+          ),
+        ).toBe(false);
+      });
+
+      it('sees a shared_location moving', () => {
+        const message = generateMessage({ id: 'm' });
+        const at = (latitude: number) => ({
+          ...message,
+          shared_location: { created_by_device_id: 'd', latitude, longitude: 2 },
+        });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message: at(52.3676) }),
+            fromPartial<MessageProps>({ message: at(48.8566) }),
+          ),
+        ).toBe(false);
+      });
+
+      it('still bails when nothing changed, so a long list does not repaint wholesale', () => {
+        // The bail-out that matters: an unchanged message keeps its object identity across renders
+        // because `processMessages` re-uses the references it is given.
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message }),
+            fromPartial<MessageProps>({ message }),
+          ),
+        ).toBe(true);
+      });
+    });
+
     it('should update if rendered with a different message', () => {
       const message1 = generateMessage({ id: 'message-1' });
       const message2 = generateMessage({ id: 'message-2' });
@@ -205,8 +304,8 @@ describe('Message utils', () => {
         ['updated_at', new Date(1).toISOString(), new Date(2).toISOString()],
         [
           'user',
-          { updated_at: new Date(1).toISOString() },
-          { updated_at: new Date(2).toISOString() },
+          { updated_at: convertDateToTimestamp(new Date(1).toISOString()) },
+          { updated_at: convertDateToTimestamp(new Date(2).toISOString()) },
         ],
       ];
       const message = generateMessage();

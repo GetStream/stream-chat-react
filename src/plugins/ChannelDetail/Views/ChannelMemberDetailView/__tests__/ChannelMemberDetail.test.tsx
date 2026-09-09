@@ -12,6 +12,7 @@ import {
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
 import { mockT } from '../../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../../mock-builders';
 
 vi.mock('../../../../../context');
 
@@ -42,7 +43,7 @@ const createChannel = ({
         'user-2': {
           user: {
             id: 'user-2',
-            last_active: '2026-01-01T00:00:00.000000000Z',
+            last_active: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
             name: 'Bob',
           },
           user_id: 'user-2',
@@ -62,7 +63,7 @@ const createAction = (type: string, label: string) => ({
 const otherMember = fromPartial<ChannelMemberResponse>({
   user: {
     id: 'user-2',
-    last_active: '2026-01-01T00:00:00.000000000Z',
+    last_active: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
     name: 'Bob',
   },
   user_id: 'user-2',

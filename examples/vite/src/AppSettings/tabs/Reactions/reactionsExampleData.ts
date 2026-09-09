@@ -1,16 +1,19 @@
+import { dateToNs } from 'stream-chat';
 import type { LocalMessage } from 'stream-chat';
 
-// v10 types reaction/message timestamps as `Date` rather than ISO strings.
-const fireReactionAt = new Date('2026-02-12T06:39:57.188362Z');
-const firstLikeReactionAt = new Date('2026-02-12T06:39:56.237389Z');
-const secondLikeReactionAt = new Date('2026-02-12T06:39:52.237389Z');
-const heartReactionAt = new Date('2026-02-12T06:35:58.021196Z');
+// Every server-sent date is the unix-**nanosecond** number the API puts on the wire, so a fixture has
+// to model that unit — a `Date` here would render as 1970 once the UI converts it. The literals stay
+// readable and go through `dateToNs`.
+const fireReactionAt = dateToNs(new Date('2026-02-12T06:39:57.188362Z'));
+const firstLikeReactionAt = dateToNs(new Date('2026-02-12T06:39:56.237389Z'));
+const secondLikeReactionAt = dateToNs(new Date('2026-02-12T06:39:52.237389Z'));
+const heartReactionAt = dateToNs(new Date('2026-02-12T06:35:58.021196Z'));
 
 // The generated v10 models require far more fields than a static preview fixture needs
 // (`MessageResponse` alone mandates cid, html, deleted_reply_count, …), so the literal is asserted
 // once here rather than padded with a dozen placeholder values.
 export const reactionsPreviewMessage = {
-  created_at: new Date('2026-02-12T06:34:40.000000Z'),
+  created_at: dateToNs(new Date('2026-02-12T06:34:40.000000Z')),
   id: 'settings-preview-message-id',
   latest_reactions: [
     {
@@ -133,7 +136,7 @@ export const reactionsPreviewMessage = {
   status: 'received',
   text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed lectus nibh, rutrum in risus eget, dictum commodo dolor. Donec augue nisi, sollicitudin sed magna ut, tincidunt pretium lorem. ',
   type: 'regular',
-  updated_at: new Date('2026-02-12T06:40:00.000000Z'),
+  updated_at: dateToNs(new Date('2026-02-12T06:40:00.000000Z')),
   // Only the fields the preview renders are supplied; `UserResponse` requires several more.
   user: {
     id: 'settings-preview-user',

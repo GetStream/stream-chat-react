@@ -24,6 +24,7 @@ import { MessageUI } from '../MessageUI';
 import { QuotedMessage } from '../QuotedMessage';
 import { renderText } from '../renderText';
 import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -144,10 +145,10 @@ describe('QuotedMessage', () => {
             mentioned_channel: true,
             mentioned_groups: [
               fromPartial({
-                created_at: '2026-05-28T00:00:00.000Z',
+                created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
                 id: 'backend-team',
                 name: 'Backend Team',
-                updated_at: '2026-05-28T00:00:00.000Z',
+                updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
               }),
             ],
             mentioned_here: true,
@@ -333,7 +334,10 @@ describe('QuotedMessage', () => {
 
     it('should still render the quoted message preview for deleted_at timestamp', async () => {
       const message = {
-        quoted_message: { deleted_at: new Date().toISOString(), text: quotedText },
+        quoted_message: {
+          deleted_at: convertDateToTimestamp(new Date().toISOString()),
+          text: quotedText,
+        },
       };
       const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
@@ -347,7 +351,7 @@ describe('QuotedMessage', () => {
       const message = {
         quoted_message: {
           attachments: [generateFileAttachment()],
-          deleted_at: new Date().toISOString(),
+          deleted_at: convertDateToTimestamp(new Date().toISOString()),
         },
       };
       const { container, queryByTestId } = await renderQuotedMessage({

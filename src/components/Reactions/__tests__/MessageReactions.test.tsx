@@ -13,6 +13,7 @@ import { defaultReactionOptions, type ReactionOptions } from '../reactionOptions
 
 import type { ReactionGroupResponse } from 'stream-chat';
 import type { ReactionsComparator } from '../types';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const USER_ID = 'mark';
 
@@ -116,15 +117,19 @@ describe('MessageReactions', () => {
       reaction_groups: {
         haha: fromPartial<ReactionGroupResponse>({
           count: 2,
-          first_reaction_at: new Date().toISOString(),
+          first_reaction_at: convertDateToTimestamp(new Date().toISOString()),
         }),
         like: fromPartial<ReactionGroupResponse>({
           count: 8,
-          first_reaction_at: new Date(Date.now() + 60_000).toISOString(),
+          first_reaction_at: convertDateToTimestamp(
+            new Date(Date.now() + 60_000).toISOString(),
+          ),
         }),
         love: fromPartial<ReactionGroupResponse>({
           count: 5,
-          first_reaction_at: new Date(Date.now() + 120_000).toISOString(),
+          first_reaction_at: convertDateToTimestamp(
+            new Date(Date.now() + 120_000).toISOString(),
+          ),
         }),
       },
     });

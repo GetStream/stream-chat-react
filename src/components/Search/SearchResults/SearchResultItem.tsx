@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ComponentType } from 'react';
-import { formatMessage } from 'stream-chat';
+import { convertTimestampToDate, formatMessage } from 'stream-chat';
 import type {
   Channel,
   ChannelResponse,
@@ -182,7 +182,7 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
           </div>
           <Timestamp
             customClass='str-chat__search-result__last-active-timestamp'
-            timestamp={item.last_active}
+            timestamp={convertTimestampToDate(item.last_active)}
           />
         </div>
       </button>

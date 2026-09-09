@@ -13,6 +13,7 @@ import {
   useMockedApis,
 } from '../../../../mock-builders';
 import { useIsChannelMuted } from '../useIsChannelMuted';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 const clientUser = generateUser({ id: 'current-user' });
 
@@ -99,7 +100,10 @@ describe('useIsChannelMuted', () => {
           me: {
             ...client.user,
             channel_mutes: [
-              { channel: { cid: channel.cid }, created_at: '2020-05-26T07:11:57.968Z' },
+              {
+                channel: { cid: channel.cid },
+                created_at: convertDateToTimestamp('2020-05-26T07:11:57.968Z'),
+              },
             ],
           },
           type: 'notification.channel_mutes_updated',

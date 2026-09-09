@@ -27,6 +27,7 @@ import { MessageDeliveryStatus } from '../hooks/useMessageDeliveryStatus';
 import { generateStaticLocationResponse } from '../../../mock-builders';
 import { render } from '@testing-library/react';
 import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 describe('ChannelPreview utils', () => {
   const clientUser = generateUser();
@@ -49,7 +50,9 @@ describe('ChannelPreview utils', () => {
   describe('getLatestMessagePreview', () => {
     const channelWithEmptyMessage = generateChannel();
     const channelWithDeletedMessage = generateChannel({
-      messages: [generateMessage({ deleted_at: new Date().toISOString() })],
+      messages: [
+        generateMessage({ deleted_at: convertDateToTimestamp(new Date().toISOString()) }),
+      ],
     });
     const channelWithDeletedTypeMessage = generateChannel({
       messages: [generateMessage({ type: 'deleted' })],
@@ -127,7 +130,11 @@ describe('ChannelPreview utils', () => {
       const t = mockT as TranslationContextValue['t'];
       const channel = await getQueriedChannelInstance(
         generateChannel({
-          messages: [generateMessage({ deleted_at: new Date().toISOString() })],
+          messages: [
+            generateMessage({
+              deleted_at: convertDateToTimestamp(new Date().toISOString()),
+            }),
+          ],
         }),
       );
       expect(getLatestMessagePreviewText(channel, t)).toBe('Message deleted');

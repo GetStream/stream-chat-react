@@ -473,7 +473,10 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   hasMore?: boolean;
   /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
   head?: React.ReactElement;
-  /** Position to render HeaderComponent */
+  /**
+   * Position to render HeaderComponent, as a timestamp in the same unit as `message.created_at` —
+   * i.e. unix nanoseconds. Was milliseconds while `created_at` was a `Date`.
+   */
   headerPosition?: number;
   // todo: data manipulation - should live in MessagePaginator
   /** Hides the MessageDeleted components from the list, defaults to `false` */

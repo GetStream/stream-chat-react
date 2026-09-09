@@ -398,7 +398,7 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
       const { message } = useMessageContext();
       const reminder = useMessageReminder(message.id);
-      const messageAlreadyBookmarked = reminder && !reminder?.remindAt;
+      const messageAlreadyBookmarked = reminder != null && reminder.remindAt == null;
 
       if (messageAlreadyBookmarked) return null;
 
@@ -461,7 +461,7 @@ const DefaultMessageActionComponents = {
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const reminder = useMessageReminder(message.id);
-      const messageAlreadyHasReminderScheduled = Boolean(reminder && reminder?.remindAt);
+      const messageAlreadyHasReminderScheduled = reminder?.remindAt != null;
 
       if (messageAlreadyHasReminderScheduled) return null;
 

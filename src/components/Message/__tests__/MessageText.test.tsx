@@ -32,6 +32,7 @@ import type { MessageProps } from '../types';
 import type { MessageTextProps } from '../MessageText';
 import type { TranslationContextValue } from '../../../context';
 import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
@@ -266,10 +267,10 @@ describe('<MessageText />', () => {
       {
         mentioned_groups: [
           fromPartial({
-            created_at: '2026-05-28T00:00:00.000Z',
+            created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
             id: 'backend-team',
             name: 'Backend Team',
-            updated_at: '2026-05-28T00:00:00.000Z',
+            updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
           }),
         ],
         text: 'Hello @Backend Team',
@@ -389,10 +390,10 @@ describe('<MessageText />', () => {
       mentioned_channel: true,
       mentioned_groups: [
         fromPartial({
-          created_at: '2026-05-28T00:00:00.000Z',
+          created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
           id: 'backend-team',
           name: 'Backend Team',
-          updated_at: '2026-05-28T00:00:00.000Z',
+          updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
         }),
       ],
       mentioned_here: true,

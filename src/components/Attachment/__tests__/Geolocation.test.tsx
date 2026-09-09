@@ -10,6 +10,8 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
+import { msToNs, nowNs } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../mock-builders/generator/time';
 
 const GeolocationMapComponent = (props) => (
   <div data-props={props} data-testid='geolocation-map' />
@@ -114,7 +116,7 @@ describe.each([
 
     it('renders own live location', async () => {
       const location = generateLiveLocationResponse({
-        end_at: new Date(Date.now() + 10000).toISOString(),
+        end_at: nowNs() + msToNs(10000),
         user_id: ownUser.id,
       });
       await renderComponent({
@@ -140,7 +142,7 @@ describe.each([
     });
     it("other user's live location", async () => {
       const location = generateLiveLocationResponse({
-        end_at: new Date(Date.now() + 10000).toISOString(),
+        end_at: nowNs() + msToNs(10000),
         user_id: otherUser.id,
       });
       await renderComponent({
@@ -166,7 +168,7 @@ describe.each([
     });
     it("own user's stopped live location", async () => {
       const location = generateLiveLocationResponse({
-        end_at: '1980-01-01T00:00:00.000Z',
+        end_at: convertDateToTimestamp('1980-01-01T00:00:00.000Z'),
         user_id: ownUser.id,
       });
       await renderComponent({
@@ -192,7 +194,7 @@ describe.each([
     });
     it("other user's stopped live location", async () => {
       const location = generateLiveLocationResponse({
-        end_at: '1980-01-01T00:00:00.000Z',
+        end_at: convertDateToTimestamp('1980-01-01T00:00:00.000Z'),
         user_id: otherUser.id,
       });
       await renderComponent({

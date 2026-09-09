@@ -42,18 +42,18 @@ export const useUnreadMessagesNotificationVirtualized = ({
       const lastRenderedMessage = renderedMessages.slice(-1)[0];
       if (!(firstRenderedMessage && lastRenderedMessage)) return;
 
-      const firstRenderedMessageTime = new Date(
-        (firstRenderedMessage as LocalMessage).created_at ?? 0,
-      ).getTime();
-      const lastRenderedMessageTime = new Date(
-        (lastRenderedMessage as LocalMessage).created_at ?? 0,
-      ).getTime();
-      const lastReadTime = new Date(lastReadAt ?? 0).getTime();
+      // All three are wire timestamps, directly comparable. Building `Date`s here produced NaN,
+      // so the notification never appeared.
+      const firstRenderedMessageTime =
+        (firstRenderedMessage as LocalMessage).created_at ?? 0;
+      const lastRenderedMessageTime =
+        (lastRenderedMessage as LocalMessage).created_at ?? 0;
+      const lastReadTime = lastReadAt ?? 0;
 
       const scrolledBelowSeparator =
-        !!lastReadTime && firstRenderedMessageTime > lastReadTime;
+        lastReadAt != null && firstRenderedMessageTime > lastReadTime;
       const scrolledAboveSeparator =
-        !!lastReadTime && lastRenderedMessageTime < lastReadTime;
+        lastReadAt != null && lastRenderedMessageTime < lastReadTime;
 
       setShow(
         showAlways

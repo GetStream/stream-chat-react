@@ -5,7 +5,7 @@ import {
   type MessageResponse,
 } from 'stream-chat';
 
-import { isDate } from '../../../../i18n/utils';
+import { convertTimestampToDate } from 'stream-chat';
 
 /** Attachment types listed by the files view (everything that is not an image/video). */
 export const FILE_ATTACHMENT_TYPES = ['file', 'audio'] as const;
@@ -42,10 +42,13 @@ export type ChannelFileSections = {
   sections: ChannelFileSection[];
 };
 
-const normalizeTimestamp = (timestamp?: string | Date) => {
-  if (!timestamp) return undefined;
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
-};
+/**
+ * A wire timestamp as an ISO string — what `getDateString` accepts, what the month key slices, and
+ * what `byCreatedAtDesc` compares. `convertTimestampToDate` rather than `new Date`: a nanosecond value is out of
+ * Date's range, so constructing one directly yields an Invalid Date.
+ */
+const normalizeTimestamp = (timestamp?: number) =>
+  timestamp == null ? undefined : convertTimestampToDate(timestamp)?.toISOString();
 
 const isChannelFileAttachment = (attachment: Attachment) =>
   !isScrapedContent(attachment) &&

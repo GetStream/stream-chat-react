@@ -26,6 +26,7 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
 // `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
@@ -382,11 +383,11 @@ describe('PollOptionList', () => {
             },
           },
           pollVote: {
-            created_at: new Date(),
+            created_at: convertDateToTimestamp(new Date()),
             id: '4c552daf-8f72-409c-a2ee-313b9db9fcd0',
             option_id: pollWithNoVotes.options[0].id,
             poll_id: pollWithNoVotes.id,
-            updated_at: new Date(),
+            updated_at: convertDateToTimestamp(new Date()),
             user,
             user_id: user.id,
           },

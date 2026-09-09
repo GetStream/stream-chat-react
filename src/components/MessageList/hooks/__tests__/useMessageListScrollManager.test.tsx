@@ -220,7 +220,7 @@ describe('useMessageListScrollManager', () => {
       <ChatProvider value={mockChatContext({ client })}>
         <Comp
           messages={messages.concat(
-            fromPartial<LocalMessage[]>([{ id: 100, user: { id: client.userID } }]),
+            fromPartial<LocalMessage[]>([{ id: '100', user: { id: client.userID } }]),
           )}
           offsetHeight={100}
           scrollHeight={600}
@@ -262,7 +262,7 @@ describe('useMessageListScrollManager', () => {
     rerender(
       <ChatProvider value={{ client }}>
         <Comp
-          messages={messages.concat([{ id: 100, user: { id: client.userID } }])}
+          messages={messages.concat([{ id: '100', user: { id: client.userID } }])}
           offsetHeight={100}
           scrollHeight={600}
           scrollTop={200}
