@@ -73,6 +73,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { UnknownType } from '../../types/types';
+import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
@@ -490,18 +491,23 @@ const VirtualizedMessageListWithContext = (
     [],
   );
 
+  const canPaginateReplies = useCanPaginateReplies();
+
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
 
     if (isAtBottom) {
-      messagePaginator.toHead();
+      // An empty thread is at both ends at once, so Virtuoso reports both on mount — see
+      // `useCanPaginateReplies` for why that must not become a request.
+      if (canPaginateReplies) messagePaginator.toHead();
       // loadMoreNewer?.(messageLimit);
       setNewMessagesNotification?.(false);
     }
   };
   const atTopStateChange = (isAtTop: boolean) => {
     if (isAtTop) {
+      if (!canPaginateReplies) return;
       if (loadingOlderRef.current) return;
       loadingOlderRef.current = true;
       setSuppressAutoscrollWhileLoadingOlder(true);

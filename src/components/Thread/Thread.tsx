@@ -72,6 +72,7 @@ export const Thread = (props: ThreadProps) => {
 const selector = (nextValue: ThreadState) => ({
   isStateStale: nextValue.isStateStale,
   parentMessage: nextValue.parentMessage,
+  replyCount: nextValue.replyCount,
 });
 
 const messagePaginatorSelector = ({
@@ -107,7 +108,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   const { ThreadHead = DefaultThreadHead, ThreadHeader = DefaultThreadHeader } =
     useComponentContext();
 
-  const { isStateStale, parentMessage } =
+  const { isStateStale, parentMessage, replyCount } =
     useStateStore(threadInstance?.state, selector) ?? {};
   const threadPaginatorState = useStateStore(
     threadInstance?.messagePaginator?.state,
@@ -137,13 +138,26 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   // which the virtualized list applies to its own subtree), so nothing is resolved here.
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
+  // A thread exists server-side only once its parent has a reply, so loading one with `replyCount`
+  // 0 is a request that can only 404 — `Thread.reload()` swallows exactly that and returns without
+  // state, so it buys nothing.
+  //
+  // This defers the load, it does not cancel it. `isStateStale` is only cleared by a successful
+  // reload (`thread.ts:589`), so while a thread stays stale, `replyCount` flipping to > 0 re-runs
+  // the effect below and the catch-up happens then. That covers the `user.watching.stop` case: we
+  // learn about replies missed while unwatched as soon as the parent message copy is refreshed,
+  // which is the same moment every other reply-count affordance in the UI learns about them.
+  const hasServerSideThread = (replyCount ?? 0) > 0;
+
   useEffect(() => {
     if (!threadInstance) return;
     if (isThreadManaged) return;
+    if (!hasServerSideThread) return;
     if (threadPaginatorState?.items !== undefined || threadPaginatorState?.isLoading)
       return;
     void threadInstance.reload();
   }, [
+    hasServerSideThread,
     isThreadManaged,
     threadInstance,
     threadPaginatorState?.isLoading,
@@ -151,10 +165,10 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   ]);
 
   useEffect(() => {
-    if (threadInstance && isStateStale) {
+    if (threadInstance && isStateStale && hasServerSideThread) {
       void threadInstance.reload();
     }
-  }, [isStateStale, threadInstance]);
+  }, [hasServerSideThread, isStateStale, threadInstance]);
 
   useEffect(() => {
     if (!threadInstance || isThreadManaged) return;

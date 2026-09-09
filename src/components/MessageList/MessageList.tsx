@@ -50,6 +50,7 @@ import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/In
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessagePaginator } from '../../hooks';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 
 type MessageListWithContextProps = MessageListProps;
 
@@ -233,6 +234,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const messageListClass = customClasses?.messageList || 'str-chat__message-list';
 
+  // An empty thread would otherwise ask for a page at both ends the moment the scroller mounts.
+  const canPaginateReplies = useCanPaginateReplies();
+
   const loadOlderMessages = React.useCallback(async () => {
     if (loadingOlderRef.current) return;
     loadingOlderRef.current = true;
@@ -385,8 +389,12 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   className='str-chat__message-list-scroll'
                   data-testid='reverse-infinite-scroll'
                   element={internalListElement}
-                  loadNextOnScrollToBottom={messagePaginator.toHead}
-                  loadNextOnScrollToTop={loadOlderMessages}
+                  loadNextOnScrollToBottom={
+                    canPaginateReplies ? messagePaginator.toHead : undefined
+                  }
+                  loadNextOnScrollToTop={
+                    canPaginateReplies ? loadOlderMessages : undefined
+                  }
                   onScroll={onScroll}
                   ref={setListElement}
                   threshold={loadMoreScrollThreshold}
