@@ -10,13 +10,14 @@ import {
 } from '../../context';
 
 import type { PollVoteResponseData as PollVoteType } from 'stream-chat';
+import { toDate } from '../../utils/timestamps';
 
-const PollVoteTimestamp = ({ timestamp }: { timestamp: string | Date }) => {
+const PollVoteTimestamp = ({ timestamp }: { timestamp: number }) => {
   const { t } = useTranslationContext();
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
-  const timestampDate = new Date(timestamp);
+  const timestampDate = toDate(timestamp);
   return (
     <div
       className='str-chat__poll-vote__timestamp'

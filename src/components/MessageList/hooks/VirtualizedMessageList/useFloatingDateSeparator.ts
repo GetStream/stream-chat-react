@@ -10,7 +10,7 @@ export type UseFloatingDateSeparatorParams = {
 };
 
 export type UseFloatingDateSeparatorResult = {
-  floatingDate: Date | null;
+  floatingDate: number | null;
   onItemsRendered: (rendered: RenderedMessage[]) => void;
   showFloatingDate: boolean;
 };
@@ -24,7 +24,7 @@ function getFloatingDateForFirstMessage(
   firstMessage: RenderedMessage,
   processedMessages: RenderedMessage[],
   firstMessageIndex: number,
-): Date | null {
+): number | null {
   if (isIntroMessage(firstMessage)) return null;
 
   // Walk backwards to find the last date separator before this message
@@ -37,19 +37,14 @@ function getFloatingDateForFirstMessage(
 
   // No preceding date separator; use message's created_at
   const msg = firstMessage as LocalMessage;
-  const created = msg.created_at;
-  if (created) {
-    const d = new Date(created);
-    return isNaN(d.getTime()) ? null : d;
-  }
-  return null;
+  return msg.created_at ?? null;
 }
 
 function getFloatingDateForFirstItem(
   firstItem: RenderedMessage,
   processedMessages: RenderedMessage[],
   firstItemIndex: number,
-): Date | null {
+): number | null {
   if (isDateSeparatorMessage(firstItem)) return firstItem.date;
 
   return getFloatingDateForFirstMessage(firstItem, processedMessages, firstItemIndex);
@@ -66,7 +61,7 @@ export const useFloatingDateSeparator = ({
   processedMessages,
 }: UseFloatingDateSeparatorParams): UseFloatingDateSeparatorResult => {
   const [state, setState] = useState<{
-    date: Date | null;
+    date: number | null;
     visible: boolean;
   }>(HIDDEN_STATE);
 
@@ -92,9 +87,8 @@ export const useFloatingDateSeparator = ({
 
       const visible = date !== null;
       setState((prev) => {
-        const prevTime = prev.date?.getTime() ?? null;
-        const nextTime = date?.getTime() ?? null;
-        if (prev.visible === visible && prevTime === nextTime) return prev;
+        // Both are wire timestamps now, so they compare directly.
+        if (prev.visible === visible && prev.date === date) return prev;
         return { date, visible };
       });
     },

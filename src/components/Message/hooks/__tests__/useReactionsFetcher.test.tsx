@@ -1,3 +1,4 @@
+import { nowNs } from 'stream-chat';
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 
@@ -18,11 +19,23 @@ describe('useReactionsFetcher', () => {
       .mockResolvedValueOnce({
         duration: '0',
         next: 'page-2',
-        reactions: [{ created_at: new Date(), type: 'like', updated_at: new Date() }],
+        reactions: [
+          {
+            created_at: nowNs(),
+            type: 'like',
+            updated_at: nowNs(),
+          },
+        ],
       } as never)
       .mockResolvedValueOnce({
         duration: '0',
-        reactions: [{ created_at: new Date(), type: 'love', updated_at: new Date() }],
+        reactions: [
+          {
+            created_at: nowNs(),
+            type: 'love',
+            updated_at: nowNs(),
+          },
+        ],
       } as never);
 
     const message = generateMessage() as MessageResponse & LocalMessage;

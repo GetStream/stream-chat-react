@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 
 import { act, cleanup, render, type RenderResult, screen } from '@testing-library/react';
@@ -12,6 +13,7 @@ afterEach(cleanup);
 const DATE_SEPARATOR_TEST_ID = 'date-separator';
 const dateMock = 'the date';
 const date = new Date('2020-03-30T22:57:47.173Z');
+const dateNs = ts(date);
 const formatDate = () => dateMock;
 
 const renderComponent = async ({ chatProps, props }: any) => {
@@ -28,7 +30,7 @@ const renderComponent = async ({ chatProps, props }: any) => {
 
 describe('DateSeparator', () => {
   it('should render the date separator with default formatting', async () => {
-    await renderComponent({ props: { date } });
+    await renderComponent({ props: { date: dateNs } });
     const separator = screen.getByTestId(DATE_SEPARATOR_TEST_ID);
     expect(separator).toBeInTheDocument();
     expect(separator).toHaveClass('str-chat__date-separator');
@@ -49,7 +51,7 @@ describe('DateSeparator', () => {
           },
         }),
       },
-      props: { date },
+      props: { date: dateNs },
     });
     expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
       date.getFullYear().toString(),
@@ -67,7 +69,7 @@ describe('DateSeparator', () => {
           sameDay: 'E YYYY',
           sameElse: 'F YYYY',
         },
-        date,
+        date: dateNs,
       },
     });
     expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
@@ -94,7 +96,7 @@ describe('DateSeparator', () => {
           sameDay: 'E YYYY',
           sameElse: 'F YYYY',
         },
-        date,
+        date: dateNs,
       },
     });
 
@@ -113,7 +115,7 @@ describe('DateSeparator', () => {
           },
         }),
       },
-      props: { date, format: 'YYYY' },
+      props: { date: dateNs, format: 'YYYY' },
     });
     expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(
       date.getFullYear().toString(),
@@ -122,7 +124,7 @@ describe('DateSeparator', () => {
 
   it('should format date with formatDate instead of defaults provided with i18n service', async () => {
     const { queryByText } = await renderComponent({
-      props: { date, formatDate },
+      props: { date: dateNs, formatDate },
     });
     expect(queryByText('the date')).toBeInTheDocument();
   });
@@ -137,7 +139,7 @@ describe('DateSeparator', () => {
           },
         }),
       },
-      props: { date, formatDate },
+      props: { date: dateNs, formatDate },
     });
     expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(dateMock);
   });
@@ -152,13 +154,13 @@ describe('DateSeparator', () => {
           },
         }),
       },
-      props: { date, format: 'YYYY', formatDate },
+      props: { date: dateNs, format: 'YYYY', formatDate },
     });
     expect(screen.queryByTestId(DATE_SEPARATOR_TEST_ID)).toHaveTextContent(dateMock);
   });
 
   it('should render with unread prop (unread no longer changes output)', async () => {
-    await renderComponent({ props: { date, unread: true } });
+    await renderComponent({ props: { date: dateNs, unread: true } });
     const separator = screen.getByTestId(DATE_SEPARATOR_TEST_ID);
     expect(separator).toBeInTheDocument();
     expect(separator).toHaveClass('str-chat__date-separator');
@@ -170,7 +172,7 @@ describe('DateSeparator', () => {
 
   describe('Position prop', () => {
     const renderWithPosition = (position?: any) => (
-      <DateSeparator date={date} formatDate={formatDate} position={position} />
+      <DateSeparator date={dateNs} formatDate={formatDate} position={position} />
     );
 
     it('should render the same structure regardless of position prop', () => {

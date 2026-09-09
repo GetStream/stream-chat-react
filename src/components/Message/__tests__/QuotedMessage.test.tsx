@@ -1,3 +1,5 @@
+import { nowNs } from 'stream-chat';
+import { ts } from '../../../mock-builders';
 import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { nanoid } from 'nanoid';
@@ -144,10 +146,10 @@ describe('QuotedMessage', () => {
             mentioned_channel: true,
             mentioned_groups: [
               fromPartial({
-                created_at: '2026-05-28T00:00:00.000Z',
+                created_at: ts('2026-05-28T00:00:00.000Z'),
                 id: 'backend-team',
                 name: 'Backend Team',
-                updated_at: '2026-05-28T00:00:00.000Z',
+                updated_at: ts('2026-05-28T00:00:00.000Z'),
               }),
             ],
             mentioned_here: true,
@@ -333,7 +335,7 @@ describe('QuotedMessage', () => {
 
     it('should still render the quoted message preview for deleted_at timestamp', async () => {
       const message = {
-        quoted_message: { deleted_at: new Date().toISOString(), text: quotedText },
+        quoted_message: { deleted_at: nowNs(), text: quotedText },
       };
       const { container, queryByTestId } = await renderQuotedMessage({
         customProps: { message },
@@ -347,7 +349,7 @@ describe('QuotedMessage', () => {
       const message = {
         quoted_message: {
           attachments: [generateFileAttachment()],
-          deleted_at: new Date().toISOString(),
+          deleted_at: nowNs(),
         },
       };
       const { container, queryByTestId } = await renderQuotedMessage({

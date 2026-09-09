@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
 import type { StreamTFunction } from '../../../i18n/types';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -58,7 +59,7 @@ describe('Message utils', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
         fromPartial<UserMuteResponse>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+          created_at: ts('2019-03-30T13:24:10'),
           target: bob,
           user: alice,
         }),
@@ -76,7 +77,7 @@ describe('Message utils', () => {
     it('should return true if user was muted', () => {
       const mutes = [
         fromPartial<UserMuteResponse>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+          created_at: ts('2019-03-30T13:24:10'),
           target: bob,
           user: alice,
         }),
@@ -203,11 +204,7 @@ describe('Message utils', () => {
         ['text', '', 'a'],
         ['type', 'X', 'Y'],
         ['updated_at', new Date(1).toISOString(), new Date(2).toISOString()],
-        [
-          'user',
-          { updated_at: new Date(1).toISOString() },
-          { updated_at: new Date(2).toISOString() },
-        ],
+        ['user', { updated_at: ts(1) }, { updated_at: ts(2) }],
       ];
       const message = generateMessage();
       const quotedMessage = generateMessage();

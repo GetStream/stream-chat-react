@@ -96,7 +96,7 @@ const useArchiveAction = (): ChannelActionBehavior => {
 
   const toggle = async () => {
     try {
-      if (membership.archived_at) {
+      if (membership.archived_at != null) {
         await channel.unarchive();
         addNotification({
           context: { channel },
@@ -130,9 +130,13 @@ const useArchiveAction = (): ChannelActionBehavior => {
     }
   };
 
+  // Nullish check, not `typeof === 'string'`: `archived_at` is a wire timestamp (unix nanoseconds),
+  // so the string test was always false and left an archived channel announced as un-pressed.
+  const isArchived = membership.archived_at != null;
+
   return {
-    'aria-pressed': typeof membership.archived_at === 'string',
-    title: membership.archived_at
+    'aria-pressed': isArchived,
+    title: isArchived
       ? t('channelListItem.unarchive.title', 'Unarchive')
       : t('channelListItem.archive.title', 'Archive'),
     toggle,

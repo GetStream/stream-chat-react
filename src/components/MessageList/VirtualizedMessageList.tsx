@@ -126,7 +126,12 @@ export type VirtuosoContext = Required<
     lastOwnMessage?: LocalMessage;
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
     firstUnreadMessageId: string | null;
-    lastReadDate: Date | null;
+    /**
+     * Last-read timestamp of the current user, as the wire's unix-nanosecond number (the shape
+     * `UnreadSnapshotState.lastReadAt` carries) — NOT a `Date`, despite the name. Convert with
+     * `nsToDate` before handing it to a date library.
+     */
+    lastReadDate: number | null;
     /**
      * The ID of the last message considered read by the current user in the current channel.
      * All the messages following this message are considered unread.

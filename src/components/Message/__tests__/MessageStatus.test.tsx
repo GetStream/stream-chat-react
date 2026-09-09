@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
@@ -29,7 +30,7 @@ const user = { id: 'me' };
 const foreignMsg = {
   __html: '<p>regular</p>',
   attachments: [],
-  created_at: '2024-05-28T15:13:20.899Z',
+  created_at: ts('2024-05-28T15:13:20.899Z'),
   html: '<p>regular</p>',
   id: '5kIE4fIArv11V4YHYdXKO',
   mentioned_users: [],
@@ -37,7 +38,7 @@ const foreignMsg = {
   status: 'received',
   text: 'udSNfyk7Z-0MRn17WUQwY',
   type: 'regular',
-  updated_at: '2024-05-28T15:13:20.900Z',
+  updated_at: ts('2024-05-28T15:13:20.900Z'),
   user: otherUser,
 };
 

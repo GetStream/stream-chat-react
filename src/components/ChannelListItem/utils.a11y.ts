@@ -9,7 +9,7 @@ import {
   composeAccessibleLabel,
   unreadCountLabelPart,
 } from '../../a11y/accessibleLabel';
-import { getDateString, isDate } from '../../i18n/utils';
+import { getDateString } from '../../i18n/utils';
 import { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { getLatestMessagePreviewText } from './utils';
 
@@ -139,9 +139,9 @@ export const defaultChannelListItemLabelParts = {
   name: ({ displayTitle }) => displayTitle || undefined,
   time: ({ latestMessage, t, tDateTimeParser }) => {
     const createdAt = latestMessage?.created_at;
-    if (!createdAt || !isDate(createdAt)) return undefined;
+    if (createdAt == null) return undefined;
     const when = getDateString({
-      messageCreatedAt: createdAt.toISOString(),
+      messageCreatedAt: createdAt,
       t,
       tDateTimeParser,
       timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',

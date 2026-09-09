@@ -7,7 +7,8 @@ import {
   useTranslationContext,
 } from '../../../../context';
 import { useChatViewNavigation } from '../../../SlotLayout';
-import { getDateString, isDate } from '../../../../i18n/utils';
+import { getDateString } from '../../../../i18n/utils';
+import { toIsoString } from '../../../../utils/timestamps';
 import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
@@ -29,11 +30,6 @@ type PinnedMessage = MessageResponse | LocalMessage;
 
 const computeItemKey = (_: number, message: PinnedMessage) => message.id;
 
-const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) => {
-  if (!timestamp) return undefined;
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
-};
-
 const getPinnedMessagePreview = (
   message: PinnedMessage,
   t: ReturnType<typeof useTranslationContext>['t'],
@@ -53,17 +49,15 @@ const getPinnedMessagePreview = (
 
 const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
   const { t, tDateTimeParser } = useTranslationContext();
-  const normalizedTimestamp = normalizeTimestamp(message.created_at);
-
   const when = useMemo(
     () =>
       getDateString({
-        messageCreatedAt: normalizedTimestamp,
+        messageCreatedAt: message.created_at,
         t,
         tDateTimeParser,
         timestampTranslationKey: 'timestamp.ChannelDetailPinnedMessageTimestamp',
       }),
-    [normalizedTimestamp, t, tDateTimeParser],
+    [message.created_at, t, tDateTimeParser],
   );
 
   if (!when) return null;
@@ -71,7 +65,7 @@ const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
   return (
     <time
       className='str-chat__channel-detail__pinned-messages-view__list-item__date'
-      dateTime={normalizedTimestamp}
+      dateTime={toIsoString(message.created_at)}
     >
       {when}
     </time>

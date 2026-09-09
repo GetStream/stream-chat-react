@@ -9,7 +9,7 @@ import {
   composeAccessibleLabel,
   unreadCountLabelPart,
 } from '../../../a11y/accessibleLabel';
-import { getDateString, isDate } from '../../../i18n/utils';
+import { getDateString } from '../../../i18n/utils';
 
 /**
  * Everything a label part needs. Gathered by `ThreadListItemUI` from the thread state + contexts and
@@ -85,9 +85,9 @@ export const defaultThreadListItemLabelParts = {
       : undefined,
   time: ({ latestReply, t, tDateTimeParser }) => {
     const createdAt = latestReply?.created_at;
-    if (!createdAt || !isDate(createdAt)) return undefined;
+    if (createdAt == null) return undefined;
     const when = getDateString({
-      messageCreatedAt: createdAt.toISOString(),
+      messageCreatedAt: createdAt,
       t,
       tDateTimeParser,
       timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',

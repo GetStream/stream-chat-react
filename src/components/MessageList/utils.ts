@@ -2,7 +2,7 @@ import { nanoid } from 'nanoid';
 
 import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
-import { isDate } from '../../i18n';
+import { toDate, toMs } from '../../utils/timestamps';
 
 import type {
   Channel,
@@ -18,7 +18,8 @@ type IntroMessage = {
 
 type DateSeparatorMessage = {
   customType: typeof CUSTOM_MESSAGE_TYPE.date;
-  date: Date;
+  /** Wire timestamp (unix nanoseconds) of the message this separator precedes. */
+  date: number;
   id: string;
   type: MessageLabel;
   unread: boolean;
@@ -36,7 +37,8 @@ type ProcessMessagesContext = {
   /** Disable date separator display for unread incoming messages */
   hideNewMessageSeparator?: boolean;
   /** Sets the threshold after everything is considered unread */
-  lastRead?: Date | null;
+  /** Wire timestamp (unix nanoseconds) after which everything is considered unread. */
+  lastRead?: number | null;
 };
 
 export type ProcessMessagesParams = ProcessMessagesContext & {
@@ -73,6 +75,19 @@ export type ProcessMessagesParams = ProcessMessagesContext & {
  *
  * @return {LocalMessage[]} Transformed list of messages
  */
+/**
+ * The day a message belongs to, as the key the separator logic compares consecutive messages on.
+ *
+ * Three outcomes, mirroring what the pre-wire-timestamp code produced by calling `toDateString()`
+ * on whatever `created_at` held: no timestamp reads as `''`, an unreadable one as `'Invalid Date'`,
+ * and a real one as its local date. The distinction matters — an unreadable timestamp is an unknown
+ * day, so it counts as a boundary against its neighbours, whereas a missing one does not.
+ */
+const toDayKey = (timestamp?: number | null): string => {
+  if (timestamp == null) return '';
+  return toDate(timestamp)?.toDateString() ?? 'Invalid Date';
+};
+
 export const processMessages = (params: ProcessMessagesParams) => {
   const { messages, reviewProcessedMessage, setGiphyPreviewMessage, ...context } = params;
   const {
@@ -88,6 +103,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
   let lastDateSeparator;
   const newMessages: RenderedMessage[] = [];
 
+  const lastReadDate = toDate(lastRead);
   for (let i = 0; i < messages.length; i += 1) {
     const message = messages[i];
 
@@ -106,25 +122,22 @@ export const processMessages = (params: ProcessMessagesParams) => {
     }
 
     const changes: RenderedMessage[] = [];
-    const messageDate =
-      (message.created_at &&
-        isDate(message.created_at) &&
-        message.created_at.toDateString()) ||
-      '';
+    // `created_at` is a unix-NANOSECOND number on the wire, not a `Date` — `nsToDate` is the only
+    // safe way to read it. Feeding the raw number to `Date`/dayjs lands out of range (a current
+    // nanosecond value is ~1.79e18 against `Date`'s ~8.64e15 ceiling), which is why an untranslated
+    // value reaches `DateSeparator` and throws on `.toISOString()` instead of failing a type check.
+    const messageCreatedAt = toDate(message.created_at);
+    const messageDate = toDayKey(message.created_at);
     const previousMessage = messages[i - 1];
     let prevMessageDate = messageDate;
 
-    if (
-      enableDateSeparator &&
-      previousMessage?.created_at &&
-      isDate(previousMessage.created_at)
-    ) {
-      prevMessageDate = previousMessage.created_at.toDateString();
+    if (enableDateSeparator && previousMessage?.created_at != null) {
+      prevMessageDate = toDayKey(previousMessage.created_at);
     }
 
     if (!unread && !hideNewMessageSeparator) {
       unread =
-        (lastRead && message.created_at && new Date(lastRead) < message.created_at) ||
+        (!!lastReadDate && !!messageCreatedAt && lastReadDate < messageCreatedAt) ||
         false;
 
       // do not show date separator for current user's messages
@@ -186,10 +199,17 @@ export const makeIntroMessage = (): IntroMessage => ({
   id: nanoid(),
 });
 
-export const makeDateMessageId = (date?: string | Date) => {
+export const makeDateMessageId = (date?: string | Date | number) => {
   let idSuffix;
   try {
-    idSuffix = !date ? nanoid() : date instanceof Date ? date.toISOString() : date;
+    // A wire timestamp (a number) is used as-is: the epoch is `0`, which the old truthiness check
+    // would have sent down the `nanoid()` path and produced an unstable id for. A non-finite one
+    // carries no instant to key on, so it still falls back.
+    if (typeof date === 'number') {
+      idSuffix = Number.isFinite(date) ? date : nanoid();
+    } else {
+      idSuffix = !date ? nanoid() : date instanceof Date ? date.toISOString() : date;
+    }
   } catch (e) {
     idSuffix = nanoid();
   }
@@ -225,13 +245,13 @@ export const insertIntro = (messages: RenderedMessage[], headerPosition?: number
 
   // else loop over the messages
   for (let i = 0; i < messages.length; i += 1) {
-    const messageTime = isDate((messages[i] as LocalMessage).created_at)
-      ? (messages[i] as LocalMessage).created_at.getTime()
-      : null;
+    // Same wire-timestamp conversion as above: `headerPosition` is epoch milliseconds, so the
+    // comparisons below need milliseconds, not the raw nanosecond value.
+    const messageTime =
+      toDate((messages[i] as LocalMessage).created_at)?.getTime() ?? null;
 
-    const nextMessageTime = isDate((messages[i + 1] as LocalMessage).created_at)
-      ? (messages[i + 1] as LocalMessage).created_at.getTime()
-      : null;
+    const nextMessageTime =
+      toDate((messages[i + 1] as LocalMessage)?.created_at)?.getTime() ?? null;
 
     // header position is smaller than message time so comes after;
     if (messageTime && messageTime < headerPosition) {
@@ -284,11 +304,12 @@ export const getGroupStyles = (
     message.user?.id !== previousMessage.user?.id ||
     (message.reaction_groups && isNonEmptyRecord(message.reaction_groups)) ||
     isMessageEdited(previousMessage) ||
+    // `maxTimeBetweenGroupedMessages` is milliseconds while `created_at` is nanoseconds, so both
+    // sides have to be brought to ms — `new Date(<ns>).getTime()` was comparing garbage.
     (maxTimeBetweenGroupedMessages !== undefined &&
       previousMessage.created_at &&
       message.created_at &&
-      new Date(message.created_at).getTime() -
-        new Date(previousMessage.created_at).getTime() >
+      (toMs(message.created_at) ?? 0) - (toMs(previousMessage.created_at) ?? 0) >
         maxTimeBetweenGroupedMessages);
 
   const isBottomMessage =
@@ -304,8 +325,7 @@ export const getGroupStyles = (
     (maxTimeBetweenGroupedMessages !== undefined &&
       nextMessage.created_at &&
       message.created_at &&
-      new Date(nextMessage.created_at).getTime() -
-        new Date(message.created_at).getTime() >
+      (toMs(nextMessage.created_at) ?? 0) - (toMs(message.created_at) ?? 0) >
         maxTimeBetweenGroupedMessages);
 
   if (!isTopMessage && !isBottomMessage) {
@@ -342,7 +362,10 @@ export function isDateSeparatorMessage(
     message !== null &&
     typeof message === 'object' &&
     (message as DateSeparatorMessage).customType === CUSTOM_MESSAGE_TYPE.date &&
-    isDate((message as DateSeparatorMessage).date)
+    // `date` is the wire timestamp the separator was built from. It used to be a `Date`, and
+    // leaving an `isDate` check here made this guard answer `false` for every separator — which
+    // silently disables the "no two separators in a row" rule and `isLocalMessage`.
+    typeof (message as DateSeparatorMessage).date === 'number'
   );
 }
 
@@ -378,8 +401,10 @@ export const getIsFirstUnreadMessage = ({
   // the separator should not be rendered.
   if (!unreadCount) return false;
 
-  const createdAtTimestamp = message.created_at && new Date(message.created_at).getTime();
-  const lastReadTimestamp = lastReadAt?.getTime();
+  // Both are wire timestamps (unix nanoseconds): `lastReadAt` is `number | null` on
+  // `UnreadSnapshotState`, so `.getTime()` throws on it, and `new Date(<ns>)` is out of range.
+  const createdAtTimestamp = toDate(message.created_at)?.getTime();
+  const lastReadTimestamp = toDate(lastReadAt)?.getTime();
 
   const messageIsUnread =
     !!createdAtTimestamp && !!lastReadTimestamp && createdAtTimestamp > lastReadTimestamp;

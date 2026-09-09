@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { Reminder } from 'stream-chat';
 import { act, render, type RenderResult } from '@testing-library/react';
@@ -38,7 +39,7 @@ describe('ReminderNotification', () => {
   it('displays text for reminder deadline if trespassed the refresh boundary', async () => {
     const reminder = new Reminder({
       data: generateReminderResponse({
-        data: { remind_at: new Date(0) },
+        data: { remind_at: ts(0) },
       }),
     });
     const { container } = await renderComponent({ reminder });

@@ -4,6 +4,7 @@ import { useMessagePaginator } from '../../../hooks';
 import { useStateStore } from '../../../store';
 import { useThreadContext } from '../../Threads';
 import type { Channel, ChannelConfig, EventPayload } from 'stream-chat';
+import { nowNs } from 'stream-chat';
 
 const readEventsSelector = ({ readEvents }: ChannelConfig) => ({
   readEventsEnabled: readEvents.enabled,
@@ -53,7 +54,7 @@ export const useMarkRead = ({
     messagePaginator.unreadStateSnapshot.next({
       ...previous,
       firstUnreadMessageId: null,
-      lastReadAt: new Date(),
+      lastReadAt: nowNs(),
       lastReadMessageId:
         loadedItems[loadedItems.length - 1]?.id ?? previous.lastReadMessageId,
       unreadCount: 0,

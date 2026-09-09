@@ -15,6 +15,7 @@ import {
   formatMessage,
   type LocalMessage,
   type MessageResponse,
+  nowNs,
   type ReactionRequest,
   type ReactionResponse,
 } from 'stream-chat';
@@ -43,7 +44,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
       const hasReaction = !!newReactionGroups[reactionType];
 
       if (add) {
-        const timestamp = new Date();
+        const timestamp = nowNs();
         newReactionGroups[reactionType] = hasReaction
           ? {
               ...newReactionGroups[reactionType],

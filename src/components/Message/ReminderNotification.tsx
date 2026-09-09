@@ -3,6 +3,7 @@ import { useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
 import { IconBell, IconBookmark } from '../Icons';
+import { toMs } from '../../utils/timestamps';
 
 export type ReminderNotificationProps = {
   reminder?: Reminder;
@@ -30,17 +31,17 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
 
   const stopRefreshBoundaryMs = reminder?.timer.stopRefreshBoundaryMs;
   const stopRefreshTimeStamp =
-    reminder?.remindAt && stopRefreshBoundaryMs
-      ? reminder.remindAt.getTime() + stopRefreshBoundaryMs
+    reminder?.remindAt != null && stopRefreshBoundaryMs
+      ? (toMs(reminder.remindAt) ?? 0) + stopRefreshBoundaryMs
       : undefined;
 
   const isBehindRefreshBoundary =
     !!stopRefreshTimeStamp && new Date().getTime() > stopRefreshTimeStamp;
 
-  if (timeLeftMs === null || !reminder.remindAt) return null;
+  if (timeLeftMs === null || reminder.remindAt == null) return null;
 
   const nowMs = Date.now();
-  const remindAtMs = reminder.remindAt.getTime();
+  const remindAtMs = toMs(reminder.remindAt) ?? 0;
   const diffMs = remindAtMs - nowMs;
   const diffMinutes = Math.abs(diffMs) / (60 * 1000);
   const useAbsoluteFormat = diffMinutes > THRESHOLD_RELATIVE_MINUTES;
@@ -103,7 +104,7 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
 export const ReminderNotification = ({ reminder }: ReminderNotificationProps) => {
   if (!reminder) return null;
 
-  if (!reminder.remindAt) {
+  if (reminder.remindAt == null) {
     return <SavedForLaterContent />;
   }
 

@@ -1,3 +1,4 @@
+import { ts } from '../../../../mock-builders';
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import type { Channel, StreamChat } from 'stream-chat';
@@ -58,14 +59,14 @@ const render = async ({
 const unreadLastMessageChannelData = () => {
   const user = generateUser();
   const messages = [
-    generateMessage({ created_at: new Date(1) }),
-    generateMessage({ created_at: new Date(2) }),
+    generateMessage({ created_at: ts(1) }),
+    generateMessage({ created_at: ts(2) }),
   ];
   return {
     messages,
     read: [
       {
-        last_read: new Date(1).toISOString(),
+        last_read: ts(1),
         last_read_message_id: messages[0].id,
         unread_messages: 1,
         user,
@@ -77,15 +78,15 @@ const unreadLastMessageChannelData = () => {
 const readLastMessageChannelData = () => {
   const user = generateUser();
   const messages = [
-    generateMessage({ created_at: new Date(1) }),
-    generateMessage({ created_at: new Date(2) }),
+    generateMessage({ created_at: ts(1) }),
+    generateMessage({ created_at: ts(2) }),
   ];
   return {
     channel: { config: { read_events: true } },
     messages,
     read: [
       {
-        last_read: new Date(2).toISOString(),
+        last_read: ts(2),
         last_read_message_id: messages[1].id,
         unread_messages: 0,
         user,

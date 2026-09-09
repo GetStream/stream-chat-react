@@ -1,3 +1,4 @@
+import { nowNs } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import type { LocalMessage, StreamChat } from 'stream-chat';
@@ -19,7 +20,7 @@ const client = fromPartial<StreamChat>({ userID: 'me' });
 const baseData = {
   client,
   displayTitle: 'General',
-  latestReply: fromPartial<LocalMessage>({ created_at: new Date() }),
+  latestReply: fromPartial<LocalMessage>({ created_at: nowNs() }),
   parentMessagePreview: 'hello world',
   replyCount: 3,
   t,

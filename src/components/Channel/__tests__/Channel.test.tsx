@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
@@ -13,7 +14,7 @@ import type {
   StreamResponse,
   UserResponse,
 } from 'stream-chat';
-import { localMessageToNewMessagePayload } from 'stream-chat';
+import { localMessageToNewMessagePayload, nowNs } from 'stream-chat';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 
@@ -168,7 +169,7 @@ describe('Channel', () => {
       Array.from({ length: 25 }, (_, i) =>
         generateMessage({
           cid: `${channelType}:${channelId}`,
-          created_at: new Date((i + 1) * 1000000),
+          created_at: ts((i + 1) * 1000000),
           user,
         }),
       );
@@ -881,7 +882,7 @@ describe('Channel', () => {
             user: {
               ...user,
               ...updatedAttribute,
-              updated_at: new Date().toISOString(),
+              updated_at: nowNs(),
             },
           },
           chatClient,
@@ -925,7 +926,7 @@ describe('Channel', () => {
                 messages: [generateMessage()],
                 read: [
                   {
-                    last_read: new Date().toISOString(),
+                    last_read: nowNs(),
                     last_read_message_id: 'last_read_message_id-1',
                     unread_messages,
                     user,
@@ -936,7 +937,7 @@ describe('Channel', () => {
                 messages: [generateMessage()],
                 read: [
                   {
-                    last_read: new Date().toISOString(),
+                    last_read: nowNs(),
                     last_read_message_id: 'last_read_message_id-2',
                     unread_messages,
                     user,

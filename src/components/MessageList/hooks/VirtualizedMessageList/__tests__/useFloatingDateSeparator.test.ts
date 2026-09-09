@@ -1,3 +1,4 @@
+import { ts } from '../../../../../mock-builders';
 import { act, renderHook } from '@testing-library/react';
 
 import { useFloatingDateSeparator } from '../useFloatingDateSeparator';
@@ -7,7 +8,9 @@ import { CUSTOM_MESSAGE_TYPE } from '../../../../../constants/messageTypes';
 const makeDateSeparator = (date: Date): RenderedMessage =>
   ({
     customType: CUSTOM_MESSAGE_TYPE.date,
-    date,
+    // The separator carries the wire timestamp (unix nanoseconds); the helper still takes a `Date`
+    // so the cases below stay readable.
+    date: ts(date),
     id: `date-${date.toISOString()}`,
     type: 'date',
     unread: false,
@@ -15,7 +18,7 @@ const makeDateSeparator = (date: Date): RenderedMessage =>
 
 const makeMessage = (id: string, createdAt: Date): RenderedMessage =>
   ({
-    created_at: createdAt,
+    created_at: ts(createdAt),
     id,
     type: 'regular',
     user: { id: 'user' },
@@ -61,7 +64,7 @@ describe('useFloatingDateSeparator', () => {
     });
 
     expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan1);
+    expect(result.current.floatingDate).toEqual(ts(jan1));
   });
 
   it('shows floating with correct date when first visible is a message', () => {
@@ -77,7 +80,7 @@ describe('useFloatingDateSeparator', () => {
     });
 
     expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan1);
+    expect(result.current.floatingDate).toEqual(ts(jan1));
   });
 
   it('keeps top group date when a later date separator is also visible', () => {
@@ -97,6 +100,6 @@ describe('useFloatingDateSeparator', () => {
     });
 
     expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan1);
+    expect(result.current.floatingDate).toEqual(ts(jan1));
   });
 });

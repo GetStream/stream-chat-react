@@ -1,10 +1,11 @@
+import { nowNs } from 'stream-chat';
 import type { ReactionResponse } from 'stream-chat';
 import { generateUser } from './user';
 
 export const generateReaction = (options: Partial<ReactionResponse> = {}) => {
   const user = options.user || generateUser();
   return {
-    created_at: new Date(),
+    created_at: nowNs(),
     type: 'love',
     user,
     user_id: user.id,

@@ -1,3 +1,4 @@
+import { nowNs } from 'stream-chat';
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -262,7 +263,7 @@ describe('<MessageActions />', () => {
 
     it('should not show Delete when the message is already deleted', async () => {
       const message = generateMessage({
-        deleted_at: new Date().toISOString(),
+        deleted_at: nowNs(),
         user: alice,
       });
       await renderMessageActions({
@@ -724,7 +725,7 @@ describe('<MessageActions />', () => {
     const lastReceivedId = message.id;
     const read = [
       {
-        last_read: new Date().toISOString(),
+        last_read: nowNs(),
         last_read_message_id: message.id,
         unread_messages: 0,
         user: me,

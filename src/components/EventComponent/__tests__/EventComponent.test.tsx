@@ -1,3 +1,5 @@
+import { ts } from '../../../mock-builders';
+import { type Event } from 'stream-chat';
 import React from 'react';
 
 import { act, cleanup, render, type RenderResult, screen } from '@testing-library/react';
@@ -16,7 +18,7 @@ describe('EventComponent', () => {
   afterEach(cleanup);
 
   const message = fromPartial<LocalMessage>({
-    created_at: new Date('2020-03-13T10:18:38.148025Z'),
+    created_at: ts('2020-03-13T10:18:38.148025Z'),
     type: 'system',
   });
 
@@ -107,7 +109,7 @@ describe('EventComponent', () => {
   describe('Channel events', () => {
     it('should render null for member add event (channel events no longer rendered)', () => {
       const msg = fromPartial<LocalMessage>({
-        created_at: '2020-01-13T18:18:38.148025Z',
+        created_at: ts('2020-01-13T18:18:38.148025Z'),
         event: {
           type: 'member.added',
           user: { id: 'user_id', image: 'image_url', username: 'username' },
@@ -120,8 +122,12 @@ describe('EventComponent', () => {
     });
 
     it('should render null for member remove event (channel events no longer rendered)', () => {
-      const msg = fromPartial<LocalMessage>({
-        created_at: '2020-01-13T18:18:38.148025Z',
+      const msg = fromPartial<
+        LocalMessage & {
+          event?: Event;
+        }
+      >({
+        created_at: ts('2020-01-13T18:18:38.148025Z'),
         event: {
           type: 'member.removed',
           user: { id: 'user_id', image: 'image_url', username: 'username' },

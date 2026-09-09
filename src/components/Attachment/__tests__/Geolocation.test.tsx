@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { act, render, type RenderResult, screen } from '@testing-library/react';
 import { Channel } from '../../Channel';
@@ -166,7 +167,7 @@ describe.each([
     });
     it("own user's stopped live location", async () => {
       const location = generateLiveLocationResponse({
-        end_at: '1980-01-01T00:00:00.000Z',
+        end_at: ts('1980-01-01T00:00:00.000Z'),
         user_id: ownUser.id,
       });
       await renderComponent({
@@ -192,7 +193,7 @@ describe.each([
     });
     it("other user's stopped live location", async () => {
       const location = generateLiveLocationResponse({
-        end_at: '1980-01-01T00:00:00.000Z',
+        end_at: ts('1980-01-01T00:00:00.000Z'),
         user_id: otherUser.id,
       });
       await renderComponent({

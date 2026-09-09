@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
@@ -240,7 +241,7 @@ describe('GalleryUI', () => {
     it('should render sender metadata in the header from the current item', () => {
       const items = [
         makeImageItem({
-          createdAt: new Date('2025-01-01T12:34:56.000Z'),
+          createdAt: ts('2025-01-01T12:34:56.000Z'),
           title: 'beach.png',
           user: { id: CURRENT_USER_ID, name: 'Me' },
         }),
@@ -258,7 +259,7 @@ describe('GalleryUI', () => {
     it("should render another user's name in the header", () => {
       const items = [
         makeImageItem({
-          createdAt: new Date('2025-01-01T12:34:56.000Z'),
+          createdAt: ts('2025-01-01T12:34:56.000Z'),
           title: 'beach.png',
           user: { id: 'jenny', name: 'Jenny' },
         }),

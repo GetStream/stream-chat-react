@@ -1,3 +1,5 @@
+import { nowNs } from 'stream-chat';
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import {
   act,
@@ -226,7 +228,7 @@ describe('<MessageSimple />', () => {
   it('should not render anything if message is of custom type message.date', async () => {
     const message = generateAliceMessage({
       customType: 'message.date',
-      date: new Date(),
+      date: nowNs(),
     });
     const { container } = await renderMessageSimple({ message });
     expect(container.querySelector('.str-chat__message')).not.toBeInTheDocument();
@@ -234,7 +236,7 @@ describe('<MessageSimple />', () => {
 
   it('should render deleted message with default MessageDelete component when message was deleted', async () => {
     const deletedMessage = generateAliceMessage({
-      deleted_at: new Date('2019-12-17T03:24:00').toISOString(),
+      deleted_at: ts('2019-12-17T03:24:00'),
     });
     const { container, getByTestId } = await renderMessageSimple({
       message: deletedMessage,
@@ -270,7 +272,7 @@ describe('<MessageSimple />', () => {
 
   it('should render deleted message with custom component when message was deleted and a custom delete message component was passed', async () => {
     const deletedMessage = generateAliceMessage({
-      deleted_at: new Date('2019-12-25T03:24:00').toISOString(),
+      deleted_at: ts('2019-12-25T03:24:00'),
     });
     const CustomMessageDeletedComponent = () => (
       <p data-testid='custom-message-deleted'>Gone!</p>
@@ -834,7 +836,7 @@ describe('<MessageSimple />', () => {
   it("should display message's timestamp", async () => {
     const messageDate = new Date('2019-12-12T03:33:00');
     const message = generateAliceMessage({
-      created_at: messageDate,
+      created_at: ts(messageDate),
     });
     const { container } = await renderMessageSimple({ message });
     const timeEl = container.querySelector('time.str-chat__message-metadata__timestamp');
@@ -1018,7 +1020,7 @@ describe('<MessageSimple />', () => {
 
   describe('edited label', () => {
     const editedMessageOptions = {
-      message_text_updated_at: '2024-03-05T09:56:22.487729Z',
+      message_text_updated_at: ts('2024-03-05T09:56:22.487729Z'),
     };
 
     it('should render error badge for bounced messages', async () => {

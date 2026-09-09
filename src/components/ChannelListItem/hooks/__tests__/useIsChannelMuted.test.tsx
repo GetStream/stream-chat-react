@@ -1,3 +1,4 @@
+import { ts } from '../../../../mock-builders';
 import React from 'react';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -99,7 +100,10 @@ describe('useIsChannelMuted', () => {
           me: {
             ...client.user,
             channel_mutes: [
-              { channel: { cid: channel.cid }, created_at: '2020-05-26T07:11:57.968Z' },
+              {
+                channel: { cid: channel.cid },
+                created_at: ts('2020-05-26T07:11:57.968Z'),
+              },
             ],
           },
           type: 'notification.channel_mutes_updated',

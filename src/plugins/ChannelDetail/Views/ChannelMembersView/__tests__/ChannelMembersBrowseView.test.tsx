@@ -1,3 +1,4 @@
+import { ts } from '../../../../../mock-builders';
 import { fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
@@ -95,15 +96,15 @@ vi.mock('../../../../../components/Dialog', () => ({
 
 const members: ChannelMemberResponse[] = [
   {
-    created_at: '2026-01-01T00:00:00.000000000Z',
-    updated_at: '2026-01-01T00:00:00.000000000Z',
+    created_at: ts('2026-01-01T00:00:00.000000000Z'),
+    updated_at: ts('2026-01-01T00:00:00.000000000Z'),
     user: { id: 'user-1', name: 'Alice' },
     user_id: 'user-1',
   },
   {
     channel_role: 'admin',
-    created_at: '2026-01-01T00:00:00.000000000Z',
-    updated_at: '2026-01-01T00:00:00.000000000Z',
+    created_at: ts('2026-01-01T00:00:00.000000000Z'),
+    updated_at: ts('2026-01-01T00:00:00.000000000Z'),
     user: { id: 'user-2', name: 'Bob' },
     user_id: 'user-2',
   },

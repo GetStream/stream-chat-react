@@ -1,3 +1,4 @@
+import { ts } from '../../../../mock-builders';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
@@ -83,10 +84,10 @@ describe('useMentionsHandler custom hooks', () => {
       {
         mentioned_groups: [
           fromPartial({
-            created_at: '2026-05-28T00:00:00.000Z',
+            created_at: ts('2026-05-28T00:00:00.000Z'),
             id: 'backend-team',
             name: 'Backend Team',
-            updated_at: '2026-05-28T00:00:00.000Z',
+            updated_at: ts('2026-05-28T00:00:00.000Z'),
           }),
         ],
       },

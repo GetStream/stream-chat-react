@@ -7,8 +7,8 @@ import type { BaseImageProps } from '../BaseImage';
 import type { Dimensions } from '../../types/types';
 
 export type GalleryItem = Omit<BaseImageProps, 'src'> & {
-  /** When the media was shared; drives the gallery header timestamp. */
-  createdAt?: string | Date;
+  /** When the media was shared; drives the gallery header timestamp. Wire timestamp (unix nanoseconds), as every server-sent date field carries. */
+  createdAt?: number;
   dimensions?: Dimensions;
   imageUrl?: string;
   /** User who shared the media; drives the gallery header title. */

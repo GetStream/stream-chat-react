@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import throttle from 'lodash.throttle';
 
 import type { RenderedMessage } from '../../utils';
+import { dateToNs } from 'stream-chat';
 
 const DATE_SEPARATOR_SELECTOR =
   '.str-chat__date-separator:not(.str-chat__date-separator--floating)';
@@ -14,7 +15,7 @@ export type UseFloatingDateSeparatorMessageListParams = {
 };
 
 export type UseFloatingDateSeparatorMessageListResult = {
-  floatingDate: Date | null;
+  floatingDate: number | null;
   showFloatingDate: boolean;
 };
 
@@ -27,7 +28,7 @@ export const useFloatingDateSeparatorMessageList = ({
   listElement,
   processedMessages,
 }: UseFloatingDateSeparatorMessageListParams): UseFloatingDateSeparatorMessageListResult => {
-  const [state, setState] = useState<{ date: Date | null; visible: boolean }>({
+  const [state, setState] = useState<{ date: number | null; visible: boolean }>({
     date: null,
     visible: false,
   });
@@ -45,7 +46,7 @@ export const useFloatingDateSeparatorMessageList = ({
     }
 
     const containerRect = listElement.getBoundingClientRect();
-    let bestDate: Date | null = null;
+    let bestDate: number | null = null;
     let bestTop = -Infinity;
 
     for (const el of separators) {
@@ -57,8 +58,10 @@ export const useFloatingDateSeparatorMessageList = ({
 
       if (isAtOrAboveTopBoundary && rect.top > bestTop) {
         bestTop = rect.top;
+        // `data-date` is the ISO string `DateSeparator` renders, so this is a genuine string
+        // boundary rather than a missed conversion — back to a wire timestamp for the consumer.
         const d = new Date(dataDate);
-        if (!isNaN(d.getTime())) bestDate = d;
+        if (!isNaN(d.getTime())) bestDate = dateToNs(d);
       }
     }
 

@@ -5,15 +5,11 @@ import { type GalleryItem } from './GalleryContext';
 import { Button } from '../Button';
 import { IconArrowDownCircle, IconXmark } from '../Icons';
 import { ModalContext, useChatContext, useTranslationContext } from '../../context';
-import { getDateString, isDate } from '../../i18n/utils';
+import { getDateString } from '../../i18n/utils';
+import { toIsoString } from '../../utils/timestamps';
 
 type GalleryHeaderProps = {
   currentItem: GalleryItem;
-};
-
-const normalizeTimestamp = (timestamp: GalleryItem['createdAt']) => {
-  if (!timestamp) return undefined;
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
 };
 
 /**
@@ -22,23 +18,21 @@ const normalizeTimestamp = (timestamp: GalleryItem['createdAt']) => {
  */
 const GalleryTimestamp = ({ createdAt }: Pick<GalleryItem, 'createdAt'>) => {
   const { t, tDateTimeParser } = useTranslationContext();
-  const normalizedTimestamp = normalizeTimestamp(createdAt);
-
   const when = useMemo(
     () =>
       getDateString({
-        messageCreatedAt: normalizedTimestamp,
+        messageCreatedAt: createdAt,
         t,
         tDateTimeParser,
         timestampTranslationKey: 'timestamp.GalleryTimestamp',
       }),
-    [normalizedTimestamp, t, tDateTimeParser],
+    [createdAt, t, tDateTimeParser],
   );
 
   if (!when) return null;
 
   return (
-    <time className='str-chat__gallery__timestamp' dateTime={normalizedTimestamp}>
+    <time className='str-chat__gallery__timestamp' dateTime={toIsoString(createdAt)}>
       {when}
     </time>
   );

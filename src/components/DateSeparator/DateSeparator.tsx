@@ -4,13 +4,16 @@ import React from 'react';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { getDateString } from '../../i18n/utils';
 
+import { toIsoString } from '../../utils/timestamps';
+
 import type { TimestampFormatterOptions } from '../../i18n/types';
 
 export type DateSeparatorProps = TimestampFormatterOptions & {
   /** Optional className for the root element */
   className?: string;
-  /** The date to format */
-  date: Date;
+  /** The date to format, as a wire timestamp (unix nanoseconds) — the shape every server-sent
+   * date field carries. */
+  date: number;
   /** When true, applies floating positioning (fixed at top when scrolling) */
   floating?: boolean;
   /** Override the default formatting of the date. This is a function that has access to the original date object. */
@@ -51,7 +54,7 @@ const UnMemoizedDateSeparator = (props: DateSeparatorProps) => {
         { 'str-chat__date-separator--floating': floating },
         className,
       )}
-      data-date={messageCreatedAt.toISOString()}
+      data-date={toIsoString(messageCreatedAt)}
       data-testid={floating ? 'floating-date-separator' : 'date-separator'}
     >
       <div className='str-chat__date-separator-date'>{formattedDate}</div>

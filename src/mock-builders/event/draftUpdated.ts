@@ -1,3 +1,4 @@
+import { nowNs } from 'stream-chat';
 import type { DraftResponse, StreamChat } from 'stream-chat';
 
 export const dispatchDraftUpdated = ({
@@ -9,7 +10,8 @@ export const dispatchDraftUpdated = ({
 }) => {
   client.dispatchEvent({
     cid: draft.channel_cid,
-    created_at: new Date().toISOString(),
+    created_at: nowNs(),
+    custom: {},
     draft,
     type: 'draft.updated',
   });

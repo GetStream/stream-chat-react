@@ -1,3 +1,4 @@
+import { ts } from '../../../../../mock-builders';
 import { renderHook } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -84,7 +85,7 @@ describe('useFloatingDateSeparatorMessageList', () => {
     );
 
     expect(result.current.showFloatingDate).toBe(true);
-    expect(result.current.floatingDate).toEqual(jan2);
+    expect(result.current.floatingDate).toEqual(ts(jan2));
   });
 
   it('stays hidden before the first inline separator reaches the top', () => {

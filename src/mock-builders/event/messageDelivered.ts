@@ -1,3 +1,5 @@
+import { nowNs } from 'stream-chat';
+import { ts } from '../timestamps';
 import type {
   Channel,
   CustomChannelData,
@@ -12,7 +14,13 @@ type MessageDeliveredEvent = {
   channel_member_count: number;
   channel_type: string;
   cid: string;
-  created_at: string;
+  /** Wire timestamp (unix nanoseconds), as `MessageDeliveredEvent.created_at` declares. */
+  created_at: number;
+  /**
+   * RFC3339 string, NOT a wire timestamp. The spec declares this one field as a bare `string` with
+   * no `date-time` format while `created_at` on the same event is nanoseconds, and the LLC parses
+   * it accordingly (see the note in `Channel`'s `message.delivered` handler).
+   */
   last_delivered_at: string;
   last_delivered_message_id: string;
   user: UserResponse;
@@ -27,20 +35,20 @@ export const makeMessageDeliveredEvent = (
   channel_member_count: 2,
   channel_type: 'messaging',
   cid: 'messaging:test',
-  created_at: '2025-09-16T13:25:57.996011272Z',
+  created_at: ts('2025-09-16T13:25:57.996011272Z'),
   last_delivered_at: '2025-09-16T13:25:57Z',
   last_delivered_message_id: 'aefbf38a-0e02-4ba6-a480-e595c37ec78a',
   type: 'message.delivered',
   user: {
     banned: false,
     blocked_user_ids: [],
-    created_at: '2025-09-16T09:01:40.650479Z',
+    created_at: ts('2025-09-16T09:01:40.650479Z'),
     id: 'test1',
-    last_active: '2025-09-16T13:22:52.69594176Z',
+    last_active: ts('2025-09-16T13:22:52.69594176Z'),
     online: true,
     role: 'user',
     teams: [],
-    updated_at: '2025-09-16T12:40:29.86597Z',
+    updated_at: ts('2025-09-16T12:40:29.86597Z'),
   },
   ...event,
 });
@@ -64,7 +72,7 @@ export const dispatchMessageDeliveredEvent = ({
       channel_member_count: channel.data?.member_count || 0,
       channel_type: channel.type,
       cid: channel.cid,
-      created_at: new Date().toISOString(),
+      created_at: nowNs(),
       last_delivered_at: deliveredAt,
       last_delivered_message_id: lastDeliveredMessageId,
       user,

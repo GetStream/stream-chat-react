@@ -1,3 +1,5 @@
+import { nowNs } from 'stream-chat';
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -398,7 +400,7 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages: [
             fromPartial<RenderedMessage>({
               customType: 'message.date',
-              date: new Date(),
+              date: nowNs(),
             }),
           ],
         };
@@ -421,7 +423,7 @@ describe('VirtualizedMessageComponents', () => {
           processedMessages: [
             fromPartial<RenderedMessage>({
               customType: 'message.date',
-              date: new Date(),
+              date: nowNs(),
             }),
           ],
         };
@@ -461,7 +463,7 @@ describe('VirtualizedMessageComponents', () => {
       describe('UnreadMessagesSeparator', () => {
         const messages = Array.from({ length: 2 }, (_, i) =>
           generateMessage({
-            created_at: new Date(i + 2).toISOString(),
+            created_at: ts(i + 2),
             id: String(i + 1),
           }),
         );
@@ -504,7 +506,9 @@ describe('VirtualizedMessageComponents', () => {
         it('should be rendered above the first unread message if unread count is non-zero', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {
-              lastReadDate: new Date(messages[0].created_at),
+              // A wire timestamp, as the paginator's unread snapshot provides it — wrapping it
+              // in `new Date(...)` builds an out-of-range date, which is what this fixture did.
+              lastReadDate: messages[0].created_at,
               lastReadMessageId: messages[0].id,
               lastReceivedMessageId: messages[1].id,
               messageGroupStyles: {},

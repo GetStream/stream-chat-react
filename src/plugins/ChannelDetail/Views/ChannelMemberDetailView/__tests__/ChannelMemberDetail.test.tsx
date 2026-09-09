@@ -1,3 +1,4 @@
+import { ts } from '../../../../../mock-builders';
 import { render, screen } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import React from 'react';
@@ -42,7 +43,7 @@ const createChannel = ({
         'user-2': {
           user: {
             id: 'user-2',
-            last_active: '2026-01-01T00:00:00.000000000Z',
+            last_active: ts('2026-01-01T00:00:00.000000000Z'),
             name: 'Bob',
           },
           user_id: 'user-2',
@@ -62,7 +63,7 @@ const createAction = (type: string, label: string) => ({
 const otherMember = fromPartial<ChannelMemberResponse>({
   user: {
     id: 'user-2',
-    last_active: '2026-01-01T00:00:00.000000000Z',
+    last_active: ts('2026-01-01T00:00:00.000000000Z'),
     name: 'Bob',
   },
   user_id: 'user-2',

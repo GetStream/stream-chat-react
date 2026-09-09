@@ -2,7 +2,8 @@ import React, { useMemo } from 'react';
 import type { LocalMessage } from 'stream-chat';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { getDateString, isDate } from '../../i18n/utils';
+import { getDateString } from '../../i18n/utils';
+import { toIsoString } from '../../utils/timestamps';
 
 export type ChannelListItemTimestampProps = {
   /** The message previewed by the item, used to extract the timestamp */
@@ -15,18 +16,16 @@ export function ChannelListItemTimestamp({
   const { t, tDateTimeParser } = useTranslationContext();
 
   const timestamp = previewedMessage?.created_at;
-  const normalizedTimestamp =
-    timestamp && isDate(timestamp) ? timestamp.toISOString() : undefined;
 
   const when = useMemo(
     () =>
       getDateString({
-        messageCreatedAt: normalizedTimestamp,
+        messageCreatedAt: timestamp,
         t,
         tDateTimeParser,
         timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
       }),
-    [normalizedTimestamp, t, tDateTimeParser],
+    [timestamp, t, tDateTimeParser],
   );
 
   if (!when) return null;
@@ -34,7 +33,7 @@ export function ChannelListItemTimestamp({
   return (
     <time
       className='str-chat__channel-list-item-timestamp'
-      dateTime={normalizedTimestamp}
+      dateTime={toIsoString(timestamp)}
     >
       {when}
     </time>

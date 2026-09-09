@@ -1,3 +1,4 @@
+import { ts } from '../../../../mock-builders';
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
@@ -48,7 +49,7 @@ const createMessage = ({
   userName?: string;
 }) =>
   fromPartial<LocalMessage>({
-    created_at: new Date('2026-04-22T10:00:00.000Z'),
+    created_at: ts('2026-04-22T10:00:00.000Z'),
     id,
     parent_id: parentId,
     status: 'received',

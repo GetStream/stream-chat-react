@@ -14,6 +14,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { ComponentContextValue, CustomClasses } from '../../context';
+import { toIsoString } from '../../utils/timestamps';
 // import type { ChannelUnreadUiState } from '../../types';
 
 export interface RenderMessagesOptions {
@@ -86,7 +87,7 @@ export function defaultRenderMessages({
     const message = messages[index];
     if (isDateSeparatorMessage(message)) {
       renderedMessages.push(
-        <MessageListItem data-index={index} key={`${message.date.toISOString()}-i`}>
+        <MessageListItem data-index={index} key={`${message.date}-i`}>
           <DateSeparator
             date={message.date}
             formatDate={messageProps.formatDate}
@@ -107,7 +108,7 @@ export function defaultRenderMessages({
         <MessageListItem
           data-index={index}
           data-message-id={message.id}
-          key={message.id || message.created_at.toISOString()}
+          key={message.id || toIsoString(message.created_at)}
         >
           <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
         </MessageListItem>,
@@ -130,7 +131,7 @@ export function defaultRenderMessages({
       });
 
       renderedMessages.push(
-        <Fragment key={message.id || message.created_at.toISOString()}>
+        <Fragment key={message.id || toIsoString(message.created_at)}>
           {isFirstUnreadMessage && UnreadMessagesSeparator && (
             <MessageListItem className='str-chat__li str-chat__unread-messages-separator-wrapper'>
               <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unreadCount} />

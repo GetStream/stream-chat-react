@@ -1,3 +1,4 @@
+import { ts } from '../../../../../mock-builders';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { StateStore } from 'stream-chat';
@@ -131,22 +132,22 @@ vi.mock('../../../../../components/Dialog', () => ({
 const pinnedMessages: LocalMessage[] = [
   fromPartial<LocalMessage>({
     cid: 'messaging:test-channel',
-    created_at: new Date('2026-01-01T15:53:00.000Z'),
+    created_at: ts('2026-01-01T15:53:00.000Z'),
     id: 'message-1',
     pinned: true,
     text: 'Release timeline: Code freeze March 18',
     type: 'regular',
-    updated_at: new Date('2026-01-01T15:53:00.000Z'),
+    updated_at: ts('2026-01-01T15:53:00.000Z'),
     user: { id: 'user-1', name: 'Alice' },
   }),
   fromPartial<LocalMessage>({
     attachments: [{ title: 'Roadmap.pdf', type: 'file' }],
     cid: 'messaging:test-channel',
-    created_at: new Date('2026-01-02T15:53:00.000Z'),
+    created_at: ts('2026-01-02T15:53:00.000Z'),
     id: 'message-2',
     pinned: true,
     type: 'regular',
-    updated_at: new Date('2026-01-02T15:53:00.000Z'),
+    updated_at: ts('2026-01-02T15:53:00.000Z'),
     user: { id: 'user-2', name: 'Bob' },
   }),
 ];

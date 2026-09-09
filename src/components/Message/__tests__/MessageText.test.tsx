@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -266,10 +267,10 @@ describe('<MessageText />', () => {
       {
         mentioned_groups: [
           fromPartial({
-            created_at: '2026-05-28T00:00:00.000Z',
+            created_at: ts('2026-05-28T00:00:00.000Z'),
             id: 'backend-team',
             name: 'Backend Team',
-            updated_at: '2026-05-28T00:00:00.000Z',
+            updated_at: ts('2026-05-28T00:00:00.000Z'),
           }),
         ],
         text: 'Hello @Backend Team',
@@ -389,10 +390,10 @@ describe('<MessageText />', () => {
       mentioned_channel: true,
       mentioned_groups: [
         fromPartial({
-          created_at: '2026-05-28T00:00:00.000Z',
+          created_at: ts('2026-05-28T00:00:00.000Z'),
           id: 'backend-team',
           name: 'Backend Team',
-          updated_at: '2026-05-28T00:00:00.000Z',
+          updated_at: ts('2026-05-28T00:00:00.000Z'),
         }),
       ],
       mentioned_here: true,

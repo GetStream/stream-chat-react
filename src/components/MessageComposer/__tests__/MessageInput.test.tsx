@@ -20,7 +20,7 @@ import type {
   UploadChannelResponse,
   UserResponse,
 } from 'stream-chat';
-import { LinkPreviewStatus, SearchController } from 'stream-chat';
+import { LinkPreviewStatus, nowNs, SearchController } from 'stream-chat';
 import {
   act,
   cleanup,
@@ -1115,8 +1115,8 @@ describe(`MessageInputFlat`, () => {
         messageContextOverrides: {
           message: fromPartial<LocalMessage>({
             cid: customChannel.cid,
-            created_at: new Date(),
-            updated_at: new Date(),
+            created_at: nowNs(),
+            updated_at: nowNs(),
           }),
         },
       });

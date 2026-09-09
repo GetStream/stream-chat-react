@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { act, cleanup, render, type RenderResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -32,9 +33,12 @@ const dateMock = 'the date';
 const formatDate = () => dateMock;
 
 const createdAt = new Date('2019-04-03T14:42:47.087869Z');
+// The message carries the wire timestamp; `createdAt` stays around so assertions can read
+// calendar parts off a `Date`.
+const createdAtNs = ts(createdAt);
 
 const messageMock = generateMessage({
-  created_at: createdAt,
+  created_at: createdAtNs,
 });
 
 const renderComponent = async ({
@@ -77,17 +81,22 @@ describe('<MessageTimestamp />', () => {
     `);
   });
 
-  it('should render non-Date timestamp value in datetime attribute without processing', async () => {
+  // Was 'should render non-Date timestamp value ... without processing', asserting that a numeric
+  // timestamp was echoed into the attribute verbatim. Since the LLC stopped transforming response
+  // dates, a number IS the wire timestamp (unix nanoseconds) every message carries, so passing it
+  // through unconverted is what produced `toISOString is not a function` downstream.
+  it('should render a numeric wire timestamp as an ISO datetime attribute', async () => {
     const { container } = await renderComponent({
-      messageCtx: { message: { ...messageMock, created_at: 28 } },
+      // 2019-04-03T14:42:47.087Z in unix nanoseconds — the same instant as the test above.
+      messageCtx: { message: { ...messageMock, created_at: createdAtNs } },
     });
     expect(container).toMatchInlineSnapshot(`
       <div>
         <time
-          datetime="28"
-          title="28"
+          datetime="2019-04-03T14:42:47.087Z"
+          title="2019-04-03T14:42:47.087Z"
         >
-          00:00
+          14:42
         </time>
       </div>
     `);
@@ -99,9 +108,7 @@ describe('<MessageTimestamp />', () => {
       props: {
         message: {
           ...messageMock,
-          created_at: new Date(
-            (messageMock.created_at as unknown as Date).getTime() + oneYearMs,
-          ),
+          created_at: ts(createdAt.getTime() + oneYearMs),
         },
       },
     });
@@ -165,9 +172,7 @@ describe('<MessageTimestamp />', () => {
     const { container } = await renderComponent({
       props: { format: 'YYYY' },
     });
-    expect(container).toHaveTextContent(
-      (messageMock.created_at as unknown as Date).getFullYear().toString(),
-    );
+    expect(container).toHaveTextContent(createdAt.getFullYear().toString());
   });
 
   it('should override the custom format provided via i18n service with component props', async () => {
@@ -182,9 +187,7 @@ describe('<MessageTimestamp />', () => {
       },
       props: { format: 'YYYY' },
     });
-    expect(container).toHaveTextContent(
-      (messageMock.created_at as unknown as Date).getFullYear().toString(),
-    );
+    expect(container).toHaveTextContent(createdAt.getFullYear().toString());
   });
 
   it('should ignore the custom calendarFormats if calendar is disabled', async () => {

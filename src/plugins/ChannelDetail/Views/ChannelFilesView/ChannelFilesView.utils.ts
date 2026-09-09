@@ -5,7 +5,7 @@ import {
   type MessageResponse,
 } from 'stream-chat';
 
-import { isDate } from '../../../../i18n/utils';
+import { toIsoString } from '../../../../utils/timestamps';
 
 /** Attachment types listed by the files view (everything that is not an image/video). */
 export const FILE_ATTACHMENT_TYPES = ['file', 'audio'] as const;
@@ -42,11 +42,6 @@ export type ChannelFileSections = {
   sections: ChannelFileSection[];
 };
 
-const normalizeTimestamp = (timestamp?: string | Date) => {
-  if (!timestamp) return undefined;
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
-};
-
 const isChannelFileAttachment = (attachment: Attachment) =>
   !isScrapedContent(attachment) &&
   !!attachment.type &&
@@ -71,7 +66,7 @@ export const toChannelFileSections = (
   const groupIndexByKey = new Map<string, number>();
 
   messages.forEach((message) => {
-    const createdAt = normalizeTimestamp(message.created_at);
+    const createdAt = toIsoString(message.created_at);
     const key = createdAt ? createdAt.slice(0, 7) : 'unknown';
 
     message.attachments?.forEach((attachment, index) => {

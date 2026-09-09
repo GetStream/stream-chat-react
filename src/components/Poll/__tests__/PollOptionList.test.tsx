@@ -1,5 +1,5 @@
 import React from 'react';
-import { Poll } from 'stream-chat';
+import { nowNs, Poll } from 'stream-chat';
 import type { Channel, StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -382,11 +382,11 @@ describe('PollOptionList', () => {
             },
           },
           pollVote: {
-            created_at: new Date(),
+            created_at: nowNs(),
             id: '4c552daf-8f72-409c-a2ee-313b9db9fcd0',
             option_id: pollWithNoVotes.options[0].id,
             poll_id: pollWithNoVotes.id,
-            updated_at: new Date(),
+            updated_at: nowNs(),
             user,
             user_id: user.id,
           },

@@ -1,3 +1,4 @@
+import { ts } from '../../../mock-builders';
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { Channel, MuteChannelResponse, StreamResponse } from 'stream-chat';
@@ -568,7 +569,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       // Simulate archived state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
-        archived_at: '2024-01-01T00:00:00Z',
+        archived_at: ts('2024-01-01T00:00:00Z'),
       });
       vi.spyOn(channel, 'unarchive').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');
@@ -673,7 +674,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       // Simulate pinned state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
-        pinned_at: '2024-01-01T00:00:00Z',
+        pinned_at: ts('2024-01-01T00:00:00Z'),
       });
       vi.spyOn(channel, 'unpin').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');
