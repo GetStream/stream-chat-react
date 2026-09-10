@@ -1,4 +1,4 @@
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import throttle from 'lodash.throttle';
 import type { AudioPlayerPlugin } from './plugins';
 import type { AudioPlayerPool } from './AudioPlayerPool';

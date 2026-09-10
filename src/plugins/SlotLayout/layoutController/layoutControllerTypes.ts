@@ -1,4 +1,4 @@
-import type { StateStore } from 'stream-chat';
+import type { StateStore } from '@stream-io/state-store';
 
 import type { ChatView } from '../ChatView';
 
