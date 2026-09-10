@@ -1,0 +1,52 @@
+.connection-dev-panel {
+  align-items: center;
+  background: var(--str-chat__secondary-surface-color, #f7f7f8);
+  border-bottom: 1px solid var(--str-chat__surface-color, #e3e5e8);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: monospace;
+  font-size: 11px;
+  gap: 10px;
+  padding: 6px 12px;
+
+  &__label {
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  &__toggle {
+    align-items: center;
+    background: #fff;
+    border: 1px solid var(--str-chat__surface-color, #d0d3d8);
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    font-family: inherit;
+    font-size: inherit;
+    gap: 8px;
+    padding: 3px 8px;
+
+    // `false` is the only definite negative. `undefined` means unknown and gets its own colour, so
+    // the state that must not read as offline does not look like it.
+    &[data-state='false'] {
+      background: #ffd7d7;
+    }
+
+    &[data-state='true'] {
+      background: #d7f5dd;
+    }
+
+    &[data-state='undefined'] {
+      background: #ffe9c7;
+    }
+  }
+
+  &__action {
+    opacity: 0.55;
+  }
+
+  &__hint {
+    margin-left: auto;
+    opacity: 0.5;
+  }
+}

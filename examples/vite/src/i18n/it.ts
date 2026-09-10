@@ -248,6 +248,7 @@ export const itTranslations = {
   'channelListItem.video.ariaLabel': 'video',
   'channelListItem.voiceMessage.ariaLabel': 'messaggio vocale',
   'channelListItem.voted.text': '📊 {{votedBy}} ha votato: {{pollOptionText}}',
+  'chat.reportLostConnection.reconnecting.text': 'Riconnessione…',
   'chat.reportLostConnection.waitingNetwork.text': 'In attesa della rete…',
   'command.ban.args': '[@nomeutente] [testo]',
   'command.ban.description': 'Banna un utente',
