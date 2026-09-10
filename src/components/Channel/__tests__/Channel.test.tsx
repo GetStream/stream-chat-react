@@ -406,35 +406,42 @@ describe('Channel', () => {
   });
 
   describe('connection recovery', () => {
-    // The client's reconnect hydration skips re-seeding the message list of an `active` channel
-    // (Channel marks it active while mounted) and delegates that window to `channel.reload()`.
-    // Nothing else calls it, so these pin the SDK component as the thing that does.
-    it('reloads the channel when the connection is recovered', async () => {
+    // `ConnectionRecoveryManager` reloads every active channel and *then* dispatches
+    // `connection.recovered`. `Channel` used to handle that event by reloading again, and since it
+    // marks its channel active while mounted, every open channel was reloaded twice per reconnect —
+    // two full `watch()` requests. `Channel.reload()`'s `_reloading` flag is a re-entrancy guard and
+    // has already reset by the time the event is dispatched, so it did not collapse the pair.
+    it('reloads an open channel exactly once per reconnect', async () => {
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
+      await waitFor(() => expect(channel.active).toBe(true));
 
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
+      chatClient.connectionRecovery.registerSubscriptions();
 
+      // A whole reconnect, driven from the socket coming back rather than by dispatching the
+      // recovery event directly — that is what exercises both would-be reloaders.
       await act(async () => {
-        dispatchConnectionRecoveredEvent(chatClient);
-        await Promise.resolve();
+        dispatchConnectionChangedEvent(chatClient, true, 'ws');
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('does not reload the channel on a recovery reported for the network', async () => {
-      // Nothing dispatches a `'network'` recovery today. The guard is what makes requerying every
-      // open channel off a network edge a deliberate decision if something ever does, rather than a
-      // silent behaviour change — and the compiler cannot catch its absence, because both variants
-      // of the event have the same shape.
+    it('leaves the reload to the client, so it happens even without this component', async () => {
+      // The reconciliation React's own reload existed for — a hard delete that happened offline
+      // arrives via no event, so only a re-query surfaces it — still happens, because the client
+      // reloads active channels itself. This pins that it is the client doing it.
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
+      await waitFor(() => expect(channel.active).toBe(true));
 
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
 
+      // No `connection.recovered` handler in `Channel` any more, so this alone must do nothing.
       await act(async () => {
-        dispatchConnectionRecoveredEvent(chatClient, 'network');
+        dispatchConnectionRecoveredEvent(chatClient);
         await Promise.resolve();
       });
 
@@ -457,23 +464,26 @@ describe('Channel', () => {
       expect(reloadSpy).not.toHaveBeenCalled();
     });
 
-    it('keeps rendering when the reload fails', async () => {
+    it('keeps rendering when the reload fails during a reconnect', async () => {
+      // The guarantee the old React-side error handling provided, now held somewhere better: the
+      // client reloads active channels with `Promise.allSettled`, so a socket that flaps back down
+      // mid-reload cannot throw into this component at all.
       const { channel, chatClient } = await setup();
       const { container } = await renderComponent({ channel, chatClient });
+      await waitFor(() => expect(channel.active).toBe(true));
 
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const reloadSpy = vi
         .spyOn(channel, 'reload')
         .mockRejectedValue(new Error('socket flapped'));
+      chatClient.connectionRecovery.registerSubscriptions();
 
       await act(async () => {
-        dispatchConnectionRecoveredEvent(chatClient);
-        await Promise.resolve();
+        dispatchConnectionChangedEvent(chatClient, true, 'ws');
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
       expect(container.querySelector('.str-chat__channel')).toBeInTheDocument();
-      warnSpy.mockRestore();
     });
   });
 

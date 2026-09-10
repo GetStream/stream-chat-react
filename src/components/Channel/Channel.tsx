@@ -135,7 +135,6 @@ const ChannelInner = (
     !channel.initialized && initializeOnMount,
   );
 
-  // todo: can we remove this big event handler and keep only relevant UI-only logic (e.g. 'connection.recovered')?
   const handleEvent = async (event: Event) => {
     // ignore the event if it is not targeted at the current channel.
     // Event targeted at this channel or globally targeted event should lead to state refresh
@@ -144,35 +143,6 @@ const ChannelInner = (
 
     if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
       return;
-
-    if (event.type === 'connection.recovered') {
-      // Only the socket's recovery reloads the window. Nothing dispatches a `'network'` recovery
-      // today, but the guard means that if something ever does, requerying every open channel off a
-      // network edge is a deliberate decision rather than a silent behavior change.
-      if (event.connection !== 'ws') return;
-
-      // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
-      // skips re-seeding the message list of an `active` channel (we mark this one active while
-      // mounted) because its 25-message page would perturb a larger scrolled-back window — it hands
-      // that job to `channel.reload()`, which re-watches sized to the loaded window instead. Nothing
-      // calls it for us, so without this the list stays stale after a reconnect and hard deletes that
-      // happened while offline are never reconciled (they arrive via no event; only a re-query
-      // surfaces them). This is deliberately the SDK's opinion about how the default component
-      // behaves, not client-level policy.
-      //
-      // `ConnectionRecoveryManager` dispatches this only after re-querying the active channels, so
-      // the rest of the channel state is already fresh by now. (It replaced `client.recoverState()`,
-      // which is what this comment used to name.)
-      if (channel.pendingDisposal) return;
-      try {
-        await channel.reload();
-      } catch (error) {
-        // The socket can flap straight back down mid-reload. Keep the previously loaded window
-        // rather than tearing the view down — the next recovery re-runs this.
-        console.warn('Failed to reload the channel after connection recovery', error);
-      }
-      return;
-    }
 
     if (event.type === 'message.new') {
       const mainChannelUpdated =
@@ -307,7 +277,6 @@ const ChannelInner = (
         }
 
         // The more complex sync logic is done in Chat
-        client.on('connection.recovered', handleEvent);
         client.on('user.updated', handleEvent);
         client.on('user.deleted', handleEvent);
         client.on('user.messages.deleted', handleEvent);
@@ -318,7 +287,6 @@ const ChannelInner = (
       isMounted = false;
       if (errored || !done) return;
       channel?.off(handleEvent);
-      client.off('connection.recovered', handleEvent);
       client.off('user.deleted', handleEvent);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
