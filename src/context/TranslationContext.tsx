@@ -1,19 +1,15 @@
-import type { PropsWithChildren } from 'react';
-import React, { useContext } from 'react';
+import { createTranslationContext } from '@stream-io/i18n/react';
 
 import { defaultDateTimeParser, defaultTranslatorFunction } from '../i18n/utils';
 import type { StreamTFunction, TDateTimeParser } from '../i18n/types';
 
 /**
- * The `Dayjs.extend(calendar)` / `extend(localizedFormat)` calls that used to sit here are gone.
+ * The `Dayjs.extend(calendar)` / `extend(localizedFormat)` calls that used to sit here are gone:
+ * `defaultDateTimeParser` from `@stream-io/i18n` registers the plugins itself on first use, which
+ * is what lets the package stay side-effect-free.
  *
- * They existed so that the context *default* — used by a component rendered outside `<Chat>` — could
- * still call `.calendar()`. `defaultDateTimeParser` now comes from `stream-chat/i18n` and registers the
- * plugins itself on first use, so the same guarantee holds without a module-scope side effect. That is
- * what lets the package be marked side-effect-free.
- *
- * Worth knowing if this ever regresses: extending dayjs is not optional here, and forgetting it fails
- * *silently* — `.calendar()` is simply absent, so timestamps render malformed rather than throwing.
+ * If that ever regresses it fails *silently* — `.calendar()` is simply absent, so timestamps render
+ * malformed rather than throwing.
  */
 
 export type TranslationContextValue = {
@@ -22,21 +18,21 @@ export type TranslationContextValue = {
   userLanguage: string;
 };
 
-export const TranslationContext = React.createContext<TranslationContextValue>({
-  t: defaultTranslatorFunction,
-  tDateTimeParser: defaultDateTimeParser,
-  userLanguage: 'en',
-});
-
-export const TranslationProvider = ({
-  children,
-  value,
-}: PropsWithChildren<{ value: TranslationContextValue }>) => (
-  <TranslationContext.Provider value={value}>{children}</TranslationContext.Provider>
-);
-
 /**
- * Works outside `<Chat>`: the context default's `defaultTranslatorFunction` renders the inline
- * English `defaultValue` every `t()` call site passes, so SDK primitives render standalone.
+ * Built from the shared factory in `@stream-io/i18n/react`. What stays this SDK's own: the
+ * catalog-typed `t`, and supplying a **default** rather than throwing, so primitives render outside
+ * `<Chat>` (React Native throws instead — hence the option).
  */
-export const useTranslationContext = () => useContext(TranslationContext);
+const { TranslationContext, TranslationProvider, useTranslationContext } =
+  createTranslationContext<TranslationContextValue>({
+    defaultValue: {
+      t: defaultTranslatorFunction,
+      tDateTimeParser: defaultDateTimeParser,
+      userLanguage: 'en',
+    },
+  });
+
+export { TranslationContext, TranslationProvider };
+
+/** Works outside `<Chat>` — the default translator renders each call site's inline English. */
+export { useTranslationContext };

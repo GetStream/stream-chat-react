@@ -1,7 +1,7 @@
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import { defaultNotificationTranslators } from '../TranslationBuilder/notifications/NotificationTranslationTopic';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { I18nInstance } from 'stream-chat/i18n';
+import type { I18nInstance } from '@stream-io/i18n';
 import type { Notification } from 'stream-chat';
 
 const mockI18Next = fromPartial<I18nInstance>({ use: vi.fn() });
