@@ -376,9 +376,103 @@ describe('Chat', () => {
   });
 
   describe('connection notifications', () => {
-    it('publishes and removes system connection-lost notification on connection changes', async () => {
-      const client = getTestClient();
-      let connectionLostNotification;
+    it('keeps the notification when the socket drops before i18n has initialized', async () => {
+      // The regression. `Streami18n.init()` is asynchronous and `t` changes identity when it
+      // resolves. With `t` in the effect's dependencies, a drop during that window published the
+      // notification and then had it dismissed by the effect's own cleanup — leaving no banner
+      // exactly when one is most wanted: an offline app launch, a captive portal, an expired token.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      const chatNotifications = () =>
+        client.notifications.notifications.filter(
+          (notification) => notification.origin.emitter === 'Chat',
+        );
+
+      // Deliberately not awaiting anything first — the drop lands inside the init window.
+      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      expect(chatNotifications()).toHaveLength(1);
+
+      // Long enough for `init()` to resolve and `t` to be replaced.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      expect(chatNotifications()).toHaveLength(1);
+    });
+
+    /**
+     * The device losing its network and the socket dying are different facts, so they get different
+     * copy. Publishing "Waiting for network…" off the socket alone — which is what this did — told
+     * users their network was down when the server had closed the socket, the token had expired or a
+     * health check had timed out on working Wi-Fi.
+     */
+    const chatNotificationsOf = (client: StreamChat) =>
+      client.notifications.notifications.filter(
+        (notification) => notification.origin.emitter === 'Chat',
+      );
+
+    it('says reconnecting, not offline, when the socket dies on a working network', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      // jsdom is a browser, so the built-in registrar has already reported the network as up.
+      expect(client.networkConnection.isOnline).toBe(true);
+
+      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
+      expect(chatNotificationsOf(client)[0].tags).toEqual(['system']);
+    });
+
+    it('says the network is down when the device reports no network', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      act(() => client.networkConnection.setStatus(false));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…');
+    });
+
+    it('swaps to the network message when the network drops while reconnecting', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      await waitFor(() =>
+        expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…'),
+      );
+
+      act(() => client.networkConnection.setStatus(false));
+
+      // One banner throughout, with the more specific message replacing the general one.
+      await waitFor(() =>
+        expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…'),
+      );
+      expect(chatNotificationsOf(client)).toHaveLength(1);
+    });
+
+    it('publishes immediately when the client is already offline at mount', async () => {
+      // It used to react only to transitions, so a client that was already offline showed nothing
+      // until something changed.
+      const client = await getTestClientWithUser();
+      client.networkConnection.setStatus(false);
 
       render(
         <Chat client={client}>
@@ -386,27 +480,44 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      expect(client.notifications.notifications).toHaveLength(0);
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…');
+    });
 
-      act(() => dispatchConnectionChangedEvent(client, false));
-      await waitFor(() => {
-        connectionLostNotification = client.notifications.notifications.find(
-          (notification) => notification.origin.emitter === 'Chat',
-        );
-        expect(connectionLostNotification).toBeDefined();
+    it('clears on recovery', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+
+      act(() => dispatchConnectionChangedEvent(client, true, 'ws'));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(0));
+    });
+
+    it('takes the socket from the debounced event, not from the raw store', async () => {
+      // The going-offline delay lives on `connection.changed`: it is held for five seconds and
+      // dropped entirely if the socket returns inside that window, which is what stops a brief flap
+      // strobing the banner. `client.wsConnection.state` publishes the raw edge instead, so reading
+      // the socket from there would lose the anti-flicker.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      act(() => client.wsConnection.state.partialNext({ isOnline: false }));
+      await act(async () => {
+        await Promise.resolve();
       });
 
-      expect(connectionLostNotification.message).toBe('Waiting for network…');
-      expect(connectionLostNotification.tags).toEqual(['system']);
-
-      act(() => dispatchConnectionChangedEvent(client, true));
-      await waitFor(() => {
-        expect(
-          client.notifications.notifications.find(
-            (notification) => notification.origin.emitter === 'Chat',
-          ),
-        ).toBeUndefined();
-      });
+      expect(chatNotificationsOf(client)).toHaveLength(0);
     });
 
     it('uses NotificationAnnouncer from ComponentContext', async () => {

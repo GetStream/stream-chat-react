@@ -259,6 +259,7 @@ export const deTranslations = {
   'channelListItem.video.ariaLabel': 'Video',
   'channelListItem.voiceMessage.ariaLabel': 'Sprachnachricht',
   'channelListItem.voted.text': '📊 {{votedBy}} hat abgestimmt: {{pollOptionText}}',
+  'chat.reportLostConnection.reconnecting.text': 'Verbindung wird wiederhergestellt…',
   'chat.reportLostConnection.waitingNetwork.text': 'Warte auf Netzwerk…',
   'command.ban.args': '[@benutzername] [text]',
   'command.ban.description': 'Einen Benutzer sperren',

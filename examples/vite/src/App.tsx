@@ -73,6 +73,7 @@ import {
   resolveSingleChannel,
   SingleChannelModal,
 } from './SingleChannel/SingleChannelApp.tsx';
+import { ConnectionDevPanel } from './ConnectionDevPanel/ConnectionDevPanel.tsx';
 import { SystemNotification } from './SystemNotification/SystemNotification.tsx';
 import { chatViewSelectorItemSet } from './Sidebar/ChatViewSelectorItemSet.tsx';
 import {
@@ -263,6 +264,9 @@ const App = () => {
     channelCid: state.layout.channelCid,
   }));
   const { mode: themeMode } = useAppSettingsSelector((state) => state.theme);
+  const { connectionPanel: connectionPanelVisible } = useAppSettingsSelector(
+    (state) => state.devTools,
+  );
   const initialChannelId = useMemo(() => getInitialChannelIdFromUrl(), []);
   const initialChatView = useMemo(() => getInitialChatViewFromUrl(), []);
   const initialThreadId = useMemo(() => getInitialThreadIdFromUrl(), []);
@@ -546,6 +550,7 @@ const App = () => {
             ref={appLayoutRef}
             style={initialAppLayoutStyle}
           >
+            {connectionPanelVisible && <ConnectionDevPanel />}
             <SystemNotification />
             <div className='app-chat-layout__body'>
               <PanelLayoutStyleSync layoutRef={appLayoutRef} />
