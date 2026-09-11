@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { msToNs, StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import { msToNs } from 'stream-chat';
 import type {
   Channel,
   LocalMessage,

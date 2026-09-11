@@ -50,7 +50,7 @@ Respect any repo-specific rules. Do not suppress rules broadly; justify and scop
 
 1. Install dependencies (root + all workspaces): yarn install
 2. Build: yarn build
-3. Typecheck: yarn types
+3. Typecheck: yarn types (the library, via tsconfig.lib.json)
 4. Lint: yarn lint
 5. Fix lint issues: yarn lint-fix
 6. Unit tests: yarn test

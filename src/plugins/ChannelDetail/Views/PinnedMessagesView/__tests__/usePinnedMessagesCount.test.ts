@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import type { Channel, LocalMessage, PaginatorState } from 'stream-chat';
 
 import { usePinnedMessagesCount } from '../usePinnedMessagesCount';

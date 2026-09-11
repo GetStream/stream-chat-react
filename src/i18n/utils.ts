@@ -1,4 +1,4 @@
-import { createDefaultTranslatorFunction } from 'stream-chat/i18n';
+import { createDefaultTranslatorFunction } from '@stream-io/i18n';
 
 import type { StreamTFunction } from './types';
 
@@ -13,7 +13,7 @@ export const defaultTranslatorFunction: StreamTFunction =
   createDefaultTranslatorFunction() as StreamTFunction;
 
 /**
- * The date/time and key helpers now live in `stream-chat/i18n`, shared with the React Native SDK.
+ * The date/time and key helpers now live in `@stream-io/i18n`, shared with the React Native SDK.
  *
  * Re-exported from here rather than rewritten at ~15 call sites, so the internal module path stays
  * stable. `getDateString` and the type guards behave identically; `predefinedFormatters` gains
@@ -29,4 +29,4 @@ export {
   isDayOrMoment,
   isNumberOrString,
   predefinedFormatters,
-} from 'stream-chat/i18n';
+} from '@stream-io/i18n';

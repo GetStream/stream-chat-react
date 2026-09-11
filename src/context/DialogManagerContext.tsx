@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 
 import { DialogManager } from '../components/Dialog/service/DialogManager';
 import {

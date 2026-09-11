@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 
-import type { StateStore } from 'stream-chat';
+import type { StateStore } from '@stream-io/state-store';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
