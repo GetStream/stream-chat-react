@@ -1811,9 +1811,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stream-io/i18n@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@stream-io/i18n@npm:1.0.1"
+"@stream-io/i18n@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@stream-io/i18n@npm:1.0.2"
   dependencies:
     "@stream-io/state-store": "npm:^1.1.6"
     dayjs: "npm:^1.11.23"
@@ -1824,7 +1824,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: 10c0/91e2b76256926314af5fc53ae67069feecda183bbe50fb1c093b36ee8c97d05037715138db283da7bf50668b711410c95bcec29f1d06a4d39bf49575f1a5ec81
+  checksum: 10c0/4b073bc8b39064ee31cab37f5c6ea6da03db916acf7fe998e0954fee6c458f0784d27678954c4aaa1eaed68eb8556d10e88ad3127e5ae4081c3ef16f747a3cda
   languageName: node
   linkType: hard
 
@@ -9494,7 +9494,7 @@ __metadata:
     "@semantic-release/changelog": "npm:^6.0.3"
     "@semantic-release/git": "npm:^10.0.1"
     "@semantic-release/github": "npm:^12.0.8"
-    "@stream-io/i18n": "npm:^1.0.1"
+    "@stream-io/i18n": "npm:^1.0.2"
     "@stream-io/state-store": "npm:^1.1.6"
     "@stream-io/transliterate": "npm:^1.5.5"
     "@testing-library/dom": "npm:^10.4.1"
