@@ -4,8 +4,8 @@
 // holds one instance per cid at a time, but evicts entries on `channel.deleted`,
 // `notification.removed_from_channel` and `disconnectUser` -- so a second object for the same cid
 // is an ordinary occurrence, and anything bound to the old one is bound to something the client has
-// stopped feeding. These tests pin that a replacement instance is bootstrapped, subscribed and
-// activated, and that re-rendering the same instance does none of that again.
+// stopped feeding. These tests pin that a replacement instance is subscribed and activated, and
+// that re-rendering the same instance does neither again.
 //
 // Companion file: channelSwitchReset.test.tsx, for what is rebuilt and what survives on a switch.
 
@@ -53,16 +53,6 @@ describe('a replacement Channel instance for the same cid', () => {
 
     expect(second).not.toBe(first);
     expect(second.cid).toBe(first.cid);
-  });
-
-  it('is bootstrapped when it replaces the previous instance', async () => {
-    const { client, first, second } = await setup();
-    const watchSecond = vi.spyOn(second, 'watch');
-
-    const { rerender } = render(renderChannel(client, first));
-    rerender(renderChannel(client, second));
-
-    await waitFor(() => expect(watchSecond).toHaveBeenCalled());
   });
 
   it('receives the channel event subscription', async () => {

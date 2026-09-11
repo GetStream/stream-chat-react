@@ -1,20 +1,9 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import clsx from 'clsx';
-import type {
-  ChannelGetOrCreateRequest,
-  ChannelMemberResponse,
-  Event,
-  Channel as StreamChannel,
-} from 'stream-chat';
+import type { Event, Channel as StreamChannel } from 'stream-chat';
 
-import { LoadingChannel as DefaultLoadingIndicator } from '../Loading';
-
-import {
-  ChannelInstanceProvider,
-  useChatContext,
-  useComponentContext,
-} from '../../context';
+import { ChannelInstanceProvider, useChatContext } from '../../context';
 
 import { CHANNEL_CONTAINER_ID } from './constants';
 import {
@@ -26,7 +15,6 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
@@ -40,20 +28,6 @@ export type ChannelProps = {
    * render `<ChannelPlaceholder />` (or nothing) instead of a channel-less `Channel`.
    */
   channel: StreamChannel;
-  /**
-   * Optional configuration parameters used for the initial channel query.
-   * Applied only if the value of channel.initialized is false.
-   * If the channel instance has already been initialized (channel has been queried),
-   * then the channel query will be skipped and channelQueryOptions will not be applied.
-   */
-  // todo: remove from props
-  channelQueryOptions?: ChannelGetOrCreateRequest;
-  /**
-   * Allows to prevent triggering the channel.watch() call when mounting the component.
-   * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
-   * Preventing to initialize the channel on mount allows us to postpone the channel creation to a later point in time.
-   */
-  initializeOnMount?: boolean;
 };
 
 /**
@@ -84,16 +58,7 @@ export const ChannelPlaceholder = ({
 // nothing is keyed, so there is nothing to return early for, and no reason for the hooks to live
 // one level down. See specs/channel-instance-axis/spec.md.
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
-  const {
-    allowConcurrentAudioPlayback,
-    channel,
-    channelQueryOptions,
-    children,
-    initializeOnMount = true,
-  } = props;
-
-  const { LoadingErrorIndicator, LoadingIndicator = DefaultLoadingIndicator } =
-    useComponentContext();
+  const { allowConcurrentAudioPlayback, channel, children } = props;
 
   const { client, latestMessageDatesByChannels, searchController } = useChatContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
@@ -104,10 +69,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
 
   const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
     null,
-  );
-  const [bootstrapError, setBootstrapError] = useState<Error | undefined>(undefined);
-  const [isBootstrapping, setIsBootstrapping] = useState(
-    !channel.initialized && initializeOnMount,
   );
 
   // todo: can we remove this big event handler and keep only relevant UI-only logic (e.g. 'connection.recovered')?
@@ -167,20 +128,16 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
 
     if (event.type === 'user.deleted') {
       const oldestID = channel.messagePaginator.items?.[0]?.id;
-      const refetchLimit =
-        channelQueryOptions?.messages?.limit ?? DEFAULT_NEXT_CHANNEL_PAGE_SIZE;
 
       /**
        * As the channel state is not normalized we re-fetch the channel data. Thus, we avoid having to search for user references in the channel state.
        */
+      // Re-fetching what is already loaded is maintenance of a bound channel, not initialization,
+      // so it stays here -- but the page size is the SDK default now rather than the initial query
+      // options, which `Channel` no longer takes.
       await channel.query({
-        ...channelQueryOptions,
-        messages: {
-          ...channelQueryOptions?.messages,
-          id_lt: oldestID,
-          limit: refetchLimit,
-        },
-        watchers: channelQueryOptions?.watchers ?? { limit: refetchLimit },
+        messages: { id_lt: oldestID, limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
+        watchers: { limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
       });
     }
   };
@@ -201,91 +158,32 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   // to be an inline object, which was harmless while a channel change rebuilt the subtree anyway.
   const channelInstanceContextValue = useMemo(() => ({ channel }), [channel]);
 
-  // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
-  useLayoutEffect(() => {
-    // Both bootstrap flags are set from the *current* channel below, synchronously: an async
-    // function body runs to its first `await`, and neither the `if` branch's `setIsBootstrapping`
-    // nor the `else` branch's pair of resets has one before it. So they never depended on the
-    // subtree being rebuilt, and switching channels cannot carry a spinner or an error across.
-    // Pinned by src/components/Channel/__tests__/channelSwitchReset.test.tsx.
-    let errored = false;
-    let done = false;
-    let isMounted = true;
+  useEffect(() => {
+    // Re-derive the unread snapshot from the current read state on every (re)open. A cached
+    // channel is NOT re-queried on reopen, so the LLC's first-page-query auto-seed does not run
+    // and the separator/"N new" banner would otherwise show a stale boundary (or never clear).
+    // Marking the channel read on open is owned by `useMarkRead` (only when the message list is
+    // caught up at the bottom); this just seeds the boundary the separator/banner render from.
+    //
+    // Skip the re-seed when the channel is already flagged unread (`firstUnreadMessageId` set):
+    // `seedUnreadSnapshot` clears that flag, so re-seeding would silently undo a deliberate
+    // "mark as unread". A normally-read channel has no flag, so its boundary still refreshes.
+    if (
+      !channel.messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId
+    ) {
+      channel.messagePaginator.seedUnreadSnapshot();
+    }
 
-    (async () => {
-      if (!channel.initialized && initializeOnMount) {
-        if (isMounted) {
-          setIsBootstrapping(true);
-          setBootstrapError(undefined);
-        }
-        try {
-          // if active channel has been set without id, we will create a temporary channel id from its member IDs
-          // to keep track of the /query request in progress. This is the same approach of generating temporary id
-          // that the JS client uses to keep track of channel in client.activeChannels
-          const members: string[] = [];
-          if (!channel.id && channel.data?.members) {
-            for (const member of channel.data.members) {
-              let userId: string | undefined;
-              if (typeof member === 'string') {
-                userId = member;
-              } else if (typeof member === 'object') {
-                const { user, user_id } = member as ChannelMemberResponse;
-                userId = user_id || user?.id;
-              }
-              if (userId) {
-                members.push(userId);
-              }
-            }
-          }
-          await getChannel({ channel, client, members, options: channelQueryOptions });
-        } catch (e) {
-          if (isMounted) {
-            setBootstrapError(e as Error);
-            setIsBootstrapping(false);
-          }
-          errored = true;
-          return;
-        }
-      } else if (isMounted) {
-        setBootstrapError(undefined);
-        setIsBootstrapping(false);
-      }
+    // The more complex sync logic is done in Chat
+    client.on('connection.changed', handleEvent);
+    client.on('connection.recovered', handleEvent);
+    client.on('user.updated', handleEvent);
+    client.on('user.deleted', handleEvent);
+    client.on('user.messages.deleted', handleEvent);
+    channel.on(handleEvent);
 
-      done = true;
-      if (isMounted) {
-        setIsBootstrapping(false);
-      }
-
-      if (!errored) {
-        // Re-derive the unread snapshot from the current read state on every (re)open. A cached
-        // channel is NOT re-queried on reopen, so the LLC's first-page-query auto-seed does not run
-        // and the separator/"N new" banner would otherwise show a stale boundary (or never clear).
-        // Marking the channel read on open is owned by `useMarkRead` (only when the message list is
-        // caught up at the bottom); this just seeds the boundary the separator/banner render from.
-        //
-        // Skip the re-seed when the channel is already flagged unread (`firstUnreadMessageId` set):
-        // `seedUnreadSnapshot` clears that flag, so re-seeding would silently undo a deliberate
-        // "mark as unread". A normally-read channel has no flag, so its boundary still refreshes.
-        if (
-          !channel.messagePaginator.unreadStateSnapshot.getLatestValue()
-            .firstUnreadMessageId
-        ) {
-          channel.messagePaginator.seedUnreadSnapshot();
-        }
-
-        // The more complex sync logic is done in Chat
-        client.on('connection.changed', handleEvent);
-        client.on('connection.recovered', handleEvent);
-        client.on('user.updated', handleEvent);
-        client.on('user.deleted', handleEvent);
-        client.on('user.messages.deleted', handleEvent);
-        channel.on(handleEvent);
-      }
-    })();
     return () => {
-      isMounted = false;
-      if (errored || !done) return;
-      channel?.off(handleEvent);
+      channel.off(handleEvent);
       client.off('connection.changed', handleEvent);
       client.off('connection.recovered', handleEvent);
       client.off('user.deleted', handleEvent);
@@ -293,9 +191,9 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     // `handleEvent` is deliberately excluded: it is re-created on every render, and this effect
     // must not re-run for it. `channel` is the instance, not its `cid` -- a new instance for the
     // same conversation has its own stores and its own subscription, and would otherwise never be
-    // watched. See src/components/Channel/channelInstanceKey.ts.
+    // subscribed. See src/components/Channel/channelInstanceKey.ts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel, channelQueryOptions, initializeOnMount]);
+  }, [channel, client]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;
@@ -318,22 +216,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     jumpToMessageFromSearch,
     searchController._internalState,
   ]);
-
-  if (isBootstrapping && LoadingIndicator) {
-    return (
-      <ChannelPlaceholder>
-        <LoadingIndicator />
-      </ChannelPlaceholder>
-    );
-  }
-
-  if (bootstrapError && LoadingErrorIndicator) {
-    return (
-      <ChannelPlaceholder>
-        <LoadingErrorIndicator error={bootstrapError} />
-      </ChannelPlaceholder>
-    );
-  }
 
   return (
     <ChannelPlaceholder className={windowsEmojiClass}>

@@ -202,6 +202,29 @@ checked. Only if the app needs keys the SDK does not define, annotate the variab
 Full detail, including plurals for languages needing `_few` / `_many` and how to recover a deleted
 dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
 
+### `Channel` no longer queries the channel; `initializeOnMount` / `channelQueryOptions` → removed
+
+`Channel` used to call `channel.watch()` when it mounted an uninitialized channel. `initializeOnMount` turned that off and `channelQueryOptions` configured the query. The call and **both props are removed** — whoever supplies the channel initializes it.
+
+- **Channels from `ChannelList`, or any `queryChannels` call, arrive watched.** If that is where yours come from, nothing changes.
+- **Creating a channel and handing it straight to `Channel`** → watch it first, with the exported `getChannel`:
+
+  ```tsx
+  import { getChannel } from 'stream-chat-react';
+
+  const channel = client.channel('messaging', id, { members, custom });
+  if (!channel.initialized) await getChannel({ channel, client });
+  setChannel(channel);
+  ```
+
+  Two separate guards, both worth keeping. `client.channel()` returns the cached instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `getChannel` over a bare `channel.watch()` when one _is_ needed: it de-duplicates concurrent calls for the same channel (keyed on the sorted member list while a channel has no id yet), so an effect that runs twice, or two components opening the same channel, still produce one query. That de-duplication used to live inside `Channel`.
+
+- **A direct message identified by members** → `getChannel({ client, type: 'messaging', members })` builds, watches and returns the instance.
+- **`channelQueryOptions`** → pass them to the watch you now own: `getChannel({ channel, client, options })`.
+- **An uninitialized channel renders as an empty channel, with no error**, because nothing failed. If a channel renders blank, check `channel.initialized` before looking anywhere else.
+- **Loading and error UI is yours.** `Channel` no longer renders the `LoadingIndicator` or `LoadingErrorIndicator` component slots, because it has no query to report on. Render them around `Channel`, where they sit in your layout instead of replacing the whole channel column.
+- **Why it changed:** `Channel` cannot make that call well. It does not know which query options a screen needs, whether a list or a search result already loaded the channel, whether a failed query should retry or navigate away, or what belongs on screen while the query is in flight. All of that belongs to the code that decides which channel to open. Full recipes: [providing a channel](/chat/docs/sdk/react/v15/guides/providing-a-channel/).
+
 ### `ChannelProps.channel` is required; `EmptyPlaceholder` → removed
 
 `Channel` no longer accepts a missing channel. `channel` is required, and the `EmptyPlaceholder` prop — the "what to render when there is no channel" escape hatch — is **removed**. A `Channel` with no channel bound had nothing to provide: every context it supplies, every hook it runs and every child it enables needs one, and deciding what to show while nothing is selected is the application's layout concern.

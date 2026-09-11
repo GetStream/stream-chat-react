@@ -3,14 +3,12 @@ import { nanoid } from 'nanoid';
 import React, { useEffect } from 'react';
 import type {
   ChannelResponse,
-  ChannelStateResponse,
   Channel as ChannelType,
   Event,
   LocalMessage,
   MessageRequest,
   MessageResponse,
   StreamChat,
-  StreamResponse,
   UserResponse,
 } from 'stream-chat';
 import { localMessageToNewMessagePayload } from 'stream-chat';
@@ -19,7 +17,6 @@ import type { RenderResult } from '@testing-library/react';
 
 import { Channel, ChannelPlaceholder } from '../Channel';
 import { Chat } from '../../Chat';
-import { LoadingErrorIndicator } from '../../Loading';
 
 import { ChatProvider } from '../../../context/ChatContext';
 import { useChannel } from '../../../context/useChannel';
@@ -130,6 +127,8 @@ const initClient = async ({
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
   const channel = chatClient.channel('messaging', mockedChannel.channel.id);
+  // `Channel` does not query any more -- whoever supplies the channel initializes it.
+  await channel.watch();
 
   chatClient.channelServerConfigsStore.partialNext({
     configs: {
@@ -212,115 +211,21 @@ describe('Channel', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 
-  it('should render the provided loading indicator while the channel is being watched', async () => {
-    const { channel, chatClient } = await setup();
-    const loadingText = 'Loading channel';
-    // Keep the channel in the bootstrapping (loading) state indefinitely.
-    const watchPromise = new Promise<never>(() => {});
-    vi.spyOn(channel, 'watch').mockImplementation(() => watchPromise);
+  it('never queries the channel', async () => {
+    // Initializing is the caller's job now: `Channel` binds a channel to its subtree and subscribes
+    // to it, but it does not fetch. A channel that arrives unqueried stays that way, and its
+    // children render whatever an empty channel renders.
+    const { chatClient } = await setup();
+    const unqueried = chatClient.channel('messaging', 'never-queried');
+    const watchSpy = vi.spyOn(unqueried, 'watch');
 
-    await renderComponent({
-      channel,
-      chatClient,
-      components: {
-        LoadingIndicator: () => <div>{loadingText}</div>,
-      },
-    });
+    await renderComponent({ channel: unqueried, chatClient });
 
-    await waitFor(() => expect(screen.getByText(loadingText)).toBeInTheDocument());
+    expect(watchSpy).not.toHaveBeenCalled();
+    expect(unqueried.initialized).toBe(false);
   });
 
-  it('should render the provided error indicator if watching the channel fails', async () => {
-    const { channel, chatClient } = await setup();
-    const errMsg = 'Channel query failed';
-    vi.spyOn(channel, 'watch').mockImplementation(() =>
-      Promise.reject(new Error(errMsg)),
-    );
-
-    await renderComponent({
-      channel,
-      chatClient,
-      components: {
-        LoadingErrorIndicator: ({ error }) => <div>{error?.message}</div>,
-      },
-    });
-
-    await waitFor(() => expect(screen.getByText(errMsg)).toBeInTheDocument());
-  });
-
-  it('should watch the current channel on mount', async () => {
-    const { channel, chatClient } = await setup();
-    const watchSpy = vi.spyOn(channel, 'watch');
-
-    await renderComponent({
-      channel,
-      channelQueryOptions: { messages: { limit: 25 } },
-      chatClient,
-    });
-
-    await waitFor(() => {
-      expect(watchSpy).toHaveBeenCalledTimes(1);
-      expect(watchSpy).toHaveBeenCalledWith({ messages: { limit: 25 } });
-    });
-  });
-
-  it('should apply channelQueryOptions to channel watch call', async () => {
-    const { channel, chatClient } = await setup();
-    const watchSpy = vi.spyOn(channel, 'watch');
-    const channelQueryOptions = {
-      messages: { limit: 20 },
-    };
-    await renderComponent({ channel, channelQueryOptions, chatClient });
-
-    await waitFor(() => {
-      expect(watchSpy).toHaveBeenCalledTimes(1);
-      expect(watchSpy).toHaveBeenCalledWith(channelQueryOptions);
-    });
-  });
-
-  it('should not call watch the current channel on mount if channel is initialized', async () => {
-    const { channel, chatClient } = await setup();
-    const watchSpy = vi.spyOn(channel, 'watch');
-    channel.initialized = true;
-    await renderComponent({ channel, chatClient });
-    await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
-  });
-
-  it('should set an error if watching the channel goes wrong, and render a LoadingErrorIndicator', async () => {
-    const { channel, chatClient } = await setup();
-    const watchError = new Error('watching went wrong');
-    vi.spyOn(channel, 'watch').mockImplementation(() => Promise.reject(watchError));
-
-    await renderComponent({
-      channel,
-      chatClient,
-      components: { LoadingErrorIndicator },
-    });
-
-    await waitFor(() =>
-      expect(LoadingErrorIndicator).toHaveBeenCalledWith(
-        expect.objectContaining({
-          error: watchError,
-        }),
-        undefined,
-      ),
-    );
-  });
-
-  it('should render a LoadingIndicator if it is loading', async () => {
-    const { channel, chatClient } = await setup();
-    const watchPromise = new Promise<never>(() => {});
-    vi.spyOn(channel, 'watch').mockImplementationOnce(() => watchPromise);
-    const result = await renderComponent({ channel, chatClient });
-
-    // Wait for the loading state to settle, then snapshot ONCE. Calling
-    // toMatchSnapshot() inside waitFor() writes a new numbered snapshot on every
-    // retry, which fails under --ci.
-    await waitFor(() => expect(result.getByText('Loading channel')).toBeInTheDocument());
-    expect(result.asFragment()).toMatchSnapshot();
-  });
-
-  it('should provide context and render children if channel is set and the component is not loading or errored', async () => {
+  it('should provide context and render children', async () => {
     const { channel, chatClient } = await setup();
     const { findByText } = await renderComponent({
       channel,
@@ -367,28 +272,6 @@ describe('Channel', () => {
     await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
     // ...then confirm it did not mark read.
     expect(markReadSpy).not.toHaveBeenCalled();
-  });
-
-  it('should not query the channel from the backend when initializeOnMount is disabled', async () => {
-    const { channel, chatClient } = await setup();
-    const watchSpy = vi
-      .spyOn(channel, 'watch')
-      .mockImplementationOnce(() =>
-        Promise.resolve(fromPartial<StreamResponse<ChannelStateResponse>>({})),
-      );
-    await renderComponent({
-      channel,
-      chatClient,
-      initializeOnMount: false,
-    });
-    await waitFor(() => expect(watchSpy).not.toHaveBeenCalled());
-  });
-
-  it('should query the channel from the backend when initializeOnMount is enabled (the default)', async () => {
-    const { channel, chatClient } = await setup();
-    const watchSpy = vi.spyOn(channel, 'watch');
-    await renderComponent({ channel, chatClient });
-    await waitFor(() => expect(watchSpy).toHaveBeenCalledTimes(1));
   });
 
   describe('connection recovery', () => {
