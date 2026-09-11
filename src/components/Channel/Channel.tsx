@@ -27,6 +27,7 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
+import { getChannelInstanceKey } from './channelInstanceKey';
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -92,7 +93,9 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     return <ChannelContainer>{EmptyPlaceholder}</ChannelContainer>;
   }
 
-  return <ChannelInner {...props} channel={channel} key={channel.cid} />;
+  return (
+    <ChannelInner {...props} channel={channel} key={getChannelInstanceKey(channel)} />
+  );
 };
 
 const ChannelInner = (
@@ -322,8 +325,12 @@ const ChannelInner = (
       client.off('connection.recovered', handleEvent);
       client.off('user.deleted', handleEvent);
     };
+    // `handleEvent` is deliberately excluded: it is re-created on every render, and this effect
+    // must not re-run for it. `channel` is the instance, not its `cid` -- a new instance for the
+    // same conversation has its own stores and its own subscription, and would otherwise never be
+    // watched. See src/components/Channel/channelInstanceKey.ts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel.cid, channelQueryOptions, readEventsEnabled, initializeOnMount]);
+  }, [channel, channelQueryOptions, readEventsEnabled, initializeOnMount]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;

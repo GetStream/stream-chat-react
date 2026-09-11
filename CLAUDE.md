@@ -163,7 +163,15 @@ Messages are processed in order:
 ### DO NOT:
 
 1. **Push messages into `channel.state`** - messages/threads/pinned are owned by the LLC paginators (`channel.messagePaginator`, `thread.messagePaginator`, `channel.pinnedMessagesPaginator`). Read them reactively via `useStateStore(channel.messagePaginator.state, …)`; the SDK's own event handlers perform the writes. There is no `channel.state.addMessageSorted()` / `removeMessage()` (removed in v15).
-2. **Include `channel` in dependency arrays** - Use `channel.cid` only (stable), not `channel.state` (changes constantly)
+2. **Depend on `channel.cid` where you mean the channel object** - `channel` (the instance) is a
+   stable reference and is the correct dependency; what churns is `channel.state`, not `channel`.
+   `cid` names a _conversation_, not the object representing it, so two different `Channel`
+   instances can share one: the client's cache is dropped on `disconnectUser`, an app can hold
+   channels from more than one client, and re-created channels come back as new objects. Anything
+   bound to an instance — a `useStateStore` subscription, `channel.on(...)`, `watch()` — must depend
+   on `channel`, or a replacement instance is silently left unsubscribed while the rest of the tree
+   has already moved to it. Depend on `cid` only when you genuinely mean "which conversation",
+   never as a cheap stand-in for the instance.
 3. **Change message sort order** - the paginator maintains order; local changes will conflict
 4. **Assume thread replies live in the channel's message list** - a thread's replies are an independent paginator (`thread.messagePaginator`); they are not mirrored into `channel.messagePaginator`
 
@@ -192,8 +200,9 @@ useMemo(
     /* value */
   }),
   [
-    channel.cid, // ✅ Stable - include this
+    channel, // ✅ Stable reference, and the right axis - a new instance must invalidate this
     deleteMessage, // ✅ Stable callback
+    // ❌ NOT channel.cid - a replacement instance for the same conversation would not invalidate
     // ❌ NOT channel.messagePaginator.state.items - changes constantly (subscribe via useStateStore)
     // ❌ NOT channel.initialized - changes constantly
   ],
