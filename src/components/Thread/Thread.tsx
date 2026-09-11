@@ -7,6 +7,7 @@ import { MESSAGE_ACTIONS } from '../Message';
 import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
+import { getChannelInstanceKey } from '../Channel/channelInstanceKey';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
@@ -64,7 +65,7 @@ export const Thread = (props: ThreadProps) => {
   return (
     <ThreadInner
       {...props}
-      key={`thread-${threadInstance.id}-${threadInstance.channel.cid}`}
+      key={`thread-${threadInstance.id}-${getChannelInstanceKey(threadInstance.channel)}`}
     />
   );
 };

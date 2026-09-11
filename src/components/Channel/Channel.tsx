@@ -1,5 +1,5 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import type {
   ChannelGetOrCreateRequest,
@@ -27,7 +27,6 @@ import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { getChannelInstanceKey } from './channelInstanceKey';
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -93,16 +92,18 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     return <ChannelContainer>{EmptyPlaceholder}</ChannelContainer>;
   }
 
-  return (
-    <ChannelInner {...props} channel={channel} key={getChannelInstanceKey(channel)} />
-  );
+  // No key: the subtree is not rebuilt when the channel changes. What the rebuild used to reset now
+  // lives where the state does -- the bootstrap flags below, and each message list's own key.
+  // See specs/channel-instance-axis/spec.md.
+  return <ChannelInner {...props} channel={channel} />;
 };
 
 const ChannelInner = (
+  // `key` was declared here while `Channel` passed one. It is not a prop -- React consumes it and
+  // never forwards it -- so the declaration only ever described the call site, not this component.
   props: PropsWithChildren<
     ChannelProps & {
       channel: StreamChannel;
-      key: string;
     }
   >,
 ) => {
@@ -239,6 +240,11 @@ const ChannelInner = (
       channel.deactivate();
     };
   }, [channel]);
+
+  // Memoized on the instance, which is the axis that matters: consumers subscribe to *this*
+  // channel's stores, so the value has to change when the instance does and not otherwise. It used
+  // to be an inline object, which was harmless while a channel change rebuilt the subtree anyway.
+  const channelInstanceContextValue = useMemo(() => ({ channel }), [channel]);
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
   useLayoutEffect(() => {
@@ -380,7 +386,7 @@ const ChannelInner = (
 
   return (
     <ChannelContainer className={windowsEmojiClass}>
-      <ChannelInstanceProvider value={{ channel }}>
+      <ChannelInstanceProvider value={channelInstanceContextValue}>
         {/* `.str-chat__channel` (rendered by ChannelContainer above) is itself the channel's
             main content column — a flex column that fills its parent. Children (header,
             message list, composer) render directly inside it; there is no separate
