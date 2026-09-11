@@ -202,9 +202,38 @@ checked. Only if the app needs keys the SDK does not define, annotate the variab
 Full detail, including plurals for languages needing `_few` / `_many` and how to recover a deleted
 dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
 
-### `ChannelProps.EmptyPlaceholder` accepts `null`
+### `ChannelProps.channel` is required; `EmptyPlaceholder` → removed
 
-`Channel`'s `EmptyPlaceholder` prop is now typed `React.ReactElement | null` (the default is `null`) — pass `null` to render an empty container when no channel is set. (Non-breaking widening; noted for completeness.)
+`Channel` no longer accepts a missing channel. `channel` is required, and the `EmptyPlaceholder` prop — the "what to render when there is no channel" escape hatch — is **removed**. A `Channel` with no channel bound had nothing to provide: every context it supplies, every hook it runs and every child it enables needs one, and deciding what to show while nothing is selected is the application's layout concern.
+
+- **Rendering `<Channel channel={activeChannel}>` where `activeChannel` may be undefined** → guard at the call site: `{activeChannel && <Channel channel={activeChannel}>…</Channel>}`.
+- **Relying on `EmptyPlaceholder` to fill the layout slot** → render the newly exported `ChannelPlaceholder` instead. It is the same `.str-chat__channel` column (`height: 100%`, `display: flex`) that `Channel` used to render in that case, with no channel bound: `{activeChannel ? <Channel channel={activeChannel}>…</Channel> : <ChannelPlaceholder>{yourEmptyState}</ChannelPlaceholder>}`.
+- **Why it changed:** the optional prop forced an early return before any hook could run, which forced `Channel` to be split into a public wrapper and an internal `ChannelInner`. With the prop required, the two collapse into one component — and the split was where a channel identity bug (keying on `cid` rather than on the `Channel` instance) went unnoticed.
+
+### `Channel` no longer writes `document.title`; `activeUnreadHandler` → removed
+
+`Channel` used to set `document.title` to `(3) Your app` when a message arrived while the tab was hidden, and `ChannelProps.activeUnreadHandler` let you intercept that. Both are **removed, with no SDK replacement.**
+
+What belongs in a tab title depends on what the application is showing, and no SDK component can know that — it can know the unread counts, but not whether the user is currently looking at the channel those unreads are in. So the title is application code now. `examples/vite/src/DocumentTitleManager` is a complete, copyable implementation: a component rendered inside `Chat` that renders nothing, subscribes to the two unread counts and writes `document.title`, restoring the page's previous title when it unmounts.
+
+**If you relied on the old behavior**, be aware it was broken in ways worth not reproducing:
+
+- **It counted only the open channel** (`channel.countUnread()`), so messages arriving anywhere else never reached the title.
+- **It did nothing in a threads view**, where v15 mounts no ambient `Channel` — leaving a stale number belonging to a channel you had left.
+- **It skipped thread replies** that were not `show_in_channel`.
+- **It never put the title back.** Once set, `(3) Your app` survived reading the messages and returning to the tab.
+- **It compounded.** Channel bootstrap re-read the already-prefixed title as the new "original", producing `(1) (3) Your app`.
+
+Two things to know when writing your own:
+
+- **The counts are user-scoped, not view-scoped.** The unread message total comes from the connection's `me` payload plus the `total_unread_count` on events; the unread thread count from `client.threads` (which `Chat` keeps subscribed). Neither needs an active channel or thread.
+- **They are different units — do not add them.** One counts unread _messages_ in channels, the other counts _threads_ with unread replies. Thread replies also do not appear to reach the message total: `notification.thread_message_new` carries `unread_threads` but no `total_unread_count`.
+
+### `channel.channelMissing.text` translation key → removed
+
+`Channel` no longer renders a "Channel Missing" state. The branch behind it tested `!channel.watch` — a duck-type check for "is this really a `Channel`", from a time when the component could be handed something that was not one. `channel` is required and typed now, so the branch was unreachable, and it was shadowed anyway: the bootstrap path calls `channel.watch()` and fails first.
+
+**This is a compile break for strict dictionaries.** `TranslationDictionary` is exact, so a dictionary that still declares `'channel.channelMissing.text'` fails to typecheck (`TS2353`). Delete the entry from any custom locale files — both example dictionaries in this repo needed it.
 
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 

@@ -1,5 +1,16 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Channel > renders the channel column with no channel bound, for the slot to fill while none is selected 1`] = `
+<DocumentFragment>
+  <div
+    class="str-chat str-chat__channel"
+    id="str-chat__channel"
+  >
+    empty
+  </div>
+</DocumentFragment>
+`;
+
 exports[`Channel > should render a LoadingIndicator if it is loading 1`] = `
 <DocumentFragment>
   <div
@@ -10,14 +21,5 @@ exports[`Channel > should render a LoadingIndicator if it is loading 1`] = `
       Loading channel
     </div>
   </div>
-</DocumentFragment>
-`;
-
-exports[`Channel > should render empty channel container if no channel is provided and EmptyPlaceholder is null 1`] = `
-<DocumentFragment>
-  <div
-    class="str-chat str-chat__channel"
-    id="str-chat__channel"
-  />
 </DocumentFragment>
 `;

@@ -44,7 +44,7 @@ const App = () => {
     setChannel(channel);
   }, [client]);
 
-  if (!client) return <div>Setting up client & connection...</div>;
+  if (!client || !channel) return <div>Setting up client & connection...</div>;
 
   return (
     <Chat client={client}>

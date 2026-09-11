@@ -46,8 +46,12 @@ export type ChannelProps = {
   /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
   // todo: move WithAudioPlayback outside the Channel component
   allowConcurrentAudioPlayback?: boolean;
-  /** The connected and active channel */
-  channel?: StreamChannel;
+  /**
+   * The channel to bind this subtree to. Required: a `Channel` without one has nothing to provide,
+   * and deciding what to show when no channel is selected is the application's layout concern --
+   * render `<ChannelPlaceholder />` (or nothing) instead of a channel-less `Channel`.
+   */
+  channel: StreamChannel;
   /**
    * Optional configuration parameters used for the initial channel query.
    * Applied only if the value of channel.initialized is false.
@@ -56,9 +60,6 @@ export type ChannelProps = {
    */
   // todo: remove from props
   channelQueryOptions?: ChannelGetOrCreateRequest;
-  /** Custom UI component to be shown if no active channel is set, defaults to null and skips rendering the Channel component */
-  // todo: Channel should not be showing "no channel" content if the channel does not exist
-  EmptyPlaceholder?: React.ReactElement | null;
   /**
    * Allows to prevent triggering the channel.watch() call when mounting the component.
    * That means that no channel data from the back-end will be received neither channel WS events will be delivered to the client.
@@ -67,7 +68,13 @@ export type ChannelProps = {
   initializeOnMount?: boolean;
 };
 
-const ChannelContainer = ({
+/**
+ * The channel's content column (`.str-chat__channel`) without any channel bound to it.
+ *
+ * Exported so an application can fill the same layout slot while no channel is selected -- the case
+ * `Channel` used to cover with its `EmptyPlaceholder` prop, back when it accepted no channel.
+ */
+export const ChannelPlaceholder = ({
   children,
   className: additionalClassName,
   ...props
@@ -84,29 +91,11 @@ const ChannelContainer = ({
   );
 };
 
+// One component, not two. The split existed so the outer half could return early -- for a missing
+// channel, and before that to apply a `key` -- before any hook ran. `channel` is required now and
+// nothing is keyed, so there is nothing to return early for, and no reason for the hooks to live
+// one level down. See specs/channel-instance-axis/spec.md.
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
-  const { channel: propsChannel, EmptyPlaceholder = null } = props;
-  const channel = propsChannel;
-
-  if (!channel?.cid) {
-    return <ChannelContainer>{EmptyPlaceholder}</ChannelContainer>;
-  }
-
-  // No key: the subtree is not rebuilt when the channel changes. What the rebuild used to reset now
-  // lives where the state does -- the bootstrap flags below, and each message list's own key.
-  // See specs/channel-instance-axis/spec.md.
-  return <ChannelInner {...props} channel={channel} />;
-};
-
-const ChannelInner = (
-  // `key` was declared here while `Channel` passed one. It is not a prop -- React consumes it and
-  // never forwards it -- so the declaration only ever described the call site, not this component.
-  props: PropsWithChildren<
-    ChannelProps & {
-      channel: StreamChannel;
-    }
-  >,
-) => {
   const {
     activeUnreadHandler,
     allowConcurrentAudioPlayback,
@@ -362,30 +351,30 @@ const ChannelInner = (
 
   if (isBootstrapping && LoadingIndicator) {
     return (
-      <ChannelContainer>
+      <ChannelPlaceholder>
         <LoadingIndicator />
-      </ChannelContainer>
+      </ChannelPlaceholder>
     );
   }
 
   if (bootstrapError && LoadingErrorIndicator) {
     return (
-      <ChannelContainer>
+      <ChannelPlaceholder>
         <LoadingErrorIndicator error={bootstrapError} />
-      </ChannelContainer>
+      </ChannelPlaceholder>
     );
   }
 
   if (!channel.watch) {
     return (
-      <ChannelContainer>
+      <ChannelPlaceholder>
         <div>{t('channel.channelMissing.text', 'Channel Missing')}</div>
-      </ChannelContainer>
+      </ChannelPlaceholder>
     );
   }
 
   return (
-    <ChannelContainer className={windowsEmojiClass}>
+    <ChannelPlaceholder className={windowsEmojiClass}>
       <ChannelInstanceProvider value={channelInstanceContextValue}>
         {/* `.str-chat__channel` (rendered by ChannelContainer above) is itself the channel's
             main content column — a flex column that fills its parent. Children (header,
@@ -396,6 +385,6 @@ const ChannelInner = (
           {children}
         </WithAudioPlayback>
       </ChannelInstanceProvider>
-    </ChannelContainer>
+    </ChannelPlaceholder>
   );
 };

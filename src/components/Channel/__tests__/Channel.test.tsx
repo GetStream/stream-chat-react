@@ -17,7 +17,7 @@ import { localMessageToNewMessagePayload } from 'stream-chat';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 
-import { Channel } from '../Channel';
+import { Channel, ChannelPlaceholder } from '../Channel';
 import { Chat } from '../../Chat';
 import { LoadingErrorIndicator } from '../../Loading';
 
@@ -199,31 +199,17 @@ describe('Channel', () => {
     vi.clearAllMocks();
   });
 
-  it('should render the EmptyPlaceholder prop if the channel is not provided by the ChatContext', async () => {
-    const DefaultEmptyStateIndicator = () => <div>default empty state</div>;
-
-    // get rid of console warnings as they are expected - Channel reaches to ChatContext
-    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
-    render(
-      <WithComponents overrides={{ EmptyStateIndicator: DefaultEmptyStateIndicator }}>
-        <ChatProvider value={fromPartial<ChatContextValue>({})}>
-          <Channel EmptyPlaceholder={<div>empty</div>} />
-        </ChatProvider>
-      </WithComponents>,
+  it('renders the channel column with no channel bound, for the slot to fill while none is selected', async () => {
+    // `Channel` used to accept no channel and render an `EmptyPlaceholder` in its place. A channel
+    // is required now; an application that needs the column while nothing is selected renders this.
+    const { asFragment } = render(
+      <ChatProvider value={fromPartial<ChatContextValue>({})}>
+        <ChannelPlaceholder>empty</ChannelPlaceholder>
+      </ChatProvider>,
     );
 
     await waitFor(() => expect(screen.getByText('empty')).toBeInTheDocument());
-    expect(screen.queryByText('default empty state')).not.toBeInTheDocument();
-  });
-
-  it('should render empty channel container if no channel is provided and EmptyPlaceholder is null', async () => {
-    const childrenContent = 'Channel children';
-    const { asFragment } = render(
-      <ChatProvider value={fromPartial<ChatContextValue>({})}>
-        <Channel EmptyPlaceholder={null}>{childrenContent}</Channel>
-      </ChatProvider>,
-    );
-    await waitFor(() => expect(asFragment()).toMatchSnapshot());
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('should render the provided loading indicator while the channel is being watched', async () => {
