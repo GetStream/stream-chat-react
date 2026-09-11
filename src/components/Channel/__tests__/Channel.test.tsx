@@ -839,14 +839,17 @@ describe('Channel', () => {
         await waitFor(() => expect(markReadSpy).not.toHaveBeenCalled());
       });
 
-      it('title of the page should include the unread count if the user is not looking at the page when a new message event happens', async () => {
+      it('leaves document.title alone when a new message arrives', async () => {
+        // The SDK no longer writes the tab title at all: what belongs there depends on what the
+        // application is showing, which no SDK component can know. `examples/vite` shows an
+        // application doing it for itself.
         const { channel, chatClient } = await setup();
-        const unreadAmount = 1;
+        const titleBefore = document.title;
         Object.defineProperty(document, 'hidden', {
           configurable: true,
           get: () => true,
         });
-        vi.spyOn(channel, 'countUnread').mockImplementation(() => unreadAmount);
+        vi.spyOn(channel, 'countUnread').mockImplementation(() => 1);
         const message = generateMessage({ user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
@@ -858,7 +861,7 @@ describe('Channel', () => {
           dispatchMessageEvent();
         });
 
-        await waitFor(() => expect(document.title).toContain(`${unreadAmount}`));
+        expect(document.title).toBe(titleBefore);
       });
 
       it('should update user data in MessageList based on updated_at', async () => {

@@ -235,6 +235,25 @@ Two things to know when writing your own:
 
 **This is a compile break for strict dictionaries.** `TranslationDictionary` is exact, so a dictionary that still declares `'channel.channelMissing.text'` fails to typecheck (`TS2353`). Delete the entry from any custom locale files — both example dictionaries in this repo needed it.
 
+### `Channel` no longer writes `document.title`; `activeUnreadHandler` → removed
+
+`Channel` used to set `document.title` to `(3) Your app` when a message arrived while the tab was hidden, and `ChannelProps.activeUnreadHandler` let you intercept that. Both are **removed, with no SDK replacement.**
+
+What belongs in a tab title depends on what the application is showing, and no SDK component can know that — it can know the unread counts, but not whether the user is currently looking at the channel those unreads are in. So the title is application code now. `examples/vite/src/DocumentTitleManager` is a complete, copyable implementation: a component rendered inside `Chat` that renders nothing, subscribes to the two unread counts and writes `document.title`, restoring the page's previous title when it unmounts.
+
+**If you relied on the old behavior**, be aware it was broken in ways worth not reproducing:
+
+- **It counted only the open channel** (`channel.countUnread()`), so messages arriving anywhere else never reached the title.
+- **It did nothing in a threads view**, where v15 mounts no ambient `Channel` — leaving a stale number belonging to a channel you had left.
+- **It skipped thread replies** that were not `show_in_channel`.
+- **It never put the title back.** Once set, `(3) Your app` survived reading the messages and returning to the tab.
+- **It compounded.** Channel bootstrap re-read the already-prefixed title as the new "original", producing `(1) (3) Your app`.
+
+Two things to know when writing your own:
+
+- **The counts are user-scoped, not view-scoped.** The unread message total comes from the connection's `me` payload plus the `total_unread_count` on events; the unread thread count from `client.threads` (which `Chat` keeps subscribed). Neither needs an active channel or thread.
+- **They are different units — do not add them.** One counts unread _messages_ in channels, the other counts _threads_ with unread replies. Thread replies also do not appear to reach the message total: `notification.thread_message_new` carries `unread_threads` but no `total_unread_count`.
+
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.

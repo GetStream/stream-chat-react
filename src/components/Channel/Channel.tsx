@@ -30,19 +30,8 @@ import {
 import { getChannel } from '../../utils';
 import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
-import type { ChannelConfig } from 'stream-chat';
-import { useStateStore } from '../../store';
-
-// Selects the flag, not the `readEvents` subtree: comparing a boolean means this only
-// re-renders when the setting actually flips.
-const readEventsStateSelector = ({ readEvents }: ChannelConfig) => ({
-  readEventsEnabled: readEvents.enabled,
-});
 
 export type ChannelProps = {
-  /** Custom handler function that runs when the active channel has unread messages and the app is running on a separate browser tab */
-  // todo: remove from props
-  activeUnreadHandler?: (unread: number, documentTitle: string) => void;
   /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
   // todo: move WithAudioPlayback outside the Channel component
   allowConcurrentAudioPlayback?: boolean;
@@ -97,7 +86,6 @@ export const ChannelPlaceholder = ({
 // one level down. See specs/channel-instance-axis/spec.md.
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const {
-    activeUnreadHandler,
     allowConcurrentAudioPlayback,
     channel,
     channelQueryOptions,
@@ -112,13 +100,8 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { t } = useTranslationContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
-  const { readEventsEnabled } = useStateStore(
-    channel.configState,
-    readEventsStateSelector,
-  );
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
-  const originalTitle = useRef('');
   const online = useRef(true);
 
   const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
@@ -167,21 +150,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     }
 
     if (event.type === 'message.new') {
-      const mainChannelUpdated =
-        !event.message?.parent_id || event.message?.show_in_channel;
-
-      if (mainChannelUpdated) {
-        if (document.hidden && readEventsEnabled && !channel.muteStatus().muted) {
-          const unread = channel.countUnread();
-
-          if (activeUnreadHandler) {
-            activeUnreadHandler(unread, originalTitle.current);
-          } else {
-            document.title = `(${unread}) ${originalTitle.current}`;
-          }
-        }
-      }
-
       if (
         event.message?.user?.id === client.userID &&
         event?.message?.created_at &&
@@ -284,7 +252,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
       if (isMounted) {
         setIsBootstrapping(false);
       }
-      originalTitle.current = document.title;
 
       if (!errored) {
         // Re-derive the unread snapshot from the current read state on every (re)open. A cached
@@ -325,7 +292,7 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     // same conversation has its own stores and its own subscription, and would otherwise never be
     // watched. See src/components/Channel/channelInstanceKey.ts.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel, channelQueryOptions, readEventsEnabled, initializeOnMount]);
+  }, [channel, channelQueryOptions, initializeOnMount]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;
