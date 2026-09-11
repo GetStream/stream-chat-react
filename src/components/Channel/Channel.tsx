@@ -14,7 +14,6 @@ import {
   ChannelInstanceProvider,
   useChatContext,
   useComponentContext,
-  useTranslationContext,
 } from '../../context';
 
 import { CHANNEL_CONTAINER_ID } from './constants';
@@ -97,7 +96,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     useComponentContext();
 
   const { client, latestMessageDatesByChannels, searchController } = useChatContext();
-  const { t } = useTranslationContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
   const jumpToMessageFromSearch = useSearchFocusedMessage();
@@ -205,6 +203,11 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
 
   // useLayoutEffect here to prevent spinner. Use Suspense when it is available in stable release
   useLayoutEffect(() => {
+    // Both bootstrap flags are set from the *current* channel below, synchronously: an async
+    // function body runs to its first `await`, and neither the `if` branch's `setIsBootstrapping`
+    // nor the `else` branch's pair of resets has one before it. So they never depended on the
+    // subtree being rebuilt, and switching channels cannot carry a spinner or an error across.
+    // Pinned by src/components/Channel/__tests__/channelSwitchReset.test.tsx.
     let errored = false;
     let done = false;
     let isMounted = true;
@@ -328,14 +331,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     return (
       <ChannelPlaceholder>
         <LoadingErrorIndicator error={bootstrapError} />
-      </ChannelPlaceholder>
-    );
-  }
-
-  if (!channel.watch) {
-    return (
-      <ChannelPlaceholder>
-        <div>{t('channel.channelMissing.text', 'Channel Missing')}</div>
       </ChannelPlaceholder>
     );
   }

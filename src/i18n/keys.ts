@@ -63,7 +63,6 @@ export type TranslationCatalog = {
   'audioPlayback.progressBarA11y.audioPosition.ariaLabel': 'Audio position {{ elapsed }} of {{ duration }}';
   'audioPlayback.progressBarA11y.audioPositionPercent.ariaLabel': 'Audio position {{ progress }} percent';
   'baseImage.imagePlaceholder.imageFailedLoad.ariaLabel': 'Image failed to load';
-  'channel.channelMissing.text': 'Channel Missing';
   'channelDetail.avatarChannelDetail.channelDetails.ariaLabel': 'Channel details';
   'channelDetail.avatarChannelDetail.openChannelDetails.ariaLabel': 'Open channel details';
   'channelDetail.channelFilesEmpty.noFiles.text': 'No files';
