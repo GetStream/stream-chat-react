@@ -185,7 +185,7 @@
     "@vitest/eslint-plugin": "^1.6.20",
     "concurrently": "^9.2.1",
     "conventional-changelog-conventionalcommits": "^9.3.1",
-    "dayjs": "^1.11.13",
+    "dayjs": "^1.11.23",
     "emoji-mart": "^5.6.0",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",

@@ -344,7 +344,7 @@ Two resolved copies of `i18next` would be harmless anyway — `Streami18n` calls
 `i18next.createInstance()` and registers dictionaries on that instance, never on a global. `dayjs`
 is the one that genuinely wants a single copy, because locale registration _is_ global: an app
 adding a language does `import 'dayjs/locale/de.js'`, and that has to land in the same registry the
-SDK reads. Keeping the range compatible (`^1.11.13`) is what makes them dedupe. Do not add
+SDK reads. Keeping the range identical (`^1.11.23`) is what makes them dedupe. Do not add
 `i18next` as a direct dependency here.
 
 The `language.*` names (`languageNameDefaults`, `LanguageNameCatalog`) still come from

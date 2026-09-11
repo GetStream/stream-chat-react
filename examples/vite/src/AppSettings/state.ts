@@ -1,4 +1,4 @@
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
