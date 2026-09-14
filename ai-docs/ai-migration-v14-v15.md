@@ -258,6 +258,16 @@ Two things to know when writing your own:
 
 **This is a compile break for strict dictionaries.** `TranslationDictionary` is exact, so a dictionary that still declares `'channel.channelMissing.text'` fails to typecheck (`TS2353`). Delete the entry from any custom locale files — both example dictionaries in this repo needed it.
 
+### `ChatContext.latestMessageDatesByChannels` → removed
+
+The field is **removed** from `ChatContextValue`, along with the `message.new` subscription in `Channel` that maintained it.
+
+Despite the name it never held the channel's latest message date: the write was filtered to the _current user's_ own messages, because it existed to compute how much slow-mode cooldown was left since you last posted. That job now belongs to `channel.cooldownTimer`, a `CooldownTimer` in `stream-chat` with its own `StateStore`, so the map had no reader left.
+
+- **Slow-mode cooldown** → `useStateStore(channel.cooldownTimer.state, …)`, or the `useCooldownRemaining` / `useIsCooldownActive` hooks.
+- **The channel's latest message** → `channel.messagePaginator.aggregateState.lastMessage`.
+- **When the current user last posted in a channel** → no longer available from the React SDK. Nothing in the SDK consumed it, but if you did, track it yourself from `message.new`.
+
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.

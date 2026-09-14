@@ -60,7 +60,7 @@ export const ChannelPlaceholder = ({
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { allowConcurrentAudioPlayback, channel, children } = props;
 
-  const { client, latestMessageDatesByChannels, searchController } = useChatContext();
+  const { client, searchController } = useChatContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
   const jumpToMessageFromSearch = useSearchFocusedMessage();
@@ -137,6 +137,7 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
       // Re-fetching what is already loaded is maintenance of a bound channel, not initialization,
       // so it stays here -- but the page size is the SDK default now rather than the initial query
       // options, which `Channel` no longer takes.
+      // todo: remove with introduction of REACT-1175 Single source of truth for user references across entities
       client.on('user.deleted', async () => {
         const oldestID = channel.messagePaginator.items?.[0]?.id;
 
@@ -145,28 +146,12 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
           watchers: { limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
         });
       }),
-
-      // Keeps `ChatContext.latestMessageDatesByChannels` current for this channel's own messages.
-      channel.on('message.new', (event) => {
-        const messageCreatedAt = event.message?.created_at;
-        const cid = event.message?.cid;
-
-        if (event.message?.user?.id !== client.userID || !messageCreatedAt || !cid)
-          return;
-
-        if (
-          !latestMessageDatesByChannels[cid] ||
-          latestMessageDatesByChannels[cid] < messageCreatedAt
-        ) {
-          latestMessageDatesByChannels[cid] = messageCreatedAt;
-        }
-      }),
     ];
 
     return () => {
       subscriptions.forEach((subscription) => subscription.unsubscribe());
     };
-  }, [channel, client, latestMessageDatesByChannels]);
+  }, [channel, client]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;

@@ -17,7 +17,6 @@ const renderSelector = async (selectorProps?: any) => {
       value={{
         client,
         getAppSettings: vi.fn(),
-        latestMessageDatesByChannels: {},
         mutes: [],
         searchController: fromPartial({}),
         theme: 'messaging light',
@@ -41,7 +40,6 @@ const renderSelectorWithPanels = async (selectorProps?: any) => {
       value={{
         client,
         getAppSettings: vi.fn(),
-        latestMessageDatesByChannels: {},
         mutes: [],
         searchController: fromPartial({}),
         theme: 'messaging light',

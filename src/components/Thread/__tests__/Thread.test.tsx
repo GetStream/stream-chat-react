@@ -117,9 +117,7 @@ const renderComponent = (
     'threadInstance' in opts ? opts.threadInstance : makeThread().thread;
   vi.mocked(useThreadContext).mockReturnValue(threadInstance);
   return render(
-    <ChatProvider
-      value={mockChatContext({ client: chatClient, latestMessageDatesByChannels: {} })}
-    >
+    <ChatProvider value={mockChatContext({ client: chatClient })}>
       <ComponentProvider value={mockComponentContext({ ...componentOverrides })}>
         <Thread {...threadProps} />
       </ComponentProvider>

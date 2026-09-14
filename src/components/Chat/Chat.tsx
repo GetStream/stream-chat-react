@@ -125,7 +125,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     useImageFlagEmojisOnWindows = false,
   } = props;
 
-  const { getAppSettings, latestMessageDatesByChannels, mutes } = useChat({ client });
+  const { getAppSettings, mutes } = useChat({ client });
   const translators = useStreami18n({ client, i18nInstance });
 
   const searchController = useMemo(
@@ -148,7 +148,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     customClasses,
     getAppSettings,
     isMessageAIGenerated,
-    latestMessageDatesByChannels,
     mutes,
     searchController,
     theme,

@@ -251,19 +251,23 @@ describe('Channel', () => {
     );
   });
 
-  it('releases every channel subscription it opened when the channel goes away', async () => {
+  it('releases every subscription it opened when the channel goes away', async () => {
+    // The invariant, rather than the wiring: whatever this component subscribes to, it
+    // unsubscribes from. Before the subscriptions were collected and released by their own handles,
+    // the effect subscribed to five client events and released three, leaking a pair on every
+    // channel change. This fails if a subscription is ever added without being released.
     const { channel, chatClient } = await setup();
     const unsubscribes: ReturnType<typeof vi.fn>[] = [];
-    const subscribe = channel.on.bind(channel);
+    const subscribe = chatClient.on.bind(chatClient);
 
-    vi.spyOn(channel, 'on').mockImplementation(((
+    vi.spyOn(chatClient, 'on').mockImplementation(((
       ...args: Parameters<typeof subscribe>
     ) => {
       const subscription = subscribe(...args);
       const unsubscribe = vi.fn(subscription.unsubscribe);
       unsubscribes.push(unsubscribe);
       return { unsubscribe };
-    }) as typeof channel.on);
+    }) as typeof chatClient.on);
 
     const { unmount } = await renderComponent({ channel, chatClient });
     await waitFor(() => expect(unsubscribes.length).toBeGreaterThan(0));
@@ -276,15 +280,18 @@ describe('Channel', () => {
   it('should not mark the channel as read on mount (owned by useMarkRead when caught up at the bottom)', async () => {
     const { channel, chatClient } = await setup();
     vi.spyOn(channel, 'countUnread').mockImplementation(() => 1);
-    const channelOnSpy = vi.spyOn(channel, 'on');
+    const clientOnSpy = vi.spyOn(chatClient, 'on');
     const markReadSpy = vi.spyOn(channel, 'markRead');
 
     // <Channel> renders no message list here, so nothing marks read on open; marking read is
     // triggered by useMarkRead (see useMarkRead tests), not by Channel mounting.
     await renderComponent({ channel, chatClient });
-    // Wait for the mount effect to finish (it registers the channel event subscriptions)...
+    // Wait for the mount effect to finish (it registers the event subscriptions)...
     await waitFor(() =>
-      expect(channelOnSpy).toHaveBeenCalledWith('message.new', expect.any(Function)),
+      expect(clientOnSpy).toHaveBeenCalledWith(
+        'connection.recovered',
+        expect.any(Function),
+      ),
     );
     // ...then confirm it did not mark read.
     expect(markReadSpy).not.toHaveBeenCalled();
