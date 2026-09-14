@@ -1,7 +1,7 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
 import React, { useEffect, useMemo, useRef } from 'react';
 import clsx from 'clsx';
-import type { Event, Channel as StreamChannel } from 'stream-chat';
+import type { Channel as StreamChannel } from 'stream-chat';
 
 import { ChannelInstanceProvider, useChatContext } from '../../context';
 
@@ -65,82 +65,11 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
 
   const jumpToMessageFromSearch = useSearchFocusedMessage();
 
-  const online = useRef(true);
-
   const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
     null,
   );
 
   // todo: can we remove this big event handler and keep only relevant UI-only logic (e.g. 'connection.recovered')?
-  const handleEvent = async (event: Event) => {
-    // ignore the event if it is not targeted at the current channel.
-    // Event targeted at this channel or globally targeted event should lead to state refresh
-    if (event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid)
-      return;
-
-    if (event.type === 'user.watching.start' || event.type === 'user.watching.stop')
-      return;
-
-    if (event.type === 'connection.changed' && typeof event.online === 'boolean') {
-      online.current = event.online;
-    }
-
-    if (event.type === 'connection.recovered') {
-      // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
-      // skips re-seeding the message list of an `active` channel (we mark this one active while
-      // mounted) because its 25-message page would perturb a larger scrolled-back window — it hands
-      // that job to `channel.reload()`, which re-watches sized to the loaded window instead. Nothing
-      // calls it for us, so without this the list stays stale after a reconnect and hard deletes that
-      // happened while offline are never reconciled (they arrive via no event; only a re-query
-      // surfaces them). This is deliberately the SDK's opinion about how the default component
-      // behaves, not client-level policy.
-      //
-      // `recoverState` dispatches this only after re-querying the active channels, so the rest of the
-      // channel state is already fresh by now.
-      if (channel.pendingDisposal) return;
-      try {
-        await channel.reload();
-      } catch (error) {
-        // The socket can flap straight back down mid-reload. Keep the previously loaded window
-        // rather than tearing the view down — the next recovery re-runs this.
-        console.warn('Failed to reload the channel after connection recovery', error);
-      }
-      return;
-    }
-
-    if (event.type === 'message.new') {
-      if (
-        event.message?.user?.id === client.userID &&
-        event?.message?.created_at &&
-        event?.message?.cid
-      ) {
-        const messageCreatedAt = event.message.created_at;
-        const cid = event.message.cid;
-
-        if (
-          !latestMessageDatesByChannels[cid] ||
-          latestMessageDatesByChannels[cid] < messageCreatedAt
-        ) {
-          latestMessageDatesByChannels[cid] = messageCreatedAt;
-        }
-      }
-    }
-
-    if (event.type === 'user.deleted') {
-      const oldestID = channel.messagePaginator.items?.[0]?.id;
-
-      /**
-       * As the channel state is not normalized we re-fetch the channel data. Thus, we avoid having to search for user references in the channel state.
-       */
-      // Re-fetching what is already loaded is maintenance of a bound channel, not initialization,
-      // so it stays here -- but the page size is the SDK default now rather than the initial query
-      // options, which `Channel` no longer takes.
-      await channel.query({
-        messages: { id_lt: oldestID, limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
-        watchers: { limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
-      });
-    }
-  };
 
   // Declare this channel as being consumed for as long as it is mounted. Refcounted in the client,
   // so several consumers holding the same Channel instance are handled. This is what gates the
@@ -174,26 +103,70 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
       channel.messagePaginator.seedUnreadSnapshot();
     }
 
-    // The more complex sync logic is done in Chat
-    client.on('connection.changed', handleEvent);
-    client.on('connection.recovered', handleEvent);
-    client.on('user.updated', handleEvent);
-    client.on('user.deleted', handleEvent);
-    client.on('user.messages.deleted', handleEvent);
-    channel.on(handleEvent);
+    // One subscription per thing that happens, rather than one handler that re-dispatches on
+    // `event.type`. Each is unsubscribed by its own handle, so subscribing and unsubscribing cannot
+    // drift apart, and the guards a shared handler needed -- ignoring `user.watching.*`, checking
+    // that a `user.messages.deleted` was for this channel -- are gone: a typed subscription only
+    // receives what it asked for.
+    const subscriptions = [
+      // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
+      // skips re-seeding the message list of an `active` channel (we mark this one active while
+      // mounted) because its 25-message page would perturb a larger scrolled-back window — it hands
+      // that job to `channel.reload()`, which re-watches sized to the loaded window instead. Nothing
+      // calls it for us, so without this the list stays stale after a reconnect and hard deletes that
+      // happened while offline are never reconciled (they arrive via no event; only a re-query
+      // surfaces them). This is deliberately the SDK's opinion about how the default component
+      // behaves, not client-level policy.
+      //
+      // `recoverState` dispatches this only after re-querying the active channels, so the rest of the
+      // channel state is already fresh by now.
+      client.on('connection.recovered', async () => {
+        if (channel.pendingDisposal) return;
+        try {
+          await channel.reload();
+        } catch (error) {
+          // The socket can flap straight back down mid-reload. Keep the previously loaded window
+          // rather than tearing the view down — the next recovery re-runs this.
+          console.warn('Failed to reload the channel after connection recovery', error);
+        }
+      }),
+
+      /**
+       * As the channel state is not normalized we re-fetch the channel data. Thus, we avoid having to search for user references in the channel state.
+       */
+      // Re-fetching what is already loaded is maintenance of a bound channel, not initialization,
+      // so it stays here -- but the page size is the SDK default now rather than the initial query
+      // options, which `Channel` no longer takes.
+      client.on('user.deleted', async () => {
+        const oldestID = channel.messagePaginator.items?.[0]?.id;
+
+        await channel.query({
+          messages: { id_lt: oldestID, limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
+          watchers: { limit: DEFAULT_NEXT_CHANNEL_PAGE_SIZE },
+        });
+      }),
+
+      // Keeps `ChatContext.latestMessageDatesByChannels` current for this channel's own messages.
+      channel.on('message.new', (event) => {
+        const messageCreatedAt = event.message?.created_at;
+        const cid = event.message?.cid;
+
+        if (event.message?.user?.id !== client.userID || !messageCreatedAt || !cid)
+          return;
+
+        if (
+          !latestMessageDatesByChannels[cid] ||
+          latestMessageDatesByChannels[cid] < messageCreatedAt
+        ) {
+          latestMessageDatesByChannels[cid] = messageCreatedAt;
+        }
+      }),
+    ];
 
     return () => {
-      channel.off(handleEvent);
-      client.off('connection.changed', handleEvent);
-      client.off('connection.recovered', handleEvent);
-      client.off('user.deleted', handleEvent);
+      subscriptions.forEach((subscription) => subscription.unsubscribe());
     };
-    // `handleEvent` is deliberately excluded: it is re-created on every render, and this effect
-    // must not re-run for it. `channel` is the instance, not its `cid` -- a new instance for the
-    // same conversation has its own stores and its own subscription, and would otherwise never be
-    // subscribed. See src/components/Channel/channelInstanceKey.ts.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channel, client]);
+  }, [channel, client, latestMessageDatesByChannels]);
 
   useEffect(() => {
     if (!jumpToMessageFromSearch?.id) return;

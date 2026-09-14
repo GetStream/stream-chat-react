@@ -251,12 +251,26 @@ describe('Channel', () => {
     );
   });
 
-  it('should add an `on` handler to the channel on mount', async () => {
+  it('releases every channel subscription it opened when the channel goes away', async () => {
     const { channel, chatClient } = await setup();
-    const channelOnSpy = vi.spyOn(channel, 'on');
-    await renderComponent({ channel, chatClient });
+    const unsubscribes: ReturnType<typeof vi.fn>[] = [];
+    const subscribe = channel.on.bind(channel);
 
-    await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
+    vi.spyOn(channel, 'on').mockImplementation(((
+      ...args: Parameters<typeof subscribe>
+    ) => {
+      const subscription = subscribe(...args);
+      const unsubscribe = vi.fn(subscription.unsubscribe);
+      unsubscribes.push(unsubscribe);
+      return { unsubscribe };
+    }) as typeof channel.on);
+
+    const { unmount } = await renderComponent({ channel, chatClient });
+    await waitFor(() => expect(unsubscribes.length).toBeGreaterThan(0));
+
+    unmount();
+
+    unsubscribes.forEach((unsubscribe) => expect(unsubscribe).toHaveBeenCalled());
   });
 
   it('should not mark the channel as read on mount (owned by useMarkRead when caught up at the bottom)', async () => {
@@ -268,8 +282,10 @@ describe('Channel', () => {
     // <Channel> renders no message list here, so nothing marks read on open; marking read is
     // triggered by useMarkRead (see useMarkRead tests), not by Channel mounting.
     await renderComponent({ channel, chatClient });
-    // Wait for the mount/bootstrap effect to finish (it registers the channel event handler)...
-    await waitFor(() => expect(channelOnSpy).toHaveBeenCalledWith(expect.any(Function)));
+    // Wait for the mount effect to finish (it registers the channel event subscriptions)...
+    await waitFor(() =>
+      expect(channelOnSpy).toHaveBeenCalledWith('message.new', expect.any(Function)),
+    );
     // ...then confirm it did not mark read.
     expect(markReadSpy).not.toHaveBeenCalled();
   });

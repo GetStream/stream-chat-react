@@ -55,17 +55,18 @@ describe('a replacement Channel instance for the same cid', () => {
     expect(second.cid).toBe(first.cid);
   });
 
-  it('receives the channel event subscription', async () => {
+  it('receives the channel event subscriptions', async () => {
     const { client, first, second } = await setup();
     const onSecond = vi.spyOn(second, 'on');
-    const offFirst = vi.spyOn(first, 'off');
+    const unsubscribeFirst = vi.fn();
+    vi.spyOn(first, 'on').mockReturnValue({ unsubscribe: unsubscribeFirst });
 
     const { rerender } = render(renderChannel(client, first));
     rerender(renderChannel(client, second));
 
-    // The subscription is registered after the channel has been queried, so it lands a tick later.
     await waitFor(() => expect(onSecond).toHaveBeenCalled());
-    expect(offFirst).toHaveBeenCalled();
+    // The previous instance's subscriptions are released by their own handles.
+    expect(unsubscribeFirst).toHaveBeenCalled();
   });
 
   it('is activated, and the previous instance released', async () => {
