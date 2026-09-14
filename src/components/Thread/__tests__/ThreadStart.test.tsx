@@ -34,7 +34,7 @@ const i18nMock = {
 
 const renderComponent = ({ client, parentMessage }: any) =>
   render(
-    <ChatProvider value={mockChatContext({ client, latestMessageDatesByChannels: {} })}>
+    <ChatProvider value={mockChatContext({ client })}>
       <TranslationProvider value={mockTranslationContextValue(i18nMock)}>
         <ThreadProvider thread={makeThread(parentMessage)}>
           <ThreadStart />

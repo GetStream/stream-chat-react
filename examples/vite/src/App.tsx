@@ -21,6 +21,7 @@ import {
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
   createPriorityOwnershipResolver,
+  MessageSearchSource,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -29,6 +30,7 @@ import {
   type AttachmentProps,
   Chat,
   defaultReactionOptions,
+  getChannel,
   mapEmojiMartData,
   MessageReactions,
   NotificationList,
@@ -69,6 +71,7 @@ import {
   getInitialThreadIdFromUrl,
   WorkspaceUrlSync,
 } from './ChatLayout/WorkspaceUrlSync.tsx';
+import { getFocusTargetsFromUrl } from './ChatLayout/focusUrlParam.ts';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
 import {
   resolveSingleChannel,
@@ -92,6 +95,10 @@ import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 import { streamI18n } from './i18n';
+import {
+  DocumentTitleManager,
+  type FormatDocumentTitleParams,
+} from './DocumentTitleManager';
 
 const PUBLIC_VITE_EXAMPLE_API_KEY = 'xzwhhgtazy6h';
 
@@ -257,6 +264,22 @@ const CustomAttachmentWithActions = (props: AttachmentProps) => (
   <Attachment {...props} AttachmentActions={CustomAttachmentActions} />
 );
 
+const APP_TITLE = 'Stream Chat React';
+
+const formatDocumentTitle = ({
+  totalUnreadChannelMessageCount,
+  totalUnreadThreadCount,
+}: FormatDocumentTitleParams) => {
+  // Two different units -- unread messages and unread threads -- so they are shown side by side
+  // rather than added together.
+  const parts = [
+    totalUnreadChannelMessageCount > 0 ? `${totalUnreadChannelMessageCount}` : null,
+    totalUnreadThreadCount > 0 ? `${totalUnreadThreadCount} threads` : null,
+  ].filter(Boolean);
+
+  return parts.length ? `(${parts.join(' · ')}) ${APP_TITLE}` : APP_TITLE;
+};
+
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
@@ -333,8 +356,45 @@ const App = () => {
             },
           },
         }),
+        new MessageSearchSource(chatClient, undefined, {
+          messageSearchChannel: {
+            initialFilterConfig: {
+              $or: {
+                enabled: true,
+                generate: () => ({
+                  $or: [{ members: { $in: [chatClient.userId!] } }, { type: 'public' }],
+                  members: undefined,
+                }),
+              },
+            },
+          },
+        }),
         new UserSearchSource(chatClient),
       ],
+    });
+  }, [chatClient]);
+
+  // `?focus=<cid>:<messageId>` (repeatable) — open each named channel at the message it names.
+  // `jumpToMessage` loads the window and leaves a focus signal on the channel's paginator; the
+  // signal's countdown only starts once a message list has actually rendered it, so running this
+  // before the layout has mounted is fine — the highlight is still there when the list appears.
+  useEffect(() => {
+    if (!chatClient) return;
+
+    const targets = getFocusTargetsFromUrl();
+    if (!targets.length) return;
+
+    targets.forEach(({ cid, messageId }) => {
+      const separatorIndex = cid.indexOf(':');
+      const channel = chatClient.channel(
+        cid.slice(0, separatorIndex),
+        cid.slice(separatorIndex + 1),
+      );
+
+      void (async () => {
+        if (!channel.initialized) await getChannel({ channel, client: chatClient });
+        await channel.messagePaginator.jumpToMessage(messageId);
+      })();
     });
   }, [chatClient]);
 
@@ -567,6 +627,10 @@ const App = () => {
           searchController={searchController}
           theme={chatTheme}
         >
+          {/* Application code (examples/vite/src/DocumentTitleManager), not an SDK component: the
+              SDK never touches document.title, because what belongs in a tab title depends on what
+              the app is showing. */}
+          <DocumentTitleManager formatTitle={formatDocumentTitle} />
           <ChatSkipNavigation />
           <div
             className='app-chat-layout'

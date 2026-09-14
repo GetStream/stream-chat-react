@@ -80,7 +80,6 @@ const renderComponent = ({
     <ChatProvider
       value={fromPartial<ChatContextValue>({
         client,
-        latestMessageDatesByChannels: {},
       })}
     >
       <ChannelInstanceProvider value={{ channel }}>

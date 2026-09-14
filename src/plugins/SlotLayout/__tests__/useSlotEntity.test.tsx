@@ -67,7 +67,6 @@ const createChatContextValue = (): ChatContextValue =>
       },
     },
     getAppSettings: vi.fn(() => null),
-    latestMessageDatesByChannels: {},
     openMobileNav: vi.fn(),
     searchController: {},
     theme: 'str-chat__theme-light',
