@@ -20,6 +20,7 @@ import {
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  createPriorityOwnershipResolver,
   MessageSearchSource,
   SearchController,
   UserSearchSource,
@@ -129,6 +130,10 @@ if (!apiKey) {
 // v10: the paginator takes query options as `requestOptions`, which omits `offset`/`limit` —
 // page size is a paginator concern and is passed via `paginatorOptions.pageSize` instead.
 const CHANNELS_PAGE_SIZE = 10;
+
+// Unlike the archived / muted / default lists, which are mutually exclusive buckets, the unread
+// inbox is a view over them: a channel with unread messages belongs both here and in "My channels".
+const UNREAD_LIST_ID = 'channels:unread';
 
 const requestOptions: ChannelPaginatorRequestOptions = {
   presence: true,
@@ -430,12 +435,21 @@ const App = () => {
     fallback.setItems({ isLastPage: true, valueOrFactory: [] });
 
     // One state update for the whole set — inserting them one by one would publish (and re-render)
-    // four times.
+    // once per list.
     channelManager.setPaginators([
       new ChannelPaginator({
         client: chatClient,
         filters: { ...filters, archived: false, muted: false },
         id: 'channels:default',
+        paginatorOptions: { pageSize: CHANNELS_PAGE_SIZE },
+        requestOptions,
+        sort,
+      }),
+      new ChannelPaginator({
+        client: chatClient,
+        // `has_unread: false` is rejected by the API, so there is no "all read" counterpart
+        filters: { ...filters, archived: false, has_unread: true, muted: false },
+        id: UNREAD_LIST_ID,
         paginatorOptions: { pageSize: CHANNELS_PAGE_SIZE },
         requestOptions,
         sort,
@@ -455,12 +469,26 @@ const App = () => {
       fallback,
     ]);
 
-    channelManager.setOwnershipResolver([
+    // Ownership is exclusive, so the unread list has to be granted outside the priority order —
+    // ranked, it would steal every unread channel out of "My channels"; unranked, the priority
+    // winner would evict it from the unread list instead.
+    const byPriority = createPriorityOwnershipResolver([
       'channels:archived',
       'channels:muted',
       'channels:default',
       'channels:opened',
     ]);
+
+    channelManager.setOwnershipResolver((params) => {
+      const buckets = params.matchingPaginators.filter(
+        (paginator) => paginator.id !== UNREAD_LIST_ID,
+      );
+      const owners = byPriority({ ...params, matchingPaginators: buckets });
+
+      return buckets.length === params.matchingPaginators.length
+        ? owners
+        : [...owners, UNREAD_LIST_ID];
+    });
 
     return () => {
       // this app is the only one registering lists on the manager, so it can drop them all at once

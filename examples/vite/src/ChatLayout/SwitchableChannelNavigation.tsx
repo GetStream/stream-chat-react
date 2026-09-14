@@ -32,6 +32,7 @@ import { ScrollToActiveChannelButton } from './ScrollToActiveChannelButton';
 // this map lives here in the example rather than in the SDK.
 const CHANNEL_LIST_LABELS: Record<string, string> = {
   'channels:default': 'My channels',
+  'channels:unread': 'Unread',
   'channels:archived': 'Archived',
   'channels:muted': 'Muted',
   'channels:opened': 'Opened',
