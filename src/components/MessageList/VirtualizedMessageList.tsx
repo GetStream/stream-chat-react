@@ -59,7 +59,7 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { VirtualizedMessageListContextProvider } from '../../context/VirtualizedMessageListContext';
-import { getChannelInstanceKey } from '../Channel/channelInstanceKey';
+import { getMessageSourceKey } from './messageSourceKey';
 import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
 import { useMessagePaginator } from '../../hooks';
@@ -766,6 +766,7 @@ export type VirtualizedMessageListProps = Partial<
  */
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const channel = useChannel();
+  const thread = useThreadContext();
 
   const { read } = useStateStore(channel?.state, channelReadSelector) ?? {};
 
@@ -776,8 +777,8 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
     <VirtualizedMessageListWithContext
       channel={channel}
       // See the note in MessageList: this list's local state -- Virtuoso's scroll offset above all
-      // -- is scoped to the channel instance it is showing.
-      key={getChannelInstanceKey(channel)}
+      // -- is scoped to whatever it is showing, a thread's replies or a channel's messages.
+      key={getMessageSourceKey({ channel, thread })}
       // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
       // hasMore={!!hasMore}
       // hasMoreNewer={!!hasMoreNewer}

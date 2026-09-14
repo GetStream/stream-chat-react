@@ -7,7 +7,6 @@ import { MESSAGE_ACTIONS } from '../Message';
 import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
-import { getChannelInstanceKey } from '../Channel/channelInstanceKey';
 import { MessageList, VirtualizedMessageList } from '../MessageList';
 import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
 import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
@@ -48,26 +47,6 @@ export type ThreadProps = {
   virtualized?: boolean;
 };
 
-/**
- * The Thread component renders a parent Message with a list of replies
- */
-export const Thread = (props: ThreadProps) => {
-  const threadInstance = useThreadContext();
-  const { repliesEnabled } =
-    useStateStore(threadInstance?.channel.configState, repliesStateSelector) ?? {};
-
-  if (!threadInstance || repliesEnabled === false) return null;
-
-  // todo: maybe this extra layer with ThreadInner could be removed?
-  // the wrapper ensures a key variable is set and the component recreates on thread switch
-  return (
-    <ThreadInner
-      {...props}
-      key={`thread-${threadInstance.id}-${getChannelInstanceKey(threadInstance.channel)}`}
-    />
-  );
-};
-
 const selector = (nextValue: ThreadState) => ({
   isStateStale: nextValue.isStateStale,
   parentMessage: nextValue.parentMessage,
@@ -89,7 +68,15 @@ const messagePaginatorSelector = ({
 
 const threadManagerSelector = ({ threads }: { threads: StreamThread[] }) => ({ threads });
 
-const ThreadInner = (props: ThreadProps & { key: string }) => {
+/**
+ * The Thread component renders a parent Message with a list of replies.
+ *
+ * One component: the wrapper that used to sit here existed only to key this subtree on the thread,
+ * which rebuilt everything below on a thread switch -- including parts that hold no per-thread
+ * state. The reset now lives in the message list, which is what actually carries state scoped to
+ * the replies it shows.
+ */
+export const Thread = (props: ThreadProps) => {
   const {
     additionalMessageComposerProps,
     additionalMessageListProps,
@@ -102,6 +89,8 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   } = props;
   const threadInstance = useThreadContext();
   const { client, customClasses } = useChatContext();
+  const { repliesEnabled } =
+    useStateStore(threadInstance?.channel.configState, repliesStateSelector) ?? {};
   const { ThreadHead = DefaultThreadHead, ThreadHeader = DefaultThreadHeader } =
     useComponentContext();
 
@@ -178,7 +167,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     threadPaginatorState?.lastQueryError,
   ]);
 
-  if (!threadInstance || !parentMessage) return null;
+  if (!threadInstance || !parentMessage || repliesEnabled === false) return null;
 
   const threadClass =
     customClasses?.thread ||
