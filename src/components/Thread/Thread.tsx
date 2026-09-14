@@ -38,8 +38,6 @@ export type ThreadProps = {
   additionalParentMessageProps?: Partial<MessageProps>;
   /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
   additionalVirtualizedMessageListProps?: VirtualizedMessageListProps;
-  /** Allows multiple audio players to play the audio at the same time within this thread. Disabled by default. */
-  allowConcurrentAudioPlayback?: boolean;
   /** If true, focuses the `MessageComposer` component on opening a thread */
   autoFocus?: boolean;
   /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
@@ -97,7 +95,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     additionalMessageListProps,
     additionalParentMessageProps,
     additionalVirtualizedMessageListProps,
-    allowConcurrentAudioPlayback,
     autoFocus = true,
     enableDateSeparator = false,
     messageActions = Object.keys(MESSAGE_ACTIONS),
@@ -207,7 +204,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
       {/* The thread owns its audio-player pool (rather than inheriting one from an ambient
           <Channel>) because a slot-bound Thread is a sibling of the channel, not nested inside
           it. Scoping the pool here means thread audio stops when the thread unmounts. */}
-      <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
+      <WithAudioPlayback playbackScope={threadInstance}>
         <div className={threadClass}>
           <ThreadHeader closeThread={closeThread} thread={parentMessage} />
           <ThreadMessageList
