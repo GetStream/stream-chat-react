@@ -268,6 +268,32 @@ Despite the name it never held the channel's latest message date: the write was 
 - **The channel's latest message** → `channel.messagePaginator.aggregateState.lastMessage`.
 - **When the current user last posted in a channel** → no longer available from the React SDK. Nothing in the SDK consumed it, but if you did, track it yourself from `message.new`.
 
+### `SearchController._internalState` → removed; jump through the message paginator
+
+`SearchController._internalState` and its `focusedMessage` are **removed**, along with the
+`InternalSearchControllerState` type. Nothing replaces them: `channel.messagePaginator` already owns
+"which message should this list scroll to".
+
+Focus was stored in two places for one highlight. `MessageIntervalPaginator.jumpToMessage()` loads the
+window around a message and leaves a `messageFocusSignal` on that paginator — which both message lists
+already render from, and whose lifetime starts only once the message has actually appeared on screen.
+`focusedMessage` was a second copy of the same fact, on a second clock, and a paginator per list
+already gives one focus per list.
+
+- **To scroll a list to a message**, call `channel.messagePaginator.jumpToMessage(messageId)` (or
+  `thread.messagePaginator.jumpToMessage(...)` for a thread reply). `jumpToMessage` does not watch the
+  channel, so query it first if it has never been opened — `getChannel({ channel, client })`
+  de-duplicates concurrent calls.
+- **To read what a list is currently highlighting**, subscribe to
+  `channel.messagePaginator.messageFocusSignal` and take `signal?.messageId`. This is what the built-in
+  search results now use for their "you jumped here" marker, so the marker and the highlight share one
+  piece of state.
+- **`Channel` no longer performs the jump.** In v14 it watched `focusedMessage` and jumped on the
+  component's behalf. Selecting a search result now jumps directly — see `MessageSearchResultItem`.
+- **Restoring a jump from elsewhere**, such as URL parameters on page load, is just a
+  `jumpToMessage` call — the signal waits, uncounted, until a list renders it. `examples/vite` reads a
+  repeatable `?focus=<cid>:<messageId>` parameter this way.
+
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 
 `ChannelListItem`'s `getLatestMessagePreview` prop and the `getLatestMessagePreview` util (previously re-exported from the package root) are **removed**, along with the `latestMessagePreview` prop on `ChannelListItemUIProps`. The default `ChannelListItemUI` renders the last-message preview via the `SummarizedMessagePreview` component, which is now overridable through `ComponentContext`.

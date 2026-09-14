@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { SearchController } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
@@ -98,6 +97,8 @@ const renderComponent = async ({
       </ChatProvider>
     </TranslationProvider>,
   );
+
+  return { client };
 };
 
 describe('SearchResultItem Components', () => {
@@ -161,22 +162,28 @@ describe('SearchResultItem Components', () => {
     });
 
     it('handles message selection', async () => {
-      const searchController = new SearchController();
       const message = generateMessage();
-      const messageResponseData = generateChannel({ messages: [message] });
-      await renderComponent({
-        chatContext: { searchController },
+      // A message search hit is the message itself, carrying the channel it was found in.
+      const messageResponseData = {
+        id: message.id,
+        ...generateChannel({ messages: [message] }),
+      };
+      const { client } = await renderComponent({
         messageResponseData,
         SearchResultItemComponent,
       });
+      const { id, type } = messageResponseData.channel;
+      const jumpToMessage = vi
+        .spyOn(client.channel(type, id).messagePaginator, 'jumpToMessage')
+        .mockResolvedValue(true);
 
       await act(() => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
       });
 
-      expect(
-        searchController._internalState.getLatestValue().focusedMessage,
-      ).toStrictEqual(messageResponseData);
+      // Selecting a result jumps its channel's own paginator — no separate focus state to keep in
+      // step with the highlight the jump leaves behind.
+      expect(jumpToMessage).toHaveBeenCalledWith(message.id);
       expect(mockOpenChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });

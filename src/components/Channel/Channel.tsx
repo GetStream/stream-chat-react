@@ -1,21 +1,17 @@
 import type { ComponentProps, PropsWithChildren } from 'react';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import clsx from 'clsx';
 import type { Channel as StreamChannel } from 'stream-chat';
 
 import { ChannelInstanceProvider, useChatContext } from '../../context';
 
 import { CHANNEL_CONTAINER_ID } from './constants';
-import {
-  DEFAULT_HIGHLIGHT_DURATION,
-  DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
-} from '../../constants/limits';
+import { DEFAULT_NEXT_CHANNEL_PAGE_SIZE } from '../../constants/limits';
 
 import {
   useChannelContainerClasses,
   useImageFlagEmojisOnWindowsClass,
 } from './hooks/useChannelContainerClasses';
-import { useSearchFocusedMessage } from '../Search/hooks';
 import { WithAudioPlayback } from '../AudioPlayback';
 
 export type ChannelProps = {
@@ -23,18 +19,15 @@ export type ChannelProps = {
   // todo: move WithAudioPlayback outside the Channel component
   allowConcurrentAudioPlayback?: boolean;
   /**
-   * The channel to bind this subtree to. Required: a `Channel` without one has nothing to provide,
-   * and deciding what to show when no channel is selected is the application's layout concern --
-   * render `<ChannelPlaceholder />` (or nothing) instead of a channel-less `Channel`.
+   * The channel to bind this subtree to. Required -- render `<ChannelPlaceholder />` (or nothing)
+   * while none is selected. Initialize it before passing it in; `Channel` does not query.
    */
   channel: StreamChannel;
 };
 
 /**
- * The channel's content column (`.str-chat__channel`) without any channel bound to it.
- *
- * Exported so an application can fill the same layout slot while no channel is selected -- the case
- * `Channel` used to cover with its `EmptyPlaceholder` prop, back when it accepted no channel.
+ * The channel's content column (`.str-chat__channel`) with no channel bound, for filling the same
+ * layout slot while none is selected.
  */
 export const ChannelPlaceholder = ({
   children,
@@ -53,28 +46,17 @@ export const ChannelPlaceholder = ({
   );
 };
 
-// One component, not two. The split existed so the outer half could return early -- for a missing
-// channel, and before that to apply a `key` -- before any hook ran. `channel` is required now and
-// nothing is keyed, so there is nothing to return early for, and no reason for the hooks to live
-// one level down. See specs/channel-instance-axis/spec.md.
+// One component: `channel` is required and nothing is keyed, so there is no early return needing a
+// wrapper to sit in front of the hooks.
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   const { allowConcurrentAudioPlayback, channel, children } = props;
 
-  const { client, searchController } = useChatContext();
+  const { client } = useChatContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
 
-  const jumpToMessageFromSearch = useSearchFocusedMessage();
-
-  const clearSearchFocusedMessageTimeoutId = useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
-
-  // todo: can we remove this big event handler and keep only relevant UI-only logic (e.g. 'connection.recovered')?
-
-  // Declare this channel as being consumed for as long as it is mounted. Refcounted in the client,
-  // so several consumers holding the same Channel instance are handled. This is what gates the
-  // client's no-destructive-reseed of an open channel's message list: channel-list hydration skips
-  // re-seeding an active channel, leaving the fuller window `channel.reload()` owns intact.
+  // Claim the channel while mounted (refcounted, so several consumers are fine). The client skips
+  // re-seeding an active channel's message list on hydration, leaving the larger loaded window to
+  // `channel.reload()`.
   useEffect(() => {
     channel.activate();
     return () => {
@@ -82,62 +64,41 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     };
   }, [channel]);
 
-  // Memoized on the instance, which is the axis that matters: consumers subscribe to *this*
-  // channel's stores, so the value has to change when the instance does and not otherwise. It used
-  // to be an inline object, which was harmless while a channel change rebuilt the subtree anyway.
+  // Keyed on the instance, not the cid: children subscribe to *this* channel's stores.
   const channelInstanceContextValue = useMemo(() => ({ channel }), [channel]);
 
   useEffect(() => {
-    // Re-derive the unread snapshot from the current read state on every (re)open. A cached
-    // channel is NOT re-queried on reopen, so the LLC's first-page-query auto-seed does not run
-    // and the separator/"N new" banner would otherwise show a stale boundary (or never clear).
-    // Marking the channel read on open is owned by `useMarkRead` (only when the message list is
-    // caught up at the bottom); this just seeds the boundary the separator/banner render from.
-    //
-    // Skip the re-seed when the channel is already flagged unread (`firstUnreadMessageId` set):
-    // `seedUnreadSnapshot` clears that flag, so re-seeding would silently undo a deliberate
-    // "mark as unread". A normally-read channel has no flag, so its boundary still refreshes.
+    // Re-seed the unread boundary the separator and "N new" banner render from: a cached channel
+    // is not re-queried on reopen, so the LLC's auto-seed never runs and the boundary would be
+    // stale. Skipped when the channel is deliberately flagged unread, since seeding clears that
+    // flag. Marking read is `useMarkRead`'s job, not this one's.
     if (
       !channel.messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId
     ) {
       channel.messagePaginator.seedUnreadSnapshot();
     }
 
-    // One subscription per thing that happens, rather than one handler that re-dispatches on
-    // `event.type`. Each is unsubscribed by its own handle, so subscribing and unsubscribing cannot
-    // drift apart, and the guards a shared handler needed -- ignoring `user.watching.*`, checking
-    // that a `user.messages.deleted` was for this channel -- are gone: a typed subscription only
-    // receives what it asked for.
+    // One subscription per event, each released by its own handle, so subscribing and
+    // unsubscribing cannot drift apart and nothing has to filter events it never asked for.
     const subscriptions = [
-      // Refresh the loaded message window ourselves. The client's reconnect hydration deliberately
-      // skips re-seeding the message list of an `active` channel (we mark this one active while
-      // mounted) because its 25-message page would perturb a larger scrolled-back window — it hands
-      // that job to `channel.reload()`, which re-watches sized to the loaded window instead. Nothing
-      // calls it for us, so without this the list stays stale after a reconnect and hard deletes that
-      // happened while offline are never reconciled (they arrive via no event; only a re-query
-      // surfaces them). This is deliberately the SDK's opinion about how the default component
-      // behaves, not client-level policy.
-      //
-      // `recoverState` dispatches this only after re-querying the active channels, so the rest of the
-      // channel state is already fresh by now.
+      // Reconnect hydration skips an active channel's message list -- a 25-message page would
+      // perturb a scrolled-back window -- and leaves it to `channel.reload()`, which re-watches
+      // sized to the loaded window. Nothing else calls it, so without this the list stays stale
+      // and offline hard deletes are never reconciled: they arrive via no event.
       client.on('connection.recovered', async () => {
         if (channel.pendingDisposal) return;
         try {
           await channel.reload();
         } catch (error) {
-          // The socket can flap straight back down mid-reload. Keep the previously loaded window
-          // rather than tearing the view down — the next recovery re-runs this.
+          // The socket can drop again mid-reload. Keep the loaded window; the next recovery retries.
           console.warn('Failed to reload the channel after connection recovery', error);
         }
       }),
 
-      /**
-       * As the channel state is not normalized we re-fetch the channel data. Thus, we avoid having to search for user references in the channel state.
-       */
-      // Re-fetching what is already loaded is maintenance of a bound channel, not initialization,
-      // so it stays here -- but the page size is the SDK default now rather than the initial query
-      // options, which `Channel` no longer takes.
-      // todo: remove with introduction of REACT-1175 Single source of truth for user references across entities
+      // Channel state is not normalized, so rather than hunting this user's references through it
+      // we re-query. Note what that does and does not do: it refreshes members, read state and
+      // watchers, but not the loaded messages -- the page it asks for is older than the window.
+      // todo: remove with REACT-1175 (single source of truth for user references)
       client.on('user.deleted', async () => {
         const oldestID = channel.messagePaginator.items?.[0]?.id;
 
@@ -153,36 +114,9 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     };
   }, [channel, client]);
 
-  useEffect(() => {
-    if (!jumpToMessageFromSearch?.id) return;
-    void channel.messagePaginator.jumpToMessage(jumpToMessageFromSearch.id, {
-      focusReason: 'jump-to-message',
-      focusSignalTtlMs: DEFAULT_HIGHLIGHT_DURATION,
-    });
-
-    if (clearSearchFocusedMessageTimeoutId.current) {
-      clearTimeout(clearSearchFocusedMessageTimeoutId.current);
-    }
-    clearSearchFocusedMessageTimeoutId.current = setTimeout(() => {
-      if (searchController._internalState.getLatestValue().focusedMessage) {
-        searchController._internalState.partialNext({ focusedMessage: undefined });
-      }
-      clearSearchFocusedMessageTimeoutId.current = null;
-    }, DEFAULT_HIGHLIGHT_DURATION);
-  }, [
-    channel.messagePaginator,
-    jumpToMessageFromSearch,
-    searchController._internalState,
-  ]);
-
   return (
     <ChannelPlaceholder className={windowsEmojiClass}>
       <ChannelInstanceProvider value={channelInstanceContextValue}>
-        {/* `.str-chat__channel` (rendered by ChannelContainer above) is itself the channel's
-            main content column — a flex column that fills its parent. Children (header,
-            message list, composer) render directly inside it; there is no separate
-            `.str-chat__container` / `.str-chat__main-panel` wrapper anymore (the classic
-            side-by-side Thread is a slot now, not a nested child). */}
         <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
           {children}
         </WithAudioPlayback>

@@ -20,6 +20,7 @@ import {
   createCommandInjectionMiddleware,
   createCommandStringExtractionMiddleware,
   createDraftCommandInjectionMiddleware,
+  MessageSearchSource,
   SearchController,
   UserSearchSource,
 } from 'stream-chat';
@@ -28,6 +29,7 @@ import {
   type AttachmentProps,
   Chat,
   defaultReactionOptions,
+  getChannel,
   mapEmojiMartData,
   MessageReactions,
   NotificationList,
@@ -68,6 +70,7 @@ import {
   getInitialThreadIdFromUrl,
   WorkspaceUrlSync,
 } from './ChatLayout/WorkspaceUrlSync.tsx';
+import { getFocusTargetsFromUrl } from './ChatLayout/focusUrlParam.ts';
 import { LoadingScreen } from './LoadingScreen/LoadingScreen.tsx';
 import {
   resolveSingleChannel,
@@ -348,8 +351,45 @@ const App = () => {
             },
           },
         }),
+        new MessageSearchSource(chatClient, undefined, {
+          messageSearchChannel: {
+            initialFilterConfig: {
+              $or: {
+                enabled: true,
+                generate: () => ({
+                  $or: [{ members: { $in: [chatClient.userId!] } }, { type: 'public' }],
+                  members: undefined,
+                }),
+              },
+            },
+          },
+        }),
         new UserSearchSource(chatClient),
       ],
+    });
+  }, [chatClient]);
+
+  // `?focus=<cid>:<messageId>` (repeatable) — open each named channel at the message it names.
+  // `jumpToMessage` loads the window and leaves a focus signal on the channel's paginator; the
+  // signal's countdown only starts once a message list has actually rendered it, so running this
+  // before the layout has mounted is fine — the highlight is still there when the list appears.
+  useEffect(() => {
+    if (!chatClient) return;
+
+    const targets = getFocusTargetsFromUrl();
+    if (!targets.length) return;
+
+    targets.forEach(({ cid, messageId }) => {
+      const separatorIndex = cid.indexOf(':');
+      const channel = chatClient.channel(
+        cid.slice(0, separatorIndex),
+        cid.slice(separatorIndex + 1),
+      );
+
+      void (async () => {
+        if (!channel.initialized) await getChannel({ channel, client: chatClient });
+        await channel.messagePaginator.jumpToMessage(messageId);
+      })();
     });
   }, [chatClient]);
 

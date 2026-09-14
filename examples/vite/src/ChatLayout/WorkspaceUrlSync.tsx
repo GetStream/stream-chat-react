@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { useChatContext, useStateStore } from 'stream-chat-react';
+import { getChannel, useChatContext, useStateStore } from 'stream-chat-react';
 import {
   type ChatView,
   type ChatViewEntityBinding,
@@ -205,7 +205,11 @@ const resolveBinding = async (
       // the channel is classified into its real owning list. Already-initialized channels
       // (paginator-first / warm Back-Forward) skip this — and this is the same single watch
       // `<Channel>` would otherwise issue, just moved earlier, so it stays a single `/query`.
-      if (!channel.initialized) await channel.watch().catch(() => undefined);
+      // Through `getChannel`, so a `?focus=` entry naming this same channel shares this one watch
+      // instead of racing a second one.
+      if (!channel.initialized) {
+        await getChannel({ channel, client }).catch(() => undefined);
+      }
       return { binding: { key: channel.cid, kind: 'channel', source: channel }, channel };
     }
     case 'thread': {
