@@ -1,10 +1,8 @@
 import { useCallback } from 'react';
-import {
-  useChannel,
-  useMessageComposerController,
-  useThreadContext,
-  useTranslationContext,
-} from '../../..';
+import { useChannel } from '../../../context/useChannel';
+import { useTranslationContext } from '../../../context/TranslationContext';
+import { useMessageComposerController } from '..';
+import { useThreadContext } from '../../Threads';
 
 export const useUpdateMessageFn = () => {
   const channel = useChannel();

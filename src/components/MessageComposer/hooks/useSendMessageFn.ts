@@ -1,6 +1,7 @@
 import { useTranslationContext } from '../../../context/TranslationContext';
 import { useMessageComposerController } from '..';
-import { useChannel, useThreadContext } from '../../..';
+import { useChannel } from '../../../context/useChannel';
+import { useThreadContext } from '../../Threads';
 import { MessageComposer } from 'stream-chat';
 import { useStableCallback } from '../../../utils/useStableCallback';
 
