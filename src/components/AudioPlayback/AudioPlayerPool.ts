@@ -1,22 +1,29 @@
 import { AudioPlayer, type AudioPlayerOptions } from './AudioPlayer';
-import { StateStore } from '@stream-io/state-store';
+import { AudioPlaybackArbiter } from './AudioPlaybackArbiter';
+import type { AudioPlaybackArbiterState } from './AudioPlaybackArbiter';
 
-export type AudioPlayerPoolState = {
-  activeAudioPlayer: AudioPlayer | null;
+export type AudioPlayerPoolState = AudioPlaybackArbiterState;
+
+export type AudioPlayerPoolOptions = {
+  /**
+   * Decides which player may play, and owns the element they share. Pools given the same arbiter
+   * cannot play over each other -- which is how `Channel` and `Thread`, each with their own pool,
+   * stay exclusive. Left out, the pool arbitrates alone.
+   */
+  arbiter?: AudioPlaybackArbiter;
 };
 
 export class AudioPlayerPool {
-  state: StateStore<AudioPlayerPoolState> = new StateStore<AudioPlayerPoolState>({
-    activeAudioPlayer: null,
-  });
   private pool = new Map<string, AudioPlayer>();
-  private audios = new Map<string, HTMLAudioElement>();
-  private sharedAudio: HTMLAudioElement | null = null;
-  private sharedOwnerId: string | null = null;
-  private readonly allowConcurrentPlayback: boolean;
+  private readonly arbiter: AudioPlaybackArbiter;
 
-  constructor(config?: { allowConcurrentPlayback?: boolean }) {
-    this.allowConcurrentPlayback = !!config?.allowConcurrentPlayback;
+  constructor({ arbiter }: AudioPlayerPoolOptions = {}) {
+    this.arbiter = arbiter ?? new AudioPlaybackArbiter();
+  }
+
+  /** Playback state is the arbiter's, so every pool sharing one reports the same active player. */
+  get state() {
+    return this.arbiter.state;
   }
 
   get players() {
@@ -24,7 +31,7 @@ export class AudioPlayerPool {
   }
 
   get activeAudioPlayer() {
-    return this.state.getLatestValue().activeAudioPlayer;
+    return this.arbiter.activeAudioPlayer;
   }
 
   getOrAdd = (params: Omit<AudioPlayerOptions, 'pool'>) => {
@@ -47,91 +54,15 @@ export class AudioPlayerPool {
     return player;
   };
 
-  /**
-   * In case of allowConcurrentPlayback enabled, a new Audio is created and assigned to the given audioPlayer owner.
-   * In case of disabled concurrency, the shared audio ownership is transferred to the new owner loading the owner's
-   * source.
-   *
-   * @param ownerId
-   * @param src
-   */
-  acquireElement = ({ ownerId, src }: { ownerId: string; src: string }) => {
-    if (!this.allowConcurrentPlayback) {
-      // Single shared element mode
-      if (!this.sharedAudio) {
-        this.sharedAudio = new Audio();
-      }
-      // Handoff from previous owner if different
-      if (this.sharedOwnerId && this.sharedOwnerId !== ownerId) {
-        const previous = this.pool.get(this.sharedOwnerId);
-        // Ask previous to pause and drop ref, but keep player in pool
-        previous?.pause();
-        previous?.releaseElementForHandoff();
-      }
-      this.sharedOwnerId = ownerId;
-      if (this.sharedAudio.src !== src) {
-        // setting src starts loading; avoid explicit load() to prevent currentTime reset flicker
-        this.sharedAudio.src = src;
-      }
-      return this.sharedAudio;
-    }
+  /** @see {@link AudioPlaybackArbiter.acquire} */
+  acquireElement = ({ owner, src }: { owner: AudioPlayer; src: string }) =>
+    this.arbiter.acquire({ owner, src });
 
-    // Concurrent-per-owner mode
-    let audio = this.audios.get(ownerId);
-    if (!audio) {
-      audio = new Audio();
-      this.audios.set(ownerId, audio);
-    }
-    if (audio.src !== src) {
-      // setting src starts loading; avoid explicit load() here as well
-      audio.src = src;
-    }
-    return audio;
-  };
+  /** @see {@link AudioPlaybackArbiter.release} */
+  releaseElement = (owner: AudioPlayer) => this.arbiter.release(owner);
 
-  /**
-   * Removes the given audio players ownership of the shared audio element (in case of concurrent playback is disabled)
-   * and pauses the reproduction of the audio.
-   * In case of concurrent playback mode (allowConcurrentPlayback enabled), the audio is paused,
-   * its source cleared and removed from the audios pool readied for garbage collection.
-   *
-   * @param ownerId
-   */
-  releaseElement = (ownerId: string) => {
-    if (!this.allowConcurrentPlayback) {
-      if (this.sharedOwnerId !== ownerId) return;
-      const el = this.sharedAudio;
-      if (el) {
-        try {
-          el.pause();
-        } catch {
-          // ignore
-        }
-        el.removeAttribute('src');
-        el.load();
-      }
-      // Keep shared element instance for reuse
-      this.sharedOwnerId = null;
-      return;
-    }
-
-    const el = this.audios.get(ownerId);
-    if (!el) return;
-    try {
-      el.pause();
-    } catch {
-      // ignore
-    }
-    el.removeAttribute('src');
-    el.load();
-    this.audios.delete(ownerId);
-  };
-
-  /** Sets active audio player when allowConcurrentPlayback is disabled */
-  setActiveAudioPlayer = (activeAudioPlayer: AudioPlayer | null) => {
-    if (this.allowConcurrentPlayback) return;
-    this.state.partialNext({ activeAudioPlayer });
-  };
+  setActiveAudioPlayer = (activeAudioPlayer: AudioPlayer | null) =>
+    this.arbiter.setActivePlayer(activeAudioPlayer);
 
   /** Removes the AudioPlayer instance from the pool of players */
   deregister(id: string) {
@@ -158,8 +89,8 @@ export class AudioPlayerPool {
   };
 
   registerSubscriptions = () => {
-    // Only register subscriptions for players that have an attached element.
-    // Avoid creating elements or cross-wiring listeners on the shared element in single-playback mode.
+    // Only register subscriptions for players that have an attached element -- every other player
+    // would otherwise cross-wire listeners onto the shared element it does not currently own.
     this.players.forEach((p) => {
       if (p.elementRef) {
         p.registerSubscriptions();

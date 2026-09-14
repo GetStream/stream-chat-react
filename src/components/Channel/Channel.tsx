@@ -15,9 +15,6 @@ import {
 import { WithAudioPlayback } from '../AudioPlayback';
 
 export type ChannelProps = {
-  /** Allows multiple audio players to play the audio at the same time. Disabled by default. */
-  // todo: move WithAudioPlayback outside the Channel component
-  allowConcurrentAudioPlayback?: boolean;
   /**
    * The channel to bind this subtree to. Required -- render `<ChannelPlaceholder />` (or nothing)
    * while none is selected. Initialize it before passing it in; `Channel` does not query.
@@ -49,7 +46,7 @@ export const ChannelPlaceholder = ({
 // One component: `channel` is required and nothing is keyed, so there is no early return needing a
 // wrapper to sit in front of the hooks.
 export const Channel = (props: PropsWithChildren<ChannelProps>) => {
-  const { allowConcurrentAudioPlayback, channel, children } = props;
+  const { channel, children } = props;
 
   const { client } = useChatContext();
   const windowsEmojiClass = useImageFlagEmojisOnWindowsClass();
@@ -117,9 +114,7 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
   return (
     <ChannelPlaceholder className={windowsEmojiClass}>
       <ChannelInstanceProvider value={channelInstanceContextValue}>
-        <WithAudioPlayback allowConcurrentPlayback={allowConcurrentAudioPlayback}>
-          {children}
-        </WithAudioPlayback>
+        <WithAudioPlayback playbackScope={channel}>{children}</WithAudioPlayback>
       </ChannelInstanceProvider>
     </ChannelPlaceholder>
   );

@@ -99,372 +99,323 @@ function RegisterPlayer({ onReady, params }) {
   return null;
 }
 
-const renderWithProvider = ({ allowConcurrentPlayback, ui }) =>
-  render(
-    <WithAudioPlayback allowConcurrentPlayback={allowConcurrentPlayback}>
-      {ui}
-    </WithAudioPlayback>,
-  );
+const renderWithProvider = ({ ui }) =>
+  render(<WithAudioPlayback>{ui}</WithAudioPlayback>);
 
 // ------------------ tests ------------------
 
 describe('WithAudioPlayback + useAudioPlayer', () => {
-  describe.each([true, false])(
-    'allowConcurrentPlayback is %s',
-    (allowConcurrentPlayback) => {
-      it('useAudioPlayer returns undefined when src is missing', () => {
-        let seen: AudioPlayer | undefined;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: <RegisterPlayer onReady={(p) => (seen = p)} params={{}} />,
-        });
-        expect(seen).toBeUndefined();
-      });
-
-      it('creates an AudioPlayer when src is provided and does not associate audio element until played', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        expect(player).toBeTruthy();
-        expect(player.elementRef).toBeNull();
-        // the first (temporary) Audio is created in AudioPlayer constructor to test whether audio type can be played
-        expect(createdAudios.length).toBe(1);
-        expect(createdAudios[0].src).toBe('');
-
-        player.play();
-        expect(createdAudios[1].src).toBe('https://example.com/a.mp3');
-        expect(player.src).toBe('https://example.com/a.mp3');
-        expect(
-          player['plugins']?.some?.((p) => p.id === 'AudioPlayerNotificationsPlugin'),
-        ).toBe(true);
-      });
-
-      it('memoization: same props -> same player instance; changing src -> new instance', () => {
-        const props = { mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' };
-        let first, second, third;
-
-        const { rerender } = renderWithProvider({
-          allowConcurrentPlayback,
-          ui: <RegisterPlayer onReady={(p) => (first = p)} params={props} />,
-        });
-
-        rerender(
-          <WithAudioPlayback>
-            <RegisterPlayer onReady={(p) => (second = p)} params={props} />
-          </WithAudioPlayback>,
-        );
-
-        rerender(
-          <WithAudioPlayback>
-            <RegisterPlayer
-              onReady={(p) => (third = p)}
-              params={{ ...props, src: 'https://example.com/b.mp3' }}
-            />
-          </WithAudioPlayback>,
-        );
-
-        expect(first).toBe(second);
-        expect(third).not.toBe(first);
-      });
-
-      it('subscriptions: sets secondsElapsed and progress in state on timeupdate Event ', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        player.play();
-
-        const audio = createdAudios[1];
-        vi.spyOn(audio, 'duration', 'get').mockReturnValue(200);
-        vi.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
-
-        act(() => {
-          audio.dispatchEvent(new Event('timeupdate'));
-        });
-
-        const st = player.state.getLatestValue();
-        expect(st.secondsElapsed).toBe(50);
-        expect(st.progressPercent).toBeCloseTo(25, 5);
-      });
-
-      it('subscriptions: resets playback state on Event "ended"', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => {
-                player?.state.partialNext({ canPlayRecord: true });
-                return (player = p);
-              }}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-        player.play();
-        const audio = createdAudios[1];
-
-        player.state.partialNext({ isPlaying: true });
-        vi.spyOn(audio, 'duration', 'get').mockReturnValue(200);
-        vi.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
-
-        act(() => {
-          audio.dispatchEvent(new Event('timeupdate'));
-        });
-
-        act(() => {
-          audio.dispatchEvent(new Event('ended'));
-        });
-
-        const st = player.state.getLatestValue();
-        expect(st.isPlaying).toBe(false);
-        expect(st.secondsElapsed).toBe(0);
-        expect(st.progressPercent).toBe(0);
-      });
-
-      it('subscriptions: error with MediaError.code=4 logs and sets canPlayRecord=false', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        player.play();
-        const audio = createdAudios[1];
-
-        Object.defineProperty(audio, 'error', {
-          configurable: true,
-          get: () => ({ code: 4 }),
-        });
-
-        act(() => {
-          audio.dispatchEvent(new Event('error'));
-        });
-
-        const st = player.state.getLatestValue();
-        expect(st.isPlaying).toBe(false);
-        expect(st.canPlayRecord).toBe(false);
-
-        // defaultRegisterAudioPlayerError calls console.error('[AUDIO PLAYER]', error)
-        // vi.spyOn on ESM namespace doesn't intercept internal calls, so assert via console.error
-        const audioPlayerErrorCall = consoleErrorSpy.mock.calls.find(
-          (c) => c[0] === '[AUDIO PLAYER]',
-        );
-        expect(audioPlayerErrorCall).toBeTruthy();
-        const error = audioPlayerErrorCall[1];
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toMatch('MEDIA_ERR_SRC_NOT_SUPPORTED');
-        expect(error.message).toMatch('https://example.com/a.mp3');
-      });
-
-      it('registerError mapping: failed-to-start -> translated message and notification', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        act(() => {
-          player.registerError({ errCode: 'failed-to-start' });
-        });
-
-        expect(mockAddNotification).toHaveBeenCalled();
-        const call = mockAddNotification.mock.calls[0][0];
-        expect(call.message).toBe('Failed to play the recording');
-        expect(call.type).toBe('browser:audio:playback:error');
-        expect(call.emitter).toBe('AudioPlayer');
-      });
-
-      it('registerError mapping: not-playable / seek-not-supported', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        act(() => {
-          player.registerError({ errCode: 'not-playable' });
-        });
-        let call = mockAddNotification.mock.calls.pop()[0];
-        expect(call.message).toBe(
-          'Recording format is not supported and cannot be reproduced',
-        );
-
-        act(() => {
-          player.registerError({ errCode: 'seek-not-supported' });
-        });
-        call = mockAddNotification.mock.calls.pop()[0];
-        expect(call.message).toBe('Cannot seek in the recording');
-      });
-
-      it('registerError uses raw Error message if provided', () => {
-        let player: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        act(() => {
-          player.registerError({ error: new Error('Boom!') });
-        });
-
-        const call = mockAddNotification.mock.calls[0][0];
-        expect(call.message).toBe('Boom!');
-      });
-
-      it('unmounting WithAudioPlayback clears pool: element src is cleared and load() called', () => {
-        let player: AudioPlayer;
-        const { unmount } = renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-
-        player.play();
-        const loadSpy = vi.spyOn(player.elementRef, 'load');
-        expect(player.elementRef.src).toBe('https://example.com/a.mp3');
-
-        unmount();
-
-        // cannot do "expect(player.elementRef.src).toBe('');" as player.elementRef.src in JSDOM normalizes to "http://localhost/"
-        expect(player.elementRef).toBeNull();
-        expect(loadSpy).toHaveBeenCalled();
-      });
-
-      it('unmounting WithAudioPlayback unsubscribes audio element listeners and pauses', () => {
-        let player: AudioPlayer;
-        const { unmount } = renderWithProvider({
-          allowConcurrentPlayback,
-          ui: (
-            <RegisterPlayer
-              onReady={(p) => (player = p)}
-              params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-            />
-          ),
-        });
-        player.play();
-        const audio = createdAudios[1];
-
-        const removeSpy = vi.spyOn(audio, 'removeEventListener');
-        const pauseSpy = vi.spyOn(audio, 'pause');
-
-        // Unmount provider -> audioPlayers.clear() -> unsubscribe() -> removeEventListener + pause
-        unmount();
-
-        expect(pauseSpy).toHaveBeenCalled();
-
-        const removedEvents = removeSpy.mock.calls.map((c) => c[0]);
-        expect(removedEvents).toEqual(
-          expect.arrayContaining(['ended', 'error', 'timeupdate']),
-        );
-      });
-
-      it('re-mounting provider with same props creates a fresh player and cleans previous element', () => {
-        const params = { mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' };
-
-        let firstPlayer: AudioPlayer;
-        const { unmount } = renderWithProvider({
-          allowConcurrentPlayback,
-          ui: <RegisterPlayer onReady={(p) => (firstPlayer = p)} params={params} />,
-        });
-        firstPlayer.play();
-
-        expect(createdAudios.length).toBe(2);
-        const firstEl = createdAudios[1];
-        expect(firstPlayer).toBeTruthy();
-        expect(firstPlayer.elementRef).toBe(firstEl);
-
-        unmount();
-
-        // After unmount, player was cleaned
-        expect(firstPlayer.elementRef).toBeNull();
-
-        // New provider -> new pool -> new player + new <audio>
-        let secondPlayer: AudioPlayer;
-        renderWithProvider({
-          allowConcurrentPlayback,
-          ui: <RegisterPlayer onReady={(p) => (secondPlayer = p)} params={params} />,
-        });
-
-        secondPlayer.play();
-
-        expect(secondPlayer).toBeTruthy();
-        expect(secondPlayer).not.toBe(firstPlayer);
-        expect(createdAudios.length).toBe(4);
-        expect(secondPlayer.elementRef).not.toBe(firstEl);
-      });
-    },
-  );
-
-  it('concurrent mode: separate elements per player (created lazily at registration)', () => {
-    let p1, p2;
+  it('useAudioPlayer returns undefined when src is missing', () => {
+    let seen: AudioPlayer | undefined;
     renderWithProvider({
-      allowConcurrentPlayback: true,
+      ui: <RegisterPlayer onReady={(p) => (seen = p)} params={{}} />,
+    });
+    expect(seen).toBeUndefined();
+  });
+
+  it('creates an AudioPlayer when src is provided and does not associate audio element until played', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
       ui: (
-        <>
-          <RegisterPlayer
-            onReady={(p) => (p1 = p)}
-            params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
-          />
-          <RegisterPlayer
-            onReady={(p) => (p2 = p)}
-            params={{ mimeType: 'audio/mpeg', src: 'https://example.com/b.mp3' }}
-          />
-        </>
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
       ),
     });
 
-    p1.play();
-    p2.play();
-    expect(createdAudios.length).toBe(4);
-    expect(p1.elementRef).not.toBe(p2.elementRef);
-    expect(p1.elementRef).toBeInstanceOf(HTMLAudioElement);
-    expect(p2.elementRef).toBeInstanceOf(HTMLAudioElement);
+    expect(player).toBeTruthy();
+    expect(player.elementRef).toBeNull();
+    // the first (temporary) Audio is created in AudioPlayer constructor to test whether audio type can be played
+    expect(createdAudios.length).toBe(1);
+    expect(createdAudios[0].src).toBe('');
+
+    player.play();
+    expect(createdAudios[1].src).toBe('https://example.com/a.mp3');
+    expect(player.src).toBe('https://example.com/a.mp3');
+    expect(
+      player['plugins']?.some?.((p) => p.id === 'AudioPlayerNotificationsPlugin'),
+    ).toBe(true);
   });
 
-  it('single-playback mode: second player takes over shared element, first is released', () => {
+  it('memoization: same props -> same player instance; changing src -> new instance', () => {
+    const props = { mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' };
+    let first, second, third;
+
+    const { rerender } = renderWithProvider({
+      ui: <RegisterPlayer onReady={(p) => (first = p)} params={props} />,
+    });
+
+    rerender(
+      <WithAudioPlayback>
+        <RegisterPlayer onReady={(p) => (second = p)} params={props} />
+      </WithAudioPlayback>,
+    );
+
+    rerender(
+      <WithAudioPlayback>
+        <RegisterPlayer
+          onReady={(p) => (third = p)}
+          params={{ ...props, src: 'https://example.com/b.mp3' }}
+        />
+      </WithAudioPlayback>,
+    );
+
+    expect(first).toBe(second);
+    expect(third).not.toBe(first);
+  });
+
+  it('subscriptions: sets secondsElapsed and progress in state on timeupdate Event ', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+
+    player.play();
+
+    const audio = createdAudios[1];
+    vi.spyOn(audio, 'duration', 'get').mockReturnValue(200);
+    vi.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
+
+    act(() => {
+      audio.dispatchEvent(new Event('timeupdate'));
+    });
+
+    const st = player.state.getLatestValue();
+    expect(st.secondsElapsed).toBe(50);
+    expect(st.progressPercent).toBeCloseTo(25, 5);
+  });
+
+  it('subscriptions: resets playback state on Event "ended"', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => {
+            player?.state.partialNext({ canPlayRecord: true });
+            return (player = p);
+          }}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+    player.play();
+    const audio = createdAudios[1];
+
+    player.state.partialNext({ isPlaying: true });
+    vi.spyOn(audio, 'duration', 'get').mockReturnValue(200);
+    vi.spyOn(audio, 'currentTime', 'get').mockReturnValue(50);
+
+    act(() => {
+      audio.dispatchEvent(new Event('timeupdate'));
+    });
+
+    act(() => {
+      audio.dispatchEvent(new Event('ended'));
+    });
+
+    const st = player.state.getLatestValue();
+    expect(st.isPlaying).toBe(false);
+    expect(st.secondsElapsed).toBe(0);
+    expect(st.progressPercent).toBe(0);
+  });
+
+  it('subscriptions: error with MediaError.code=4 logs and sets canPlayRecord=false', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+
+    player.play();
+    const audio = createdAudios[1];
+
+    Object.defineProperty(audio, 'error', {
+      configurable: true,
+      get: () => ({ code: 4 }),
+    });
+
+    act(() => {
+      audio.dispatchEvent(new Event('error'));
+    });
+
+    const st = player.state.getLatestValue();
+    expect(st.isPlaying).toBe(false);
+    expect(st.canPlayRecord).toBe(false);
+
+    // defaultRegisterAudioPlayerError calls console.error('[AUDIO PLAYER]', error)
+    // vi.spyOn on ESM namespace doesn't intercept internal calls, so assert via console.error
+    const audioPlayerErrorCall = consoleErrorSpy.mock.calls.find(
+      (c) => c[0] === '[AUDIO PLAYER]',
+    );
+    expect(audioPlayerErrorCall).toBeTruthy();
+    const error = audioPlayerErrorCall[1];
+    expect(error).toBeInstanceOf(Error);
+    expect(error.message).toMatch('MEDIA_ERR_SRC_NOT_SUPPORTED');
+    expect(error.message).toMatch('https://example.com/a.mp3');
+  });
+
+  it('registerError mapping: failed-to-start -> translated message and notification', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+
+    act(() => {
+      player.registerError({ errCode: 'failed-to-start' });
+    });
+
+    expect(mockAddNotification).toHaveBeenCalled();
+    const call = mockAddNotification.mock.calls[0][0];
+    expect(call.message).toBe('Failed to play the recording');
+    expect(call.type).toBe('browser:audio:playback:error');
+    expect(call.emitter).toBe('AudioPlayer');
+  });
+
+  it('registerError mapping: not-playable / seek-not-supported', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+
+    act(() => {
+      player.registerError({ errCode: 'not-playable' });
+    });
+    let call = mockAddNotification.mock.calls.pop()[0];
+    expect(call.message).toBe(
+      'Recording format is not supported and cannot be reproduced',
+    );
+
+    act(() => {
+      player.registerError({ errCode: 'seek-not-supported' });
+    });
+    call = mockAddNotification.mock.calls.pop()[0];
+    expect(call.message).toBe('Cannot seek in the recording');
+  });
+
+  it('registerError uses raw Error message if provided', () => {
+    let player: AudioPlayer;
+    renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+
+    act(() => {
+      player.registerError({ error: new Error('Boom!') });
+    });
+
+    const call = mockAddNotification.mock.calls[0][0];
+    expect(call.message).toBe('Boom!');
+  });
+
+  it('unmounting WithAudioPlayback clears pool: element src is cleared and load() called', () => {
+    let player: AudioPlayer;
+    const { unmount } = renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+
+    player.play();
+    const loadSpy = vi.spyOn(player.elementRef, 'load');
+    expect(player.elementRef.src).toBe('https://example.com/a.mp3');
+
+    unmount();
+
+    // cannot do "expect(player.elementRef.src).toBe('');" as player.elementRef.src in JSDOM normalizes to "http://localhost/"
+    expect(player.elementRef).toBeNull();
+    expect(loadSpy).toHaveBeenCalled();
+  });
+
+  it('unmounting WithAudioPlayback unsubscribes audio element listeners and pauses', () => {
+    let player: AudioPlayer;
+    const { unmount } = renderWithProvider({
+      ui: (
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      ),
+    });
+    player.play();
+    const audio = createdAudios[1];
+
+    const removeSpy = vi.spyOn(audio, 'removeEventListener');
+    const pauseSpy = vi.spyOn(audio, 'pause');
+
+    // Unmount provider -> audioPlayers.clear() -> unsubscribe() -> removeEventListener + pause
+    unmount();
+
+    expect(pauseSpy).toHaveBeenCalled();
+
+    const removedEvents = removeSpy.mock.calls.map((c) => c[0]);
+    expect(removedEvents).toEqual(
+      expect.arrayContaining(['ended', 'error', 'timeupdate']),
+    );
+  });
+
+  it('re-mounting provider with same props creates a fresh player and cleans previous element', () => {
+    const params = { mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' };
+
+    let firstPlayer: AudioPlayer;
+    const { unmount } = renderWithProvider({
+      ui: <RegisterPlayer onReady={(p) => (firstPlayer = p)} params={params} />,
+    });
+    firstPlayer.play();
+
+    expect(createdAudios.length).toBe(2);
+    const firstEl = createdAudios[1];
+    expect(firstPlayer).toBeTruthy();
+    expect(firstPlayer.elementRef).toBe(firstEl);
+
+    unmount();
+
+    // After unmount, player was cleaned
+    expect(firstPlayer.elementRef).toBeNull();
+
+    // New provider -> new pool -> new player + new <audio>
+    let secondPlayer: AudioPlayer;
+    renderWithProvider({
+      ui: <RegisterPlayer onReady={(p) => (secondPlayer = p)} params={params} />,
+    });
+
+    secondPlayer.play();
+
+    expect(secondPlayer).toBeTruthy();
+    expect(secondPlayer).not.toBe(firstPlayer);
+    expect(createdAudios.length).toBe(4);
+    expect(secondPlayer.elementRef).not.toBe(firstEl);
+  });
+
+  it('second player takes over the shared element, the first is released', () => {
     let p1, p2;
     renderWithProvider({
-      allowConcurrentPlayback: false,
       ui: (
         <>
           <RegisterPlayer
@@ -508,5 +459,36 @@ describe('WithAudioPlayback + useAudioPlayer', () => {
     });
     expect(p1.state.getLatestValue().secondsElapsed).toBe(40);
     expect(p2.state.getLatestValue().secondsElapsed).toBe(20);
+  });
+
+  it('stops playback started under a previous playbackScope', () => {
+    // `Channel` keeps one provider mounted across a channel switch, so unmount cleanup never runs.
+    // Without the scope, a voice message from the channel you just left would keep playing.
+    let player: AudioPlayer;
+    const channelA = { cid: 'messaging:a' };
+    const channelB = { cid: 'messaging:b' };
+
+    const { rerender } = render(
+      <WithAudioPlayback playbackScope={channelA}>
+        <RegisterPlayer
+          onReady={(p) => (player = p)}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/a.mp3' }}
+        />
+      </WithAudioPlayback>,
+    );
+
+    player.play();
+    expect(player.disposed).toBe(false);
+
+    rerender(
+      <WithAudioPlayback playbackScope={channelB}>
+        <RegisterPlayer
+          onReady={() => undefined}
+          params={{ mimeType: 'audio/mpeg', src: 'https://example.com/b.mp3' }}
+        />
+      </WithAudioPlayback>,
+    );
+
+    expect(player.disposed).toBe(true);
   });
 });

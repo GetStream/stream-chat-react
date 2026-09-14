@@ -258,6 +258,35 @@ Two things to know when writing your own:
 
 **This is a compile break for strict dictionaries.** `TranslationDictionary` is exact, so a dictionary that still declares `'channel.channelMissing.text'` fails to typecheck (`TS2353`). Delete the entry from any custom locale files — both example dictionaries in this repo needed it.
 
+### `allowConcurrentAudioPlayback` → removed; one voice message plays at a time, app-wide
+
+`ChannelProps.allowConcurrentAudioPlayback`, `ThreadProps.allowConcurrentAudioPlayback` and
+`WithAudioPlaybackProps.allowConcurrentPlayback` are **removed**, with no replacement. Overlapping
+voice messages are not a behaviour worth configuring.
+
+The flag was never only a policy: with it off, all players share a single `Audio` element and hand
+ownership between them, which is also what keeps playback working on iOS, where an element must be
+unlocked by a user gesture before it can be played programmatically. Setting it to `true` allocated
+an element per player and bypassed that.
+
+**Exclusivity now spans the app, which the flag could not express.** `Channel` and `Thread` mount an
+audio-player pool each — that is what stops a thread's audio when you close it, while letting a
+message scrolled out of a virtualized list keep playing — so with a per-pool rule a channel and a
+thread beside it played over each other regardless of the flag. The pools now share one
+`AudioPlaybackArbiter`, which owns the element and decides who may play. `Chat` provides it.
+
+- **If you never passed the prop, or passed `false`,** the only change is that playback is exclusive
+  across surfaces rather than within one. Nothing to do.
+- **If you passed `true`,** delete it. Starting a player now pauses whichever was playing and takes
+  the shared element over.
+- **Switching channels stops that channel's audio.** `Channel` passes its channel as
+  `WithAudioPlayback`'s new `playbackScope`, whose change clears the pool. Unmounting a provider
+  still clears it, as before; the scope covers a provider that stays mounted while its subject
+  changes, which is what a `Channel` does since it stopped keying its subtree on the cid.
+- **`useActiveAudioPlayer()` now reports the app-wide active player**, not the calling surface's.
+- **If you mount your own `WithAudioPlayback`,** it joins the same arbiter automatically inside a
+  `Chat`, and arbitrates alone outside one. Pass `playbackScope` if it outlives what it plays for.
+
 ### `ChatContext.latestMessageDatesByChannels` → removed
 
 The field is **removed** from `ChatContextValue`, along with the `message.new` subscription in `Channel` that maintained it.
@@ -268,11 +297,15 @@ Despite the name it never held the channel's latest message date: the write was 
 - **The channel's latest message** → `channel.messagePaginator.aggregateState.lastMessage`.
 - **When the current user last posted in a channel** → no longer available from the React SDK. Nothing in the SDK consumed it, but if you did, track it yourself from `message.new`.
 
-### `SearchController._internalState` → removed; jump through the message paginator
+### `Channel` no longer jumps to a searched message; jump through the message paginator
 
-`SearchController._internalState` and its `focusedMessage` are **removed**, along with the
-`InternalSearchControllerState` type. Nothing replaces them: `channel.messagePaginator` already owns
-"which message should this list scroll to".
+`Channel` used to watch `SearchController._internalState.focusedMessage` and scroll the list on the
+component's behalf. It no longer does: `channel.messagePaginator` already owns "which message should
+this list scroll to", and the jump now happens where the message is selected.
+
+The React SDK no longer reads `_internalState` at all, so it works whether or not your `stream-chat`
+version still has the field. The field and its `InternalSearchControllerState` type are being removed
+from `stream-chat` itself — that removal is tracked in its own v9 → v10 migration notes, not here.
 
 Focus was stored in two places for one highlight. `MessageIntervalPaginator.jumpToMessage()` loads the
 window around a message and leaves a `messageFocusSignal` on that paginator — which both message lists
@@ -288,8 +321,8 @@ already gives one focus per list.
   `channel.messagePaginator.messageFocusSignal` and take `signal?.messageId`. This is what the built-in
   search results now use for their "you jumped here" marker, so the marker and the highlight share one
   piece of state.
-- **`Channel` no longer performs the jump.** In v14 it watched `focusedMessage` and jumped on the
-  component's behalf. Selecting a search result now jumps directly — see `MessageSearchResultItem`.
+- **If you relied on `Channel` performing the jump**, call `jumpToMessage` yourself where the message
+  is chosen — that is what `MessageSearchResultItem` now does.
 - **Restoring a jump from elsewhere**, such as URL parameters on page load, is just a
   `jumpToMessage` call — the signal waits, uncounted, until a list renders it. `examples/vite` reads a
   repeatable `?focus=<cid>:<messageId>` parameter this way.
