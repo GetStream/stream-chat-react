@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 

@@ -1,6 +1,6 @@
 /**
  * The `TranslationBuilder` / `TranslationTopic` / `Translator` plumbing now lives in
- * `stream-chat/i18n`, shared with the React Native SDK. Only the *topics* are this SDK's own, since
+ * `@stream-io/i18n`, shared with the React Native SDK. Only the *topics* are this SDK's own, since
  * they reference its key names.
  */
 export {
@@ -9,5 +9,5 @@ export {
   type TranslationTopicConstructor,
   type TranslationTopicOptions,
   type Translator,
-} from 'stream-chat/i18n';
+} from '@stream-io/i18n';
 export * from './notifications';

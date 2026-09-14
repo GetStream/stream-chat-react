@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import React, { forwardRef } from 'react';
-import type { PaginatorState, StateStore } from 'stream-chat';
+import type { StateStore } from '@stream-io/state-store';
+import type { PaginatorState } from 'stream-chat';
 
 import { useStateStore } from '../../store';
 import type { InfiniteScrollPaginatorProps } from './InfiniteScrollPaginator';

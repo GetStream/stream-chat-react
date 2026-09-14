@@ -1,4 +1,5 @@
-import { AIStates, ChannelWatchStatus, StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import { AIStates, ChannelWatchStatus } from 'stream-chat';
 import type { ChannelMemberResponse, ChannelState, ChannelStateData } from 'stream-chat';
 
 /** The non-reactive convenience getters the real `ChannelState` layers over its own store. */
