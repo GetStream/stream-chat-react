@@ -71,6 +71,7 @@ export const Thread = (props: ThreadProps) => {
 const selector = (nextValue: ThreadState) => ({
   isStateStale: nextValue.isStateStale,
   parentMessage: nextValue.parentMessage,
+  replyCount: nextValue.replyCount,
 });
 
 const messagePaginatorSelector = ({
@@ -105,7 +106,7 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   const { ThreadHead = DefaultThreadHead, ThreadHeader = DefaultThreadHeader } =
     useComponentContext();
 
-  const { isStateStale, parentMessage } =
+  const { isStateStale, parentMessage, replyCount } =
     useStateStore(threadInstance?.state, selector) ?? {};
   const threadPaginatorState = useStateStore(
     threadInstance?.messagePaginator?.state,
@@ -135,13 +136,23 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   // which the virtualized list applies to its own subtree), so nothing is resolved here.
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
+  // A thread exists server-side only once its parent has a reply, so reloading at `replyCount` 0
+  // can only 404 — `Thread.reload()` swallows that and returns without state.
+  //
+  // Deferred, not cancelled: only a successful reload clears `isStateStale`, so a thread that
+  // stays stale reloads via the effect below as soon as `replyCount` goes above 0 — the same
+  // moment the rest of the UI learns about replies missed while unwatched.
+  const hasServerSideThread = (replyCount ?? 0) > 0;
+
   useEffect(() => {
     if (!threadInstance) return;
     if (isThreadManaged) return;
+    if (!hasServerSideThread) return;
     if (threadPaginatorState?.items !== undefined || threadPaginatorState?.isLoading)
       return;
     void threadInstance.reload();
   }, [
+    hasServerSideThread,
     isThreadManaged,
     threadInstance,
     threadPaginatorState?.isLoading,
@@ -149,10 +160,10 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   ]);
 
   useEffect(() => {
-    if (threadInstance && isStateStale) {
+    if (threadInstance && isStateStale && hasServerSideThread) {
       void threadInstance.reload();
     }
-  }, [isStateStale, threadInstance]);
+  }, [hasServerSideThread, isStateStale, threadInstance]);
 
   useEffect(() => {
     if (!threadInstance || isThreadManaged) return;

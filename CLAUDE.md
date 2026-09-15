@@ -186,6 +186,21 @@ Messages are processed in order:
 - Thread replies: `thread.messagePaginator`, owned by the `Thread` object (resolve via `client.threads`) — **independent** of the channel's message list.
 - **No cross-store invariant:** a reply is not required to exist in the channel's message list. Whether a reply also shows in the channel is the server's `show_in_channel` flag, applied when the message is ingested.
 
+### Where `StateStore` comes from
+
+Import it from **`@stream-io/state-store`**, never from `stream-chat` (enforced by the
+`state-store-single-source` and `react-compat` blocks in `eslint.config.mjs`).
+
+`stream-chat` re-exported the store until v10 extracted it into its own package, so the old
+specifier still reads as correct — but it is now a plain `undefined` at runtime
+(`TypeError: StateStore is not a constructor`), and nothing CI runs would catch it in a test file:
+`yarn types` covers `tsconfig.lib.json` only.
+
+`stream-chat`, `@stream-io/i18n` and this package all depend on `@stream-io/state-store` and hand
+each other store instances, so an app must end up with exactly one copy. A normal install dedupes
+them; a linked `stream-chat` checkout does not, which is what `resolve.dedupe` in
+`vitest.config.ts` covers for test runs.
+
 ### React Version Compatibility
 
 SDK supports **React 17, 18, 19**.
