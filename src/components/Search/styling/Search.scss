@@ -70,6 +70,7 @@
 
     .str-chat__search-results-header__filter-source-buttons {
       display: flex;
+      flex-wrap: wrap;
       gap: var(--str-chat__spacing-xxs);
       padding-inline: var(--str-chat__spacing-md);
 

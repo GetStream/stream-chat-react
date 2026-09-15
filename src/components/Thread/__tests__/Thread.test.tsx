@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import type {
   ChannelConfig,
   LocalMessage,
@@ -122,9 +122,7 @@ const renderComponent = (
     'threadInstance' in opts ? opts.threadInstance : makeThread().thread;
   vi.mocked(useThreadContext).mockReturnValue(threadInstance);
   return render(
-    <ChatProvider
-      value={mockChatContext({ client: chatClient, latestMessageDatesByChannels: {} })}
-    >
+    <ChatProvider value={mockChatContext({ client: chatClient })}>
       <ComponentProvider value={mockComponentContext({ ...componentOverrides })}>
         <Thread {...threadProps} />
       </ComponentProvider>

@@ -447,7 +447,7 @@ export const ChannelManagementView = ({
 
   useEffect(() => {
     setIsEditing(false);
-  }, [channel.cid]);
+  }, [channel]);
 
   const EditChannelButton = useMemo(
     () =>

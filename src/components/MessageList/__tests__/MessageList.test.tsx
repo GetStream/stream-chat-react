@@ -24,7 +24,8 @@ import { useChannel, useMessageContext, WithComponents } from '../../../context'
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
-import { msToNs, StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import { msToNs } from 'stream-chat';
 import type {
   Channel as ChannelType,
   Event,

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { ChannelConfig, Command, MessageComposerState } from 'stream-chat';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 
 import { useMessageComposerCommands } from '../useMessageComposerCommands';
 

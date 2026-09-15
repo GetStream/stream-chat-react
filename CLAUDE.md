@@ -25,8 +25,8 @@ yarn test <pattern>       # Run specific test (e.g., yarn test Channel)
 yarn lint-fix             # Fix all lint/format issues (prettier + eslint)
 
 # Type checking
-tsc -p tsconfig.lib.json --noEmit   # The library. THIS is the real check.
-yarn types:scripts                  # scripts/*.mts (Node strips types, it does not check them)
+yarn types                # Typecheck the library (tsc -p tsconfig.lib.json --noEmit)
+yarn types:scripts        # scripts/*.mts (Node strips types, it does not check them)
 
 # i18n (see the i18n System section)
 yarn build-translations   # Regenerate src/i18n/keys.ts from the t() call sites
@@ -41,9 +41,14 @@ yarn examples:build       # Build all examples
 yarn lint-fix             # ALWAYS run this first
 ```
 
-> **`yarn types` checks nothing — do not rely on it.** It runs `tsc` with no `--project`, so it
-> picks up the root `tsconfig.json`, which is a solution file with `"files": []`. It exits 0 even
-> with a deliberate type error in `src/`. Use `tsc -p tsconfig.lib.json --noEmit`.
+> **`yarn types` is `tsc -p tsconfig.lib.json --noEmit`** — it typechecks the library and nothing
+> else. It used to run `tsc` with no `--project`, which picked up the root `tsconfig.json` (a
+> solution file with `"files": []`) and exited 0 even with a deliberate type error in `src/`; that
+> is fixed. `tsconfig.lib.json` excludes `__tests__`, `stories` and `mock-builders`, so those are
+> not covered here.
+>
+> **CI runs it** in the `ESLint, Prettier & Types` job, alongside `yarn lint` and
+> `yarn types:scripts` — the cheapest job to fail in, since it needs no build.
 >
 > `yarn types:tests` (`tsconfig.test.json`) reports ~1200 pre-existing errors and is not wired into
 > CI. Treat it as unenforced.
@@ -163,7 +168,15 @@ Messages are processed in order:
 ### DO NOT:
 
 1. **Push messages into `channel.state`** - messages/threads/pinned are owned by the LLC paginators (`channel.messagePaginator`, `thread.messagePaginator`, `channel.pinnedMessagesPaginator`). Read them reactively via `useStateStore(channel.messagePaginator.state, …)`; the SDK's own event handlers perform the writes. There is no `channel.state.addMessageSorted()` / `removeMessage()` (removed in v15).
-2. **Include `channel` in dependency arrays** - Use `channel.cid` only (stable), not `channel.state` (changes constantly)
+2. **Depend on `channel.cid` where you mean the channel object** - `channel` (the instance) is a
+   stable reference and is the correct dependency; what churns is `channel.state`, not `channel`.
+   `cid` names a _conversation_, not the object representing it, so two different `Channel`
+   instances can share one: the client's cache is dropped on `disconnectUser`, an app can hold
+   channels from more than one client, and re-created channels come back as new objects. Anything
+   bound to an instance — a `useStateStore` subscription, `channel.on(...)`, `watch()` — must depend
+   on `channel`, or a replacement instance is silently left unsubscribed while the rest of the tree
+   has already moved to it. Depend on `cid` only when you genuinely mean "which conversation",
+   never as a cheap stand-in for the instance.
 3. **Change message sort order** - the paginator maintains order; local changes will conflict
 4. **Assume thread replies live in the channel's message list** - a thread's replies are an independent paginator (`thread.messagePaginator`); they are not mirrored into `channel.messagePaginator`
 
@@ -192,8 +205,9 @@ useMemo(
     /* value */
   }),
   [
-    channel.cid, // ✅ Stable - include this
+    channel, // ✅ Stable reference, and the right axis - a new instance must invalidate this
     deleteMessage, // ✅ Stable callback
+    // ❌ NOT channel.cid - a replacement instance for the same conversation would not invalidate
     // ❌ NOT channel.messagePaginator.state.items - changes constantly (subscribe via useStateStore)
     // ❌ NOT channel.initialized - changes constantly
   ],
@@ -283,7 +297,7 @@ Closes #123
 
 - [ ] `yarn lint-fix` passed
 - [ ] `yarn test` passed
-- [ ] `tsc -p tsconfig.lib.json --noEmit` passed (NOT `yarn types` — see Essential Commands)
+- [ ] `yarn types` passed (typechecks the library)
 - [ ] `yarn validate-translations` passed, if any `t()` call changed
 - [ ] Tests added for changes
 - [ ] No new warnings (zero tolerance)
@@ -326,6 +340,26 @@ See `examples/vite/src/index.scss` for reference implementation. Layers eliminat
 
 ## i18n System
 
+**The runtime is `@stream-io/i18n`**, shared with the React Native SDK — one `Streami18n`, one set
+of formatters, one date layer. This package owns only what is genuinely its own: the generated key
+catalog, `runtimeDefaults.ts`, the React context/hook binding, and the notification translation
+topic. `src/i18n/Streami18n.ts` is a thin subclass injecting this SDK's bundled data.
+
+It is a **regular dependency**, not a peer: an integrator never imports `@stream-io/i18n` — they
+import `Streami18n` from this package, which subclasses it. Peer dependencies are for things the
+app itself constructs and hands back (`react`, `stream-chat`), which is not the case here.
+
+Two resolved copies of `i18next` would be harmless anyway — `Streami18n` calls
+`i18next.createInstance()` and registers dictionaries on that instance, never on a global. `dayjs`
+is the one that genuinely wants a single copy, because locale registration _is_ global: an app
+adding a language does `import 'dayjs/locale/de.js'`, and that has to land in the same registry the
+SDK reads. Keeping the range identical (`^1.11.23`) is what makes them dedupe. Do not add
+`i18next` as a direct dependency here.
+
+The `language.*` names (`languageNameDefaults`, `LanguageNameCatalog`) still come from
+`stream-chat`, not from `@stream-io/i18n` — they enumerate the languages the Chat API can
+auto-translate a message into, so they are Chat API metadata.
+
 **English only.** Every other language is supplied by the integrator via
 `Streami18n.registerTranslation()`.
 
@@ -365,8 +399,11 @@ renders English — and it keeps the copy visible at the call site.
 - **Runtime keys:** the ~10 keys resolved from a runtime value (a `stream-chat`
   `notification.message`, slash-command metadata, a language code, an integrator prop) go through
   `asDynamicKey()`. That brand is required, so every escape is deliberate and greppable.
-  `src/i18n/externalStrings.ts` maps the `stream-chat` messages we recognise onto stable keys.
-- **`yarn build-translations`** parses the `t()` call sites (`scripts/i18n-call-sites.mts`), joins
+  A `stream-chat` notification is resolved by its stable `type` identifier
+  (`CORE_NOTIFICATION_TYPE`) through `src/i18n/TranslationBuilder/notifications/`, not by matching
+  its English prose — the `externalStrings.ts` table that used to do the latter is gone.
+- **`yarn build-translations`** parses the `t()` call sites (via `@stream-io/i18n/codegen`, driven by
+  `scripts/generate-i18n-keys.mts`), joins
   them with `runtimeDefaults.ts`, and regenerates `keys.ts`. It hard-fails on three things:
   a key used with two different inline copies; a key called with no inline default and no
   `runtimeDefaults` entry (it would render as the raw dotted key); and a key present in _both_

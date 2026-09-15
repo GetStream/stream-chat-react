@@ -59,6 +59,7 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { VirtualizedMessageListContextProvider } from '../../context/VirtualizedMessageListContext';
+import { getChannelInstanceKey } from '../Channel/channelInstanceKey';
 import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
 import { useMessagePaginator } from '../../hooks';
@@ -780,6 +781,9 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   return (
     <VirtualizedMessageListWithContext
       channel={channel}
+      // See the note in MessageList: this list's local state -- Virtuoso's scroll offset above all
+      // -- is scoped to the channel instance it is showing.
+      key={getChannelInstanceKey(channel)}
       // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
       // hasMore={!!hasMore}
       // hasMoreNewer={!!hasMoreNewer}

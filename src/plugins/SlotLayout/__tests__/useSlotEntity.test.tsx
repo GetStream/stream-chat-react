@@ -1,6 +1,6 @@
 import React from 'react';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
@@ -67,7 +67,6 @@ const createChatContextValue = (): ChatContextValue =>
       },
     },
     getAppSettings: vi.fn(() => null),
-    latestMessageDatesByChannels: {},
     openMobileNav: vi.fn(),
     searchController: {},
     theme: 'str-chat__theme-light',

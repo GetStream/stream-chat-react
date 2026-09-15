@@ -202,9 +202,130 @@ checked. Only if the app needs keys the SDK does not define, annotate the variab
 Full detail, including plurals for languages needing `_few` / `_many` and how to recover a deleted
 dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
 
-### `ChannelProps.EmptyPlaceholder` accepts `null`
+### `Channel` no longer queries the channel; `initializeOnMount` / `channelQueryOptions` → removed
 
-`Channel`'s `EmptyPlaceholder` prop is now typed `React.ReactElement | null` (the default is `null`) — pass `null` to render an empty container when no channel is set. (Non-breaking widening; noted for completeness.)
+`Channel` used to call `channel.watch()` when it mounted an uninitialized channel. `initializeOnMount` turned that off and `channelQueryOptions` configured the query. The call and **both props are removed** — whoever supplies the channel initializes it.
+
+- **Channels from `ChannelList`, or any `queryChannels` call, arrive watched.** If that is where yours come from, nothing changes.
+- **Creating a channel and handing it straight to `Channel`** → watch it first, with the exported `getChannel`:
+
+  ```tsx
+  import { getChannel } from 'stream-chat-react';
+
+  const channel = client.channel('messaging', id, { members, custom });
+  if (!channel.initialized) await getChannel({ channel, client });
+  setChannel(channel);
+  ```
+
+  Two separate guards, both worth keeping. `client.channel()` returns the cached instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `getChannel` over a bare `channel.watch()` when one _is_ needed: it de-duplicates concurrent calls for the same channel (keyed on the sorted member list while a channel has no id yet), so an effect that runs twice, or two components opening the same channel, still produce one query. That de-duplication used to live inside `Channel`.
+
+- **A direct message identified by members** → `getChannel({ client, type: 'messaging', members })` builds, watches and returns the instance.
+- **`channelQueryOptions`** → pass them to the watch you now own: `getChannel({ channel, client, options })`.
+- **An uninitialized channel renders as an empty channel, with no error**, because nothing failed. If a channel renders blank, check `channel.initialized` before looking anywhere else.
+- **Loading and error UI is yours.** `Channel` no longer renders the `LoadingIndicator` or `LoadingErrorIndicator` component slots, because it has no query to report on. Render them around `Channel`, where they sit in your layout instead of replacing the whole channel column.
+- **Why it changed:** `Channel` cannot make that call well. It does not know which query options a screen needs, whether a list or a search result already loaded the channel, whether a failed query should retry or navigate away, or what belongs on screen while the query is in flight. All of that belongs to the code that decides which channel to open. Full recipes: [providing a channel](/chat/docs/sdk/react/v15/guides/providing-a-channel/).
+
+### `ChannelProps.channel` is required; `EmptyPlaceholder` → removed
+
+`Channel` no longer accepts a missing channel. `channel` is required, and the `EmptyPlaceholder` prop — the "what to render when there is no channel" escape hatch — is **removed**. A `Channel` with no channel bound had nothing to provide: every context it supplies, every hook it runs and every child it enables needs one, and deciding what to show while nothing is selected is the application's layout concern.
+
+- **Rendering `<Channel channel={activeChannel}>` where `activeChannel` may be undefined** → guard at the call site: `{activeChannel && <Channel channel={activeChannel}>…</Channel>}`.
+- **Relying on `EmptyPlaceholder` to fill the layout slot** → render the newly exported `ChannelPlaceholder` instead. It is the same `.str-chat__channel` column (`height: 100%`, `display: flex`) that `Channel` used to render in that case, with no channel bound: `{activeChannel ? <Channel channel={activeChannel}>…</Channel> : <ChannelPlaceholder>{yourEmptyState}</ChannelPlaceholder>}`.
+- **Why it changed:** the optional prop forced an early return before any hook could run, which forced `Channel` to be split into a public wrapper and an internal `ChannelInner`. With the prop required, the two collapse into one component — and the split was where a channel identity bug (keying on `cid` rather than on the `Channel` instance) went unnoticed.
+
+### `Channel` no longer writes `document.title`; `activeUnreadHandler` → removed
+
+`Channel` used to set `document.title` to `(3) Your app` when a message arrived while the tab was hidden, and `ChannelProps.activeUnreadHandler` let you intercept that. Both are **removed, with no SDK replacement.**
+
+What belongs in a tab title depends on what the application is showing, and no SDK component can know that — it can know the unread counts, but not whether the user is currently looking at the channel those unreads are in. So the title is application code now. `examples/vite/src/DocumentTitleManager` is a complete, copyable implementation: a component rendered inside `Chat` that renders nothing, subscribes to the two unread counts and writes `document.title`, restoring the page's previous title when it unmounts.
+
+**If you relied on the old behavior**, be aware it was broken in ways worth not reproducing:
+
+- **It counted only the open channel** (`channel.countUnread()`), so messages arriving anywhere else never reached the title.
+- **It did nothing in a threads view**, where v15 mounts no ambient `Channel` — leaving a stale number belonging to a channel you had left.
+- **It skipped thread replies** that were not `show_in_channel`.
+- **It never put the title back.** Once set, `(3) Your app` survived reading the messages and returning to the tab.
+- **It compounded.** Channel bootstrap re-read the already-prefixed title as the new "original", producing `(1) (3) Your app`.
+
+Two things to know when writing your own:
+
+- **The counts are user-scoped, not view-scoped.** The unread message total comes from the connection's `me` payload plus the `total_unread_count` on events; the unread thread count from `client.threads` (which `Chat` keeps subscribed). Neither needs an active channel or thread.
+- **They are different units — do not add them.** One counts unread _messages_ in channels, the other counts _threads_ with unread replies. Thread replies also do not appear to reach the message total: `notification.thread_message_new` carries `unread_threads` but no `total_unread_count`.
+
+### `channel.channelMissing.text` translation key → removed
+
+`Channel` no longer renders a "Channel Missing" state. The branch behind it tested `!channel.watch` — a duck-type check for "is this really a `Channel`", from a time when the component could be handed something that was not one. `channel` is required and typed now, so the branch was unreachable, and it was shadowed anyway: the bootstrap path calls `channel.watch()` and fails first.
+
+**This is a compile break for strict dictionaries.** `TranslationDictionary` is exact, so a dictionary that still declares `'channel.channelMissing.text'` fails to typecheck (`TS2353`). Delete the entry from any custom locale files — both example dictionaries in this repo needed it.
+
+### `allowConcurrentAudioPlayback` → removed; one voice message plays at a time, app-wide
+
+`ChannelProps.allowConcurrentAudioPlayback`, `ThreadProps.allowConcurrentAudioPlayback` and
+`WithAudioPlaybackProps.allowConcurrentPlayback` are **removed**, with no replacement. Overlapping
+voice messages are not a behaviour worth configuring.
+
+The flag was never only a policy: with it off, all players share a single `Audio` element and hand
+ownership between them, which is also what keeps playback working on iOS, where an element must be
+unlocked by a user gesture before it can be played programmatically. Setting it to `true` allocated
+an element per player and bypassed that.
+
+**Exclusivity now spans the app, which the flag could not express.** `Channel` and `Thread` mount an
+audio-player pool each — that is what stops a thread's audio when you close it, while letting a
+message scrolled out of a virtualized list keep playing — so with a per-pool rule a channel and a
+thread beside it played over each other regardless of the flag. The pools now share one
+`AudioPlaybackArbiter`, which owns the element and decides who may play. `Chat` provides it.
+
+- **If you never passed the prop, or passed `false`,** the only change is that playback is exclusive
+  across surfaces rather than within one. Nothing to do.
+- **If you passed `true`,** delete it. Starting a player now pauses whichever was playing and takes
+  the shared element over.
+- **Switching channels stops that channel's audio.** `Channel` passes its channel as
+  `WithAudioPlayback`'s new `playbackScope`, whose change clears the pool. Unmounting a provider
+  still clears it, as before; the scope covers a provider that stays mounted while its subject
+  changes, which is what a `Channel` does since it stopped keying its subtree on the cid.
+- **`useActiveAudioPlayer()` now reports the app-wide active player**, not the calling surface's.
+- **If you mount your own `WithAudioPlayback`,** it joins the same arbiter automatically inside a
+  `Chat`, and arbitrates alone outside one. Pass `playbackScope` if it outlives what it plays for.
+
+### `ChatContext.latestMessageDatesByChannels` → removed
+
+The field is **removed** from `ChatContextValue`, along with the `message.new` subscription in `Channel` that maintained it.
+
+Despite the name it never held the channel's latest message date: the write was filtered to the _current user's_ own messages, because it existed to compute how much slow-mode cooldown was left since you last posted. That job now belongs to `channel.cooldownTimer`, a `CooldownTimer` in `stream-chat` with its own `StateStore`, so the map had no reader left.
+
+- **Slow-mode cooldown** → `useStateStore(channel.cooldownTimer.state, …)`, or the `useCooldownRemaining` / `useIsCooldownActive` hooks.
+- **The channel's latest message** → `channel.messagePaginator.aggregateState.lastMessage`.
+- **When the current user last posted in a channel** → no longer available from the React SDK. Nothing in the SDK consumed it, but if you did, track it yourself from `message.new`.
+
+### `Channel` no longer jumps to a searched message; jump through the message paginator
+
+`Channel` used to watch `SearchController._internalState.focusedMessage` and scroll the list on the
+component's behalf. It no longer does: `channel.messagePaginator` already owns "which message should
+this list scroll to", and the jump now happens where the message is selected.
+
+The React SDK no longer reads `_internalState` at all, so it works whether or not your `stream-chat`
+version still has the field. The field and its `InternalSearchControllerState` type are being removed
+from `stream-chat` itself — that removal is tracked in its own v9 → v10 migration notes, not here.
+
+Focus was stored in two places for one highlight. `MessageIntervalPaginator.jumpToMessage()` loads the
+window around a message and leaves a `messageFocusSignal` on that paginator — which both message lists
+already render from, and whose lifetime starts only once the message has actually appeared on screen.
+`focusedMessage` was a second copy of the same fact, on a second clock, and a paginator per list
+already gives one focus per list.
+
+- **To scroll a list to a message**, call `channel.messagePaginator.jumpToMessage(messageId)` (or
+  `thread.messagePaginator.jumpToMessage(...)` for a thread reply). `jumpToMessage` does not watch the
+  channel, so query it first if it has never been opened — `getChannel({ channel, client })`
+  de-duplicates concurrent calls.
+- **To read what a list is currently highlighting**, subscribe to
+  `channel.messagePaginator.messageFocusSignal` and take `signal?.messageId`. This is what the built-in
+  search results now use for their "you jumped here" marker, so the marker and the highlight share one
+  piece of state.
+- **If you relied on `Channel` performing the jump**, call `jumpToMessage` yourself where the message
+  is chosen — that is what `MessageSearchResultItem` now does.
+- **Restoring a jump from elsewhere**, such as URL parameters on page load, is just a
+  `jumpToMessage` call — the signal waits, uncounted, until a list renders it. `examples/vite` reads a
+  repeatable `?focus=<cid>:<messageId>` parameter this way.
 
 ### `ChannelListItem` `getLatestMessagePreview` prop → removed; customize via `SummarizedMessagePreview`
 

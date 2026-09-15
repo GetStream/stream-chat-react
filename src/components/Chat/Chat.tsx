@@ -24,6 +24,7 @@ import { useStreami18n } from '../../i18n/useStreami18n';
 import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
 import type { CustomClasses } from '../../context/ChatContext';
+import { SharedAudioPlaybackProvider } from '../AudioPlayback/WithAudioPlayback';
 import { ChatProvider } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { TranslationProvider } from '../../context/TranslationContext';
@@ -125,7 +126,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     useImageFlagEmojisOnWindows = false,
   } = props;
 
-  const { getAppSettings, latestMessageDatesByChannels, mutes } = useChat({ client });
+  const { getAppSettings, mutes } = useChat({ client });
   const translators = useStreami18n({ client, i18nInstance });
 
   const searchController = useMemo(
@@ -148,7 +149,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     customClasses,
     getAppSettings,
     isMessageAIGenerated,
-    latestMessageDatesByChannels,
     mutes,
     searchController,
     theme,
@@ -166,7 +166,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
             >
               <NetworkConnectionNotificationReporter />
               <NotificationAnnouncer />
-              {children}
+              <SharedAudioPlaybackProvider>{children}</SharedAudioPlaybackProvider>
               <AriaLiveOutlet portal />
             </ModalNotificationConfiguration>
           </ModalDialogManagerProvider>

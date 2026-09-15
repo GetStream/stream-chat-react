@@ -4,6 +4,7 @@ import { convertTimestampToDate, formatMessage } from 'stream-chat';
 import type {
   Channel,
   ChannelResponse,
+  MessageFocusSignalState,
   MessageResponse,
   UserResponse,
 } from 'stream-chat';
@@ -19,8 +20,13 @@ import {
   useWorkspaceNavigation,
 } from '../../../context';
 import { Timestamp } from '../../../components/Message/Timestamp';
+import { useStateStore } from '../../../store';
 
 type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
+
+const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
+  focusedMessageId: state.signal?.messageId,
+});
 
 export type ChannelSearchResultItemProps = {
   item: Channel;
@@ -72,7 +78,7 @@ export const MessageSearchResultItem = ({
   item,
   onSelect,
 }: ChannelByMessageSearchResultItemProps) => {
-  const { channelManager, client, searchController } = useChatContext();
+  const { channelManager, client } = useChatContext();
   const { isChannelActive, openChannel } = useWorkspaceNavigation();
 
   const channel = useMemo(() => {
@@ -82,9 +88,11 @@ export const MessageSearchResultItem = ({
     return client.channel(type, id);
   }, [client, item]);
 
-  // Active = this result's channel is currently open in the workspace (by identity), not
-  // "the first channel slot".
   const channelOpenInSlot = isChannelActive(channel?.cid ?? undefined);
+  const { focusedMessageId } = useStateStore(
+    channel?.messagePaginator.messageFocusSignal,
+    messageFocusSignalSelector,
+  ) ?? { focusedMessageId: undefined };
 
   const handleSelect = useCallback(
     (event: React.MouseEvent) => {
@@ -93,14 +101,11 @@ export const MessageSearchResultItem = ({
         return;
       }
       if (!channel) return;
-      // Setting focusedMessage is enough: the target channel's <Channel> reacts to
-      // searchController.focusedMessage and performs the paginator jumpToMessage (loading the
-      // window around the target). No manual channel.state preload is needed here.
-      searchController._internalState.partialNext({ focusedMessage: item });
       openChannel(channel, { event });
       channelManager.ingestChannel(channel);
+      void channel.messagePaginator.jumpToMessage(item.id);
     },
-    [channel, item, openChannel, searchController, channelManager, onSelect],
+    [channel, item, openChannel, channelManager, onSelect],
   );
 
   // Preview the matched message itself (not the channel's latest) by overriding `previewedMessage`.
@@ -110,10 +115,7 @@ export const MessageSearchResultItem = ({
 
   return (
     <ChannelListItem
-      active={
-        !!channelOpenInSlot &&
-        item.id === searchController._internalState.getLatestValue().focusedMessage?.id
-      }
+      active={channelOpenInSlot && focusedMessageId === item.id}
       channel={channel}
       className='str-chat__search-result'
       onSelect={handleSelect}

@@ -5,6 +5,7 @@ import {
   Channel,
   ChannelHeader,
   Chat,
+  getChannel,
   MessageComposer,
   MessageList,
   Thread,
@@ -32,19 +33,38 @@ const App = () => {
   useEffect(() => {
     if (!client) return;
 
-    const channel = client.channel('messaging', 'custom_channel_id', {
-      members: [userId],
-      // custom channel fields live under `custom` since v10
-      custom: {
-        image: 'https://getstream.io/random_png/?name=react',
-        name: 'Talk about React',
-      },
-    });
+    const initChannel = async () => {
+      const channel = client.channel('messaging', 'custom_channel_id', {
+        members: [userId],
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://getstream.io/random_png/?name=react',
+          name: 'Talk about React',
+        },
+      });
 
-    setChannel(channel);
+      // `Channel` binds a channel to its subtree; it does not query one. Whoever supplies the
+      // channel initializes it.
+      //
+      // `client.channel()` returns the cached instance for this cid, so a re-run of this effect
+      // can hand back a channel that is already loaded -- query only when it is not. When a query
+      // is needed, `getChannel` de-duplicates concurrent calls for the same channel, so two
+      // overlapping runs still produce a single request.
+      if (!channel.initialized) {
+        await getChannel({ channel, client });
+      }
+
+      setChannel(channel);
+    };
+
+    initChannel().catch((error) => {
+      console.error('Failed to initialize tutorial channel', error);
+    });
   }, [client]);
 
   if (!client) return <div>Setting up client & connection...</div>;
+  // Shown while the channel query is in flight -- `Channel` renders no loading state of its own.
+  if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
     <Chat client={client}>

@@ -13,7 +13,6 @@ export type UseChatParams = {
 
 export const useChat = ({ client }: UseChatParams) => {
   const [mutes, setMutes] = useState<Array<UserMuteResponse>>([]);
-  const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
 
   const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
 
@@ -64,13 +63,8 @@ export const useChat = ({ client }: UseChatParams) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientMutes?.length]);
 
-  useEffect(() => {
-    setLatestMessageDatesByChannels({});
-  }, [client.user?.id]);
-
   return {
     getAppSettings,
-    latestMessageDatesByChannels,
     mutes,
   };
 };

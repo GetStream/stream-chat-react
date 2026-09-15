@@ -298,7 +298,7 @@ describe('Audio', () => {
     // Thread instance (useThreadContext), not the message-context `threadList` flag, so the
     // thread widget is wrapped in a ThreadProvider to give it a distinct requester namespace.
     render(
-      <WithAudioPlayback allowConcurrentPlayback>
+      <WithAudioPlayback>
         <MessageProvider value={mockMessageContext({ message })}>
           <Audio attachment={audioAttachment} />
         </MessageProvider>
@@ -309,14 +309,16 @@ describe('Audio', () => {
         </ThreadProvider>
       </WithAudioPlayback>,
     );
-    const playButtons = screen.queryAllByTestId('play-audio');
-    expect(playButtons.length).toBe(2);
-    await Promise.all(
-      playButtons.map(async (button) => {
-        await fireEvent.click(button);
-      }),
-    );
-    expect(createdAudios).toHaveLength(2);
+    expect(screen.queryAllByTestId('play-audio')).toHaveLength(2);
+
+    // Two players sharing one audio element: starting the second hands the element over and pauses
+    // the first, so exactly one widget shows as playing. Were both widgets backed by the *same*
+    // player -- the bug this guards against -- they would show the same state as each other.
+    await fireEvent.click(screen.queryAllByTestId('play-audio')[0]);
+    await fireEvent.click(screen.queryAllByTestId('play-audio')[0]);
+
+    expect(screen.queryAllByTestId('pause-audio')).toHaveLength(1);
+    expect(screen.queryAllByTestId('play-audio')).toHaveLength(1);
   });
 
   it('keeps a single copy of audio player for the same requester', async () => {

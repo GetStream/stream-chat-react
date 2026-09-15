@@ -24,8 +24,6 @@ type CSSClasses =
 
 export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
-type ChannelConfId = string; // e.g.: "messaging:general"
-
 export type ChatContextValue = {
   /**
    * The client's `ChannelManager` (`client.channelManager`) — used to query and manage channels
@@ -36,7 +34,6 @@ export type ChatContextValue = {
   channelManager: ChannelManager;
   getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
   /** Newest own-message timestamp per channel, in unix nanoseconds as the API sends it. */
-  latestMessageDatesByChannels: Record<ChannelConfId, number>;
   mutes: Array<UserMuteResponse>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;

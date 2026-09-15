@@ -20,13 +20,16 @@ permissions:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    name: ESLint & Prettier
+    name: ESLint, Prettier & Types
     steps:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-node
 
       - run: yarn lint
+
+      - name: Typecheck the library
+        run: yarn types
 
       # scripts/ is outside the src tsconfigs and is not linted; Node 24 strips the types in
       # the .mts build scripts without checking them, so check them here.

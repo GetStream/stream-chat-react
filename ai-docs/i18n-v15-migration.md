@@ -320,7 +320,7 @@ with no dictionary behind it.
 
 Also now internal, none of them documented before: `translations`, `dayjsLocales`,
 `isCustomDateTimeParser`, `localeExists()`, `addOrUpdateLocale()`, `validateCurrentLanguage()`. To
-register a dayjs locale directly, `stream-chat/i18n` exports `addOrUpdateDayjsLocale()`.
+register a dayjs locale directly, `@stream-io/i18n` exports `addOrUpdateDayjsLocale()`.
 
 ### `useChat` no longer returns `translators`
 

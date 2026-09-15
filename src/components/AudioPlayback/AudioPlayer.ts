@@ -1,4 +1,4 @@
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import throttle from 'lodash.throttle';
 import type { AudioPlayerPlugin } from './plugins';
 import type { AudioPlayerPool } from './AudioPlayerPool';
@@ -216,7 +216,7 @@ export class AudioPlayer {
     }
     if (!this.elementRef) {
       const el = this._pool.acquireElement({
-        ownerId: this.id,
+        owner: this,
         src: this.src,
       });
       this.setRef(el);
@@ -411,7 +411,7 @@ export class AudioPlayer {
       }
     }
     if (this.elementRef) {
-      this._pool.releaseElement(this.id);
+      this._pool.releaseElement(this);
       this.setRef(null);
     }
   }

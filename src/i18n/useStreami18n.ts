@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useStreami18nState } from '@stream-io/i18n/react';
 
 import { Streami18n } from './Streami18n';
-import type { Streami18nState } from './types';
-import { useStateStore } from '../store';
 
 import type { StreamChat } from 'stream-chat';
 import type { TranslationContextValue } from '../context/TranslationContext';
-
-/** Module scope, so the subscription is not torn down and rebuilt on every render. */
-const selector = ({ t, tDateTimeParser }: Streami18nState) => ({ t, tDateTimeParser });
 
 export type UseStreami18nParams = {
   client: StreamChat;
@@ -17,15 +13,13 @@ export type UseStreami18nParams = {
 };
 
 /**
- * Resolves the translation context value.
+ * Resolves the translation context value. Two independent languages come out of here, and keeping
+ * them apart is the point:
  *
- * Two independent languages come out of here, and keeping them apart is the point:
- *
- * - **UI copy** comes from the `Streami18n` instance, through `state`. Set it with the `language`
- *   option or `setLanguage()`.
- * - **`userLanguage`** is the language the API auto-translates *messages* into, which is
- *   `client.user.language` and nothing else. Every consumer uses it to read
- *   `message.i18n[`${userLanguage}_text`]`.
+ * - **UI copy** — from the `Streami18n` instance via `useStreami18nState` (shared with the React
+ *   Native SDK; it owns `init()` and the store subscription).
+ * - **`userLanguage`** — `client.user.language`, the language the API auto-translates *messages*
+ *   into, used to read ``message.i18n[`${userLanguage}_text`]``. Chat-client state, so it stays here.
  */
 export const useStreami18n = ({
   client,
@@ -33,6 +27,7 @@ export const useStreami18n = ({
 }: UseStreami18nParams): TranslationContextValue => {
   const i18n = useMemo(() => i18nInstance ?? new Streami18n(), [i18nInstance]);
   const [userLanguage, setUserLanguage] = useState(() => client.user?.language ?? 'en');
+
   useEffect(() => {
     const sync = () => setUserLanguage(client.user?.language ?? 'en');
     sync();
@@ -42,13 +37,9 @@ export const useStreami18n = ({
     return unsubscribe;
   }, [client]);
 
-  useEffect(() => {
-    i18n.init().catch((error: unknown) => {
-      console.warn(`Streami18n failed to initialize`, error);
-    });
-  }, [i18n]);
-
-  const { t, tDateTimeParser } = useStateStore(i18n.state, selector);
+  const { t, tDateTimeParser } = useStreami18nState(i18n, (error) => {
+    console.warn(`Streami18n failed to initialize`, error);
+  });
 
   return useMemo(
     () => ({ t, tDateTimeParser, userLanguage }),

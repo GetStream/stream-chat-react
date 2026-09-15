@@ -7,6 +7,7 @@ import {
   useScrollLocationLogic,
   useUnreadMessagesNotification,
 } from './hooks/MessageList';
+import { getChannelInstanceKey } from '../Channel/channelInstanceKey';
 import { useMarkRead } from './hooks/useMarkRead';
 
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
@@ -546,6 +547,11 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
  * - `ComponentContext`
  * - `ThreadContext`
  */
-export const MessageList = (props: MessageListProps) => (
-  <MessageListWithContext {...props} />
-);
+export const MessageList = (props: MessageListProps) => {
+  const channel = useChannel();
+
+  // Scroll position and the rest of this list's local state belong to the channel instance it is
+  // showing, so a different instance starts from scratch. `Channel` used to provide this reset by
+  // remounting its entire subtree; it belongs here, where the state actually lives.
+  return <MessageListWithContext {...props} key={getChannelInstanceKey(channel)} />;
+};

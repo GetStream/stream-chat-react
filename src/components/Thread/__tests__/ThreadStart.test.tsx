@@ -1,6 +1,6 @@
 import React from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ThreadStart } from '../ThreadStart';
@@ -34,7 +34,7 @@ const i18nMock = {
 
 const renderComponent = ({ client, parentMessage }: any) =>
   render(
-    <ChatProvider value={mockChatContext({ client, latestMessageDatesByChannels: {} })}>
+    <ChatProvider value={mockChatContext({ client })}>
       <TranslationProvider value={mockTranslationContextValue(i18nMock)}>
         <ThreadProvider thread={makeThread(parentMessage)}>
           <ThreadStart />

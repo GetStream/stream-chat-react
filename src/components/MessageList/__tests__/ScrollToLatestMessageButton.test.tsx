@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import type { Channel, StreamChat, Thread, UserResponse } from 'stream-chat';
 
 import { ScrollToLatestMessageButton } from '../ScrollToLatestMessageButton';
