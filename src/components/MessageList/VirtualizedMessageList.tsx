@@ -74,6 +74,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { UnknownType } from '../../types/types';
+import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
@@ -81,7 +82,6 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'formatDate'
-  | 'messageActions'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
@@ -227,7 +227,6 @@ const VirtualizedMessageListWithContext = (
     // loadMore,
     // loadMoreNewer,
     maxTimeBetweenGroupedMessages,
-    messageActions,
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
@@ -491,18 +490,23 @@ const VirtualizedMessageListWithContext = (
     [],
   );
 
+  const canPaginateReplies = useCanPaginateReplies();
+
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
 
     if (isAtBottom) {
-      messagePaginator.toHead();
+      // An empty thread is at both ends at once, so Virtuoso reports both on mount — see
+      // `useCanPaginateReplies` for why that must not become a request.
+      if (canPaginateReplies) messagePaginator.toHead();
       // loadMoreNewer?.(messageLimit);
       setNewMessagesNotification?.(false);
     }
   };
   const atTopStateChange = (isAtTop: boolean) => {
     if (isAtTop) {
+      if (!canPaginateReplies) return;
       if (loadingOlderRef.current) return;
       loadingOlderRef.current = true;
       setSuppressAutoscrollWhileLoadingOlder(true);
@@ -585,7 +589,6 @@ const VirtualizedMessageListWithContext = (
                   lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
                   lastReceivedMessageId,
                   loadingMore: isLoading,
-                  messageActions,
                   messageGroupStyles,
                   MessageSystem,
                   numItemsPrepended,

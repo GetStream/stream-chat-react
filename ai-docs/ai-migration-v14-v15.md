@@ -45,6 +45,49 @@ The single largest v15 change: the React SDK no longer owns channel message stat
 
 These `*WithLocalUpdate` methods delegate to `channel.messageOperations`, which honours request handlers registered through `client.config` (see below).
 
+### `messageActions` / `MESSAGE_ACTIONS` → removed; configure the action set instead
+
+The `messageActions` prop on `Thread`, `MessageList`, `VirtualizedMessageList` and `Message` is
+**removed**, together with everything behind it: `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`,
+`MessageActionsArray`, the `getMessageActions()` util, and the `getMessageActions` and
+`actionsEnabled` fields of `MessageContextValue`.
+
+It had already stopped working. `getMessageActions` was written into `MessageContext` and read by
+nothing -- the `MessageActions` component decides what to show from its `messageActionSet`, filtered
+by capabilities and message state in `useBaseMessageActionSetFilter`. Passing
+`messageActions={['delete']}` in v15 changed nothing on screen, so removing it takes away a control
+that no longer controlled anything. `actionsEnabled` -- `type === 'regular' && status === 'received'`
+-- goes the same way, and for the same reason: nothing read it. The base filter derives availability
+from message state itself, dropping actions on a deleted, bounced or failed message.
+
+To choose the actions, filter or extend the set:
+
+```tsx
+import {
+  defaultMessageActionSet,
+  MessageActions,
+  WithComponents,
+} from 'stream-chat-react';
+
+const ReadOnlyActions = () => (
+  <MessageActions
+    messageActionSet={defaultMessageActionSet.filter(({ type }) => type !== 'delete')}
+  />
+);
+
+<WithComponents overrides={{ MessageActions: ReadOnlyActions }}>
+  {/* ... */}
+</WithComponents>;
+```
+
+- **Action names** are now `MessageActionSetItem['type']`. The ones the default set ships are listed
+  in the exported `DefaultMessageActionType`, and a custom action may use any string.
+- **Permissions and message state** are applied for you by the base filter -- an action the user
+  cannot perform, or that a thread reply does not support, is dropped whether or not you list it.
+  Pass `disableBaseMessageActionSetFilter` to take that over.
+- **Adding an action** means adding an item with a `Component` and a `placement` of `quick`,
+  `dropdown` or `quick-dropdown-toggle`.
+
 ### `MessageComposer` `overrideSubmitHandler` prop → removed
 
 `MessageComposer` (formerly `MessageInput`) now owns the submission flow (`messageComposer.compose()` → `channel.sendMessageWithLocalUpdate()`), so the `overrideSubmitHandler` prop is gone. To customise sending:

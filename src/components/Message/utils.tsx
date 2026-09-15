@@ -45,139 +45,8 @@ export const isUserMuted = (message: LocalMessage, mutes?: UserMuteResponse[]) =
   return mutes.some(({ target }) => target?.id === message.user?.id);
 };
 
-export const OPTIONAL_MESSAGE_ACTIONS = {
-  deleteForMe: 'deleteForMe',
-};
-
-export const MESSAGE_ACTIONS = {
-  delete: 'delete',
-  download: 'download',
-  edit: 'edit',
-  flag: 'flag',
-  markUnread: 'markUnread',
-  mute: 'mute',
-  pin: 'pin',
-  quote: 'quote',
-  react: 'react',
-  remindMe: 'remindMe',
-  reply: 'reply',
-  saveForLater: 'saveForLater',
-};
-
-export type MessageActionsArray<T extends string = string> = Array<
-  keyof typeof MESSAGE_ACTIONS | keyof typeof OPTIONAL_MESSAGE_ACTIONS | T
->;
-
-export type Capabilities = {
-  canDelete?: boolean;
-  canEdit?: boolean;
-  canFlag?: boolean;
-  canMarkUnread?: boolean;
-  canMute?: boolean;
-  canPin?: boolean;
-  canQuote?: boolean;
-  canReact?: boolean;
-  canReply?: boolean;
-};
-
-export const getMessageActions = (
-  actions: MessageActionsArray | boolean,
-  {
-    canDelete,
-    canEdit,
-    canFlag,
-    canMarkUnread,
-    canMute,
-    canPin,
-    canQuote,
-    canReact,
-    canReply,
-  }: Capabilities,
-  /**
-   * Whether the channel permits message reminders. A flag rather than the whole `ChannelConfig`:
-   * this is the only setting the function reads, and passing the object made every caller re-render
-   * on configuration changes that cannot affect the result.
-   */
-  userMessageRemindersEnabled?: boolean,
-): MessageActionsArray => {
-  const messageActionsAfterPermission: MessageActionsArray = [];
-  let messageActions: MessageActionsArray = [];
-
-  if (actions && typeof actions === 'boolean') {
-    // If value of actions is true, then populate all the possible values
-    messageActions = Object.keys(MESSAGE_ACTIONS);
-  } else if (actions && Array.isArray(actions) && actions.length > 0) {
-    messageActions = [...actions];
-  } else {
-    return [];
-  }
-
-  if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
-  }
-
-  if (messageActions.indexOf(MESSAGE_ACTIONS.download) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.download);
-  }
-
-  if (canDelete && messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1) {
-    messageActionsAfterPermission.push(OPTIONAL_MESSAGE_ACTIONS.deleteForMe);
-  }
-
-  if (canEdit && messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
-  }
-
-  if (canFlag && messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
-  }
-
-  if (canMarkUnread && messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.markUnread);
-  }
-
-  if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
-  }
-
-  if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
-  }
-
-  if (canQuote && messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.quote);
-  }
-
-  if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.react);
-  }
-
-  if (
-    userMessageRemindersEnabled &&
-    messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1
-  ) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
-  }
-
-  if (canReply && messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.reply);
-  }
-
-  if (
-    userMessageRemindersEnabled &&
-    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1
-  ) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
-  }
-
-  return messageActionsAfterPermission;
-};
-
-export const ACTIONS_NOT_WORKING_IN_THREAD = [
-  MESSAGE_ACTIONS.pin,
-  MESSAGE_ACTIONS.reply,
-  MESSAGE_ACTIONS.markUnread,
-];
+/** `MessageActionSetItem['type']`s that a thread reply does not support. */
+export const ACTIONS_NOT_WORKING_IN_THREAD: string[] = ['pin', 'reply', 'markUnread'];
 
 function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
   if (prevMessage === nextMessage) return true;
@@ -234,7 +103,6 @@ export const areMessagePropsEqual = (
   if (!messagesAreEqual) return false;
 
   const deepEqualProps =
-    deepequal(nextProps.messageActions, prevProps.messageActions) &&
     deepequal(nextProps.readBy, prevProps.readBy) &&
     deepequal(nextProps.deliveredTo, prevProps.deliveredTo) &&
     deepequal(nextProps.highlighted, prevProps.highlighted) &&
