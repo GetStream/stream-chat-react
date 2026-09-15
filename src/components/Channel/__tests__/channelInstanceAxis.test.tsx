@@ -13,7 +13,6 @@ import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 
 import { Channel } from '../Channel';
-import { getChannelInstanceKey } from '../channelInstanceKey';
 import { Chat } from '../../Chat';
 import { MessageList } from '../../MessageList';
 import { initClientWithChannels } from '../../../mock-builders';
@@ -101,23 +100,5 @@ describe('the same Channel instance re-rendered', () => {
     // A remount would release the channel and claim it again; the same instance keeps the same key.
     expect(deactivate).not.toHaveBeenCalled();
     expect(activate).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe('getChannelInstanceKey', () => {
-  it('is stable for one instance and distinct per instance', async () => {
-    const {
-      channels: [first],
-      client,
-    } = await initClientWithChannels({
-      channelsData: [{ channel: { id: 'channel-a', type: 'messaging' } }],
-    });
-    delete client.activeChannels[first.cid];
-    const second = client.channel('messaging', 'channel-a');
-
-    expect(getChannelInstanceKey(first)).toBe(getChannelInstanceKey(first));
-    expect(getChannelInstanceKey(second)).not.toBe(getChannelInstanceKey(first));
-    // Readable in DevTools without being the identity.
-    expect(getChannelInstanceKey(first).startsWith(`${first.cid}#`)).toBe(true);
   });
 });

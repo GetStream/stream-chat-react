@@ -2,15 +2,14 @@ import React, { useEffect } from 'react';
 
 import { useChatViewContext } from './ChatView';
 import { useSlotThread } from './hooks';
-import { ThreadProvider } from '../../components/Threads';
-import { Thread as ThreadComponent, type ThreadProps } from '../../components/Thread';
+import { Thread, type ThreadProps } from '../../components/Thread';
 import { ThreadSlotContext } from './ThreadSlotContext';
 
 import type { PropsWithChildren, ReactNode } from 'react';
 import type { SlotName } from './layoutController/layoutControllerTypes';
 
 export type ThreadSlotProps = PropsWithChildren<
-  ThreadProps & {
+  Omit<ThreadProps, 'thread'> & {
     fallback?: ReactNode;
     hideIfEmpty?: boolean;
     slot?: SlotName;
@@ -37,9 +36,9 @@ export const ThreadSlot = ({
 
   return (
     <ThreadSlotContext.Provider value={slot}>
-      <ThreadProvider thread={thread}>
-        {children ?? <ThreadComponent {...threadProps} />}
-      </ThreadProvider>
+      <Thread {...threadProps} thread={thread}>
+        {children}
+      </Thread>
     </ThreadSlotContext.Provider>
   );
 };

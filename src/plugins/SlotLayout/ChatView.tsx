@@ -562,7 +562,7 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
 };
 
 // D8 — `ThreadAdapter` is retired: the threads view renders the thread(s) bound in
-// thread slots (via `useSlotThreads` + `ThreadProvider`), so there is no single
+// thread slots (via `useSlotThreads` + `Thread`), so there is no single
 // `activeThread` adapter. `useActiveThread` remains for callers that render a thread
 // panel and want focus-driven activate/deactivate.
 

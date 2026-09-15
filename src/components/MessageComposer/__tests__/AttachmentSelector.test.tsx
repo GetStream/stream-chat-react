@@ -13,6 +13,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { Thread } from 'stream-chat';
 import type { Command } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
 import { Chat } from '../../Chat';
@@ -24,7 +25,7 @@ import {
   mockMessageContext,
 } from '../../../mock-builders';
 import { AttachmentSelector } from '../AttachmentSelector/AttachmentSelector';
-import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
+import { ThreadProvider } from '../../Threads';
 
 const ATTACHMENT_SELECTOR__ACTIONS_MENU_TEST_ID = 'attachment-selector-actions-menu';
 const POLL_CREATION_DIALOG_TEST_ID = 'poll-creation-dialog';
@@ -75,11 +76,13 @@ const renderComponent = async ({
   }
   vi.spyOn(channel, 'getDraft').mockImplementation(() => {});
 
+  // A real Thread, not a stand-in: `MessageComposer.threadId` is resolved with
+  // `compositionContext instanceof Thread`, so a partial object composes against the channel.
   const Composer = () =>
     thread ? (
-      <LegacyThreadContext.Provider value={{ legacyThread: thread }}>
+      <ThreadProvider thread={new Thread({ channel, client, parentMessage: thread })}>
         <MessageComposer {...messageInputProps} />
-      </LegacyThreadContext.Provider>
+      </ThreadProvider>
     ) : (
       <MessageComposer {...messageInputProps} />
     );

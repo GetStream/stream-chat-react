@@ -223,7 +223,7 @@ export const useSlotThread = (options?: { slot?: SlotName; view?: ChatView }) =>
  * @example
  * ```tsx
  * useSlotThreads().map(({ thread, slot }) => (
- *   <ThreadProvider key={slot} thread={thread}><Thread /></ThreadProvider>
+ *   <Thread key={slot} thread={thread}><ThreadHeader /><MessageList /></Thread>
  * ))
  * ```
  */

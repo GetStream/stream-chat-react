@@ -23,9 +23,9 @@ import {
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import React from 'react';
-import type { LocalMessage } from 'stream-chat';
 import { MessageComposer } from '../MessageComposer';
-import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
+import { Thread } from 'stream-chat';
+import { ThreadProvider } from '../../Threads';
 
 const sendMessageMock = vi.fn();
 
@@ -135,13 +135,16 @@ const renderComponent = async ({
     renderResult = render(
       <Chat client={client}>
         <Channel channel={channel} {...channelProps}>
-          <LegacyThreadContext.Provider
-            value={fromPartial<{ legacyThread: LocalMessage | undefined }>({
-              legacyThread: thread ?? mainListMessage,
-            })}
+          <ThreadProvider
+            // A real Thread, not a stand-in: `MessageComposer.threadId` is resolved with
+            // `compositionContext instanceof Thread`, so a partial object composes against the
+            // channel -- no thread draft, no "also send in channel".
+            thread={
+              new Thread({ channel, client, parentMessage: thread ?? mainListMessage })
+            }
           >
             <MessageComposer {...messageInputProps} />
-          </LegacyThreadContext.Provider>
+          </ThreadProvider>
         </Channel>
       </Chat>,
     );

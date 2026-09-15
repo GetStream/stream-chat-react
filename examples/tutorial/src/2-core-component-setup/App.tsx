@@ -8,9 +8,11 @@ import {
   getChannel,
   MessageComposer,
   MessageList,
-  Thread,
+  ThreadHeader,
   useCreateChatClient,
 } from 'stream-chat-react';
+
+import { ChatView, ThreadSlot } from 'stream-chat-react/slot-layout';
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
@@ -21,6 +23,27 @@ const user: ClientUser = {
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
+
+// A thread is opened through workspace navigation (a message's "reply in thread" action), which
+// `ChatView` provides -- so even a single-channel app hosts its channel and thread in layout slots.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+
+const ChannelWorkspace = ({ channel }: { channel: StreamChannel }) => (
+  <>
+    <Channel channel={channel}>
+      <ChannelHeader />
+      <MessageList />
+      <MessageComposer />
+    </Channel>
+    {/* `ThreadSlot` resolves the thread bound to the slot and hands it to `<Thread>`, which
+        provides it to the components below. Renders nothing while no thread is open. */}
+    <ThreadSlot slot='thread'>
+      <ThreadHeader />
+      <MessageList />
+      <MessageComposer />
+    </ThreadSlot>
+  </>
+);
 
 const App = () => {
   const [channel, setChannel] = useState<StreamChannel>();
@@ -68,12 +91,10 @@ const App = () => {
 
   return (
     <Chat client={client}>
-      <Channel channel={channel}>
-        <ChannelHeader />
-        <MessageList />
-        <MessageComposer />
-        <Thread />
-      </Channel>
+      <ChatView
+        layouts={chatViewLayouts}
+        views={{ channels: <ChannelWorkspace channel={channel} /> }}
+      />
     </Chat>
   );
 };

@@ -378,6 +378,78 @@ already gives one focus per list.
 - **Preview a specific message** rather than the channel's latest (e.g. a search result previewing the matched message) → pass the new `previewedMessage?: LocalMessage` prop to `ChannelListItem`. It defaults to the channel's reactive latest, `channel.messagePaginator.aggregateState.lastMessage`.
 - **Behavior note:** the preview now honors the channel's `skip_last_msg_update_for_system_msgs` config (a system message no longer becomes the previewed / last message), so the preview and the channel's sort position agree.
 
+### `Thread` renders children; its composition props are removed
+
+`Thread` no longer renders a header, a message list and a composer of its own. It now matches `Channel` in both halves of the pattern: it **takes the instance as a required `thread` prop**, provides it to its subtree (so `ThreadProvider` is no longer written by hand around it), owns the lifecycle -- loading the thread, registering it with the `ThreadManager`, scoping audio playback -- and renders whatever you compose inside.
+
+```tsx
+// v14
+<ThreadProvider thread={thread}>
+  <Thread
+    additionalMessageComposerProps={{ audioRecordingEnabled: true }}
+    additionalMessageListProps={{ onUserClick }}
+    virtualized={virtualized}
+  />
+</ThreadProvider>
+
+// v15
+<Thread thread={thread}>
+  <ThreadHeader />
+  {virtualized ? (
+    <VirtualizedMessageList withDateSeparator={false} />
+  ) : (
+    <MessageList withDateSeparator={false} onUserClick={onUserClick} />
+  )}
+  <MessageComposer audioRecordingEnabled focus />
+</Thread>
+```
+
+Removed props, and where each one goes:
+
+| v14 prop                                | v15                                           |
+| --------------------------------------- | --------------------------------------------- |
+| `additionalMessageComposerProps`        | props on your `MessageComposer` child         |
+| `additionalMessageListProps`            | props on your `MessageList` child             |
+| `additionalVirtualizedMessageListProps` | props on your `VirtualizedMessageList` child  |
+| `additionalParentMessageProps`          | a `ThreadHead` override on `ComponentContext` |
+| `autoFocus`                             | `<MessageComposer focus />`                   |
+| `virtualized`                           | render the list you want                      |
+
+Consequences worth planning for:
+
+- **`Thread`'s defaults are gone.** It used to suppress in-list date separators whichever list it rendered; now `MessageList` follows its own default (separators **on**), so pass `withDateSeparator={false}` if you want the v14 look. The parent message still carries a date separator of its own.
+- **The parent message is rendered by the message list**, not by `Thread` -- it has to sit inside the scroll container. Both lists resolve it from thread context, so `<MessageList />` inside a `ThreadProvider` shows it with no prop at all. The `head` prop is **removed** from `MessageList` and `VirtualizedMessageList`; override the rendering with a `ThreadHead` component on `ComponentContext` instead (on `VirtualizedMessageList`, `additionalVirtuosoProps.components.Header` still replaces the whole header slot).
+- **`ThreadSlot` wraps its children instead of replacing them.** It resolves the thread bound to a slot and hands it to `<Thread>`, exactly as `ChannelSlot` does for `<Channel>`, so its `children` are now the thread's contents rather than a substitute for the whole panel. Anything that has to sit _outside_ the thread container (a panel shell your layout sizes, for instance) moves outside `ThreadSlot`; anything that needs thread context (`useChannel` resolves the thread's own channel) must sit inside.
+- **`ThreadProvider` is still exported** for rendering thread-scoped UI outside a `<Thread>`, but you no longer wrap `<Thread>` in it.
+- **`ComponentContext.ThreadHeader` is removed**, along with the `str-chat__thread--virtualized` class on the container. Compose the header you want directly. `ThreadHeaderProps` is down to `overrideTitle`: the `closeThread` and `thread` props are **removed**, because both are already reachable centrally -- the parent message comes from the thread in context, and closing goes through the workspace navigation (`closeThread(threadId)`), which an app customizes once via `ChatView`'s `deriveWorkspaceNavigation` rather than per header. The new `useCloseThread()` hook gives a custom header the same close behavior.
+
+### `disableDateSeparator` → `withDateSeparator`; `Thread.enableDateSeparator` → removed
+
+`MessageList` and `VirtualizedMessageList` took `disableDateSeparator` while `Thread` took `enableDateSeparator` for the same setting — inverted polarity and two names for one idea, so the value had to be negated on the way down. Both lists now take **`withDateSeparator`**. The defaults are unchanged in behavior, only in spelling:
+
+| Component                | v14                            | v15                         |
+| ------------------------ | ------------------------------ | --------------------------- |
+| `MessageList`            | `disableDateSeparator={false}` | `withDateSeparator={true}`  |
+| `VirtualizedMessageList` | `disableDateSeparator={true}`  | `withDateSeparator={false}` |
+
+`Thread`'s own `enableDateSeparator` prop is **removed**, and nothing replaces it: `Thread` renders children, so the list says what it wants.
+
+```tsx
+// v14 — Thread forced separators off for whichever list it rendered
+<Thread enableDateSeparator />
+
+// v15
+<Thread>
+  <ThreadHeader />
+  <MessageList withDateSeparator />
+  <MessageComposer focus />
+</Thread>
+```
+
+Note the changed default that follows: a `MessageList` in a thread now shows date separators unless you pass `withDateSeparator={false}`.
+
+The rename also reaches `FloatingDateSeparator`, `useFloatingDateSeparator`, `useFloatingDateSeparatorMessageList`, `useEnrichedMessages` and `processMessages`, which all took `disableDateSeparator` (or, inside, `enableDateSeparator`).
+
 ## Message UI overrides consolidate on the `MessageUI` slot
 
 The deprecated `Message` component override is removed from `ComponentContext`, and so is every `Message` **prop** that took a message UI component. There is now exactly one way to override the message UI — the `MessageUI` slot — plus `VirtualMessage` for the virtualized list.

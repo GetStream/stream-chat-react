@@ -1,51 +1,24 @@
 import { useEffect, useMemo } from 'react';
-import { MessageComposer as MessageComposerController } from 'stream-chat';
+import type { MessageComposer as MessageComposerController } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
 import { useChannel, useChatContext } from '../../../context';
-import { useLegacyThreadContext } from '../../Thread';
 
 export const useMessageComposerController = () => {
   const { client } = useChatContext();
   const { messageComposerCache: queueCache } = client;
   const channel = useChannel();
-  const { legacyThread: parentMessage } = useLegacyThreadContext();
   const threadInstance = useThreadContext();
 
-  const cachedParentMessage = useMemo(() => {
-    if (!parentMessage) return undefined;
+  // composer hierarchy: thread instance (own) -> channel (own)
+  const messageComposer = useMemo(
+    () => threadInstance?.messageComposer ?? channel.messageComposer,
+    [channel, threadInstance],
+  );
 
-    return parentMessage;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parentMessage?.id]);
-
-  // composer hierarchy
-  // edited message (always new) -> thread instance (own) -> thread message (always new) -> channel (own)
-  // editedMessage ?? thread ?? parentMessage ?? channel;
-  const messageComposer = useMemo(() => {
-    if (threadInstance) {
-      return threadInstance.messageComposer;
-    } else if (cachedParentMessage) {
-      const compositionContext = {
-        ...cachedParentMessage,
-        legacyThreadId: cachedParentMessage.id,
-      };
-
-      const tag = MessageComposerController.constructTag(compositionContext);
-
-      const cachedComposer = queueCache.get(tag);
-      if (cachedComposer) return cachedComposer;
-
-      return new MessageComposerController({
-        client,
-        compositionContext,
-      });
-    } else {
-      return channel.messageComposer;
-    }
-  }, [cachedParentMessage, channel, client, queueCache, threadInstance]);
-
+  // `legacy_thread` used to be reachable here too, from a composer built off a parent message; the
+  // only composers this hook resolves now belong to a thread or a channel.
   if (
-    (['legacy_thread', 'message'] as MessageComposerController['contextType'][]).includes(
+    (['message'] as MessageComposerController['contextType'][]).includes(
       messageComposer.contextType,
     ) &&
     !queueCache.peek(messageComposer.tag)

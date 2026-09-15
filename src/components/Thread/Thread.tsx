@@ -1,75 +1,41 @@
 import React, { useCallback, useEffect } from 'react';
-import clsx from 'clsx';
+import type { PropsWithChildren } from 'react';
 
-import { LegacyThreadContext } from './LegacyThreadContext';
 import { WithAudioPlayback } from '../AudioPlayback';
-import type { MessageComposerProps } from '../MessageComposer';
-import { MessageComposer } from '../MessageComposer';
-import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
-import { getChannelInstanceKey } from '../Channel/channelInstanceKey';
-import { MessageList, VirtualizedMessageList } from '../MessageList';
-import { ThreadHeader as DefaultThreadHeader } from './ThreadHeader';
-import { ThreadHead as DefaultThreadHead } from '../Thread/ThreadHead';
 
-import {
-  useChatContext,
-  useComponentContext,
-  useWorkspaceNavigation,
-} from '../../context';
-import { useThreadContext } from '../Threads';
+import { useChatContext } from '../../context';
+import { ThreadProvider } from '../Threads';
 import { useStateStore } from '../../store';
 
-import type { MessageProps } from '../Message/types';
-import type { LocalMessage, Thread as StreamThread, ThreadState } from 'stream-chat';
+import type {
+  LocalMessage,
+  Thread as StreamThread,
+  ThreadManagerState,
+  ThreadState,
+} from 'stream-chat';
 import type { ChannelConfig } from 'stream-chat';
 
 const repliesStateSelector = ({ replies }: ChannelConfig) => ({
   repliesEnabled: replies.enabled,
 });
 
-export type ThreadProps = {
-  /** Additional props for `MessageComposer` component: [available props](https://getstream.io/chat/docs/sdk/react/message-composer-components/message_composer/#props) */
-  additionalMessageComposerProps?: MessageComposerProps;
-  /** Additional props for `MessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/message_list/#props) */
-  additionalMessageListProps?: MessageListProps;
-  /** Additional props for `Message` component of the parent message: [available props](https://getstream.io/chat/docs/sdk/react/message-components/message/#props) */
-  additionalParentMessageProps?: Partial<MessageProps>;
-  /** Additional props for `VirtualizedMessageList` component: [available props](https://getstream.io/chat/docs/sdk/react/core-components/virtualized_list/#props) */
-  additionalVirtualizedMessageListProps?: VirtualizedMessageListProps;
-  /** If true, focuses the `MessageComposer` component on opening a thread */
-  autoFocus?: boolean;
-  /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
-  enableDateSeparator?: boolean;
-  /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
-  virtualized?: boolean;
-};
+export type ThreadProps = PropsWithChildren<{
+  /**
+   * The thread to render. Initialize it before passing it in; `Thread` does not query for it --
+   * it loads the replies of a thread the `ThreadManager` does not already hold.
+   */
+  thread: StreamThread;
+}>;
 
-/**
- * The Thread component renders a parent Message with a list of replies
- */
-export const Thread = (props: ThreadProps) => {
-  const threadInstance = useThreadContext();
-  const { repliesEnabled } =
-    useStateStore(threadInstance?.channel.configState, repliesStateSelector) ?? {};
-
-  if (!threadInstance || repliesEnabled === false) return null;
-
-  // todo: maybe this extra layer with ThreadInner could be removed?
-  // the wrapper ensures a key variable is set and the component recreates on thread switch
-  return (
-    <ThreadInner
-      {...props}
-      key={`thread-${threadInstance.id}-${getChannelInstanceKey(threadInstance.channel)}`}
-    />
-  );
-};
-
-const selector = (nextValue: ThreadState) => ({
-  isStateStale: nextValue.isStateStale,
-  parentMessage: nextValue.parentMessage,
-  replyCount: nextValue.replyCount,
+const selector = ({ isStateStale, parentMessage, replyCount }: ThreadState) => ({
+  // A thread exists server-side only once its parent has a reply. Selected as a boolean so the
+  // panel does not re-render on every incoming reply -- only on the transition that matters.
+  hasServerSideThread: replyCount > 0,
+  isStateStale,
+  parentMessage,
 });
 
+// Same reasoning: the effects below only ask whether the replies have loaded, never what they are.
 const messagePaginatorSelector = ({
   isLoading,
   items,
@@ -79,154 +45,122 @@ const messagePaginatorSelector = ({
   items: LocalMessage[] | undefined;
   lastQueryError?: Error;
 }) => ({
+  hasLoadedReplies: items !== undefined,
   isLoading,
-  items,
   lastQueryError,
 });
 
-const threadManagerSelector = ({ threads }: { threads: StreamThread[] }) => ({ threads });
-
-const ThreadInner = (props: ThreadProps & { key: string }) => {
-  const {
-    additionalMessageComposerProps,
-    additionalMessageListProps,
-    additionalParentMessageProps,
-    additionalVirtualizedMessageListProps,
-    autoFocus = true,
-    enableDateSeparator = false,
-    virtualized,
-  } = props;
-  const threadInstance = useThreadContext();
+/**
+ * The container for a thread panel: it provides the thread to its subtree, loads it, registers it
+ * with the `ThreadManager`, scopes audio playback to it, and renders whatever you compose inside.
+ *
+ * It renders no UI of its own, the way `Channel` does not -- put the parts you want in as
+ * children, and their own props say how they behave:
+ *
+ * ```tsx
+ * <Thread thread={thread}>
+ *   <ThreadHeader />
+ *   <MessageList withDateSeparator={false} />
+ *   <MessageComposer focus />
+ * </Thread>
+ * ```
+ *
+ * The parent message is not composed here: a message list renders it above its replies (see
+ * `useThreadHead`), because it has to sit inside the list's scroll container.
+ *
+ * One component: the wrapper that used to sit here existed only to key this subtree on the thread,
+ * which rebuilt everything below on a thread switch -- including parts that hold no per-thread
+ * state. The reset now lives in the message list, which is what actually carries state scoped to
+ * the replies it shows.
+ */
+export const Thread = ({ children, thread }: ThreadProps) => {
   const { client, customClasses } = useChatContext();
-  const { ThreadHead = DefaultThreadHead, ThreadHeader = DefaultThreadHeader } =
-    useComponentContext();
-
-  const { isStateStale, parentMessage, replyCount } =
-    useStateStore(threadInstance?.state, selector) ?? {};
-  const threadPaginatorState = useStateStore(
-    threadInstance?.messagePaginator?.state,
-    messagePaginatorSelector,
+  const { repliesEnabled } = useStateStore(
+    thread.channel.configState,
+    repliesStateSelector,
   );
-  const threadManagerState = useStateStore(
-    client.threads.state,
-    threadManagerSelector,
-  ) ?? {
-    threads: client.threads.state.getLatestValue().threads,
-  };
-  const isThreadManaged = threadInstance?.id
-    ? threadManagerState.threads.some(
-        (managedThread) => managedThread.id === threadInstance.id,
-      )
-    : false;
-
-  const { closeThread: closeThreadPanel } = useWorkspaceNavigation();
-
-  const closeThread = useCallback(() => {
-    closeThreadPanel(threadInstance?.id);
-    // Keep legacy behavior when Thread is used outside a workspace navigation flow.
-    threadInstance?.deactivate();
-  }, [closeThreadPanel, threadInstance]);
-
-  // The thread message UI comes from `ComponentContext` (`MessageUI`, or `VirtualMessage`
-  // which the virtualized list applies to its own subtree), so nothing is resolved here.
-  const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
-
-  // A thread exists server-side only once its parent has a reply, so reloading at `replyCount` 0
-  // can only 404 — `Thread.reload()` swallows that and returns without state.
+  // `hasServerSideThread`: reloading a thread whose parent has no reply yet can only 404 --
+  // `Thread.reload()` swallows that and returns without state.
   //
   // Deferred, not cancelled: only a successful reload clears `isStateStale`, so a thread that
-  // stays stale reloads via the effect below as soon as `replyCount` goes above 0 — the same
-  // moment the rest of the UI learns about replies missed while unwatched.
-  const hasServerSideThread = (replyCount ?? 0) > 0;
+  // stays stale reloads via the effect below as soon as the parent reports its first reply -- the
+  // same moment the rest of the UI learns about replies missed while unwatched.
+  const { hasServerSideThread, isStateStale, parentMessage } = useStateStore(
+    thread.state,
+    selector,
+  );
+  const { hasLoadedReplies, isLoading, lastQueryError } = useStateStore(
+    thread.messagePaginator.state,
+    messagePaginatorSelector,
+  );
 
+  const isThreadManagedSelector = useCallback(
+    ({ threads }: ThreadManagerState) => ({
+      isThreadManaged: threads.some((managedThread) => managedThread.id === thread.id),
+    }),
+    [thread.id],
+  );
+  const { isThreadManaged } = useStateStore(
+    client.threads.state,
+    isThreadManagedSelector,
+  );
+
+  // Only an unmanaged thread is loaded here. The `ThreadManager` already loads and refreshes the
+  // ones it holds; an instance from `getThreadAndHydrate()` is registered nowhere, so it has no
+  // other owner.
   useEffect(() => {
-    if (!threadInstance) return;
     if (isThreadManaged) return;
     if (!hasServerSideThread) return;
-    if (threadPaginatorState?.items !== undefined || threadPaginatorState?.isLoading)
-      return;
-    void threadInstance.reload();
-  }, [
-    hasServerSideThread,
-    isThreadManaged,
-    threadInstance,
-    threadPaginatorState?.isLoading,
-    threadPaginatorState?.items,
-  ]);
+    if (hasLoadedReplies || isLoading) return;
+    void thread.reload();
+  }, [hasLoadedReplies, hasServerSideThread, isLoading, isThreadManaged, thread]);
 
+  // Deliberately a separate effect rather than a branch of the one above: catching up a stale
+  // thread depends on `isStateStale` alone, so it fires once per staleness episode. Merged in, it
+  // would also re-run whenever the load branch's inputs change -- registering the thread flips
+  // `isThreadManaged`, which would request a second reload while the first is still in flight.
   useEffect(() => {
-    if (threadInstance && isStateStale && hasServerSideThread) {
-      void threadInstance.reload();
+    if (isStateStale && hasServerSideThread) {
+      void thread.reload();
     }
-  }, [hasServerSideThread, isStateStale, threadInstance]);
+  }, [hasServerSideThread, isStateStale, thread]);
 
   useEffect(() => {
-    if (!threadInstance || isThreadManaged) return;
-    if (threadPaginatorState?.isLoading) return;
-    if (threadPaginatorState?.lastQueryError) return;
-    if (threadPaginatorState?.items === undefined) return;
+    if (isThreadManaged) return;
+    if (isLoading) return;
+    if (lastQueryError) return;
+    if (!hasLoadedReplies) return;
 
     client.threads.state.next((current) => {
-      if (current.threads.some((thread) => thread.id === threadInstance.id)) {
+      if (current.threads.some((managedThread) => managedThread.id === thread.id)) {
         return current;
       }
       return {
         ...current,
-        threads: [threadInstance, ...current.threads],
+        threads: [thread, ...current.threads],
       };
     });
   }, [
     client.threads.state,
+    hasLoadedReplies,
+    isLoading,
     isThreadManaged,
-    threadInstance,
-    threadPaginatorState?.isLoading,
-    threadPaginatorState?.items,
-    threadPaginatorState?.lastQueryError,
+    lastQueryError,
+    thread,
   ]);
 
-  if (!threadInstance || !parentMessage) return null;
+  if (!parentMessage || repliesEnabled === false) return null;
 
-  const threadClass =
-    customClasses?.thread ||
-    clsx('str-chat__thread-container str-chat__thread', {
-      'str-chat__thread--virtualized': virtualized,
-    });
-
-  const head = (
-    <ThreadHead
-      key={parentMessage.id}
-      message={parentMessage}
-      {...additionalParentMessageProps}
-    />
-  );
-
+  // The thread owns its audio-player pool (rather than inheriting one from an ambient <Channel>)
+  // because a slot-bound Thread is a sibling of the channel, not nested inside it. Scoping it here
+  // means thread audio stops when the thread closes.
   return (
-    // Thread component needs a context which we can use for message composer
-    <LegacyThreadContext.Provider
-      value={{
-        legacyThread: parentMessage ?? undefined,
-      }}
+    <div
+      className={customClasses?.thread || 'str-chat__thread-container str-chat__thread'}
     >
-      {/* The thread owns its audio-player pool (rather than inheriting one from an ambient
-          <Channel>) because a slot-bound Thread is a sibling of the channel, not nested inside
-          it. Scoping the pool here means thread audio stops when the thread unmounts. */}
-      <WithAudioPlayback playbackScope={threadInstance}>
-        <div className={threadClass}>
-          <ThreadHeader closeThread={closeThread} thread={parentMessage} />
-          <ThreadMessageList
-            disableDateSeparator={!enableDateSeparator}
-            head={head}
-            {...(virtualized
-              ? additionalVirtualizedMessageListProps
-              : additionalMessageListProps)}
-          />
-          <MessageComposer
-            focus={autoFocus}
-            parent={parentMessage}
-            {...additionalMessageComposerProps}
-          />
-        </div>
-      </WithAudioPlayback>
-    </LegacyThreadContext.Provider>
+      <ThreadProvider thread={thread}>
+        <WithAudioPlayback playbackScope={thread}>{children}</WithAudioPlayback>
+      </ThreadProvider>
+    </div>
   );
 };

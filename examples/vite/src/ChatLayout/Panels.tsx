@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import type {
   ChannelMemberResponse,
   Channel as StreamChannel,
+  ThreadState,
   Thread as ThreadType,
 } from 'stream-chat';
 import {
@@ -26,13 +27,15 @@ import {
   IconXmark,
   MessageComposer,
   MessageList,
+  type MessageListProps,
   ModalContextProvider,
   Thread,
-  type ThreadHeaderProps,
+  ThreadHeader,
   ThreadList,
-  ThreadProvider,
   TypingIndicator,
   useChatContext,
+  useStateStore,
+  useThreadContext,
   useTranslationContext,
   VirtualizedMessageList,
   WithComponents,
@@ -86,6 +89,20 @@ export const CHANNELS_SELECTOR_BUTTON_TARGET_QUERY =
 // way everywhere so every channel and thread honors the setting (not just the primary channel).
 const useVirtualizedMessageList = () =>
   useAppSettingsSelector((s) => s.messageList).type === 'virtualized';
+
+// The replies list of a thread panel. `<Thread>` composes nothing itself, so each panel says what
+// it wants -- this is the part every panel says identically: honor the app's list-type setting, and
+// leave out date separators (the parent message already carries one). Props reach the standard list
+// only; the virtualized one drills a narrower set, so anything passed here follows the standard
+// list's default when the virtualized list is on.
+const ThreadMessageList = (props: MessageListProps) => {
+  const virtualized = useVirtualizedMessageList();
+  return virtualized ? (
+    <VirtualizedMessageList withDateSeparator={false} />
+  ) : (
+    <MessageList withDateSeparator={false} {...props} />
+  );
+};
 
 // Tag the list's `[role="listbox"]` with a stable id so the skip-navigation links can target it. The
 // listbox unmounts/remounts (search mode, view switches, reloads) and its view may start inactive, so
@@ -149,8 +166,8 @@ const CustomChannelListItem = ({ item }: { item: unknown }) => {
 
 // The in-channel reply thread is opened into the channels view's secondary slot (the same
 // slot a 2nd channel can occupy) — bound by the message "reply in thread" / replies-count
-// actions via `open`. It renders only when a thread is bound; `ThreadProvider` feeds it to
-// <Thread>, and `useActiveThread` activates/deactivates it with window focus.
+// actions via `open`. It renders only when a thread is bound, and `useActiveThread`
+// activates/deactivates it with window focus.
 const ChannelThreadPanel = ({
   onOpenMemberDetail,
   thread,
@@ -160,44 +177,39 @@ const ChannelThreadPanel = ({
   thread?: ThreadType;
 }) => {
   const isOpen = !!thread;
-  const virtualized = useVirtualizedMessageList();
   const registerThreadSlot = useRegisterSlotGeometry(CHANNEL_THREAD_SLOT);
   useActiveThread({ activeThread: thread });
 
-  const panelClassName = clsx(
-    'str-chat__dropzone-root--thread app-chat-secondary-panel',
-    { 'app-chat-secondary-panel--open': isOpen },
-  );
+  const panelClassName = clsx('app-chat-secondary-panel', {
+    'app-chat-secondary-panel--open': isOpen,
+  });
 
   // The resize handle is rendered once at the slot level (see `ResponsiveChannelPanels`), not
   // here — the bar belongs to the slot, which may hold layers, not to this base content.
   return thread ? (
-    // ThreadProvider wraps the dropzone so WithDragAndDropUpload's `useChannel` resolves
-    // the thread's own channel — the thread panel no longer depends on an ambient
-    // <Channel>, so it can live in its own slot beside the primary channel.
-    <ThreadProvider thread={thread}>
-      <WithDragAndDropUpload className={panelClassName}>
-        <ReturnToSkipNavigation />
-        <Thread
-          additionalMessageComposerProps={{
-            audioRecordingEnabled: true,
-            asyncMessagesMultiSendEnabled: true,
-          }}
-          // Standard (non-virtualized) thread list forwards these; the virtualized list drills
-          // a narrower prop set, so member-detail-from-thread follows the standard-list default.
-          additionalMessageListProps={{
-            onMentionsClick: (_event, mentionedUsers) =>
-              onOpenMemberDetail(mentionedUsers[0]?.id),
-            onUserClick: (_event, user) => onOpenMemberDetail(user.id),
-          }}
-          virtualized={virtualized}
-        />
-      </WithDragAndDropUpload>
-    </ThreadProvider>
+    // The dropzone sits inside <Thread> so WithDragAndDropUpload's `useChannel` resolves the
+    // thread's own channel — the thread panel no longer depends on an ambient <Channel>, so it
+    // can live in its own slot beside the primary channel. The panel shell stays outside, so the
+    // open and closed states present the same box to the layout.
+    <div className={panelClassName}>
+      <Thread thread={thread}>
+        <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+          <ReturnToSkipNavigation />
+          <ThreadHeader />
+          <ThreadMessageList
+            onMentionsClick={(_event, mentionedUsers) =>
+              onOpenMemberDetail(mentionedUsers[0]?.id)
+            }
+            onUserClick={(_event, user) => onOpenMemberDetail(user.id)}
+          />
+          <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+        </WithDragAndDropUpload>
+      </Thread>
+    </div>
   ) : (
     // Closed state: just the collapsed-width shell (no dropzone, so no channel needed).
-    // Registered with the geometry module; the open branch above is a WithDragAndDropUpload
-    // (no ref forwarding), but there the primary channel collapses so `isObscured` still fires.
+    // Registered with the geometry module; the open branch above renders a plain div too, but
+    // there the primary channel collapses so `isObscured` still fires.
     <div className={panelClassName} ref={registerThreadSlot} />
   );
 };
@@ -324,14 +336,17 @@ const SecondChannelOverlay = ({
   </SecondarySlotOverlay>
 );
 
+const replyCountSelector = ({ replyCount }: ThreadState) => ({ replyCount });
+
 // A thread overlay is always a layer stacked over the secondary slot's base, so its header gets a
 // BACK affordance rather than a close: it pops the layer (`close` is layer-aware), revealing what's
 // beneath. The SDK ThreadHeader hardcodes a close-X with no icon override, so we render a small
 // header of our own (back + title) here.
-const LayerThreadHeader = ({ thread }: ThreadHeaderProps) => {
+const LayerThreadHeader = () => {
   const { close } = useChatViewNavigation();
   const { t } = useTranslationContext();
-  const replyCount = thread?.reply_count ?? 0;
+  const thread = useThreadContext();
+  const { replyCount = 0 } = useStateStore(thread?.state, replyCountSelector) ?? {};
 
   return (
     <div className='str-chat__thread-header'>
@@ -370,21 +385,16 @@ const LayerThreadHeader = ({ thread }: ThreadHeaderProps) => {
 // binding it invisibly beneath); here we render that top layer in the shared overlay wrapper, with
 // a header close that pops the layer to reveal the channel beneath.
 const ChannelThreadOverlay = ({ thread }: { thread: ThreadType }) => {
-  const virtualized = useVirtualizedMessageList();
   useActiveThread({ activeThread: thread });
   return (
     <SecondarySlotOverlay>
-      <ThreadProvider thread={thread}>
-        <WithComponents overrides={{ ThreadHeader: LayerThreadHeader }}>
-          <Thread
-            additionalMessageComposerProps={{
-              asyncMessagesMultiSendEnabled: true,
-              audioRecordingEnabled: true,
-            }}
-            virtualized={virtualized}
-          />
-        </WithComponents>
-      </ThreadProvider>
+      <Thread thread={thread}>
+        {/* A layer pops rather than closes, so this panel renders its own header instead of
+            the SDK's. */}
+        <LayerThreadHeader />
+        <ThreadMessageList />
+        <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
+      </Thread>
     </SecondarySlotOverlay>
   );
 };
@@ -662,11 +672,10 @@ const ThreadMessageComposerUI = () => (
   </>
 );
 
-// Renders the primary open thread, bound to the main thread slot. `ThreadSlot` supplies the
-// ThreadProvider + slot context (so the header's close button knows which slot it releases),
-// and `useActiveThread` keeps the thread activated/deactivated with window focus.
+// Renders the primary open thread, bound to the main thread slot. `ThreadSlot` resolves the bound
+// thread, hands it to `<Thread>` and supplies the slot context (so the header's close button knows
+// which slot it releases); `useActiveThread` keeps the thread activated with window focus.
 const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
-  const virtualized = useVirtualizedMessageList();
   useActiveThread({ activeThread: thread });
 
   return (
@@ -678,17 +687,16 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
             TypingIndicator,
           }}
         >
-          <Thread
-            additionalMessageComposerProps={{
-              additionalTextareaProps: {
-                id: THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-              },
-              audioRecordingEnabled: true,
-              asyncMessagesMultiSendEnabled: true,
-              // Auto-focus the thread composer on mount, matching the channels-view composer.
-              focus: true,
+          <ThreadHeader />
+          <ThreadMessageList />
+          <MessageComposer
+            additionalTextareaProps={{
+              id: THREAD_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
             }}
-            virtualized={virtualized}
+            asyncMessagesMultiSendEnabled
+            audioRecordingEnabled
+            // Auto-focus the thread composer on mount, matching the channels-view composer.
+            focus
           />
         </WithComponents>
       </WithDragAndDropUpload>
@@ -701,12 +709,13 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
 // `ThreadSlot` binds it to OPTIONAL_THREAD_SLOT, which is why its ThreadHeader shows the
 // built-in close button (end content) — the same header the channels-view reply thread uses.
 const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
-  const virtualized = useVirtualizedMessageList();
   useActiveThread({ activeThread: thread });
 
   return (
-    <ThreadSlot hideIfEmpty={false} slot={OPTIONAL_THREAD_SLOT}>
-      <div className='app-chat-secondary-panel app-chat-secondary-panel--open'>
+    // The panel shell wraps the slot: `ThreadSlot` renders `<Thread>` as its outermost element,
+    // and the sizing rules need this box to be a direct child of the threads-main column.
+    <div className='app-chat-secondary-panel app-chat-secondary-panel--open'>
+      <ThreadSlot hideIfEmpty={false} slot={OPTIONAL_THREAD_SLOT}>
         <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
           <WithComponents
             overrides={{
@@ -714,17 +723,13 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
               TypingIndicator,
             }}
           >
-            <Thread
-              additionalMessageComposerProps={{
-                audioRecordingEnabled: true,
-                asyncMessagesMultiSendEnabled: true,
-              }}
-              virtualized={virtualized}
-            />
+            <ThreadHeader />
+            <ThreadMessageList />
+            <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
           </WithComponents>
         </WithDragAndDropUpload>
-      </div>
-    </ThreadSlot>
+      </ThreadSlot>
+    </div>
   );
 };
 

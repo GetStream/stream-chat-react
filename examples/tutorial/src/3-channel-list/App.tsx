@@ -8,10 +8,10 @@ import {
   Chat,
   MessageComposer,
   MessageList,
-  Thread,
+  ThreadHeader,
   useCreateChatClient,
 } from 'stream-chat-react';
-import { ChatView, useSlotChannels } from 'stream-chat-react/slot-layout';
+import { ChatView, ThreadSlot, useSlotChannels } from 'stream-chat-react/slot-layout';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
@@ -30,7 +30,7 @@ const filters: ChannelFilters = {
 
 // One view ("channels") with a single channel slot. Module-scoped so the reference is
 // stable (it feeds the ChatView layout controller).
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel'] }];
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
 
 // Renders the channel navigation (list + search) and the channel(s) currently open in
 // a layout slot. Selecting a channel in the list binds it into a slot via ChatView
@@ -46,9 +46,16 @@ const ChannelsWorkspace = () => {
           <ChannelHeader />
           <MessageList />
           <MessageComposer />
-          <Thread />
         </Channel>
       ))}
+      {/* The panel for a thread opened from a message's "reply in thread" action: `ThreadSlot`
+          resolves the thread bound to the slot and hands it to `<Thread>`, which provides it to
+          the components below. */}
+      <ThreadSlot slot='thread'>
+        <ThreadHeader />
+        <MessageList />
+        <MessageComposer />
+      </ThreadSlot>
     </>
   );
 };
