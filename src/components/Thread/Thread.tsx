@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -7,7 +7,12 @@ import { useChatContext } from '../../context';
 import { ThreadProvider } from '../Threads';
 import { useStateStore } from '../../store';
 
-import type { LocalMessage, Thread as StreamThread, ThreadState } from 'stream-chat';
+import type {
+  LocalMessage,
+  Thread as StreamThread,
+  ThreadManagerState,
+  ThreadState,
+} from 'stream-chat';
 import type { ChannelConfig } from 'stream-chat';
 
 const repliesStateSelector = ({ replies }: ChannelConfig) => ({
@@ -22,12 +27,15 @@ export type ThreadProps = PropsWithChildren<{
   thread: StreamThread;
 }>;
 
-const selector = (nextValue: ThreadState) => ({
-  isStateStale: nextValue.isStateStale,
-  parentMessage: nextValue.parentMessage,
-  replyCount: nextValue.replyCount,
+const selector = ({ isStateStale, parentMessage, replyCount }: ThreadState) => ({
+  // A thread exists server-side only once its parent has a reply. Selected as a boolean so the
+  // panel does not re-render on every incoming reply -- only on the transition that matters.
+  hasServerSideThread: replyCount > 0,
+  isStateStale,
+  parentMessage,
 });
 
+// Same reasoning: the effects below only ask whether the replies have loaded, never what they are.
 const messagePaginatorSelector = ({
   isLoading,
   items,
@@ -37,12 +45,10 @@ const messagePaginatorSelector = ({
   items: LocalMessage[] | undefined;
   lastQueryError?: Error;
 }) => ({
+  hasLoadedReplies: items !== undefined,
   isLoading,
-  items,
   lastQueryError,
 });
-
-const threadManagerSelector = ({ threads }: { threads: StreamThread[] }) => ({ threads });
 
 /**
  * The container for a thread panel: it provides the thread to its subtree, loads it, registers it
@@ -69,31 +75,35 @@ const threadManagerSelector = ({ threads }: { threads: StreamThread[] }) => ({ t
  */
 export const Thread = ({ children, thread }: ThreadProps) => {
   const { client, customClasses } = useChatContext();
-  const { repliesEnabled } =
-    useStateStore(thread.channel.configState, repliesStateSelector) ?? {};
-  const { isStateStale, parentMessage, replyCount } =
-    useStateStore(thread.state, selector) ?? {};
-  const threadPaginatorState = useStateStore(
-    thread.messagePaginator?.state,
-    messagePaginatorSelector,
+  const { repliesEnabled } = useStateStore(
+    thread.channel.configState,
+    repliesStateSelector,
   );
-  const threadManagerState = useStateStore(
-    client.threads.state,
-    threadManagerSelector,
-  ) ?? {
-    threads: client.threads.state.getLatestValue().threads,
-  };
-  const isThreadManaged = threadManagerState.threads.some(
-    (managedThread) => managedThread.id === thread.id,
-  );
-
-  // A thread exists server-side only once its parent has a reply, so reloading at `replyCount` 0
-  // can only 404 — `Thread.reload()` swallows that and returns without state.
+  // `hasServerSideThread`: reloading a thread whose parent has no reply yet can only 404 --
+  // `Thread.reload()` swallows that and returns without state.
   //
   // Deferred, not cancelled: only a successful reload clears `isStateStale`, so a thread that
-  // stays stale reloads via the effect below as soon as `replyCount` goes above 0 — the same
-  // moment the rest of the UI learns about replies missed while unwatched.
-  const hasServerSideThread = (replyCount ?? 0) > 0;
+  // stays stale reloads via the effect below as soon as the parent reports its first reply -- the
+  // same moment the rest of the UI learns about replies missed while unwatched.
+  const { hasServerSideThread, isStateStale, parentMessage } = useStateStore(
+    thread.state,
+    selector,
+  );
+  const { hasLoadedReplies, isLoading, lastQueryError } = useStateStore(
+    thread.messagePaginator.state,
+    messagePaginatorSelector,
+  );
+
+  const isThreadManagedSelector = useCallback(
+    ({ threads }: ThreadManagerState) => ({
+      isThreadManaged: threads.some((managedThread) => managedThread.id === thread.id),
+    }),
+    [thread.id],
+  );
+  const { isThreadManaged } = useStateStore(
+    client.threads.state,
+    isThreadManagedSelector,
+  );
 
   // Only an unmanaged thread is loaded here. The `ThreadManager` already loads and refreshes the
   // ones it holds; an instance from `getThreadAndHydrate()` is registered nowhere, so it has no
@@ -101,17 +111,14 @@ export const Thread = ({ children, thread }: ThreadProps) => {
   useEffect(() => {
     if (isThreadManaged) return;
     if (!hasServerSideThread) return;
-    if (threadPaginatorState?.items !== undefined || threadPaginatorState?.isLoading)
-      return;
+    if (hasLoadedReplies || isLoading) return;
     void thread.reload();
-  }, [
-    hasServerSideThread,
-    isThreadManaged,
-    thread,
-    threadPaginatorState?.isLoading,
-    threadPaginatorState?.items,
-  ]);
+  }, [hasLoadedReplies, hasServerSideThread, isLoading, isThreadManaged, thread]);
 
+  // Deliberately a separate effect rather than a branch of the one above: catching up a stale
+  // thread depends on `isStateStale` alone, so it fires once per staleness episode. Merged in, it
+  // would also re-run whenever the load branch's inputs change -- registering the thread flips
+  // `isThreadManaged`, which would request a second reload while the first is still in flight.
   useEffect(() => {
     if (isStateStale && hasServerSideThread) {
       void thread.reload();
@@ -120,9 +127,9 @@ export const Thread = ({ children, thread }: ThreadProps) => {
 
   useEffect(() => {
     if (isThreadManaged) return;
-    if (threadPaginatorState?.isLoading) return;
-    if (threadPaginatorState?.lastQueryError) return;
-    if (threadPaginatorState?.items === undefined) return;
+    if (isLoading) return;
+    if (lastQueryError) return;
+    if (!hasLoadedReplies) return;
 
     client.threads.state.next((current) => {
       if (current.threads.some((managedThread) => managedThread.id === thread.id)) {
@@ -135,23 +142,22 @@ export const Thread = ({ children, thread }: ThreadProps) => {
     });
   }, [
     client.threads.state,
+    hasLoadedReplies,
+    isLoading,
     isThreadManaged,
+    lastQueryError,
     thread,
-    threadPaginatorState?.isLoading,
-    threadPaginatorState?.items,
-    threadPaginatorState?.lastQueryError,
   ]);
 
   if (!parentMessage || repliesEnabled === false) return null;
-
-  const threadClass =
-    customClasses?.thread || 'str-chat__thread-container str-chat__thread';
 
   // The thread owns its audio-player pool (rather than inheriting one from an ambient <Channel>)
   // because a slot-bound Thread is a sibling of the channel, not nested inside it. Scoping it here
   // means thread audio stops when the thread closes.
   return (
-    <div className={threadClass}>
+    <div
+      className={customClasses?.thread || 'str-chat__thread-container str-chat__thread'}
+    >
       <ThreadProvider thread={thread}>
         <WithAudioPlayback playbackScope={thread}>{children}</WithAudioPlayback>
       </ThreadProvider>
