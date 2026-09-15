@@ -10,11 +10,11 @@ import type { Channel, LocalMessage } from 'stream-chat';
 
 export const useEnrichedMessages = (args: {
   channel: Channel;
-  disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
   messages: LocalMessage[];
   noGroupByUser: boolean;
+  withDateSeparator: boolean;
   groupStyles?: (
     message: RenderedMessage,
     previousMessage: RenderedMessage,
@@ -28,7 +28,6 @@ export const useEnrichedMessages = (args: {
 }) => {
   const {
     channel,
-    disableDateSeparator,
     groupStyles,
     headerPosition,
     hideDeletedMessages,
@@ -37,6 +36,7 @@ export const useEnrichedMessages = (args: {
     messages,
     noGroupByUser,
     reviewProcessedMessage,
+    withDateSeparator,
   } = args;
 
   const { client } = useChatContext();
@@ -44,19 +44,17 @@ export const useEnrichedMessages = (args: {
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const enableDateSeparator = !disableDateSeparator;
-
   let messagesWithDates =
-    !enableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
+    !withDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
       : processMessages({
-          enableDateSeparator,
           hideDeletedMessages,
           hideNewMessageSeparator,
           lastRead,
           messages,
           reviewProcessedMessage,
           userId: client.userID || '',
+          withDateSeparator,
         });
 
   if (HeaderComponent) {

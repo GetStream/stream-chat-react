@@ -25,7 +25,7 @@ vi.mock('nanoid', () => ({
 
 const myUserId = 'myUserId';
 const otherUserId = 'otherUserId';
-const enableDateSeparatorParams = { enableDateSeparator: true };
+const withDateSeparatorParams = { withDateSeparator: true };
 
 const msgCreationDatesSameDay = [
   {
@@ -171,7 +171,7 @@ describe('processMessages', () => {
       it('all messages were created on the same day', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesSameDay,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
         dateSeparatorInsertedAt(['start'], messages, newMessageList);
       });
@@ -182,7 +182,7 @@ describe('processMessages', () => {
       it('messages were created on a different day', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesDifferentDay,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
@@ -194,7 +194,7 @@ describe('processMessages', () => {
       it('omits the separator for an invalid first message, keeping the second', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesFirstInvalid,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
 
         expect(newMessageList).toHaveLength(messages.length + 1);
@@ -208,7 +208,7 @@ describe('processMessages', () => {
       it('omits the separator for an invalid second message, keeping the first', () => {
         const { messages, newMessageList } = runMessageProcessing(
           msgCreationDatesSecondInvalid,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
 
         expect(newMessageList).toHaveLength(messages.length + 1);
@@ -226,7 +226,7 @@ describe('processMessages', () => {
         ]) {
           const { newMessageList } = runMessageProcessing(
             fixture,
-            enableDateSeparatorParams,
+            withDateSeparatorParams,
           );
           for (const entry of newMessageList) {
             if ((entry as { customType?: string }).customType === 'message.date') {
@@ -257,7 +257,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
@@ -270,7 +270,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
@@ -283,7 +283,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
@@ -296,7 +296,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(messagesData, {
           hideDeletedMessages: true,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         deletedMessagesReplacedCorrectly(messages, newMessageList);
       });
@@ -310,7 +310,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(
           messagesData,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
@@ -330,7 +330,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(
           messagesData,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
@@ -350,7 +350,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(
           messagesData,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
@@ -370,7 +370,7 @@ describe('processMessages', () => {
         ];
         const { messages, newMessageList } = runMessageProcessing(
           messagesData,
-          enableDateSeparatorParams,
+          withDateSeparatorParams,
         );
 
         expect(newMessageList[0]).toMatchObject(makeDateSeparator(messages[0]));
@@ -410,7 +410,7 @@ describe('processMessages', () => {
       it('showed from others', () => {
         const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
           lastRead,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         dateSeparatorInsertedAt(
           expectedWhere,
@@ -423,7 +423,7 @@ describe('processMessages', () => {
       it('not showed from others if read', () => {
         const { messages, newMessageList } = runMessageProcessing(incomingOldMessages, {
           lastRead,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
@@ -432,7 +432,7 @@ describe('processMessages', () => {
         const { messages, newMessageList } = runMessageProcessing(incomingNewMessages, {
           hideNewMessageSeparator: true,
           lastRead,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
@@ -440,7 +440,7 @@ describe('processMessages', () => {
       it('not from me', () => {
         const { messages, newMessageList } = runMessageProcessing(myNewMessages, {
           lastRead,
-          ...enableDateSeparatorParams,
+          ...withDateSeparatorParams,
         });
         dateSeparatorInsertedAt(expectedWhere, messages, newMessageList);
       });
@@ -487,7 +487,7 @@ describe('processMessages', () => {
   it('generates custom messages with unique id', () => {
     const { newMessageList } = runMessageProcessing(
       msgCreationDatesDifferentDay,
-      enableDateSeparatorParams,
+      withDateSeparatorParams,
     );
     const customMessages = newMessageList.filter((m: any) =>
       Object.values(CUSTOM_MESSAGE_TYPE).includes(m.customType),
@@ -530,7 +530,7 @@ describe('processMessages', () => {
       });
 
       const [separator] = processMessages({
-        ...enableDateSeparatorParams,
+        ...withDateSeparatorParams,
         messages: [message],
         userId: myUserId,
       });
@@ -545,7 +545,7 @@ describe('processMessages', () => {
       });
 
       const [separator] = processMessages({
-        ...enableDateSeparatorParams,
+        ...withDateSeparatorParams,
         // The epoch as "nothing read yet", so the message counts as unread.
         lastRead: 0,
         messages: [message],

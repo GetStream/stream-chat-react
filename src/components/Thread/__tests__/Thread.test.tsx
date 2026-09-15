@@ -148,10 +148,10 @@ describe('Thread', () => {
 
     expect(MessageListMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        disableDateSeparator: true,
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
+        withDateSeparator: false,
         ...additionalMessageListProps,
       }),
       undefined,
@@ -168,10 +168,10 @@ describe('Thread', () => {
 
     expect(MessageListMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        disableDateSeparator: false,
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
+        withDateSeparator: true,
         ...additionalMessageListProps,
       }),
       undefined,

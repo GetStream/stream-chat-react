@@ -80,7 +80,6 @@ const getScrollBehavior = (): ScrollBehavior =>
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
   const {
-    disableDateSeparator = false,
     groupStyles,
     headerPosition,
     hideDeletedMessages = false,
@@ -101,6 +100,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     sortReactions,
     suppressAutoscroll: suppressAutoscrollFromProps = false,
     unsafeHTML = false,
+    withDateSeparator = true,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
@@ -184,7 +184,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
-    disableDateSeparator,
     groupStyles,
     headerPosition,
     hideDeletedMessages,
@@ -193,6 +192,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messages,
     noGroupByUser,
     reviewProcessedMessage,
+    withDateSeparator,
   });
 
   const lastOwnMessage = useLastOwnMessage({
@@ -370,9 +370,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
             }
             */}
             <FloatingDateSeparator
-              disableDateSeparator={disableDateSeparator}
               listElement={listElement}
               processedMessages={enrichedMessages}
+              withDateSeparator={withDateSeparator}
             />
             <div
               className={clsx(messageListClass, customClasses?.threadList)}
@@ -464,8 +464,6 @@ type InternalPaginatorProps = Partial<
 
 export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {
   // todo: data manipulation - should live in the paginator
-  /** Disables the injection of date separator components in MessageList, defaults to `false` */
-  disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
     message: RenderedMessage,
@@ -533,6 +531,8 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   showUnreadNotificationAlways?: boolean;
   /** If true, prevents autoscroll-to-bottom behavior on new messages. */
   suppressAutoscroll?: boolean;
+  /** Injects date separator components into the list, defaults to `true` */
+  withDateSeparator?: boolean;
 };
 
 /**

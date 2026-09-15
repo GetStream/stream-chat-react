@@ -215,7 +215,6 @@ const VirtualizedMessageListWithContext = (
     closeReactionSelectorOnClick,
     customMessageRenderer,
     defaultItemHeight,
-    disableDateSeparator = true,
     formatDate,
     groupStyles,
     // hasMoreNewer,
@@ -244,6 +243,7 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll: suppressAutoscrollFromProps = false,
+    withDateSeparator = false,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
@@ -316,7 +316,7 @@ const VirtualizedMessageListWithContext = (
     }
 
     if (
-      disableDateSeparator &&
+      !withDateSeparator &&
       !hideDeletedMessages &&
       hideNewMessageSeparator &&
       !separateGiphyPreview
@@ -325,7 +325,6 @@ const VirtualizedMessageListWithContext = (
     }
 
     return processMessages({
-      enableDateSeparator: !disableDateSeparator,
       hideDeletedMessages,
       hideNewMessageSeparator,
       lastRead,
@@ -333,10 +332,11 @@ const VirtualizedMessageListWithContext = (
       reviewProcessedMessage,
       setGiphyPreviewMessage,
       userId: client.userID || '',
+      withDateSeparator,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    disableDateSeparator,
+    withDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
@@ -451,7 +451,7 @@ const VirtualizedMessageListWithContext = (
 
   const numItemsPrepended = usePrependedMessagesCount(
     processedMessages,
-    !disableDateSeparator,
+    withDateSeparator,
   );
 
   const { messageSetKey } = useMessageSetKey({ messages });
@@ -556,9 +556,9 @@ const VirtualizedMessageListWithContext = (
               }
             >
               <FloatingDateSeparator
-                disableDateSeparator={disableDateSeparator}
                 itemsRenderedRef={floatingDateItemsRenderedRef}
                 processedMessages={processedMessages}
+                withDateSeparator={withDateSeparator}
               />
               <Virtuoso<UnknownType, VirtuosoContext>
                 atBottomStateChange={atBottomStateChange}
@@ -680,8 +680,6 @@ export type VirtualizedMessageListProps = Partial<
    * If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance
    * */
   defaultItemHeight?: number;
-  /** Disables the injection of date separator components in MessageList, defaults to `true` */
-  disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
     message: RenderedMessage,
@@ -761,6 +759,8 @@ export type VirtualizedMessageListProps = Partial<
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   /** If true, prevents autoscroll-to-bottom behavior on new messages. */
   suppressAutoscroll?: boolean;
+  /** Injects date separator components into the list, defaults to `false` */
+  withDateSeparator?: boolean;
 };
 
 /**

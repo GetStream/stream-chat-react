@@ -197,8 +197,8 @@ export const Thread = (props: ThreadProps) => {
       <div className={threadClass}>
         <ThreadHeader closeThread={closeThread} thread={parentMessage} />
         <ThreadMessageList
-          disableDateSeparator={!enableDateSeparator}
           head={head}
+          withDateSeparator={enableDateSeparator}
           {...(virtualized
             ? additionalVirtualizedMessageListProps
             : additionalMessageListProps)}
