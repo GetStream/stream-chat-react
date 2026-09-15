@@ -136,15 +136,12 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
   // which the virtualized list applies to its own subtree), so nothing is resolved here.
   const ThreadMessageList = virtualized ? VirtualizedMessageList : MessageList;
 
-  // A thread exists server-side only once its parent has a reply, so loading one with `replyCount`
-  // 0 is a request that can only 404 — `Thread.reload()` swallows exactly that and returns without
-  // state, so it buys nothing.
+  // A thread exists server-side only once its parent has a reply, so reloading at `replyCount` 0
+  // can only 404 — `Thread.reload()` swallows that and returns without state.
   //
-  // This defers the load, it does not cancel it. `isStateStale` is only cleared by a successful
-  // reload (`thread.ts:589`), so while a thread stays stale, `replyCount` flipping to > 0 re-runs
-  // the effect below and the catch-up happens then. That covers the `user.watching.stop` case: we
-  // learn about replies missed while unwatched as soon as the parent message copy is refreshed,
-  // which is the same moment every other reply-count affordance in the UI learns about them.
+  // Deferred, not cancelled: only a successful reload clears `isStateStale`, so a thread that
+  // stays stale reloads via the effect below as soon as `replyCount` goes above 0 — the same
+  // moment the rest of the UI learns about replies missed while unwatched.
   const hasServerSideThread = (replyCount ?? 0) > 0;
 
   useEffect(() => {
