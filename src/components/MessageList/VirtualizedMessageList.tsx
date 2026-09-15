@@ -82,7 +82,6 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'formatDate'
-  | 'messageActions'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
@@ -228,7 +227,6 @@ const VirtualizedMessageListWithContext = (
     // loadMore,
     // loadMoreNewer,
     maxTimeBetweenGroupedMessages,
-    messageActions,
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
@@ -591,7 +589,6 @@ const VirtualizedMessageListWithContext = (
                   lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
                   lastReceivedMessageId,
                   loadingMore: isLoading,
-                  messageActions,
                   messageGroupStyles,
                   MessageSystem,
                   numItemsPrepended,

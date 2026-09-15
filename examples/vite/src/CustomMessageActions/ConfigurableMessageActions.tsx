@@ -19,18 +19,21 @@ import {
   IconNotification,
   MessageActions,
   type MessageActionSetItem,
+  modalDialogManagerId,
   SwitchField,
   useComponentContext,
   useContextMenuContext,
+  useDialog,
   useDialogIsOpen,
-  useDialogOnNearestManager,
   useMessageContext,
   useModalContext,
   useNotificationApi,
+  useThreadContext,
   useTranslationContext,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings';
+import type { MessageActionSurface } from '../AppSettings';
 import {
   MessageInfoPromptDialog,
   messageInfoPromptDialogId,
@@ -341,17 +344,27 @@ export const ConfigurableMessageActions = (
     useState<OpenMessageInfoDialogParams | null>(null);
   const { t } = useTranslationContext();
   const currentMessageInfoDialogId = `${messageInfoPromptDialogId}-${currentMessage.id}`;
-  const { dialog: messageInfoDialog, dialogManager } = useDialogOnNearestManager({
+  // Bound to the modal manager rather than the nearest one. `DialogPortalEntry` renders a dialog
+  // into its manager's portal destination, and the nearest manager's destination sits inside the
+  // channel column -- which the sidebar overlay (`position: relative; z-index: 2`) paints over, so
+  // the dialog came up behind it. The modal manager's destination is mounted by `Chat`, above the
+  // layout, which is where an app-level dialog belongs anyway.
+  const messageInfoDialog = useDialog({
+    dialogManagerId: modalDialogManagerId,
     id: currentMessageInfoDialogId,
   });
   const messageInfoDialogIsOpen = useDialogIsOpen(
     currentMessageInfoDialogId,
-    dialogManager?.id,
+    modalDialogManagerId,
   );
+  // Which list this message is rendered in. Both message lists derive the same flag from the thread
+  // context, so asking it directly works whichever one is rendering.
+  const surface: MessageActionSurface = useThreadContext() ? 'thread' : 'channel';
   const { customMessageActions } = useAppSettingsSelector(
     (state) => state.messageActions,
   );
-  const customDeleteEnabled = customMessageActions.delete.enableOptionConfiguration;
+  const surfaceActions = customMessageActions[surface];
+  const customDeleteEnabled = surfaceActions.delete.enableOptionConfiguration;
   const configurableActionSet = useMemo(() => {
     const actionSet = props.messageActionSet ?? defaultMessageActionSet;
     const actionOverrides: Record<
@@ -393,19 +406,32 @@ export const ConfigurableMessageActions = (
       },
       {
         ...actionOverrides.markOwnUnread,
-        enabled: customMessageActions.markOwnUnread,
+        enabled: surfaceActions.markOwnUnread,
       },
       {
         ...actionOverrides.viewMessageInfo,
-        enabled: customMessageActions.viewMessageInfo,
+        enabled: surfaceActions.viewMessageInfo,
       },
     ];
 
-    return applyCustomMessageActionOverrides({ messageActionSet: actionSet, overrides });
+    const withOverrides = applyCustomMessageActionOverrides({
+      messageActionSet: actionSet,
+      overrides,
+    });
+
+    // Turning a default action off is just dropping it from the set; the SDK's base filter still
+    // has the last word on whatever remains.
+    if (!surfaceActions.disabledActionTypes.length) return withOverrides;
+
+    return withOverrides.filter(
+      (item) =>
+        !('type' in item) || !surfaceActions.disabledActionTypes.includes(item.type),
+    );
   }, [
     customDeleteEnabled,
-    customMessageActions.markOwnUnread,
-    customMessageActions.viewMessageInfo,
+    surfaceActions.disabledActionTypes,
+    surfaceActions.markOwnUnread,
+    surfaceActions.viewMessageInfo,
     props.messageActionSet,
   ]);
   const openDeleteDialog = useCallback((params: OpenDeleteDialogParams) => {
@@ -430,15 +456,11 @@ export const ConfigurableMessageActions = (
   }, [customDeleteEnabled, deleteDialogTarget]);
 
   useEffect(() => {
-    if (customMessageActions.viewMessageInfo) return;
+    if (surfaceActions.viewMessageInfo) return;
     if (!messageInfoDialogTarget) return;
 
     closeMessageInfoDialog();
-  }, [
-    closeMessageInfoDialog,
-    customMessageActions.viewMessageInfo,
-    messageInfoDialogTarget,
-  ]);
+  }, [closeMessageInfoDialog, surfaceActions.viewMessageInfo, messageInfoDialogTarget]);
 
   return (
     <CustomDeleteActionContext.Provider
@@ -449,9 +471,9 @@ export const ConfigurableMessageActions = (
         <MessageInfoPromptDialog
           dialogId={currentMessageInfoDialogId}
           dialogIsOpen={messageInfoDialogIsOpen}
-          dialogManagerId={dialogManager?.id}
+          dialogManagerId={modalDialogManagerId}
           message={
-            customMessageActions.viewMessageInfo ? messageInfoDialogTarget.message : null
+            surfaceActions.viewMessageInfo ? messageInfoDialogTarget.message : null
           }
           onClose={closeMessageInfoDialog}
           referenceElement={messageInfoDialogTarget.referenceElement}
@@ -465,9 +487,7 @@ export const ConfigurableMessageActions = (
       >
         {customDeleteEnabled && deleteDialogTarget && (
           <CustomDeleteMessageAlert
-            enableOptionConfiguration={
-              customMessageActions.delete.enableOptionConfiguration
-            }
+            enableOptionConfiguration={surfaceActions.delete.enableOptionConfiguration}
             onCancel={() => {
               setDeleteDialogTarget(null);
             }}

@@ -3,7 +3,6 @@ import clsx from 'clsx';
 
 import { LegacyThreadContext } from './LegacyThreadContext';
 import { WithAudioPlayback } from '../AudioPlayback';
-import { MESSAGE_ACTIONS } from '../Message';
 import type { MessageComposerProps } from '../MessageComposer';
 import { MessageComposer } from '../MessageComposer';
 import type { MessageListProps, VirtualizedMessageListProps } from '../MessageList';
@@ -21,7 +20,6 @@ import { useThreadContext } from '../Threads';
 import { useStateStore } from '../../store';
 
 import type { MessageProps } from '../Message/types';
-import type { MessageActionsArray } from '../Message/utils';
 import type { LocalMessage, Thread as StreamThread, ThreadState } from 'stream-chat';
 import type { ChannelConfig } from 'stream-chat';
 
@@ -42,8 +40,6 @@ export type ThreadProps = {
   autoFocus?: boolean;
   /** Injects date separator components into `Thread`, defaults to `false`. To be passed to the underlying `MessageList` or `VirtualizedMessageList` components */
   enableDateSeparator?: boolean;
-  /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
-  messageActions?: MessageActionsArray;
   /** If true, render the `VirtualizedMessageList` instead of the standard `MessageList` component */
   virtualized?: boolean;
 };
@@ -98,7 +94,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
     additionalVirtualizedMessageListProps,
     autoFocus = true,
     enableDateSeparator = false,
-    messageActions = Object.keys(MESSAGE_ACTIONS),
     virtualized,
   } = props;
   const threadInstance = useThreadContext();
@@ -221,7 +216,6 @@ const ThreadInner = (props: ThreadProps & { key: string }) => {
           <ThreadMessageList
             disableDateSeparator={!enableDateSeparator}
             head={head}
-            messageActions={messageActions}
             {...(virtualized
               ? additionalVirtualizedMessageListProps
               : additionalMessageListProps)}

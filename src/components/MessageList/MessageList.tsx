@@ -25,7 +25,6 @@ import { MessageListContextProvider } from '../../context/MessageListContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
@@ -92,7 +91,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       ...restInternalInfiniteScrollProps
     } = {},
     maxTimeBetweenGroupedMessages,
-    messageActions = Object.keys(MESSAGE_ACTIONS),
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     noGroupByUser = false,
     reactionDetailsSort,
@@ -213,7 +211,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
-      messageActions,
       messageListRect: wrapperRect,
       onMentionsClick: props.onMentionsClick,
       onMentionsHover: props.onMentionsHover,
@@ -447,7 +444,6 @@ type PropsDrilledToMessage =
   | 'closeReactionSelectorOnClick'
   | 'disableQuotedMessages'
   | 'formatDate'
-  | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'
   | 'onUserClick'

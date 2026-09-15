@@ -3,7 +3,6 @@ import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Message } from '../Message';
-import { MESSAGE_ACTIONS } from '../utils';
 
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
@@ -208,20 +207,6 @@ describe('<Message /> component', () => {
     );
   });
 
-  it('should enable actions if message is of type regular and status received', async () => {
-    const message = generateMessage({ status: 'received', type: 'regular' });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.actionsEnabled).toBe(true);
-  });
-
   it("should warn if message's own reactions contain a reaction from a different user then the currently active one", async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [reaction] });
@@ -288,21 +273,6 @@ describe('<Message /> component', () => {
   // MERGE-RECONCILE (test migration): the reaction handler no longer gates on the
   // 'send-reaction' capability (gating moved to the reaction UI / useUserRole.canReact). The
   // handler sends unconditionally, so we assert canReact reflects the missing capability instead.
-  it('should reflect missing send-reaction permission via canReact', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { channelCapabilities: { 'send-reaction': false } },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.react);
-  });
-
   it('should rollback reaction if channel update fails', async () => {
     const reaction = generateReaction({ user: bob });
     const message = generateMessage({ own_reactions: [] });
@@ -563,171 +533,6 @@ describe('<Message /> component', () => {
     expect(unmuteUser).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
-  it.each([
-    ['empty', []],
-    ['false', false],
-  ])(
-    'should return no message actions to UI component if message actions are %s',
-    async (_, actionsValue) => {
-      const message = generateMessage({ user: bob });
-      const messageActions = actionsValue;
-      let context: MessageContextValue;
-
-      await renderComponent({
-        contextCallback: (ctx) => {
-          context = ctx;
-        },
-        message,
-        props: { messageActions: messageActions as any },
-      });
-
-      expect(context.getMessageActions()).toStrictEqual([]);
-    },
-  );
-
-  it('should allow user to edit and delete message when message is from the user', async () => {
-    const message = generateMessage({ user: alice });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        channelCapabilities: { 'delete-own-message': true, 'update-own-message': true },
-      },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
-  });
-
-  it.each([
-    ['moderator', 'moderator'],
-    ['channel moderator', 'channel_moderator'],
-  ])('should allow user to edit and delete message when user is %s', async (_, role) => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        channelCapabilities: { 'delete-any-message': true, 'update-any-message': true },
-        state: { members: {}, membership: { role }, watchers: {} },
-      },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
-  });
-
-  it('should not allow user to edit and delete messages when user is the channel owner', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        state: { members: {}, membership: { role: 'owner' }, watchers: {} },
-      },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.edit);
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.delete);
-  });
-
-  it('should allow user to edit and delete message when moderator role is set on client', async () => {
-    const amin = generateUser({ name: 'amin', role: 'channel_moderator' });
-    const client = await getTestClientWithUser(amin);
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        channelCapabilities: { 'delete-any-message': true, 'update-any-message': true },
-      },
-      clientOpts: { client },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
-  });
-
-  it('should allow user to edit and delete message when user is admin', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        channelCapabilities: { 'delete-any-message': true, 'update-any-message': true },
-        state: { members: {}, membership: { role: 'admin' }, watchers: {} },
-      },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.edit);
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.delete);
-  });
-
-  it('should not allow user to edit or delete message when user message is not from user and user has no special role', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.edit);
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.delete);
-  });
-
-  it('should allow user to flag others messages', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { channelCapabilities: { 'flag-message': true } },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.flag);
-  });
-
-  it('should allow user to mute others messages', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { channelCapabilities: { 'mute-channel': true } },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.mute);
-  });
-
   it('should allow to flag a message when it is successful', async () => {
     const message = generateMessage();
     const client = await getTestClientWithUser(alice);
@@ -767,44 +572,6 @@ describe('<Message /> component', () => {
     await expect(context.handleFlag(mouseEventMock)).rejects.toThrow('flag failed');
 
     expect(flagMessage).toHaveBeenCalledWith(message.id);
-  });
-
-  it('should allow user to pin messages when permissions allow', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        channelCapabilities: { 'pin-message': true },
-        state: { members: {}, membership: { role: 'user' }, watchers: {} },
-        type: 'messaging',
-      },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).toContain(MESSAGE_ACTIONS.pin);
-  });
-
-  it('should not allow user to pin messages when permissions do not allow', async () => {
-    const message = generateMessage({ user: bob });
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: {
-        channelCapabilities: { 'pin-message': false },
-        state: { members: {}, membership: {}, watchers: {} },
-        type: 'messaging',
-      },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.pin);
   });
 
   it('should allow user to retry sending a message', async () => {
@@ -857,23 +624,6 @@ describe('<Message /> component', () => {
     });
 
     expect(context.isMyMessage(message)).toBe(true);
-  });
-
-  it('should pass channel configuration to UI rendered UI component', async () => {
-    const message = generateMessage({ user: alice });
-    const channelConfigMock = { mutes: false, replies: false } as ChannelConfigWithInfo;
-    let context: MessageContextValue;
-
-    await renderComponent({
-      channelStateOpts: { channelConfig: channelConfigMock },
-      contextCallback: (ctx) => {
-        context = ctx;
-      },
-      message,
-    });
-
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.mute);
-    expect(context.getMessageActions()).not.toContain(MESSAGE_ACTIONS.reply);
   });
 
   it('should rerender if message changes', async () => {

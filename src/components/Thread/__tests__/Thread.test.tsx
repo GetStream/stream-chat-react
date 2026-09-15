@@ -152,7 +152,6 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        messageActions: expect.any(Array),
         ...additionalMessageListProps,
       }),
       undefined,
@@ -173,7 +172,6 @@ describe('Thread', () => {
         head: expect.objectContaining({
           type: expect.objectContaining({ name: 'ThreadHead' }),
         }),
-        messageActions: expect.any(Array),
         ...additionalMessageListProps,
       }),
       undefined,
@@ -243,22 +241,6 @@ describe('Thread', () => {
     fireEvent.click(getByTestId('close-thread-button'));
 
     expect(deactivate).toHaveBeenCalledTimes(1);
-  });
-
-  it('should pass messageActions prop to the used messageList', () => {
-    const messageActions = ['edit', 'reply', 'delete'];
-    renderComponent({
-      threadProps: {
-        messageActions,
-      },
-    });
-
-    expect(MessageListMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        messageActions,
-      }),
-      undefined,
-    );
   });
 
   it('should assign str-chat__thread--virtualized class to the root in virtualized mode', () => {

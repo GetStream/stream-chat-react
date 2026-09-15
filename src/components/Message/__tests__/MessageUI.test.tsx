@@ -636,7 +636,6 @@ describe('<MessageSimple />', () => {
 
   it('should render message text when message has text', async () => {
     const message = generateAliceMessage({ text: 'Hello' });
-    const actionsEnabled = true;
     const messageListRect = {
       bottom: 100,
       height: 100,
@@ -652,7 +651,6 @@ describe('<MessageSimple />', () => {
     const { container } = await renderMessageSimple({
       message,
       props: {
-        actionsEnabled,
         messageListRect,
         unsafeHTML,
       },
