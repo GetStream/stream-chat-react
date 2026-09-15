@@ -1818,6 +1818,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@stream-io/state-store@npm:^1.1.6":
+  version: 1.1.6
+  resolution: "@stream-io/state-store@npm:1.1.6"
+  peerDependencies:
+    react: ^17 || ^18 || ^19
+    use-sync-external-store: ^1.5.0
+  peerDependenciesMeta:
+    react:
+      optional: true
+    use-sync-external-store:
+      optional: true
+  checksum: 10c0/42927cdb6a5bf6ba5f4ec11bb5e530db0a04edc65abd5348eb423780e40a3e53f57125e328d0318a0dc6b24ca0fcb28e8b91895a14a62ed8d82645f67ebcee5a
+  languageName: node
+  linkType: hard
+
 "@stream-io/stream-chat-react-tutorial@workspace:examples/tutorial":
   version: 0.0.0-use.local
   resolution: "@stream-io/stream-chat-react-tutorial@workspace:examples/tutorial"
@@ -1829,7 +1844,7 @@ __metadata:
     emoji-mart: "npm:^5.6.0"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
-    stream-chat: "npm:10.0.0-rc.9"
+    stream-chat: "npm:10.0.0-rc.10"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -1856,7 +1871,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:10.0.0-rc.9"
+    stream-chat: "npm:10.0.0-rc.10"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -5320,18 +5335,6 @@ __metadata:
   bin:
     husky: bin.js
   checksum: 10c0/35bb110a71086c48906aa7cd3ed4913fb913823715359d65e32e0b964cb1e255593b0ae8014a5005c66a68e6fa66c38dcfa8056dbbdfb8b0187c0ffe7ee3a58f
-  languageName: node
-  linkType: hard
-
-"i18next@npm:^26.3.6":
-  version: 26.3.6
-  resolution: "i18next@npm:26.3.6"
-  peerDependencies:
-    typescript: ^5 || ^6 || ^7
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 10c0/5920ac8fb6b647a2bdd439d121de04e5297246e52c4d95d13f5faae0824fd45b2faeb66038bcd61fc62362daa815f9c32fb992d6faa3787607d1dfe768e9a8b1
   languageName: node
   linkType: hard
 
@@ -9516,7 +9519,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
-    stream-chat: "npm:10.0.0-rc.9"
+    stream-chat: "npm:10.0.0-rc.10"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
     unified: "npm:^11.0.5"
@@ -9534,7 +9537,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: 10.0.0-rc.9
+    stream-chat: 10.0.0-rc.10
   dependenciesMeta:
     "@parcel/watcher":
       built: true
@@ -9560,21 +9563,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"stream-chat@npm:10.0.0-rc.9":
-  version: 10.0.0-rc.9
-  resolution: "stream-chat@npm:10.0.0-rc.9"
+"stream-chat@npm:10.0.0-rc.10":
+  version: 10.0.0-rc.10
+  resolution: "stream-chat@npm:10.0.0-rc.10"
   dependencies:
     "@stream-io/logger": "npm:^2.0.0"
+    "@stream-io/state-store": "npm:^1.1.6"
     axios: "npm:^1.19.0"
-    dayjs: "npm:^1.11.13"
-    i18next: "npm:^26.3.6"
     linkifyjs: "npm:^4.3.3"
   dependenciesMeta:
     esbuild:
       built: true
     husky:
       built: true
-  checksum: 10c0/4409003abe465e7d75d5b55daf6a197aeec346a9dcbbb84ad729dc2c31155899b6cf464d3a3be3249cf132b1cb3b67e4e7d0e3356379f22160779581b7b38dd1
+  checksum: 10c0/00eb4de2b390f633a7b7e2613a6a2aa30543c6e0bcda96bbf10ac257cef07bd14b78e2c5677ad36c2b91d64d820baff63fa65782581f568755a9984f18843dc0
   languageName: node
   linkType: hard
 
