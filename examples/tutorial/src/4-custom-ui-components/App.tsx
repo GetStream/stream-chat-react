@@ -11,13 +11,14 @@ import {
   MessageComposer,
   MessageList,
   SummarizedMessagePreview,
-  Thread,
+  ThreadHeader,
   useCreateChatClient,
   useMessageContext,
   WithComponents,
 } from 'stream-chat-react';
 import {
   ChatView,
+  ThreadSlot,
   useChatViewNavigation,
   useSlotChannels,
 } from 'stream-chat-react/slot-layout';
@@ -108,7 +109,7 @@ const CustomMessage = () => {
 };
 
 // One view ("channels") with a single channel slot. Module-scoped for a stable reference.
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel'] }];
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
 
 const ChannelsWorkspace = () => {
   const channelSlots = useSlotChannels();
@@ -121,9 +122,16 @@ const ChannelsWorkspace = () => {
           <ChannelHeader />
           <MessageList />
           <MessageComposer />
-          <Thread />
         </Channel>
       ))}
+      {/* The panel for a thread opened from a message's "reply in thread" action: `ThreadSlot`
+          resolves the thread bound to the slot and hands it to `<Thread>`, which provides it to
+          the components below. */}
+      <ThreadSlot slot='thread'>
+        <ThreadHeader />
+        <MessageList />
+        <MessageComposer />
+      </ThreadSlot>
     </>
   );
 };

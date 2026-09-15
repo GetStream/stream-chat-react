@@ -171,7 +171,8 @@ body {
   @media (max-width: 767px) {
     /* The resize handle is hidden globally on mobile; when a 2nd thread is open show it
        full-width and collapse the primary (one panel at a time, like the channels view). */
-    .app-chat-view__threads-main--secondary-open > .str-chat__dropzone-root--thread {
+    .app-chat-view__threads-main--secondary-open > .str-chat__dropzone-root--thread,
+    .app-chat-view__threads-main--secondary-open > .str-chat__thread-container {
       display: none;
     }
 
