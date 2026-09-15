@@ -1,7 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import { describe, expect, it } from 'vitest';
 
 import type { PropsWithChildren } from 'react';
