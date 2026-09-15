@@ -55,7 +55,6 @@ import {
   type StartRecordingAudioButtonProps,
   type StreamedMessageTextProps,
   type TextareaComposerProps,
-  type ThreadHeaderProps,
   type ThreadListItemProps,
   type ThreadListItemUIProps,
   type TimestampProps,
@@ -287,8 +286,6 @@ export type ComponentContextValue = {
   TextareaComposer?: React.ComponentType<TextareaComposerProps>;
   /** Custom UI component that displays thread's parent or other message at the top of the `MessageList`, defaults to and accepts same props as [MessageUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message/MessageUI.tsx) */
   ThreadHead?: React.ComponentType<MessageProps>;
-  /** Custom UI component to display the header of a `Thread`, defaults to and accepts same props as: [DefaultThreadHeader](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Thread/Thread.tsx) */
-  ThreadHeader?: React.ComponentType<ThreadHeaderProps>;
   ThreadListEmptyPlaceholder?: React.ComponentType;
   ThreadListItem?: React.ComponentType<ThreadListItemProps>;
   ThreadListItemUI?: React.ComponentType<ThreadListItemUIProps>;

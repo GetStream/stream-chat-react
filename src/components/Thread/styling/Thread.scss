@@ -7,4 +7,14 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  min-height: 0;
+
+  /* A drag-and-drop wrapper placed directly inside the thread becomes the content column,
+     mirroring the same rule in `Channel.scss`. */
+  > .str-chat__dropzone-root {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+  }
 }

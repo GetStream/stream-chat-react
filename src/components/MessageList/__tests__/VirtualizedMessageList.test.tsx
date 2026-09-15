@@ -18,6 +18,19 @@ import { VirtualizedMessageList } from '../VirtualizedMessageList';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 import { useComponentContext, WithComponents } from '../../../context';
+import { ThreadProvider } from '../../Threads';
+
+import { StateStore } from '@stream-io/state-store';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Thread, ThreadState } from 'stream-chat';
+
+const threadWithParentMessage = () =>
+  fromPartial<Thread>({
+    id: 'virtualized-list-thread',
+    state: new StateStore<ThreadState>(
+      fromPartial<ThreadState>({ parentMessage: generateMessage() }),
+    ),
+  });
 
 vi.mock('react-virtuoso', async () => {
   const { Virtuoso } = await import('react-virtuoso');
@@ -104,9 +117,9 @@ describe('VirtualizedMessageList', () => {
   // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered
   // by this list. The list applies it by overriding `MessageUI` for its own subtree, so
   // these assert on what `useComponentContext()` resolves to inside vs. outside the list.
-  // Virtuoso renders no items under jsdom (it measures document height), so `head` is the
-  // in-subtree render point available to us — it is the same provider subtree the items
-  // render into.
+  // Virtuoso renders no items under jsdom (it measures document height), so the thread head is
+  // the in-subtree render point available to us — it is the same provider subtree the items
+  // render into. The list renders it whenever a thread is in context.
   describe('VirtualMessage override', () => {
     const CustomMessageUI = () => <div />;
     const CustomVirtualMessage = () => <div />;
@@ -128,6 +141,10 @@ describe('VirtualizedMessageList', () => {
     const renderWithOverrides = async (
       overrides: Parameters<typeof WithComponents>[0]['overrides'],
     ) => {
+      overrides = {
+        ...overrides,
+        ThreadHead: () => <ResolvedMessageUIProbe label='inside' />,
+      };
       const { channel, client } = await createChannel();
       vi.mocked(nanoid).mockReturnValue('mockedId');
 
@@ -138,9 +155,9 @@ describe('VirtualizedMessageList', () => {
             <Channel channel={channel}>
               <WithComponents overrides={overrides}>
                 <ResolvedMessageUIProbe label='outside' />
-                <VirtualizedMessageList
-                  head={<ResolvedMessageUIProbe label='inside' />}
-                />
+                <ThreadProvider thread={threadWithParentMessage()}>
+                  <VirtualizedMessageList />
+                </ThreadProvider>
               </WithComponents>
             </Channel>
           </Chat>,

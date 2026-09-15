@@ -33,6 +33,7 @@ import type { MessageRenderer } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useThreadContext } from '../Threads';
+import { useThreadHead } from './hooks/useThreadHead';
 
 import type {
   LocalMessage,
@@ -79,6 +80,7 @@ const getScrollBehavior = (): ScrollBehavior =>
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
+  const threadHead = useThreadHead();
   const {
     groupStyles,
     headerPosition,
@@ -90,8 +92,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       ...restInternalInfiniteScrollProps
     } = {},
     maxTimeBetweenGroupedMessages,
-    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     noGroupByUser = false,
+    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -398,7 +400,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   threshold={loadMoreScrollThreshold}
                   {...restInternalInfiniteScrollProps}
                 >
-                  {props.head}
+                  {threadHead}
                   {isLoading && (
                     <div className='str-chat__list__loading' key='loading-indicator'>
                       {props.loadingMore && <LoadingIndicator />}
@@ -474,8 +476,6 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   ) => GroupStyle;
   /** Whether the list has more items to load */
   hasMore?: boolean;
-  /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
-  head?: React.ReactElement;
   /**
    * Position to render HeaderComponent, as a timestamp in the same unit as `message.created_at` —
    * i.e. unix nanoseconds. Was milliseconds while `created_at` was a `Date`.

@@ -6,7 +6,7 @@ import { useStateStore } from '../../store';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
-import { useThreadContext } from '../Threads';
+import { useCloseThread, useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 
@@ -21,7 +21,10 @@ const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
   typingEventsEnabled: typingEvents.enabled,
 });
 
-const threadStateSelector = ({ replyCount }: ThreadState) => ({ replyCount });
+const threadStateSelector = ({ parentMessage, replyCount }: ThreadState) => ({
+  parentMessage,
+  replyCount,
+});
 const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 /** Fallback when channel has no display title: parent message author (name only). */
@@ -77,17 +80,11 @@ const ThreadHeaderSubtitle = ({
 };
 
 export type ThreadHeaderProps = {
-  /** Callback for closing the thread */
-  closeThread: (event?: React.BaseSyntheticEvent) => void;
-  /** The thread parent message */
-  thread: LocalMessage;
   /** Override the thread display title */
   overrideTitle?: string;
 };
 
-export const ThreadHeader = (props: ThreadHeaderProps) => {
-  const { closeThread, overrideTitle, thread } = props;
-
+export const ThreadHeader = ({ overrideTitle }: ThreadHeaderProps) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
   const { HeaderStartContent } = useComponentContext();
@@ -95,24 +92,21 @@ export const ThreadHeader = (props: ThreadHeaderProps) => {
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const threadInstance = useThreadContext();
+  const closeThread = useCloseThread();
   // Show the close button for dismissable thread panels: reply threads in any non-threads view,
   // and secondary threads in the threads view. It is hidden for the threads view's primary thread,
   // which is the main panel — you switch views rather than close it.
   const showCloseButton = isThreadDismissable(threadInstance?.id);
-  const { replyCount: replyCountThreadInstance } =
+  const { parentMessage, replyCount: replyCountThreadInstance } =
     useStateStore(threadInstance?.state, threadStateSelector) ?? {};
 
-  const replyCount = threadInstance
-    ? replyCountThreadInstance
-    : thread
-      ? (thread.reply_count ?? 0)
-      : 0;
+  const replyCount = replyCountThreadInstance ?? 0;
 
-  // Subtitle: channel display title (from parent or hook), with override and fallback to parent message author
+  // Subtitle: channel display title, with override and fallback to the parent message author
   const threadDisplayName =
     overrideTitle ??
     channelDisplayTitle ??
-    displayNameFromParentMessage(thread) ??
+    (parentMessage && displayNameFromParentMessage(parentMessage)) ??
     undefined;
 
   return (

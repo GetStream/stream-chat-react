@@ -62,6 +62,7 @@ import { VirtualizedMessageListContextProvider } from '../../context/Virtualized
 import { getMessageSourceKey } from './messageSourceKey';
 import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
+import { useThreadHead } from './hooks/useThreadHead';
 import { useMessagePaginator } from '../../hooks';
 
 import type {
@@ -91,7 +92,6 @@ type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
   | 'closeReactionSelectorOnClick'
   | 'customMessageRenderer'
-  | 'head'
   // | 'loadingMore'
   | 'returnAllReadData'
   | 'shouldGroupByUser';
@@ -108,6 +108,8 @@ export type VirtuosoContext = Required<
   Pick<VirtualizedMessageListProps, VirtualizedMessageListPropsForContext> &
   Pick<ChatContextValue, 'customClasses'> & {
     channel: Channel;
+    /** The thread parent message rendered above the replies, or null outside a thread. */
+    head: React.ReactElement | null;
     /** Latest received message id in the current channel */
     lastReceivedMessageId: string | null | undefined;
     loadingMore: boolean;
@@ -217,19 +219,18 @@ const VirtualizedMessageListWithContext = (
     defaultItemHeight,
     formatDate,
     groupStyles,
-    // hasMoreNewer,
-    head,
     hideDeletedMessages = false,
+    // hasMoreNewer,
     hideNewMessageSeparator = false,
+    maxTimeBetweenGroupedMessages,
     // jumpToLatestMessage,
     // loadingMore,
     // loadMore,
     // loadMoreNewer,
-    maxTimeBetweenGroupedMessages,
+    overscan = 0,
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
-    overscan = 0,
     reactionDetailsSort,
     renderText,
     returnAllReadData = false,
@@ -247,6 +248,7 @@ const VirtualizedMessageListWithContext = (
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
+  const threadHead = useThreadHead();
   const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
     React.useState(false);
   const suppressAutoscroll =
@@ -583,7 +585,7 @@ const VirtualizedMessageListWithContext = (
                   firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
                   focusedMessageId,
                   formatDate,
-                  head,
+                  head: threadHead,
                   lastOwnMessage,
                   lastReadDate: channelUnreadUiState?.lastReadAt,
                   lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
@@ -692,11 +694,6 @@ export type VirtualizedMessageListProps = Partial<
   // hasMore?: boolean;
   // /** Whether or not the list has newer items to load */
   // hasMoreNewer?: boolean;
-  /**
-   * @deprecated Use additionalVirtuosoProps.components.Header to override default component rendered above the list ove messages.
-   * Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components
-   */
-  head?: React.ReactElement;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
