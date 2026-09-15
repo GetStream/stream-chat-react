@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
-import { DialogAnchor, ModalContextProvider, Prompt } from 'stream-chat-react';
+import clsx from 'clsx';
+import {
+  DialogAnchor,
+  ModalContextProvider,
+  Prompt,
+  useChatContext,
+} from 'stream-chat-react';
 
 const VIEWPORT_MARGIN = 8;
 
@@ -38,6 +44,7 @@ export const DraggableDialog = ({
   shellClassName: string;
   title: ReactNode;
 }) => {
+  const { theme } = useChatContext();
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const shellRef = useRef<HTMLDivElement | null>(null);
   const modalContextValue = {
@@ -146,7 +153,15 @@ export const DraggableDialog = ({
       trapFocus
       updatePositionOnContentResize
     >
-      <div className={shellClassName} ref={shellRef} style={shellStyle}>
+      {/* `str-chat` and the theme are re-applied here the way `GlobalModal` does: a dialog bound
+          to the modal manager is portalled to a destination outside any `.str-chat` element, where
+          the theme's custom properties do not cascade and every `var(--str-chat__…)` resolves
+          empty. */}
+      <div
+        className={clsx('str-chat', theme, shellClassName)}
+        ref={shellRef}
+        style={shellStyle}
+      >
         <ModalContextProvider value={modalContextValue}>
           <Prompt.Root className={promptClassName}>
             <div className={dragHandleClassName} onPointerDown={handleHeaderPointerDown}>

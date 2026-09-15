@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
 import {
   Button,
   ChannelInstanceProvider,
   ComponentProvider,
   Message,
+  useChatContext,
   useComponentContext,
 } from 'stream-chat-react';
 import { appSettingsStore, useAppSettingsState } from '../../state';
@@ -10,11 +12,7 @@ import {
   SettingsTabBody,
   SettingsTabLayoutHeader,
 } from '../SettingsTabLayoutComponents.tsx';
-import {
-  reactionsPreviewChannelState,
-  reactionsPreviewMessage,
-  reactionsPreviewOptions,
-} from './reactionsExampleData';
+import { reactionsPreviewMessage, reactionsPreviewOptions } from './reactionsExampleData';
 
 type ReactionsTabProps = {
   close: () => void;
@@ -24,6 +22,14 @@ export const ReactionsTab = ({ close }: ReactionsTabProps) => {
   const state = useAppSettingsState();
   const { reactions } = state;
   const componentContext = useComponentContext();
+  const { client } = useChatContext();
+  // A real Channel, never queried or watched: `Message` reaches `channel.state` through
+  // `useUserRole` -> `useChannelCapabilities`, which subscribes to it as a StateStore. A plain
+  // object shaped like channel state crashes there, which is what this preview used to pass.
+  const previewChannel = useMemo(
+    () => client.channel('messaging', 'reactions-preview'),
+    [client],
+  );
 
   return (
     <div className='app__settings-modal__content-stack'>
@@ -121,11 +127,7 @@ export const ReactionsTab = ({ close }: ReactionsTabProps) => {
         <div className='app__settings-modal__field'>
           <div className='app__settings-modal__field-label'>Preview</div>
           <div className='app__settings-modal__preview'>
-            {/* MERGE-RECONCILE: PR #2909 replaced the deleted ChannelState/ChannelAction
-                providers with ChannelInstanceProvider (Message now reads useChannel()). */}
-            <ChannelInstanceProvider
-              value={{ channel: reactionsPreviewChannelState.channel as never }}
-            >
+            <ChannelInstanceProvider value={{ channel: previewChannel }}>
               <ComponentProvider
                 value={{
                   ...componentContext,
@@ -133,11 +135,7 @@ export const ReactionsTab = ({ close }: ReactionsTabProps) => {
                 }}
               >
                 <li className='str-chat__li--single'>
-                  <Message
-                    groupStyles={['single']}
-                    message={reactionsPreviewMessage}
-                    messageActions={[]}
-                  />
+                  <Message groupStyles={['single']} message={reactionsPreviewMessage} />
                 </li>
               </ComponentProvider>
             </ChannelInstanceProvider>

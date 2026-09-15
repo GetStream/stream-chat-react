@@ -11,7 +11,6 @@ import type {
 
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
 import type { ReactEventHandler } from '../components/Message/types';
-import type { MessageActionsArray } from '../components/Message/utils';
 import type { GroupStyle } from '../components/MessageList/utils';
 import type { ReactionsComparator, ReactionType } from '../components/Reactions/types';
 
@@ -19,13 +18,6 @@ import type { RenderTextFunction } from '../components/Message/renderText';
 import { requireContext } from './requireContext';
 
 export type MessageContextValue = {
-  /** If actions such as edit, delete, flag, mute are enabled on Message */
-  actionsEnabled: boolean;
-  /**
-   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'].
-   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
-   */
-  getMessageActions: () => MessageActionsArray<string>;
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */

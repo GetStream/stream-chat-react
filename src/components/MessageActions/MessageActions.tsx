@@ -14,12 +14,32 @@ import {
 } from '../Dialog';
 import { useBaseMessageActionSetFilter } from './hooks';
 import { defaultMessageActionSet } from './MessageActions.defaults';
-import { type MESSAGE_ACTIONS } from '../Message';
 import { ReactionSelector } from '../Reactions';
 import { useSplitActionSet } from '../Chat/hooks/useSplitActionSet';
 
+/**
+ * The action types {@link defaultMessageActionSet} ships. Listed for autocomplete only -- a custom
+ * action names itself, so any string is accepted.
+ */
+export type DefaultMessageActionType =
+  | 'blockUser'
+  | 'copyMessageText'
+  | 'delete'
+  | 'download'
+  | 'edit'
+  | 'flag'
+  | 'markUnread'
+  | 'mute'
+  | 'pin'
+  | 'quote'
+  | 'react'
+  | 'remindMe'
+  | 'reply'
+  | 'resendMessage'
+  | 'saveForLater';
+
 type BaseMessageActionSetItem = {
-  type: keyof typeof MESSAGE_ACTIONS | (string & {});
+  type: DefaultMessageActionType | (string & {});
 };
 
 export type QuickMessageActionSetItem = BaseMessageActionSetItem & {

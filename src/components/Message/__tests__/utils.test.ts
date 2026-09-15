@@ -13,16 +13,13 @@ import {
 import {
   areMessagePropsEqual,
   getImages,
-  getMessageActions,
   getNonImageAttachments,
   getReadByTooltipText,
   isMessageBlocked,
   isUserMuted,
   mapToUserNameOrId,
-  MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
-  OPTIONAL_MESSAGE_ACTIONS,
   validateAndGetMessage,
 } from '../utils';
 import type { MessageProps } from '../types';
@@ -90,93 +87,6 @@ describe('Message utils', () => {
       const result = isUserMuted(message, mutes);
       expect(result).toBe(true);
     });
-  });
-
-  describe('getMessageActions', () => {
-    const defaultCapabilities = {
-      canDelete: true,
-      canEdit: true,
-      canFlag: true,
-      canMarkUnread: true,
-      canMute: true,
-      canPin: true,
-      canQuote: true,
-      canReact: true,
-      canReply: true,
-    };
-    const actions = Object.values(MESSAGE_ACTIONS);
-    const optionalActions = Object.values(OPTIONAL_MESSAGE_ACTIONS);
-
-    it.each([
-      ['empty', []],
-      ['false', false],
-    ])(
-      'should return no message actions if message actions are %s',
-      (_, messageActions) => {
-        const result = getMessageActions(messageActions, defaultCapabilities);
-        expect(result).toStrictEqual([]);
-      },
-    );
-
-    it('should return all message actions not depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(true, defaultCapabilities);
-      expect(result).toStrictEqual(
-        actions.filter((a) => !['remindMe', 'saveForLater'].includes(a)),
-      );
-    });
-
-    it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['remindMe'], defaultCapabilities, true);
-      expect(result).toStrictEqual(['remindMe']);
-    });
-
-    it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['saveForLater'], defaultCapabilities, true);
-      expect(result).toStrictEqual(['saveForLater']);
-    });
-
-    it('should include reminder actions if enabled in channel config', () => {
-      const result = getMessageActions(true, defaultCapabilities, true);
-      expect(result).toEqual(actions);
-    });
-
-    it('should exclude reminder actions if disabled in channel config', () => {
-      const result = getMessageActions(true, defaultCapabilities, false);
-      expect(result).not.toContain(MESSAGE_ACTIONS.remindMe);
-      expect(result).not.toContain(MESSAGE_ACTIONS.saveForLater);
-    });
-
-    it.each([
-      ['allow', 'edit', 'canEdit', true, ['edit']],
-      ['not allow', 'edit', 'canEdit', false, ['edit']],
-      ['allow', 'delete', 'canDelete', true, ['delete']],
-      ['not allow', 'delete', 'canDelete', false, ['delete']],
-      ['allow', 'deleteForMe', 'canDelete', true, optionalActions],
-      ['not allow', 'deleteForMe', 'canDelete', false, optionalActions],
-      ['allow', 'flag', 'canFlag', true, ['flag']],
-      ['not allow', 'flag', 'canFlag', false, ['flag']],
-      ['allow', 'markUnread', 'canMarkUnread', true, ['markUnread']],
-      ['not allow', 'markUnread', 'canMarkUnread', false, ['markUnread']],
-      ['allow', 'mute', 'canMute', true, ['mute']],
-      ['not allow', 'mute', 'canMute', false, ['mute']],
-      ['allow', 'pin', 'canPin', true, ['pin']],
-      ['not allow', 'pin', 'canPin', false, ['pin']],
-      ['allow', 'quote', 'canQuote', true, ['quote']],
-      ['not allow', 'quote', 'canQuote', false, ['quote']],
-    ])(
-      'it should %s %s when %s is %s',
-      (_, action, capabilityKey, capabilityValue, actionsToUse) => {
-        const capabilities = {
-          [capabilityKey]: capabilityValue,
-        };
-        const result = getMessageActions(actionsToUse, capabilities);
-        if (capabilityValue) {
-          expect(result).toStrictEqual([action]);
-        } else {
-          expect(result).not.toStrictEqual([action]);
-        }
-      },
-    );
   });
 
   describe('shouldMessageComponentUpdate', () => {
@@ -413,28 +323,6 @@ describe('Message utils', () => {
       const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
-    });
-
-    it('should update when messageActions change', () => {
-      const message = generateMessage();
-      const prevMessageActions = ['edit', 'delete'];
-      const nextMessageActions = ['edit', 'delete', 'reply'];
-      const shouldUpdate = !areMessagePropsEqual(
-        fromPartial<MessageProps>({ message, messageActions: prevMessageActions }),
-        fromPartial<MessageProps>({ message, messageActions: nextMessageActions }),
-      );
-      expect(shouldUpdate).toBe(true);
-    });
-
-    it('should not update when messageActions stay same', () => {
-      const message = generateMessage();
-      const prevMessageActions = ['edit', 'delete'];
-      const nextMessageActions = ['edit', 'delete'];
-      const shouldUpdate = !areMessagePropsEqual(
-        fromPartial<MessageProps>({ message, messageActions: prevMessageActions }),
-        fromPartial<MessageProps>({ message, messageActions: nextMessageActions }),
-      );
-      expect(shouldUpdate).toBe(false);
     });
   });
 

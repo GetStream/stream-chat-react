@@ -3,7 +3,6 @@ import type { LocalMessage, SortParamRequest, UserResponse } from 'stream-chat';
 
 import type { UserEventHandler } from './hooks';
 import type { CustomMentionHandler } from './hooks/useMentionsHandler';
-import type { MessageActionsArray } from './utils';
 import type { GroupStyle } from '../MessageList/utils';
 import type { MessageComposerProps } from '../MessageComposer';
 import type { ReactionsComparator } from '../Reactions/types';
@@ -40,8 +39,6 @@ export type MessageProps = {
   // todo: could be moved to the Channel instance reactive state as lastReceivedMessage keeping the the receipt status as well (useful for channel preview)
   /** Latest message id on current channel */
   lastReceivedId?: string | null;
-  /** Array of allowed message actions (ex: ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply']). To disable all actions, provide an empty array. */
-  messageActions?: MessageActionsArray;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
   /** Custom mention click handler for mentions rendered in message text. */
