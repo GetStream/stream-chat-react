@@ -8,7 +8,10 @@ const token = 'dummy_token';
 
 const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
   new Promise<void>((resolve) => {
-    client['connectionId'] = 'dumm_connection_id';
+    // v10 keeps the connection id on `client.connectionIdManager`; requests that register a
+    // watch/presence subscription await it, so a mocked connect has to publish one or every
+    // `queryChannels()`/`channel.watch()` in the tests throws.
+    client.connectionIdManager.resolveConnectionId('dumm_connection_id');
     client.user = { ...user, mutes: [] } as UserResponse;
     client['_user'] = { ...user } as UserResponse;
     // `userID` is a getter in v10 (derives from `client.user?.id`), so it can't be assigned;
