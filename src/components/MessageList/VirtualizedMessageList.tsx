@@ -265,10 +265,8 @@ const VirtualizedMessageListWithContext = (
   const {
     DateSeparator = DefaultDateSeparator,
     GiphyPreviewMessage = DefaultGiphyPreviewMessage,
-    MessageListMainPanel = DefaultMessageListMainPanel,
     MessageSystem = DefaultMessageSystem,
     NewMessageNotification = DefaultNewMessageNotification,
-    NotificationList = DefaultNotificationList,
     TypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
     UnreadMessagesSeparator = DefaultUnreadMessagesSeparator,
@@ -417,8 +415,6 @@ const VirtualizedMessageListWithContext = (
     messageListIsThread: isThreadList,
   });
 
-  const notificationTarget = useNotificationTarget();
-
   useIncomingMessageAnnouncements({
     activeThreadId: thread?.id,
     channel,
@@ -545,114 +541,107 @@ const VirtualizedMessageListWithContext = (
   const list = (
     <VirtualizedMessageListContextProvider value={{ scrollToBottom }}>
       <MessageTranslationViewProvider>
-        <MessageListMainPanel>
-          <DialogManagerProvider id={dialogManagerId}>
-            {!isThreadList && showUnreadMessagesNotification && (
-              <UnreadMessagesNotification
-                unreadCount={channelUnreadUiState?.unreadCount}
-              />
-            )}
-            <div
-              className={
-                customClasses?.virtualizedMessageList || 'str-chat__virtual-list'
+        <DialogManagerProvider id={dialogManagerId}>
+          {!isThreadList && showUnreadMessagesNotification && (
+            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+          )}
+          <div
+            className={customClasses?.virtualizedMessageList || 'str-chat__virtual-list'}
+          >
+            <FloatingDateSeparator
+              itemsRenderedRef={floatingDateItemsRenderedRef}
+              processedMessages={processedMessages}
+              withDateSeparator={withDateSeparator}
+            />
+            <Virtuoso<UnknownType, VirtuosoContext>
+              atBottomStateChange={atBottomStateChange}
+              atBottomThreshold={100}
+              atTopStateChange={atTopStateChange}
+              atTopThreshold={100}
+              className='str-chat__message-list-scroll'
+              components={{
+                EmptyPlaceholder,
+                Header,
+                Item,
+                ...virtuosoComponentsFromProps,
+              }}
+              computeItemKey={computeItemKey}
+              context={{
+                additionalMessageComposerProps,
+                channel,
+                closeReactionSelectorOnClick,
+                customClasses,
+                customMessageRenderer,
+                DateSeparator,
+                firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
+                focusedMessageId,
+                formatDate,
+                head: threadHead,
+                lastOwnMessage,
+                lastReadDate: channelUnreadUiState?.lastReadAt,
+                lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
+                lastReceivedMessageId,
+                loadingMore: isLoading,
+                messageGroupStyles,
+                MessageSystem,
+                numItemsPrepended,
+                ownMessagesDeliveredToOthers,
+                ownMessagesReadByOthers,
+                processedMessages,
+                reactionDetailsSort,
+                renderText,
+                returnAllReadData,
+                shouldGroupByUser,
+                showAvatar,
+                sortReactions,
+                unreadMessageCount: channelUnreadUiState?.unreadCount,
+                UnreadMessagesSeparator,
+                virtuosoRef: virtuoso,
+              }}
+              firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
+              followOutput={followOutput}
+              increaseViewportBy={{ bottom: 200, top: 0 }}
+              initialTopMostItemIndex={calculateInitialTopMostItemIndex(
+                processedMessages,
+                focusedMessageId,
+              )}
+              itemContent={messageRenderer}
+              itemSize={fractionalItemSize}
+              itemsRendered={handleItemsRendered}
+              key={messageSetKey}
+              overscan={overscan}
+              ref={virtuoso}
+              style={{ overflowX: 'hidden' }}
+              totalCount={processedMessages.length}
+              {...overridingVirtuosoProps}
+              {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
+              {...(defaultItemHeight ? { defaultItemHeight } : {})}
+            />
+            <NewMessageNotification
+              newMessageCount={channelUnreadUiState?.unreadCount}
+              showNotification={
+                (newMessagesNotification || hasMoreNewer) &&
+                !isMessageListScrolledToBottom
               }
-            >
-              <FloatingDateSeparator
-                itemsRenderedRef={floatingDateItemsRenderedRef}
-                processedMessages={processedMessages}
-                withDateSeparator={withDateSeparator}
-              />
-              <Virtuoso<UnknownType, VirtuosoContext>
-                atBottomStateChange={atBottomStateChange}
-                atBottomThreshold={100}
-                atTopStateChange={atTopStateChange}
-                atTopThreshold={100}
-                className='str-chat__message-list-scroll'
-                components={{
-                  EmptyPlaceholder,
-                  Header,
-                  Item,
-                  ...virtuosoComponentsFromProps,
-                }}
-                computeItemKey={computeItemKey}
-                context={{
-                  additionalMessageComposerProps,
-                  channel,
-                  closeReactionSelectorOnClick,
-                  customClasses,
-                  customMessageRenderer,
-                  DateSeparator,
-                  firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
-                  focusedMessageId,
-                  formatDate,
-                  head: threadHead,
-                  lastOwnMessage,
-                  lastReadDate: channelUnreadUiState?.lastReadAt,
-                  lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
-                  lastReceivedMessageId,
-                  loadingMore: isLoading,
-                  messageGroupStyles,
-                  MessageSystem,
-                  numItemsPrepended,
-                  ownMessagesDeliveredToOthers,
-                  ownMessagesReadByOthers,
-                  processedMessages,
-                  reactionDetailsSort,
-                  renderText,
-                  returnAllReadData,
-                  shouldGroupByUser,
-                  showAvatar,
-                  sortReactions,
-                  unreadMessageCount: channelUnreadUiState?.unreadCount,
-                  UnreadMessagesSeparator,
-                  virtuosoRef: virtuoso,
-                }}
-                firstItemIndex={calculateFirstItemIndex(numItemsPrepended)}
-                followOutput={followOutput}
-                increaseViewportBy={{ bottom: 200, top: 0 }}
-                initialTopMostItemIndex={calculateInitialTopMostItemIndex(
-                  processedMessages,
-                  focusedMessageId,
-                )}
-                itemContent={messageRenderer}
-                itemSize={fractionalItemSize}
-                itemsRendered={handleItemsRendered}
-                key={messageSetKey}
-                overscan={overscan}
-                ref={virtuoso}
-                style={{ overflowX: 'hidden' }}
-                totalCount={processedMessages.length}
-                {...overridingVirtuosoProps}
-                {...(scrollSeekPlaceHolder ? { scrollSeek: scrollSeekPlaceHolder } : {})}
-                {...(defaultItemHeight ? { defaultItemHeight } : {})}
-              />
-              <NewMessageNotification
-                newMessageCount={channelUnreadUiState?.unreadCount}
-                showNotification={
-                  (newMessagesNotification || hasMoreNewer) &&
-                  !isMessageListScrolledToBottom
-                }
-              />
-              {/* An empty list has nothing to jump to. Gate on the message count rather than on
+            />
+            {/* An empty list has nothing to jump to. Gate on the message count rather than on
                   scroll position alone: a list with no content can legitimately report "not at
                   bottom", which would otherwise render a dead affordance. */}
-              {messages.length > 0 && (
-                <ScrollToLatestMessageButton
-                  isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                  isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
-                  onClick={scrollToBottom}
-                />
-              )}
-            </div>
-          </DialogManagerProvider>
-          {TypingIndicator && (
-            <TypingIndicator
-              isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-              scrollToBottom={scrollToBottom}
-            />
-          )}
-          <NotificationList panel={notificationTarget} />
-        </MessageListMainPanel>
+            {messages.length > 0 && (
+              <ScrollToLatestMessageButton
+                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
+                onClick={scrollToBottom}
+              />
+            )}
+          </div>
+        </DialogManagerProvider>
+        {TypingIndicator && (
+          <TypingIndicator
+            isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+            scrollToBottom={scrollToBottom}
+          />
+        )}
         {giphyPreviewMessage && <GiphyPreviewMessage message={giphyPreviewMessage} />}
       </MessageTranslationViewProvider>
     </VirtualizedMessageListContextProvider>
@@ -767,29 +756,41 @@ export type VirtualizedMessageListProps = Partial<
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const channel = useChannel();
   const thread = useThreadContext();
+  const notificationTarget = useNotificationTarget();
+  const {
+    MessageListMainPanel = DefaultMessageListMainPanel,
+    NotificationList = DefaultNotificationList,
+  } = useComponentContext();
 
   const { read } = useStateStore(channel?.state, channelReadSelector) ?? {};
 
   const messages = props.messages; // || contextMessages;
 
+  // See the note in `MessageList`: the panel and the notification area sit above the key, so a
+  // notification keeps its element, its countdown and its box across a switch. Here it also puts
+  // them above `VirtualizedMessageListWithContext`'s `if (!processedMessages) return null`, which
+  // would otherwise take the notification area down with the list.
   // todo: finalize the props shape for VirtualizedMessageList
   return (
-    <VirtualizedMessageListWithContext
-      channel={channel}
-      // See the note in MessageList: this list's local state -- Virtuoso's scroll offset above all
-      // -- is scoped to whatever it is showing, a thread's replies or a channel's messages.
-      key={getMessageSourceKey({ channel, thread })}
-      // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
-      // hasMore={!!hasMore}
-      // hasMoreNewer={!!hasMoreNewer}
-      // jumpToLatestMessage={jumpToLatestMessage}
-      // loadingMore={!!loadingMore}
-      // loadingMoreNewer={!!loadingMoreNewer}
-      // loadMore={loadMore}
-      // loadMoreNewer={loadMoreNewer}
-      messages={messages}
-      read={read}
-      {...props}
-    />
+    <MessageListMainPanel>
+      <VirtualizedMessageListWithContext
+        channel={channel}
+        // See the note in MessageList: this list's local state -- Virtuoso's scroll offset above all
+        // -- is scoped to whatever it is showing, a thread's replies or a channel's messages.
+        key={getMessageSourceKey({ channel, thread })}
+        // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
+        // hasMore={!!hasMore}
+        // hasMoreNewer={!!hasMoreNewer}
+        // jumpToLatestMessage={jumpToLatestMessage}
+        // loadingMore={!!loadingMore}
+        // loadingMoreNewer={!!loadingMoreNewer}
+        // loadMore={loadMore}
+        // loadMoreNewer={loadMoreNewer}
+        messages={messages}
+        read={read}
+        {...props}
+      />
+      <NotificationList panel={notificationTarget} />
+    </MessageListMainPanel>
   );
 }

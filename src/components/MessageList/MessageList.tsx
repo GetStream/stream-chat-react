@@ -119,10 +119,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   const {
     EmptyStateIndicator = DefaultEmptyStateIndicator,
     LoadingIndicator = DefaultLoadingIndicator,
-    MessageListMainPanel = DefaultMessageListMainPanel,
     MessageListWrapper = 'ul',
     NewMessageNotification = DefaultNewMessageNotification,
-    NotificationList = DefaultNotificationList,
     TypingIndicator = DefaultTypingIndicator,
     UnreadMessagesNotification = DefaultUnreadMessagesNotification,
   } = useComponentContext();
@@ -169,8 +167,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     isMessageListScrolledToBottom,
     messageListIsThread: isThreadList,
   });
-
-  const notificationTarget = useNotificationTarget();
 
   useIncomingMessageAnnouncements({
     activeThreadId: thread?.id,
@@ -355,14 +351,11 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       }}
     >
       <MessageTranslationViewProvider>
-        <MessageListMainPanel>
-          <DialogManagerProvider id={dialogManagerId}>
-            {!isThreadList && showUnreadMessagesNotification && (
-              <UnreadMessagesNotification
-                unreadCount={channelUnreadUiState?.unreadCount}
-              />
-            )}
-            {/*todo: apply styles
+        <DialogManagerProvider id={dialogManagerId}>
+          {!isThreadList && showUnreadMessagesNotification && (
+            <UnreadMessagesNotification unreadCount={channelUnreadUiState?.unreadCount} />
+          )}
+          {/*todo: apply styles
             .str-chat__list {
               overflow-y: hidden;
             }
@@ -371,71 +364,67 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
               height: 100%;
             }
             */}
-            <FloatingDateSeparator
-              listElement={listElement}
-              processedMessages={enrichedMessages}
-              withDateSeparator={withDateSeparator}
-            />
-            <div
-              className={clsx(messageListClass, customClasses?.threadList)}
-              onScroll={onScroll}
-              ref={setListElement}
-              tabIndex={0}
-            >
-              {showEmptyStateIndicator ? (
-                <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
-              ) : (
-                <InfiniteScrollPaginator
-                  className='str-chat__message-list-scroll'
-                  data-testid='reverse-infinite-scroll'
-                  element={internalListElement}
-                  loadNextOnScrollToBottom={
-                    canPaginateReplies ? messagePaginator.toHead : undefined
-                  }
-                  loadNextOnScrollToTop={
-                    canPaginateReplies ? loadOlderMessages : undefined
-                  }
-                  onScroll={onScroll}
-                  ref={setListElement}
-                  threshold={loadMoreScrollThreshold}
-                  {...restInternalInfiniteScrollProps}
-                >
-                  {threadHead}
-                  {isLoading && (
-                    <div className='str-chat__list__loading' key='loading-indicator'>
-                      {props.loadingMore && <LoadingIndicator />}
-                    </div>
-                  )}
-                  <MessageListWrapper className='str-chat__ul'>
-                    {elements}
-                  </MessageListWrapper>
-                  <TypingIndicator
-                    isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                    scrollToBottom={scrollToBottom}
-                  />
-
-                  <div key='bottom' />
-                </InfiniteScrollPaginator>
-              )}
-              <NewMessageNotification
-                newMessageCount={channelUnreadUiState?.unreadCount}
-                showNotification={
-                  (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
+          <FloatingDateSeparator
+            listElement={listElement}
+            processedMessages={enrichedMessages}
+            withDateSeparator={withDateSeparator}
+          />
+          <div
+            className={clsx(messageListClass, customClasses?.threadList)}
+            onScroll={onScroll}
+            ref={setListElement}
+            tabIndex={0}
+          >
+            {showEmptyStateIndicator ? (
+              <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
+            ) : (
+              <InfiniteScrollPaginator
+                className='str-chat__message-list-scroll'
+                data-testid='reverse-infinite-scroll'
+                element={internalListElement}
+                loadNextOnScrollToBottom={
+                  canPaginateReplies ? messagePaginator.toHead : undefined
                 }
-              />
-              {/* An empty list has nothing to jump to — see the matching gate in
-                  VirtualizedMessageList. */}
-              {messages.length > 0 && (
-                <ScrollToLatestMessageButton
+                loadNextOnScrollToTop={canPaginateReplies ? loadOlderMessages : undefined}
+                onScroll={onScroll}
+                ref={setListElement}
+                threshold={loadMoreScrollThreshold}
+                {...restInternalInfiniteScrollProps}
+              >
+                {threadHead}
+                {isLoading && (
+                  <div className='str-chat__list__loading' key='loading-indicator'>
+                    {props.loadingMore && <LoadingIndicator />}
+                  </div>
+                )}
+                <MessageListWrapper className='str-chat__ul'>
+                  {elements}
+                </MessageListWrapper>
+                <TypingIndicator
                   isMessageListScrolledToBottom={isMessageListScrolledToBottom}
-                  isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
-                  onClick={scrollToBottomFromNotification}
+                  scrollToBottom={scrollToBottom}
                 />
-              )}
-            </div>
-          </DialogManagerProvider>
-          <NotificationList panel={notificationTarget} />
-        </MessageListMainPanel>
+
+                <div key='bottom' />
+              </InfiniteScrollPaginator>
+            )}
+            <NewMessageNotification
+              newMessageCount={channelUnreadUiState?.unreadCount}
+              showNotification={
+                (hasNewMessages || hasMoreNewer) && !isMessageListScrolledToBottom
+              }
+            />
+            {/* An empty list has nothing to jump to — see the matching gate in
+                  VirtualizedMessageList. */}
+            {messages.length > 0 && (
+              <ScrollToLatestMessageButton
+                isMessageListScrolledToBottom={isMessageListScrolledToBottom}
+                isNotAtLatestMessageSet={hasMoreNewer && messages.length > 0}
+                onClick={scrollToBottomFromNotification}
+              />
+            )}
+          </div>
+        </DialogManagerProvider>
       </MessageTranslationViewProvider>
     </MessageListContextProvider>
   );
@@ -546,12 +535,24 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
 export const MessageList = (props: MessageListProps) => {
   const channel = useChannel();
   const thread = useThreadContext();
+  const notificationTarget = useNotificationTarget();
+  const {
+    MessageListMainPanel = DefaultMessageListMainPanel,
+    NotificationList = DefaultNotificationList,
+  } = useComponentContext();
 
-  // Scroll position and the rest of this list's local state belong to whatever it is showing -- a
-  // thread's replies or a channel's messages -- so a different one starts from scratch. `Channel`
-  // and `Thread` used to provide this reset by remounting their entire subtree; it belongs here,
-  // where the state actually lives.
+  // The panel and the notification area sit *above* the key on purpose.
+  //
+  // Scroll position and the rest of the list's local state belong to whatever it is showing -- a
+  // thread's replies or a channel's messages -- so a different one starts from scratch. A
+  // notification does not: it reports something the user just did, and its countdown and entry
+  // animation have to outlive the switch. Rendering it here keeps the element, its timer and the
+  // panel box it is positioned against whole, without anything having to move.
+  // See specs/notification-list-stable-host/spec.md.
   return (
-    <MessageListWithContext {...props} key={getMessageSourceKey({ channel, thread })} />
+    <MessageListMainPanel>
+      <MessageListWithContext {...props} key={getMessageSourceKey({ channel, thread })} />
+      <NotificationList panel={notificationTarget} />
+    </MessageListMainPanel>
   );
 };
