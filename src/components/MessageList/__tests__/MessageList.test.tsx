@@ -19,6 +19,8 @@ import {
 import { Chat } from '../../Chat';
 import { MessageList } from '../MessageList';
 import { Channel } from '../../Channel';
+import { CHANNEL_CONTAINER_ID } from '../../Channel/constants';
+import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../MessageListMainPanel';
 import { ThreadProvider } from '../../Threads';
 import { useChannel, useMessageContext, WithComponents } from '../../../context';
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
@@ -1781,6 +1783,219 @@ describe('MessageList', () => {
         expect(item.dataset.index).toBeDefined();
         expect(screen.queryByText(message1.text)).toBeInTheDocument();
       });
+    });
+  });
+});
+
+// The notification area is rendered here, above `MessageList`'s own
+// `key={getMessageSourceKey(...)}`. A channel or thread switch rebuilds the list inside that key
+// without touching the notification, which keeps its element, its countdown and the panel box it
+// is positioned against. See specs/notification-list-stable-host/spec.md
+describe('MessageList notification area', () => {
+  const NOTIFICATION_DURATION = 3000;
+
+  const renderChannel = (client: StreamChat, channel: ChannelType) => (
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <MessageList />
+      </Channel>
+    </Chat>
+  );
+
+  const currentPanel = () =>
+    document.querySelector(`.${MESSAGE_LIST_MAIN_PANEL_CLASS.split(' ').join('.')}`);
+
+  const advanceBy = (ms: number) =>
+    act(async () => {
+      vi.advanceTimersByTime(ms);
+      await Promise.resolve();
+    });
+
+  // `NotificationList` starts a notification's countdown when the list intersects the viewport, and
+  // starts it immediately where there is no `IntersectionObserver` -- the path these tests take,
+  // since jsdom reports no intersections. An earlier describe in this file installs a stub on
+  // `window` without restoring it, so drop it here rather than inheriting one that never fires.
+  let inheritedIntersectionObserver: typeof IntersectionObserver | undefined;
+
+  beforeEach(() => {
+    inheritedIntersectionObserver = window.IntersectionObserver;
+    // @ts-expect-error deliberately absent for these tests
+    delete window.IntersectionObserver;
+  });
+
+  afterEach(() => {
+    if (inheritedIntersectionObserver) {
+      window.IntersectionObserver = inheritedIntersectionObserver;
+    }
+  });
+
+  // https://github.com/GetStream/stream-chat-react/issues/3279
+  describe('the notification area across a channel switch', () => {
+    const setup = async () => {
+      const {
+        channels: [channelA, channelB],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          { channel: { id: 'channel-a', type: 'messaging' } },
+          { channel: { id: 'channel-b', type: 'messaging' } },
+        ],
+      });
+
+      return { channelA, channelB, client };
+    };
+
+    const raiseUploadBlocked = (client: StreamChat) =>
+      act(() => {
+        client.notifications.addError({
+          message: 'The attachment upload was blocked',
+          options: { type: 'validation:attachment:upload:blocked' },
+          origin: { emitter: 'AttachmentManager' },
+        });
+      });
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('keeps the very same element, so nothing is remounted or re-animated', async () => {
+      const { channelA, channelB, client } = await setup();
+
+      const { rerender } = render(renderChannel(client, channelA));
+      raiseUploadBlocked(client);
+      const before = screen.getByTestId('notification-list');
+
+      rerender(renderChannel(client, channelB));
+
+      expect(screen.getByTestId('notification-list')).toBe(before);
+    });
+
+    it('moves into the newly mounted message list, keeping its positioning', async () => {
+      const { channelA, channelB, client } = await setup();
+
+      const { rerender } = render(renderChannel(client, channelA));
+      raiseUploadBlocked(client);
+
+      rerender(renderChannel(client, channelB));
+
+      // Whichever panel is now on screen holds the notification, which is what keeps
+      // `position: absolute` resolving against the message list's box. Deliberately does not assert
+      // that the panel element changed: whether the channel subtree remounts is not this mechanism's
+      // business, and it should keep working if that ever stops happening.
+      expect(currentPanel()).toContainElement(screen.getByTestId('notification-list'));
+      expect(screen.getAllByTestId('notification-list')).toHaveLength(1);
+    });
+
+    it('expires on its original schedule rather than starting over', async () => {
+      const { channelA, channelB, client } = await setup();
+
+      const { rerender } = render(renderChannel(client, channelA));
+      raiseUploadBlocked(client);
+
+      await advanceBy(NOTIFICATION_DURATION / 2);
+      rerender(renderChannel(client, channelB));
+      expect(client.notifications.notifications).toHaveLength(1);
+
+      await advanceBy(NOTIFICATION_DURATION / 2);
+
+      expect(client.notifications.notifications).toHaveLength(0);
+    });
+
+    it('survives no longer than its duration however many channels the user opens', async () => {
+      const { channelA, channelB, client } = await setup();
+
+      const { rerender } = render(renderChannel(client, channelA));
+      raiseUploadBlocked(client);
+
+      for (let i = 0; i < 5; i++) {
+        await advanceBy(NOTIFICATION_DURATION / 3);
+        rerender(renderChannel(client, i % 2 === 0 ? channelB : channelA));
+      }
+
+      expect(client.notifications.notifications).toHaveLength(0);
+    });
+
+    it('still displays a notification raised after the switch', async () => {
+      const { channelA, channelB, client } = await setup();
+
+      const { rerender } = render(renderChannel(client, channelA));
+      rerender(renderChannel(client, channelB));
+      raiseUploadBlocked(client);
+
+      expect(screen.getByTestId('notification-list')).toBeInTheDocument();
+      expect(currentPanel()).toContainElement(screen.getByTestId('notification-list'));
+    });
+  });
+
+  // The notification area belongs to the message list, so it exists exactly when one is mounted --
+  // as it did before this change. These pin that boundary: a switch does not lose it, and a channel
+  // that never had a list does not gain one.
+  describe('the notification area and the message list that owns it', () => {
+    const setup = async () => {
+      const {
+        channels: [channelA, channelB],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          { channel: { id: 'channel-a', type: 'messaging' } },
+          { channel: { id: 'channel-b', type: 'messaging' } },
+        ],
+      });
+
+      return { channelA, channelB, client };
+    };
+
+    const raise = (client: StreamChat) =>
+      act(() => {
+        client.notifications.addError({
+          message: 'The attachment upload was blocked',
+          options: { type: 'validation:attachment:upload:blocked' },
+          origin: { emitter: 'AttachmentManager' },
+        });
+      });
+
+    const container = () => document.getElementById(CHANNEL_CONTAINER_ID);
+
+    const renderWithList = (
+      client: StreamChat,
+      channel: ChannelType,
+      withList: boolean,
+    ) => (
+      <Chat client={client}>
+        <Channel channel={channel}>{withList ? <MessageList /> : <div />}</Channel>
+      </Chat>
+    );
+
+    it('stays on screen when the channel being opened is still bootstrapping', async () => {
+      const { channelA, client } = await setup();
+      // Never watched: `Channel` renders it without querying, so the switch commits immediately.
+      const bootstrapping = client.channel('messaging', 'never-watched');
+
+      const { rerender } = render(renderChannel(client, channelA));
+      raise(client);
+      const node = screen.getByTestId('notification-list');
+
+      rerender(renderChannel(client, bootstrapping));
+
+      expect(bootstrapping.initialized).toBe(false);
+      expect(node.isConnected).toBe(true);
+      expect(container()).toContainElement(node);
+    });
+
+    it('displays nothing for a panel that has never been mounted, as before', async () => {
+      const { channelA, client } = await setup();
+
+      render(renderWithList(client, channelA, false));
+      raise(client);
+
+      // No message list has ever existed here, so there is no panel wrapper for the fallback to
+      // catch. Unchanged from before this mechanism: nothing rendered a notification either.
+      expect(screen.queryByTestId('notification-list')).not.toBeInTheDocument();
+      expect(client.notifications.notifications).toHaveLength(1);
     });
   });
 });

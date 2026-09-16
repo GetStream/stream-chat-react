@@ -45,6 +45,20 @@ const multiTaggedNotification = (tags: string[]) =>
     tags,
   }) as Notification;
 
+const composerNotification = (contextType?: unknown) =>
+  ({
+    createdAt: Date.now(),
+    id: 'n1',
+    message: 'test',
+    origin: {
+      // `stream-chat` puts the composer that raised an upload notification here; see
+      // `AttachmentManager` and the attachment upload middleware.
+      context: { composer: { contextType } },
+      emitter: 'AttachmentManager',
+    },
+    severity: 'error',
+  }) as Notification;
+
 describe('notificationOrigin helpers', () => {
   it('recognizes supported panel values', () => {
     expect(isNotificationTargetPanel('channel')).toBe(true);
@@ -115,5 +129,45 @@ describe('notificationOrigin helpers', () => {
     expect(isNotificationForPanel(notificationWithMultipleTargets, 'channel')).toBe(
       false,
     );
+  });
+});
+
+describe('the panel implied by the raising composer', () => {
+  it('routes a thread composer to the thread panel', () => {
+    expect(getNotificationTargetPanel(composerNotification('thread'))).toBe('thread');
+    expect(getNotificationTargetPanels(composerNotification('thread'))).toEqual([
+      'thread',
+    ]);
+  });
+
+  it('routes a channel composer to the channel panel', () => {
+    expect(getNotificationTargetPanel(composerNotification('channel'))).toBe('channel');
+  });
+
+  it('implies no panel for a composition context that has none', () => {
+    // `message` and `legacy_thread` are composition contexts without a surface of their own.
+    expect(getNotificationTargetPanel(composerNotification('message'))).toBeUndefined();
+    expect(getNotificationTargetPanel(composerNotification(undefined))).toBeUndefined();
+    expect(getNotificationTargetPanels(composerNotification('message'))).toEqual([]);
+  });
+
+  it('is outranked by an explicit target', () => {
+    const explicit = {
+      ...composerNotification('thread'),
+      tags: ['target:channel'],
+    } as Notification;
+
+    expect(getNotificationTargetPanel(explicit)).toBe('channel');
+  });
+
+  it('makes a composer-raised notification targeted, so it ignores a fallback panel', () => {
+    // Worth pinning: before the composer was carried, this notification was untargeted and any
+    // list claimed it through its `fallbackPanel`. It now belongs to one panel.
+    const raisedInThread = composerNotification('thread');
+
+    expect(isNotificationForPanel(raisedInThread, 'thread')).toBe(true);
+    expect(
+      isNotificationForPanel(raisedInThread, 'channel', { fallbackPanel: 'channel' }),
+    ).toBe(false);
   });
 });

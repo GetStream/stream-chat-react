@@ -15,7 +15,6 @@ import { Channel } from '../Channel';
 import { CHANNEL_CONTAINER_ID } from '../constants';
 import { Chat } from '../../Chat';
 import { MessageList } from '../../MessageList';
-import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageList/MessageListMainPanel';
 import { initClientWithChannels } from '../../../mock-builders';
 
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
@@ -29,8 +28,10 @@ const renderChannel = (client: StreamChat, channel: ChannelType) => (
 );
 
 const channelContainer = () => document.getElementById(CHANNEL_CONTAINER_ID);
-const messageListPanel = () =>
-  document.querySelector(`.${MESSAGE_LIST_MAIN_PANEL_CLASS.split(' ').join('.')}`);
+// The list element, not the panel: the panel is rendered above the message list's key so the
+// notification area it holds survives a switch, which makes it a poor witness to the rebuild. This
+// one is inside the key, and it is what carries the scroll state the key exists to reset.
+const messageListElement = () => document.querySelector('.str-chat__message-list');
 
 const setupTwo = () =>
   initClientWithChannels({
@@ -65,11 +66,11 @@ describe('switching channels', () => {
     } = await setupTwo();
 
     const { rerender } = render(renderChannel(client, channelA));
-    const panelBefore = messageListPanel();
+    const listBefore = messageListElement();
 
     rerender(renderChannel(client, channelB));
 
-    expect(messageListPanel()).not.toBe(panelBefore);
+    expect(messageListElement()).not.toBe(listBefore);
   });
 
   it('keeps the message list intact when the same channel re-renders', async () => {
@@ -79,11 +80,11 @@ describe('switching channels', () => {
     } = await setupTwo();
 
     const { rerender } = render(renderChannel(client, channelA));
-    const panelBefore = messageListPanel();
+    const listBefore = messageListElement();
 
     rerender(renderChannel(client, channelA));
 
-    expect(messageListPanel()).toBe(panelBefore);
+    expect(messageListElement()).toBe(listBefore);
   });
 
   it('rebuilds the message list for a replacement instance of the same channel', async () => {
@@ -95,10 +96,10 @@ describe('switching channels', () => {
     const second = client.channel('messaging', 'channel-a');
 
     const { rerender } = render(renderChannel(client, first));
-    const panelBefore = messageListPanel();
+    const listBefore = messageListElement();
 
     rerender(renderChannel(client, second));
 
-    await waitFor(() => expect(messageListPanel()).not.toBe(panelBefore));
+    await waitFor(() => expect(messageListElement()).not.toBe(listBefore));
   });
 });
