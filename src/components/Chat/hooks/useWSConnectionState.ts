@@ -14,7 +14,7 @@ const identity = (state: WSConnectionState) => state;
  *
  * The store is written on **every** transition, including `client.closeConnection()` — the documented
  * mobile backgrounding path — and it publishes a drop the moment it happens. If you are rendering a
- * "connection lost" banner, hold a drop for `WS_OFFLINE_ANNOUNCE_DELAY_MS` before showing it and
+ * "connection lost" banner, hold a drop for `client.wsConnection.config.offlineNotificationDisplayDelayMs` before showing it and
  * cancel it if the socket returns inside that window, which is what `<Chat>` does: the socket retries
  * on its own, and most drops resolve in well under a second.
  *

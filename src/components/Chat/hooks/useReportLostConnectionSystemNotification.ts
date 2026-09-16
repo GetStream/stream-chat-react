@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { WS_OFFLINE_ANNOUNCE_DELAY_MS } from 'stream-chat';
 import type { ConnectionType } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -30,11 +29,12 @@ import { useNotificationApi } from '../../Notifications/hooks/useNotificationApi
  *
  * **A drop is held before it is shown.** The socket retries on its own and most drops resolve in well
  * under a second, so announcing them immediately makes a working application look broken. A drop is
- * therefore held for `WS_OFFLINE_ANNOUNCE_DELAY_MS` and dropped entirely if the socket returns inside
- * that window. The client used to do this before publishing the status; it now publishes every
- * transition as it happens, and how long to wait before telling a person is a decision about copy,
- * which belongs here. The device's network is not held back — a browser reports that accurately, and
- * it does not flap the way a socket does.
+ * therefore held for `client.wsConnection.config.offlineNotificationDisplayDelayMs` and dropped
+ * entirely if the socket returns inside that window. The client used to do this before publishing the
+ * status; it now publishes every transition as it happens, and the waiting is done here — with the
+ * length of the wait left in configuration so an integrator can change it without replacing this
+ * hook, and so React Native does not pick a different number. The device's network is not held back:
+ * a browser reports that accurately, and it does not flap the way a socket does.
  */
 export const useReportLostConnectionSystemNotification = () => {
   const { t } = useTranslationContext();
@@ -169,7 +169,9 @@ export const useReportLostConnectionSystemNotification = () => {
           heldDropRef.current = null;
           socketOnlineRef.current = false;
           sync();
-        }, WS_OFFLINE_ANNOUNCE_DELAY_MS);
+          // Read when the drop happens rather than captured, so a change to it reaches the next
+          // drop without this effect being re-established.
+        }, client.wsConnection.config.offlineNotificationDisplayDelayMs);
       },
     );
 

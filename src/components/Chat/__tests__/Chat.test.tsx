@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { OwnUserResponse, StreamChat } from 'stream-chat';
-import { ChannelPaginator, WS_OFFLINE_ANNOUNCE_DELAY_MS } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -383,12 +383,16 @@ describe('Chat', () => {
      * be worth telling a person about is the banner's job, so a test that wants the banner has to
      * let that window pass.
      */
+    /** How long the banner sits on a drop, which is configuration rather than a fixed number. */
+    const holdWindow = (client: StreamChat) =>
+      client.wsConnection.config.offlineNotificationDisplayDelayMs;
+
     const dropSocket = (client: StreamChat) => {
       vi.useFakeTimers();
       try {
         act(() => setWSConnectionStatus(client, false));
         act(() => {
-          vi.advanceTimersByTime(WS_OFFLINE_ANNOUNCE_DELAY_MS);
+          vi.advanceTimersByTime(holdWindow(client));
         });
       } finally {
         vi.useRealTimers();
@@ -519,6 +523,33 @@ describe('Chat', () => {
       await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(0));
     });
 
+    it('respects a configured hold window', async () => {
+      // The wait is configuration rather than a fixed number, so an integrator can shorten it, or
+      // switch it off with zero, without replacing the hook.
+      const client = await getTestClientWithUser();
+      client.config.set({
+        client: { wsConnection: { offlineNotificationDisplayDelayMs: 0 } },
+      });
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(0);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+
+      expect(chatNotificationsOf(client)).toHaveLength(1);
+      expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
+    });
+
     it('shows nothing for a drop the socket recovers from inside the window', async () => {
       // The reason the banner holds a drop at all. The socket retries on its own and most drops
       // resolve in well under a second; announcing those makes a working application look broken.
@@ -533,7 +564,7 @@ describe('Chat', () => {
       try {
         act(() => setWSConnectionStatus(client, false));
         act(() => {
-          vi.advanceTimersByTime(WS_OFFLINE_ANNOUNCE_DELAY_MS - 1);
+          vi.advanceTimersByTime(holdWindow(client) - 1);
         });
         // Nothing yet, and nothing later either: coming back cancels the held drop rather than
         // showing it and then removing it.
@@ -541,7 +572,7 @@ describe('Chat', () => {
 
         act(() => setWSConnectionStatus(client, true));
         act(() => {
-          vi.advanceTimersByTime(WS_OFFLINE_ANNOUNCE_DELAY_MS * 2);
+          vi.advanceTimersByTime(holdWindow(client) * 2);
         });
       } finally {
         vi.useRealTimers();

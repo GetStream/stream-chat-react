@@ -20,7 +20,7 @@ import './ConnectionDevPanel.scss';
  * flip back by itself.
  *
  * Taking the socket down therefore takes five seconds to reach the banner, because `<Chat>` holds a
- * drop for `WS_OFFLINE_ANNOUNCE_DELAY_MS` before showing it. The label below flips at once.
+ * drop for `offlineNotificationDisplayDelayMs` before showing it. The label below flips at once.
  *
  * For the genuine path, close the socket from the console instead:
  *

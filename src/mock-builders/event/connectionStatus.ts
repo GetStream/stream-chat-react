@@ -11,8 +11,9 @@ import type { StreamChat } from 'stream-chat';
  * `no-underscore-dangle` rightly rejects. The timestamps are stamped too, since a status without one
  * is a state the real socket never produces.
  *
- * Anything reading this through the `<Chat>` banner holds a drop for `WS_OFFLINE_ANNOUNCE_DELAY_MS`
- * before showing it, so a test asserting on that banner has to advance timers.
+ * Anything reading this through the `<Chat>` banner holds a drop for
+ * `client.wsConnection.config.offlineNotificationDisplayDelayMs` before showing it, so a test
+ * asserting on that banner has to advance timers.
  */
 export const setWSConnectionStatus = (
   client: StreamChat,

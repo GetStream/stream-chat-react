@@ -51,7 +51,9 @@
   background: rgba(255, 255, 255, 0.72);
   color: #0f172a;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .tutorial-browser__step-button--active {
