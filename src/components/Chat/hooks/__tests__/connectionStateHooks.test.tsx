@@ -1,27 +1,31 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { NetworkStatusListenerRegistrar, StreamChat } from 'stream-chat';
+import type { NetworkStatusReporter, StreamChat } from 'stream-chat';
 
 import { Chat } from '../../Chat';
 import { useNetworkConnectionState } from '../useNetworkConnectionState';
 import { useNetworkConnectionStateSelector } from '../useNetworkConnectionState';
 import { useWSConnectionState } from '../useWSConnectionState';
-import { getTestClientWithUser } from '../../../../mock-builders';
+import {
+  getTestClient,
+  getTestClientWithUser,
+  setWSConnectionStatus,
+} from '../../../../mock-builders';
 
 /** An integrator's registration function, of the shape a platform API would be wrapped in. */
 const platformListener = () => {
   let report: ((isOnline: boolean) => void) | undefined;
-  const registrar: NetworkStatusListenerRegistrar = (onStatusChange) => {
+  const reporter: NetworkStatusReporter = (onStatusChange) => {
     report = onStatusChange;
     return vi.fn();
   };
   return {
-    registrar,
     report: (isOnline: boolean) => {
-      if (!report) throw new Error('the registrar was never installed');
+      if (!report) throw new Error('the reporter was never installed');
       act(() => report?.(isOnline));
     },
+    reporter,
   };
 };
 
@@ -35,7 +39,7 @@ describe('connection state hooks', () => {
 
   describe('useNetworkConnectionState', () => {
     it('starts online in jsdom, because jsdom is a browser', async () => {
-      // Worth stating explicitly: the SDK installs its built-in browser registrar whenever
+      // Worth stating explicitly: the SDK installs its built-in browser reporter whenever
       // `window.addEventListener` exists and `navigator.onLine` is a boolean — which is true in
       // jsdom. So a React test starts with a *known* status, not an unknown one, and the
       // `undefined` case has to be arranged deliberately (see the next test).
@@ -50,12 +54,14 @@ describe('connection state hooks', () => {
       expect(screen.getByTestId('v')).toHaveTextContent('true');
     });
 
-    it('surfaces isOnline === undefined as-is where no registrar can be installed', async () => {
-      // The React Native shape: `navigator` has no boolean `onLine`, so no default registrar is
-      // installed and the status stays unknown. Stubbed before the client is constructed, because
-      // the registrar installs and reports during construction.
+    it('surfaces isOnline === undefined as-is until something has reported', () => {
+      // The React Native shape: `navigator` has no boolean `onLine`, so the browser reporter cannot
+      // be installed and the socket-derived stand-in takes over. That one reports nothing until the
+      // socket has been up once, so a client that has never connected is honestly unknown rather
+      // than coerced to either answer. Stubbed before the client is constructed, because a reporter
+      // installs and reports during construction.
       vi.stubGlobal('navigator', { userAgent: 'ReactNative' });
-      const client = await getTestClientWithUser({ id: 'me' });
+      const client = getTestClient();
       const Consumer = () => {
         const state = useNetworkConnectionState();
         return <div data-testid='v'>{JSON.stringify(state?.isOnline ?? 'unknown')}</div>;
@@ -68,11 +74,33 @@ describe('connection state hooks', () => {
       vi.unstubAllGlobals();
     });
 
-    it('re-renders when the registrar reports a change', async () => {
+    it('follows the socket where no platform reporter can be installed', async () => {
+      // What an integration that forgets to install one now gets: coarse rather than absent. The
+      // two facts cannot disagree under the stand-in, which is exactly why a real reporter is still
+      // worth installing.
+      vi.stubGlobal('navigator', { userAgent: 'ReactNative' });
+      const client = await getTestClientWithUser({ id: 'me' });
+      const Consumer = () => {
+        const state = useNetworkConnectionState();
+        return <div data-testid='v'>{String(state?.isOnline)}</div>;
+      };
+
+      renderUnderChat(client, <Consumer />);
+
+      // The fixture marks the socket up, and the stand-in reports that as the device's status.
+      expect(screen.getByTestId('v')).toHaveTextContent('true');
+
+      act(() => setWSConnectionStatus(client, false));
+
+      expect(screen.getByTestId('v')).toHaveTextContent('false');
+      vi.unstubAllGlobals();
+    });
+
+    it('re-renders when the reporter reports a change', async () => {
       const client = await getTestClientWithUser({ id: 'me' });
       const platform = platformListener();
       client.config.set({
-        client: { networkConnection: { statusListenerRegistrar: platform.registrar } },
+        client: { networkConnection: { statusReporter: platform.reporter } },
       });
       const Consumer = () => {
         const state = useNetworkConnectionState();
@@ -80,8 +108,8 @@ describe('connection state hooks', () => {
       };
 
       renderUnderChat(client, <Consumer />);
-      // Replacing the registrar does not reset the last known status — an edge is not a state — so
-      // this starts from what the browser registrar already reported.
+      // Replacing the reporter does not reset the last known status — an edge is not a state — so
+      // this starts from what the browser reporter already reported.
       expect(screen.getByTestId('v')).toHaveTextContent('true');
 
       platform.report(false);
@@ -97,7 +125,7 @@ describe('connection state hooks', () => {
       const client = await getTestClientWithUser({ id: 'me' });
       const platform = platformListener();
       client.config.set({
-        client: { networkConnection: { statusListenerRegistrar: platform.registrar } },
+        client: { networkConnection: { statusReporter: platform.reporter } },
       });
       const renders = vi.fn();
       const Consumer = () => {
@@ -112,7 +140,7 @@ describe('connection state hooks', () => {
       renderUnderChat(client, <Consumer />);
       const initial = renders.mock.calls.length;
 
-      // `false` is a real change from the browser registrar's initial `true`.
+      // `false` is a real change from the browser reporter's initial `true`.
       platform.report(false);
       expect(renders.mock.calls.length).toBeGreaterThan(initial);
       const afterChange = renders.mock.calls.length;
@@ -129,7 +157,7 @@ describe('connection state hooks', () => {
       const client = await getTestClientWithUser({ id: 'me' });
       const platform = platformListener();
       client.config.set({
-        client: { networkConnection: { statusListenerRegistrar: platform.registrar } },
+        client: { networkConnection: { statusReporter: platform.reporter } },
       });
       const Consumer = () => {
         // Aliased deliberately: both stores expose `isOnline`, so a blind destructure of both

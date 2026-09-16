@@ -12,17 +12,16 @@ const identity = (state: WSConnectionState) => state;
  * Not the device's network: see {@link useNetworkConnectionState}. Use this for "reconnecting…", for
  * disabling a composer, or for anything that needs the realtime connection specifically.
  *
- * Two things worth knowing about the underlying store:
+ * The store is written on **every** transition, including `client.closeConnection()` — the documented
+ * mobile backgrounding path — and it publishes a drop the moment it happens. If you are rendering a
+ * "connection lost" banner, hold a drop for `WS_OFFLINE_ANNOUNCE_DELAY_MS` before showing it and
+ * cancel it if the socket returns inside that window, which is what `<Chat>` does: the socket retries
+ * on its own, and most drops resolve in well under a second.
  *
- * - It reports transitions the `connection.changed` event does not. That event is not dispatched by
- *   `client.closeConnection()` — the documented mobile backgrounding path — nor by two internal error
- *   paths, while this store is written on every transition.
- * - It publishes a drop immediately, where the event waits five seconds to avoid strobing a
- *   "connection lost" banner on a brief flap.
- *
- * `connectionId` is assigned on a successful connect and **never cleared**, so a value there means
- * "connected at some point", not "connected now" — read `isOnline` for that. Unlike the network
- * store's, this `isOnline` is always a boolean.
+ * `connectionId` names the live connection: assigned when the socket announces itself, cleared when it
+ * drops, because the server rejects a request carrying an id it has already closed. For "has this
+ * client ever connected", read `lastOnlineAt`. Unlike the network store's, this `isOnline` is always a
+ * boolean.
  *
  * Must run under `ChatProvider`, e.g. from a child of `<Chat>`.
  */

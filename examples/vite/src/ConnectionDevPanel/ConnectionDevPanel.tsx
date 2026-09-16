@@ -14,17 +14,15 @@ import './ConnectionDevPanel.scss';
  * a live network — a server close, an expired token, a health-check timeout — because that is the case
  * the banner used to describe as "Waiting for network…".
  *
- * **Both toggles simulate rather than sever.** The socket one writes
- * `client.wsConnection.state` *and* dispatches `connection.changed`, which is what the real socket
- * does — the store carries the raw state, the event is the announcement. Closing the real socket is
- * no good for a toggle: `StableWSConnection` reconnects on its own within a second or two, so it
- * would flip back by itself, and the one thing that does hold — `client.closeConnection()` —
- * deliberately dispatches no event, so no banner appears.
+ * **Both toggles simulate rather than sever.** The socket one writes `client.wsConnection.state`,
+ * which is what the real socket does and what every consumer reads. Closing the real socket is no
+ * good for a toggle: `StableWSConnection` reconnects on its own within a second or two, so it would
+ * flip back by itself.
  *
- * The one thing this cannot show is the five-second delay the real event carries on the way down.
+ * Taking the socket down therefore takes five seconds to reach the banner, because `<Chat>` holds a
+ * drop for `WS_OFFLINE_ANNOUNCE_DELAY_MS` before showing it. The label below flips at once.
  *
- * For the genuine path, including the five-second announce delay on the way down, close the socket
- * from the console instead:
+ * For the genuine path, close the socket from the console instead:
  *
  * ```js
  * client.wsConnection.connection.ws.close()
@@ -47,7 +45,7 @@ export const ConnectionDevPanel = () => {
       <button
         aria-checked={networkOnline === false}
         className='connection-dev-panel__toggle'
-        // `=== false`, never `!networkOnline`: `undefined` means no registrar has reported, and
+        // `=== false`, never `!networkOnline`: `undefined` means no reporter has reported, and
         // unknown must not render as offline.
         data-state={String(networkOnline)}
         onClick={() => client.networkConnection.setStatus(networkOnline === false)}
@@ -67,20 +65,17 @@ export const ConnectionDevPanel = () => {
         data-state={String(socketOnline)}
         onClick={() => {
           const online = !socketOnline;
-          // Both channels, because the socket writes both and they carry different things: the
-          // store is the raw state (what this button reads, and what `isOnline` getters answer
-          // from), while the event is the announcement the banner listens to. Writing only the
-          // event left the store — and so this label — stuck on its old value, which is why the
-          // toggle could not be switched back.
-          client.wsConnection.state.partialNext({
-            isOnline: online,
-            ...(online ? { lastOnlineAt: new Date() } : { lastOfflineAt: new Date() }),
-          });
-          client.dispatchEvent({
-            connection: 'ws',
-            online,
-            type: 'connection.changed',
-          });
+          // The store is the whole interface now — one write, which every consumer sees. This used
+          // to write the store *and* dispatch an event, because the two carried different things.
+          client.wsConnection.state.partialNext(
+            online
+              ? {
+                  connectionId: 'dev-panel-connection',
+                  isOnline: online,
+                  lastOnlineAt: new Date(),
+                }
+              : { connectionId: undefined, isOnline: online, lastOfflineAt: new Date() },
+          );
         }}
         role='switch'
         title={`client.wsConnection — this client's socket. connection id: ${String(connectionId)}`}

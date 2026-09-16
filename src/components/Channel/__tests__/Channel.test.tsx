@@ -28,7 +28,6 @@ import { useStateStore } from '../../../store';
 import type { GenerateChannelOptions } from '../../../mock-builders';
 import {
   dispatchChannelTruncatedEvent,
-  dispatchConnectionChangedEvent,
   dispatchConnectionRecoveredEvent,
   erroredPostApi,
   generateChannel,
@@ -39,6 +38,7 @@ import {
   getTestClientWithUser,
   initClientWithChannels,
   sendMessageApi,
+  setWSConnectionStatus,
   useMockedApis,
 } from '../../../mock-builders';
 import { WithComponents } from '../../../context';
@@ -419,10 +419,12 @@ describe('Channel', () => {
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
       chatClient.connectionRecovery.registerSubscriptions();
 
-      // A whole reconnect, driven from the socket coming back rather than by dispatching the
-      // recovery event directly — that is what exercises both would-be reloaders.
+      // A whole reconnect, driven from the socket's status store rather than by dispatching the
+      // recovery event directly — that is what exercises both would-be reloaders. Down first,
+      // because recovery ignores a first connect: nothing was loaded to fall behind.
       await act(async () => {
-        dispatchConnectionChangedEvent(chatClient, true, 'ws');
+        setWSConnectionStatus(chatClient, false);
+        setWSConnectionStatus(chatClient, true);
         await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
@@ -478,7 +480,8 @@ describe('Channel', () => {
       chatClient.connectionRecovery.registerSubscriptions();
 
       await act(async () => {
-        dispatchConnectionChangedEvent(chatClient, true, 'ws');
+        setWSConnectionStatus(chatClient, false);
+        setWSConnectionStatus(chatClient, true);
         await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
@@ -499,7 +502,7 @@ describe('Channel', () => {
       // a re-render that reads channel state must not throw
       // (channel.lastRead() throws once the client is disconnected)
       await act(async () => {
-        dispatchConnectionChangedEvent(chatClient, false);
+        setWSConnectionStatus(chatClient, false);
         await Promise.resolve();
       });
 
@@ -522,7 +525,7 @@ describe('Channel', () => {
       channel.pendingDisposal = true;
 
       await act(async () => {
-        dispatchConnectionChangedEvent(chatClient, false);
+        setWSConnectionStatus(chatClient, false);
         await Promise.resolve();
       });
 

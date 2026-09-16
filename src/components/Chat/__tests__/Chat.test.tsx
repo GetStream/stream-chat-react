@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { OwnUserResponse } from 'stream-chat';
-import { ChannelPaginator } from 'stream-chat';
+import type { OwnUserResponse, StreamChat } from 'stream-chat';
+import { ChannelPaginator, WS_OFFLINE_ANNOUNCE_DELAY_MS } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -14,10 +14,10 @@ import { Streami18n } from '../../../i18n';
 import type { Notification } from 'stream-chat';
 import type { UserMuteResponse } from 'stream-chat';
 import {
-  dispatchConnectionChangedEvent,
   dispatchNotificationMutesUpdated,
   getTestClient,
   getTestClientWithUser,
+  setWSConnectionStatus,
 } from '../../../mock-builders';
 
 const ChatContextConsumer = ({ fn }) => {
@@ -376,6 +376,25 @@ describe('Chat', () => {
   });
 
   describe('connection notifications', () => {
+    /**
+     * Takes the socket down and waits out the window the banner holds a drop for.
+     *
+     * The client publishes every transition as it happens; deciding a drop has lasted long enough to
+     * be worth telling a person about is the banner's job, so a test that wants the banner has to
+     * let that window pass.
+     */
+    const dropSocket = (client: StreamChat) => {
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(WS_OFFLINE_ANNOUNCE_DELAY_MS);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+    };
+
     it('keeps the notification when the socket drops before i18n has initialized', async () => {
       // The regression. `Streami18n.init()` is asynchronous and `t` changes identity when it
       // resolves. With `t` in the effect's dependencies, a drop during that window published the
@@ -393,7 +412,7 @@ describe('Chat', () => {
         );
 
       // Deliberately not awaiting anything first — the drop lands inside the init window.
-      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      dropSocket(client);
       expect(chatNotifications()).toHaveLength(1);
 
       // Long enough for `init()` to resolve and `t` to be replaced.
@@ -422,10 +441,10 @@ describe('Chat', () => {
           <div data-testid='children' />
         </Chat>,
       );
-      // jsdom is a browser, so the built-in registrar has already reported the network as up.
+      // jsdom is a browser, so the built-in reporter has already reported the network as up.
       expect(client.networkConnection.isOnline).toBe(true);
 
-      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      dropSocket(client);
 
       await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
       expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
@@ -454,7 +473,7 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      dropSocket(client);
       await waitFor(() =>
         expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…'),
       );
@@ -492,19 +511,17 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      act(() => dispatchConnectionChangedEvent(client, false, 'ws'));
+      dropSocket(client);
       await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
 
-      act(() => dispatchConnectionChangedEvent(client, true, 'ws'));
+      act(() => setWSConnectionStatus(client, true));
 
       await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(0));
     });
 
-    it('takes the socket from the debounced event, not from the raw store', async () => {
-      // The going-offline delay lives on `connection.changed`: it is held for five seconds and
-      // dropped entirely if the socket returns inside that window, which is what stops a brief flap
-      // strobing the banner. `client.wsConnection.state` publishes the raw edge instead, so reading
-      // the socket from there would lose the anti-flicker.
+    it('shows nothing for a drop the socket recovers from inside the window', async () => {
+      // The reason the banner holds a drop at all. The socket retries on its own and most drops
+      // resolve in well under a second; announcing those makes a working application look broken.
       const client = await getTestClientWithUser();
       render(
         <Chat client={client}>
@@ -512,10 +529,23 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      act(() => client.wsConnection.state.partialNext({ isOnline: false }));
-      await act(async () => {
-        await Promise.resolve();
-      });
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(WS_OFFLINE_ANNOUNCE_DELAY_MS - 1);
+        });
+        // Nothing yet, and nothing later either: coming back cancels the held drop rather than
+        // showing it and then removing it.
+        expect(chatNotificationsOf(client)).toHaveLength(0);
+
+        act(() => setWSConnectionStatus(client, true));
+        act(() => {
+          vi.advanceTimersByTime(WS_OFFLINE_ANNOUNCE_DELAY_MS * 2);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
 
       expect(chatNotificationsOf(client)).toHaveLength(0);
     });

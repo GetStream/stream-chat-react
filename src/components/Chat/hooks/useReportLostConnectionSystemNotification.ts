@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { WS_OFFLINE_ANNOUNCE_DELAY_MS } from 'stream-chat';
 import type { ConnectionType } from 'stream-chat';
 
 import { useChatContext } from '../../../context/ChatContext';
@@ -26,6 +27,14 @@ import { useNotificationApi } from '../../Notifications/hooks/useNotificationApi
  * Both signals are subscribed **imperatively** rather than through the `useNetworkConnectionState` /
  * `useWSConnectionState` hooks: `<Chat>` calls this, and re-rendering the whole tree on every network
  * flap is exactly what those hooks exist to let consumers avoid.
+ *
+ * **A drop is held before it is shown.** The socket retries on its own and most drops resolve in well
+ * under a second, so announcing them immediately makes a working application look broken. A drop is
+ * therefore held for `WS_OFFLINE_ANNOUNCE_DELAY_MS` and dropped entirely if the socket returns inside
+ * that window. The client used to do this before publishing the status; it now publishes every
+ * transition as it happens, and how long to wait before telling a person is a decision about copy,
+ * which belongs here. The device's network is not held back — a browser reports that accurately, and
+ * it does not flap the way a socket does.
  */
 export const useReportLostConnectionSystemNotification = () => {
   const { t } = useTranslationContext();
@@ -35,15 +44,23 @@ export const useReportLostConnectionSystemNotification = () => {
   /** Outside the effect, so re-establishing the subscriptions does not republish what is showing. */
   const reasonRef = useRef<ConnectionType | null>(null);
   /**
-   * The socket's status as last *announced*, which is not the same as `client.wsConnection.state`.
+   * The socket's status as last *shown*, which is not the same as `client.wsConnection.state`: a drop
+   * the store has already published may still be inside its holding window here.
    *
    * It lives outside the effect because the effect re-runs for unrelated reasons (`t` is replaced
-   * when `Streami18n.init()` resolves) and the store cannot be used to re-seed it: the store carries
-   * the raw edge while the event carries the debounced one, so re-reading the store on every setup
-   * would discard what the event last said. Seeded from the store once, because that is the only
-   * honest answer before any event has arrived.
+   * when `Streami18n.init()` resolves) and the store cannot be used to re-seed it, which would
+   * discard a drop still being held. Seeded from the store once, on mount, because an application
+   * that starts up with no connection should say so immediately rather than after the window.
    */
   const socketOnlineRef = useRef<boolean | null>(null);
+  /** The drop being held, so the socket returning can cancel it. */
+  const heldDropRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelHeldDrop = useCallback(() => {
+    if (heldDropRef.current === null) return;
+    clearTimeout(heldDropRef.current);
+    heldDropRef.current = null;
+  }, []);
 
   const dismissConnectionLostNotification = useCallback(() => {
     if (!notificationIdRef.current) return;
@@ -60,7 +77,13 @@ export const useReportLostConnectionSystemNotification = () => {
    * effect's cleanup, a socket dropping before init finished had its notification published and then
    * immediately removed, leaving no banner on an offline app launch or behind a captive portal.
    */
-  useEffect(() => dismissConnectionLostNotification, [dismissConnectionLostNotification]);
+  useEffect(
+    () => () => {
+      cancelHeldDrop();
+      dismissConnectionLostNotification();
+    },
+    [cancelHeldDrop, dismissConnectionLostNotification],
+  );
 
   useEffect(() => {
     if (!t || !client) return;
@@ -98,7 +121,8 @@ export const useReportLostConnectionSystemNotification = () => {
     }
 
     // `=== false` for the network, never `!networkOnline`: `undefined` means nobody has told us, and
-    // on a host with no registrar that must not read as offline. The socket's is a plain boolean.
+    // on a host whose reporter cannot answer that must not read as offline. The socket's is a plain
+    // boolean.
     let networkOnline = client.networkConnection.isOnline;
 
     const sync = () => {
@@ -115,16 +139,37 @@ export const useReportLostConnectionSystemNotification = () => {
       },
     );
 
-    // The socket half stays on the event, not on `client.wsConnection.state`, because the event is
-    // debounced by five seconds on the way down and dropped entirely if the socket returns inside
-    // that window. Subscribing to the store would publish the raw edge and strobe the banner on a
-    // brief flap.
-    const { unsubscribe: unsubscribeSocket } = client.on(
-      'connection.changed',
-      (event) => {
-        if (event.connection !== 'ws') return;
-        socketOnlineRef.current = event.online;
-        sync();
+    // `subscribeWithSelector` calls back immediately with the current value. That call is the seed
+    // above rather than a transition, and holding it would delay the banner on an application that
+    // starts up with no connection.
+    let seeded = false;
+
+    const unsubscribeSocket = client.wsConnection.state.subscribeWithSelector(
+      ({ isOnline }) => ({ isOnline }),
+      ({ isOnline }) => {
+        if (!seeded) {
+          seeded = true;
+          return;
+        }
+
+        if (isOnline) {
+          // Coming back is not held: there is no reason to sit on good news, and a drop still inside
+          // its window is cancelled rather than shown, so a brief flap produces nothing at all.
+          cancelHeldDrop();
+          socketOnlineRef.current = true;
+          sync();
+          return;
+        }
+
+        // Already holding one. A second drop without an intervening recovery cannot happen, but a
+        // re-subscription during the window can, and restarting the timer would extend the wait.
+        if (heldDropRef.current !== null) return;
+
+        heldDropRef.current = setTimeout(() => {
+          heldDropRef.current = null;
+          socketOnlineRef.current = false;
+          sync();
+        }, WS_OFFLINE_ANNOUNCE_DELAY_MS);
       },
     );
 
@@ -136,5 +181,11 @@ export const useReportLostConnectionSystemNotification = () => {
       unsubscribeNetwork();
       unsubscribeSocket();
     };
-  }, [addSystemNotification, client, dismissConnectionLostNotification, t]);
+  }, [
+    addSystemNotification,
+    cancelHeldDrop,
+    client,
+    dismissConnectionLostNotification,
+    t,
+  ]);
 };

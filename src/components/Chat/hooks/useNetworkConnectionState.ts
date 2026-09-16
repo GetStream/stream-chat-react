@@ -15,9 +15,9 @@ const identity = (state: NetworkConnectionState) => state;
  * "reconnecting…".
  *
  * `isOnline` has **three** states. `undefined` means *unknown* — nobody has told the client, because
- * no registrar is installed or one is installed and has not reported yet. So a guard must test
+ * no reporter is installed or one is installed and has not reported yet. So a guard must test
  * `isOnline === false`; `!isOnline` is also true when the answer is unknown and would claim "offline"
- * on any host without a registrar. (The WebSocket store's `isOnline` is always a boolean, so `!` is
+ * on any host without a reporter. (The WebSocket store's `isOnline` is always a boolean, so `!` is
  * fine there.)
  *
  * Must run under `ChatProvider`, e.g. from a child of `<Chat>`.
