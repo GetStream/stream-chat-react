@@ -407,10 +407,10 @@ describe('Channel', () => {
 
   describe('connection recovery', () => {
     // `ConnectionRecoveryManager` reloads every active channel and *then* dispatches
-    // `connection.recovered`. `Channel` used to handle that event by reloading again, and since it
-    // marks its channel active while mounted, every open channel was reloaded twice per reconnect —
-    // two full `watch()` requests. `Channel.reload()`'s `_reloading` flag is a re-entrancy guard and
-    // has already reset by the time the event is dispatched, so it did not collapse the pair.
+    // `connection.recovered`. `Channel` marks its channel active while mounted, so handling that
+    // event here as well would reload every open channel twice per reconnect — two full `watch()`
+    // requests. `Channel.reload()`'s `_reloading` flag would not collapse the pair: it is a
+    // re-entrancy guard and has already reset by the time the event is dispatched.
     it('reloads an open channel exactly once per reconnect', async () => {
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
@@ -441,7 +441,7 @@ describe('Channel', () => {
 
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
 
-      // No `connection.recovered` handler in `Channel` any more, so this alone must do nothing.
+      // `Channel` has no `connection.recovered` handler, so this alone must do nothing.
       await act(async () => {
         dispatchConnectionRecoveredEvent(chatClient);
         await Promise.resolve();

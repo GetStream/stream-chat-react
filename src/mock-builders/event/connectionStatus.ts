@@ -3,13 +3,12 @@ import type { StreamChat } from 'stream-chat';
 /**
  * Drives this client's WebSocket status, the way a real socket coming up or going down would.
  *
- * This replaces a helper that dispatched `connection.changed`. That event is gone: connectivity is
- * published as `client.wsConnection.state` and `client.networkConnection.state`, and writing the
- * store is what a test needs to do now.
+ * Connectivity is published as `client.wsConnection.state` and `client.networkConnection.state`, so
+ * driving a test means writing the store.
  *
- * Written through the public store rather than the socket's internal `_setStatus`, which
- * `no-underscore-dangle` rightly rejects. The timestamps are stamped too, since a status without one
- * is a state the real socket never produces.
+ * Through the public store rather than the socket's internal `_setStatus`, which
+ * `no-underscore-dangle` rightly rejects. Timestamps are stamped too, since a status without one is a
+ * state the real socket never produces.
  *
  * Anything reading this through the `<Chat>` banner holds a drop for
  * `client.wsConnection.config.offlineNotificationDisplayDelayMs` before showing it, so a test
@@ -17,14 +16,18 @@ import type { StreamChat } from 'stream-chat';
  */
 export const setWSConnectionStatus = (
   client: StreamChat,
-  isOnline: boolean,
+  isHealthy: boolean,
   connectionId = 'mock-connection-id',
 ) => {
   client.wsConnection.state.partialNext(
-    isOnline
-      ? { connectionId, isOnline, lastOnlineAt: new Date() }
-      : { connectionId: undefined, isOnline, lastOfflineAt: new Date() },
+    isHealthy
+      ? { isHealthy, lastHealthyAt: new Date() }
+      : { isHealthy, lastUnhealthyAt: new Date() },
   );
+  // The id is separate state with its own lifecycle: published when the socket announces itself,
+  // dropped when it goes down so no request carries one the server has closed.
+  if (isHealthy) client.connectionIdManager.resolveConnectionId(connectionId);
+  else client.connectionIdManager.invalidate();
 };
 
 /** Reports the device's network status, as a platform reporter would. */

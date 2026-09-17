@@ -400,10 +400,10 @@ describe('Chat', () => {
     };
 
     it('keeps the notification when the socket drops before i18n has initialized', async () => {
-      // The regression. `Streami18n.init()` is asynchronous and `t` changes identity when it
-      // resolves. With `t` in the effect's dependencies, a drop during that window published the
-      // notification and then had it dismissed by the effect's own cleanup — leaving no banner
-      // exactly when one is most wanted: an offline app launch, a captive portal, an expired token.
+      // `Streami18n.init()` is asynchronous and replaces `t`, which re-runs the subscription effect.
+      // Dismissal must therefore be scoped to the mount, not to that effect's cleanup, or a drop
+      // inside the init window leaves no banner exactly when one is most wanted: an offline app
+      // launch, a captive portal, an expired token.
       const client = await getTestClientWithUser();
       render(
         <Chat client={client}>
@@ -492,8 +492,8 @@ describe('Chat', () => {
     });
 
     it('publishes immediately when the client is already offline at mount', async () => {
-      // It used to react only to transitions, so a client that was already offline showed nothing
-      // until something changed.
+      // The status is read on mount rather than waited for, so a client that is already offline when
+      // the banner mounts says so.
       const client = await getTestClientWithUser();
       client.networkConnection.setStatus(false);
 
@@ -525,7 +525,8 @@ describe('Chat', () => {
 
     it('respects a configured hold window', async () => {
       // The wait is configuration rather than a fixed number, so an integrator can shorten it, or
-      // switch it off with zero, without replacing the hook.
+      // switch the wait off with zero, without replacing the hook. Zero still defers to the next
+      // task, which is why this advances timers rather than asserting synchronously.
       const client = await getTestClientWithUser();
       client.config.set({
         client: { wsConnection: { offlineNotificationDisplayDelayMs: 0 } },

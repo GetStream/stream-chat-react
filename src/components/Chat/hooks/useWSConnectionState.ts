@@ -18,10 +18,9 @@ const identity = (state: WSConnectionState) => state;
  * cancel it if the socket returns inside that window, which is what `<Chat>` does: the socket retries
  * on its own, and most drops resolve in well under a second.
  *
- * `connectionId` names the live connection: assigned when the socket announces itself, cleared when it
- * drops, because the server rejects a request carrying an id it has already closed. For "has this
- * client ever connected", read `lastOnlineAt`. Unlike the network store's, this `isOnline` is always a
- * boolean.
+ * The connection id is not here: it lives on `client.connectionIdManager`, which holds any request
+ * that watches or subscribes to presence until one exists. Its `isHealthy` is always a boolean, unlike the
+ * network store's three-state `isOnline`.
  *
  * Must run under `ChatProvider`, e.g. from a child of `<Chat>`.
  */

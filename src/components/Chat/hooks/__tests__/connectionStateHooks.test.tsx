@@ -160,10 +160,10 @@ describe('connection state hooks', () => {
         client: { networkConnection: { statusReporter: platform.reporter } },
       });
       const Consumer = () => {
-        // Aliased deliberately: both stores expose `isOnline`, so a blind destructure of both
+        // No aliasing needed: the socket reports `isHealthy` and the device `isOnline`, so the two
         // would shadow one with the other.
         const { isOnline: networkOnline } = useNetworkConnectionState() ?? {};
-        const { isOnline: socketOnline } = useWSConnectionState() ?? {};
+        const { isHealthy: socketOnline } = useWSConnectionState() ?? {};
         return (
           <div data-testid='v'>{`network=${String(networkOnline)} socket=${String(socketOnline)}`}</div>
         );
@@ -178,25 +178,23 @@ describe('connection state hooks', () => {
       // And the reverse: network fine, socket down.
       platform.report(true);
       act(() => {
-        client.wsConnection.state.partialNext({ isOnline: false });
+        client.wsConnection.state.partialNext({ isHealthy: false });
       });
       expect(screen.getByTestId('v')).toHaveTextContent('network=true socket=false');
     });
   });
 
   describe('useWSConnectionState', () => {
-    it('reports the socket and its connection id', async () => {
+    it('reports the socket status', async () => {
       const client = await getTestClientWithUser({ id: 'me' });
       const Consumer = () => {
         const state = useWSConnectionState();
-        return (
-          <div data-testid='v'>{`${String(state?.isOnline)}/${String(state?.connectionId)}`}</div>
-        );
+        return <div data-testid='v'>{String(state?.isHealthy)}</div>;
       };
 
       renderUnderChat(client, <Consumer />);
 
-      expect(screen.getByTestId('v')).toHaveTextContent('true/dummy_connection_id');
+      expect(screen.getByTestId('v')).toHaveTextContent('true');
     });
   });
 });

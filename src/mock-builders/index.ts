@@ -13,17 +13,16 @@ const connectUser = (client: StreamChat, user: Partial<UserResponse>) =>
     //
     // Written through the public store rather than the socket's internal `_setStatus`, which
     // `no-underscore-dangle` rightly rejects — and a fixture standing in for a connection it never
-    // opens is exactly the case for setting the state directly. `lastOnlineAt` is stamped too, since
+    // opens is exactly the case for setting the state directly. `lastHealthyAt` is stamped too, since
     // online-without-a-timestamp is a state the real socket never produces.
     //
-    // This replaces `client['connectionId'] = '…'`, which was dead — the client has no such field.
-    // The connection id lives on the socket, so that assignment never satisfied the old
-    // `_hasConnectionID()` guard, and every mocked `watch()` quietly took the downgrade path.
     client.wsConnection.state.partialNext({
-      connectionId: 'dummy_connection_id',
-      isOnline: true,
-      lastOnlineAt: new Date(),
+      isHealthy: true,
+      lastHealthyAt: new Date(),
     });
+    // The id lives on its own manager, and the request layer holds any watching request until one
+    // exists — so a fixture that omits this makes every mocked `watch()` wait forever.
+    client.connectionIdManager.resolveConnectionId('dummy_connection_id');
     client.user = { ...user, mutes: [] } as UserResponse;
     client['_user'] = { ...user } as UserResponse;
     // `userID` is a getter in v10 (derives from `client.user?.id`), so it can't be assigned;
