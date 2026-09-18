@@ -25,7 +25,6 @@ import { useStateStore } from '../../../store';
 import type { GenerateChannelOptions } from '../../../mock-builders';
 import {
   dispatchChannelTruncatedEvent,
-  dispatchConnectionChangedEvent,
   dispatchConnectionRecoveredEvent,
   erroredPostApi,
   generateChannel,
@@ -36,6 +35,7 @@ import {
   getTestClientWithUser,
   initClientWithChannels,
   sendMessageApi,
+  setWSConnectionStatus,
   useMockedApis,
 } from '../../../mock-builders';
 import { WithComponents } from '../../../context';
@@ -236,21 +236,6 @@ describe('Channel', () => {
     expect(await findByText('children')).toBeInTheDocument();
   });
 
-  // should these 'on' tests actually test if the handler works?
-  it('should add a connection recovery handler on the client on mount', async () => {
-    const { channel, chatClient } = await setup();
-    const clientOnSpy = vi.spyOn(chatClient, 'on');
-
-    await renderComponent({ channel, chatClient });
-
-    await waitFor(() =>
-      expect(clientOnSpy).toHaveBeenCalledWith(
-        'connection.recovered',
-        expect.any(Function),
-      ),
-    );
-  });
-
   it('releases every subscription it opened when the channel goes away', async () => {
     // The invariant, rather than the wiring: whatever this component subscribes to, it
     // unsubscribes from. Before the subscriptions were collected and released by their own handles,
@@ -288,41 +273,49 @@ describe('Channel', () => {
     await renderComponent({ channel, chatClient });
     // Wait for the mount effect to finish (it registers the event subscriptions)...
     await waitFor(() =>
-      expect(clientOnSpy).toHaveBeenCalledWith(
-        'connection.recovered',
-        expect.any(Function),
-      ),
+      expect(clientOnSpy).toHaveBeenCalledWith('user.deleted', expect.any(Function)),
     );
     // ...then confirm it did not mark read.
     expect(markReadSpy).not.toHaveBeenCalled();
   });
 
   describe('connection recovery', () => {
-    // The client's reconnect hydration skips re-seeding the message list of an `active` channel
-    // (Channel marks it active while mounted) and delegates that window to `channel.reload()`.
-    // Nothing else calls it, so these pin the SDK component as the thing that does.
-    it('reloads the channel when the connection is recovered', async () => {
+    // `ConnectionRecoveryManager` reloads every active channel and *then* dispatches
+    // `connection.recovered`. `Channel` marks its channel active while mounted, so handling that
+    // event here as well would reload every open channel twice per reconnect — two full `watch()`
+    // requests. `Channel.reload()`'s `_reloading` flag would not collapse the pair: it is a
+    // re-entrancy guard and has already reset by the time the event is dispatched.
+    it('reloads an open channel exactly once per reconnect', async () => {
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
+      await waitFor(() => expect(channel.active).toBe(true));
 
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
+      chatClient.connectionRecovery.registerSubscriptions();
 
+      // A whole reconnect, driven from the socket's status store rather than by dispatching the
+      // recovery event directly — that is what exercises both would-be reloaders. Down first,
+      // because recovery ignores a first connect: nothing was loaded to fall behind.
       await act(async () => {
-        dispatchConnectionRecoveredEvent(chatClient);
-        await Promise.resolve();
+        setWSConnectionStatus(chatClient, false);
+        setWSConnectionStatus(chatClient, true);
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
     });
 
-    it('does not reload a channel that is pending disposal', async () => {
+    it('leaves the reload to the client, so it happens even without this component', async () => {
+      // The reconciliation React's own reload existed for — a hard delete that happened offline
+      // arrives via no event, so only a re-query surfaces it — still happens, because the client
+      // reloads active channels itself. This pins that it is the client doing it.
       const { channel, chatClient } = await setup();
       await renderComponent({ channel, chatClient });
+      await waitFor(() => expect(channel.active).toBe(true));
 
       const reloadSpy = vi.spyOn(channel, 'reload').mockResolvedValue(undefined);
-      // `reload()` goes through `getClient()`, which throws once the channel is pending disposal.
-      channel.pendingDisposal = true;
 
+      // `Channel` has no `connection.recovered` handler, so this alone must do nothing.
       await act(async () => {
         dispatchConnectionRecoveredEvent(chatClient);
         await Promise.resolve();
@@ -331,23 +324,27 @@ describe('Channel', () => {
       expect(reloadSpy).not.toHaveBeenCalled();
     });
 
-    it('keeps rendering when the reload fails', async () => {
+    it('keeps rendering when the reload fails during a reconnect', async () => {
+      // The guarantee the old React-side error handling provided, now held somewhere better: the
+      // client reloads active channels with `Promise.allSettled`, so a socket that flaps back down
+      // mid-reload cannot throw into this component at all.
       const { channel, chatClient } = await setup();
       const { container } = await renderComponent({ channel, chatClient });
+      await waitFor(() => expect(channel.active).toBe(true));
 
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const reloadSpy = vi
         .spyOn(channel, 'reload')
         .mockRejectedValue(new Error('socket flapped'));
+      chatClient.connectionRecovery.registerSubscriptions();
 
       await act(async () => {
-        dispatchConnectionRecoveredEvent(chatClient);
-        await Promise.resolve();
+        setWSConnectionStatus(chatClient, false);
+        setWSConnectionStatus(chatClient, true);
+        await new Promise((resolve) => setTimeout(resolve, 50));
       });
 
-      await waitFor(() => expect(reloadSpy).toHaveBeenCalledTimes(1));
+      expect(reloadSpy).toHaveBeenCalledTimes(1);
       expect(container.querySelector('.str-chat__channel')).toBeInTheDocument();
-      warnSpy.mockRestore();
     });
   });
 
@@ -363,7 +360,7 @@ describe('Channel', () => {
       // a re-render that reads channel state must not throw
       // (channel.lastRead() throws once the client is disconnected)
       await act(async () => {
-        dispatchConnectionChangedEvent(chatClient, false);
+        setWSConnectionStatus(chatClient, false);
         await Promise.resolve();
       });
 
@@ -386,7 +383,7 @@ describe('Channel', () => {
       channel.pendingDisposal = true;
 
       await act(async () => {
-        dispatchConnectionChangedEvent(chatClient, false);
+        setWSConnectionStatus(chatClient, false);
         await Promise.resolve();
       });
 

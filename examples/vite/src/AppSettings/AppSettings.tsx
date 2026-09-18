@@ -26,6 +26,7 @@ import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
 import { appSettingsStore, useAppSettingsState } from './state';
 import {
+  IconConnection,
   IconGear,
   IconMoon,
   IconSidebar,
@@ -159,6 +160,30 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   );
 };
 
+const SidebarConnectionPanelToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  const { devTools } = useAppSettingsState();
+  const { connectionPanel } = devTools;
+
+  return (
+    <ChatViewSelectorButton
+      aria-checked={connectionPanel}
+      aria-label={`${connectionPanel ? 'Hide' : 'Show'} the connection dev panel`}
+      aria-selected={connectionPanel}
+      className='app__settings-group_button app__settings-group_button--toggle'
+      Icon={IconConnection}
+      iconOnly={iconOnly}
+      isActive={connectionPanel}
+      onClick={() =>
+        appSettingsStore.partialNext({
+          devTools: { ...devTools, connectionPanel: !connectionPanel },
+        })
+      }
+      role='switch'
+      text={connectionPanel ? 'Hide connection panel' : 'Connection panel'}
+    />
+  );
+};
+
 const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const {
     theme,
@@ -203,6 +228,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
   return (
     <div className='app__settings-group'>
+      <SidebarConnectionPanelToggle iconOnly={iconOnly} />
       <SidebarRtlToggle iconOnly={iconOnly} />
       <SidebarThemeToggle iconOnly={iconOnly} />
       <ActionsMenu iconOnly={iconOnly} />

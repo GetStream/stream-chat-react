@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { OwnUserResponse } from 'stream-chat';
+import type { OwnUserResponse, StreamChat } from 'stream-chat';
 import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '..';
@@ -14,10 +14,10 @@ import { Streami18n } from '../../../i18n';
 import type { Notification } from 'stream-chat';
 import type { UserMuteResponse } from 'stream-chat';
 import {
-  dispatchConnectionChangedEvent,
   dispatchNotificationMutesUpdated,
   getTestClient,
   getTestClientWithUser,
+  setWSConnectionStatus,
 } from '../../../mock-builders';
 
 const ChatContextConsumer = ({ fn }) => {
@@ -376,9 +376,126 @@ describe('Chat', () => {
   });
 
   describe('connection notifications', () => {
-    it('publishes and removes system connection-lost notification on connection changes', async () => {
-      const client = getTestClient();
-      let connectionLostNotification;
+    /**
+     * Takes the socket down and waits out the window the banner holds a drop for.
+     *
+     * The client publishes every transition as it happens; deciding a drop has lasted long enough to
+     * be worth telling a person about is the banner's job, so a test that wants the banner has to
+     * let that window pass.
+     */
+    /** How long the banner sits on a drop, which is configuration rather than a fixed number. */
+    const holdWindow = (client: StreamChat) =>
+      client.wsConnection.config.offlineNotificationDisplayDelayMs;
+
+    const dropSocket = (client: StreamChat) => {
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(holdWindow(client));
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+    };
+
+    it('keeps the notification when the socket drops before i18n has initialized', async () => {
+      // `Streami18n.init()` is asynchronous and replaces `t`, which re-runs the subscription effect.
+      // Dismissal must therefore be scoped to the mount, not to that effect's cleanup, or a drop
+      // inside the init window leaves no banner exactly when one is most wanted: an offline app
+      // launch, a captive portal, an expired token.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      const chatNotifications = () =>
+        client.notifications.notifications.filter(
+          (notification) => notification.origin.emitter === 'Chat',
+        );
+
+      // Deliberately not awaiting anything first — the drop lands inside the init window.
+      dropSocket(client);
+      expect(chatNotifications()).toHaveLength(1);
+
+      // Long enough for `init()` to resolve and `t` to be replaced.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      expect(chatNotifications()).toHaveLength(1);
+    });
+
+    /**
+     * The device losing its network and the socket dying are different facts, so they get different
+     * copy. Publishing "Waiting for network…" off the socket alone — which is what this did — told
+     * users their network was down when the server had closed the socket, the token had expired or a
+     * health check had timed out on working Wi-Fi.
+     */
+    const chatNotificationsOf = (client: StreamChat) =>
+      client.notifications.notifications.filter(
+        (notification) => notification.origin.emitter === 'Chat',
+      );
+
+    it('says reconnecting, not offline, when the socket dies on a working network', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      // jsdom is a browser, so the built-in reporter has already reported the network as up.
+      expect(client.networkConnection.isOnline).toBe(true);
+
+      dropSocket(client);
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
+      expect(chatNotificationsOf(client)[0].tags).toEqual(['system']);
+    });
+
+    it('says the network is down when the device reports no network', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      act(() => client.networkConnection.setStatus(false));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…');
+    });
+
+    it('swaps to the network message when the network drops while reconnecting', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      dropSocket(client);
+      await waitFor(() =>
+        expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…'),
+      );
+
+      act(() => client.networkConnection.setStatus(false));
+
+      // One banner throughout, with the more specific message replacing the general one.
+      await waitFor(() =>
+        expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…'),
+      );
+      expect(chatNotificationsOf(client)).toHaveLength(1);
+    });
+
+    it('publishes immediately when the client is already offline at mount', async () => {
+      // The status is read on mount rather than waited for, so a client that is already offline when
+      // the banner mounts says so.
+      const client = await getTestClientWithUser();
+      client.networkConnection.setStatus(false);
 
       render(
         <Chat client={client}>
@@ -386,27 +503,83 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      expect(client.notifications.notifications).toHaveLength(0);
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…');
+    });
 
-      act(() => dispatchConnectionChangedEvent(client, false));
-      await waitFor(() => {
-        connectionLostNotification = client.notifications.notifications.find(
-          (notification) => notification.origin.emitter === 'Chat',
-        );
-        expect(connectionLostNotification).toBeDefined();
+    it('clears on recovery', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      dropSocket(client);
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+
+      act(() => setWSConnectionStatus(client, true));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(0));
+    });
+
+    it('respects a configured hold window', async () => {
+      // The wait is configuration rather than a fixed number, so an integrator can shorten it, or
+      // switch the wait off with zero, without replacing the hook. Zero still defers to the next
+      // task, which is why this advances timers rather than asserting synchronously.
+      const client = await getTestClientWithUser();
+      client.config.set({
+        client: { wsConnection: { offlineNotificationDisplayDelayMs: 0 } },
       });
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
 
-      expect(connectionLostNotification.message).toBe('Waiting for network…');
-      expect(connectionLostNotification.tags).toEqual(['system']);
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(0);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
 
-      act(() => dispatchConnectionChangedEvent(client, true));
-      await waitFor(() => {
-        expect(
-          client.notifications.notifications.find(
-            (notification) => notification.origin.emitter === 'Chat',
-          ),
-        ).toBeUndefined();
-      });
+      expect(chatNotificationsOf(client)).toHaveLength(1);
+      expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
+    });
+
+    it('shows nothing for a drop the socket recovers from inside the window', async () => {
+      // The reason the banner holds a drop at all. The socket retries on its own and most drops
+      // resolve in well under a second; announcing those makes a working application look broken.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(holdWindow(client) - 1);
+        });
+        // Nothing yet, and nothing later either: coming back cancels the held drop rather than
+        // showing it and then removing it.
+        expect(chatNotificationsOf(client)).toHaveLength(0);
+
+        act(() => setWSConnectionStatus(client, true));
+        act(() => {
+          vi.advanceTimersByTime(holdWindow(client) * 2);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+
+      expect(chatNotificationsOf(client)).toHaveLength(0);
     });
 
     it('uses NotificationAnnouncer from ComponentContext', async () => {

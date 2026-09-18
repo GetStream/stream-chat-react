@@ -78,20 +78,6 @@ export const Channel = (props: PropsWithChildren<ChannelProps>) => {
     // One subscription per event, each released by its own handle, so subscribing and
     // unsubscribing cannot drift apart and nothing has to filter events it never asked for.
     const subscriptions = [
-      // Reconnect hydration skips an active channel's message list -- a 25-message page would
-      // perturb a scrolled-back window -- and leaves it to `channel.reload()`, which re-watches
-      // sized to the loaded window. Nothing else calls it, so without this the list stays stale
-      // and offline hard deletes are never reconciled: they arrive via no event.
-      client.on('connection.recovered', async () => {
-        if (channel.pendingDisposal) return;
-        try {
-          await channel.reload();
-        } catch (error) {
-          // The socket can drop again mid-reload. Keep the loaded window; the next recovery retries.
-          console.warn('Failed to reload the channel after connection recovery', error);
-        }
-      }),
-
       // Channel state is not normalized, so rather than hunting this user's references through it
       // we re-query. Note what that does and does not do: it refreshes members, read state and
       // watchers, but not the loaded messages -- the page it asks for is older than the window.

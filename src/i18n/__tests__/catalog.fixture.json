@@ -183,6 +183,7 @@
   "channelListItem.video.ariaLabel": "video",
   "channelListItem.voiceMessage.ariaLabel": "voice message",
   "channelListItem.voted.text": "📊 {{votedBy}} voted: {{pollOptionText}}",
+  "chat.reportLostConnection.reconnecting.text": "Reconnecting…",
   "chat.reportLostConnection.waitingNetwork.text": "Waiting for network…",
   "command.ban.args": "[@username] [text]",
   "command.ban.description": "Ban a user",

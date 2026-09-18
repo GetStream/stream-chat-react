@@ -13,6 +13,12 @@ export type ChatViewSettingsState = {
   iconOnly: boolean;
 };
 
+/** Dev-only affordances that would not ship in an application. */
+export type DevToolsSettingsState = {
+  /** Shows the panel that drives the network and WebSocket facts independently. */
+  connectionPanel: boolean;
+};
+
 export type ThemeSettingsState = {
   direction: 'ltr' | 'rtl';
   mode: 'dark' | 'light';
@@ -94,6 +100,7 @@ export type LayoutSettingsState = {
 export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
+  devTools: DevToolsSettingsState;
   language: LanguageSettingsState;
   layout: LayoutSettingsState;
   messageActions: MessageActionsSettingsState;
@@ -122,6 +129,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 const defaultAppSettingsState: AppSettingsState = {
+  devTools: {
+    connectionPanel: false,
+  },
   channelDetail: {
     modal: {
       channelMembersView: {

@@ -19,7 +19,7 @@
 
     /* Panel backgrounds */
     --str-chat__background-core-elevation-1: #dbeafe; /* channel list, surrounding panels */
-    --str-chat__background-core-app: #c7dafc;         /* message list background */
+    --str-chat__background-core-app: #c7dafc; /* message list background */
 
     /* Focus ring */
     --str-chat__border-utility-focused: #1e40af;
