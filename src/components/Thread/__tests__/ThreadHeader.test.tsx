@@ -1,9 +1,15 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, LocalMessage, Thread } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import type { Channel, LocalMessage, Thread, ThreadState } from 'stream-chat';
 
-import { ChannelInstanceProvider, ChatProvider } from '../../../context';
+import {
+  ChannelInstanceProvider,
+  ChatProvider,
+  defaultWorkspaceNavigation,
+  WorkspaceNavigationProvider,
+} from '../../../context';
 import type { ChatContextValue } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
@@ -20,10 +26,6 @@ vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
   useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
 }));
 
-vi.mock('../../../store', () => ({
-  useStateStore: vi.fn(() => undefined),
-}));
-
 vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
   useMessageComposerController: vi.fn(() => fromPartial({})),
 }));
@@ -32,7 +34,9 @@ vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
   TypingIndicatorHeader: () => <div>Typing...</div>,
 }));
 
+const closeThreadInContext = vi.fn();
 vi.mock('../../Threads', () => ({
+  useCloseThread: vi.fn(() => closeThreadInContext),
   useThreadContext: vi.fn(() => undefined),
 }));
 
@@ -48,16 +52,33 @@ import { mockT } from '../../../mock-builders/translator';
 
 const alice = { id: 'alice', name: 'Alice' };
 
-const createThread = (user) => ({
-  id: `${user?.id ?? 'thread'}-message`,
-  reply_count: 2,
-  user,
-});
+// The header reads the parent message and the reply count off the thread instance, so the
+// fixture is a thread whose state carries both.
+const createThreadInstance = (user?: { id: string; name?: string }) =>
+  fromPartial<Thread>({
+    id: `${user?.id ?? 'thread'}-message`,
+    state: new StateStore<ThreadState>(
+      fromPartial<ThreadState>({
+        parentMessage: fromPartial<LocalMessage>({
+          id: `${user?.id ?? 'thread'}-message`,
+          reply_count: 2,
+          user,
+        }),
+        replyCount: 2,
+      }),
+    ),
+  });
 
 const renderComponent = ({
   activeView = 'channels',
+  dismissable = false,
   props = {},
-  threadContext = undefined,
+  threadContext = createThreadInstance(alice),
+}: {
+  activeView?: string;
+  dismissable?: boolean;
+  props?: Partial<React.ComponentProps<typeof ThreadHeader>>;
+  threadContext?: Thread;
 } = {}) => {
   const client = fromPartial<ChatContextValue['client']>({
     off: vi.fn(),
@@ -65,7 +86,6 @@ const renderComponent = ({
     user: alice,
     userID: alice.id,
   });
-  const thread = createThread(alice);
   const channel = fromPartial<Channel>({ cid: 'messaging:thread-header-test' });
 
   vi.mocked(useChatViewContext).mockReturnValue(
@@ -74,27 +94,29 @@ const renderComponent = ({
       setActiveView: vi.fn(),
     }),
   );
-  vi.mocked(useThreadContext).mockReturnValue(threadContext as Thread | undefined);
+  vi.mocked(useThreadContext).mockReturnValue(threadContext);
 
   return render(
     <ChatProvider
       value={fromPartial<ChatContextValue>({
         client,
-        latestMessageDatesByChannels: {},
       })}
     >
       <ChannelInstanceProvider value={{ channel }}>
-        <TranslationProvider
-          value={fromPartial<TranslationContextValue>({
-            t: mockT as TranslationContextValue['t'],
-          })}
+        <WorkspaceNavigationProvider
+          value={{
+            ...defaultWorkspaceNavigation,
+            isThreadDismissable: () => dismissable,
+          }}
         >
-          <ThreadHeader
-            closeThread={vi.fn()}
-            thread={thread as unknown as LocalMessage}
-            {...props}
-          />
-        </TranslationProvider>
+          <TranslationProvider
+            value={fromPartial<TranslationContextValue>({
+              t: mockT as TranslationContextValue['t'],
+            })}
+          >
+            <ThreadHeader {...props} />
+          </TranslationProvider>
+        </WorkspaceNavigationProvider>
       </ChannelInstanceProvider>
     </ChatProvider>,
   );
@@ -121,11 +143,7 @@ describe('ThreadHeader', () => {
       fromPartial({ displayTitle: undefined }),
     );
 
-    renderComponent({
-      props: {
-        thread: createThread(alice),
-      },
-    });
+    renderComponent({ threadContext: createThreadInstance(alice) });
 
     expect(screen.getByText('Alice · 2 replies')).toBeInTheDocument();
   });
@@ -135,13 +153,25 @@ describe('ThreadHeader', () => {
       fromPartial({ displayTitle: undefined }),
     );
 
-    renderComponent({
-      props: {
-        thread: createThread({ id: 'alice' }),
-      },
-    });
+    renderComponent({ threadContext: createThreadInstance({ id: 'alice' }) });
 
     expect(screen.getByText('2 replies')).toBeInTheDocument();
     expect(screen.queryByText(/^undefined ·/)).not.toBeInTheDocument();
+  });
+
+  it('closes the thread in context when the close button is pressed', () => {
+    // No prop carries the handler any more -- the header closes through the workspace navigation
+    // the app configures centrally.
+    renderComponent({ dismissable: true });
+
+    fireEvent.click(screen.getByTestId('close-thread-button'));
+
+    expect(closeThreadInContext).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders no close button for a thread the workspace does not consider dismissable', () => {
+    renderComponent({ dismissable: false });
+
+    expect(screen.queryByTestId('close-thread-button')).not.toBeInTheDocument();
   });
 });

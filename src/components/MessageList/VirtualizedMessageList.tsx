@@ -59,8 +59,10 @@ import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { VirtualizedMessageListContextProvider } from '../../context/VirtualizedMessageListContext';
+import { getMessageSourceKey } from './messageSourceKey';
 import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
+import { useThreadHead } from './hooks/useThreadHead';
 import { useMessagePaginator } from '../../hooks';
 
 import type {
@@ -73,6 +75,7 @@ import type {
   UserResponse,
 } from 'stream-chat';
 import type { UnknownType } from '../../types/types';
+import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useLastDeliveredData } from './hooks/useLastDeliveredData';
 import { useLastOwnMessage } from './hooks/useLastOwnMessage';
@@ -80,7 +83,6 @@ import { useLastOwnMessage } from './hooks/useLastOwnMessage';
 type PropsDrilledToMessage =
   | 'additionalMessageComposerProps'
   | 'formatDate'
-  | 'messageActions'
   | 'reactionDetailsSort'
   | 'renderText'
   | 'showAvatar'
@@ -90,7 +92,6 @@ type VirtualizedMessageListPropsForContext =
   | PropsDrilledToMessage
   | 'closeReactionSelectorOnClick'
   | 'customMessageRenderer'
-  | 'head'
   // | 'loadingMore'
   | 'returnAllReadData'
   | 'shouldGroupByUser';
@@ -107,6 +108,8 @@ export type VirtuosoContext = Required<
   Pick<VirtualizedMessageListProps, VirtualizedMessageListPropsForContext> &
   Pick<ChatContextValue, 'customClasses'> & {
     channel: Channel;
+    /** The thread parent message rendered above the replies, or null outside a thread. */
+    head: React.ReactElement | null;
     /** Latest received message id in the current channel */
     lastReceivedMessageId: string | null | undefined;
     loadingMore: boolean;
@@ -214,23 +217,20 @@ const VirtualizedMessageListWithContext = (
     closeReactionSelectorOnClick,
     customMessageRenderer,
     defaultItemHeight,
-    disableDateSeparator = true,
     formatDate,
     groupStyles,
-    // hasMoreNewer,
-    head,
     hideDeletedMessages = false,
+    // hasMoreNewer,
     hideNewMessageSeparator = false,
+    maxTimeBetweenGroupedMessages,
     // jumpToLatestMessage,
     // loadingMore,
     // loadMore,
     // loadMoreNewer,
-    maxTimeBetweenGroupedMessages,
-    messageActions,
+    overscan = 0,
     // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     // messages,
     // TODO: refactor to scrollSeekPlaceHolderConfiguration and components.ScrollSeekPlaceholder, like the Virtuoso Component
-    overscan = 0,
     reactionDetailsSort,
     renderText,
     returnAllReadData = false,
@@ -244,9 +244,11 @@ const VirtualizedMessageListWithContext = (
     sortReactions,
     stickToBottomScrollBehavior = 'smooth',
     suppressAutoscroll: suppressAutoscrollFromProps = false,
+    withDateSeparator = false,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
+  const threadHead = useThreadHead();
   const [suppressAutoscrollWhileLoadingOlder, setSuppressAutoscrollWhileLoadingOlder] =
     React.useState(false);
   const suppressAutoscroll =
@@ -316,7 +318,7 @@ const VirtualizedMessageListWithContext = (
     }
 
     if (
-      disableDateSeparator &&
+      !withDateSeparator &&
       !hideDeletedMessages &&
       hideNewMessageSeparator &&
       !separateGiphyPreview
@@ -325,7 +327,6 @@ const VirtualizedMessageListWithContext = (
     }
 
     return processMessages({
-      enableDateSeparator: !disableDateSeparator,
       hideDeletedMessages,
       hideNewMessageSeparator,
       lastRead,
@@ -333,10 +334,11 @@ const VirtualizedMessageListWithContext = (
       reviewProcessedMessage,
       setGiphyPreviewMessage,
       userId: client.userID || '',
+      withDateSeparator,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    disableDateSeparator,
+    withDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
@@ -451,7 +453,7 @@ const VirtualizedMessageListWithContext = (
 
   const numItemsPrepended = usePrependedMessagesCount(
     processedMessages,
-    !disableDateSeparator,
+    withDateSeparator,
   );
 
   const { messageSetKey } = useMessageSetKey({ messages });
@@ -490,18 +492,23 @@ const VirtualizedMessageListWithContext = (
     [],
   );
 
+  const canPaginateReplies = useCanPaginateReplies();
+
   const atBottomStateChange = (isAtBottom: boolean) => {
     atBottom.current = isAtBottom;
     setIsMessageListScrolledToBottom(isAtBottom);
 
     if (isAtBottom) {
-      messagePaginator.toHead();
+      // An empty thread is at both ends at once, so Virtuoso reports both on mount — see
+      // `useCanPaginateReplies` for why that must not become a request.
+      if (canPaginateReplies) messagePaginator.toHead();
       // loadMoreNewer?.(messageLimit);
       setNewMessagesNotification?.(false);
     }
   };
   const atTopStateChange = (isAtTop: boolean) => {
     if (isAtTop) {
+      if (!canPaginateReplies) return;
       if (loadingOlderRef.current) return;
       loadingOlderRef.current = true;
       setSuppressAutoscrollWhileLoadingOlder(true);
@@ -551,9 +558,9 @@ const VirtualizedMessageListWithContext = (
               }
             >
               <FloatingDateSeparator
-                disableDateSeparator={disableDateSeparator}
                 itemsRenderedRef={floatingDateItemsRenderedRef}
                 processedMessages={processedMessages}
+                withDateSeparator={withDateSeparator}
               />
               <Virtuoso<UnknownType, VirtuosoContext>
                 atBottomStateChange={atBottomStateChange}
@@ -578,13 +585,12 @@ const VirtualizedMessageListWithContext = (
                   firstUnreadMessageId: channelUnreadUiState?.firstUnreadMessageId,
                   focusedMessageId,
                   formatDate,
-                  head,
+                  head: threadHead,
                   lastOwnMessage,
                   lastReadDate: channelUnreadUiState?.lastReadAt,
                   lastReadMessageId: channelUnreadUiState?.lastReadMessageId,
                   lastReceivedMessageId,
                   loadingMore: isLoading,
-                  messageActions,
                   messageGroupStyles,
                   MessageSystem,
                   numItemsPrepended,
@@ -676,8 +682,6 @@ export type VirtualizedMessageListProps = Partial<
    * If set, the default item height is used for the calculation of the total list height. Use if you expect messages with a lot of height variance
    * */
   defaultItemHeight?: number;
-  /** Disables the injection of date separator components in MessageList, defaults to `true` */
-  disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
     message: RenderedMessage,
@@ -690,11 +694,6 @@ export type VirtualizedMessageListProps = Partial<
   // hasMore?: boolean;
   // /** Whether or not the list has newer items to load */
   // hasMoreNewer?: boolean;
-  /**
-   * @deprecated Use additionalVirtuosoProps.components.Header to override default component rendered above the list ove messages.
-   * Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components
-   */
-  head?: React.ReactElement;
   /** Hides the `MessageDeleted` components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;
   /** Hides the `DateSeparator` component when new messages are received in a channel that's watched but not active, defaults to false */
@@ -757,6 +756,8 @@ export type VirtualizedMessageListProps = Partial<
   stickToBottomScrollBehavior?: 'smooth' | 'auto';
   /** If true, prevents autoscroll-to-bottom behavior on new messages. */
   suppressAutoscroll?: boolean;
+  /** Injects date separator components into the list, defaults to `false` */
+  withDateSeparator?: boolean;
 };
 
 /**
@@ -765,6 +766,7 @@ export type VirtualizedMessageListProps = Partial<
  */
 export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   const channel = useChannel();
+  const thread = useThreadContext();
 
   const { read } = useStateStore(channel?.state, channelReadSelector) ?? {};
 
@@ -774,6 +776,9 @@ export function VirtualizedMessageList(props: VirtualizedMessageListProps) {
   return (
     <VirtualizedMessageListWithContext
       channel={channel}
+      // See the note in MessageList: this list's local state -- Virtuoso's scroll offset above all
+      // -- is scoped to whatever it is showing, a thread's replies or a channel's messages.
+      key={getMessageSourceKey({ channel, thread })}
       // channelUnreadUiState={props.channelUnreadUiState ?? channelUnreadUiState}
       // hasMore={!!hasMore}
       // hasMoreNewer={!!hasMoreNewer}

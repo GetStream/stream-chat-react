@@ -145,31 +145,6 @@ export const reactionsPreviewMessage = {
   },
 } as unknown as LocalMessage;
 
-export const reactionsPreviewChannelState = {
-  channel: {
-    state: {
-      membership: {
-        channel_role: 'channel_member',
-        is_moderator: false,
-        role: 'member',
-      },
-    },
-  },
-  channelCapabilities: {},
-  channelConfig: undefined,
-  imageAttachmentSizeHandler: () => ({ url: '' }),
-  notifications: [],
-  shouldGenerateVideoThumbnail: false,
-  videoAttachmentSizeHandler: () => ({ url: '' }),
-};
-
-export const reactionsPreviewChannelActions = {
-  closeThread: () => undefined,
-  onMentionsClick: () => undefined,
-  onMentionsHover: () => undefined,
-  openThread: () => undefined,
-};
-
 export const reactionsPreviewOptions = [
   {
     Component: () => '🔥',

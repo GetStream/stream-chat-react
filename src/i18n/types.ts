@@ -1,17 +1,19 @@
 import type {
   Streami18nState as CoreStreami18nState,
-  LanguageNameCatalog,
   LooseTranslationDictionaryOf,
   RelativeTimeCatalog,
   StreamTFunctionFor,
   TranslationDictionaryOf,
   TranslationKeyOf,
-} from 'stream-chat/i18n';
+} from '@stream-io/i18n';
+// The names of the languages the API can auto-translate a message into. Chat API metadata, so it
+// stays in `stream-chat` rather than moving to the generic i18n package.
+import type { LanguageNameCatalog } from 'stream-chat';
 
 import type { TranslationCatalog as GeneratedCatalog } from './keys';
 
 /**
- * The SDK's i18n types, instantiated from the generic helpers in `stream-chat/i18n`.
+ * The SDK's i18n types, instantiated from the generic helpers in `@stream-io/i18n`.
  *
  * The derivations live in core so both UI SDKs share one implementation; the *catalog* stays here,
  * because it is generated from this SDK's own `t()` call sites. That split is why core's helpers are
@@ -65,4 +67,4 @@ export type {
   TDateTimeParserInput,
   TDateTimeParserOutput,
   TimestampFormatterOptions,
-} from 'stream-chat/i18n';
+} from '@stream-io/i18n';

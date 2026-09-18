@@ -77,7 +77,6 @@ export const itTranslations = {
     'Posizione audio {{ progress }} percento',
   'baseImage.imagePlaceholder.imageFailedLoad.ariaLabel':
     'Impossibile caricare l’immagine',
-  'channel.channelMissing.text': 'Canale mancante',
   'channelDetail.avatarChannelDetail.channelDetails.ariaLabel': 'Dettagli del canale',
   'channelDetail.avatarChannelDetail.openChannelDetails.ariaLabel':
     'Apri i dettagli del canale',

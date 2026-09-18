@@ -34,14 +34,14 @@ export type RenderedMessage = LocalMessage | DateSeparatorMessage | IntroMessage
 type ProcessMessagesContext = {
   /** the connected user ID */
   userId: string;
-  /** Enable date separator */
-  enableDateSeparator?: boolean;
   /** Enable deleted messages to be filtered out of resulting message list */
   hideDeletedMessages?: boolean;
   /** Disable date separator display for unread incoming messages */
   hideNewMessageSeparator?: boolean;
   /** Sets the threshold after everything is considered unread. Unix nanoseconds, as `channel.lastRead()` returns. */
   lastRead?: number | null;
+  /** Inject date separators between messages posted on different days */
+  withDateSeparator?: boolean;
 };
 
 export type ProcessMessagesParams = ProcessMessagesContext & {
@@ -81,11 +81,11 @@ export type ProcessMessagesParams = ProcessMessagesContext & {
 export const processMessages = (params: ProcessMessagesParams) => {
   const { messages, reviewProcessedMessage, setGiphyPreviewMessage, ...context } = params;
   const {
-    enableDateSeparator,
     hideDeletedMessages,
     hideNewMessageSeparator,
     lastRead,
     userId,
+    withDateSeparator,
   } = context;
 
   let unread = false;
@@ -117,7 +117,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
     const previousMessage = messages[i - 1];
     // `''` when the previous message has no usable timestamp, so the current one still gets a
     // separator.
-    const previousCreatedAt = enableDateSeparator
+    const previousCreatedAt = withDateSeparator
       ? convertTimestampToDate(previousMessage?.created_at)
       : undefined;
     const prevMessageDate = previousCreatedAt ? previousCreatedAt.toDateString() : '';
@@ -131,7 +131,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
 
       // do not show date separator for current user's messages
       if (
-        enableDateSeparator &&
+        withDateSeparator &&
         unread &&
         messageCreatedAt &&
         message.user?.id !== userId
@@ -147,7 +147,7 @@ export const processMessages = (params: ProcessMessagesParams) => {
     }
 
     if (
-      enableDateSeparator &&
+      withDateSeparator &&
       (i === 0 || // always put date separator before the first message
         messageDate !== prevMessageDate || // add date separator btw. 2 messages created on different date
         // if hiding deleted messages replace the previous deleted message(s) with A separator if the last rendered message was created on different date

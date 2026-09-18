@@ -1139,6 +1139,81 @@
     color: var(--str-chat__text-primary);
   }
 
+  // Actions down the side, message lists across the top: the two surfaces are configured by
+  // comparison, so the interesting reading is along a row.
+  .app__settings-modal__matrix {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: start;
+
+    th,
+    td {
+      padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+      border-block-end: 1px solid var(--str-chat__border-core-default);
+      vertical-align: top;
+      // The UA stylesheet centres `th`, which beats the table's inherited alignment.
+      text-align: start;
+    }
+
+    thead th {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--str-chat__text-secondary);
+      white-space: nowrap;
+    }
+
+    // The switch columns are only as wide as they need to be, leaving the rest to the action.
+    thead th:not(:first-child),
+    tbody td {
+      width: 1%;
+      text-align: center;
+    }
+
+    tbody th {
+      font-weight: 400;
+      padding-inline-start: 0;
+    }
+
+    tbody tr:last-child th,
+    tbody tr:last-child td {
+      border-block-end: none;
+    }
+
+    // A band naming the group of rows beneath it.
+    .app__settings-modal__matrix__section th {
+      padding-block-start: var(--str-chat__spacing-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--str-chat__text-secondary);
+    }
+
+    // The first band sits directly under the column headers, which already provide the separation.
+    tbody tr:first-child.app__settings-modal__matrix__section th {
+      padding-block-start: var(--str-chat__spacing-sm);
+    }
+
+    // The row label names the action; the comment under it explains what the switch does.
+    .app__settings-modal__matrix__row-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--str-chat__text-primary);
+      margin-block-end: 2px;
+    }
+
+    // Denser than a standalone field's comment: in a table it is a caption under a row label
+    // rather than a paragraph of its own.
+    .app__settings-modal__field-comment {
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    // Cells hold a bare switch -- the boxed treatment fields get would fight the table's own grid.
+    .str-chat__form__switch-field {
+      display: inline-flex;
+      justify-content: center;
+    }
+  }
+
   .app__settings-modal__field .str-chat__form__switch-field {
     border: 1px solid var(--str-chat__border-core-default);
     border-radius: 10px;

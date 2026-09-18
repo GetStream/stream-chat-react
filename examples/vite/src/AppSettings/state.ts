@@ -1,4 +1,4 @@
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
@@ -32,14 +32,23 @@ export type LanguageSettingsState = {
   code: string;
 };
 
-export type MessageActionsSettingsState = {
-  customMessageActions: {
-    delete: {
-      enableOptionConfiguration: boolean;
-    };
-    markOwnUnread: boolean;
-    viewMessageInfo: boolean;
+export type MessageActionSurface = 'channel' | 'thread';
+
+export type CustomMessageActionToggles = {
+  delete: {
+    enableOptionConfiguration: boolean;
   };
+  /**
+   * `MessageActionSetItem['type']`s to drop from the set for this surface. Held as what is turned
+   * *off* so a newly shipped default action appears without a settings migration.
+   */
+  disabledActionTypes: string[];
+  markOwnUnread: boolean;
+  viewMessageInfo: boolean;
+};
+
+export type MessageActionsSettingsState = {
+  customMessageActions: Record<MessageActionSurface, CustomMessageActionToggles>;
 };
 
 export type ChannelMembersHeaderActionForm = 'menu' | 'quick';
@@ -148,11 +157,22 @@ const defaultAppSettingsState: AppSettingsState = {
   layout: {},
   messageActions: {
     customMessageActions: {
-      delete: {
-        enableOptionConfiguration: false,
+      channel: {
+        delete: {
+          enableOptionConfiguration: false,
+        },
+        disabledActionTypes: [],
+        markOwnUnread: false,
+        viewMessageInfo: false,
       },
-      markOwnUnread: false,
-      viewMessageInfo: false,
+      thread: {
+        delete: {
+          enableOptionConfiguration: false,
+        },
+        disabledActionTypes: [],
+        markOwnUnread: false,
+        viewMessageInfo: false,
+      },
     },
   },
   messageList: {

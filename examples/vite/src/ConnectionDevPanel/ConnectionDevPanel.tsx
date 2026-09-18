@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import {
   useChatContext,
   useNetworkConnectionState,
@@ -34,7 +35,13 @@ import './ConnectionDevPanel.scss';
 export const ConnectionDevPanel = () => {
   const { client } = useChatContext();
   const { isOnline: networkOnline } = useNetworkConnectionState() ?? {};
-  const { isOnline: socketOnline, connectionId } = useWSConnectionState() ?? {};
+  const { isHealthy: socketHealthy } = useWSConnectionState() ?? {};
+  // Not in the socket's store: the id belongs to `client.connectionIdManager`. Read during render
+  // rather than subscribed to, which is enough here - both stores above re-render this panel.
+  const connectionId = client?.connectionIdManager.connectionId;
+  // Parked while the socket is simulated down, so bringing it back hands the *same* id over. See
+  // the toggle below for why inventing one is not an option.
+  const parkedConnectionId = useRef<string | undefined>(undefined);
 
   if (!client) return null;
 
@@ -60,30 +67,41 @@ export const ConnectionDevPanel = () => {
       </button>
 
       <button
-        aria-checked={!socketOnline}
+        aria-checked={!socketHealthy}
         className='connection-dev-panel__toggle'
-        data-state={String(socketOnline)}
+        data-state={String(socketHealthy)}
         onClick={() => {
-          const online = !socketOnline;
-          // The store is the whole interface now — one write, which every consumer sees. This used
-          // to write the store *and* dispatch an event, because the two carried different things.
+          // The status the click moves the socket *to*, not the one it is in.
+          const nextHealthy = !socketHealthy;
+          // Two writes, because the socket's status and its connection id have separate owners. The
+          // real socket does both: `_applyHealth` invalidates the id on the way down, and the hello
+          // frame resolves a new one. Leaving a live id behind would let requests that watch or
+          // subscribe to presence sail through a socket this panel calls down.
           client.wsConnection.state.partialNext(
-            online
-              ? {
-                  connectionId: 'dev-panel-connection',
-                  isOnline: online,
-                  lastOnlineAt: new Date(),
-                }
-              : { connectionId: undefined, isOnline: online, lastOfflineAt: new Date() },
+            nextHealthy
+              ? { isHealthy: nextHealthy, lastHealthyAt: new Date() }
+              : { isHealthy: nextHealthy, lastUnhealthyAt: new Date() },
           );
+          // The id has to be the real one. Coming back up is a recovery edge, so the client re-queries
+          // every channel list and reloads the open channel at once; an invented id makes the server
+          // reject all of them with a 400. Park the live id on the way down and hand that same one
+          // back. With none parked - the socket is genuinely closed - leave the manager alone and let
+          // the real handshake settle it, which holds those requests rather than failing them.
+          if (!nextHealthy) {
+            parkedConnectionId.current = client.connectionIdManager.connectionId;
+            client.connectionIdManager.invalidate();
+          } else if (parkedConnectionId.current) {
+            client.connectionIdManager.resolveConnectionId(parkedConnectionId.current);
+            parkedConnectionId.current = undefined;
+          }
         }}
         role='switch'
         title={`client.wsConnection — this client's socket. connection id: ${String(connectionId)}`}
         type='button'
       >
-        socket: {String(socketOnline)}
+        socket: {String(socketHealthy)}
         <span className='connection-dev-panel__action'>
-          {socketOnline ? 'take down' : 'bring up'}
+          {socketHealthy ? 'take down' : 'bring up'}
         </span>
       </button>
 

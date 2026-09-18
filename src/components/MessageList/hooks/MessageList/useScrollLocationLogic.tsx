@@ -32,6 +32,17 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   const closeToTop = useRef(false);
   const initialDataAutoscrollDoneRef = useRef(false);
 
+  // `hasMoreNewer` turning false means the loaded window just reached the live head — typically
+  // because the user scrolled down out of a window they had jumped to (a search result deep in
+  // history) and the page bridging the gap arrived.
+  //
+  // The viewport must not move for that. The user is reading where they jumped to, and the merged
+  // page lands *below* them; treating the merge like a mount (or like a newly received message at
+  // the head) teleports them to the newest message. Both autoscroll paths below are suppressed for
+  // this one render, and the ref is advanced afterwards so only the transition itself counts.
+  const previousHasMoreNewer = useRef(hasMoreNewer);
+  const justReachedLatestMessageSet = previousHasMoreNewer.current && !hasMoreNewer;
+
   // `behavior` is optional so callers opt into animation: the initial-mount and streaming
   // "keep pinned to bottom" autoscroll below call it with no argument and stay instant (which is
   // what keeps pagination position-preservation correct), while an interactive scroll-to-latest
@@ -54,7 +65,10 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
   useLayoutEffect(() => {
     if (listElement) {
       setWrapperRect(listElement.getBoundingClientRect());
-      scrollToBottom();
+      // `hasMoreNewer` is a dependency so a list that mounts before its first page resolves still
+      // autoscrolls once it does. That makes this run on *every* change of it, including the merge
+      // into the live head, which must leave the viewport alone.
+      if (!justReachedLatestMessageSet) scrollToBottom();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listElement, hasMoreNewer]);
@@ -83,6 +97,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     // height-delta compensation (no precise anchor restoration). Reconcile the two scroll
     // paths if precise anchor preservation on older-page loads is required.
     captureAnchor: () => null,
+    justReachedLatestMessageSet,
     loadMoreScrollThreshold,
     messages,
     onScrollBy: (scrollBy) => {
@@ -105,6 +120,12 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
     showNewMessages: () => setHasNewMessages(true),
     suppressAutoscroll,
   });
+
+  // Declared after the two autoscroll layout effects and the scroll manager's own, so all three
+  // observe the transition before it is consumed.
+  useLayoutEffect(() => {
+    previousHasMoreNewer.current = hasMoreNewer;
+  }, [hasMoreNewer]);
 
   const onScroll = useCallback(
     (event: React.UIEvent<HTMLElement>) => {

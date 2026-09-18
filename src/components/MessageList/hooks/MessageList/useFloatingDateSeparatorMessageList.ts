@@ -8,9 +8,9 @@ const DATE_SEPARATOR_SELECTOR =
 const THROTTLE_MS = 100;
 
 export type UseFloatingDateSeparatorMessageListParams = {
-  disableDateSeparator: boolean;
   listElement: HTMLDivElement | null;
   processedMessages: RenderedMessage[];
+  withDateSeparator: boolean;
 };
 
 export type UseFloatingDateSeparatorMessageListResult = {
@@ -23,9 +23,9 @@ export type UseFloatingDateSeparatorMessageListResult = {
  * separator currently pinned to the top boundary of the list viewport.
  */
 export const useFloatingDateSeparatorMessageList = ({
-  disableDateSeparator,
   listElement,
   processedMessages,
+  withDateSeparator,
 }: UseFloatingDateSeparatorMessageListParams): UseFloatingDateSeparatorMessageListResult => {
   const [state, setState] = useState<{ date: Date | null; visible: boolean }>({
     date: null,
@@ -33,7 +33,7 @@ export const useFloatingDateSeparatorMessageList = ({
   });
 
   const update = useCallback(() => {
-    if (disableDateSeparator || !listElement || processedMessages.length === 0) {
+    if (!withDateSeparator || !listElement || processedMessages.length === 0) {
       setState({ date: null, visible: false });
       return;
     }
@@ -66,7 +66,7 @@ export const useFloatingDateSeparatorMessageList = ({
       date: bestDate,
       visible: bestDate !== null,
     });
-  }, [disableDateSeparator, listElement, processedMessages]);
+  }, [withDateSeparator, listElement, processedMessages]);
 
   useEffect(() => {
     if (!listElement) return;

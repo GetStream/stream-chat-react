@@ -1,5 +1,6 @@
-import { Streami18n as CoreStreami18n, languageNameDefaults } from 'stream-chat/i18n';
-import type { Streami18nOptions as CoreStreami18nOptions } from 'stream-chat/i18n';
+import { Streami18n as CoreStreami18n } from '@stream-io/i18n';
+import type { Streami18nOptions as CoreStreami18nOptions } from '@stream-io/i18n';
+import { languageNameDefaults } from 'stream-chat';
 
 import { NotificationTranslationTopic } from './TranslationBuilder';
 import { runtimeDefaults } from './runtimeDefaults';
@@ -17,7 +18,7 @@ export type Streami18nOptions = CoreStreami18nOptions<TranslationCatalog>;
  * Wrapper around [i18next](https://www.i18next.com/) for this SDK's translations. Pass an instance to
  * `<Chat i18nInstance={…}>` to control language and copy.
  *
- * The implementation lives in `stream-chat/i18n`, shared with the React Native SDK. What is added here
+ * The implementation lives in `@stream-io/i18n`, shared with the React Native SDK. What is added here
  * is the two things that are this SDK's own: its bundled translation data, and its notification
  * translation topic. Core cannot import either — the key catalog is generated from *this* package's
  * `t()` call sites.

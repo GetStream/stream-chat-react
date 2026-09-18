@@ -112,7 +112,6 @@ const mockedChannelData = generateChannel(
 const defaultChatContext = fromPartial<ChatContextValue>({
   channelsQueryState: { queryInProgress: 'uninitialized' },
   getAppSettings: vi.fn(),
-  latestMessageDatesByChannels: {},
   searchController: new SearchController(),
 });
 

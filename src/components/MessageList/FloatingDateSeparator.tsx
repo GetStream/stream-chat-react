@@ -8,8 +8,8 @@ import { useFloatingDateSeparator } from './hooks/VirtualizedMessageList';
 import type { RenderedMessage } from './utils';
 
 type BaseProps = {
-  disableDateSeparator: boolean;
   processedMessages: RenderedMessage[];
+  withDateSeparator: boolean;
 };
 
 export type FloatingDateSeparatorProps = BaseProps &
@@ -31,19 +31,19 @@ export type FloatingDateSeparatorProps = BaseProps &
  */
 export const FloatingDateSeparator = (props: FloatingDateSeparatorProps) => {
   const { DateSeparator = DefaultDateSeparator } = useComponentContext();
-  const { disableDateSeparator, processedMessages } = props;
+  const { processedMessages, withDateSeparator } = props;
 
   const listElement = 'listElement' in props ? props.listElement : null;
   const useDomMode = listElement != null;
 
   const virtuosoResult = useFloatingDateSeparator({
-    disableDateSeparator,
     processedMessages,
+    withDateSeparator,
   });
   const domResult = useFloatingDateSeparatorMessageList({
-    disableDateSeparator,
     listElement,
     processedMessages,
+    withDateSeparator,
   });
 
   const floatingDate = useDomMode ? domResult.floatingDate : virtuosoResult.floatingDate;

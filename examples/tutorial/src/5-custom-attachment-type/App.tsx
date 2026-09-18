@@ -10,12 +10,15 @@ import {
   Channel,
   ChannelHeader,
   Chat,
+  getChannel,
   MessageComposer,
   MessageList,
-  Thread,
+  ThreadHeader,
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
+
+import { ChatView, ThreadSlot } from 'stream-chat-react/slot-layout';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
@@ -77,6 +80,27 @@ const CustomAttachment = (props: AttachmentProps) => {
   return <Attachment {...props} />;
 };
 
+// A thread is opened through workspace navigation (a message's "reply in thread" action), which
+// `ChatView` provides -- so even a single-channel app hosts its channel and thread in layout slots.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+
+const ChannelWorkspace = ({ channel }: { channel: StreamChannel }) => (
+  <>
+    <Channel channel={channel}>
+      <ChannelHeader />
+      <MessageList />
+      <MessageComposer />
+    </Channel>
+    {/* The custom attachment renders in the thread too: the override comes from
+        `WithComponents` above, which both panels sit inside. */}
+    <ThreadSlot slot='thread'>
+      <ThreadHeader />
+      <MessageList />
+      <MessageComposer />
+    </ThreadSlot>
+  </>
+);
+
 const App = () => {
   const [channel, setChannel] = useState<StreamChannel>();
   const client = useCreateChatClient({
@@ -97,7 +121,12 @@ const App = () => {
         },
       });
 
-      await channel.watch();
+      // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
+      // caller's job. The cached instance may already be loaded, so query only when it is not --
+      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      if (!channel.initialized) {
+        await getChannel({ channel, client });
+      }
 
       // messages are no longer kept on channel.state — the paginator owns the list
       const hasProductMessage = (channel.messagePaginator.items ?? []).some((message) =>
@@ -128,12 +157,10 @@ const App = () => {
   return (
     <WithComponents overrides={{ Attachment: CustomAttachment }}>
       <Chat client={client} theme='custom-theme'>
-        <Channel channel={channel}>
-          <ChannelHeader />
-          <MessageList />
-          <MessageComposer />
-          <Thread />
-        </Channel>
+        <ChatView
+          layouts={chatViewLayouts}
+          views={{ channels: <ChannelWorkspace channel={channel} /> }}
+        />
       </Chat>
     </WithComponents>
   );

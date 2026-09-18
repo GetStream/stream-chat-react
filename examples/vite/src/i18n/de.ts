@@ -84,7 +84,6 @@ export const deTranslations = {
     'Audioposition {{ progress }} Prozent',
   'baseImage.imagePlaceholder.imageFailedLoad.ariaLabel':
     'Bild konnte nicht geladen werden',
-  'channel.channelMissing.text': 'Kanal fehlt',
   'channelDetail.avatarChannelDetail.channelDetails.ariaLabel': 'Kanaldetails',
   'channelDetail.avatarChannelDetail.openChannelDetails.ariaLabel': 'Kanaldetails öffnen',
   'channelDetail.channelFilesEmpty.noFiles.text': 'Keine Dateien',

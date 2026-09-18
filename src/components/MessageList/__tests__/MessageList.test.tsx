@@ -24,7 +24,8 @@ import { useChannel, useMessageContext, WithComponents } from '../../../context'
 import { EmptyStateIndicator as EmptyStateIndicatorMock } from '../../EmptyStateIndicator';
 import { mockedApiResponse } from '../../../mock-builders/api/utils';
 import { nanoid } from 'nanoid';
-import { msToNs, StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import { msToNs } from 'stream-chat';
 import type {
   Channel as ChannelType,
   Event,
@@ -104,13 +105,13 @@ const SyncPaginator = ({
 // A thread is now resolved from ThreadContext (useThreadContext) rather than a `threadList` prop.
 // This lightweight stub exposes just what MessageList + ScrollToLatestMessageButton + useMarkRead
 // read from a thread; it reuses the channel's paginator as the thread's message source.
-const makeThreadStub = (channel: ChannelType): Thread =>
+const makeThreadStub = (channel: ChannelType, parentMessage?: LocalMessage): Thread =>
   fromPartial<Thread>({
     id: 'thread-stub-id',
     messageComposer: channel.messageComposer,
     messagePaginator: channel.messagePaginator,
     ownUnreadCount: 0,
-    state: new StateStore({ parentMessage: undefined }),
+    state: new StateStore({ parentMessage }),
   });
 
 const createDeferred = <T = void,>() => {
@@ -260,8 +261,8 @@ describe('MessageList', () => {
     // expect(results).toHaveNoViolations();
   });
 
-  it('should render the thread head if provided', async () => {
-    const MsgListHead = (props: { message: Pick<typeof message1, 'text'> }) => (
+  it('should render a ThreadHead override above the replies', async () => {
+    const CustomThreadHead = (props: { message: Pick<typeof message1, 'text'> }) => (
       <div>{props.message.text}</div>
     );
 
@@ -269,11 +270,9 @@ describe('MessageList', () => {
       renderComponent({
         channelProps: { channel },
         chatClient,
-        msgListProps: {
-          head: <MsgListHead key={'head'} message={message1} />,
-          messages: [reply1, reply2],
-          threadList: true,
-        },
+        components: { ThreadHead: CustomThreadHead },
+        msgListProps: { messages: [reply1, reply2] },
+        thread: makeThreadStub(channel, message1),
       });
     });
 
@@ -284,12 +283,30 @@ describe('MessageList', () => {
     });
   });
 
-  it('should not render the thread head if not provided', async () => {
+  it('should render the thread parent message when no head is provided', async () => {
+    // The head is the list's to render: it has to sit inside the scroll container, so `Thread`
+    // cannot place it as a sibling. Resolved from thread context, not passed down.
     await act(() => {
       renderComponent({
         channelProps: { channel },
         chatClient,
-        msgListProps: { messages: [reply1, reply2], thread: message1, threadList: true },
+        msgListProps: { messages: [reply1, reply2] },
+        thread: makeThreadStub(channel, message1),
+      });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText(message1.text)).toBeInTheDocument();
+    });
+  });
+
+  it('should not render a thread head when the thread has no parent message', async () => {
+    await act(() => {
+      renderComponent({
+        channelProps: { channel },
+        chatClient,
+        msgListProps: { messages: [reply1, reply2] },
+        thread: makeThreadStub(channel),
       });
     });
 
@@ -398,11 +415,11 @@ describe('MessageList', () => {
     expect(results).toHaveNoViolations();
   });
 
-  it('should not render DateSeparator if disableDateSeparator is true', async () => {
+  it('should not render DateSeparator if withDateSeparator is false', async () => {
     const { container } = renderComponent({
       channelProps: { channel },
       chatClient,
-      msgListProps: { disableDateSeparator: true },
+      msgListProps: { withDateSeparator: false },
     });
 
     await waitFor(() => {
@@ -775,9 +792,9 @@ describe('MessageList', () => {
           channelProps: { channel },
           chatClient: client,
           msgListProps: {
-            disableDateSeparator: true,
             messages: replies,
             threadList: true,
+            withDateSeparator: false,
           },
         });
       });

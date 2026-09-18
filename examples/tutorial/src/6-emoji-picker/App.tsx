@@ -5,13 +5,14 @@ import {
   ChannelHeader,
   ChannelNavigation,
   Chat,
+  getChannel,
   MessageComposer,
   MessageList,
-  Thread,
+  ThreadHeader,
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
-import { ChatView, useSlotChannels } from 'stream-chat-react/slot-layout';
+import { ChatView, ThreadSlot, useSlotChannels } from 'stream-chat-react/slot-layout';
 import { EmojiPicker } from 'stream-chat-react/emojis';
 
 import { init, SearchIndex } from 'emoji-mart';
@@ -29,7 +30,7 @@ const user: ClientUser = {
 init({ data });
 
 // One view ("channels") with a single channel slot. Module-scoped for a stable reference.
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel'] }];
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
 
 const ChannelsWorkspace = () => {
   const channelSlots = useSlotChannels();
@@ -42,9 +43,16 @@ const ChannelsWorkspace = () => {
           <ChannelHeader />
           <MessageList />
           <MessageComposer emojiSearchIndex={SearchIndex} />
-          <Thread />
         </Channel>
       ))}
+      {/* The panel for a thread opened from a message's "reply in thread" action: `ThreadSlot`
+          resolves the thread bound to the slot and hands it to `<Thread>`, which provides it to
+          the components below. */}
+      <ThreadSlot slot='thread'>
+        <ThreadHeader />
+        <MessageList />
+        <MessageComposer emojiSearchIndex={SearchIndex} />
+      </ThreadSlot>
     </>
   );
 };
@@ -70,7 +78,12 @@ const App = () => {
         },
       });
 
-      await channel.watch();
+      // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
+      // caller's job. The cached instance may already be loaded, so query only when it is not --
+      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      if (!channel.initialized) {
+        await getChannel({ channel, client });
+      }
       setIsReady(true);
     };
 

@@ -15,14 +15,12 @@ import {
   useUserHandler,
   useUserRole,
 } from './hooks';
-import { areMessagePropsEqual, getMessageActions, MESSAGE_ACTIONS } from './utils';
+import { areMessagePropsEqual } from './utils';
 
-import type { ChannelConfig, LocalMessage } from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 import type { MessageContextValue } from '../../context';
-import { useStateStore } from '../../store';
 import {
   MessageProvider,
-  useChannel,
   useChatContext,
   useComponentContext,
   useMessageTranslationViewContext,
@@ -58,18 +56,12 @@ type MessageWithContextProps = Omit<MessageProps, MessagePropsToOmit> &
 const MessageWithContext = (props: MessageWithContextProps) => {
   const {
     message,
-    messageActions = Object.keys(MESSAGE_ACTIONS),
     onUserClick: propOnUserClick,
     onUserHover: propOnUserHover,
     userRoles,
   } = props;
 
-  const channel = useChannel();
   const { isMessageAIGenerated } = useChatContext();
-  const { userMessageRemindersEnabled } = useStateStore(
-    channel.configState,
-    userMessageRemindersStateSelector,
-  );
   const { MessageUI: MessageUIComponent = DefaultMessageUI } = useComponentContext();
   const { getTranslationView, setTranslationView: setTranslationViewInContext } =
     useMessageTranslationViewContext();
@@ -80,61 +72,14 @@ const MessageWithContext = (props: MessageWithContextProps) => {
     [message.id, setTranslationViewInContext],
   );
 
-  const actionsEnabled = message.type === 'regular' && message.status === 'received';
-
   const { onUserClick, onUserHover } = useUserHandler(message, {
     onUserClickHandler: propOnUserClick,
     onUserHoverHandler: propOnUserHover,
   });
 
-  const {
-    canDelete,
-    canEdit,
-    canFlag,
-    canMarkUnread,
-    canMute,
-    canPin,
-    canQuote,
-    canReact,
-    canReply,
-    isMyMessage,
-  } = userRoles;
-
-  const messageActionsHandler = useCallback(
-    () =>
-      getMessageActions(
-        messageActions,
-        {
-          canDelete,
-          canEdit,
-          canFlag,
-          canMarkUnread,
-          canMute,
-          canPin,
-          canQuote,
-          canReact,
-          canReply,
-        },
-        userMessageRemindersEnabled,
-      ),
-
-    [
-      messageActions,
-      canDelete,
-      canEdit,
-      canFlag,
-      canMarkUnread,
-      canMute,
-      canPin,
-      canQuote,
-      canReact,
-      canReply,
-      userMessageRemindersEnabled,
-    ],
-  );
+  const { isMyMessage } = userRoles;
 
   const {
-    messageActions: messageActionsPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserClick: onUserClickPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     onUserHover: onUserHoverPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
     userRoles: userRolesPropToNotPass, // eslint-disable-line @typescript-eslint/no-unused-vars
@@ -143,8 +88,6 @@ const MessageWithContext = (props: MessageWithContextProps) => {
 
   const messageContextValue: MessageContextValue = {
     ...rest,
-    actionsEnabled,
-    getMessageActions: messageActionsHandler,
     isMessageAIGenerated,
     isMyMessage: () => isMyMessage,
     onUserClick,
@@ -169,12 +112,6 @@ const MemoizedMessage = React.memo(
  * The Message component is a context provider which implements all the logic required for rendering
  * an individual message. The actual UI of the message is delegated via the Message prop on Channel.
  */
-// Selects the one setting `getMessageActions` reads, so an unrelated configuration write does not
-// re-render every message in the list.
-const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConfig) => ({
-  userMessageRemindersEnabled: userMessageReminders.enabled,
-});
-
 export const Message = (props: MessageProps) => {
   const {
     closeReactionSelectorOnClick,
@@ -244,7 +181,6 @@ export const Message = (props: MessageProps) => {
       lastOwnMessage={props.lastOwnMessage}
       lastReceivedId={props.lastReceivedId}
       message={message}
-      messageActions={props.messageActions}
       messageListRect={props.messageListRect}
       onMentionsClickMessage={onMentionsClick}
       onMentionsHoverMessage={onMentionsHover}

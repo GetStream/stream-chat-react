@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import { useChatContext, useStateStore } from 'stream-chat-react';
+import { getChannel, useChatContext, useStateStore } from 'stream-chat-react';
 import {
   type ChatView,
   type ChatViewEntityBinding,
@@ -10,7 +10,14 @@ import {
   useChatViewContext,
   useChatViewNavigation,
 } from 'stream-chat-react/slot-layout';
-import type { Channel, ChannelManager, StreamChat, Thread } from 'stream-chat';
+import { formatMessage, Thread as StreamThread } from 'stream-chat';
+import type {
+  Channel,
+  ChannelManager,
+  LocalMessage,
+  StreamChat,
+  Thread,
+} from 'stream-chat';
 
 /**
  * Full-workspace URL sync for the vite example.
@@ -190,6 +197,23 @@ const resolveChannel = (client: StreamChat, cid: string): Channel | undefined =>
   return type && id ? client.channel(type, id) : undefined;
 };
 
+/**
+ * One message by id, for a thread deep link whose parent is outside every loaded window (a link
+ * into an old thread, or a cold Back). `GET /messages/:id` answers for any message, including one
+ * with no replies — unlike the thread endpoint, which 404s until the first reply exists.
+ */
+const fetchMessage = async (
+  client: StreamChat,
+  id: string,
+): Promise<LocalMessage | undefined> => {
+  try {
+    const { message } = await client.getMessage({ id });
+    return message ? formatMessage(message) : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 const resolveBinding = async (
   client: StreamChat,
   token: ParsedToken,
@@ -205,22 +229,47 @@ const resolveBinding = async (
       // the channel is classified into its real owning list. Already-initialized channels
       // (paginator-first / warm Back-Forward) skip this — and this is the same single watch
       // `<Channel>` would otherwise issue, just moved earlier, so it stays a single `/query`.
-      if (!channel.initialized) await channel.watch().catch(() => undefined);
+      // Through `getChannel`, so a `?focus=` entry naming this same channel shares this one watch
+      // instead of racing a second one.
+      if (!channel.initialized) {
+        await getChannel({ channel, client }).catch(() => undefined);
+      }
       return { binding: { key: channel.cid, kind: 'channel', source: channel }, channel };
     }
     case 'thread': {
       // Paginator-first: a thread the thread-list already holds is reused as-is — no round-trip.
-      // Only when it isn't loaded (deep-link straight to a thread past page 1, or a cold Back into a
-      // never-visited thread) do we fall back to fetching it by id.
-      const thread =
-        client.threads.threadsById[token.key] ??
-        (await client
-          .getThreadAndHydrate(token.key, { watch: true })
-          .catch(() => undefined));
-      if (!thread) return undefined;
+      const listed = client.threads.threadsById[token.key];
+      if (listed) {
+        return {
+          binding: { key: listed.id ?? undefined, kind: 'thread', source: listed },
+          channel: listed.channel ?? undefined,
+        };
+      }
+
+      // Otherwise build the instance from its parent message rather than querying the thread.
+      //
+      // Two reasons not to call `getThreadAndHydrate` here. A thread does not exist server-side
+      // until its parent message has a reply, so restoring a link to a reply-less thread would
+      // answer 404 — and the query is redundant even for a real thread, because `<Thread>` loads
+      // its own replies once the parent reports some. Deciding that is the component's job; this
+      // resolver only has to produce the instance to bind.
+      const parentMessage =
+        client.messageStore.get(token.key) ?? (await fetchMessage(client, token.key));
+      if (!parentMessage?.cid) return undefined;
+
+      const channel = resolveChannel(client, parentMessage.cid);
+      if (!channel) return undefined;
+      // Same watch the bound `<Channel>` would issue (see the channel case) — moved earlier so the
+      // thread's channel config, members and read state are loaded when the panel renders.
+      if (!channel.initialized) await channel.watch().catch(() => undefined);
+
       return {
-        binding: { key: thread.id ?? undefined, kind: 'thread', source: thread },
-        channel: thread.channel ?? undefined,
+        binding: {
+          key: token.key,
+          kind: 'thread',
+          source: new StreamThread({ channel, client, parentMessage }),
+        },
+        channel,
       };
     }
     case 'userProfile':

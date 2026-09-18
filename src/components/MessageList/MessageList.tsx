@@ -7,6 +7,7 @@ import {
   useScrollLocationLogic,
   useUnreadMessagesNotification,
 } from './hooks/MessageList';
+import { getMessageSourceKey } from './messageSourceKey';
 import { useMarkRead } from './hooks/useMarkRead';
 
 import { NewMessageNotification as DefaultNewMessageNotification } from './NewMessageNotification';
@@ -24,7 +25,6 @@ import { MessageListContextProvider } from '../../context/MessageListContext';
 import { MessageTranslationViewProvider } from '../../context/MessageTranslationViewContext';
 import { EmptyStateIndicator as DefaultEmptyStateIndicator } from '../EmptyStateIndicator';
 import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading';
-import { MESSAGE_ACTIONS } from '../Message/utils';
 import { TypingIndicator as DefaultTypingIndicator } from '../TypingIndicator';
 import { MessageListMainPanel as DefaultMessageListMainPanel } from './MessageListMainPanel';
 
@@ -33,6 +33,7 @@ import type { MessageRenderer } from './renderMessages';
 import { defaultRenderMessages } from './renderMessages';
 import { useStableId } from '../UtilityComponents/useStableId';
 import { useThreadContext } from '../Threads';
+import { useThreadHead } from './hooks/useThreadHead';
 
 import type {
   LocalMessage,
@@ -50,6 +51,7 @@ import type { InfiniteScrollPaginatorProps } from '../InfiniteScrollPaginator/In
 import { InfiniteScrollPaginator } from '../InfiniteScrollPaginator/InfiniteScrollPaginator';
 import { useMessagePaginator } from '../../hooks';
 import { ScrollToLatestMessageButton } from './ScrollToLatestMessageButton';
+import { useCanPaginateReplies } from './hooks/useCanPaginateReplies';
 
 type MessageListWithContextProps = MessageListProps;
 
@@ -78,8 +80,8 @@ const getScrollBehavior = (): ScrollBehavior =>
 
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const channel = useChannel();
+  const threadHead = useThreadHead();
   const {
-    disableDateSeparator = false,
     groupStyles,
     headerPosition,
     hideDeletedMessages = false,
@@ -90,9 +92,8 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       ...restInternalInfiniteScrollProps
     } = {},
     maxTimeBetweenGroupedMessages,
-    messageActions = Object.keys(MESSAGE_ACTIONS),
-    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     noGroupByUser = false,
+    // messageLimit = DEFAULT_NEXT_CHANNEL_PAGE_SIZE,
     reactionDetailsSort,
     renderMessages = defaultRenderMessages,
     returnAllReadData = false,
@@ -101,6 +102,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     sortReactions,
     suppressAutoscroll: suppressAutoscrollFromProps = false,
     unsafeHTML = false,
+    withDateSeparator = true,
   } = props;
   const thread = useThreadContext();
   const isThreadList = !!thread;
@@ -184,7 +186,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
 
   const { messageGroupStyles, messages: enrichedMessages } = useEnrichedMessages({
     channel,
-    disableDateSeparator,
     groupStyles,
     headerPosition,
     hideDeletedMessages,
@@ -193,6 +194,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     messages,
     noGroupByUser,
     reviewProcessedMessage,
+    withDateSeparator,
   });
 
   const lastOwnMessage = useLastOwnMessage({
@@ -211,7 +213,6 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
       closeReactionSelectorOnClick: props.closeReactionSelectorOnClick,
       disableQuotedMessages: props.disableQuotedMessages,
       formatDate: props.formatDate,
-      messageActions,
       messageListRect: wrapperRect,
       onMentionsClick: props.onMentionsClick,
       onMentionsHover: props.onMentionsHover,
@@ -232,6 +233,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
   });
 
   const messageListClass = customClasses?.messageList || 'str-chat__message-list';
+
+  // An empty thread would otherwise ask for a page at both ends the moment the scroller mounts.
+  const canPaginateReplies = useCanPaginateReplies();
 
   const loadOlderMessages = React.useCallback(async () => {
     if (loadingOlderRef.current) return;
@@ -368,9 +372,9 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
             }
             */}
             <FloatingDateSeparator
-              disableDateSeparator={disableDateSeparator}
               listElement={listElement}
               processedMessages={enrichedMessages}
+              withDateSeparator={withDateSeparator}
             />
             <div
               className={clsx(messageListClass, customClasses?.threadList)}
@@ -385,14 +389,18 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
                   className='str-chat__message-list-scroll'
                   data-testid='reverse-infinite-scroll'
                   element={internalListElement}
-                  loadNextOnScrollToBottom={messagePaginator.toHead}
-                  loadNextOnScrollToTop={loadOlderMessages}
+                  loadNextOnScrollToBottom={
+                    canPaginateReplies ? messagePaginator.toHead : undefined
+                  }
+                  loadNextOnScrollToTop={
+                    canPaginateReplies ? loadOlderMessages : undefined
+                  }
                   onScroll={onScroll}
                   ref={setListElement}
                   threshold={loadMoreScrollThreshold}
                   {...restInternalInfiniteScrollProps}
                 >
-                  {props.head}
+                  {threadHead}
                   {isLoading && (
                     <div className='str-chat__list__loading' key='loading-indicator'>
                       {props.loadingMore && <LoadingIndicator />}
@@ -438,7 +446,6 @@ type PropsDrilledToMessage =
   | 'closeReactionSelectorOnClick'
   | 'disableQuotedMessages'
   | 'formatDate'
-  | 'messageActions'
   | 'onMentionsClick'
   | 'onMentionsHover'
   | 'onUserClick'
@@ -459,8 +466,6 @@ type InternalPaginatorProps = Partial<
 
 export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>> & {
   // todo: data manipulation - should live in the paginator
-  /** Disables the injection of date separator components in MessageList, defaults to `false` */
-  disableDateSeparator?: boolean;
   /** Callback function to set group styles for each message */
   groupStyles?: (
     message: RenderedMessage,
@@ -471,8 +476,6 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   ) => GroupStyle;
   /** Whether the list has more items to load */
   hasMore?: boolean;
-  /** Element to be rendered at the top of the thread message list. By default, these are the Message and ThreadStart components */
-  head?: React.ReactElement;
   /**
    * Position to render HeaderComponent, as a timestamp in the same unit as `message.created_at` —
    * i.e. unix nanoseconds. Was milliseconds while `created_at` was a `Date`.
@@ -528,6 +531,8 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
   showUnreadNotificationAlways?: boolean;
   /** If true, prevents autoscroll-to-bottom behavior on new messages. */
   suppressAutoscroll?: boolean;
+  /** Injects date separator components into the list, defaults to `true` */
+  withDateSeparator?: boolean;
 };
 
 /**
@@ -538,6 +543,15 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
  * - `ComponentContext`
  * - `ThreadContext`
  */
-export const MessageList = (props: MessageListProps) => (
-  <MessageListWithContext {...props} />
-);
+export const MessageList = (props: MessageListProps) => {
+  const channel = useChannel();
+  const thread = useThreadContext();
+
+  // Scroll position and the rest of this list's local state belong to whatever it is showing -- a
+  // thread's replies or a channel's messages -- so a different one starts from scratch. `Channel`
+  // and `Thread` used to provide this reset by remounting their entire subtree; it belongs here,
+  // where the state actually lives.
+  return (
+    <MessageListWithContext {...props} key={getMessageSourceKey({ channel, thread })} />
+  );
+};

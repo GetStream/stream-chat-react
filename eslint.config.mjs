@@ -8,6 +8,27 @@ import sortDestructureKeysPlugin from 'eslint-plugin-sort-destructure-keys';
 import reactPlugin from 'eslint-plugin-react';
 import vitestPlugin from '@vitest/eslint-plugin';
 
+// `stream-chat` re-exported the state store until v10 extracted it into its own package, so the
+// old specifier still reads as correct and typechecks nowhere CI looks (test files are outside
+// `yarn types`). It resolves to `undefined` at runtime — "StateStore is not a constructor".
+// `@stream-io/state-store` is the single source for this API; see CLAUDE.md.
+const stateStoreFromStreamChat = {
+  name: 'stream-chat',
+  importNames: [
+    'StateStore',
+    'MergedStateStore',
+    'isPatch',
+    'Patch',
+    'ValueOrPatch',
+    'Handler',
+    'Unsubscribe',
+    'RemovePreprocessor',
+    'Preprocessor',
+  ],
+  message:
+    "`stream-chat` does not export the state store — it lives in `@stream-io/state-store`. Import it from there (a value import from 'stream-chat' resolves to undefined at runtime).",
+};
+
 export default tseslint.config(
   {
     ignores: [
@@ -146,6 +167,7 @@ export default tseslint.config(
               message:
                 'React 18+/19-only API. Use useStableId from src/utils/useStableId, useSyncExternalStore from use-sync-external-store/shim. useEffectEvent and use() are not allowed: SDK supports React 17+.',
             },
+            stateStoreFromStreamChat,
           ],
         },
       ],
@@ -169,6 +191,15 @@ export default tseslint.config(
             '`ref` destructured from props. React 17 and 18 only deliver `ref` to components wrapped in `React.forwardRef` — use `React.forwardRef((props, ref) => …)` and take `ref` as the second parameter instead.',
         },
       ],
+    },
+  },
+  {
+    // The `react-compat` block above ignores tests, but the state store specifier is wrong
+    // everywhere — and a test is where the wrong one actually reached CI.
+    name: 'state-store-single-source',
+    files: ['src/**/__tests__/**', 'src/mock-builders/**'],
+    rules: {
+      'no-restricted-imports': ['error', { paths: [stateStoreFromStreamChat] }],
     },
   },
   {

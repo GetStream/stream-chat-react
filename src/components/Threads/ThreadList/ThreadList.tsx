@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { ComputeItemKey, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
-import type { Thread, ThreadManager, ThreadManagerState } from 'stream-chat';
+import type { Thread, ThreadManagerState } from 'stream-chat';
 
 import { useVirtualizedListboxKeyboardNavigation } from '../../../a11y/hooks/useVirtualizedListboxKeyboardNavigation';
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
 import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from './ThreadListEmptyPlaceholder';
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
+import { useThreadHighlighting } from './useThreadHighlighting';
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import { LoadingChannels } from '../../Loading';
 import { NotificationList } from '../../Notifications';
@@ -65,41 +66,6 @@ export const useThreadList = () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [client]);
-};
-
-const useThreadHighlighting = (threadManager: ThreadManager) => {
-  const [threadsToHighlight, setThreadsToHighlight] = useState<
-    Record<string, () => void>
-  >({});
-
-  useEffect(() => {
-    const unsubscribe = threadManager.state.subscribeWithSelector(
-      (state) => state.threads,
-      (nextThreads, previousThreads) => {
-        if (!previousThreads) return;
-
-        const resetByThreadId: Record<string, () => void> = {};
-
-        for (const thread of nextThreads) {
-          if (previousThreads.includes(thread)) continue;
-
-          resetByThreadId[thread.id] = () => {
-            setThreadsToHighlight((pv) => {
-              const copy = { ...pv };
-              delete copy[thread.id];
-              return copy;
-            });
-          };
-        }
-
-        setThreadsToHighlight(resetByThreadId);
-      },
-    );
-
-    return unsubscribe;
-  });
-
-  return threadsToHighlight;
 };
 
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
