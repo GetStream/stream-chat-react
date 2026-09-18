@@ -20,6 +20,25 @@ export const isNotificationTargetPanel = (
   typeof value === 'string' &&
   (NOTIFICATION_TARGET_PANELS as readonly string[]).includes(value);
 
+/**
+ * Panel implied by the composer that raised a notification. `stream-chat` cannot name a panel -- it
+ * has no notion of one -- but every composer-scoped emitter puts the composer in `origin.context`,
+ * and a thread composer's upload failure belongs in that thread rather than in the channel the
+ * thread hangs off. Only the two contexts that correspond to a panel are mapped; `message` and
+ * `legacy_thread` have none.
+ */
+const getPanelFromComposerContext = (
+  notification: Notification,
+): NotificationTargetPanel | undefined => {
+  const composer = notification.origin.context?.composer as
+    | { contextType?: unknown }
+    | undefined;
+
+  if (composer?.contextType === 'thread') return 'thread';
+  if (composer?.contextType === 'channel') return 'channel';
+  return undefined;
+};
+
 export const getNotificationTargetPanel = (
   notification: Notification,
 ): NotificationTargetPanel | undefined => {
@@ -29,7 +48,8 @@ export const getNotificationTargetPanel = (
     if (isNotificationTargetPanel(candidate)) return candidate;
   }
   const panel = notification.origin.context?.panel;
-  return isNotificationTargetPanel(panel) ? panel : undefined;
+  if (isNotificationTargetPanel(panel)) return panel;
+  return getPanelFromComposerContext(notification);
 };
 
 export const getNotificationTargetPanels = (
@@ -47,7 +67,10 @@ export const getNotificationTargetPanels = (
   }
 
   const panel = notification.origin.context?.panel;
-  return isNotificationTargetPanel(panel) ? [panel] : [];
+  if (isNotificationTargetPanel(panel)) return [panel];
+
+  const composerPanel = getPanelFromComposerContext(notification);
+  return composerPanel ? [composerPanel] : [];
 };
 
 export const getNotificationTargetTag = (panel: NotificationTargetPanel) =>

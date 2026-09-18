@@ -14,14 +14,15 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { MessageList } from '../../MessageList';
-import { MESSAGE_LIST_MAIN_PANEL_CLASS } from '../../MessageList/MessageListMainPanel';
 import { ThreadProvider } from '../../Threads';
 import { initClientWithChannels } from '../../../mock-builders';
 
 import type { Channel as ChannelType, StreamChat, Thread } from 'stream-chat';
 
-const messageListPanel = () =>
-  document.querySelector(`.${MESSAGE_LIST_MAIN_PANEL_CLASS.split(' ').join('.')}`);
+// The list element, not the panel: the panel is rendered above the message list's key so the
+// notification area it holds survives a switch, which makes it a poor witness to the rebuild. This
+// one is inside the key, and it is what carries the scroll state the key exists to reset.
+const messageListElement = () => document.querySelector('.str-chat__message-list');
 
 const renderThread = ({
   channel,
@@ -73,22 +74,22 @@ describe('switching threads within one channel', () => {
     const { channel, client, threadA, threadB } = await setup();
 
     const { rerender } = render(renderThread({ channel, client, thread: threadA }));
-    const panelBefore = messageListPanel();
+    const listBefore = messageListElement();
 
     rerender(renderThread({ channel, client, thread: threadB }));
 
-    expect(messageListPanel()).not.toBe(panelBefore);
+    expect(messageListElement()).not.toBe(listBefore);
   });
 
   it('keeps the message list intact when the same thread re-renders', async () => {
     const { channel, client, threadA } = await setup();
 
     const { rerender } = render(renderThread({ channel, client, thread: threadA }));
-    const panelBefore = messageListPanel();
+    const listBefore = messageListElement();
 
     rerender(renderThread({ channel, client, thread: threadA }));
 
-    expect(messageListPanel()).toBe(panelBefore);
+    expect(messageListElement()).toBe(listBefore);
   });
 
   it('does not rebuild the channel subtree around the thread', async () => {

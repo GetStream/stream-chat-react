@@ -88,10 +88,13 @@ export type AddNotification = (params: AddNotificationParams) => void;
 export type AddSystemNotification = (params: AddSystemNotificationParams) => string;
 export type RemoveNotification = (id: string) => void;
 export type StartNotificationTimeout = (id: string) => void;
+/** Starts a notification's countdown unless one is already running. */
+export type EnsureNotificationTimeout = (id: string) => void;
 
 export type NotificationApi = {
   addNotification: AddNotification;
   addSystemNotification: AddSystemNotification;
+  ensureNotificationTimeout: EnsureNotificationTimeout;
   removeNotification: RemoveNotification;
   startNotificationTimeout: StartNotificationTimeout;
 };
@@ -247,9 +250,20 @@ export const useNotificationApi = (): NotificationApi => {
     [client],
   );
 
+  // Starting is the manager's to make idempotent: a caller that cannot know whether the countdown
+  // is already running -- a component that remounts, a second view of the same notification --
+  // would otherwise hand it another full lifetime and lose the original deadline.
+  const ensureNotificationTimeout: EnsureNotificationTimeout = useCallback(
+    (id) => {
+      client.notifications.ensureTimeout(id);
+    },
+    [client],
+  );
+
   return {
     addNotification,
     addSystemNotification,
+    ensureNotificationTimeout,
     removeNotification,
     startNotificationTimeout,
   };

@@ -245,7 +245,7 @@ export const NotificationList = ({
   const { Notification: NotificationComponent = DefaultNotification } =
     useComponentContext();
   const { t } = useTranslationContext();
-  const { removeNotification, startNotificationTimeout } = useNotificationApi();
+  const { ensureNotificationTimeout, removeNotification } = useNotificationApi();
   // Holds the timer that runs the exit animation. Set when we flip `transitionState` to
   // `'exit'`; when it fires, the previously displayed notification is removed and either the
   // next candidate is mounted (entering) or the list collapses to empty. Only one exit
@@ -260,11 +260,6 @@ export const NotificationList = ({
   const displayedAtRef = useRef<number | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const observedElementRef = useRef<HTMLDivElement | null>(null);
-  const startedTimeoutIdsRef = useRef<Set<string> | null>(null);
-
-  if (!startedTimeoutIdsRef.current) {
-    startedTimeoutIdsRef.current = new Set<string>();
-  }
 
   const [displayedNotification, setDisplayedNotification] = useState<Notification | null>(
     null,
@@ -286,22 +281,10 @@ export const NotificationList = ({
 
   const dismiss = useCallback(
     (id: string) => {
-      startedTimeoutIdsRef.current?.delete(id);
       removeNotification(id);
     },
     [removeNotification],
   );
-
-  // Drop any stale entries from the started-timeouts set whenever the store changes.
-  useEffect(() => {
-    const notificationIds = new Set(notifications.map(({ id }) => id));
-
-    startedTimeoutIdsRef.current?.forEach((id) => {
-      if (!notificationIds.has(id)) {
-        startedTimeoutIdsRef.current?.delete(id);
-      }
-    });
-  }, [notifications]);
 
   const clearReplacementTimeout = useCallback(() => {
     if (replacementTimeoutRef.current !== null) {
@@ -412,7 +395,6 @@ export const NotificationList = ({
         if (wasInStore) {
           // Remove the previously displayed notification from the store so it does not
           // re-appear, and so its NotificationManager auto-dismiss timer is cleared.
-          startedTimeoutIdsRef.current?.delete(previousId);
           removeNotification(previousId);
         }
         // Read the latest candidate at the moment the exit animation actually completes —
@@ -483,15 +465,11 @@ export const NotificationList = ({
     const element = observedElementRef.current;
     if (!element || !notification || transitionState === 'exit') return;
 
+    // `ensureTimeout` leaves a running countdown alone, so this can be called whenever the
+    // notification becomes visible without tracking which ones have been started already -- and
+    // without a second view of the same notification pushing its deadline out.
     const startTimeout = () => {
-      if (
-        !startedTimeoutIdsRef.current ||
-        startedTimeoutIdsRef.current.has(notification.id)
-      )
-        return;
-
-      startedTimeoutIdsRef.current.add(notification.id);
-      startNotificationTimeout(notification.id);
+      ensureNotificationTimeout(notification.id);
     };
 
     if (typeof IntersectionObserver === 'undefined') {
@@ -518,7 +496,7 @@ export const NotificationList = ({
     return () => {
       observer.disconnect();
     };
-  }, [notification, startNotificationTimeout, transitionState]);
+  }, [ensureNotificationTimeout, notification, transitionState]);
 
   if (!notification) return null;
 
