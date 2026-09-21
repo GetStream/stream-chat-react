@@ -10146,8 +10146,8 @@ __metadata:
   linkType: soft
 
 "stream-chat@npm:^9.52.0":
-  version: 9.52.0
-  resolution: "stream-chat@npm:9.52.0"
+  version: 9.53.0
+  resolution: "stream-chat@npm:9.53.0"
   dependencies:
     "@types/jsonwebtoken": "npm:^9.0.8"
     "@types/ws": "npm:^8.18.1"
@@ -10163,7 +10163,7 @@ __metadata:
       built: true
     husky:
       built: true
-  checksum: 10c0/1ff1a595a17f54e244e1d0803e2821887092b609f8ab56377a006789cdaaed1307ed09cb9a64aecf8f863aefee6050a3b23bd9eec2b14bbbe661a26410d2c8c0
+  checksum: 10c0/65cb7d3ece82d63e2857f48fb3892013ab3cecde041f8d58eb3f4d017cf211aff6ad8488d348aa7899dc1d258d206f3161d0bcb69734020ebdd37130f6be43c5
   languageName: node
   linkType: hard
 
