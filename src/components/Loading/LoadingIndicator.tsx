@@ -1,8 +1,13 @@
-import React, { type ComponentProps } from 'react';
-import { IconLoading } from '../Icons';
+import React from 'react';
+import { useComponentContextIcons } from '../../context';
+import type { BaseIconProps } from '../Icons/BaseIcon';
 
-export type LoadingIndicatorProps = ComponentProps<typeof IconLoading>;
+// Typed off the icon contract rather than off a concrete icon: the rendered icon now comes from
+// the `IconLoading` slot, which any override can replace.
+export type LoadingIndicatorProps = BaseIconProps;
 
-export const LoadingIndicator = (props: LoadingIndicatorProps) => (
-  <IconLoading {...props} className='str-chat__loading-indicator' />
-);
+export const LoadingIndicator = (props: LoadingIndicatorProps) => {
+  const { IconLoading } = useComponentContextIcons();
+
+  return <IconLoading {...props} className='str-chat__loading-indicator' />;
+};

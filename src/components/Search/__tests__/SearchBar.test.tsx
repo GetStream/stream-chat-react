@@ -7,7 +7,8 @@ import { useSearchContext } from '../SearchContext';
 import type { SearchContextValue } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import type { TranslationContextValue } from '../../../context';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
+import * as DEFAULT_ICONS from '../../Icons/icons';
 import { useStateStore } from '../../../store';
 import { axe } from '../../../../axe-helper';
 import { mockT } from '../../../mock-builders/translator';
@@ -59,6 +60,9 @@ describe('SearchBar', () => {
       isActive: false,
       searchQuery: '',
     });
+    // The module is auto-mocked, so the icon hook would return undefined; hand back the real
+    // icons rather than stubs, so these tests keep asserting against what users actually see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
   it('renders with default state', () => {

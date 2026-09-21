@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useChannel } from '../../context';
+import { useChannel, useComponentContextIcons } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
@@ -13,7 +13,6 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { EventPayload, LocalMessage } from 'stream-chat';
 import type { TextComposerState, ThreadState } from 'stream-chat';
 import { Button } from '../Button';
-import { IconXmark } from '../Icons';
 import { useWorkspaceNavigation } from '../../context';
 import type { ChannelConfig } from 'stream-chat';
 
@@ -85,6 +84,7 @@ export type ThreadHeaderProps = {
 };
 
 export const ThreadHeader = ({ overrideTitle }: ThreadHeaderProps) => {
+  const { IconXmark } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const channel = useChannel();
   const { HeaderStartContent } = useComponentContext();

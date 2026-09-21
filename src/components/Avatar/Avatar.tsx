@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
-import { IconUser } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type AvatarProps = {
   /** Custom icon rendered when there is no image and no initials */
@@ -51,7 +51,7 @@ const getInitials = (name?: string) => {
  */
 export const Avatar = ({
   className,
-  FallbackIcon = IconUser,
+  FallbackIcon,
   imageUrl,
   initials: customInitials,
   isOnline,
@@ -59,6 +59,9 @@ export const Avatar = ({
   userName,
   ...rest
 }: AvatarProps) => {
+  const { IconUser } = useComponentContextIcons();
+  // The prop still wins over the context slot: it targets one avatar, the slot rebrands all of them.
+  const ResolvedFallbackIcon = FallbackIcon ?? IconUser;
   const [error, setError] = useState(false);
 
   useEffect(() => () => setError(false), [imageUrl]);
@@ -113,7 +116,7 @@ export const Avatar = ({
               {sizeAwareInitials}
             </div>
           )}
-          {!sizeAwareInitials.length && <FallbackIcon />}
+          {!sizeAwareInitials.length && <ResolvedFallbackIcon />}
         </>
       )}
     </div>

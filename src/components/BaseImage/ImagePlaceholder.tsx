@@ -1,7 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconImage } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type ImagePlaceholderProps = {
   className?: string;
@@ -9,6 +9,8 @@ export type ImagePlaceholderProps = {
 
 export const ImagePlaceholder = ({ className }: ImagePlaceholderProps) => {
   const { t } = useTranslationContext();
+  const { IconImage } = useComponentContextIcons();
+
   return (
     <div
       aria-label={t(

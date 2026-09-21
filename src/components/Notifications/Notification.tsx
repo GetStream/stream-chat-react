@@ -3,13 +3,7 @@ import clsx from 'clsx';
 import type { NotificationSeverity } from 'stream-chat';
 import { type Notification as NotificationType } from 'stream-chat';
 
-import {
-  IconCheckmark,
-  IconExclamationMark,
-  IconExclamationTriangleFill,
-  IconRefresh,
-  IconXmark,
-} from '../../components/Icons';
+import { useComponentContextIcons } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { Button } from '../Button';
 import { useNotificationApi } from './hooks/useNotificationApi';
@@ -21,15 +15,18 @@ export type NotificationIconProps = {
   notification: NotificationType;
 };
 
-const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
-  error: IconExclamationMark,
-  info: null,
-  loading: IconRefresh,
-  success: IconCheckmark,
-  warning: IconExclamationTriangleFill,
-};
-
 const DefaultNotificationIcon = ({ notification }: NotificationIconProps) => {
+  const { IconCheckmark, IconExclamationMark, IconExclamationTriangleFill, IconRefresh } =
+    useComponentContextIcons();
+
+  const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
+    error: IconExclamationMark,
+    info: null,
+    loading: IconRefresh,
+    success: IconCheckmark,
+    warning: IconExclamationTriangleFill,
+  };
+
   if (!notification.severity) return null;
 
   const Icon = IconsBySeverity[notification.severity] ?? null;
@@ -74,6 +71,7 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
   ) => {
     const { removeNotification } = useNotificationApi();
     const { t } = useTranslationContext();
+    const { IconXmark } = useComponentContextIcons();
 
     const displayMessage = t('translationBuilderTopic.notification', {
       notification,

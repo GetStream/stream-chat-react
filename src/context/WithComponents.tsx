@@ -14,7 +14,13 @@ export function WithComponents({
   // `useComponentContext()` consumer below it, which would defeat the per-message
   // memoization in `areMessagePropsEqual`.
   const actualOverrides: ComponentContextValue = useMemo(
-    () => ({ ...parentOverrides, ...overrides }),
+    () => ({
+      ...parentOverrides,
+      ...overrides,
+      // `icons` merges per slot rather than being replaced wholesale: a nested provider that
+      // rebrands one icon must not clear the ones an ancestor supplied.
+      icons: { ...parentOverrides?.icons, ...overrides?.icons },
+    }),
     [parentOverrides, overrides],
   );
   return (

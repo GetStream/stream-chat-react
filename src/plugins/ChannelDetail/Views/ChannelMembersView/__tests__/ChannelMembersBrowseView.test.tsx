@@ -5,8 +5,10 @@ import type { ChannelMemberResponse } from 'stream-chat';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
 import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
@@ -112,6 +114,9 @@ const members: ChannelMemberResponse[] = [
 
 describe('ChannelMembersBrowseView', () => {
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
     mocks.searchSourceOptions.length = 0;

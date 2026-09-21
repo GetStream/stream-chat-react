@@ -4,9 +4,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useInteractionAnnouncements } from '../../Accessibility';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { Button, IconSearch, IconXCircle } from '../../../components';
+import { Button } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -17,6 +17,7 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 
 export const SearchBar = () => {
   const { t } = useTranslationContext();
+  const { IconSearch, IconXCircle } = useComponentContextIcons();
   const { announceInteraction } = useInteractionAnnouncements();
   const {
     containerRef,

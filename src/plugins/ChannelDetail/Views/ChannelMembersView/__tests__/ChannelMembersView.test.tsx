@@ -3,9 +3,11 @@ import React from 'react';
 
 import {
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import {
   type ChannelMembersModeViewProps,
   ChannelMembersView,
@@ -207,6 +209,9 @@ describe('ChannelMembersView', () => {
   };
 
   beforeEach(() => {
+    // Auto-mocked module: hand back the real icons rather than stubs, so a converted
+    // component appearing in this tree does not start returning undefined.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
 
     vi.mocked(useTranslationContext).mockReturnValue({

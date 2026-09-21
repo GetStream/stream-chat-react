@@ -16,9 +16,11 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { mockT } from '../../../../../mock-builders/translator';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
@@ -217,6 +219,9 @@ const mockSearchSourceState = (
 
 describe('PinnedMessagesView', () => {
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
     mocks.searchSourceFilterBuilderOptions.length = 0;

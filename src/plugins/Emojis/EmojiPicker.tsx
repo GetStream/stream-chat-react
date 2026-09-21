@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PickerImport from '@emoji-mart/react';
 
-import { useMessageComposerContext, useTranslationContext } from '../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../context';
 import {
   Button,
-  IconEmoji,
   type PopperLikePlacement,
   useMessageComposerController,
 } from '../../components';
@@ -72,7 +75,10 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
-  const { ButtonIconComponent = IconEmoji } = props;
+  const { ButtonIconComponent } = props;
+  const { IconEmoji } = useComponentContextIcons();
+  // The prop still wins: it targets this picker, the slot rebrands every emoji icon.
+  const ResolvedButtonIcon = ButtonIconComponent ?? IconEmoji;
   const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
 
   useEffect(() => {
@@ -134,7 +140,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         type='button'
         variant='secondary'
       >
-        {ButtonIconComponent && <ButtonIconComponent />}
+        {ResolvedButtonIcon && <ResolvedButtonIcon />}
       </Button>
     </div>
   );
