@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { AttachmentUploadedSizeIndicator } from '../AttachmentPreviewList/AttachmentUploadedSizeIndicator';
+import { AttachmentUploadedSizeIndicator } from '../../Loading/AttachmentUploadedSizeIndicator';
 
 describe('AttachmentUploadedSizeIndicator', () => {
   it('renders nothing when upload state is not uploading or finished', () => {
@@ -58,7 +58,7 @@ describe('AttachmentUploadedSizeIndicator', () => {
     );
 
     expect(screen.getByTestId('upload-size-fraction')).toHaveTextContent(
-      '500 B / 1.00e+3 B',
+      '500 B / 1000 B',
     );
     expect(screen.getByTestId('upload-size-fraction')).toHaveClass(
       'str-chat__attachment-preview-file__upload-size-fraction',
@@ -79,7 +79,7 @@ describe('AttachmentUploadedSizeIndicator', () => {
     );
 
     expect(screen.getByTestId('upload-size-fraction')).toHaveTextContent(
-      '500 B / 1.00e+3 B',
+      '500 B / 1000 B',
     );
   });
 

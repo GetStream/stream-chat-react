@@ -5,3 +5,4 @@ export * from './LoadingIndicator';
 export * from './progress-indicators';
 export * from './UploadProgressIndicator';
 export * from './UploadedSizeIndicator';
+export * from './AttachmentUploadedSizeIndicator';

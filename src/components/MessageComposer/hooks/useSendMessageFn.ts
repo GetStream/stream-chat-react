@@ -96,9 +96,6 @@ export const useSendMessageFn = () => {
         });
 
         return false;
-      } finally {
-        if (messageComposer.config.text.publishTypingEvents)
-          await messageComposer.channel.stopTyping();
       }
     },
     // [channel, thread, messageComposer, t]

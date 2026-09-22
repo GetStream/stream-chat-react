@@ -35,6 +35,7 @@ import {
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useSendMessageFn } from '../MessageComposer/hooks/useSendMessageFn';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
+import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -133,6 +134,9 @@ const TextareaComposerWithLiveAnnouncements = ({
   const shouldSubmit = shouldSubmitProp ?? shouldSubmitContext ?? defaultShouldSubmit;
 
   const messageComposer = useMessageComposerController();
+  // Read through the hook rather than off the composer directly, so Enter-to-submit stays in
+  // agreement with the send button.
+  const hasSendableData = useMessageComposerHasSendableData();
   const { textComposer } = messageComposer;
   const { selection, suggestions, text } = useStateStore(
     textComposer.state,
@@ -301,11 +305,7 @@ const TextareaComposerWithLiveAnnouncements = ({
       ) {
         event.preventDefault();
         textComposer.clearCommand();
-      } else if (
-        shouldSubmit(event) &&
-        textareaRef.current &&
-        messageComposer.hasSendableData
-      ) {
+      } else if (shouldSubmit(event) && textareaRef.current && hasSendableData) {
         if (event.key === 'Enter') {
           // prevent adding newline when submitting a message with
           event.preventDefault();
@@ -315,7 +315,7 @@ const TextareaComposerWithLiveAnnouncements = ({
     },
     [
       focusedItemIndex,
-      messageComposer,
+      hasSendableData,
       onKeyDown,
       sendMessage,
       shouldSubmit,

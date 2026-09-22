@@ -407,6 +407,7 @@ export type TranslationCatalog = {
   'messageComposer.quotedMessagePreview.videos.label_other': '{{ count }} videos';
   'messageComposer.quotedMessagePreview.voiceMessage.label': 'Voice message {{ duration }}';
   'messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel': 'Remove attachment';
+  'messageComposer.removeAttachmentPreviewButton.cancelUpload.ariaLabel': 'Cancel upload';
   'messageComposer.sendButton.send.ariaLabel': 'Send';
   'messageComposer.sendChannelCheckbox.alsoSendChannel.label': 'Also send in channel';
   'messageComposer.sendChannelCheckbox.alsoSendDirectMessage.label': 'Also send as a direct message';

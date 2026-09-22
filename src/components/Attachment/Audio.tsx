@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import {
+  AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator,
   FileSizeIndicator as DefaultFileSizeIndicator,
   DownloadButton,
 } from './components';
@@ -14,14 +15,21 @@ import { PlayButton } from '../Button/PlayButton';
 import { FileIcon } from '../FileIcon';
 import { DurationDisplay, ProgressBar } from '../AudioPlayback';
 import { useThreadContext } from '../Threads';
+import { getAttachmentPreviewUrl } from 'stream-chat';
+import { useAttachmentUploadState } from './hooks/useAttachmentUploadState';
 
 type AudioAttachmentUIProps = {
+  attachment?: Attachment;
   audioPlayer: AudioPlayer;
 };
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
-const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
-  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
+const AudioAttachmentUI = ({ attachment, audioPlayer }: AudioAttachmentUIProps) => {
+  const {
+    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+    FileSizeIndicator = DefaultFileSizeIndicator,
+  } = useComponentContext();
+  const { isUploading } = useAttachmentUploadState(attachment);
   const dataTestId = 'audio-widget';
   const rootClassName = 'str-chat__message-attachment-audio-widget';
 
@@ -40,31 +48,29 @@ const AudioAttachmentUI = ({ audioPlayer }: AudioAttachmentUIProps) => {
           </div>
         </div>
         <div className='str-chat__message-attachment-audio-widget--text-second-row'>
-          {durationSeconds ? (
-            <>
-              <DurationDisplay
-                duration={durationSeconds}
-                isPlaying={!!isPlaying}
-                secondsElapsed={secondsElapsed}
-              />
-              <ProgressBar
-                durationSeconds={durationSeconds}
-                progress={progress ?? 0}
-                secondsElapsed={secondsElapsed}
-                seek={audioPlayer.seek}
-              />
-            </>
+          {/*
+            While uploading, the upload progress takes this slot — ahead of both the duration and
+            the file size. It has to outrank the duration: an audio attachment can carry one
+            (`attachment.duration`, or the player reading it off the local blob), and showing it
+            would leave an uploading attachment with no upload indication at all.
+          */}
+          {isUploading ? (
+            <AttachmentUploadProgressIndicator attachment={attachment} />
+          ) : durationSeconds ? (
+            <DurationDisplay
+              duration={durationSeconds}
+              isPlaying={!!isPlaying}
+              secondsElapsed={secondsElapsed}
+            />
           ) : (
-            <>
-              <FileSizeIndicator fileSize={audioPlayer.fileSize} />
-              <ProgressBar
-                durationSeconds={durationSeconds}
-                progress={progress ?? 0}
-                secondsElapsed={secondsElapsed}
-                seek={audioPlayer.seek}
-              />
-            </>
+            <FileSizeIndicator fileSize={audioPlayer.fileSize} />
           )}
+          <ProgressBar
+            durationSeconds={durationSeconds}
+            progress={progress ?? 0}
+            secondsElapsed={secondsElapsed}
+            seek={audioPlayer.seek}
+          />
         </div>
       </div>
       <FileIcon className='str-chat__file-icon' mimeType={audioPlayer.mimeType} />
@@ -113,10 +119,13 @@ export const Audio = (props: AudioProps) => {
     requester:
       message?.id &&
       `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
-    src: asset_url,
+    // Falls back to the local blob preview while the upload is still in flight.
+    src: getAttachmentPreviewUrl(attachment, asset_url),
     title,
     waveformData: waveform_data,
   });
 
-  return audioPlayer ? <AudioAttachmentUI audioPlayer={audioPlayer} /> : null;
+  return audioPlayer ? (
+    <AudioAttachmentUI attachment={attachment} audioPlayer={audioPlayer} />
+  ) : null;
 };

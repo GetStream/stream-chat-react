@@ -6,6 +6,7 @@ import {
   IconEmoji,
   IconMessageBubble,
   IconMessageBubbles,
+  IconUpload,
 } from 'stream-chat-react';
 import { ChatViewSelectorButton } from 'stream-chat-react/slot-layout';
 import {
@@ -18,6 +19,7 @@ import {
 
 import { ActionsMenu } from './ActionsMenu';
 import { ChannelDetailTab } from './tabs/ChannelDetail';
+import { ComposerTab } from './tabs/Composer';
 import { ConfigurationTab } from './tabs/Configuration';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
@@ -39,6 +41,7 @@ import { FullscreenProvider } from './fullscreen';
 
 type TabId =
   | 'channelDetail'
+  | 'composer'
   | 'configuration'
   | 'general'
   | 'messageActions'
@@ -77,6 +80,7 @@ const settingsSectionConfig: SettingsSectionConfig[] = [
     id: 'notifications',
     title: 'Notifications',
   },
+  { Content: ComposerTab, Icon: IconUpload, id: 'composer', title: 'Composer' },
   { Content: SidebarTab, Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
   { Content: ReactionsTab, Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
   {

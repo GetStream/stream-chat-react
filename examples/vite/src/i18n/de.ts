@@ -550,6 +550,8 @@ export const deTranslations = {
   'messageComposer.quotedMessagePreview.videos.label_other': '{{ count }} Videos',
   'messageComposer.quotedMessagePreview.voiceMessage.label':
     'Sprachnachricht {{ duration }}',
+  'messageComposer.removeAttachmentPreviewButton.cancelUpload.ariaLabel':
+    'Upload abbrechen',
   'messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel':
     'Anhang entfernen',
   'messageComposer.sendButton.send.ariaLabel': 'Senden',

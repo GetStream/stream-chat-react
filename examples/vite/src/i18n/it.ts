@@ -544,6 +544,8 @@ export const itTranslations = {
   'messageComposer.quotedMessagePreview.videos.label_other': '{{ count }} video',
   'messageComposer.quotedMessagePreview.voiceMessage.label':
     'Messaggio vocale {{ duration }}',
+  'messageComposer.removeAttachmentPreviewButton.cancelUpload.ariaLabel':
+    'Annulla caricamento',
   'messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel':
     'Rimuovi allegato',
   'messageComposer.sendButton.send.ariaLabel': 'Invia',
