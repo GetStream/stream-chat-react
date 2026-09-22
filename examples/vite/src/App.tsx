@@ -558,12 +558,23 @@ const App = () => {
       });
 
       composer.updateConfig({
-        attachments: { pendingUploadsEnabled: sendMessagesWithPendingUploads },
         linkPreviews: { enabled: true },
         location: { enabled: true },
       });
     });
-  }, [chatClient, failUploads, sendMessagesWithPendingUploads, slowUploads]);
+  }, [chatClient, failUploads, slowUploads]);
+
+  useEffect(() => {
+    if (!chatClient) return;
+
+    // Declarative rather than in the setup function above, which only runs for composers built
+    // afterwards. A composer picks this up when it is constructed or when it registers
+    // subscriptions, and the latter is what mounting a channel does - so an open composer sees it
+    // at once and the rest on their way in.
+    chatClient.config.setConfig('messageComposer', {
+      attachments: { pendingUploadsEnabled: sendMessagesWithPendingUploads },
+    });
+  }, [chatClient, sendMessagesWithPendingUploads]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(

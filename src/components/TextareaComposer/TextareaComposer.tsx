@@ -33,7 +33,6 @@ import {
   hasEnabledCommandSuggestions,
 } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
-import { useSendMessageFn } from '../MessageComposer/hooks/useSendMessageFn';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
 
@@ -165,7 +164,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       } satisfies React.CSSProperties);
-  const sendMessage = useSendMessageFn();
+  const sendMessage = messageComposer.send;
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
   const { quotedMessage } = useStateStore(

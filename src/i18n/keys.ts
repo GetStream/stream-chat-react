@@ -411,9 +411,7 @@ export type TranslationCatalog = {
   'messageComposer.sendButton.send.ariaLabel': 'Send';
   'messageComposer.sendChannelCheckbox.alsoSendChannel.label': 'Also send in channel';
   'messageComposer.sendChannelCheckbox.alsoSendDirectMessage.label': 'Also send as a direct message';
-  'messageComposer.sendMessageFn.sendMessageRequestFailed.text': 'Send message request failed';
   'messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel': 'Stop AI Generation';
-  'messageComposer.updateMessageFn.editMessageRequestFailed.text': 'Edit message request failed';
   'messageList.newMessageNotification.newMessages.label': 'New Messages!';
   'messageList.scrollLatestMessage.jumpLatestMessage.ariaLabel': 'Jump to latest message';
   'messageList.unreadMessagesNotification.markMessagesRead.ariaLabel': 'Mark messages as read';
@@ -448,6 +446,8 @@ export type TranslationCatalog = {
   'notification.locationShareFailed': 'Failed to share location';
   'notification.messageJumpFailed': 'Failed to jump to the message';
   'notification.messageJumpToLatestFailed': 'Failed to jump to the latest message';
+  'notification.messageSendFailed': 'Send message request failed';
+  'notification.messageUpdateFailed': 'Edit message request failed';
   'notification.pollCreateFailed': 'Failed to create the poll';
   'notification.pollCreateFailedWithReason': 'Failed to create the poll due to {{reason}}';
   'notification.pollEndFailed': 'Failed to end the poll';

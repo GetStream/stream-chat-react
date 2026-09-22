@@ -6,7 +6,6 @@ import { useMessageComposerContext, useTranslationContext } from '../../../conte
 import clsx from 'clsx';
 import { IconSend } from '../../Icons';
 import { Prompt } from '../../Dialog';
-import { useSendMessageFn } from '../../MessageComposer/hooks/useSendMessageFn';
 import { useNotificationApi } from '../../Notifications';
 
 export type PollCreationDialogControlsProps = {
@@ -19,7 +18,7 @@ export const PollCreationDialogControls = ({
   const { t } = useTranslationContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
-  const sendMessage = useSendMessageFn();
+  const sendMessage = messageComposer.send;
   const canCreatePoll = useCanCreatePoll();
   const { addNotification } = useNotificationApi();
 
