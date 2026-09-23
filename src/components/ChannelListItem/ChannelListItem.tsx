@@ -121,25 +121,41 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   const { muted } = useIsChannelMuted(channel);
 
   useEffect(() => {
-    const handleEvent = (event: EventPayload<'notification.mark_read'>) => {
+    // A personal event, so `cid` and `user` are both optional, and it has no case of its own in the
+    // channel's event handling - `channel.state.unreadCount` may still be stale when it arrives.
+    // Zeroing the badge directly rather than recomputing keeps the outcome independent of whether
+    // `message.read` or `notification.mark_read` lands first.
+    const handleMarkRead = (event: EventPayload<'notification.mark_read'>) => {
+      // a thread was marked read, which says nothing about the channel
+      if (event.thread_id) return;
+      if (event.user && client.user && event.user.id !== client.user.id) return;
+      // a missing `cid` means every channel was marked read
       if (!event.cid) return setUnread(0);
-      if (channel.cid === event.cid) setUnread(0);
+      if (channel.cid !== event.cid) return;
+      setUnread(0);
     };
 
-    const subscription = client.on('notification.mark_read', handleEvent);
-    return () => subscription.unsubscribe();
-  }, [channel, client]);
-
-  useEffect(() => {
-    const handleEvent = (event: EventPayload<'notification.mark_unread'>) => {
+    // Channel-scoped read state. These are delivered after the channel has applied them, so
+    // recomputing from `countUnread()` always sees fresh state. `message.read_locally` is the
+    // client-only stand-in dispatched for channels whose read events are disabled.
+    const handleChannelReadStateChange = (
+      event: EventPayload<
+        'notification.mark_unread' | 'message.read' | 'message.read_locally'
+      >,
+    ) => {
       if (channel.cid !== event.cid) return;
       if (event.user?.id !== client.user?.id) return;
       setUnread(channel.countUnread());
     };
-    const subscription = channel.on('notification.mark_unread', handleEvent);
-    return () => {
-      subscription.unsubscribe();
-    };
+
+    const subscriptions = [
+      client.on('notification.mark_read', handleMarkRead),
+      channel.on('notification.mark_unread', handleChannelReadStateChange),
+      channel.on('message.read', handleChannelReadStateChange),
+      channel.on('message.read_locally', handleChannelReadStateChange),
+    ];
+
+    return () => subscriptions.forEach((subscription) => subscription.unsubscribe());
   }, [channel, client]);
 
   const refreshUnreadCount = useMemo(

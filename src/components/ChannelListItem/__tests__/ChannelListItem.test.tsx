@@ -21,6 +21,7 @@ import {
   dispatchChannelTruncatedEvent,
   dispatchMessageDeletedEvent,
   dispatchMessageNewEvent,
+  dispatchMessageReadEvent,
   dispatchMessageUpdatedEvent,
   dispatchNotificationMarkRead,
   dispatchNotificationMarkUnread,
@@ -553,11 +554,11 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
-        dispatchNotificationMarkRead({ client });
+        dispatchNotificationMarkRead({ client, user });
       });
-      expectUnreadCountToBe(screen.getByTestId, 0);
+      await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
     it('should set unread count to 0 for current channel', async () => {
@@ -571,11 +572,11 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
-        dispatchNotificationMarkRead({ channel: channelInPreview, client });
+        dispatchNotificationMarkRead({ channel: channelInPreview, client, user });
       });
-      expectUnreadCountToBe(screen.getByTestId, 0);
+      await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
     it('should be ignored if not targeted for the current channel', async () => {
@@ -590,11 +591,126 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
-        dispatchNotificationMarkRead({ channel: activeChannel, client });
+        dispatchNotificationMarkRead({ channel: activeChannel, client, user });
       });
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+    });
+
+    it('should be ignored if originated from another user', async () => {
+      const unreadCount = getRandomInt(1, 10);
+      c0.countUnread = () => unreadCount;
+      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+
+      await act(() => {
+        dispatchNotificationMarkRead({ channel: c0, client, user: otherUser });
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+    });
+
+    it('should be ignored if only a thread was marked read', async () => {
+      const unreadCount = getRandomInt(1, 10);
+      c0.countUnread = () => unreadCount;
+      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+
+      await act(() => {
+        dispatchNotificationMarkRead({
+          channel: c0,
+          client,
+          payload: { thread_id: 'thread-id' },
+          user,
+        });
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+    });
+  });
+
+  // https://github.com/GetStream/stream-chat-react/issues/3264
+  // Marking a channel read emits two independent events for the reading user: `message.read`
+  // (channel-scoped) and `notification.mark_read` (personal). Only the former resets
+  // `channel.state.unreadCount`, so the badge has to reach 0 whichever arrives first.
+  describe('marking a channel read with another channel still unread', () => {
+    const renderUnreadChannelPreview = async () => {
+      // a real unread count, so the badge does not depend on a countUnread() stub - the channel
+      // derives it from the current user's read state rather than storing it separately
+      const { read } = c0.state.getLatestValue();
+      c0.state.partialNext({
+        read: { ...read, [user.id]: { ...read[user.id], unread_messages: 5, user } },
+      });
+      renderComponent({ activeChannel: c1, channel: c0 }, render);
+      await expectUnreadCountToBe(screen.getByTestId, 5);
+    };
+
+    // `unread_channels > 0` stops the client from zeroing every channel it holds, which would mask
+    // the problem
+    const markRead = () =>
+      dispatchNotificationMarkRead({
+        channel: c0,
+        client,
+        payload: { unread_channels: 1 },
+        user,
+      });
+
+    it('clears the badge when message.read arrives first', async () => {
+      await renderUnreadChannelPreview();
+
+      await act(() => {
+        dispatchMessageReadEvent(client, user, c0);
+      });
+      await act(() => {
+        markRead();
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, 0);
+    });
+
+    it('clears the badge when notification.mark_read arrives first', async () => {
+      await renderUnreadChannelPreview();
+
+      await act(() => {
+        markRead();
+      });
+      await act(() => {
+        dispatchMessageReadEvent(client, user, c0);
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, 0);
+    });
+
+    it('clears the badge on message.read alone', async () => {
+      await renderUnreadChannelPreview();
+
+      await act(() => {
+        dispatchMessageReadEvent(client, user, c0);
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, 0);
+    });
+
+    it('ignores message.read from another user', async () => {
+      await renderUnreadChannelPreview();
+
+      await act(() => {
+        dispatchMessageReadEvent(client, otherUser, c0);
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, 5);
+    });
+
+    // The stand-in a channel with read events disabled gets instead of a server read.
+    it('clears the badge on a local read', async () => {
+      await renderUnreadChannelPreview();
+
+      await act(() => {
+        c0.markReadLocally();
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, 0);
     });
   });
 
@@ -611,7 +727,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: channelInPreview,
@@ -620,7 +736,7 @@ describe('ChannelPreview', () => {
           user: otherUser,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it('should be ignored if not targeted for the current channel', async () => {
@@ -635,7 +751,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
         dispatchNotificationMarkUnread({
           channel: activeChannel,
@@ -644,13 +760,14 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it("should set unread count from client's unread count state for active channel", async () => {
       const unreadCount = 0;
       const activeChannel = c1;
-      activeChannel.countUnread = () => unreadCount;
+      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
+      // reading it back is what this test asserts
       renderComponent(
         {
           activeChannel,
@@ -658,7 +775,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
       const eventPayload = { unread_channels: 2, unread_messages: 5 };
       await act(() => {
@@ -669,14 +786,15 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+      await expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
     });
 
     it("should set unread count from client's unread count state for non-active channel", async () => {
       const unreadCount = 0;
       const channelInPreview = c0;
       const activeChannel = c1;
-      channelInPreview.countUnread = () => unreadCount;
+      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
+      // reading it back is what this test asserts
       renderComponent(
         {
           activeChannel,
@@ -684,7 +802,7 @@ describe('ChannelPreview', () => {
         },
         render,
       );
-      expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
 
       const eventPayload = { unread_channels: 2, unread_messages: 5 };
       await act(() => {
@@ -695,7 +813,7 @@ describe('ChannelPreview', () => {
           user,
         });
       });
-      expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
+      await expectUnreadCountToBe(screen.getByTestId, eventPayload.unread_messages);
     });
   });
 

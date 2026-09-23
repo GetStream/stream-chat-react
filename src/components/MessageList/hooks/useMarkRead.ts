@@ -80,7 +80,9 @@ export const useMarkRead = ({
   }, [hasMoreNewer, isMessageListScrolledToBottom, messagePaginator]);
 
   useEffect(() => {
-    if (!readEventsEnabled) return;
+    // No read events means no server-side read state - but a client that opted into counting unread
+    // itself still needs the catch-up, and the LLC resets it locally rather than requesting.
+    if (!readEventsEnabled && !client.options.isLocalUnreadCountEnabled) return;
     const shouldMarkRead = () => {
       const wasMarkedUnread =
         !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;

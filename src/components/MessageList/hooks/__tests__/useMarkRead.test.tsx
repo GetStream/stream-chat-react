@@ -511,4 +511,37 @@ describe('useMarkRead', () => {
       expect(markRead).toHaveBeenCalledTimes(1);
     });
   });
+
+  // Such a channel has no server-side read state; a client that opted into counting unread itself
+  // still needs the catch-up, which the LLC then resets locally instead of requesting.
+  describe('channel with read events disabled', () => {
+    const renderWithLocalUnreadCount = async (isLocalUnreadCountEnabled: boolean) => {
+      const channelData = {
+        ...unreadLastMessageChannelData(),
+        channel: { config: { read_events: false } },
+      };
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [channelData],
+        customUser: channelData.read[0].user,
+      });
+      client.options.isLocalUnreadCountEnabled = isLocalUnreadCountEnabled;
+
+      return render({ channel, client, params: shouldMarkReadParams });
+    };
+
+    it('marks read when the client counts unread itself', async () => {
+      const { markRead } = await renderWithLocalUnreadCount(true);
+
+      expect(markRead).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not mark read otherwise', async () => {
+      const { markRead } = await renderWithLocalUnreadCount(false);
+
+      expect(markRead).not.toHaveBeenCalled();
+    });
+  });
 });
