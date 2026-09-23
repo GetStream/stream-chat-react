@@ -336,7 +336,7 @@ hand them straight to a provider.
 const { translators } = useChat({ client, defaultLanguage, i18nInstance });
 
 // v15
-const { getAppSettings, latestMessageDatesByChannels, mutes } = useChat({ client });
+const { getAppSettings, mutes } = useChat({ client });
 const translators = useStreami18n({ client, i18nInstance });
 ```
 

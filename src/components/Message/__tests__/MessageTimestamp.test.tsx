@@ -169,9 +169,7 @@ describe('<MessageTimestamp />', () => {
       props: { format: 'YYYY' },
     });
     expect(container).toHaveTextContent(
-      nsToDate(messageMock.created_at as unknown as number)
-        .getFullYear()
-        .toString(),
+      nsToDate(messageMock.created_at).getFullYear().toString(),
     );
   });
 
@@ -188,9 +186,7 @@ describe('<MessageTimestamp />', () => {
       props: { format: 'YYYY' },
     });
     expect(container).toHaveTextContent(
-      nsToDate(messageMock.created_at as unknown as number)
-        .getFullYear()
-        .toString(),
+      nsToDate(messageMock.created_at).getFullYear().toString(),
     );
   });
 

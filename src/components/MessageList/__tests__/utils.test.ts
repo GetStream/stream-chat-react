@@ -14,8 +14,9 @@ import {
   makeDateMessageId,
   processMessages,
 } from '../utils';
+import type { ProcessMessagesParams } from '../utils';
 import { CUSTOM_MESSAGE_TYPE } from '../../../constants/messageTypes';
-import { convertTimestampToDate, msToNs } from 'stream-chat';
+import { asTimestampNS, convertTimestampToDate, msToNs, nowNs } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../mock-builders';
 
 const mockedNanoId = 'V1StGXR8_Z5jdHi6B-myT';
@@ -68,7 +69,10 @@ const msgCreationDatesSecondInvalid = [
   },
 ];
 
-const runMessageProcessing = (msgData, processMsgParams = {}) => {
+const runMessageProcessing = (
+  msgData: Parameters<typeof generateMessage>[0][],
+  processMsgParams: Partial<ProcessMessagesParams> = {},
+) => {
   const messages = msgData.map((msg) => generateMessage(msg));
   return {
     messages,
@@ -385,7 +389,7 @@ describe('processMessages', () => {
     describe('for unread messages', () => {
       const expectedWhere = ['start'];
       const shouldExpectUnreadSeparator = true;
-      const lastRead = new Date();
+      const lastRead = nowNs();
       const oldMsg = {
         created_at: convertDateToTimestamp(new Date('1970-01-01')),
         updated_at: convertDateToTimestamp(new Date('1970-01-01')),
@@ -547,7 +551,7 @@ describe('processMessages', () => {
       const [separator] = processMessages({
         ...withDateSeparatorParams,
         // The epoch as "nothing read yet", so the message counts as unread.
-        lastRead: 0,
+        lastRead: asTimestampNS(0),
         messages: [message],
         userId: myUserId,
       });
@@ -837,7 +841,7 @@ describe('getGroupStyles', () => {
   describe('with a message created at the epoch', () => {
     it('applies the cutoff when the previous message is at the epoch', () => {
       const maxTimeBetweenGroupedMessages = 10;
-      previousMessage = { ...previousMessage, created_at: 0 };
+      previousMessage = { ...previousMessage, created_at: asTimestampNS(0) };
       message = { ...message, created_at: msToNs(12) };
 
       // 12ms apart, so the previous message must not be grouped with this one. A truthiness guard
@@ -855,7 +859,7 @@ describe('getGroupStyles', () => {
 
     it('applies the cutoff when the message itself is at the epoch', () => {
       const maxTimeBetweenGroupedMessages = 10;
-      message = { ...message, created_at: 0 };
+      message = { ...message, created_at: asTimestampNS(0) };
       nextMessage = { ...nextMessage, created_at: msToNs(12) };
 
       // The symmetric branch: a truthiness guard reports 'middle' and glues the next message on.
@@ -875,7 +879,7 @@ describe('getGroupStyles', () => {
 describe('insertIntro', () => {
   // `headerPosition` is a public prop compared against `message.created_at`, so unix nanoseconds.
   const NS_PER_MS = 1e6;
-  const at = (iso: string) => Date.parse(iso) * NS_PER_MS;
+  const at = (iso: string) => asTimestampNS(Date.parse(iso) * NS_PER_MS);
   const msg = (iso: string, id: string) =>
     fromPartial<LocalMessage>({ created_at: at(iso), id, status: 'received' });
   const isIntro = (entry: unknown) =>
@@ -894,7 +898,7 @@ describe('insertIntro', () => {
   it('puts the intro at the top when the position precedes every message', () => {
     // Asserts the whole list, not just `[0]`: a dropped intro and a moved one both satisfy
     // `isIntro(result[0]) === false`.
-    const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')], 0);
+    const result = insertIntro([msg('2026-01-02T00:00:00Z', 'a')], asTimestampNS(0));
 
     expect(result.map((m) => (isIntro(m) ? 'intro' : m.id))).toEqual(['intro', 'a']);
   });
@@ -919,18 +923,19 @@ describe('insertIntro', () => {
       msg('2026-01-01T00:00:00Z', 'older'),
       msg('2026-01-03T00:00:00Z', 'newer'),
     ];
-    // The epoch-millisecond value an integrator would have passed before the migration.
+    // The epoch-millisecond value an integrator would have passed before the migration. The prop is
+    // typed `TimestampNS`, so this only compiles when mislabelled on purpose — which is the point.
     const asMilliseconds = Date.parse('2026-01-02T00:00:00Z');
 
     // A millisecond value precedes every message, so the intro lands at the top — wrong placement,
     // but visible rather than dropped. Nanoseconds split the list where they should.
     expect(
-      insertIntro([...messages], asMilliseconds).map((m) =>
+      insertIntro([...messages], asTimestampNS(asMilliseconds)).map((m) =>
         isIntro(m) ? 'intro' : m.id,
       ),
     ).toEqual(['intro', 'older', 'newer']);
     expect(
-      insertIntro([...messages], asMilliseconds * NS_PER_MS).map((m) =>
+      insertIntro([...messages], asTimestampNS(asMilliseconds * NS_PER_MS)).map((m) =>
         isIntro(m) ? 'intro' : m.id,
       ),
     ).toEqual(['older', 'intro', 'newer']);

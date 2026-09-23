@@ -71,6 +71,7 @@ import type {
   MessageFocusSignalState,
   MessagePaginatorState,
   ChannelState as StreamChannelState,
+  TimestampNS,
   UnreadSnapshotState,
   UserResponse,
 } from 'stream-chat';
@@ -130,7 +131,7 @@ export type VirtuosoContext = Required<
     /** Message id which was marked as unread. ALl the messages following this message are considered unrea.  */
     firstUnreadMessageId: string | null;
     /** Unix nanoseconds, as `messagePaginator.unreadStateSnapshot.lastReadAt` carries it. */
-    lastReadDate: number | null;
+    lastReadDate: TimestampNS | null;
     /**
      * The ID of the last message considered read by the current user in the current channel.
      * All the messages following this message are considered unread.
