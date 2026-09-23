@@ -515,7 +515,7 @@ describe('useMarkRead', () => {
   // Such a channel has no server-side read state; a client that opted into counting unread itself
   // still needs the catch-up, which the LLC then resets locally instead of requesting.
   describe('channel with read events disabled', () => {
-    const renderWithLocalUnreadCount = async (isLocalUnreadCountEnabled: boolean) => {
+    const renderWithLocalUnreadCount = async (localUnreadCountEnabled: boolean) => {
       const channelData = {
         ...unreadLastMessageChannelData(),
         channel: { config: { read_events: false } },
@@ -527,12 +527,14 @@ describe('useMarkRead', () => {
         channelsData: [channelData],
         customUser: channelData.read[0].user,
       });
-      client.options.isLocalUnreadCountEnabled = isLocalUnreadCountEnabled;
+      channel.configState.partialNext({
+        readEvents: { ...channel.config.readEvents, localUnreadCountEnabled },
+      });
 
       return render({ channel, client, params: shouldMarkReadParams });
     };
 
-    it('marks read when the client counts unread itself', async () => {
+    it('marks read when the channel counts unread locally', async () => {
       const { markRead } = await renderWithLocalUnreadCount(true);
 
       expect(markRead).toHaveBeenCalledTimes(1);
