@@ -552,12 +552,8 @@ export const itTranslations = {
   'messageComposer.sendChannelCheckbox.alsoSendChannel.label': 'Invia anche nel canale',
   'messageComposer.sendChannelCheckbox.alsoSendDirectMessage.label':
     'Invia anche come messaggio diretto',
-  'messageComposer.sendMessageFn.sendMessageRequestFailed.text':
-    'Invio del messaggio non riuscito',
   'messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel':
     'Interrompi la generazione AI',
-  'messageComposer.updateMessageFn.editMessageRequestFailed.text':
-    'Modifica del messaggio non riuscita',
   'messageList.newMessageNotification.newMessages.label': 'Nuovi messaggi!',
   'messageList.scrollLatestMessage.jumpLatestMessage.ariaLabel':
     'Vai al messaggio più recente',
@@ -602,6 +598,8 @@ export const itTranslations = {
   'notification.messageJumpFailed': 'Impossibile passare al messaggio',
   'notification.messageJumpToLatestFailed':
     'Impossibile passare al messaggio più recente',
+  'notification.messageSendFailed': 'Invio del messaggio non riuscito',
+  'notification.messageUpdateFailed': 'Modifica del messaggio non riuscita',
   'notification.pollCreateFailed': 'Impossibile creare il sondaggio',
   'notification.pollCreateFailedWithReason':
     'Impossibile creare il sondaggio a causa di {{reason}}',
