@@ -373,7 +373,7 @@ describe('Message delivery status', () => {
       rerender();
       expect(result.current.messageDeliveryStatus).toBeUndefined();
     });
-    it('is ignored if the last delivered message id does not match the last message in channel', async () => {
+    it('counts a cursor past the last message, whatever message id it names', async () => {
       const { lastMessage, messages } = ownLastMessage();
       const read = lastMessageCreated(messages);
       const { channel, client } = await getClientAndChannel({ messages, read });
@@ -389,7 +389,11 @@ describe('Message delivery status', () => {
         });
       });
       rerender();
-      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.SENT);
+      // The cursor is a timestamp, not an identity check. It sits a second after our last message
+      // - which is what a member delivering a message we have not loaded looks like - so ours has
+      // been delivered. Requiring the ids to match reported `SENT` for a message the member
+      // demonstrably already had.
+      expect(result.current.messageDeliveryStatus).toBe(MessageDeliveryStatus.DELIVERED);
     });
   });
 
