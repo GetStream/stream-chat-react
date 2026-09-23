@@ -23,10 +23,16 @@ vi.mock('../../../Dialog', async (importOriginal) => ({
   useContextMenuContext: () => ({ closeMenu, returnToParentMenu }),
 }));
 
-vi.mock('../../../../context', () => ({
-  useMessageComposerContext: () => ({ textareaRef: { current: null } }),
-  useTranslationContext: () => ({ t }),
-}));
+vi.mock('../../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../../context')>();
+  return {
+    // The real hook: with no provider it returns the SDK icons, which is what these
+    // assertions are written against.
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useMessageComposerContext: () => ({ textareaRef: { current: null } }),
+    useTranslationContext: () => ({ t }),
+  };
+});
 
 vi.mock('../../hooks', () => ({
   useMessageComposerCommands: () => commandsMock.value,

@@ -11,9 +11,9 @@ import { GlobalModal, type ModalCloseSource } from '../Modal';
 import {
   MessageContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
-import { IconRetry } from '../Icons';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 
 const MAX_VISIBLE_THUMBNAILS = 4;
@@ -160,6 +160,7 @@ const ThumbnailButton = ({
   overflowCount,
   showOverlay,
 }: ThumbnailButtonProps) => {
+  const { IconRetry } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);

@@ -14,6 +14,7 @@ export * from './ModalContext';
 export * from './PollContext';
 export * from './TranslationContext';
 export * from './useChannel';
+export * from './useComponentContextIcons';
 export * from './VirtualizedMessageListContext';
 export * from './WithComponents';
 export * from './WorkspaceNavigationContext';

@@ -1,16 +1,17 @@
 import React from 'react';
 
-import { IconNoSign } from '../Icons';
 import { useTranslationContext } from '../../context/TranslationContext';
 
 import type { LocalMessage } from 'stream-chat';
 import { MessageBubble } from './MessageBubble';
+import { useComponentContextIcons } from '../../context';
 
 export type MessageDeletedProps = {
   message: LocalMessage;
 };
 
 export const MessageDeletedBubble = () => {
+  const { IconNoSign } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
   return (

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconMessageBubble, IconMessageBubbles } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 import { asDynamicKey } from '../../i18n/utils';
 
 export type EmptyStateIndicatorProps = {
@@ -14,6 +14,7 @@ const UnMemoizedEmptyStateIndicator = (props: EmptyStateIndicatorProps) => {
   const { listType, messageText } = props;
 
   const { t } = useTranslationContext();
+  const { IconMessageBubble, IconMessageBubbles } = useComponentContextIcons();
 
   if (listType === 'thread') return null;
 

@@ -7,8 +7,10 @@ import { Search } from '../Search';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../../context';
+import * as DEFAULT_ICONS from '../../Icons/icons';
 import type {
   ChatContextValue,
   ComponentContextValue,
@@ -72,6 +74,9 @@ describe('Search', () => {
       searchSourceTypes: [],
       sources: [],
     });
+    // The module is auto-mocked, so the icon hook would return undefined; hand back the real
+    // icons rather than stubs, so these tests keep asserting against what users actually see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
   it('renders search container with default built-in components', () => {

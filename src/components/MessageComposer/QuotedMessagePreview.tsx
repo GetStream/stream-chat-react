@@ -35,23 +35,14 @@ import {
 import { useAttachmentContext } from '../../context/AttachmentContext';
 import type { MessageContextValue } from '../../context';
 import { RemoveAttachmentPreviewButton } from './RemoveAttachmentPreviewButton';
-import {
-  IconCamera,
-  IconFile,
-  IconLink,
-  IconLocation,
-  IconNoSign,
-  IconPlayFill,
-  IconPoll,
-  IconVideo,
-  IconVoice,
-} from '../Icons';
 import clsx from 'clsx';
 import { BaseImage } from '../BaseImage';
 import { FileIcon } from '../FileIcon';
 import { QuotedMessageIndicator } from './QuotedMessageIndicator';
 import { getRenderTextMentionEntities } from '../Message/renderText/rehypePlugins';
 import { isDeletedMessage } from '../MessageList';
+import { useComponentContextIcons } from '../../context';
+import type { IconSlots } from '../Icons/slots';
 
 const messageComposerStateStoreSelector = (state: MessageComposerState) => ({
   quotedMessage: state.quotedMessage,
@@ -174,12 +165,26 @@ type PreviewType =
 const getAttachmentIconWithType = (
   quotedMessage: LocalMessage | MessageResponse | null,
   giphyVersionName: GiphyVersions,
+  // Icons arrive as an argument rather than from the hook: this is a plain helper, called from a
+  // `useMemo` inside the component, so it is not a place a hook may run.
+  icons: Required<IconSlots>,
 ): {
   groupedAttachments: GroupedAttachments;
   Icon: ComponentType;
   PreviewImage: ReactElement | null;
   previewType: PreviewType | null;
 } => {
+  const {
+    IconCamera,
+    IconFile,
+    IconLink,
+    IconLocation,
+    IconNoSign,
+    IconPlayFill,
+    IconPoll,
+    IconVideo,
+    IconVoice,
+  } = icons;
   const groupedAttachments = getGroupedAttachments(quotedMessage);
   const result = {
     groupedAttachments,
@@ -341,6 +346,7 @@ export const QuotedMessagePreviewUI = ({
   // MERGE-RECONCILE: `giphyVersion` was read from the deleted ChannelStateContext;
   // migrated to the PR's source (useAttachmentContext().giphyVersion — same as Giphy.tsx).
   const { giphyVersion: giphyVersionName = 'fixed_height' } = useAttachmentContext();
+  const icons = useComponentContextIcons();
 
   const quotedMessageText = useMemo(
     () =>
@@ -374,7 +380,7 @@ export const QuotedMessagePreviewUI = ({
       Icon: AttachmentIcon,
       PreviewImage,
       previewType,
-    } = getAttachmentIconWithType(quotedMessage, giphyVersionName);
+    } = getAttachmentIconWithType(quotedMessage, giphyVersionName, icons);
 
     let renderedText: ReactNode | undefined;
 
@@ -444,6 +450,7 @@ export const QuotedMessagePreviewUI = ({
     };
   }, [
     giphyVersionName,
+    icons,
     quotedMessage,
     quotedMessageMentionEntities,
     quotedMessageText,

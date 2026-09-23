@@ -10,7 +10,7 @@ import type {
   PollComposerState,
   PollComposerValidationCode,
 } from 'stream-chat';
-import { IconMinusCircle } from '../../Icons';
+import { useComponentContextIcons } from '../../../context';
 import { Button, type ButtonProps } from '../../Button';
 import { TextInputFieldSet } from '../../Form/TextInputFieldSet';
 import { VisuallyHidden } from '../../VisuallyHidden';
@@ -308,15 +308,19 @@ export const OptionFieldSet = () => {
   );
 };
 
-const RemoveOptionButton = ({ className, ...props }: ButtonProps) => (
-  <Button
-    appearance='ghost'
-    circular
-    className={clsx('str-chat__form__remove-option-button', className)}
-    size='xs'
-    variant='secondary'
-    {...props}
-  >
-    <IconMinusCircle />
-  </Button>
-);
+const RemoveOptionButton = ({ className, ...props }: ButtonProps) => {
+  const { IconMinusCircle } = useComponentContextIcons();
+
+  return (
+    <Button
+      appearance='ghost'
+      circular
+      className={clsx('str-chat__form__remove-option-button', className)}
+      size='xs'
+      variant='secondary'
+      {...props}
+    >
+      <IconMinusCircle />
+    </Button>
+  );
+};

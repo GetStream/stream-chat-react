@@ -7,9 +7,9 @@ import { useComponentContext } from '../../context/ComponentContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { Button } from '../Button';
-import { IconPlus } from '../Icons';
 
 import type { ReactionResponse } from 'stream-chat';
+import { useComponentContextIcons } from '../../context';
 
 export type ReactionSelectorProps = {
   /** Override dialog id used by the selector popover. */
@@ -33,6 +33,7 @@ interface ReactionSelectorInterface {
 const stableOwnReactions: ReactionResponse[] = [];
 
 export const ReactionSelector: ReactionSelectorInterface = (props) => {
+  const { IconPlus } = useComponentContextIcons();
   const {
     dialogId: propDialogId,
     handleReaction: propHandleReaction,

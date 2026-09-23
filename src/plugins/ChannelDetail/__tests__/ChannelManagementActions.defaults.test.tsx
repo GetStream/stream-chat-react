@@ -111,31 +111,36 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock('../../../context', () => ({
-  useChatContext: () => ({
-    client: mocks.client,
-    mutes: mocks.mutes,
-  }),
-  useComponentContext: () => ({
-    Modal: ({
-      children,
-      open,
-      role,
-    }: {
-      children: React.ReactNode;
-      open: boolean;
-      role?: string;
-    }) => (open ? <div role={role}>{children}</div> : null),
-  }),
-  useModalContext: () => ({ close: mocks.close }),
-  useTranslationContext: () => ({
-    // The unstable variant must still forward the inline defaultValue, or every call would
-    // resolve to the raw key.
-    t: mocks.useStableTranslationFunction
-      ? mocks.t
-      : (...args: unknown[]) => mocks.t(...args),
-  }),
-}));
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useChatContext: () => ({
+      client: mocks.client,
+      mutes: mocks.mutes,
+    }),
+    useComponentContext: () => ({
+      Modal: ({
+        children,
+        open,
+        role,
+      }: {
+        children: React.ReactNode;
+        open: boolean;
+        role?: string;
+      }) => (open ? <div role={role}>{children}</div> : null),
+    }),
+    // The real hook: with no provider it returns the SDK icons.
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useModalContext: () => ({ close: mocks.close }),
+    useTranslationContext: () => ({
+      // The unstable variant must still forward the inline defaultValue, or every call would
+      // resolve to the raw key.
+      t: mocks.useStableTranslationFunction
+        ? mocks.t
+        : (...args: unknown[]) => mocks.t(...args),
+    }),
+  };
+});
 
 vi.mock('../../../components/Notifications', () => ({
   useNotificationApi: () => ({

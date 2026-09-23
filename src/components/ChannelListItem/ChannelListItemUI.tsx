@@ -6,11 +6,11 @@ import { ChannelListItemTimestamp } from './ChannelListItemTimestamp';
 
 import { ChannelAvatar as DefaultChannelAvatar } from '../Avatar';
 import { Badge } from '../Badge';
-import { IconMute, IconPin } from '../Icons';
 import { useInteractionAnnouncements } from '../Accessibility';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../context';
@@ -19,6 +19,7 @@ import { composeChannelListItemAccessibleLabel } from './utils.a11y';
 import { SummarizedMessagePreview as DefaultSummarizedMessagePreview } from '../SummarizedMessagePreview';
 
 const UnMemoizedChannelListItemUI = (props: ChannelListItemUIProps) => {
+  const { IconMute, IconPin } = useComponentContextIcons();
   const {
     accessibleLabelConfig,
     active,

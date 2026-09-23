@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useComponentContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
@@ -16,12 +17,6 @@ import {
 } from '../../../../components/BaseImage';
 import { Prompt } from '../../../../components/Dialog';
 import { Gallery as DefaultGallery, GalleryUI } from '../../../../components/Gallery';
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconImage,
-  IconVideoFill,
-} from '../../../../components/Icons';
 import { GlobalModal } from '../../../../components/Modal';
 import {
   SectionNavigatorHeader,
@@ -51,6 +46,7 @@ const ChannelMediaGridItem = ({
   item,
   onClick,
 }: ChannelMediaGridItemProps) => {
+  const { IconImage, IconVideoFill } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
@@ -127,6 +123,7 @@ const ChannelMediaPagination = ({
   onPrevious,
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
+  const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
   return (

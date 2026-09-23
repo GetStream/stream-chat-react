@@ -5,6 +5,7 @@ import { SendButton as DefaultSendButton } from './SendButton';
 import {
   useChannel,
   useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
 } from '../../context';
 import { useAIState } from '../AIStateIndicator';
@@ -19,7 +20,6 @@ import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import { AIStates } from 'stream-chat';
 import type { AIState, MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
-import { IconCheckmark, IconSend } from '../Icons';
 import { useInertWhenHidden } from '../Accessibility';
 
 // `AIStates` is imported from its owner rather than through the `../AIStateIndicator` barrel: that
@@ -39,6 +39,7 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 });
 
 export const MessageComposerActions = () => {
+  const { IconCheckmark, IconSend } = useComponentContextIcons();
   const channel = useChannel();
   const { hideSendButton } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
