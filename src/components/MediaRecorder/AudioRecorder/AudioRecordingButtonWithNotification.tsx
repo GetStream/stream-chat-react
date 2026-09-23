@@ -4,12 +4,12 @@ import React, { forwardRef, useRef } from 'react';
 import { useAttachmentManagerState } from '../../MessageComposer/hooks/useAttachmentManagerState';
 import {
   useComponentContext,
+  useComponentContextIcons,
   useMessageComposerContext,
   useTranslationContext,
 } from '../../../context';
 import { Callout, useDialogOnNearestManager } from '../../Dialog';
 import { Button } from '../../Button';
-import { IconVoice } from '../../Icons';
 
 const dialogId = 'recording-permission-denied-notification';
 
@@ -68,6 +68,7 @@ export const DefaultStartRecordingAudioButton = forwardRef<
   HTMLButtonElement,
   StartRecordingAudioButtonProps
 >(function StartRecordingAudioButton(props, ref) {
+  const { IconVoice } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
   return (

@@ -1,8 +1,7 @@
 import clsx from 'clsx';
-import { IconXmarkSmall } from '../Icons';
 import { Button } from '../Button';
 import React, { type ComponentProps } from 'react';
-import { useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 import type { AttachmentLoadingState } from 'stream-chat';
 
 /** Upload states in which the request is still running, so removing also cancels it. */
@@ -15,6 +14,7 @@ export const RemoveAttachmentPreviewButton = ({
 }: ComponentProps<'button'> & {
   uploadState?: AttachmentLoadingState;
 }) => {
+  const { IconXmarkSmall } = useComponentContextIcons();
   const { t } = useTranslationContext();
 
   // Deliberately still actionable mid-upload: `removeAttachments` forwards to

@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { forwardRef } from 'react';
 import type { ComponentProps, ReactNode } from 'react';
 import { useStableId } from '../UtilityComponents/useStableId';
-import { IconCheckmark, IconExclamationMark } from '../Icons';
+import { useComponentContextIcons } from '../../context';
 
 export type TextInputVariant = 'outline' | 'ghost';
 
@@ -79,6 +79,7 @@ type TextInputFieldMessageProps =
     };
 
 const TextInputFieldMessage = (props: TextInputFieldMessageProps) => {
+  const { IconCheckmark, IconExclamationMark } = useComponentContextIcons();
   if (props.kind === 'neutral') {
     return (
       <div

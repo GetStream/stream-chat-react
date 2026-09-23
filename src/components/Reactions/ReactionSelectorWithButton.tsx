@@ -4,6 +4,7 @@ import { ReactionSelector as DefaultReactionSelector } from './ReactionSelector'
 import { DialogAnchor, useDialogIsOpen, useDialogOnNearestManager } from '../Dialog';
 import {
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -12,8 +13,8 @@ import type { IconProps } from '../../types/types';
 import { QuickMessageActionsButton } from '../MessageActions';
 
 type ReactionSelectorWithButtonProps = {
-  /* Custom component rendering the icon used in a button invoking reactions selector for a given message. */
-  ReactionIcon: React.ComponentType<IconProps>;
+  /* Custom component rendering the icon used in a button invoking reactions selector for a given message. Defaults to the `icons.IconEmoji` slot on `ComponentContext`. */
+  ReactionIcon?: React.ComponentType<IconProps>;
 };
 
 /**
@@ -26,6 +27,9 @@ export const ReactionSelectorWithButton = ({
   const { t } = useTranslationContext();
   const { isMyMessage, message, threadList } = useMessageContext();
   const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
+  const { IconEmoji } = useComponentContextIcons();
+  // The prop still wins: it targets one message's reaction button, the slot rebrands all of them.
+  const ResolvedReactionIcon = ReactionIcon ?? IconEmoji;
   const buttonRef = useRef<ComponentRef<'button'>>(null);
   // MUST match the id `MessageActions` derives via `ReactionSelector.getDialogId` — it
   // uses that to keep `.str-chat__message-options--active` applied while the reaction
@@ -60,7 +64,7 @@ export const ReactionSelectorWithButton = ({
         onClick={() => dialog?.toggle()}
         ref={buttonRef}
       >
-        <ReactionIcon className='str-chat__message-action-icon' />
+        <ResolvedReactionIcon className='str-chat__message-action-icon' />
       </QuickMessageActionsButton>
     </>
   );

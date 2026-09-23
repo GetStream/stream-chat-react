@@ -6,9 +6,11 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   useChatContext,
+  useComponentContextIcons,
   useModalContext,
   useTranslationContext,
 } from '../../../../../context';
+import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelFilesView } from '../ChannelFilesView';
@@ -189,6 +191,8 @@ const renderView = () =>
 
 describe('ChannelFilesView', () => {
   beforeEach(() => {
+    // Auto-mocked module: hand back the real icons rather than stubs.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.searchSourceInstances.length = 0;
     mocks.searchSourceOptions.length = 0;

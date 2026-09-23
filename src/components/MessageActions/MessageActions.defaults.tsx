@@ -2,30 +2,6 @@
 import React, { forwardRef, useState } from 'react';
 
 import { GlobalModal } from '../Modal';
-import {
-  IconAudio,
-  IconBell,
-  IconBellOff,
-  IconBookmark,
-  IconBookmarkRemove,
-  IconCopy,
-  IconDelete,
-  IconDownload,
-  IconEdit,
-  IconEmoji,
-  IconFlag,
-  IconMore,
-  IconMute,
-  IconNoSign,
-  IconNotification,
-  IconPin,
-  IconQuote,
-  IconReply,
-  IconRetry,
-  IconThread,
-  IconUnpin,
-  IconUserCheck,
-} from '../Icons';
 import { isMessageDeleted, isUserMuted } from '../Message/utils';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { savePreEditSnapshot } from '../MessageComposer/preEditSnapshot';
@@ -36,6 +12,7 @@ import { ReactionSelectorWithButton } from '../Reactions/ReactionSelectorWithBut
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
@@ -77,6 +54,7 @@ const getNotificationError = (error: unknown): Error | undefined => {
 const DefaultMessageActionComponents = {
   dropdown: {
     React() {
+      const { IconEmoji } = useComponentContextIcons();
       const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
       const { anchorReferenceElement } = useContextMenuContext();
       const { isMyMessage, message, threadList } = useMessageContext();
@@ -135,6 +113,7 @@ const DefaultMessageActionComponents = {
       );
     },
     ThreadReply() {
+      const { IconThread } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
@@ -155,6 +134,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Quote() {
+      const { IconQuote } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -188,6 +168,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Download() {
+      const { IconDownload } = useComponentContextIcons();
       const { closeMenu, openSubmenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -223,6 +204,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Pin() {
+      const { IconPin, IconUnpin } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handlePin, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
@@ -279,6 +261,7 @@ const DefaultMessageActionComponents = {
       );
     },
     CopyMessageText() {
+      const { IconCopy } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -298,6 +281,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Resend() {
+      const { IconRetry } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleRetry, message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -317,6 +301,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Edit() {
+      const { IconEdit } = useComponentContextIcons();
       const messageComposer = useMessageComposerController();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -338,6 +323,7 @@ const DefaultMessageActionComponents = {
       );
     },
     MarkUnread() {
+      const { IconNotification } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleMarkUnread, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
@@ -392,6 +378,7 @@ const DefaultMessageActionComponents = {
       );
     },
     RemindMe() {
+      const { IconBell, IconBellOff } = useComponentContextIcons();
       const { closeMenu, openSubmenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { addNotification } = useNotificationApi();
@@ -455,6 +442,7 @@ const DefaultMessageActionComponents = {
       );
     },
     SaveForLater() {
+      const { IconBookmark, IconBookmarkRemove } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { addNotification } = useNotificationApi();
@@ -532,6 +520,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Flag() {
+      const { IconFlag } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleFlag, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
@@ -580,6 +569,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Mute() {
+      const { IconAudio, IconMute } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleMute, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
@@ -639,6 +629,7 @@ const DefaultMessageActionComponents = {
       );
     },
     Delete() {
+      const { IconDelete } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { addNotification } = useNotificationApi();
       const { Modal = GlobalModal } = useComponentContext();
@@ -704,6 +695,7 @@ const DefaultMessageActionComponents = {
       );
     },
     BlockUser() {
+      const { IconNoSign, IconUserCheck } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { message } = useMessageContext();
@@ -740,6 +732,7 @@ const DefaultMessageActionComponents = {
   quick: {
     // eslint-disable-next-line react/display-name
     DropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
+      const { IconMore } = useComponentContextIcons();
       const { t } = useTranslationContext();
       const { message, threadList } = useMessageContext();
       const dropdownDialogIsOpen = useDialogIsOpen(
@@ -779,9 +772,12 @@ const DefaultMessageActionComponents = {
       );
     }),
     React() {
-      return <ReactionSelectorWithButton ReactionIcon={IconEmoji} />;
+      // No `ReactionIcon`: the component resolves the `IconEmoji` slot itself. Passing it from
+      // here would read the same value and only add a hop that invites a direct import later.
+      return <ReactionSelectorWithButton />;
     },
     Reply() {
+      const { IconReply } = useComponentContextIcons();
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 

@@ -2,8 +2,7 @@ import React from 'react';
 import { Button } from './Button';
 import type { ComponentProps } from 'react';
 import clsx from 'clsx';
-import { IconPauseFill, IconPlayFill } from '../Icons';
-import { useTranslationContext } from '../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../context';
 
 export type PlayButtonProps = ComponentProps<'button'> & {
   isPlaying: boolean;
@@ -11,6 +10,8 @@ export type PlayButtonProps = ComponentProps<'button'> & {
 
 export const PlayButton = ({ className, isPlaying, ...props }: PlayButtonProps) => {
   const { t } = useTranslationContext();
+  const { IconPauseFill, IconPlayFill } = useComponentContextIcons();
+
   return (
     <Button
       appearance='outline'

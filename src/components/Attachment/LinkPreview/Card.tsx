@@ -6,9 +6,9 @@ import { useAttachmentContext } from '../../../context/AttachmentContext';
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from '../utils';
 import type { Dimensions } from '../../../types/types';
-import { IconLink } from '../../Icons';
 import { UnableToRenderCard } from './UnableToRenderCard';
 import clsx from 'clsx';
+import { useComponentContextIcons } from '../../../context';
 
 type CardRootProps = {
   cardUrl: string | undefined;
@@ -62,6 +62,7 @@ const CardHeader = (props: CardHeaderProps) => {
 type CardContentProps = RenderAttachmentProps['attachment'];
 
 const CardContent = (props: CardContentProps) => {
+  const { IconLink } = useComponentContextIcons();
   const { og_scrape_url, text, title, title_link } = props;
   const url = title_link || og_scrape_url;
 

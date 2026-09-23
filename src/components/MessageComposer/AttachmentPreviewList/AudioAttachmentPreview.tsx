@@ -5,13 +5,12 @@ import {
   type LocalAudioAttachment,
   type LocalVoiceRecordingAttachment,
 } from 'stream-chat';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 import { PlayButton } from '../../Button';
 import {
   type AudioPlayerState,
@@ -42,6 +41,7 @@ export const AudioAttachmentPreview = ({
   handleRetry,
   removeAttachments,
 }: AudioAttachmentPreviewProps) => {
+  const { IconExclamationMark, IconExclamationTriangleFill } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};

@@ -10,12 +10,12 @@ import type { MessageContextValue } from '../../context';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useMessageContext,
   useTranslationContext,
 } from '../../context';
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
-import { IconEmojiAdd } from '../Icons';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
 
 export type MessageReactionsDetailProps = Partial<
@@ -65,6 +65,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   selectedReactionType,
   totalReactionCount,
 }) => {
+  const { IconEmojiAdd } = useComponentContextIcons();
   const [extendedReactionListOpen, setExtendedReactionListOpen] = useState(false);
   const { client } = useChatContext();
   const {

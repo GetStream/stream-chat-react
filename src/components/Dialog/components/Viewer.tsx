@@ -1,8 +1,11 @@
 import React, { type ComponentProps, type PropsWithChildren } from 'react';
 import clsx from 'clsx';
 import { Button, type ButtonProps } from '../../Button';
-import { IconArrowLeft, IconXmark } from '../../Icons';
-import { useModalContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContextIcons,
+  useModalContext,
+  useTranslationContext,
+} from '../../../context';
 import { useAriaIdentifiers } from '../../../a11y/hooks/useAriaIdentifiers';
 
 const ViewerRoot = ({ children, className, ...props }: ComponentProps<'div'>) => (
@@ -30,6 +33,7 @@ const ViewerHeader = ({
   title,
   titleId,
 }: ViewerHeaderProps) => {
+  const { IconArrowLeft, IconXmark } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { dialogId } = useModalContext();
   const { descriptionId: derivedDescriptionId, titleId: derivedTitleId } =

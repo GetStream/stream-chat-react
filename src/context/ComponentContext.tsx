@@ -82,6 +82,7 @@ import type { NotificationAnnouncerProps } from '../components/Accessibility';
 import type { SummarizedMessagePreviewProps } from '../components/SummarizedMessagePreview';
 import type { TypingIndicatorProps } from '../components/TypingIndicator';
 import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
+import type { IconSlots } from '../components/Icons/slots';
 
 export type ComponentContextValue = {
   /** Custom UI component rendering the progress of an attachment whose upload is still in flight, defaults to and accepts same props as: [AttachmentUploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/components/AttachmentUploadProgressIndicator.tsx) */
@@ -170,6 +171,8 @@ export type ComponentContextValue = {
   GiphyPreviewMessage?: React.ComponentType<GiphyPreviewMessageProps>;
   /** Custom UI component to render at the top of the `MessageList` */
   HeaderComponent?: React.ComponentType;
+  /** Overrides for the SDK's own icons, keyed by icon name. Merged per slot with the defaults, so overriding one icon leaves the rest intact. Read through [useComponentContextIcons](https://github.com/GetStream/stream-chat-react/blob/master/src/context/useComponentContextIcons.ts) */
+  icons?: IconSlots;
   /** Custom UI component handling how the message composer is rendered, defaults to and accepts the same props as [MessageComposerUI](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageComposer/MessageComposerUI.tsx) */
   MessageComposerUI?: React.ComponentType<MessageComposerProps>;
   /** Custom component to render link previews in message composer **/

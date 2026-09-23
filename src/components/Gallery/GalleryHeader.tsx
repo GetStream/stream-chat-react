@@ -3,8 +3,12 @@ import { sanitizeUrl } from '@braintree/sanitize-url';
 
 import { type GalleryItem } from './GalleryContext';
 import { Button } from '../Button';
-import { IconArrowDownCircle, IconXmark } from '../Icons';
-import { ModalContext, useChatContext, useTranslationContext } from '../../context';
+import {
+  ModalContext,
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { getDateString, isDate } from '../../i18n/utils';
 
 type GalleryHeaderProps = {
@@ -45,6 +49,7 @@ const GalleryTimestamp = ({ createdAt }: Pick<GalleryItem, 'createdAt'>) => {
 };
 
 export const GalleryHeader = ({ currentItem }: GalleryHeaderProps) => {
+  const { IconArrowDownCircle, IconXmark } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { client } = useChatContext();
   const modalContext = useContext(ModalContext);

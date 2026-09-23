@@ -29,39 +29,44 @@ const mocks = vi.hoisted(() => ({
   mutes: [] as UserMuteResponse[],
 }));
 
-vi.mock('../../../context', () => ({
-  useChatContext: () => ({
-    client: {
-      user: { id: 'own-user' },
-    },
-    mutes: mocks.mutes,
-  }),
-  useComponentContext: () => ({
-    Avatar: () => <div data-testid='channel-management-avatar' />,
-  }),
-  useModalContext: () => ({ close: mocks.close }),
-  useTranslationContext: () => ({
-    t: (key: string, second?: unknown, third?: unknown) => {
-      const defaultValue = typeof second === 'string' ? second : undefined;
-      const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
-        string,
-        unknown
-      >;
-      let template = defaultValue;
-      if (template === undefined && typeof options.count === 'number') {
-        template = (
-          options.count === 1 ? options.defaultValue_one : options.defaultValue_other
-        ) as string | undefined;
-      }
-      template ??= options.defaultValue as string | undefined;
-      template ??= key;
-      return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
-        const value = options[name];
-        return value === undefined || value === null ? whole : String(value);
-      });
-    },
-  }),
-}));
+vi.mock('../../../context', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../context')>();
+  return {
+    useChatContext: () => ({
+      client: {
+        user: { id: 'own-user' },
+      },
+      mutes: mocks.mutes,
+    }),
+    useComponentContext: () => ({
+      Avatar: () => <div data-testid='channel-management-avatar' />,
+    }),
+    // The real hook: with no provider it returns the SDK icons.
+    useComponentContextIcons: actual.useComponentContextIcons,
+    useModalContext: () => ({ close: mocks.close }),
+    useTranslationContext: () => ({
+      t: (key: string, second?: unknown, third?: unknown) => {
+        const defaultValue = typeof second === 'string' ? second : undefined;
+        const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+          string,
+          unknown
+        >;
+        let template = defaultValue;
+        if (template === undefined && typeof options.count === 'number') {
+          template = (
+            options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+          ) as string | undefined;
+        }
+        template ??= options.defaultValue as string | undefined;
+        template ??= key;
+        return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+          const value = options[name];
+          return value === undefined || value === null ? whole : String(value);
+        });
+      },
+    }),
+  };
+});
 
 vi.mock('../../../context/ChatContext', () => ({
   useChatContext: () => ({
@@ -153,8 +158,10 @@ vi.mock('../../../components/Dialog', () => ({
   },
 }));
 
-vi.mock('../../../components/Icons', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../../components/Icons')>();
+// Mocks the icon module, not the barrel: icons now reach components through
+// `useComponentContextIcons`, which reads `components/Icons/icons` directly.
+vi.mock('../../../components/Icons/icons', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../../components/Icons/icons')>();
 
   return {
     ...actual,

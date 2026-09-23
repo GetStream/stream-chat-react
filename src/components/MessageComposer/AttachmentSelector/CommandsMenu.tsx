@@ -1,6 +1,10 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
 import type { Command } from 'stream-chat';
-import { useMessageComposerContext, useTranslationContext } from '../../../context';
+import {
+  useComponentContextIcons,
+  useMessageComposerContext,
+  useTranslationContext,
+} from '../../../context';
 import { useMessageComposerCommands, useMessageComposerController } from '../hooks';
 import {
   ContextMenuBackButton,
@@ -8,33 +12,16 @@ import {
   ContextMenuHeader,
   useContextMenuContext,
 } from '../../Dialog';
-import {
-  IconAudio,
-  IconChevronLeft,
-  IconFlag,
-  IconGiphy,
-  IconMute,
-  IconUserAdd,
-  IconUserRemove,
-} from '../../Icons';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
 import { asDynamicKey } from '../../../i18n/utils';
-
-const icons: Record<string, ComponentType> = {
-  ban: IconUserRemove,
-  flag: IconFlag,
-  giphy: IconGiphy,
-  mute: IconMute,
-  unban: IconUserAdd,
-  unmute: IconAudio,
-};
 
 export const CommandsMenuClassName = 'str-chat__context-menu--commands';
 
 export const CommandsSubmenuHeader = () => {
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
+  const { IconChevronLeft } = useComponentContextIcons();
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
       <ContextMenuBackButton
@@ -149,6 +136,18 @@ export const CommandContextMenuItem = ({
     () => (description ? `${description}, ${details}` : details),
     [description, details],
   );
+
+  const { IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove } =
+    useComponentContextIcons();
+
+  const icons: Record<string, ComponentType> = {
+    ban: IconUserRemove,
+    flag: IconFlag,
+    giphy: IconGiphy,
+    mute: IconMute,
+    unban: IconUserAdd,
+    unmute: IconAudio,
+  };
 
   return (
     <ContextMenuButton

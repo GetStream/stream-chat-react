@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
 import { AttachmentUploadedSizeIndicator } from '../../Loading/AttachmentUploadedSizeIndicator';
@@ -7,7 +7,6 @@ import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
-import { IconExclamationMark, IconExclamationTriangleFill } from '../../Icons';
 import { isUploadConfirmationPending } from 'stream-chat';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
@@ -20,6 +19,7 @@ export const FileAttachmentPreview = ({
   handleRetry,
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
+  const { IconExclamationMark, IconExclamationTriangleFill } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};

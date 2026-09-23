@@ -8,8 +8,8 @@ import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 import { useChatContext } from '../../context/ChatContext';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { IconCheckmark1Small, IconChecks, IconClock } from '../Icons';
 import { useThreadContext } from '../Threads';
+import { useComponentContextIcons } from '../../context';
 
 export type MessageStatusProps = {
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
@@ -27,6 +27,7 @@ export type MessageStatusProps = {
 };
 
 const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
+  const { IconCheckmark1Small, IconChecks, IconClock } = useComponentContextIcons();
   const {
     MessageDeliveredStatus,
     MessageReadStatus,

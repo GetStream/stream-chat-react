@@ -7,18 +7,14 @@ import {
   useState,
 } from 'react';
 
-import { useChatContext, useTranslationContext } from '../../context';
+import {
+  useChatContext,
+  useComponentContextIcons,
+  useTranslationContext,
+} from '../../context';
 import { useChannelMembershipState, useChannelMembersState } from '../ChannelList';
 import { useChannelListItemContext } from './ChannelListItem';
 import { Button } from '../Button';
-import {
-  IconArchive,
-  IconLeave,
-  IconMore,
-  IconMute,
-  IconNoSign,
-  IconPin,
-} from '../Icons';
 import { useIsChannelMuted } from './hooks/useIsChannelMuted';
 import {
   ContextMenuButton,
@@ -360,6 +356,7 @@ type ChannelActionItem =
 const defaultComponents = {
   dropdown: {
     Archive() {
+      const { IconArchive } = useComponentContextIcons();
       const behaviorProps = useDropdownActionButtonProps(useArchiveAction());
 
       return (
@@ -374,6 +371,7 @@ const defaultComponents = {
       );
     },
     Ban() {
+      const { IconNoSign } = useComponentContextIcons();
       const behaviorProps = useDropdownActionButtonProps(useBanAction());
 
       return (
@@ -388,6 +386,7 @@ const defaultComponents = {
       );
     },
     Leave() {
+      const { IconLeave } = useComponentContextIcons();
       const behaviorProps = useDropdownActionButtonProps(useLeaveAction());
 
       return (
@@ -403,6 +402,7 @@ const defaultComponents = {
       );
     },
     Mute() {
+      const { IconMute } = useComponentContextIcons();
       const behaviorProps = useDropdownActionButtonProps(useMuteAction());
 
       return (
@@ -417,6 +417,7 @@ const defaultComponents = {
       );
     },
     Pin() {
+      const { IconPin } = useComponentContextIcons();
       const behaviorProps = useDropdownActionButtonProps(usePinAction());
 
       return (
@@ -433,6 +434,7 @@ const defaultComponents = {
   },
   quick: {
     Archive() {
+      const { IconArchive } = useComponentContextIcons();
       const behaviorProps = useQuickActionButtonProps(useArchiveAction());
 
       return (
@@ -450,6 +452,7 @@ const defaultComponents = {
       );
     },
     Mute() {
+      const { IconMute } = useComponentContextIcons();
       const behaviorProps = useQuickActionButtonProps(useMuteAction());
 
       return (
@@ -468,6 +471,7 @@ const defaultComponents = {
     },
   },
   QuickDropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
+    const { IconMore } = useComponentContextIcons();
     const { channel } = useChannelListItemContext();
     const { t } = useTranslationContext();
 
