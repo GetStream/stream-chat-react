@@ -2,13 +2,15 @@ import React from 'react';
 import { render } from '@testing-library/react';
 
 import { FileAttachment } from '../FileAttachment';
-import { TranslationProvider } from '../../../context';
-import { mockTranslationContextValue } from '../../../mock-builders';
+import { ChatProvider, TranslationProvider } from '../../../context';
+import { mockChatContext, mockTranslationContextValue } from '../../../mock-builders';
 
 const getComponent = ({ attachment }: any) => (
-  <TranslationProvider value={mockTranslationContextValue()}>
-    <FileAttachment attachment={attachment} />
-  </TranslationProvider>
+  <ChatProvider value={mockChatContext()}>
+    <TranslationProvider value={mockTranslationContextValue()}>
+      <FileAttachment attachment={attachment} />
+    </TranslationProvider>
+  </ChatProvider>
 );
 
 const file = {

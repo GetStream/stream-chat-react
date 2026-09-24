@@ -1,11 +1,7 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { act } from '@testing-library/react';
-import type {
-  Channel as ChannelType,
-  RetrySendMessageWithLocalUpdateParams,
-  StreamChat,
-} from 'stream-chat';
+import type { Channel as ChannelType, OperationParams, StreamChat } from 'stream-chat';
 
 import { useRetryHandler } from '../useRetryHandler';
 
@@ -64,7 +60,7 @@ describe('useRetryHandler custom hook', () => {
     const handleRetry = await renderUseRetryHandlerHook();
     const params = {
       localMessage: generateMessage(),
-    } as unknown as RetrySendMessageWithLocalUpdateParams;
+    } as unknown as Omit<OperationParams<'retry'>, 'message'>;
     await act(async () => {
       await handleRetry(params);
     });

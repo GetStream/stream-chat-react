@@ -95,6 +95,8 @@ import {
 import { ConfigurableMessageActions } from './CustomMessageActions';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
+import { StreamDebugHandles } from './Debug';
+import { installUploadHarness } from './SendWhilePendingUploads';
 import { streamI18n } from './i18n';
 import {
   DocumentTitleManager,
@@ -284,6 +286,8 @@ const formatDocumentTitle = ({
 const App = () => {
   const { tokenProvider, userId, userImage, userName } = useUser();
   const chatView = useAppSettingsSelector((state) => state.chatView);
+  const { failUploads, sendMessagesWithPendingUploads, slowUploads } =
+    useAppSettingsSelector((state) => state.composer);
   // Project to a stable-shape object rather than returning `state.layout` directly. `layout`
   // starts as `{}`, and useStateStore only diffs the keys present in its *cached* selection — so
   // a selection that starts empty never notices `channelCid` appearing later, and the modal would
@@ -505,6 +509,21 @@ const App = () => {
     if (!chatClient) return;
 
     chatClient.config.setSetupFunction('messageComposer', ({ composer }) => {
+      // Settings are read on every upload rather than captured here, so changing them in
+      // Settings -> Composer takes effect without re-running setup - which matters because a
+      // custom doUploadRequest cannot be un-set once installed.
+      if (slowUploads || failUploads !== 'off') {
+        installUploadHarness(composer, () => {
+          const {
+            failUploads: failureMode,
+            slowUploadMs,
+            slowUploads: slowArmed,
+          } = appSettingsStore.getLatestValue().composer;
+
+          return { delayMs: slowArmed ? slowUploadMs : 0, failureMode };
+        });
+      }
+
       // todo: find a way to register multiple setup functions so that the SDK can have own setup independent from the integrator setup
       composer.compositionMiddlewareExecutor.insert({
         middleware: [createCommandInjectionMiddleware(composer)],
@@ -512,9 +531,12 @@ const App = () => {
         unique: true,
       });
 
+      // `unique: true` matters now that this setup function re-runs whenever a Composer setting
+      // changes - without it each toggle would append another copy of the same middleware.
       composer.draftCompositionMiddlewareExecutor.insert({
         middleware: [createDraftCommandInjectionMiddleware(composer)],
         position: { after: 'stream-io/message-composer-middleware/draft-attachments' },
+        unique: true,
       });
 
       composer.textComposer.middlewareExecutor.insert({
@@ -540,7 +562,19 @@ const App = () => {
         location: { enabled: true },
       });
     });
-  }, [chatClient]);
+  }, [chatClient, failUploads, slowUploads]);
+
+  useEffect(() => {
+    if (!chatClient) return;
+
+    // Declarative rather than in the setup function above, which only runs for composers built
+    // afterwards. A composer picks this up when it is constructed or when it registers
+    // subscriptions, and the latter is what mounting a channel does - so an open composer sees it
+    // at once and the rest on their way in.
+    chatClient.config.setConfig('messageComposer', {
+      attachments: { pendingUploadsEnabled: sendMessagesWithPendingUploads },
+    });
+  }, [chatClient, sendMessagesWithPendingUploads]);
 
   const chatTheme = themeMode === 'dark' ? 'str-chat__theme-dark' : 'messaging light';
   const initialAppLayoutStyle = useMemo(
@@ -636,6 +670,8 @@ const App = () => {
               the app is showing. */}
           <DocumentTitleManager formatTitle={formatDocumentTitle} />
           <ChatSkipNavigation />
+          {/* Publishes window.streamDebug — see src/Debug/StreamDebugHandles.tsx */}
+          <StreamDebugHandles />
           <div
             className='app-chat-layout'
             data-variant={messageUiVariant ?? undefined}

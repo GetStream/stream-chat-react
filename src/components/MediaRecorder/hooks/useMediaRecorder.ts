@@ -7,7 +7,6 @@ import { useInteractionAnnouncements } from '../../Accessibility';
 import type { LocalVoiceRecordingAttachment } from 'stream-chat';
 import type { CustomAudioRecordingConfig } from '../classes';
 import type { MessageComposerContextValue } from '../../../context';
-import { useSendMessageFn } from '../../MessageComposer/hooks/useSendMessageFn';
 
 export type RecordingController = {
   completeRecording: () => void;
@@ -35,7 +34,7 @@ export const useMediaRecorder = ({
   const { t } = useTranslationContext();
   const { announceInteraction } = useInteractionAnnouncements();
   const messageComposer = useMessageComposerController();
-  const sendMessageFn = useSendMessageFn();
+  const sendMessageFn = messageComposer.send;
   const [recording, setRecording] = useState<LocalVoiceRecordingAttachment>();
   const [recordingState, setRecordingState] = useState<MediaRecordingState>();
   const [permissionState, setPermissionState] = useState<PermissionState>();

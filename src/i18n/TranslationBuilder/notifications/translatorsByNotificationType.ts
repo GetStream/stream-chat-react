@@ -46,6 +46,10 @@ const coreNotificationTranslators: Record<CoreNotificationType, NotificationTran
       t('notification.messageJumpFailed', 'Failed to jump to the message'),
     [CORE_NOTIFICATION_TYPE.messageJumpToLatestFailed]: ({ t }) =>
       t('notification.messageJumpToLatestFailed', 'Failed to jump to the latest message'),
+    [CORE_NOTIFICATION_TYPE.messageSendFailed]: ({ t }) =>
+      t('notification.messageSendFailed', 'Send message request failed'),
+    [CORE_NOTIFICATION_TYPE.messageUpdateFailed]: ({ t }) =>
+      t('notification.messageUpdateFailed', 'Edit message request failed'),
     [CORE_NOTIFICATION_TYPE.pollCastVoteLimit]: ({ t }) =>
       t(
         'notification.pollVoteLimit',

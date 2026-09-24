@@ -109,16 +109,18 @@ describe('VoiceRecording', () => {
     // it a distinct requester, so two separate AudioPlayer instances (hence two `new Audio()`
     // canPlayType probes) are created.
     render(
-      <WithAudioPlayback>
-        <MessageProvider value={mockMessageContext({ message })}>
-          <VoiceRecording attachment={attachment} />
-        </MessageProvider>
-        <ThreadProvider thread={fromPartial<Thread>({})}>
-          <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+      <ChatProvider value={mockChatContext()}>
+        <WithAudioPlayback>
+          <MessageProvider value={mockMessageContext({ message })}>
             <VoiceRecording attachment={attachment} />
           </MessageProvider>
-        </ThreadProvider>
-      </WithAudioPlayback>,
+          <ThreadProvider thread={fromPartial<Thread>({})}>
+            <MessageProvider value={mockMessageContext({ message, threadList: true })}>
+              <VoiceRecording attachment={attachment} />
+            </MessageProvider>
+          </ThreadProvider>
+        </WithAudioPlayback>
+      </ChatProvider>,
     );
     expect(createdAudios).toHaveLength(2);
     spy.mockRestore();
@@ -134,17 +136,19 @@ describe('VoiceRecording', () => {
     });
     const message = generateMessage();
     render(
-      <WithAudioPlayback>
-        <MessageProvider value={mockMessageContext({ message })}>
-          <VoiceRecording attachment={attachment} />
-        </MessageProvider>
-        <MessageProvider value={mockMessageContext({ message })}>
-          <VoiceRecording attachment={attachment} />
-        </MessageProvider>
-        <MessageProvider value={mockMessageContext({ message })}>
-          <VoiceRecording attachment={attachment} isQuoted={true} />
-        </MessageProvider>
-      </WithAudioPlayback>,
+      <ChatProvider value={mockChatContext()}>
+        <WithAudioPlayback>
+          <MessageProvider value={mockMessageContext({ message })}>
+            <VoiceRecording attachment={attachment} />
+          </MessageProvider>
+          <MessageProvider value={mockMessageContext({ message })}>
+            <VoiceRecording attachment={attachment} />
+          </MessageProvider>
+          <MessageProvider value={mockMessageContext({ message })}>
+            <VoiceRecording attachment={attachment} isQuoted={true} />
+          </MessageProvider>
+        </WithAudioPlayback>
+      </ChatProvider>,
     );
     expect(createdAudios).toHaveLength(1);
     spy.mockRestore();

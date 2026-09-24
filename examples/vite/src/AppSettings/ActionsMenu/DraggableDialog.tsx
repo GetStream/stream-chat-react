@@ -15,34 +15,63 @@ const clamp = (value: number, min: number, max: number) => {
   return Math.min(Math.max(value, min), max);
 };
 
+/**
+ * Stable classes applied alongside whatever the caller passes, so one stylesheet rule can
+ * govern pointer behaviour for every draggable dialog.
+ */
+export const DRAGGABLE_DIALOG_ANCHOR_CLASS = 'app__draggable-dialog';
+export const DRAGGABLE_DIALOG_SHELL_CLASS = 'app__draggable-dialog__shell';
+
+/**
+ * A floating, draggable, **non-modal** dialog.
+ *
+ * The defaults below deliberately differ from a normal prompt: these panels exist to be kept
+ * open while you use the app - trigger an event, watch what happens, trigger another - so they
+ * do not trap focus, do not steal focus on open, and dismiss only via their close button.
+ * Callers can opt back in per dialog.
+ */
 export const DraggableDialog = ({
   children,
-  closeOnClickOutside,
+  closeOnClickOutside = false,
+  closeOnEscape = false,
   dialogClassName,
   dialogId,
   dialogIsOpen,
   dialogManagerId,
   dragHandleClassName,
+  focus = false,
   onClose,
   promptClassName,
   referenceElement,
   shellClassName,
   title,
+  trapFocus = false,
 }: {
   children: ReactNode;
   /** Per-dialog override for outside-click dismissal (defaults to the manager's policy). Pass
    *  `false` for a persistent draggable window that should only close via its own control. */
   closeOnClickOutside?: boolean;
+  /** @default false - dismiss via the close button only. */
+  closeOnEscape?: boolean;
   dialogClassName: string;
   dialogId: string;
   dialogIsOpen: boolean;
   dialogManagerId?: string;
   dragHandleClassName: string;
+  /** Whether the dialog grabs focus when it opens. @default false */
+  focus?: boolean;
   onClose: () => void;
   promptClassName: string;
   referenceElement: HTMLElement | null;
   shellClassName: string;
   title: ReactNode;
+  /**
+   * Contain focus within the dialog. `true` also makes DialogAnchor render `role="dialog"`
+   * with `aria-modal`, telling assistive tech the rest of the app is inert - correct for a
+   * prompt, wrong for a panel meant to stay open while the user works elsewhere.
+   * @default false
+   */
+  trapFocus?: boolean;
 }) => {
   const { theme } = useChatContext();
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
@@ -143,14 +172,16 @@ export const DraggableDialog = ({
   return (
     <DialogAnchor
       allowFlip
-      className={dialogClassName}
+      className={clsx(DRAGGABLE_DIALOG_ANCHOR_CLASS, dialogClassName)}
       closeOnClickOutside={closeOnClickOutside}
+      closeOnEscape={closeOnEscape}
       dialogManagerId={dialogManagerId}
+      focus={focus}
       id={dialogId}
       placement='right-start'
       referenceElement={referenceElement}
       tabIndex={-1}
-      trapFocus
+      trapFocus={trapFocus}
       updatePositionOnContentResize
     >
       {/* `str-chat` and the theme are re-applied here the way `GlobalModal` does: a dialog bound
@@ -158,7 +189,7 @@ export const DraggableDialog = ({
           the theme's custom properties do not cascade and every `var(--str-chat__…)` resolves
           empty. */}
       <div
-        className={clsx('str-chat', theme, shellClassName)}
+        className={clsx(DRAGGABLE_DIALOG_SHELL_CLASS, 'str-chat', theme, shellClassName)}
         ref={shellRef}
         style={shellStyle}
       >

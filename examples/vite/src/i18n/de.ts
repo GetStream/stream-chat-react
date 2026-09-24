@@ -550,17 +550,15 @@ export const deTranslations = {
   'messageComposer.quotedMessagePreview.videos.label_other': '{{ count }} Videos',
   'messageComposer.quotedMessagePreview.voiceMessage.label':
     'Sprachnachricht {{ duration }}',
+  'messageComposer.removeAttachmentPreviewButton.cancelUpload.ariaLabel':
+    'Upload abbrechen',
   'messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel':
     'Anhang entfernen',
   'messageComposer.sendButton.send.ariaLabel': 'Senden',
   'messageComposer.sendChannelCheckbox.alsoSendChannel.label': 'Auch im Kanal senden',
   'messageComposer.sendChannelCheckbox.alsoSendDirectMessage.label':
     'Auch als Direktnachricht senden',
-  'messageComposer.sendMessageFn.sendMessageRequestFailed.text':
-    'Senden der Nachricht fehlgeschlagen',
   'messageComposer.stopAiGeneration.stopAiGeneration.ariaLabel': 'KI-Generierung stoppen',
-  'messageComposer.updateMessageFn.editMessageRequestFailed.text':
-    'Bearbeiten der Nachricht fehlgeschlagen',
   'messageList.newMessageNotification.newMessages.label': 'Neue Nachrichten!',
   'messageList.scrollLatestMessage.jumpLatestMessage.ariaLabel':
     'Zur neuesten Nachricht springen',
@@ -601,6 +599,8 @@ export const deTranslations = {
   'notification.messageJumpFailed': 'Sprung zur Nachricht fehlgeschlagen',
   'notification.messageJumpToLatestFailed':
     'Sprung zur neuesten Nachricht fehlgeschlagen',
+  'notification.messageSendFailed': 'Senden der Nachricht fehlgeschlagen',
+  'notification.messageUpdateFailed': 'Bearbeiten der Nachricht fehlgeschlagen',
   'notification.locationShareFailed': 'Standort konnte nicht geteilt werden',
   'notification.pollCreateFailed': 'Umfrage konnte nicht erstellt werden',
   'notification.pollCreateFailedWithReason':
