@@ -53,7 +53,6 @@ export type ChannelListItemProps = {
   activeChannel?: Channel;
   /** Custom class for the channel preview root */
   className?: string;
-  key?: string;
   /**
    * The message previewed by this item. Defaults to the channel's reactive latest message
    * (`channel.messagePaginator.aggregateState.lastMessage`); pass a specific message to preview it
@@ -63,8 +62,6 @@ export type ChannelListItemProps = {
   previewedMessage?: LocalMessage;
   /** Custom ChannelListItem click handler function */
   onSelect?: (event: React.MouseEvent) => void;
-  /** Object containing watcher parameters */
-  watchers?: { limit?: number; offset?: number };
 };
 
 const ChannelListItemContext = React.createContext<{ channel: Channel } | undefined>(
