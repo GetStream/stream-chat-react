@@ -4,7 +4,12 @@ import { CUSTOM_MESSAGE_TYPE } from '../../constants/messageTypes';
 import { isMessageEdited } from '../Message/utils';
 import { isDate } from '../../i18n';
 
-import type { Channel, LocalMessage, UnreadSnapshotState } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  TimestampNS,
+  UnreadSnapshotState,
+} from 'stream-chat';
 import { convertTimestampToDate, nsToMs } from 'stream-chat';
 
 type IntroMessage = {
@@ -39,7 +44,7 @@ type ProcessMessagesContext = {
   /** Disable date separator display for unread incoming messages */
   hideNewMessageSeparator?: boolean;
   /** Sets the threshold after everything is considered unread. Unix nanoseconds, as `channel.lastRead()` returns. */
-  lastRead?: number | null;
+  lastRead?: TimestampNS | null;
   /** Inject date separators between messages posted on different days */
   withDateSeparator?: boolean;
 };
@@ -213,7 +218,10 @@ export const getLastReceived = (messages: RenderedMessage[]) => {
   return null;
 };
 
-export const insertIntro = (messages: RenderedMessage[], headerPosition?: number) => {
+export const insertIntro = (
+  messages: RenderedMessage[],
+  headerPosition?: TimestampNS,
+) => {
   const newMessages = messages;
   const intro = makeIntroMessage();
 

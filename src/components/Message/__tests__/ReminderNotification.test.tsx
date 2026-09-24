@@ -1,5 +1,5 @@
 import React from 'react';
-import { Reminder } from 'stream-chat';
+import { asTimestampNS, Reminder } from 'stream-chat';
 import { act, render, type RenderResult } from '@testing-library/react';
 import { Chat } from '../../Chat';
 import { ReminderNotification } from '../ReminderNotification';
@@ -41,7 +41,7 @@ describe('ReminderNotification', () => {
     // truthiness guard renders "Saved for later" for what is really a long-overdue reminder.
     const reminder = new Reminder({
       data: generateReminderResponse({
-        data: { remind_at: 0 },
+        data: { remind_at: asTimestampNS(0) },
       }),
     });
     const { container } = await renderComponent({ reminder });

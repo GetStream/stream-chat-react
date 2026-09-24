@@ -6,7 +6,7 @@ import { getGroupStyles, insertIntro, processMessages } from '../../utils';
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
-import type { Channel, LocalMessage } from 'stream-chat';
+import type { Channel, LocalMessage, TimestampNS } from 'stream-chat';
 
 export const useEnrichedMessages = (args: {
   channel: Channel;
@@ -22,7 +22,7 @@ export const useEnrichedMessages = (args: {
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
-  headerPosition?: number;
+  headerPosition?: TimestampNS;
   maxTimeBetweenGroupedMessages?: number;
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
 }) => {

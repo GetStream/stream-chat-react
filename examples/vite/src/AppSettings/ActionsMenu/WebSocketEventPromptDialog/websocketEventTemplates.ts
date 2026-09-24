@@ -4,6 +4,7 @@ import type {
   ChannelMemberResponse,
   ChannelResponse,
   StreamChat,
+  TimestampNS,
   UserResponse,
 } from 'stream-chat';
 
@@ -103,9 +104,9 @@ export type WebSocketEventTemplateContext = {
   channelType: string;
   cid: string;
   /** Unix nanoseconds, the unit every server-sent date uses on the wire. */
-  createdAt: number;
+  createdAt: TimestampNS;
   /** Unix nanoseconds, the unit every server-sent date uses on the wire. */
-  lastReadAt: number;
+  lastReadAt: TimestampNS;
   memberCount: number;
   messageId: string;
   otherMember: ChannelMemberResponse;
@@ -123,7 +124,7 @@ type BuildChannelSeedContext = Omit<WebSocketEventTemplateContext, 'channel'> & 
   channel: Partial<DebugChannelResponse>;
 };
 
-const createFallbackUser = (id: string, createdAt: number): DebugUserResponse => ({
+const createFallbackUser = (id: string, createdAt: TimestampNS): DebugUserResponse => ({
   banned: false,
   blocked_user_ids: [],
   created_at: createdAt,

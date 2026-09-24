@@ -4,6 +4,7 @@ import type {
   CustomEventData,
   Event,
   StreamChat,
+  TimestampNS,
   UserResponse,
 } from 'stream-chat';
 import { convertDateToTimestamp } from '../generator/time';
@@ -16,7 +17,7 @@ type MessageDeliveredEvent = {
   cid: string;
   // `created_at` is unix nanoseconds like every other wire timestamp, but `last_delivered_at` is
   // the one field the spec still declares as a bare string, so it really does arrive as RFC3339.
-  created_at: number;
+  created_at: TimestampNS;
   custom: CustomEventData;
   last_delivered_at: string;
   last_delivered_message_id: string;

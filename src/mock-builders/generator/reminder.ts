@@ -2,7 +2,7 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import type { MessageResponse, ReminderResponseData, UserResponse } from 'stream-chat';
 import { generateChannel } from './channel';
 import { convertDateToTimestamp } from './time';
-import { msToNs } from 'stream-chat';
+import { asTimestampNS, msToNs } from 'stream-chat';
 
 const baseData = {
   channel_cid: 'messaging:id',
@@ -27,7 +27,7 @@ export const generateReminderResponse = ({
     user: fromPartial<UserResponse>({ id: baseData.user_id }),
   };
   if (typeof scheduleOffsetMs === 'number') {
-    basePayload.remind_at = created_at + msToNs(scheduleOffsetMs);
+    basePayload.remind_at = asTimestampNS(created_at + msToNs(scheduleOffsetMs));
   }
   return {
     ...basePayload,
