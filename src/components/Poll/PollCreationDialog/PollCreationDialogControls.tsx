@@ -9,7 +9,6 @@ import {
 } from '../../../context';
 import clsx from 'clsx';
 import { Prompt } from '../../Dialog';
-import { useSendMessageFn } from '../../MessageComposer/hooks/useSendMessageFn';
 import { useNotificationApi } from '../../Notifications';
 
 export type PollCreationDialogControlsProps = {
@@ -23,7 +22,7 @@ export const PollCreationDialogControls = ({
   const { t } = useTranslationContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
-  const sendMessage = useSendMessageFn();
+  const sendMessage = messageComposer.send;
   const canCreatePoll = useCanCreatePoll();
   const { addNotification } = useNotificationApi();
 
@@ -64,10 +63,11 @@ export const PollCreationDialogControls = ({
             // The poll exists now; sending the message is a separate step that can fail on its own
             // (createPoll's self-notification only covers poll creation). `sendMessage()` never
             // rejects — it reports its own `api:message:send:failed` notification and resolves with
-            // `false` — so the success announcement below must be gated on the returned flag.
-            // Announcing "Poll sent" after a failed send would contradict the error notification.
-            const sent = await sendMessage();
-            if (!sent) return;
+            // what happened — so the success announcement below is gated on that. Compared against
+            // `'sent'` rather than tested for truthiness: `'failed'` and `'nothing-to-send'` are
+            // both truthy strings, and announcing "Poll sent" after either would contradict the
+            // error notification.
+            if ((await sendMessage()) !== 'sent') return;
             addNotification({
               // Announce assertively: focus has just returned to the composer, so a polite
               // "Poll sent" would be queued behind the textarea's focus announcement and read

@@ -8,6 +8,8 @@ import {
 } from '../../../mock-builders';
 import { Attachment } from '../Attachment';
 import { useAttachmentContext } from '../../../context/AttachmentContext';
+import { ChatProvider } from '../../../context';
+import { mockChatContext } from '../../../mock-builders';
 
 const TestImage = React.forwardRef(({ imageUrl }, ref) => (
   <img data-testid='resized-image' data-url={imageUrl} ref={ref} />
@@ -33,11 +35,13 @@ describe('Attachment scoped media config', () => {
     const attachment = generateGiphyAttachment();
 
     render(
-      <Attachment
-        attachments={[attachment]}
-        Giphy={ContextAwareGiphy}
-        giphyVersion='original'
-      />,
+      <ChatProvider value={mockChatContext()}>
+        <Attachment
+          attachments={[attachment]}
+          Giphy={ContextAwareGiphy}
+          giphyVersion='original'
+        />
+      </ChatProvider>,
     );
 
     expect(screen.getByTestId('giphy-version')).toHaveTextContent('original');
@@ -51,11 +55,13 @@ describe('Attachment scoped media config', () => {
     });
 
     render(
-      <Attachment
-        attachments={[attachment]}
-        Image={TestImage}
-        imageAttachmentSizeHandler={imageAttachmentSizeHandler}
-      />,
+      <ChatProvider value={mockChatContext()}>
+        <Attachment
+          attachments={[attachment]}
+          Image={TestImage}
+          imageAttachmentSizeHandler={imageAttachmentSizeHandler}
+        />
+      </ChatProvider>,
     );
 
     await waitFor(() => {
@@ -77,12 +83,14 @@ describe('Attachment scoped media config', () => {
     });
 
     render(
-      <Attachment
-        attachments={[attachment]}
-        Media={TestVideoPlayer}
-        shouldGenerateVideoThumbnail={false}
-        videoAttachmentSizeHandler={videoAttachmentSizeHandler}
-      />,
+      <ChatProvider value={mockChatContext()}>
+        <Attachment
+          attachments={[attachment]}
+          Media={TestVideoPlayer}
+          shouldGenerateVideoThumbnail={false}
+          videoAttachmentSizeHandler={videoAttachmentSizeHandler}
+        />
+      </ChatProvider>,
     );
 
     await waitFor(() => {

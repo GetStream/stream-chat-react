@@ -81,9 +81,12 @@ import type { UploadedSizeIndicatorProps } from '../components/Loading/UploadedS
 import type { NotificationAnnouncerProps } from '../components/Accessibility';
 import type { SummarizedMessagePreviewProps } from '../components/SummarizedMessagePreview';
 import type { TypingIndicatorProps } from '../components/TypingIndicator';
+import type { AttachmentUploadProgressIndicatorProps } from '../components/Attachment/components/AttachmentUploadProgressIndicator';
 import type { IconSlots } from '../components/Icons/slots';
 
 export type ComponentContextValue = {
+  /** Custom UI component rendering the progress of an attachment whose upload is still in flight, defaults to and accepts same props as: [AttachmentUploadProgressIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/components/AttachmentUploadProgressIndicator.tsx) */
+  AttachmentUploadProgressIndicator?: React.ComponentType<AttachmentUploadProgressIndicatorProps>;
   /** Custom UI component rendered when a paginated list (e.g. the channel list) is empty. */
   EmptyListIndicator?: React.ComponentType;
   /** Custom UI component rendered at the top/bottom edge of a paginated list. */

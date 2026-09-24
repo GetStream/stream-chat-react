@@ -1,5 +1,6 @@
 import type { UploadAttachmentPreviewProps } from './types';
 import {
+  isUploadConfirmationPending,
   isVoiceRecordingAttachment,
   type LocalAudioAttachment,
   type LocalVoiceRecordingAttachment,
@@ -19,7 +20,7 @@ import {
 } from '../../AudioPlayback';
 import { useAudioPlayer } from '../../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../../store';
-import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
+import { AttachmentUploadedSizeIndicator } from '../../Loading/AttachmentUploadedSizeIndicator';
 
 export type AudioAttachmentPreviewProps<CustomLocalMetadata = Record<string, unknown>> =
   UploadAttachmentPreviewProps<
@@ -98,7 +99,12 @@ export const AudioAttachmentPreview = ({
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
-            <UploadProgressIndicator uploadProgress={uploadProgress} />
+            <UploadProgressIndicator
+              uploadConfirmationPending={isUploadConfirmationPending(
+                attachment.localMetadata,
+              )}
+              uploadProgress={uploadProgress}
+            />
           )}
           {showProgressControls ? (
             <>

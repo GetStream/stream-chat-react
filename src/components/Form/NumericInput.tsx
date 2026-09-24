@@ -143,6 +143,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             onKeyDown={handleKeyDown}
             ref={ref}
             role='spinbutton'
+            size={Math.max(2, value.length)}
             type='text'
             value={value}
             {...inputProps}

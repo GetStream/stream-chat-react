@@ -679,7 +679,7 @@ describe('Channel', () => {
 
       it('should eventually pass down a message when a message.new event is triggered on the channel', async () => {
         const { channel, chatClient } = await setup();
-        const message = generateMessage({ user });
+        const message = generateMessage({ cid: channel.cid, user });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
           chatClient,
@@ -703,6 +703,12 @@ describe('Channel', () => {
         // reflected there.
         await waitFor(() => {
           expect(channel.messagePaginator.getItem(message.id)?.id).toBe(message.id);
+          // The index alone does not mean the list shows it - assert the rendered window too.
+          expect(
+            channel.messagePaginator.state
+              .getLatestValue()
+              .items?.some(({ id }) => id === message.id),
+          ).toBe(true);
         });
       });
 
@@ -710,7 +716,7 @@ describe('Channel', () => {
         const { channel, chatClient } = await setup();
         const markReadSpy = vi.spyOn(channel, 'markRead');
 
-        const message = generateMessage({ user: generateUser() });
+        const message = generateMessage({ cid: channel.cid, user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
           chatClient,
@@ -728,7 +734,7 @@ describe('Channel', () => {
         const { channel, chatClient } = await setup();
         const markReadSpy = vi.spyOn(channel, 'markRead');
 
-        const message = generateMessage({ user: generateUser() });
+        const message = generateMessage({ cid: channel.cid, user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
           chatClient,
@@ -753,7 +759,7 @@ describe('Channel', () => {
           get: () => true,
         });
         vi.spyOn(channel, 'countUnread').mockImplementation(() => 1);
-        const message = generateMessage({ user: generateUser() });
+        const message = generateMessage({ cid: channel.cid, user: generateUser() });
         const dispatchMessageEvent = createChannelEventDispatcher(
           { message },
           chatClient,

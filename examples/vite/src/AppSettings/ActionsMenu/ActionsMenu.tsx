@@ -72,22 +72,24 @@ const ActionsMenuButton = ({
   </div>
 );
 
+import { ComposerStateDialog, useComposerStateDialog } from '../../Debug';
+import { usePersistentDialog } from './usePersistentDialog';
+
 export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  // Shared hook so the dialog is registered with closeOnClickOutside disabled regardless of
+  // which of the two call sites reaches getOrCreate first.
+  const { dialog: composerStateDialog } = useComposerStateDialog();
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
   );
   const { dialog: actionsMenuDialog, dialogManager } = useDialogOnNearestManager({
     id: actionsMenuDialogId,
   });
-  const { dialog: notificationDialog } = useDialogOnNearestManager({
-    id: notificationPromptDialogId,
-  });
-  const { dialog: attachmentDialog } = useDialogOnNearestManager({
-    id: attachmentPromptDialogId,
-  });
-  const { dialog: webSocketEventDialog } = useDialogOnNearestManager({
-    id: webSocketEventPromptDialogId,
-  });
+  const { dialog: notificationDialog } = usePersistentDialog(notificationPromptDialogId);
+  const { dialog: attachmentDialog } = usePersistentDialog(attachmentPromptDialogId);
+  const { dialog: webSocketEventDialog } = usePersistentDialog(
+    webSocketEventPromptDialogId,
+  );
   const { dialog: serverSideClientDialog } = useDialogOnNearestManager({
     id: serverSideClientPromptDialogId,
   });
@@ -115,6 +117,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         <TriggerNotificationAction onTrigger={notificationDialog.open} />
         <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
         <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
+        <TriggerComposerStateInspectorAction onTrigger={composerStateDialog.open} />
         {serverSideClientEnabled && (
           <TriggerServerSideClientAction onTrigger={serverSideClientDialog.open} />
         )}
@@ -122,6 +125,7 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
       <NotificationPromptDialog referenceElement={menuButtonElement} />
       <AttachmentPromptDialog referenceElement={menuButtonElement} />
       <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
+      <ComposerStateDialog referenceElement={menuButtonElement} />
       {serverSideClientEnabled && (
         <ServerSideClientPromptDialog referenceElement={menuButtonElement} />
       )}
@@ -177,6 +181,20 @@ function TriggerServerSideClientAction({ onTrigger }: { onTrigger: () => void })
   return (
     <ContextMenuButton
       label='Server-side Client'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerComposerStateInspectorAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Composer State'
       onClick={() => {
         closeMenu();
         onTrigger();

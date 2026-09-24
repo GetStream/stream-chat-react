@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { LocalAttachment } from 'stream-chat';
-import { Prompt, useDialogIsOpen, useDialogOnNearestManager } from 'stream-chat-react';
+import { Prompt, useDialogIsOpen } from 'stream-chat-react';
 import { useSlotChannels } from 'stream-chat-react/slot-layout';
 import { DraggableDialog } from './DraggableDialog';
+import { usePersistentDialog } from './usePersistentDialog';
 
 export const attachmentPromptDialogId = 'app-attachment-prompt-dialog';
 type AttachmentEditorTab = 'unsupported-file' | 'unsupported-object';
@@ -51,9 +52,7 @@ export const AttachmentPromptDialog = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // Dev tool: act on the first channel currently open in a layout slot.
   const channel = useSlotChannels()[0]?.channel;
-  const { dialog, dialogManager } = useDialogOnNearestManager({
-    id: attachmentPromptDialogId,
-  });
+  const { dialog, dialogManager } = usePersistentDialog(attachmentPromptDialogId);
   const dialogIsOpen = useDialogIsOpen(attachmentPromptDialogId, dialogManager?.id);
 
   useEffect(() => {
