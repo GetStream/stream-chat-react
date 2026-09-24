@@ -150,6 +150,46 @@ describe('DialogPortal', () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('closes on Escape by default', async () => {
+    render(
+      <DialogManagerProvider>
+        <DialogFixture dialogId='dialog-escape-default' testId='escape-default-content' />
+      </DialogManagerProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId('open-dialog-escape-default'));
+    expect(screen.getByTestId('escape-default-content')).toBeInTheDocument();
+
+    fireEvent.keyUp(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('escape-default-content')).not.toBeInTheDocument();
+    });
+  });
+
+  it('stays open on Escape when closeOnEscape is false', async () => {
+    // A long-lived panel kept open while the user works elsewhere dismisses only through its own
+    // close control. Symmetric with `closeOnClickOutside`.
+    render(
+      <DialogManagerProvider>
+        <DialogFixture
+          closeOnEscape={false}
+          dialogId='dialog-escape-off'
+          testId='escape-off-content'
+        />
+      </DialogManagerProvider>,
+    );
+
+    fireEvent.click(screen.getByTestId('open-dialog-escape-off'));
+    expect(screen.getByTestId('escape-off-content')).toBeInTheDocument();
+
+    fireEvent.keyUp(document, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('escape-off-content')).toBeInTheDocument();
+    });
+  });
+
   it('does not close the dialog when Escape is handled by a nested dropdown', async () => {
     render(
       <DialogManagerProvider>

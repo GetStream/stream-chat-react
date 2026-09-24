@@ -10,17 +10,33 @@ import { LoadingIndicator as DefaultLoadingIndicator } from '../Loading/LoadingI
 const ReactPlayer = React.lazy(() => import('./ReactPlayerWrapper'));
 
 export type VideoPlayerProps = {
+  /**
+   * Whether the native playback controls are rendered. Set to `false` for a video that cannot
+   * be played yet — e.g. one whose upload is still in flight.
+   * @default true
+   */
+  controls?: boolean;
   isPlaying?: boolean;
   videoUrl?: string;
   thumbnailUrl?: string;
 };
 
-export const VideoPlayer = ({ isPlaying, thumbnailUrl, videoUrl }: VideoPlayerProps) => {
+export const VideoPlayer = ({
+  controls = true,
+  isPlaying,
+  thumbnailUrl,
+  videoUrl,
+}: VideoPlayerProps) => {
   const { LoadingIndicator = DefaultLoadingIndicator, VideoPlayer: VideoPlayerContext } =
     useComponentContext();
 
   return VideoPlayerContext ? (
-    <VideoPlayerContext thumbnailUrl={thumbnailUrl} videoUrl={videoUrl} />
+    <VideoPlayerContext
+      controls={controls}
+      isPlaying={isPlaying}
+      thumbnailUrl={thumbnailUrl}
+      videoUrl={videoUrl}
+    />
   ) : (
     <React.Suspense
       fallback={
@@ -30,6 +46,7 @@ export const VideoPlayer = ({ isPlaying, thumbnailUrl, videoUrl }: VideoPlayerPr
       }
     >
       <ReactPlayer
+        controls={controls}
         isPlaying={isPlaying}
         thumbnailUrl={thumbnailUrl}
         videoUrl={videoUrl}

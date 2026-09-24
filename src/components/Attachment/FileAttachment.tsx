@@ -4,17 +4,23 @@ import { FileIcon } from '../FileIcon';
 import type { Attachment } from 'stream-chat';
 
 import {
+  AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator,
   FileSizeIndicator as DefaultFileSizeIndicator,
   DownloadButton,
 } from './components';
+import { useAttachmentUploadState } from './hooks/useAttachmentUploadState';
 
 export type FileAttachmentProps = {
   attachment: Attachment;
 };
 
 export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
-  const { AttachmentFileIcon, FileSizeIndicator = DefaultFileSizeIndicator } =
-    useComponentContext();
+  const {
+    AttachmentFileIcon,
+    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+    FileSizeIndicator = DefaultFileSizeIndicator,
+  } = useComponentContext();
+  const { isUploading } = useAttachmentUploadState(attachment);
   const FileIconComponent = AttachmentFileIcon ?? FileIcon;
   return (
     <div
@@ -36,7 +42,12 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
           </div>
         </div>
         <div className='str-chat__message-attachment-file--item__data'>
-          <FileSizeIndicator fileSize={attachment.custom?.file_size} />
+          {/* While uploading, the upload progress takes the place of the file size. */}
+          {isUploading ? (
+            <AttachmentUploadProgressIndicator attachment={attachment} />
+          ) : (
+            <FileSizeIndicator fileSize={attachment.custom?.file_size} />
+          )}
         </div>
       </div>
       <DownloadButton

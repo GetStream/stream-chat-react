@@ -20,6 +20,8 @@ import {
 import { Attachment } from '../Attachment';
 import { SUPPORTED_VIDEO_FORMATS } from '../utils';
 import { generateScrapedVideoAttachment } from '../../../mock-builders';
+import { ChatProvider } from '../../../context';
+import { mockChatContext } from '../../../mock-builders';
 
 const UNSUPPORTED_ATTACHMENT_TEST_ID = 'attachment-unsupported';
 
@@ -65,19 +67,21 @@ const renderComponent = (
   { useDefaultGiphy = false } = {},
 ) =>
   render(
-    <Attachment
-      AttachmentActions={AttachmentActions}
-      Audio={Audio}
-      Card={Card}
-      File={File}
-      Geolocation={Geolocation}
-      {...(!useDefaultGiphy ? { Giphy } : {})}
-      Image={Image}
-      Media={Media}
-      ModalGallery={ModalGallery}
-      {...attachmentConfig}
-      {...props}
-    />,
+    <ChatProvider value={mockChatContext()}>
+      <Attachment
+        AttachmentActions={AttachmentActions}
+        Audio={Audio}
+        Card={Card}
+        File={File}
+        Geolocation={Geolocation}
+        {...(!useDefaultGiphy ? { Giphy } : {})}
+        Image={Image}
+        Media={Media}
+        ModalGallery={ModalGallery}
+        {...attachmentConfig}
+        {...props}
+      />
+    </ChatProvider>,
   );
 
 describe('attachment', () => {
