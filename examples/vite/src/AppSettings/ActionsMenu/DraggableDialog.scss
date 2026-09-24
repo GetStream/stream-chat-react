@@ -1,0 +1,19 @@
+/*
+ * `DraggableDialog` applies the drag offset as a `transform` on its inner shell, so the
+ * `DialogAnchor` element keeps the layout box it was first positioned into — anchored to the
+ * button that opened it — while the panel is painted somewhere else entirely.
+ *
+ * The SDK gives `.str-chat__dialog-contents` `pointer-events: auto`, so that stale invisible
+ * box swallows clicks meant for the app underneath: you drag a panel aside and the region it
+ * *used* to occupy stays dead. Only the visible shell may capture.
+ *
+ * These rules live in the `stream-app-overrides` layer, which wins over the SDK's rule
+ * regardless of specificity.
+ */
+.app__draggable-dialog {
+  pointer-events: none;
+}
+
+.app__draggable-dialog__shell {
+  pointer-events: auto;
+}

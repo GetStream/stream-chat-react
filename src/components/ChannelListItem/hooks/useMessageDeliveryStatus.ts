@@ -3,6 +3,7 @@ import type {
   Channel,
   LocalMessage,
   MessageReceiptsSnapshot,
+  MsgRef,
   UserResponse,
 } from 'stream-chat';
 
@@ -21,10 +22,13 @@ type UseMessageStatusParamsChannelPreviewProps = {
   lastMessage?: LocalMessage;
 };
 
+/** Whether a cursor has reached this message. */
+const hasCursorReached = (message: LocalMessage, cursor: MsgRef | null) =>
+  !!cursor && message.created_at <= cursor.timestamp;
+
 const trackerSnapshotSelector = (next: MessageReceiptsSnapshot) => ({
-  deliveredByMessageId: next.deliveredByMessageId,
-  readersByMessageId: next.readersByMessageId,
-  revision: next.revision,
+  lastDeliveredRefByOthers: next.lastDeliveredRefByOthers,
+  lastReadRefByOthers: next.lastReadRefByOthers,
 });
 
 export const useMessageDeliveryStatus = ({
@@ -50,19 +54,19 @@ export const useMessageDeliveryStatus = ({
     const lastMessageIsOwn = isOwnMessage(lastMessage);
     if (!lastMessageIsOwn) return undefined;
 
-    const readersForMessage = trackerSnapshot?.readersByMessageId[lastMessage.id] ?? [];
-    const deliveredForMessage =
-      trackerSnapshot?.deliveredByMessageId[lastMessage.id] ?? [];
-
-    return readersForMessage.length > 1 ||
-      (readersForMessage.length === 1 && readersForMessage[0].id !== client.user?.id)
-      ? MessageDeliveryStatus.READ
-      : deliveredForMessage.length > 1 ||
-          (deliveredForMessage.length === 1 &&
-            deliveredForMessage[0].id !== client.user?.id)
-        ? MessageDeliveryStatus.DELIVERED
-        : MessageDeliveryStatus.SENT;
-  }, [client.user?.id, isOwnMessage, lastMessage, trackerSnapshot]);
+    // Read against the cursors rather than asking who sits on this message: a member whose cursor
+    // is behind the latest message has still received everything up to it, and the old lookup
+    // reported that as `SENT`.
+    if (hasCursorReached(lastMessage, trackerSnapshot?.lastReadRefByOthers ?? null)) {
+      return MessageDeliveryStatus.READ;
+    }
+    if (
+      hasCursorReached(lastMessage, trackerSnapshot?.lastDeliveredRefByOthers ?? null)
+    ) {
+      return MessageDeliveryStatus.DELIVERED;
+    }
+    return MessageDeliveryStatus.SENT;
+  }, [isOwnMessage, lastMessage, trackerSnapshot]);
 
   return {
     messageDeliveryStatus,

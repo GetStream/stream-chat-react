@@ -2,6 +2,7 @@ import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from 'stream-chat-react';
 
 import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
+import type { UploadFailureMode } from '../SendWhilePendingUploads';
 
 export type ReactionsSettingsState = {
   flipHorizontalPosition: boolean;
@@ -97,9 +98,31 @@ export type LayoutSettingsState = {
   channelCid?: string;
 };
 
+export type ComposerSettingsState = {
+  /**
+   * Allow sending a message while its attachments are still uploading.
+   */
+  sendMessagesWithPendingUploads: boolean;
+  /**
+   * Dev harness: which uploads should fail instead of completing. `prefixed` fails only files
+   * whose name starts with `fail-`, which is how a partial failure (and the retry that follows)
+   * can be reproduced.
+   */
+  failUploads: UploadFailureMode;
+  /** Delay (ms) applied to every upload while `slowUploads` is on. */
+  slowUploadMs: number;
+  /**
+   * Dev harness, independent of `sendMessagesWithPendingUploads`: stretches every upload over
+   * `slowUploadMs` so the in-flight and confirmation-pending windows last long enough to observe.
+   * Useful for watching the default blocked behaviour too.
+   */
+  slowUploads: boolean;
+};
+
 export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
+  composer: ComposerSettingsState;
   devTools: DevToolsSettingsState;
   language: LanguageSettingsState;
   layout: LayoutSettingsState;
@@ -150,6 +173,12 @@ const defaultAppSettingsState: AppSettingsState = {
   },
   chatView: {
     iconOnly: true,
+  },
+  composer: {
+    failUploads: 'off',
+    sendMessagesWithPendingUploads: false,
+    slowUploadMs: 20000,
+    slowUploads: false,
   },
   language: {
     code: DEFAULT_LANGUAGE,

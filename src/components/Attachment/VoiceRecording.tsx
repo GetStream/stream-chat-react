@@ -1,7 +1,10 @@
 import React, { useContext } from 'react';
 import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
-import { FileSizeIndicator as DefaultFileSizeIndicator } from './components';
+import {
+  AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator,
+  FileSizeIndicator as DefaultFileSizeIndicator,
+} from './components';
 import { FileIcon } from '../FileIcon';
 import {
   MessageContext,
@@ -19,6 +22,8 @@ import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { PlayButton } from '../Button';
 import { useThreadContext } from '../Threads';
+import { getAttachmentPreviewUrl } from 'stream-chat';
+import { useAttachmentUploadState } from './hooks/useAttachmentUploadState';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -32,12 +37,20 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
 });
 
 type VoiceRecordingPlayerUIProps = {
+  attachment?: Attachment;
   audioPlayer: AudioPlayer;
 };
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
-const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) => {
-  const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
+const VoiceRecordingPlayerUI = ({
+  attachment,
+  audioPlayer,
+}: VoiceRecordingPlayerUIProps) => {
+  const {
+    AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
+    FileSizeIndicator = DefaultFileSizeIndicator,
+  } = useComponentContext();
+  const { isUploading } = useAttachmentUploadState(attachment);
   const { t } = useTranslationContext();
   const {
     canPlayRecord,
@@ -56,7 +69,15 @@ const VoiceRecordingPlayerUI = ({ audioPlayer }: VoiceRecordingPlayerUIProps) =>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-            {durationSeconds ? (
+            {/*
+              While uploading, the upload progress takes this slot. It has to outrank the
+              duration: `MediaRecorderController` stamps `duration` on every recording before it
+              is ever uploaded, so checking the duration first meant an uploading voice message
+              showed no upload indication at all.
+            */}
+            {isUploading ? (
+              <AttachmentUploadProgressIndicator attachment={attachment} />
+            ) : durationSeconds ? (
               <DurationDisplay
                 duration={durationSeconds}
                 isPlaying={!!isPlaying}
@@ -134,12 +155,15 @@ export const VoiceRecordingPlayer = ({
     requester:
       message?.id &&
       `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
-    src: asset_url,
+    // Falls back to the local blob preview while the upload is still in flight.
+    src: getAttachmentPreviewUrl(attachment, asset_url),
     title,
     waveformData: waveform_data,
   });
 
-  return audioPlayer ? <VoiceRecordingPlayerUI audioPlayer={audioPlayer} /> : null;
+  return audioPlayer ? (
+    <VoiceRecordingPlayerUI attachment={attachment} audioPlayer={audioPlayer} />
+  ) : null;
 };
 
 export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;

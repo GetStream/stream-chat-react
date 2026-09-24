@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopAIGenerationButton';
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
@@ -9,12 +9,7 @@ import {
   useMessageComposerContext,
 } from '../../context';
 import { useAIState } from '../AIStateIndicator';
-import {
-  useMessageComposerController,
-  useMessageContentIsEmpty,
-  useSendMessageFn,
-  useUpdateMessageFn,
-} from './hooks';
+import { useMessageComposerController, useMessageContentIsEmpty } from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import { AIStates } from 'stream-chat';
@@ -72,12 +67,7 @@ export const MessageComposerActions = () => {
       : StopAIGenerationButtonOverride;
 
   const { recordingController } = useMessageComposerContext();
-  const sendMessageFn = useSendMessageFn();
-  const updateMessageFn = useUpdateMessageFn();
-  const submitMessageFn = useMemo(
-    () => (editedMessage ? updateMessageFn : sendMessageFn),
-    [editedMessage, sendMessageFn, updateMessageFn],
-  );
+  const submitMessageFn = editedMessage ? messageComposer.update : messageComposer.send;
   const isCooldownActive = useIsCooldownActive();
 
   const { aiState } = useAIState(channel);

@@ -1,5 +1,6 @@
 import type { UploadAttachmentPreviewProps } from './types';
 import {
+  isUploadConfirmationPending,
   isVideoAttachment,
   type LocalImageAttachment,
   type LocalVideoAttachment,
@@ -99,7 +100,14 @@ export const MediaAttachmentPreview = ({
         )}
 
         <div className={clsx('str-chat__attachment-preview-media__overlay')}>
-          {isUploading && <UploadProgressIndicator uploadProgress={uploadProgress} />}
+          {isUploading && (
+            <UploadProgressIndicator
+              uploadConfirmationPending={isUploadConfirmationPending(
+                attachment.localMetadata,
+              )}
+              uploadProgress={uploadProgress}
+            />
+          )}
 
           {isVideoAttachment(attachment) &&
             !hasUploadError &&

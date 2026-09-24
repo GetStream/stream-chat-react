@@ -12,16 +12,10 @@ import {
   initClientWithChannels,
 } from '../../../../mock-builders';
 
-// MERGE-RECONCILE (test migration): the master merge moved message sending onto the
-// channel/composer via `useSendMessageFn()` (which `useMediaRecorder` now calls internally),
-// replacing the old `handleSubmit` prop. `useSendMessageFn` imports the package barrel, which
-// creates an import cycle when this hook module is loaded first in a test; mocking it here both
-// breaks that cycle and gives us a spy to assert the "submit" step, replacing the obsolete
-// `handleSubmit` assertions.
-const { sendMessageFnMock } = vi.hoisted(() => ({ sendMessageFnMock: vi.fn() }));
-vi.mock('../../../MessageComposer/hooks/useSendMessageFn', () => ({
-  useSendMessageFn: () => sendMessageFnMock,
-}));
+// Sending moved onto the composer (`messageComposer.send`), which `useMediaRecorder` calls
+// internally in place of the old `handleSubmit` prop. `render` spies on the composer of the
+// channel it builds, which is what these tests assert the "submit" step against.
+let sendSpy: ReturnType<typeof vi.spyOn>;
 
 // Capture interaction announcements while keeping the rest of the Accessibility module intact (Chat
 // mounts AriaLiveAnnouncerProvider / NotificationAnnouncer from it).
@@ -50,6 +44,7 @@ const render = async (params = {}) => {
     channels: [channel],
     client,
   } = await initClientWithChannels();
+  sendSpy = vi.spyOn(channel.messageComposer, 'send').mockResolvedValue(true);
   const wrapper = ({ children }) => (
     <Chat client={client}>
       <Channel channel={channel}>{children}</Channel>
@@ -154,7 +149,7 @@ describe('useMediaRecorder', () => {
       );
       await completeRecording();
       expect(uploadAttachmentSpy).not.toHaveBeenCalled();
-      expect(sendMessageFnMock).not.toHaveBeenCalled();
+      expect(sendSpy).not.toHaveBeenCalled();
     });
 
     it('does nothing if recording attachment is not generated on stop', async () => {
@@ -176,7 +171,7 @@ describe('useMediaRecorder', () => {
       expect(recorderStopSpy).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).not.toHaveBeenCalledWith();
       expect(uploadAttachmentSpy).not.toHaveBeenCalled();
-      expect(sendMessageFnMock).not.toHaveBeenCalled();
+      expect(sendSpy).not.toHaveBeenCalled();
     });
 
     it('uploads and submits the attachment', async () => {
@@ -199,7 +194,7 @@ describe('useMediaRecorder', () => {
         completeRecording();
       });
       expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
-      expect(sendMessageFnMock).toHaveBeenCalledWith();
+      expect(sendSpy).toHaveBeenCalledWith();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
       expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.sent');
       expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.attached');
@@ -227,7 +222,7 @@ describe('useMediaRecorder', () => {
         completeRecording();
       });
       expect(uploadAttachmentSpy).toHaveBeenCalledWith(generatedVoiceRecording);
-      expect(sendMessageFnMock).not.toHaveBeenCalled();
+      expect(sendSpy).not.toHaveBeenCalled();
       expect(recorderCleanUpSpy).toHaveBeenCalledWith();
       expect(announceInteractionMock).toHaveBeenCalledWith('voiceRecording.attached');
       expect(announceInteractionMock).not.toHaveBeenCalledWith('voiceRecording.sent');

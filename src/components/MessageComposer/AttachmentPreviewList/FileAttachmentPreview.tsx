@@ -2,11 +2,12 @@ import React from 'react';
 import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
-import { AttachmentUploadedSizeIndicator } from './AttachmentUploadedSizeIndicator';
+import { AttachmentUploadedSizeIndicator } from '../../Loading/AttachmentUploadedSizeIndicator';
 import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
+import { isUploadConfirmationPending } from 'stream-chat';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
   UploadAttachmentPreviewProps<
@@ -43,7 +44,12 @@ export const FileAttachmentPreview = ({
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
-            <UploadProgressIndicator uploadProgress={uploadProgress} />
+            <UploadProgressIndicator
+              uploadConfirmationPending={isUploadConfirmationPending(
+                attachment.localMetadata,
+              )}
+              uploadProgress={uploadProgress}
+            />
           )}
           <AttachmentUploadedSizeIndicator attachment={attachment} />
           {hasFatalError && (

@@ -1,0 +1,52 @@
+/*
+ * Upload progress shown on an attachment carried by a message whose send is already under way.
+ *
+ * The markup is the same pair the composer's attachment previews use — UploadProgressIndicator
+ * followed by AttachmentUploadedSizeIndicator — so these rules deliberately mirror the tokens
+ * in MessageComposer/styling/AttachmentPreview.scss. An attachment should look the same either
+ * side of pressing send.
+ */
+
+.str-chat__attachment-upload-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--str-chat__spacing-xxs);
+  color: var(--str-chat__text-secondary);
+  font: var(--str-chat__font-metadata-default);
+
+  .str-chat__loading-indicator,
+  .str-chat__progress-indicator {
+    flex: 0 0 auto;
+    width: var(--str-chat__icon-size-sm);
+    height: var(--str-chat__icon-size-sm);
+    color: var(--str-chat__accent-primary);
+  }
+}
+
+/*
+ * Images, video and galleries have no file-size row to take over, so the indicator is overlaid
+ * on the media, on a rounded chip.
+ *
+ * Pinned to the top-inline-end corner, not the bottom: a still-uploading video keeps its
+ * transport controls (its local blob plays fine), and those occupy the full width of the bottom
+ * edge. `pointer-events: none` keeps the chip from swallowing clicks meant for the media.
+ *
+ * It renders as a sibling of the media component so the media's own box and sizing logic are
+ * untouched; only the surrounding container becomes a positioning context.
+ */
+.str-chat__message-attachment--image,
+.str-chat__message-attachment--gallery,
+.str-chat__message-attachment--media {
+  position: relative;
+}
+
+.str-chat__attachment-upload-progress--overlay {
+  position: absolute;
+  inset-inline-end: var(--str-chat__spacing-xs);
+  inset-block-start: var(--str-chat__spacing-xs);
+  z-index: 1;
+  padding: var(--str-chat__spacing-xxs) var(--str-chat__spacing-xs);
+  border-radius: var(--str-chat__radius-max);
+  background: var(--str-chat__background-core-elevation-0);
+  pointer-events: none;
+}

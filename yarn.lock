@@ -1861,7 +1861,7 @@ __metadata:
     emoji-mart: "npm:^5.6.0"
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
-    stream-chat: "npm:^10.0.0-rc.14"
+    stream-chat: "npm:10.0.0-rc.14"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -1889,7 +1889,7 @@ __metadata:
     react: "npm:^19.2.6"
     react-dom: "npm:^19.2.6"
     sass: "npm:^1.100.0"
-    stream-chat: "npm:^10.0.0-rc.14"
+    stream-chat: "npm:10.0.0-rc.14"
     stream-chat-react: "workspace:^"
     typescript: "npm:^6.0.3"
     vite: "npm:^8.1.3"
@@ -9551,7 +9551,7 @@ __metadata:
     remark-parse: "npm:^11.0.0"
     sass: "npm:^1.100.0"
     semantic-release: "npm:^25.0.3"
-    stream-chat: "npm:^10.0.0-rc.14"
+    stream-chat: "npm:10.0.0-rc.14"
     typescript: "npm:^6.0.3"
     typescript-eslint: "npm:^8.59.4"
     unified: "npm:^11.0.5"
@@ -9595,7 +9595,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"stream-chat@npm:^10.0.0-rc.14":
+"stream-chat@npm:10.0.0-rc.14":
   version: 10.0.0-rc.14
   resolution: "stream-chat@npm:10.0.0-rc.14"
   dependencies:
