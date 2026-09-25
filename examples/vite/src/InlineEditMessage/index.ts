@@ -1,0 +1,1 @@
+export { InlineEditableMessage } from './InlineEditMessage';

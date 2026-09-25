@@ -90,6 +90,19 @@ const CUSTOM_ACTION_ROWS: ActionRow[] = [
     }),
   },
   {
+    comment: (
+      <>
+        Adds an <strong>&ldquo;Edit inline&rdquo;</strong> action that swaps the message
+        for a <code>MessageComposer</code> in place, supplied through{' '}
+        <code>MessageComposerControllerProvider</code>.
+      </>
+    ),
+    id: 'inline-edit',
+    label: 'Edit inline',
+    read: (toggles) => toggles.inlineEdit,
+    write: (toggles, value) => ({ ...toggles, inlineEdit: value }),
+  },
+  {
     comment: 'Mark own messages as unread too.',
     id: 'mark-own-unread',
     label: 'Mark as unread',

@@ -44,6 +44,7 @@ export type CustomMessageActionToggles = {
    * *off* so a newly shipped default action appears without a settings migration.
    */
   disabledActionTypes: string[];
+  inlineEdit: boolean;
   markOwnUnread: boolean;
   viewMessageInfo: boolean;
 };
@@ -191,6 +192,7 @@ const defaultAppSettingsState: AppSettingsState = {
           enableOptionConfiguration: false,
         },
         disabledActionTypes: [],
+        inlineEdit: false,
         markOwnUnread: false,
         viewMessageInfo: false,
       },
@@ -199,6 +201,7 @@ const defaultAppSettingsState: AppSettingsState = {
           enableOptionConfiguration: false,
         },
         disabledActionTypes: [],
+        inlineEdit: false,
         markOwnUnread: false,
         viewMessageInfo: false,
       },
