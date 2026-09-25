@@ -1,40 +1,68 @@
-import { type ComponentProps, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { MessageComposer as MessageComposerController } from 'stream-chat';
 import type { LocalMessage, MessageComposerState } from 'stream-chat';
 import {
   asDynamicKey,
   ContextMenuButton,
-  defaultMessageActionSet,
   MessageUI as DefaultMessageUI,
   IconEdit,
-  MessageActions,
-  type MessageActionSetItem,
   MessageComposer,
   MessageComposerControllerProvider,
   type MessageUIComponentProps,
   useChatContext,
-  useComponentContext,
   useContextMenuContext,
   useMessageContext,
   useStateStore,
   useThreadContext,
   useTranslationContext,
-  WithComponents,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings';
 import type { MessageActionSurface } from '../AppSettings';
 
-// Next to the built-in edit, so the two ways of editing read as alternatives.
-const insertBeforeEdit = (
-  actionSet: MessageActionSetItem[],
-  actionSetItem: MessageActionSetItem,
-) => {
-  const editIndex = actionSet.findIndex((item) => 'type' in item && item.type === 'edit');
+type InlineEditContextValue = {
+  startEditing: (message: LocalMessage) => void;
+};
 
-  if (editIndex < 0) return [...actionSet, actionSetItem];
+// Lets the "Edit inline" action, rendered deep in the message's actions menu, start editing the
+// row it belongs to.
+const InlineEditContext = createContext<InlineEditContextValue | undefined>(undefined);
 
-  return [...actionSet.slice(0, editIndex), actionSetItem, ...actionSet.slice(editIndex)];
+/**
+ * The "Edit inline" message action. `ConfigurableMessageActions` adds it to the action set when
+ * the setting is on; it only works inside an `InlineEditableMessage`, which provides the context.
+ */
+export const InlineEditMessageAction = () => {
+  const inlineEdit = useContext(InlineEditContext);
+  const { closeMenu } = useContextMenuContext();
+  const { message } = useMessageContext();
+  const { t } = useTranslationContext();
+
+  if (!inlineEdit) return null;
+
+  return (
+    <ContextMenuButton
+      aria-label={t(
+        asDynamicKey('viteExample.inlineEdit.action.ariaLabel'),
+        'Edit message inline',
+      )}
+      className='str-chat__message-actions-list-item-button'
+      Icon={IconEdit}
+      onClick={() => {
+        inlineEdit.startEditing(message);
+        closeMenu();
+      }}
+    >
+      {t(asDynamicKey('viteExample.inlineEdit.action.label'), 'Edit inline')}
+    </ContextMenuButton>
+  );
 };
 
 const editingSelector = (state: MessageComposerState) => ({
@@ -55,7 +83,6 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
     (state) => state.messageActions,
   );
   const inlineEditEnabled = customMessageActions[surface].inlineEdit;
-  const { MessageActions: OuterMessageActions = MessageActions } = useComponentContext();
 
   // Only looks - a row nobody edits creates nothing. A composer found here holding an edit is one
   // left unfinished while this row was unmounted, so the editor comes straight back.
@@ -92,53 +119,7 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
     if (!inlineEditEnabled && editing) editingComposer?.clear();
   }, [editing, editingComposer, inlineEditEnabled]);
 
-  const MessageActionsWithInlineEdit = useMemo(() => {
-    const InlineEditAction = () => {
-      const { closeMenu } = useContextMenuContext();
-      const { message } = useMessageContext();
-      const { t } = useTranslationContext();
-
-      return (
-        <ContextMenuButton
-          aria-label={t(
-            asDynamicKey('viteExample.inlineEdit.action.ariaLabel'),
-            'Edit message inline',
-          )}
-          className='str-chat__message-actions-list-item-button'
-          Icon={IconEdit}
-          onClick={() => {
-            startEditing(message);
-            closeMenu();
-          }}
-        >
-          {t(asDynamicKey('viteExample.inlineEdit.action.label'), 'Edit inline')}
-        </ContextMenuButton>
-      );
-    };
-
-    const inlineEditActionSetItem: MessageActionSetItem = {
-      Component: InlineEditAction,
-      placement: 'dropdown',
-      type: 'editInline',
-    };
-
-    const Component = (actionsProps: ComponentProps<typeof MessageActions>) => {
-      const messageActionSet = useMemo(
-        () =>
-          insertBeforeEdit(
-            actionsProps.messageActionSet ?? defaultMessageActionSet,
-            inlineEditActionSetItem,
-          ),
-        [actionsProps.messageActionSet],
-      );
-
-      return (
-        <OuterMessageActions {...actionsProps} messageActionSet={messageActionSet} />
-      );
-    };
-    Component.displayName = 'MessageActionsWithInlineEdit';
-    return Component;
-  }, [OuterMessageActions, startEditing]);
+  const inlineEditContextValue = useMemo(() => ({ startEditing }), [startEditing]);
 
   if (!inlineEditEnabled) return <DefaultMessageUI {...props} />;
 
@@ -157,8 +138,8 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
   }
 
   return (
-    <WithComponents overrides={{ MessageActions: MessageActionsWithInlineEdit }}>
+    <InlineEditContext.Provider value={inlineEditContextValue}>
       <DefaultMessageUI {...props} />
-    </WithComponents>
+    </InlineEditContext.Provider>
   );
 };

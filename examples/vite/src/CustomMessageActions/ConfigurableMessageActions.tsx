@@ -34,6 +34,7 @@ import {
 
 import { useAppSettingsSelector } from '../AppSettings';
 import type { MessageActionSurface } from '../AppSettings';
+import { InlineEditMessageAction } from '../InlineEditMessage';
 import {
   MessageInfoPromptDialog,
   messageInfoPromptDialogId,
@@ -286,7 +287,11 @@ const CustomViewMessageInfoAction = () => {
   );
 };
 
-type SupportedCustomMessageActionType = 'delete' | 'markOwnUnread' | 'viewMessageInfo';
+type SupportedCustomMessageActionType =
+  | 'delete'
+  | 'editInline'
+  | 'markOwnUnread'
+  | 'viewMessageInfo';
 
 type CustomMessageActionOverrideSpec = {
   actionSetItem: MessageActionSetItem;
@@ -379,6 +384,16 @@ export const ConfigurableMessageActions = (
         },
         mode: 'replace',
       },
+      // Next to the built-in edit, so the two ways of editing read as alternatives.
+      editInline: {
+        actionSetItem: {
+          Component: InlineEditMessageAction,
+          placement: 'dropdown',
+          type: 'editInline',
+        },
+        insertBeforeType: 'edit',
+        mode: 'append',
+      },
       markOwnUnread: {
         actionSetItem: {
           Component: CustomMarkOwnUnreadMessageAction,
@@ -403,6 +418,10 @@ export const ConfigurableMessageActions = (
       {
         ...actionOverrides.delete,
         enabled: customDeleteEnabled,
+      },
+      {
+        ...actionOverrides.editInline,
+        enabled: surfaceActions.inlineEdit,
       },
       {
         ...actionOverrides.markOwnUnread,
@@ -430,6 +449,7 @@ export const ConfigurableMessageActions = (
   }, [
     customDeleteEnabled,
     surfaceActions.disabledActionTypes,
+    surfaceActions.inlineEdit,
     surfaceActions.markOwnUnread,
     surfaceActions.viewMessageInfo,
     props.messageActionSet,
