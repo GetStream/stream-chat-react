@@ -72,6 +72,12 @@ export type MessageComposerProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
+  /**
+   * Keeps the composer's state when this component unmounts instead of clearing it. For a composer
+   * the integrator owns - one supplied through `MessageComposerControllerProvider` - where
+   * unmounting the UI does not end the composition.
+   */
+  preventClearingOnUnmount?: boolean;
 };
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
@@ -88,9 +94,12 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 
   useEffect(
     () => () => {
-      messageComposer.createDraft().finally(() => messageComposer.clear());
+      // `createDraft` already skips edits and composers with drafts disabled.
+      const draftSaved = messageComposer.createDraft().catch(console.error);
+      if (props.preventClearingOnUnmount) return;
+      draftSaved.finally(() => messageComposer.clear());
     },
-    [messageComposer],
+    [messageComposer, props.preventClearingOnUnmount],
   );
 
   useEffect(() => {

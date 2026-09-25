@@ -8,6 +8,7 @@ export * from './DialogManagerContext';
 export * from './MessageContext';
 export * from './MessageBounceContext';
 export * from './MessageComposerContext';
+export * from './MessageComposerControllerContext';
 export * from './MessageListContext';
 export * from './MessageTranslationViewContext';
 export * from './ModalContext';

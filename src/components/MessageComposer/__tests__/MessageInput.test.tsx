@@ -20,7 +20,11 @@ import type {
   UploadChannelResponse,
   UserResponse,
 } from 'stream-chat';
-import { LinkPreviewStatus, SearchController } from 'stream-chat';
+import {
+  LinkPreviewStatus,
+  MessageComposer as MessageComposerController,
+  SearchController,
+} from 'stream-chat';
 import {
   act,
   cleanup,
@@ -46,7 +50,12 @@ import type {
   ComponentContextValue,
   MessageContextValue,
 } from '../../../context';
-import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
+import {
+  DialogManagerProvider,
+  MessageComposerControllerProvider,
+  MessageProvider,
+  WithComponents,
+} from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -253,6 +262,7 @@ const renderComponent = async ({
   customClient,
   customUser,
   messageActionsProps = {},
+  messageComposerController,
   messageContextOverrides = {},
   messageInputProps = {},
 }: {
@@ -264,6 +274,7 @@ const renderComponent = async ({
   customClient?: StreamChat;
   customUser?: UserResponse;
   messageActionsProps?: Partial<MessageActionsProps>;
+  messageComposerController?: MessageComposerController;
   messageContextOverrides?: Partial<MessageContextValue>;
   messageInputProps?: Partial<MessageComposerProps>;
   [key: string]: unknown;
@@ -309,7 +320,11 @@ const renderComponent = async ({
                     {...messageActionsProps}
                   />
                 </MessageProvider>
-                <MessageComposer {...messageInputProps} />
+                <MessageComposerControllerProvider
+                  messageComposerController={messageComposerController}
+                >
+                  <MessageComposer {...messageInputProps} />
+                </MessageComposerControllerProvider>
               </Channel>
             </DialogManagerProvider>
           </AriaLiveAnnouncerProvider>
@@ -2212,6 +2227,75 @@ describe(`MessageInputFlat`, () => {
       expect(textarea).not.toHaveAttribute('aria-activedescendant');
 
       Element.prototype.scrollIntoView = scrollIntoView;
+    });
+  });
+
+  describe('On unmount', () => {
+    // The cleanup chains `clear()` onto the draft save, so it lands a few microtasks later.
+    const flushMicrotasks = () =>
+      act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    it('saves a draft and clears the composer', async () => {
+      const { customChannel, customClient } = await setup();
+      const createDraft = vi.spyOn(customChannel.messageComposer, 'createDraft');
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({ customChannel, customClient });
+
+      unmount();
+
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
+    });
+
+    it('still saves the draft but keeps the state with preventClearingOnUnmount', async () => {
+      const { customChannel, customClient } = await setup();
+      const createDraft = vi.spyOn(customChannel.messageComposer, 'createDraft');
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({
+        customChannel,
+        customClient,
+        messageInputProps: { preventClearingOnUnmount: true },
+      });
+
+      unmount();
+      await flushMicrotasks();
+
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      expect(clear).not.toHaveBeenCalled();
+    });
+
+    it('clears the composer even when saving the draft fails', async () => {
+      const { customChannel, customClient } = await setup();
+      const error = new Error('draft request failed');
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      vi.spyOn(customChannel.messageComposer, 'createDraft').mockRejectedValue(error);
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({ customChannel, customClient });
+
+      unmount();
+
+      await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
+      expect(consoleError).toHaveBeenCalledWith(error);
+    });
+
+    it('acts on a supplied composer, not the channel one', async () => {
+      const { customChannel, customClient } = await setup();
+      const supplied = new MessageComposerController({
+        client: customClient,
+        compositionContext: customChannel,
+      });
+      const clearSupplied = vi.spyOn(supplied, 'clear');
+      const clearChannel = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({
+        customChannel,
+        customClient,
+        messageComposerController: supplied,
+      });
+
+      unmount();
+
+      await waitFor(() => expect(clearSupplied).toHaveBeenCalledTimes(1));
+      expect(clearChannel).not.toHaveBeenCalled();
     });
   });
 });
