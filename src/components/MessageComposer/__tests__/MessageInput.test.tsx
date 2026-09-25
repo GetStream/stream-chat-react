@@ -2049,6 +2049,43 @@ describe(`MessageInputFlat`, () => {
       });
     };
 
+    // The send button and the Enter key are two ways to submit, and both have to save an edit -
+    // sending it would post a new message under the id of the one being edited.
+    it.each([
+      [
+        'the Enter key',
+        (input: HTMLElement) => fireEvent.keyDown(input, { key: 'Enter' }),
+      ],
+      ['the send button', () => fireEvent.click(screen.getByTestId('send-button'))],
+    ])('saves the edit when submitted with %s', async (_, submit) => {
+      const { channel } = await renderComponent();
+      const sendMessage = vi
+        .spyOn(channel, 'sendMessageWithLocalUpdate')
+        .mockResolvedValue(undefined);
+      const updateMessage = vi
+        .spyOn(channel, 'updateMessageWithLocalUpdate')
+        .mockResolvedValue(undefined);
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      await enterEditMode();
+      await waitFor(() => expect(input).toHaveValue(mainListMessage.text));
+
+      await act(async () => {
+        await fireEvent.change(input, { target: { value: 'edited text' } });
+      });
+      await act(() => submit(input));
+
+      await waitFor(() => expect(updateMessage).toHaveBeenCalledTimes(1));
+      expect(updateMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          localMessage: expect.objectContaining({
+            id: mainListMessage.id,
+            text: 'edited text',
+          }),
+        }),
+      );
+      expect(sendMessage).not.toHaveBeenCalled();
+    });
+
     it('should restore composer text when cancelling edit mode', async () => {
       await renderComponent();
       const textarea = await screen.findByPlaceholderText(inputPlaceholder);
