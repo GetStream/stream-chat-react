@@ -35,6 +35,7 @@ import {
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
 import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
+import { useMessageComposerSubmitFn } from '../MessageComposer/hooks/useMessageComposerSubmitFn';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -164,7 +165,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       } satisfies React.CSSProperties);
-  const sendMessage = messageComposer.send;
+  const submitMessage = useMessageComposerSubmitFn();
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
   const { quotedMessage } = useStateStore(
@@ -309,15 +310,15 @@ const TextareaComposerWithLiveAnnouncements = ({
           // prevent adding newline when submitting a message with
           event.preventDefault();
         }
-        sendMessage();
+        submitMessage();
       }
     },
     [
       focusedItemIndex,
       hasSendableData,
       onKeyDown,
-      sendMessage,
       shouldSubmit,
+      submitMessage,
       textComposer,
       textareaRef,
     ],

@@ -93,6 +93,7 @@ import {
   SegmentedReactionsList,
 } from './CustomMessageUi';
 import { ConfigurableMessageActions } from './CustomMessageActions';
+import { InlineEditableMessage } from './InlineEditMessage';
 import { SidebarToggle } from './Sidebar/SidebarToggle.tsx';
 import { CommandModeAttachmentSelector } from './CommandModeAttachmentSelector.tsx';
 import { StreamDebugHandles } from './Debug';
@@ -654,6 +655,7 @@ const App = () => {
         HeaderStartContent: SidebarToggle,
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
+        MessageUI: InlineEditableMessage,
         ...messageUiOverrides,
       }}
     >

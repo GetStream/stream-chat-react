@@ -20,7 +20,11 @@ import type {
   UploadChannelResponse,
   UserResponse,
 } from 'stream-chat';
-import { LinkPreviewStatus, SearchController } from 'stream-chat';
+import {
+  LinkPreviewStatus,
+  MessageComposer as MessageComposerController,
+  SearchController,
+} from 'stream-chat';
 import {
   act,
   cleanup,
@@ -46,7 +50,12 @@ import type {
   ComponentContextValue,
   MessageContextValue,
 } from '../../../context';
-import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
+import {
+  DialogManagerProvider,
+  MessageComposerControllerProvider,
+  MessageProvider,
+  WithComponents,
+} from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -253,8 +262,10 @@ const renderComponent = async ({
   customClient,
   customUser,
   messageActionsProps = {},
+  messageComposerController,
   messageContextOverrides = {},
   messageInputProps = {},
+  strictMode = false,
 }: {
   channelData?: GenerateChannelOptions | GenerateChannelOptions[];
   channelProps?: Partial<ChannelProps>;
@@ -264,8 +275,11 @@ const renderComponent = async ({
   customClient?: StreamChat;
   customUser?: UserResponse;
   messageActionsProps?: Partial<MessageActionsProps>;
+  messageComposerController?: MessageComposerController;
   messageContextOverrides?: Partial<MessageContextValue>;
   messageInputProps?: Partial<MessageComposerProps>;
+  /** Renders inside `React.StrictMode`, which in development mounts, unmounts and remounts. */
+  strictMode?: boolean;
   [key: string]: unknown;
 } = {}) => {
   let channel = customChannel;
@@ -282,39 +296,47 @@ const renderComponent = async ({
 
   let renderResult: RenderResult;
 
+  const Root = strictMode ? React.StrictMode : React.Fragment;
+
   await act(() => {
     renderResult = render(
-      <WithComponents overrides={components}>
-        <ChatProvider
-          value={fromPartial<ChatContextValue>({
-            ...defaultChatContext,
-            channel,
-            client,
-            ...chatContextOverrides,
-          })}
-        >
-          <AriaLiveAnnouncerProvider>
-            {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
-            <AriaLiveOutlet />
-            <DialogManagerProvider id='message-input-test-dialog-manager'>
-              <Channel channel={channel} {...channelProps}>
-                <MessageProvider
-                  value={fromPartial<MessageContextValue>({
-                    ...defaultMessageContextValue,
-                    ...messageContextOverrides,
-                  })}
-                >
-                  <MessageActions
-                    disableBaseMessageActionSetFilter
-                    {...messageActionsProps}
-                  />
-                </MessageProvider>
-                <MessageComposer {...messageInputProps} />
-              </Channel>
-            </DialogManagerProvider>
-          </AriaLiveAnnouncerProvider>
-        </ChatProvider>
-      </WithComponents>,
+      <Root>
+        <WithComponents overrides={components}>
+          <ChatProvider
+            value={fromPartial<ChatContextValue>({
+              ...defaultChatContext,
+              channel,
+              client,
+              ...chatContextOverrides,
+            })}
+          >
+            <AriaLiveAnnouncerProvider>
+              {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
+              <AriaLiveOutlet />
+              <DialogManagerProvider id='message-input-test-dialog-manager'>
+                <Channel channel={channel} {...channelProps}>
+                  <MessageProvider
+                    value={fromPartial<MessageContextValue>({
+                      ...defaultMessageContextValue,
+                      ...messageContextOverrides,
+                    })}
+                  >
+                    <MessageActions
+                      disableBaseMessageActionSetFilter
+                      {...messageActionsProps}
+                    />
+                  </MessageProvider>
+                  <MessageComposerControllerProvider
+                    messageComposerController={messageComposerController}
+                  >
+                    <MessageComposer {...messageInputProps} />
+                  </MessageComposerControllerProvider>
+                </Channel>
+              </DialogManagerProvider>
+            </AriaLiveAnnouncerProvider>
+          </ChatProvider>
+        </WithComponents>
+      </Root>,
     );
   });
 
@@ -2049,6 +2071,43 @@ describe(`MessageInputFlat`, () => {
       });
     };
 
+    // The send button and the Enter key are two ways to submit, and both have to save an edit -
+    // sending it would post a new message under the id of the one being edited.
+    it.each([
+      [
+        'the Enter key',
+        (input: HTMLElement) => fireEvent.keyDown(input, { key: 'Enter' }),
+      ],
+      ['the send button', () => fireEvent.click(screen.getByTestId('send-button'))],
+    ])('saves the edit when submitted with %s', async (_, submit) => {
+      const { channel } = await renderComponent();
+      const sendMessage = vi
+        .spyOn(channel, 'sendMessageWithLocalUpdate')
+        .mockResolvedValue(undefined);
+      const updateMessage = vi
+        .spyOn(channel, 'updateMessageWithLocalUpdate')
+        .mockResolvedValue(undefined);
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      await enterEditMode();
+      await waitFor(() => expect(input).toHaveValue(mainListMessage.text));
+
+      await act(async () => {
+        await fireEvent.change(input, { target: { value: 'edited text' } });
+      });
+      await act(() => submit(input));
+
+      await waitFor(() => expect(updateMessage).toHaveBeenCalledTimes(1));
+      expect(updateMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          localMessage: expect.objectContaining({
+            id: mainListMessage.id,
+            text: 'edited text',
+          }),
+        }),
+      );
+      expect(sendMessage).not.toHaveBeenCalled();
+    });
+
     it('should restore composer text when cancelling edit mode', async () => {
       await renderComponent();
       const textarea = await screen.findByPlaceholderText(inputPlaceholder);
@@ -2175,6 +2234,86 @@ describe(`MessageInputFlat`, () => {
       expect(textarea).not.toHaveAttribute('aria-activedescendant');
 
       Element.prototype.scrollIntoView = scrollIntoView;
+    });
+  });
+
+  describe('On unmount', () => {
+    // The cleanup chains `clear()` onto the draft save, so it lands a few microtasks later.
+    const flushMicrotasks = () =>
+      act(() => new Promise((resolve) => setTimeout(resolve, 0)));
+
+    it('saves a draft and clears the composer', async () => {
+      const { customChannel, customClient } = await setup();
+      const createDraft = vi.spyOn(customChannel.messageComposer, 'createDraft');
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({ customChannel, customClient });
+
+      unmount();
+
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
+    });
+
+    it('clears the composer even when saving the draft fails', async () => {
+      const { customChannel, customClient } = await setup();
+      const error = new Error('draft request failed');
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      vi.spyOn(customChannel.messageComposer, 'createDraft').mockRejectedValue(error);
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({ customChannel, customClient });
+
+      unmount();
+
+      await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
+      expect(consoleError).toHaveBeenCalledWith(error);
+    });
+
+    it('saves the draft of a supplied composer but leaves clearing it to its owner', async () => {
+      const { customChannel, customClient } = await setup();
+      const supplied = new MessageComposerController({
+        client: customClient,
+        compositionContext: customChannel,
+      });
+      const createDraft = vi.spyOn(supplied, 'createDraft');
+      const clearSupplied = vi.spyOn(supplied, 'clear');
+      const clearChannel = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({
+        customChannel,
+        customClient,
+        messageComposerController: supplied,
+      });
+
+      unmount();
+      await flushMicrotasks();
+
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      expect(clearSupplied).not.toHaveBeenCalled();
+      expect(clearChannel).not.toHaveBeenCalled();
+    });
+
+    // The case that made clearing a supplied composer a trap: an edit is loaded before the composer
+    // mounts, and StrictMode's development remount runs the unmount cleanup over it straight away.
+    it('keeps an edit loaded into a supplied composer through a StrictMode remount', async () => {
+      const { customChannel, customClient } = await setup();
+      const supplied = new MessageComposerController({
+        client: customClient,
+        compositionContext: customChannel,
+        config: { drafts: { enabled: false } },
+      });
+      supplied.initState({ composition: mainListMessage });
+
+      await renderComponent({
+        customChannel,
+        customClient,
+        messageComposerController: supplied,
+        strictMode: true,
+      });
+      await flushMicrotasks();
+
+      expect(supplied.editedMessage?.id).toBe(mainListMessage.id);
+      expect(await screen.findByPlaceholderText(inputPlaceholder)).toHaveValue(
+        mainListMessage.text,
+      );
     });
   });
 });

@@ -95,6 +95,14 @@ const ReadOnlyActions = () => (
 - **Intercept the outgoing request** → register a `sendMessageRequest` handler on `client.config` (also `updateMessageRequest` / `deleteMessageRequest` / `markReadRequest`). `channel.messageOperations` uses it instead of the default request. The `do*Request` props that did this in v14 are removed — see "Per-component request-handler props removed" below.
 - **Transform the composed message** → register composition middleware on `messageComposer`.
 
+### `MessageComposer` `preventClearingOnUnmount` prop → removed
+
+`MessageComposer` no longer clears a composer supplied through `MessageComposerControllerProvider`
+when it unmounts - that composer belongs to whoever supplied it - so the prop that opted out of the
+clearing is gone. Drop it. If you relied on the unmount clearing a supplied composer, call `clear()`
+on it yourself once your UI is done with it. The channel's and thread's own composers are still
+cleared on unmount, after their draft is saved.
+
 ### `ChatContext.setActiveChannel` → removed
 
 There is no `setActiveChannel` on `ChatContext`. Bind a channel by:

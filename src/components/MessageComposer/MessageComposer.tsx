@@ -8,7 +8,10 @@ import { useMessageComposerBindings } from './hooks/useMessageComposerBindings';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageComposerContextProvider } from '../../context/MessageComposerContext';
-import { DialogManagerProvider } from '../../context';
+import {
+  DialogManagerProvider,
+  useMessageComposerControllerContext,
+} from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { LocalMessage } from 'stream-chat';
@@ -85,12 +88,19 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
   });
 
   const messageComposer = useMessageComposerController();
+  const suppliedComposer = useMessageComposerControllerContext();
 
   useEffect(
     () => () => {
-      messageComposer.createDraft().finally(() => messageComposer.clear());
+      // `createDraft` already skips edits and composers with drafts disabled.
+      const draftSaved = messageComposer.createDraft().catch(console.error);
+      // Only the thread's or channel's own composer is emptied here. One supplied through
+      // `MessageComposerControllerProvider` belongs to whoever supplied it, and so does deciding
+      // when to clear it - clearing it on unmount would discard an edit the owner still holds (visible in Strict Mode).
+      if (messageComposer === suppliedComposer) return;
+      draftSaved.finally(() => messageComposer.clear());
     },
-    [messageComposer],
+    [messageComposer, suppliedComposer],
   );
 
   useEffect(() => {

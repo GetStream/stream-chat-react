@@ -9,7 +9,11 @@ import {
   useMessageComposerContext,
 } from '../../context';
 import { useAIState } from '../AIStateIndicator';
-import { useMessageComposerController, useMessageContentIsEmpty } from './hooks';
+import {
+  useMessageComposerController,
+  useMessageComposerSubmitFn,
+  useMessageContentIsEmpty,
+} from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
 import { AIStates } from 'stream-chat';
@@ -67,7 +71,7 @@ export const MessageComposerActions = () => {
       : StopAIGenerationButtonOverride;
 
   const { recordingController } = useMessageComposerContext();
-  const submitMessageFn = editedMessage ? messageComposer.update : messageComposer.send;
+  const submitMessageFn = useMessageComposerSubmitFn();
   const isCooldownActive = useIsCooldownActive();
 
   const { aiState } = useAIState(channel);
