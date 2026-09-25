@@ -105,7 +105,7 @@ describe('ChannelPreviewMessenger', () => {
 
   it('should open the channel in the workspace on click', async () => {
     mockOpenChannel.mockClear();
-    const { container, getByTestId } = render(renderComponent({ watchers: {} }));
+    const { container, getByTestId } = render(renderComponent({}));
 
     await waitFor(() => {
       expect(getByTestId(PREVIEW_TEST_ID)).toBeInTheDocument();

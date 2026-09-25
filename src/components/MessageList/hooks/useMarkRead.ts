@@ -7,6 +7,7 @@ import type { Channel, ChannelConfig, EventPayload } from 'stream-chat';
 import { nowNs } from 'stream-chat';
 
 const readEventsSelector = ({ readEvents }: ChannelConfig) => ({
+  localUnreadCountEnabled: readEvents.localUnreadCountEnabled,
   readEventsEnabled: readEvents.enabled,
 });
 
@@ -35,7 +36,10 @@ export const useMarkRead = ({
 }: UseMarkReadParams) => {
   const { client } = useChatContext();
   const channel = useChannel();
-  const { readEventsEnabled } = useStateStore(channel.configState, readEventsSelector);
+  const { localUnreadCountEnabled, readEventsEnabled } = useStateStore(
+    channel.configState,
+    readEventsSelector,
+  );
   const thread = useThreadContext();
   const messagePaginator = useMessagePaginator();
 
@@ -80,7 +84,9 @@ export const useMarkRead = ({
   }, [hasMoreNewer, isMessageListScrolledToBottom, messagePaginator]);
 
   useEffect(() => {
-    if (!readEventsEnabled) return;
+    // No read events means no server-side read state - but a channel counting unread locally still
+    // needs the catch-up, and the LLC resets it locally rather than requesting.
+    if (!readEventsEnabled && !localUnreadCountEnabled) return;
     const shouldMarkRead = () => {
       const wasMarkedUnread =
         !!messagePaginator.unreadStateSnapshot.getLatestValue().firstUnreadMessageId;
@@ -131,6 +137,7 @@ export const useMarkRead = ({
     markRead,
     resetUnreadSnapshot,
     isThreadList,
+    localUnreadCountEnabled,
     messagePaginator,
     readEventsEnabled,
     thread,

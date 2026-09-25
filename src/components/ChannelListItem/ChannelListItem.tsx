@@ -1,11 +1,6 @@
 import throttle from 'lodash.throttle';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import type {
-  Channel,
-  EventPayload,
-  LocalMessage,
-  MessagePaginatorAggregateState,
-} from 'stream-chat';
+import type { Channel, LocalMessage, MessagePaginatorAggregateState } from 'stream-chat';
 
 import { useStateStore } from '../../store';
 
@@ -56,11 +51,8 @@ export type ChannelListItemProps = {
   active?: boolean;
   /** Current selected channel object */
   activeChannel?: Channel;
-  /** Forces the update of preview component on channel update */
-  channelUpdateCount?: number;
   /** Custom class for the channel preview root */
   className?: string;
-  key?: string;
   /**
    * The message previewed by this item. Defaults to the channel's reactive latest message
    * (`channel.messagePaginator.aggregateState.lastMessage`); pass a specific message to preview it
@@ -70,8 +62,6 @@ export type ChannelListItemProps = {
   previewedMessage?: LocalMessage;
   /** Custom ChannelListItem click handler function */
   onSelect?: (event: React.MouseEvent) => void;
-  /** Object containing watcher parameters */
-  watchers?: { limit?: number; offset?: number };
 };
 
 const ChannelListItemContext = React.createContext<{ channel: Channel } | undefined>(
@@ -90,7 +80,7 @@ const lastMessageSelector = ({ lastMessage }: MessagePaginatorAggregateState) =>
 });
 
 export const ChannelListItem = (props: ChannelListItemProps) => {
-  const { active, channel, channelUpdateCount } = props;
+  const { active, channel } = props;
   const { ChannelListItemUI = DefaultChannelListItemUI } = useComponentContext();
   const { client } = useChatContext();
   // Active = THIS channel is currently open in the workspace. Keyed on the channel's own
@@ -111,7 +101,6 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   // matched message); otherwise use the channel's reactive tracked latest.
   const previewedMessage = props.previewedMessage ?? trackedLastMessage;
 
-  const [unread, setUnread] = useState(0);
   const { messageDeliveryStatus } = useMessageDeliveryStatus({
     channel,
     lastMessage: previewedMessage,
@@ -120,74 +109,36 @@ export const ChannelListItem = (props: ChannelListItemProps) => {
   const isActive = typeof active === 'undefined' ? !!channelOpenInSlot : active;
   const { muted } = useIsChannelMuted(channel);
 
-  useEffect(() => {
-    const handleEvent = (event: EventPayload<'notification.mark_read'>) => {
-      if (!event.cid) return setUnread(0);
-      if (channel.cid === event.cid) setUnread(0);
-    };
-
-    const subscription = client.on('notification.mark_read', handleEvent);
-    return () => subscription.unsubscribe();
-  }, [channel, client]);
+  // The channel already owns this number: `countUnread()` with no argument returns
+  // `read[ownUserId].unread_messages`, and everything that moves it - a new message, a read from
+  // any device, an explicit mark-unread, a truncation, mark-all-read - writes there first. Reading
+  // the store means the guards that come with those writes (a thread read is not a channel read, a
+  // read by somebody else is not ours) hold here too, rather than being restated per event.
+  const [unreadCount, setUnreadCount] = useState(() => channel.countUnread());
 
   useEffect(() => {
-    const handleEvent = (event: EventPayload<'notification.mark_unread'>) => {
-      if (channel.cid !== event.cid) return;
-      if (event.user?.id !== client.user?.id) return;
-      setUnread(channel.countUnread());
-    };
-    const subscription = channel.on('notification.mark_unread', handleEvent);
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [channel, client]);
+    const ownUserId = client.user?.id;
+    // Throttled rather than rendered per change: a backfill or a burst of traffic can move the
+    // count many times in a frame, and a badge only has to keep up with the eye. Leading edge, so
+    // the first change still lands at once.
+    const apply = throttle(setUnreadCount, 400);
 
-  const refreshUnreadCount = useMemo(
-    () =>
-      throttle(() => {
-        if (muted) {
-          setUnread(0);
-        } else {
-          setUnread(channel.countUnread());
-        }
-      }, 400),
-    [channel, muted],
-  );
-
-  useEffect(() => {
-    refreshUnreadCount();
-
-    const handleEvent = (
-      event: EventPayload<
-        | 'message.new'
-        | 'message.updated'
-        | 'message.deleted'
-        | 'message.undeleted'
-        | 'channel.truncated'
-        | 'user.messages.deleted'
-      >,
-    ) => {
-      const deletedMessagesInAnotherChannel =
-        event.type === 'user.messages.deleted' && event.cid && event.cid !== channel.cid;
-
-      if (deletedMessagesInAnotherChannel) return;
-
-      refreshUnreadCount();
-    };
-
-    const subscriptions = [
-      channel.on('message.new', handleEvent),
-      channel.on('message.updated', handleEvent),
-      channel.on('message.deleted', handleEvent),
-      client.on('user.messages.deleted', handleEvent),
-      channel.on('message.undeleted', handleEvent),
-      channel.on('channel.truncated', handleEvent),
-    ];
+    const unsubscribe = channel.state.subscribeWithSelector(
+      ({ read }) => ({
+        unreadCount: ownUserId ? (read[ownUserId]?.unread_messages ?? 0) : 0,
+      }),
+      ({ unreadCount }) => apply(unreadCount),
+    );
 
     return () => {
-      subscriptions.forEach((subscription) => subscription.unsubscribe());
+      apply.cancel();
+      unsubscribe();
     };
-  }, [channel, client, refreshUnreadCount, channelUpdateCount]);
+  }, [channel, client]);
+
+  // A muted channel still counts unread; it just does not advertise it. Applied at render rather
+  // than inside the subscription so muting and unmuting show up without waiting on the throttle.
+  const unread = muted ? 0 : unreadCount;
 
   const channelPreviewContextValue = useMemo(() => ({ channel }), [channel]);
 
