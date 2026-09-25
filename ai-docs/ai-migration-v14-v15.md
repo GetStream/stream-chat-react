@@ -110,28 +110,40 @@ To ingest an ad-hoc channel (e.g. navigating to a DM or search result) into the 
 
 ## Dates on response types are unix-nanosecond numbers
 
-`stream-chat` now types every **server-sent** date as the unix-nanosecond `number` the API puts on the
+`stream-chat` now types every **server-sent** date as the unix-nanosecond number the API puts on the
 wire — `created_at`, `updated_at`, `last_read`, and every sibling on a response or event. It is not a
 `Date` and not an ISO string, and the React types that carry those values through changed with it.
 
-Two failure modes, neither of which is a type error:
+The type is **`TimestampNS`**, a branded `number`. Reading, comparing, sorting and subtracting work as
+with any number. Two things change at compile time:
 
-- **Every `Date`-based path is out of range.** `Date` tops out near 8.64e15 ms while a current
-  timestamp is ~1.79e18, and a date library reads a bare number as **milliseconds** — so both land on
-  an invalid instance rather than on a plausible wrong date. `.toISOString()` throws
-  `RangeError: Invalid time value`, usually mid-render; `dayjs(created_at).format()` instead returns
-  the literal string `Invalid Date` and renders it on screen.
-- **A unit mix-up between two `number`s is the silent one.** Comparing a wire timestamp against
-  `Date.now()`, or adding a millisecond duration to one, produces a plausible-looking number and no
-  complaint at all — see `headerPosition` below for a case with no type change to warn you.
+- **`new Date(timestamp)` is a type error.** `stream-chat`'s published types augment the global
+  `DateConstructor`, because a nanosecond value is out of `Date`'s range (`Date` tops out near 8.64e15
+  ms; a current timestamp is ~1.79e18) and yields an Invalid Date whose `.toISOString()` throws.
+- **Minting one needs a helper.** A plain `number` is not assignable to a `TimestampNS` field or prop:
+  use `nowNs()`, `msToNs(ms)`, `dateToNs(date)`, or `asTimestampNS(n)` for a value that is already in
+  nanoseconds (a fixture, a stored value, the epoch `asTimestampNS(0)`). Arithmetic drops the brand —
+  wrap the result in `asTimestampNS` when it goes back into a timestamp.
+
+What the compiler still does **not** catch:
+
+- **Date libraries.** A date library reads a bare number as **milliseconds**, so
+  `dayjs(created_at).format()` returns the literal string `Invalid Date` and renders it on screen.
+- **Fallbacks and derived values.** `new Date(ts ?? Date.now())` and `new Date(Math.max(a, b))`
+  compile, because the argument is no longer purely `TimestampNS`. Convert first, then fall back.
+- **A unit mix-up between two numbers.** Comparing a wire timestamp against `Date.now()`, or adding a
+  millisecond duration to one, produces a plausible-looking number and no complaint at all.
 
 ### The public React types that changed
 
-| Type                                                  | v14                           | v15                             |
-| ----------------------------------------------------- | ----------------------------- | ------------------------------- |
-| `ChatContextValue.latestMessageDatesByChannels`       | `Record<ChannelConfId, Date>` | `Record<ChannelConfId, number>` |
-| `ProcessMessagesParams.lastRead` (`processMessages`)  | `Date \| null`                | `number \| null`                |
-| `VirtualizedMessageList` render props: `lastReadDate` | `Date \| null`                | `number \| null`                |
+| Type                                                  | v14                 | v15                     |
+| ----------------------------------------------------- | ------------------- | ----------------------- |
+| `ProcessMessagesParams.lastRead` (`processMessages`)  | `Date \| null`      | `TimestampNS \| null`   |
+| `VirtualizedMessageList` render props: `lastReadDate` | `Date \| null`      | `TimestampNS \| null`   |
+| `MessageList` `headerPosition` / `insertIntro`        | `number` (epoch ms) | `TimestampNS` (unix ns) |
+
+`ChatContextValue.latestMessageDatesByChannels` is not in this table because it is **removed**, not
+retyped — see [below](#chatcontextlatestmessagedatesbychannels--removed).
 
 `DateSeparatorMessage` (a member of the exported `RenderedMessage` union) changed shape rather than
 type: it **lost its `type: MessageLabel` field**, and `unread` is now optional. The `type` field was
@@ -144,10 +156,10 @@ Comparisons get simpler, not harder — compare and sort the raw numbers and dro
 
 ```ts
 // v14
-if (latestMessageDatesByChannels[cid].getTime() < new Date(message.created_at).getTime()) { … }
+if (new Date(a.created_at).getTime() < new Date(b.created_at).getTime()) { … }
 
 // v15
-if (latestMessageDatesByChannels[cid] < message.created_at) { … }
+if (a.created_at < b.created_at) { … }
 ```
 
 ### Presentational props still take `Date`
@@ -178,16 +190,17 @@ const createdAt = convertTimestampToDate(message.created_at);
 <DateSeparator date={convertTimestampToDate(message.created_at) ?? new Date()} />
 ```
 
-`nsToDate` / `dateToNs` / `nsToMs` / `msToNs` / `nowNs` are exported alongside it for values known to be
-present. Note that **outgoing request** date fields are still `Date` (filter bounds like
+`nsToDate` / `dateToNs` / `nsToMs` / `msToNs` / `nowNs` / `asTimestampNS` are exported alongside it
+for values known to be present. Note that **outgoing request** date fields are still `Date` (filter bounds like
 `created_at_before`, plus `remind_at` and `message_timestamp`) — `JSON.stringify` emits RFC3339 for a
 `Date`, which is what the request spec declares. Use `nsToDate` when handing a server-sent timestamp
 back to the API.
 
-### `MessageList`'s `headerPosition` prop changed unit, not type
+### `MessageList`'s `headerPosition` prop changed unit
 
 `headerPosition` is compared against `message.created_at`, so it is now **unix nanoseconds** — it was
-epoch milliseconds while `created_at` was a `Date`. The type is still `number`, so nothing warns.
+epoch milliseconds while `created_at` was a `Date`. It is typed `TimestampNS`, so a millisecond
+`number` no longer compiles: pass `message.created_at` or `msToNs(ms)`.
 
 ### Peer-dependency gate before release
 
@@ -202,7 +215,9 @@ range to the version that exports them and verify from a clean install with no `
 A fixture that hands the SDK a `Date` cannot catch either failure mode above, and will diverge from
 runtime behavior. The SDK's own suite normalizes through
 `mock-builders/generator/time.ts` (`convertDateToTimestamp`), which accepts a `Date`, an ISO string or a
-raw wire number so tests stay readable while the value on the wire stays a number.
+raw wire number so tests stay readable while the value on the wire stays a number. It returns
+`TimestampNS`, so a generated fixture is assignable to the response types; a hand-written literal
+(`created_at: 0`, `now - msToNs(1000)`) needs `asTimestampNS(...)`.
 
 ## i18n: English-only bundle, namespaced translation keys
 

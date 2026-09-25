@@ -9569,7 +9569,7 @@ __metadata:
     modern-normalize: ^3.0.1
     react: ^19.0.0 || ^18.0.0 || ^17.0.0
     react-dom: ^19.0.0 || ^18.0.0 || ^17.0.0
-    stream-chat: ^10.0.0-rc.13
+    stream-chat: ^10.0.0-rc.15
   dependenciesMeta:
     "@parcel/watcher":
       built: true

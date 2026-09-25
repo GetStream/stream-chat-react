@@ -33,7 +33,7 @@ export type ChatContextValue = {
    */
   channelManager: ChannelManager;
   getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
-  /** Newest own-message timestamp per channel, in unix nanoseconds as the API sends it. */
+  /** Users muted by the current user. */
   mutes: Array<UserMuteResponse>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;

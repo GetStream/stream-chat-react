@@ -39,6 +39,7 @@ import type {
   LocalMessage,
   MessageFocusSignalState,
   MessagePaginatorState,
+  TimestampNS,
   UnreadSnapshotState,
 } from 'stream-chat';
 import type { GroupStyle, ProcessMessagesParams, RenderedMessage } from './utils';
@@ -469,7 +470,7 @@ export type MessageListProps = Partial<Pick<MessageProps, PropsDrilledToMessage>
    * Position to render HeaderComponent, as a timestamp in the same unit as `message.created_at` —
    * i.e. unix nanoseconds. Was milliseconds while `created_at` was a `Date`.
    */
-  headerPosition?: number;
+  headerPosition?: TimestampNS;
   // todo: data manipulation - should live in MessagePaginator
   /** Hides the MessageDeleted components from the list, defaults to `false` */
   hideDeletedMessages?: boolean;

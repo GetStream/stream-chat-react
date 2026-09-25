@@ -6,7 +6,7 @@ import { generateMessage, initClientWithChannels } from '../../../../mock-builde
 import type { RenderedMessage } from '../../utils';
 import { Chat } from '../../../Chat';
 import { Channel } from '../../../Channel';
-import { msToNs, nowNs } from 'stream-chat';
+import { asTimestampNS, msToNs, nowNs } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../../mock-builders/generator/time';
 
 // MERGE-RECONCILE (test migration): useUnreadMessagesNotificationVirtualized was rewritten to
@@ -49,7 +49,10 @@ const render = async ({
     await Promise.resolve();
   });
   await act(() => {
-    channel.messagePaginator.setUnreadSnapshot({ lastReadAt: lastRead, unreadCount });
+    channel.messagePaginator.setUnreadSnapshot({
+      lastReadAt: lastRead == null ? null : asTimestampNS(lastRead),
+      unreadCount,
+    });
   });
   return { channel, ...utils };
 };

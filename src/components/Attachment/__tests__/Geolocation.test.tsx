@@ -10,7 +10,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
-import { msToNs, nowNs } from 'stream-chat';
+import { asTimestampNS, msToNs, nowNs } from 'stream-chat';
 import { convertDateToTimestamp } from '../../../mock-builders/generator/time';
 
 const GeolocationMapComponent = (props) => (
@@ -116,7 +116,7 @@ describe.each([
 
     it('renders own live location', async () => {
       const location = generateLiveLocationResponse({
-        end_at: nowNs() + msToNs(10000),
+        end_at: asTimestampNS(nowNs() + msToNs(10000)),
         user_id: ownUser.id,
       });
       await renderComponent({
@@ -142,7 +142,7 @@ describe.each([
     });
     it("other user's live location", async () => {
       const location = generateLiveLocationResponse({
-        end_at: nowNs() + msToNs(10000),
+        end_at: asTimestampNS(nowNs() + msToNs(10000)),
         user_id: otherUser.id,
       });
       await renderComponent({

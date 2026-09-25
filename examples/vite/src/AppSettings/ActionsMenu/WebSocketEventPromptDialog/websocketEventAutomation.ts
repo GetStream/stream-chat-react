@@ -1,6 +1,7 @@
 import { nowNs } from 'stream-chat';
 import type {
   Channel,
+  ChannelMemberPartialResponse,
   ChannelMemberResponse,
   MessageResponse,
   ReactionResponse,
@@ -25,7 +26,8 @@ type UnknownRecord = Record<string, unknown>;
  */
 type EventPayload = UnknownRecord & {
   channel?: Partial<WebSocketEventTemplateContext['channel']>;
-  member?: ChannelMemberResponse;
+  // Typing events carry the partial member shape (`TypingStartEvent.member`), not a full response.
+  member?: ChannelMemberResponse | ChannelMemberPartialResponse;
   message?: Partial<MessageResponse>;
   reaction?: ReactionResponse;
   user?: UserResponse;

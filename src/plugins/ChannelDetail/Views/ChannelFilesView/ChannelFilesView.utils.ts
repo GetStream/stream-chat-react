@@ -3,6 +3,7 @@ import {
   isScrapedContent,
   type LocalMessage,
   type MessageResponse,
+  type TimestampNS,
 } from 'stream-chat';
 
 import { convertTimestampToDate } from 'stream-chat';
@@ -47,7 +48,7 @@ export type ChannelFileSections = {
  * what `byCreatedAtDesc` compares. `convertTimestampToDate` rather than `new Date`: a nanosecond value is out of
  * Date's range, so constructing one directly yields an Invalid Date.
  */
-const normalizeTimestamp = (timestamp?: number) =>
+const normalizeTimestamp = (timestamp?: TimestampNS) =>
   timestamp == null ? undefined : convertTimestampToDate(timestamp)?.toISOString();
 
 const isChannelFileAttachment = (attachment: Attachment) =>
