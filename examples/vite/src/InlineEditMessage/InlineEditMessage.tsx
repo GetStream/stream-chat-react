@@ -130,7 +130,7 @@ export const InlineEditableMessage = (props: MessageUIComponentProps) => {
       <MessageComposerControllerProvider messageComposerController={editingComposer}>
         <div className='app__inline-edit-message'>
           {/* Cancelling is the ✕ on the composer's edit preview, which clears the composer. */}
-          <MessageComposer preventClearingOnUnmount />
+          <MessageComposer />
         </div>
       </MessageComposerControllerProvider>
     );

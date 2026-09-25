@@ -265,6 +265,7 @@ const renderComponent = async ({
   messageComposerController,
   messageContextOverrides = {},
   messageInputProps = {},
+  strictMode = false,
 }: {
   channelData?: GenerateChannelOptions | GenerateChannelOptions[];
   channelProps?: Partial<ChannelProps>;
@@ -277,6 +278,8 @@ const renderComponent = async ({
   messageComposerController?: MessageComposerController;
   messageContextOverrides?: Partial<MessageContextValue>;
   messageInputProps?: Partial<MessageComposerProps>;
+  /** Renders inside `React.StrictMode`, which in development mounts, unmounts and remounts. */
+  strictMode?: boolean;
   [key: string]: unknown;
 } = {}) => {
   let channel = customChannel;
@@ -293,43 +296,47 @@ const renderComponent = async ({
 
   let renderResult: RenderResult;
 
+  const Root = strictMode ? React.StrictMode : React.Fragment;
+
   await act(() => {
     renderResult = render(
-      <WithComponents overrides={components}>
-        <ChatProvider
-          value={fromPartial<ChatContextValue>({
-            ...defaultChatContext,
-            channel,
-            client,
-            ...chatContextOverrides,
-          })}
-        >
-          <AriaLiveAnnouncerProvider>
-            {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
-            <AriaLiveOutlet />
-            <DialogManagerProvider id='message-input-test-dialog-manager'>
-              <Channel channel={channel} {...channelProps}>
-                <MessageProvider
-                  value={fromPartial<MessageContextValue>({
-                    ...defaultMessageContextValue,
-                    ...messageContextOverrides,
-                  })}
-                >
-                  <MessageActions
-                    disableBaseMessageActionSetFilter
-                    {...messageActionsProps}
-                  />
-                </MessageProvider>
-                <MessageComposerControllerProvider
-                  messageComposerController={messageComposerController}
-                >
-                  <MessageComposer {...messageInputProps} />
-                </MessageComposerControllerProvider>
-              </Channel>
-            </DialogManagerProvider>
-          </AriaLiveAnnouncerProvider>
-        </ChatProvider>
-      </WithComponents>,
+      <Root>
+        <WithComponents overrides={components}>
+          <ChatProvider
+            value={fromPartial<ChatContextValue>({
+              ...defaultChatContext,
+              channel,
+              client,
+              ...chatContextOverrides,
+            })}
+          >
+            <AriaLiveAnnouncerProvider>
+              {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
+              <AriaLiveOutlet />
+              <DialogManagerProvider id='message-input-test-dialog-manager'>
+                <Channel channel={channel} {...channelProps}>
+                  <MessageProvider
+                    value={fromPartial<MessageContextValue>({
+                      ...defaultMessageContextValue,
+                      ...messageContextOverrides,
+                    })}
+                  >
+                    <MessageActions
+                      disableBaseMessageActionSetFilter
+                      {...messageActionsProps}
+                    />
+                  </MessageProvider>
+                  <MessageComposerControllerProvider
+                    messageComposerController={messageComposerController}
+                  >
+                    <MessageComposer {...messageInputProps} />
+                  </MessageComposerControllerProvider>
+                </Channel>
+              </DialogManagerProvider>
+            </AriaLiveAnnouncerProvider>
+          </ChatProvider>
+        </WithComponents>
+      </Root>,
     );
   });
 
@@ -2247,23 +2254,6 @@ describe(`MessageInputFlat`, () => {
       await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
     });
 
-    it('still saves the draft but keeps the state with preventClearingOnUnmount', async () => {
-      const { customChannel, customClient } = await setup();
-      const createDraft = vi.spyOn(customChannel.messageComposer, 'createDraft');
-      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
-      const { unmount } = await renderComponent({
-        customChannel,
-        customClient,
-        messageInputProps: { preventClearingOnUnmount: true },
-      });
-
-      unmount();
-      await flushMicrotasks();
-
-      expect(createDraft).toHaveBeenCalledTimes(1);
-      expect(clear).not.toHaveBeenCalled();
-    });
-
     it('clears the composer even when saving the draft fails', async () => {
       const { customChannel, customClient } = await setup();
       const error = new Error('draft request failed');
@@ -2278,12 +2268,13 @@ describe(`MessageInputFlat`, () => {
       expect(consoleError).toHaveBeenCalledWith(error);
     });
 
-    it('acts on a supplied composer, not the channel one', async () => {
+    it('saves the draft of a supplied composer but leaves clearing it to its owner', async () => {
       const { customChannel, customClient } = await setup();
       const supplied = new MessageComposerController({
         client: customClient,
         compositionContext: customChannel,
       });
+      const createDraft = vi.spyOn(supplied, 'createDraft');
       const clearSupplied = vi.spyOn(supplied, 'clear');
       const clearChannel = vi.spyOn(customChannel.messageComposer, 'clear');
       const { unmount } = await renderComponent({
@@ -2293,9 +2284,36 @@ describe(`MessageInputFlat`, () => {
       });
 
       unmount();
+      await flushMicrotasks();
 
-      await waitFor(() => expect(clearSupplied).toHaveBeenCalledTimes(1));
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      expect(clearSupplied).not.toHaveBeenCalled();
       expect(clearChannel).not.toHaveBeenCalled();
+    });
+
+    // The case that made clearing a supplied composer a trap: an edit is loaded before the composer
+    // mounts, and StrictMode's development remount runs the unmount cleanup over it straight away.
+    it('keeps an edit loaded into a supplied composer through a StrictMode remount', async () => {
+      const { customChannel, customClient } = await setup();
+      const supplied = new MessageComposerController({
+        client: customClient,
+        compositionContext: customChannel,
+        config: { drafts: { enabled: false } },
+      });
+      supplied.initState({ composition: mainListMessage });
+
+      await renderComponent({
+        customChannel,
+        customClient,
+        messageComposerController: supplied,
+        strictMode: true,
+      });
+      await flushMicrotasks();
+
+      expect(supplied.editedMessage?.id).toBe(mainListMessage.id);
+      expect(await screen.findByPlaceholderText(inputPlaceholder)).toHaveValue(
+        mainListMessage.text,
+      );
     });
   });
 });

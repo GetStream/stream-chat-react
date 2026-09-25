@@ -8,7 +8,10 @@ import { useMessageComposerBindings } from './hooks/useMessageComposerBindings';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageComposerContextProvider } from '../../context/MessageComposerContext';
-import { DialogManagerProvider } from '../../context';
+import {
+  DialogManagerProvider,
+  useMessageComposerControllerContext,
+} from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
 
 import type { LocalMessage } from 'stream-chat';
@@ -72,12 +75,6 @@ export type MessageComposerProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
-  /**
-   * Keeps the composer's state when this component unmounts instead of clearing it. For a composer
-   * the integrator owns - one supplied through `MessageComposerControllerProvider` - where
-   * unmounting the UI does not end the composition.
-   */
-  preventClearingOnUnmount?: boolean;
 };
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
@@ -91,15 +88,19 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
   });
 
   const messageComposer = useMessageComposerController();
+  const suppliedComposer = useMessageComposerControllerContext();
 
   useEffect(
     () => () => {
       // `createDraft` already skips edits and composers with drafts disabled.
       const draftSaved = messageComposer.createDraft().catch(console.error);
-      if (props.preventClearingOnUnmount) return;
+      // Only the thread's or channel's own composer is emptied here. One supplied through
+      // `MessageComposerControllerProvider` belongs to whoever supplied it, and so does deciding
+      // when to clear it - clearing it on unmount would discard an edit the owner still holds (visible in Strict Mode).
+      if (messageComposer === suppliedComposer) return;
       draftSaved.finally(() => messageComposer.clear());
     },
-    [messageComposer, props.preventClearingOnUnmount],
+    [messageComposer, suppliedComposer],
   );
 
   useEffect(() => {
