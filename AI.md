@@ -243,7 +243,7 @@ const CustomMessage = () => {
 
 **Steps**:
 
-1. Install emoji packages: `npm install emoji-mart @emoji-mart/react @emoji-mart/data`
+1. Install emoji packages: `npm install emoji-mart @emoji-mart/data`
 2. Initialize emoji data: `init({ data })` from `emoji-mart`
 3. Import `EmojiPicker` from `stream-chat-react/emojis`
 4. Pass `EmojiPicker` and `emojiSearchIndex={SearchIndex}` to `Channel`
@@ -259,8 +259,6 @@ init({ data });
   {/* ... */}
 </Channel>;
 ```
-
-**Note**: For React 19, may need package.json overrides for `@emoji-mart/react`
 
 **Reference**: See `examples/tutorial/src/6-emoji-picker/`
 
@@ -401,14 +399,11 @@ interacts with `<Channel>` / `<Thread>` request-handler props, and why there is 
 ## Package Information
 
 - **Package Name**: `stream-chat-react`
-- **Peer Dependencies**:
-  - `react`: ^19.0.0 || ^18.0.0 || ^17.0.0
-  - `react-dom`: ^19.0.0 || ^18.0.0 || ^17.0.0
-  - `stream-chat`: ^9.27.2
-- **Optional Dependencies** (for emoji support):
-  - `emoji-mart`: ^5.4.0
-  - `@emoji-mart/react`: ^1.1.0
-  - `@emoji-mart/data`: ^1.1.0
+- **Peer Dependencies**: `react`, `react-dom`, `stream-chat`
+- **Optional Peer Dependencies** (for emoji support): `emoji-mart`, `@emoji-mart/data`
+- **Versions**: read the supported ranges from `peerDependencies` in the package's `package.json`
+  (`node_modules/stream-chat-react/package.json` in an app). They change with every release, so
+  they are not repeated here.
 
 ## Best Practices
 
