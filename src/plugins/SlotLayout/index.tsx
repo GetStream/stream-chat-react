@@ -6,7 +6,6 @@ export * from './layoutController/serialization';
 export * from './hooks';
 export * from './ChannelSlot';
 export * from './ThreadSlot';
-export * from './ThreadSlotContext';
 export * from './ThreadListSlot';
 export * from './layout/Slot';
 export * from './layout/WorkspaceLayout';

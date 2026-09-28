@@ -108,7 +108,8 @@ export type ChatViewProps = PropsWithChildren<{
   /**
    * Optionally override the {@link WorkspaceNavigation} the ChatView provides — e.g. make
    * `openChannel`/`openThread` open beside the current content on ⌘/ctrl-click. Receives the
-   * SDK-derived navigation; spread it and override only what you need. Must be referentially stable.
+   * SDK-derived navigation and returns only the members to override — the rest keep their default.
+   * Must be referentially stable.
    */
   deriveWorkspaceNavigation?: DeriveWorkspaceNavigation;
   dialogManagerId?: string;

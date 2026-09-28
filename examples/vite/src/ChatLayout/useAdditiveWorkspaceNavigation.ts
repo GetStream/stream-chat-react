@@ -21,7 +21,6 @@ const isAdditive = (event: WorkspaceNavigationOptions['event']) =>
 export const useAdditiveWorkspaceNavigation = (): DeriveWorkspaceNavigation =>
   useCallback(
     (base) => ({
-      ...base,
       openChannel: (channel, options) =>
         base.openChannel(channel, {
           ...options,

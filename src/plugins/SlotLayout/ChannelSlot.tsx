@@ -2,6 +2,7 @@ import React from 'react';
 
 import { useSlotChannel } from './hooks';
 import { Channel as ChannelComponent, type ChannelProps } from '../../components/Channel';
+import { WorkspacePanelProvider } from '../../context/WorkspaceNavigationContext';
 
 import type { PropsWithChildren, ReactNode } from 'react';
 import type { SlotName } from './layoutController/layoutControllerTypes';
@@ -39,8 +40,10 @@ export const ChannelSlot = ({
   if (!channel) return <>{fallback}</>;
 
   return (
-    <ChannelComponent {...channelProps} channel={channel}>
-      {children}
-    </ChannelComponent>
+    <WorkspacePanelProvider panel={slot}>
+      <ChannelComponent {...channelProps} channel={channel}>
+        {children}
+      </ChannelComponent>
+    </WorkspacePanelProvider>
   );
 };

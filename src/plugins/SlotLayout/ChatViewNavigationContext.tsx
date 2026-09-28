@@ -172,6 +172,11 @@ export type ChatViewNavigation = {
    * release the base binding. No-op for empty or persistent slots.
    */
   close: (slot: SlotName) => void;
+  /**
+   * Close `slot` entirely: its base binding and every layer stacked on it. Where {@link close}
+   * steps back one layer, this dismisses the whole panel. No-op for empty or persistent slots.
+   */
+  release: (slot: SlotName) => void;
   /** Hide `slot` without releasing its binding (subtree stays mounted). */
   hide: (slot: SlotName) => void;
   /**
@@ -219,6 +224,7 @@ const ChatViewNavigationContext = createContext<ChatViewNavigation>({
   openView: () => undefined,
   popLayer: () => undefined,
   pushLayer: () => undefined,
+  release: () => undefined,
   unhide: () => undefined,
 });
 
@@ -263,9 +269,6 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
   const value = useMemo<ChatViewNavigation>(() => {
     const slotKind = (slot: SlotName) =>
       getChatViewEntityBinding(slotBindings[slot])?.kind;
-
-    const findCandidateSlotsByKind = (kind: ChatViewEntityBinding['kind']) =>
-      availableSlots.filter((slot) => slotKind(slot) === kind);
 
     const buildRuntimeForView = (view: ChatView): ViewSlotRuntime => {
       const state = layoutController.state.getLatestValue();
@@ -359,8 +362,32 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       layoutController.openView(view, { slot: options?.slot });
     };
 
-    const releaseKind = (kind: ChatViewEntityBinding['kind']) =>
-      findCandidateSlotsByKind(kind).forEach((slot) => layoutController.release(slot));
+    // Replacing a channel closes the reply threads opened from it. A thread slot is released, but
+    // content stacked over the thread (a channel opened beside it) stays, its top layer becoming
+    // the slot's base. A reply thread of `replacedChannel` stacked over another panel is popped,
+    // revealing that panel.
+    const closeReplyThreads = (replacedChannel?: StreamChannel) => {
+      availableSlots.forEach((slot) => {
+        const layers = slotLayers?.[slot] ?? [];
+        const top = layers[layers.length - 1];
+        const topEntity = getChatViewEntityBinding(top);
+        if (
+          replacedChannel &&
+          topEntity?.kind === 'thread' &&
+          topEntity.source.channel?.cid === replacedChannel.cid
+        ) {
+          layoutController.popLayer(slot);
+          return;
+        }
+        if (slotKind(slot) !== 'thread') return;
+        if (!top) {
+          layoutController.release(slot);
+          return;
+        }
+        layoutController.bind(slot, top);
+        layoutController.popLayer(slot);
+      });
+    };
 
     const open: ChatViewNavigation['open'] = (binding, options) => {
       // Resolve the target slot BEFORE any mutation: a rejected open is a no-op
@@ -392,16 +419,33 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       //    (a base binding or a covering layer) and this is NOT an in-place same-kind replace.
       // The primary/anchor slot (first non-persistent slot) always base-binds — selecting a channel
       // there replaces it, and single-slot layouts keep replacing rather than layering. A same-kind
-      // base (channel over channel, thread over thread in its own slot) is an intentional replace
-      // and stays a base bind. Everything else landing on an occupied secondary slot stacks on top
-      // instead of evicting/hiding it — `close`/`popLayer` restores what's beneath.
+      // base (thread over thread in its own slot) is an intentional replace and stays a base bind -
+      // except a channel opened beside another one (`additive`), which stacks too, so that stepping
+      // back returns to the previous channel. Everything else landing on an occupied secondary
+      // slot stacks on top instead of evicting/hiding it — `close`/`popLayer` restores what's
+      // beneath.
       const isPersistentSlot = makeIsPersistentSlot(runtime);
       const anchorSlot = runtime.availableSlots.find((slot) => !isPersistentSlot(slot));
       const targetBase = runtime.slotBindings[targetSlot];
       const targetBaseKind = getChatViewEntityBinding(targetBase)?.kind;
       const targetOccupied = !!targetBase || !!runtime.slotLayers[targetSlot]?.length;
-      const sameKindBaseReplace = !!targetBase && targetBaseKind === binding.kind;
       const isSecondaryTarget = targetSlot !== anchorSlot;
+      // Opening beside what the target slot already shows on top changes nothing. Anything else -
+      // a channel lower in its stack, or open in another slot - is stacked on top, so it is shown.
+      const shownInTarget = getChatViewEntityBinding(
+        runtime.slotLayers[targetSlot]?.at(-1) ?? targetBase,
+      );
+      if (
+        options?.additive &&
+        isSecondaryTarget &&
+        binding.key !== undefined &&
+        shownInTarget?.key === binding.key
+      ) {
+        return { slot: targetSlot, status: 'opened' };
+      }
+      const stacksBesideSameKind = !!options?.additive && binding.kind === 'channel';
+      const sameKindBaseReplace =
+        !!targetBase && targetBaseKind === binding.kind && !stacksBesideSameKind;
 
       if (
         options?.layer ||
@@ -414,7 +458,10 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       // Dependent-slot invalidation: replacing a channel closes threads bound to
       // the previous channel. (Interim kind check; a later step may express this
       // as registry policy.) Only on a real base replace — layered opens above skip it.
-      if (binding.kind === 'channel') releaseKind('thread');
+      if (binding.kind === 'channel') {
+        const replaced = getChatViewEntityBinding(targetBase);
+        closeReplyThreads(replaced?.kind === 'channel' ? replaced.source : undefined);
+      }
 
       return layoutController.openInLayout(createChatViewSlotBinding(binding), {
         targetSlot,
@@ -430,6 +477,12 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
         return;
       }
       // Persistent kinds (nav-rail lists) are hide-only; close never releases them.
+      if (isPersistentSlotKind(registry, slotKind(slot))) return;
+      layoutController.release(slot);
+    };
+
+    const release: ChatViewNavigation['release'] = (slot) => {
+      if (!availableSlots.includes(slot)) return;
       if (isPersistentSlotKind(registry, slotKind(slot))) return;
       layoutController.release(slot);
     };
@@ -451,7 +504,7 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
       if (availableSlots.includes(slot)) layoutController.unhide(slot);
     };
 
-    return { close, hide, open, openView, popLayer, pushLayer, unhide };
+    return { close, hide, open, openView, popLayer, pushLayer, release, unhide };
   }, [
     activeView,
     availableSlots,
