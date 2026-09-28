@@ -141,11 +141,29 @@
   min-width: 0;
 }
 
+// Slots share the space left beside the lists equally, and one with nothing bound gives its share
+// up, so a single open slot takes the full width.
 .str-chat__chat-view__slot {
   display: flex;
+  flex: 1 1 0;
   height: 100%;
   min-height: 0;
   min-width: 0;
+
+  &:empty {
+    display: none;
+  }
+}
+
+// A panel open beside another one is divided from it. The first open slot needs no divider: it
+// sits next to the channel or thread list, which draws its own edge.
+.str-chat__chat-view__slot:not(:empty) ~ .str-chat__chat-view__slot:not(:empty) {
+  border-inline-start: 1px solid var(--str-chat__border-core-default);
+}
+
+// Inside a slot the divider is the slot's, so a thread does not draw its own on top of it.
+.str-chat__chat-view__slot .str-chat__thread-container {
+  border-inline-start: 0;
 }
 
 .str-chat__chat-view__slot--hidden {
