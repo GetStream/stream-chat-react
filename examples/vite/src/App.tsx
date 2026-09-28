@@ -652,7 +652,6 @@ const App = () => {
         reactionOptions: newReactionOptions,
         Search: CustomChannelSearch,
         HeaderEndContent: SidebarToggle,
-        HeaderStartContent: SidebarToggle,
         MessageActions: ConfigurableMessageActions,
         AttachmentSelector: CommandModeAttachmentSelector,
         MessageUI: InlineEditableMessage,

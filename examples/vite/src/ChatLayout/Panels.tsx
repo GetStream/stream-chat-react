@@ -2,11 +2,9 @@ import clsx from 'clsx';
 import type {
   ChannelMemberResponse,
   Channel as StreamChannel,
-  ThreadState,
   Thread as ThreadType,
 } from 'stream-chat';
 import {
-  type ComponentType,
   type MouseEvent,
   type PropsWithChildren,
   useCallback,
@@ -16,15 +14,12 @@ import {
 } from 'react';
 import {
   AIStateIndicator,
-  Button,
   Channel,
   ChannelAvatar,
   ChannelHeader,
   ChannelListItem,
   MessageComposerUI as DefaultMessageComposerUI,
   EmptyStateIndicator,
-  IconArrowLeft,
-  IconXmark,
   MessageComposer,
   MessageList,
   type MessageListProps,
@@ -34,12 +29,10 @@ import {
   ThreadList,
   TypingIndicator,
   useChatContext,
-  useStateStore,
-  useThreadContext,
-  useTranslationContext,
   VirtualizedMessageList,
   WithComponents,
   WithDragAndDropUpload,
+  WorkspacePanelProvider,
 } from 'stream-chat-react';
 import {
   ChatView,
@@ -70,6 +63,7 @@ import {
   MAIN_THREAD_SLOT,
   OPTIONAL_THREAD_SLOT,
 } from './constants.ts';
+import { HeaderStartWithSidebarToggle } from '../Sidebar/HeaderContent.tsx';
 import { SidebarResizeHandle, ThreadResizeHandle } from './Resize.tsx';
 import { ReturnToSkipNavigation } from '../AccessibilityNavigation/ReturnToSkipNavigation.tsx';
 import { ChannelPreviewOverlay } from '../ChannelPreviewOverlay/ChannelPreviewOverlay.tsx';
@@ -214,73 +208,37 @@ const ChannelThreadPanel = ({
   );
 };
 
-// Header affordance for the secondary channel, injected into its ChannelHeader via the
-// `HeaderStartContent` component slot (ChannelHeader has no built-in one the way the reply thread's
-// ThreadHeader does). Both variants call `close(CHANNEL_THREAD_SLOT)` — which pops the top layer
-// if any, else releases the base (layer-aware close). The icon just signals intent: a **back**
-// arrow when the channel is a layer over something to return to, a **close** X otherwise.
-const SecondaryChannelHeaderButton = ({ variant }: { variant: 'back' | 'close' }) => {
-  const { close } = useChatViewNavigation();
-  const isBack = variant === 'back';
-
-  return (
-    <Button
-      appearance='ghost'
-      aria-label={isBack ? 'Back' : 'Close split'}
-      circular
-      onClick={() => close(CHANNEL_THREAD_SLOT)}
-      size='md'
-      variant='secondary'
-    >
-      {isBack ? <IconArrowLeft /> : <IconXmark />}
-    </Button>
-  );
-};
-
-const SecondaryChannelCloseButton = () => (
-  <SecondaryChannelHeaderButton variant='close' />
-);
-const SecondaryChannelBackButton = () => <SecondaryChannelHeaderButton variant='back' />;
-
 // The 2nd channel's content: its own <Channel> (a sibling of the primary channel, not nested)
 // with header + list + composer inside the dropzone so WithDragAndDropUpload's `useChannel`
-// resolves it. Shared by the base side-by-side panel and the layer overlay below. The close
-// affordance is injected into the header via HeaderStartContent (`close(CHANNEL_THREAD_SLOT)`
-// releases the base or pops the layer, per the layer-aware close).
-const SecondChannelContent = ({
-  channel,
-  HeaderStartContent = SecondaryChannelCloseButton,
-}: {
-  channel: StreamChannel;
-  HeaderStartContent?: ComponentType;
-}) => {
+// resolves it. Shared by the base side-by-side panel and the layer overlay below. The primary
+// channel's header start content (the sidebar toggle) is cleared; the SDK ChannelHeader supplies
+// the back and close controls of a channel beside the primary one.
+const SecondChannelContent = ({ channel }: { channel: StreamChannel }) => {
   const virtualized = useVirtualizedMessageList();
   return (
     <Channel channel={channel}>
-      <WithComponents overrides={{ HeaderStartContent }}>
-        <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
-          <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
-          <div className='app-chat-view__channel-body'>
-            {virtualized ? (
-              <VirtualizedMessageList returnAllReadData shouldGroupByUser />
-            ) : (
-              <MessageList returnAllReadData />
-            )}
-            <ReturnToSkipNavigation />
-            <AIStateIndicator />
-            <MessageComposer
-              additionalTextareaProps={{
-                id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-              }}
-              asyncMessagesMultiSendEnabled
-              audioRecordingEnabled
-              maxRows={10}
-              focus
-            />
-            <ChannelPreviewOverlay />
-          </div>
-        </WithDragAndDropUpload>
-      </WithComponents>
+      <WithDragAndDropUpload className='str-chat__dropzone-root--thread'>
+        <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
+        <div className='app-chat-view__channel-body'>
+          {virtualized ? (
+            <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+          ) : (
+            <MessageList returnAllReadData />
+          )}
+          <ReturnToSkipNavigation />
+          <AIStateIndicator />
+          <MessageComposer
+            additionalTextareaProps={{
+              id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+            }}
+            asyncMessagesMultiSendEnabled
+            audioRecordingEnabled
+            maxRows={10}
+            focus
+          />
+          <ChannelPreviewOverlay />
+        </div>
+      </WithDragAndDropUpload>
     </Channel>
   );
 };
@@ -317,81 +275,23 @@ const SecondChannelPanel = ({ channel }: { channel: StreamChannel }) => {
 // reply thread (or another panel) already occupies the secondary slot. Enabled by the SDK's
 // `open(binding, { additive: true, layer: true })` base policy: it covers the base without closing
 // it, and `close(CHANNEL_THREAD_SLOT)` pops the layer to reveal what was underneath.
-const SecondChannelOverlay = ({
-  channel,
-  hasBaseBeneath,
-}: {
-  channel: StreamChannel;
-  /** When something sits under this layer (a reply thread / another panel), the header shows a
-   *  "back" affordance instead of "close" — both pop this layer to reveal it. */
-  hasBaseBeneath: boolean;
-}) => (
+const SecondChannelOverlay = ({ channel }: { channel: StreamChannel }) => (
   <SecondarySlotOverlay>
-    <SecondChannelContent
-      channel={channel}
-      HeaderStartContent={
-        hasBaseBeneath ? SecondaryChannelBackButton : SecondaryChannelCloseButton
-      }
-    />
+    <SecondChannelContent channel={channel} />
   </SecondarySlotOverlay>
 );
 
-const replyCountSelector = ({ replyCount }: ThreadState) => ({ replyCount });
-
-// A thread overlay is always a layer stacked over the secondary slot's base, so its header gets a
-// BACK affordance rather than a close: it pops the layer (`close` is layer-aware), revealing what's
-// beneath. The SDK ThreadHeader hardcodes a close-X with no icon override, so we render a small
-// header of our own (back + title) here.
-const LayerThreadHeader = () => {
-  const { close } = useChatViewNavigation();
-  const { t } = useTranslationContext();
-  const thread = useThreadContext();
-  const { replyCount = 0 } = useStateStore(thread?.state, replyCountSelector) ?? {};
-
-  return (
-    <div className='str-chat__thread-header'>
-      <div className='str-chat__thread-header__start'>
-        <Button
-          appearance='ghost'
-          aria-label={t('common.back.label', 'Back')}
-          circular
-          onClick={() => close(CHANNEL_THREAD_SLOT)}
-          size='md'
-          variant='secondary'
-        >
-          <IconArrowLeft />
-        </Button>
-      </div>
-      <div className='str-chat__thread-header-details'>
-        <div className='str-chat__thread-header-title'>
-          {t('thread.header.thread.text', 'Thread')}
-        </div>
-        <div className='str-chat__thread-header-subtitle'>
-          {/* One plural key rather than a hand-rolled count branch: i18next picks the form via
-              Intl.PluralRules, so a language with more categories works without touching this. */}
-          {t('common.replyCount.label', {
-            count: replyCount,
-            defaultValue_one: '1 reply',
-            defaultValue_other: '{{ count }} replies',
-          })}
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // A reply thread shown as a LAYER over the secondary slot — e.g. clicking the replies button inside
 // a 2nd channel that occupies the slot. The SDK base policy stacks the thread on top (rather than
-// binding it invisibly beneath); here we render that top layer in the shared overlay wrapper, with
-// a header close that pops the layer to reveal the channel beneath.
+// binding it invisibly beneath); here we render that top layer in the shared overlay wrapper.
 const ChannelThreadOverlay = ({ thread }: { thread: ThreadType }) => {
   useActiveThread({ activeThread: thread });
   return (
     <SecondarySlotOverlay>
       <Thread thread={thread}>
-        {/* A layer pops rather than closes, so this panel renders its own header instead of
-            the SDK's. */}
-        <LayerThreadHeader />
+        {/* The SDK header's back reveals the channel beneath; its close dismisses the whole
+            secondary panel. */}
+        <ThreadHeader />
         <ThreadMessageList />
         <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
       </Thread>
@@ -541,38 +441,45 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
         // rules size it); the primary <Channel> lives inside it — a sibling of the secondary
         // panel below, not its ancestor.
         <div className='app-chat-view__channel-main' ref={registerMainSlot}>
-          <Channel channel={mainChannel}>
-            <WithDragAndDropUpload>
-              <ChannelHeader Avatar={ConfiguredAvatarWithChannelDetail} />
-              <div className='app-chat-view__channel-body'>
-                {virtualized ? (
-                  // VirtualizedMessageList drills a narrower prop set and doesn't forward
-                  // onUserClick/onMentionsClick — wiring member-detail there would need a custom
-                  // Message component. The demo's default list is the standard one below.
-                  <VirtualizedMessageList returnAllReadData shouldGroupByUser />
-                ) : (
-                  <MessageList
-                    onMentionsClick={(_event, mentionedUsers) =>
-                      openMemberDetail(mentionedUsers[0]?.id)
-                    }
-                    onUserClick={(_event, user) => openMemberDetail(user.id)}
-                    returnAllReadData
-                  />
-                )}
-                <ReturnToSkipNavigation />
-                <AIStateIndicator />
-                <MessageComposer
-                  additionalTextareaProps={{
-                    id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
-                  }}
-                  asyncMessagesMultiSendEnabled
-                  audioRecordingEnabled
-                  maxRows={10}
+          {/* Each column declares the slot it renders, so its headers' back and close buttons act
+              on that slot even when the same channel is open in both. */}
+          <WorkspacePanelProvider panel={MAIN_CHANNEL_SLOT}>
+            <Channel channel={mainChannel}>
+              <WithDragAndDropUpload>
+                <ChannelHeader
+                  Avatar={ConfiguredAvatarWithChannelDetail}
+                  StartContent={HeaderStartWithSidebarToggle}
                 />
-                <ChannelPreviewOverlay />
-              </div>
-            </WithDragAndDropUpload>
-          </Channel>
+                <div className='app-chat-view__channel-body'>
+                  {virtualized ? (
+                    // VirtualizedMessageList drills a narrower prop set and doesn't forward
+                    // onUserClick/onMentionsClick — wiring member-detail there would need a custom
+                    // Message component. The demo's default list is the standard one below.
+                    <VirtualizedMessageList returnAllReadData shouldGroupByUser />
+                  ) : (
+                    <MessageList
+                      onMentionsClick={(_event, mentionedUsers) =>
+                        openMemberDetail(mentionedUsers[0]?.id)
+                      }
+                      onUserClick={(_event, user) => openMemberDetail(user.id)}
+                      returnAllReadData
+                    />
+                  )}
+                  <ReturnToSkipNavigation />
+                  <AIStateIndicator />
+                  <MessageComposer
+                    additionalTextareaProps={{
+                      id: CHANNEL_MESSAGE_COMPOSER_TEXTAREA_TARGET_ID,
+                    }}
+                    asyncMessagesMultiSendEnabled
+                    audioRecordingEnabled
+                    maxRows={10}
+                  />
+                  <ChannelPreviewOverlay />
+                </div>
+              </WithDragAndDropUpload>
+            </Channel>
+          </WorkspacePanelProvider>
         </div>
       )}
       {/* The resize handle belongs to the SLOT, not its contents: it's rendered once here and
@@ -582,30 +489,29 @@ const ResponsiveChannelPanels = ({ mainChannel }: { mainChannel?: StreamChannel 
       {/* The base of the secondary slot (2nd channel or reply thread) is ALWAYS rendered at a
           stable position so it stays mounted — a member-profile layer covers it (below) rather
           than replacing it, and closing that layer reveals it untouched. */}
-      {sideChannel ? (
-        <SecondChannelPanel channel={sideChannel} />
-      ) : (
-        <ChannelThreadPanel onOpenMemberDetail={openMemberDetail} thread={replyThread} />
-      )}
-      {memberProfile && mainChannel && (
-        <ChannelMemberDetailOverlay
-          channel={mainChannel}
-          hasBaseBeneath={!!sideChannel || !!replyThread}
-          userId={memberProfile.userId}
-        />
-      )}
-      {/* A ⌘/ctrl-clicked channel opened as a layer covers the secondary slot; its header shows a
-          back affordance when a base (reply thread / 2nd channel) sits beneath, else a close — both
-          pop the layer, revealing what was underneath. */}
-      {layerChannel && (
-        <SecondChannelOverlay
-          channel={layerChannel}
-          hasBaseBeneath={!!sideChannel || !!replyThread}
-        />
-      )}
-      {/* A reply thread opened as a layer (e.g. the replies button inside a 2nd channel that holds
-          the slot) covers it; its header close pops the layer to reveal the channel beneath. */}
-      {layerThread && <ChannelThreadOverlay thread={layerThread} />}
+      <WorkspacePanelProvider panel={CHANNEL_THREAD_SLOT}>
+        {sideChannel ? (
+          <SecondChannelPanel channel={sideChannel} />
+        ) : (
+          <ChannelThreadPanel
+            onOpenMemberDetail={openMemberDetail}
+            thread={replyThread}
+          />
+        )}
+        {memberProfile && mainChannel && (
+          <ChannelMemberDetailOverlay
+            channel={mainChannel}
+            hasBaseBeneath={!!sideChannel || !!replyThread}
+            userId={memberProfile.userId}
+          />
+        )}
+        {/* A ⌘/ctrl-clicked channel opened as a layer covers the secondary slot; its header's back
+          reveals what is beneath, its close dismisses the whole secondary panel. */}
+        {layerChannel && <SecondChannelOverlay channel={layerChannel} />}
+        {/* A reply thread opened as a layer (e.g. the replies button inside a 2nd channel that holds
+          the slot) covers it; its header's back reveals the channel beneath. */}
+        {layerThread && <ChannelThreadOverlay thread={layerThread} />}
+      </WorkspacePanelProvider>
     </div>
   );
 };
@@ -687,7 +593,7 @@ const ThreadPanel = ({ thread }: { thread: ThreadType }) => {
             TypingIndicator,
           }}
         >
-          <ThreadHeader />
+          <ThreadHeader StartContent={HeaderStartWithSidebarToggle} />
           <ThreadMessageList />
           <MessageComposer
             additionalTextareaProps={{
@@ -723,7 +629,7 @@ const SecondaryThreadPanel = ({ thread }: { thread: ThreadType }) => {
               TypingIndicator,
             }}
           >
-            <ThreadHeader />
+            <ThreadHeader StartContent={HeaderStartWithSidebarToggle} />
             <ThreadMessageList />
             <MessageComposer asyncMessagesMultiSendEnabled audioRecordingEnabled />
           </WithComponents>

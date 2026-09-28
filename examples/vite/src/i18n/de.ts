@@ -206,6 +206,7 @@ export const deTranslations = {
   'channelDetail.pinnedMessagesView.pinnedMessage.label': 'Angepinnte Nachricht',
   'channelDetail.pinnedMessagesView.pinnedMessages.title': 'Angepinnte Nachrichten',
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Menü öffnen',
+  'channelHeader.closeChannel.ariaLabel': 'Kanal schließen',
   'channelHeader.online.members.label': '{{ memberCount }} Mitglieder',
   'channelHeader.online.online.label': '{{ watcherCount }} online',
   'channelList.channelList.ariaLabel': 'Kanalliste',

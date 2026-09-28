@@ -1,16 +1,20 @@
 import React from 'react';
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader } from '../ChannelHeader';
 
 // MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChatContext mock providers were
 // replaced by the real <Chat client><Channel channel> tree (which supplies the channel instance,
-// translation and component contexts). Component-slot overrides (e.g. HeaderStartContent) are
-// provided via <WithComponents> nested inside <Channel>.
+// translation and component contexts). Component-slot overrides are provided via
+// <WithComponents> nested inside <Channel>.
 import { Channel } from '../../Channel';
 import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
+import {
+  defaultWorkspaceNavigation,
+  WorkspaceNavigationProvider,
+} from '../../../context/WorkspaceNavigationContext';
 import {
   dispatchUserUpdatedEvent,
   generateChannel,
@@ -182,15 +186,15 @@ describe('ChannelHeader', () => {
     });
   });
 
-  describe('HeaderStartContent slot', () => {
-    const HeaderStartContent = () => <div data-testid='sidebar-toggle' />;
+  describe('StartContent prop', () => {
+    const StartContent = () => <div data-testid='sidebar-toggle' />;
 
-    it('should not render HeaderStartContent when not provided via ComponentContext', async () => {
+    it('should not render StartContent when not provided', async () => {
       await renderComponent();
       expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
     });
 
-    it('should render HeaderStartContent when provided via ComponentContext', async () => {
+    it('should render StartContent when provided', async () => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({ ...defaultChannelState });
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
@@ -200,12 +204,88 @@ describe('ChannelHeader', () => {
       renderComponentBase({
         channel,
         client,
-        componentOverrides: { HeaderStartContent },
+        props: { StartContent },
       });
 
       await waitFor(() =>
         expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument(),
       );
+    });
+  });
+
+  describe('close button', () => {
+    const renderWithNavigation = async (
+      navigation: Partial<typeof defaultWorkspaceNavigation>,
+      headerProps: ChannelHeaderProps = {},
+    ) => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({ ...defaultChannelState });
+      /* eslint-disable-next-line react-hooks/rules-of-hooks */
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
+
+      render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WorkspaceNavigationProvider
+              value={{ ...defaultWorkspaceNavigation, ...navigation }}
+            >
+              <ChannelHeader {...headerProps} />
+            </WorkspaceNavigationProvider>
+          </Channel>
+        </Chat>,
+      );
+
+      return channel;
+    };
+
+    // The back and close buttons are only the defaults: start/end content passed to the header
+    // takes their place.
+    it('gives way to the StartContent and EndContent passed to it', async () => {
+      await renderWithNavigation(
+        { canGoBack: () => true, isChannelDismissable: () => true },
+        {
+          EndContent: () => <div data-testid='app-end' />,
+          StartContent: () => <div data-testid='app-start' />,
+        },
+      );
+
+      expect(await screen.findByTestId('app-start')).toBeInTheDocument();
+      expect(screen.getByTestId('app-end')).toBeInTheDocument();
+      expect(screen.queryByTestId('channel-header-back-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('close-channel-button')).not.toBeInTheDocument();
+    });
+
+    it('is not rendered for a channel that cannot be dismissed', async () => {
+      await renderWithNavigation({});
+      expect(screen.queryByTestId('close-channel-button')).not.toBeInTheDocument();
+    });
+
+    it('is rendered for a dismissable channel and closes it', async () => {
+      const closeChannel = vi.fn();
+      const isChannelDismissable = vi.fn(() => true);
+      const channel = await renderWithNavigation({ closeChannel, isChannelDismissable });
+
+      const button = await screen.findByTestId('close-channel-button');
+      // Outside a panel there is none to pass.
+      expect(isChannelDismissable).toHaveBeenCalledWith(channel.cid, undefined);
+      fireEvent.click(button);
+      expect(closeChannel).toHaveBeenCalledWith(channel.cid, expect.anything());
+    });
+
+    it('is accompanied by no back button for a channel with nothing beneath it', async () => {
+      await renderWithNavigation({ isChannelDismissable: () => true });
+      await screen.findByTestId('close-channel-button');
+      expect(screen.queryByTestId('channel-header-back-button')).not.toBeInTheDocument();
+    });
+
+    it('steps back from a channel stacked over other content', async () => {
+      const goBack = vi.fn();
+      const channel = await renderWithNavigation({ canGoBack: () => true, goBack });
+
+      fireEvent.click(await screen.findByTestId('channel-header-back-button'));
+      expect(goBack).toHaveBeenCalledWith(channel.cid, expect.anything());
     });
   });
 

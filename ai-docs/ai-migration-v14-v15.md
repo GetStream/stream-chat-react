@@ -446,6 +446,42 @@ Consequences worth planning for:
 - **`ThreadProvider` is still exported** for rendering thread-scoped UI outside a `<Thread>`, but you no longer wrap `<Thread>` in it.
 - **`ComponentContext.ThreadHeader` is removed**, along with the `str-chat__thread--virtualized` class on the container. Compose the header you want directly. `ThreadHeaderProps` is down to `overrideTitle`: the `closeThread` and `thread` props are **removed**, because both are already reachable centrally -- the parent message comes from the thread in context, and closing goes through the workspace navigation (`closeThread(threadId)`), which an app customizes once via `ChatView`'s `deriveWorkspaceNavigation` rather than per header. The new `useCloseThread()` hook gives a custom header the same close behavior.
 
+### `ComponentContext.HeaderStartContent` → removed; `ChannelHeader` / `ThreadHeader` take `StartContent` / `EndContent`
+
+In v14, `HeaderStartContent` on `ComponentContext` was rendered at the start of `ChannelHeader` (and of `ThreadHeader`, in the threads view only) -- typically an app-owned sidebar toggle. The SDK does not render either header itself; apps compose them, so the content now goes straight onto the header as a prop, and the slot is **removed** from `ComponentContext`. Both headers take:
+
+| Prop           | Default                          | Shows                                                                                                |
+| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `StartContent` | `WorkspaceNavigationBackButton`  | Back, when the channel or thread is stacked over other content in its panel                          |
+| `EndContent`   | `WorkspaceNavigationCloseButton` | Close, for a panel that can be dismissed: a channel opened beside the primary one, or a thread panel |
+
+- **The v14 thread close button is now `ThreadHeader`'s `EndContent` default.** It still renders as `str-chat__close-thread-button`, only for threads the workspace navigation reports as dismissable, and closes through `useCloseThread()`. `ChannelHeader` gains the same pair for channels beside the primary one (`str-chat__close-channel-button`, `str-chat__channel-header__back-button`).
+- **The buttons act on the panel they render in** -- the thread in context, otherwise the channel, in the panel a `Slot` / `ChannelSlot` / `ThreadSlot` declares. A layout that renders its own panels declares them with `WorkspacePanelProvider`, so the right panel closes when the same channel is open in two. Without a workspace navigation (e.g. outside `ChatView`) nothing can be dismissed, so they render nothing.
+- **A prop replaces its button.** To keep the navigation next to your own control, render the button too:
+
+```tsx
+// v14
+<WithComponents overrides={{ HeaderStartContent: SidebarToggle }}>
+  <Channel channel={channel}>
+    <ChannelHeader />
+  </Channel>
+</WithComponents>;
+
+// v15 - `SidebarToggle` stands for a control of your own
+const HeaderStart = () => (
+  <>
+    <WorkspaceNavigationBackButton />
+    <SidebarToggle />
+  </>
+);
+
+<Channel channel={channel}>
+  <ChannelHeader StartContent={HeaderStart} />
+</Channel>;
+```
+
+- **`HeaderEndContent` stays on `ComponentContext`** as the end of the list headers (`ChannelListHeader`, `ThreadListHeader`), which the SDK renders inside `ChannelNavigation` / `ThreadList`. It is unchanged.
+
 ### `disableDateSeparator` → `withDateSeparator`; `Thread.enableDateSeparator` → removed
 
 `MessageList` and `VirtualizedMessageList` took `disableDateSeparator` while `Thread` took `enableDateSeparator` for the same setting — inverted polarity and two names for one idea, so the value had to be negated on the way down. Both lists now take **`withDateSeparator`**. The defaults are unchanged in behavior, only in spelling:
