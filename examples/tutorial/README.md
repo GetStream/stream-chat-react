@@ -102,7 +102,7 @@ The tutorial app is a Yarn workspace (`@stream-io/stream-chat-react-tutorial`) u
    yarn install
    ```
 
-2. Copy `.env.example` to `.env` in this folder and populate the credentials.
+2. Optionally, copy `.env.example` to `.env` in this folder to use your own Stream app. With no credentials set, the tutorial runs against Stream's demo app.
 
 ## Run the tutorial browser
 
