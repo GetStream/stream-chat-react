@@ -145,6 +145,13 @@ const PreviewList = (props: AttachmentPreviewListProps) => (
 </WithComponents>;
 ```
 
+### Quote and edit previews take the text colour paired with their background
+
+`.str-chat__quoted-message-preview` (the reply and edit previews in the composer, and quotes inside message bubbles) now sets its text to `--str-chat__chat-text-incoming`. For the user's own message (`--own`) it uses `--str-chat__chat-text-outgoing`, to match the outgoing background. In v14 the author line inherited the surrounding text colour, and the message text always used the incoming colour. A theme with a dark outgoing bubble got dark text on it.
+
+- **Default light theme:** your own quotes change from the primary text colour to the outgoing bubble's text colour (`--str-chat__brand-900`).
+- **An app that overrode these colours to fix the contrast** → remove the override. To theme the quote, set `--str-chat__chat-text-incoming` / `--str-chat__chat-text-outgoing`, which the message bubbles use too.
+
 ### `ChatContext.setActiveChannel` → removed
 
 There is no `setActiveChannel` on `ChatContext`. Bind a channel by:

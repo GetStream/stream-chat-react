@@ -11,6 +11,7 @@
     gap: var(--str-chat__spacing-xs);
     position: relative;
     background-color: var(--str-chat__chat-bg-incoming);
+    color: var(--str-chat__chat-text-incoming);
     padding: var(--str-chat__spacing-xs);
     border-radius: var(--str-chat__message-bubble-radius-attachment);
 
@@ -56,7 +57,7 @@
           // we do not want links to be blue etc.
           * {
             white-space: nowrap;
-            color: var(--str-chat__chat-text-incoming);
+            color: inherit;
           }
         }
       }
@@ -99,7 +100,10 @@
     }
   }
 
+  // Text takes the color paired with the background, so a theme with a dark outgoing bubble keeps
+  // the quote legible.
   .str-chat__quoted-message-preview--own {
     background-color: var(--str-chat__chat-bg-outgoing);
+    color: var(--str-chat__chat-text-outgoing);
   }
 }
