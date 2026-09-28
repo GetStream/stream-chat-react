@@ -1,0 +1,48 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  margin: 0;
+}
+#root {
+  display: flex;
+}
+
+.str-chat__channel-list {
+  width: 30%;
+}
+.str-chat__channel {
+  width: 100%;
+}
+.str-chat__thread {
+  width: 45%;
+}
+
+/* The two channel slots share the width beside the channel list. When they are too narrow for
+   both to be legible - under two slots of 280px - only the second one is shown: it holds what was
+   opened last, and closing it brings the first one back. */
+.channel-slots {
+  container-type: inline-size;
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+@container (max-width: 560px) {
+  .channel-slots:has(
+      > .str-chat__chat-view__slot:not(:empty) + .str-chat__chat-view__slot:not(:empty)
+    )
+    > .str-chat__chat-view__slot:first-child {
+    display: none;
+  }
+
+  /* The second slot then sits next to the channel list, which draws its own edge. */
+  .channel-slots
+    > .str-chat__chat-view__slot:not(:empty)
+    ~ .str-chat__chat-view__slot:not(:empty) {
+    border-inline-start: 0;
+  }
+}

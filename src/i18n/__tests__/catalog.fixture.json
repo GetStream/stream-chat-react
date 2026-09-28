@@ -138,6 +138,7 @@
   "channelDetail.pinnedMessagesView.pinnedMessage.label": "Pinned message",
   "channelDetail.pinnedMessagesView.pinnedMessages.title": "Pinned messages",
   "channelDetail.sectionNavigatorHeader.openMenu.ariaLabel": "Open menu",
+  "channelHeader.closeChannel.ariaLabel": "Close channel",
   "channelHeader.online.members.label": "{{ memberCount }} members",
   "channelHeader.online.online.label": "{{ watcherCount }} online",
   "channelList.channelList.ariaLabel": "Channel list",

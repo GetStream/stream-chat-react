@@ -11,7 +11,8 @@ import {
 } from 'stream-chat-react';
 
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -26,6 +27,16 @@ const App = () => {
     tokenOrProvider: tokenProvider,
     userData: user,
   });
+
+  // Commands such as /giphy need their middlewares in every composer (see
+  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
+  // it is registered before the effects below create any.
+  useEffect(() => {
+    if (!chatClient) return;
+    chatClient.config.setSetupFunction('messageComposer', ({ composer }) =>
+      setUpCommandMiddlewares(composer),
+    );
+  }, [chatClient]);
 
   useEffect(() => {
     if (!chatClient) return;

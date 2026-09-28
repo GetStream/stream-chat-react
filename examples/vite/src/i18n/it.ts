@@ -194,6 +194,7 @@ export const itTranslations = {
   'channelDetail.pinnedMessagesView.pinnedMessage.label': 'Messaggio fissato',
   'channelDetail.pinnedMessagesView.pinnedMessages.title': 'Messaggi fissati',
   'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel': 'Apri menu',
+  'channelHeader.closeChannel.ariaLabel': 'Chiudi canale',
   'channelHeader.online.members.label': '{{ memberCount }} membri',
   'channelHeader.online.online.label': '{{ watcherCount }} online',
   'channelList.channelList.ariaLabel': 'Elenco canali',

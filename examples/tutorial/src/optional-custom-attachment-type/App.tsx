@@ -6,6 +6,8 @@ import type {
 } from 'stream-chat';
 import {
   Attachment,
+  AttachmentPreviewList,
+  type AttachmentPreviewListProps,
   type AttachmentProps,
   Channel,
   ChannelHeader,
@@ -13,7 +15,10 @@ import {
   getChannel,
   MessageComposer,
   MessageList,
+  RemoveAttachmentPreviewButton,
   ThreadHeader,
+  UnsupportedAttachmentPreview,
+  type UnsupportedAttachmentPreviewProps,
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
@@ -21,7 +26,8 @@ import {
 import { ChatView, ThreadSlot } from 'stream-chat-react/slot-layout';
 
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -80,9 +86,62 @@ const CustomAttachment = (props: AttachmentProps) => {
   return <Attachment {...props} />;
 };
 
+// The composer has no preview of its own for a custom attachment type, so editing a message that
+// carries a product would list it as unsupported. `AttachmentPreviewList` takes the component for
+// those: the product gets a card like the one in the message, and any other unknown type keeps
+// the default.
+const ProductAttachmentPreview = (props: UnsupportedAttachmentPreviewProps) => {
+  const { attachment, removeAttachments } = props;
+  if (attachment.type !== 'product') return <UnsupportedAttachmentPreview {...props} />;
+
+  return (
+    <div
+      style={{
+        alignItems: 'center',
+        background: '#ffffff',
+        borderRadius: '16px',
+        boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
+        display: 'flex',
+        gap: '12px',
+        height: '72px',
+        padding: '8px 12px 8px 8px',
+        position: 'relative',
+        width: '290px',
+      }}
+    >
+      <img
+        alt=''
+        height='56'
+        src={attachment.custom?.image}
+        style={{ borderRadius: '12px', objectFit: 'cover' }}
+        width='56'
+      />
+      <div style={{ minWidth: 0 }}>
+        <div style={{ color: '#0f172a', fontSize: '12px', fontWeight: 700 }}>
+          Product recommendation
+        </div>
+        <div style={{ color: '#334155', marginTop: '4px' }}>
+          {attachment.custom?.name}
+        </div>
+      </div>
+      <RemoveAttachmentPreviewButton
+        onClick={() => removeAttachments([attachment.localMetadata.id])}
+      />
+    </div>
+  );
+};
+
+const ProductAttachmentPreviewList = (props: AttachmentPreviewListProps) => (
+  <AttachmentPreviewList
+    {...props}
+    UnsupportedAttachmentPreview={ProductAttachmentPreview}
+  />
+);
+
 // A thread is opened through workspace navigation (a message's "reply in thread" action), which
-// `ChatView` provides -- so even a single-channel app hosts its channel and thread in layout slots.
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+// `ChatView` provides, into a layout slot. The channel is rendered directly, so the only slot is the
+// thread's.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['thread'] }];
 
 const ChannelWorkspace = ({ channel }: { channel: StreamChannel }) => (
   <>
@@ -109,6 +168,16 @@ const App = () => {
     userData: user,
   });
 
+  // Commands such as /giphy need their middlewares in every composer (see
+  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
+  // it is registered before the effects below create any.
+  useEffect(() => {
+    if (!client) return;
+    client.config.setSetupFunction('messageComposer', ({ composer }) =>
+      setUpCommandMiddlewares(composer),
+    );
+  }, [client]);
+
   useEffect(() => {
     if (!client) return;
 
@@ -130,7 +199,9 @@ const App = () => {
 
       // messages are no longer kept on channel.state — the paginator owns the list
       const hasProductMessage = (channel.messagePaginator.items ?? []).some((message) =>
-        message.attachments?.some(isProductAttachment),
+        message.attachments?.some(
+          (attachment) => 'type' in attachment && attachment.type === 'product',
+        ),
       );
 
       if (!hasProductMessage) {
@@ -155,7 +226,12 @@ const App = () => {
   if (!channel) return <div>Loading tutorial channel...</div>;
 
   return (
-    <WithComponents overrides={{ Attachment: CustomAttachment }}>
+    <WithComponents
+      overrides={{
+        Attachment: CustomAttachment,
+        AttachmentPreviewList: ProductAttachmentPreviewList,
+      }}
+    >
       <Chat client={client} theme='custom-theme'>
         <ChatView
           layouts={chatViewLayouts}

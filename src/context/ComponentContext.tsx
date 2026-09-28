@@ -307,8 +307,6 @@ export type ComponentContextValue = {
   UnreadMessagesNotification?: React.ComponentType<UnreadMessagesNotificationProps>;
   /** Custom UI component rendered at the end of sidebar headers (ChannelListHeader, ThreadListHeader). No default — if omitted, the slot is empty. */
   HeaderEndContent?: React.ComponentType;
-  /** Custom UI component rendered at the start of content headers (ChannelHeader, ThreadHeader). No default — if omitted, the slot is empty. */
-  HeaderStartContent?: React.ComponentType;
   /** Custom UI component that separates read messages from unread, defaults to and accepts same props as: [UnreadMessagesSeparator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/MessageList/UnreadMessagesSeparator.tsx) */
   UnreadMessagesSeparator?: React.ComponentType<UnreadMessagesSeparatorProps>;
   /** Custom UI component for uploaded vs total byte size during attachment upload (MessageComposer previews), defaults to and accepts same props as: [UploadedSizeIndicator](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Loading/UploadedSizeIndicator.tsx) */

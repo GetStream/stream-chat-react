@@ -4,7 +4,8 @@ import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avat
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChannel, useChatContext, useComponentContext } from '../../context';
+import { useChannel, useChatContext } from '../../context';
+import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../store';
 
@@ -49,6 +50,18 @@ const ChannelHeaderSubtitle = () => {
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
+  /**
+   * Rendered at the end of the header, after the avatar. Defaults to
+   * `WorkspaceNavigationCloseButton`, the close button of a panel that can be dismissed; a component
+   * passed here replaces it, and can render the button itself to keep it.
+   */
+  EndContent?: React.ComponentType;
+  /**
+   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`, the back
+   * button of a panel stacked over other content; a component passed here replaces it, and can
+   * render the button itself to keep it.
+   */
+  StartContent?: React.ComponentType;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
   /** Set title manually */
@@ -59,10 +72,15 @@ export type ChannelHeaderProps = {
  * The ChannelHeader component renders some basic information about a Channel.
  */
 export const ChannelHeader = (props: ChannelHeaderProps) => {
-  const { Avatar = DefaultAvatar, image: overrideImage, title: overrideTitle } = props;
+  const {
+    Avatar = DefaultAvatar,
+    EndContent = WorkspaceNavigationCloseButton,
+    image: overrideImage,
+    StartContent = WorkspaceNavigationBackButton,
+    title: overrideTitle,
+  } = props;
 
   const channel = useChannel();
-  const { HeaderStartContent } = useComponentContext();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -72,7 +90,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   return (
     <div className='str-chat__channel-header'>
       <div className='str-chat__channel-header__start'>
-        {HeaderStartContent && <HeaderStartContent />}
+        <StartContent />
       </div>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
@@ -86,6 +104,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
           size='lg'
           userName={displayTitle}
         />
+        <EndContent />
       </div>
     </div>
   );

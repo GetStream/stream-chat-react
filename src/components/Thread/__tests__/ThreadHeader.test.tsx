@@ -39,6 +39,14 @@ vi.mock('../../Threads', () => ({
   useCloseThread: vi.fn(() => closeThreadInContext),
   useThreadContext: vi.fn(() => undefined),
 }));
+// The header's back and close buttons read the same hooks from their own modules.
+vi.mock('../../Threads/ThreadContext', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../Threads/ThreadContext')>()),
+  useThreadContext: (await import('../../Threads')).useThreadContext,
+}));
+vi.mock('../../Threads/hooks/useCloseThread', async () => ({
+  useCloseThread: (await import('../../Threads')).useCloseThread,
+}));
 
 vi.mock('../../../plugins/SlotLayout', () => ({
   useChatViewContext: vi.fn(() => ({ activeView: 'channels' })),
@@ -72,11 +80,13 @@ const createThreadInstance = (user?: { id: string; name?: string }) =>
 const renderComponent = ({
   activeView = 'channels',
   dismissable = false,
+  navigation = {},
   props = {},
   threadContext = createThreadInstance(alice),
 }: {
   activeView?: string;
   dismissable?: boolean;
+  navigation?: Partial<typeof defaultWorkspaceNavigation>;
   props?: Partial<React.ComponentProps<typeof ThreadHeader>>;
   threadContext?: Thread;
 } = {}) => {
@@ -107,6 +117,7 @@ const renderComponent = ({
           value={{
             ...defaultWorkspaceNavigation,
             isThreadDismissable: () => dismissable,
+            ...navigation,
           }}
         >
           <TranslationProvider
@@ -167,6 +178,40 @@ describe('ThreadHeader', () => {
     fireEvent.click(screen.getByTestId('close-thread-button'));
 
     expect(closeThreadInContext).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders no back button for a thread with nothing beneath it', () => {
+    renderComponent();
+
+    expect(screen.queryByTestId('thread-header-back-button')).not.toBeInTheDocument();
+  });
+
+  it('steps back from a thread stacked over other content', () => {
+    const goBack = vi.fn();
+    const threadContext = createThreadInstance(alice);
+    renderComponent({ navigation: { canGoBack: () => true, goBack }, threadContext });
+
+    fireEvent.click(screen.getByTestId('thread-header-back-button'));
+
+    expect(goBack).toHaveBeenCalledWith(threadContext.id, expect.anything());
+  });
+
+  // The back and close buttons are only the defaults, in every view: start/end content passed to
+  // the header takes their place.
+  it('gives way to the StartContent and EndContent passed to it', () => {
+    renderComponent({
+      dismissable: true,
+      navigation: { canGoBack: () => true },
+      props: {
+        EndContent: () => <div data-testid='app-end' />,
+        StartContent: () => <div data-testid='app-start' />,
+      },
+    });
+
+    expect(screen.getByTestId('app-start')).toBeInTheDocument();
+    expect(screen.getByTestId('app-end')).toBeInTheDocument();
+    expect(screen.queryByTestId('thread-header-back-button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('close-thread-button')).not.toBeInTheDocument();
   });
 
   it('renders no close button for a thread the workspace does not consider dismissable', () => {

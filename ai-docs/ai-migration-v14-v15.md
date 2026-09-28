@@ -103,6 +103,55 @@ clearing is gone. Drop it. If you relied on the unmount clearing a supplied comp
 on it yourself once your UI is done with it. The channel's and thread's own composers are still
 cleared on unmount, after their draft is saved.
 
+### Composer attachment previews: `UnsupportedAttachmentPreview` and `RemoveAttachmentPreviewButton` are exported
+
+The composer has no preview for a custom attachment type, so it lists one as unsupported. That also happens when a user edits a message that carries one. `AttachmentPreviewList` takes the component for those as its `UnsupportedAttachmentPreview` prop. In v14 only the prop types were exported, so a custom preview could not fall back to the default preview or reuse the SDK's remove button. Both are now exported from the package root:
+
+- **`UnsupportedAttachmentPreview`**: the default preview. Render it for the attachment types your component does not handle.
+- **`RemoveAttachmentPreviewButton`**: the remove (×) button of the SDK's previews, positioned at the card's top-end corner. Give its container `position: relative`.
+
+If your app copied either component out of the v14 source to get this, import it instead:
+
+```tsx
+import {
+  AttachmentPreviewList,
+  type AttachmentPreviewListProps,
+  RemoveAttachmentPreviewButton,
+  UnsupportedAttachmentPreview,
+  type UnsupportedAttachmentPreviewProps,
+  WithComponents,
+} from 'stream-chat-react';
+
+const ProductPreview = (props: UnsupportedAttachmentPreviewProps) => {
+  const { attachment, removeAttachments } = props;
+  if (attachment.type !== 'product') return <UnsupportedAttachmentPreview {...props} />;
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {attachment.custom?.name}
+      <RemoveAttachmentPreviewButton
+        onClick={() => removeAttachments([attachment.localMetadata.id])}
+      />
+    </div>
+  );
+};
+
+const PreviewList = (props: AttachmentPreviewListProps) => (
+  <AttachmentPreviewList {...props} UnsupportedAttachmentPreview={ProductPreview} />
+);
+
+<WithComponents overrides={{ AttachmentPreviewList: PreviewList }}>
+  {/* … */}
+</WithComponents>;
+```
+
+### Quote and edit previews take the text colour paired with their background
+
+`.str-chat__quoted-message-preview` (the reply and edit previews in the composer, and quotes inside message bubbles) now sets its text to `--str-chat__chat-text-incoming`. For the user's own message (`--own`) it uses `--str-chat__chat-text-outgoing`, to match the outgoing background. In v14 the author line inherited the surrounding text colour, and the message text always used the incoming colour. A theme with a dark outgoing bubble got dark text on it.
+
+- **Default light theme:** your own quotes change from the primary text colour to the outgoing bubble's text colour (`--str-chat__brand-900`).
+- **An app that overrode these colours to fix the contrast** → remove the override. To theme the quote, set `--str-chat__chat-text-incoming` / `--str-chat__chat-text-outgoing`, which the message bubbles use too.
+
 ### `ChatContext.setActiveChannel` → removed
 
 There is no `setActiveChannel` on `ChatContext`. Bind a channel by:
@@ -445,6 +494,42 @@ Consequences worth planning for:
 - **`ThreadSlot` wraps its children instead of replacing them.** It resolves the thread bound to a slot and hands it to `<Thread>`, exactly as `ChannelSlot` does for `<Channel>`, so its `children` are now the thread's contents rather than a substitute for the whole panel. Anything that has to sit _outside_ the thread container (a panel shell your layout sizes, for instance) moves outside `ThreadSlot`; anything that needs thread context (`useChannel` resolves the thread's own channel) must sit inside.
 - **`ThreadProvider` is still exported** for rendering thread-scoped UI outside a `<Thread>`, but you no longer wrap `<Thread>` in it.
 - **`ComponentContext.ThreadHeader` is removed**, along with the `str-chat__thread--virtualized` class on the container. Compose the header you want directly. `ThreadHeaderProps` is down to `overrideTitle`: the `closeThread` and `thread` props are **removed**, because both are already reachable centrally -- the parent message comes from the thread in context, and closing goes through the workspace navigation (`closeThread(threadId)`), which an app customizes once via `ChatView`'s `deriveWorkspaceNavigation` rather than per header. The new `useCloseThread()` hook gives a custom header the same close behavior.
+
+### `ComponentContext.HeaderStartContent` → removed; `ChannelHeader` / `ThreadHeader` take `StartContent` / `EndContent`
+
+In v14, `HeaderStartContent` on `ComponentContext` was rendered at the start of `ChannelHeader` (and of `ThreadHeader`, in the threads view only) -- typically an app-owned sidebar toggle. The SDK does not render either header itself; apps compose them, so the content now goes straight onto the header as a prop, and the slot is **removed** from `ComponentContext`. Both headers take:
+
+| Prop           | Default                          | Shows                                                                                                |
+| -------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `StartContent` | `WorkspaceNavigationBackButton`  | Back, when the channel or thread is stacked over other content in its panel                          |
+| `EndContent`   | `WorkspaceNavigationCloseButton` | Close, for a panel that can be dismissed: a channel opened beside the primary one, or a thread panel |
+
+- **The v14 thread close button is now `ThreadHeader`'s `EndContent` default.** It still renders as `str-chat__close-thread-button`, only for threads the workspace navigation reports as dismissable, and closes through `useCloseThread()`. `ChannelHeader` gains the same pair for channels beside the primary one (`str-chat__close-channel-button`, `str-chat__channel-header__back-button`).
+- **The buttons act on the panel they render in** -- the thread in context, otherwise the channel, in the panel a `Slot` / `ChannelSlot` / `ThreadSlot` declares. A layout that renders its own panels declares them with `WorkspacePanelProvider`, so the right panel closes when the same channel is open in two. Without a workspace navigation (e.g. outside `ChatView`) nothing can be dismissed, so they render nothing.
+- **A prop replaces its button.** To keep the navigation next to your own control, render the button too:
+
+```tsx
+// v14
+<WithComponents overrides={{ HeaderStartContent: SidebarToggle }}>
+  <Channel channel={channel}>
+    <ChannelHeader />
+  </Channel>
+</WithComponents>;
+
+// v15 - `SidebarToggle` stands for a control of your own
+const HeaderStart = () => (
+  <>
+    <WorkspaceNavigationBackButton />
+    <SidebarToggle />
+  </>
+);
+
+<Channel channel={channel}>
+  <ChannelHeader StartContent={HeaderStart} />
+</Channel>;
+```
+
+- **`HeaderEndContent` stays on `ComponentContext`** as the end of the list headers (`ChannelListHeader`, `ThreadListHeader`), which the SDK renders inside `ChannelNavigation` / `ThreadList`. It is unchanged.
 
 ### `disableDateSeparator` → `withDateSeparator`; `Thread.enableDateSeparator` → removed
 

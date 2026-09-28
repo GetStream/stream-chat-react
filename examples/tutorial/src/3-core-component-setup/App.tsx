@@ -16,7 +16,8 @@ import { ChatView, ThreadSlot } from 'stream-chat-react/slot-layout';
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -25,8 +26,9 @@ const user: ClientUser = {
 };
 
 // A thread is opened through workspace navigation (a message's "reply in thread" action), which
-// `ChatView` provides -- so even a single-channel app hosts its channel and thread in layout slots.
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+// `ChatView` provides, into a layout slot. The channel is rendered directly, so the only slot is the
+// thread's.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['thread'] }];
 
 const ChannelWorkspace = ({ channel }: { channel: StreamChannel }) => (
   <>
@@ -52,6 +54,16 @@ const App = () => {
     tokenOrProvider: tokenProvider,
     userData: user,
   });
+
+  // Commands such as /giphy need their middlewares in every composer (see
+  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
+  // it is registered before the effects below create any.
+  useEffect(() => {
+    if (!client) return;
+    client.config.setSetupFunction('messageComposer', ({ composer }) =>
+      setUpCommandMiddlewares(composer),
+    );
+  }, [client]);
 
   useEffect(() => {
     if (!client) return;

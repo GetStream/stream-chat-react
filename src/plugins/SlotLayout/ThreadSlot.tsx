@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { useChatViewContext } from './ChatView';
 import { useSlotThread } from './hooks';
 import { Thread, type ThreadProps } from '../../components/Thread';
-import { ThreadSlotContext } from './ThreadSlotContext';
+import { WorkspacePanelProvider } from '../../context/WorkspaceNavigationContext';
 
 import type { PropsWithChildren, ReactNode } from 'react';
 import type { SlotName } from './layoutController/layoutControllerTypes';
@@ -35,10 +35,10 @@ export const ThreadSlot = ({
   if (!thread) return <>{fallback}</>;
 
   return (
-    <ThreadSlotContext.Provider value={slot}>
+    <WorkspacePanelProvider panel={slot}>
       <Thread {...threadProps} thread={thread}>
         {children}
       </Thread>
-    </ThreadSlotContext.Provider>
+    </WorkspacePanelProvider>
   );
 };

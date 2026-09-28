@@ -1,19 +1,17 @@
 import React from 'react';
 
-import { useChannel, useComponentContextIcons } from '../../context';
+import { useChannel } from '../../context';
 import { useTranslationContext } from '../../context/TranslationContext';
 import { useStateStore } from '../../store';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
-import { useCloseThread, useThreadContext } from '../Threads';
+import { useThreadContext } from '../Threads';
 import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
 
 import type { EventPayload, LocalMessage } from 'stream-chat';
 import type { TextComposerState, ThreadState } from 'stream-chat';
-import { Button } from '../Button';
-import { useWorkspaceNavigation } from '../../context';
+import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
 import type { ChannelConfig } from 'stream-chat';
 
 const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
@@ -79,24 +77,32 @@ const ThreadHeaderSubtitle = ({
 };
 
 export type ThreadHeaderProps = {
+  /**
+   * Rendered at the end of the header, after the avatar. Defaults to
+   * `WorkspaceNavigationCloseButton`, the close button of a panel that can be dismissed; a component
+   * passed here replaces it, and can render the button itself to keep it.
+   */
+  EndContent?: React.ComponentType;
+  /**
+   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`, the back
+   * button of a panel stacked over other content; a component passed here replaces it, and can
+   * render the button itself to keep it.
+   */
+  StartContent?: React.ComponentType;
   /** Override the thread display title */
   overrideTitle?: string;
 };
 
-export const ThreadHeader = ({ overrideTitle }: ThreadHeaderProps) => {
-  const { IconXmark } = useComponentContextIcons();
+export const ThreadHeader = ({
+  EndContent = WorkspaceNavigationCloseButton,
+  overrideTitle,
+  StartContent = WorkspaceNavigationBackButton,
+}: ThreadHeaderProps) => {
   const { t } = useTranslationContext();
   const channel = useChannel();
-  const { HeaderStartContent } = useComponentContext();
-  const { isThreadDismissable, isThreadsView } = useWorkspaceNavigation();
   const { displayTitle: channelDisplayTitle } = useChannelPreviewInfo({ channel });
 
   const threadInstance = useThreadContext();
-  const closeThread = useCloseThread();
-  // Show the close button for dismissable thread panels: reply threads in any non-threads view,
-  // and secondary threads in the threads view. It is hidden for the threads view's primary thread,
-  // which is the main panel — you switch views rather than close it.
-  const showCloseButton = isThreadDismissable(threadInstance?.id);
   const { parentMessage, replyCount: replyCountThreadInstance } =
     useStateStore(threadInstance?.state, threadStateSelector) ?? {};
 
@@ -112,7 +118,7 @@ export const ThreadHeader = ({ overrideTitle }: ThreadHeaderProps) => {
   return (
     <div className='str-chat__thread-header'>
       <div className='str-chat__thread-header__start'>
-        {isThreadsView && HeaderStartContent && <HeaderStartContent />}
+        <StartContent />
       </div>
       <div className='str-chat__thread-header-details'>
         <div className='str-chat__thread-header-title'>
@@ -124,26 +130,9 @@ export const ThreadHeader = ({ overrideTitle }: ThreadHeaderProps) => {
           threadList
         />
       </div>
-      {/* The close button releases the thread's slot, so it is shown for threads that live in
-          a closable side panel: reply threads in any non-threads view, and secondary threads
-          in the threads view. It is hidden for the threads view's primary thread (the main
-          panel) — see `showCloseButton` above. */}
-      {showCloseButton && (
-        <div className='str-chat__thread-header__end'>
-          <Button
-            appearance='ghost'
-            aria-label={t('thread.header.closeThread.ariaLabel', 'Close thread')}
-            circular
-            className='str-chat__close-thread-button'
-            data-testid='close-thread-button'
-            onClick={closeThread}
-            size='md'
-            variant='secondary'
-          >
-            <IconXmark />
-          </Button>
-        </div>
-      )}
+      <div className='str-chat__thread-header__end'>
+        <EndContent />
+      </div>
     </div>
   );
 };

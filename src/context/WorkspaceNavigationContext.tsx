@@ -26,6 +26,29 @@ export type WorkspaceNavigationTriggerEvent =
   | React.KeyboardEvent
   | React.TouchEvent;
 
+/** Identifies a panel of the workspace layout (for the slot layout, a slot name). */
+export type WorkspacePanelId = string;
+
+const WorkspacePanelContext = createContext<WorkspacePanelId | undefined>(undefined);
+
+/**
+ * Declares the panel its subtree renders in. The layout provides it around each panel's content,
+ * so controls inside (e.g. a header's back and close buttons) act on their own panel even when the
+ * same channel or thread is open in more than one.
+ */
+export const WorkspacePanelProvider = ({
+  children,
+  panel,
+}: PropsWithChildren<{ panel?: WorkspacePanelId }>) => (
+  <WorkspacePanelContext.Provider value={panel}>
+    {children}
+  </WorkspacePanelContext.Provider>
+);
+
+/** The panel the calling component renders in, or `undefined` outside one. */
+export const useWorkspacePanel = (): WorkspacePanelId | undefined =>
+  useContext(WorkspacePanelContext);
+
 /** Options shared by the workspace navigation operations. */
 export type WorkspaceNavigationOptions = {
   /**
@@ -45,6 +68,12 @@ export type WorkspaceNavigationOptions = {
    * entity restores what was beneath. Ignored by layouts that do not support layering.
    */
   layer?: boolean;
+  /**
+   * The panel the operation is triggered from (see {@link WorkspacePanelProvider}). Resolves which
+   * panel an entity is in when the same channel or thread is open in more than one; without it, the
+   * first panel showing the entity is used.
+   */
+  panel?: WorkspacePanelId;
 };
 
 /**
@@ -54,20 +83,49 @@ export type WorkspaceNavigationOptions = {
  */
 export type WorkspaceNavigation = {
   /**
-   * Dismiss a thread from the workspace. With `threadId`, dismiss that thread's panel; otherwise the
-   * active thread panel. Does not deactivate the thread instance — the caller owns that. Accepts the
-   * triggering event (see {@link WorkspaceNavigationOptions.event}).
+   * Whether the panel showing the channel or thread with `key` (a channel's `cid`, a thread's id)
+   * is stacked over other content that {@link WorkspaceNavigation.goBack} would reveal.
+   */
+  canGoBack: (key?: string, panel?: WorkspacePanelId) => boolean;
+  /**
+   * Dismiss the channel with `cid` from the workspace: close the panel showing it, together with
+   * anything stacked beneath it. Accepts the triggering event (see
+   * {@link WorkspaceNavigationOptions.event}).
+   */
+  closeChannel: (cid?: string, options?: WorkspaceNavigationOptions) => void;
+  /**
+   * Dismiss a thread from the workspace. With `threadId`, dismiss that thread's panel — together
+   * with anything stacked beneath it — otherwise the active thread panel. Does not deactivate the
+   * thread instance — the caller owns that. Accepts the triggering event (see
+   * {@link WorkspaceNavigationOptions.event}).
    */
   closeThread: (threadId?: string, options?: WorkspaceNavigationOptions) => void;
-  /** Whether a channel with `cid` is currently open in the workspace. */
+  /**
+   * Step back from the channel or thread with `key`: remove it from the panel, revealing what it is
+   * stacked over. No-op when {@link WorkspaceNavigation.canGoBack} is false. Accepts the triggering
+   * event (see {@link WorkspaceNavigationOptions.event}).
+   */
+  goBack: (key?: string, options?: WorkspaceNavigationOptions) => void;
+  /**
+   * Whether the channel with `cid` is shown in the workspace: open in a panel and not covered by
+   * something stacked over it there.
+   */
   isChannelActive: (cid?: string) => boolean;
-  /** Whether a thread with `threadId` is currently open in the workspace. */
+  /**
+   * Whether the channel panel for `cid` can be dismissed by the user — i.e. it is a secondary
+   * panel opened beside another channel, rather than the primary channel surface.
+   */
+  isChannelDismissable: (cid?: string, panel?: WorkspacePanelId) => boolean;
+  /**
+   * Whether the thread with `threadId` is shown in the workspace: open in a panel and not covered by
+   * something stacked over it there.
+   */
   isThreadActive: (threadId?: string) => boolean;
   /**
    * Whether the thread panel for `threadId` (or the active thread) can be dismissed by the user —
    * i.e. it is a closable side/secondary panel rather than the primary thread surface.
    */
-  isThreadDismissable: (threadId?: string) => boolean;
+  isThreadDismissable: (threadId?: string, panel?: WorkspacePanelId) => boolean;
   /** Whether the thread-list ("threads") workspace view is the active one. */
   isThreadsView: boolean;
   /** Open `channel` in the workspace. */
@@ -85,8 +143,12 @@ const NOOP_OPEN_THREADS: WorkspaceNavigation['openThreads'] = [];
 
 /** Inert no-op default (D2): used when no `slot-layout` plugin provides an implementation. */
 export const defaultWorkspaceNavigation: WorkspaceNavigation = {
+  canGoBack: () => false,
+  closeChannel: () => undefined,
   closeThread: () => undefined,
+  goBack: () => undefined,
   isChannelActive: () => false,
+  isChannelDismissable: () => false,
   isThreadActive: () => false,
   isThreadDismissable: () => false,
   isThreadsView: false,

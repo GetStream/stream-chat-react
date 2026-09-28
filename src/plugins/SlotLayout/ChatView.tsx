@@ -108,7 +108,8 @@ export type ChatViewProps = PropsWithChildren<{
   /**
    * Optionally override the {@link WorkspaceNavigation} the ChatView provides — e.g. make
    * `openChannel`/`openThread` open beside the current content on ⌘/ctrl-click. Receives the
-   * SDK-derived navigation; spread it and override only what you need. Must be referentially stable.
+   * SDK-derived navigation and returns only the members to override — the rest keep their default.
+   * Must be referentially stable.
    */
   deriveWorkspaceNavigation?: DeriveWorkspaceNavigation;
   dialogManagerId?: string;
@@ -116,13 +117,9 @@ export type ChatViewProps = PropsWithChildren<{
   entityInferrers?: ChatViewEntityInferer[];
   layout?: ChatViewBuiltinLayout;
   layoutController?: LayoutController;
-  /** Declarative layout descriptors (D7). Defaults to the built-in channels/threads. */
   layouts?: LayoutDescriptor[];
-  maxSlots?: number;
-  minSlots?: number;
   resolveDuplicateEntity?: ResolveDuplicateEntity;
   SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
-  slotNames?: string[];
   slotFallbackComponents?: Partial<
     Record<string, ComponentType<ChatViewSlotFallbackProps>>
   >;
@@ -171,45 +168,6 @@ type ChatViewContextValue = {
     args: ResolveViewActionTargetSlotArgs,
   ) => SlotName | undefined;
   setActiveView: (cv: ChatView) => void;
-};
-
-const DEFAULT_MAX_SLOTS = 1;
-const DEFAULT_MIN_SLOTS = 1;
-
-const createGeneratedSlotNames = (slotCount: number) =>
-  Array.from({ length: Math.max(0, slotCount) }, (_, index) => `slot${index + 1}`);
-
-const resolveSlotTopology = ({
-  maxSlots,
-  minSlots,
-  slotNames,
-}: {
-  maxSlots?: number;
-  minSlots?: number;
-  slotNames?: string[];
-}) => {
-  const explicitSlotNames = slotNames?.filter(Boolean) ?? [];
-  const hasExplicitSlotNames = explicitSlotNames.length > 0;
-  const resolvedMaxSlots = hasExplicitSlotNames
-    ? Math.min(
-        Math.max(1, maxSlots ?? explicitSlotNames.length),
-        explicitSlotNames.length,
-      )
-    : Math.max(1, maxSlots ?? DEFAULT_MAX_SLOTS);
-  const resolvedMinSlots = Math.min(
-    Math.max(1, minSlots ?? DEFAULT_MIN_SLOTS),
-    resolvedMaxSlots,
-  );
-  const resolvedSlotNames = hasExplicitSlotNames
-    ? explicitSlotNames.slice(0, resolvedMaxSlots)
-    : createGeneratedSlotNames(resolvedMaxSlots);
-
-  return {
-    initialAvailableSlots: resolvedSlotNames.slice(0, resolvedMinSlots),
-    resolvedMaxSlots,
-    resolvedMinSlots,
-    resolvedSlotNames,
-  };
 };
 
 // No default: a shared `LayoutController` would let unrelated subtrees write to one instance.
@@ -272,20 +230,22 @@ const buildDefaultLayoutDescriptors = (slots: SlotName[]): LayoutDescriptor[] =>
   }));
 };
 
+// Without app `layouts`, each view has a single slot.
+const DEFAULT_SLOT_NAMES: SlotName[] = ['slot1'];
+const DEFAULT_LAYOUT_DESCRIPTORS = buildDefaultLayoutDescriptors(DEFAULT_SLOT_NAMES);
+
 // D7 — turn the declarative descriptors into seeded per-layout runtime state at
 // controller construction (replaces the imperative, lazy seed effect).
 const seedLayoutsFromDescriptors = (
   descriptors: LayoutDescriptor[],
-  minSlots: number,
 ): Partial<Record<ChatView, LayoutRuntimeState>> =>
   descriptors.reduce<Partial<Record<ChatView, LayoutRuntimeState>>>((acc, descriptor) => {
     const slotBindings: Record<SlotName, LayoutSlotBinding | undefined> = {};
     Object.entries(descriptor.initialBindings ?? {}).forEach(([slot, entity]) => {
       if (entity) slotBindings[slot] = createChatViewSlotBinding(entity);
     });
-    const availableCount = Math.min(Math.max(1, minSlots), descriptor.slots.length);
     acc[descriptor.id] = createLayoutRuntimeState({
-      availableSlots: descriptor.slots.slice(0, availableCount),
+      availableSlots: descriptor.slots,
       slotBindings,
       slotNames: descriptor.slots,
     });
@@ -301,12 +261,9 @@ export const ChatView = ({
   layout,
   layoutController,
   layouts: layoutsProp,
-  maxSlots,
-  minSlots,
   resolveDuplicateEntity,
   SlotFallback,
   slotFallbackComponents,
-  slotNames,
   slotRenderers,
   viewActionSlotResolvers: viewActionSlotResolversProp,
   views,
@@ -320,26 +277,14 @@ export const ChatView = ({
   const [viewActionSlotResolvers, setViewActionSlotResolvers] = useState<
     Partial<Record<ChatView, ViewActionSlotResolvers>>
   >({});
-  const { initialAvailableSlots, resolvedMaxSlots, resolvedMinSlots, resolvedSlotNames } =
-    useMemo(
-      () =>
-        resolveSlotTopology({
-          maxSlots,
-          minSlots,
-          slotNames,
-        }),
-      [maxSlots, minSlots, slotNames],
-    );
+  const layoutDescriptors = layoutsProp ?? DEFAULT_LAYOUT_DESCRIPTORS;
 
-  const layoutDescriptors = useMemo<LayoutDescriptor[]>(
-    () => layoutsProp ?? buildDefaultLayoutDescriptors(resolvedSlotNames),
-    [layoutsProp, resolvedSlotNames],
-  );
-
-  // In the built-in workspace and in `views`-map mode the SDK owns per-view rendering,
-  // so seed every layout's slot topology from its descriptor up front (a stable boolean
-  // keeps the controller identity constant across renders).
-  const seedAllLayouts = layout === BUILTIN_WORKSPACE_LAYOUT || !!views;
+  // Seed every layout's slots and bindings from its descriptor up front when the SDK owns per-view
+  // rendering (the built-in workspace or the `views` map), or when the app declares its layouts. In
+  // bare `children` mode without `layouts` the app renders its own lists, so the channels view gets
+  // the default slot and no list binding.
+  const seedFromDescriptors =
+    !!layoutsProp || layout === BUILTIN_WORKSPACE_LAYOUT || !!views;
 
   const internalLayoutController = useMemo(
     () =>
@@ -347,32 +292,22 @@ export const ChatView = ({
         duplicateEntityPolicy,
         initialState: {
           activeView: 'channels',
-          // D7 — when the SDK owns per-view rendering (workspace or `views` map), seed
-          // every layout's slots/bindings up front from its descriptor (no lazy seed
-          // effect). In bare `children` mode the app claims slots itself, so seed only
-          // the channels slot topology.
-          layouts: seedAllLayouts
-            ? seedLayoutsFromDescriptors(layoutDescriptors, resolvedMinSlots)
+          layouts: seedFromDescriptors
+            ? seedLayoutsFromDescriptors(layoutDescriptors)
             : {
                 channels: createLayoutRuntimeState({
-                  availableSlots: initialAvailableSlots,
-                  slotNames: resolvedSlotNames,
+                  availableSlots: DEFAULT_SLOT_NAMES,
+                  slotNames: DEFAULT_SLOT_NAMES,
                 }),
               },
-          maxSlots: resolvedMaxSlots,
-          minSlots: resolvedMinSlots,
         },
         resolveDuplicateEntity,
       }),
     [
       duplicateEntityPolicy,
-      initialAvailableSlots,
       layoutDescriptors,
-      resolvedMaxSlots,
-      resolvedMinSlots,
-      resolvedSlotNames,
       resolveDuplicateEntity,
-      seedAllLayouts,
+      seedFromDescriptors,
     ],
   );
 

@@ -9,6 +9,8 @@ import { useCloseThread } from '../useCloseThread';
 const closeThread = vi.fn();
 vi.mock('../../../../context', () => ({
   useWorkspaceNavigation: vi.fn(() => ({ closeThread })),
+  // The caller renders in the panel beside the primary one.
+  useWorkspacePanel: vi.fn(() => 'beside'),
 }));
 
 describe('useCloseThread', () => {
@@ -27,7 +29,7 @@ describe('useCloseThread', () => {
     });
     result.current();
 
-    expect(closeThread).toHaveBeenCalledWith('parent-1');
+    expect(closeThread).toHaveBeenCalledWith('parent-1', { panel: 'beside' });
     expect(deactivate).toHaveBeenCalledTimes(1);
   });
 
@@ -35,6 +37,13 @@ describe('useCloseThread', () => {
     const { result } = renderHook(() => useCloseThread());
     result.current();
 
-    expect(closeThread).toHaveBeenCalledWith(undefined);
+    expect(closeThread).toHaveBeenCalledWith(undefined, { panel: 'beside' });
+  });
+
+  it('lets the caller name another panel', () => {
+    const { result } = renderHook(() => useCloseThread());
+    result.current({ panel: 'other' });
+
+    expect(closeThread).toHaveBeenCalledWith(undefined, { panel: 'other' });
   });
 });
