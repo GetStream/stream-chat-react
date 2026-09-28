@@ -24,7 +24,7 @@ import {
 } from 'stream-chat-react/slot-layout';
 
 import './layout.css';
-import { apiKey, tokenProvider, userId, userName } from '../1-client-setup/credentials';
+import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
 
 const user: ClientUser = {
   id: userId,
