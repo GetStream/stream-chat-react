@@ -1,6 +1,7 @@
 export * from './AttachmentSelector';
 export {
   AttachmentPreviewList,
+  UnsupportedAttachmentPreview,
   VoiceRecordingPreviewSlot,
 } from './AttachmentPreviewList';
 export type {
@@ -22,6 +23,7 @@ export * from './MessageComposer';
 export * from './MessageComposerActions';
 export * from './MessageComposerUI';
 export * from './QuotedMessagePreview';
+export * from './RemoveAttachmentPreviewButton';
 export * from './SendButton';
 export {
   FileDragAndDropContent,

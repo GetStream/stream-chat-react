@@ -103,6 +103,48 @@ clearing is gone. Drop it. If you relied on the unmount clearing a supplied comp
 on it yourself once your UI is done with it. The channel's and thread's own composers are still
 cleared on unmount, after their draft is saved.
 
+### Composer attachment previews: `UnsupportedAttachmentPreview` and `RemoveAttachmentPreviewButton` are exported
+
+The composer has no preview for a custom attachment type, so it lists one as unsupported. That also happens when a user edits a message that carries one. `AttachmentPreviewList` takes the component for those as its `UnsupportedAttachmentPreview` prop. In v14 only the prop types were exported, so a custom preview could not fall back to the default preview or reuse the SDK's remove button. Both are now exported from the package root:
+
+- **`UnsupportedAttachmentPreview`**: the default preview. Render it for the attachment types your component does not handle.
+- **`RemoveAttachmentPreviewButton`**: the remove (×) button of the SDK's previews, positioned at the card's top-end corner. Give its container `position: relative`.
+
+If your app copied either component out of the v14 source to get this, import it instead:
+
+```tsx
+import {
+  AttachmentPreviewList,
+  type AttachmentPreviewListProps,
+  RemoveAttachmentPreviewButton,
+  UnsupportedAttachmentPreview,
+  type UnsupportedAttachmentPreviewProps,
+  WithComponents,
+} from 'stream-chat-react';
+
+const ProductPreview = (props: UnsupportedAttachmentPreviewProps) => {
+  const { attachment, removeAttachments } = props;
+  if (attachment.type !== 'product') return <UnsupportedAttachmentPreview {...props} />;
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {attachment.custom?.name}
+      <RemoveAttachmentPreviewButton
+        onClick={() => removeAttachments([attachment.localMetadata.id])}
+      />
+    </div>
+  );
+};
+
+const PreviewList = (props: AttachmentPreviewListProps) => (
+  <AttachmentPreviewList {...props} UnsupportedAttachmentPreview={ProductPreview} />
+);
+
+<WithComponents overrides={{ AttachmentPreviewList: PreviewList }}>
+  {/* … */}
+</WithComponents>;
+```
+
 ### `ChatContext.setActiveChannel` → removed
 
 There is no `setActiveChannel` on `ChatContext`. Bind a channel by:
