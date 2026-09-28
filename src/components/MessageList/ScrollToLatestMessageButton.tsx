@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
 import {
-  useChannelStateContext,
+  useChannel,
   useChatContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
+import { useThreadContext } from '../Threads/ThreadContext';
+import { useStateStore } from '../../store';
 
-import type { Event } from 'stream-chat';
+import type { EventPayload, ThreadState } from 'stream-chat';
 import { Badge } from '../Badge';
 import { Button } from '../Button';
 
@@ -16,36 +18,40 @@ export type ScrollToLatestMessageButtonProps = {
   isNotAtLatestMessageSet?: boolean;
   isMessageListScrolledToBottom?: boolean;
   onClick: React.MouseEventHandler;
-  threadList?: boolean;
 };
+
+const threadStateSelector = ({ parentMessage }: ThreadState) => ({
+  parentMessage,
+});
 
 const UnMemoizedScrollToLatestMessageButton = (
   props: ScrollToLatestMessageButtonProps,
 ) => {
+  const { IconArrowDown } = useComponentContextIcons();
   const {
     isMessageListScrolledToBottom,
     isNotAtLatestMessageSet = false,
     onClick,
-    threadList,
   } = props;
 
-  const { channel: activeChannel, client } = useChatContext();
-  const { thread } = useChannelStateContext();
+  const { client } = useChatContext();
+  const channel = useChannel();
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
+  const { parentMessage } = useStateStore(thread?.state, threadStateSelector) ?? {};
   const { t } = useTranslationContext();
-  const { IconArrowDown } = useComponentContextIcons();
-  const [countUnread, setCountUnread] = useState(activeChannel?.countUnread() || 0);
-  const [replyCount, setReplyCount] = useState(thread?.reply_count || 0);
-  const observedEvent = threadList ? 'message.updated' : 'message.new';
+  const [countUnread, setCountUnread] = useState(channel.countUnread() || 0);
+  const [replyCount, setReplyCount] = useState(parentMessage?.reply_count || 0);
+  const observedEvent = isThreadList ? 'message.updated' : 'message.new';
 
   useEffect(() => {
-    const handleEvent = (event: Event) => {
-      const newMessageInAnotherChannel = event.cid !== activeChannel?.cid;
+    const handleEvent = (event: EventPayload<'message.new' | 'message.updated'>) => {
+      const newMessageInAnotherChannel = event.cid !== channel?.cid;
       const newMessageIsMine = event.user?.id === client.user?.id;
 
-      const isThreadOpen = !!thread;
       const newMessageIsReply = !!event.message?.parent_id;
       const dontIncreaseMainListCounterOnNewReply =
-        isThreadOpen && !threadList && newMessageIsReply;
+        channel && !isThreadList && newMessageIsReply;
 
       if (
         isMessageListScrolledToBottom ||
@@ -59,32 +65,32 @@ const UnMemoizedScrollToLatestMessageButton = (
       if (event.type === 'message.new') {
         // cannot rely on channel.countUnread because active channel is automatically marked read
         setCountUnread((prev) => prev + 1);
-      } else if (event.message?.id === thread?.id) {
+      } else if (event.message?.id === parentMessage?.id) {
         const newReplyCount = event.message?.reply_count || 0;
         setCountUnread(() => newReplyCount - replyCount);
       }
     };
-    client.on(observedEvent, handleEvent);
+    const subscription = client.on(observedEvent, handleEvent);
 
     return () => {
-      client.off(observedEvent, handleEvent);
+      subscription.unsubscribe();
     };
   }, [
-    activeChannel,
+    channel,
     client,
     isMessageListScrolledToBottom,
     observedEvent,
+    parentMessage,
     replyCount,
-    thread,
-    threadList,
+    isThreadList,
   ]);
 
   useEffect(() => {
     if (isMessageListScrolledToBottom) {
       setCountUnread(0);
-      setReplyCount(thread?.reply_count || 0);
+      setReplyCount(parentMessage?.reply_count || 0);
     }
-  }, [isMessageListScrolledToBottom, thread]);
+  }, [isMessageListScrolledToBottom, parentMessage]);
 
   if (isMessageListScrolledToBottom && !isNotAtLatestMessageSet) return null;
 
@@ -92,7 +98,10 @@ const UnMemoizedScrollToLatestMessageButton = (
     <div className='str-chat__jump-to-latest-message'>
       <Button
         appearance='ghost'
-        aria-label={t('aria/Jump to latest message')}
+        aria-label={t(
+          'messageList.scrollLatestMessage.jumpLatestMessage.ariaLabel',
+          'Jump to latest message',
+        )}
         aria-live='polite'
         circular
         className='str-chat__jump-to-latest-message__button'

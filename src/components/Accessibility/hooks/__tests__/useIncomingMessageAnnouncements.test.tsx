@@ -4,19 +4,28 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { useIncomingMessageAnnouncements } from '../useIncomingMessageAnnouncements';
 
 import type { Channel, Event, LocalMessage } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 const { announceMock, tMock } = vi.hoisted(() => ({
   announceMock: vi.fn(),
-  tMock: vi.fn((key: string, options?: { count?: number; user?: string }) => {
-    if (key === '{{count}} new messages') {
-      return `${options?.count} new messages`;
+  tMock: vi.fn((key: string, second?: unknown, third?: unknown) => {
+    const defaultValue = typeof second === 'string' ? second : undefined;
+    const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+      string,
+      unknown
+    >;
+    let template = defaultValue;
+    if (template === undefined && typeof options.count === 'number') {
+      template = (
+        options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+      ) as string | undefined;
     }
-
-    if (key === 'New message from {{user}}') {
-      return `New message from ${options?.user}`;
-    }
-
-    return key;
+    template ??= options.defaultValue as string | undefined;
+    template ??= key;
+    return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+      const value = options[name];
+      return value === undefined || value === null ? whole : String(value);
+    });
   }),
 }));
 
@@ -40,7 +49,7 @@ const createMessage = ({
   userName?: string;
 }) =>
   fromPartial<LocalMessage>({
-    created_at: new Date('2026-04-22T10:00:00.000Z'),
+    created_at: convertDateToTimestamp(new Date('2026-04-22T10:00:00.000Z')),
     id,
     parent_id: parentId,
     status: 'received',

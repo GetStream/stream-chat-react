@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import type { Channel, MessageResponse } from 'stream-chat';
+import { msToNs } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
@@ -14,6 +15,7 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMediaView } from '../ChannelMediaView';
+import { mockT } from '../../../../../mock-builders/translator';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -78,30 +80,36 @@ vi.mock('../../../../../components/Dialog', () => ({
 const messages: MessageResponse[] = [
   {
     attachments: [
-      { image_url: 'https://cdn.test/image-1.png', title: 'image-1', type: 'image' },
+      {
+        custom: {},
+        image_url: 'https://cdn.test/image-1.png',
+        title: 'image-1',
+        type: 'image',
+      },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-01-01T15:53:00.000Z',
+    created_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     id: 'message-1',
     type: 'regular',
-    updated_at: '2026-01-01T15:53:00.000Z',
+    updated_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     user: { id: 'user-1', image: 'https://cdn.test/avatar-1.png', name: 'Alice' },
   },
   {
     attachments: [
       {
         asset_url: 'https://cdn.test/video-1.mp4',
-        duration: 8,
+        // v10: media metadata (duration, …) lives under `attachment.custom`.
+        custom: { duration: 8 },
         thumb_url: 'https://cdn.test/video-1-thumb.png',
         title: 'video-1',
         type: 'video',
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-01-02T15:53:00.000Z',
+    created_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     id: 'message-2',
     type: 'regular',
-    updated_at: '2026-01-02T15:53:00.000Z',
+    updated_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     user: { id: 'user-2', name: 'Bob' },
   },
 ];
@@ -117,12 +125,15 @@ const renderView = () =>
 
 describe('ChannelMediaView', () => {
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.searchSourceInstances.length = 0;
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string) => key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
 
     vi.mocked(useChatContext).mockReturnValue({
@@ -139,7 +150,6 @@ describe('ChannelMediaView', () => {
       Modal: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
         open ? <div data-testid='media-viewer'>{children}</div> : null,
     } as unknown as ReturnType<typeof useComponentContext>);
-    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useStateStore).mockReturnValue({
       hasNext: false,
@@ -209,16 +219,17 @@ describe('ChannelMediaView', () => {
     Array.from({ length: count }, (_, index) => ({
       attachments: [
         {
+          custom: {},
           image_url: `https://cdn.test/image-${index}.png`,
           title: `image-${index}`,
           type: 'image',
         },
       ],
       cid: 'messaging:test-channel',
-      created_at: '2026-01-01T15:53:00.000Z',
+      created_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
       id: `message-${index}`,
       type: 'regular',
-      updated_at: '2026-01-01T15:53:00.000Z',
+      updated_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
       user: { id: 'user-1', name: 'Alice' },
     }));
 
@@ -239,8 +250,8 @@ describe('ChannelMediaView', () => {
     renderView();
 
     expect(getMediaItems()).toHaveLength(30);
-    expect(screen.queryByRole('button', { name: 'aria/Previous page' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'aria/Next page' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Previous page' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Next page' })).toBeNull();
   });
 
   it('paginates 30 items per page through the previous/next buttons', () => {
@@ -254,8 +265,8 @@ describe('ChannelMediaView', () => {
 
     // First page: 30 items, previous disabled, next enabled.
     expect(getMediaItems()).toHaveLength(30);
-    const previous = screen.getByRole('button', { name: 'aria/Previous page' });
-    const next = screen.getByRole('button', { name: 'aria/Next page' });
+    const previous = screen.getByRole('button', { name: 'Previous page' });
+    const next = screen.getByRole('button', { name: 'Next page' });
     expect(previous).toBeDisabled();
     expect(next).toBeEnabled();
 
@@ -282,7 +293,7 @@ describe('ChannelMediaView', () => {
     renderView();
 
     // First page is full and the source has more, so next stays enabled.
-    const next = screen.getByRole('button', { name: 'aria/Next page' });
+    const next = screen.getByRole('button', { name: 'Next page' });
     expect(next).toBeEnabled();
 
     mocks.searchSourceSearch.mockClear();
@@ -339,12 +350,12 @@ describe('ChannelMediaView', () => {
 
     // First page shows 10 (not the default 30); 35 items spread across 4 pages.
     expect(getMediaItems()).toHaveLength(10);
-    expect(screen.getByRole('button', { name: 'aria/Previous page' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'aria/Next page' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Next page' })).toBeEnabled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'aria/Next page' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next page' }));
 
     expect(getMediaItems()).toHaveLength(10);
-    expect(screen.getByRole('button', { name: 'aria/Previous page' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Previous page' })).toBeEnabled();
   });
 });

@@ -6,7 +6,6 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
   useChatContext,
-  useComponentContext,
   useComponentContextIcons,
   useModalContext,
   useTranslationContext,
@@ -15,6 +14,8 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelFilesView } from '../ChannelFilesView';
+import { mockT } from '../../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../../mock-builders/generator/time';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -116,17 +117,19 @@ const messages: MessageResponse[] = [
     attachments: [
       {
         asset_url: 'https://cdn.test/financial-report-Q1-2026.pdf',
-        file_size: 4 * 1024 * 1024,
-        mime_type: 'application/pdf',
+        // v10: file_size/mime_type live under `attachment.custom`.
+        custom: { file_size: 4 * 1024 * 1024, mime_type: 'application/pdf' },
         title: 'financial-report-Q1-2026.pdf',
         type: 'file',
       },
       {
+        custom: {},
         image_url: 'https://cdn.test/screenshot.png',
         title: 'screenshot',
         type: 'image',
       },
       {
+        custom: {},
         og_scrape_url: 'https://getstream.io',
         title: 'scraped-link-preview',
         title_link: 'https://getstream.io',
@@ -134,44 +137,45 @@ const messages: MessageResponse[] = [
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-03-10T15:53:00.000Z',
+    created_at: convertDateToTimestamp('2026-03-10T15:53:00.000Z'),
     id: 'message-1',
     type: 'regular',
-    updated_at: '2026-03-10T15:53:00.000Z',
+    updated_at: convertDateToTimestamp('2026-03-10T15:53:00.000Z'),
     user: { id: 'user-1', name: 'Alice' },
   },
   {
     attachments: [
       {
         asset_url: 'https://cdn.test/customer-feedback.wav',
-        file_size: 7 * 1024 * 1024,
-        mime_type: 'audio/wav',
+        custom: { file_size: 7 * 1024 * 1024, mime_type: 'audio/wav' },
         title: 'customer-feedback.wav',
         type: 'audio',
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-02-05T15:53:00.000Z',
+    created_at: convertDateToTimestamp('2026-02-05T15:53:00.000Z'),
     id: 'message-2',
     type: 'regular',
-    updated_at: '2026-02-05T15:53:00.000Z',
+    updated_at: convertDateToTimestamp('2026-02-05T15:53:00.000Z'),
     user: { id: 'user-2', name: 'Bob' },
   },
   {
     attachments: [
       {
         asset_url: 'https://cdn.test/sales-report-may.xlsx',
-        file_size: 6 * 1024 * 1024,
-        mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        custom: {
+          file_size: 6 * 1024 * 1024,
+          mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        },
         title: 'sales-report-may.xlsx',
         type: 'file',
       },
     ],
     cid: 'messaging:test-channel',
-    created_at: '2026-02-01T15:53:00.000Z',
+    created_at: convertDateToTimestamp('2026-02-01T15:53:00.000Z'),
     id: 'message-3',
     type: 'regular',
-    updated_at: '2026-02-01T15:53:00.000Z',
+    updated_at: convertDateToTimestamp('2026-02-01T15:53:00.000Z'),
     user: { id: 'user-1', name: 'Alice' },
   },
 ];
@@ -187,17 +191,16 @@ const renderView = () =>
 
 describe('ChannelFilesView', () => {
   beforeEach(() => {
+    // Auto-mocked module: hand back the real icons rather than stubs.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.searchSourceInstances.length = 0;
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string) => key,
+      t: mockT,
       tDateTimeParser: (input?: string | number | Date) => Dayjs(input),
     } as unknown as ReturnType<typeof useTranslationContext>);
-
-    vi.mocked(useComponentContext).mockReturnValue({});
-    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },

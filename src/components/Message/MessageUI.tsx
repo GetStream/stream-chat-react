@@ -40,11 +40,8 @@ import { useComponentContext } from '../../context/ComponentContext';
 import type { MessageContextValue } from '../../context/MessageContext';
 import { useMessageContext } from '../../context/MessageContext';
 
-import {
-  useChannelStateContext,
-  useChatContext,
-  useTranslationContext,
-} from '../../context';
+import { useChannel, useChatContext, useTranslationContext } from '../../context';
+import { useThreadContext } from '../Threads';
 
 import type { MessageUIComponentProps } from './types';
 import { PinIndicator as DefaultPinIndicator } from './PinIndicator';
@@ -60,7 +57,6 @@ const MessageUIWithContext = ({
   firstOfGroup,
   groupedByUser,
   handleAction,
-  handleOpenThread,
   highlighted,
   isMessageAIGenerated,
   isMyMessage,
@@ -69,11 +65,11 @@ const MessageUIWithContext = ({
   onUserHover,
   renderText,
   showAvatar = 'incoming',
-  threadList,
 }: MessageUIWithContextProps) => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
+  const threadInstance = useThreadContext();
   const { client } = useChatContext();
-  const { t } = useTranslationContext('MessageUI');
+  const { t } = useTranslationContext();
   const [isBounceDialogOpen, setIsBounceDialogOpen] = useState(false);
   const reminder = useMessageReminder(message.id);
 
@@ -97,7 +93,7 @@ const MessageUIWithContext = ({
     QuotedMessage = DefaultQuotedMessage,
     ReminderNotification = DefaultReminderNotification,
     StreamedMessageText = DefaultStreamedMessageText,
-  } = useComponentContext('MessageUI');
+  } = useComponentContext();
 
   const isAIGenerated = useMemo(
     () => isMessageAIGenerated?.(message),
@@ -142,7 +138,7 @@ const MessageUIWithContext = ({
   const isEdited = isMessageEdited(message) && !isAIGenerated;
 
   const showMetadata = !groupedByUser || endOfGroup;
-  const showReplyCountButton = !threadList && !!message.reply_count;
+  const showReplyCountButton = !threadInstance && !!message.reply_count;
 
   const rootClassName = clsx(
     'str-chat__message',
@@ -186,7 +182,7 @@ const MessageUIWithContext = ({
 
   const isMessageInnerInteractive = !!handleClick;
   const messageInnerAriaLabel = isMessageInnerInteractive
-    ? t('aria/Review bounced message')
+    ? t('message.ui.reviewBouncedMessage.ariaLabel', 'Review bounced message')
     : undefined;
 
   const handleMessageInnerKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -233,7 +229,6 @@ const MessageUIWithContext = ({
           {!isDeleted && <MessageActions />}
           {showReplyCountButton && (
             <MessageRepliesCountButton
-              onClick={handleOpenThread}
               reply_count={message.reply_count}
               thread_participants={message.thread_participants}
             />
@@ -292,7 +287,7 @@ const MemoizedMessageUI = React.memo(
  * The default UI component that renders a message and receives functionality and logic from the MessageContext.
  */
 export const MessageUI = (props: MessageUIComponentProps) => {
-  const messageContext = useMessageContext('MessageUI');
+  const messageContext = useMessageContext();
 
   return <MemoizedMessageUI {...messageContext} {...props} />;
 };

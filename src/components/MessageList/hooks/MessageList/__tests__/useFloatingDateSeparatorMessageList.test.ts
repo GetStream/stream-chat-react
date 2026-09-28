@@ -57,9 +57,9 @@ describe('useFloatingDateSeparatorMessageList', () => {
 
     const { result } = renderHook(() =>
       useFloatingDateSeparatorMessageList({
-        disableDateSeparator: true,
         listElement,
         processedMessages,
+        withDateSeparator: false,
       }),
     );
 
@@ -77,9 +77,9 @@ describe('useFloatingDateSeparatorMessageList', () => {
 
     const { result } = renderHook(() =>
       useFloatingDateSeparatorMessageList({
-        disableDateSeparator: false,
         listElement,
         processedMessages,
+        withDateSeparator: true,
       }),
     );
 
@@ -95,9 +95,9 @@ describe('useFloatingDateSeparatorMessageList', () => {
 
     const { result } = renderHook(() =>
       useFloatingDateSeparatorMessageList({
-        disableDateSeparator: false,
         listElement,
         processedMessages,
+        withDateSeparator: true,
       }),
     );
 

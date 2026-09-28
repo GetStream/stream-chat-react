@@ -1,5 +1,6 @@
 import type { UploadAttachmentPreviewProps } from './types';
 import {
+  isUploadConfirmationPending,
   isVideoAttachment,
   type LocalImageAttachment,
   type LocalVideoAttachment,
@@ -21,7 +22,6 @@ import clsx from 'clsx';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { Button } from '../../Button';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
-import { isUploadConfirmationPending } from '../../Attachment/hooks/useAttachmentUploadState';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { MediaBadge } from '../../Badge/MediaBadge';
 
@@ -39,7 +39,6 @@ export const MediaAttachmentPreview = ({
   removeAttachments,
 }: MediaAttachmentPreviewProps) => {
   const { IconExclamationMark, IconRetry } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const { BaseImage = DefaultBaseImage } = useComponentContext();
   const [thumbnailPreviewError, setThumbnailPreviewError] = useState(false);
@@ -121,7 +120,7 @@ export const MediaAttachmentPreview = ({
           {hasRetriableError && (
             <Button
               appearance='solid'
-              aria-label={t('aria/Retry upload')}
+              aria-label={t('common.retryUpload.ariaLabel', 'Retry upload')}
               circular
               className='str-chat__attachment-preview-media__retry-upload-button'
               data-testid='video-preview-item-retry-button'

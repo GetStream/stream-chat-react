@@ -1,3 +1,3 @@
-export * from './AttachmentUploadProgressIndicator';
 export * from './DownloadButton';
 export * from './FileSizeIndicator';
+export * from './AttachmentUploadProgressIndicator';

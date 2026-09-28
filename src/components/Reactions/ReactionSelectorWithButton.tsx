@@ -13,11 +13,7 @@ import type { IconProps } from '../../types/types';
 import { QuickMessageActionsButton } from '../MessageActions';
 
 type ReactionSelectorWithButtonProps = {
-  /**
-   * Custom component rendering the icon used in a button invoking reactions selector for a given message.
-   * @deprecated Use the `icons.IconEmoji` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconEmoji: ... } }}>`) instead.
-   * Passing this prop still wins over the context slot for backwards compatibility.
-   */
+  /* Custom component rendering the icon used in a button invoking reactions selector for a given message. Defaults to the `icons.IconEmoji` slot on `ComponentContext`. */
   ReactionIcon?: React.ComponentType<IconProps>;
 };
 
@@ -28,12 +24,18 @@ type ReactionSelectorWithButtonProps = {
 export const ReactionSelectorWithButton = ({
   ReactionIcon,
 }: ReactionSelectorWithButtonProps) => {
-  const { t } = useTranslationContext('ReactionSelectorWithButton');
-  const { isMyMessage, message, threadList } = useMessageContext('MessageOptions');
+  const { t } = useTranslationContext();
+  const { isMyMessage, message, threadList } = useMessageContext();
   const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
   const { IconEmoji } = useComponentContextIcons();
+  // The prop still wins: it targets one message's reaction button, the slot rebrands all of them.
   const ResolvedReactionIcon = ReactionIcon ?? IconEmoji;
   const buttonRef = useRef<ComponentRef<'button'>>(null);
+  // MUST match the id `MessageActions` derives via `ReactionSelector.getDialogId` — it
+  // uses that to keep `.str-chat__message-options--active` applied while the reaction
+  // dialog is open. If the ids diverge, the options (and this trigger button) hide when
+  // focus moves into the portaled dialog, the reference collapses to a 0-size rect, and
+  // the popover falls back to the 8,8 corner. Derive from the same shared helper.
   const dialogId = DefaultReactionSelector.getDialogId({
     messageId: message.id,
     threadList,
@@ -56,7 +58,7 @@ export const ReactionSelectorWithButton = ({
       </DialogAnchor>
       <QuickMessageActionsButton
         aria-expanded={dialogIsOpen}
-        aria-label={t('aria/Open Reaction Selector')}
+        aria-label={t('common.openReactionSelector.ariaLabel', 'Open Reaction Selector')}
         className='str-chat__message-reactions-button'
         data-testid='message-reaction-action'
         onClick={() => dialog?.toggle()}

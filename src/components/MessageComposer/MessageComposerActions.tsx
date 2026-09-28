@@ -3,18 +3,30 @@ import { StopAIGenerationButton as DefaultStopAIGenerationButton } from './StopA
 import { CooldownTimer as DefaultCooldownTimer } from './CooldownTimer';
 import { SendButton as DefaultSendButton } from './SendButton';
 import {
-  useChannelStateContext,
+  useChannel,
   useComponentContext,
   useComponentContextIcons,
   useMessageComposerContext,
 } from '../../context';
-import { AIStates, useAIState } from '../AIStateIndicator';
-import { useMessageComposerController, useMessageContentIsEmpty } from './hooks';
+import { useAIState } from '../AIStateIndicator';
+import {
+  useMessageComposerController,
+  useMessageComposerSubmitFn,
+  useMessageContentIsEmpty,
+} from './hooks';
 import { AudioRecordingButtonWithNotification } from '../MediaRecorder/AudioRecorder/AudioRecordingButtonWithNotification';
 import { useIsCooldownActive } from './hooks/useIsCooldownActive';
-import type { MessageComposerState, TextComposerState } from 'stream-chat';
+import { AIStates } from 'stream-chat';
+import type { AIState, MessageComposerState, TextComposerState } from 'stream-chat';
 import { useStateStore } from '../../store';
 import { useInertWhenHidden } from '../Accessibility';
+
+// `AIStates` is imported from its owner rather than through the `../AIStateIndicator` barrel: that
+// barrel participates in an import cycle, which would leave the re-exported binding uninitialized
+// while this module-scope const evaluates.
+// Widened to `AIState` deliberately: `AIStates` is a literal-typed const, so an inferred array of
+// its members would reject the wide `AIState` that `useAIState` returns.
+const STOPPABLE_AI_STATES: readonly AIState[] = [AIStates.Thinking, AIStates.Generating];
 
 const messageComposerStateSelector = ({ editedMessage }: MessageComposerState) => ({
   editedMessage,
@@ -27,8 +39,7 @@ const textComposerStateSelector = ({ command, text }: TextComposerState) => ({
 
 export const MessageComposerActions = () => {
   const { IconCheckmark, IconSend } = useComponentContextIcons();
-
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const { hideSendButton } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const {
@@ -59,21 +70,21 @@ export const MessageComposerActions = () => {
       ? DefaultStopAIGenerationButton
       : StopAIGenerationButtonOverride;
 
-  const { handleSubmit, recordingController } = useMessageComposerContext();
+  const { recordingController } = useMessageComposerContext();
+  const submitMessageFn = useMessageComposerSubmitFn();
   const isCooldownActive = useIsCooldownActive();
 
   const { aiState } = useAIState(channel);
   const stopGenerating = useCallback(() => channel?.stopAIResponse(), [channel]);
   const shouldDisplayStopAIGeneration =
-    [AIStates.Thinking, AIStates.Generating].includes(aiState) &&
-    !!StopAIGenerationButton;
+    STOPPABLE_AI_STATES.includes(aiState) && !!StopAIGenerationButton;
 
   const recordingEnabled = !!(recordingController.recorder && navigator.mediaDevices); // account for requirement on iOS as per this bug report: https://bugs.webkit.org/show_bug.cgi?id=252303
 
   let content = SendButton ? (
-    <SendButton sendMessage={handleSubmit} />
+    <SendButton sendMessage={submitMessageFn} />
   ) : (
-    <DefaultSendButton sendMessage={handleSubmit}>
+    <DefaultSendButton sendMessage={submitMessageFn}>
       {editedMessage || command ? <IconCheckmark /> : <IconSend />}
     </DefaultSendButton>
   );

@@ -2,37 +2,53 @@ import type React from 'react';
 import { useCallback } from 'react';
 import throttle from 'lodash.throttle';
 
-import { useThreadContext } from '../../Threads';
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
+import { useChannel } from '../../../context';
 import { useChatContext } from '../../../context/ChatContext';
 import { useComponentContext } from '../../../context/ComponentContext';
 import {
   defaultReactionOptions,
   getEmojiCodeByReactionType,
 } from '../../Reactions/reactionOptions';
+import { useMessagePaginator } from '../../../hooks';
 
-import type { LocalMessage, Reaction, ReactionResponse } from 'stream-chat';
+import {
+  formatMessage,
+  type LocalMessage,
+  type MessageResponse,
+  type ReactionRequest,
+  type ReactionResponse,
+} from 'stream-chat';
+import { nowNs } from 'stream-chat';
 
 export const reactionHandlerWarning = `Reaction handler was called, but it is missing one of its required arguments.
 Make sure the ChannelAction and ChannelState contexts are properly set and the hook is initialized with a valid message.`;
 
 export const useReactionHandler = (message?: LocalMessage) => {
-  const thread = useThreadContext();
-  const { updateMessage } = useChannelActionContext('useReactionHandler');
-  const { channel, channelCapabilities } = useChannelStateContext('useReactionHandler');
-  const { client } = useChatContext('useReactionHandler');
-  const { reactionOptions = defaultReactionOptions } =
-    useComponentContext('useReactionHandler');
+  const channel = useChannel();
+  const messagePaginator = useMessagePaginator();
+  const { client } = useChatContext();
+  const { reactionOptions = defaultReactionOptions } = useComponentContext();
+
+  const updateMessage = useCallback(
+    (updatedMessage: LocalMessage | MessageResponse) => {
+      const formattedMessage = formatMessage(updatedMessage);
+      messagePaginator.ingestItem(formattedMessage);
+    },
+    [messagePaginator],
+  );
 
   const createMessagePreview = useCallback(
     (add: boolean, reaction: ReactionResponse, message: LocalMessage): LocalMessage => {
-      const newReactionGroups = message?.reaction_groups || {};
+      // Copied, not aliased. The assignments and `delete` below used to write straight into the
+      // message's own `reaction_groups`, so the optimistic message and the one it was derived from
+      // shared that object — and no comparator, identity or deep, could see a reaction-group
+      // change. `areMessagesEqual` compares it by reference.
+      const newReactionGroups = { ...(message?.reaction_groups ?? {}) };
       const reactionType = reaction.type;
       const hasReaction = !!newReactionGroups[reactionType];
 
       if (add) {
-        const timestamp = new Date().toISOString();
+        const timestamp = nowNs();
         newReactionGroups[reactionType] = hasReaction
           ? {
               ...newReactionGroups[reactionType],
@@ -42,6 +58,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
               count: 1,
               first_reaction_at: timestamp,
               last_reaction_at: timestamp,
+              latest_reactions_by: [],
               sum_scores: 1,
             };
       } else {
@@ -86,7 +103,7 @@ export const useReactionHandler = (message?: LocalMessage) => {
   });
 
   const toggleReaction = throttle(async (id: string, type: string, add: boolean) => {
-    if (!message || !channelCapabilities['send-reaction']) return;
+    if (!message) return;
 
     // Native emoji (e.g. "👍") for this reaction type, sent as `emoji_code` so
     // push notifications in mobile SDKs can render the emoji.
@@ -96,21 +113,21 @@ export const useReactionHandler = (message?: LocalMessage) => {
 
     try {
       updateMessage(tempMessage);
-      thread?.upsertReplyLocally({ message: tempMessage });
-
       const messageResponse = add
-        ? await channel.sendReaction(id, {
-            type,
-            ...(emojiCode && { emoji_code: emojiCode }),
-          } as Reaction)
-        : await channel.deleteReaction(id, type);
+        ? await channel.sendReaction({
+            id,
+            reaction: {
+              type,
+              ...(emojiCode && { emoji_code: emojiCode }),
+            } as ReactionRequest,
+          })
+        : await channel.deleteReaction({ id, type });
 
       // seems useless as we're expecting WS event to come in and replace this anyway
       updateMessage(messageResponse.message);
     } catch (error) {
       // revert to the original message if the API call fails
       updateMessage(message);
-      thread?.upsertReplyLocally({ message });
     }
   }, 1000);
 

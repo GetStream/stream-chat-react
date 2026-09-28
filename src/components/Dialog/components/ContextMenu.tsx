@@ -25,6 +25,7 @@ import {
 import { createRovingFocusKeyDownHandler } from '../../../a11y/a11yUtils';
 import { VisuallyHidden } from '../../VisuallyHidden';
 import { useStableId } from '../../UtilityComponents/useStableId';
+import { requireContext } from '../../../context/requireContext';
 
 /**
  * ContextMenu module
@@ -90,10 +91,6 @@ export type BaseContextMenuButtonProps = {
   hasSubMenu?: boolean;
   label?: ReactNode;
   Icon?: ComponentType<ComponentProps<'svg'>>;
-  /**
-   * @deprecated Use the `icons.IconChevronRight` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconChevronRight: ... } }}>`) instead.
-   * Passing this prop still wins over the context slot for backwards compatibility.
-   */
   SubmenuIcon?: ComponentType<ComponentProps<'svg'>>;
   variant?: 'destructive';
 } & ComponentProps<'button'>;
@@ -112,6 +109,7 @@ export const BaseContextMenuButton = ({
 }: BaseContextMenuButtonProps) => {
   const { IconChevronRight } = useComponentContextIcons();
   const ResolvedSubmenuIcon = SubmenuIcon ?? IconChevronRight;
+
   return (
     <button
       {...props}
@@ -389,7 +387,9 @@ export const ContextMenuBackButton = ({
   const { t } = useTranslationContext();
   const generatedBackNavigationLabelId = useStableId();
   const generatedVisibleLabelId = useStableId();
-  const resolvedAriaLabel = ariaLabel ?? t('aria/Back to parent menu button');
+  const resolvedAriaLabel =
+    ariaLabel ??
+    t('dialog.contextMenu.backParentMenuButton.ariaLabel', 'Back to parent menu button');
   const resolvedAriaLabelledBy =
     ariaLabelledBy ?? `${generatedVisibleLabelId} ${generatedBackNavigationLabelId}`;
 
@@ -598,7 +598,7 @@ const ContextMenuContext = React.createContext<ContextMenuContextValue | undefin
 );
 
 export const useContextMenuContext = () =>
-  useContext(ContextMenuContext) as ContextMenuContextValue;
+  requireContext(useContext(ContextMenuContext), 'useContextMenuContext', 'ContextMenu');
 
 type ContextMenuLevel = {
   focusRestoreRequest?: ContextMenuFocusRestoreRequest;
@@ -683,7 +683,7 @@ export function ContextMenuContent({
 }: ContextMenuContentProps) {
   const { t } = useTranslationContext();
   const { IconChevronLeft } = useComponentContextIcons();
-  const resolvedBackLabel = backLabel ?? t('Back');
+  const resolvedBackLabel = backLabel ?? t('common.back.label', 'Back');
   const {
     ['aria-describedby']: rootAriaDescribedBy,
     ['aria-label']: rootAriaLabel,
@@ -875,7 +875,11 @@ export function ContextMenuContent({
     >
       <ContextMenuRoot
         aria-describedby={isSubmenuLevel ? undefined : rootAriaDescribedBy}
-        aria-label={isSubmenuLevel ? t('aria/Submenu') : rootAriaLabel}
+        aria-label={
+          isSubmenuLevel
+            ? t('dialog.contextMenu.submenu.ariaLabel', 'Submenu')
+            : rootAriaLabel
+        }
         aria-labelledby={isSubmenuLevel ? undefined : rootAriaLabelledBy}
         className={clsx(className, activeMenu.menuClassName)}
         data-str-chat-enable-animations={enableAnimations}

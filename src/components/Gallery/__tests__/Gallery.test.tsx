@@ -4,12 +4,13 @@ import { act, render, screen } from '@testing-library/react';
 import { Gallery } from '../Gallery';
 import { useGalleryContext } from '../GalleryContext';
 import type { GalleryItem } from '../GalleryContext';
-import { ComponentProvider } from '../../../context';
+import { ChatProvider, ComponentProvider } from '../../../context';
 import {
   generateImageAttachment,
   generateLocalImageUploadAttachmentData,
   mockComponentContext,
 } from '../../../mock-builders';
+import { mockChatContext } from '../../../mock-builders/context';
 import type { Attachment } from 'stream-chat';
 
 const makeImageItem = (overrides?: Partial<Attachment>) =>
@@ -52,7 +53,12 @@ describe('Gallery', () => {
 
   it('should render default GalleryUI when no GalleryUI is provided', () => {
     const items = [makeImageItem()];
-    render(<Gallery items={items} />);
+    // the default GalleryUI renders GalleryHeader, which reads the current user from chat context
+    render(
+      <ChatProvider value={mockChatContext({ client: { userID: 'me' } })}>
+        <Gallery items={items} />
+      </ChatProvider>,
+    );
     expect(screen.getByRole('button', { name: 'Previous image' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Next image' })).toBeInTheDocument();
   });

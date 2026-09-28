@@ -17,10 +17,6 @@ import { useIsCooldownActive } from '../../components/MessageComposer/hooks/useI
 const isShadowRoot = (node: Node): node is ShadowRoot => !!(node as ShadowRoot).host;
 
 export type EmojiPickerProps = {
-  /**
-   * @deprecated Use the `icons.IconEmoji` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconEmoji: ... } }}>`) instead.
-   * Passing this prop still wins over the context slot for backwards compatibility.
-   */
   ButtonIconComponent?: React.ComponentType;
   buttonClassName?: string;
   pickerContainerClassName?: string;
@@ -48,8 +44,8 @@ const classNames: Pick<
 };
 
 export const EmojiPicker = (props: EmojiPickerProps) => {
-  const { t } = useTranslationContext('EmojiPicker');
-  const { textareaRef } = useMessageComposerContext('EmojiPicker');
+  const { t } = useTranslationContext();
+  const { textareaRef } = useMessageComposerContext();
   const { textComposer } = useMessageComposerController();
   const isCooldownActive = useIsCooldownActive();
   const [displayPicker, setDisplayPicker] = useState(false);
@@ -71,9 +67,10 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
 
   const { pickerContainerClassName, wrapperClassName } = classNames;
 
+  const { ButtonIconComponent } = props;
   const { IconEmoji } = useComponentContextIcons();
-  const ResolvedButtonIconComponent = props.ButtonIconComponent ?? IconEmoji;
-
+  // The prop still wins: it targets this picker, the slot rebrands every emoji icon.
+  const ResolvedButtonIcon = ButtonIconComponent ?? IconEmoji;
   const pickerStyle = props.pickerProps?.style as React.CSSProperties | undefined;
 
   useEffect(() => {
@@ -125,7 +122,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
       <Button
         appearance='ghost'
         aria-expanded={displayPicker}
-        aria-label={t('aria/Emoji picker')}
+        aria-label={t('emojiPicker.emojiPicker.ariaLabel', 'Emoji picker')}
         circular
         className={props.buttonClassName ?? defaultButtonClassName}
         disabled={isCooldownActive}
@@ -135,7 +132,7 @@ export const EmojiPicker = (props: EmojiPickerProps) => {
         type='button'
         variant='secondary'
       >
-        {ResolvedButtonIconComponent && <ResolvedButtonIconComponent />}
+        {ResolvedButtonIcon && <ResolvedButtonIcon />}
       </Button>
     </div>
   );

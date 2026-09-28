@@ -65,7 +65,6 @@ export const ShareLocationDialog = ({
   shareDurations = DEFAULT_SHARE_LOCATION_DURATIONS,
 }: ShareLocationDialogProps) => {
   const { IconChevronDown } = useComponentContextIcons();
-
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const messageComposer = useMessageComposerController();
@@ -86,7 +85,7 @@ export const ShareLocationDialog = ({
   const selectedDurationLabel = useMemo(
     () =>
       durations.length > 0
-        ? t('duration/Share Location', {
+        ? t('duration.shareLocation', {
             milliseconds: selectedDuration ?? durations[0],
           })
         : undefined,
@@ -154,9 +153,10 @@ export const ShareLocationDialog = ({
       <Prompt.Header
         close={close}
         description={t(
+          'location.shareLocationDialog.description',
           'Select your current location and optionally enable live location sharing',
         )}
-        title={t('Share Location')}
+        title={t('location.shareLocationDialog.shareLocation.title', 'Share Location')}
       />
       <Prompt.Body>
         <GeolocationMap
@@ -186,7 +186,10 @@ export const ShareLocationDialog = ({
                   setSelectedDuration(validShareDurations[0]);
                 }
               }}
-              title={t('Share live location for')}
+              title={t(
+                'location.shareLocationDialog.shareLiveLocation.title',
+                'Share live location for',
+              )}
             />
             {liveLocationSwitchEnabled && selectedDurationLabel && (
               <div className='str-chat__live-location-sharing-duration-selector'>
@@ -215,7 +218,7 @@ export const ShareLocationDialog = ({
               close();
             }}
           >
-            {t('Cancel')}
+            {t('common.cancel.label', 'Cancel')}
           </Prompt.FooterControlsButtonSecondary>
           <Prompt.FooterControlsButtonSecondary
             className='str-chat__prompt__footer__controls-button--submit'
@@ -236,7 +239,7 @@ export const ShareLocationDialog = ({
             }}
             type='submit'
           >
-            {t('Attach')}
+            {t('location.shareLocationDialog.attach.text', 'Attach')}
           </Prompt.FooterControlsButtonSecondary>
           <Prompt.FooterControlsButtonPrimary
             className='str-chat__prompt__footer__controls-button--submit'
@@ -253,7 +256,10 @@ export const ShareLocationDialog = ({
                   addNotification({
                     emitter: 'ShareLocationDialog',
                     error: e instanceof Error ? e : undefined,
-                    message: t('Failed to retrieve location'),
+                    message: t(
+                      'notification.locationGetFailed',
+                      'Failed to retrieve location',
+                    ),
                     severity: 'error',
                     type: 'browser:location:get:failed',
                   });
@@ -271,7 +277,10 @@ export const ShareLocationDialog = ({
                 addNotification({
                   emitter: 'ShareLocationDialog',
                   error: err instanceof Error ? err : undefined,
-                  message: t('Failed to share location'),
+                  message: t(
+                    'notification.locationShareFailed',
+                    'Failed to share location',
+                  ),
                   severity: 'error',
                   type: 'api:location:share:failed',
                 });
@@ -281,7 +290,7 @@ export const ShareLocationDialog = ({
             }}
             type='submit'
           >
-            {t('Share')}
+            {t('location.shareLocationDialog.share.text', 'Share')}
           </Prompt.FooterControlsButtonPrimary>
         </Prompt.FooterControls>
       </Prompt.Footer>
@@ -315,7 +324,7 @@ const DurationDropdownItems = ({
             }}
             role='menuitemradio'
           >
-            {t('duration/Share Location', { milliseconds: duration })}
+            {t('duration.shareLocation', { milliseconds: duration })}
           </ContextMenuButton>
         ))}
       </ContextMenuBody>

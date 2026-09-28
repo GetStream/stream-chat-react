@@ -220,7 +220,7 @@ describe('useMessageListScrollManager', () => {
       <ChatProvider value={mockChatContext({ client })}>
         <Comp
           messages={messages.concat(
-            fromPartial<LocalMessage[]>([{ id: 100, user: { id: client.userID } }]),
+            fromPartial<LocalMessage[]>([{ id: '100', user: { id: client.userID } }]),
           )}
           offsetHeight={100}
           scrollHeight={600}
@@ -230,5 +230,47 @@ describe('useMessageListScrollManager', () => {
     );
 
     expect(scrollToBottom).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not emit scroll to bottom when suppressAutoscroll is enabled', () => {
+    const scrollToBottom = vi.fn();
+    const showNewMessages = vi.fn();
+    const Comp = (props) => {
+      const updateScrollTop = useMessageListScrollManager({
+        ...defaultInputs,
+        messages: props.messages,
+        scrollContainerMeasures: () => ({
+          scrollHeight: props.scrollHeight,
+        }),
+        scrollToBottom,
+        showNewMessages,
+        suppressAutoscroll: true,
+      });
+
+      updateScrollTop(props.scrollTop);
+
+      return <div />;
+    };
+
+    const messages = generateMessages(20);
+    const { rerender } = render(
+      <ChatProvider value={{ client }}>
+        <Comp messages={messages} offsetHeight={100} scrollHeight={400} scrollTop={200} />
+      </ChatProvider>,
+    );
+
+    rerender(
+      <ChatProvider value={{ client }}>
+        <Comp
+          messages={messages.concat([{ id: '100', user: { id: client.userID } }])}
+          offsetHeight={100}
+          scrollHeight={600}
+          scrollTop={200}
+        />
+      </ChatProvider>,
+    );
+
+    expect(scrollToBottom).not.toHaveBeenCalled();
+    expect(showNewMessages).toHaveBeenCalledTimes(1);
   });
 });

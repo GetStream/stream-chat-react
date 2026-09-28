@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { SearchController } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import {
@@ -11,7 +10,6 @@ import {
 import { SearchContextProvider } from '../SearchContext';
 import type { SearchContextValue } from '../SearchContext';
 import {
-  ChannelListContextProvider,
   ChatProvider,
   DialogManagerProvider,
   TranslationProvider,
@@ -22,32 +20,35 @@ import {
   generateUser,
   initChannelFromData,
   initClientWithChannels,
-  mockChannelListContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
-const mockSetActiveChannel = vi.fn().mockImplementation(() => {});
-const mockSetChannels = vi.fn().mockImplementation(() => {});
+const mockOpenChannel = vi.fn();
+const mockIngestChannel = vi.fn();
+const mockChannelManager = { ingestChannel: mockIngestChannel };
 const directMessagingChannelType = 'X';
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) => {
-  const interpolated = Object.entries(options || {}).reduce(
-    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-    key,
-  );
+// Selection opens the channel in the workspace (one navigation model); the item's
+// "active" highlight comes from isChannelActive (stubbed inactive here).
+vi.mock('../../../context', async (importOriginal) => ({
+  ...((await importOriginal()) as object),
+  useWorkspaceNavigation: () => ({
+    isChannelActive: () => false,
+    openChannel: mockOpenChannel,
+  }),
+}));
 
-  return interpolated.startsWith('aria/')
-    ? interpolated.replace('aria/', '')
-    : interpolated;
-};
+const mockTranslation = mockT;
 
 const renderComponent = async ({
   activeChannel,
   channelSearchData,
   chatContext,
   customClient,
+  itemProps,
   messageResponseData,
   SearchResultItemComponent,
   userData,
@@ -81,25 +82,23 @@ const renderComponent = async ({
       <ChatProvider
         value={{
           channel: activeChannel ?? channel,
+          channelManager: mockChannelManager,
           client: customClient ?? client,
-          setActiveChannel: mockSetActiveChannel,
           ...chatContext,
         }}
       >
         <DialogManagerProvider>
-          <ChannelListContextProvider
-            value={mockChannelListContext({ setChannels: mockSetChannels })}
+          <SearchContextProvider
+            value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
           >
-            <SearchContextProvider
-              value={fromPartial<SearchContextValue>({ directMessagingChannelType })}
-            >
-              <SearchResultItemComponent item={item} />
-            </SearchContextProvider>
-          </ChannelListContextProvider>
+            <SearchResultItemComponent item={item} {...itemProps} />
+          </SearchContextProvider>
         </DialogManagerProvider>
       </ChatProvider>
     </TranslationProvider>,
   );
+
+  return { client };
 };
 
 describe('SearchResultItem Components', () => {
@@ -123,8 +122,28 @@ describe('SearchResultItem Components', () => {
 
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(channelSearchData.channel.id);
-      expect(mockSetChannels).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel.mock.calls[0][0].id).toBe(channelSearchData.channel.id);
+      // The click event is forwarded so overrides can honor ⌘/ctrl-click.
+      expect(mockOpenChannel.mock.calls[0][1]).toEqual(
+        expect.objectContaining({ event: expect.anything() }),
+      );
+      expect(mockIngestChannel).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs a custom onSelect instead of the default open', async () => {
+      const channelSearchData = generateChannel();
+      const onSelect = vi.fn();
+      await renderComponent({
+        channelSearchData,
+        itemProps: { onSelect },
+        SearchResultItemComponent,
+      });
+
+      fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel).not.toHaveBeenCalled();
     });
   });
 
@@ -143,26 +162,30 @@ describe('SearchResultItem Components', () => {
     });
 
     it('handles message selection', async () => {
-      const searchController = new SearchController();
       const message = generateMessage();
-      const messageResponseData = generateChannel({ messages: [message] });
-      await renderComponent({
-        chatContext: { searchController },
+      // A message search hit is the message itself, carrying the channel it was found in.
+      const messageResponseData = {
+        id: message.id,
+        ...generateChannel({ messages: [message] }),
+      };
+      const { client } = await renderComponent({
         messageResponseData,
         SearchResultItemComponent,
       });
+      const { id, type } = messageResponseData.channel;
+      const jumpToMessage = vi
+        .spyOn(client.channel(type, id).messagePaginator, 'jumpToMessage')
+        .mockResolvedValue(true);
 
       await act(() => {
         fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
       });
 
-      expect(
-        searchController._internalState.getLatestValue().focusedMessage,
-      ).toStrictEqual(messageResponseData);
-      expect(mockSetActiveChannel.mock.calls[0][0].id).toBe(
-        messageResponseData.channel.id,
-      );
-      expect(mockSetChannels).toHaveBeenCalledTimes(1);
+      // Selecting a result jumps its channel's own paginator — no separate focus state to keep in
+      // step with the highlight the jump leaves behind.
+      expect(jumpToMessage).toHaveBeenCalledWith(message.id);
+      expect(mockOpenChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
+      expect(mockIngestChannel).toHaveBeenCalledTimes(1);
     });
 
     it('displays message text in preview', async () => {
@@ -190,7 +213,8 @@ describe('SearchResultItem Components', () => {
       await renderComponent({ SearchResultItemComponent, userData: user });
 
       expect(screen.getByTestId('avatar')).toBeInTheDocument();
-      expect(screen.getByText(user.name)).toBeInTheDocument();
+      // `generateUser` always sets a name, but `UserResponse.name` is optional in v10 types
+      expect(screen.getByText(String(user.name))).toBeInTheDocument();
     });
 
     it('handles user selection', async () => {
@@ -199,7 +223,23 @@ describe('SearchResultItem Components', () => {
       await act(() => {
         fireEvent.click(screen.getByRole('option'));
       });
-      expect(mockSetChannels).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
+      expect(mockIngestChannel).toHaveBeenCalledTimes(1);
+    });
+
+    it('runs a custom onSelect instead of the default DM open', async () => {
+      const onSelect = vi.fn();
+      await renderComponent({
+        itemProps: { onSelect },
+        SearchResultItemComponent,
+        userData: user,
+      });
+
+      await act(() => {
+        fireEvent.click(screen.getByRole('option'));
+      });
+      expect(onSelect).toHaveBeenCalledTimes(1);
+      expect(mockOpenChannel).not.toHaveBeenCalled();
     });
 
     it('uses user id when name is not available', async () => {

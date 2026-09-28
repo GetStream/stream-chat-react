@@ -12,6 +12,8 @@ import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { useStateStore } from '../../../../../store';
 import { ChannelMembersBrowseView } from '../ChannelMembersBrowseView';
 import { createChannel, emitChannelEvent, renderWithChannel } from './testUtils';
+import { mockT } from '../../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../../mock-builders';
 
 const mocks = vi.hoisted(() => ({
   searchSourceActivate: vi.fn(),
@@ -96,15 +98,15 @@ vi.mock('../../../../../components/Dialog', () => ({
 
 const members: ChannelMemberResponse[] = [
   {
-    created_at: '2026-01-01T00:00:00.000000000Z',
-    updated_at: '2026-01-01T00:00:00.000000000Z',
+    created_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
+    updated_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
     user: { id: 'user-1', name: 'Alice' },
     user_id: 'user-1',
   },
   {
     channel_role: 'admin',
-    created_at: '2026-01-01T00:00:00.000000000Z',
-    updated_at: '2026-01-01T00:00:00.000000000Z',
+    created_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
+    updated_at: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
     user: { id: 'user-2', name: 'Bob' },
     user_id: 'user-2',
   },
@@ -112,18 +114,16 @@ const members: ChannelMemberResponse[] = [
 
 describe('ChannelMembersBrowseView', () => {
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { count?: number; timestamp?: string }) => {
-        if (options?.count) return `${key}:${options.count}`;
-        if (options?.timestamp) return `${key}:${options.timestamp}`;
-        return key;
-      },
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
-    vi.mocked(useComponentContext).mockReturnValue({});
     vi.mocked(useChatContext).mockReturnValue({
       mutes: [],
     } as ReturnType<typeof useChatContext>);
@@ -131,7 +131,6 @@ describe('ChannelMembersBrowseView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
-    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,

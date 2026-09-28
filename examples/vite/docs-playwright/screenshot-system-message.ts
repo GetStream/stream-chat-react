@@ -126,7 +126,7 @@ async function main() {
   const injectSystemMessage = `(async () => {
     var ch = window.channel;
     var client = window.client;
-    var now = new Date().toISOString();
+    var now = Date.now() * 1e6; // server-sent dates are unix nanoseconds
     var msg = {
       id: 'system-msg-' + Date.now(),
       text: '/mute @${USER_B}',

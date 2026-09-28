@@ -1,25 +1,9 @@
 import React from 'react';
+import { resolveAttachmentFileSize, resolveAttachmentFullByteSize } from 'stream-chat';
 
 import { useComponentContext } from '../../context';
 import { FileSizeIndicator as DefaultFileSizeIndicator } from '../Attachment/components/FileSizeIndicator';
 import { UploadedSizeIndicator as DefaultUploadedSizeIndicator } from './UploadedSizeIndicator';
-
-function resolveAttachmentFullByteSize(attachment: {
-  file_size?: number | string;
-  localMetadata?: { file?: { size?: unknown } } | null;
-}): number | undefined {
-  const fromFile = attachment.localMetadata?.file?.size;
-  if (typeof fromFile === 'number' && Number.isFinite(fromFile) && fromFile >= 0) {
-    return fromFile;
-  }
-  const raw = attachment.file_size;
-  if (typeof raw === 'number' && Number.isFinite(raw) && raw >= 0) return raw;
-  if (typeof raw === 'string') {
-    const n = parseFloat(raw);
-    if (Number.isFinite(n) && n >= 0) return n;
-  }
-  return undefined;
-}
 
 export type AttachmentUploadedSizeIndicatorProps = {
   /**
@@ -29,6 +13,7 @@ export type AttachmentUploadedSizeIndicatorProps = {
    */
   uploadProgress?: number;
   attachment: {
+    custom?: { file_size?: number | string } | null;
     file_size?: number | string;
     localMetadata?: {
       file?: { size?: unknown };
@@ -59,7 +44,7 @@ export const AttachmentUploadedSizeIndicator = ({
   }
 
   if (uploadState === 'finished') {
-    return <FileSizeIndicator fileSize={attachment.file_size} />;
+    return <FileSizeIndicator fileSize={resolveAttachmentFileSize(attachment)} />;
   }
 
   return null;

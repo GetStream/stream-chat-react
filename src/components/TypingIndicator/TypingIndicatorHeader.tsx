@@ -2,14 +2,23 @@ import React from 'react';
 import clsx from 'clsx';
 
 import { TypingIndicatorDots } from './TypingIndicatorDots';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
+import { useChannel } from '../../context';
 import { useChatContext } from '../../context/ChatContext';
 import { useTranslationContext } from '../../context/TranslationContext';
-import { useTypingContext } from '../../context/TypingContext';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { useStateStore } from '../../store';
 import { useThreadContext } from '../Threads';
+import type { EventPayload, TextComposerState } from 'stream-chat';
 
 import { useDebouncedTypingActive } from './hooks/useDebouncedTypingActive';
 import { getTypingStatusMessage } from './utils/getTypingStatusMessage';
+import type { ChannelConfig } from 'stream-chat';
+
+const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
+
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 export type TypingIndicatorHeaderProps = {
   /** When true, show typing in the current thread only; when false, show typing in the channel. */
@@ -18,26 +27,36 @@ export type TypingIndicatorHeaderProps = {
 
 /**
  * Inline typing indicator for ChannelHeader or ThreadHeader: text (1/2/3+ people) followed by animated dots.
- * Only shows other participants; respects channelConfig.typing_events.
+ * Only shows other participants; respects the channel's resolved `typingEvents.enabled`.
  */
 export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { threadList = false } = props;
 
   const { t } = useTranslationContext();
-  const { channelConfig, thread } = useChannelStateContext('TypingIndicatorHeader');
+  const channel = useChannel();
+  const { typingEventsEnabled } = useStateStore(
+    channel.configState,
+    typingEventsStateSelector,
+  );
   const threadInstance = useThreadContext();
-  const parentId = threadInstance?.id ?? thread?.id;
-  const { client } = useChatContext('TypingIndicatorHeader');
-  const { typing = {} } = useTypingContext('TypingIndicatorHeader');
+  const parentId = threadInstance?.id;
+  const { client } = useChatContext();
+  const messageComposer = useMessageComposerController();
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
+
+  const typingEntries = Object.values(typing) as EventPayload<
+    'typing.start' | 'typing.stop'
+  >[];
 
   const typingInChannel = !threadList
-    ? Object.values(typing).filter(
+    ? typingEntries.filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
       )
     : [];
 
   const typingInThread = threadList
-    ? Object.values(typing).filter(
+    ? typingEntries.filter(
         ({ parent_id, user }) => user?.id !== client.user?.id && parent_id === parentId,
       )
     : [];
@@ -46,7 +65,7 @@ export const TypingIndicatorHeader = (props: TypingIndicatorHeaderProps) => {
   const { displayUsers } = useDebouncedTypingActive(typingUsers);
   const label = getTypingStatusMessage(displayUsers, t);
 
-  if (channelConfig?.typing_events === false || displayUsers.length === 0) {
+  if (typingEventsEnabled === false || displayUsers.length === 0) {
     return null;
   }
 

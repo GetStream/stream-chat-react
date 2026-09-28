@@ -174,19 +174,21 @@ export class MediaRecorderController {
 
     return {
       asset_url: this.recordingUri,
-      duration: this.durationMs / 1000,
-      file_size: blob.size,
+      custom: {
+        duration: this.durationMs / 1000,
+        file_size: blob.size,
+        mime_type: blob.type,
+        waveform_data: resampleWaveformData(
+          this.amplitudeRecorder?.amplitudes.value ?? [],
+          this.amplitudeRecorderConfig.sampleCount,
+        ),
+      },
       localMetadata: {
         file,
         id: nanoid(),
       },
-      mime_type: blob.type,
       title: file.name,
       type: RecordingAttachmentType.VOICE_RECORDING,
-      waveform_data: resampleWaveformData(
-        this.amplitudeRecorder?.amplitudes.value ?? [],
-        this.amplitudeRecorderConfig.sampleCount,
-      ),
     } as LocalVoiceRecordingAttachment;
   };
 
@@ -195,7 +197,10 @@ export class MediaRecorderController {
     logError(error);
     this.error.next(error);
     this.notification.next({
-      text: this.t('An error has occurred during recording'),
+      text: this.t(
+        'mediaRecorder.error.recording',
+        'An error has occurred during recording',
+      ),
       type: 'error',
     });
   };
@@ -213,7 +218,10 @@ export class MediaRecorderController {
       logError(e as Error);
       this.error.next(e as Error);
       this.notification.next({
-        text: this.t('An error has occurred during the recording processing'),
+        text: this.t(
+          'mediaRecorder.error.processing',
+          'An error has occurred during the recording processing',
+        ),
         type: 'error',
       });
     }
@@ -258,7 +266,10 @@ export class MediaRecorderController {
       const error = new Error('Media recording is not supported');
       logError(error);
       this.error.next(error);
-      this.notification.next({ text: this.t('Error starting recording'), type: 'error' });
+      this.notification.next({
+        text: this.t('mediaRecorder.error.start', 'Error starting recording'),
+        type: 'error',
+      });
       return;
     }
 
@@ -268,7 +279,10 @@ export class MediaRecorderController {
       );
       logError(error);
       this.error.next(error);
-      this.notification.next({ text: this.t('Error starting recording'), type: 'error' });
+      this.notification.next({
+        text: this.t('mediaRecorder.error.start', 'Error starting recording'),
+        type: 'error',
+      });
       return;
     }
 
@@ -304,7 +318,10 @@ export class MediaRecorderController {
       logError(error as Error);
       this.cancel();
       this.error.next(error as Error);
-      this.notification.next({ text: this.t('Error starting recording'), type: 'error' });
+      this.notification.next({
+        text: this.t('mediaRecorder.error.start', 'Error starting recording'),
+        type: 'error',
+      });
     }
   };
 

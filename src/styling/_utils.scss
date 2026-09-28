@@ -103,15 +103,25 @@
   padding: var(--str-chat__spacing-md);
   height: var(--str-chat__channel-header-height);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  // The start and end columns never get narrower than their controls; the title column gives way
+  // instead, cut off with an ellipsis, so the controls are never drawn over the title. With room to
+  // spare the side columns stay equal, keeping the title centred.
+  grid-template-columns: minmax(max-content, 1fr) minmax(0, auto) minmax(max-content, 1fr);
   align-items: center;
 }
 @mixin header-text-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
+  // Centred in its column, the block would otherwise be as wide as the title, which does not wrap;
+  // capping it and each line at the column's width is what lets a long title end in an ellipsis.
+  max-width: 100%;
   overflow-y: hidden; // for Edge
   overflow-x: hidden; // for ellipsis text
+
+  > * {
+    max-width: 100%;
+  }
 }
 
 @mixin empty-theme($component-name) {

@@ -2,25 +2,25 @@ import { useEffect, useState } from 'react';
 
 import { useChatContext } from '../../../../context/ChatContext';
 
-import type { EventHandler, LocalMessage } from 'stream-chat';
+import type { EventPayload, LocalMessage } from 'stream-chat';
 
 export const useGiphyPreview = (separateGiphyPreview: boolean) => {
   const [giphyPreviewMessage, setGiphyPreviewMessage] = useState<LocalMessage>();
 
-  const { client } = useChatContext('useGiphyPreview');
+  const { client } = useChatContext();
 
   useEffect(() => {
     if (!separateGiphyPreview) return;
-    const handleEvent: EventHandler = (event) => {
+    const handleEvent = (event: EventPayload<'message.new'>) => {
       const { message, user } = event;
 
-      if (message?.command === 'giphy' && user?.id === client.userID) {
+      if (message?.command === 'giphy' && user?.id === client.userId) {
         setGiphyPreviewMessage(undefined);
       }
     };
 
-    client.on('message.new', handleEvent);
-    return () => client.off('message.new', handleEvent);
+    const subscription = client.on('message.new', handleEvent);
+    return () => subscription.unsubscribe();
   }, [client, separateGiphyPreview]);
 
   return {

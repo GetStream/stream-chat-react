@@ -16,13 +16,12 @@ export const MessageTranslationIndicator = ({
   message: propMessage,
 }: TranslationIndicatorProps) => {
   const { IconTranslate } = useComponentContextIcons();
-
   const { t, userLanguage } = useTranslationContext();
   const {
     message: contextMessage,
     setTranslationView,
     translationView,
-  } = useMessageContext('MessageTranslationIndicator');
+  } = useMessageContext();
   const message = propMessage ?? contextMessage;
 
   const translatedTextForUser = useMemo(
@@ -52,11 +51,17 @@ export const MessageTranslationIndicator = ({
   const sourceLanguageName = useMemo(() => {
     const sourceLanguageCode = message?.i18n?.language;
     if (!sourceLanguageCode) return '';
-    const languageKey = 'language/' + sourceLanguageCode;
+    // `language.*` keys are part of the catalog now (core derives them from the same
+    // `TranslationLanguage` union this code is), so the key is checked at compile time rather than
+    // escaping through `asDynamicKey()`.
+    //
+    // The miss-detection stays, though: `message.i18n.language` is *server* data while the union is
+    // generated when the SDK is built, so a language the translation API learns after this release has
+    // no entry and i18next echoes the key back. Without the comparison the indicator reads
+    // "Translated from language.sw" rather than falling back to the bare code.
+    const languageKey = `language.${sourceLanguageCode}` as const;
     const translatedName = t(languageKey);
-    return translatedName && translatedName !== languageKey
-      ? translatedName
-      : sourceLanguageCode;
+    return translatedName === languageKey ? sourceLanguageCode : translatedName;
   }, [message?.i18n?.language, t]);
 
   if (!message?.i18n || !setTranslationView) return null;
@@ -67,10 +72,14 @@ export const MessageTranslationIndicator = ({
       <IconTranslate />
       <span className='str-chat__message-translation-indicator__sign'>
         {viewingOriginal
-          ? t('Original')
+          ? t('message.translationIndicator.original.text', 'Original')
           : sourceLanguageName
-            ? t('Translated from {{ language }}', { language: sourceLanguageName })
-            : t('Translated')}
+            ? t(
+                'message.translationIndicator.translated.withLanguage.text',
+                'Translated from {{ language }}',
+                { language: sourceLanguageName },
+              )
+            : t('message.translationIndicator.translated.text', 'Translated')}
       </span>
       <span> · </span>
       <Button
@@ -78,7 +87,9 @@ export const MessageTranslationIndicator = ({
         onClick={handleToggle}
         type='button'
       >
-        {viewingOriginal ? t('View translation') : t('View original')}
+        {viewingOriginal
+          ? t('message.translationIndicator.viewTranslation.text', 'View translation')
+          : t('message.translationIndicator.viewOriginal.text', 'View original')}
       </Button>
     </div>
   );

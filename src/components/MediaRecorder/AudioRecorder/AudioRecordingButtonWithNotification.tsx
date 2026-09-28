@@ -68,13 +68,16 @@ export const DefaultStartRecordingAudioButton = forwardRef<
   HTMLButtonElement,
   StartRecordingAudioButtonProps
 >(function StartRecordingAudioButton(props, ref) {
-  const { t } = useTranslationContext();
   const { IconVoice } = useComponentContextIcons();
+  const { t } = useTranslationContext();
 
   return (
     <Button
       appearance='ghost'
-      aria-label={t('aria/Start recording audio')}
+      aria-label={t(
+        'mediaRecorder.audioRecordingButton.startRecordingAudio.ariaLabel',
+        'Start recording audio',
+      )}
       circular
       className='str-chat__start-recording-audio-button'
       data-testid='start-recording-audio-button'

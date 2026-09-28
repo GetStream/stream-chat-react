@@ -11,6 +11,7 @@ import {
   useContextMenuContext,
 } from '../Dialog';
 import {
+  type DownloadableAttachment,
   downloadAllAttachments,
   downloadAttachment,
   isDownloadableAttachment,
@@ -21,14 +22,13 @@ const msgActionsBoxButtonClassName =
 
 export const DownloadSubmenuHeader = () => {
   const { IconChevronLeft } = useComponentContextIcons();
-
   const { returnToParentMenu: goBack } = useContextMenuContext();
   const { t } = useTranslationContext();
   return (
     <ContextMenuHeader>
       <ContextMenuBackButton onClick={goBack}>
         <IconChevronLeft />
-        <span>{t('Download Attachment')}</span>
+        <span>{t('common.downloadAttachment.title', 'Download Attachment')}</span>
       </ContextMenuBackButton>
     </ContextMenuHeader>
   );
@@ -42,15 +42,23 @@ export const DownloadSubmenu = () => {
 
   const downloadableAttachments = (message.attachments ?? []).filter(
     isDownloadableAttachment,
-  );
+  ) as DownloadableAttachment[];
 
   return (
     <div className='str-chat__message-actions-box__submenu str-chat__message-actions-box__submenu--download-attachments'>
       {downloadableAttachments.map((attachment, index) => {
         const fileName = attachment.localMetadata?.file?.name ?? attachment.title;
         const label = fileName
-          ? t('Download {{ fileName }}', { fileName })
-          : t('Download attachment {{ number }}', { number: index + 1 });
+          ? t(
+              'messageActions.downloadSubmenu.download.label',
+              'Download {{ fileName }}',
+              { fileName },
+            )
+          : t(
+              'messageActions.downloadSubmenu.downloadAttachment.label',
+              'Download attachment {{ number }}',
+              { number: index + 1 },
+            );
 
         return (
           <ContextMenuButton
@@ -79,7 +87,7 @@ export const DownloadSubmenu = () => {
           closeMenu();
         }}
       >
-        {t('Download All')}
+        {t('messageActions.downloadSubmenu.download.text', 'Download All')}
       </ContextMenuButton>
     </div>
   );

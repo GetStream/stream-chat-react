@@ -260,13 +260,22 @@ export const SuggestionList = ({
   const suggestionMenuLabel = useMemo(() => {
     switch (suggestions?.searchSource.type) {
       case 'commands':
-        return t('aria/Command Suggestions');
+        return t(
+          'textareaComposer.suggestionList.commandSuggestions.ariaLabel',
+          'Command Suggestions',
+        );
       case 'emoji':
-        return t('aria/Emoji Suggestions');
+        return t(
+          'textareaComposer.suggestionList.emojiSuggestions.ariaLabel',
+          'Emoji Suggestions',
+        );
       case 'mentions':
-        return t('aria/Mention Suggestions');
+        return t(
+          'textareaComposer.suggestionList.mentionSuggestions.ariaLabel',
+          'Mention Suggestions',
+        );
       default:
-        return t('aria/Suggestions');
+        return t('textareaComposer.suggestionList.suggestions.ariaLabel', 'Suggestions');
     }
   }, [suggestions?.searchSource.type, t]);
 

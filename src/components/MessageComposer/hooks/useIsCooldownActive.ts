@@ -1,4 +1,4 @@
-import { useChannelStateContext } from '../../../context';
+import { useChannel } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { CooldownTimerState } from 'stream-chat';
 
@@ -7,7 +7,7 @@ const cooldownTimerStateSelector = (state: CooldownTimerState) => ({
 });
 
 export const useIsCooldownActive = () => {
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   return useStateStore(channel.cooldownTimer.state, cooldownTimerStateSelector)
     .isCooldownActive;
 };

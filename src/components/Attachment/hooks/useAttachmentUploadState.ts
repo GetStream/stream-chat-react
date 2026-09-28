@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { isLocalUploadAttachment, isPendingUpload } from 'stream-chat';
+import { isPendingUpload } from 'stream-chat';
 import type {
   Attachment,
   LocalAttachment,
@@ -52,22 +52,6 @@ const emptyUploadState: AttachmentUploadState = {
   uploadConfirmationPending: false,
 };
 
-type PendingUpload = Extract<LocalAttachment, { localMetadata: { uploadState: string } }>;
-
-/**
- * Whether an attachment *claims* to be mid-upload, judged purely from the message payload.
- *
- * This is the **structural** question — may this attachment render from its local preview at
- * all — and it is deliberately not reactive: it stays true across the microtask in which
- * `UploadManager` drops its record but the resolved URL has not been written back yet, so an
- * attachment never blinks out of the DOM between those two events.
- *
- * For "is a request actually running right now", use {@link useAttachmentsUploadState}.
- */
-export const hasPendingUploadState = (
-  attachment?: Attachment | LocalAttachment | SharedLocationResponse,
-): attachment is PendingUpload => isPendingUpload(attachment);
-
 /**
  * Reports whether a request for any of these attachments is in flight *right now*, and how far
  * along it is.
@@ -95,7 +79,7 @@ export const useAttachmentsUploadState = (
   const { client } = useChatContext();
 
   const pending = useMemo(
-    () => attachments.filter(hasPendingUploadState).map((a) => a.localMetadata),
+    () => attachments.filter(isPendingUpload).map((a) => a.localMetadata),
     [attachments],
   );
   // Stable primitive so the selector identity does not change on every render.
@@ -193,33 +177,3 @@ export const useAttachmentUploadState = (
  * Falls back to inferring the window from a 100% reading when `uploadConfirmationPending` is absent,
  * i.e. against a resolved `stream-chat` older than v9.51.
  */
-export const isUploadConfirmationPending = (localMetadata?: {
-  uploadConfirmationPending?: boolean;
-  uploadProgress?: number;
-  uploadState?: string;
-}) => {
-  if (!localMetadata || localMetadata.uploadState !== 'uploading') return false;
-  if (localMetadata.uploadConfirmationPending !== undefined)
-    return localMetadata.uploadConfirmationPending;
-
-  return (
-    localMetadata.uploadProgress !== undefined && localMetadata.uploadProgress >= 100
-  );
-};
-
-/**
- * The URL an attachment should be rendered from. Falls back to the local blob preview while
- * the upload is still in flight, so a pending attachment shows the user's own file rather than
- * nothing. Returns `undefined` when there is nothing to render yet.
- */
-export const getAttachmentPreviewUrl = (
-  attachment?: Attachment | LocalAttachment,
-  ...urls: (string | undefined)[]
-): string | undefined => {
-  const resolved = urls.find(Boolean);
-  if (resolved) return resolved;
-
-  return isLocalUploadAttachment(attachment)
-    ? attachment.localMetadata.previewUri
-    : undefined;
-};

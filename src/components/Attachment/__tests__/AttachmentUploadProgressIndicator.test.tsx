@@ -12,7 +12,7 @@ import { WithAudioPlayback } from '../../AudioPlayback';
 import { FileContainer } from '../AttachmentContainer';
 import { AttachmentUploadProgressIndicator } from '../components';
 import { getTestClientWithUser } from '../../../mock-builders';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { AttachmentContextProvider } from '../../../context/AttachmentContext';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import type { StreamChat } from 'stream-chat';
@@ -21,14 +21,15 @@ const UPLOAD_ID = 'local-attachment-id';
 
 const uploadedFile = {
   asset_url: 'https://example.com/dummy.pdf',
-  file_size: 1337,
+  // stream-chat v10 moved attachment-specific fields under `custom`.
+  custom: { file_size: 1337 },
   mime_type: 'application/pdf',
   title: 'Nice file',
   type: 'file',
 };
 
 const uploadingFile = {
-  file_size: 1337,
+  custom: { file_size: 1337 },
   localMetadata: {
     // resolveAttachmentFullByteSize prefers the real File size over `file_size`.
     file: new File(['x'.repeat(1337)], 'Nice file'),
@@ -320,7 +321,7 @@ describe('VideoAttachment during upload', () => {
     );
 
     // The thumbnail is the fallback we are avoiding. (The player's own `src` comes from
-    // `videoAttachmentSizeHandler`, which lives on ChannelStateContext, so it stays empty in
+    // `videoAttachmentSizeHandler`, which lives on AttachmentContext on v15, so it stays empty in
     // this standalone render — hence asserting on the thumbnail's absence rather than the
     // player's presence.)
     expect(container.querySelector('img')).not.toBeInTheDocument();
@@ -366,9 +367,11 @@ describe('VideoAttachment during upload', () => {
     const VideoPlayerSpy = vi.fn(() => null);
     renderWithClient(
       client,
-      // `shouldGenerateVideoThumbnail` comes from ChannelStateContext; without it the widget goes
+      // `shouldGenerateVideoThumbnail` comes from AttachmentContext; without it the widget goes
       // straight to the player and there is no thumbnail to click.
-      <ChannelStateProvider value={fromPartial({ shouldGenerateVideoThumbnail: true })}>
+      <AttachmentContextProvider
+        value={fromPartial({ shouldGenerateVideoThumbnail: true })}
+      >
         <VideoAttachment
           attachment={{
             asset_url: 'https://cdn.example.com/clip.mp4',
@@ -378,7 +381,7 @@ describe('VideoAttachment during upload', () => {
           }}
           VideoPlayer={VideoPlayerSpy}
         />
-      </ChannelStateProvider>,
+      </AttachmentContextProvider>,
     );
 
     // Thumbnail first for a video that was never uploaded from this composer.
@@ -430,7 +433,7 @@ describe('audio and voice recording widgets during upload', () => {
   });
 
   const uploading = (extra: Record<string, unknown>) => ({
-    file_size: 2048,
+    custom: { file_size: 2048 },
     localMetadata: {
       file: new File(['x'.repeat(2048)], 'recording.webm'),
       id: UPLOAD_ID,

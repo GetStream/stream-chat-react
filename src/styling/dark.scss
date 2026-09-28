@@ -162,4 +162,37 @@
   --str-chat__accent-primary: var(
     --str-chat__brand-400
   ); /** The main brand color. Used for interactive elements, buttons, links, and primary actions. Override this to apply your brand color across the SDK. */
+
+  /**
+   * Button accents, split by role because one accent cannot serve both in dark mode.
+   *
+   * The light theme gets away with a single `accent-primary` (brand-500, #005fff): it is dark enough to
+   * carry white text as a *background*, and dark enough to read against white as *text*. Dark mode
+   * lightens the accent to the ramp pivot (brand-400, #4586ff) so it stays legible as a foreground — and
+   * that same lightening drops the solid button to 3.44:1, below the 4.5:1 WCAG AA needs for the 14px
+   * text these buttons use. The pivot fails *both* roles: 3.44:1 with white on it, 3.73:1 as text on a
+   * dark surface. Every colour rule in `Button.scss` keys on an appearance + variant pair, so both roles
+   * are reachable and both were failing.
+   *
+   * Fixed by giving each role the step that suits it, measured rather than eyeballed:
+   */
+
+  /* Solid buttons keep `accent-primary` as the background, so overriding it still rebrands them.
+     Only the text on top flips to dark, which is what a *lightened* accent surface calls for:
+     #000 on #4586ff = 6.11:1, against 3.44:1 for the white it replaces. */
+  --str-chat__button-primary-text-on-accent: var(--str-chat__chrome-0);
+  --str-chat__button-destructive-text-on-accent: var(
+    --str-chat__chrome-0
+  ); /* #000 on #fc526a = 6.55:1, up from 3.20:1. */
+
+  /* Outline and ghost buttons paint the accent as *text* on the page surface, which needs the opposite
+     move — a lighter step. These pin to the ramp rather than to `accent-primary`, so an integrator's
+     override does not reach them in dark mode; there is no way to derive a lighter shade in CSS without
+     `color-mix()`, which nothing else in this codebase relies on yet. */
+  --str-chat__button-primary-text: var(
+    --str-chat__brand-500
+  ); /* blue-300 #78a8ff on #323232 = 5.40:1, up from 3.73:1. */
+  --str-chat__button-destructive-text: var(
+    --str-chat__red-300
+  ); /* #fe87a1 on #323232 = 5.61:1, up from 4.00:1. */
 }

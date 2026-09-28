@@ -23,8 +23,12 @@ const UnMemoizedNewMessageNotification = (props: NewMessageNotificationProps) =>
 
   const label =
     newMessageCount > 0
-      ? t('{{count}} new messages', { count: newMessageCount })
-      : t('New Messages!');
+      ? t('common.newMessages.label', {
+          count: newMessageCount,
+          defaultValue_one: '{{count}} new message',
+          defaultValue_other: '{{count}} new messages',
+        })
+      : t('messageList.newMessageNotification.newMessages.label', 'New Messages!');
 
   if (CustomNewMessageNotification) {
     return <CustomNewMessageNotification {...props} label={label} />;

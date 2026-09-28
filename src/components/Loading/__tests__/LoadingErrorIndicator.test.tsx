@@ -26,7 +26,7 @@ describe('LoadingErrorIndicator', () => {
     expect(container).toMatchInlineSnapshot(`
       <div>
         <div>
-          Error: {{ errorMessage }}
+          Error: this is an error
         </div>
       </div>
     `);

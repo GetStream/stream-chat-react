@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { ReactionResponse, ReactionSort } from 'stream-chat';
+import type { ReactionResponse, SortParamRequest } from 'stream-chat';
 import type { MessageContextValue } from '../../../context';
 import { useMessageContext, useTranslationContext } from '../../../context';
 import { useNotificationApi } from '../../Notifications';
@@ -10,14 +10,13 @@ export interface FetchReactionsOptions {
   reactionType: ReactionType | null;
   shouldFetch: boolean;
   handleFetchReactions?: MessageContextValue['handleFetchReactions'];
-  sort?: ReactionSort;
+  sort?: SortParamRequest[];
 }
 
 export function useFetchReactions(options: FetchReactionsOptions) {
   const { addNotification } = useNotificationApi();
-  const { handleFetchReactions: contextHandleFetchReactions } =
-    useMessageContext('useFetchReactions');
-  const { t } = useTranslationContext('useFetchReactions');
+  const { handleFetchReactions: contextHandleFetchReactions } = useMessageContext();
+  const { t } = useTranslationContext();
   const [reactions, setReactions] = useState<ReactionResponse[]>([]);
   const {
     handleFetchReactions: propHandleFetchReactions,
@@ -50,7 +49,10 @@ export function useFetchReactions(options: FetchReactionsOptions) {
           addNotification({
             emitter: 'Reactions',
             error: e instanceof Error ? e : undefined,
-            message: t('Error fetching reactions'),
+            message: t(
+              'reactions.fetchReactions.errorFetchingReactions.text',
+              'Error loading reactions',
+            ),
             severity: 'error',
             type: 'api:message:reactions:fetch:failed',
           });

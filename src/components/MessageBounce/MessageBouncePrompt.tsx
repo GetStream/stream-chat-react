@@ -15,7 +15,6 @@ export type MessageBouncePromptProps = PropsWithChildrenOnly;
 // todo: shall we rename this to MessageBounceAlert?
 export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
   const { IconExclamationMark } = useComponentContextIcons();
-
   const { handleDelete, handleEdit, handleRetry } = useMessageBounceContext();
   const { t } = useTranslationContext();
   const { close } = useModalContext();
@@ -39,13 +38,19 @@ export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
         description={
           !children
             ? t(
+                'messageBounce.prompt.description',
                 'Review this message and choose whether to delete it, edit it, or send it anyway',
               )
             : undefined
         }
         Icon={IconExclamationMark}
         title={
-          !children ? t('This message did not meet our content guidelines') : undefined
+          !children
+            ? t(
+                'messageBounce.prompt.title',
+                'This message did not meet our content guidelines',
+              )
+            : undefined
         }
       >
         {children}
@@ -59,7 +64,7 @@ export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
           size='md'
           variant='danger'
         >
-          {t('Delete')}
+          {t('common.delete.text', 'Delete')}
         </Button>
         <Button
           appearance='outline'
@@ -69,7 +74,7 @@ export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
           size='md'
           variant='secondary'
         >
-          {t('Edit Message')}
+          {t('common.editMessage.text', 'Edit Message')}
         </Button>
         <Button
           appearance='outline'
@@ -79,7 +84,7 @@ export function MessageBouncePrompt({ children }: MessageBouncePromptProps) {
           size='md'
           variant='secondary'
         >
-          {t('Send Anyway')}
+          {t('messageBounce.prompt.sendAnyway.text', 'Send Anyway')}
         </Button>
       </Alert.Actions>
     </Alert.Root>

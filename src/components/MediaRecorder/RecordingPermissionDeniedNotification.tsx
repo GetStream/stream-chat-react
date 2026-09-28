@@ -12,12 +12,24 @@ export const RecordingPermissionDeniedNotification = ({
   const { t } = useTranslationContext();
   const permissionTranslations = {
     body: {
-      camera: t('To start recording, allow the camera access in your browser'),
-      microphone: t('To start recording, allow the microphone access in your browser'),
+      camera: t(
+        'mediaRecorder.permissionDenied.camera.body',
+        'To start recording, allow the camera access in your browser',
+      ),
+      microphone: t(
+        'mediaRecorder.permissionDenied.microphone.body',
+        'To start recording, allow the microphone access in your browser',
+      ),
     },
     heading: {
-      camera: t('Allow access to camera'),
-      microphone: t('Allow access to microphone'),
+      camera: t(
+        'mediaRecorder.permissionDenied.camera.heading',
+        'Allow access to camera',
+      ),
+      microphone: t(
+        'mediaRecorder.permissionDenied.microphone.heading',
+        'Allow access to microphone',
+      ),
     },
   };
 

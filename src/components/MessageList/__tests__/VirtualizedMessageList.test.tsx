@@ -1,5 +1,5 @@
 import React, { act } from 'react';
-import { cleanup, render } from '@testing-library/react';
+import { cleanup, render, type RenderResult } from '@testing-library/react';
 import { nanoid } from 'nanoid';
 
 import {
@@ -17,6 +17,20 @@ import { VirtualizedMessageList } from '../VirtualizedMessageList';
 
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
+import { useComponentContext, WithComponents } from '../../../context';
+import { ThreadProvider } from '../../Threads';
+
+import { StateStore } from '@stream-io/state-store';
+import { fromPartial } from '@total-typescript/shoehorn';
+import type { Thread, ThreadState } from 'stream-chat';
+
+const threadWithParentMessage = () =>
+  fromPartial<Thread>({
+    id: 'virtualized-list-thread',
+    state: new StateStore<ThreadState>(
+      fromPartial<ThreadState>({ parentMessage: generateMessage() }),
+    ),
+  });
 
 vi.mock('react-virtuoso', async () => {
   const { Virtuoso } = await import('react-virtuoso');
@@ -44,8 +58,8 @@ vi.mock('../../ChatView', async (importOriginal) => {
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
+      activeView: 'channels',
+      setActiveView: vi.fn(),
     })),
     useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
@@ -87,18 +101,96 @@ describe('VirtualizedMessageList', () => {
     const { channel, client } = await createChannel(true);
     vi.mocked(nanoid).mockReturnValue('mockedId');
 
-    const { container, findByText } = render(
-      <Chat client={client}>
-        <Channel channel={channel}>
-          <VirtualizedMessageList />
-        </Channel>
-      </Chat>,
-    );
+    let result: RenderResult;
+    await act(() => {
+      result = render(
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <VirtualizedMessageList />
+          </Channel>
+        </Chat>,
+      );
+    });
+    expect(result.container).toMatchSnapshot();
+  });
 
-    const emptyStateText = await findByText('Send a message to start the conversation');
-    const virtualList = container.querySelector('.str-chat__virtual-list');
-    expect(virtualList).toBeInTheDocument();
-    expect(virtualList).toContainElement(emptyStateText);
+  // The `VirtualMessage` override has to beat `MessageUI`, but only for messages rendered
+  // by this list. The list applies it by overriding `MessageUI` for its own subtree, so
+  // these assert on what `useComponentContext()` resolves to inside vs. outside the list.
+  // Virtuoso renders no items under jsdom (it measures document height), so the thread head is
+  // the in-subtree render point available to us — it is the same provider subtree the items
+  // render into. The list renders it whenever a thread is in context.
+  describe('VirtualMessage override', () => {
+    const CustomMessageUI = () => <div />;
+    const CustomVirtualMessage = () => <div />;
+
+    const ResolvedMessageUIProbe = ({ label }: { label: string }) => {
+      const { MessageUI } = useComponentContext();
+      return (
+        <div
+          data-probe={label}
+          data-resolved={(MessageUI as { name?: string } | undefined)?.name ?? 'none'}
+        />
+      );
+    };
+
+    const resolvedAt = (container: HTMLElement, label: string) =>
+      container.querySelector(`[data-probe="${label}"]`)?.getAttribute('data-resolved') ??
+      null;
+
+    const renderWithOverrides = async (
+      overrides: Parameters<typeof WithComponents>[0]['overrides'],
+    ) => {
+      overrides = {
+        ...overrides,
+        ThreadHead: () => <ResolvedMessageUIProbe label='inside' />,
+      };
+      const { channel, client } = await createChannel();
+      vi.mocked(nanoid).mockReturnValue('mockedId');
+
+      let result: RenderResult;
+      await act(() => {
+        result = render(
+          <Chat client={client}>
+            <Channel channel={channel}>
+              <WithComponents overrides={overrides}>
+                <ResolvedMessageUIProbe label='outside' />
+                <ThreadProvider thread={threadWithParentMessage()}>
+                  <VirtualizedMessageList />
+                </ThreadProvider>
+              </WithComponents>
+            </Channel>
+          </Chat>,
+        );
+      });
+
+      return result!.container;
+    };
+
+    it('takes precedence over MessageUI for messages rendered by the list', async () => {
+      const container = await renderWithOverrides({
+        MessageUI: CustomMessageUI,
+        VirtualMessage: CustomVirtualMessage,
+      });
+
+      expect(resolvedAt(container, 'inside')).toBe('CustomVirtualMessage');
+    });
+
+    it('does not leak outside the list', async () => {
+      const container = await renderWithOverrides({
+        MessageUI: CustomMessageUI,
+        VirtualMessage: CustomVirtualMessage,
+      });
+
+      expect(resolvedAt(container, 'outside')).toBe('CustomMessageUI');
+    });
+
+    it('leaves the MessageUI override in place when unset', async () => {
+      const container = await renderWithOverrides({ MessageUI: CustomMessageUI });
+
+      expect(resolvedAt(container, 'inside')).toBe('CustomMessageUI');
+      expect(resolvedAt(container, 'outside')).toBe('CustomMessageUI');
+    });
   });
 });
 

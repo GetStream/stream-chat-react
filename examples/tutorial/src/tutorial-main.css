@@ -78,7 +78,9 @@ body {
   background: rgba(255, 255, 255, 0.72);
   color: #0f172a;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  transition: transform 160ms ease, box-shadow 160ms ease;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease;
 }
 
 .tutorial-browser__step-button--active {
@@ -221,4 +223,12 @@ body {
     min-width: 280px;
     width: min(360px, 42%);
   }
+}
+
+/* The sizing above is for a thread laid out beside its channel. A thread in a ChatView slot fills
+   the slot the way a channel does - the slots share the width between them. */
+.tutorial-browser__step-shell .str-chat__chat-view__slot .str-chat__thread {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
 }

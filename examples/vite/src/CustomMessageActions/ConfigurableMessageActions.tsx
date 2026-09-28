@@ -9,6 +9,7 @@ import {
 import type { DeleteMessageOptions, LocalMessage } from 'stream-chat';
 import {
   Alert,
+  asDynamicKey,
   Button,
   ContextMenuButton,
   defaultMessageActionSet,
@@ -18,22 +19,26 @@ import {
   IconNotification,
   MessageActions,
   type MessageActionSetItem,
+  modalDialogManagerId,
   SwitchField,
   useComponentContext,
   useContextMenuContext,
+  useDialog,
   useDialogIsOpen,
   useMessageContext,
   useModalContext,
   useNotificationApi,
+  useThreadContext,
   useTranslationContext,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings';
+import type { MessageActionSurface } from '../AppSettings';
+import { InlineEditMessageAction } from '../InlineEditMessage';
 import {
   MessageInfoPromptDialog,
   messageInfoPromptDialogId,
 } from '../AppSettings/ActionsMenu/MessageInfoPromptDialog';
-import { usePersistentDialog } from '../AppSettings/ActionsMenu/usePersistentDialog';
 
 const getErrorMessage = (error: unknown, fallback: string) =>
   error instanceof Error && error.message ? error.message : fallback;
@@ -71,8 +76,14 @@ const CustomDeleteMessageAlert = ({
       data-testid='message-delete-alert'
     >
       <Alert.Header
-        description={t('Are you sure you want to delete this message?')}
-        title={t('Delete message')}
+        description={t(
+          'messageActions.deleteMessageAlert.description',
+          'Are you sure you want to delete this message?',
+        )}
+        title={t(
+          'messageActions.deleteMessageAlert.deleteMessage.title',
+          'Delete message',
+        )}
       />
       {enableOptionConfiguration && (
         <div className='app__custom-delete-message-alert__options'>
@@ -81,7 +92,10 @@ const CustomDeleteMessageAlert = ({
             id='delete-message-alert-delete-only-for-me-switch'
             onChange={(event) => setDeleteForMe(event.target.checked)}
           >
-            {t('Delete for me only')}
+            {t(
+              asDynamicKey('viteExample.deleteAlert.deleteForMeOnly.label'),
+              'Delete for me only',
+            )}
           </SwitchField>
           <SwitchField
             checked={hardDelete}
@@ -94,7 +108,7 @@ const CustomDeleteMessageAlert = ({
               if (!checked && !softDelete) setSoftDelete(true);
             }}
           >
-            {t('Hard delete')}
+            {t(asDynamicKey('viteExample.deleteAlert.hardDelete.label'), 'Hard delete')}
           </SwitchField>
           <SwitchField
             checked={softDelete}
@@ -107,7 +121,7 @@ const CustomDeleteMessageAlert = ({
               if (!checked && !hardDelete) setHardDelete(true);
             }}
           >
-            {t('Soft delete')}
+            {t(asDynamicKey('viteExample.deleteAlert.softDelete.label'), 'Soft delete')}
           </SwitchField>
         </div>
       )}
@@ -116,11 +130,11 @@ const CustomDeleteMessageAlert = ({
           appearance='outline'
           className='str-chat__delete-message-alert__delete-button'
           data-testid='delete-message-alert-delete-button'
-          onClick={() => onDelete({ deleteForMe, hardDelete })}
+          onClick={() => onDelete({ delete_for_me: deleteForMe, hard: hardDelete })}
           size='md'
           variant='danger'
         >
-          {t('Delete message')}
+          {t('messageActions.deleteMessageAlert.deleteMessage.title', 'Delete message')}
         </Button>
         <Button
           appearance='outline'
@@ -133,7 +147,7 @@ const CustomDeleteMessageAlert = ({
           size='md'
           variant='secondary'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Button>
       </Alert.Actions>
     </Alert.Root>
@@ -174,7 +188,7 @@ const CustomDeleteMessageAction = () => {
 
   return (
     <ContextMenuButton
-      aria-label={t('aria/Delete Message')}
+      aria-label={t('messageActions.deleteMessage.ariaLabel', 'Delete Message')}
       className='str-chat__message-actions-list-item-button'
       Icon={IconDelete}
       onClick={() => {
@@ -183,7 +197,7 @@ const CustomDeleteMessageAction = () => {
       }}
       variant='destructive'
     >
-      {t('Delete message')}
+      {t('messageActions.deleteMessageAlert.deleteMessage.title', 'Delete message')}
     </ContextMenuButton>
   );
 };
@@ -198,7 +212,7 @@ const CustomMarkOwnUnreadMessageAction = () => {
 
   return (
     <ContextMenuButton
-      aria-label={t('aria/Mark Message Unread')}
+      aria-label={t('messageActions.markMessageUnread.ariaLabel', 'Mark Message Unread')}
       className='str-chat__message-actions-list-item-button'
       Icon={IconNotification}
       onClick={async (event) => {
@@ -209,7 +223,10 @@ const CustomMarkOwnUnreadMessageAction = () => {
               message,
             },
             emitter: 'MessageActions',
-            message: t('Message marked as unread'),
+            message: t(
+              'messageActions.messageMarkedUnread.text',
+              'Message marked as unread',
+            ),
             severity: 'success',
             type: 'api:message:markUnread:success',
           });
@@ -223,6 +240,7 @@ const CustomMarkOwnUnreadMessageAction = () => {
             message: getErrorMessage(
               error,
               t(
+                'messageActions.errorMarkingMessageUnread.text',
                 'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
               ),
             ),
@@ -234,7 +252,7 @@ const CustomMarkOwnUnreadMessageAction = () => {
         }
       }}
     >
-      {t('Mark as unread')}
+      {t('messageActions.markUnread.text', 'Mark as unread')}
     </ContextMenuButton>
   );
 };
@@ -269,7 +287,11 @@ const CustomViewMessageInfoAction = () => {
   );
 };
 
-type SupportedCustomMessageActionType = 'delete' | 'markOwnUnread' | 'viewMessageInfo';
+type SupportedCustomMessageActionType =
+  | 'delete'
+  | 'editInline'
+  | 'markOwnUnread'
+  | 'viewMessageInfo';
 
 type CustomMessageActionOverrideSpec = {
   actionSetItem: MessageActionSetItem;
@@ -327,17 +349,27 @@ export const ConfigurableMessageActions = (
     useState<OpenMessageInfoDialogParams | null>(null);
   const { t } = useTranslationContext();
   const currentMessageInfoDialogId = `${messageInfoPromptDialogId}-${currentMessage.id}`;
-  const { dialog: messageInfoDialog, dialogManager } = usePersistentDialog(
-    currentMessageInfoDialogId,
-  );
+  // Bound to the modal manager rather than the nearest one. `DialogPortalEntry` renders a dialog
+  // into its manager's portal destination, and the nearest manager's destination sits inside the
+  // channel column -- which the sidebar overlay (`position: relative; z-index: 2`) paints over, so
+  // the dialog came up behind it. The modal manager's destination is mounted by `Chat`, above the
+  // layout, which is where an app-level dialog belongs anyway.
+  const messageInfoDialog = useDialog({
+    dialogManagerId: modalDialogManagerId,
+    id: currentMessageInfoDialogId,
+  });
   const messageInfoDialogIsOpen = useDialogIsOpen(
     currentMessageInfoDialogId,
-    dialogManager?.id,
+    modalDialogManagerId,
   );
+  // Which list this message is rendered in. Both message lists derive the same flag from the thread
+  // context, so asking it directly works whichever one is rendering.
+  const surface: MessageActionSurface = useThreadContext() ? 'thread' : 'channel';
   const { customMessageActions } = useAppSettingsSelector(
     (state) => state.messageActions,
   );
-  const customDeleteEnabled = customMessageActions.delete.enableOptionConfiguration;
+  const surfaceActions = customMessageActions[surface];
+  const customDeleteEnabled = surfaceActions.delete.enableOptionConfiguration;
   const configurableActionSet = useMemo(() => {
     const actionSet = props.messageActionSet ?? defaultMessageActionSet;
     const actionOverrides: Record<
@@ -351,6 +383,16 @@ export const ConfigurableMessageActions = (
           type: 'delete',
         },
         mode: 'replace',
+      },
+      // Next to the built-in edit, so the two ways of editing read as alternatives.
+      editInline: {
+        actionSetItem: {
+          Component: InlineEditMessageAction,
+          placement: 'dropdown',
+          type: 'editInline',
+        },
+        insertBeforeType: 'edit',
+        mode: 'append',
       },
       markOwnUnread: {
         actionSetItem: {
@@ -378,20 +420,38 @@ export const ConfigurableMessageActions = (
         enabled: customDeleteEnabled,
       },
       {
+        ...actionOverrides.editInline,
+        enabled: surfaceActions.inlineEdit,
+      },
+      {
         ...actionOverrides.markOwnUnread,
-        enabled: customMessageActions.markOwnUnread,
+        enabled: surfaceActions.markOwnUnread,
       },
       {
         ...actionOverrides.viewMessageInfo,
-        enabled: customMessageActions.viewMessageInfo,
+        enabled: surfaceActions.viewMessageInfo,
       },
     ];
 
-    return applyCustomMessageActionOverrides({ messageActionSet: actionSet, overrides });
+    const withOverrides = applyCustomMessageActionOverrides({
+      messageActionSet: actionSet,
+      overrides,
+    });
+
+    // Turning a default action off is just dropping it from the set; the SDK's base filter still
+    // has the last word on whatever remains.
+    if (!surfaceActions.disabledActionTypes.length) return withOverrides;
+
+    return withOverrides.filter(
+      (item) =>
+        !('type' in item) || !surfaceActions.disabledActionTypes.includes(item.type),
+    );
   }, [
     customDeleteEnabled,
-    customMessageActions.markOwnUnread,
-    customMessageActions.viewMessageInfo,
+    surfaceActions.disabledActionTypes,
+    surfaceActions.inlineEdit,
+    surfaceActions.markOwnUnread,
+    surfaceActions.viewMessageInfo,
     props.messageActionSet,
   ]);
   const openDeleteDialog = useCallback((params: OpenDeleteDialogParams) => {
@@ -416,15 +476,11 @@ export const ConfigurableMessageActions = (
   }, [customDeleteEnabled, deleteDialogTarget]);
 
   useEffect(() => {
-    if (customMessageActions.viewMessageInfo) return;
+    if (surfaceActions.viewMessageInfo) return;
     if (!messageInfoDialogTarget) return;
 
     closeMessageInfoDialog();
-  }, [
-    closeMessageInfoDialog,
-    customMessageActions.viewMessageInfo,
-    messageInfoDialogTarget,
-  ]);
+  }, [closeMessageInfoDialog, surfaceActions.viewMessageInfo, messageInfoDialogTarget]);
 
   return (
     <CustomDeleteActionContext.Provider
@@ -435,9 +491,9 @@ export const ConfigurableMessageActions = (
         <MessageInfoPromptDialog
           dialogId={currentMessageInfoDialogId}
           dialogIsOpen={messageInfoDialogIsOpen}
-          dialogManagerId={dialogManager?.id}
+          dialogManagerId={modalDialogManagerId}
           message={
-            customMessageActions.viewMessageInfo ? messageInfoDialogTarget.message : null
+            surfaceActions.viewMessageInfo ? messageInfoDialogTarget.message : null
           }
           onClose={closeMessageInfoDialog}
           referenceElement={messageInfoDialogTarget.referenceElement}
@@ -451,9 +507,7 @@ export const ConfigurableMessageActions = (
       >
         {customDeleteEnabled && deleteDialogTarget && (
           <CustomDeleteMessageAlert
-            enableOptionConfiguration={
-              customMessageActions.delete.enableOptionConfiguration
-            }
+            enableOptionConfiguration={surfaceActions.delete.enableOptionConfiguration}
             onCancel={() => {
               setDeleteDialogTarget(null);
             }}
@@ -465,7 +519,7 @@ export const ConfigurableMessageActions = (
                     message: deleteDialogTarget.message,
                   },
                   emitter: 'MessageActions',
-                  message: t('Message deleted'),
+                  message: t('common.messageDeleted.text', 'Message deleted'),
                   severity: 'success',
                   type: 'api:message:delete:success',
                 });
@@ -476,7 +530,10 @@ export const ConfigurableMessageActions = (
                   },
                   emitter: 'MessageActions',
                   error: getNotificationError(error),
-                  message: getErrorMessage(error, t('Error deleting message')),
+                  message: getErrorMessage(
+                    error,
+                    t('common.errorDeletingMessage.label', 'Error deleting message'),
+                  ),
                   severity: 'error',
                   type: 'api:message:delete:failed',
                 });

@@ -14,7 +14,6 @@ import Textarea from 'react-textarea-autosize';
 import { useCooldownRemaining } from '../MessageComposer/hooks/useCooldownRemaining';
 import { useMessageComposerCommands } from '../MessageComposer/hooks/useMessageComposerCommands';
 import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
-import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
 import type {
   AttachmentManagerState,
   MessageComposerConfig,
@@ -35,6 +34,8 @@ import {
 } from './SuggestionList';
 import { useTextareaPlaceholder } from './hooks/useTextareaPlaceholder';
 import { useAriaLiveAnnouncer, useInteractionAnnouncements } from '../Accessibility';
+import { useMessageComposerHasSendableData } from '../MessageComposer/hooks/useMessageComposerHasSendableData';
+import { useMessageComposerSubmitFn } from '../MessageComposer/hooks/useMessageComposerSubmitFn';
 
 const textComposerStateSelector = (state: TextComposerState) => ({
   selection: state.selection,
@@ -114,7 +115,6 @@ const TextareaComposerWithLiveAnnouncements = ({
   const {
     additionalTextareaProps,
     focus,
-    handleSubmit,
     maxRows: maxRowsContext,
     minRows: minRowsContext,
     onPaste,
@@ -123,7 +123,7 @@ const TextareaComposerWithLiveAnnouncements = ({
   } = useMessageComposerContext();
   const cooldownRemaining = useCooldownRemaining();
 
-  const { t } = useTranslationContext('TextareaComposer');
+  const { t } = useTranslationContext();
   const placeholder = useTextareaPlaceholder({ placeholder: placeholderProp });
   const announce = useAriaLiveAnnouncer();
   const { announceInteraction } = useInteractionAnnouncements();
@@ -150,7 +150,9 @@ const TextareaComposerWithLiveAnnouncements = ({
   // to a stable label instead of the placeholder, which may be a command-specific
   // template (e.g. mention/command args) that would otherwise be re-announced as a
   // stale name even though the field already holds real content.
-  const ariaLabel = text ? t('aria/Message input') : placeholder;
+  const ariaLabel = text
+    ? t('textareaComposer.messageInput.ariaLabel', 'Message input')
+    : placeholder;
 
   // react-textarea-autosize can measure placeholder content as multi-line in narrow layouts,
   // producing an inflated initial height (e.g. 2 rows) before the user types.
@@ -163,6 +165,7 @@ const TextareaComposerWithLiveAnnouncements = ({
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
       } satisfies React.CSSProperties);
+  const submitMessage = useMessageComposerSubmitFn();
 
   const { enabled } = useStateStore(messageComposer.configState, configStateSelector);
   const { quotedMessage } = useStateStore(
@@ -307,17 +310,17 @@ const TextareaComposerWithLiveAnnouncements = ({
           // prevent adding newline when submitting a message with
           event.preventDefault();
         }
-        handleSubmit();
+        submitMessage();
       }
     },
     [
       focusedItemIndex,
-      handleSubmit,
       hasSendableData,
       onKeyDown,
       shouldSubmit,
-      textareaRef,
+      submitMessage,
       textComposer,
+      textareaRef,
     ],
   );
 

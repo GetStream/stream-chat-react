@@ -1,10 +1,10 @@
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import { defaultNotificationTranslators } from '../TranslationBuilder/notifications/NotificationTranslationTopic';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { i18n } from 'i18next';
+import type { I18nInstance } from '@stream-io/i18n';
 import type { Notification } from 'stream-chat';
 
-const mockI18Next = fromPartial<i18n>({ use: vi.fn() });
+const mockI18Next = fromPartial<I18nInstance>({ use: vi.fn() });
 describe('NotificationTranslationTopic', () => {
   it('gets initiated with defaults', () => {
     const builder = new NotificationTranslationTopic({ i18next: mockI18Next });
@@ -56,13 +56,11 @@ describe('NotificationTranslationTopic', () => {
   });
 
   it('falls back to translating notification.message when type has no translator', () => {
-    const i18next = fromPartial<i18n>({
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
       t: vi.fn((key) =>
-        key === 'File is required for upload attachment'
-          ? 'translated/file-required'
-          : key,
-      ),
+        key === 'notification.attachmentFileMissing' ? 'translated/file-required' : key,
+      ) as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({
       i18next,
@@ -75,24 +73,19 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    expect(output).toBe('translated/file-required');
-    expect(i18next.t).toHaveBeenCalledWith('File is required for upload attachment', {
-      value: 'File is required for upload attachment',
-    });
+    // An identifier no translator claims renders `notification.message` verbatim. It used to be run
+    // through a hand-maintained table of English sentences mapped onto keys; identifiers are the seam
+    // now, so prose matching would only mask a missing translator entry.
+    expect(output).toBe('File is required for upload attachment');
+    expect(i18next.t).not.toHaveBeenCalled();
   });
 
-  it('passes notification metadata to i18next for message interpolation fallback', () => {
-    const i18next = fromPartial<i18n>({
+  it('does not interpolate metadata into an unrecognised message', () => {
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
-      t: vi.fn((key, options) =>
-        key === 'Attachment upload failed due to {{reason}}'
-          ? `translated/reason:${options.reason}`
-          : key,
-      ),
+      t: vi.fn() as unknown as I18nInstance['t'],
     });
-    const builder = new NotificationTranslationTopic({
-      i18next,
-    });
+    const builder = new NotificationTranslationTopic({ i18next });
 
     const output = builder.translate('XXX', '', {
       notification: fromPartial<Notification>({
@@ -102,34 +95,58 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    expect(output).toBe('translated/reason:network error');
-    expect(i18next.t).toHaveBeenCalledWith('Attachment upload failed due to {{reason}}', {
-      reason: 'network error',
-      value: 'Attachment upload failed due to {{reason}}',
-    });
+    // Rendered verbatim, placeholder included. Interpolating into prose would require treating the
+    // sentence as a key, which is exactly what the identifier seam replaced.
+    expect(output).toBe('Attachment upload failed due to {{reason}}');
+    expect(i18next.t).not.toHaveBeenCalled();
   });
 
+  // `api:reply:search:failed` and `channel:jumpToFirstUnread:failed` were removed from the registry:
+  // both were copied between the two UI SDKs and neither is emitted by this one. The registry is now
+  // exhaustiveness-checked against `CoreNotificationType`, so a core identifier cannot go missing.
   it.each([
-    ['api:location:create:failed', 'Failed to share location'],
-    ['api:location:share:failed', 'Failed to share location'],
-    ['api:reply:search:failed', 'Thread has not been found'],
-    ['api:poll:end:success', 'Poll ended'],
-    ['browser:location:get:failed', 'Failed to retrieve location'],
-    ['channel:jumpToFirstUnread:failed', 'Failed to jump to the first unread message'],
-    ['validation:attachment:file:missing', 'File is required for upload attachment'],
-    ['validation:attachment:id:missing', 'Local upload attachment missing local id'],
+    [
+      'api:location:create:failed',
+      'notification.locationShareFailed',
+      'Failed to share location',
+    ],
+    [
+      'api:location:share:failed',
+      'notification.locationShareFailed',
+      'Failed to share location',
+    ],
+    ['api:poll:end:success', 'notification.pollEndSuccess', 'Poll Ended'],
+    [
+      'browser:location:get:failed',
+      'notification.locationGetFailed',
+      'Failed to retrieve location',
+    ],
+    [
+      'validation:attachment:file:missing',
+      'notification.attachmentFileMissing',
+      'File is required for upload attachment',
+    ],
+    [
+      'validation:attachment:id:missing',
+      'notification.attachmentIdMissing',
+      'Local upload attachment missing local id',
+    ],
     [
       'validation:attachment:upload:in-progress',
+      'notification.attachmentUploadInProgress',
       'Wait until all attachments have uploaded',
     ],
     [
       'validation:poll:castVote:limit',
+      'notification.pollVoteLimit',
       'Reached the vote limit. Remove an existing vote first.',
     ],
-  ])('translates known notification type %s', (type, translationKey) => {
-    const i18next = fromPartial<i18n>({
+  ])('translates known notification type %s', (type, key, copy) => {
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
-      t: vi.fn((key) => `translated:${key}`),
+      t: vi.fn(
+        (translationKey) => `translated:${translationKey}`,
+      ) as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 
@@ -139,18 +156,19 @@ describe('NotificationTranslationTopic', () => {
       }),
     });
 
-    expect(output).toBe(`translated:${translationKey}`);
-    expect(i18next.t).toHaveBeenCalledWith(translationKey);
+    expect(output).toBe(`translated:${key}`);
+    // The English copy travels with the call as i18next's inline defaultValue.
+    expect(i18next.t).toHaveBeenCalledWith(key, copy);
   });
 
   it('normalizes reason metadata in poll creation failure translation', () => {
-    const i18next = fromPartial<i18n>({
+    const i18next = fromPartial<I18nInstance>({
       ...mockI18Next,
-      t: vi.fn((key, options) =>
-        key === 'Failed to create the poll due to {{reason}}'
+      t: vi.fn((key, _defaultValue, options) =>
+        key === 'notification.pollCreateFailedWithReason'
           ? `translated/reason:${options.reason}`
           : key,
-      ),
+      ) as unknown as I18nInstance['t'],
     });
     const builder = new NotificationTranslationTopic({ i18next });
 

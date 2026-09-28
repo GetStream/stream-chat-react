@@ -1,10 +1,11 @@
 import type { ReactionResponse } from 'stream-chat';
 import { generateUser } from './user';
+import { convertDateToTimestamp } from './time';
 
 export const generateReaction = (options: Partial<ReactionResponse> = {}) => {
   const user = options.user || generateUser();
   return {
-    created_at: new Date(),
+    created_at: convertDateToTimestamp(),
     type: 'love',
     user,
     user_id: user.id,
@@ -32,10 +33,10 @@ export const countReactions = (reactions: ReactionResponse[] = []) => {
 };
 
 export const groupReactions = (reactions: ReactionResponse[] = []) => {
-  const timestamp = new Date().toISOString();
+  const timestamp = convertDateToTimestamp();
   const reactionGroups: Record<
     string,
-    { count: number; first_reaction_at: string; last_reaction_at: string }
+    { count: number; first_reaction_at: number; last_reaction_at: number }
   > = {};
   for (const reaction of reactions) {
     reactionGroups[reaction.type] ??= {

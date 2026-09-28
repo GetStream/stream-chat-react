@@ -343,7 +343,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .app__websocket-event-dialog__select,
+  .app__searchable-select,
   .app__websocket-event-dialog__text-input,
   .app__websocket-event-dialog__number-input {
     width: 100%;
@@ -356,7 +356,7 @@
     font: inherit;
   }
 
-  .app__websocket-event-dialog__select-trigger {
+  .app__searchable-select__trigger {
     align-items: center;
     cursor: pointer;
     display: flex;
@@ -364,7 +364,7 @@
     text-align: left;
   }
 
-  .app__websocket-event-dialog__select:focus-visible,
+  .app__searchable-select:focus-visible,
   .app__websocket-event-dialog__text-input:focus-visible,
   .app__websocket-event-dialog__number-input:focus-visible {
     outline: 2px solid var(--str-chat__border-utility-selected);
@@ -393,19 +393,19 @@
     outline-offset: 1px;
   }
 
-  .app__websocket-event-dialog__trigger-value {
+  .app__searchable-select__trigger-value {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .app__websocket-event-dialog__trigger-icon {
+  .app__searchable-select__trigger-icon {
     color: var(--str-chat__text-secondary);
     flex-shrink: 0;
     font-size: 12px;
   }
 
-  .app__websocket-event-dialog__dropdown {
+  .app__searchable-select__dropdown {
     max-height: min(360px, calc(100vh - 80px));
     min-width: min(420px, calc(100vw - 32px));
     border: 1px solid var(--str-chat__border-core-default);
@@ -419,11 +419,11 @@
     z-index: 1;
   }
 
-  .app__websocket-event-dialog__dropdown::-webkit-scrollbar {
+  .app__searchable-select__dropdown::-webkit-scrollbar {
     display: none;
   }
 
-  .app__websocket-event-dialog__dropdown-section {
+  .app__searchable-select__dropdown-section {
     color: var(--str-chat__text-secondary);
     font-size: 12px;
     font-weight: 700;
@@ -431,7 +431,7 @@
     text-transform: uppercase;
   }
 
-  .app__websocket-event-dialog__dropdown-search {
+  .app__searchable-select__dropdown-search {
     padding: 4px 4px 8px;
     position: sticky;
     top: 0;
@@ -439,7 +439,7 @@
     z-index: 1;
   }
 
-  .app__websocket-event-dialog__dropdown-search-input {
+  .app__searchable-select__dropdown-search-input {
     width: 100%;
     min-height: 36px;
     border: 1px solid var(--str-chat__border-core-default);
@@ -450,12 +450,12 @@
     font: inherit;
   }
 
-  .app__websocket-event-dialog__dropdown-search-input:focus-visible {
+  .app__searchable-select__dropdown-search-input:focus-visible {
     outline: 2px solid var(--str-chat__border-utility-selected);
     outline-offset: 1px;
   }
 
-  .app__websocket-event-dialog__dropdown-item {
+  .app__searchable-select__dropdown-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -471,21 +471,21 @@
     text-align: left;
   }
 
-  .app__websocket-event-dialog__dropdown-item[aria-checked='true'] {
+  .app__searchable-select__dropdown-item[aria-checked='true'] {
     background: var(--str-chat__background-utility-selected);
   }
 
-  .app__websocket-event-dialog__dropdown-item:hover {
+  .app__searchable-select__dropdown-item:hover {
     background: var(--str-chat__background-utility-selected);
   }
 
-  .app__websocket-event-dialog__dropdown-item-label {
+  .app__searchable-select__dropdown-item-label {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .app__websocket-event-dialog__dropdown-item-badge {
+  .app__searchable-select__dropdown-item-badge {
     color: var(--str-chat__text-secondary);
     flex-shrink: 0;
     font-size: 12px;
@@ -499,7 +499,7 @@
     white-space: nowrap;
   }
 
-  .app__websocket-event-dialog__dropdown-empty {
+  .app__searchable-select__dropdown-empty {
     color: var(--str-chat__text-secondary);
     font-size: 13px;
     padding: 10px 12px;
@@ -971,6 +971,25 @@
     color: var(--str-chat__text-primary);
     border-radius: 14px;
     overflow: hidden;
+
+    // `dvh`, not `vh`: on mobile browsers `vh` counts the area behind the retracting address bar, so a
+    // full-screen dialog would overflow by exactly that strip and clip its own footer.
+    &--fullscreen {
+      width: 100vw;
+      height: 100dvh;
+      max-width: none;
+      border-radius: 0;
+    }
+  }
+
+  .app__settings-modal__fullscreen-button {
+    flex-shrink: 0;
+    color: var(--str-chat__text-primary);
+
+    .str-chat__icon {
+      height: var(--str-chat__icon-size-sm);
+      width: var(--str-chat__icon-size-sm);
+    }
   }
 
   .app__settings-modal__body {
@@ -986,38 +1005,26 @@
     width: auto;
   }
 
-  .app__settings-modal__body .str-chat__section-navigator__navigation-item {
-    padding: 0;
-  }
-
   .app__settings-modal__tab {
     width: 100%;
     white-space: nowrap;
     justify-content: flex-start;
-    font-weight: 500;
-    margin-bottom: 6px;
-    color: var(--str-chat__text-secondary);
   }
 
   .app__settings-modal__tab[aria-selected='true'],
   .app__settings-modal__tab.app__settings-modal__tab--active {
     background: var(--str-chat__background-utility-selected);
     border-color: var(--str-chat__border-utility-selected);
-    color: var(--str-chat__text-primary);
-    font-weight: 600;
-  }
-
-  // The navigator's content column is a block element that lets its child grow past it, so the
-  // stack has to be pinned to the column's height for the tab body's own `overflow-y: auto` to
-  // have anything to scroll against. Without this, a tall tab (Composer) is clipped by the
-  // modal's `overflow: hidden` instead of scrolling.
-  .app__settings-modal__body .str-chat__section-navigator__content {
-    min-height: 0;
   }
 
   .app__settings-modal__content-stack {
     display: flex;
     flex-direction: column;
+    /* Fill the section-navigator's content box instead of sizing to content. `__tab-body` already
+       carries `overflow-y: auto` (from `str-chat__prompt__body`), but it only engages once something
+       bounds its height — without this the stack grew past the modal and `.app__settings-modal`'s
+       `overflow: hidden` silently clipped the overflow, with no scrollbar. Short tabs are unaffected:
+       the body just gets slack and shows no scrollbar. */
     height: 100%;
     min-height: 0;
   }
@@ -1056,6 +1063,69 @@
     display: flex;
     flex-direction: column;
     gap: var(--str-chat__spacing-xl);
+    /* The inherited `4px` bottom padding leaves the last control flush against the modal edge once the
+       body scrolls. Match the horizontal padding (and the row gap) so scrolling to the end has the same
+       breathing room as the sides. */
+    padding-bottom: var(--str-chat__spacing-xl);
+  }
+
+  // The JSON document is the whole tree at once; most edits are one field, so the listing below is the
+  // primary surface and this is the escape hatch. Collapsed by default for that reason.
+  .app__configuration-tab__raw > summary {
+    cursor: pointer;
+    font-weight: 600;
+    padding: var(--str-chat__spacing-xs) 0;
+  }
+
+  .app__configuration-tab__reference-control {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
+    margin-inline-start: auto;
+  }
+
+  .app__configuration-tab__reference-input {
+    font: inherit;
+    color: var(--str-chat__text-primary);
+    background: var(--str-chat__background-core-surface);
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 6px;
+    padding: 2px 6px;
+
+    &[type='checkbox'] {
+      // A checkbox ignores padding and would sit a pixel high against the row's baseline.
+      width: 16px;
+      height: 16px;
+      padding: 0;
+      accent-color: var(--str-chat__background-brand-default);
+    }
+
+    &[type='number'] {
+      width: 90px;
+    }
+
+    &[type='text'] {
+      width: 140px;
+    }
+  }
+
+  .app__settings-modal__tab-footer {
+    // Pinned rather than scrolling with the content: the Configuration tab's editor is long enough that
+    // Apply used to sit several screens below the JSON it applies.
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-xs);
+    border-block-start: 1px solid var(--str-chat__border-core-default);
+    background: var(--str-chat__background-core-elevation-2);
+    padding: var(--str-chat__spacing-md) var(--str-chat__spacing-xl);
+  }
+
+  .app__settings-modal__tab-footer__hint {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
   }
 
   .app__settings-modal__field {
@@ -1069,6 +1139,81 @@
     color: var(--str-chat__text-primary);
   }
 
+  // Actions down the side, message lists across the top: the two surfaces are configured by
+  // comparison, so the interesting reading is along a row.
+  .app__settings-modal__matrix {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: start;
+
+    th,
+    td {
+      padding: var(--str-chat__spacing-sm) var(--str-chat__spacing-md);
+      border-block-end: 1px solid var(--str-chat__border-core-default);
+      vertical-align: top;
+      // The UA stylesheet centres `th`, which beats the table's inherited alignment.
+      text-align: start;
+    }
+
+    thead th {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--str-chat__text-secondary);
+      white-space: nowrap;
+    }
+
+    // The switch columns are only as wide as they need to be, leaving the rest to the action.
+    thead th:not(:first-child),
+    tbody td {
+      width: 1%;
+      text-align: center;
+    }
+
+    tbody th {
+      font-weight: 400;
+      padding-inline-start: 0;
+    }
+
+    tbody tr:last-child th,
+    tbody tr:last-child td {
+      border-block-end: none;
+    }
+
+    // A band naming the group of rows beneath it.
+    .app__settings-modal__matrix__section th {
+      padding-block-start: var(--str-chat__spacing-md);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--str-chat__text-secondary);
+    }
+
+    // The first band sits directly under the column headers, which already provide the separation.
+    tbody tr:first-child.app__settings-modal__matrix__section th {
+      padding-block-start: var(--str-chat__spacing-sm);
+    }
+
+    // The row label names the action; the comment under it explains what the switch does.
+    .app__settings-modal__matrix__row-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--str-chat__text-primary);
+      margin-block-end: 2px;
+    }
+
+    // Denser than a standalone field's comment: in a table it is a caption under a row label
+    // rather than a paragraph of its own.
+    .app__settings-modal__field-comment {
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    // Cells hold a bare switch -- the boxed treatment fields get would fight the table's own grid.
+    .str-chat__form__switch-field {
+      display: inline-flex;
+      justify-content: center;
+    }
+  }
+
   .app__settings-modal__field .str-chat__form__switch-field {
     border: 1px solid var(--str-chat__border-core-default);
     border-radius: 10px;
@@ -1079,6 +1224,21 @@
     color: var(--str-chat__text-secondary);
     font-size: 13px;
     line-height: 1.4;
+
+    // Longer comments are split into one paragraph per idea rather than run together. Keep the gap
+    // between them, but not above the first or below the last — those would double up with the
+    // surrounding field spacing.
+    p {
+      margin: 8px 0;
+
+      &:first-child {
+        margin-top: 0;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
   }
 
   .app__settings-modal__options-row {
@@ -1104,8 +1264,14 @@
   }
 
   .app__settings-modal__option-button[aria-pressed='true'] {
-    border-color: var(--str-chat__border-utility-selected);
-    background: var(--str-chat__background-utility-selected);
+    // Deliberately no `background` or `border-color`. `str-chat__button` already draws the pressed state
+    // as an `::after` overlay tinted with `--str-chat__background-utility-selected`; setting the same
+    // token as the element's own background applied that tint twice and replaced the background the
+    // button had asked for. Measured: white text ended up on rgb(172,173,176) — 2.24:1, against the
+    // 4.5:1 WCAG AA needs. Leaving the background to Stream gives 11.22:1 in light and 5.49:1 in dark.
+    //
+    // The weight stays: it is the one affordance the base button does not provide, and it costs no
+    // contrast.
     font-weight: 600;
   }
 
@@ -1149,7 +1315,7 @@
       width: min(360px, calc(100vw - 24px));
     }
 
-    .app__websocket-event-dialog__dropdown {
+    .app__searchable-select__dropdown {
       min-width: min(320px, calc(100vw - 24px));
     }
 
@@ -1171,13 +1337,12 @@
     }
   }
 
+  /* Inline (drawer) navigation spacing. Size/full-screen chrome is intentionally NOT set here:
+     `--inline` is toggled by SectionNavigator's measured-width layout report, and changing the
+     modal's width from that report fed back into the measurement (100dvw vs 90vw straddling the
+     640px threshold) causing a resize-observer oscillation ("blinking") near the breakpoint. The
+     full-screen sizing lives in a viewport media query below instead, so it can't feed back. */
   .app__settings-modal--inline {
-    width: 100dvw;
-    height: 100dvh;
-    max-width: none;
-    border-radius: 0;
-    box-shadow: none;
-
     .app__settings-modal__tab-header {
       padding: var(--str-chat__spacing-xs);
     }
@@ -1185,5 +1350,376 @@
     .app__settings-modal__tab-body {
       padding: var(--str-chat__spacing-lg);
     }
+  }
+
+  /* --- Configuration tab ---------------------------------------------------------------------
+     One full-width editor holding the live configuration tree. `flex: none` is load-bearing: the tab
+     body is a flex column, and a shrinkable child gets squashed to fit instead of overflowing — the
+     editor would compress and the body would never scroll. */
+  .app__configuration-tab__editor {
+    flex: none;
+  }
+
+  .app__configuration-tab__registered summary {
+    color: var(--str-chat__text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+
+  .app__configuration-tab__registered[open] summary {
+    color: var(--str-chat__text-primary);
+    font-weight: 600;
+  }
+
+  .app__configuration-tab__report-list {
+    margin: 4px 0 0;
+    padding-inline-start: 18px;
+  }
+
+  // The reference list can run to a few hundred rows for the whole tree, so it scrolls in place rather
+  // than pushing the editor's buttons off the bottom of the modal.
+  .app__configuration-tab__reference {
+    list-style: none;
+    margin: 8px 0 0;
+    max-height: 420px;
+    overflow-y: auto;
+    padding: 0;
+    scrollbar-color: var(--str-chat__border-core-default) transparent;
+    scrollbar-width: thin;
+  }
+
+  .app__configuration-tab__reference-row {
+    border-top: 1px solid var(--str-chat__border-core-default);
+    padding: 6px 0;
+  }
+
+  .app__configuration-tab__reference-row:first-child {
+    border-top: none;
+  }
+
+  .app__configuration-tab__reference-head {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__configuration-tab__reference-head code {
+    font-size: 12px;
+  }
+
+  .app__configuration-tab__reference-type {
+    color: var(--str-chat__text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+  }
+
+  .app__configuration-tab__reference-flag {
+    background: var(--str-chat__background-core-elevation-2);
+    border-radius: 6px;
+    color: var(--str-chat__text-secondary);
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
+  .app__configuration-tab__reference-description {
+    color: var(--str-chat__text-secondary);
+    font-size: 12px;
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+
+  .app__configuration-tab__report-list li {
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      SF Mono,
+      Menlo,
+      monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .app__configuration-tab__textarea {
+    width: 100%;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      SF Mono,
+      Menlo,
+      monospace;
+    font-size: 13px;
+    line-height: 1.4;
+    resize: vertical;
+    scrollbar-color: var(--str-chat__border-core-default) transparent;
+    scrollbar-width: thin;
+  }
+
+  .app__configuration-tab__textarea:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__configuration-tab__textarea[readonly] {
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__configuration-tab__textarea::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+  }
+
+  .app__configuration-tab__textarea::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .app__configuration-tab__textarea::-webkit-scrollbar-thumb {
+    background: var(--str-chat__border-core-default);
+    border-radius: 4px;
+  }
+
+  .app__configuration-tab__error,
+  .app__configuration-tab__notice {
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 8px 10px;
+  }
+
+  .app__configuration-tab__error {
+    background: var(--str-chat__background-utility-error-subtle, transparent);
+    border: 1px solid var(--str-chat__border-utility-error, currentColor);
+    color: var(--str-chat__text-utility-error, inherit);
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      SF Mono,
+      Menlo,
+      monospace;
+  }
+
+  .app__configuration-tab__notice--info {
+    background: var(--str-chat__background-core-elevation-1);
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__configuration-tab__notice--warning {
+    background: var(--str-chat__background-core-elevation-1);
+    border: 1px solid var(--str-chat__border-utility-warning, currentColor);
+    color: var(--str-chat__text-primary);
+  }
+
+  .app__configuration-tab__presets {
+    row-gap: 8px;
+  }
+
+  /* Full-screen the settings modal on small viewports. Viewport-driven (not layout-report-driven)
+     so it doesn't change the width SectionNavigator measures — no feedback loop. */
+  @media (max-width: 640px) {
+    .app__settings-modal {
+      width: 100dvw;
+      height: 100dvh;
+      max-width: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
+
+  // Server-side client dialog — same shell/drag conventions as the other prompt dialogs.
+  .app__server-client-dialog {
+    min-width: min(560px, calc(100vw - 32px));
+    max-width: min(560px, calc(100vw - 32px));
+  }
+
+  .app__server-client-dialog__prompt {
+    display: flex;
+    flex-direction: column;
+    width: min(560px, calc(100vw - 32px));
+    max-height: min(680px, calc(100vh - 32px));
+    overflow: hidden;
+    // Positioned ancestor for the dialog's own NotificationList, which is absolutely positioned.
+    position: relative;
+  }
+
+  .app__server-client-dialog__drag-handle {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .app__server-client-dialog__drag-handle:active {
+    cursor: grabbing;
+  }
+
+  .app__server-client-dialog__body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 0;
+    padding-top: 4px;
+  }
+
+  .app__server-client-dialog__body-scroll {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    gap: 16px;
+    margin-inline-end: calc(var(--str-chat__spacing-xl) * -1);
+    min-height: 0;
+    overflow-y: auto;
+    padding-inline-end: var(--str-chat__spacing-xl);
+    scrollbar-color: var(--str-chat__border-core-default) transparent;
+    scrollbar-width: thin;
+  }
+
+  .app__server-client-dialog__warning {
+    margin: 0;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    background: var(--str-chat__surface-color);
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 8px 10px;
+  }
+
+  .app__server-client-dialog__step {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app__server-client-dialog__step-heading {
+    align-items: center;
+    color: var(--str-chat__text-primary);
+    display: flex;
+    font-size: 14px;
+    font-weight: 600;
+    gap: 8px;
+  }
+
+  .app__server-client-dialog__step-index {
+    align-items: center;
+    background: var(--str-chat__surface-color);
+    border-radius: 999px;
+    display: inline-flex;
+    font-size: 12px;
+    height: 20px;
+    justify-content: center;
+    width: 20px;
+  }
+
+  .app__server-client-dialog__field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 0;
+  }
+
+  .app__server-client-dialog__field-label {
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+  }
+
+  .app__server-client-dialog__text-input {
+    width: 100%;
+    min-height: 40px;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 0 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    font: inherit;
+  }
+
+  // The secret field is a `type="text"` input on purpose — see the comment at its call site.
+  // This is what masks it. `text-security` is the unprefixed form (Firefox 119+).
+  .app__server-client-dialog__secret-input {
+    -webkit-text-security: disc;
+    text-security: disc;
+  }
+
+  .app__server-client-dialog__text-input:focus-visible,
+  .app__server-client-dialog__textarea:focus-visible {
+    outline: 2px solid var(--str-chat__border-utility-selected);
+    outline-offset: 1px;
+  }
+
+  .app__server-client-dialog__inline-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .app__server-client-dialog__textarea,
+  .app__server-client-dialog__result {
+    width: 100%;
+    border: 1px solid var(--str-chat__border-core-default);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+    font-family:
+      ui-monospace,
+      SFMono-Regular,
+      SF Mono,
+      Menlo,
+      monospace;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__server-client-dialog__textarea {
+    min-height: 200px;
+    resize: vertical;
+  }
+
+  .app__server-client-dialog__result {
+    margin: 0;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .app__server-client-dialog__note {
+    margin: 0;
+    color: var(--str-chat__text-secondary);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__server-client-dialog__error {
+    margin: 0;
+    color: var(--text-error);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .app__server-client-dialog__footer {
+    flex-shrink: 0;
+  }
+
+  .app__server-client-dialog__footer-controls {
+    margin-inline-start: 0;
+  }
+
+  // Positioned anchor for the dialog's own NotificationList (which is `position: absolute`).
+  .app__server-client-dialog__notifications {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .app__server-client-dialog__notifications .str-chat__notification {
+    pointer-events: auto;
   }
 }

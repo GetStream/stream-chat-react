@@ -4,13 +4,15 @@ import { toGalleryItemDescriptors } from '../Gallery';
 import { getGiphyDescriptiveTitle } from './giphyAccessibility';
 import clsx from 'clsx';
 import {
-  useChannelStateContext,
   useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import { type CSSProperties, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import type { ImageAttachmentConfiguration } from '../../types/types';
+import {
+  type ImageAttachmentConfiguration,
+  useAttachmentContext,
+} from '../../context/AttachmentContext';
 
 export type GiphyAttachmentProps = {
   attachment: Attachment;
@@ -18,7 +20,7 @@ export type GiphyAttachmentProps = {
 
 export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   const { giphyVersion: giphyVersionName, imageAttachmentSizeHandler } =
-    useChannelStateContext();
+    useAttachmentContext();
   const { BaseImage = DefaultBaseImage } = useComponentContext();
   const { t } = useTranslationContext();
   const usesDefaultBaseImage = BaseImage === DefaultBaseImage;
@@ -41,8 +43,10 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
   // localized generic label instead of exposing the URL as the accessible name.
   const descriptiveTitle = getGiphyDescriptiveTitle(title);
   const accessibleName = descriptiveTitle
-    ? t('aria/Animated GIF: {{ title }}', { title: descriptiveTitle })
-    : t('aria/Animated GIF');
+    ? t('attachment.giphy.animatedGif.withTitle.ariaLabel', 'Animated GIF: {{ title }}', {
+        title: descriptiveTitle,
+      })
+    : t('attachment.giphy.animatedGif.ariaLabel', 'Animated GIF');
   const imageStyleVariables = useMemo(() => {
     const originalHeight = Number(dimensions?.height);
     const originalWidth = Number(dimensions?.width);
@@ -80,6 +84,7 @@ export const Giphy = ({ attachment }: GiphyAttachmentProps) => {
 
 const GiphyBadge = () => {
   const { IconGiphy } = useComponentContextIcons();
+
   return (
     <div className='str-chat__giphy-badge'>
       <IconGiphy />

@@ -22,8 +22,11 @@ export const PollOptionsFullList = () => {
     <Viewer.Root className={'str-chat__modal__poll-option-list'}>
       <Viewer.Header
         close={close}
-        description={t('Review all options available in this poll')}
-        title={t('Poll options')}
+        description={t(
+          'poll.optionsFull.description',
+          'Review all options available in this poll',
+        )}
+        title={t('poll.optionsFull.pollOptions.title', 'Poll Options')}
       />
       <Viewer.Body className='str-chat__modal__poll-option-list__body'>
         <PollQuestion question={name} />

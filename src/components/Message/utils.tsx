@@ -2,18 +2,16 @@ import deepequal from 'react-fast-compare';
 
 import { EMOJI_REGEX } from './emojiRegex';
 
-import type { TFunction } from 'i18next';
 import type {
-  ChannelConfigWithInfo,
   LocalMessage,
-  LocalMessageBase,
   MessageResponse,
-  Mute,
   StreamChat,
+  UserMuteResponse,
   UserResponse,
 } from 'stream-chat';
 import type { MessageProps } from './types';
 import type { MessageContextValue } from '../../context';
+import type { StreamTFunction } from '../../i18n/types';
 
 /**
  * Following function validates a function which returns notification message.
@@ -41,150 +39,25 @@ export const validateAndGetMessage = <T extends unknown[]>(
 /**
  * Tell if the owner of the current message is muted
  */
-export const isUserMuted = (message: LocalMessage, mutes?: Mute[]) => {
+export const isUserMuted = (message: LocalMessage, mutes?: UserMuteResponse[]) => {
   if (!mutes || !message) return false;
 
-  const userMuted = mutes.filter((el) => el.target.id === message.user?.id);
-  return !!userMuted.length;
+  return mutes.some(({ target }) => target?.id === message.user?.id);
 };
 
-export const OPTIONAL_MESSAGE_ACTIONS = {
-  deleteForMe: 'deleteForMe',
-};
-
-export const MESSAGE_ACTIONS = {
-  delete: 'delete',
-  download: 'download',
-  edit: 'edit',
-  flag: 'flag',
-  markUnread: 'markUnread',
-  mute: 'mute',
-  pin: 'pin',
-  quote: 'quote',
-  react: 'react',
-  remindMe: 'remindMe',
-  reply: 'reply',
-  saveForLater: 'saveForLater',
-};
-
-export type MessageActionsArray<T extends string = string> = Array<
-  keyof typeof MESSAGE_ACTIONS | keyof typeof OPTIONAL_MESSAGE_ACTIONS | T
->;
-
-export type Capabilities = {
-  canDelete?: boolean;
-  canEdit?: boolean;
-  canFlag?: boolean;
-  canMarkUnread?: boolean;
-  canMute?: boolean;
-  canPin?: boolean;
-  canQuote?: boolean;
-  canReact?: boolean;
-  canReply?: boolean;
-};
-
-export const getMessageActions = (
-  actions: MessageActionsArray | boolean,
-  {
-    canDelete,
-    canEdit,
-    canFlag,
-    canMarkUnread,
-    canMute,
-    canPin,
-    canQuote,
-    canReact,
-    canReply,
-  }: Capabilities,
-  channelConfig?: ChannelConfigWithInfo,
-): MessageActionsArray => {
-  const messageActionsAfterPermission: MessageActionsArray = [];
-  let messageActions: MessageActionsArray = [];
-
-  if (actions && typeof actions === 'boolean') {
-    // If value of actions is true, then populate all the possible values
-    messageActions = Object.keys(MESSAGE_ACTIONS);
-  } else if (actions && Array.isArray(actions) && actions.length > 0) {
-    messageActions = [...actions];
-  } else {
-    return [];
-  }
-
-  if (canDelete && messageActions.indexOf(MESSAGE_ACTIONS.delete) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.delete);
-  }
-
-  if (messageActions.indexOf(MESSAGE_ACTIONS.download) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.download);
-  }
-
-  if (canDelete && messageActions.indexOf(OPTIONAL_MESSAGE_ACTIONS.deleteForMe) > -1) {
-    messageActionsAfterPermission.push(OPTIONAL_MESSAGE_ACTIONS.deleteForMe);
-  }
-
-  if (canEdit && messageActions.indexOf(MESSAGE_ACTIONS.edit) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.edit);
-  }
-
-  if (canFlag && messageActions.indexOf(MESSAGE_ACTIONS.flag) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.flag);
-  }
-
-  if (canMarkUnread && messageActions.indexOf(MESSAGE_ACTIONS.markUnread) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.markUnread);
-  }
-
-  if (canMute && messageActions.indexOf(MESSAGE_ACTIONS.mute) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.mute);
-  }
-
-  if (canPin && messageActions.indexOf(MESSAGE_ACTIONS.pin) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.pin);
-  }
-
-  if (canQuote && messageActions.indexOf(MESSAGE_ACTIONS.quote) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.quote);
-  }
-
-  if (canReact && messageActions.indexOf(MESSAGE_ACTIONS.react) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.react);
-  }
-
-  if (
-    channelConfig?.['user_message_reminders'] &&
-    messageActions.indexOf(MESSAGE_ACTIONS.remindMe) > -1
-  ) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.remindMe);
-  }
-
-  if (canReply && messageActions.indexOf(MESSAGE_ACTIONS.reply) > -1) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.reply);
-  }
-
-  if (
-    channelConfig?.['user_message_reminders'] &&
-    messageActions.indexOf(MESSAGE_ACTIONS.saveForLater) > -1
-  ) {
-    messageActionsAfterPermission.push(MESSAGE_ACTIONS.saveForLater);
-  }
-
-  return messageActionsAfterPermission;
-};
-
-export const ACTIONS_NOT_WORKING_IN_THREAD = [
-  MESSAGE_ACTIONS.pin,
-  MESSAGE_ACTIONS.reply,
-  MESSAGE_ACTIONS.markUnread,
-];
+/** `MessageActionSetItem['type']`s that a thread reply does not support. */
+export const ACTIONS_NOT_WORKING_IN_THREAD: string[] = ['pin', 'reply', 'markUnread'];
 
 function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage): boolean {
-  const areBaseMessagesEqual = (
-    prevMessage: LocalMessageBase,
-    nextMessage: LocalMessageBase,
-  ) =>
+  if (prevMessage === nextMessage) return true;
+
+  const areBaseMessagesEqual = (prevMessage: LocalMessage, nextMessage: LocalMessage) =>
     prevMessage.deleted_at === nextMessage.deleted_at &&
-    prevMessage.latest_reactions?.length === nextMessage.latest_reactions?.length &&
-    prevMessage.own_reactions?.length === nextMessage.own_reactions?.length &&
+    prevMessage.attachments === nextMessage.attachments &&
+    prevMessage.latest_reactions === nextMessage.latest_reactions &&
+    prevMessage.own_reactions === nextMessage.own_reactions &&
+    prevMessage.reaction_groups === nextMessage.reaction_groups &&
+    prevMessage.shared_location === nextMessage.shared_location &&
     prevMessage.pinned === nextMessage.pinned &&
     prevMessage.reply_count === nextMessage.reply_count &&
     prevMessage.show_in_channel === nextMessage.show_in_channel &&
@@ -199,27 +72,25 @@ function areMessagesEqual(prevMessage: LocalMessage, nextMessage: LocalMessage):
     Boolean(prevMessage.quoted_message) === Boolean(nextMessage.quoted_message) &&
     ((!prevMessage.quoted_message && !nextMessage.quoted_message) ||
       areBaseMessagesEqual(
-        prevMessage.quoted_message as LocalMessageBase,
-        nextMessage.quoted_message as LocalMessageBase,
+        prevMessage.quoted_message as LocalMessage,
+        nextMessage.quoted_message as LocalMessage,
       ))
   );
 }
 
 export const areMessagePropsEqual = (
   prevProps: MessageProps & {
-    mutes?: Mute[];
     showDetailedReactions?: boolean;
   },
   nextProps: MessageProps & {
-    mutes?: Mute[];
     showDetailedReactions?: boolean;
   },
 ) => {
-  const { message: prevMessage, Message: prevMessageUI } = prevProps;
-  const { message: nextMessage, Message: nextMessageUI } = nextProps;
+  const { message: prevMessage } = prevProps;
+  const { message: nextMessage } = nextProps;
 
-  if (prevMessageUI !== nextMessageUI) return false;
-
+  // The message UI component itself is not compared here: it is resolved from
+  // `ComponentContext`, and context updates re-render consumers regardless of `React.memo`.
   if (nextProps.showDetailedReactions !== prevProps.showDetailedReactions) {
     return false;
   }
@@ -232,12 +103,10 @@ export const areMessagePropsEqual = (
   if (!messagesAreEqual) return false;
 
   const deepEqualProps =
-    deepequal(nextProps.messageActions, prevProps.messageActions) &&
     deepequal(nextProps.readBy, prevProps.readBy) &&
     deepequal(nextProps.deliveredTo, prevProps.deliveredTo) &&
     deepequal(nextProps.highlighted, prevProps.highlighted) &&
     deepequal(nextProps.groupStyles, prevProps.groupStyles) && // last 3 messages can have different group styles
-    deepequal(nextProps.mutes, prevProps.mutes) &&
     deepequal(nextProps.lastReceivedId, prevProps.lastReceivedId);
 
   if (!deepEqualProps) return false;
@@ -259,9 +128,7 @@ export const areMessageUIPropsEqual = (
   const { lastReceivedId: nextLastReceivedId, message: nextMessage } = nextProps;
 
   if (prevProps.highlighted !== nextProps.highlighted) return false;
-  if (prevProps.threadList !== nextProps.threadList) return false;
   if (prevProps.endOfGroup !== nextProps.endOfGroup) return false;
-  if (prevProps.mutes?.length !== nextProps.mutes?.length) return false;
   if (prevProps.readBy?.length !== nextProps.readBy?.length) return false;
   if (prevProps.deliveredTo?.length !== nextProps.deliveredTo?.length) return false;
   if (prevProps.groupStyles !== nextProps.groupStyles) return false;
@@ -322,7 +189,7 @@ export const mapToUserNameOrId: TooltipUsernameMapper = (user) => user.name || u
 
 export const getReadByTooltipText = (
   users: UserResponse[],
-  t: TFunction,
+  t: StreamTFunction,
   client: StreamChat,
   tooltipUserNameMapper: TooltipUsernameMapper,
 ) => {
@@ -352,25 +219,37 @@ export const getReadByTooltipText = (
   } else if (slicedArr.length === 2) {
     // joins all with "and" but =no commas
     // example: "bob and sam"
-    outStr = t('{{ firstUser }} and {{ secondUser }}', {
-      firstUser: slicedArr[0],
-      secondUser: slicedArr[1],
-    });
+    outStr = t(
+      'message.and.withFirstUserAndSecondUser.label',
+      '{{ firstUser }} and {{ secondUser }}',
+      {
+        firstUser: slicedArr[0],
+        secondUser: slicedArr[1],
+      },
+    );
   } else if (slicedArr.length > 2) {
     // joins all with commas, but last one gets ", and" (oxford comma!)
     // example: "bob, joe, sam and 4 more"
     if (restLength === 0) {
       // mutate slicedArr to remove last user to display it separately
-      const lastUser = slicedArr.splice(slicedArr.length - 1, 1);
-      outStr = t('{{ commaSeparatedUsers }}, and {{ lastUser }}', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        lastUser,
-      });
+      const [lastUser] = slicedArr.splice(slicedArr.length - 1, 1);
+      outStr = t(
+        'message.and.withCommaSeparatedUsersAndLastUser.label',
+        '{{ commaSeparatedUsers }}, and {{ lastUser }}',
+        {
+          commaSeparatedUsers: slicedArr.join(', '),
+          lastUser,
+        },
+      );
     } else {
-      outStr = t('{{ commaSeparatedUsers }} and {{ moreCount }} more', {
-        commaSeparatedUsers: slicedArr.join(', '),
-        moreCount: restLength,
-      });
+      outStr = t(
+        'message.more.label',
+        '{{ commaSeparatedUsers }} and {{ moreCount }} more',
+        {
+          commaSeparatedUsers: slicedArr.join(', '),
+          moreCount: restLength,
+        },
+      );
     }
   }
 
@@ -397,23 +276,19 @@ export const isMessageErrorRetryable = (message: LocalMessage) =>
 export const isNetworkSendFailure = (message: Pick<LocalMessage, 'error' | 'status'>) =>
   message.status === 'failed' && message.error?.status === 0;
 
-export const isMessageBounced = (
-  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details'>,
-) =>
-  message.type === 'error' &&
-  (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_BOUNCE' ||
-    message.moderation?.action === 'bounce');
+export const isMessageBounced = (message: Pick<LocalMessage, 'type' | 'moderation'>) =>
+  message.type === 'error' && message.moderation?.action === 'bounce';
 
 export const isMessageBlocked = (
-  message: Pick<LocalMessage, 'type' | 'moderation' | 'moderation_details' | 'shadowed'>,
+  message: Pick<LocalMessage, 'type' | 'moderation' | 'shadowed'>,
 ) =>
   message.shadowed ||
-  (message.type === 'error' &&
-    (message.moderation_details?.action === 'MESSAGE_RESPONSE_ACTION_REMOVE' ||
-      message.moderation?.action === 'remove'));
+  (message.type === 'error' && message.moderation?.action === 'remove');
 
 export const isMessageDeleted = (message: LocalMessage): boolean =>
-  Boolean(message.deleted_at || message.type === 'deleted' || message.deleted_for_me);
+  Boolean(
+    message.deleted_at != null || message.type === 'deleted' || message.deleted_for_me,
+  );
 
 export const isMessageEdited = (message: Pick<LocalMessage, 'message_text_updated_at'>) =>
-  !!message.message_text_updated_at;
+  message.message_text_updated_at != null;

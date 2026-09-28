@@ -1,8 +1,9 @@
 import type {
   Channel,
-  ChannelQueryOptions,
-  QueryChannelAPIResponse,
+  ChannelGetOrCreateRequest,
+  ChannelStateResponse,
   StreamChat,
+  StreamResponse,
 } from 'stream-chat';
 
 /**
@@ -11,7 +12,7 @@ import type {
  */
 const WATCH_QUERY_IN_PROGRESS_FOR_CHANNEL: Record<
   string,
-  Promise<QueryChannelAPIResponse> | undefined
+  Promise<StreamResponse<ChannelStateResponse>> | undefined
 > = {};
 
 type GetChannelParams = {
@@ -19,7 +20,7 @@ type GetChannelParams = {
   channel?: Channel;
   id?: string;
   members?: string[];
-  options?: ChannelQueryOptions;
+  options?: ChannelGetOrCreateRequest;
   type?: string;
 };
 /**
@@ -39,13 +40,18 @@ export const getChannel = async ({
   options,
   type,
 }: GetChannelParams) => {
-  if (!channel && !type) {
-    throw new Error('Channel or channel type have to be provided to query a channel.');
+  // Narrow imperatively so `type` is known-defined where we call `client.channel` —
+  // TypeScript can't infer from `!channel && !type` alone that `type` is truthy in the
+  // `else` path, and this avoids a non-null assertion.
+  let theChannel = channel;
+  if (!theChannel) {
+    if (!type) {
+      throw new Error('Channel or channel type have to be provided to query a channel.');
+    }
+    theChannel = client.channel(type, id, {
+      members: members?.map((user_id) => ({ user_id })),
+    });
   }
-
-  // unfortunately typescript is not able to infer that if (!channel && !type) === false, then channel or type has to be truthy
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const theChannel = channel || client.channel(type!, id, { members });
 
   // need to keep as with call to channel.watch the id can be changed from undefined to an actual ID generated server-side
   const originalCid = theChannel?.id

@@ -22,7 +22,7 @@ export default (
       channel_id,
       channel_type,
       cid: data.cid,
-      message: newMessage as MessageResponse,
+      message: { ...newMessage, cid: newMessage.cid ?? data.cid } as MessageResponse,
       type: 'message.updated',
       user: user || newMessage.user,
     }),

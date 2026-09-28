@@ -36,7 +36,8 @@ vi.mock('../../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../context')>();
   return {
     useChatContext: () => ({ client: mockClient }),
-    useComponentContext: () => ({}),
+    // The real hook: with no provider it returns the SDK icons, which is what these
+    // assertions are written against.
     useComponentContextIcons: actual.useComponentContextIcons,
     useTranslationContext: () => ({ t: tSpy }),
   };

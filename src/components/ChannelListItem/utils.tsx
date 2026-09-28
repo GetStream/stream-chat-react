@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
-import type { Channel, LocalMessage, PollVote } from 'stream-chat';
+import type { Channel, LocalMessage, PollVoteResponseData } from 'stream-chat';
 import { toString as mdastToString } from 'mdast-util-to-string';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
@@ -45,12 +45,13 @@ const stripMarkdownToText = (text: string): string => {
   }
 };
 
-const getLatestPollVote = (latestVotesByOption: Record<string, PollVote[]>) => {
-  let latestVote: PollVote | undefined;
+const getLatestPollVote = (
+  latestVotesByOption: Record<string, PollVoteResponseData[]>,
+) => {
+  let latestVote: PollVoteResponseData | undefined;
   for (const optionVotes of Object.values(latestVotesByOption)) {
     optionVotes.forEach((vote) => {
-      if (latestVote && new Date(latestVote.updated_at) >= new Date(vote.created_at))
-        return;
+      if (latestVote && latestVote.updated_at >= vote.created_at) return;
       latestVote = vote;
     });
   }
@@ -99,7 +100,8 @@ const getLatestMessagePreviewParts = (
   // time a caller derives from the same message; fall back to the channel's latest.
   const latestMessage =
     latestMessageArg ??
-    channel.state.latestMessages[channel.state.latestMessages.length - 1];
+    channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+    undefined;
 
   const previewTextToRender =
     getTranslatedMessageText({ language: userLanguage, message: latestMessage }) ||
@@ -111,7 +113,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'empty',
       latestMessage,
-      text: t('Nothing yet...'),
+      text: t('common.nothingYet.text', 'Nothing yet...'),
     };
   }
 
@@ -120,7 +122,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'deleted',
       latestMessage,
-      text: t('Message deleted'),
+      text: t('common.messageDeleted.text', 'Message deleted'),
     };
   }
 
@@ -128,21 +130,25 @@ const getLatestMessagePreviewParts = (
     if (!poll.vote_count) {
       const createdBy =
         poll.created_by?.id === channel.getClient().userID
-          ? t('You')
-          : (poll.created_by?.name ?? t('Poll'));
+          ? t('common.you.label', 'You')
+          : (poll.created_by?.name ?? t('common.poll.label', 'Poll'));
       return {
         isUserMessageText: false,
         kind: 'poll',
         latestMessage,
         pollName: poll.name,
-        text: t('📊 {{createdBy}} created: {{ pollName}}', {
-          createdBy,
-          pollName: poll.name,
-        }),
+        text: t(
+          'channelListItem.created.text',
+          '📊 {{createdBy}} created: {{ pollName}}',
+          {
+            createdBy,
+            pollName: poll.name,
+          },
+        ),
       };
     } else {
       const latestVote = getLatestPollVote(
-        poll.latest_votes_by_option as Record<string, PollVote[]>,
+        poll.latest_votes_by_option as Record<string, PollVoteResponseData[]>,
       );
       const option =
         latestVote && poll.options.find((opt) => opt.id === latestVote.option_id);
@@ -153,13 +159,17 @@ const getLatestMessagePreviewParts = (
           kind: 'poll',
           latestMessage,
           pollName: poll.name,
-          text: t('📊 {{votedBy}} voted: {{pollOptionText}}', {
-            pollOptionText: option.text,
-            votedBy:
-              latestVote?.user?.id === channel.getClient().userID
-                ? t('You')
-                : (latestVote.user?.name ?? t('Poll')),
-          }),
+          text: t(
+            'channelListItem.voted.text',
+            '📊 {{votedBy}} voted: {{pollOptionText}}',
+            {
+              pollOptionText: option.text,
+              votedBy:
+                latestVote?.user?.id === channel.getClient().userID
+                  ? t('common.you.label', 'You')
+                  : (latestVote.user?.name ?? t('common.poll.label', 'Poll')),
+            },
+          ),
         };
       }
     }
@@ -188,7 +198,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'attachment',
       latestMessage,
-      text: t('🏙 Attachment...'),
+      text: t('channelListItem.attachment.text', '🏙 Attachment...'),
     };
   }
 
@@ -197,7 +207,7 @@ const getLatestMessagePreviewParts = (
       isUserMessageText: false,
       kind: 'location',
       latestMessage,
-      text: t('📍Shared location'),
+      text: t('channelListItem.sharedLocation.text', '📍Shared location'),
     };
   }
 
@@ -205,14 +215,15 @@ const getLatestMessagePreviewParts = (
     isUserMessageText: false,
     kind: 'text',
     latestMessage,
-    text: t('Empty message...'),
+    text: t('common.emptyMessage.text', 'Empty message...'),
   };
 };
 
 /**
  * Maps a known attachment `type` to a localized, human-readable word (e.g. "image" → "Image"). The
- * cases are literal `t('aria/…')` calls so `i18next-cli` extracts them. Unknown/custom types return
- * `undefined`, so the announcement falls back to a generic "Attachment".
+ * cases are literal `t()` calls so the catalog generator sees them -- `i18next-cli` and the `aria/`
+ * prefix are both gone. Unknown/custom types return `undefined`, so the announcement falls back to a
+ * generic "Attachment".
  */
 const getAttachmentTypeLabel = (
   type: string | undefined,
@@ -220,17 +231,17 @@ const getAttachmentTypeLabel = (
 ): string | undefined => {
   switch (type) {
     case 'audio':
-      return t('aria/audio');
+      return t('channelListItem.audio.ariaLabel', 'audio');
     case 'file':
-      return t('aria/file');
+      return t('channelListItem.file.ariaLabel', 'file');
     case 'giphy':
-      return t('aria/GIF');
+      return t('channelListItem.gif.ariaLabel', 'GIF');
     case 'image':
-      return t('aria/image');
+      return t('channelListItem.image.ariaLabel', 'image');
     case 'video':
-      return t('aria/video');
+      return t('channelListItem.video.ariaLabel', 'video');
     case 'voiceRecording':
-      return t('aria/voice message');
+      return t('channelListItem.voiceMessage.ariaLabel', 'voice message');
     default:
       return undefined;
   }
@@ -260,7 +271,9 @@ export const getLatestMessagePreviewText = (
 
   switch (kind) {
     case 'poll':
-      return t('aria/Poll: {{ pollName }}', { pollName: pollName ?? '' });
+      return t('channelListItem.poll.ariaLabel', 'Poll: {{ pollName }}', {
+        pollName: pollName ?? '',
+      });
     case 'attachment': {
       // Link previews are announced separately (see the `linkPreview` label part); decide by the
       // count of real attachments. Multiple → a generic phrase (the count is announced alongside);
@@ -269,17 +282,28 @@ export const getLatestMessagePreviewText = (
         resolvedLatestMessage?.attachments?.filter(
           (attachment) => !attachment.og_scrape_url,
         ) ?? [];
-      if (realAttachments.length > 1) return t('aria/Message with attachments');
+      if (realAttachments.length > 1)
+        return t(
+          'channelListItem.messageAttachments.ariaLabel',
+          'Message with attachments',
+        );
       const typeLabel = getAttachmentTypeLabel(realAttachments[0]?.type, t);
       return typeLabel
-        ? t('aria/Attachment {{ attachmentType }}', { attachmentType: typeLabel })
-        : t('aria/Attachment');
+        ? t(
+            'channelListItem.attachment.withAttachmentType.ariaLabel',
+            'Attachment {{ attachmentType }}',
+            { attachmentType: typeLabel },
+          )
+        : t('channelListItem.attachment.ariaLabel', 'Attachment');
     }
     case 'location':
-      return t('aria/Shared location');
+      return t('channelListItem.sharedLocation.ariaLabel', 'Shared location');
     case 'empty':
       // The visible preview says "Nothing yet..."; spell it out for assistive tech.
-      return t('aria/There are no messages in this chat.');
+      return t(
+        'channelListItem.noMessagesChat.ariaLabel',
+        'There are no messages in this chat.',
+      );
     case 'text':
       // `resolvedLatestMessage` guard is redundant at runtime (isUserMessageText implies it) but
       // narrows the optional type for `isMessageAIGenerated`.
@@ -329,14 +353,14 @@ export type GroupChannelDisplayInfo = {
 };
 
 /**
- * Channel display image: channel.data.image, or for DM (2 members) the other member's user.image.
+ * Channel display image: channel.data.custom.image, or for DM (2 members) the other member's user.image.
  */
 export const getChannelDisplayImage = (
   channel: Channel,
   currentUserId?: string,
 ): string | undefined => {
-  const data = channel.data as { image?: string } | undefined;
-  if (data?.image && typeof data.image === 'string') return data.image;
+  const image = channel.data?.custom?.image;
+  if (image && typeof image === 'string') return image;
 
   const memberList = Object.values(channel.state.members);
   if (memberList.length === 2) {

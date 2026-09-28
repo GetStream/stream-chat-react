@@ -13,6 +13,8 @@ import {
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { ChannelMemberDetail } from '../ChannelMemberDetail';
+import { mockT } from '../../../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../../../mock-builders';
 
 vi.mock('../../../../../context');
 
@@ -43,7 +45,7 @@ const createChannel = ({
         'user-2': {
           user: {
             id: 'user-2',
-            last_active: '2026-01-01T00:00:00.000000000Z',
+            last_active: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
             name: 'Bob',
           },
           user_id: 'user-2',
@@ -63,7 +65,7 @@ const createAction = (type: string, label: string) => ({
 const otherMember = fromPartial<ChannelMemberResponse>({
   user: {
     id: 'user-2',
-    last_active: '2026-01-01T00:00:00.000000000Z',
+    last_active: convertDateToTimestamp('2026-01-01T00:00:00.000000000Z'),
     name: 'Bob',
   },
   user_id: 'user-2',
@@ -71,11 +73,13 @@ const otherMember = fromPartial<ChannelMemberResponse>({
 
 describe('ChannelMemberDetail', () => {
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { timestamp?: string }) =>
-        options?.timestamp ? `${key}:${options.timestamp}` : key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
 
     vi.mocked(useChatContext).mockReturnValue({
@@ -90,7 +94,6 @@ describe('ChannelMemberDetail', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
-    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
   it("renders the provided member's details", () => {

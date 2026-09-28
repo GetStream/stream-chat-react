@@ -25,8 +25,9 @@
   // Stepper buttons: circular, light border (Figma)
   &__input {
     flex: 0 1 auto;
-    min-width: 2ch;
-    width: 2.5rem;
+    // No fixed width: the `size` attribute sizes the field to its value. This keeps the compact
+    // look for one- and two-digit values without truncating longer ones.
+    min-width: 2.5rem;
     padding: var(--str-chat__spacing-xs, 0.5rem) 0;
     font-size: var(--str-chat__typography-font-size-sm, 0.875rem);
     font-weight: var(--str-chat__typography-font-weight-medium, 500);

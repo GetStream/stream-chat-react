@@ -4,20 +4,34 @@ import { type ChannelAvatarProps, ChannelAvatar as DefaultAvatar } from '../Avat
 import { TypingIndicatorHeader } from '../TypingIndicator/TypingIndicatorHeader';
 import { useChannelHeaderOnlineStatus } from './hooks/useChannelHeaderOnlineStatus';
 import { useChannelPreviewInfo } from '../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useChatContext } from '../../context/ChatContext';
-import { useComponentContext } from '../../context/ComponentContext';
-import { useTypingContext } from '../../context/TypingContext';
+import { useChannel, useChatContext } from '../../context';
+import { WorkspaceNavigationBackButton, WorkspaceNavigationCloseButton } from '../Button';
+import { useMessageComposerController } from '../MessageComposer/hooks/useMessageComposerController';
+import { useStateStore } from '../../store';
+
+import type { ChannelConfig, EventPayload, TextComposerState } from 'stream-chat';
+
+const typingEventsStateSelector = ({ typingEvents }: ChannelConfig) => ({
+  typingEventsEnabled: typingEvents.enabled,
+});
+
+const textComposerTypingSelector = ({ typing }: TextComposerState) => ({ typing });
 
 const ChannelHeaderSubtitle = () => {
-  const { channelConfig } = useChannelStateContext('ChannelHeaderSubtitle');
-  const { client } = useChatContext('ChannelHeaderSubtitle');
-  const { typing = {} } = useTypingContext('ChannelHeaderSubtitle');
-  const onlineStatusText = useChannelHeaderOnlineStatus();
-  const typingInChannel = Object.values(typing).filter(
-    ({ parent_id, user }) => user?.id !== client.user?.id && !parent_id,
+  const channel = useChannel();
+  const { typingEventsEnabled } = useStateStore(
+    channel.configState,
+    typingEventsStateSelector,
   );
-  const hasTyping = channelConfig?.typing_events !== false && typingInChannel.length > 0;
+  const { client } = useChatContext();
+  const messageComposer = useMessageComposerController();
+  const { typing = {} } =
+    useStateStore(messageComposer.textComposer?.state, textComposerTypingSelector) ?? {};
+  const onlineStatusText = useChannelHeaderOnlineStatus();
+  const typingInChannel = (
+    Object.values(typing) as EventPayload<'typing.start' | 'typing.stop'>[]
+  ).filter(({ parent_id, user }) => user?.id !== client.user?.id && !parent_id);
+  const hasTyping = typingEventsEnabled !== false && typingInChannel.length > 0;
 
   if (!hasTyping && !onlineStatusText) return null;
 
@@ -36,6 +50,18 @@ const ChannelHeaderSubtitle = () => {
 export type ChannelHeaderProps = {
   /** UI component to display an avatar, defaults to [Avatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/Avatar.tsx) component and accepts the same props as: [ChannelAvatar](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Avatar/ChannelAvatar.tsx) */
   Avatar?: React.ComponentType<ChannelAvatarProps>;
+  /**
+   * Rendered at the end of the header, after the avatar. Defaults to
+   * `WorkspaceNavigationCloseButton`, the close button of a panel that can be dismissed; a component
+   * passed here replaces it, and can render the button itself to keep it.
+   */
+  EndContent?: React.ComponentType;
+  /**
+   * Rendered at the start of the header. Defaults to `WorkspaceNavigationBackButton`, the back
+   * button of a panel stacked over other content; a component passed here replaces it, and can
+   * render the button itself to keep it.
+   */
+  StartContent?: React.ComponentType;
   /** Manually set the image to render, defaults to the Channel image */
   image?: string;
   /** Set title manually */
@@ -46,10 +72,15 @@ export type ChannelHeaderProps = {
  * The ChannelHeader component renders some basic information about a Channel.
  */
 export const ChannelHeader = (props: ChannelHeaderProps) => {
-  const { Avatar = DefaultAvatar, image: overrideImage, title: overrideTitle } = props;
+  const {
+    Avatar = DefaultAvatar,
+    EndContent = WorkspaceNavigationCloseButton,
+    image: overrideImage,
+    StartContent = WorkspaceNavigationBackButton,
+    title: overrideTitle,
+  } = props;
 
-  const { channel } = useChannelStateContext();
-  const { HeaderStartContent } = useComponentContext();
+  const channel = useChannel();
   const { displayImage, displayTitle, groupChannelDisplayInfo } = useChannelPreviewInfo({
     channel,
     overrideImage,
@@ -59,7 +90,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
   return (
     <div className='str-chat__channel-header'>
       <div className='str-chat__channel-header__start'>
-        {HeaderStartContent && <HeaderStartContent />}
+        <StartContent />
       </div>
       <div className='str-chat__channel-header__data'>
         <div className='str-chat__channel-header__data__title'>{displayTitle}</div>
@@ -73,6 +104,7 @@ export const ChannelHeader = (props: ChannelHeaderProps) => {
           size='lg'
           userName={displayTitle}
         />
+        <EndContent />
       </div>
     </div>
   );

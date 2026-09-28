@@ -1,36 +1,30 @@
 import { generateMessage, generateReaction, generateUser } from 'mock-builders';
+import type { StreamTFunction } from '../../../i18n/types';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { TFunction } from 'i18next';
-import type {
-  ChannelConfigWithInfo,
-  LocalMessage,
-  MessageResponse,
-  Mute,
-} from 'stream-chat';
+
+import type { LocalMessage, MessageResponse, UserMuteResponse } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import {
   countReactions,
   getTestClientWithUser,
   groupReactions,
-  mockTranslatorFunction,
+  mockT,
 } from '../../../mock-builders';
 import {
   areMessagePropsEqual,
   getImages,
-  getMessageActions,
   getNonImageAttachments,
   getReadByTooltipText,
   isMessageBlocked,
   isUserMuted,
   mapToUserNameOrId,
-  MESSAGE_ACTIONS,
   messageHasAttachments,
   messageHasReactions,
-  OPTIONAL_MESSAGE_ACTIONS,
   validateAndGetMessage,
 } from '../utils';
 import type { MessageProps } from '../types';
 import type { GroupStyle } from '../../MessageList/utils';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
@@ -61,8 +55,10 @@ describe('Message utils', () => {
   describe('isUserMuted function', () => {
     it('should return false if message is not defined', () => {
       const mutes = [
-        fromPartial<Mute>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+        fromPartial<UserMuteResponse>({
+          created_at: convertDateToTimestamp(
+            new Date('2019-03-30T13:24:10').toISOString(),
+          ),
           target: bob,
           user: alice,
         }),
@@ -79,8 +75,10 @@ describe('Message utils', () => {
 
     it('should return true if user was muted', () => {
       const mutes = [
-        fromPartial<Mute>({
-          created_at: new Date('2019-03-30T13:24:10').toISOString(),
+        fromPartial<UserMuteResponse>({
+          created_at: convertDateToTimestamp(
+            new Date('2019-03-30T13:24:10').toISOString(),
+          ),
           target: bob,
           user: alice,
         }),
@@ -91,93 +89,6 @@ describe('Message utils', () => {
     });
   });
 
-  describe('getMessageActions', () => {
-    const defaultCapabilities = {
-      canDelete: true,
-      canEdit: true,
-      canFlag: true,
-      canMarkUnread: true,
-      canMute: true,
-      canPin: true,
-      canQuote: true,
-      canReact: true,
-      canReply: true,
-    };
-    const actions = Object.values(MESSAGE_ACTIONS);
-    const optionalActions = Object.values(OPTIONAL_MESSAGE_ACTIONS);
-
-    it.each([
-      ['empty', []],
-      ['false', false],
-    ])(
-      'should return no message actions if message actions are %s',
-      (_, messageActions) => {
-        const result = getMessageActions(messageActions, defaultCapabilities);
-        expect(result).toStrictEqual([]);
-      },
-    );
-
-    it('should return all message actions not depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(true, defaultCapabilities);
-      expect(result).toStrictEqual(
-        actions.filter((a) => !['remindMe', 'saveForLater'].includes(a)),
-      );
-    });
-
-    it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['remindMe'], defaultCapabilities, {
-        user_message_reminders: true,
-      } as ChannelConfigWithInfo);
-      expect(result).toStrictEqual(['remindMe']);
-    });
-
-    it('should return message actions specified in custom actions array depending on channel config if actions are set to true', () => {
-      const result = getMessageActions(['saveForLater'], defaultCapabilities, {
-        user_message_reminders: true,
-      } as ChannelConfigWithInfo);
-      expect(result).toStrictEqual(['saveForLater']);
-    });
-
-    it('should include reminder actions if enabled in channel config', () => {
-      const result = getMessageActions(true, defaultCapabilities, {
-        user_message_reminders: true,
-      } as ChannelConfigWithInfo);
-      expect(result).toEqual(actions);
-    });
-
-    it.each([
-      ['allow', 'edit', 'canEdit', true, ['edit']],
-      ['not allow', 'edit', 'canEdit', false, ['edit']],
-      ['allow', 'delete', 'canDelete', true, ['delete']],
-      ['not allow', 'delete', 'canDelete', false, ['delete']],
-      ['allow', 'deleteForMe', 'canDelete', true, optionalActions],
-      ['not allow', 'deleteForMe', 'canDelete', false, optionalActions],
-      ['allow', 'flag', 'canFlag', true, ['flag']],
-      ['not allow', 'flag', 'canFlag', false, ['flag']],
-      ['allow', 'markUnread', 'canMarkUnread', true, ['markUnread']],
-      ['not allow', 'markUnread', 'canMarkUnread', false, ['markUnread']],
-      ['allow', 'mute', 'canMute', true, ['mute']],
-      ['not allow', 'mute', 'canMute', false, ['mute']],
-      ['allow', 'pin', 'canPin', true, ['pin']],
-      ['not allow', 'pin', 'canPin', false, ['pin']],
-      ['allow', 'quote', 'canQuote', true, ['quote']],
-      ['not allow', 'quote', 'canQuote', false, ['quote']],
-    ])(
-      'it should %s %s when %s is %s',
-      (_, action, capabilityKey, capabilityValue, actionsToUse) => {
-        const capabilities = {
-          [capabilityKey]: capabilityValue,
-        };
-        const result = getMessageActions(actionsToUse, capabilities);
-        if (capabilityValue) {
-          expect(result).toStrictEqual([action]);
-        } else {
-          expect(result).not.toStrictEqual([action]);
-        }
-      },
-    );
-  });
-
   describe('shouldMessageComponentUpdate', () => {
     it('should not update if rendered with the same message props', () => {
       const message = generateMessage();
@@ -185,6 +96,100 @@ describe('Message utils', () => {
       const nextProps = fromPartial<MessageProps>({ message });
       const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(shouldUpdate).toBe(false);
+    });
+
+    // `formatMessage` runs only on the write path, so an unchanged message keeps its reference and
+    // the memo always bailed for it. What changed with numbers: `updated_at` is no longer a fresh
+    // `Date` per ingest, so it no longer forces a repaint on every re-ingest — which is what makes
+    // the compared-field list load-bearing. These pin the fields that list has to cover.
+    describe('memoization with nanosecond timestamps', () => {
+      it('bails out for an identical message, which a fresh Date used to prevent', () => {
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message: { ...message } }),
+            fromPartial<MessageProps>({ message: { ...message } }),
+          ),
+        ).toBe(true);
+      });
+
+      it('sees a changed updated_at', () => {
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({
+              message: { ...message, updated_at: (message.updated_at as number) + 1e9 },
+            }),
+            fromPartial<MessageProps>({ message }),
+          ),
+        ).toBe(false);
+      });
+
+      it('sees an attachments swap', () => {
+        // Compared by reference: the SDK builds a new array for any real change, so this needs no
+        // deep equality. An upload thumbnail resolving used to leave the row stale.
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({
+              message: {
+                ...message,
+                attachments: [{ image_url: 'resolved', type: 'image' }],
+              },
+            }),
+            fromPartial<MessageProps>({ message: { ...message, attachments: [] } }),
+          ),
+        ).toBe(false);
+      });
+
+      it('sees a reaction change that leaves the reaction list length untouched', () => {
+        // The case a `length` comparison structurally cannot catch: an `enforce_unique` swap takes
+        // one reaction out and puts one in, so the count holds and `updated_at` never moves.
+        const message = generateMessage({ id: 'm' });
+        const withReaction = (type: string) => ({
+          ...message,
+          latest_reactions: [{ type, user_id: 'u1' }],
+          reaction_groups: { [type]: { count: 1, sum_scores: 1 } },
+        });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message: withReaction('like') }),
+            fromPartial<MessageProps>({ message: withReaction('love') }),
+          ),
+        ).toBe(false);
+      });
+
+      it('sees a shared_location moving', () => {
+        const message = generateMessage({ id: 'm' });
+        const at = (latitude: number) => ({
+          ...message,
+          shared_location: { created_by_device_id: 'd', latitude, longitude: 2 },
+        });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message: at(52.3676) }),
+            fromPartial<MessageProps>({ message: at(48.8566) }),
+          ),
+        ).toBe(false);
+      });
+
+      it('still bails when nothing changed, so a long list does not repaint wholesale', () => {
+        // The bail-out that matters: an unchanged message keeps its object identity across renders
+        // because `processMessages` re-uses the references it is given.
+        const message = generateMessage({ id: 'm' });
+
+        expect(
+          areMessagePropsEqual(
+            fromPartial<MessageProps>({ message }),
+            fromPartial<MessageProps>({ message }),
+          ),
+        ).toBe(true);
+      });
     });
 
     it('should update if rendered with a different message', () => {
@@ -209,8 +214,8 @@ describe('Message utils', () => {
         ['updated_at', new Date(1).toISOString(), new Date(2).toISOString()],
         [
           'user',
-          { updated_at: new Date(1).toISOString() },
-          { updated_at: new Date(2).toISOString() },
+          { updated_at: convertDateToTimestamp(new Date(1).toISOString()) },
+          { updated_at: convertDateToTimestamp(new Date(2).toISOString()) },
         ],
       ];
       const message = generateMessage();
@@ -318,28 +323,6 @@ describe('Message utils', () => {
       const shouldUpdate = !areMessagePropsEqual(nextProps, currentProps);
       expect(arePropsEqual).toBe(false);
       expect(shouldUpdate).toBe(true);
-    });
-
-    it('should update when messageActions change', () => {
-      const message = generateMessage();
-      const prevMessageActions = ['edit', 'delete'];
-      const nextMessageActions = ['edit', 'delete', 'reply'];
-      const shouldUpdate = !areMessagePropsEqual(
-        fromPartial<MessageProps>({ message, messageActions: prevMessageActions }),
-        fromPartial<MessageProps>({ message, messageActions: nextMessageActions }),
-      );
-      expect(shouldUpdate).toBe(true);
-    });
-
-    it('should not update when messageActions stay same', () => {
-      const message = generateMessage();
-      const prevMessageActions = ['edit', 'delete'];
-      const nextMessageActions = ['edit', 'delete'];
-      const shouldUpdate = !areMessagePropsEqual(
-        fromPartial<MessageProps>({ message, messageActions: prevMessageActions }),
-        fromPartial<MessageProps>({ message, messageActions: nextMessageActions }),
-      );
-      expect(shouldUpdate).toBe(false);
     });
   });
 
@@ -463,7 +446,7 @@ describe('Message utils', () => {
     it('ignores the client user', () => {
       const result = getReadByTooltipText(
         [client.user],
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as StreamTFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -472,7 +455,7 @@ describe('Message utils', () => {
     it('returns a single user if only one user in array', () => {
       const result = getReadByTooltipText(
         [bob],
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as StreamTFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -482,7 +465,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as StreamTFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -496,7 +479,7 @@ describe('Message utils', () => {
       ];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as StreamTFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -508,7 +491,7 @@ describe('Message utils', () => {
       );
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as StreamTFunction,
         client,
         tooltipUserNameMapper,
       );
@@ -518,7 +501,7 @@ describe('Message utils', () => {
       const users = [generateUser({ name: '1' }), generateUser({ name: '2' })];
       const result = getReadByTooltipText(
         users,
-        mockTranslatorFunction as unknown as TFunction,
+        mockT as unknown as StreamTFunction,
         client,
         (user) => `Dr. ${user.name}`,
       );
@@ -528,7 +511,7 @@ describe('Message utils', () => {
       expect(() =>
         getReadByTooltipText(
           [],
-          null as unknown as TFunction,
+          null as unknown as StreamTFunction,
           client,
           tooltipUserNameMapper,
         ),
@@ -540,7 +523,7 @@ describe('Message utils', () => {
       expect(() =>
         getReadByTooltipText(
           [],
-          mockTranslatorFunction as unknown as TFunction,
+          mockT as unknown as StreamTFunction,
           client,
           undefined as unknown as typeof tooltipUserNameMapper,
         ),

@@ -15,8 +15,8 @@ export const RemoveAttachmentPreviewButton = ({
   uploadState?: AttachmentLoadingState;
 }) => {
   const { IconXmarkSmall } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
+
   // Deliberately still actionable mid-upload: `removeAttachments` forwards to
   // `UploadManager.deleteUploadRecord`, which aborts the request through its `AbortController`,
   // and the `uploadState: 'failed'` update that lands afterwards is a no-op because
@@ -28,7 +28,17 @@ export const RemoveAttachmentPreviewButton = ({
 
   return (
     <Button
-      aria-label={isInFlight ? t('aria/Cancel upload') : t('aria/Remove attachment')}
+      aria-label={
+        isInFlight
+          ? t(
+              'messageComposer.removeAttachmentPreviewButton.cancelUpload.ariaLabel',
+              'Cancel upload',
+            )
+          : t(
+              'messageComposer.removeAttachmentPreview.removeAttachment.ariaLabel',
+              'Remove attachment',
+            )
+      }
       circular
       className={clsx('str-chat__attachment-preview__remove-button', className)}
       data-testid='preview-item-delete-button'

@@ -40,6 +40,18 @@
       "require": "./dist/cjs/mp3-encoder.js",
       "default": "./dist/cjs/mp3-encoder.js"
     },
+    "./slot-geometry": {
+      "types": "./dist/types/plugins/SlotGeometry/index.d.ts",
+      "import": "./dist/es/slot-geometry.mjs",
+      "require": "./dist/cjs/slot-geometry.js",
+      "default": "./dist/cjs/slot-geometry.js"
+    },
+    "./slot-layout": {
+      "types": "./dist/types/plugins/SlotLayout/index.d.ts",
+      "import": "./dist/es/slot-layout.mjs",
+      "require": "./dist/cjs/slot-layout.js",
+      "default": "./dist/cjs/slot-layout.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -57,13 +69,17 @@
       ],
       "mp3-encoder": [
         "./dist/types/plugins/encoders/mp3.d.ts"
+      ],
+      "slot-geometry": [
+        "./dist/types/plugins/SlotGeometry/index.d.ts"
+      ],
+      "slot-layout": [
+        "./dist/types/plugins/SlotLayout/index.d.ts"
       ]
     }
   },
   "sideEffects": [
-    "*.css",
-    "./dist/es/i18n/Streami18n.mjs",
-    "./dist/es/context/TranslationContext.mjs"
+    "*.css"
   ],
   "keywords": [
     "chat",
@@ -78,12 +94,12 @@
     "@braintree/sanitize-url": "^7.1.2",
     "@floating-ui/react": "^0.27.19",
     "@react-aria/focus": "^3.22.0",
+    "@stream-io/i18n": "^1.0.2",
+    "@stream-io/state-store": "^1.1.6",
     "clsx": "^2.1.1",
-    "dayjs": "^1.11.20",
     "emoji-regex": "^9.2.2",
     "fix-webm-duration": "^1.0.6",
     "hast-util-find-and-replace": "^5.0.1",
-    "i18next": "^25.10.10",
     "linkifyjs": "^4.3.3",
     "lodash.debounce": "^4.0.8",
     "lodash.mergewith": "^4.6.2",
@@ -102,7 +118,7 @@
     "unified": "^11.0.5",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
-    "use-sync-external-store": "^1.6.0"
+    "use-sync-external-store": "^1.7.0"
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5"
@@ -114,7 +130,7 @@
     "modern-normalize": "^3.0.1",
     "react": "^19.0.0 || ^18.0.0 || ^17.0.0",
     "react-dom": "^19.0.0 || ^18.0.0 || ^17.0.0",
-    "stream-chat": "^9.52.0"
+    "stream-chat": "^10.0.0-rc.15"
   },
   "peerDependenciesMeta": {
     "@breezystack/lamejs": {
@@ -155,6 +171,7 @@
     "@types/lodash.mergewith": "^4.6.9",
     "@types/lodash.throttle": "^4.1.9",
     "@types/lodash.uniqby": "^4.7.9",
+    "@types/node": "^24.13.3",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
     "@types/use-sync-external-store": "^1.5.0",
@@ -162,6 +179,7 @@
     "@vitest/eslint-plugin": "^1.6.20",
     "concurrently": "^9.2.1",
     "conventional-changelog-conventionalcommits": "^9.3.1",
+    "dayjs": "^1.11.23",
     "emoji-mart": "^5.6.0",
     "eslint": "^9.39.4",
     "eslint-plugin-import": "^2.32.0",
@@ -170,16 +188,14 @@
     "eslint-plugin-sort-destructure-keys": "^3.0.0",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
-    "i18next-cli": "^1.58.0",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.5",
-    "moment-timezone": "^0.5.48",
     "prettier": "^3.8.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "sass": "^1.100.0",
     "semantic-release": "^25.0.3",
-    "stream-chat": "^9.52.0",
+    "stream-chat": "10.0.0-rc.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.4",
     "vite": "^8.1.3",
@@ -190,9 +206,10 @@
     "clean": "rm -rf dist",
     "build": "yarn clean && concurrently 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
     "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css; cp -r src/styling/assets dist/css/assets",
-    "build-translations": "i18next-cli extract",
+    "build-translations": "node scripts/generate-i18n-keys.mts && prettier --write --log-level warn src/i18n/keys.ts",
     "coverage": "vitest run --coverage",
-    "lint": "yarn prettier --list-different && yarn eslint && yarn validate-translations",
+    "i18n:export": "node scripts/generate-i18n-keys.mts --json en.json",
+    "lint": "yarn prettier --list-different && yarn eslint",
     "lint-fix": "yarn prettier-fix && yarn eslint-fix",
     "eslint": "eslint --max-warnings 0",
     "eslint-fix": "eslint --fix",
@@ -206,15 +223,16 @@
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
     "test": "vitest run",
     "test:watch": "vitest",
-    "types": "tsc --project tsconfig.lib.json --noEmit",
+    "types": "tsc -p tsconfig.lib.json --noEmit",
     "types:tests": "tsc --project tsconfig.test.json --noEmit",
-    "validate-translations": "node scripts/validate-translations.js",
+    "validate-translations": "yarn build-translations && git diff --exit-code -- src/i18n/keys.ts",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
-    "build:all": "yarn workspaces foreach -A -tpv run build"
+    "build:all": "yarn workspaces foreach -A -tpv run build",
+    "types:scripts": "tsc -p tsconfig.scripts.json"
   },
   "resolutions": {
     "ast-types": "^0.14.0",

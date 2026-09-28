@@ -18,8 +18,14 @@ export const DeleteMessageAlert = ({ onCancel, onDelete }: DeleteMessageAlertPro
       data-testid='message-delete-alert'
     >
       <Alert.Header
-        description={t('Are you sure you want to delete this message?')}
-        title={t('Delete message')}
+        description={t(
+          'messageActions.deleteMessageAlert.description',
+          'Are you sure you want to delete this message?',
+        )}
+        title={t(
+          'messageActions.deleteMessageAlert.deleteMessage.title',
+          'Delete message',
+        )}
       />
       <Alert.Actions>
         <Button
@@ -30,7 +36,7 @@ export const DeleteMessageAlert = ({ onCancel, onDelete }: DeleteMessageAlertPro
           size='md'
           variant='danger'
         >
-          {t('Delete message')}
+          {t('messageActions.deleteMessageAlert.deleteMessage.title', 'Delete message')}
         </Button>
         <Button
           appearance='outline'
@@ -44,7 +50,7 @@ export const DeleteMessageAlert = ({ onCancel, onDelete }: DeleteMessageAlertPro
           size='md'
           variant='secondary'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Button>
       </Alert.Actions>
     </Alert.Root>

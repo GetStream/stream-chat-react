@@ -48,10 +48,10 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
     },
     ref,
   ) {
+    const { IconMinus, IconPlusSmall } = useComponentContextIcons();
     const generatedId = useStableId();
     const id = idProp ?? generatedId;
     const { t } = useTranslationContext();
-    const { IconMinus, IconPlusSmall } = useComponentContextIcons();
 
     const num = parseNumeric(value);
     const minDef = min ?? -Infinity;
@@ -119,7 +119,7 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
         <div className={clsx('str-chat__form-numeric-input__wrapper')}>
           <Button
             appearance='outline'
-            aria-label={t('aria/Decrease value')}
+            aria-label={t('form.numericInput.decreaseValue.ariaLabel', 'Decrease value')}
             circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--decrement',
@@ -143,13 +143,14 @@ export const NumericInput = forwardRef<HTMLInputElement, NumericInputProps>(
             onKeyDown={handleKeyDown}
             ref={ref}
             role='spinbutton'
+            size={Math.max(2, value.length)}
             type='text'
             value={value}
             {...inputProps}
           />
           <Button
             appearance='outline'
-            aria-label={t('aria/Increase value')}
+            aria-label={t('form.numericInput.increaseValue.ariaLabel', 'Increase value')}
             circular
             className={clsx(
               'str-chat__form-numeric-input__stepper str-chat__form-numeric-input__stepper--increment',

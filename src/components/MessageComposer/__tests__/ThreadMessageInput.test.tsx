@@ -1,10 +1,14 @@
+// Import the package barrel first so it evaluates in its natural order (components
+// then context). MessageComposer's send/update hooks import `useChannel` from this
+// root barrel; importing a deep component path first would trigger a partial circular
+// re-entry that leaves `useChannel` undefined under Vitest.
+import '../../..';
 import {
   generateChannel,
   generateMember,
   generateMessage,
   generateUser,
   initClientWithChannels,
-  mockChatContext,
 } from '../../../mock-builders';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
@@ -16,26 +20,39 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { ChatProvider, useChannelActionContext } from '../../../context';
+import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
-import React, { useEffect, useRef } from 'react';
-import { SearchController } from 'stream-chat';
-import type { LocalMessage } from 'stream-chat';
+import React from 'react';
 import { MessageComposer } from '../MessageComposer';
-import { LegacyThreadContext } from '../../Thread/LegacyThreadContext';
-
-vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../ChatView')>();
-  return {
-    ...actual,
-    useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    })),
-  };
-});
+import { Thread } from 'stream-chat';
+import { ThreadProvider } from '../../Threads';
 
 const sendMessageMock = vi.fn();
+
+/**
+ * Registers the interception the removed `doSendMessageRequest` prop used to provide.
+ *
+ * Declarative registration is the replacement for the per-component props: one place, no mount-order
+ * arbitration. The adapter below is what the deleted hook did internally — call the spy, and fall back
+ * to the real send when it returns nothing, so tests that only assert *that* a send was intercepted keep
+ * working without stubbing a whole response.
+ */
+const registerSendInterceptor = (client, channel) =>
+  client.config.set({
+    channel: {
+      requestHandlers: {
+        sendMessageRequest: async (params) => {
+          const response = await sendMessageMock(channel, params.message, params.options);
+          if (response?.message) return { message: response.message };
+          const fallback = await channel.sendMessage({
+            message: params.message,
+            ...params.options,
+          });
+          return { message: fallback.message };
+        },
+      },
+    },
+  });
 const fileUploadUrl = 'http://www.getstream.io';
 const cid = 'messaging:general';
 const userId = 'userId';
@@ -67,14 +84,6 @@ const mockedChannelData = generateChannel(
   }),
 );
 
-const defaultChatContext = {
-  channelsQueryState: { queryInProgress: 'uninitialized' },
-  getAppSettings: vi.fn(),
-  latestMessageDatesByChannels: {},
-  mutes: [],
-  searchController: new SearchController(),
-};
-
 const setup = async ({ channelData }: any = {}) => {
   const {
     channels: [customChannel],
@@ -83,11 +92,11 @@ const setup = async ({ channelData }: any = {}) => {
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi
-    .spyOn(customChannel, 'sendImage')
+  const uploadImageSpy = vi
+    .spyOn(customChannel, 'uploadImage')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
-  const sendFileSpy = vi
-    .spyOn(customChannel, 'sendFile')
+  const uploadFileSpy = vi
+    .spyOn(customChannel, 'uploadFile')
     .mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
   const getDraftSpy = vi
     .spyOn(customChannel, 'getDraft')
@@ -95,23 +104,12 @@ const setup = async ({ channelData }: any = {}) => {
   vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue(fromPartial({}));
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, getDraftSpy, sendFileSpy, sendImageSpy };
-};
-
-const ThreadSetter = () => {
-  const { openThread } = useChannelActionContext();
-  const isOpenThread = useRef(false);
-  useEffect(() => {
-    if (isOpenThread.current) return;
-    isOpenThread.current = true;
-    openThread(mainListMessage);
-  }, [openThread]);
+  return { customChannel, customClient, getDraftSpy, uploadFileSpy, uploadImageSpy };
 };
 
 const renderComponent = async ({
   channelData = {},
   channelProps = {},
-  chatContextOverrides = {},
   customChannel,
   customClient,
   customUser,
@@ -129,30 +127,26 @@ const renderComponent = async ({
     client = result.client;
     vi.spyOn(channel, 'deleteDraft').mockResolvedValue({});
   }
+  registerSendInterceptor(client, channel);
+
   let renderResult: RenderResult;
 
   await act(() => {
     renderResult = render(
-      <ChatProvider
-        value={mockChatContext({
-          ...defaultChatContext,
-          channel,
-          client,
-          ...chatContextOverrides,
-        })}
-      >
-        <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-          {/* @ts-expect-error -- test-only component */}
-          <ThreadSetter />
-          <LegacyThreadContext.Provider
-            value={fromPartial<{ legacyThread: LocalMessage | undefined }>({
-              legacyThread: thread ?? mainListMessage,
-            })}
+      <Chat client={client}>
+        <Channel channel={channel} {...channelProps}>
+          <ThreadProvider
+            // A real Thread, not a stand-in: `MessageComposer.threadId` is resolved with
+            // `compositionContext instanceof Thread`, so a partial object composes against the
+            // channel -- no thread draft, no "also send in channel".
+            thread={
+              new Thread({ channel, client, parentMessage: thread ?? mainListMessage })
+            }
           >
             <MessageComposer {...messageInputProps} />
-          </LegacyThreadContext.Provider>
+          </ThreadProvider>
         </Channel>
-      </ChatProvider>,
+      </Chat>,
     );
   });
 
@@ -170,7 +164,7 @@ describe('MessageInput in Thread', () => {
     it('is queried when drafts are enabled', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
         });
       });
@@ -180,7 +174,7 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).toHaveBeenCalledTimes(1);
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: false } });
         });
       });
@@ -188,7 +182,7 @@ describe('MessageInput in Thread', () => {
     it('prevents querying if composition is not empty', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
           composer.textComposer.setText('abc');
         });
@@ -199,7 +193,7 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: false } });
         });
       });
@@ -207,7 +201,7 @@ describe('MessageInput in Thread', () => {
     it('prevents querying if not rendered inside a thread', async () => {
       const { customChannel, customClient, getDraftSpy } = await setup();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: true } });
           (composer as any).compositionContext = customChannel;
         });
@@ -218,7 +212,7 @@ describe('MessageInput in Thread', () => {
       });
       expect(getDraftSpy).not.toHaveBeenCalled();
       await act(() => {
-        customClient.setMessageComposerSetupFunction(({ composer }) => {
+        customClient.config.setSetupFunction('messageComposer', ({ composer }) => {
           composer.updateConfig({ drafts: { enabled: false } });
         });
       });

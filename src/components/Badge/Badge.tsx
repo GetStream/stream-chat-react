@@ -49,6 +49,7 @@ export const ErrorBadge = ({
   ...rest
 }: Omit<BadgeProps, 'variant'>) => {
   const { IconExclamationMarkFill } = useComponentContextIcons();
+
   return (
     <Badge {...rest} className={className} size={size} variant='error'>
       <IconExclamationMarkFill />

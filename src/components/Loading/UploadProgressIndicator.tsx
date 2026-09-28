@@ -7,8 +7,8 @@ import { LoadingIndicator as DefaultLoadingIndicator } from './LoadingIndicator'
 export type UploadProgressIndicatorProps = {
   /**
    * Every byte has been sent, but the server has not confirmed yet — see
-   * `UploadRecord.uploadConfirmationPending` in `stream-chat`. Renders the indeterminate indicator, since
-   * a bar sitting at 100% would claim the upload is confirmed while it is not.
+   * `UploadRecord.uploadConfirmationPending` in `stream-chat`. Renders the indeterminate
+   * indicator, since a bar sitting at 100% would claim the upload is confirmed while it is not.
    */
   uploadConfirmationPending?: boolean;
   uploadProgress?: number;

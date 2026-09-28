@@ -31,6 +31,9 @@
   }
 
   .str-chat__thread-header__start {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
     min-width: 0;
     justify-self: start;
   }

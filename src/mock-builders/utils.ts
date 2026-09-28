@@ -75,9 +75,19 @@ export const initChannelFromData = async ({
     mockedChannelData.channel.id,
   );
   await channel.watch();
-  vi.spyOn(channel, 'getConfig').mockReturnValue(
-    mockedChannelData.channel.config as ChannelConfigWithInfo,
-  );
+  // Written into the client's store rather than stubbed onto the channel: `getConfig()` is gone, and
+  // its replacement `serverConfig` is a getter reading this store. Going through the store also drives
+  // the channel's own derivation, so `channel.config` — where six of these flags are reconciled with
+  // the integrator's configuration — is correct too. Stubbing an accessor would leave it stale.
+  //
+  // Keyed by cid: a channel's own `config_overrides` narrow its type's settings for that channel alone,
+  // so the LLC caches one entry per channel.
+  client.channelServerConfigsStore.partialNext({
+    configs: {
+      ...client.channelServerConfigs,
+      [channel.cid]: mockedChannelData.channel.config as ChannelConfigWithInfo,
+    },
+  });
   vi.spyOn(channel, 'getDraft').mockResolvedValue({
     draft: generateMessageDraft({ channel_cid: channel.cid }),
   } as GetDraftResponse);
@@ -96,11 +106,19 @@ export const initClientWithChannels = async ({
   const defaultGenerateChannelOptions = {
     members: [generateMember({ user: user as UserResponse })],
   };
-  const channels = await Promise.all(
-    (channelsData ?? [defaultGenerateChannelOptions]).map((channelData) =>
-      initChannelFromData({ channelData, client, defaultGenerateChannelOptions }),
-    ),
-  );
+  // Set up channels sequentially, not via Promise.all: initChannelFromData mocks the shared
+  // client.axiosInstance query endpoint per channel (useMockedApis uses mockResolvedValue, which
+  // REPLACES the previous mock). Running concurrently lets the last channel's mock win, so every
+  // channel's watch() resolves with the same (last) response — cross-seeding each channel's message
+  // paginator with another channel's messages (the paginator then correctly rejects the foreign-cid
+  // messages, unlike the cid-agnostic legacy channel.state). Sequential setup keeps each watch()
+  // paired with its own mocked response.
+  const channels: Awaited<ReturnType<typeof initChannelFromData>>[] = [];
+  for (const channelData of channelsData ?? [defaultGenerateChannelOptions]) {
+    channels.push(
+      await initChannelFromData({ channelData, client, defaultGenerateChannelOptions }),
+    );
+  }
 
   return { channels, client };
 };

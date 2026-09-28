@@ -1,11 +1,13 @@
 import { type AudioPlayerState, ProgressBar, useAudioPlayer } from '../../AudioPlayback';
-import { useComponentContextIcons, useMessageContext } from '../../../context';
+import { MessageContext } from '../../../context';
 import { useStateStore } from '../../../store';
 import { PlayButton } from '../../Button';
 import type { AudioProps } from '../Audio';
-import React from 'react';
+import React, { useContext } from 'react';
+import { useComponentContextIcons } from '../../../context';
 import { SafeAnchor } from '../../SafeAnchor';
 import type { CardProps } from './Card';
+import { useThreadContext } from '../../Threads';
 
 const getHostFromURL = (url?: string | null) => {
   if (url !== undefined && url !== null) {
@@ -22,6 +24,7 @@ const SourceLink = ({
   url,
 }: Pick<CardProps, 'author_name'> & { url: string; showUrl?: boolean }) => {
   const { IconLink } = useComponentContextIcons();
+
   return (
     <div
       className='str-chat__message-attachment-card--source-link'
@@ -57,13 +60,15 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  // also rendered from link previews, where there is no message
+  const { message } = useContext(MessageContext) ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     mimeType,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     src,
   });
 
@@ -88,16 +93,9 @@ const AudioWidget = ({ mimeType, src }: { src: string; mimeType?: string }) => {
 };
 
 export const CardAudio = ({
-  attachment: {
-    asset_url,
-    author_name,
-    mime_type,
-    og_scrape_url,
-    text,
-    title,
-    title_link,
-  },
+  attachment: { asset_url, author_name, custom, og_scrape_url, text, title, title_link },
 }: AudioProps) => {
+  const { mime_type } = custom;
   const url = title_link || og_scrape_url;
   const dataTestId = 'card-audio-widget';
   const rootClassName = 'str-chat__message-attachment-card-audio-widget';

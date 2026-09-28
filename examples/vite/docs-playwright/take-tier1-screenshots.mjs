@@ -159,7 +159,9 @@ async function run() {
 
   console.log('\n✅ Done!');
   console.log('\n⚠ Not automated (need app-level config):');
-  console.log('  - Localization2.png — needs defaultLanguage="it" on Chat component');
+  console.log(
+    '  - Localization2.png — needs an it dictionary registered and language: "it" on the Streami18n instance',
+  );
   console.log('  - Diacritics.png — needs user with diacritical name in the channel');
   console.log(
     '  - Transliteration.png — needs useMentionsTransliteration prop + Cyrillic user',

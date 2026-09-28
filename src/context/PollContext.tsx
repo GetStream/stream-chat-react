@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { Poll } from 'stream-chat';
+import { requireContext } from './requireContext';
 
 export type PollContextValue = {
   poll: Poll;
@@ -20,7 +21,5 @@ export const PollProvider = ({
     </PollContext.Provider>
   ) : null;
 
-export const usePollContext = () => {
-  const contextValue = useContext(PollContext);
-  return contextValue as unknown as PollContextValue;
-};
+export const usePollContext = () =>
+  requireContext(useContext(PollContext), 'usePollContext', 'PollProvider');

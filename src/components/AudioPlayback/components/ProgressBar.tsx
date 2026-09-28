@@ -25,7 +25,7 @@ export const ProgressBar = ({
   secondsElapsed,
   seek,
 }: ProgressBarProps) => {
-  const { t } = useTranslationContext('ProgressBar');
+  const { t } = useTranslationContext();
   const {
     handleDrag,
     handleDragStart,
@@ -44,7 +44,10 @@ export const ProgressBar = ({
 
   return (
     <div
-      aria-label={t('aria/Seek audio position')}
+      aria-label={t(
+        'audioPlayback.progressBar.seekAudioPosition.ariaLabel',
+        'Seek audio position',
+      )}
       aria-orientation='horizontal'
       aria-valuemax={100}
       aria-valuemin={0}

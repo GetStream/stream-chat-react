@@ -1,5 +1,6 @@
 import type { UploadAttachmentPreviewProps } from './types';
 import {
+  isUploadConfirmationPending,
   isVoiceRecordingAttachment,
   type LocalAudioAttachment,
   type LocalVoiceRecordingAttachment,
@@ -8,7 +9,6 @@ import { useComponentContextIcons, useTranslationContext } from '../../../contex
 import React, { useEffect } from 'react';
 import clsx from 'clsx';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
-import { isUploadConfirmationPending } from '../../Attachment/hooks/useAttachmentUploadState';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
 import { PlayButton } from '../../Button';
@@ -42,19 +42,20 @@ export const AudioAttachmentPreview = ({
   removeAttachments,
 }: AudioAttachmentPreviewProps) => {
   const { IconExclamationMark, IconExclamationTriangleFill } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const { id, previewUri, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
   const url = attachment.asset_url || previewUri;
+  const { duration, file_size, mime_type, waveform_data } =
+    (attachment as LocalVoiceRecordingAttachment).custom ?? {};
 
   const audioPlayer = useAudioPlayer({
-    fileSize: attachment.localMetadata.file?.size ?? attachment.file_size,
-    mimeType: attachment.localMetadata.file?.type ?? attachment.mime_type,
+    fileSize: attachment.localMetadata.file?.size ?? file_size,
+    mimeType: attachment.localMetadata.file?.type ?? mime_type,
     requester: attachment.localMetadata.id,
     src: url,
     title: attachment.title,
-    waveformData: attachment.waveform_data,
+    waveformData: waveform_data,
   });
 
   useEffect(() => {
@@ -67,7 +68,7 @@ export const AudioAttachmentPreview = ({
   const { canPlayRecord, isPlaying, playbackRate, progressPercent, secondsElapsed } =
     useStateStore(audioPlayer?.state, audioPlayerStateSelector) ?? {};
 
-  const resolvedDuration = audioPlayer?.durationSeconds ?? attachment.duration;
+  const resolvedDuration = audioPlayer?.durationSeconds ?? duration;
 
   const hasWaveform = !!audioPlayer?.waveformData?.length;
   const hasSizeLimitError = uploadPermissionCheck?.reason === 'size_limit';
@@ -92,7 +93,9 @@ export const AudioAttachmentPreview = ({
 
       <div className='str-chat__attachment-preview-file__info'>
         <div className='str-chat__attachment-preview-file-name' title={attachment.title}>
-          {isVoiceRecordingAttachment(attachment) ? t('Voice message') : attachment.title}
+          {isVoiceRecordingAttachment(attachment)
+            ? t('common.voiceMessage.label', 'Voice message')
+            : attachment.title}
         </div>
         <div className='str-chat__attachment-preview-file__data'>
           {uploadState === 'uploading' && (
@@ -139,18 +142,32 @@ export const AudioAttachmentPreview = ({
               <IconExclamationMark />
               <span>
                 {hasSizeLimitError
-                  ? t('File too large')
+                  ? t(
+                      'messageComposer.audioAttachmentPreview.fileTooLarge.text',
+                      'File too large',
+                    )
                   : uploadState === 'blocked'
-                    ? t('Upload blocked')
-                    : t('Upload failed')}
+                    ? t(
+                        'messageComposer.audioAttachmentPreview.uploadBlocked.text',
+                        'Upload blocked',
+                      )
+                    : t(
+                        'messageComposer.audioAttachmentPreview.uploadFailed.text',
+                        'Upload failed',
+                      )}
               </span>
             </div>
           ) : (
             <div className='str-chat__attachment-preview-file__retriable-error'>
               <IconExclamationTriangleFill />
-              <span>{t('Upload error')}</span>
+              <span>
+                {t(
+                  'messageComposer.audioAttachmentPreview.uploadError.text',
+                  'Upload error',
+                )}
+              </span>
               <button
-                aria-label={t('aria/Retry upload')}
+                aria-label={t('common.retryUpload.ariaLabel', 'Retry upload')}
                 className='str-chat__attachment-preview-file__retry-upload-button'
                 data-testid='file-preview-item-retry-button'
                 onClick={() => {
@@ -158,7 +175,10 @@ export const AudioAttachmentPreview = ({
                 }}
                 type='button'
               >
-                {t('Retry upload')}
+                {t(
+                  'messageComposer.audioAttachmentPreview.retryUpload.text',
+                  'Retry upload',
+                )}
               </button>
             </div>
           )}
@@ -166,7 +186,7 @@ export const AudioAttachmentPreview = ({
       </div>
       {audioPlayer && canPlayRecord && (
         <PlaybackRateButton
-          aria-label={t('Playback speed {{ rate }}x', {
+          aria-label={t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', {
             rate: playbackRate?.toString() ?? '1',
           })}
           onClick={audioPlayer.increasePlaybackRate}

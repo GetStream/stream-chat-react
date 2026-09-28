@@ -22,10 +22,17 @@ import {
   WebSocketEventPromptDialog,
   webSocketEventPromptDialogId,
 } from './WebSocketEventPromptDialog';
-import { ComposerStateDialog, useComposerStateDialog } from '../../Debug';
-import { usePersistentDialog } from './usePersistentDialog';
+
+import {
+  isServerSideClientEnabled,
+  ServerSideClientPromptDialog,
+  serverSideClientPromptDialogId,
+} from './ServerSideClientPromptDialog';
 
 const actionsMenuDialogId = 'app-actions-menu';
+
+// Read once at module scope — the flag comes from the URL and does not change within a session.
+const serverSideClientEnabled = isServerSideClientEnabled();
 
 const ActionsMenuButton = ({
   iconOnly,
@@ -65,7 +72,13 @@ const ActionsMenuButton = ({
   </div>
 );
 
+import { ComposerStateDialog, useComposerStateDialog } from '../../Debug';
+import { usePersistentDialog } from './usePersistentDialog';
+
 export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  // Shared hook so the dialog is registered with closeOnClickOutside disabled regardless of
+  // which of the two call sites reaches getOrCreate first.
+  const { dialog: composerStateDialog } = useComposerStateDialog();
   const [menuButtonElement, setMenuButtonElement] = useState<HTMLButtonElement | null>(
     null,
   );
@@ -77,9 +90,9 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const { dialog: webSocketEventDialog } = usePersistentDialog(
     webSocketEventPromptDialogId,
   );
-  // Shared hook so the dialog is registered with closeOnClickOutside disabled regardless of
-  // which of the two call sites reaches getOrCreate first.
-  const { dialog: composerStateDialog } = useComposerStateDialog();
+  const { dialog: serverSideClientDialog } = useDialogOnNearestManager({
+    id: serverSideClientPromptDialogId,
+  });
   const menuIsOpen = useDialogIsOpen(actionsMenuDialogId, dialogManager?.id);
 
   return (
@@ -105,11 +118,17 @@ export const ActionsMenu = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         <TriggerAttachmentAction onTrigger={attachmentDialog.open} />
         <TriggerWebSocketEventAction onTrigger={webSocketEventDialog.open} />
         <TriggerComposerStateInspectorAction onTrigger={composerStateDialog.open} />
+        {serverSideClientEnabled && (
+          <TriggerServerSideClientAction onTrigger={serverSideClientDialog.open} />
+        )}
       </ContextMenu>
       <NotificationPromptDialog referenceElement={menuButtonElement} />
       <AttachmentPromptDialog referenceElement={menuButtonElement} />
       <WebSocketEventPromptDialog referenceElement={menuButtonElement} />
       <ComposerStateDialog referenceElement={menuButtonElement} />
+      {serverSideClientEnabled && (
+        <ServerSideClientPromptDialog referenceElement={menuButtonElement} />
+      )}
     </div>
   );
 };
@@ -148,6 +167,20 @@ function TriggerWebSocketEventAction({ onTrigger }: { onTrigger: () => void }) {
   return (
     <ContextMenuButton
       label='Trigger WS Event'
+      onClick={() => {
+        closeMenu();
+        onTrigger();
+      }}
+    />
+  );
+}
+
+function TriggerServerSideClientAction({ onTrigger }: { onTrigger: () => void }) {
+  const { closeMenu } = useContextMenuContext();
+
+  return (
+    <ContextMenuButton
+      label='Server-side Client'
       onClick={() => {
         closeMenu();
         onTrigger();

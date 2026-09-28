@@ -1,8 +1,13 @@
 import type { ReactEventHandler } from 'react';
 import React, { createContext, useCallback, useContext, useMemo } from 'react';
 import { useMessageContext } from './MessageContext';
-import { useChannelActionContext } from './ChannelActionContext';
-import { isMessageBounced, useMessageComposerController } from '../components';
+import { requireContext } from './requireContext';
+import { useChannel } from './useChannel';
+import {
+  isMessageBounced,
+  useMessageComposerController,
+  useRetryHandler,
+} from '../components';
 import { savePreEditSnapshot } from '../components/MessageComposer/preEditSnapshot';
 import type { LocalMessage } from 'stream-chat';
 import type { PropsWithChildrenOnly } from '../types/types';
@@ -18,25 +23,18 @@ const MessageBounceContext = createContext<MessageBounceContextValue | undefined
   undefined,
 );
 
-export function useMessageBounceContext(componentName?: string) {
-  const contextValue = useContext(MessageBounceContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useMessageBounceContext hook was called outside of the MessageBounceContext provider. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as MessageBounceContextValue;
-  }
-
-  return contextValue;
+export function useMessageBounceContext() {
+  return requireContext(
+    useContext(MessageBounceContext),
+    'useMessageBounceContext',
+    'MessageBounceProvider',
+  );
 }
 
 export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
   const messageComposer = useMessageComposerController();
-  const { handleRetry: doHandleRetry, message } = useMessageContext(
-    'MessageBounceProvider',
-  );
+  const { message } = useMessageContext();
+  const doHandleRetry = useRetryHandler();
 
   if (!isMessageBounced(message)) {
     console.warn(
@@ -44,11 +42,11 @@ export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
     );
   }
 
-  const { removeMessage } = useChannelActionContext('MessageBounceProvider');
+  const channel = useChannel();
 
   const handleDelete: ReactEventHandler = useCallback(() => {
-    removeMessage(message);
-  }, [message, removeMessage]);
+    channel.messagePaginator.removeItem({ id: message.id });
+  }, [channel, message]);
 
   const handleEdit: ReactEventHandler = useCallback(
     (e) => {
@@ -59,8 +57,8 @@ export function MessageBounceProvider({ children }: PropsWithChildrenOnly) {
     [message, messageComposer],
   );
 
-  const handleRetry = useCallback(() => {
-    doHandleRetry(message);
+  const handleRetry: ReactEventHandler = useCallback(() => {
+    void doHandleRetry({ localMessage: message });
   }, [doHandleRetry, message]);
 
   const value = useMemo(

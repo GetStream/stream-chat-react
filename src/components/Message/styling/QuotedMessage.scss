@@ -5,7 +5,8 @@
 
   .str-chat__message {
     .str-chat__quoted-message-preview {
-      background-color: var(--chat-bg-attachment);
+      cursor: pointer;
+      background-color: var(--chat-bg-attachment-incoming);
       width: calc(
         var(--str-chat__message-with-attachment-max-width) - calc(
             2 * var(--str-chat__spacing-xs)
@@ -13,6 +14,9 @@
       );
       max-width: 100%;
       min-width: 0;
+    }
+    .str-chat__quoted-message-preview--own {
+      background-color: var(--chat-bg-attachment-outgoing);
     }
   }
 }

@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vite-example",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": [
+        "workspace",
+        "@stream-io/stream-chat-react-vite",
+        "dev",
+        "--port",
+        "5399",
+        "--strictPort"
+      ],
+      "port": 5399
+    }
+  ]
+}

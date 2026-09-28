@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
-import type { LocalMessage, StreamChat } from 'stream-chat';
+import type { LocalMessage, StreamChat, VoiceRecordingAttachment } from 'stream-chat';
 import {
   type LatestMessagePreviewData,
   useLatestMessagePreview,
@@ -22,6 +22,7 @@ import {
 } from '../../../mock-builders';
 import { generateStaticLocationResponse } from '../../../mock-builders/generator/sharedLocation';
 import { generatePoll } from '../../../mock-builders/generator/poll';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const ownUser = generateUser({ id: 'own-user' });
 const otherUser = generateUser({ id: 'other-user', name: 'Other User' });
@@ -156,7 +157,10 @@ describe('useLatestMessagePreview', () => {
 
   describe('deleted message', () => {
     it.each([
-      ['deleted_at timestamp', { deleted_at: new Date().toISOString() }],
+      [
+        'deleted_at timestamp',
+        { deleted_at: convertDateToTimestamp(new Date().toISOString()) },
+      ],
       ['deleted type', { type: 'deleted' as const }],
       ['deleted for current user', { deleted_for_me: true }],
     ])(
@@ -323,7 +327,7 @@ describe('useLatestMessagePreview', () => {
       });
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('image');
-      expect(result.current.text).toBe('imageCount');
+      expect(result.current.text).toBe('2 images');
     });
 
     it('uses file type for mixed attachment types', () => {
@@ -334,12 +338,18 @@ describe('useLatestMessagePreview', () => {
       });
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('file');
-      expect(result.current.text).toBe('fileCount');
+      expect(result.current.text).toBe('2 files');
     });
 
+    // v10: attachment-specific fields such as `duration` live under `attachment.custom`.
     it('appends duration for single audio/video attachment', () => {
       const message = generateMessage({
-        attachments: [generateVideoAttachment({ duration: 125, title: 'clip.mp4' })],
+        attachments: [
+          generateVideoAttachment({
+            custom: { duration: 125 },
+            title: 'clip.mp4',
+          } as Partial<VoiceRecordingAttachment>),
+        ],
         text: '',
         user: ownUser,
       });
@@ -349,19 +359,28 @@ describe('useLatestMessagePreview', () => {
 
     it('appends duration for voice recording', () => {
       const message = generateMessage({
-        attachments: [generateVoiceRecordingAttachment({ duration: 63.5 })],
+        attachments: [
+          generateVoiceRecordingAttachment({
+            custom: { duration: 63.5 },
+          } as Partial<VoiceRecordingAttachment>),
+        ],
         text: '',
         user: ownUser,
       });
       const { result } = renderPreviewHook({ latestMessage: message });
       expect(result.current.type).toBe('voice');
       // voice recordings use generic fallback (voiceMessageCount) since fallback text is not useful
-      expect(result.current.text).toBe('voiceMessageCount (1:04)');
+      expect(result.current.text).toBe('Voice message (1:04)');
     });
 
     it('formats zero-second duration correctly', () => {
       const message = generateMessage({
-        attachments: [generateVideoAttachment({ duration: 0, title: 'clip.mp4' })],
+        attachments: [
+          generateVideoAttachment({
+            custom: { duration: 0 },
+            title: 'clip.mp4',
+          } as Partial<VoiceRecordingAttachment>),
+        ],
         text: '',
         user: ownUser,
       });

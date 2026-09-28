@@ -51,7 +51,7 @@ export const SwitchField = ({
   // Read the announcer optionally: a SwitchField may render outside an announcer provider (e.g. in
   // isolation), where it simply stays silent rather than warning.
   const announce = useContext(AriaLiveAnnouncerContext)?.announce;
-  const { t } = useTranslationContext('SwitchField');
+  const { t } = useTranslationContext();
 
   const [uncontrolledChecked, setUncontrolledChecked] = useState(Boolean(defaultChecked));
   const isControlled = checked !== undefined;
@@ -97,8 +97,8 @@ export const SwitchField = ({
     if (!announce || !setting) return;
     announce(
       event.target.checked
-        ? t('aria/{{ setting }} enabled', { setting })
-        : t('aria/{{ setting }} disabled', { setting }),
+        ? t('form.switchField.enabled.ariaLabel', '{{ setting }} enabled', { setting })
+        : t('form.switchField.disabled.ariaLabel', '{{ setting }} disabled', { setting }),
       { priority: 'polite' },
     );
   };

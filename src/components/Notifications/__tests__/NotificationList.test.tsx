@@ -57,7 +57,7 @@ const mockedUseNotificationApi = vi.mocked(useNotificationApi);
 const mockedUseNotifications = vi.mocked(useNotifications);
 
 const remove = vi.fn();
-const startTimeout = vi.fn();
+const ensureTimeout = vi.fn();
 
 const EXIT_ANIMATION_MS = 340;
 const DEFAULT_MIN_DISPLAY_MS = 1000;
@@ -123,8 +123,9 @@ describe('NotificationList', () => {
     mockedUseNotificationApi.mockReturnValue({
       addNotification: vi.fn(),
       addSystemNotification: vi.fn(),
+      ensureNotificationTimeout: ensureTimeout,
       removeNotification: remove,
-      startNotificationTimeout: startTimeout,
+      startNotificationTimeout: vi.fn(),
     });
     remove.mockImplementation((id: string) => {
       currentNotifications = currentNotifications.filter(
@@ -149,18 +150,18 @@ describe('NotificationList', () => {
   afterEach(() => {
     vi.useRealTimers();
     remove.mockReset();
-    startTimeout.mockReset();
+    ensureTimeout.mockReset();
     mockedUseNotificationApi.mockReset();
     mockedUseNotifications.mockReset();
     delete window['IntersectionObserver'];
   });
 
-  it('starts a timeout only when the displayed notification first intersects', () => {
+  it('asks for a timeout when the displayed notification intersects', () => {
     currentNotifications = [transientFixture()];
 
     render(<NotificationList />);
 
-    expect(startTimeout).not.toHaveBeenCalled();
+    expect(ensureTimeout).not.toHaveBeenCalled();
     expect(observerEntries).toHaveLength(1);
     expect(screen.getByTestId('notification-list')).toHaveClass(
       'str-chat__notification-list--position-bottom',
@@ -172,8 +173,11 @@ describe('NotificationList', () => {
     triggerLatestIntersection();
     triggerLatestIntersection();
 
-    expect(startTimeout).toHaveBeenCalledTimes(1);
-    expect(startTimeout).toHaveBeenCalledWith('n-1');
+    // Asked once per intersection, deliberately: `ensureTimeout` leaves a countdown that is
+    // already running alone, so the list does not track which ids it has started. Keeping that
+    // record here is what let a remounted list restart a notification's countdown.
+    expect(ensureTimeout).toHaveBeenCalledTimes(2);
+    expect(ensureTimeout).toHaveBeenCalledWith('n-1');
   });
 
   it('starts timeouts immediately when IntersectionObserver is not available', () => {
@@ -182,8 +186,8 @@ describe('NotificationList', () => {
 
     render(<NotificationList />);
 
-    expect(startTimeout).toHaveBeenCalledTimes(1);
-    expect(startTimeout).toHaveBeenNthCalledWith(1, 'n-1');
+    expect(ensureTimeout).toHaveBeenCalledTimes(1);
+    expect(ensureTimeout).toHaveBeenNthCalledWith(1, 'n-1');
   });
 
   it('shows untargeted notifications in the channel panel by default', () => {

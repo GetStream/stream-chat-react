@@ -3,7 +3,7 @@ export { default as dispatchChannelHiddenEvent } from './channelHidden';
 export { default as dispatchChannelTruncatedEvent } from './channelTruncated';
 export { default as dispatchChannelUpdatedEvent } from './channelUpdated';
 export { default as dispatchChannelVisibleEvent } from './channelVisible';
-export { default as dispatchConnectionChangedEvent } from './connectionChanged';
+export { setNetworkStatus, setWSConnectionStatus } from './connectionStatus';
 export { default as dispatchConnectionRecoveredEvent } from './connectionRecovered';
 export { default as dispatchMessageDeletedEvent } from './messageDeleted';
 export { default as dispatchMessageNewEvent } from './messageNew';

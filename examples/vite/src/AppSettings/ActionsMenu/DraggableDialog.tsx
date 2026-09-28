@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode, PointerEvent as ReactPointerEvent } from 'react';
 import clsx from 'clsx';
-import { DialogAnchor, ModalContextProvider, Prompt } from 'stream-chat-react';
+import {
+  DialogAnchor,
+  ModalContextProvider,
+  Prompt,
+  useChatContext,
+} from 'stream-chat-react';
 
 const VIEWPORT_MARGIN = 8;
 
@@ -21,7 +26,7 @@ export const DRAGGABLE_DIALOG_SHELL_CLASS = 'app__draggable-dialog__shell';
  * A floating, draggable, **non-modal** dialog.
  *
  * The defaults below deliberately differ from a normal prompt: these panels exist to be kept
- * open while you use the app — trigger an event, watch what happens, trigger another — so they
+ * open while you use the app - trigger an event, watch what happens, trigger another - so they
  * do not trap focus, do not steal focus on open, and dismiss only via their close button.
  * Callers can opt back in per dialog.
  */
@@ -43,9 +48,10 @@ export const DraggableDialog = ({
   trapFocus = false,
 }: {
   children: ReactNode;
-  /** @default false — dismiss via the close button only. */
+  /** Per-dialog override for outside-click dismissal (defaults to the manager's policy). Pass
+   *  `false` for a persistent draggable window that should only close via its own control. */
   closeOnClickOutside?: boolean;
-  /** @default false — dismiss via the close button only. */
+  /** @default false - dismiss via the close button only. */
   closeOnEscape?: boolean;
   dialogClassName: string;
   dialogId: string;
@@ -58,15 +64,16 @@ export const DraggableDialog = ({
   promptClassName: string;
   referenceElement: HTMLElement | null;
   shellClassName: string;
-  title: string;
+  title: ReactNode;
   /**
    * Contain focus within the dialog. `true` also makes DialogAnchor render `role="dialog"`
-   * with `aria-modal`, telling assistive tech the rest of the app is inert — correct for a
+   * with `aria-modal`, telling assistive tech the rest of the app is inert - correct for a
    * prompt, wrong for a panel meant to stay open while the user works elsewhere.
    * @default false
    */
   trapFocus?: boolean;
 }) => {
+  const { theme } = useChatContext();
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const shellRef = useRef<HTMLDivElement | null>(null);
   const modalContextValue = {
@@ -177,8 +184,12 @@ export const DraggableDialog = ({
       trapFocus={trapFocus}
       updatePositionOnContentResize
     >
+      {/* `str-chat` and the theme are re-applied here the way `GlobalModal` does: a dialog bound
+          to the modal manager is portalled to a destination outside any `.str-chat` element, where
+          the theme's custom properties do not cascade and every `var(--str-chat__…)` resolves
+          empty. */}
       <div
-        className={clsx(DRAGGABLE_DIALOG_SHELL_CLASS, shellClassName)}
+        className={clsx(DRAGGABLE_DIALOG_SHELL_CLASS, 'str-chat', theme, shellClassName)}
         ref={shellRef}
         style={shellStyle}
       >

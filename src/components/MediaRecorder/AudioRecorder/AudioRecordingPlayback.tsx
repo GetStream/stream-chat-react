@@ -27,7 +27,6 @@ export const AudioRecordingPlayback = ({
   waveformData,
 }: AudioRecordingPlayerProps) => {
   const { IconPauseFill, IconPlayFill } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const audioPlayer = useAudioPlayer({
     durationSeconds,
@@ -58,7 +57,11 @@ export const AudioRecordingPlayback = ({
     >
       <Button
         appearance='ghost'
-        aria-label={isPlaying ? t('aria/Pause') : t('aria/Play')}
+        aria-label={
+          isPlaying
+            ? t('common.pause.ariaLabel', 'Pause')
+            : t('common.play.ariaLabel', 'Play')
+        }
         circular
         className='str-chat__audio_recorder__toggle-playback-button'
         data-testid='audio-recording-preview-toggle-play-btn'

@@ -2,6 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CommandsMenu, CommandsSubmenuHeader } from '../CommandsMenu';
+import { mockT } from '../../../../mock-builders/translator';
 
 const { announceInteraction, closeMenu, returnToParentMenu, setCommand } = vi.hoisted(
   () => ({
@@ -14,8 +15,7 @@ const { announceInteraction, closeMenu, returnToParentMenu, setCommand } = vi.ho
 
 const { commandsMock } = vi.hoisted(() => ({ commandsMock: { value: [] as unknown[] } }));
 
-// Strip the `aria/` prefix so assertions read the natural-language value.
-const t = (key: string) => (key.startsWith('aria/') ? key.replace('aria/', '') : key);
+const t = mockT;
 
 // Keep the real Dialog primitives (ContextMenuBackButton/Button/Header) — only stub the context hook.
 vi.mock('../../../Dialog', async (importOriginal) => ({
@@ -26,7 +26,8 @@ vi.mock('../../../Dialog', async (importOriginal) => ({
 vi.mock('../../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../../context')>();
   return {
-    useComponentContext: () => ({}),
+    // The real hook: with no provider it returns the SDK icons, which is what these
+    // assertions are written against.
     useComponentContextIcons: actual.useComponentContextIcons,
     useMessageComposerContext: () => ({ textareaRef: { current: null } }),
     useTranslationContext: () => ({ t }),

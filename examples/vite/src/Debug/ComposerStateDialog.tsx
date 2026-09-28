@@ -36,7 +36,7 @@ export const ComposerStateDialog = ({
 }: {
   referenceElement: HTMLElement | null;
 }) => {
-  const { channel, client } = useChatContext('ComposerStateDialog');
+  const { client } = useChatContext();
   const { dialog, dialogManager } = useComposerStateDialog();
   const dialogIsOpen = useDialogIsOpen(composerStateDialogId, dialogManager?.id);
 
@@ -46,8 +46,8 @@ export const ComposerStateDialog = ({
 
   // Recomputed on every open so newly created thread/edit composers show up.
   const composers = useMemo(
-    () => (dialogIsOpen ? listComposers(client, channel) : []),
-    [channel, client, dialogIsOpen],
+    () => (dialogIsOpen ? listComposers(client) : []),
+    [client, dialogIsOpen],
   );
 
   return (

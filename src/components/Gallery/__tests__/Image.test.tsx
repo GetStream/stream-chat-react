@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { act, cleanup, render, type RenderResult } from '@testing-library/react';
 
@@ -6,7 +6,7 @@ import { ImageComponent } from '../../Attachment/Image';
 import { Chat } from '../../Chat';
 import { Channel } from '../../Channel';
 
-import { useChatContext, WithComponents } from '../../../context';
+import { ChatProvider, WithComponents } from '../../../context';
 import { ComponentProvider } from '../../../context/ComponentContext';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import {
@@ -14,6 +14,7 @@ import {
   mockComponentContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockChatContext } from '../../../mock-builders/context';
 
 const mockImageUrl = 'https://placeimg.com/640/480/any';
 
@@ -22,11 +23,14 @@ const NoOpModal = ({ children }) => <div>{children}</div>;
 
 const renderWithProviders = (ui) =>
   render(
-    <TranslationProvider value={mockTranslationContextValue()}>
-      <ComponentProvider value={mockComponentContext({ Modal: NoOpModal })}>
-        {ui}
-      </ComponentProvider>
-    </TranslationProvider>,
+    <ChatProvider value={mockChatContext({ client: { userID: 'me' } })}>
+      <TranslationProvider value={mockTranslationContextValue()}>
+        {/* no MessageProvider: ModalGallery must render standalone */}
+        <ComponentProvider value={mockComponentContext({ Modal: NoOpModal })}>
+          {ui}
+        </ComponentProvider>
+      </TranslationProvider>
+    </ChatProvider>,
   );
 
 describe('Image', () => {
@@ -53,14 +57,6 @@ describe('Image', () => {
   });
 
   it('should render custom BaseImage component', async () => {
-    const ActiveChannelSetter = ({ activeChannel }) => {
-      const { setActiveChannel } = useChatContext();
-      useEffect(() => {
-        setActiveChannel(activeChannel);
-      }, [activeChannel]); // eslint-disable-line
-      return null;
-    };
-
     const {
       channels: [channel],
       client,
@@ -73,8 +69,7 @@ describe('Image', () => {
       result = render(
         <WithComponents overrides={{ BaseImage: CustomBaseImage }}>
           <Chat client={client}>
-            <ActiveChannelSetter activeChannel={channel} />
-            <Channel>
+            <Channel channel={channel}>
               <ImageComponent alt='fallback' imageUrl='image_url' />
             </Channel>
           </Chat>

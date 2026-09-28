@@ -4,11 +4,13 @@ Guidance for AI coding agents (Claude Code, Copilot, Cursor, Codex, Aider, etc.)
 
 > **Single source of truth.** `CLAUDE.md` contains nothing but `@AGENTS.md`, which Claude Code expands into this file. Edit this file only — never fork guidance into `CLAUDE.md`.
 
-Agents should prioritize backwards compatibility, API stability, and high test coverage when changing code.
+Agents should prioritize API stability and high test coverage when changing code.
 
 ## Repository purpose
 
 Stream's React Chat SDK — React components, hooks and contexts for building chat UIs on the Stream Chat API. The published package (`stream-chat-react`) lives at the repo root; `examples/*` are private Yarn workspaces consuming it via `workspace:^`.
+
+This is the **v15** line, developed on `master` and published as release candidates (npm `rc`). The stable v14 line lives on `release-v14` (npm `latest`). It is built on `stream-chat` v10 (the "LLC"), which owns message, thread and composer state; this package renders it.
 
 ## Tech & toolchain
 
@@ -16,25 +18,29 @@ Stream's React Chat SDK — React components, hooks and contexts for building ch
 - **Runtime:** Node 24 (`.nvmrc` — use `nvm use`)
 - **Package manager:** Yarn 4 (Berry). The binary is committed under `.yarn/releases/` and activated via `yarnPath` in `.yarnrc.yml`. Any globally installed `yarn` (even classic 1.x) acts only as a launcher — no Corepack required.
 - **Workspaces:** Yarn workspaces monorepo (`examples/*`)
+- **Dependency versions:** read them from `package.json` (`peerDependencies`, `dependencies`, `devDependencies`). They change with every release, so they are not repeated here.
 - **Testing:** Vitest + React Testing Library (+ `vitest-axe` for a11y). There is no Jest and no Playwright/e2e suite in this repo.
 - **Bundler:** Vite 8 / Rolldown (library mode); `tsc` emits declarations only
 - **Styles:** Sass compiled to `dist/css/`. Consumers override via CSS layers (see README) — never edit compiled CSS.
+- **i18n:** the runtime is `@stream-io/i18n` (a regular dependency); this package owns only its key catalog and bindings
 - **Lint/format:** ESLint (flat config, `--max-warnings 0`) + Prettier
-- **CI:** GitHub Actions — PR validation on lint + build/bundle-validation + tests
+- **CI:** GitHub Actions — lint + types, build + bundle validation, tests with coverage
 - **Release:** Conventional Commits + semantic-release (`commitlint.config.mjs`, `.releaserc.json`)
 
 ### Root configuration files
 
-`.nvmrc` · `.yarnrc.yml` · `eslint.config.mjs` · `.prettierrc` / `.prettierignore` · `tsconfig.json` (solution) + `tsconfig.lib.json` (src) + `tsconfig.test.json` (tests) · `vite.config.ts` · `vitest.config.ts` / `vitest.setup.ts` · `i18next.config.ts` · `commitlint.config.mjs` · `.releaserc.json` · `.lintstagedrc.json` / `.lintstagedrc.fix.json` · `codecov.yml`
+`.nvmrc` · `.yarnrc.yml` · `eslint.config.mjs` · `.prettierrc` / `.prettierignore` · `tsconfig.json` (solution) + `tsconfig.lib.json` (src) + `tsconfig.test.json` (tests) + `tsconfig.scripts.json` (scripts) · `vite.config.ts` · `vitest.config.ts` / `vitest.setup.ts` · `axe-helper.js` · `commitlint.config.mjs` · `.releaserc.json` · `.lintstagedrc.json` / `.lintstagedrc.fix.json` · `codecov.yml`
 
 Respect repo-specific rules. Do not suppress lint rules broadly; justify and scope every exception.
 
 ## Project layout
 
-- `src/` — library source: `components/`, `context/`, `store/`, `i18n/`, `styling/`, `a11y/`, `plugins/`, `utils/`, `mock-builders/`
+- `src/` — library source: `components/`, `context/`, `hooks/`, `store/`, `i18n/`, `styling/`, `a11y/`, `plugins/`, `utils/`, `types/`, `constants/`, `mock-builders/`
+- `src/plugins/` — separately exported entry points: `ChannelDetail`, `Emojis`, `SlotGeometry`, `SlotLayout`, `encoders`
 - `scripts/` — build/validation scripts
-- `examples/` — private example workspaces: `examples/tutorial`, `examples/vite`
-- `developers/` — dev notes (`BRANCHES.md`, `COMMIT.md`, `DEPRECATIONS.md`, `PR.md`, `RELEASE.md`)
+- `examples/` — private example workspaces: `examples/tutorial` (one folder per tutorial step), `examples/vite` (complete app)
+- `ai-docs/` — integrator-facing migration guides (`ai-migration-v14-v15.md`, `i18n-v15-migration.md`, `instance-configuration.md`, …) and the hand-reviewed `i18n-v15-key-map.json`
+- `developers/` — dev notes (`BRANCHES.md`, `COMMIT.md`, `DEPRECATIONS.md`, `DEVELOPMENT.md`, `DOCUMENTATION.md`, `PR.md`, `RELEASE.md`)
 
 Use the closest folder's patterns and conventions when editing.
 
@@ -56,13 +62,19 @@ yarn test:watch           # watch mode
 yarn coverage             # v8 coverage (what CI runs)
 
 # Lint / format
-yarn lint                 # prettier --list-different + eslint --max-warnings 0 + validate-translations
+yarn lint                 # prettier --list-different + eslint --max-warnings 0
 yarn lint-fix             # ALWAYS run this before committing
 yarn fix-staged           # auto-fix only staged files
 
 # Type checking
-yarn types                # src — the gate that matters (CI's build runs the same config)
-yarn types:tests          # tests + mock-builders; NOT run in CI, currently red (see below)
+yarn types                # src (tsc -p tsconfig.lib.json --noEmit) — run in CI
+yarn types:scripts        # scripts/*.mts — run in CI (Node strips types, it does not check them)
+yarn types:tests          # tests + mock-builders — NOT run in CI, currently red (see below)
+
+# i18n
+yarn build-translations   # regenerate src/i18n/keys.ts from the t() call sites
+yarn validate-translations # regenerate and fail on any diff to keys.ts
+yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 
 # Bundle smoke tests (run in CI after build)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
@@ -74,74 +86,83 @@ yarn start:vite           # @stream-io/stream-chat-react-vite dev server
 yarn examples:build       # build all example workspaces
 ```
 
-**`yarn types` checks `src`, and only recently started to.** It now runs `tsc --project tsconfig.lib.json --noEmit`. It previously ran bare `tsc --noEmit`, which resolved the root `tsconfig.json` — a solution-style config with `"files": []` and project references only — so it checked nothing and always passed in under a second. If you remember it as a no-op, that is fixed; if it returns instantly, something is wrong.
-
-**`src` is the enforced type gate.** CI never runs `types:tests`, but `yarn build` runs the same `tsconfig.lib.json` with `noEmitOnError`, so type errors under `src/` (excluding `__tests__` and `mock-builders`, which that config excludes) do fail CI. `yarn types:tests` is currently red repo-wide (~1300 errors, including some sourced from a sibling `../stream-chat-js` checkout when one is present) — treat its output as advisory and compare against a baseline rather than expecting zero.
+**`yarn types` checks `src` only.** `tsconfig.lib.json` excludes `__tests__`, `mock-builders` and `stories`. CI runs it in the lint job, and `yarn build` compiles the same config, so type errors under `src/` fail CI twice over. `yarn types:tests` (`tsconfig.test.json`) is red repo-wide with over a thousand pre-existing errors — treat its output as advisory and compare against a baseline rather than expecting zero.
 
 **Adding dependencies.** `.yarnrc.yml` sets `npmMinimalAgeGate: 1d`, so packages published within the last day are refused unless listed under `npmPreapprovedPackages`. `enableScripts: false` disables install scripts globally; per-package opt-ins live in `dependenciesMeta` in `package.json`.
 
 ## Architecture: core concepts
 
-### Component hierarchy
+### State lives in the LLC
+
+`stream-chat` v10 owns the state; React subscribes to it. There is no React-held message list, no channel reducer, and no context that copies channel state:
+
+- Channel messages: `channel.messagePaginator`
+- Thread replies: `thread.messagePaginator` (resolve threads via `client.threads`) — **independent** of the channel's list
+- Pinned messages: `channel.pinnedMessagesPaginator`
+- Composition (text, attachments, polls, drafts, edits): `stream-chat`'s `MessageComposer` class
+
+Each is a `StateStore`. Components read them with `useStateStore(store, selector)` (`src/store/hooks/useStateStore.ts`) and write by calling LLC methods; the LLC's own event handlers apply WebSocket updates. Optimistic sends, dedupe-by-id, sorted inserts and conflict resolution between API responses and WebSocket events all happen in the LLC.
+
+`ChannelStateContext`, `ChannelActionContext`, `useChannelStateContext()` and `makeChannelReducer` were **removed in v15**. Do not reintroduce a React copy of LLC state.
+
+### Component tree
 
 ```
-<Chat>                     # Root: client, theme, i18n, SearchController, notification filter
-  ├─ <ChannelList>         # Channel list + search
-  └─ <Channel>             # State container: messages, threads, WebSocket events
-      ├─ <Window>
+<Chat>                          # client, theme, i18n, channelManager, searchController
+  └─ <ChatView>                 # stream-chat-react/slot-layout: layouts + slots
+      ├─ <ChannelNavigation>    # channel list(s) + search; selecting binds a channel into a slot
+      ├─ <Channel channel={…}>  # one per bound slot (useSlotChannels()); renders no layout
       │   ├─ <ChannelHeader>
       │   ├─ <MessageList>      # or <VirtualizedMessageList>
-      │   └─ <MessageComposer>  # composer with attachments/mentions/polls/voice
-      └─ <Thread>          # threaded replies (renders its own MessageComposer)
+      │   └─ <MessageComposer>
+      └─ <ThreadSlot slot='thread'>   # resolves the slot's thread and renders <Thread>
+          ├─ <ThreadHeader>
+          ├─ <MessageList>
+          └─ <MessageComposer>
 ```
 
-`<ChatView>` + `<Threads>`/`<ThreadList>` provide the channels-vs-threads (inbox) view switching.
+`Channel` takes a single `channel` prop (`src/components/Channel/Channel.tsx`). It activates the channel on mount, deactivates it on unmount, seeds the paginator's unread snapshot, and re-queries on `user.deleted` — nothing else. It does not query the channel for you: initialize it first (`getChannel` de-duplicates overlapping queries). There is no `Window` component in v15; compose layout yourself or through `ChatView` slots.
 
-### Context layers (17 contexts in `src/context/`)
+Read the bound channel with `useChannel()` (`src/context/useChannel.ts`, thread's channel first, then the `Channel` subtree's) and the active message list with `useMessagePaginator()` (`src/hooks/useMessagePaginator.ts`, thread first, then channel).
+
+### Context layers (`src/context/`)
 
 ```
-ChatContext                # client, active channel, theme, searchController, navigation
-├─ ChannelStateContext     # read-only: messages, members, threads, loading states
-├─ ChannelActionContext    # write: sendMessage, deleteMessage, openThread, markRead…
-├─ ComponentContext        # ~100 customizable component slots + `icons` slot map
-├─ MessageContext          # per-message: actions, reactions, status
-├─ MessageComposerContext  # composer props/bindings
-├─ DialogManagerContext / ModalContext  # dialog + modal orchestration
-└─ TranslationContext, TypingContext, PollContext, MessageListContext,
-   VirtualizedMessageListContext, ChannelListContext, MessageBounceContext,
-   AttachmentSelectorContext, MessageTranslationViewContext
+ChatContext                    # client, theme, channelManager, searchController, mutes
+├─ ChannelInstanceContext      # the LLC channel for a subtree (read via useChannel())
+├─ ComponentContext            # customizable component slots + `icons` slot map
+├─ MessageContext              # per-message: actions, reactions, status
+├─ MessageComposerContext      # composer bindings
+├─ MessageComposerControllerContext  # an integrator-supplied composer (see Composer state)
+├─ DialogManagerContext / ModalContext
+└─ AttachmentContext, AttachmentSelectorContext, ChannelListContext, MessageBounceContext,
+   MessageListContext, MessageTranslationViewContext, PollContext,
+   VirtualizedMessageListContext, WorkspaceNavigationContext
 ```
 
-Each has a hook: `useChatContext()`, `useChannelStateContext()`, `useComponentContext()`, … Other contexts live next to their components (`SearchContext`, `ChannelDetailContext`, `ThreadContext`, `NotificationConfigurationContext`).
+Each has a hook (`useChatContext()`, `useComponentContext()`, `useMessageContext()`, …). Other contexts live next to their components or plugins (`ThreadContext`, `SearchContext`, `ChatViewContext`, `ChannelDetailContext`, `NotificationConfigurationContext`, …).
 
-### Customization: `WithComponents`, not component props
+### Customization: `WithComponents` for app-wide slots
 
-`ChannelProps` **does not** accept component overrides. Slots come from `ComponentContext`, populated by `<WithComponents overrides={{ … }}>`, which merges over the parent context (and merges `icons` slot-by-slot):
+`Channel`, `Thread`, the message lists and `MessageComposer` take no component overrides. App-wide slots come from `ComponentContext`, populated by `<WithComponents overrides={{ … }}>` (`src/context/WithComponents.tsx`), which merges over the parent context and merges `icons` slot-by-slot:
 
 ```tsx
-<Channel>
-  <Window>
-    <WithComponents overrides={{ MessageUI: CustomMessageUI, icons: { IconFlag } }}>
-      <MessageList />
-    </WithComponents>
-  </Window>
-</Channel>
+<WithComponents overrides={{ MessageUI: CustomMessageUI, icons: { IconFlag } }}>
+  <MessageList />
+</WithComponents>
 ```
 
-Icons are read via `useComponentContextIcons()`, which merges `DEFAULT_ICONS` (`src/components/Icons/icons`) under the override so every slot is guaranteed defined and callers destructure without fallbacks. Note the returned map is memoized with `[]` — icon overrides are read once and must be stable.
+Icons are read via `useComponentContextIcons()`, which merges `DEFAULT_ICONS` (`src/components/Icons/icons`) under the overrides, so every slot is defined and callers destructure without fallbacks.
 
-`Channel` props are behavioral escape hatches instead: `doSendMessageRequest`, `doUpdateMessageRequest`, `doDeleteMessageRequest`, `doMarkReadRequest`, `channelQueryOptions`, `initializeOnMount`, `markReadOnMount`, `skipMessageDataMemoization`, `EmptyPlaceholder`.
+Some components also take component props for their own parts — `Attachment` (`Audio`, `Card`, `File`, `Image`, …), for example. Follow the component's own props type.
 
-When adding a customizable component: add the slot to `ComponentContext` (`src/context/ComponentContext.tsx`), provide a default implementation, and read it through `useComponentContext()`.
+When adding a customizable component: add the slot to `ComponentContextValue` (`src/context/ComponentContext.tsx`), provide a default implementation, and read it through `useComponentContext()`.
 
-### State management (multi-layer)
+Request customization is not a component prop either: `sendMessageRequest`, `updateMessageRequest`, `deleteMessageRequest` and `markReadRequest` handlers are registered on `client.config` (see "Per-component request-handler props removed" in `ai-docs/ai-migration-v14-v15.md`).
 
-1. **Local state** (`useState`) — component UI state
-2. **Reducer state** (`useReducer`) — `Channel` uses `makeChannelReducer` (`src/components/Channel/channelState.ts`) for message/thread state
-3. **Context state** — shared across the tree
-4. **External state** — `stream-chat`'s `StateStore`, consumed via `useStateStore` (`src/store/hooks/useStateStore.ts`)
+### `useStateStore` requires a selector
 
-`useStateStore` **requires a selector** returning a flat object/array (it shallow-compares the selected keys). Define the selector at module scope so it stays referentially stable:
+`useStateStore(store, selector)` shallow-compares the object the selector returns, key by key. Return a small, flat object and define the selector at module scope so it stays referentially stable:
 
 ```ts
 import { useStateStore } from '../../store';
@@ -154,87 +175,65 @@ const selector = (nextValue: ThreadManagerState) => ({
 const { isLoading, threads } = useStateStore(client.threads.state, selector);
 ```
 
-### Composer state lives in `stream-chat`
+A change the selector does not pick up does not re-render.
 
-`useMessageComposerController()` resolves which `MessageComposer` instance (from `stream-chat`) backs the current UI, in this order:
+### Composer state
+
+`useMessageComposerController()` (`src/components/MessageComposer/hooks/useMessageComposerController.ts`) resolves which `stream-chat` `MessageComposer` backs the current UI, in this order:
 
 ```
-edited message → thread instance (thread.messageComposer) → legacy thread parent → channel.messageComposer
+supplied (MessageComposerControllerProvider) → thread.messageComposer → channel.messageComposer
 ```
 
-Composers for `message`/`legacy_thread` contexts are cached in `client.messageComposerCache` by `tag`, and `registerSubscriptions()` is bound to the component lifecycle. Draft/attachment/poll/command state is owned by the SDK class, not React state — read it with `useStateStore`.
+A composer supplied through `MessageComposerControllerProvider` (`src/context/MessageComposerControllerContext.tsx`) is how an integrator composes into something other than the channel or thread, e.g. editing a message inline. Only a supplied composer can carry a message context; such a composer is stored in `client.messageComposerCache` under its tag. `registerSubscriptions()` is bound to the component lifecycle.
+
+On unmount, `MessageComposer` saves a draft for every composer (`createDraft()` itself skips edits and composers with drafts disabled), but clears only the thread's or channel's own. A supplied composer belongs to whoever supplied it, and so does deciding when to clear it.
+
+Submitting goes through `useMessageComposerSubmitFn()`: `update()` while a message is being edited, `send()` otherwise, decided at submit time. Custom submit controls should use it so they cannot disagree with the send button or the Enter key.
+
+Draft, attachment, poll and command state is owned by the `MessageComposer` class, not React state — read it with `useStateStore`.
 
 ## Critical architectural patterns
 
-### 1. Optimistic updates & race conditions
-
-**Files:** `src/components/Channel/Channel.tsx`, `src/components/Channel/channelState.ts`
-
-- Messages enter local state IMMEDIATELY on send (optimistic)
-- WebSocket events may arrive before or after the API response
-- **Timestamp-based conflict resolution:** the newest version wins
-- **Gotcha:** thread state is separate from channel state — both must be updated
-
-### 2. WebSocket event processing
-
-**File:** `src/components/Channel/Channel.tsx` (`handleEvent`)
-
-```ts
-// Events are THROTTLED to 500ms to prevent excessive re-renders
-const throttledCopyStateFromChannel = throttle(
-  () => dispatch({ channel, type: 'copyStateFromChannelOnEvent' }),
-  500,
-  { leading: true, trailing: true },
-);
-```
-
-- Some events are ignored (e.g. `user.watching.start/stop`)
-- Unread UI state updates throttled separately (200ms)
-- `markRead` throttled 500ms with `{ leading: true, trailing: false }` — fires on the FIRST call only
-- `loadMore`/`loadMoreNewer` completion debounced 2000ms
-- Message visibility in threads is decided by `parent_id` + `show_in_channel`
-
-### 3. Message enrichment pipeline
+### 1. Message enrichment pipeline
 
 **File:** `src/components/MessageList/utils.ts` (`processMessages`)
 
-Per message, in order: deleted messages filtered (`hideDeletedMessages`) → giphy `ephemeral` preview extracted (`setGiphyPreviewMessage`, VirtualizedMessageList) → unread separator (skipped for the current user's own messages) → date separator inserted (first message, date change, or when hidden deleted messages shifted the last rendered date) → `reviewProcessedMessage` hook may rewrite the emitted slice.
+Per message, in order: deleted messages skipped (`hideDeletedMessages`) → ephemeral giphy preview extracted (`setGiphyPreviewMessage`) → unread separator (skipped for the current user's own messages) → date separator (first message or a date change, never two in a row) → `reviewProcessedMessage` may rewrite the emitted slice. Group styling (`getGroupStyles`) is applied separately, keyed on user ID + time gaps.
 
-Date separators are enabled in `MessageList` and disabled in `VirtualizedMessageList` and threads by default. Group styling (`getGroupStyles`) is applied separately, keyed on user ID + time gaps.
+Date separators come from `withDateSeparator`: on by default in `MessageList`, off in `VirtualizedMessageList`.
 
 **Gotcha:** with `hideDeletedMessages=true`, a date separator is still required when the next rendered message falls on a different date than the last separator.
 
-### 4. Virtualization strategy
+### 2. Virtualization
 
 **Files:** `src/components/MessageList/VirtualizedMessageList.tsx`, `VirtualizedMessageListComponents.tsx`
 
 - Built on **react-virtuoso** with custom item sizing
 - **Offset trick:** `PREPEND_OFFSET = 10 ** 7` lets prepended messages work without Virtuoso knowing (`calculateItemIndex` / `calculateFirstItemIndex`)
 - Only visible items + overscan render
-- `skipMessageDataMemoization` exists for channels with thousands of messages
 
 `ThreadList` and `ChannelDetail` lists are virtualized too — see `src/a11y/hooks/useVirtualizedListboxKeyboardNavigation.ts` for the keyboard-nav contract those lists must honor.
 
-### 5. Performance: memoization & throttling
+### 3. Memoization
 
-- `useCreateChannelStateContext` serializes message data to a **string** for comparison (type, `deleted_at`, reaction types, `pinned`, `reply_count`, `status`, `updated_at`, `user.updated_at`). **Any field not in that serialization will not trigger updates** — a known fragility, flagged with a FIXME in the source.
-- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) checks cheap props first (`highlighted`, `threadList`, `endOfGroup`, `mutes.length`, `readBy.length`, `deliveredTo.length`, `groupStyles`) before deep message comparison.
+- `useStateStore` selectors scope re-renders: an over-broad or unstable slice re-renders everything that reads it.
+- `areMessageUIPropsEqual` (`src/components/Message/utils.tsx`) is the per-message `React.memo` comparator. It checks cheap props first (`highlighted`, `endOfGroup`, `readBy.length`, `deliveredTo.length`, `groupStyles`, `showDetailedReactions`, `lastReceivedId`) before comparing messages. A prop it does not check will not re-render a message.
 
 ## Critical gotchas & invariants
 
 ### DO NOT:
 
-1. **Mutate `channel.state.messages` directly** — use `channel.state.addMessageSorted()` / `removeMessage()`
-2. **Include `channel` in dependency arrays** — use `channel.cid` (stable), never `channel.state` (changes constantly)
-3. **Modify reducer action types without updating all dispatchers** — they are tightly coupled
-4. **Change message sort order** — the SDK maintains order; local changes conflict
-5. **Forget to update both channel AND thread state** — thread messages must exist in main state too
+1. **Write messages into `channel.state`** — the paginators own messages, threads and pinned messages. Read them reactively; the LLC's event handlers perform the writes. `channel.state.addMessageSorted()` / `removeMessage()` do not exist in v10.
+2. **Depend on `channel.cid` where you mean the channel object.** `channel` (the instance) is stable and is the correct dependency; what churns is `channel.state`. `cid` names a _conversation_, and two different `Channel` instances can share one: the client's cache is dropped on `disconnectUser`, an app can hold channels from more than one client, and re-created channels come back as new objects. Anything bound to an instance — a `useStateStore` subscription, `channel.on(...)`, `watch()` — must depend on `channel`, or a replacement instance is silently left unsubscribed. Depend on `cid` only when you mean "which conversation".
+3. **Change message sort order** — the paginator maintains it; local reordering conflicts.
+4. **Assume thread replies live in the channel's message list** — they are an independent paginator. Whether a reply also shows in the channel is the server's `show_in_channel` flag, applied when the message is ingested.
 
-### Thread state synchronization
+### Where `StateStore` comes from
 
-- Main channel: `state.messages` (flat list)
-- Threads: `channel.state.threads[parentId]` (keyed by parent message ID)
-- **Invariant:** messages in threads MUST also exist in main channel state
+Import it from **`@stream-io/state-store`**, never from `stream-chat` (enforced by the `react-compat` and `state-store-single-source` blocks in `eslint.config.mjs`). `stream-chat` re-exported the store until v10 extracted it, so the old specifier still reads as correct — but it is now `undefined` at runtime (`TypeError: StateStore is not a constructor`).
+
+`stream-chat`, `@stream-io/i18n` and this package all depend on `@stream-io/state-store` and hand each other store instances, so an app must end up with exactly one copy. A normal install dedupes them; a linked `stream-chat` checkout does not, which is what `resolve.dedupe` in `vitest.config.ts` covers for test runs.
 
 ### React version compatibility
 
@@ -243,7 +242,7 @@ The SDK supports **React 17, 18, 19**. Enforced by the `react-compat` block in `
 - `useId` from `react` → use `useStableId` from `src/components/UtilityComponents/useStableId`
 - `useSyncExternalStore` from `react` → use the shim from `use-sync-external-store/shim`
 - `useEffectEvent`, `use()` → React 19-only, not allowed
-- `ref` in a prop type (`TSPropertySignature[key.name='ref']`) or destructured from props → use `forwardRef` (React 17/18 only deliver `ref` to forwardRef'd components)
+- `ref` in a prop type or destructured from props → use `forwardRef` (React 17/18 only deliver `ref` to forwardRef'd components)
 
 Compatibility is lint-enforced only; there is no type/runtime matrix across React versions.
 
@@ -255,10 +254,10 @@ useMemo(
     /* value */
   }),
   [
-    channel.cid, // ✅ Stable - include this
+    channel, // ✅ Stable reference, and the right axis - a new instance must invalidate this
     deleteMessage, // ✅ Stable callback
-    // ❌ NOT channel.state.messages - causes infinite re-renders
-    // ❌ NOT channel.initialized - changes constantly
+    // ❌ NOT channel.cid - a replacement instance for the same conversation would not invalidate
+    // ❌ NOT channel.messagePaginator.state - subscribe via useStateStore instead
   ],
 );
 ```
@@ -267,7 +266,7 @@ useMemo(
 
 **Policy:** add or extend tests in the matching module's `__tests__/` folder. Cover React components, hooks, and utility functions. Reuse the repo's fakes/mocks instead of hand-rolling new ones.
 
-**Runner:** Vitest (`vitest.config.ts`) — `globals: true` (no imports needed for `describe`/`it`/`expect`/`vi`), `jsdom`, `pool: 'forks'`, `testTimeout: 15000`, `css: false`, tests matched at `src/**/*.test.{js,jsx,ts,tsx}`. `vitest.setup.ts` forces `TZ=UTC`, registers `@testing-library/jest-dom/vitest` + `vitest-axe` matchers, and polyfills `crypto`, `structuredClone`, `File`, `FileReader`, `URL.createObjectURL`, `matchMedia`, and canvas `getContext`.
+**Runner:** Vitest (`vitest.config.ts`) — `globals: true` (no imports needed for `describe`/`it`/`expect`/`vi`), `jsdom`, `pool: 'forks'`, `testTimeout: 15000`, `css: false`, tests matched at `src/**/*.test.{js,jsx,ts,tsx}`. `resolve.dedupe` collapses `@stream-io/state-store`, `@stream-io/i18n`, `stream-chat`, `react` and `react-dom` onto one copy each. `vitest.setup.ts` forces `TZ=UTC`, registers `@testing-library/jest-dom/vitest` + `vitest-axe` matchers, and polyfills `crypto.getRandomValues`, `structuredClone`, `File`, `FileReader`, `URL.createObjectURL`, `matchMedia`, and canvas `getContext`.
 
 Import test helpers from `src/mock-builders` (also aliased as `mock-builders`):
 
@@ -285,18 +284,18 @@ const channel = client.channel('messaging', channelId);
 await channel.watch();
 ```
 
-- `src/mock-builders/generator/` — `generateChannel`, `generateMessage`, `generateUser`, `generateMember`, `generatePoll`, `generateMessageDraft`, `generateReminder`, `generateSharedLocation`, …
-- `src/mock-builders/api/` — response builders (`getOrCreateChannelApi`, `queryChannelsApi`, `sendMessageApi`, `markReadApi`, `threadRepliesApi`, error helpers); `useMockedApis` spies on `client.axiosInstance`
-- `src/mock-builders/event/` — `dispatchMessageNewEvent`, `dispatchNotificationMarkUnread`, …
-- `src/mock-builders/context.ts` — `mockChatContext`, `mockChannelStateContext`, … built with `fromPartial` from `@total-typescript/shoehorn`
-- `src/mock-builders/browser/` — `MediaRecorder`, `AudioContext`, `AnalyserNode`, `ResizeObserver`, `HTMLMediaElement` fakes
+- `src/mock-builders/generator/` — `generateChannel`, `generateMessage`, `generateUser`, `generateMember`, `generatePoll`, `generateMessageDraft`, `generateReminderResponse`, attachment generators, …
+- `src/mock-builders/api/` — response builders (`getOrCreateChannelApi`, `queryChannelsApi`, `sendMessageApi`, `markReadApi`, `threadRepliesApi`, errored-request helpers); `useMockedApis` spies on `client.axiosInstance.request`
+- `src/mock-builders/event/` — `dispatchMessageNewEvent`, `dispatchNotificationMarkUnread`, connection-status helpers, …
+- `src/mock-builders/context.ts` — `mockChatContext`, `mockComponentContext`, `mockMessageContext`, … built with `fromPartial` from `@total-typescript/shoehorn`
+- `src/mock-builders/browser/` — `MediaRecorder`, `AudioContext`, `AnalyserNode`, `ResizeObserver` fakes
 - Accessibility: `import { axe } from '<relative>/axe-helper'` (root `axe-helper.js` wraps `configureAxe`), then `expect(await axe(container)).toHaveNoViolations()`
 
 Component render shape:
 
 ```tsx
 render(
-  <Chat client={chatClient}>
+  <Chat client={client}>
     <Channel channel={channel}>
       <MessageList />
     </Channel>
@@ -308,32 +307,31 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 
 ## Build system
 
-`yarn build` = `yarn clean` + 4 steps in parallel via `concurrently`, each writing to a separate `dist/` subdirectory:
+`yarn build` = `yarn clean` + 4 steps in parallel via `concurrently`, each writing to a separate location:
 
-1. **`build-translations`** — `i18next-cli extract` pulls `t()` calls from source into `src/i18n/*.json`
-2. **`vite build`** — bundles 4 entry points as ESM (`dist/es/*.mjs`) + CJS (`dist/cjs/*.js`)
+1. **`build-translations`** — regenerates `src/i18n/keys.ts` from the `t()` call sites
+2. **`vite build`** — bundles the entry points as ESM (`dist/es/*.mjs`, one file per module) + CJS (`dist/cjs/*.js`)
 3. **`tsc -p tsconfig.lib.json`** — `.d.ts` only → `dist/types/`
 4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, plus `cp -r src/styling/assets dist/css/assets`
 
 **Entry points** (`package.json` exports ↔ `vite.config.ts` `lib.entry`):
 
-| Import path                        | Source                        |
-| ---------------------------------- | ----------------------------- |
-| `stream-chat-react`                | `src/index.ts`                |
-| `stream-chat-react/channel-detail` | `src/plugins/ChannelDetail/`  |
-| `stream-chat-react/emojis`         | `src/plugins/Emojis/`         |
-| `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts` |
-| `stream-chat-react/css/*`          | `dist/css/*`                  |
+| Import path                        | Source                             |
+| ---------------------------------- | ---------------------------------- |
+| `stream-chat-react`                | `src/index.ts`                     |
+| `stream-chat-react/channel-detail` | `src/plugins/ChannelDetail/`       |
+| `stream-chat-react/emojis`         | `src/plugins/Emojis/`              |
+| `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts`      |
+| `stream-chat-react/slot-geometry`  | `src/plugins/SlotGeometry/`        |
+| `stream-chat-react/slot-layout`    | `src/plugins/SlotLayout/index.tsx` |
+| `stream-chat-react/css/*`          | `dist/css/*`                       |
 
 Vite 8 / Rolldown specifics baked into `vite.config.ts` (do not "simplify" these):
 
 - Output dirs are **hardcoded** to `es`/`cjs` — the `[format]` placeholder expands to `esm` under Rolldown, which would break `package.json` `exports`
-- Externals are regexes (`^dep(\/.+)?$`) so **subpath** imports (`dayjs/locale/de`) stay external; otherwise CJS `require()` glue leaks into the ESM output
-- No minification, sourcemaps on, target from `tsconfig.lib.json` (`es2020`), all deps/peerDeps externalized
-- Rolldown's strict CJS interop means default-imported CJS deps may need `.default` unwrapping at the call site
-- `preserveModules` is on for the **ESM output only**, so `dist/es` mirrors `src` one file per module. Consumer bundlers drop whole unused modules first (guided by our `sideEffects` field) and only then attempt statement-level elimination — a single merged chunk leaves them nothing to drop. CJS stays chunked, since consumers do not tree-shake CJS
-- `emptyOutDir` stays `false` because the four parallel build steps share `dist/`; `yarn build` already wipes it up front via `yarn clean`
-- **`sideEffects` in `package.json` is load-bearing.** With one ESM file per module, consumer bundlers drop modules individually, so any module that runs code at import time must be listed there or it can be deleted out from under a consumer. Today that is `i18n/Streami18n` and `context/TranslationContext` (both call `Dayjs.extend` / `Dayjs.updateLocale` at module scope). Add an entry whenever you introduce module-level side effects
+- Externals are regexes (`^dep(\/.+)?$`) built from `dependencies` + `peerDependencies`, so **subpath** imports (`dayjs/locale/de`) stay external; otherwise CJS `require()` glue leaks into the ESM output
+- No minification, sourcemaps on, target from `tsconfig.lib.json`
+- Rolldown's strict CJS interop means a default-imported CJS dependency may need its `.default` unwrapped at the call site (see `src/components/VideoPlayer/ReactPlayerWrapper.tsx`)
 
 ## Styling architecture
 
@@ -352,36 +350,56 @@ Consumers order layers so overrides win without `!important`. Reference implemen
 @import url('stream-chat-react/dist/css/channel-detail.css') layer(stream-new-plugins);
 ```
 
-### Theming variables (3 tiers)
+### Theming variables
 
-1. **Primitives** — `src/styling/variables/` (fonts, shadows) + Figma-sourced palette tokens
-2. **Semantic tokens** — `src/styling/variable-tokens.scss` with `light.scss` / `dark.scss` mappings (e.g. `--str-chat__primary-color`, `--str-chat__text-color`)
-3. **Component tokens** — per-component SCSS (e.g. `--str-chat__message-bubble-background-color`)
+1. **Base values** — `src/styling/variables/` (fonts, shadows)
+2. **Semantic tokens** — `src/styling/light.scss` / `dark.scss` (generated; e.g. `--str-chat__accent-primary`, `--str-chat__text-primary`, `--str-chat__background-core-app`), applied by `variable-tokens.scss` to `.str-chat` and `.str-chat__theme-dark`
+3. **Component tokens** — per-component SCSS (e.g. `--str-chat__message-bubble-radius-tail`)
 
 ## i18n system
 
-- **12 locales** in `src/i18n/*.json`: de, en, es, fr, hi, it, ja, ko, nl, pt, ru, tr
-- **Keys are English text**: `t('Mute')`, `t('{{ user }} is typing...')`
-- `i18next.config.ts` sets `keySeparator: false` and `nsSeparator: false`, so keys may contain `/` and `:` literally (e.g. `timestamp/DateSeparator`). `timestamp/*` keys are listed under `preservePatterns` and are not pruned; `removeUnusedKeys: false`
-- Extraction: `yarn build-translations` (scans `src/**/*.{ts,tsx}`, ignores `__tests__` and `mock-builders`)
-- Validation: `yarn validate-translations` runs inside `yarn lint` and in CI — **zero tolerance for empty translation values**
-- `Streami18n` (`src/i18n/Streami18n.ts`) wraps i18next + Dayjs with per-locale calendar formats; access `t` via `useTranslationContext()` (only works inside `<Chat>`)
-- Adding a string: use `t()` → run `yarn build-translations` → fill in all 12 files
+**The runtime is `@stream-io/i18n`**, shared with the React Native SDK — one `Streami18n`, one set of formatters, one date layer. This package owns only its generated key catalog, `src/i18n/runtimeDefaults.ts`, the React context/hook binding, and the notification translation topic. `src/i18n/Streami18n.ts` is a thin subclass injecting this SDK's bundled data. Integrators import `Streami18n` from this package and never `@stream-io/i18n` directly, which is why it is a regular dependency, not a peer. Do not add `i18next` as a direct dependency.
+
+**English only.** Every other language is supplied by the integrator via `Streami18n.registerTranslation()`. There is no checked-in locale JSON; `yarn i18n:export` writes one on demand.
+
+**Keys are stable dotted identifiers, with the English copy inline as i18next's `defaultValue`:**
+
+```ts
+const { t } = useTranslationContext();
+t('message.status.sent.text', 'Sent'); // singular
+t('channel.memberCount.title', {
+  // plural: `count` is required
+  count,
+  defaultValue_one: '{{ count }} member',
+  defaultValue_other: '{{ count }} members',
+});
+t('timestamp.MessageTimestamp', { timestamp }); // formatter key: no default
+```
+
+- **Namespaces follow the source tree** (`message.*`, `messageComposer.*`, `poll.*`); shared copy lives in `common.*`. Modality is the leaf: `.label`, `.ariaLabel`, `.placeholder`, `.title`, `.description`, `.text`.
+- **Keys are flat strings that contain dots.** `@stream-io/i18n` sets `keySeparator: false`; several keys contain `...` in their copy, which a `.` separator would mis-resolve.
+- **Typed keys:** `src/i18n/keys.ts` (generated — never edit by hand) declares `TranslationCatalog`; `src/i18n/types.ts` derives `TranslationKey`, `TranslationDictionary` (strict), `LooseTranslationDictionary` and `StreamTFunction`, which is what `useTranslationContext().t` is typed as — a typo is a compile error.
+- **Runtime keys** (resolved from a runtime value: a `stream-chat` notification, slash-command metadata, a language code, an integrator prop) go through `asDynamicKey()`. That brand is required, so every escape is deliberate and greppable. `stream-chat` notifications are resolved by their stable `type` through `src/i18n/TranslationBuilder/notifications/`, not by matching English prose.
+- **`yarn build-translations`** (`scripts/generate-i18n-keys.mts`, driven by `@stream-io/i18n/codegen`) joins the call sites with `runtimeDefaults.ts` and hard-fails on, among others: a key used with two different inline copies; a key with no inline default and no `runtimeDefaults` entry (it would render as the raw dotted key); and a key present in both.
+- **`yarn validate-translations`** regenerates and fails on any diff to `keys.ts`; CI runs the same diff in its build job.
+- **Date/time:** `Streami18n` wraps i18next + Dayjs. Only the `en` dayjs locale is bundled; integrators import their own and pass `dayjsLocaleConfigForLanguage`.
+- **The v14 → v15 key mapping** lives in `ai-docs/i18n-v15-key-map.json` and is read by the integrator-facing guide. It is hand-reviewed — nothing regenerates it.
+
+**Adding a translatable string:** call `t('namespace.component.thing.label', 'English copy')`, then run `yarn build-translations`. A key with no inline copy (a formatter expression, or one built from a runtime value) goes in `src/i18n/runtimeDefaults.ts` instead, which _is_ hand-maintained. Access `t` via `useTranslationContext()`, which only works inside `<Chat>`.
 
 ## Accessibility
 
-`src/a11y/` holds cross-component a11y primitives: `useAriaIdentifiers`, `useListboxKeyboardNavigation`, `useVirtualizedListboxKeyboardNavigation`, `useResolvedModalAriaProps`, plus `accessibleLabel.ts` / `a11yUtils.ts`. Related components: `Accessibility/`, `SkipNavigation/`, `VisuallyHidden/`. New interactive UI should reuse these hooks and ship an `axe` assertion in its tests.
+`src/a11y/` holds cross-component a11y primitives: `useAriaIdentifiers`, `useListboxKeyboardNavigation`, `useVirtualizedListboxKeyboardNavigation`, `useResolvedModalAriaProps`, plus `accessibleLabel.ts` / `a11yUtils.ts`. Related components: `Accessibility/` (aria-live announcer and outlet), `SkipNavigation/`, `VisuallyHidden/`. New interactive UI should reuse these hooks and ship an `axe` assertion in its tests.
 
 ## Module boundaries & coupling
 
 **Tightest coupling:**
 
 1. `Message.tsx` ↔ `MessageContext` — every message needs actions
-2. `Channel.tsx` ↔ `VirtualizedMessageList` — complex prop drilling
-3. `useCreateChannelStateContext` ↔ message memoization — string-serialization fragility
-4. `MessageComposer` ↔ `stream-chat`'s `MessageComposer` class + `client.messageComposerCache`
+2. `useStateStore` selectors ↔ message memoization — an unstable or over-broad slice re-renders the list
+3. `MessageComposer` ↔ `stream-chat`'s `MessageComposer` class + `client.messageComposerCache`
 
-**Integration risks:** reducer action changes ripple across dispatchers; message sorting changes conflict with SDK updates; thread state isolation is error-prone.
+**Integration risks:** reordering messages conflicts with the paginator; reading LLC state through anything but `useStateStore` on its store yields stale copies.
 
 ## Code organization standards
 
@@ -395,9 +413,9 @@ ComponentName/
 └── index.ts
 ```
 
-Component-specific hooks stay in the component's `hooks/`: `Channel/hooks/` (state context, typing, editing), `Message/hooks/` (delete, pin, flag, react, retry, reminders), `MessageComposer/hooks/` (controller, bindings, submit, attachments, cooldown), `MessageList/hooks/` (scroll, mark-read, last-read/delivered).
+Component-specific hooks stay in the component's `hooks/`: `Message/hooks/` (delete, flag, mark-unread, mentions, reminders, …), `MessageComposer/hooks/` (controller, bindings, attachments, cooldown, …), `MessageList/hooks/` (mark-read, last-read/delivered, receipts, …), `ChannelList/hooks/`, `Threads/hooks/`. Cross-cutting hooks live in `src/hooks/`.
 
-Lint rules worth knowing (enforced with `--max-warnings 0`): `sort-keys`, `sort-destructure-keys`, `react/jsx-sort-props`, `@typescript-eslint/consistent-type-imports`, `react-hooks/exhaustive-deps` as **error**, no non-null assertions in `src/` (relaxed in tests).
+Lint rules worth knowing (enforced with `--max-warnings 0`): `sort-keys`, `sort-destructure-keys`, `react/jsx-sort-props`, `@typescript-eslint/consistent-type-imports`, `react-hooks/exhaustive-deps` as **error**, `@typescript-eslint/no-non-null-assertion` in `src/` (relaxed in tests and examples; examples also relax the sort rules).
 
 ## Contribution rules
 
@@ -407,7 +425,7 @@ Run `yarn lint-fix` before every commit. Follow the "zero warnings" policy — f
 
 ### Commits
 
-[Conventional Commits](https://www.conventionalcommits.org/), enforced by commitlint via the `commit-msg` husky hook:
+[Conventional Commits](https://www.conventionalcommits.org/), enforced by commitlint via the `commit-msg` husky hook, and on the PR title by `pr-check.yml` (PRs are squash-merged, so the title becomes the commit):
 
 ```
 feat(MessageComposer): add audio recording support
@@ -417,11 +435,11 @@ Implement MediaRecorder API integration with MP3 encoding.
 Closes #123
 ```
 
-- Avoid `BREAKING CHANGE` footers and `!` — ship changes as semver minors.
-- Never commit directly to `master`; always create a feature branch (see `developers/BRANCHES.md`).
+- v15 is a major release line: a change that breaks the v14 API is marked with `!` and a `BREAKING CHANGE:` footer, and gets an entry in `ai-docs/ai-migration-v14-v15.md`.
+- Never commit directly to `master` or `release-v14`; always create a feature branch (see `developers/BRANCHES.md`). v15 work targets `master`; v14 fixes target `release-v14`.
 - Never commit unless explicitly requested.
 
-The **pre-commit hook** runs `lint-staged`: eslint (`--max-warnings 0`) on staged `src/**`, prettier `--list-different` on all supported files, and translation validation on `src/i18n/*.json`. `yarn fix-staged` attempts auto-fix.
+The **pre-commit hook** runs `lint-staged`: eslint (`--max-warnings 0`) on staged `src/**`, and prettier `--list-different` on all supported files. `yarn fix-staged` attempts auto-fix.
 
 ### Pull requests
 
@@ -430,12 +448,13 @@ Follow `.github/pull_request_template.md` (Goal / Implementation details / UI Ch
 - [ ] `yarn lint-fix` passed
 - [ ] `yarn test` passed
 - [ ] `yarn types` passed (and no new errors from `yarn types:tests`)
+- [ ] `yarn validate-translations` passed, if any `t()` call changed
 - [ ] Tests added for changes
 - [ ] No new warnings (zero tolerance)
 - [ ] Screenshots (before/after) for UI changes
 - [ ] Public API changes documented
 
-**CI** (`.github/workflows/ci.yml`): lint · build + `validate-cjs` + `validate-esm` + `validate-translations` · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel.
+**CI** (`.github/workflows/ci.yml`, on every PR): lint (`yarn lint`, `yarn types`, `yarn types:scripts`) · build + `validate-cjs` + `validate-esm` + `keys.ts` drift check · `yarn coverage` → Codecov · deploy `examples/vite` to Vercel. `pr-check.yml` lints the PR title; `size.yml` reports bundle size.
 
 **Release:** automated via semantic-release (`.releaserc.json`) from commit messages.
 
@@ -445,7 +464,7 @@ Use the `@deprecated` JSDoc tag with a reason and docs link; commit under the `d
 
 ### Docs & samples
 
-When altering public API, update inline docs and any affected guide pages where this repo is the source of truth. Keep sample/snippet code compilable.
+When altering public API, update inline docs and any affected guide pages where this repo is the source of truth, including `ai-docs/` for v14 → v15 changes. Keep sample/snippet code compilable.
 
 ### Security & credentials
 
@@ -453,11 +472,12 @@ Never commit API keys or customer data. Example code must use obvious placeholde
 
 ### When in doubt
 
-Mirror existing patterns in the nearest module. Prefer additive changes; avoid breaking public APIs. Ask maintainers (`CODEOWNERS`) through PR mentions for modules you touch.
+Mirror existing patterns in the nearest module. Prefer additive changes. Ask maintainers (`CODEOWNERS`) through PR mentions for modules you touch.
 
 ## References
 
 - **Development guides:** `developers/`
+- **v14 → v15 migration:** `ai-docs/ai-migration-v14-v15.md`, `ai-docs/i18n-v15-migration.md`
 - **Component docs:** https://getstream.io/chat/docs/sdk/react/
 - **Stream Chat API:** https://getstream.io/chat/docs/javascript/
 - **Stream agent skills** (installed via `getstream init`): https://getstream.io/agent-skills/docs/installation/

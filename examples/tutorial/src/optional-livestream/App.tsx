@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react';
-import type { Channel as StreamChannel, User } from 'stream-chat';
+import type { ClientUser, Channel as StreamChannel } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
   Chat,
+  getChannel,
   MessageComposer,
   useCreateChatClient,
   VirtualizedMessageList,
-  Window,
 } from 'stream-chat-react';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
@@ -27,16 +28,34 @@ const App = () => {
     userData: user,
   });
 
+  // Commands such as /giphy need their middlewares in every composer (see
+  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
+  // it is registered before the effects below create any.
+  useEffect(() => {
+    if (!chatClient) return;
+    chatClient.config.setSetupFunction('messageComposer', ({ composer }) =>
+      setUpCommandMiddlewares(composer),
+    );
+  }, [chatClient]);
+
   useEffect(() => {
     if (!chatClient) return;
 
     const initChannel = async () => {
       const spaceChannel = chatClient.channel('livestream', 'spacex', {
-        image: 'https://goo.gl/Zefkbx',
-        name: 'SpaceX launch discussion',
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://goo.gl/Zefkbx',
+          name: 'SpaceX launch discussion',
+        },
       });
 
-      await spaceChannel.watch();
+      // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
+      // caller's job. The cached instance may already be loaded, so query only when it is not --
+      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      if (!spaceChannel.initialized) {
+        await getChannel({ channel: spaceChannel, client: chatClient });
+      }
       setChannel(spaceChannel);
     };
 
@@ -51,11 +70,9 @@ const App = () => {
   return (
     <Chat client={chatClient} theme='str-chat__theme-dark'>
       <Channel channel={channel}>
-        <Window>
-          <ChannelHeader />
-          <VirtualizedMessageList />
-          <MessageComposer focus />
-        </Window>
+        <ChannelHeader />
+        <VirtualizedMessageList />
+        <MessageComposer focus />
       </Channel>
     </Chat>
   );

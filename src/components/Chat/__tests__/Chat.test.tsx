@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, OwnUserResponse } from 'stream-chat';
+import type { OwnUserResponse, StreamChat } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -11,12 +12,12 @@ import { useNotificationConfigurationContext } from '../../Notifications';
 import { GlobalModal } from '../../Modal';
 import { Streami18n } from '../../../i18n';
 import type { Notification } from 'stream-chat';
-import type { Mute } from 'stream-chat';
+import type { UserMuteResponse } from 'stream-chat';
 import {
-  dispatchConnectionChangedEvent,
   dispatchNotificationMutesUpdated,
   getTestClient,
   getTestClientWithUser,
+  setWSConnectionStatus,
 } from '../../../mock-builders';
 
 const ChatContextConsumer = ({ fn }) => {
@@ -178,10 +179,8 @@ describe('Chat', () => {
     await waitFor(() => {
       expect(context).toBeInstanceOf(Object);
       expect(context.client).toBe(chatClient);
-      expect(context.channel).toBeUndefined();
       expect(context.mutes).toStrictEqual([]);
       expect(context.theme).toBe('messaging light');
-      expect(context.setActiveChannel).toBeInstanceOf(Function);
       expect(context.client.getUserAgent()).toMatch(
         new RegExp(
           `^stream-chat-react-.+-${originalUserAgent.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`,
@@ -221,6 +220,100 @@ describe('Chat', () => {
     await waitFor(() => {
       expect(context.client).toBe(newClient);
       expect(context.theme).toBe(newTheme);
+    });
+  });
+
+  describe('channel manager', () => {
+    it('exposes the client channel manager on the context', async () => {
+      const client = getTestClient();
+      let context: ChatContextValue;
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <ChatContextConsumer
+              fn={(ctx) => {
+                context = ctx;
+              }}
+            />
+          </Chat>,
+        );
+      });
+
+      await waitFor(() => expect(context.channelManager).toBe(client.channelManager));
+    });
+
+    it('does not register any channel list of its own', async () => {
+      const client = await getTestClientWithUser({ id: 'user_x' });
+
+      await act(() => {
+        render(
+          <Chat client={client}>
+            <div data-testid='children' />
+          </Chat>,
+        );
+      });
+
+      await waitFor(() => expect(screen.getByTestId('children')).toBeInTheDocument());
+      expect(client.channelManager.paginators).toEqual([]);
+    });
+
+    it('leaves the lists registered on the manager untouched', async () => {
+      const client = getTestClient();
+      const paginator = new ChannelPaginator({ client, id: 'channels:app-owned' });
+      client.channelManager.insertPaginator({ paginator });
+
+      let unmount: () => void;
+      await act(() => {
+        ({ unmount } = render(
+          <Chat client={client}>
+            <div data-testid='children' />
+          </Chat>,
+        ));
+      });
+
+      await waitFor(() => {
+        expect(client.channelManager.paginators).toStrictEqual([paginator]);
+      });
+
+      await act(() => {
+        unmount();
+      });
+
+      // the app owns its lists — unmounting Chat must not drop them
+      expect(client.channelManager.paginators).toStrictEqual([paginator]);
+    });
+
+    it('keeps exposing the same manager when the client changes', async () => {
+      const client = getTestClient();
+      const nextClient = getTestClient();
+      let context: ChatContextValue;
+
+      const { rerender } = render(
+        <Chat client={client}>
+          <ChatContextConsumer
+            fn={(ctx) => {
+              context = ctx;
+            }}
+          />
+        </Chat>,
+      );
+
+      await waitFor(() => expect(context.channelManager).toBe(client.channelManager));
+
+      await act(() => {
+        rerender(
+          <Chat client={nextClient}>
+            <ChatContextConsumer
+              fn={(ctx) => {
+                context = ctx;
+              }}
+            />
+          </Chat>,
+        );
+      });
+
+      await waitFor(() => expect(context.channelManager).toBe(nextClient.channelManager));
     });
   });
 
@@ -273,63 +366,136 @@ describe('Chat', () => {
 
       const mutes = [{ target: { id: 'user_y' }, user: { id: 'user_y' } }];
       act(() =>
-        dispatchNotificationMutesUpdated(chatClientWithUser, fromPartial<Mute[]>(mutes)),
+        dispatchNotificationMutesUpdated(
+          chatClientWithUser,
+          fromPartial<UserMuteResponse[]>(mutes),
+        ),
       );
       await waitFor(() => expect(context.mutes).toStrictEqual(mutes));
-
-      act(() => dispatchNotificationMutesUpdated(chatClientWithUser, null));
-      await waitFor(() => expect(context.mutes).toStrictEqual([]));
-    });
-  });
-
-  describe('active channel', () => {
-    it('setActiveChannel query if there is a watcher', async () => {
-      let context: ChatContextValue;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      const channel = fromPartial<Channel>({ cid: 'cid', query: vi.fn() });
-      const watchers = { user_y: {} };
-      await waitFor(() => expect(context.channel).toBeUndefined());
-      await act(() => context.setActiveChannel(channel, watchers));
-      await waitFor(() => {
-        expect(context.channel).toStrictEqual(channel);
-        expect(channel.query).toHaveBeenCalledTimes(1);
-        expect(channel.query).toHaveBeenCalledWith({ watch: true, watchers });
-      });
-    });
-
-    it('setActiveChannel prevent event default', async () => {
-      let context: ChatContextValue;
-      render(
-        <Chat client={chatClient}>
-          <ChatContextConsumer
-            fn={(ctx) => {
-              context = ctx;
-            }}
-          />
-        </Chat>,
-      );
-
-      await waitFor(() => expect(context.setActiveChannel).not.toBeUndefined());
-
-      const e = fromPartial<React.BaseSyntheticEvent>({ preventDefault: vi.fn() });
-      await act(() => context.setActiveChannel(undefined, {}, e));
-      await waitFor(() => expect(e.preventDefault).toHaveBeenCalledTimes(1));
     });
   });
 
   describe('connection notifications', () => {
-    it('publishes and removes system connection-lost notification on connection changes', async () => {
-      const client = getTestClient();
-      let connectionLostNotification;
+    /**
+     * Takes the socket down and waits out the window the banner holds a drop for.
+     *
+     * The client publishes every transition as it happens; deciding a drop has lasted long enough to
+     * be worth telling a person about is the banner's job, so a test that wants the banner has to
+     * let that window pass.
+     */
+    /** How long the banner sits on a drop, which is configuration rather than a fixed number. */
+    const holdWindow = (client: StreamChat) =>
+      client.wsConnection.config.offlineNotificationDisplayDelayMs;
+
+    const dropSocket = (client: StreamChat) => {
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(holdWindow(client));
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+    };
+
+    it('keeps the notification when the socket drops before i18n has initialized', async () => {
+      // `Streami18n.init()` is asynchronous and replaces `t`, which re-runs the subscription effect.
+      // Dismissal must therefore be scoped to the mount, not to that effect's cleanup, or a drop
+      // inside the init window leaves no banner exactly when one is most wanted: an offline app
+      // launch, a captive portal, an expired token.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      const chatNotifications = () =>
+        client.notifications.notifications.filter(
+          (notification) => notification.origin.emitter === 'Chat',
+        );
+
+      // Deliberately not awaiting anything first — the drop lands inside the init window.
+      dropSocket(client);
+      expect(chatNotifications()).toHaveLength(1);
+
+      // Long enough for `init()` to resolve and `t` to be replaced.
+      await act(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      });
+
+      expect(chatNotifications()).toHaveLength(1);
+    });
+
+    /**
+     * The device losing its network and the socket dying are different facts, so they get different
+     * copy. Publishing "Waiting for network…" off the socket alone — which is what this did — told
+     * users their network was down when the server had closed the socket, the token had expired or a
+     * health check had timed out on working Wi-Fi.
+     */
+    const chatNotificationsOf = (client: StreamChat) =>
+      client.notifications.notifications.filter(
+        (notification) => notification.origin.emitter === 'Chat',
+      );
+
+    it('says reconnecting, not offline, when the socket dies on a working network', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+      // jsdom is a browser, so the built-in reporter has already reported the network as up.
+      expect(client.networkConnection.isOnline).toBe(true);
+
+      dropSocket(client);
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
+      expect(chatNotificationsOf(client)[0].tags).toEqual(['system']);
+    });
+
+    it('says the network is down when the device reports no network', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      act(() => client.networkConnection.setStatus(false));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…');
+    });
+
+    it('swaps to the network message when the network drops while reconnecting', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      dropSocket(client);
+      await waitFor(() =>
+        expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…'),
+      );
+
+      act(() => client.networkConnection.setStatus(false));
+
+      // One banner throughout, with the more specific message replacing the general one.
+      await waitFor(() =>
+        expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…'),
+      );
+      expect(chatNotificationsOf(client)).toHaveLength(1);
+    });
+
+    it('publishes immediately when the client is already offline at mount', async () => {
+      // The status is read on mount rather than waited for, so a client that is already offline when
+      // the banner mounts says so.
+      const client = await getTestClientWithUser();
+      client.networkConnection.setStatus(false);
 
       render(
         <Chat client={client}>
@@ -337,27 +503,83 @@ describe('Chat', () => {
         </Chat>,
       );
 
-      expect(client.notifications.notifications).toHaveLength(0);
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+      expect(chatNotificationsOf(client)[0].message).toBe('Waiting for network…');
+    });
 
-      act(() => dispatchConnectionChangedEvent(client, false));
-      await waitFor(() => {
-        connectionLostNotification = client.notifications.notifications.find(
-          (notification) => notification.origin.emitter === 'Chat',
-        );
-        expect(connectionLostNotification).toBeDefined();
+    it('clears on recovery', async () => {
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      dropSocket(client);
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(1));
+
+      act(() => setWSConnectionStatus(client, true));
+
+      await waitFor(() => expect(chatNotificationsOf(client)).toHaveLength(0));
+    });
+
+    it('respects a configured hold window', async () => {
+      // The wait is configuration rather than a fixed number, so an integrator can shorten it, or
+      // switch the wait off with zero, without replacing the hook. Zero still defers to the next
+      // task, which is why this advances timers rather than asserting synchronously.
+      const client = await getTestClientWithUser();
+      client.config.set({
+        client: { wsConnection: { offlineNotificationDisplayDelayMs: 0 } },
       });
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
 
-      expect(connectionLostNotification.message).toBe('Waiting for network…');
-      expect(connectionLostNotification.tags).toEqual(['system']);
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(0);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
 
-      act(() => dispatchConnectionChangedEvent(client, true));
-      await waitFor(() => {
-        expect(
-          client.notifications.notifications.find(
-            (notification) => notification.origin.emitter === 'Chat',
-          ),
-        ).toBeUndefined();
-      });
+      expect(chatNotificationsOf(client)).toHaveLength(1);
+      expect(chatNotificationsOf(client)[0].message).toBe('Reconnecting…');
+    });
+
+    it('shows nothing for a drop the socket recovers from inside the window', async () => {
+      // The reason the banner holds a drop at all. The socket retries on its own and most drops
+      // resolve in well under a second; announcing those makes a working application look broken.
+      const client = await getTestClientWithUser();
+      render(
+        <Chat client={client}>
+          <div data-testid='children' />
+        </Chat>,
+      );
+
+      vi.useFakeTimers();
+      try {
+        act(() => setWSConnectionStatus(client, false));
+        act(() => {
+          vi.advanceTimersByTime(holdWindow(client) - 1);
+        });
+        // Nothing yet, and nothing later either: coming back cancels the held drop rather than
+        // showing it and then removing it.
+        expect(chatNotificationsOf(client)).toHaveLength(0);
+
+        act(() => setWSConnectionStatus(client, true));
+        act(() => {
+          vi.advanceTimersByTime(holdWindow(client) * 2);
+        });
+      } finally {
+        vi.useRealTimers();
+      }
+
+      expect(chatNotificationsOf(client)).toHaveLength(0);
     });
 
     it('uses NotificationAnnouncer from ComponentContext', async () => {
@@ -406,9 +628,11 @@ describe('Chat', () => {
 
     it('should use i18n provided in props', async () => {
       const i18nInstance = new Streami18n();
-      await i18nInstance.getTranslators();
-      (i18nInstance as any).t = 't';
-      (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
+      await i18nInstance.init();
+      // `t` is a state-backed getter now, so it cannot be assigned. Swapping the translator is what
+      // `overrideTFunction` is for -- it publishes to the store, which is what `<Chat>` subscribes to.
+      const overridden = (() => 'overridden') as never;
+      i18nInstance.overrideTFunction(overridden);
 
       let context: ChatContextValue;
       render(
@@ -422,16 +646,16 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe(i18nInstance.t);
+        expect(context.t).toBe(overridden);
         expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
       });
     });
 
     it('props change should update the context', async () => {
       const i18nInstance = new Streami18n();
-      await i18nInstance.getTranslators();
-      (i18nInstance as any).t = 't';
-      (i18nInstance as any).tDateTimeParser = 'tDateTimeParser';
+      await i18nInstance.init();
+      const firstT = (() => 'first') as never;
+      i18nInstance.overrideTFunction(firstT);
 
       let context: ChatContextValue;
       const { rerender } = render(
@@ -445,14 +669,14 @@ describe('Chat', () => {
       );
 
       await waitFor(() => {
-        expect(context.t).toBe(i18nInstance.t);
+        expect(context.t).toBe(firstT);
         expect(context.tDateTimeParser).toBe(i18nInstance.tDateTimeParser);
       });
 
       const newI18nInstance = new Streami18n();
-      await newI18nInstance.getTranslators();
-      (newI18nInstance as any).t = 'newT';
-      (newI18nInstance as any).tDateTimeParser = 'newtDateTimeParser';
+      await newI18nInstance.init();
+      const secondT = (() => 'second') as never;
+      newI18nInstance.overrideTFunction(secondT);
 
       rerender(
         <Chat client={chatClient} i18nInstance={newI18nInstance}>
@@ -464,10 +688,9 @@ describe('Chat', () => {
         </Chat>,
       );
       await waitFor(() => {
-        expect(context.t).toBe(newI18nInstance['t']);
-        expect(context.tDateTimeParser).toBe(newI18nInstance['tDateTimeParser']);
-        expect(context.t).not.toBe(i18nInstance['t']);
-        expect(context.tDateTimeParser).not.toBe(i18nInstance['tDateTimeParser']);
+        expect(context.t).toBe(secondT);
+        expect(context.t).not.toBe(firstT);
+        expect(context.tDateTimeParser).toBe(newI18nInstance.tDateTimeParser);
       });
     });
   });

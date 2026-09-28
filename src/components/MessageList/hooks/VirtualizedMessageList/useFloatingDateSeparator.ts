@@ -3,10 +3,11 @@ import { useCallback, useState } from 'react';
 import type { RenderedMessage } from '../../utils';
 import { isDateSeparatorMessage, isIntroMessage } from '../../utils';
 import type { LocalMessage } from 'stream-chat';
+import { nsToDate } from 'stream-chat';
 
 export type UseFloatingDateSeparatorParams = {
-  disableDateSeparator: boolean;
   processedMessages: RenderedMessage[];
+  withDateSeparator: boolean;
 };
 
 export type UseFloatingDateSeparatorResult = {
@@ -38,8 +39,8 @@ function getFloatingDateForFirstMessage(
   // No preceding date separator; use message's created_at
   const msg = firstMessage as LocalMessage;
   const created = msg.created_at;
-  if (created) {
-    const d = new Date(created);
+  if (created != null) {
+    const d = nsToDate(created);
     return isNaN(d.getTime()) ? null : d;
   }
   return null;
@@ -62,8 +63,8 @@ function getFloatingDateForFirstItem(
 const HIDDEN_STATE = { date: null, visible: false } as const;
 
 export const useFloatingDateSeparator = ({
-  disableDateSeparator,
   processedMessages,
+  withDateSeparator,
 }: UseFloatingDateSeparatorParams): UseFloatingDateSeparatorResult => {
   const [state, setState] = useState<{
     date: Date | null;
@@ -72,7 +73,7 @@ export const useFloatingDateSeparator = ({
 
   const onItemsRendered = useCallback(
     (rendered: RenderedMessage[]) => {
-      if (disableDateSeparator || processedMessages.length === 0) {
+      if (!withDateSeparator || processedMessages.length === 0) {
         setState(HIDDEN_STATE);
         return;
       }
@@ -98,7 +99,7 @@ export const useFloatingDateSeparator = ({
         return { date, visible };
       });
     },
-    [disableDateSeparator, processedMessages],
+    [withDateSeparator, processedMessages],
   );
 
   return {

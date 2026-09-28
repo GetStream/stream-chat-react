@@ -24,11 +24,11 @@
 }
 
 .custom-message-ui--mine .custom-message-ui__name::before {
-  content: "<";
+  content: '<';
 }
 
 .custom-message-ui--other .custom-message-ui__name::after {
-  content: ">";
+  content: '>';
 }
 
 .custom-message-ui--mine {
@@ -84,7 +84,7 @@
 
 .custom-message-ui__metadata > *:nth-child(even)::after,
 .custom-message-ui__metadata > *:nth-child(even)::before {
-  content: "•";
+  content: '•';
   padding-inline: var(--cmui-gap-size-sm);
 }
 
@@ -98,21 +98,21 @@
 
 /* ─── Variant 5: Grouped metadata (hidden by default) ────────────── */
 
-[data-variant="5"] .custom-message-ui__metadata,
-[data-variant="6"] .custom-message-ui__metadata,
-[data-variant="7"] .custom-message-ui__metadata,
-[data-variant="8"] .custom-message-ui__metadata {
+[data-variant='5'] .custom-message-ui__metadata,
+[data-variant='6'] .custom-message-ui__metadata,
+[data-variant='7'] .custom-message-ui__metadata,
+[data-variant='8'] .custom-message-ui__metadata {
   display: none;
 }
 
-[data-variant="5"] .str-chat__li--bottom .custom-message-ui__metadata,
-[data-variant="5"] .str-chat__li--single .custom-message-ui__metadata,
-[data-variant="6"] .str-chat__li--bottom .custom-message-ui__metadata,
-[data-variant="6"] .str-chat__li--single .custom-message-ui__metadata,
-[data-variant="7"] .str-chat__li--bottom .custom-message-ui__metadata,
-[data-variant="7"] .str-chat__li--single .custom-message-ui__metadata,
-[data-variant="8"] .str-chat__li--bottom .custom-message-ui__metadata,
-[data-variant="8"] .str-chat__li--single .custom-message-ui__metadata {
+[data-variant='5'] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant='5'] .str-chat__li--single .custom-message-ui__metadata,
+[data-variant='6'] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant='6'] .str-chat__li--single .custom-message-ui__metadata,
+[data-variant='7'] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant='7'] .str-chat__li--single .custom-message-ui__metadata,
+[data-variant='8'] .str-chat__li--bottom .custom-message-ui__metadata,
+[data-variant='8'] .str-chat__li--single .custom-message-ui__metadata {
   display: flex;
 }
 
@@ -197,7 +197,7 @@
   padding: 5px;
 }
 
-[data-variant="8"] {
+[data-variant='8'] {
   --str-chat__own-message-reaction-background-color: var(--cmui-bg-color, #efefef);
   --str-chat__message-reaction-background-color: white;
   --str-chat__message-reaction-border-radius: 0.2rem;

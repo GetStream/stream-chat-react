@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import type { AudioPlayerOptions } from './AudioPlayer';
 import type { AudioPlayerPoolState } from './AudioPlayerPool';
 import { AudioPlayerPool } from './AudioPlayerPool';
+import { AudioPlaybackArbiter } from './AudioPlaybackArbiter';
 import { audioPlayerNotificationsPluginFactory } from './plugins/AudioPlayerNotificationsPlugin';
 import { useNotificationApi, useNotificationTarget } from '../Notifications';
 import { useTranslationContext } from '../../context';
@@ -10,24 +11,60 @@ import { useAudioPlaybackChangeAnnouncements } from '../Accessibility/hooks/useA
 
 export type WithAudioPlaybackProps = {
   children?: React.ReactNode;
-  allowConcurrentPlayback?: boolean;
+  /**
+   * What the playback belongs to. When it changes, everything this provider started is stopped and
+   * discarded.
+   *
+   * Unmounting already does that, but a provider is not always unmounted when its subject changes:
+   * `Channel` keeps one mounted across a channel switch (since v15 the subtree is re-rendered, not
+   * rebuilt), so without this a voice message from the channel you just left would keep playing.
+   *
+   * `Thread` passes its thread even though a key on `ThreadInner` happens to remount it today --
+   * stating the dependency here is what keeps the cleanup correct if that wrapper is ever removed,
+   * which the code already contemplates.
+   */
+  playbackScope?: unknown;
 };
 
 const AudioPlayerContext = React.createContext<{ audioPlayers: AudioPlayerPool | null }>({
   audioPlayers: null,
 });
 
-export const WithAudioPlayback = ({
-  allowConcurrentPlayback,
-  children,
-}: WithAudioPlaybackProps) => {
-  const [audioPlayers] = useState(() => new AudioPlayerPool({ allowConcurrentPlayback }));
+/**
+ * The arbiter every pool below shares, so no two surfaces play at once. `Chat` provides one; a
+ * `WithAudioPlayback` mounted outside a `Chat` falls back to a pool that arbitrates alone.
+ */
+const SharedAudioPlaybackContext = React.createContext<AudioPlaybackArbiter | null>(null);
 
+export const SharedAudioPlaybackProvider = ({
+  children,
+}: {
+  children?: React.ReactNode;
+}) => {
+  const [arbiter] = useState(() => new AudioPlaybackArbiter());
+  return (
+    <SharedAudioPlaybackContext.Provider value={arbiter}>
+      {children}
+    </SharedAudioPlaybackContext.Provider>
+  );
+};
+
+export const WithAudioPlayback = ({
+  children,
+  playbackScope,
+}: WithAudioPlaybackProps) => {
+  const arbiter = useContext(SharedAudioPlaybackContext);
+  const [audioPlayers] = useState(
+    () => new AudioPlayerPool({ arbiter: arbiter ?? undefined }),
+  );
+
+  // Cleanup runs on unmount *and* whenever the scope changes, which is the point: the players
+  // belong to the scope, not to this provider's lifetime.
   useEffect(
     () => () => {
       audioPlayers.clear();
     },
-    [audioPlayers],
+    [audioPlayers, playbackScope],
   );
 
   return (

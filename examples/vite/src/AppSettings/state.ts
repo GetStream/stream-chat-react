@@ -1,7 +1,8 @@
-import { StateStore } from 'stream-chat';
-
-import type { UploadFailureMode } from '../SendWhilePendingUploads';
+import { StateStore } from '@stream-io/state-store';
 import { useStateStore } from 'stream-chat-react';
+
+import { DEFAULT_LANGUAGE, streamI18n } from '../i18n';
+import type { UploadFailureMode } from '../SendWhilePendingUploads';
 
 export type ReactionsSettingsState = {
   flipHorizontalPosition: boolean;
@@ -13,6 +14,12 @@ export type ChatViewSettingsState = {
   iconOnly: boolean;
 };
 
+/** Dev-only affordances that would not ship in an application. */
+export type DevToolsSettingsState = {
+  /** Shows the panel that drives the network and WebSocket facts independently. */
+  connectionPanel: boolean;
+};
+
 export type ThemeSettingsState = {
   direction: 'ltr' | 'rtl';
   mode: 'dark' | 'light';
@@ -22,15 +29,28 @@ export type NotificationsSettingsState = {
   verticalAlignment: 'bottom' | 'top';
 };
 
-export type MessageActionsSettingsState = {
-  customMessageActions: {
-    delete: {
-      enableOptionConfiguration: boolean;
-    };
-    inlineEdit: boolean;
-    markOwnUnread: boolean;
-    viewMessageInfo: boolean;
+export type LanguageSettingsState = {
+  code: string;
+};
+
+export type MessageActionSurface = 'channel' | 'thread';
+
+export type CustomMessageActionToggles = {
+  delete: {
+    enableOptionConfiguration: boolean;
   };
+  /**
+   * `MessageActionSetItem['type']`s to drop from the set for this surface. Held as what is turned
+   * *off* so a newly shipped default action appears without a settings migration.
+   */
+  disabledActionTypes: string[];
+  inlineEdit: boolean;
+  markOwnUnread: boolean;
+  viewMessageInfo: boolean;
+};
+
+export type MessageActionsSettingsState = {
+  customMessageActions: Record<MessageActionSurface, CustomMessageActionToggles>;
 };
 
 export type ChannelMembersHeaderActionForm = 'menu' | 'quick';
@@ -72,11 +92,16 @@ export type MessageListSettingsState = {
   type: 'standard' | 'virtualized';
 };
 
+export type LayoutSettingsState = {
+  /** The single-channel modal renders a bare `<Channel>` (customer-support scenario) floating over
+   *  the full app. It's open exactly when this holds a channel CID; closing the modal clears it.
+   *  There's no separate "layout mode" — the modal is an overlay, not a full-view swap. */
+  channelCid?: string;
+};
+
 export type ComposerSettingsState = {
   /**
-   * POC: allow sending a message while its attachments are still uploading.
-   * Off by default — it swaps composer middleware and shadows a prototype getter,
-   * so the app should behave exactly like stock until it is turned on.
+   * Allow sending a message while its attachments are still uploading.
    */
   sendMessagesWithPendingUploads: boolean;
   /**
@@ -99,6 +124,9 @@ export type AppSettingsState = {
   channelDetail: ChannelDetailSettingsState;
   chatView: ChatViewSettingsState;
   composer: ComposerSettingsState;
+  devTools: DevToolsSettingsState;
+  language: LanguageSettingsState;
+  layout: LayoutSettingsState;
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
@@ -111,6 +139,7 @@ const panelLayoutStorageKey = 'stream-chat-react:example-panel-layout';
 const themeStorageKey = 'stream-chat-react:example-theme-mode';
 const directionStorageKey = 'stream-chat-react:example-direction';
 const themeUrlParam = 'theme';
+const languageUrlParam = 'language';
 
 const clamp = (value: number, min: number, max?: number) => {
   const minClampedValue = Math.max(min, value);
@@ -124,6 +153,9 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 const defaultAppSettingsState: AppSettingsState = {
+  devTools: {
+    connectionPanel: false,
+  },
   channelDetail: {
     modal: {
       channelMembersView: {
@@ -149,14 +181,30 @@ const defaultAppSettingsState: AppSettingsState = {
     slowUploadMs: 20000,
     slowUploads: false,
   },
+  language: {
+    code: DEFAULT_LANGUAGE,
+  },
+  layout: {},
   messageActions: {
     customMessageActions: {
-      delete: {
-        enableOptionConfiguration: false,
+      channel: {
+        delete: {
+          enableOptionConfiguration: false,
+        },
+        disabledActionTypes: [],
+        inlineEdit: false,
+        markOwnUnread: false,
+        viewMessageInfo: false,
       },
-      inlineEdit: false,
-      markOwnUnread: false,
-      viewMessageInfo: false,
+      thread: {
+        delete: {
+          enableOptionConfiguration: false,
+        },
+        disabledActionTypes: [],
+        inlineEdit: false,
+        markOwnUnread: false,
+        viewMessageInfo: false,
+      },
     },
   },
   messageList: {
@@ -269,37 +317,6 @@ const getStoredPanelLayoutSettings = (): PanelLayoutSettingsState | undefined =>
   }
 };
 
-const slowUploadUrlParam = 'slow_upload';
-
-/** Seeded from `?slow_upload=<ms>` so a link can carry a specific delay. */
-const getSlowUploadMsFromUrl = (): number | undefined => {
-  if (typeof window === 'undefined') return;
-
-  const raw = new URLSearchParams(window.location.search).get(slowUploadUrlParam);
-  if (raw === null) return;
-
-  const parsed = Number(raw);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : undefined;
-};
-
-const sendMessagesWithPendingUploadsUrlParam = 'send_messages_with_pending_uploads';
-
-/**
- * Deliberately URL-seeded only — never persisted to localStorage. The POC mode has to be
- * off on a fresh load, so a stale stored value must not be able to turn it on.
- */
-const getSendMessagesWithPendingUploadsFromUrl = (): boolean | undefined => {
-  if (typeof window === 'undefined') return;
-
-  const raw = new URLSearchParams(window.location.search).get(
-    sendMessagesWithPendingUploadsUrlParam,
-  );
-
-  if (raw === null) return;
-
-  return raw !== '0' && raw !== 'false';
-};
-
 const getThemeModeFromUrl = (): ThemeSettingsState['mode'] | undefined => {
   if (typeof window === 'undefined') return;
 
@@ -308,6 +325,37 @@ const getThemeModeFromUrl = (): ThemeSettingsState['mode'] | undefined => {
   if (themeMode === 'dark' || themeMode === 'light') {
     return themeMode;
   }
+};
+
+const getLanguageFromUrl = (): string | undefined => {
+  if (typeof window === 'undefined') return;
+
+  return new URLSearchParams(window.location.search).get(languageUrlParam) ?? undefined;
+};
+
+/** The store is the source of truth; this pushes the choice into the SDK. */
+const applyLanguage = (code: string) => {
+  void streamI18n.setLanguage(code);
+};
+
+const persistLanguageInUrl = (code: string) => {
+  if (typeof window === 'undefined') return;
+
+  const url = new URL(window.location.href);
+
+  if (url.searchParams.get(languageUrlParam) === code) return;
+
+  if (code === DEFAULT_LANGUAGE) {
+    url.searchParams.delete(languageUrlParam);
+  } else {
+    url.searchParams.set(languageUrlParam, code);
+  }
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  );
 };
 
 const persistDirection = (direction: ThemeSettingsState['direction']) => {
@@ -363,15 +411,8 @@ const persistThemeModeInUrl = (themeMode: ThemeSettingsState['mode']) => {
 
 const initialAppSettingsState: AppSettingsState = {
   ...defaultAppSettingsState,
-  composer: {
-    ...defaultAppSettingsState.composer,
-    sendMessagesWithPendingUploads:
-      getSendMessagesWithPendingUploadsFromUrl() ??
-      defaultAppSettingsState.composer.sendMessagesWithPendingUploads,
-    slowUploadMs:
-      getSlowUploadMsFromUrl() ?? defaultAppSettingsState.composer.slowUploadMs,
-    // A delay in the URL means the harness is wanted, so it arms the switch too.
-    slowUploads: (getSlowUploadMsFromUrl() ?? 0) > 0,
+  language: {
+    code: getLanguageFromUrl() ?? defaultAppSettingsState.language.code,
   },
   panelLayout: getStoredPanelLayoutSettings() ?? defaultAppSettingsState.panelLayout,
   theme: {
@@ -397,6 +438,16 @@ appSettingsStore.subscribeWithSelector(
   ({ direction }) => {
     persistDirection(direction);
     applyDirection(direction);
+  },
+);
+
+// The switcher writes to the store; this is what makes the UI change language. `streamI18n` was
+// constructed with the initial code already, so the immediate invocation is a no-op.
+appSettingsStore.subscribeWithSelector(
+  ({ language }) => ({ code: language.code }),
+  ({ code }) => {
+    applyLanguage(code);
+    persistLanguageInUrl(code);
   },
 );
 

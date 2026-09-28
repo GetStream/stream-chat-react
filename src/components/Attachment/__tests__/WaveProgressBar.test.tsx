@@ -133,15 +133,12 @@ describe('WaveProgressBar', () => {
 
     const root = screen.getByTestId(BAR_ROOT_TEST_ID);
     expect(root).toHaveAttribute('role', 'slider');
-    expect(root).toHaveAttribute('aria-label', 'aria/Seek audio position');
+    expect(root).toHaveAttribute('aria-label', 'Seek audio position');
     expect(root).toHaveAttribute('tabindex', '0');
     expect(root).toHaveAttribute('aria-valuemin', '0');
     expect(root).toHaveAttribute('aria-valuemax', '100');
     expect(root).toHaveAttribute('aria-valuenow', '20');
-    expect(root).toHaveAttribute(
-      'aria-valuetext',
-      'aria/Audio position {{ progress }} percent',
-    );
+    expect(root).toHaveAttribute('aria-valuetext', 'Audio position 20 percent');
 
     fireEvent.keyDown(root, { key: 'End' });
 

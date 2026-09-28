@@ -4,50 +4,46 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import { missingUseMuteHandlerParamsWarning, useMuteHandler } from '../useMuteHandler';
 
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
 import { ChatProvider } from '../../../../context/ChatContext';
 import {
-  generateChannel,
   generateMessage,
   generateUser,
   getTestClientWithUser,
-  mockChannelStateContext,
   mockChatContext,
 } from '../../../../mock-builders';
-import type { LocalMessage, MessageResponse, Mute } from 'stream-chat';
-import type { ChannelStateContextValue } from '../../../../context';
+import type { LocalMessage, MessageResponse, UserMuteResponse } from 'stream-chat';
+
+// MERGE-RECONCILE (test migration): PR #2909's useMuteHandler no longer reads mutes from the
+// removed ChannelStateContext (it reads `client.mutedUsersStore`) and receives `notify` via a
+// `notifications` param instead of ChannelActionContext. It also swallows API errors and
+// notifies rather than rejecting. Wrapper reduced to <ChatProvider> (the hook does not use a
+// channel); mute state is seeded via `client.mutedUsersStore`; failure tests assert `notify`.
 
 const alice = generateUser({ name: 'alice' });
 const bob = generateUser({ name: 'bob' });
-const muteUser = vi.fn();
-const unmuteUser = vi.fn();
+// v10 moved user mute/unmute onto `client.moderation`, as the symmetric generated pair
+// `mute({ target_ids })` / `unmute({ target_ids })`.
+const mute = vi.fn();
+const unmute = vi.fn();
+const notify = vi.fn();
 const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
 });
 
 async function renderUseHandleMuteHook(
   message: LocalMessage | undefined = generateMessage() as MessageResponse & LocalMessage,
-  channelStateContextValue?: Partial<ChannelStateContextValue> & Record<string, unknown>,
+  { mutes = [] as UserMuteResponse[] }: { mutes?: UserMuteResponse[] } = {},
 ) {
   const client = await getTestClientWithUser(alice);
-  client.muteUser = muteUser;
-  client.unmuteUser = unmuteUser;
-  const channel = generateChannel();
+  client.moderation.mute = mute;
+  client.moderation.unmute = unmute;
+  client.mutedUsersStore.partialNext({ mutedUsers: mutes });
 
   const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <ChatProvider value={mockChatContext({ client })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          channel,
-          ...channelStateContextValue,
-        })}
-      >
-        {children}
-      </ChannelStateProvider>
-    </ChatProvider>
+    <ChatProvider value={mockChatContext({ client })}>{children}</ChatProvider>
   );
 
-  const { result } = renderHook(() => useMuteHandler(message), {
+  const { result } = renderHook(() => useMuteHandler(message, { notify }), {
     wrapper,
   });
   return result.current;
@@ -71,34 +67,36 @@ describe('useHandleMute custom hook', () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
     const handleMute = await renderUseHandleMuteHook(message);
     await handleMute(mouseEventMock);
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
+    expect(mute).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
-  it('should throw when muting a user fails', async () => {
+  it('should notify (and not throw) when muting a user fails', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    muteUser.mockImplementationOnce(() => Promise.reject(new Error('mute failed')));
+    mute.mockImplementationOnce(() => Promise.reject(new Error('mute failed')));
     const handleMute = await renderUseHandleMuteHook(message);
-    await expect(handleMute(mouseEventMock)).rejects.toThrow('mute failed');
-    expect(muteUser).toHaveBeenCalledWith(bob.id);
+    await expect(handleMute(mouseEventMock)).resolves.toBeUndefined();
+    expect(mute).toHaveBeenCalledWith({ target_ids: [bob.id] });
+    expect(notify).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 
   it('should allow to unmute a user when it is successful', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    unmuteUser.mockImplementationOnce(() => Promise.resolve());
+    unmute.mockImplementationOnce(() => Promise.resolve());
     const handleMute = await renderUseHandleMuteHook(message, {
-      mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
+      mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
     });
     await handleMute(mouseEventMock);
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
+    expect(unmute).toHaveBeenCalledWith({ target_ids: [bob.id] });
   });
 
-  it('should throw when unmuting a user fails', async () => {
+  it('should notify (and not throw) when unmuting a user fails', async () => {
     const message = generateMessage({ user: bob }) as MessageResponse & LocalMessage;
-    unmuteUser.mockImplementationOnce(() => Promise.reject(new Error('unmute failed')));
+    unmute.mockImplementationOnce(() => Promise.reject(new Error('unmute failed')));
     const handleMute = await renderUseHandleMuteHook(message, {
-      mutes: [fromPartial<Mute>({ target: { id: bob.id } })],
+      mutes: [fromPartial<UserMuteResponse>({ target: { id: bob.id } })],
     });
-    await expect(handleMute(mouseEventMock)).rejects.toThrow('unmute failed');
-    expect(unmuteUser).toHaveBeenCalledWith(bob.id);
+    await expect(handleMute(mouseEventMock)).resolves.toBeUndefined();
+    expect(unmute).toHaveBeenCalledWith({ target_ids: [bob.id] });
+    expect(notify).toHaveBeenCalledWith(expect.any(String), 'error');
   });
 });

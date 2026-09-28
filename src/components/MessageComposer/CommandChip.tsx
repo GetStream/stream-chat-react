@@ -12,7 +12,6 @@ export type CommandChipProps = {
 
 export const CommandChip = ({ command }: CommandChipProps) => {
   const { IconBolt, IconXmark } = useComponentContextIcons();
-
   const { textComposer } = useMessageComposerController();
   const { textareaRef } = useMessageComposerContext();
   const { t } = useTranslationContext();
@@ -25,7 +24,11 @@ export const CommandChip = ({ command }: CommandChipProps) => {
         {command.name}
       </span>
       <button
-        aria-label={t('Exit command {{ command }}', { command: command.name })}
+        aria-label={t(
+          'messageComposer.commandChip.exitCommand.ariaLabel',
+          'Exit command {{ command }}',
+          { command: command.name },
+        )}
         className={'str-chat__command-chip__close-button'}
         onClick={() => {
           textComposer.setCommand(null);

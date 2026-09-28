@@ -19,6 +19,7 @@ import {
   querySelectableMemberButton,
   renderWithChannel,
 } from './testUtils';
+import { mockT } from '../../../../../mock-builders/translator';
 
 const mocks = vi.hoisted(() => ({
   virtuosoRenderCount: 0,
@@ -86,15 +87,15 @@ describe('ChannelMembersAddView', () => {
   const setMode = vi.fn();
 
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { count?: number }) =>
-        options?.count ? `${key}:${options.count}` : key,
+      t: mockT,
     } as ReturnType<typeof useTranslationContext>);
-
-    vi.mocked(useComponentContext).mockReturnValue({});
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { user: { id: 'user-1' } },
@@ -104,7 +105,6 @@ describe('ChannelMembersAddView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
-    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useStateStore).mockReturnValue({
       isLoading: false,
@@ -153,11 +153,9 @@ describe('ChannelMembersAddView', () => {
     fireEvent.click(getSelectableMemberButton('Bob'));
     fireEvent.click(getSelectableMemberButton('Carol'));
 
-    expect(
-      screen.getByRole('button', { name: 'Add {{ count }} members:2' }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Add 2 members' })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add {{ count }} members:2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add 2 members' }));
 
     await waitFor(() => {
       expect(channel.addMembers).toHaveBeenCalledWith(['user-2', 'user-3']);
@@ -209,16 +207,14 @@ describe('ChannelMembersAddView', () => {
     );
 
     fireEvent.click(getSelectableMemberButton('Bob'));
-    expect(
-      screen.getByRole('button', { name: /Add {{ count }} members/ }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Add \d+ members?/ })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /Add {{ count }} members/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Add \d+ members?/ }));
 
     await waitFor(() => expect(channel.addMembers).toHaveBeenCalledWith(['user-2']));
 
     expect(
-      screen.queryByRole('button', { name: /Add {{ count }} members/ }),
+      screen.queryByRole('button', { name: /Add \d+ members?/ }),
     ).not.toBeInTheDocument();
   });
 
@@ -240,7 +236,7 @@ describe('ChannelMembersAddView', () => {
       document.querySelector('.str-chat__channel-detail__channel-members-view__checkbox'),
     ).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /Add {{ count }} members/ }),
+      screen.queryByRole('button', { name: /Add \d+ members?/ }),
     ).not.toBeInTheDocument();
   });
 

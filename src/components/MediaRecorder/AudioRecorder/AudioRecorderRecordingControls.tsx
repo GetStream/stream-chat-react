@@ -22,7 +22,17 @@ const ToggleRecordingButton = () => {
   return (
     <Button
       appearance='outline'
-      aria-label={recording ? t('aria/Pause recording') : t('aria/Resume recording')}
+      aria-label={
+        recording
+          ? t(
+              'mediaRecorder.audioRecorderRecording.pauseRecording.ariaLabel',
+              'Pause recording',
+            )
+          : t(
+              'mediaRecorder.audioRecorderRecording.resumeRecording.ariaLabel',
+              'Resume recording',
+            )
+      }
       circular
       className='str-chat__audio_recorder__toggle-recording-button'
       onClick={() => (recording ? recorder?.pause() : recorder?.resume())}
@@ -36,7 +46,6 @@ const ToggleRecordingButton = () => {
 
 export const AudioRecorderRecordingControls = () => {
   const { IconDelete } = useComponentContextIcons();
-
   const { addNotification } = useNotificationApi();
   const { t } = useTranslationContext();
   const {
@@ -52,7 +61,10 @@ export const AudioRecorderRecordingControls = () => {
       {!isRecording(recordingState) && (
         <Button
           appearance='ghost'
-          aria-label={t('aria/Cancel recording')}
+          aria-label={t(
+            'mediaRecorder.audioRecorderRecording.cancelRecording.ariaLabel',
+            'Cancel recording',
+          )}
           circular
           className='str-chat__audio_recorder__cancel-button'
           data-testid={'cancel-recording-audio-button'}
@@ -61,7 +73,10 @@ export const AudioRecorderRecordingControls = () => {
             recorder.cancel();
             addNotification({
               emitter: 'AudioRecorder',
-              message: t('Voice message deleted'),
+              message: t(
+                'mediaRecorder.audioRecorderRecording.voiceMessageDeleted.text',
+                'Voice message deleted',
+              ),
               severity: 'info',
               type: 'audioRecording:cancel:success',
             });
@@ -75,7 +90,10 @@ export const AudioRecorderRecordingControls = () => {
       <ToggleRecordingButton />
       <Button
         appearance='solid'
-        aria-label={t('aria/Complete recording')}
+        aria-label={t(
+          'mediaRecorder.audioRecorderRecording.completeRecording.ariaLabel',
+          'Complete recording',
+        )}
         circular
         className='str-chat__audio_recorder__stop-button'
         data-testid='audio-recorder-stop-button'

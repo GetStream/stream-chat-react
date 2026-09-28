@@ -9,6 +9,7 @@ import {
   mockChatContext,
 } from '../../../../mock-builders';
 import type { LocalMessage, MessageResponse } from 'stream-chat';
+import { convertDateToTimestamp } from '../../../../mock-builders';
 
 describe('useReactionsFetcher', () => {
   it('paginates until next is empty', async () => {
@@ -18,11 +19,23 @@ describe('useReactionsFetcher', () => {
       .mockResolvedValueOnce({
         duration: '0',
         next: 'page-2',
-        reactions: [{ created_at: new Date(), type: 'like', updated_at: new Date() }],
+        reactions: [
+          {
+            created_at: convertDateToTimestamp(new Date()),
+            type: 'like',
+            updated_at: convertDateToTimestamp(new Date()),
+          },
+        ],
       } as never)
       .mockResolvedValueOnce({
         duration: '0',
-        reactions: [{ created_at: new Date(), type: 'love', updated_at: new Date() }],
+        reactions: [
+          {
+            created_at: convertDateToTimestamp(new Date()),
+            type: 'love',
+            updated_at: convertDateToTimestamp(new Date()),
+          },
+        ],
       } as never);
 
     const message = generateMessage() as MessageResponse & LocalMessage;
@@ -39,11 +52,12 @@ describe('useReactionsFetcher', () => {
     });
 
     expect(queryReactions).toHaveBeenCalledTimes(2);
-    expect(queryReactions.mock.calls[0]?.[3]).toEqual(
-      expect.objectContaining({ limit: 25, next: undefined }),
+    // v10: `client.queryReactions` takes a single request object.
+    expect(queryReactions.mock.calls[0]?.[0]).toEqual(
+      expect.objectContaining({ id: message.id, limit: 25, next: undefined }),
     );
-    expect(queryReactions.mock.calls[1]?.[3]).toEqual(
-      expect.objectContaining({ limit: 25, next: 'page-2' }),
+    expect(queryReactions.mock.calls[1]?.[0]).toEqual(
+      expect.objectContaining({ id: message.id, limit: 25, next: 'page-2' }),
     );
     expect(reactions!).toHaveLength(2);
   });

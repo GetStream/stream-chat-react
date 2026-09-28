@@ -9,13 +9,17 @@ export type PlayButtonProps = ComponentProps<'button'> & {
 };
 
 export const PlayButton = ({ className, isPlaying, ...props }: PlayButtonProps) => {
+  const { t } = useTranslationContext();
   const { IconPauseFill, IconPlayFill } = useComponentContextIcons();
 
-  const { t } = useTranslationContext();
   return (
     <Button
       appearance='outline'
-      aria-label={isPlaying ? t('aria/Pause') : t('aria/Play')}
+      aria-label={
+        isPlaying
+          ? t('common.pause.ariaLabel', 'Pause')
+          : t('common.play.ariaLabel', 'Play')
+      }
       circular
       className={clsx('str-chat__button-play', className)}
       data-testid={isPlaying ? 'pause-audio' : 'play-audio'}

@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
 import type { Channel, LocalMessage, UserResponse } from 'stream-chat';
+
+import { useReceiptsByMessageId } from './useReceiptsByMessageId';
 
 type UseLastReadDataParams = {
   channel: Channel;
@@ -8,29 +9,7 @@ type UseLastReadDataParams = {
   lastOwnMessage?: LocalMessage;
 };
 
-export const useLastReadData = (props: UseLastReadDataParams) => {
-  const { channel, lastOwnMessage, messages, returnAllReadData } = props;
-
-  return useMemo(() => {
-    if (returnAllReadData) {
-      return messages.reduce(
-        (acc, msg) => {
-          acc[msg.id] = channel.messageReceiptsTracker.readersForMessage({
-            msgId: msg.id,
-            timestampMs: msg.created_at.getTime(),
-          });
-          return acc;
-        },
-        {} as Record<string, UserResponse[]>,
-      );
-    }
-
-    if (!lastOwnMessage) return {};
-    return {
-      [lastOwnMessage.id]: channel.messageReceiptsTracker.readersForMessage({
-        msgId: lastOwnMessage.id,
-        timestampMs: lastOwnMessage.created_at.getTime(),
-      }),
-    };
-  }, [channel, lastOwnMessage, messages, returnAllReadData]);
-};
+/** Who has read each rendered message — see {@link useReceiptsByMessageId}. */
+export const useLastReadData = (
+  props: UseLastReadDataParams,
+): Record<string, UserResponse[]> => useReceiptsByMessageId({ ...props, kind: 'read' });

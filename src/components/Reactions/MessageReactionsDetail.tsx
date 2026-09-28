@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import type { SortParamRequest } from 'stream-chat';
 
 import type { ReactionSummary, ReactionType } from './types';
 
@@ -13,7 +14,6 @@ import {
   useMessageContext,
   useTranslationContext,
 } from '../../context';
-import type { ReactionSort } from 'stream-chat';
 import { defaultReactionOptions, getHasExtendedReactions } from './reactionOptions';
 import type { useProcessReactions } from './hooks/useProcessReactions';
 import { ReactionSelector, type ReactionSelectorProps } from './ReactionSelector';
@@ -24,12 +24,14 @@ export type MessageReactionsDetailProps = Partial<
   reactions: ReactionSummary[];
   selectedReactionType: ReactionType | null;
   onSelectedReactionTypeChange?: (reactionType: ReactionType | null) => void;
-  sort?: ReactionSort;
+  sort?: SortParamRequest[];
   totalReactionCount?: number;
   reactionGroups?: ReturnType<typeof useProcessReactions>['reactionGroups'];
 } & ReactionSelectorProps;
 
-const defaultReactionDetailsSort = { created_at: -1 } as const;
+const defaultReactionDetailsSort: SortParamRequest[] = [
+  { direction: -1, field: 'created_at' },
+];
 
 export const MessageReactionsDetailLoadingIndicator = () => {
   const elements = useMemo(
@@ -63,6 +65,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
   selectedReactionType,
   totalReactionCount,
 }) => {
+  const { IconEmojiAdd } = useComponentContextIcons();
   const [extendedReactionListOpen, setExtendedReactionListOpen] = useState(false);
   const { client } = useChatContext();
   const {
@@ -71,15 +74,14 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     LoadingIndicator = MessageReactionsDetailLoadingIndicator,
     reactionOptions = defaultReactionOptions,
     ReactionSelectorExtendedList = ReactionSelector.ExtendedList,
-  } = useComponentContext(MessageReactionsDetail.name);
-  const { IconEmojiAdd } = useComponentContextIcons();
+  } = useComponentContext();
   const { t } = useTranslationContext();
 
   const {
     handleReaction: contextHandleReaction,
     message,
     reactionDetailsSort: contextReactionDetailsSort,
-  } = useMessageContext(MessageReactionsDetail.name);
+  } = useMessageContext();
 
   const reactionDetailsSort =
     propReactionDetailsSort ?? contextReactionDetailsSort ?? defaultReactionDetailsSort;
@@ -134,7 +136,11 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
     >
       {typeof totalReactionCount === 'number' && (
         <div className='str-chat__message-reactions-detail__total-count'>
-          {t('{{ count }} reactions', { count: totalReactionCount })}
+          {t('reactions.messageReactionsDetail.reactions.text', {
+            count: totalReactionCount,
+            defaultValue_one: '{{ count }} reaction',
+            defaultValue_other: '{{ count }} reactions',
+          })}
         </div>
       )}
       <div className='str-chat__message-reactions-detail__reaction-type-list-container'>
@@ -145,7 +151,7 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
           {hasExtendedReactions && (
             <li className='str-chat__message-reactions-detail__reaction-type-list-item'>
               <button
-                aria-label={t('Add reaction')}
+                aria-label={t('common.addReaction.text', 'Add reaction')}
                 className='str-chat__message-reactions-detail__reaction-type-list-item-button'
                 data-testid='add-reaction-button'
                 onClick={() => setExtendedReactionListOpen(true)}
@@ -166,9 +172,13 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                   key={reactionType}
                 >
                   <button
-                    aria-label={t('aria/Select Reaction: {{ reactionName }}', {
-                      reactionName: reactionType,
-                    })}
+                    aria-label={t(
+                      'reactions.messageReactions.selectReaction.ariaLabel',
+                      'Select Reaction: {{ reactionName }}',
+                      {
+                        reactionName: reactionType,
+                      },
+                    )}
                     aria-pressed={reactionType === selectedReactionType}
                     className='str-chat__message-reactions-detail__reaction-type-list-item-button'
                     onClick={() =>
@@ -225,13 +235,19 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                         className='str-chat__message-reactions-detail__user-list-item-username'
                         data-testid='reaction-user-username'
                       >
-                        {belongsToCurrentUser ? t('You') : user?.name || user?.id}
+                        {belongsToCurrentUser
+                          ? t('common.you.label', 'You')
+                          : user?.name || user?.id}
                       </span>
                       {belongsToCurrentUser && (
                         <button
-                          aria-label={t('Tap to remove: {{ reactionName }}', {
-                            reactionName,
-                          })}
+                          aria-label={t(
+                            'reactions.messageReactionsDetail.tapRemove.ariaLabel',
+                            'Tap to remove: {{ reactionName }}',
+                            {
+                              reactionName,
+                            },
+                          )}
                           className='str-chat__message-reactions-detail__user-list-item-button'
                           data-testid='remove-reaction-button'
                           onClick={async (e) => {
@@ -252,7 +268,10 @@ export const MessageReactionsDetail: MessageReactionsDetailInterface = ({
                           }}
                           type='button'
                         >
-                          {t('Tap to remove')}
+                          {t(
+                            'reactions.messageReactionsDetail.tapRemove.text',
+                            'Tap to remove',
+                          )}
                         </button>
                       )}
                     </div>

@@ -1,14 +1,14 @@
 import React from 'react';
 import { BaseImage } from '../../BaseImage';
 import { SafeAnchor } from '../../SafeAnchor';
-import { useChannelStateContext } from '../../../context/ChannelStateContext';
-import { useComponentContextIcons } from '../../../context';
+import { useAttachmentContext } from '../../../context/AttachmentContext';
 
 import type { Attachment } from 'stream-chat';
 import type { RenderAttachmentProps } from '../utils';
 import type { Dimensions } from '../../../types/types';
 import { UnableToRenderCard } from './UnableToRenderCard';
 import clsx from 'clsx';
+import { useComponentContextIcons } from '../../../context';
 
 type CardRootProps = {
   cardUrl: string | undefined;
@@ -62,9 +62,9 @@ const CardHeader = (props: CardHeaderProps) => {
 type CardContentProps = RenderAttachmentProps['attachment'];
 
 const CardContent = (props: CardContentProps) => {
+  const { IconLink } = useComponentContextIcons();
   const { og_scrape_url, text, title, title_link } = props;
   const url = title_link || og_scrape_url;
-  const { IconLink } = useComponentContextIcons();
 
   return (
     <div className='str-chat__message-attachment-card--content'>
@@ -89,7 +89,7 @@ export type CardProps = RenderAttachmentProps['attachment'] & {
 
 const UnMemoizedCard = (props: CardProps) => {
   const { giphy, image_url, og_scrape_url, thumb_url, title, title_link, type } = props;
-  const { giphyVersion: giphyVersionName } = useChannelStateContext('');
+  const { giphyVersion: giphyVersionName } = useAttachmentContext();
   const cardUrl = title_link || og_scrape_url;
 
   let image = thumb_url || image_url;

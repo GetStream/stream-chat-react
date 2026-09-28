@@ -1,8 +1,10 @@
+import { msToNs, nowNs } from 'stream-chat';
 import type {
   Channel,
   ChannelMemberResponse,
   ChannelResponse,
   StreamChat,
+  TimestampNS,
   UserResponse,
 } from 'stream-chat';
 
@@ -101,8 +103,10 @@ export type WebSocketEventTemplateContext = {
   channelName: string;
   channelType: string;
   cid: string;
-  createdAt: string;
-  lastReadAt: string;
+  /** Unix nanoseconds, the unit every server-sent date uses on the wire. */
+  createdAt: TimestampNS;
+  /** Unix nanoseconds, the unit every server-sent date uses on the wire. */
+  lastReadAt: TimestampNS;
   memberCount: number;
   messageId: string;
   otherMember: ChannelMemberResponse;
@@ -120,10 +124,12 @@ type BuildChannelSeedContext = Omit<WebSocketEventTemplateContext, 'channel'> & 
   channel: Partial<DebugChannelResponse>;
 };
 
-const createFallbackUser = (id: string, createdAt: string): DebugUserResponse => ({
+const createFallbackUser = (id: string, createdAt: TimestampNS): DebugUserResponse => ({
   banned: false,
   blocked_user_ids: [],
   created_at: createdAt,
+  // v10 requires `custom` on user responses.
+  custom: {},
   id,
   invisible: false,
   language: '',
@@ -131,7 +137,6 @@ const createFallbackUser = (id: string, createdAt: string): DebugUserResponse =>
   name: id,
   online: true,
   role: 'user',
-  shadow_banned: false,
   teams: [],
   updated_at: createdAt,
 });
@@ -140,13 +145,16 @@ const getUserId = (user: DebugUserResponse) =>
   typeof user.id === 'string' ? user.id : 'debug-user';
 
 const createMember = (user: DebugUserResponse): ChannelMemberResponse => {
-  const createdAt =
-    typeof user.created_at === 'string' ? user.created_at : new Date().toISOString();
+  // Every date on a response type is already a unix-nanosecond number, so there is nothing to
+  // normalize — only a fallback for the builders that hand over a user with no timestamps.
+  const createdAt = user.created_at ?? nowNs();
 
   return {
     banned: false,
     channel_role: 'channel_member',
     created_at: createdAt,
+    // v10 requires `custom` on member responses.
+    custom: {},
     notifications_muted: false,
     role: 'member',
     shadow_banned: false,
@@ -174,12 +182,16 @@ const buildChannel = (
   context: BuildChannelSeedContext,
   overrides: JsonObject = {},
 ): DebugChannelResponse => {
+  // Wire timestamps all the way through: the event payload and the `ChannelResponse`/config
+  // fields below all carry the same unix-nanosecond number.
   const createdAt = context.createdAt;
 
   return {
     cid: context.cid,
     config: {
       automod: 'disabled',
+      // v10 requires `automod_behavior` alongside `automod`.
+      automod_behavior: 'flag',
       blocklist_behavior: 'flag',
       commands: [
         {
@@ -220,6 +232,7 @@ const buildChannel = (
       delivery_events: true,
       mark_messages_pending: false,
       max_message_length: 5000,
+      // Required on `ChannelConfigWithInfo`; the date error above used to mask its absence.
       message_retention: 'infinite',
       mutes: true,
       name: context.channelType,
@@ -242,6 +255,9 @@ const buildChannel = (
     },
     created_at: createdAt,
     created_by: context.actor,
+    // v10 requires `custom` on channel responses; the demo's `name` is a custom field, but
+    // `DebugChannelResponse` keeps it top-level for the simulator's own payload shaping.
+    custom: {},
     disabled: false,
     frozen: false,
     hidden: false,
@@ -415,7 +431,7 @@ const buildReactionState = ({
   latestReactions: JsonObject[];
   reactionType: string;
   score: number;
-  timestamp: string;
+  timestamp: number;
 }): JsonObject => ({
   latest_reactions: latestReactions,
   reaction_counts: {
@@ -554,7 +570,7 @@ const buildPollWithAnswerComment = (
   context: WebSocketEventTemplateContext,
   answerText: string,
 ) => {
-  const answerCreatedAt = new Date(Date.now() - 60_000).toISOString();
+  const answerCreatedAt = nowNs() - msToNs(60_000);
   const pollVote = buildPollAnswerVote(context, answerText, {
     created_at: answerCreatedAt,
     updated_at: context.createdAt,
@@ -758,7 +774,9 @@ export const createWebSocketEventTemplateContext = ({
   channel?: Channel;
   client: StreamChat;
 }): WebSocketEventTemplateContext => {
-  const createdAt = new Date().toISOString();
+  // One unit for the whole context: unix nanoseconds, which is what event payloads and the
+  // response-shaped builders both carry now that the SDK does no date decoding.
+  const createdAt = nowNs();
   const actorUser =
     client.user && typeof client.user === 'object'
       ? ({ ...client.user } as DebugUserResponse)
@@ -998,7 +1016,7 @@ export const websocketEventTemplateDefinitions = {
       buildBaseEvent(context, 'message.delivered', {
         channel_custom: { name: context.channelName },
         channel_member_count: context.memberCount,
-        last_delivered_at: context.createdAt.replace(/\.\d+Z$/, 'Z'),
+        last_delivered_at: context.createdAt,
         last_delivered_message_id: context.messageId,
         user: context.otherUser,
       }),
@@ -1214,7 +1232,7 @@ export const websocketEventTemplateDefinitions = {
   },
   'poll.vote_changed': {
     buildDefault: (context) => {
-      const originalCreatedAt = new Date(Date.now() - 60_000).toISOString();
+      const originalCreatedAt = nowNs() - msToNs(60_000);
       const answerText = 'Some new comment X';
       const pollVote = buildPollAnswerVote(context, answerText, {
         created_at: originalCreatedAt,
@@ -1384,10 +1402,7 @@ export const websocketEventTemplateDefinitions = {
   'typing.start': {
     buildDefault: (context) =>
       buildBaseEvent(context, 'typing.start', {
-        channel_last_message_at:
-          typeof context.channel.last_message_at === 'string'
-            ? context.channel.last_message_at
-            : context.createdAt,
+        channel_last_message_at: context.channel.last_message_at ?? context.createdAt,
         user: context.actor,
       }),
     description: 'Start typing in the active channel.',
@@ -1395,10 +1410,7 @@ export const websocketEventTemplateDefinitions = {
   'typing.stop': {
     buildDefault: (context) =>
       buildBaseEvent(context, 'typing.stop', {
-        channel_last_message_at:
-          typeof context.channel.last_message_at === 'string'
-            ? context.channel.last_message_at
-            : context.createdAt,
+        channel_last_message_at: context.channel.last_message_at ?? context.createdAt,
         user: context.actor,
       }),
     description: 'Stop typing in the active channel.',
@@ -1409,7 +1421,7 @@ export const websocketEventTemplateDefinitions = {
         channel_custom: { name: context.channelName },
         channel_member_count: context.memberCount,
         created_by: context.actor,
-        expiration: new Date(Date.now() + 60 * 60_000).toISOString(),
+        expiration: nowNs() + msToNs(60 * 60_000),
         reason: 'because',
         user: context.otherUser,
       }),
@@ -1701,7 +1713,7 @@ const websocketEventPresetDefinitions = {
       created_at: context.createdAt,
       message_id: context.messageId,
       reminder: buildReminderPayload(context, {
-        remind_at: new Date(Date.now() + 2 * 60_000).toISOString(),
+        remind_at: nowNs() + msToNs(2 * 60_000),
       }),
       type: 'reminder.created',
       user_id: context.actorId,
@@ -1709,7 +1721,7 @@ const websocketEventPresetDefinitions = {
   },
   'reminder.deleted.timed': {
     buildDefault: (context: WebSocketEventTemplateContext) => {
-      const remindAt = new Date(Date.now() + 2 * 60_000).toISOString();
+      const remindAt = nowNs() + msToNs(2 * 60_000);
 
       return {
         cid: context.cid,

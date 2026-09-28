@@ -86,9 +86,14 @@ export const AttachmentPreviewRoot = ({
   return (
     <div
       aria-label={
-        isInteractive
-          ? t(canPreviewAttachment ? 'aria/Show preview' : 'aria/Download attachment')
-          : undefined
+        !isInteractive
+          ? undefined
+          : canPreviewAttachment
+            ? t(
+                'messageComposer.attachmentPreviewRoot.showPreview.ariaLabel',
+                'Show preview',
+              )
+            : t('common.downloadAttachment.ariaLabel', 'Download attachment')
       }
       {...props}
       onClick={handlePressed}

@@ -1,19 +1,16 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import type { VideoAttachment as StreamVideoAttachment } from 'stream-chat';
+import { fromPartial } from '@total-typescript/shoehorn';
 import { vi } from 'vitest';
 
 import { VideoAttachment } from '../VideoAttachment';
 import {
-  ChannelStateProvider,
-  ComponentProvider,
+  AttachmentContextProvider,
+  type AttachmentContextValue,
   TranslationProvider,
 } from '../../../context';
-import {
-  mockChannelStateContext,
-  mockComponentContext,
-  mockTranslationContextValue,
-} from '../../../mock-builders';
+import { mockTranslationContextValue } from '../../../mock-builders';
 
 const CustomVideoPlayer = ({
   thumbnailUrl,
@@ -48,16 +45,14 @@ const renderComponent = ({
 
   render(
     <TranslationProvider value={mockTranslationContextValue()}>
-      <ComponentProvider value={mockComponentContext({ VideoPlayer: CustomVideoPlayer })}>
-        <ChannelStateProvider
-          value={mockChannelStateContext({
-            shouldGenerateVideoThumbnail,
-            videoAttachmentSizeHandler,
-          })}
-        >
-          <VideoAttachment attachment={attachment} />
-        </ChannelStateProvider>
-      </ComponentProvider>
+      <AttachmentContextProvider
+        value={fromPartial<AttachmentContextValue>({
+          shouldGenerateVideoThumbnail,
+          videoAttachmentSizeHandler,
+        })}
+      >
+        <VideoAttachment attachment={attachment} VideoPlayer={CustomVideoPlayer} />
+      </AttachmentContextProvider>
     </TranslationProvider>,
   );
 

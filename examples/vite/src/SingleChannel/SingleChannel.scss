@@ -1,0 +1,56 @@
+/* Single-channel scenario: a bare <Channel> rendered in a floating, draggable modal (the
+   `DraggableDialog` shell) over the full app. Sizes the floating window and lets the channel
+   fill it (header from the drag handle, then message list + composer). */
+
+/* Constrain the DialogAnchor root (the dialogClassName element) to the window width. Without
+   this it stretches to the full viewport, and DraggableDialog's drag clamp — which measures the
+   shell rect — computes a negative max and pins the window to the left edge (can't drag
+   horizontally). Mirrors how the WS-event dialog sizes its own root. */
+/* Give the DialogAnchor root a fixed size (not just width): a content-driven height let
+   floating-ui `shift` nudge the window up to the 8px viewport padding, so it opened at top:8
+   instead of the anchor's 20. A fixed root height fits within the viewport → no shift → the
+   window opens exactly at the anchor (20,20). */
+.app-single-channel-modal {
+  width: min(440px, calc(100vw - 32px));
+  height: min(640px, calc(100vh - 32px));
+}
+
+.app-single-channel-modal__prompt {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: min(640px, calc(100vh - 32px));
+  overflow: hidden;
+
+  .str-chat__prompt__header__title-group {
+    .str-chat__prompt__header__title,
+    .app__searchable-select__trigger {
+      width: 100%;
+    }
+  }
+}
+
+.app-single-channel-modal__drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+
+.app-single-channel-modal__drag-handle:active {
+  cursor: grabbing;
+}
+
+/* The channel + its message list/composer fill the remaining height below the drag handle. */
+.app-single-channel-modal__body,
+.app-single-channel-modal__prompt .str-chat__channel {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.app-single-channel-modal__prompt .str-chat__dropzone-root {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}

@@ -3,6 +3,7 @@ export * from './useDeleteHandler';
 export * from './useFlagHandler';
 export * from './useMentionsHandler';
 export * from './useMarkUnreadHandler';
+export * from './useMessageAlsoSentInChannelNavigation';
 export * from './useMuteHandler';
 export * from './useOpenThreadHandler';
 export * from './usePinHandler';

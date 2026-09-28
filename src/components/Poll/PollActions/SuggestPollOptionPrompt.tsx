@@ -6,12 +6,12 @@ import {
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 import { Prompt } from '../../Dialog';
 import { TextInput } from '../../Form';
 import { useFormState } from '../../Form/hooks';
 
-type PollStateSelectorReturnValue = { options: PollOption[] };
+type PollStateSelectorReturnValue = { options: PollOptionResponseData[] };
 const pollStateSelector = (nextValue: PollState): PollStateSelectorReturnValue => ({
   options: nextValue.options,
 });
@@ -32,11 +32,21 @@ export const SuggestPollOptionPrompt = () => {
       optionText: (v: string) => {
         const trimmed = typeof v === 'string' ? v.trim() : '';
         if (!trimmed) {
-          return new Error(t('This field cannot be empty or contain only spaces'));
+          return new Error(
+            t(
+              'poll.addCommentPrompt.fieldCannotEmptyContain.label',
+              'This field cannot be empty or contain only spaces',
+            ),
+          );
         }
         const existingOption = options.find((option) => option.text === trimmed);
         if (existingOption) {
-          return new Error(t('Option already exists'));
+          return new Error(
+            t(
+              'poll.suggestPollOption.optionAlreadyExists.label',
+              'Option already exists',
+            ),
+          );
         }
         return undefined;
       },
@@ -46,7 +56,8 @@ export const SuggestPollOptionPrompt = () => {
 
   const onSubmit = useCallback(
     async (formValue: { optionText: string }) => {
-      await client.createPollOption(poll.id, {
+      await client.createPollOption({
+        poll_id: poll.id,
         text: formValue.optionText,
       });
       close();
@@ -72,19 +83,22 @@ export const SuggestPollOptionPrompt = () => {
     <Prompt.Root className='str-chat__modal__suggest-poll-option-prompt'>
       <Prompt.Header
         close={close}
-        description={t('Suggest a new option to add to this poll')}
-        title={t('Suggest an option')}
+        description={t(
+          'poll.suggestPollOption.description',
+          'Suggest a new option to add to this poll',
+        )}
+        title={t('poll.actions.suggestOption.label', 'Suggest an Option')}
       />
       <form autoComplete='off' onSubmit={handleSubmit}>
         <Prompt.Body>
           <TextInput
-            aria-label={t('Suggest an option')}
+            aria-label={t('poll.actions.suggestOption.label', 'Suggest an Option')}
             error={!!fieldErrors.optionText}
             errorMessage={fieldErrors.optionText?.message}
             id='optionText'
             name='optionText'
             onChange={(e) => setFieldValue('optionText', e.target.value)}
-            placeholder={t('placeholder/PollOptionSuggestion')}
+            placeholder={t('poll.pollOptionSuggestion.placeholder', 'Enter a new option')}
             ref={setInput}
             required
             type='text'
@@ -97,14 +111,14 @@ export const SuggestPollOptionPrompt = () => {
               className='str-chat__prompt__footer__controls-button--cancel'
               onClick={close}
             >
-              {t('Cancel')}
+              {t('common.cancel.label', 'Cancel')}
             </Prompt.FooterControlsButtonSecondary>
             <Prompt.FooterControlsButtonPrimary
               className='str-chat__prompt__footer__controls-button--submit'
               disabled={Object.keys(fieldErrors).length > 0 || submitDisabled}
               type='submit'
             >
-              {t('Send')}
+              {t('common.send.label', 'Send')}
             </Prompt.FooterControlsButtonPrimary>
           </Prompt.FooterControls>
         </Prompt.Footer>

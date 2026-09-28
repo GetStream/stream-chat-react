@@ -1,1 +1,1 @@
-export { InlineEditableMessage } from './InlineEditMessage';
+export { InlineEditableMessage, InlineEditMessageAction } from './InlineEditMessage';

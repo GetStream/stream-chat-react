@@ -1,6 +1,6 @@
 import uniqBy from 'lodash.uniqby';
 import { useCallback, useEffect, useMemo } from 'react';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 
 export type CursorPaginatorState<T> = {
   hasNextPage: boolean;

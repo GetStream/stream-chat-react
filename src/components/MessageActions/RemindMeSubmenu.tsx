@@ -28,14 +28,13 @@ const getNotificationError = (error: unknown): Error | undefined => {
 
 export const RemindMeSubmenuHeader = () => {
   const { IconChevronLeft } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
   return (
     <ContextMenuHeader>
       <ContextMenuBackButton onClick={returnToParentMenu}>
         <IconChevronLeft />
-        <span>{t('Remind Me')}</span>
+        <span>{t('messageActions.remindMeSubmenu.remindMe.text', 'Remind Me')}</span>
       </ContextMenuBackButton>
     </ContextMenuHeader>
   );
@@ -56,15 +55,15 @@ export const RemindMeSubmenu = () => {
           onClick={async () => {
             try {
               await client.reminders.upsertReminder({
-                messageId: message.id,
-                remind_at: new Date(new Date().getTime() + offsetMs).toISOString(),
+                message_id: message.id,
+                remind_at: new Date(new Date().getTime() + offsetMs),
               });
               addNotification({
                 context: {
                   message,
                 },
                 emitter: 'MessageActions',
-                message: t('Reminder set'),
+                message: t('common.reminderSet.text', 'Reminder set'),
                 severity: 'success',
                 type: 'api:message:reminder:set:success',
               });
@@ -84,7 +83,7 @@ export const RemindMeSubmenu = () => {
             }
           }}
         >
-          {t('duration/Remind Me', { milliseconds: offsetMs })}
+          {t('duration.remindMe', { milliseconds: offsetMs })}
         </ContextMenuButton>
       ))}
       {/* todo: potential improvement to add a custom option that would trigger rendering modal with custom date picker - we need date picker */}

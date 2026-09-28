@@ -1,5 +1,4 @@
 import {
-  type ComponentProps,
   createContext,
   useCallback,
   useContext,
@@ -8,176 +7,139 @@ import {
   useState,
 } from 'react';
 import { MessageComposer as MessageComposerController } from 'stream-chat';
-import type { MessageComposerState } from 'stream-chat';
-import { useChannelStateContext } from 'stream-chat-react';
+import type { LocalMessage, MessageComposerState } from 'stream-chat';
 import {
+  asDynamicKey,
   ContextMenuButton,
-  defaultMessageActionSet,
   MessageUI as DefaultMessageUI,
   IconEdit,
-  MessageActions,
-  type MessageActionSetItem,
   MessageComposer,
   MessageComposerControllerProvider,
   type MessageUIComponentProps,
   useChatContext,
-  useComponentContext,
   useContextMenuContext,
   useMessageContext,
   useStateStore,
+  useThreadContext,
   useTranslationContext,
-  WithComponents,
 } from 'stream-chat-react';
 
 import { useAppSettingsSelector } from '../AppSettings';
+import type { MessageActionSurface } from '../AppSettings';
 
 type InlineEditContextValue = {
-  isEditing: boolean;
-  startEditing: () => void;
-  stopEditing: () => void;
+  startEditing: (message: LocalMessage) => void;
 };
 
+// Lets the "Edit inline" action, rendered deep in the message's actions menu, start editing the
+// row it belongs to.
 const InlineEditContext = createContext<InlineEditContextValue | undefined>(undefined);
 
-const useInlineEditContext = () => {
-  const value = useContext(InlineEditContext);
-  if (!value) {
-    throw new Error('useInlineEditContext must be used within an InlineEditableMessage');
-  }
-  return value;
-};
-
-const InlineEditAction = () => {
+/**
+ * The "Edit inline" message action. `ConfigurableMessageActions` adds it to the action set when
+ * the setting is on; it only works inside an `InlineEditableMessage`, which provides the context.
+ */
+export const InlineEditMessageAction = () => {
+  const inlineEdit = useContext(InlineEditContext);
   const { closeMenu } = useContextMenuContext();
-  const { startEditing } = useInlineEditContext();
+  const { message } = useMessageContext();
   const { t } = useTranslationContext();
+
+  if (!inlineEdit) return null;
 
   return (
     <ContextMenuButton
-      aria-label={t('aria/Edit Message Inline')}
+      aria-label={t(
+        asDynamicKey('viteExample.inlineEdit.action.ariaLabel'),
+        'Edit message inline',
+      )}
       className='str-chat__message-actions-list-item-button'
       Icon={IconEdit}
       onClick={() => {
-        startEditing();
+        inlineEdit.startEditing(message);
         closeMenu();
       }}
     >
-      {t('Edit inline')}
+      {t(asDynamicKey('viteExample.inlineEdit.action.label'), 'Edit inline')}
     </ContextMenuButton>
   );
 };
 
-const inlineEditActionSetItem: MessageActionSetItem = {
-  Component: InlineEditAction,
-  placement: 'dropdown',
-  type: 'editInline',
-};
-
-const insertInlineEditAction = (
-  actionSet: MessageActionSetItem[],
-): MessageActionSetItem[] => {
-  const editIndex = actionSet.findIndex((item) => 'type' in item && item.type === 'edit');
-
-  if (editIndex < 0) return [...actionSet, inlineEditActionSetItem];
-
-  return [
-    ...actionSet.slice(0, editIndex),
-    inlineEditActionSetItem,
-    ...actionSet.slice(editIndex),
-  ];
-};
-
-const InlineEditComposer = ({ onExit }: { onExit: () => void }) => {
-  const { t } = useTranslationContext();
-
-  return (
-    <div className='app__inline-edit-message'>
-      <MessageComposer preventClearingOnUnmount />
-      <button className='app__inline-edit-message__cancel' onClick={onExit} type='button'>
-        {t('Cancel')}
-      </button>
-    </div>
-  );
-};
-
-const selector = (state: MessageComposerState) => ({
+const editingSelector = (state: MessageComposerState) => ({
   editing: state.editedMessage != null,
 });
 
+/**
+ * Swaps a message for a `MessageComposer` in place, editing it through a composer of its own
+ * supplied with `MessageComposerControllerProvider` - so the channel's own composer, and whatever
+ * the user was typing into it, are left alone. That composer is kept in the client's composer cache
+ * under the message's tag, so an unfinished edit outlives this row.
+ */
 export const InlineEditableMessage = (props: MessageUIComponentProps) => {
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
   const { message } = useMessageContext();
-  const inlineEditEnabled = useAppSettingsSelector(
-    (state) => state.messageActions.customMessageActions,
-  ).inlineEdit;
+  const surface: MessageActionSurface = useThreadContext() ? 'thread' : 'channel';
+  const { customMessageActions } = useAppSettingsSelector(
+    (state) => state.messageActions,
+  );
+  const inlineEditEnabled = customMessageActions[surface].inlineEdit;
 
-  const { MessageActions: OuterMessageActions = MessageActions } = useComponentContext();
-
-  const [editingComposer] = useState(
-    () =>
-      new MessageComposerController({
-        compositionContext: channel,
-        client,
-        config: { drafts: { enabled: false } },
-      }),
+  // Only looks - a row nobody edits creates nothing. A composer found here holding an edit is one
+  // left unfinished while this row was unmounted, so the editor comes straight back.
+  const [editingComposer, setEditingComposer] = useState(() =>
+    client.messageComposerCache.peek(MessageComposerController.constructTag(message)),
   );
 
-  const { editing } = useStateStore(editingComposer.state, selector);
+  const { editing } = useStateStore(editingComposer?.state, editingSelector) ?? {
+    editing: false,
+  };
 
-  // If the setting is turned off mid-edit, abandon the in-progress edit so the
-  // message doesn't stay stuck in composer view with no way to submit it.
+  // Entering edit mode is where the composer is created if missing, and stored at once.
+  const startEditing = useCallback(
+    (messageToEdit: LocalMessage) => {
+      const tag = MessageComposerController.constructTag(messageToEdit);
+      const composer =
+        client.messageComposerCache.peek(tag) ??
+        // Drafts off: an edit is not a draft.
+        new MessageComposerController({
+          client,
+          compositionContext: messageToEdit,
+          config: { drafts: { enabled: false } },
+        });
+      client.messageComposerCache.add(tag, composer);
+      composer.initState({ composition: messageToEdit });
+      setEditingComposer(composer);
+    },
+    [client],
+  );
+
+  // Turning the setting off mid-edit abandons the edit, rather than leaving the message stuck as a
+  // composer with no way back.
   useEffect(() => {
-    if (!inlineEditEnabled && editing) editingComposer.clear();
+    if (!inlineEditEnabled && editing) editingComposer?.clear();
   }, [editing, editingComposer, inlineEditEnabled]);
 
-  const startEditing = useCallback(() => {
-    editingComposer.initState({ composition: message });
-  }, [editingComposer, message]);
-  const stopEditing = useCallback(() => {
-    editingComposer.clear();
-  }, [editingComposer]);
+  const inlineEditContextValue = useMemo(() => ({ startEditing }), [startEditing]);
 
-  const contextValue = useMemo<InlineEditContextValue>(
-    () => ({ isEditing: editing, startEditing, stopEditing }),
-    [editing, startEditing, stopEditing],
-  );
+  if (!inlineEditEnabled) return <DefaultMessageUI {...props} />;
 
-  const MessageActionsWithInlineEdit = useMemo(() => {
-    const Component = (actionsProps: ComponentProps<typeof MessageActions>) => {
-      const messageActionSet = useMemo(
-        () =>
-          insertInlineEditAction(
-            actionsProps.messageActionSet ?? defaultMessageActionSet,
-          ),
-        [actionsProps.messageActionSet],
-      );
-
-      return (
-        <OuterMessageActions {...actionsProps} messageActionSet={messageActionSet} />
-      );
-    };
-    Component.displayName = 'MessageActionsWithInlineEdit';
-    return Component;
-  }, [OuterMessageActions]);
-
-  if (!inlineEditEnabled) {
-    return <DefaultMessageUI {...props} />;
-  }
-
-  if (editing) {
+  if (editing && editingComposer) {
     return (
       <MessageComposerControllerProvider messageComposerController={editingComposer}>
-        <InlineEditComposer onExit={stopEditing} />
+        <div className='app__inline-edit-message'>
+          {/* The composer outlives this editor: leaving the channel, or scrolling the row away in a
+              virtualized message list, unmounts the editor, and `MessageComposer` never clears a
+              supplied composer on unmount - so the unfinished edit is still there on return.
+              Cancelling is the ✕ on the edit preview, which clears it on purpose. */}
+          <MessageComposer />
+        </div>
       </MessageComposerControllerProvider>
     );
   }
 
   return (
-    <InlineEditContext.Provider value={contextValue}>
-      <WithComponents overrides={{ MessageActions: MessageActionsWithInlineEdit }}>
-        <DefaultMessageUI {...props} />
-      </WithComponents>
+    <InlineEditContext.Provider value={inlineEditContextValue}>
+      <DefaultMessageUI {...props} />
     </InlineEditContext.Provider>
   );
 };

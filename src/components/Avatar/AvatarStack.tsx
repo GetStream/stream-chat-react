@@ -17,7 +17,7 @@ export function AvatarStack({
   badgeSize?: BadgeSize;
   capLimit?: number;
 }) {
-  const { Avatar = DefaultAvatar } = useComponentContext(AvatarStack.name);
+  const { Avatar = DefaultAvatar } = useComponentContext();
 
   const displayInfoToRender = useMemo(
     () => (displayInfo.length > capLimit ? displayInfo.slice(0, capLimit) : displayInfo),

@@ -4,12 +4,10 @@ import { cleanup, render, waitFor } from '@testing-library/react';
 import { Card } from '../LinkPreview/Card';
 
 import { fromPartial } from '@total-typescript/shoehorn';
-import { ChannelActionProvider, TranslationContext } from '../../../context';
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
+import { TranslationContext } from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import { ComponentProvider } from '../../../context/ComponentContext';
 
-import type { ChannelActionContextValue } from '../../../context';
 import type { Channel, StreamChat } from 'stream-chat';
 
 import {
@@ -19,7 +17,6 @@ import {
   generateUser,
   getOrCreateChannelApi,
   getTestClientWithUser,
-  mockChannelStateContext,
   mockChatContext,
   mockComponentContext,
   mockTranslationContextValue,
@@ -35,7 +32,6 @@ const user = generateUser({ id: 'userId', name: 'username' });
 vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(async () => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
 vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {});
-const channelActionContext = fromPartial<ChannelActionContextValue>({});
 
 const mockedChannel = generateChannel(
   fromPartial<GenerateChannelOptions>({
@@ -45,19 +41,19 @@ const mockedChannel = generateChannel(
   }),
 );
 
+// MERGE-RECONCILE (test migration): Card now reads only AttachmentContext (giphyVersion),
+// which has a default; the removed ChannelState/ChannelAction providers are no longer needed.
+// The remaining providers (Chat/Translation/Component) are DOM-neutral and only satisfy the
+// TranslationContext used by UnableToRenderCard and the ComponentContext used by BaseImage.
 const renderCard = ({ cardProps, chatContext, theRenderer = render }: any) =>
   theRenderer(
     <ChatProvider value={mockChatContext(chatContext)}>
       <TranslationContext.Provider value={mockTranslationContextValue()}>
-        <ChannelActionProvider value={channelActionContext}>
-          <ChannelStateProvider value={mockChannelStateContext()}>
-            <ComponentProvider value={mockComponentContext()}>
-              <WithAudioPlayback>
-                <Card {...cardProps} />
-              </WithAudioPlayback>
-            </ComponentProvider>
-          </ChannelStateProvider>
-        </ChannelActionProvider>
+        <ComponentProvider value={mockComponentContext()}>
+          <WithAudioPlayback>
+            <Card {...cardProps} />
+          </WithAudioPlayback>
+        </ComponentProvider>
       </TranslationContext.Provider>
     </ChatProvider>,
   );

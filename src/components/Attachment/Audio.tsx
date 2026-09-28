@@ -1,27 +1,26 @@
-import React from 'react';
-import type { Attachment } from 'stream-chat';
+import React, { useContext } from 'react';
+import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import {
   AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator,
   FileSizeIndicator as DefaultFileSizeIndicator,
   DownloadButton,
 } from './components';
-import {
-  getAttachmentPreviewUrl,
-  useAttachmentUploadState,
-} from './hooks/useAttachmentUploadState';
 import type { AudioPlayerState } from '../AudioPlayback/AudioPlayer';
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
-import { useComponentContext, useMessageContext } from '../../context';
+import { MessageContext, useComponentContext } from '../../context';
 import type { AudioPlayer } from '../AudioPlayback/AudioPlayer';
 import { PlayButton } from '../Button/PlayButton';
 import { FileIcon } from '../FileIcon';
 import { DurationDisplay, ProgressBar } from '../AudioPlayback';
+import { useThreadContext } from '../Threads';
+import { getAttachmentPreviewUrl } from 'stream-chat';
+import { useAttachmentUploadState } from './hooks/useAttachmentUploadState';
 
 type AudioAttachmentUIProps = {
-  audioPlayer: AudioPlayer;
   attachment?: Attachment;
+  audioPlayer: AudioPlayer;
 };
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
@@ -53,7 +52,7 @@ const AudioAttachmentUI = ({ attachment, audioPlayer }: AudioAttachmentUIProps) 
             While uploading, the upload progress takes this slot — ahead of both the duration and
             the file size. It has to outrank the duration: an audio attachment can carry one
             (`attachment.duration`, or the player reading it off the local blob), and showing it
-            instead would leave an upload in flight with no indication at all.
+            would leave an uploading attachment with no upload indication at all.
           */}
           {isUploading ? (
             <AttachmentUploadProgressIndicator attachment={attachment} />
@@ -95,9 +94,10 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
  * Audio attachment with play/pause button and progress bar
  */
 export const Audio = (props: AudioProps) => {
-  const {
-    attachment: { asset_url, duration, file_size, mime_type, title, waveform_data },
-  } = props;
+  const { attachment } = props;
+  const { asset_url, title } = attachment;
+  const { duration, file_size, mime_type, waveform_data } =
+    (attachment as VoiceRecordingAttachment).custom ?? {};
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
@@ -108,7 +108,9 @@ export const Audio = (props: AudioProps) => {
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  // also rendered from composer previews, where there is no message
+  const { message } = useContext(MessageContext) ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration,
@@ -116,14 +118,14 @@ export const Audio = (props: AudioProps) => {
     mimeType: mime_type,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     // Falls back to the local blob preview while the upload is still in flight.
-    src: getAttachmentPreviewUrl(props.attachment, asset_url),
+    src: getAttachmentPreviewUrl(attachment, asset_url),
     title,
     waveformData: waveform_data,
   });
 
   return audioPlayer ? (
-    <AudioAttachmentUI attachment={props.attachment} audioPlayer={audioPlayer} />
+    <AudioAttachmentUI attachment={attachment} audioPlayer={audioPlayer} />
   ) : null;
 };

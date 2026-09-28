@@ -1,10 +1,12 @@
 import {
   type Attachment,
+  convertTimestampToDate,
   isImageAttachment,
   isVideoAttachment,
   type LocalMessage,
   type MessageResponse,
   type UserResponse,
+  type VoiceRecordingAttachment,
 } from 'stream-chat';
 
 import { toBaseImageDescriptors } from '../../../../components/BaseImage';
@@ -58,10 +60,18 @@ export const toChannelMediaItems = (
           : Boolean(descriptor.imageUrl);
       if (!hasRenderableSource) return;
 
+      const attachmentDuration = (attachment as VoiceRecordingAttachment).custom
+        ?.duration;
+
       items.push({
         durationSeconds:
-          typeof attachment.duration === 'number' ? attachment.duration : undefined,
-        galleryItem: descriptor,
+          typeof attachmentDuration === 'number' ? attachmentDuration : undefined,
+        galleryItem: {
+          ...descriptor,
+          // the gallery header reads sender and timestamp off the item
+          createdAt: convertTimestampToDate(message.created_at),
+          user: message.user ?? undefined,
+        },
         id: `${message.id}-${index}`,
         type,
         user: message.user ?? undefined,

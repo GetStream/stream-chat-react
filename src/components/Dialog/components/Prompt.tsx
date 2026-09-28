@@ -37,9 +37,9 @@ const PromptHeader = ({
   titleId,
   TrailingContent,
 }: PromptHeaderProps) => {
+  const { IconArrowLeft, IconXmark } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { dialogId } = useModalContext();
-  const { IconArrowLeft, IconXmark } = useComponentContextIcons();
   const { descriptionId: derivedDescriptionId, titleId: derivedTitleId } =
     useAriaIdentifiers(dialogId);
   const resolvedTitleId = titleId ?? derivedTitleId;
@@ -62,7 +62,7 @@ const PromptHeader = ({
         {goBack && (
           <Button
             appearance='ghost'
-            aria-label={t('Go back')}
+            aria-label={t('dialog.prompt.goBack.ariaLabel', 'Go back')}
             circular
             className='str-chat__prompt__header__go-back-button'
             onClick={goBack}
@@ -90,7 +90,7 @@ const PromptHeader = ({
               // Concise "Close": the dialog itself is named by its title (aria-labelledby) and
               // described by its description (aria-describedby on the dialog surface), so the close
               // button carries neither — repeating them here is redundant noise on focus.
-              aria-label={t('Close')}
+              aria-label={t('common.close.ariaLabel', 'Close')}
               circular
               className='str-chat__prompt__header__close-button'
               onClick={close}

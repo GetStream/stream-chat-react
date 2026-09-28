@@ -6,6 +6,7 @@ import type {
   MessageResponse,
 } from 'stream-chat';
 import type { DeepPartial } from '../../types/types';
+import { convertDateToTimestamp } from './time';
 
 export type GenerateChannelOptions = Omit<DeepPartial<ChannelAPIResponse>, 'messages'> & {
   messages?: (DeepPartial<MessageResponse> | LocalMessage)[];
@@ -16,17 +17,23 @@ export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIRes
     options ?? ({} as ChannelAPIResponse);
   const id = optionsChannel?.id ?? nanoid();
   const type = optionsChannel?.type ?? 'messaging';
+  const cid = `${type}:${id}`;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { config, id: _, type: __, ...restOptionsChannel } = optionsChannel ?? {};
 
+  const { messages: optionMessages, ...optionsBesidesChannelAndMessages } =
+    optionsBesidesChannel;
+  // Real channel query responses carry the channel cid on each message, and the message paginator
+  // filters ingested messages by cid — so stamp it (respecting any explicit per-message cid).
+  const messages = (optionMessages ?? []).map((message) => ({ cid, ...message }));
+
   return {
     members: [],
-    messages: [],
     pinned_messages: [],
-    ...optionsBesidesChannel,
+    ...optionsBesidesChannelAndMessages,
 
     channel: {
-      cid: `${type}:${id}`,
+      cid,
 
       config: {
         automod: 'disabled',
@@ -40,7 +47,7 @@ export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIRes
           },
         ],
         connect_events: true,
-        created_at: '2020-04-24T11:36:43.859020368Z',
+        created_at: convertDateToTimestamp('2020-04-24T11:36:43.859020368Z'),
         max_message_length: 5000,
         message_retention: 'infinite',
         mutes: true,
@@ -52,29 +59,30 @@ export const generateChannel = (options?: GenerateChannelOptions): ChannelAPIRes
         search: true,
         shared_locations: true,
         typing_events: true,
-        updated_at: '2020-04-24T11:36:43.859022903Z',
+        updated_at: convertDateToTimestamp('2020-04-24T11:36:43.859022903Z'),
         uploads: true,
         url_enrichment: true,
         ...config,
       } as ChannelConfigWithInfo,
 
-      created_at: '2020-04-28T11:20:48.578147Z',
+      created_at: convertDateToTimestamp('2020-04-28T11:20:48.578147Z'),
 
       created_by: {
         banned: false,
-        created_at: '2020-04-27T13:05:13.847572Z',
+        created_at: convertDateToTimestamp('2020-04-27T13:05:13.847572Z'),
         id: 'vishal',
-        last_active: '2020-04-28T11:21:08.353026Z',
+        last_active: convertDateToTimestamp('2020-04-28T11:21:08.353026Z'),
         online: false,
         role: 'user',
-        updated_at: '2020-04-28T11:21:08.357468Z',
+        updated_at: convertDateToTimestamp('2020-04-28T11:21:08.357468Z'),
       },
       disabled: false,
       frozen: false,
       id,
       type,
-      updated_at: '2020-04-28T11:20:48.578147Z',
+      updated_at: convertDateToTimestamp('2020-04-28T11:20:48.578147Z'),
       ...restOptionsChannel,
     },
+    messages,
   } as ChannelAPIResponse;
 };

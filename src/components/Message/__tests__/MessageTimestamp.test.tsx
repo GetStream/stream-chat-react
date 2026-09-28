@@ -2,7 +2,8 @@ import React from 'react';
 import { act, cleanup, render, type RenderResult } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { LocalMessage } from 'stream-chat';
-import { generateMessage } from 'mock-builders';
+import { msToNs, nsToDate } from 'stream-chat';
+import { convertDateToTimestamp, generateMessage } from 'mock-builders';
 import { MessageTimestamp } from '../MessageTimestamp';
 import { ComponentProvider, MessageProvider, TranslationContext } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
@@ -34,7 +35,7 @@ const formatDate = () => dateMock;
 const createdAt = new Date('2019-04-03T14:42:47.087869Z');
 
 const messageMock = generateMessage({
-  created_at: createdAt,
+  created_at: convertDateToTimestamp(createdAt),
 });
 
 const renderComponent = async ({
@@ -77,15 +78,17 @@ describe('<MessageTimestamp />', () => {
     `);
   });
 
-  it('should render non-Date timestamp value in datetime attribute without processing', async () => {
+  it('interprets a numeric timestamp as the wire value rather than echoing it', async () => {
+    // 28 nanoseconds is sub-millisecond, so it resolves to the epoch — the point being that a bare
+    // number is now read as a wire timestamp instead of passed through as opaque text.
     const { container } = await renderComponent({
       messageCtx: { message: { ...messageMock, created_at: 28 } },
     });
     expect(container).toMatchInlineSnapshot(`
       <div>
         <time
-          datetime="28"
-          title="28"
+          datetime="1970-01-01T00:00:00.000Z"
+          title="1970-01-01T00:00:00.000Z"
         >
           00:00
         </time>
@@ -99,9 +102,7 @@ describe('<MessageTimestamp />', () => {
       props: {
         message: {
           ...messageMock,
-          created_at: new Date(
-            (messageMock.created_at as unknown as Date).getTime() + oneYearMs,
-          ),
+          created_at: (messageMock.created_at as unknown as number) + msToNs(oneYearMs),
         },
       },
     });
@@ -118,7 +119,9 @@ describe('<MessageTimestamp />', () => {
   });
 
   it('should not render if message created_at is not a valid date', () => {
-    const message = generateMessage({ created_at: 'I am not a date' });
+    // An unusable wire timestamp is `NaN`, not a string — that is what `convertTimestampToDate`
+    // guards against and what a malformed payload actually produces.
+    const message = generateMessage({ created_at: NaN });
     const { container } = render(
       <MessageProvider value={mockMessageContext()}>
         <MessageTimestamp message={message} />
@@ -127,18 +130,24 @@ describe('<MessageTimestamp />', () => {
     expect(container.children).toHaveLength(0);
   });
 
+  // These two assert the *unformatted* fallback, which is the only place the shared i18n layer's
+  // timezone handling is visible. The web SDK used to call `.tz()` on every parse even with no
+  // timezone configured, which marks the dayjs instance as zoned and renders `…Z`; the shared
+  // implementation applies `.tz()` only when a timezone is actually set, so plain dayjs formatting
+  // (`…+00:00`) comes through. Every key the SDK ships specifies a format, so this is not reachable
+  // outside a key that deliberately disables formatting.
   it('should render with no format if provided i18n config disables formatting', async () => {
     const { container } = await renderComponent({
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp':
+            'timestamp.MessageTimestamp':
               '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
   });
 
   it('should render with custom format provided via i18n service', async () => {
@@ -146,7 +155,7 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp':
+            'timestamp.MessageTimestamp':
               '{{ timestamp | timestampFormatter(format: h:mmA) }}',
           },
         }),
@@ -160,7 +169,7 @@ describe('<MessageTimestamp />', () => {
       props: { format: 'YYYY' },
     });
     expect(container).toHaveTextContent(
-      (messageMock.created_at as unknown as Date).getFullYear().toString(),
+      nsToDate(messageMock.created_at).getFullYear().toString(),
     );
   });
 
@@ -169,7 +178,7 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp':
+            'timestamp.MessageTimestamp':
               '{{ timestamp | timestampFormatter(format: h:mmA) }}',
           },
         }),
@@ -177,7 +186,7 @@ describe('<MessageTimestamp />', () => {
       props: { format: 'YYYY' },
     });
     expect(container).toHaveTextContent(
-      (messageMock.created_at as unknown as Date).getFullYear().toString(),
+      nsToDate(messageMock.created_at).getFullYear().toString(),
     );
   });
 
@@ -186,14 +195,14 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp':
+            'timestamp.MessageTimestamp':
               '{{ timestamp | timestampFormatter(calendar: false) }}',
           },
         }),
       },
       props: { calendarFormats },
     });
-    expect(container).toHaveTextContent('2019-04-03T14:42:47Z');
+    expect(container).toHaveTextContent('2019-04-03T14:42:47+00:00');
   });
 
   it('should reflect the custom calendarFormats if calendar is enabled', async () => {
@@ -208,7 +217,7 @@ describe('<MessageTimestamp />', () => {
       chatProps: {
         i18nInstance: new Streami18n({
           translationsForLanguage: {
-            'timestamp/MessageTimestamp':
+            'timestamp.MessageTimestamp':
               '{{ timestamp | timestampFormatter(format: h:mmA) }}',
           },
         }),

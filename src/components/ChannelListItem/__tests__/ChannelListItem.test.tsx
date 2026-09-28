@@ -6,6 +6,8 @@ import { act, render, type RenderResult, screen, waitFor } from '@testing-librar
 import { ChannelAvatar } from '../../Avatar';
 import { ChannelListItem } from '../ChannelListItem';
 import type { ChannelListItemProps, ChannelListItemUIProps } from '../ChannelListItem';
+import { ChannelListItemUI as DefaultChannelListItemUI } from '../ChannelListItemUI';
+import type { SummarizedMessagePreviewProps } from '../../SummarizedMessagePreview';
 import { Chat } from '../../Chat';
 
 import { ChatContext } from '../../../context/ChatContext';
@@ -39,6 +41,7 @@ import {
   mockComponentContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const EMPTY_CHANNEL_PREVIEW_TEXT = 'Empty channel';
 const AVATAR_IMG_TEST_ID = 'avatar-img';
@@ -48,20 +51,26 @@ const PreviewUIComponent = (props: ChannelListItemUIProps) => (
     <div data-testid='channel-id'>{props.channel.id}</div>
     <div data-testid='unread-count'>{props.unread}</div>
     <div data-testid='last-event-message'>
-      {props.lastMessage ? props.lastMessage.text : EMPTY_CHANNEL_PREVIEW_TEXT}
+      {props.previewedMessage ? props.previewedMessage.text : EMPTY_CHANNEL_PREVIEW_TEXT}
     </div>
     <div data-testid='pinned'>{String(!!props.pinned)}</div>
   </>
 );
-const PreviewUIComponentWithLatestMessagePreview = (props: ChannelListItemUIProps) => (
-  <>
-    <div data-testid='channel-id'>{props.channel.id}</div>
-    <div data-testid='unread-count'>{props.unread}</div>
-    <div data-testid='last-event-message'>
-      {props.lastMessage ? props.latestMessagePreview : EMPTY_CHANNEL_PREVIEW_TEXT}
-    </div>
-  </>
-);
+// The badge reads the channel's own unread count (`read[ownUserId].unread_messages`), which is what
+// `countUnread()` returns, so tests seed that slice rather than stubbing the method.
+const seedUnreadCount = (
+  channel: Channel,
+  unread_messages: number,
+  forUser: { id: string } = user,
+) => {
+  const { read } = channel.state.getLatestValue();
+  channel.state.partialNext({
+    read: {
+      ...read,
+      [forUser.id]: { ...read[forUser.id], unread_messages, user: forUser },
+    },
+  });
+};
 
 const expectUnreadCountToBe = async (
   getByTestId: (id: string) => HTMLElement,
@@ -93,7 +102,8 @@ describe('ChannelPreview', () => {
     renderer: (ui: React.ReactNode) => ReturnType<typeof render>,
     {
       ChannelListItemUI = PreviewUIComponent as React.ComponentType<ChannelListItemUIProps>,
-    } = {},
+      ...componentOverrides
+    }: Partial<ComponentContextValue> = {},
   ) =>
     renderer(
       <ChatContext.Provider
@@ -104,7 +114,9 @@ describe('ChannelPreview', () => {
         })}
       >
         <TranslationProvider value={mockTranslationContextValue()}>
-          <ComponentProvider value={mockComponentContext({ ChannelListItemUI })}>
+          <ComponentProvider
+            value={mockComponentContext({ ChannelListItemUI, ...componentOverrides })}
+          >
             <ChannelListItem {...props} />
           </ComponentProvider>
         </TranslationProvider>
@@ -113,25 +125,32 @@ describe('ChannelPreview', () => {
 
   beforeEach(async () => {
     client = await getTestClientWithUser(user);
+    // Distinct, increasing created_at so "newest" is unambiguous — the message paginator orders by
+    // created_at (with an id tiebreaker), so identical timestamps would make its head diverge from
+    // the mocked response's array order.
+    const genMessages = () =>
+      Array.from({ length: 5 }, (_, i) =>
+        generateMessage({
+          created_at: convertDateToTimestamp(
+            new Date(Date.UTC(2020, 0, 1, 0, 0, i)).toISOString(),
+          ),
+        }),
+      );
     useMockedApis(client, [
       queryChannelsApi([
-        generateChannel({
-          channel: { name: 'c0' },
-          messages: Array.from({ length: 5 }, generateMessage),
-        }),
-        generateChannel({
-          channel: { name: 'c1' },
-          messages: Array.from({ length: 5 }, generateMessage),
-        }),
+        generateChannel({ channel: { custom: { name: 'c0' } }, messages: genMessages() }),
+        generateChannel({ channel: { custom: { name: 'c1' } }, messages: genMessages() }),
       ]),
     ]);
 
-    [c0, c1] = await client.queryChannels({}, {});
+    // v10: `client.queryChannels()` returns the raw API response; `queryChannelsAndHydrate()` is
+    // the one that hydrates and returns `Channel[]`.
+    [c0, c1] = await client.queryChannelsAndHydrate({}, {});
   });
 
   it('should mark channel as read, when set as active channel', async () => {
     // Mock the countUnread function on channel, to return 10.
-    c0.countUnread = () => 10;
+    seedUnreadCount(c0, 10);
 
     const { getByTestId, rerender } = renderComponent(
       {
@@ -154,55 +173,64 @@ describe('ChannelPreview', () => {
     await expectUnreadCountToBe(getByTestId, 0);
   });
 
-  it('should refresh unread counts on forced update', async () => {
-    const originalUnreadCount = 100;
-    const newUnreadCount = 200;
-    vi.spyOn(c0, 'countUnread')
-      .mockImplementation(() => 0)
-      .mockImplementationOnce(() => originalUnreadCount)
-      .mockImplementationOnce(() => newUnreadCount);
-    vi.spyOn(c0, 'muteStatus').mockReturnValue({
-      createdAt: new Date(),
-      expiresAt: new Date(),
-      muted: false,
+  // `channelUpdateCount` used to force a re-read of `countUnread()`. The badge subscribes to the
+  // channel's read state now, so it follows along without being told to.
+  it('follows the channel unread count with no forced update', async () => {
+    seedUnreadCount(c0, 100);
+    const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
+
+    await expectUnreadCountToBe(getByTestId, 100);
+
+    act(() => {
+      seedUnreadCount(c0, 200);
     });
 
-    const { getByTestId, rerender } = renderComponent(
-      {
-        activeChannel: c1,
-        channel: c0,
-        channelUpdateCount: 0,
-      },
-      render,
-    );
-
-    await expectUnreadCountToBe(getByTestId, originalUnreadCount);
-
-    renderComponent(
-      {
-        activeChannel: c1,
-        channel: c0,
-        channelUpdateCount: 1,
-      },
-      rerender,
-    );
-    await expectUnreadCountToBe(getByTestId, newUnreadCount);
+    await expectUnreadCountToBe(getByTestId, 200);
   });
 
-  it('allows to customize latest message preview generation', async () => {
-    const getLatestMessagePreview = (channel) => channel.data.name;
+  // Leading edge, so the first change shows at once and the rest of a burst coalesces into the
+  // trailing call. Without the throttle the intermediate value below would reach the badge.
+  it('coalesces a burst of unread changes', async () => {
+    seedUnreadCount(c0, 1);
+    const { getByTestId } = renderComponent({ activeChannel: c1, channel: c0 }, render);
+    await expectUnreadCountToBe(getByTestId, 1);
+
+    act(() => {
+      seedUnreadCount(c0, 2);
+      seedUnreadCount(c0, 3);
+    });
+
+    // still the leading value - the burst has not been flushed yet
+    expect(getByTestId('unread-count')).toHaveTextContent('1');
+
+    await expectUnreadCountToBe(getByTestId, 3);
+  });
+
+  it('renders a custom SummarizedMessagePreview provided via the component context', async () => {
+    const CustomSummarizedMessagePreview = ({
+      latestMessage,
+    }: SummarizedMessagePreviewProps) => (
+      <div data-testid='custom-summarized-preview'>{`custom:${latestMessage?.text ?? ''}`}</div>
+    );
 
     const { getByTestId } = renderComponent(
       {
         activeChannel: c0,
         channel: c0,
-        getLatestMessagePreview,
       },
       render,
-      { ChannelListItemUI: PreviewUIComponentWithLatestMessagePreview },
+      {
+        // Stub the action buttons — their default needs a DialogManager not present in this harness.
+        ChannelListItemActionButtons: () => null,
+        // Use the real ChannelListItemUI so it reads SummarizedMessagePreview from the context.
+        ChannelListItemUI: DefaultChannelListItemUI,
+        SummarizedMessagePreview: CustomSummarizedMessagePreview,
+      },
     );
 
-    await expectLastEventMessageToBe(getByTestId, c0.data.name);
+    await waitFor(() => {
+      expect(getByTestId('custom-summarized-preview')).toHaveTextContent('custom:');
+    });
   });
 
   it('allows to imperatively state the component represents an active channel', () => {
@@ -247,7 +275,7 @@ describe('ChannelPreview', () => {
     (eventType, dispatcher: (...args: any[]) => void) => {
       it('should update latest message preview', async () => {
         const newUnreadCount = getRandomInt(1, 10);
-        c0.countUnread = () => newUnreadCount;
+        seedUnreadCount(c0, newUnreadCount);
 
         const { getByTestId } = renderComponent(
           {
@@ -264,7 +292,7 @@ describe('ChannelPreview', () => {
         const message =
           eventType === 'message.new'
             ? generateMessage()
-            : c0.state.messages.slice(-1)[0];
+            : c0.messagePaginator.headmostItem;
         await act(async () => {
           await dispatcher(client, message, c0);
         });
@@ -274,7 +302,7 @@ describe('ChannelPreview', () => {
 
       it('should update unreadCount, in case of inactive channel', async () => {
         let newUnreadCount = getRandomInt(1, 10);
-        c0.countUnread = () => newUnreadCount;
+        seedUnreadCount(c0, newUnreadCount);
 
         const { getByTestId } = renderComponent(
           {
@@ -286,10 +314,11 @@ describe('ChannelPreview', () => {
 
         await expectUnreadCountToBe(getByTestId, newUnreadCount);
 
-        newUnreadCount = getRandomInt(1, 10);
+        newUnreadCount = getRandomInt(11, 20);
         const message = generateMessage();
         act(() => {
           dispatcher(client, message, c0);
+          seedUnreadCount(c0, newUnreadCount);
         });
 
         await expectUnreadCountToBe(getByTestId, newUnreadCount);
@@ -297,8 +326,7 @@ describe('ChannelPreview', () => {
 
       it("should reflect client's unreadCount in case of active channel", async () => {
         let unreadCount = 0;
-        const countUnreadSpy = vi.spyOn(c0, 'countUnread');
-        countUnreadSpy.mockReturnValueOnce(unreadCount);
+        seedUnreadCount(c0, unreadCount);
         const { getByTestId } = renderComponent(
           {
             activeChannel: c0,
@@ -309,20 +337,29 @@ describe('ChannelPreview', () => {
         await expectUnreadCountToBe(getByTestId, unreadCount);
 
         unreadCount = 10e10;
-        countUnreadSpy.mockReturnValueOnce(unreadCount);
         const message = generateMessage();
         act(() => {
           dispatcher(client, message, c0);
+          seedUnreadCount(c0, unreadCount);
         });
         await expectUnreadCountToBe(getByTestId, unreadCount);
-
-        countUnreadSpy.mockRestore();
       });
 
       it('should set unreadCount to 0, in case of muted channel', async () => {
-        const channelMuteSpy = vi
-          .spyOn(c0, 'muteStatus')
-          .mockReturnValue({ createdAt: new Date(), expiresAt: new Date(), muted: true });
+        // a real count, so the assertion below is about muting rather than about there being
+        // nothing to show
+        seedUnreadCount(c0, getRandomInt(1, 10));
+        // The mute status is read off the channel's reactive `muteStatus` slice (the client keeps
+        // it in sync with its own `mutedChannels`), not the imperative `channel.muteStatus()`.
+        act(() =>
+          c0.state.partialNext({
+            muteStatus: {
+              createdAt: convertDateToTimestamp(new Date()),
+              expiresAt: convertDateToTimestamp(new Date()),
+              muted: true,
+            },
+          }),
+        );
 
         const { getByTestId } = renderComponent(
           {
@@ -331,10 +368,6 @@ describe('ChannelPreview', () => {
           },
           render,
         );
-
-        await waitFor(() => {
-          expect(channelMuteSpy).toHaveBeenCalledWith();
-        });
 
         await expectUnreadCountToBe(getByTestId, 0);
 
@@ -349,7 +382,7 @@ describe('ChannelPreview', () => {
 
   it('on channel.truncated event should update latest message preview', async () => {
     const newUnreadCount = getRandomInt(1, 10);
-    c0.countUnread = () => newUnreadCount;
+    seedUnreadCount(c0, newUnreadCount);
 
     const { getByTestId } = renderComponent(
       {
@@ -378,7 +411,7 @@ describe('ChannelPreview', () => {
     'on %s event should not update latest message preview for the non-last message',
     async (_, dispatcher) => {
       const newUnreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => newUnreadCount;
+      seedUnreadCount(c0, newUnreadCount);
 
       const { getByTestId } = renderComponent(
         {
@@ -392,8 +425,8 @@ describe('ChannelPreview', () => {
         expect(getByTestId('channel-id')).toBeInTheDocument();
       });
 
-      const lastMessage = c0.state.messages.slice(-1)[0];
-      const penultimateMessage = c0.state.messages.slice(-2)[0];
+      const lastMessage = c0.messagePaginator.headmostItem;
+      const penultimateMessage = c0.messagePaginator.headItems.slice(-2)[0];
       await act(async () => {
         await dispatcher(client, penultimateMessage, c0);
       });
@@ -415,19 +448,25 @@ describe('ChannelPreview', () => {
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1970-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1970-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1970-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1971-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1971-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1971-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
         ],
@@ -470,19 +509,25 @@ describe('ChannelPreview', () => {
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1970-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1970-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1970-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1970-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
           generateChannel({
             messages: [
               generateMessage({
-                created_at: '1971-01-01T00:00:00.000Z',
+                created_at: convertDateToTimestamp('1971-01-01T00:00:00.000Z'),
                 user: { id: 'other-user' },
               }),
-              generateMessage({ created_at: '1971-01-02T00:00:00.000Z', user }),
+              generateMessage({
+                created_at: convertDateToTimestamp('1971-01-02T00:00:00.000Z'),
+                user,
+              }),
             ] as LocalMessage[],
           }),
         ],
@@ -513,16 +558,19 @@ describe('ChannelPreview', () => {
         expect(lastMessagePreviews.length).toBe(2);
         expect(lastMessagePreviews[0]).toHaveTextContent(deletedMessageText);
         expect(lastMessagePreviews[1]).toHaveTextContent(
-          c1.state.messages.slice(-1)[0].text,
+          c1.messagePaginator.headmostItem.text,
         );
       });
     });
   });
 
   describe('notification.mark_read', () => {
-    it('should set unread count to 0 for event missing CID', async () => {
+    // Mark-all-read names no channel. The client fans the reset across its active channels, and
+    // only when the event says nothing is left unread - `unread_channels > 0` means some other
+    // channel still is, so zeroing every one of them would be wrong.
+    it('should set unread count to 0 when everything was marked read', async () => {
       const unreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => unreadCount;
+      seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
           activeChannel: c1,
@@ -532,15 +580,32 @@ describe('ChannelPreview', () => {
       );
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
       await act(() => {
-        dispatchNotificationMarkRead({ client, user });
+        dispatchNotificationMarkRead({ client, payload: { unread_channels: 0 }, user });
       });
       await expectUnreadCountToBe(screen.getByTestId, 0);
+    });
+
+    it('should keep the unread count when another channel is still unread', async () => {
+      const unreadCount = getRandomInt(1, 10);
+      seedUnreadCount(c0, unreadCount);
+      renderComponent(
+        {
+          activeChannel: c1,
+          channel: c0,
+        },
+        render,
+      );
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+      await act(() => {
+        dispatchNotificationMarkRead({ client, payload: { unread_channels: 1 }, user });
+      });
+      await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it('should set unread count to 0 for current channel', async () => {
       const channelInPreview = c0;
       const unreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => unreadCount;
+      seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
           activeChannel: c1,
@@ -559,7 +624,7 @@ describe('ChannelPreview', () => {
       const channelInPreview = c0;
       const activeChannel = c1;
       const unreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => unreadCount;
+      seedUnreadCount(c0, unreadCount);
       renderComponent(
         {
           activeChannel,
@@ -576,32 +641,23 @@ describe('ChannelPreview', () => {
 
     it('should be ignored if originated from another user', async () => {
       const unreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => unreadCount;
-      renderComponent(
-        {
-          activeChannel: c1,
-          channel: c0,
-        },
-        render,
-      );
+      seedUnreadCount(c0, unreadCount);
+      renderComponent({ activeChannel: c1, channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+
       await act(() => {
         dispatchNotificationMarkRead({ channel: c0, client, user: otherUser });
       });
+
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
 
     it('should be ignored if only a thread was marked read', async () => {
       const unreadCount = getRandomInt(1, 10);
-      c0.countUnread = () => unreadCount;
-      renderComponent(
-        {
-          activeChannel: c1,
-          channel: c0,
-        },
-        render,
-      );
+      seedUnreadCount(c0, unreadCount);
+      renderComponent({ activeChannel: c1, channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
+
       await act(() => {
         dispatchNotificationMarkRead({
           channel: c0,
@@ -610,31 +666,24 @@ describe('ChannelPreview', () => {
           user,
         });
       });
+
       await expectUnreadCountToBe(screen.getByTestId, unreadCount);
     });
   });
 
   // https://github.com/GetStream/stream-chat-react/issues/3264
-  // Marking a channel read emits two independent events for the reading user:
-  // `message.read` (channel) and `notification.mark_read` (personal). Only
-  // `message.read` resets `channel.state.unreadCount`, so the badge must end up at 0
-  // no matter which of the two is delivered first.
+  // Marking a channel read emits two independent events for the reading user: `message.read`
+  // (channel-scoped) and `notification.mark_read` (personal). Only the former resets
+  // `channel.state.unreadCount`, so the badge has to reach 0 whichever arrives first.
   describe('marking a channel read with another channel still unread', () => {
     const renderUnreadChannelPreview = async () => {
-      // a real unread count, so the badge does not depend on a countUnread() stub
-      c0.state.unreadCount = 5;
-      renderComponent(
-        {
-          activeChannel: c1,
-          channel: c0,
-        },
-        render,
-      );
+      seedUnreadCount(c0, 5);
+      renderComponent({ activeChannel: c1, channel: c0 }, render);
       await expectUnreadCountToBe(screen.getByTestId, 5);
     };
 
-    // `unread_channels > 0` keeps StreamChat._handleClientEvent from zeroing
-    // every active channel, which would mask the problem
+    // `unread_channels > 0` stops the client from zeroing every channel it holds, which would mask
+    // the problem
     const markRead = () =>
       dispatchNotificationMarkRead({
         channel: c0,
@@ -653,7 +702,6 @@ describe('ChannelPreview', () => {
         markRead();
       });
 
-      expect(c0.countUnread()).toBe(0);
       await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
@@ -667,7 +715,6 @@ describe('ChannelPreview', () => {
         dispatchMessageReadEvent(client, user, c0);
       });
 
-      expect(c0.countUnread()).toBe(0);
       await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
@@ -678,7 +725,6 @@ describe('ChannelPreview', () => {
         dispatchMessageReadEvent(client, user, c0);
       });
 
-      expect(c0.countUnread()).toBe(0);
       await expectUnreadCountToBe(screen.getByTestId, 0);
     });
 
@@ -691,6 +737,17 @@ describe('ChannelPreview', () => {
 
       await expectUnreadCountToBe(screen.getByTestId, 5);
     });
+
+    // The stand-in a channel with read events disabled gets instead of a server read.
+    it('clears the badge on a local read', async () => {
+      await renderUnreadChannelPreview();
+
+      await act(() => {
+        c0.markReadLocally();
+      });
+
+      await expectUnreadCountToBe(screen.getByTestId, 0);
+    });
   });
 
   describe('notification.mark_unread', () => {
@@ -698,7 +755,7 @@ describe('ChannelPreview', () => {
       const unreadCount = 0;
       const channelInPreview = c0;
       const activeChannel = c1;
-      channelInPreview.countUnread = () => unreadCount;
+      seedUnreadCount(channelInPreview, unreadCount);
       renderComponent(
         {
           activeChannel,
@@ -722,7 +779,7 @@ describe('ChannelPreview', () => {
       const unreadCount = 0;
       const channelInPreview = c0;
       const activeChannel = c1;
-      channelInPreview.countUnread = () => unreadCount;
+      seedUnreadCount(channelInPreview, unreadCount);
       renderComponent(
         {
           activeChannel,
@@ -745,8 +802,8 @@ describe('ChannelPreview', () => {
     it("should set unread count from client's unread count state for active channel", async () => {
       const unreadCount = 0;
       const activeChannel = c1;
-      // countUnread() is intentionally NOT stubbed here: the event updates
-      // channel.state.unreadCount, and reading it back is what this test asserts
+      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
+      // reading it back is what this test asserts
       renderComponent(
         {
           activeChannel,
@@ -772,8 +829,8 @@ describe('ChannelPreview', () => {
       const unreadCount = 0;
       const channelInPreview = c0;
       const activeChannel = c1;
-      // countUnread() is intentionally NOT stubbed here: the event updates
-      // channel.state.unreadCount, and reading it back is what this test asserts
+      // countUnread() is deliberately NOT stubbed: the event updates channel.state.unreadCount, and
+      // reading it back is what this test asserts
       renderComponent(
         {
           activeChannel,
@@ -813,7 +870,7 @@ describe('ChannelPreview', () => {
     it('should pass pinned=true when membership has pinned_at', async () => {
       c0.state.membership = fromPartial({
         ...c0.state.membership,
-        pinned_at: '2024-01-01T00:00:00Z',
+        pinned_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
       });
 
       renderComponent(
@@ -966,7 +1023,9 @@ describe('ChannelPreview', () => {
         Avatar: ChannelAvatar,
       };
       const channelName = 'channel-name';
-      const channelState = getChannelState(3, { channel: { name: channelName } });
+      const channelState = getChannelState(3, {
+        channel: { custom: { name: channelName } },
+      });
 
       it('renders 2 avatars and overflow badge in channel avatar for 5-member channel', async () => {
         const channelState = getChannelState(5);

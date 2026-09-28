@@ -1,63 +1,29 @@
 import { useEffect, useMemo } from 'react';
-import { MessageComposer as MessageComposerController } from 'stream-chat';
+import type { MessageComposer as MessageComposerController } from 'stream-chat';
 import { useThreadContext } from '../../Threads';
-import { useChannelStateContext, useChatContext } from '../../../context';
-import { useLegacyThreadContext } from '../../Thread';
-import { useMessageComposerControllerContext } from '../MessageComposer';
+import {
+  useChannel,
+  useChatContext,
+  useMessageComposerControllerContext,
+} from '../../../context';
 
 export const useMessageComposerController = () => {
   const { client } = useChatContext();
   const { messageComposerCache: queueCache } = client;
-  const { channel } = useChannelStateContext();
-  const { legacyThread: parentMessage } = useLegacyThreadContext();
+  const channel = useChannel();
   const threadInstance = useThreadContext();
-  // custom supplied composer overriding default composer retrieval behavior
-  const composerFromOverrideContext = useMessageComposerControllerContext();
+  const suppliedComposer = useMessageComposerControllerContext();
 
-  const cachedParentMessage = useMemo(() => {
-    if (!parentMessage) return undefined;
+  // composer hierarchy: supplied by the integrator -> thread instance (own) -> channel (own)
+  const messageComposer = useMemo(
+    () => suppliedComposer ?? threadInstance?.messageComposer ?? channel.messageComposer,
+    [channel, suppliedComposer, threadInstance],
+  );
 
-    return parentMessage;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [parentMessage?.id]);
-
-  // composer hierarchy
-  // edited message (always new) -> thread instance (own) -> thread message (always new) -> channel (own)
-  // editedMessage ?? thread ?? parentMessage ?? channel;
-  const messageComposer = useMemo(() => {
-    if (composerFromOverrideContext) return composerFromOverrideContext;
-
-    if (threadInstance) {
-      return threadInstance.messageComposer;
-    } else if (cachedParentMessage) {
-      const compositionContext = {
-        ...cachedParentMessage,
-        legacyThreadId: cachedParentMessage.id,
-      };
-
-      const tag = MessageComposerController.constructTag(compositionContext);
-
-      const cachedComposer = queueCache.get(tag);
-      if (cachedComposer) return cachedComposer;
-
-      return new MessageComposerController({
-        client,
-        compositionContext,
-      });
-    } else {
-      return channel.messageComposer;
-    }
-  }, [
-    cachedParentMessage,
-    channel.messageComposer,
-    client,
-    composerFromOverrideContext,
-    queueCache,
-    threadInstance,
-  ]);
-
+  // Only a supplied composer can carry a message context (an edit); the thread's and channel's own
+  // never do.
   if (
-    (['legacy_thread', 'message'] as MessageComposerController['contextType'][]).includes(
+    (['message'] as MessageComposerController['contextType'][]).includes(
       messageComposer.contextType,
     ) &&
     !queueCache.peek(messageComposer.tag)

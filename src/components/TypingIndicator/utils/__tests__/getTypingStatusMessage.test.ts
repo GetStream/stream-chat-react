@@ -1,12 +1,9 @@
 import { getTypingStatusMessage } from '../getTypingStatusMessage';
 
 import type { TypingEntry } from '../../hooks/useDebouncedTypingActive';
+import { mockT } from '../../../../mock-builders/translator';
 
-const translate = (value: string, options?: Record<string, number | string>) =>
-  Object.entries(options || {}).reduce(
-    (result, [key, optionValue]) => result.replace(`{{ ${key} }}`, String(optionValue)),
-    value,
-  );
+const translate = mockT as unknown as Parameters<typeof getTypingStatusMessage>[1];
 
 describe('getTypingStatusMessage', () => {
   it('formats a single typing user', () => {

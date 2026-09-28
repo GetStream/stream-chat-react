@@ -11,7 +11,7 @@ Authoritative locations, in order of preference:
 1. `node_modules/stream-chat-react/dist/types/index.d.ts` — public type surface. Fastest way to confirm a symbol exists, check a prop signature, or see an override-key name. (The SDK emits `.d.ts` only; there is no `.d.cts`.)
 2. `node_modules/stream-chat-react/package.json` — `exports` map and peer dependencies.
 3. `node_modules/stream-chat-react/dist/es/` and `dist/cjs/` — transpiled JS when runtime behavior matters more than types.
-4. `node_modules/stream-chat/dist/types/index.d.ts` — core client types (channel capabilities, event names, `ReactionSort`, etc.).
+4. `node_modules/stream-chat/dist/types/index.d.ts` — core client types (channel capabilities, event names, `SortParamRequest`, etc.).
 5. `node_modules/stream-chat-react/dist/css/index.css` — default class names and CSS variables when auditing selectors.
 
 Required workflow:
@@ -166,7 +166,7 @@ For richer rendering, override `QuotedMessage` or `QuotedMessagePreview` in `Wit
 - `QuotedMessagePreviewHeader` → `QuotedMessagePreviewUI`
 - `CardAudio` → inline the audio card UI in your own component
 - `attachmentTypeIconMap` → inline your own map or use `SummarizedMessagePreview`
-- `ReactionDetailsComparator`, `sortReactionDetails` prop → `reactionDetailsSort` with `ReactionSort`
+- `ReactionDetailsComparator`, `sortReactionDetails` prop → `reactionDetailsSort` with `SortParamRequest[]`
 - `SimpleReactionsList` → `MessageReactions` or a custom compact list
 - Standalone icons (`ActionsIcon`, `ReactionIcon`, `ThreadIcon`, `MessageErrorIcon`, `CloseIcon`, `SendIcon`, `MicIcon`, `MessageSentIcon`, `MessageDeliveredIcon`, `RetryIcon`, `DownloadIcon`, `LinkIcon`) → public `Icons` set (e.g. `IconXmark`, `IconCheckmark1Small`, `IconDoubleCheckmark1Small`) or higher-level components (`SendButton`, `MessageStatus`, `MessageActions`)
 - `useChannelDeletedListener`, `useNotificationMessageNewListener`, `useMobileNavigation`, siblings → no shim; remove the calls (`ChannelList` handles these events internally)

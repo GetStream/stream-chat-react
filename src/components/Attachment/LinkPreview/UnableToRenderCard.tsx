@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 export const UnableToRenderCard = ({ type }: { type?: Attachment['type'] }) => {
-  const { t } = useTranslationContext('Card');
+  const { t } = useTranslationContext();
 
   return (
     <div
@@ -14,7 +14,7 @@ export const UnableToRenderCard = ({ type }: { type?: Attachment['type'] }) => {
     >
       <div className='str-chat__message-attachment-card--content'>
         <div className='str-chat__message-attachment-card--text'>
-          {t('this content could not be displayed')}
+          {t('attachment.unableRenderCard.text', 'this content could not be displayed')}
         </div>
       </div>
     </div>

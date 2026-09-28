@@ -12,6 +12,7 @@ import type { GroupStyle, RenderedMessage } from './utils';
 import { getIsFirstUnreadMessage, isDateSeparatorMessage, isIntroMessage } from './utils';
 import type { VirtuosoContext } from './VirtualizedMessageList';
 import type { UnknownType } from '../../types/types';
+import { useThreadContext } from '../Threads';
 
 const PREPEND_OFFSET = 10 ** 7;
 
@@ -66,9 +67,7 @@ export const Item = ({ context, ...props }: ItemProps & CommonVirtuosoComponentP
   );
 };
 export const Header = ({ context }: CommonVirtuosoComponentProps) => {
-  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext(
-    'VirtualizedMessageListHeader',
-  );
+  const { LoadingIndicator = DefaultLoadingIndicator } = useComponentContext();
 
   return (
     <>
@@ -82,9 +81,9 @@ export const Header = ({ context }: CommonVirtuosoComponentProps) => {
   );
 };
 export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
-  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext(
-    'VirtualizedMessageList',
-  );
+  const thread = useThreadContext();
+  const isThreadList = !!thread;
+  const { EmptyStateIndicator = DefaultEmptyStateIndicator } = useComponentContext();
   // prevent showing that there are no messages if there actually are messages (for some reason virtuoso decides to render empty placeholder first, even though it has the totalCount prop > 0)
   if (
     typeof context?.processedMessages !== 'undefined' &&
@@ -95,7 +94,7 @@ export const EmptyPlaceholder = ({ context }: CommonVirtuosoComponentProps) => {
   return (
     <>
       {EmptyStateIndicator && (
-        <EmptyStateIndicator listType={context?.threadList ? 'thread' : 'message'} />
+        <EmptyStateIndicator listType={isThreadList ? 'thread' : 'message'} />
       )}
     </>
   );
@@ -108,21 +107,20 @@ export const messageRenderer = (
 ) => {
   const {
     additionalMessageComposerProps,
+    channel,
     closeReactionSelectorOnClick,
     customMessageRenderer,
     DateSeparator,
     firstUnreadMessageId,
+    focusedMessageId,
     formatDate,
     lastOwnMessage,
     lastReadDate,
     lastReadMessageId,
     lastReceivedMessageId,
-    Message: MessageUIComponent,
-    messageActions,
     messageGroupStyles,
     MessageSystem,
     numItemsPrepended,
-    openThread,
     ownMessagesDeliveredToOthers,
     ownMessagesReadByOthers,
     processedMessages: messageList,
@@ -131,7 +129,6 @@ export const messageRenderer = (
     returnAllReadData,
     showAvatar,
     sortReactions,
-    threadList,
     unreadMessageCount = 0,
     UnreadMessagesSeparator,
     virtuosoRef,
@@ -158,13 +155,14 @@ export const messageRenderer = (
   }
 
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
+    channel,
     firstUnreadMessageId,
     isFirstMessage: streamMessageIndex === 0,
-    lastReadDate,
+    lastReadAt: lastReadDate,
     lastReadMessageId,
     message,
     previousMessage: streamMessageIndex ? messageList[streamMessageIndex - 1] : undefined,
-    unreadMessageCount,
+    unreadCount: unreadMessageCount,
   });
 
   return (
@@ -181,19 +179,16 @@ export const messageRenderer = (
         deliveredTo={ownMessagesDeliveredToOthers[message.id] || []}
         formatDate={formatDate}
         groupStyles={[messageGroupStyles[message.id] ?? '']}
+        highlighted={focusedMessageId === message.id}
         lastOwnMessage={lastOwnMessage}
         lastReceivedId={lastReceivedMessageId}
         message={message}
-        Message={MessageUIComponent}
-        messageActions={messageActions}
-        openThread={openThread}
         reactionDetailsSort={reactionDetailsSort}
         readBy={ownMessagesReadByOthers[message.id] || []}
         renderText={renderText}
         returnAllReadData={returnAllReadData}
         showAvatar={showAvatar}
         sortReactions={sortReactions}
-        threadList={threadList}
       />
     </>
   );
