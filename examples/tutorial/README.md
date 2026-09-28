@@ -23,13 +23,16 @@ If you change a step's code here, update the matching code block in the tutorial
 
 The tutorial has the reader create a single `src/layout.css` in Step 3 and
 rewrite it in Step 5. Each step folder here carries its own copy so the folder is
-a self-contained snapshot of the app at that step, which means there are only two
-distinct versions of the file:
+a self-contained snapshot of the app at that step. From Step 4 on, the copy also
+holds the rules for the two channel slots (`.channel-slots`), which the optional
+recipes do not use, so there are four distinct versions of the file:
 
-| Version  | In                                                                         |
-| -------- | -------------------------------------------------------------------------- |
-| Step 3's | `3-core-component-setup`, `4-channel-list`                                 |
-| Step 5's | `5-theming`, `6-custom-ui-components`, `7-emoji-picker`, both `optional-*` |
+| Version                  | In                                                      |
+| ------------------------ | ------------------------------------------------------- |
+| Step 3's                 | `3-core-component-setup`                                |
+| Step 3's + channel slots | `4-channel-list`                                        |
+| Step 5's + channel slots | `5-theming`, `6-custom-ui-components`, `7-emoji-picker` |
+| Step 5's                 | both `optional-*`                                       |
 
 Every file in a group is byte-identical, so any drift shows up in a diff. If you
 edit one, edit the whole group.

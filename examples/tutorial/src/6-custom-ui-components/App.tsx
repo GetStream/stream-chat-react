@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { ClientUser } from 'stream-chat';
+import type { ChannelFilters, ClientUser, SortParamRequest } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 import {
   Channel,
   ChannelAvatar,
@@ -11,6 +12,7 @@ import {
   MessageComposer,
   MessageList,
   SummarizedMessagePreview,
+  Thread,
   ThreadHeader,
   useCreateChatClient,
   useMessageContext,
@@ -18,9 +20,10 @@ import {
 } from 'stream-chat-react';
 import {
   ChatView,
-  ThreadSlot,
+  type ChatViewSlotRenderers,
+  type DeriveWorkspaceNavigation,
+  Slot,
   useChatViewNavigation,
-  useSlotChannels,
 } from 'stream-chat-react/slot-layout';
 
 import './layout.css';
@@ -32,6 +35,18 @@ const user: ClientUser = {
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
+
+const sort: SortParamRequest[] = [{ direction: -1, field: 'last_message_at' }];
+const filters: ChannelFilters = {
+  type: 'messaging',
+  members: { $in: [userId] },
+};
+
+const ellipsis = {
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+} as const;
 
 const CustomChannelListItem = ({
   active,
@@ -46,8 +61,12 @@ const CustomChannelListItem = ({
   return (
     <button
       aria-pressed={active}
-      onClick={() =>
-        open({ key: channel.cid ?? undefined, kind: 'channel', source: channel })
+      // A plain click replaces the open channel; ⌘/ctrl-click opens it beside, in the other slot.
+      onClick={(event) =>
+        open(
+          { key: channel.cid ?? undefined, kind: 'channel', source: channel },
+          { additive: event.metaKey || event.ctrlKey },
+        )
       }
       style={{
         width: '100%',
@@ -67,10 +86,14 @@ const CustomChannelListItem = ({
         size='xl'
         userName={displayTitle ?? channel.data?.custom?.name ?? 'Channel'}
       />
-      <div style={{ flex: 1 }}>
-        <div>{displayTitle ?? channel.data?.custom?.name ?? 'Unnamed Channel'}</div>
+      {/* `minWidth: 0` lets the text column shrink below its content, so a long title or preview
+          is cut off with an ellipsis instead of squeezing the avatar out of the row. */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={ellipsis}>
+          {displayTitle ?? channel.data?.custom?.name ?? 'Unnamed Channel'}
+        </div>
         {previewedMessage ? (
-          <div style={{ fontSize: '14px', opacity: 0.75 }}>
+          <div style={{ ...ellipsis, fontSize: '14px', opacity: 0.75 }}>
             <SummarizedMessagePreview latestMessage={previewedMessage} />
           </div>
         ) : null}
@@ -109,33 +132,48 @@ const CustomMessage = () => {
   );
 };
 
-// One view ("channels") with a single channel slot. Module-scoped for a stable reference.
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+// One view ("channels") with two generic slots side by side. Each `<Slot>` renders whatever is
+// open in it - a channel or a thread - through `slotRenderers`. Module-scoped so the references are
+// stable (they feed the ChatView layout controller).
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['left', 'right'] }];
 
-const ChannelsWorkspace = () => {
-  const channelSlots = useSlotChannels();
-
-  return (
-    <>
-      <ChannelNavigation />
-      {channelSlots.map(({ channel, slot }) => (
-        <Channel channel={channel} key={slot}>
-          <ChannelHeader />
-          <MessageList />
-          <MessageComposer />
-        </Channel>
-      ))}
-      {/* The panel for a thread opened from a message's "reply in thread" action: `ThreadSlot`
-          resolves the thread bound to the slot and hands it to `<Thread>`, which provides it to
-          the components below. */}
-      <ThreadSlot slot='thread'>
-        <ThreadHeader />
-        <MessageList />
-        <MessageComposer />
-      </ThreadSlot>
-    </>
-  );
+const slotRenderers: ChatViewSlotRenderers = {
+  channel: ({ source }) => (
+    <Channel channel={source}>
+      <ChannelHeader />
+      <MessageList />
+      <MessageComposer />
+    </Channel>
+  ),
+  thread: ({ source }) => (
+    <Thread thread={source}>
+      <ThreadHeader />
+      <MessageList />
+      <MessageComposer />
+    </Thread>
+  ),
 };
+
+// A plain click on a channel replaces the open one; ⌘/ctrl-click opens it beside, in the other slot.
+const deriveWorkspaceNavigation: DeriveWorkspaceNavigation = (base) => ({
+  openChannel: (channel, options) =>
+    base.openChannel(channel, {
+      ...options,
+      additive:
+        options?.additive ?? !!(options?.event?.metaKey || options?.event?.ctrlKey),
+    }),
+});
+
+const ChannelsWorkspace = () => (
+  <>
+    <ChannelNavigation />
+    {/* The slots' own container, so `layout.css` can react to the width they share. */}
+    <div className='channel-slots'>
+      <Slot slot='left' />
+      <Slot slot='right' />
+    </div>
+  </>
+);
 
 const App = () => {
   const [isReady, setIsReady] = useState(false);
@@ -153,6 +191,24 @@ const App = () => {
     client.config.setSetupFunction('messageComposer', ({ composer }) =>
       setUpCommandMiddlewares(composer),
     );
+  }, [client]);
+
+  // Channel-list query config (filters/sort) lives on a `ChannelPaginator`. The list is registered
+  // on `client.channelManager` — the orchestrator instantiated together with the client, which
+  // keeps every registered list in sync with WS events. `<ChannelNavigation>` renders one list per
+  // registered paginator.
+  useEffect(() => {
+    if (!client) return;
+    const paginator = new ChannelPaginator({
+      client,
+      filters,
+      id: 'channels:default',
+      sort,
+    });
+    client.channelManager.insertPaginator({ paginator });
+    return () => {
+      client.channelManager.removePaginator(paginator);
+    };
   }, [client]);
 
   useEffect(() => {
@@ -193,7 +249,12 @@ const App = () => {
       }}
     >
       <Chat client={client} theme='custom-theme'>
-        <ChatView layouts={chatViewLayouts} views={{ channels: <ChannelsWorkspace /> }} />
+        <ChatView
+          deriveWorkspaceNavigation={deriveWorkspaceNavigation}
+          layouts={chatViewLayouts}
+          slotRenderers={slotRenderers}
+          views={{ channels: <ChannelsWorkspace /> }}
+        />
       </Chat>
     </WithComponents>
   );

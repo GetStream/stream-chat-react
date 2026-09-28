@@ -8,10 +8,16 @@ import {
   Chat,
   MessageComposer,
   MessageList,
+  Thread,
   ThreadHeader,
   useCreateChatClient,
 } from 'stream-chat-react';
-import { ChatView, ThreadSlot, useSlotChannels } from 'stream-chat-react/slot-layout';
+import {
+  ChatView,
+  type ChatViewSlotRenderers,
+  type DeriveWorkspaceNavigation,
+  Slot,
+} from 'stream-chat-react/slot-layout';
 
 import 'stream-chat-react/dist/css/index.css';
 import './layout.css';
@@ -30,37 +36,48 @@ const filters: ChannelFilters = {
   members: { $in: [userId] },
 };
 
-// One view ("channels") with a single channel slot. Module-scoped so the reference is
-// stable (it feeds the ChatView layout controller).
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+// One view ("channels") with two generic slots side by side. Each `<Slot>` renders whatever is
+// open in it - a channel or a thread - through `slotRenderers`. Module-scoped so the references are
+// stable (they feed the ChatView layout controller).
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['left', 'right'] }];
 
-// Renders the channel navigation (list + search) and the channel(s) currently open in
-// a layout slot. Selecting a channel in the list binds it into a slot via ChatView
-// navigation; `useSlotChannels` reads back the open channel(s).
-const ChannelsWorkspace = () => {
-  const channelSlots = useSlotChannels();
-
-  return (
-    <>
-      <ChannelNavigation />
-      {channelSlots.map(({ channel, slot }) => (
-        <Channel channel={channel} key={slot}>
-          <ChannelHeader />
-          <MessageList />
-          <MessageComposer />
-        </Channel>
-      ))}
-      {/* The panel for a thread opened from a message's "reply in thread" action: `ThreadSlot`
-          resolves the thread bound to the slot and hands it to `<Thread>`, which provides it to
-          the components below. */}
-      <ThreadSlot slot='thread'>
-        <ThreadHeader />
-        <MessageList />
-        <MessageComposer />
-      </ThreadSlot>
-    </>
-  );
+const slotRenderers: ChatViewSlotRenderers = {
+  channel: ({ source }) => (
+    <Channel channel={source}>
+      <ChannelHeader />
+      <MessageList />
+      <MessageComposer />
+    </Channel>
+  ),
+  thread: ({ source }) => (
+    <Thread thread={source}>
+      <ThreadHeader />
+      <MessageList />
+      <MessageComposer />
+    </Thread>
+  ),
 };
+
+// A plain click on a channel replaces the open one; ⌘/ctrl-click opens it beside, in the other slot.
+const deriveWorkspaceNavigation: DeriveWorkspaceNavigation = (base) => ({
+  openChannel: (channel, options) =>
+    base.openChannel(channel, {
+      ...options,
+      additive:
+        options?.additive ?? !!(options?.event?.metaKey || options?.event?.ctrlKey),
+    }),
+});
+
+const ChannelsWorkspace = () => (
+  <>
+    <ChannelNavigation />
+    {/* The slots' own container, so `layout.css` can react to the width they share. */}
+    <div className='channel-slots'>
+      <Slot slot='left' />
+      <Slot slot='right' />
+    </div>
+  </>
+);
 
 const App = () => {
   const client = useCreateChatClient({
@@ -101,7 +118,12 @@ const App = () => {
 
   return (
     <Chat client={client}>
-      <ChatView layouts={chatViewLayouts} views={{ channels: <ChannelsWorkspace /> }} />
+      <ChatView
+        deriveWorkspaceNavigation={deriveWorkspaceNavigation}
+        layouts={chatViewLayouts}
+        slotRenderers={slotRenderers}
+        views={{ channels: <ChannelsWorkspace /> }}
+      />
     </Chat>
   );
 };
