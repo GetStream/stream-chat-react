@@ -82,8 +82,9 @@ const CustomAttachment = (props: AttachmentProps) => {
 };
 
 // A thread is opened through workspace navigation (a message's "reply in thread" action), which
-// `ChatView` provides -- so even a single-channel app hosts its channel and thread in layout slots.
-const chatViewLayouts = [{ id: 'channels' as const, slots: ['main-channel', 'thread'] }];
+// `ChatView` provides, into a layout slot. The channel is rendered directly, so the only slot is the
+// thread's.
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['thread'] }];
 
 const ChannelWorkspace = ({ channel }: { channel: StreamChannel }) => (
   <>
