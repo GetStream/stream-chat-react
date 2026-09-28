@@ -1,16 +1,12 @@
+import type { TranslationContextValue } from '../../../context/TranslationContext';
 import type { TypingEntry } from '../hooks/useDebouncedTypingActive';
-
-type TranslationFunction = (
-  key: string,
-  options?: Record<string, number | string>,
-) => string;
 
 /**
  * Build a localized typing-status message for screen-reader and inline indicator text.
  */
 export const getTypingStatusMessage = (
   displayUsers: readonly TypingEntry[],
-  t: TranslationFunction,
+  t: TranslationContextValue['t'],
 ) => {
   const namedUsers = displayUsers
     .map(({ user }) => user?.name?.trim() || user?.id || '')
@@ -18,14 +14,18 @@ export const getTypingStatusMessage = (
   const count = displayUsers.length;
 
   if (count === 1 && namedUsers.length === 1) {
-    return t('{{ typing }} is typing', { typing: namedUsers[0] });
+    return t('typing.singleUser', '{{ typing }} is typing', { typing: namedUsers[0] });
   }
 
   if (count === 2 && namedUsers.length === 2) {
-    return t('{{ typing }} are typing', {
+    return t('typing.twoUsers', '{{ typing }} are typing', {
       typing: `${namedUsers[0]} and ${namedUsers[1]}`,
     });
   }
 
-  return t('{{ count }} people are typing', { count });
+  return t('typing.manyUsers', {
+    count,
+    defaultValue_one: '{{ count }} person is typing',
+    defaultValue_other: '{{ count }} people are typing',
+  });
 };

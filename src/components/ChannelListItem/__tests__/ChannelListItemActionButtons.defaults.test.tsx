@@ -1,7 +1,6 @@
-/* eslint-disable sort-keys */
 import React from 'react';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import type { MuteChannelAPIResponse } from 'stream-chat';
+import type { Channel, MuteChannelResponse, StreamResponse } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { Chat } from '../../Chat';
@@ -12,6 +11,7 @@ import {
   initClientWithChannels,
 } from '../../../mock-builders';
 import { ResizeObserverMock } from '../../../mock-builders/browser';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const ResizeObserverConstructor =
   ResizeObserverMock as unknown as typeof window.ResizeObserver;
@@ -27,6 +27,15 @@ describe('ChannelListItemActionButtons defaults', () => {
     'read-events',
     'send-message',
   ];
+
+  const setMuted = (channel: Channel) =>
+    channel.state.partialNext({
+      muteStatus: {
+        createdAt: convertDateToTimestamp(new Date()),
+        expiresAt: null,
+        muted: true,
+      },
+    });
 
   beforeEach(() => {
     window.ResizeObserver = ResizeObserverConstructor;
@@ -138,10 +147,10 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('unmutes a muted channel from quick action with success notification', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      // Simulate muted state by setting up the muteStatus
-      vi.spyOn(channel, 'muteStatus').mockReturnValue(
-        fromPartial({ muted: true, createdAt: new Date() }),
-      );
+      // Simulate muted state on the reactive `muteStatus` slice the mute hook reads (the client
+      // keeps it in sync with its own `mutedChannels`); the imperative `channel.muteStatus()` is
+      // no longer consulted.
+      act(() => setMuted(channel));
       vi.spyOn(channel, 'unmute').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');
 
@@ -173,9 +182,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('shows error notification when unmute fails', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      vi.spyOn(channel, 'muteStatus').mockReturnValue(
-        fromPartial({ muted: true, createdAt: new Date() }),
-      );
+      act(() => setMuted(channel));
       vi.spyOn(channel, 'unmute').mockRejectedValueOnce(new Error('unmute failed'));
       const addSpy = vi.spyOn(client.notifications, 'add');
 
@@ -204,7 +211,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('marks the mute button busy via aria-disabled/aria-busy (not native disabled) while in flight', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      const p = Promise.withResolvers<StreamResponse<MuteChannelResponse>>();
       vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
 
       act(() => {
@@ -239,7 +246,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('keeps focus on the quick mute button throughout the request (never blurs)', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      const p = Promise.withResolvers<StreamResponse<MuteChannelResponse>>();
       vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
 
       act(() => {
@@ -270,7 +277,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('ignores re-activation while a request is in flight', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      const p = Promise.withResolvers<StreamResponse<MuteChannelResponse>>();
       const muteSpy = vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
 
       act(() => {
@@ -301,7 +308,7 @@ describe('ChannelListItemActionButtons defaults', () => {
 
     it('collapses two same-tick activations into a single request', async () => {
       const { channel, client } = await setupTwoMemberGroupChannel();
-      const p = Promise.withResolvers<MuteChannelAPIResponse>();
+      const p = Promise.withResolvers<StreamResponse<MuteChannelResponse>>();
       const muteSpy = vi.spyOn(channel, 'mute').mockReturnValue(p.promise);
 
       act(() => {
@@ -566,7 +573,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       // Simulate archived state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
-        archived_at: '2024-01-01T00:00:00Z',
+        archived_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
       });
       vi.spyOn(channel, 'unarchive').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');
@@ -671,7 +678,7 @@ describe('ChannelListItemActionButtons defaults', () => {
       // Simulate pinned state
       channel.state.membership = fromPartial({
         ...channel.state.membership,
-        pinned_at: '2024-01-01T00:00:00Z',
+        pinned_at: convertDateToTimestamp('2024-01-01T00:00:00Z'),
       });
       vi.spyOn(channel, 'unpin').mockResolvedValue(fromPartial({}));
       const addSpy = vi.spyOn(client.notifications, 'add');

@@ -1,12 +1,13 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { ComputeItemKey, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
-import type { Thread, ThreadManager, ThreadManagerState } from 'stream-chat';
+import type { Thread, ThreadManagerState } from 'stream-chat';
 
 import { useVirtualizedListboxKeyboardNavigation } from '../../../a11y/hooks/useVirtualizedListboxKeyboardNavigation';
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
 import { ThreadListEmptyPlaceholder as DefaultThreadListEmptyPlaceholder } from './ThreadListEmptyPlaceholder';
 import { ThreadListUnseenThreadsBanner as DefaultThreadListUnseenThreadsBanner } from './ThreadListUnseenThreadsBanner';
+import { useThreadHighlighting } from './useThreadHighlighting';
 import { ThreadListLoadingIndicator as DefaultThreadListLoadingIndicator } from './ThreadListLoadingIndicator';
 import { LoadingChannels } from '../../Loading';
 import { NotificationList } from '../../Notifications';
@@ -33,6 +34,21 @@ export const useThreadList = () => {
   const { client } = useChatContext();
 
   useEffect(() => {
+    // Reset derived pagination inputs before initial reload so the first mount requests
+    // the default first page size, rather than a limit inferred from cached/unseen threads.
+    const { pagination } = client.threads.state.getLatestValue();
+    client.threads.state.partialNext({
+      isThreadOrderStale: false,
+      pagination: {
+        ...pagination,
+        nextCursor: null,
+      },
+      ready: false,
+      threads: [],
+      unseenThreadIds: [],
+    });
+    void client.threads.reload({ force: true });
+
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         client.threads.activate();
@@ -52,44 +68,9 @@ export const useThreadList = () => {
   }, [client]);
 };
 
-const useThreadHighlighting = (threadManager: ThreadManager) => {
-  const [threadsToHighlight, setThreadsToHighlight] = useState<
-    Record<string, () => void>
-  >({});
-
-  useEffect(() => {
-    const unsubscribe = threadManager.state.subscribeWithSelector(
-      (state) => state.threads,
-      (nextThreads, previousThreads) => {
-        if (!previousThreads) return;
-
-        const resetByThreadId: Record<string, () => void> = {};
-
-        for (const thread of nextThreads) {
-          if (previousThreads.includes(thread)) continue;
-
-          resetByThreadId[thread.id] = () => {
-            setThreadsToHighlight((pv) => {
-              const copy = { ...pv };
-              delete copy[thread.id];
-              return copy;
-            });
-          };
-        }
-
-        setThreadsToHighlight(resetByThreadId);
-      },
-    );
-
-    return unsubscribe;
-  });
-
-  return threadsToHighlight;
-};
-
 export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
   const { client } = useChatContext();
-  const { t } = useTranslationContext('ThreadList');
+  const { t } = useTranslationContext();
   const {
     NotificationList: NotificationListFromContext = NotificationList,
     ThreadListEmptyPlaceholder = DefaultThreadListEmptyPlaceholder,
@@ -139,7 +120,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
       {/* TODO: allow re-load on stale ThreadManager state */}
       <ThreadListUnseenThreadsBanner />
       <Virtuoso
-        aria-label={t('aria/Thread list')}
+        aria-label={t('threadList.threadList.ariaLabel', 'Thread list')}
         atBottomStateChange={(atBottom) => atBottom && client.threads.loadNextPage()}
         className='str-chat__thread-list'
         components={{

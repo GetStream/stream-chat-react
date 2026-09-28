@@ -76,7 +76,7 @@ describe('useChannelPreviewInfo', () => {
     it('returns displayTitle from channel (via useChannelDisplayName)', async () => {
       const channelName = 'Test Channel';
       const { channel, client } = await getClientAndChannel({
-        channel: { name: channelName },
+        channel: { custom: { name: channelName } },
       });
 
       const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
@@ -86,10 +86,10 @@ describe('useChannelPreviewInfo', () => {
       expect(result.current.displayTitle).toBe(channelName);
     });
 
-    it('returns displayImage from channel.data.image', async () => {
+    it('returns displayImage from channel.data.custom.image', async () => {
       const imageUrl = 'https://channel-image.jpg';
       const { channel, client } = await getClientAndChannel({
-        channel: { image: imageUrl },
+        channel: { custom: { image: imageUrl } },
       });
 
       const { result } = renderHook(() => useChannelPreviewInfo({ channel }), {
@@ -137,7 +137,7 @@ describe('useChannelPreviewInfo', () => {
 
     it('uses overrideTitle over channel display title', async () => {
       const { channel, client } = await getClientAndChannel({
-        channel: { name: 'Channel Name' },
+        channel: { custom: { name: 'Channel Name' } },
       });
 
       const { result } = renderHook(
@@ -150,7 +150,7 @@ describe('useChannelPreviewInfo', () => {
 
     it('uses overrideImage over channel display image', async () => {
       const { channel, client } = await getClientAndChannel({
-        channel: { image: 'https://channel.jpg' },
+        channel: { custom: { image: 'https://channel.jpg' } },
       });
 
       const { result } = renderHook(
@@ -164,7 +164,7 @@ describe('useChannelPreviewInfo', () => {
     it('subscribes to user.updated and updates displayImage and groupChannelDisplayInfo', async () => {
       const imageUrl = 'https://initial.jpg';
       const { channel, client } = await getClientAndChannel({
-        channel: { image: imageUrl },
+        channel: { custom: { image: imageUrl } },
       });
 
       const onSpy = vi.spyOn(client, 'on');
@@ -190,7 +190,7 @@ describe('useChannelPreviewInfo', () => {
 
     it('does not subscribe to user.updated for image when overrideImage is set', async () => {
       const { channel, client } = await getClientAndChannel({
-        channel: { image: 'https://channel.jpg' },
+        channel: { custom: { image: 'https://channel.jpg' } },
       });
 
       const onSpy = vi.spyOn(client, 'on');

@@ -2,13 +2,12 @@ import type { LocalMessage, MessageResponse, MessageSearchSource } from 'stream-
 import React, { useCallback, useMemo } from 'react';
 
 import {
-  useChannelActionContext,
-  useChatContext,
   useComponentContext,
   useModalContext,
   useTranslationContext,
 } from '../../../../context';
-import { getDateString, isDate } from '../../../../i18n/utils';
+import { useChatViewNavigation } from '../../../SlotLayout';
+import { getDateString } from '../../../../i18n/utils';
 import { Avatar as DefaultAvatar } from '../../../../components/Avatar';
 import { extractDisplayInfo as defaultExtractDisplayInfo } from '../../../../components/Avatar/utils';
 import { ListItemLayout } from '../../../../components/ListItemLayout';
@@ -25,15 +24,18 @@ import { PinnedMessagesEmptyList } from './PinnedMessagesEmptyList';
 import { usePinnedMessagesSearch } from './usePinnedMessagesSearch';
 import { useChannelDetailContext } from '../../ChannelDetailContext';
 import { ChannelDetailEmptyList } from '../../ChannelDetailEmptyList';
+import { convertTimestampToDate } from 'stream-chat';
 
 type PinnedMessage = MessageResponse | LocalMessage;
 
 const computeItemKey = (_: number, message: PinnedMessage) => message.id;
 
-const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) => {
-  if (!timestamp) return undefined;
-  return isDate(timestamp) ? timestamp.toISOString() : timestamp;
-};
+/**
+ * A wire timestamp as an ISO string, for `getDateString` and the `dateTime` attribute. `convertTimestampToDate`
+ * rather than `new Date`: a nanosecond value is out of Date's range.
+ */
+const normalizeTimestamp = (timestamp: PinnedMessage['created_at']) =>
+  timestamp == null ? undefined : convertTimestampToDate(timestamp)?.toISOString();
 
 const getPinnedMessagePreview = (
   message: PinnedMessage,
@@ -46,11 +48,14 @@ const getPinnedMessagePreview = (
   const attachmentPreview =
     attachment?.title || attachment?.text || attachment?.fallback || attachment?.type;
 
-  return attachmentPreview || t('Pinned message');
+  return (
+    attachmentPreview ||
+    t('channelDetail.pinnedMessagesView.pinnedMessage.label', 'Pinned message')
+  );
 };
 
 const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
-  const { t, tDateTimeParser } = useTranslationContext('PinnedMessageDate');
+  const { t, tDateTimeParser } = useTranslationContext();
   const normalizedTimestamp = normalizeTimestamp(message.created_at);
 
   const when = useMemo(
@@ -59,7 +64,7 @@ const PinnedMessageDate = ({ message }: { message: PinnedMessage }) => {
         messageCreatedAt: normalizedTimestamp,
         t,
         tDateTimeParser,
-        timestampTranslationKey: 'timestamp/ChannelDetailPinnedMessageTimestamp',
+        timestampTranslationKey: 'timestamp.ChannelDetailPinnedMessageTimestamp',
       }),
     [normalizedTimestamp, t, tDateTimeParser],
   );
@@ -135,11 +140,9 @@ export type PinnedMessagesViewProps = SectionNavigatorSectionContentProps & {
 export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = ({
   searchSource,
 }) => {
-  const { setActiveChannel } = useChatContext();
+  const { open } = useChatViewNavigation();
   const { t } = useTranslationContext();
   const { close } = useModalContext();
-  // fixme: it is not right to couple the ChannelDetail view with Channel component. We need to have access to channel.messagePaginator.jumpToMessage()
-  const { jumpToMessage } = useChannelActionContext();
   const { channel } = useChannelDetailContext();
   const {
     displayedMessages,
@@ -151,11 +154,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
 
   const handleSelectMessage = useCallback(
     (message: PinnedMessage) => {
-      setActiveChannel(channel);
-      jumpToMessage(message.id);
+      // Selection is one navigation model: open the channel into a layout slot.
+      open({ key: channel.cid ?? undefined, kind: 'channel', source: channel });
+      // MERGE-RECONCILE: the deleted ChannelActionContext.jumpToMessage was replaced by the
+      // channel's messagePaginator (PR #2909 / stream-chat message-paginator API).
+      void channel.messagePaginator.jumpToMessage(message.id);
       close();
     },
-    [channel, close, jumpToMessage, setActiveChannel],
+    [channel, close, open],
   );
 
   const renderItem = useCallback(
@@ -171,7 +177,12 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
         if (!hasPinnedMessages) return <PinnedMessagesEmptyList />;
         if (hasSearchResultsLoaded)
           return (
-            <ChannelDetailEmptyList>{t('No messages found')}</ChannelDetailEmptyList>
+            <ChannelDetailEmptyList>
+              {t(
+                'channelDetail.pinnedMessagesView.noMessagesFound.text',
+                'No messages found',
+              )}
+            </ChannelDetailEmptyList>
           );
         return null;
       },
@@ -192,8 +203,14 @@ export const PinnedMessagesView: React.ComponentType<PinnedMessagesViewProps> = 
     <div className='str-chat__channel-detail__pinned-messages-view'>
       <SectionNavigatorHeader
         close={close}
-        description={t('Browse pinned messages')}
-        title={t('Pinned messages')}
+        description={t(
+          'channelDetail.pinnedMessagesView.browsePinnedMessages.description',
+          'Browse pinned messages',
+        )}
+        title={t(
+          'channelDetail.pinnedMessagesView.pinnedMessages.title',
+          'Pinned messages',
+        )}
       />
       <Prompt.Body className='str-chat__channel-detail__pinned-messages-view__body'>
         {hasPinnedMessages && (

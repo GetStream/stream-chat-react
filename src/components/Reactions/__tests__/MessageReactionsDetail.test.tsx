@@ -28,6 +28,7 @@ import { useProcessReactions } from '../hooks/useProcessReactions';
 
 import type { ReactionGroupResponse, ReactionResponse } from 'stream-chat';
 import type { ReactionsComparator } from '../types';
+import { mockT } from '../../../mock-builders/translator';
 
 const generateReactionsFromReactionGroups = (
   reactionGroups: Record<string, Pick<ReactionGroupResponse, 'count'>>,
@@ -81,11 +82,7 @@ const MessageReactionsDetailWrapper = ({
 
 const chatClient = getTestClient();
 
-const mockTranslation = (key: string, options?: Record<string, unknown>) =>
-  Object.entries(options || {}).reduce(
-    (value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)),
-    key,
-  );
+const mockTranslation = mockT;
 
 const renderComponent = ({
   handleFetchReactions,
@@ -109,11 +106,6 @@ const renderComponent = ({
   );
 
 describe('MessageReactionsDetail', () => {
-  beforeEach(() => {
-    // disable warnings (unreachable context)
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -229,7 +221,7 @@ describe('MessageReactionsDetail', () => {
     });
 
     // total count is 7
-    expect(getByText('{{ count }} reactions')).toBeInTheDocument();
+    expect(getByText('7 reactions')).toBeInTheDocument();
   });
 
   it('should use custom reaction details comparator if provided', async () => {
@@ -283,7 +275,7 @@ describe('MessageReactionsDetail', () => {
     await waitFor(() => {
       expect(addNotificationSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: 'Error fetching reactions',
+          message: 'Error loading reactions',
           options: expect.objectContaining({
             originalError: fetchError,
             severity: 'error',

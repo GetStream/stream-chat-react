@@ -2,6 +2,7 @@ import React from 'react';
 import { useComponentContextIcons, useTranslationContext } from '../../context';
 import { useStateStore } from '../../store';
 import type { Reminder, ReminderState } from 'stream-chat';
+import { nsToDate, nsToMs } from 'stream-chat';
 
 export type ReminderNotificationProps = {
   reminder?: Reminder;
@@ -17,7 +18,7 @@ function SavedForLaterContent() {
   return (
     <div className='str-chat__message-saved-for-later'>
       <IconBookmark />
-      <span>{t('Saved for later')}</span>
+      <span>{t('common.savedLater.text', 'Saved for later')}</span>
     </div>
   );
 }
@@ -30,18 +31,20 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
   const { timeLeftMs } = useStateStore(reminder?.state, reminderStateSelector) ?? {};
 
   const stopRefreshBoundaryMs = reminder?.timer.stopRefreshBoundaryMs;
+  // Nullish, not truthy: `remindAt` is unix nanoseconds and `0` is a legitimate value (the epoch),
+  // so a truthiness guard leaves an overdue epoch reminder with no refresh boundary at all.
   const stopRefreshTimeStamp =
-    reminder?.remindAt && stopRefreshBoundaryMs
-      ? reminder.remindAt.getTime() + stopRefreshBoundaryMs
+    reminder?.remindAt != null && stopRefreshBoundaryMs != null
+      ? nsToMs(reminder.remindAt) + stopRefreshBoundaryMs
       : undefined;
 
   const isBehindRefreshBoundary =
-    !!stopRefreshTimeStamp && new Date().getTime() > stopRefreshTimeStamp;
+    stopRefreshTimeStamp != null && new Date().getTime() > stopRefreshTimeStamp;
 
-  if (timeLeftMs === null || !reminder.remindAt) return null;
+  if (timeLeftMs === null || reminder.remindAt == null) return null;
 
   const nowMs = Date.now();
-  const remindAtMs = reminder.remindAt.getTime();
+  const remindAtMs = nsToMs(reminder.remindAt);
   const diffMs = remindAtMs - nowMs;
   const diffMinutes = Math.abs(diffMs) / (60 * 1000);
   const useAbsoluteFormat = diffMinutes > THRESHOLD_RELATIVE_MINUTES;
@@ -52,32 +55,41 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
       if (useAbsoluteFormat) {
         // > 59 min ago: calendar + time (same as DateSeparator + HH:mm)
         // e.g. "Due since Today at 15:00", "Due since Yesterday at 09:30"
-        return t('Due since {{ dueSince }}', {
-          dueSince: t('timestamp/ReminderNotification', {
-            timestamp: reminder.remindAt,
-          }),
-        });
+        return t(
+          'message.reminderNotification.dueSince.label',
+          'Due since {{ dueSince }}',
+          {
+            dueSince: t('timestamp.ReminderNotification', {
+              timestamp:
+                reminder.remindAt != null ? nsToDate(reminder.remindAt) : undefined,
+            }),
+          },
+        );
       }
       // Within 59 min ago: relative
       // e.g. "Due since 5 minutes ago", "Due since a minute ago"
-      return t('Due since {{ dueSince }}', {
-        dueSince: t('duration/Message reminder', {
-          milliseconds: diffMs,
-        }),
-      });
+      return t(
+        'message.reminderNotification.dueSince.label',
+        'Due since {{ dueSince }}',
+        {
+          dueSince: t('duration.messageReminder', {
+            milliseconds: diffMs,
+          }),
+        },
+      );
     }
     // Future: reminder not yet due
     if (useAbsoluteFormat) {
       // > 59 min from now: calendar + time (no "Due" prefix)
       // e.g. "Today at 15:00", "Tomorrow at 09:30"
-      return t('timestamp/ReminderNotification', {
-        timestamp: reminder.remindAt,
+      return t('timestamp.ReminderNotification', {
+        timestamp: reminder.remindAt != null ? nsToDate(reminder.remindAt) : undefined,
       });
     }
     // Within 59 min from now: relative
     // e.g. "Due in 30 minutes", "Due in a minute"
-    return t('Due {{ timeLeft }}', {
-      timeLeft: t('duration/Message reminder', {
+    return t('message.reminderNotification.due.label', 'Due {{ timeLeft }}', {
+      timeLeft: t('duration.messageReminder', {
         milliseconds: timeLeftMs,
       }),
     });
@@ -86,7 +98,7 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
   return (
     <p className='str-chat__message-reminder'>
       <IconBell />
-      <span>{t('Reminder set')}</span>
+      <span>{t('common.reminderSet.text', 'Reminder set')}</span>
       <span> · </span>
       <span className='str-chat__message-reminder__time-left'>{renderTime()}</span>
     </p>
@@ -96,7 +108,9 @@ function RemindMeContent({ reminder }: { reminder: Reminder }) {
 export const ReminderNotification = ({ reminder }: ReminderNotificationProps) => {
   if (!reminder) return null;
 
-  if (!reminder.remindAt) {
+  // Nullish, not truthy: `remindAt` is `null` only when the message is saved for later without a
+  // deadline. `0` is a real deadline (the epoch) and must render as an overdue reminder.
+  if (reminder.remindAt == null) {
     return <SavedForLaterContent />;
   }
 

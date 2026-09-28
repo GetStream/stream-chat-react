@@ -5,7 +5,7 @@ import {
   usePollContext,
   useTranslationContext,
 } from '../../../../context';
-import type { PollOption, PollState } from 'stream-chat';
+import type { PollOptionResponseData, PollState } from 'stream-chat';
 
 type PollStateSelectorReturnValue = {
   maxVotedOptionIds: string[];
@@ -24,7 +24,6 @@ export const PollResultOptionVoteCounter = ({
   optionId,
 }: PollResultOptionVoteCounterProps) => {
   const { IconTrophy } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const { poll } = usePollContext();
   const { maxVotedOptionIds, vote_counts_by_option } = useStateStore(
@@ -38,14 +37,18 @@ export const PollResultOptionVoteCounter = ({
         <IconTrophy />
       )}
       <span className='str-chat__poll-result-option-vote-count'>
-        {t('{{count}} votes', { count: vote_counts_by_option[optionId] ?? 0 })}
+        {t('poll.optionVotes.votes.text', {
+          count: vote_counts_by_option[optionId] ?? 0,
+          defaultValue_one: '{{count}} vote',
+          defaultValue_other: '{{count}} votes',
+        })}
       </span>
     </div>
   );
 };
 
 export type PollOptionWithVotesHeaderProps = {
-  option: PollOption;
+  option: PollOptionResponseData;
   optionOrderNumber: number;
 };
 
@@ -58,7 +61,9 @@ export const PollOptionWithVotesHeader = ({
   return (
     <div className='str-chat__poll-option__header'>
       <div className='str-chat__poll-option__header__label'>
-        {t('Question {{ optionOrderNumber}}', { optionOrderNumber })}
+        {t('poll.optionVotes.question.text', 'Question {{ optionOrderNumber}}', {
+          optionOrderNumber,
+        })}
       </div>
       <div className='str-chat__poll-option__header__title'>
         <div className='str-chat__poll-option__option-text'>{option.text}</div>

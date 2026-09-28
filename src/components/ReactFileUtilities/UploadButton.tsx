@@ -37,7 +37,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   }: PartialSelected<FileInputProps, 'onFileChange'>,
   ref: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { t } = useTranslationContext('UploadFileInput');
+  const { t } = useTranslationContext();
   const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
   const { attachmentManager } = messageComposer;
@@ -59,7 +59,7 @@ export const UploadFileInput = forwardRef(function UploadFileInput(
   return (
     <FileInput
       accept={acceptedFiles?.join(',')}
-      aria-label={t('aria/File upload')}
+      aria-label={t('fileUpload.uploadButton.fileUpload.ariaLabel', 'File upload')}
       data-testid='file-input'
       id={id}
       multiple={maxNumberOfFilesPerMessage > 1}

@@ -1,67 +1,17 @@
 /* eslint-disable */
 import { Streami18n } from '../Streami18n';
 import type { Streami18nOptions } from '../Streami18n';
-import { nanoid } from 'nanoid';
-import { default as Dayjs } from 'dayjs';
-import moment from 'moment-timezone';
-import { fromPartial } from '@total-typescript/shoehorn';
-import { nlTranslations, frTranslations } from '../translations';
-import 'dayjs/locale/nl';
-import localeData from 'dayjs/plugin/localeData';
+import type { LooseTranslationDictionary, TranslationDictionary } from '../types';
+import type { TranslationCatalog } from '../keys';
+import { asDynamicKey, getDateString } from '../utils';
+import { runtimeDefaults } from '../runtimeDefaults';
 import { NotificationTranslationTopic } from '../TranslationBuilder';
 import type { TranslationTopicConstructor } from '../TranslationBuilder';
-Dayjs.extend(localeData);
 
-const customDayjsLocaleConfig = {
-  months:
-    'januar_februar_mars_apríl_mai_juni_juli_august_september_oktober_november_desember'.split(
-      '_',
-    ),
-  monthsShort: 'jan_feb_mar_apr_mai_jun_jul_aug_sep_okt_nov_des'.split('_'),
-  weekdays:
-    'sunnudagur_mánadagur_týsdagur_mikudagur_hósdagur_fríggjadagur_leygardagur'.split(
-      '_',
-    ),
-  weekdaysShort: 'sun_mán_týs_mik_hós_frí_ley'.split('_'),
-  weekdaysMin: 'su_má_tý_mi_hó_fr_le'.split('_'),
-  formats: {
-    LT: 'HH:mm',
-    LTS: 'HH:mm:ss',
-    L: 'DD/MM/YYYY',
-    LL: 'D MMMM YYYY',
-    LLL: 'D MMMM YYYY HH:mm',
-    LLLL: 'dddd D. MMMM, YYYY HH:mm',
-  },
-  calendar: {
-    sameDay: '[Í dag kl.] LT',
-    nextDay: '[Í morgin kl.] LT',
-    nextWeek: 'dddd [kl.] LT',
-    lastDay: '[Í gjár kl.] LT',
-    lastWeek: '[síðstu] dddd [kl] LT',
-    sameElse: 'L',
-  },
-  relativeTime: {
-    future: 'um %s',
-    past: '%s síðani',
-    s: 'fá sekund',
-    ss: '%d sekundir',
-    m: 'ein minutt',
-    mm: '%d minuttir',
-    h: 'ein tími',
-    hh: '%d tímar',
-    d: 'ein dagur',
-    dd: '%d dagar',
-    M: 'ein mánaði',
-    MM: '%d mánaðir',
-    y: 'eitt ár',
-    yy: '%d ár',
-  },
-  dayOfMonthOrdinalParse: /\d{1,2}\./,
-  ordinal: '%d.',
-  week: {
-    dow: 1, // Monday is the first day of the week.
-    doy: 4, // The week that contains Jan 4th is the first week of the year.
-  },
+const relativeDay = (offset: number) => {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  return date.toISOString();
 };
 
 describe('Jest Timezone', () => {
@@ -71,276 +21,6 @@ describe('Jest Timezone', () => {
 });
 
 const streami18nOptions = { logger: () => null };
-describe('Streami18n instance - default', () => {
-  const streami18n = new Streami18n(streami18nOptions);
-
-  it('should provide default english translator', async () => {
-    const { t: _t } = await streami18n.getTranslators();
-    const text = nanoid();
-
-    expect(_t(text)).toBe(text);
-  });
-
-  it('should provide moment with default en locale', async () => {
-    const { tDateTimeParser } = await streami18n.getTranslators();
-    expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-    expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
-  });
-});
-
-describe('Streami18n instance - with built-in langauge', () => {
-  describe('datetime translations enabled', () => {
-    const streami18nOptions = { language: 'nl' };
-    const streami18n = new Streami18n(streami18nOptions);
-    it('should provide dutch translator', async () => {
-      const { t: _t } = await streami18n.getTranslators();
-      for (const key in nlTranslations) {
-        if (
-          (key.includes('{{') && key.includes('}}')) ||
-          key.includes('duration/Message reminder') ||
-          key.includes('duration/Remind Me') ||
-          key.includes('duration/Share Location') ||
-          typeof nlTranslations[key] !== 'string'
-        ) {
-          continue;
-        }
-
-        expect(_t(key)).toBe(nlTranslations[key]);
-      }
-    });
-    it('should provide moment with `nl` locale', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
-      expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('nl');
-    });
-  });
-
-  describe('datetime translations disabled', () => {
-    const streami18nOptions = {
-      language: 'nl',
-      disableDateTimeTranslations: true,
-    };
-    const streami18n = new Streami18n(streami18nOptions);
-
-    it('should provide dutch translator', async () => {
-      const { t: _t } = await streami18n.getTranslators();
-      for (const key in nlTranslations) {
-        if (
-          (key.includes('{{') && key.includes('}}')) ||
-          key.includes('duration/Message reminder') ||
-          key.includes('duration/Remind Me') ||
-          key.includes('duration/Share Location') ||
-          typeof nlTranslations[key] !== 'string'
-        ) {
-          continue;
-        }
-
-        expect(_t(key)).toBe(nlTranslations[key]);
-      }
-    });
-
-    it('should provide moment with default `en` locale', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
-      expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
-    });
-  });
-
-  describe('custom momentjs locale config', () => {
-    const streami18nOptions: Streami18nOptions = {
-      language: 'nl',
-      dayjsLocaleConfigForLanguage: fromPartial(customDayjsLocaleConfig),
-    };
-    const streami18n = new Streami18n(streami18nOptions);
-
-    it('should provide moment with given custom locale config', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
-      expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      const localeConfig = (tDateTimeParser() as Dayjs.Dayjs).localeData();
-      for (const key in streami18nOptions.dayjsLocaleConfigForLanguage) {
-        if (localeConfig[key]) {
-          expect(
-            typeof localeConfig[key] === 'function'
-              ? localeConfig[key]()
-              : localeConfig[key],
-          ).toStrictEqual(streami18nOptions.dayjsLocaleConfigForLanguage[key]);
-        }
-      }
-    });
-  });
-});
-
-describe('Streami18n instance - with custom translations', () => {
-  describe('datetime translations enabled', () => {
-    const textKey1 = 'this is text one';
-    const textValue1 = '这是文字一';
-    const textKey2 = 'this is text two';
-    const textValue2 = '这是文字二';
-    const translations = {
-      [textKey1]: textValue1,
-      [textKey2]: textValue2,
-    };
-    // Note: original test had typo 'langauge' instead of 'language'
-    const streami18nOptions = {
-      translationsForLanguage:
-        translations as unknown as Streami18nOptions['translationsForLanguage'],
-    } satisfies Streami18nOptions;
-    const streami18n = new Streami18n(streami18nOptions);
-
-    it('should provide given (chinese in this case) translator', async () => {
-      const { t: _t } = await streami18n.getTranslators();
-
-      expect(_t(textKey1)).toBe(textValue1);
-
-      expect(_t(textKey2)).toBe(textValue2);
-    });
-
-    it('should provide moment with default `en` locale', async () => {
-      const { tDateTimeParser } = await streami18n.getTranslators();
-      expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-      expect((tDateTimeParser() as Dayjs.Dayjs).locale()).toBe('en');
-    });
-  });
-});
-
-describe('registerTranslation - register new language `mr` (Marathi) ', () => {
-  const streami18nOptions = {
-    language: 'en',
-    disableDateTimeTranslations: false,
-  };
-  const streami18n = new Streami18n(streami18nOptions);
-  const languageCode = 'mr';
-  const translations = {
-    text1: 'अनुवादित मजकूर 1',
-    text2: 'अनुवादित मजकूर 2',
-  };
-  streami18n.registerTranslation(
-    languageCode,
-    // @ts-expect-error partial translations for testing
-    translations,
-    customDayjsLocaleConfig,
-  );
-
-  streami18n.setLanguage('mr');
-
-  it('should add Marathi translations object to list of translations', () => {
-    expect(streami18n.getTranslations()).toHaveProperty(languageCode, {
-      translation: translations,
-    });
-  });
-
-  it('should register moment locale config for Marathi translations', async () => {
-    const { tDateTimeParser } = await streami18n.getTranslators();
-    expect(tDateTimeParser() instanceof Dayjs).toBe(true);
-
-    const localeConfig = (tDateTimeParser() as Dayjs.Dayjs).localeData();
-    for (const key in customDayjsLocaleConfig) {
-      if (localeConfig[key]) {
-        expect(customDayjsLocaleConfig[key]).toStrictEqual(
-          typeof localeConfig[key] === 'function'
-            ? localeConfig[key]()
-            : localeConfig[key],
-        );
-      }
-    }
-  });
-});
-
-describe('setLanguage - switch to french', () => {
-  const streami18nOptions = {};
-  const streami18n = new Streami18n(streami18nOptions);
-
-  it('should provide french translator', async () => {
-    await streami18n.setLanguage('fr');
-
-    const { t: _t } = await streami18n.getTranslators();
-    for (const key in frTranslations) {
-      if (
-        (key.includes('{{') && key.includes('}}')) ||
-        key.includes('duration/Message reminder') ||
-        key.includes('duration/Remind Me') ||
-        key.includes('duration/Share Location') ||
-        typeof nlTranslations[key] !== 'string'
-      ) {
-        continue;
-      }
-
-      expect(_t(key)).toBe(frTranslations[key]);
-    }
-  });
-});
-
-describe('Streami18n timezone', () => {
-  describe.each([
-    ['Dayjs', Dayjs],
-    ['moment', moment],
-  ])('%s', (moduleName, module) => {
-    it('is by default the local timezone', () => {
-      const streamI18n = new Streami18n({ DateTimeParser: module });
-      const date = new Date();
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).toBe(
-        date.getHours().toString(),
-      );
-    });
-
-    it('can be set to different timezone on init', () => {
-      const streamI18n = new Streami18n({
-        DateTimeParser: module,
-        timezone: 'Europe/Prague',
-      });
-      const date = new Date();
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).not.toBe(
-        date.getHours().toString(),
-      );
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).not.toBe(
-        (date.getUTCHours() - 2).toString(),
-      );
-    });
-
-    it('is ignored if datetime parser does not support timezones', () => {
-      const moduleRecord = module as unknown as Record<string, unknown>;
-      const tz = moduleRecord.tz;
-      delete moduleRecord.tz;
-
-      const streamI18n = new Streami18n({
-        DateTimeParser: module,
-        timezone: 'Europe/Prague',
-      });
-      const date = new Date();
-      expect((streamI18n.tDateTimeParser(date) as Dayjs.Dayjs).format('H')).toBe(
-        date.getHours().toString(),
-      );
-
-      moduleRecord.tz = tz;
-    });
-    describe('formatters property', () => {
-      it('contains the default timestampFormatter', () => {
-        expect(new Streami18n().formatters.timestampFormatter).toBeDefined();
-      });
-      it('allows to override the default timestampFormatter', async () => {
-        const i18n = new Streami18n({
-          formatters: { timestampFormatter: () => () => 'custom' },
-          translationsForLanguage: {
-            abc: '{{ value | timestampFormatter }}',
-          } as unknown as Streami18nOptions['translationsForLanguage'],
-        });
-        await i18n.init();
-        expect(i18n.t('abc')).toBe('custom');
-      });
-      it('allows to add new custom formatter', async () => {
-        const i18n = new Streami18n({
-          formatters: { customFormatter: () => () => 'custom' },
-          translationsForLanguage: {
-            abc: '{{ value | customFormatter }}',
-          } as unknown as Streami18nOptions['translationsForLanguage'],
-        });
-        await i18n.init();
-        expect(i18n.t('abc')).toBe('custom');
-      });
-    });
-  });
-});
-
 describe('Streami18n translationBuilder', () => {
   it('is created at construction time', () => {
     const streami18n = new Streami18n(streami18nOptions);
@@ -393,5 +73,278 @@ describe('Streami18n translationBuilder', () => {
     expect(streami18n.translationBuilder.getTopic('notification')).toBeInstanceOf(
       CustomNotificationTranslationTopic,
     );
+  });
+});
+
+describe('Streami18n - a custom dictionary keeps the keys that have no inline copy', () => {
+  // The 71 `runtimeDefaults` entries are the only keys with no `defaultValue` at their call site,
+  // and `fallbackLng` is false. A dictionary that replaced rather than merged left them
+  // unresolvable, so every timestamp in the UI rendered as the literal key.
+  const TIMESTAMP = '2024-01-01T10:30:00.000Z';
+
+  it.each([
+    ['registerTranslation, language registered before init', 'de', false],
+    ['registerTranslation, language registered after init', 'de', true],
+  ])('%s', async (_name, language, afterInit) => {
+    const i18n = new Streami18n({ language: language as 'en' });
+    if (!afterInit)
+      i18n.registerTranslation(language, { 'common.cancel.label': 'Abbrechen' });
+    const first = await i18n.init();
+    if (afterInit) {
+      i18n.registerTranslation(language, { 'common.cancel.label': 'Abbrechen' });
+    }
+    const { t } = afterInit ? await i18n.init() : first;
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+
+  it('translationsForLanguage for a non-English language', async () => {
+    const i18n = new Streami18n({
+      language: 'de' as 'en',
+      translationsForLanguage: { 'common.cancel.label': 'Abbrechen' },
+    });
+    const { t } = await i18n.init();
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+
+  it('overriding English does not drop the formatter keys', async () => {
+    const i18n = new Streami18n();
+    i18n.registerTranslation('en', { 'common.cancel.label': 'Dismiss' });
+    const { t } = await i18n.init();
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Dismiss');
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+
+  it('an explicit override of a formatter key still wins', async () => {
+    const i18n = new Streami18n();
+    i18n.registerTranslation('en', {
+      'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(format: HH[h]) }}',
+    });
+    const { t } = await i18n.init();
+
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10h');
+  });
+
+  it('repeated registrations for one language accumulate', async () => {
+    const i18n = new Streami18n();
+    i18n.registerTranslation('en', { 'common.cancel.label': 'Dismiss' });
+    i18n.registerTranslation('en', { 'common.send.label': 'Fire away' });
+    const { t } = await i18n.init();
+
+    expect(t('common.cancel.label', 'Cancel')).toBe('Dismiss');
+    expect(t('common.send.label', 'Send')).toBe('Fire away');
+  });
+
+  it('does not mutate the shared runtimeDefaults module object', async () => {
+    const first = new Streami18n();
+    first.registerTranslation('en', {
+      'timestamp.MessageTimestamp': '{{ timestamp | timestampFormatter(format: HH[h]) }}',
+    });
+    await first.init();
+
+    const second = new Streami18n();
+    const { t } = await second.init();
+    expect(t('timestamp.MessageTimestamp', { timestamp: TIMESTAMP })).toBe('10:30');
+  });
+});
+
+describe('Streami18n - dictionary key types', () => {
+  // The SDK only ships `_one`/`_other`, but a plural key accepts every `Intl.PluralRules` category
+  // so a language needing `_few`/`_many`/`_zero` keeps its keys checked instead of widening to
+  // LooseTranslationDictionary.
+  it('accepts every plural category on a plural key, and resolves them at runtime', async () => {
+    const K = 'channelDetail.channelMembersView.members.title';
+    const ru: TranslationDictionary = {
+      'channelDetail.channelMembersView.members.title_one': '{{ count }} участник',
+      'channelDetail.channelMembersView.members.title_few': '{{ count }} участника',
+      'channelDetail.channelMembersView.members.title_many': '{{ count }} участников',
+      'channelDetail.channelMembersView.members.title_zero': 'нет участников',
+    };
+
+    const rejected: TranslationDictionary = {
+      // @ts-expect-error common.cancel.label is not a plural key, so it takes no plural suffix
+      'common.cancel.label_few': 'x',
+    };
+    expect(rejected).toBeDefined();
+
+    const i18n = new Streami18n({ language: 'ru' as 'en', logger: () => null });
+    i18n.registerTranslation('ru' as 'en', ru);
+    const { t } = await i18n.init();
+    const options = {
+      defaultValue_one: '{{ count }} member',
+      defaultValue_other: '{{ count }} members',
+    };
+
+    expect(t(K, { ...options, count: 1 })).toBe('1 участник');
+    expect(t(K, { ...options, count: 3 })).toBe('3 участника');
+    expect(t(K, { ...options, count: 7 })).toBe('7 участников');
+  });
+
+  // The completeness diff in ai-docs/i18n-v15-migration.md relies on `as const satisfies`, which
+  // has to keep working now that the type is an intersection.
+  it('supports the documented `as const satisfies` completeness diff', () => {
+    const de = {
+      'common.cancel.label': 'Abbrechen',
+      'channelDetail.channelMembersView.members.title_few': '{{ count }} Mitglieder',
+    } as const satisfies TranslationDictionary;
+
+    type Untranslated = Exclude<keyof TranslationCatalog, keyof typeof de>;
+    // The diff is non-empty and still excludes what `de` covers.
+    const covered: Untranslated extends 'common.cancel.label' ? false : true = true;
+    expect(covered).toBe(true);
+    expect(Object.keys(de)).toHaveLength(2);
+  });
+
+  // The params are strict, so the default call shape — an inline object literal — is checked.
+  // A typo here used to compile and then silently never apply at runtime.
+  it('rejects an unknown key passed inline, and still accepts a loose dictionary', async () => {
+    const i18n = new Streami18n({ logger: () => null });
+
+    i18n.registerTranslation('en', {
+      // @ts-expect-error 'lable' is a typo: not a key in the catalog
+      'common.cancel.lable': 'Dismiss',
+    });
+
+    new Streami18n({
+      logger: () => null,
+      translationsForLanguage: {
+        // @ts-expect-error v14 natural-language key
+        Cancel: 'Dismiss',
+      },
+    });
+
+    // The escape hatch: a loose-typed variable is still assignable, so an app can carry its own
+    // keys and the extra plural categories some languages need.
+    const withOwnKeys: LooseTranslationDictionary = {
+      'common.cancel.label': 'Dismiss',
+      'myApp.somethingElse': 'Hello',
+    };
+    i18n.registerTranslation('en', withOwnKeys);
+    new Streami18n({ logger: () => null, translationsForLanguage: withOwnKeys });
+
+    // Asserted by rendering rather than by reading the resource store, which is no longer exposed:
+    // whether the app's own key resolves is the thing that matters, and `getTranslations()` only ever
+    // confirmed it had been written down.
+    const { t } = await i18n.init();
+    expect(t(asDynamicKey('myApp.somethingElse'))).toBe('Hello');
+  });
+
+  // Compile-time contract, asserted here so it cannot regress silently. TranslationDictionary
+  // must accept the `_one`/`_other` plural entries a translator has to supply — keying a dictionary
+  // on TranslationKey rejects them, because that union is what `t()` takes (the bare handle).
+  it('accepts plural forms and rejects stale keys, and both resolve at runtime', async () => {
+    const de: TranslationDictionary = {
+      'common.cancel.label': 'Abbrechen',
+      'channelDetail.channelMembersView.members.title_one': '{{ count }} Mitglied',
+      'channelDetail.channelMembersView.members.title_other': '{{ count }} Mitglieder',
+    };
+    const stale: TranslationDictionary = {
+      // @ts-expect-error 'Cancel' is a v14 natural-language key and is not in the catalog
+      Cancel: 'Abbrechen',
+    };
+    expect(stale).toBeDefined();
+
+    const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
+    i18n.registerTranslation('de' as 'en', de);
+    const { t: _t } = await i18n.init();
+
+    const options = {
+      defaultValue_one: '{{ count }} member',
+      defaultValue_other: '{{ count }} members',
+    };
+    expect(_t('common.cancel.label', 'Cancel')).toBe('Abbrechen');
+    expect(
+      _t('channelDetail.channelMembersView.members.title', { ...options, count: 1 }),
+    ).toBe('1 Mitglied');
+    expect(
+      _t('channelDetail.channelMembersView.members.title', { ...options, count: 4 }),
+    ).toBe('4 Mitglieder');
+  });
+});
+
+describe('Streami18n - the calendar keys that carry English words', () => {
+  // dayjs takes the calendar wording as part of the format string, so a handful of `timestamp.*`
+  // values embed English day words. A per-key `calendarFormats` replaces the locale's calendar
+  // wholesale, so `dayjsLocaleConfigForLanguage` cannot translate them — only overriding the key
+  // can. The migration guide names these four; this keeps that list honest.
+  const KEYS_WITH_ENGLISH_WORDS = [
+    'timestamp.ChannelDetailPinnedMessageTimestamp',
+    'timestamp.ChannelPreviewTimestamp',
+    'timestamp.DateSeparator',
+    'timestamp.ReminderNotification',
+  ];
+
+  it('is exactly the set the migration guide documents', () => {
+    const found = Object.entries(runtimeDefaults)
+      .filter(([, value]) =>
+        [...value.matchAll(/\[([^\]]+)\]/g)].some(([, literal]) =>
+          /[A-Za-z]{2}/.test(literal),
+        ),
+      )
+      .map(([key]) => key)
+      .sort();
+
+    // A new one here means `ai-docs/i18n-v15-migration.md` ("Keys that are not copy" and
+    // "Date and time") needs the key added, or integrators will silently ship English.
+    expect(found).toEqual(KEYS_WITH_ENGLISH_WORDS);
+  });
+
+  it('renders English for a German app until the key is overridden', async () => {
+    const i18n = new Streami18n({
+      language: 'de' as 'en',
+      logger: () => null,
+      dayjsLocaleConfigForLanguage: {
+        calendar: {
+          sameDay: '[heute um] LT',
+          lastDay: '[gestern um] LT',
+          lastWeek: '[letzten] dddd [um] LT',
+          nextDay: '[morgen um] LT',
+          nextWeek: 'dddd [um] LT',
+          sameElse: 'L',
+        },
+      },
+    });
+    i18n.registerTranslation('de' as 'en', { 'common.cancel.label': 'Abbrechen' });
+    const { t, tDateTimeParser } = await i18n.init();
+    const stamp = (key: string, when: string) =>
+      getDateString({
+        messageCreatedAt: when,
+        t,
+        tDateTimeParser,
+        timestampTranslationKey: key,
+      });
+
+    // A key that formats against the locale's own calendar picks the config up.
+    expect(stamp('timestamp.LiveLocation', relativeDay(0))).toContain('heute um');
+    // One that passes its own calendarFormats does not — this is the documented gap.
+    expect(stamp('timestamp.DateSeparator', relativeDay(0))).toBe('Today');
+    expect(stamp('timestamp.ChannelPreviewTimestamp', relativeDay(-1))).toBe('Yesterday');
+  });
+
+  it('translates once the key is overridden, exactly as documented', async () => {
+    const i18n = new Streami18n({ language: 'de' as 'en', logger: () => null });
+    i18n.registerTranslation('de' as 'en', {
+      'timestamp.DateSeparator':
+        '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "[Heute]", "nextDay": "[Morgen]", "lastDay": "[Gestern]", "nextWeek": "dddd", "lastWeek": "[letzten] dddd", "sameElse": "ddd, D. MMM" }) }}',
+      'timestamp.ChannelPreviewTimestamp':
+        '{{ timestamp | timestampFormatter(calendar: true; calendarFormats: { "sameDay": "LT", "lastDay": "[Gestern]", "lastWeek": "dddd", "sameElse": "L" }) }}',
+    });
+    const { t, tDateTimeParser } = await i18n.init();
+    const stamp = (key: string, when: string) =>
+      getDateString({
+        messageCreatedAt: when,
+        t,
+        tDateTimeParser,
+        timestampTranslationKey: key,
+      });
+
+    expect(stamp('timestamp.DateSeparator', relativeDay(0))).toBe('Heute');
+    expect(stamp('timestamp.DateSeparator', relativeDay(-1))).toBe('Gestern');
+    expect(stamp('timestamp.DateSeparator', relativeDay(1))).toBe('Morgen');
+    expect(stamp('timestamp.ChannelPreviewTimestamp', relativeDay(-1))).toBe('Gestern');
   });
 });

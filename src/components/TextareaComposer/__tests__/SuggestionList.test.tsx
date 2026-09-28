@@ -32,7 +32,25 @@ vi.mock('../../../context', async (importOriginal) => ({
     textareaRef: { current: null },
   }),
   useTranslationContext: () => ({
-    t: (key: string) => key,
+    t: (key: string, second?: unknown, third?: unknown) => {
+      const defaultValue = typeof second === 'string' ? second : undefined;
+      const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+        string,
+        unknown
+      >;
+      let template = defaultValue;
+      if (template === undefined && typeof options.count === 'number') {
+        template = (
+          options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+        ) as string | undefined;
+      }
+      template ??= options.defaultValue as string | undefined;
+      template ??= key;
+      return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+        const value = options[name];
+        return value === undefined || value === null ? whole : String(value);
+      });
+    },
   }),
 }));
 
@@ -152,7 +170,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'aria/Mention Suggestions', // mentions → localized type label (t mock returns the key)
+      suggestionsLabel: 'Mention Suggestions', // mentions → localized type label (t mock returns the key)
     });
   });
 
@@ -161,7 +179,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'aria/Mention Suggestions',
+      suggestionsLabel: 'Mention Suggestions',
     });
 
     fakeComposerState = buildState(1);
@@ -173,7 +191,7 @@ describe('SuggestionList', () => {
 
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 1,
-      suggestionsLabel: 'aria/Mention Suggestions',
+      suggestionsLabel: 'Mention Suggestions',
     });
   });
 
@@ -195,7 +213,7 @@ describe('SuggestionList', () => {
     expect(announceInteractionMock).toHaveBeenCalledTimes(2);
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 3,
-      suggestionsLabel: 'aria/Mention Suggestions',
+      suggestionsLabel: 'Mention Suggestions',
     });
   });
 
@@ -204,7 +222,7 @@ describe('SuggestionList', () => {
     renderSuggestionList();
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 2,
-      suggestionsLabel: 'aria/Emoji Suggestions',
+      suggestionsLabel: 'Emoji Suggestions',
     });
   });
 
@@ -213,7 +231,7 @@ describe('SuggestionList', () => {
     renderSuggestionList();
     expect(announceInteractionMock).toHaveBeenLastCalledWith('suggestions.count', {
       count: 2,
-      suggestionsLabel: 'aria/Suggestions',
+      suggestionsLabel: 'Suggestions',
     });
   });
 
@@ -231,7 +249,7 @@ describe('SuggestionList', () => {
     const listbox = container.querySelector('[role="listbox"]');
     expect(listbox).toBeInTheDocument();
     // The listbox carries the localized type label as its accessible name.
-    expect(listbox).toHaveAttribute('aria-label', 'aria/Mention Suggestions');
+    expect(listbox).toHaveAttribute('aria-label', 'Mention Suggestions');
 
     const options = container.querySelectorAll('[role="option"]');
     expect(options.length).toBe(3);

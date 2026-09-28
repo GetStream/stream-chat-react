@@ -1,47 +1,22 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import type { TranslationContextValue } from '../../../context/TranslationContext';
-import type { SupportedTranslations } from '../../../i18n';
-import {
-  defaultDateTimeParser,
-  defaultTranslatorFunction,
-  isLanguageSupported,
-  Streami18n,
-} from '../../../i18n';
+import { useEffect, useRef, useState } from 'react';
 
 import type {
-  AppSettingsAPIResponse,
-  Channel,
-  Event,
-  Mute,
+  EventPayload,
   OwnUserResponse,
   StreamChat,
+  UserMuteResponse,
 } from 'stream-chat';
 
 export type UseChatParams = {
   client: StreamChat;
-  defaultLanguage?: SupportedTranslations;
-  i18nInstance?: Streami18n;
 };
 
-export const useChat = ({
-  client,
-  defaultLanguage = 'en',
-  i18nInstance,
-}: UseChatParams) => {
-  const [translators, setTranslators] = useState<TranslationContextValue>({
-    t: defaultTranslatorFunction,
-    tDateTimeParser: defaultDateTimeParser,
-    userLanguage: 'en',
-  });
-
-  const [channel, setChannel] = useState<Channel>();
-  const [mutes, setMutes] = useState<Array<Mute>>([]);
-  const [latestMessageDatesByChannels, setLatestMessageDatesByChannels] = useState({});
+export const useChat = ({ client }: UseChatParams) => {
+  const [mutes, setMutes] = useState<Array<UserMuteResponse>>([]);
 
   const clientMutes = (client.user as OwnUserResponse)?.mutes ?? [];
 
-  const appSettings = useRef<Promise<AppSettingsAPIResponse> | null>(null);
+  const appSettings = useRef<ReturnType<StreamChat['getAppSettings']> | null>(null);
 
   const getAppSettings = () => {
     if (appSettings.current) {
@@ -79,67 +54,17 @@ export const useChat = ({
   useEffect(() => {
     setMutes(clientMutes);
 
-    const handleEvent = (event: Event) => {
-      setMutes(event.me?.mutes || []);
+    const handleEvent = (event: EventPayload<'notification.mutes_updated'>) => {
+      setMutes(event.me.mutes);
     };
 
-    client.on('notification.mutes_updated', handleEvent);
-    return () => client.off('notification.mutes_updated', handleEvent);
+    const subscription = client.on('notification.mutes_updated', handleEvent);
+    return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clientMutes?.length]);
 
-  useEffect(() => {
-    let userLanguage = client.user?.language;
-
-    if (!userLanguage) {
-      const browserLanguage = window.navigator.language.slice(0, 2); // just get language code, not country-specific version
-      userLanguage = isLanguageSupported(browserLanguage)
-        ? browserLanguage
-        : defaultLanguage;
-    }
-
-    const streami18n = i18nInstance || new Streami18n({ language: userLanguage });
-
-    streami18n.registerSetLanguageCallback((t) =>
-      setTranslators((prevTranslator) => ({ ...prevTranslator, t })),
-    );
-
-    streami18n.getTranslators().then((translator) => {
-      setTranslators({
-        ...translator,
-        userLanguage: userLanguage || defaultLanguage,
-      });
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [i18nInstance]);
-
-  const setActiveChannel = useCallback(
-    async (
-      activeChannel?: Channel,
-      watchers: { limit?: number; offset?: number } = {},
-      event?: React.BaseSyntheticEvent,
-    ) => {
-      if (event && event.preventDefault) event.preventDefault();
-
-      if (activeChannel && Object.keys(watchers).length) {
-        await activeChannel.query({ watch: true, watchers });
-      }
-
-      setChannel(activeChannel);
-    },
-    [],
-  );
-
-  useEffect(() => {
-    setLatestMessageDatesByChannels({});
-  }, [client.user?.id]);
-
   return {
-    channel,
     getAppSettings,
-    latestMessageDatesByChannels,
     mutes,
-    setActiveChannel,
-    translators,
   };
 };

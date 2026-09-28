@@ -9,11 +9,7 @@ import React, {
 import { useComponentContextIcons } from '../../context';
 
 export type AvatarProps = {
-  /**
-   * Custom icon rendered when there is no image and no initials.
-   * @deprecated Use the `icons.IconUser` slot on `ComponentContext` (via `<WithComponents overrides={{ icons: { IconUser: ... } }}>`) instead.
-   * Passing this prop still wins over the context slot for backwards compatibility.
-   */
+  /** Custom icon rendered when there is no image and no initials */
   FallbackIcon?: ComponentType<ComponentPropsWithoutRef<'svg'>>;
   /** URL of the avatar image */
   imageUrl?: string;
@@ -64,6 +60,7 @@ export const Avatar = ({
   ...rest
 }: AvatarProps) => {
   const { IconUser } = useComponentContextIcons();
+  // The prop still wins over the context slot: it targets one avatar, the slot rebrands all of them.
   const ResolvedFallbackIcon = FallbackIcon ?? IconUser;
   const [error, setError] = useState(false);
 

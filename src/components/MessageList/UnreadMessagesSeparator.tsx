@@ -1,10 +1,12 @@
 import React from 'react';
 import {
-  useChannelActionContext,
+  useChannel,
+  useChatContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import { Button } from '../Button';
+import { useMessagePaginator } from '../../hooks';
 
 export const UNREAD_MESSAGE_SEPARATOR_CLASS = 'str-chat__unread-messages-separator';
 
@@ -24,9 +26,10 @@ export const UnreadMessagesSeparator = ({
   unreadCount,
 }: UnreadMessagesSeparatorProps) => {
   const { IconXmark } = useComponentContextIcons();
-
-  const { t } = useTranslationContext('UnreadMessagesSeparator');
-  const { markRead } = useChannelActionContext();
+  const { t } = useTranslationContext();
+  const channel = useChannel();
+  const { client } = useChatContext();
+  const messagePaginator = useMessagePaginator();
   return (
     <div
       className={UNREAD_MESSAGE_SEPARATOR_CLASS}
@@ -34,14 +37,27 @@ export const UnreadMessagesSeparator = ({
     >
       <div className={'str-chat__unread-messages-separator__text'}>
         {unreadCount && showCount
-          ? t('{{count}} unread', { count: unreadCount })
-          : t('Unread messages')}
+          ? t('messageList.unreadMessagesNotification.unread.text', {
+              count: unreadCount,
+              defaultValue_one: '{{count}} unread',
+              defaultValue_other: '{{count}} unread',
+            })
+          : t(
+              'messageList.unreadMessagesNotification.unreadMessages.text',
+              'Unread messages',
+            )}
       </div>
       <Button
         appearance='ghost'
-        aria-label={t('aria/Mark messages as read')}
+        aria-label={t(
+          'messageList.unreadMessagesNotification.markMessagesRead.ariaLabel',
+          'Mark messages as read',
+        )}
         circular
-        onClick={() => markRead()}
+        onClick={() => {
+          client.messageDeliveryReporter.throttledMarkRead(channel);
+          messagePaginator.clearUnreadSnapshot();
+        }}
         size='sm'
         variant='secondary'
       >

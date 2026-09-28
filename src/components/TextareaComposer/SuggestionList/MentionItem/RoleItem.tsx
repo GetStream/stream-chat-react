@@ -11,7 +11,6 @@ export type RoleItemProps = MentionItemComponentProps<RoleMentionSuggestion>;
 
 export const RoleItem = ({ entity, focused, ...buttonProps }: RoleItemProps) => {
   const { IconShield } = useComponentContextIcons();
-
   void focused;
   const { t } = useTranslationContext();
   const role = entity.name;
@@ -32,7 +31,11 @@ export const RoleItem = ({ entity, focused, ...buttonProps }: RoleItemProps) => 
         title: `@${role}`,
       }}
       selected={focused}
-      subtitle={t('Notify all {{ role }} members', { role })}
+      subtitle={t(
+        'textareaComposer.roleItem.notifyMembers.label',
+        'Notify all {{ role }} members',
+        { role },
+      )}
       subtitleClassName='str-chat__suggestion-list__item-details'
       title={
         <MentionSuggestionTitle>

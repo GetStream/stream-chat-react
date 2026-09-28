@@ -35,7 +35,7 @@ export const SearchSourceResultListFooter = () => {
         // Hidden from assistive tech: the end-of-list status is announced (combined with the result
         // count) by `useAnnounceSearchResultCount`, so the text is not read as a navigable result.
         <div aria-hidden='true' className='str-chat__search-source-results---empty'>
-          {t('All results loaded')}
+          {t('common.resultsLoaded.label', 'All results loaded')}
         </div>
       ) : null}
     </div>

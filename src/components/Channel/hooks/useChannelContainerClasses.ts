@@ -2,7 +2,7 @@ import { useChatContext } from '../../../context/ChatContext';
 import type { ChatContextValue } from '../../../context/ChatContext';
 
 export const useImageFlagEmojisOnWindowsClass = () => {
-  const { useImageFlagEmojisOnWindows } = useChatContext('Channel');
+  const { useImageFlagEmojisOnWindows } = useChatContext();
   return useImageFlagEmojisOnWindows && navigator.userAgent.match(/Win/)
     ? 'str-chat--windows-flags'
     : '';

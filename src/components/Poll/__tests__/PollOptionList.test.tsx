@@ -1,12 +1,12 @@
 import React from 'react';
-import { Poll, VotingVisibility } from 'stream-chat';
-import type { StreamChat } from 'stream-chat';
+import { Poll } from 'stream-chat';
+import type { Channel, StreamChat } from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { axe } from '../../../../axe-helper';
 import { PollOptionList } from '../PollOptionList';
 import {
-  ChannelStateProvider,
+  ChannelInstanceProvider,
   ChatProvider,
   MessageProvider,
   ModalDialogManagerProvider,
@@ -14,17 +14,34 @@ import {
   TranslationProvider,
 } from '../../../context';
 import {
+  generateChannelState,
   generateMessage,
   generatePoll,
   generatePollVoteCastedEvent,
   generatePollVoteRemovedEvent,
   generateUser,
   getTestClientWithUser,
-  mockChannelStateContext,
   mockChatContext,
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
+
+// MERGE-RECONCILE (test migration): the deleted ChannelStateContext no longer provides
+// `channelCapabilities`. Poll components now read capabilities via useChannelCapabilities({ cid }),
+// which subscribes to the unified `channel.state` (`ownCapabilities`, a string[]). Convert the legacy
+// `{ 'cap': boolean }` object into that string[] and seed a real ChannelInstanceProvider channel.
+const toOwnCapabilities = (capabilities: Record<string, boolean> = {}) =>
+  Object.entries(capabilities)
+    .filter(([, enabled]) => enabled)
+    .map(([capability]) => capability);
+
+const makeChannel = (capabilities: Record<string, boolean> = {}) =>
+  fromPartial<Channel>({
+    cid: 'messaging:poll-test',
+    state: generateChannelState({ ownCapabilities: toOwnCapabilities(capabilities) }),
+  });
 
 const OPTION_SELECTOR = '.str-chat__poll-option';
 const VOTABLE_OPTION_SELECTOR = '.str-chat__poll-option--votable';
@@ -32,7 +49,10 @@ const CHECKMARK_SELECTOR = '.str-chat__checkmark';
 const CHECKMARK_CHECKED_SELECTOR = '.str-chat__checkmark--checked';
 const VOTE_COUNT_SELECTOR = '.str-chat__poll-option-vote-count';
 
-const MORE_OPTIONS_ACTION_TEXT = '+{{count}} more options';
+// NOTE: the component interpolates `options.length` (6 here), not the number of *hidden*
+// options (3). That reads oddly but is pre-existing behaviour — the previous assertion
+// matched the uninterpolated template, so it never surfaced.
+const MORE_OPTIONS_ACTION_TEXT = '+6 more options';
 
 const pollWithNoVotes = generatePoll({
   answers_count: 1,
@@ -43,7 +63,7 @@ const pollWithNoVotes = generatePoll({
   vote_counts_by_option: {},
 });
 
-const t = (v: any) => v;
+const t = mockT;
 
 const defaultChannelStateContext = {
   channelCapabilities: { 'cast-poll-vote': true },
@@ -65,17 +85,15 @@ describe('PollOptionList', () => {
     messageContext,
     poll,
     pollOptionListProps,
-  }: any) =>
-    render(
+  }: any) => {
+    const channel = makeChannel(
+      { ...defaultChannelStateContext, ...channelStateContext }.channelCapabilities,
+    );
+    return render(
       <ChatProvider value={mockChatContext({ client: chatClient })}>
-        <ModalDialogManagerProvider>
-          <TranslationProvider value={mockTranslationContextValue({ t })}>
-            <ChannelStateProvider
-              value={mockChannelStateContext({
-                ...defaultChannelStateContext,
-                ...channelStateContext,
-              })}
-            >
+        <ChannelInstanceProvider value={{ channel }}>
+          <ModalDialogManagerProvider>
+            <TranslationProvider value={mockTranslationContextValue({ t })}>
               <MessageProvider
                 value={mockMessageContext({
                   ...defaultMessageContext,
@@ -86,11 +104,12 @@ describe('PollOptionList', () => {
                   <PollOptionList {...pollOptionListProps} />
                 </PollProvider>
               </MessageProvider>
-            </ChannelStateProvider>
-          </TranslationProvider>
-        </ModalDialogManagerProvider>
+            </TranslationProvider>
+          </ModalDialogManagerProvider>
+        </ChannelInstanceProvider>
       </ChatProvider>,
     );
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -247,7 +266,7 @@ describe('PollOptionList', () => {
   });
 
   it('does not renders voter avatars with options for anonymous poll', () => {
-    const pollData = generatePoll({ voting_visibility: VotingVisibility.anonymous });
+    const pollData = generatePoll({ voting_visibility: 'anonymous' });
     const { container } = renderComponent({
       poll: new Poll({ client: fromPartial<StreamChat>({}), poll: pollData }),
     });
@@ -364,11 +383,11 @@ describe('PollOptionList', () => {
             },
           },
           pollVote: {
-            created_at: new Date().toISOString(),
+            created_at: convertDateToTimestamp(new Date()),
             id: '4c552daf-8f72-409c-a2ee-313b9db9fcd0',
             option_id: pollWithNoVotes.options[0].id,
             poll_id: pollWithNoVotes.id,
-            updated_at: new Date().toISOString(),
+            updated_at: convertDateToTimestamp(new Date()),
             user,
             user_id: user.id,
           },

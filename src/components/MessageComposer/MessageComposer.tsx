@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import React, { useContext, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { MessageComposerUI as DefaultMessageComposerUI } from './MessageComposerUI';
 import { useMessageComposerController } from './hooks';
@@ -8,36 +8,16 @@ import { useMessageComposerBindings } from './hooks/useMessageComposerBindings';
 import type { ComponentContextValue } from '../../context/ComponentContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { MessageComposerContextProvider } from '../../context/MessageComposerContext';
-import { DialogManagerProvider } from '../../context';
+import {
+  DialogManagerProvider,
+  useMessageComposerControllerContext,
+} from '../../context';
 import { useStableId } from '../UtilityComponents/useStableId';
 
-import type {
-  LocalMessage,
-  Message,
-  MessageComposer as MessageComposerController,
-  SendMessageOptions,
-} from 'stream-chat';
+import type { LocalMessage } from 'stream-chat';
 
 import type { CustomAudioRecordingConfig } from '../MediaRecorder';
 import { useRegisterDropHandlers } from './WithDragAndDropUpload';
-
-const MessageComposerControllerContext = React.createContext<
-  MessageComposerController | undefined
->(undefined);
-
-export const MessageComposerControllerProvider = ({
-  children,
-  messageComposerController,
-}: PropsWithChildren<{
-  messageComposerController?: MessageComposerController;
-}>) => (
-  <MessageComposerControllerContext.Provider value={messageComposerController}>
-    {children}
-  </MessageComposerControllerContext.Provider>
-);
-
-export const useMessageComposerControllerContext = () =>
-  useContext(MessageComposerControllerContext);
 
 export type EmojiSearchIndexResult = {
   id: string;
@@ -83,13 +63,6 @@ export type MessageComposerProps = {
   maxRows?: number;
   /** Min number of rows the underlying `textarea` will start with. The `grow` on MessageComposer prop has to be enabled for `minRows` to take effect. */
   minRows?: number;
-  /** Function to override the default message sending process. Not message updating process. */
-  overrideSubmitHandler?: (params: {
-    cid: string;
-    localMessage: LocalMessage;
-    message: Message;
-    sendOptions: SendMessageOptions;
-  }) => Promise<void> | void;
   /** When replying in a thread, the parent message object */
   parent?: LocalMessage;
   /**
@@ -102,15 +75,11 @@ export type MessageComposerProps = {
    * ```
    */
   shouldSubmit?: (event: React.KeyboardEvent<HTMLTextAreaElement>) => boolean;
-  /**
-   * When set to `true` disables clearing established state of the MessageComposerController upon component unmount.
-   */
-  preventClearingOnUnmount?: boolean;
 };
 
 const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>) => {
   const messageComposerBindings = useMessageComposerBindings(props);
-  const { emojiSearchIndex } = useComponentContext('MessageComposer');
+  const { emojiSearchIndex } = useComponentContext();
 
   const messageComposerContextValue = useCreateMessageComposerContext({
     ...messageComposerBindings,
@@ -119,22 +88,19 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
   });
 
   const messageComposer = useMessageComposerController();
+  const suppliedComposer = useMessageComposerControllerContext();
 
   useEffect(
     () => () => {
-      // both createDraft() and clear() reach channel.getConfig(), which throws
-      // for a disconnected channel
-      if (messageComposer.channel.disconnected) return;
-
-      const promise = messageComposer.config.drafts.enabled
-        ? messageComposer.createDraft().catch(console.error)
-        : Promise.resolve();
-
-      if (props.preventClearingOnUnmount) return;
-
-      promise.finally(() => messageComposer.clear());
+      // `createDraft` already skips edits and composers with drafts disabled.
+      const draftSaved = messageComposer.createDraft().catch(console.error);
+      // Only the thread's or channel's own composer is emptied here. One supplied through
+      // `MessageComposerControllerProvider` belongs to whoever supplied it, and so does deciding
+      // when to clear it - clearing it on unmount would discard an edit the owner still holds (visible in Strict Mode).
+      if (messageComposer === suppliedComposer) return;
+      draftSaved.finally(() => messageComposer.clear());
     },
-    [messageComposer, props.preventClearingOnUnmount],
+    [messageComposer, suppliedComposer],
   );
 
   useEffect(() => {
@@ -167,8 +133,7 @@ const MessageComposerProvider = (props: PropsWithChildren<MessageComposerProps>)
 };
 
 const UnMemoizedMessageComposer = (props: MessageComposerProps) => {
-  const { MessageComposerUI = DefaultMessageComposerUI } =
-    useComponentContext('MessageComposer');
+  const { MessageComposerUI = DefaultMessageComposerUI } = useComponentContext();
   const messageComposer = useMessageComposerController();
   const id = useStableId();
 

@@ -1,13 +1,20 @@
 import React from 'react';
-import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { ChannelHeader } from '../ChannelHeader';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
+// MERGE-RECONCILE (test migration): the deleted ChannelStateContext/ChatContext mock providers were
+// replaced by the real <Chat client><Channel channel> tree (which supplies the channel instance,
+// translation and component contexts). Component-slot overrides are provided via
+// <WithComponents> nested inside <Channel>.
+import { Channel } from '../../Channel';
+import { Chat } from '../../Chat';
 import { WithComponents } from '../../../context/WithComponents';
-import { TranslationProvider } from '../../../context/TranslationContext';
+import {
+  defaultWorkspaceNavigation,
+  WorkspaceNavigationProvider,
+} from '../../../context/WorkspaceNavigationContext';
 import {
   dispatchUserUpdatedEvent,
   generateChannel,
@@ -17,9 +24,6 @@ import {
   getOrCreateChannelApi,
   getTestClientWithUser,
   initClientWithChannels,
-  mockChannelStateContext,
-  mockChatContext,
-  mockTranslationContextValue,
   useMockedApis,
 } from '../../../mock-builders';
 import { axe } from '../../../../axe-helper';
@@ -31,6 +35,7 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
+import type { ComponentContextValue } from '../../../context';
 import type { ChannelHeaderProps } from '../ChannelHeader';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
@@ -45,25 +50,29 @@ const defaultChannelState = {
   members: [generateMember({ user: user1 }), generateMember({ user: user2 })],
 };
 
-const t = vi.fn((key) => key);
+// stream-chat v10: channel custom data is nested - `channel.data.custom.name` /
+// `channel.data.custom.image` (the display helpers read exactly those paths).
+const channelCustom = (custom: Record<string, unknown>) => ({ custom });
 
 const renderComponentBase = ({
   channel,
   client,
+  componentOverrides,
   props,
 }: {
   channel: ChannelType;
   client: StreamChat;
+  componentOverrides?: Partial<ComponentContextValue>;
   props?: ChannelHeaderProps;
 }) =>
   render(
-    <ChatProvider value={mockChatContext({ channel, client })}>
-      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
-        <TranslationProvider value={mockTranslationContextValue({ t })}>
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <WithComponents overrides={componentOverrides ?? {}}>
           <ChannelHeader {...props} />
-        </TranslationProvider>
-      </ChannelStateProvider>
-    </ChatProvider>,
+        </WithComponents>
+      </Channel>
+    </Chat>,
   );
 
 async function renderComponent({
@@ -90,7 +99,7 @@ afterEach(cleanup);
 describe('ChannelHeader', () => {
   it('should render without crashing', async () => {
     const { container } = await renderComponent({
-      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      channelData: channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -98,7 +107,7 @@ describe('ChannelHeader', () => {
   });
 
   it("should display avatar with fallback image only if other user's name is available", async () => {
-    await renderComponent({ channelData: { image: null } });
+    await renderComponent({ channelData: channelCustom({ image: null }) });
     await waitFor(() => {
       expect(screen.queryByTestId('avatar-img')).not.toBeInTheDocument();
       expect(screen.queryByTestId('avatar-fallback')).toBeInTheDocument();
@@ -107,7 +116,7 @@ describe('ChannelHeader', () => {
 
   it('should display avatar when channel has an image', async () => {
     const { container, getByTestId } = await renderComponent({
-      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      channelData: channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
     });
     const results = await axe(container);
     expect(results).toHaveNoViolations();
@@ -117,7 +126,7 @@ describe('ChannelHeader', () => {
 
   it('should display custom title', async () => {
     const { container, getByText } = await renderComponent({
-      channelData: { image: 'image.jpg', name: 'test-channel-1' },
+      channelData: channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
       props: { title: 'Custom Title' },
     });
     const results = await axe(container);
@@ -128,9 +137,8 @@ describe('ChannelHeader', () => {
   it('should render subtitle area for online status', async () => {
     const { container } = await renderComponent({
       channelData: {
-        image: 'image.jpg',
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
         member_count: 5,
-        name: 'test-channel-1',
       },
     });
     const results = await axe(container);
@@ -148,9 +156,8 @@ describe('ChannelHeader', () => {
   it('should display watcher_count in subtitle', async () => {
     const { container } = await renderComponent({
       channelData: {
-        image: 'image.jpg',
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
         member_count: 10,
-        name: 'test-channel-1',
         watcher_count: 34,
       },
     });
@@ -166,9 +173,8 @@ describe('ChannelHeader', () => {
   it('should display correct member_count in subtitle', async () => {
     const { container } = await renderComponent({
       channelData: {
-        image: 'image.jpg',
+        ...channelCustom({ image: 'image.jpg', name: 'test-channel-1' }),
         member_count: 34,
-        name: 'test-channel-1',
       },
     });
     const results = await axe(container);
@@ -180,34 +186,106 @@ describe('ChannelHeader', () => {
     });
   });
 
-  describe('HeaderStartContent slot', () => {
-    const HeaderStartContent = () => <div data-testid='sidebar-toggle' />;
+  describe('StartContent prop', () => {
+    const StartContent = () => <div data-testid='sidebar-toggle' />;
 
-    it('should not render HeaderStartContent when not provided via ComponentContext', async () => {
+    it('should not render StartContent when not provided', async () => {
       await renderComponent();
       expect(screen.queryByTestId('sidebar-toggle')).not.toBeInTheDocument();
     });
 
-    it('should render HeaderStartContent when provided via ComponentContext', async () => {
+    it('should render StartContent when provided', async () => {
       client = await getTestClientWithUser(user1);
       testChannel1 = generateChannel({ ...defaultChannelState });
       useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
       const channel = client.channel('messaging', testChannel1.channel.id);
       await channel.query();
 
+      renderComponentBase({
+        channel,
+        client,
+        props: { StartContent },
+      });
+
+      await waitFor(() =>
+        expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument(),
+      );
+    });
+  });
+
+  describe('close button', () => {
+    const renderWithNavigation = async (
+      navigation: Partial<typeof defaultWorkspaceNavigation>,
+      headerProps: ChannelHeaderProps = {},
+    ) => {
+      client = await getTestClientWithUser(user1);
+      testChannel1 = generateChannel({ ...defaultChannelState });
+      /* eslint-disable-next-line react-hooks/rules-of-hooks */
+      useMockedApis(client, [getOrCreateChannelApi(testChannel1)]);
+      const channel = client.channel('messaging', testChannel1.channel.id);
+      await channel.query();
+
       render(
-        <WithComponents overrides={{ HeaderStartContent }}>
-          <ChatProvider value={mockChatContext({ channel, client })}>
-            <ChannelStateProvider value={mockChannelStateContext({ channel })}>
-              <TranslationProvider value={mockTranslationContextValue({ t })}>
-                <ChannelHeader />
-              </TranslationProvider>
-            </ChannelStateProvider>
-          </ChatProvider>
-        </WithComponents>,
+        <Chat client={client}>
+          <Channel channel={channel}>
+            <WorkspaceNavigationProvider
+              value={{ ...defaultWorkspaceNavigation, ...navigation }}
+            >
+              <ChannelHeader {...headerProps} />
+            </WorkspaceNavigationProvider>
+          </Channel>
+        </Chat>,
       );
 
-      expect(screen.getByTestId('sidebar-toggle')).toBeInTheDocument();
+      return channel;
+    };
+
+    // The back and close buttons are only the defaults: start/end content passed to the header
+    // takes their place.
+    it('gives way to the StartContent and EndContent passed to it', async () => {
+      await renderWithNavigation(
+        { canGoBack: () => true, isChannelDismissable: () => true },
+        {
+          EndContent: () => <div data-testid='app-end' />,
+          StartContent: () => <div data-testid='app-start' />,
+        },
+      );
+
+      expect(await screen.findByTestId('app-start')).toBeInTheDocument();
+      expect(screen.getByTestId('app-end')).toBeInTheDocument();
+      expect(screen.queryByTestId('channel-header-back-button')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('close-channel-button')).not.toBeInTheDocument();
+    });
+
+    it('is not rendered for a channel that cannot be dismissed', async () => {
+      await renderWithNavigation({});
+      expect(screen.queryByTestId('close-channel-button')).not.toBeInTheDocument();
+    });
+
+    it('is rendered for a dismissable channel and closes it', async () => {
+      const closeChannel = vi.fn();
+      const isChannelDismissable = vi.fn(() => true);
+      const channel = await renderWithNavigation({ closeChannel, isChannelDismissable });
+
+      const button = await screen.findByTestId('close-channel-button');
+      // Outside a panel there is none to pass.
+      expect(isChannelDismissable).toHaveBeenCalledWith(channel.cid, undefined);
+      fireEvent.click(button);
+      expect(closeChannel).toHaveBeenCalledWith(channel.cid, expect.anything());
+    });
+
+    it('is accompanied by no back button for a channel with nothing beneath it', async () => {
+      await renderWithNavigation({ isChannelDismissable: () => true });
+      await screen.findByTestId('close-channel-button');
+      expect(screen.queryByTestId('channel-header-back-button')).not.toBeInTheDocument();
+    });
+
+    it('steps back from a channel stacked over other content', async () => {
+      const goBack = vi.fn();
+      const channel = await renderWithNavigation({ canGoBack: () => true, goBack });
+
+      fireEvent.click(await screen.findByTestId('channel-header-back-button'));
+      expect(goBack).toHaveBeenCalledWith(channel.cid, expect.anything());
     });
   });
 
@@ -262,7 +340,9 @@ describe('ChannelHeader', () => {
       });
     };
     const channelName = 'channel-name';
-    const channelState = getChannelState(3, { channel: { name: channelName } });
+    const channelState = getChannelState(3, {
+      channel: channelCustom({ name: channelName }),
+    });
 
     it('renders group avatar for channels with more than 2 members', async () => {
       const channelState = getChannelState(5);
@@ -406,15 +486,18 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      const updatedAttribute = { custom: 'new-custom' };
+      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
 
@@ -426,11 +509,13 @@ describe('ChannelHeader', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
     });
@@ -444,15 +529,18 @@ describe('ChannelHeader', () => {
         channelsData: [channelState],
         customUser: ownUser,
       });
-      const updatedAttribute = { custom: 'new-custom' };
+      // v10: arbitrary user attributes live under `user.custom` (an object, not a string).
+      const updatedAttribute = { custom: { someAttribute: 'new-custom' } };
       await renderComponentBase({ channel, client, props });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
 
@@ -464,11 +552,13 @@ describe('ChannelHeader', () => {
       });
 
       await waitFor(() => {
-        expect(screen.queryByText(updatedAttribute.custom)).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(updatedAttribute.custom.someAttribute),
+        ).not.toBeInTheDocument();
         expect(screen.getByText(channelName)).toBeInTheDocument();
         const avatarImages = screen.getAllByTestId(AVATAR_IMG_TEST_ID);
         avatarImages.forEach((img, i) => {
-          expect(img).toHaveAttribute('src', channelState.members[i]['userimage']);
+          expect(img).toHaveAttribute('src', channelState.members[i].user?.image);
         });
       });
     });

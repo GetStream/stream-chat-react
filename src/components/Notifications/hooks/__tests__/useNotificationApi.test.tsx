@@ -1,6 +1,6 @@
 import React from 'react';
 import { renderHook, waitFor } from '@testing-library/react';
-import { StateStore } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
 
 import { GlobalModal } from '../../../Modal';
 import { useNotificationApi } from '../useNotificationApi';

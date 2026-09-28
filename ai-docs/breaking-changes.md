@@ -1995,14 +1995,14 @@ Only confirmed items should move from this file into the migration guide.
   - `f06846da:src/components/Reactions/hooks/useProcessReactions.tsx:12` through `:14` still accepted `reaction_counts` and `reactionOptions`
   - `f06846da:src/components/Reactions/types.ts:14` still exported `ReactionDetailsComparator`
 - New API:
-  - `src/components/Message/types.ts:83` and `src/context/MessageContext.tsx:107` now expose `reactionDetailsSort?: ReactionSort`
+  - `src/components/Message/types.ts:83` and `src/context/MessageContext.tsx:107` now expose `reactionDetailsSort?: SortParamRequest[]`
   - `src/components/MessageList/MessageList.tsx:496` and `src/components/MessageList/VirtualizedMessageList.tsx:86` now forward `reactionDetailsSort`
   - `src/components/Reactions/MessageReactions.tsx:26` through `:40` accept `reaction_groups`, `reactionDetailsSort`, and the narrowed current props only
   - `src/components/Reactions/MessageReactionsDetail.tsx:19` through `:26` accept `reactionDetailsSort` and `reactionGroups`, with no `sort` / `sortReactionDetails` migration path
   - `src/components/Reactions/hooks/useProcessReactions.tsx:10` through `:13` now accept only `own_reactions`, `reaction_groups`, `reactions`, and `sortReactions`
   - `src/components/Reactions/types.ts` no longer exports `ReactionDetailsComparator`
 - Replacement:
-  - replace `sortReactionDetails` with `reactionDetailsSort` and pass a server-side `ReactionSort` object instead of a client comparator
+  - replace `sortReactionDetails` with `reactionDetailsSort` and pass a server-side `SortParamRequest[]` array instead of a client comparator
   - replace `reaction_counts` with `reaction_groups`
   - move `reactionOptions` configuration to `<WithComponents overrides={{ reactionOptions }}>`
   - update any custom `useProcessReactions` wrappers to the narrower parameter type

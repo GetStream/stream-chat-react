@@ -10,6 +10,9 @@
   @include utils.header-layout;
 
   .str-chat__channel-header__start {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
     justify-self: start;
     min-width: 0;
   }
@@ -21,6 +24,9 @@
   }
 
   .str-chat__channel-header__end {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xs);
     justify-self: end;
     min-width: 0;
   }

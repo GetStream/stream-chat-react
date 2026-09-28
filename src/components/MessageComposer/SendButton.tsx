@@ -9,13 +9,12 @@ export type SendButtonProps = {
 
 export const SendButton = ({ children, sendMessage, ...rest }: SendButtonProps) => {
   const { IconSend } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const hasSendableData = useMessageComposerHasSendableData();
   return (
     <Button
       appearance='solid'
-      aria-label={t('aria/Send')}
+      aria-label={t('messageComposer.sendButton.send.ariaLabel', 'Send')}
       circular
       className='str-chat__send-button'
       data-testid='send-button'

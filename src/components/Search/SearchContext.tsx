@@ -2,6 +2,7 @@ import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type { SearchController } from 'stream-chat';
 import type { SearchProps } from './Search';
+import { requireContext } from '../../context/requireContext';
 
 export type SearchContextValue = {
   /** Instance of the search controller that handles the data management */
@@ -29,7 +30,5 @@ export const SearchContextProvider = ({
   </SearchContext.Provider>
 );
 
-export const useSearchContext = () => {
-  const contextValue = useContext(SearchContext);
-  return contextValue as unknown as SearchContextValue;
-};
+export const useSearchContext = () =>
+  requireContext(useContext(SearchContext), 'useSearchContext', 'SearchContextProvider');

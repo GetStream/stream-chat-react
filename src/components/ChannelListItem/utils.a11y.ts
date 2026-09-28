@@ -9,9 +9,10 @@ import {
   composeAccessibleLabel,
   unreadCountLabelPart,
 } from '../../a11y/accessibleLabel';
-import { getDateString, isDate } from '../../i18n/utils';
+import { getDateString } from '../../i18n/utils';
 import { MessageDeliveryStatus } from './hooks/useMessageDeliveryStatus';
 import { getLatestMessagePreviewText } from './utils';
+import { convertTimestampToDate } from 'stream-chat';
 
 /**
  * Everything a label part needs. Gathered by `ChannelListItemUI` from its props + contexts and
@@ -61,18 +62,29 @@ export const defaultChannelListItemLabelParts = {
       latestMessage?.attachments?.filter((attachment) => !attachment.og_scrape_url)
         .length ?? 0;
     if (count === 0 || (count === 1 && !latestMessage?.text)) return undefined;
-    return t('aria/{{ count }} attachment', { count });
+    return t('channelListItem.attachmentCount.ariaLabel', {
+      count,
+      defaultValue_one: '{{ count }} attachment',
+      defaultValue_other: '{{ count }} attachments',
+    });
   },
   deliveryStatus: ({ messageDeliveryStatus, t }) => {
     if (!messageDeliveryStatus) return undefined;
     const statusLabelByStatus: Record<MessageDeliveryStatus, string> = {
-      [MessageDeliveryStatus.SENT]: t('aria/Sent'),
-      [MessageDeliveryStatus.DELIVERED]: t('aria/Delivered'),
-      [MessageDeliveryStatus.READ]: t('aria/Read'),
+      [MessageDeliveryStatus.SENT]: t('channelListItem.sent.ariaLabel', 'Sent'),
+      [MessageDeliveryStatus.DELIVERED]: t(
+        'channelListItem.delivered.ariaLabel',
+        'Delivered',
+      ),
+      [MessageDeliveryStatus.READ]: t('channelListItem.read.ariaLabel', 'Read'),
     };
-    return t('aria/Delivery status: {{ deliveryStatus }}', {
-      deliveryStatus: statusLabelByStatus[messageDeliveryStatus],
-    });
+    return t(
+      'channelListItem.deliveryStatus.ariaLabel',
+      'Delivery status: {{ deliveryStatus }}',
+      {
+        deliveryStatus: statusLabelByStatus[messageDeliveryStatus],
+      },
+    );
   },
   lastMessage: ({
     channel,
@@ -96,13 +108,21 @@ export const defaultChannelListItemLabelParts = {
     const isOwn = !!client.userID && latestMessage.user?.id === client.userID;
     // Use the sender's name (or "You" for the current user). When the name is unknown we omit the
     // sender rather than reading out a raw user id.
-    const sender = isOwn ? t('You') : latestMessage.user?.name;
+    const sender = isOwn ? t('common.you.label', 'You') : latestMessage.user?.name;
     return sender
-      ? t('aria/Last message from {{ sender }}: {{ messagePreview }}', {
-          messagePreview: preview,
-          sender,
-        })
-      : t('aria/Last message: {{ messagePreview }}', { messagePreview: preview });
+      ? t(
+          'channelListItem.lastMessage.withSenderAndMessagePreview.ariaLabel',
+          'Last message from {{ sender }}: {{ messagePreview }}',
+          {
+            messagePreview: preview,
+            sender,
+          },
+        )
+      : t(
+          'channelListItem.lastMessage.withMessagePreview.ariaLabel',
+          'Last message: {{ messagePreview }}',
+          { messagePreview: preview },
+        );
   },
   linkPreview: ({ latestMessage, t }) => {
     const link = latestMessage?.attachments?.find(
@@ -110,22 +130,30 @@ export const defaultChannelListItemLabelParts = {
     );
     if (!link) return undefined;
     return link.title
-      ? t('aria/Shared a link with title: {{ linkTitle }}', { linkTitle: link.title })
-      : t('aria/Shared a link');
+      ? t(
+          'channelListItem.sharedLinkTitle.ariaLabel',
+          'Shared a link with title: {{ linkTitle }}',
+          { linkTitle: link.title },
+        )
+      : t('channelListItem.sharedLink.ariaLabel', 'Shared a link');
   },
   name: ({ displayTitle }) => displayTitle || undefined,
   time: ({ latestMessage, t, tDateTimeParser }) => {
     const createdAt = latestMessage?.created_at;
-    if (!createdAt || !isDate(createdAt)) return undefined;
+    if (createdAt == null) return undefined;
     const when = getDateString({
-      messageCreatedAt: createdAt.toISOString(),
+      messageCreatedAt: convertTimestampToDate(createdAt)?.toISOString(),
       t,
       tDateTimeParser,
-      timestampTranslationKey: 'timestamp/ChannelPreviewTimestamp',
+      timestampTranslationKey: 'timestamp.ChannelPreviewTimestamp',
     });
     // Prefix the time so it is clearly its own segment (not read as part of the preceding
     // delivery-status segment).
-    return when ? t('aria/Last activity: {{ time }}', { time: String(when) }) : undefined;
+    return when
+      ? t('common.lastActivity.ariaLabel', 'Last activity: {{ time }}', {
+          time: String(when),
+        })
+      : undefined;
   },
   unreadCount: unreadCountLabelPart,
 } satisfies Record<string, ChannelListItemLabelPart>;
@@ -173,15 +201,24 @@ export type ChannelListItemLabelConfig = AccessibleLabelConfig<ChannelListItemLa
  * - Each part receives {@link ChannelListItemLabelData}. `active`/`unreadCount`/
  *   `messageDeliveryStatus` are passed directly and `latestMessage` is pre-resolved by the composer
  *   (see its doc); everything else (mute/pin state, `frozen`, member count, custom `channel.data`) is
- *   read off `channel`. Parts call `t`, so provide your own i18n keys (or return plain strings) —
- *   the SDK does not ship `Pinned`/`Muted`/`Frozen` strings.
+ *   read off `channel`. The SDK does not ship `Pinned`/`Muted`/`Frozen` strings, so return plain
+ *   strings or your own keys. `t` only accepts keys in {@link TranslationKey}; wrap your own in
+ *   {@link asDynamicKey} (exported from `stream-chat-react`) and pass the English copy as the
+ *   second argument, exactly as SDK call sites do.
  *
  * ```tsx
  * const accessibleLabelConfig: ChannelListItemLabelConfig = {
  *   parts: {
- *     pinned: ({ channel, t }) => (channel.state.membership?.pinned_at ? t('Pinned') : undefined),
- *     muted: ({ channel, t }) => (channel.muteStatus().muted ? t('Muted') : undefined),
- *     frozen: ({ channel, t }) => (channel.data?.frozen ? t('Frozen') : undefined),
+ *     pinned: ({ channel, t }) =>
+ *       channel.state.membership?.pinned_at
+ *         ? t(asDynamicKey('myApp.channelList.pinned'), 'Pinned')
+ *         : undefined,
+ *     muted: ({ channel, t }) =>
+ *       channel.muteStatus().muted
+ *         ? t(asDynamicKey('myApp.channelList.muted'), 'Muted')
+ *         : undefined,
+ *     frozen: ({ channel, t }) =>
+ *       channel.data?.frozen ? t(asDynamicKey('myApp.channelList.frozen'), 'Frozen') : undefined,
  *   },
  *   order: ['name', 'pinned', 'muted', 'frozen', ...DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER.slice(1)],
  * };
@@ -204,7 +241,8 @@ export const composeChannelListItemAccessibleLabel = (
       ...data,
       latestMessage:
         data.latestMessage ??
-        data.channel.state.latestMessages[data.channel.state.latestMessages.length - 1],
+        data.channel.messagePaginator.aggregateState.getLatestValue().lastMessage ??
+        undefined,
     },
     defaultChannelListItemLabelParts,
     DEFAULT_CHANNEL_LIST_ITEM_LABEL_ORDER,

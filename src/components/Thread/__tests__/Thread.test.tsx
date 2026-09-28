@@ -1,66 +1,35 @@
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { act, cleanup, render } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { StreamChat } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import type {
+  ChannelConfig,
+  LocalMessage,
+  StreamChat,
+  Thread as StreamThread,
+  ThreadState,
+} from 'stream-chat';
+
+import { ChatProvider, ComponentProvider } from '../../../context';
 
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
-  ComponentProvider,
-  TranslationProvider,
-} from '../../../context';
-
-import {
-  generateChannel,
   generateMessage,
   generateUser,
-  getOrCreateChannelApi,
-  getTestClientWithUser,
-  mockChannelActionContext,
-  mockChannelStateContext,
+  initClientWithChannels,
   mockChatContext,
   mockComponentContext,
-  mockTranslationContextValue,
-  useMockedApis,
 } from '../../../mock-builders';
-import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
 
-import { Message as MessageMock } from '../../Message/Message';
-import { MessageComposer as MessageInputMock } from '../../MessageComposer/MessageComposer';
-import { MessageList as MessageListMock } from '../../MessageList';
 import { Thread } from '../Thread';
-import type { ThreadProps } from '../Thread';
-import type {
-  ChannelActionContextValue,
-  ChannelStateContextValue,
-  ComponentContextValue,
-} from '../../../context';
+import { useThreadContext } from '../../Threads';
+import type { ComponentContextValue } from '../../../context';
 
-vi.mock('../../Message/Message', () => ({
-  Message: vi.fn(() => <div />),
-}));
-vi.mock('../../MessageList/MessageList', () => ({
-  MessageList: vi.fn(() => <div />),
-}));
-vi.mock('../../MessageList/VirtualizedMessageList', () => ({
-  VirtualizedMessageList: vi.fn(() => <div />),
-}));
-vi.mock('../../MessageComposer/MessageComposer', () => ({
-  MessageComposer: vi.fn(() => <div />),
-}));
-vi.mock('../../Threads', () => ({
-  useThreadContext: vi.fn(() => undefined),
-}));
-vi.mock('../../ChatView', () => ({
-  useChatViewContext: vi.fn(() => ({
-    activeChatView: 'channels',
-    setActiveChatView: vi.fn(),
-  })),
-}));
-vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
-  useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
-}));
+// MERGE-RECONCILE (test migration): PR #2909 / v14 rewrote Thread to read from a Thread instance
+// (not the deleted ChannelStateContext/ChannelActionContext). The parent message, reply pagination
+// and loading live on `thread.state` / `thread.messagePaginator`, and the thread-manager list on
+// `client.threads.state`. Obsolete assertions that referenced the removed MessageList props
+// (`hasMore`/`loadMore`/`messages`/`threadList`) and the ChannelActionContext
+// `loadMoreThread`/`closeThread` handlers are updated to the current contract.
 
 let chatClient: StreamChat;
 const alice = generateUser({ id: 'alice', name: 'alice' });
@@ -69,289 +38,220 @@ const parentMessage = generateMessage({ reply_count: 2, user: alice });
 const reply1 = generateMessage({ parent_id: parentMessage.id, user: bob });
 const reply2 = generateMessage({ parent_id: parentMessage.id, user: alice });
 
-const mockedChannel = {
-  getClient: () => ({ userID: alice.id }),
-  off: vi.fn(),
-  state: {
-    members: {},
-  },
+const makeThread = (
+  opts: {
+    isLoading?: boolean;
+    isStateStale?: boolean;
+    items?: LocalMessage[] | undefined;
+    parentMessage?: LocalMessage;
+    replies?: boolean;
+    replyCount?: number;
+  } = {},
+) => {
+  const { isLoading = false, isStateStale = false, replies = true } = opts;
+  const parent = opts.parentMessage ?? parentMessage;
+  // `ThreadState.replyCount` is a projection of the parent message's `reply_count` (the SDK keeps
+  // the two in sync through the message store), so derive it here instead of letting callers set
+  // the two independently.
+  const replyCount = opts.replyCount ?? parent.reply_count ?? 0;
+  // Distinguish "not provided" (default to loaded replies) from an explicit `undefined`
+  // (replies not fetched yet) — a destructuring default cannot tell them apart.
+  const items = 'items' in opts ? opts.items : [reply1, reply2];
+  const deactivate = vi.fn();
+  const reload = vi.fn(() => Promise.resolve());
+  const thread = fromPartial<StreamThread>({
+    channel: fromPartial({
+      cid: 'messaging:thread-test',
+      // A real store: `Thread` subscribes to the resolved configuration rather than reading the
+      // non-reactive `channel.config` getter, so a stub with only `getLatestValue` is not enough.
+      configState: new StateStore(
+        fromPartial<ChannelConfig>({ replies: { enabled: replies } }),
+      ),
+    }),
+    configState: undefined,
+    deactivate,
+    id: parent.id,
+    messagePaginator: {
+      state: new StateStore(fromPartial({ isLoading, items, lastQueryError: undefined })),
+    },
+    reload,
+    state: new StateStore<ThreadState>(
+      fromPartial<ThreadState>({ isStateStale, parentMessage: parent, replyCount }),
+    ),
+  });
+  return { deactivate, reload, thread };
 };
-const channelStateContextMock = {
-  channel: mockedChannel,
-  thread: parentMessage,
-  threadHasMore: true,
-  threadLoadingMore: false,
-  threadMessages: [reply1, reply2],
-};
-
-const channelActionContextMock = {
-  closeThread: vi.fn(),
-  loadMoreThread: vi.fn(() => Promise.resolve()),
-};
-
-const i18nMock = vi.fn((key: string, props?: { count?: number }) => {
-  if (key === 'replyCount' && props?.count === 1) return '1 reply';
-  else if (key === 'replyCount' && (props?.count ?? 0) > 1) return '2 replies';
-  return key;
-});
 
 const renderComponent = ({
-  channelActionOverrides = {},
-  channelStateOverrides = {},
-  chatClient,
+  // `Thread` composes nothing itself, so the tests give it a marker child to assert on.
+  children = <div data-testid='thread-content' />,
   componentOverrides = {},
-  threadProps = {},
+  threadInstance = makeThread().thread,
 }: {
-  channelActionOverrides?: Partial<ChannelActionContextValue>;
-  channelStateOverrides?: Partial<ChannelStateContextValue>;
-  chatClient: StreamChat;
+  children?: React.ReactNode;
   componentOverrides?: Partial<ComponentContextValue>;
-  threadProps?: Partial<ThreadProps> & Record<string, unknown>;
-}) =>
+  threadInstance?: StreamThread;
+} = {}) =>
   render(
-    <ChatProvider
-      value={mockChatContext({ client: chatClient, latestMessageDatesByChannels: {} })}
-    >
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          ...channelStateContextMock,
-          ...channelStateOverrides,
-        })}
-      >
-        <ChannelActionProvider
-          value={mockChannelActionContext({
-            ...channelActionContextMock,
-            ...channelActionOverrides,
-          })}
-        >
-          <ComponentProvider value={mockComponentContext({ ...componentOverrides })}>
-            <TranslationProvider value={mockTranslationContextValue({ t: i18nMock })}>
-              <Thread {...threadProps} />
-            </TranslationProvider>
-          </ComponentProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
+    <ChatProvider value={mockChatContext({ client: chatClient })}>
+      <ComponentProvider value={mockComponentContext({ ...componentOverrides })}>
+        <Thread thread={threadInstance}>{children}</Thread>
+      </ComponentProvider>
     </ChatProvider>,
   );
 
 describe('Thread', () => {
   beforeAll(async () => {
-    chatClient = await getTestClientWithUser();
+    ({ client: chatClient } = await initClientWithChannels());
   });
-
-  // Note: testing actual scroll behavior is not feasible because jsdom does not implement
-  // e.g. scrollTop, scrollHeight, etc.
 
   afterEach(() => {
     cleanup();
     vi.clearAllMocks();
   });
 
-  it('should render the MessageList component with the correct props without date separators', () => {
-    const additionalMessageListProps = {
-      loadingMore: false,
-      loadMore: channelActionContextMock['threadLoadingMore'],
-    };
-    renderComponent({
-      chatClient,
-      threadProps: {
-        additionalMessageListProps,
-        Message: MessageMock as ThreadProps['Message'],
-      },
-    });
+  it('should render its children inside the thread container', () => {
+    const { container, getByTestId } = renderComponent();
 
-    expect(MessageListMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        disableDateSeparator: true,
-        hasMore: channelStateContextMock.threadHasMore,
-        head: expect.objectContaining({
-          type: expect.objectContaining({ name: 'ThreadHead' }),
-        }),
-        loadingMore: channelActionContextMock['threadLoadingMore'],
-        loadMore: channelStateContextMock['loadMoreThread'],
-        Message: MessageMock,
-        messages: channelStateContextMock.threadMessages,
-        threadList: true,
-        ...additionalMessageListProps,
-      }),
-      undefined,
+    expect(getByTestId('thread-content')).toBeInTheDocument();
+    expect(container.querySelector('.str-chat__thread')).toContainElement(
+      getByTestId('thread-content'),
     );
   });
 
-  it('should render the MessageList component with date separators if enabled', () => {
-    const additionalMessageListProps = {
-      loadingMore: false,
-      loadMore: channelActionContextMock['threadLoadingMore'],
-    };
-    renderComponent({
-      chatClient,
-      threadProps: {
-        additionalMessageListProps,
-        enableDateSeparator: true,
-        Message: MessageMock as ThreadProps['Message'],
-      },
-    });
+  it('should render no UI of its own beyond the container', () => {
+    // The composition is the caller's: no header, list or composer is implied by `Thread`.
+    const { container } = renderComponent({ children: null });
 
-    expect(MessageListMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        disableDateSeparator: false,
-        hasMore: channelStateContextMock.threadHasMore,
-        head: expect.objectContaining({
-          type: expect.objectContaining({ name: 'ThreadHead' }),
-        }),
-        loadingMore: channelActionContextMock['threadLoadingMore'],
-        loadMore: channelStateContextMock['loadMoreThread'],
-        Message: MessageMock,
-        messages: channelStateContextMock.threadMessages,
-        threadList: true,
-        ...additionalMessageListProps,
-      }),
-      undefined,
-    );
+    expect(container.querySelector('.str-chat__thread')).toBeEmptyDOMElement();
   });
 
-  it('should render the MessageComposer with correct default props', () => {
-    const props: Partial<ThreadProps> & Record<string, unknown> = {
-      additionalMessageComposerProps: fromPartial({ propName: 'value' }),
-      autoFocus: true,
-    };
-    renderComponent({
-      chatClient,
-      threadProps: props,
-    });
-
-    expect(MessageInputMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        focus: props.autoFocus,
-        parent: expect.objectContaining(parentMessage),
-        ...props.additionalMessageComposerProps,
-      }),
-      undefined,
+  it('should provide the thread to its children', () => {
+    const { thread } = makeThread();
+    const ThreadProbe = () => (
+      <div data-testid='probe' data-thread-id={useThreadContext()?.id} />
     );
-  });
-
-  it('should pass additionalMessageComposerProps to MessageComposer', () => {
-    const props: Partial<ThreadProps> & Record<string, unknown> = {
-      additionalMessageComposerProps: fromPartial({
-        propName: 'value',
-      }),
-      autoFocus: true,
-    };
-
-    renderComponent({
-      chatClient,
-      threadProps: props,
-    });
-
-    expect(MessageInputMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        focus: props.autoFocus,
-        parent: expect.objectContaining(parentMessage),
-        ...props.additionalMessageComposerProps,
-      }),
-      undefined,
-    );
-  });
-
-  it('should render a custom ThreadHeader if it is passed as a prop', async () => {
-    const CustomThreadHeader = vi.fn(() => <div data-testid='custom-thread-header' />);
 
     const { getByTestId } = renderComponent({
-      chatClient,
-      componentOverrides: { ThreadHeader: CustomThreadHeader },
+      children: <ThreadProbe />,
+      threadInstance: thread,
     });
 
-    await waitFor(() => {
-      expect(getByTestId('custom-thread-header')).toBeInTheDocument();
-      expect(CustomThreadHeader).toHaveBeenCalledWith(
-        expect.objectContaining({
-          closeThread: channelActionContextMock.closeThread,
-          thread: parentMessage,
-        }),
-        undefined,
+    expect(getByTestId('probe')).toHaveAttribute('data-thread-id', thread.id);
+  });
+
+  it('should reload the thread on mount when replies have not been fetched yet', () => {
+    // Use a unique parent id so the thread is not already tracked in the shared
+    // client.threads manager state (which would short-circuit the reload effect).
+    const { reload, thread } = makeThread({
+      items: undefined,
+      parentMessage: generateMessage({
+        id: 'reload-parent',
+        reply_count: 2,
+        user: alice,
+      }),
+    });
+    renderComponent({ threadInstance: thread });
+
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not reload a thread whose parent message has no replies yet', () => {
+    // The thread does not exist server-side until its first reply, so `GET /threads/:id` can only
+    // 404 here — opening a reply-less message to write the first reply must not query.
+    const { reload, thread } = makeThread({
+      items: undefined,
+      parentMessage: generateMessage({
+        id: 'never-created-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    renderComponent({ threadInstance: thread });
+
+    expect(reload).not.toHaveBeenCalled();
+  });
+
+  it('should reload once the parent message reports its first reply', () => {
+    // The skip is self-healing: `replyCount` follows the parent message, so the thread loads as
+    // soon as it exists server-side — without remounting the component.
+    const { reload, thread } = makeThread({
+      items: undefined,
+      parentMessage: generateMessage({
+        id: 'first-reply-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    renderComponent({ threadInstance: thread });
+    expect(reload).not.toHaveBeenCalled();
+
+    act(() => {
+      thread.state.partialNext({ replyCount: 1 });
+    });
+
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should defer a stale reload until the thread reports a reply', () => {
+    // Reopening a closed thread reuses the cached instance, which `unregisterSubscriptions` left
+    // stale — for a thread that was never created that reload can only 404. The guard defers it:
+    // `isStateStale` stays true until a reload succeeds, so the catch-up runs as soon as the
+    // parent message reports a reply.
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      // `[]`, not `undefined`: reopening runs on a disposed paginator, which is what makes the
+      // stale effect the only one that can still load this thread.
+      items: [],
+      parentMessage: generateMessage({
+        id: 'stale-never-created-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    renderComponent({ threadInstance: thread });
+    expect(reload).not.toHaveBeenCalled();
+
+    act(() => {
+      thread.state.partialNext({ replyCount: 3 });
+    });
+
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should reload a stale thread that has replies', () => {
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      parentMessage: generateMessage({
+        id: 'stale-parent',
+        reply_count: 2,
+        user: alice,
+      }),
+    });
+    renderComponent({ threadInstance: thread });
+
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
+  it('should render null if replies is disabled', () => {
+    const { thread } = makeThread({ replies: false });
+    const { container } = renderComponent({ threadInstance: thread });
+
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('should stop rendering when replies is disabled after mount', () => {
+    // Guards the subscription: reading the non-reactive `channel.config` getter would leave an open
+    // thread rendered after `client.config` disabled replies.
+    const { thread } = makeThread({ replies: true });
+    const { container } = renderComponent({ threadInstance: thread });
+    expect(container).not.toBeEmptyDOMElement();
+
+    act(() => {
+      thread.channel.configState.partialNext(
+        fromPartial<ChannelConfig>({ replies: { enabled: false } }),
       );
     });
-  });
-
-  it('should call the closeThread callback if the button is pressed', () => {
-    const { getByTestId } = renderComponent({ chatClient });
-
-    fireEvent.click(getByTestId('close-thread-button'));
-
-    expect(channelActionContextMock.closeThread).toHaveBeenCalledTimes(1);
-  });
-
-  it('should pass messageActions prop to the used messageList', () => {
-    const messageActions = ['edit', 'reply', 'delete'];
-    renderComponent({
-      chatClient,
-      threadProps: {
-        messageActions,
-      },
-    });
-
-    expect(MessageListMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        messageActions,
-      }),
-      undefined,
-    );
-  });
-
-  it('should assign str-chat__thread--virtualized class to the root in virtualized mode', () => {
-    const { container } = renderComponent({
-      chatClient,
-      threadProps: { virtualized: true },
-    });
-    expect(container.querySelector('.str-chat__thread--virtualized')).toBeInTheDocument();
-  });
-
-  it('should not assign str-chat__thread--virtualized class to the root in non-virtualized mode', () => {
-    const { container } = renderComponent({
-      chatClient,
-      threadProps: { virtualized: false },
-    });
-    expect(
-      container.querySelector('.str-chat__thread--virtualized'),
-    ).not.toBeInTheDocument();
-  });
-
-  it('should not render anything if the thread in context is falsy', () => {
-    const { container } = renderComponent({
-      channelStateOverrides: { thread: null },
-      chatClient,
-    });
-
-    expect(container.querySelector('.str-chat__thread')).not.toBeInTheDocument();
-  });
-
-  it('should call the loadMoreThread callback on mount if the thread start has a non-zero reply count', () => {
-    renderComponent({ chatClient });
-
-    expect(channelActionContextMock.loadMoreThread).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render null if replies is disabled', async () => {
-    const client = await getTestClientWithUser();
-    const ch = generateChannel(
-      fromPartial<GenerateChannelOptions>({ getConfig: () => ({ replies: false }) }),
-    );
-    const channelConfig = ch['getConfig']();
-    useMockedApis(client, [getOrCreateChannelApi(ch)]);
-    const channel = client.channel('messaging', ch['id']);
-    await channel.watch();
-
-    const { container } = render(
-      <ChannelStateProvider
-        value={mockChannelStateContext({
-          ...channelStateContextMock,
-          channel,
-          channelConfig,
-        })}
-      >
-        <Thread />
-      </ChannelStateProvider>,
-    );
 
     expect(container).toBeEmptyDOMElement();
   });

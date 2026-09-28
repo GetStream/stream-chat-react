@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { useChannelStateContext, useMessageContext } from '../../../context';
+import { useChannel, useMessageContext } from '../../../context';
 import { useUserRole } from '../../Message/hooks';
 import {
   ACTIONS_NOT_WORKING_IN_THREAD,
@@ -18,6 +18,12 @@ import {
   isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
+import type { ChannelConfig } from 'stream-chat';
+import { useStateStore } from '../../../store';
+
+const userMessageRemindersStateSelector = ({ userMessageReminders }: ChannelConfig) => ({
+  userMessageRemindersEnabled: userMessageReminders.enabled,
+});
 
 /**
  * Base filter hook which covers actions of type `delete`, `edit`,
@@ -29,8 +35,12 @@ export const useBaseMessageActionSetFilter = (
   messageActionSet: MessageActionSetItem[],
   disable = false,
 ) => {
+  const channel = useChannel();
   const { initialMessage: isInitialMessage, message } = useMessageContext();
-  const { channelConfig } = useChannelStateContext();
+  const { userMessageRemindersEnabled } = useStateStore(
+    channel.configState,
+    userMessageRemindersStateSelector,
+  );
   const messageIsDeleted = isMessageDeleted(message);
   const {
     canBlockUser,
@@ -104,8 +114,8 @@ export const useBaseMessageActionSetFilter = (
         (type === 'quote' && !canQuote) ||
         (type === 'react' && !canReact) ||
         (type === 'reply' && !canReply) ||
-        (type === 'remindMe' && !channelConfig?.['user_message_reminders']) ||
-        (type === 'saveForLater' && !channelConfig?.['user_message_reminders'])
+        (type === 'remindMe' && !userMessageRemindersEnabled) ||
+        (type === 'saveForLater' && !userMessageRemindersEnabled)
       )
         return false;
 
@@ -123,7 +133,7 @@ export const useBaseMessageActionSetFilter = (
     canReact,
     canReply,
     canSendMessage,
-    channelConfig,
+    userMessageRemindersEnabled,
     isBounced,
     isInitialMessage,
     messageIsDeleted,

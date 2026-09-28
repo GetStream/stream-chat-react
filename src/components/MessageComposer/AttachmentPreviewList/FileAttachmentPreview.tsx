@@ -2,12 +2,12 @@ import React from 'react';
 import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { FileIcon } from '../../FileIcon';
 import { UploadProgressIndicator } from '../../Loading/UploadProgressIndicator';
-import { isUploadConfirmationPending } from '../../Attachment/hooks/useAttachmentUploadState';
 import { AttachmentUploadedSizeIndicator } from '../../Loading/AttachmentUploadedSizeIndicator';
 import type { LocalAudioAttachment, LocalFileAttachment } from 'stream-chat';
 import type { UploadAttachmentPreviewProps } from './types';
 import { RemoveAttachmentPreviewButton } from '../RemoveAttachmentPreviewButton';
 import { AttachmentPreviewRoot } from './utils/AttachmentPreviewRoot';
+import { isUploadConfirmationPending } from 'stream-chat';
 
 export type FileAttachmentPreviewProps<CustomLocalMetadata = unknown> =
   UploadAttachmentPreviewProps<
@@ -20,8 +20,7 @@ export const FileAttachmentPreview = ({
   removeAttachments,
 }: FileAttachmentPreviewProps) => {
   const { IconExclamationMark, IconExclamationTriangleFill } = useComponentContextIcons();
-
-  const { t } = useTranslationContext('FilePreview');
+  const { t } = useTranslationContext();
   const { id, uploadPermissionCheck, uploadProgress, uploadState } =
     attachment.localMetadata ?? {};
 
@@ -36,7 +35,7 @@ export const FileAttachmentPreview = ({
       data-testid='attachment-preview-file'
     >
       <div className='str-chat__attachment-preview-file__icon'>
-        <FileIcon fileName={attachment.title} mimeType={attachment.mime_type} />
+        <FileIcon fileName={attachment.title} mimeType={attachment.custom?.mime_type} />
       </div>
 
       <div className='str-chat__attachment-preview-file__info'>
@@ -58,19 +57,33 @@ export const FileAttachmentPreview = ({
               <IconExclamationMark />
               <span>
                 {hasSizeLimitError
-                  ? t('File too large')
+                  ? t(
+                      'messageComposer.audioAttachmentPreview.fileTooLarge.text',
+                      'File too large',
+                    )
                   : uploadState === 'blocked'
-                    ? t('Upload blocked')
-                    : t('Upload failed')}
+                    ? t(
+                        'messageComposer.audioAttachmentPreview.uploadBlocked.text',
+                        'Upload blocked',
+                      )
+                    : t(
+                        'messageComposer.audioAttachmentPreview.uploadFailed.text',
+                        'Upload failed',
+                      )}
               </span>
             </div>
           )}
           {hasRetriableError && (
             <div className='str-chat__attachment-preview-file__retriable-error'>
               <IconExclamationTriangleFill />
-              <span>{t('Upload error')}</span>
+              <span>
+                {t(
+                  'messageComposer.audioAttachmentPreview.uploadError.text',
+                  'Upload error',
+                )}
+              </span>
               <button
-                aria-label={t('aria/Retry upload')}
+                aria-label={t('common.retryUpload.ariaLabel', 'Retry upload')}
                 className='str-chat__attachment-preview-file__retry-upload-button'
                 data-testid='file-preview-item-retry-button'
                 onClick={() => {
@@ -78,7 +91,10 @@ export const FileAttachmentPreview = ({
                 }}
                 type='button'
               >
-                {t('Retry upload')}
+                {t(
+                  'messageComposer.audioAttachmentPreview.retryUpload.text',
+                  'Retry upload',
+                )}
               </button>
             </div>
           )}

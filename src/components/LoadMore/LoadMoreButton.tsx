@@ -16,15 +16,16 @@ const UnMemoizedLoadMoreButton = ({
   isLoading,
   onClick,
 }: PropsWithChildren<LoadMoreButtonProps>) => {
-  const { t } = useTranslationContext('UnMemoizedLoadMoreButton');
+  const { t } = useTranslationContext();
 
-  const childrenOrDefaultString = children ?? t('Load more');
+  const childrenOrDefaultString =
+    children ?? t('loadMore.button.loadMore.label', 'Load more');
 
   return (
     <div className='str-chat__load-more-button'>
       <Button
         appearance='ghost'
-        aria-label={t('Load more')}
+        aria-label={t('loadMore.button.loadMore.label', 'Load more')}
         data-testid='load-more-button'
         disabled={isLoading}
         onClick={onClick}

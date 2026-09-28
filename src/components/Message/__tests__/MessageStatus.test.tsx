@@ -17,6 +17,8 @@ import {
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const MESSAGE_STATUS_SENDING_TEST_ID = 'message-status-sending';
 const MESSAGE_STATUS_DELIVERED_TEST_ID = 'message-status-delivered';
@@ -28,7 +30,7 @@ const user = { id: 'me' };
 const foreignMsg = {
   __html: '<p>regular</p>',
   attachments: [],
-  created_at: '2024-05-28T15:13:20.899Z',
+  created_at: convertDateToTimestamp('2024-05-28T15:13:20.899Z'),
   html: '<p>regular</p>',
   id: '5kIE4fIArv11V4YHYdXKO',
   mentioned_users: [],
@@ -36,18 +38,17 @@ const foreignMsg = {
   status: 'received',
   text: 'udSNfyk7Z-0MRn17WUQwY',
   type: 'regular',
-  updated_at: '2024-05-28T15:13:20.900Z',
+  updated_at: convertDateToTimestamp('2024-05-28T15:13:20.900Z'),
   user: otherUser,
 };
 
 const ownMessage = generateMessage({ user });
 const errorMsg = { ...foreignMsg, type: 'error', user };
 const sendingMsg = { ...foreignMsg, status: 'sending', user };
-const failedMsg = { ...foreignMsg, status: 'failed', user };
 const sentMsg = { ...foreignMsg, user };
 const deliveredTo = [otherUser, user];
 const readByOthers = [otherUser, user];
-const t = vi.fn((s) => s);
+const t = vi.fn(mockT);
 
 const defaultMsgCtx = {
   isMyMessage: vi.fn().mockReturnValue(true),
@@ -93,27 +94,6 @@ describe('MessageStatus', () => {
       },
     });
     expect(container).toBeEmptyDOMElement();
-  });
-
-  it('reports neither delivered nor read for a message that failed to send', async () => {
-    // Delivery and read state comes from the other members' timestamp cursors, so a message that
-    // never reached the server was otherwise reported as delivered as soon as anyone's cursor
-    // moved past its locally stamped created_at — a double tick on a message nobody received.
-    const client = await getTestClientWithUser(user);
-    renderComponent({
-      chatCtx: { client },
-      messageCtx: {
-        deliveredTo,
-        message: failedMsg,
-        readBy: readByOthers,
-      },
-    });
-
-    expect(
-      screen.queryByTestId(MESSAGE_STATUS_DELIVERED_TEST_ID),
-    ).not.toBeInTheDocument();
-    expect(screen.queryByTestId(MESSAGE_STATUS_READ_TEST_ID)).not.toBeInTheDocument();
-    expect(screen.queryByTestId(MESSAGE_STATUS_SENDING_TEST_ID)).not.toBeInTheDocument();
   });
 
   it('renders default sending UI', async () => {

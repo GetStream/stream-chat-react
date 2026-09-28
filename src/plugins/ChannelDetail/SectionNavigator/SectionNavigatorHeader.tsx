@@ -15,9 +15,7 @@ export type SectionNavigatorHeaderProps = Omit<PromptHeaderProps, 'LeadingConten
  * (`goBack`), where it would compete with the back affordance.
  */
 export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
-  const { IconMenu } = useComponentContextIcons();
-
-  const { t } = useTranslationContext('SectionNavigatorHeader');
+  const { t } = useTranslationContext();
   const { layout, openNavigation } = useSectionNavigatorContext();
 
   const MenuButton = useMemo(() => {
@@ -25,10 +23,14 @@ export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
     if (props.goBack) return undefined;
 
     return function SectionNavigatorHeaderMenuButton() {
+      const { IconMenu } = useComponentContextIcons();
       return (
         <Button
           appearance='ghost'
-          aria-label={t('Open menu')}
+          aria-label={t(
+            'channelDetail.sectionNavigatorHeader.openMenu.ariaLabel',
+            'Open menu',
+          )}
           circular
           className='str-chat__section-navigator__header-menu-button'
           onClick={openNavigation}
@@ -39,7 +41,7 @@ export const SectionNavigatorHeader = (props: SectionNavigatorHeaderProps) => {
         </Button>
       );
     };
-  }, [IconMenu, layout, openNavigation, props.goBack, t]);
+  }, [layout, openNavigation, props.goBack, t]);
 
   return <Prompt.Header {...props} LeadingContent={MenuButton} />;
 };

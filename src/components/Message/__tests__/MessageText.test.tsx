@@ -4,9 +4,6 @@ import { fromPartial } from '@total-typescript/shoehorn';
 import { axe } from '../../../../axe-helper';
 
 import {
-  ChannelActionProvider,
-  ChannelStateProvider,
-  ChatProvider,
   ComponentProvider,
   DialogManagerProvider,
   MessageProvider,
@@ -14,20 +11,18 @@ import {
 } from '../../../context';
 import {
   countReactions,
-  generateChannel,
   generateMessage,
   generateReaction,
   generateUser,
-  getTestClientWithUser,
   groupReactions,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  mockChatContext,
+  initClientWithChannels,
   mockComponentContext,
   mockMessageContext,
   mockTranslationContextValue,
 } from '../../../mock-builders';
 
+import { Channel } from '../../Channel';
+import { Chat } from '../../Chat';
 import { Attachment } from '../../Attachment';
 import { defaultReactionOptions } from '../../Reactions';
 import { Message } from '../Message';
@@ -36,14 +31,16 @@ import { MessageText } from '../MessageText';
 import type { MessageProps } from '../types';
 import type { MessageTextProps } from '../MessageText';
 import type { TranslationContextValue } from '../../../context';
+import { mockT } from '../../../mock-builders/translator';
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 vi.mock('../../ChatView', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../ChatView')>();
   return {
     ...actual,
     useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
+      activeView: 'channels',
+      setActiveView: vi.fn(),
     })),
     useThreadsViewContext: vi.fn(() => ({
       activeThread: undefined,
@@ -65,8 +62,6 @@ const defaultProps = {
   message: generateMessage(),
   threadList: false,
 };
-const translate = (key: string, options?: Record<string, string>) =>
-  key.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, token: string) => options?.[token] ?? '');
 
 function generateAliceMessage(messageOptions) {
   return generateMessage({
@@ -75,81 +70,64 @@ function generateAliceMessage(messageOptions) {
   });
 }
 
-async function renderMessageText({
-  channelCapabilitiesOverrides = {},
-  channelConfigOverrides = {},
-  customProps = {},
-} = {}) {
-  const client = await getTestClientWithUser(alice);
-  const channel = generateChannel(
-    fromPartial<Parameters<typeof generateChannel>[0]>({
-      getConfig: () => channelConfigOverrides,
-      state: { membership: {} },
-    }),
-  );
-  const channelCapabilities = { 'send-reaction': true, ...channelCapabilitiesOverrides };
-  const channelConfig = channel['getConfig']();
+async function renderMessageText({ customProps = {} } = {}) {
+  // MERGE-RECONCILE (test migration): render under the real <Chat>/<Channel> providers
+  // instead of the removed ChannelStateContext/ChannelActionContext. Mention handlers moved
+  // from ChannelActionContext to <Message> props (useMentionsHandler reads them from props).
+  const {
+    channels: [channel],
+    client,
+  } = await initClientWithChannels({ customUser: alice });
   const customDateTimeParser = vi.fn(() => ({ format: vi.fn() }));
   const renderMessageTextDirectly =
     'customInnerClass' in customProps || 'customWrapperClass' in customProps;
 
   return render(
-    <ChatProvider value={mockChatContext({ client })}>
-      <ChannelStateProvider
-        value={mockChannelStateContext({ channel, channelCapabilities, channelConfig })}
-      >
-        <ChannelActionProvider
-          value={mockChannelActionContext({
-            onMentionsClick: onMentionsClickMock,
-            onMentionsHover: onMentionsHoverMock,
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <TranslationProvider
+          value={mockTranslationContextValue({
+            t: mockT as TranslationContextValue['t'],
+            tDateTimeParser:
+              customDateTimeParser as TranslationContextValue['tDateTimeParser'],
+            userLanguage: 'en',
           })}
         >
-          <TranslationProvider
-            value={mockTranslationContextValue({
-              t: ((key: string, options?: Record<string, string>) =>
-                translate(key, options)) as TranslationContextValue['t'],
-              tDateTimeParser:
-                customDateTimeParser as TranslationContextValue['tDateTimeParser'],
-              userLanguage: 'en',
+          <ComponentProvider
+            value={mockComponentContext({
+              Attachment,
+
+              MessageUI: () => <MessageUI />,
+              reactionOptions: defaultReactionOptions,
             })}
           >
-            <ComponentProvider
-              value={mockComponentContext({
-                Attachment,
-
-                Message: () => <MessageUI />,
-                reactionOptions: defaultReactionOptions,
-              })}
-            >
-              <DialogManagerProvider id='message-dialog-manager-provider'>
-                {renderMessageTextDirectly ? (
-                  <MessageProvider
-                    value={mockMessageContext({
-                      message: defaultProps.message,
-                      onMentionsClickMessage: onMentionsClickMock,
-                      onMentionsHoverMessage: onMentionsHoverMock,
-                      ...customProps,
-                    })}
-                  >
-                    <MessageText
-                      {...(defaultProps as MessageTextProps)}
-                      {...customProps}
-                    />
-                  </MessageProvider>
-                ) : (
-                  <Message {...(defaultProps as MessageProps)} {...customProps}>
-                    <MessageText
-                      {...(defaultProps as MessageTextProps)}
-                      {...customProps}
-                    />
-                  </Message>
-                )}
-              </DialogManagerProvider>
-            </ComponentProvider>
-          </TranslationProvider>
-        </ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>,
+            <DialogManagerProvider id='message-dialog-manager-provider'>
+              {renderMessageTextDirectly ? (
+                <MessageProvider
+                  value={mockMessageContext({
+                    message: defaultProps.message,
+                    onMentionsClickMessage: onMentionsClickMock,
+                    onMentionsHoverMessage: onMentionsHoverMock,
+                    ...customProps,
+                  })}
+                >
+                  <MessageText {...(defaultProps as MessageTextProps)} {...customProps} />
+                </MessageProvider>
+              ) : (
+                <Message
+                  {...(defaultProps as MessageProps)}
+                  {...customProps}
+                  onMentionsClick={onMentionsClickMock}
+                  onMentionsHover={onMentionsHoverMock}
+                >
+                  <MessageText {...(defaultProps as MessageTextProps)} {...customProps} />
+                </Message>
+              )}
+            </DialogManagerProvider>
+          </ComponentProvider>
+        </TranslationProvider>
+      </Channel>
+    </Chat>,
   );
 }
 
@@ -289,10 +267,10 @@ describe('<MessageText />', () => {
       {
         mentioned_groups: [
           fromPartial({
-            created_at: '2026-05-28T00:00:00.000Z',
+            created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
             id: 'backend-team',
             name: 'Backend Team',
-            updated_at: '2026-05-28T00:00:00.000Z',
+            updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
           }),
         ],
         text: 'Hello @Backend Team',
@@ -322,7 +300,7 @@ describe('<MessageText />', () => {
 
     const focusableWrapper = getByTestId(messageTextTestId).parentElement;
 
-    expect(focusableWrapper).toHaveAccessibleName(`aria/Message from alice, ${text}`);
+    expect(focusableWrapper).toHaveAccessibleName(`Message from alice, ${text}`);
   });
 
   it('should expose sender context on the mention-interactive text wrapper', async () => {
@@ -333,7 +311,7 @@ describe('<MessageText />', () => {
     });
 
     expect(getByTestId(messageTextTestId)).toHaveAccessibleName(
-      `aria/Message from alice, ${text}`,
+      `Message from alice, ${text}`,
     );
   });
 
@@ -349,7 +327,7 @@ describe('<MessageText />', () => {
 
     const focusableWrapper = getByTestId(messageTextTestId).parentElement;
 
-    expect(focusableWrapper).toHaveAccessibleName(`aria/Message, ${text}`);
+    expect(focusableWrapper).toHaveAccessibleName(`Message, ${text}`);
   });
 
   it('should inform that message was not sent when message is has type "error"', async () => {
@@ -412,10 +390,10 @@ describe('<MessageText />', () => {
       mentioned_channel: true,
       mentioned_groups: [
         fromPartial({
-          created_at: '2026-05-28T00:00:00.000Z',
+          created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
           id: 'backend-team',
           name: 'Backend Team',
-          updated_at: '2026-05-28T00:00:00.000Z',
+          updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
         }),
       ],
       mentioned_here: true,
@@ -487,7 +465,6 @@ describe('<MessageText />', () => {
       reaction_groups: groupReactions(reactions),
     });
     const { container } = await renderMessageText({
-      channelCapabilitiesOverrides: { 'send-reaction': false },
       customProps: { message },
     });
 

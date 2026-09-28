@@ -10,6 +10,18 @@ export default defineConfig({
     alias: {
       'mock-builders': resolve(__dirname, 'src/mock-builders'),
     },
+    // `stream-chat`, `@stream-io/i18n` and this package each depend on `@stream-io/state-store`,
+    // and they hand each other store instances. A plain install dedupes them, but a linked
+    // `stream-chat` checkout brings its own nested copy along — two `StateStore` classes, so
+    // `instanceof` and identity checks across the boundary stop holding. Resolve these from the
+    // project root always, so a test run exercises one copy of each the way an app does.
+    dedupe: [
+      '@stream-io/state-store',
+      '@stream-io/i18n',
+      'stream-chat',
+      'react',
+      'react-dom',
+    ],
   },
   test: {
     globals: true,

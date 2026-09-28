@@ -1,61 +1,73 @@
-import React, { useEffect, useState } from 'react';
-import type { ChannelFilters, ChannelOptions, ChannelSort, User } from 'stream-chat';
+import { useEffect, useState } from 'react';
+import type { ChannelFilters, ClientUser, SortParamRequest } from 'stream-chat';
+import { ChannelPaginator } from 'stream-chat';
 import {
   Channel,
   ChannelAvatar,
   ChannelHeader,
-  ChannelList,
   type ChannelListItemUIProps,
+  ChannelNavigation,
   Chat,
+  getChannel,
   MessageComposer,
   MessageList,
+  SummarizedMessagePreview,
   Thread,
+  ThreadHeader,
   useCreateChatClient,
   useMessageContext,
-  Window,
   WithComponents,
 } from 'stream-chat-react';
+import {
+  ChatView,
+  type ChatViewSlotRenderers,
+  type DeriveWorkspaceNavigation,
+  Slot,
+  useChatViewNavigation,
+} from 'stream-chat-react/slot-layout';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
-const user: User = {
+const user: ClientUser = {
   id: userId,
   name: userName,
   image: `https://getstream.io/random_png/?name=${userName}`,
 };
 
-const sort: ChannelSort = { last_message_at: -1 };
+const sort: SortParamRequest[] = [{ direction: -1, field: 'last_message_at' }];
 const filters: ChannelFilters = {
   type: 'messaging',
   members: { $in: [userId] },
 };
-const options: ChannelOptions = {
-  limit: 10,
-};
+
+const ellipsis = {
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+} as const;
 
 const CustomChannelListItem = ({
   active,
   channel,
   displayImage,
   displayTitle,
-  latestMessagePreview,
-  onSelect,
-  setActiveChannel,
+  previewedMessage,
 }: ChannelListItemUIProps) => {
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (onSelect) {
-      onSelect(event);
-      return;
-    }
-
-    setActiveChannel?.(channel, undefined, event);
-  };
+  // Selection is one navigation model: open the channel into a layout slot.
+  const { open } = useChatViewNavigation();
 
   return (
     <button
       aria-pressed={active}
-      onClick={handleClick}
+      // A plain click replaces the open channel; ⌘/ctrl-click opens it beside, in the other slot.
+      onClick={(event) =>
+        open(
+          { key: channel.cid ?? undefined, kind: 'channel', source: channel },
+          { additive: event.metaKey || event.ctrlKey },
+        )
+      }
       style={{
         width: '100%',
         padding: '12px',
@@ -70,14 +82,20 @@ const CustomChannelListItem = ({
       type='button'
     >
       <ChannelAvatar
-        imageUrl={displayImage ?? channel.data?.image}
+        imageUrl={displayImage ?? channel.data?.custom?.image}
         size='xl'
-        userName={displayTitle ?? channel.data?.name ?? 'Channel'}
+        userName={displayTitle ?? channel.data?.custom?.name ?? 'Channel'}
       />
-      <div style={{ flex: 1 }}>
-        <div>{displayTitle ?? channel.data?.name ?? 'Unnamed Channel'}</div>
-        {latestMessagePreview ? (
-          <div style={{ fontSize: '14px', opacity: 0.75 }}>{latestMessagePreview}</div>
+      {/* `minWidth: 0` lets the text column shrink below its content, so a long title or preview
+          is cut off with an ellipsis instead of squeezing the avatar out of the row. */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={ellipsis}>
+          {displayTitle ?? channel.data?.custom?.name ?? 'Unnamed Channel'}
+        </div>
+        {previewedMessage ? (
+          <div style={{ ...ellipsis, fontSize: '14px', opacity: 0.75 }}>
+            <SummarizedMessagePreview latestMessage={previewedMessage} />
+          </div>
         ) : null}
       </div>
     </button>
@@ -114,6 +132,49 @@ const CustomMessage = () => {
   );
 };
 
+// One view ("channels") with two generic slots side by side. Each `<Slot>` renders whatever is
+// open in it - a channel or a thread - through `slotRenderers`. Module-scoped so the references are
+// stable (they feed the ChatView layout controller).
+const chatViewLayouts = [{ id: 'channels' as const, slots: ['left', 'right'] }];
+
+const slotRenderers: ChatViewSlotRenderers = {
+  channel: ({ source }) => (
+    <Channel channel={source}>
+      <ChannelHeader />
+      <MessageList />
+      <MessageComposer />
+    </Channel>
+  ),
+  thread: ({ source }) => (
+    <Thread thread={source}>
+      <ThreadHeader />
+      <MessageList />
+      <MessageComposer />
+    </Thread>
+  ),
+};
+
+// A plain click on a channel replaces the open one; ⌘/ctrl-click opens it beside, in the other slot.
+const deriveWorkspaceNavigation: DeriveWorkspaceNavigation = (base) => ({
+  openChannel: (channel, options) =>
+    base.openChannel(channel, {
+      ...options,
+      additive:
+        options?.additive ?? !!(options?.event?.metaKey || options?.event?.ctrlKey),
+    }),
+});
+
+const ChannelsWorkspace = () => (
+  <>
+    <ChannelNavigation />
+    {/* The slots' own container, so `layout.css` can react to the width they share. */}
+    <div className='channel-slots'>
+      <Slot slot='left' />
+      <Slot slot='right' />
+    </div>
+  </>
+);
+
 const App = () => {
   const [isReady, setIsReady] = useState(false);
   const client = useCreateChatClient({
@@ -122,17 +183,53 @@ const App = () => {
     userData: user,
   });
 
+  // Commands such as /giphy need their middlewares in every composer (see
+  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
+  // it is registered before the effects below create any.
+  useEffect(() => {
+    if (!client) return;
+    client.config.setSetupFunction('messageComposer', ({ composer }) =>
+      setUpCommandMiddlewares(composer),
+    );
+  }, [client]);
+
+  // Channel-list query config (filters/sort) lives on a `ChannelPaginator`. The list is registered
+  // on `client.channelManager` — the orchestrator instantiated together with the client, which
+  // keeps every registered list in sync with WS events. `<ChannelNavigation>` renders one list per
+  // registered paginator.
+  useEffect(() => {
+    if (!client) return;
+    const paginator = new ChannelPaginator({
+      client,
+      filters,
+      id: 'channels:default',
+      sort,
+    });
+    client.channelManager.insertPaginator({ paginator });
+    return () => {
+      client.channelManager.removePaginator(paginator);
+    };
+  }, [client]);
+
   useEffect(() => {
     if (!client) return;
 
     const initChannel = async () => {
       const channel = client.channel('messaging', 'react-tutorial', {
-        image: 'https://getstream.io/random_png/?name=react-v14',
-        name: 'Talk about React',
         members: [userId],
+        // custom channel fields live under `custom` since v10
+        custom: {
+          image: 'https://getstream.io/random_png/?name=react-v14',
+          name: 'Talk about React',
+        },
       });
 
-      await channel.watch();
+      // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
+      // caller's job. The cached instance may already be loaded, so query only when it is not --
+      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      if (!channel.initialized) {
+        await getChannel({ channel, client });
+      }
       setIsReady(true);
     };
 
@@ -152,15 +249,12 @@ const App = () => {
       }}
     >
       <Chat client={client} theme='custom-theme'>
-        <ChannelList filters={filters} options={options} sort={sort} />
-        <Channel>
-          <Window>
-            <ChannelHeader />
-            <MessageList />
-            <MessageComposer />
-          </Window>
-          <Thread />
-        </Channel>
+        <ChatView
+          deriveWorkspaceNavigation={deriveWorkspaceNavigation}
+          layouts={chatViewLayouts}
+          slotRenderers={slotRenderers}
+          views={{ channels: <ChannelsWorkspace /> }}
+        />
       </Chat>
     </WithComponents>
   );

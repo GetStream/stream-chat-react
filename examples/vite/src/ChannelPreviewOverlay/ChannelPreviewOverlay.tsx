@@ -4,8 +4,8 @@ import {
   Button,
   IconMessageBubbles,
   LoadingIndicator,
+  useChannel,
   useChannelMembersState,
-  useChannelStateContext,
   useChatContext,
   useNotificationApi,
 } from 'stream-chat-react';
@@ -14,7 +14,7 @@ import './ChannelPreviewOverlay.scss';
 
 export const useChannelMembershipState = () => {
   const { client } = useChatContext();
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const members = useChannelMembersState(channel);
   const membership = members[client.userID!] as ChannelMemberResponse | undefined;
 

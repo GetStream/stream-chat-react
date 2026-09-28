@@ -1,8 +1,8 @@
-import type { Channel, ChannelMemberResponse, EventTypes } from 'stream-chat';
+import type { Channel, ChannelMemberResponse, EventType } from 'stream-chat';
 import { useSelectedChannelState } from './useSelectedChannelState';
 
 const selector = (c: Channel) => c.state.members;
-const keys: EventTypes[] = [
+const keys: EventType[] = [
   'member.updated',
   'member.added',
   'member.removed',

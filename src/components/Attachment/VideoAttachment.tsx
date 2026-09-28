@@ -1,17 +1,16 @@
 import type { VideoAttachment as VideoAttachmentType } from 'stream-chat';
-import { useChannelStateContext } from '../../context';
 import React, { type ComponentType, useLayoutEffect, useRef, useState } from 'react';
-import type { VideoAttachmentConfiguration } from '../../types/types';
 import { getCssDimensionsVariables } from './utils';
 import type { VideoPlayerProps } from '../VideoPlayer';
 import { VideoPlayer as DefaultVideoPlayer } from '../VideoPlayer';
 import { VideoThumbnail } from '../VideoPlayer/VideoThumbnail';
 import clsx from 'clsx';
-import {
-  getAttachmentPreviewUrl,
-  hasPendingUploadState,
-} from './hooks/useAttachmentUploadState';
 import { useLocalVideoDimensions } from './hooks/useLocalVideoDimensions';
+import { getAttachmentPreviewUrl, isPendingUpload } from 'stream-chat';
+import {
+  useAttachmentContext,
+  type VideoAttachmentConfiguration,
+} from '../../context/AttachmentContext';
 
 export type VideoAttachmentProps = {
   attachment: VideoAttachmentType;
@@ -23,7 +22,7 @@ export const VideoAttachment = ({
   VideoPlayer = DefaultVideoPlayer,
 }: VideoAttachmentProps) => {
   const { shouldGenerateVideoThumbnail, videoAttachmentSizeHandler } =
-    useChannelStateContext();
+    useAttachmentContext();
   const videoElement = useRef<HTMLDivElement>(null);
   const [attachmentConfiguration, setAttachmentConfiguration] =
     useState<VideoAttachmentConfiguration>();
@@ -33,14 +32,26 @@ export const VideoAttachment = ({
   // resizes the bubble, because the bubble is `fit-content` and the three renderings (local
   // `<video>`, CDN thumbnail `<img>`, CDN `<video>`) contribute different intrinsic widths.
   const [showVideo, setShowVideo] = React.useState(
-    () => !shouldGenerateVideoThumbnail || hasPendingUploadState(attachment),
+    () => !shouldGenerateVideoThumbnail || isPendingUpload(attachment),
   );
   // Only a click on the thumbnail's play button asks for playback. Kept separate from
   // `showVideo`, which is also true for a video that never had a thumbnail to click.
   const [playbackRequested, setPlaybackRequested] = React.useState(false);
   // Structural: the bytes are not on the CDN, so there is nothing to play — independent of
   // whether a request happens to be running this instant.
-  const isUploading = hasPendingUploadState(attachment);
+  const isUploading = isPendingUpload(attachment);
+  // While the upload is in flight there is no CDN `thumb_url` to read `oh`/`ow` from, so the box
+  // would lay out from the 1000000x1000000 fallback and then resize once the real dimensions
+  // arrive. The local file knows them already.
+  const localDimensions = useLocalVideoDimensions(
+    isUploading ? getAttachmentPreviewUrl(attachment) : undefined,
+  );
+  const dimensionVariables = localDimensions
+    ? {
+        '--original-height': localDimensions.height,
+        '--original-width': localDimensions.width,
+      }
+    : getCssDimensionsVariables(attachment.thumb_url || '');
 
   useLayoutEffect(() => {
     if (videoElement.current && videoAttachmentSizeHandler) {
@@ -61,19 +72,6 @@ export const VideoAttachment = ({
   const renderThumbnailFirst = Boolean(
     attachment.thumb_url && shouldGenerateVideoThumbnail,
   );
-
-  // While the upload is in flight there is no CDN `thumb_url` to read `oh`/`ow` from, so the box
-  // would lay out from the 1000000x1000000 fallback and then resize once the real dimensions
-  // arrive. The local file knows them already.
-  const localDimensions = useLocalVideoDimensions(
-    isUploading ? getAttachmentPreviewUrl(attachment) : undefined,
-  );
-  const dimensionVariables = localDimensions
-    ? {
-        '--original-height': localDimensions.height,
-        '--original-width': localDimensions.width,
-      }
-    : getCssDimensionsVariables(attachment.thumb_url || '');
 
   // todo: handle failed thumbnail loading
   return (

@@ -35,8 +35,8 @@ describe('useFloatingDateSeparator', () => {
   it('returns visible false when date separators are disabled', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
-        disableDateSeparator: true,
         processedMessages,
+        withDateSeparator: false,
       }),
     );
 
@@ -51,8 +51,8 @@ describe('useFloatingDateSeparator', () => {
   it('shows floating with the first visible date separator value', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
-        disableDateSeparator: false,
         processedMessages,
+        withDateSeparator: true,
       }),
     );
 
@@ -67,8 +67,8 @@ describe('useFloatingDateSeparator', () => {
   it('shows floating with correct date when first visible is a message', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
-        disableDateSeparator: false,
         processedMessages,
+        withDateSeparator: true,
       }),
     );
 
@@ -83,8 +83,8 @@ describe('useFloatingDateSeparator', () => {
   it('keeps top group date when a later date separator is also visible', () => {
     const { result } = renderHook(() =>
       useFloatingDateSeparator({
-        disableDateSeparator: false,
         processedMessages,
+        withDateSeparator: true,
       }),
     );
 

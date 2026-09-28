@@ -6,15 +6,15 @@ import { getGroupStyles, insertIntro, processMessages } from '../../utils';
 import { useChatContext } from '../../../../context/ChatContext';
 import { useComponentContext } from '../../../../context/ComponentContext';
 
-import type { Channel, LocalMessage } from 'stream-chat';
+import type { Channel, LocalMessage, TimestampNS } from 'stream-chat';
 
 export const useEnrichedMessages = (args: {
   channel: Channel;
-  disableDateSeparator: boolean;
   hideDeletedMessages: boolean;
   hideNewMessageSeparator: boolean;
   messages: LocalMessage[];
   noGroupByUser: boolean;
+  withDateSeparator: boolean;
   groupStyles?: (
     message: RenderedMessage,
     previousMessage: RenderedMessage,
@@ -22,13 +22,12 @@ export const useEnrichedMessages = (args: {
     noGroupByUser: boolean,
     maxTimeBetweenGroupedMessages?: number,
   ) => GroupStyle;
-  headerPosition?: number;
+  headerPosition?: TimestampNS;
   maxTimeBetweenGroupedMessages?: number;
   reviewProcessedMessage?: ProcessMessagesParams['reviewProcessedMessage'];
 }) => {
   const {
     channel,
-    disableDateSeparator,
     groupStyles,
     headerPosition,
     hideDeletedMessages,
@@ -37,26 +36,25 @@ export const useEnrichedMessages = (args: {
     messages,
     noGroupByUser,
     reviewProcessedMessage,
+    withDateSeparator,
   } = args;
 
-  const { client } = useChatContext('useEnrichedMessages');
-  const { HeaderComponent } = useComponentContext('useEnrichedMessages');
+  const { client } = useChatContext();
+  const { HeaderComponent } = useComponentContext();
 
   const lastRead = useMemo(() => channel.lastRead?.(), [channel]);
 
-  const enableDateSeparator = !disableDateSeparator;
-
   let messagesWithDates =
-    !enableDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
+    !withDateSeparator && !hideDeletedMessages && hideNewMessageSeparator
       ? messages
       : processMessages({
-          enableDateSeparator,
           hideDeletedMessages,
           hideNewMessageSeparator,
           lastRead,
           messages,
           reviewProcessedMessage,
           userId: client.userID || '',
+          withDateSeparator,
         });
 
   if (HeaderComponent) {

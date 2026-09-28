@@ -19,10 +19,10 @@ export const PollCreationDialogControls = ({
   close,
 }: PollCreationDialogControlsProps) => {
   const { IconSend } = useComponentContextIcons();
-
-  const { t } = useTranslationContext('PollCreationDialogControls');
-  const { handleSubmit: handleSubmitMessage, textareaRef } = useMessageComposerContext();
+  const { t } = useTranslationContext();
+  const { textareaRef } = useMessageComposerContext();
   const messageComposer = useMessageComposerController();
+  const sendMessage = messageComposer.send;
   const canCreatePoll = useCanCreatePoll();
   const { addNotification } = useNotificationApi();
 
@@ -34,7 +34,7 @@ export const PollCreationDialogControls = ({
           onClick={close}
           type='button'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Prompt.FooterControlsButtonSecondary>
         <Prompt.FooterControlsButtonPrimary
           className={clsx('str-chat__prompt__footer__controls-button--submit')}
@@ -60,27 +60,21 @@ export const PollCreationDialogControls = ({
               // was not created, so do not attempt to send the message.
               return;
             }
-            // The poll exists now; sending the message is a separate step. Keep it in its own
-            // try/catch so a send failure is surfaced (createPoll's self-notification only covers
-            // poll creation) instead of being swallowed alongside it.
-            try {
-              await handleSubmitMessage();
-            } catch {
-              addNotification({
-                emitter: 'PollCreationDialog',
-                message: t('Send message request failed'),
-                severity: 'error',
-                type: 'api:message:send:failed',
-              });
-              return;
-            }
+            // The poll exists now; sending the message is a separate step that can fail on its own
+            // (createPoll's self-notification only covers poll creation). `sendMessage()` never
+            // rejects — it reports its own `api:message:send:failed` notification and resolves with
+            // what happened — so the success announcement below is gated on that. Compared against
+            // `'sent'` rather than tested for truthiness: `'failed'` and `'nothing-to-send'` are
+            // both truthy strings, and announcing "Poll sent" after either would contradict the
+            // error notification.
+            if ((await sendMessage()) !== 'sent') return;
             addNotification({
               // Announce assertively: focus has just returned to the composer, so a polite
               // "Poll sent" would be queued behind the textarea's focus announcement and read
               // last (confusing). Assertive lets the confirmation be heard promptly.
               ariaLive: 'assertive',
               emitter: 'PollCreationDialog',
-              message: t('Poll sent'),
+              message: t('poll.creationDialog.pollSent.text', 'Poll sent'),
               severity: 'success',
               type: 'api:poll:create:success',
             });
@@ -88,7 +82,7 @@ export const PollCreationDialogControls = ({
           type='submit'
         >
           <IconSend />
-          {t('Send poll')}
+          {t('poll.creationDialog.sendPoll.text', 'Send Poll')}
         </Prompt.FooterControlsButtonPrimary>
       </Prompt.FooterControls>
     </Prompt.Footer>

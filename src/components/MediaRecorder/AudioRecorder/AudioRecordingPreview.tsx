@@ -47,7 +47,6 @@ const AudioRecordingWaveform = ({ maxDataPointsDrawn = 200 }: WaveformProps) => 
 };
 export const AudioRecordingPreview = () => {
   const { IconVoice } = useComponentContextIcons();
-
   const {
     recordingController: { recorder },
   } = useMessageComposerContext();

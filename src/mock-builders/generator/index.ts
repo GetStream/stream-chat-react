@@ -1,5 +1,6 @@
 export * from './attachment';
 export * from './channel';
+export * from './channelState';
 export * from './member';
 export * from './message';
 export * from './messageDraft';
@@ -7,4 +8,5 @@ export * from './poll';
 export * from './reaction';
 export * from './reminder';
 export * from './sharedLocation';
+export * from './time';
 export * from './user';

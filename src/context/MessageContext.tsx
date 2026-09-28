@@ -4,30 +4,20 @@ import React, { useContext } from 'react';
 import type {
   DeleteMessageOptions,
   LocalMessage,
-  Mute,
   ReactionResponse,
-  ReactionSort,
+  SortParamRequest,
   UserResponse,
 } from 'stream-chat';
 
-import type { ChannelActionContextValue } from './ChannelActionContext';
-
 import type { ActionHandlerReturnType } from '../components/Message/hooks/useActionHandler';
 import type { ReactEventHandler } from '../components/Message/types';
-import type { MessageActionsArray } from '../components/Message/utils';
 import type { GroupStyle } from '../components/MessageList/utils';
 import type { ReactionsComparator, ReactionType } from '../components/Reactions/types';
 
 import type { RenderTextFunction } from '../components/Message/renderText';
+import { requireContext } from './requireContext';
 
 export type MessageContextValue = {
-  /** If actions such as edit, delete, flag, mute are enabled on Message */
-  actionsEnabled: boolean;
-  /**
-   * Returns all allowed actions on message by current user e.g., ['edit', 'delete', 'flag', 'mute', 'pin', 'quote', 'react', 'reply'].
-   * Please check [Message](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Message.tsx) component for default implementation.
-   */
-  getMessageActions: () => MessageActionsArray<string>;
   /** Function to send an action in a Channel */
   handleAction: ActionHandlerReturnType;
   /** Function to delete a message in a Channel */
@@ -35,7 +25,7 @@ export type MessageContextValue = {
   /** Function to fetch the message reactions */
   handleFetchReactions: (
     reactionType?: ReactionType,
-    sort?: ReactionSort,
+    sort?: SortParamRequest[],
   ) => Promise<Array<ReactionResponse>>;
   /** Function to flag a message in a Channel */
   handleFlag: ReactEventHandler;
@@ -43,7 +33,7 @@ export type MessageContextValue = {
   handleMarkUnread: ReactEventHandler;
   /** Function to mute a user in a Channel */
   handleMute: ReactEventHandler;
-  /** Function to open a Thread on a Message */
+  /** Function to open a thread for the message (routed through ChatView navigation) */
   handleOpenThread: ReactEventHandler;
   /** Function to pin a Message in a Channel */
   handlePin: ReactEventHandler;
@@ -52,14 +42,12 @@ export type MessageContextValue = {
     reactionType: string,
     event: React.BaseSyntheticEvent,
   ) => Promise<void>;
-  /** Function to retry sending a Message */
-  handleRetry: ChannelActionContextValue['retrySendMessage'];
+  /** Function to resend a failed message */
+  handleRetry: (message: LocalMessage) => Promise<void> | void;
   /** Function that returns whether the Message belongs to the current user */
   isMyMessage: () => boolean;
   /** The message object */
   message: LocalMessage;
-  /** Indicates whether a message has not been read yet or has been marked unread */
-  messageIsUnread: boolean;
   /** Handler function for a click event on an @mention in Message */
   onMentionsClickMessage: ReactEventHandler;
   /** Handler function for a hover event on an @mention in Message */
@@ -98,10 +86,8 @@ export type MessageContextValue = {
   lastReceivedId?: string | null;
   /** DOMRect object for parent MessageList component */
   messageListRect?: DOMRect;
-  /** Array of muted users coming from [ChannelStateContext](https://getstream.io/chat/docs/sdk/react/contexts/channel_state_context/#mutes) */
-  mutes?: Mute[];
   /** Sort options to provide to a reactions query */
-  reactionDetailsSort?: ReactionSort;
+  reactionDetailsSort?: SortParamRequest[];
   /** A list of users that have read this Message */
   readBy?: UserResponse[];
   /** When set, shows the sender avatar in a grid layout. Values: true | 'incoming' | 'outgoing'. */
@@ -112,7 +98,7 @@ export type MessageContextValue = {
   returnAllReadData?: boolean;
   /** Comparator function to sort reactions, defaults to chronological order */
   sortReactions?: ReactionsComparator;
-  /** Whether or not the Message is in a Thread */
+  /** If true, the Message is rendered inside a thread's reply list */
   threadList?: boolean;
   /** render HTML instead of markdown. Posting HTML is only allowed server-side */
   unsafeHTML?: boolean;
@@ -143,15 +129,5 @@ export const MessageProvider = ({
   </MessageContext.Provider>
 );
 
-export const useMessageContext = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _componentName?: string,
-) => {
-  const contextValue = useContext(MessageContext);
-
-  if (!contextValue) {
-    return {} as MessageContextValue;
-  }
-
-  return contextValue as unknown as MessageContextValue;
-};
+export const useMessageContext = () =>
+  requireContext(useContext(MessageContext), 'useMessageContext', 'MessageProvider');

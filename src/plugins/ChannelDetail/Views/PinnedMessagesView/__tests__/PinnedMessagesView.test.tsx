@@ -1,10 +1,19 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import type { Channel, LocalMessage, MessageSearchSource } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import { msToNs } from 'stream-chat';
+import type {
+  Channel,
+  LocalMessage,
+  MessageSearchSource,
+  PaginatorState,
+} from 'stream-chat';
 import { fromPartial } from '@total-typescript/shoehorn';
 
+// MERGE-RECONCILE (test migration): the deleted ChannelActionContext.jumpToMessage was replaced by
+// channel.messagePaginator.jumpToMessage (PR #2909), so useChannelActionContext is no longer
+// imported/mocked here; the channel stub exposes a messagePaginator instead.
 import {
-  useChannelActionContext,
   useChatContext,
   useComponentContext,
   useComponentContextIcons,
@@ -12,6 +21,7 @@ import {
   useTranslationContext,
 } from '../../../../../context';
 import * as DEFAULT_ICONS from '../../../../../components/Icons/icons';
+import { mockT } from '../../../../../mock-builders/translator';
 import { useStateStore } from '../../../../../store';
 import { ChannelDetailProvider } from '../../../ChannelDetailContext';
 import { PinnedMessagesView } from '../PinnedMessagesView';
@@ -124,22 +134,22 @@ vi.mock('../../../../../components/Dialog', () => ({
 const pinnedMessages: LocalMessage[] = [
   fromPartial<LocalMessage>({
     cid: 'messaging:test-channel',
-    created_at: new Date('2026-01-01T15:53:00.000Z'),
+    created_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     id: 'message-1',
     pinned: true,
     text: 'Release timeline: Code freeze March 18',
     type: 'regular',
-    updated_at: new Date('2026-01-01T15:53:00.000Z'),
+    updated_at: msToNs(Date.parse('2026-01-01T15:53:00.000Z')),
     user: { id: 'user-1', name: 'Alice' },
   }),
   fromPartial<LocalMessage>({
     attachments: [{ title: 'Roadmap.pdf', type: 'file' }],
     cid: 'messaging:test-channel',
-    created_at: new Date('2026-01-02T15:53:00.000Z'),
+    created_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     id: 'message-2',
     pinned: true,
     type: 'regular',
-    updated_at: new Date('2026-01-02T15:53:00.000Z'),
+    updated_at: msToNs(Date.parse('2026-01-02T15:53:00.000Z')),
     user: { id: 'user-2', name: 'Bob' },
   }),
 ];
@@ -151,26 +161,31 @@ const channelEventHandlers = new WeakMap<
   Record<string, ChannelEventHandler[]>
 >();
 
-const emitChannelEvent = (channel: Channel, event: string) =>
-  act(() => {
-    channelEventHandlers.get(channel)?.[event]?.forEach((handler) => handler());
-  });
-
 const createChannel = (
   overrides: {
-    pinnedMessages?: Channel['state']['pinnedMessages'];
+    pinnedMessages?: LocalMessage[];
   } = {},
 ) => {
   const handlers: Record<string, ChannelEventHandler[]> = {};
 
+  const pinnedMessagesPaginatorState = new StateStore<PaginatorState<LocalMessage>>({
+    hasMoreHead: true,
+    hasMoreTail: true,
+    isLoading: false,
+    items: overrides.pinnedMessages ?? pinnedMessages,
+  });
+
   const channel = fromPartial<Channel>({
     cid: 'messaging:test-channel',
+    messagePaginator: {
+      jumpToMessage: vi.fn(),
+    },
     on: vi.fn((event: string, handler: ChannelEventHandler) => {
       (handlers[event] = handlers[event] ?? []).push(handler);
       return { unsubscribe: vi.fn() };
     }),
-    state: {
-      pinnedMessages: overrides.pinnedMessages ?? pinnedMessages,
+    pinnedMessagesPaginator: {
+      state: pinnedMessagesPaginatorState,
     },
   });
 
@@ -188,15 +203,25 @@ const renderWithChannel = (ui: React.ReactElement, channel: Channel = createChan
 const mockSearchSourceState = (
   state: { hasNextPage?: boolean; isLoading?: boolean; messages?: unknown } = {},
 ) =>
-  vi.mocked(useStateStore).mockReturnValue({
-    hasNextPage: false,
-    isLoading: false,
-    messages: undefined,
-    ...state,
+  // Two consumers call useStateStore in this tree: usePinnedMessagesSearch (search source state)
+  // and usePinnedMessagesCount (channel.pinnedMessagesPaginator.state, which exposes `items`). Run
+  // the real selector against the paginator store; return the mocked search-source state otherwise.
+  vi.mocked(useStateStore).mockImplementation((store, selector) => {
+    const latest = store?.getLatestValue?.();
+    if (latest && 'items' in latest) return selector(latest);
+    return {
+      hasNextPage: false,
+      isLoading: false,
+      messages: undefined,
+      ...state,
+    };
   });
 
 describe('PinnedMessagesView', () => {
   beforeEach(() => {
+    // The context module is auto-mocked, so the icon hook would return undefined; hand back
+    // the real icons rather than stubs, so assertions still describe what users see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
     vi.clearAllMocks();
     mocks.virtuosoRenderCount = 0;
     mocks.searchSourceFilterBuilderOptions.length = 0;
@@ -204,16 +229,17 @@ describe('PinnedMessagesView', () => {
     mocks.searchSourceOptions.length = 0;
 
     vi.mocked(useTranslationContext).mockReturnValue({
-      t: (key: string, options?: { timestamp?: Date }) => {
-        if (key === 'timestamp/ChannelDetailPinnedMessageTimestamp') {
+      t: (key: string, second?: unknown, third?: unknown) => {
+        const options = (typeof second === 'object' ? second : third) as
+          | { timestamp?: Date }
+          | undefined;
+        if (key === 'timestamp.ChannelDetailPinnedMessageTimestamp') {
           return options?.timestamp?.toISOString() ?? key;
         }
-        return key;
+        return mockT(key, second as never, third as never);
       },
       tDateTimeParser: (input?: string | Date) => new Date(input ?? Date.now()),
     } as ReturnType<typeof useTranslationContext>);
-
-    vi.mocked(useComponentContext).mockReturnValue({});
 
     vi.mocked(useChatContext).mockReturnValue({
       client: { userID: 'user-1' },
@@ -222,15 +248,10 @@ describe('PinnedMessagesView', () => {
     vi.mocked(useComponentContext).mockReturnValue(
       {} as ReturnType<typeof useComponentContext>,
     );
-    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
 
     vi.mocked(useModalContext).mockReturnValue({
       close: vi.fn(),
     } as ReturnType<typeof useModalContext>);
-
-    vi.mocked(useChannelActionContext).mockReturnValue({
-      jumpToMessage: vi.fn(),
-    } as unknown as ReturnType<typeof useChannelActionContext>);
 
     mockSearchSourceState();
   });
@@ -274,6 +295,21 @@ describe('PinnedMessagesView', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Bob')).toBeInTheDocument();
     expect(screen.getByText('Roadmap.pdf')).toBeInTheDocument();
+  });
+
+  it('renders each message at its real instant, not the epoch', () => {
+    // Fixtures must model the wire: a `Date` through `fromPartial` type-checks but renders as 1970.
+    mockSearchSourceState({ messages: pinnedMessages });
+
+    renderWithChannel(<PinnedMessagesView layout='tabs' />);
+
+    const stamps = screen
+      .getAllByRole('time')
+      .map((el) => el.getAttribute('dateTime') ?? el.getAttribute('datetime'));
+
+    expect(stamps).toContain('2026-01-01T15:53:00.000Z');
+    expect(stamps).toContain('2026-01-02T15:53:00.000Z');
+    expect(stamps.some((s) => s?.startsWith('1970'))).toBe(false);
   });
 
   it('searches pinned messages with the trimmed query', () => {
@@ -358,15 +394,27 @@ describe('PinnedMessagesView', () => {
   it('shows the search input and loads once a message is pinned during the session', () => {
     const channel = createChannel({ pinnedMessages: [] });
 
-    renderWithChannel(<PinnedMessagesView layout='tabs' />, channel);
+    const { rerender } = render(
+      <ChannelDetailProvider channel={channel}>
+        <PinnedMessagesView layout='tabs' />
+      </ChannelDetailProvider>,
+    );
 
     // No pinned messages yet: the search input is suppressed and nothing loads.
     expect(screen.queryByRole('searchbox', { name: 'Search' })).not.toBeInTheDocument();
     expect(mocks.searchSourceSearch).not.toHaveBeenCalled();
 
-    // A message is pinned; the view reacts without a remount.
-    channel.state.pinnedMessages = pinnedMessages;
-    emitChannelEvent(channel, 'message.updated');
+    // A message is pinned. The paginator (channel.pinnedMessagesPaginator) is updated; the reactive
+    // re-render is exercised by usePinnedMessagesCount's own test, so here we re-render to reflect the
+    // new count (useStateStore is mocked non-reactively in this suite).
+    act(() => {
+      channel.pinnedMessagesPaginator.state.partialNext({ items: pinnedMessages });
+    });
+    rerender(
+      <ChannelDetailProvider channel={channel}>
+        <PinnedMessagesView layout='tabs' />
+      </ChannelDetailProvider>,
+    );
 
     expect(screen.getByRole('searchbox', { name: 'Search' })).toBeInTheDocument();
     expect(mocks.searchSourceSearch).toHaveBeenCalledWith('');

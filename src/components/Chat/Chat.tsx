@@ -20,10 +20,11 @@ import {
   type NotificationDisplayFilter,
 } from '../Notifications';
 import { useChat } from './hooks/useChat';
+import { useStreami18n } from '../../i18n/useStreami18n';
 import { useReportLostConnectionSystemNotification } from './hooks/useReportLostConnectionSystemNotification';
 import { useCreateChatContext } from './hooks/useCreateChatContext';
-import { useChannelsQueryState } from './hooks/useChannelsQueryState';
 import type { CustomClasses } from '../../context/ChatContext';
+import { SharedAudioPlaybackProvider } from '../AudioPlayback/WithAudioPlayback';
 import { ChatProvider } from '../../context/ChatContext';
 import { useComponentContext } from '../../context/ComponentContext';
 import { TranslationProvider } from '../../context/TranslationContext';
@@ -32,7 +33,6 @@ import {
   modalDialogManagerId,
   ModalDialogManagerProvider,
 } from '../../context';
-import type { SupportedTranslations } from '../../i18n/types';
 import type { Streami18n } from '../../i18n/Streami18n';
 
 const NetworkConnectionNotificationReporter = () => {
@@ -91,8 +91,6 @@ export type ChatProps = {
   client: StreamChat;
   /** Object containing custom CSS classnames to override the library's default container CSS */
   customClasses?: CustomClasses;
-  /** Sets the default fallback language for UI component translation, defaults to 'en' for English */
-  defaultLanguage?: SupportedTranslations;
   /** Instance of Stream i18n */
   i18nInstance?: Streami18n;
   /** Instance of SearchController class that allows to control all the search operations. */
@@ -120,7 +118,6 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     children,
     client,
     customClasses,
-    defaultLanguage,
     i18nInstance,
     isMessageAIGenerated,
     notificationDisplayFilter,
@@ -129,25 +126,14 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
     useImageFlagEmojisOnWindows = false,
   } = props;
 
-  const {
-    channel,
-    getAppSettings,
-    latestMessageDatesByChannels,
-    mutes,
-    setActiveChannel,
-    translators,
-  } = useChat({
-    client,
-    defaultLanguage,
-    i18nInstance,
-  });
-
-  const channelsQueryState = useChannelsQueryState();
+  const { getAppSettings, mutes } = useChat({ client });
+  const translators = useStreami18n({ client, i18nInstance });
 
   const searchController = useMemo(
     () =>
       customChannelSearchController ??
       new SearchController({
+        client,
         sources: [
           new ChannelSearchSource(client),
           new UserSearchSource(client),
@@ -158,22 +144,17 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
   );
 
   const chatContextValue = useCreateChatContext({
-    channel,
-    channelsQueryState,
+    channelManager: client.channelManager,
     client,
     customClasses,
     getAppSettings,
     isMessageAIGenerated,
-    latestMessageDatesByChannels,
     mutes,
     searchController,
-    setActiveChannel,
     theme,
     useImageFlagEmojisOnWindows,
   });
   const { NotificationAnnouncer = DefaultNotificationAnnouncer } = useComponentContext();
-
-  if (!translators.t) return null;
 
   return (
     <ChatProvider value={chatContextValue}>
@@ -185,7 +166,7 @@ export const Chat = (props: PropsWithChildren<ChatProps>) => {
             >
               <NetworkConnectionNotificationReporter />
               <NotificationAnnouncer />
-              {children}
+              <SharedAudioPlaybackProvider>{children}</SharedAudioPlaybackProvider>
               <AriaLiveOutlet portal />
             </ModalNotificationConfiguration>
           </ModalDialogManagerProvider>

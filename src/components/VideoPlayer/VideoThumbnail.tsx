@@ -14,7 +14,6 @@ export const VideoThumbnail = ({
   ...imageProps
 }: VideoThumbnailProps) => {
   const { IconPlayFill } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
 
   return (
@@ -26,7 +25,7 @@ export const VideoThumbnail = ({
       {onPlay ? (
         <Button
           appearance='solid'
-          aria-label={t('Play video')}
+          aria-label={t('videoPlayer.videoThumbnail.playVideo.ariaLabel', 'Play video')}
           circular
           className={clsx(
             'str-chat__message-attachment__video-thumbnail__play-indicator',

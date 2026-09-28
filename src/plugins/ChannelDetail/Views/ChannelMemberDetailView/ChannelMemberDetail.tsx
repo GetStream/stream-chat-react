@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import React, { useMemo } from 'react';
 import type { ChannelMemberResponse } from 'stream-chat';
 
@@ -33,17 +34,21 @@ const getPresenceStatusText = (
   user: ChannelMemberResponse['user'],
   t: ReturnType<typeof useTranslationContext>['t'],
 ) => {
-  if (user?.online) return t('Online');
+  if (user?.online) return t('common.online.label', 'Online');
 
-  if (user?.last_active) {
-    return t('Last seen {{ timestamp }}', {
-      timestamp: t('timestamp/ChannelMembersLastActive', {
-        timestamp: user.last_active,
-      }),
-    });
+  if (user?.last_active != null) {
+    return t(
+      'channelDetail.channelMemberDetail.lastSeen.label',
+      'Last seen {{ timestamp }}',
+      {
+        timestamp: t('timestamp.ChannelMembersLastActive', {
+          timestamp: convertTimestampToDate(user.last_active),
+        }),
+      },
+    );
   }
 
-  return t('Offline');
+  return t('common.offline.label', 'Offline');
 };
 
 export const ChannelMemberDetail = ({
@@ -99,7 +104,11 @@ const ChannelMemberDetailContent = ({
 
   return (
     <div className='str-chat__channel-detail__channel-member-detail-view'>
-      <SectionNavigatorHeader close={close} goBack={onBack} title={t('Member detail')} />
+      <SectionNavigatorHeader
+        close={close}
+        goBack={onBack}
+        title={t('channelDetail.channelMemberDetail.memberDetail.title', 'Member detail')}
+      />
       <Prompt.Body className='str-chat__channel-detail__channel-member-detail-view__body'>
         <div className='str-chat__channel-detail__channel-member-detail-view__profile'>
           <Avatar

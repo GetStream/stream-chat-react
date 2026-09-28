@@ -56,7 +56,6 @@ export const ChannelManagementInfoBody = ({
   actions,
 }: ChannelManagementInfoBodyProps) => {
   const { IconMute, IconPin } = useComponentContextIcons();
-
   const { client } = useChatContext();
   const { channel } = useChannelDetailContext();
   const { Avatar = DefaultChannelAvatar } = useComponentContext();
@@ -78,8 +77,11 @@ export const ChannelManagementInfoBody = ({
   const { muted: channelMuted } = useIsChannelMuted(channel);
   const userMuted = useIsUserMuted(otherMemberUserId);
   const membership = useChannelMembershipState(channel);
-  const onlineStatusText = useChannelHeaderOnlineStatus({ channel });
-  const pinned = !!membership.pinned_at;
+  // MERGE-RECONCILE: useChannelHeaderOnlineStatus was reworked (PR #2909) to read the channel
+  // from context (useChannel) instead of an argument. Verify this view renders within a
+  // Channel/ChannelInstance subtree so the context channel matches `channel`.
+  const onlineStatusText = useChannelHeaderOnlineStatus();
+  const pinned = membership.pinned_at != null;
 
   return (
     <Prompt.Body className='str-chat__channel-detail__channel-management-view__body'>
@@ -124,8 +126,8 @@ export type ChannelManagementEditBodyProps = {
 const EDIT_BODY_EMITTER = 'ChannelManagementEditBody';
 
 type ChannelUpdatePayload = {
-  set?: { image?: string; name?: string };
-  unset?: ['image'];
+  set?: { 'custom.image'?: string; 'custom.name'?: string };
+  unset?: ['custom.image'];
 };
 
 /**
@@ -142,12 +144,14 @@ const buildChannelUpdatePayload = ({
 }): ChannelUpdatePayload | null => {
   const payload: ChannelUpdatePayload = {};
 
-  const set: { image?: string; name?: string } = {};
-  if (name !== undefined) set.name = name;
-  if (typeof image === 'string') set.image = image;
+  // Custom channel fields (name/image) live under `channel.data.custom` in v10, so partial-update
+  // set/unset target them by dot-path — mirroring the `channel.data.custom.name` read path.
+  const set: { 'custom.image'?: string; 'custom.name'?: string } = {};
+  if (name !== undefined) set['custom.name'] = name;
+  if (typeof image === 'string') set['custom.image'] = image;
   if (Object.keys(set).length > 0) payload.set = set;
 
-  if (image === null) payload.unset = ['image'];
+  if (image === null) payload.unset = ['custom.image'];
 
   return Object.keys(payload).length > 0 ? payload : null;
 };
@@ -171,11 +175,13 @@ const useChannelManagementEditForm = ({
   const resolvedIsDmChannel = isDmChannel({ channel, ownUserId: client.user?.id });
   const hasMembersOnline = useChannelHasMembersOnline({ channel });
   const isOnline = resolvedIsDmChannel ? hasMembersOnline : undefined;
-  const nameLabel = resolvedIsDmChannel ? t('Contact name') : t('Group name');
+  const nameLabel = resolvedIsDmChannel
+    ? t('channelDetail.channelManagementView.contactName.label', 'Contact name')
+    : t('channelDetail.channelManagementView.groupName.label', 'Group name');
 
   // Dirty-tracking baseline; advanced to the saved value on success so the form
   // is no longer considered dirty (and the Save button hides) after a write.
-  const [baselineName, setBaselineName] = useState(channel.data?.name ?? '');
+  const [baselineName, setBaselineName] = useState(channel.data?.custom?.name ?? '');
   const [name, setName] = useState(baselineName);
   // null = keep current avatar, File = replace it, 'removed' = clear it
   const [imageEdit, setImageEdit] = useState<File | 'removed' | null>(null);
@@ -223,7 +229,7 @@ const useChannelManagementEditForm = ({
     async (file: File) => {
       const url = uploadImage
         ? await uploadImage(file)
-        : (await channel.sendImage(file)).file;
+        : (await channel.uploadImage({ file })).file;
       if (!url) throw new Error('Image upload did not return a URL');
       return url;
     },
@@ -261,7 +267,10 @@ const useChannelManagementEditForm = ({
             operation: 'update',
             status: 'success',
           },
-          message: t('Changes saved'),
+          message: t(
+            'channelDetail.channelManagementView.changesSaved.text',
+            'Changes saved',
+          ),
           severity: 'success',
         });
       } catch (error) {
@@ -274,7 +283,10 @@ const useChannelManagementEditForm = ({
             operation: 'update',
             status: 'failed',
           },
-          message: t('Failed to save changes'),
+          message: t(
+            'channelDetail.channelManagementView.failedSaveChanges.text',
+            'Failed to save changes',
+          ),
           severity: 'error',
         });
       } finally {
@@ -358,7 +370,10 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
               type='button'
               variant='secondary'
             >
-              {t('Upload Picture')}
+              {t(
+                'channelDetail.channelManagementView.uploadPicture.text',
+                'Upload Picture',
+              )}
             </Button>
             {hasAvatarImage && (
               <Button
@@ -368,7 +383,7 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
                 type='button'
                 variant='secondary'
               >
-                {t('Delete')}
+                {t('common.delete.text', 'Delete')}
               </Button>
             )}
             <input
@@ -402,7 +417,7 @@ export const ChannelManagementEditBody = (props: ChannelManagementEditBodyProps)
               type='submit'
             >
               <IconCheckmark />
-              {t('Save')}
+              {t('channelDetail.channelManagementView.save.text', 'Save')}
             </Prompt.FooterControlsButtonPrimary>
           )}
         </Prompt.FooterControls>
@@ -434,7 +449,7 @@ export const ChannelManagementView = ({
 
   useEffect(() => {
     setIsEditing(false);
-  }, [channel.cid]);
+  }, [channel]);
 
   const EditChannelButton = useMemo(
     () =>
@@ -442,7 +457,10 @@ export const ChannelManagementView = ({
         return (
           <Button
             appearance='outline'
-            aria-label={t('Edit chat data')}
+            aria-label={t(
+              'channelDetail.channelManagementView.editChatData.ariaLabel',
+              'Edit chat data',
+            )}
             className='str-chat__channel-detail__channel-management-view__edit-button'
             onClick={() => {
               setIsEditing(true);
@@ -450,7 +468,7 @@ export const ChannelManagementView = ({
             size='md'
             variant='secondary'
           >
-            {t('Edit')}
+            {t('channelDetail.channelManagementView.edit.text', 'Edit')}
           </Button>
         );
       },
@@ -459,17 +477,24 @@ export const ChannelManagementView = ({
 
   const headerTitle = isEditMode
     ? resolvedIsDmChannel
-      ? t('Edit contact')
-      : t('Edit group')
+      ? t('channelDetail.channelManagementView.editContact.label', 'Edit contact')
+      : t('channelDetail.channelManagementView.editGroup.label', 'Edit group')
     : resolvedIsDmChannel
-      ? t('Contact info')
-      : t('Group info');
+      ? t('channelDetail.channelManagementView.contactInfo.label', 'Contact info')
+      : t('channelDetail.channelManagementView.groupInfo.label', 'Group info');
 
   return (
     <div className='str-chat__channel-detail__channel-management-view'>
       <SectionNavigatorHeader
         close={close}
-        description={isEditMode ? undefined : t('Manage channel')}
+        description={
+          isEditMode
+            ? undefined
+            : t(
+                'channelDetail.channelManagementView.manageChannel.description',
+                'Manage channel',
+              )
+        }
         goBack={isEditMode ? () => setIsEditing(false) : undefined}
         title={headerTitle}
         TrailingContent={!isEditMode && canEditChannel ? EditChannelButton : undefined}

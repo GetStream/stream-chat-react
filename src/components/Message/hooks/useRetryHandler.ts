@@ -1,17 +1,20 @@
-import type { RetrySendMessage } from '../../../context/ChannelActionContext';
-import { useChannelActionContext } from '../../../context/ChannelActionContext';
+import { useThreadContext } from '../../Threads';
+import { useChannel } from '../../../context';
+import type { OperationParams } from 'stream-chat';
+import { useCallback } from 'react';
 
-export const useRetryHandler = (
-  customRetrySendMessage?: RetrySendMessage,
-): RetrySendMessage => {
-  const { retrySendMessage: contextRetrySendMessage } =
-    useChannelActionContext('useRetryHandler');
+export type RetryHandler = (
+  params: Omit<OperationParams<'retry'>, 'message'>,
+) => Promise<void>;
 
-  const retrySendMessage = customRetrySendMessage || contextRetrySendMessage;
+export const useRetryHandler = (): RetryHandler => {
+  const channel = useChannel();
+  const thread = useThreadContext();
 
-  return async (message) => {
-    if (message) {
-      await retrySendMessage(message);
-    }
-  };
+  return useCallback(
+    async (params: Omit<OperationParams<'retry'>, 'message'>) => {
+      await (thread ?? channel).retrySendMessageWithLocalUpdate(params);
+    },
+    [channel, thread],
+  );
 };

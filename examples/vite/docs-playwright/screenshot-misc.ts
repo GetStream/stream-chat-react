@@ -185,13 +185,12 @@ async function captureConnectionStatus(browser: any) {
   // Inject a connection status notification by dispatching an event
   await viewPage.evaluate(`(async () => {
     var client = window.client;
-    // Simulate connection failure notification
-    client.dispatchEvent({
-      type: 'connection.changed',
-      online: false,
-    });
+    // Simulate connection failure notification. The status store is the whole interface; the event
+    // this used to dispatch is gone.
+    client.wsConnection._setStatus({ isOnline: false });
   })()`);
-  await viewPage.waitForTimeout(1500);
+  // The banner holds a drop for five seconds before showing it, so a brief flap does not strobe it.
+  await viewPage.waitForTimeout(6500);
 
   console.log('📸 ConnectionStatus.png');
   // Screenshot the bottom area of the message list + notification + input
@@ -236,7 +235,8 @@ async function captureCustomNotification(browser: any) {
         cid: ch.cid,
         channel_id: ch.id,
         channel_type: ch.type,
-        message: { ...msg, text: msg.text, message_text_updated_at: new Date().toISOString() },
+        // Unix nanoseconds, as the wire carries it; no imports are available in page.evaluate.
+        message: { ...msg, text: msg.text, message_text_updated_at: Date.now() * 1e6 },
       });
     }
   })()`);

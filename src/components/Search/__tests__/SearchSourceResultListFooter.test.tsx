@@ -7,6 +7,7 @@ import { useSearchSourceResultsContext } from '../SearchSourceResultsContext';
 import type { ComponentContextValue, TranslationContextValue } from '../../../context';
 import { useComponentContext, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
+import { mockT } from '../../../mock-builders/translator';
 
 vi.mock('../SearchSourceResultsContext');
 vi.mock('../../../context');
@@ -40,7 +41,7 @@ describe('SearchSourceResultListFooter', () => {
 
     vi.mocked(useTranslationContext).mockReturnValue(
       fromPartial<TranslationContextValue>({
-        t: (key: any) => key,
+        t: mockT,
       }),
     );
 
@@ -110,7 +111,9 @@ describe('SearchSourceResultListFooter', () => {
   });
 
   it('translates "All results loaded" message', () => {
-    const mockTranslate = vi.fn((key: any) => `Translated ${key}`);
+    const mockTranslate = vi.fn(
+      (key: any, defaultValue?: any) => `Translated ${defaultValue ?? key}`,
+    );
     vi.mocked(useTranslationContext).mockReturnValue(
       fromPartial<TranslationContextValue>({ t: mockTranslate }),
     );
@@ -122,7 +125,10 @@ describe('SearchSourceResultListFooter', () => {
 
     render(<SearchSourceResultListFooter />);
 
-    expect(mockTranslate).toHaveBeenCalledWith('All results loaded');
+    expect(mockTranslate).toHaveBeenCalledWith(
+      'common.resultsLoaded.label',
+      'All results loaded',
+    );
     expect(screen.getByText('Translated All results loaded')).toBeInTheDocument();
   });
 

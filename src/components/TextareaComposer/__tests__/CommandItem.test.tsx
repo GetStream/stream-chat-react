@@ -2,7 +2,7 @@ import React from 'react';
 
 import { cleanup, render } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { CommandResponse } from 'stream-chat';
+import type { Command } from 'stream-chat';
 
 import { CommandItem } from '../SuggestionList';
 
@@ -24,10 +24,29 @@ vi.mock('../../MessageComposer/hooks', () => ({
 vi.mock('../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../context')>();
   return {
-    useComponentContext: () => ({}),
+    // The real hook: with no provider it returns the SDK icons, which is what these
+    // assertions are written against.
     useComponentContextIcons: actual.useComponentContextIcons,
     useTranslationContext: () => ({
-      t: (key: string) => key,
+      t: (key: string, second?: unknown, third?: unknown) => {
+        const defaultValue = typeof second === 'string' ? second : undefined;
+        const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+          string,
+          unknown
+        >;
+        let template = defaultValue;
+        if (template === undefined && typeof options.count === 'number') {
+          template = (
+            options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+          ) as string | undefined;
+        }
+        template ??= options.defaultValue as string | undefined;
+        template ??= key;
+        return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+          const value = options[name];
+          return value === undefined || value === null ? whole : String(value);
+        });
+      },
     }),
   };
 });
@@ -46,7 +65,7 @@ describe('commandItem', () => {
   });
 
   it('should render component with custom entity prop', () => {
-    const entity = fromPartial<CommandResponse>({
+    const entity = fromPartial<Command>({
       args: 'args',
       description: 'description',
       name: 'name',
@@ -76,7 +95,7 @@ describe('commandItem', () => {
   });
 
   it('renders disabled state for unavailable commands', () => {
-    const entity = fromPartial<CommandResponse>({
+    const entity = fromPartial<Command>({
       args: 'args',
       description: 'description',
       name: 'name',

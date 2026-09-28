@@ -1,6 +1,5 @@
 @use 'Attachment';
 @use 'AttachmentActions';
-@use 'AttachmentUploadProgressIndicator';
 @use 'Audio';
 @use 'CardAudio';
 @use 'DownloadButton';
@@ -10,3 +9,4 @@
 @use 'ModalGallery';
 @use 'UnsupportedAttachment';
 @use 'VoiceRecording';
+@use 'AttachmentUploadProgressIndicator';

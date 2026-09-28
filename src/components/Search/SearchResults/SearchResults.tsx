@@ -19,7 +19,7 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 });
 
 export const SearchResults = () => {
-  const { t } = useTranslationContext('ResultsContainer');
+  const { t } = useTranslationContext();
   const {
     SearchResultsHeader = DefaultSearchResultsHeader,
     SearchResultsPresearch = DefaultSearchResultsPresearch,
@@ -39,7 +39,7 @@ export const SearchResults = () => {
 
   return !isActive ? null : (
     <div
-      aria-label={t('aria/Search results')}
+      aria-label={t('search.results.searchResults.ariaLabel', 'Search results')}
       className='str-chat__search-results'
       onKeyDown={onKeyDown}
       ref={resultsRef}

@@ -1,70 +1,94 @@
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, LocalMessage, Thread } from 'stream-chat';
+import { StateStore } from '@stream-io/state-store';
+import type { Channel, LocalMessage, Thread, ThreadState } from 'stream-chat';
 
-import { ChannelStateProvider } from '../../../context/ChannelStateContext';
-import { ChatProvider } from '../../../context/ChatContext';
-import type { ChatContextValue } from '../../../context/ChatContext';
+import {
+  ChannelInstanceProvider,
+  ChatProvider,
+  defaultWorkspaceNavigation,
+  WorkspaceNavigationProvider,
+} from '../../../context';
+import type { ChatContextValue } from '../../../context';
 import { TranslationProvider } from '../../../context/TranslationContext';
 import type { TranslationContextValue } from '../../../context/TranslationContext';
-import { mockChannelStateContext } from '../../../mock-builders';
 import { ThreadHeader } from '../ThreadHeader';
+
+// MERGE-RECONCILE (test migration): ThreadHeader moved off the deleted ChannelStateContext.
+// It now resolves the channel via useChannel() (ChannelInstanceContext), the reply count from
+// the (optional) thread instance in ThreadContext, and the channel title from
+// useChannelPreviewInfo. The subtitle fallback is the parent message author's name. We seed a
+// ChannelInstanceProvider channel and mock the composer controller / store so the header renders
+// without a fully initialized <Channel>. Assertions are unchanged.
 
 vi.mock('../../ChannelListItem/hooks/useChannelPreviewInfo', () => ({
   useChannelPreviewInfo: vi.fn(() => ({ displayTitle: undefined })),
 }));
 
-vi.mock('../../../store', () => ({
-  useStateStore: vi.fn(() => undefined),
-}));
-
-vi.mock('../../../context/TypingContext', () => ({
-  useTypingContext: vi.fn(() => ({ typing: {} })),
+vi.mock('../../MessageComposer/hooks/useMessageComposerController', () => ({
+  useMessageComposerController: vi.fn(() => fromPartial({})),
 }));
 
 vi.mock('../../TypingIndicator/TypingIndicatorHeader', () => ({
   TypingIndicatorHeader: () => <div>Typing...</div>,
 }));
 
+const closeThreadInContext = vi.fn();
 vi.mock('../../Threads', () => ({
+  useCloseThread: vi.fn(() => closeThreadInContext),
   useThreadContext: vi.fn(() => undefined),
 }));
+// The header's back and close buttons read the same hooks from their own modules.
+vi.mock('../../Threads/ThreadContext', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../Threads/ThreadContext')>()),
+  useThreadContext: (await import('../../Threads')).useThreadContext,
+}));
+vi.mock('../../Threads/hooks/useCloseThread', async () => ({
+  useCloseThread: (await import('../../Threads')).useCloseThread,
+}));
 
-vi.mock('../../ChatView', () => ({
-  useChatViewContext: vi.fn(() => ({ activeChatView: 'channels' })),
+vi.mock('../../../plugins/SlotLayout', () => ({
+  useChatViewContext: vi.fn(() => ({ activeView: 'channels' })),
+  useSlotForKind: vi.fn(() => undefined),
 }));
 
 import { useChannelPreviewInfo } from '../../ChannelListItem/hooks/useChannelPreviewInfo';
-import { useChatViewContext } from '../../ChatView';
+import { useChatViewContext } from '../../../plugins/SlotLayout';
 import { useThreadContext } from '../../Threads';
+import { mockT } from '../../../mock-builders/translator';
 
 const alice = { id: 'alice', name: 'Alice' };
-const bob = { id: 'bob', name: 'Bob' };
 
-const createThread = (user) => ({
-  id: `${user?.id ?? 'thread'}-message`,
-  reply_count: 2,
-  user,
-});
-
-const createChannel = (overrides = {}) => ({
-  data: undefined,
-  getClient: () => ({ userID: alice.id }),
-  state: {
-    members: {
-      [alice.id]: { user: alice },
-      [bob.id]: { user: bob },
-    },
-  },
-  ...overrides,
-});
+// The header reads the parent message and the reply count off the thread instance, so the
+// fixture is a thread whose state carries both.
+const createThreadInstance = (user?: { id: string; name?: string }) =>
+  fromPartial<Thread>({
+    id: `${user?.id ?? 'thread'}-message`,
+    state: new StateStore<ThreadState>(
+      fromPartial<ThreadState>({
+        parentMessage: fromPartial<LocalMessage>({
+          id: `${user?.id ?? 'thread'}-message`,
+          reply_count: 2,
+          user,
+        }),
+        replyCount: 2,
+      }),
+    ),
+  });
 
 const renderComponent = ({
-  activeChatView = 'channels',
-  channelOverrides = {},
+  activeView = 'channels',
+  dismissable = false,
+  navigation = {},
   props = {},
-  threadContext = undefined,
+  threadContext = createThreadInstance(alice),
+}: {
+  activeView?: string;
+  dismissable?: boolean;
+  navigation?: Partial<typeof defaultWorkspaceNavigation>;
+  props?: Partial<React.ComponentProps<typeof ThreadHeader>>;
+  threadContext?: Thread;
 } = {}) => {
   const client = fromPartial<ChatContextValue['client']>({
     off: vi.fn(),
@@ -72,44 +96,39 @@ const renderComponent = ({
     user: alice,
     userID: alice.id,
   });
-  const thread = createThread(alice);
-  const channel = createChannel(channelOverrides) as unknown as Channel;
+  const channel = fromPartial<Channel>({ cid: 'messaging:thread-header-test' });
 
   vi.mocked(useChatViewContext).mockReturnValue(
     fromPartial<ReturnType<typeof useChatViewContext>>({
-      activeChatView,
-      setActiveChatView: vi.fn(),
+      activeView,
+      setActiveView: vi.fn(),
     }),
   );
-  vi.mocked(useThreadContext).mockReturnValue(threadContext as Thread | undefined);
+  vi.mocked(useThreadContext).mockReturnValue(threadContext);
 
   return render(
     <ChatProvider
       value={fromPartial<ChatContextValue>({
         client,
-        latestMessageDatesByChannels: {},
       })}
     >
-      <ChannelStateProvider value={mockChannelStateContext({ channel, thread })}>
-        <TranslationProvider
-          value={fromPartial<TranslationContextValue>({
-            t: ((key: string, options?: Record<string, unknown>) => {
-              if (key === 'Thread') return 'Thread';
-              if (key === 'replyCount')
-                return `${(options as Record<string, number>)?.count} replies`;
-              if (key === 'aria/Close thread') return 'Close thread';
-
-              return key;
-            }) as TranslationContextValue['t'],
-          })}
+      <ChannelInstanceProvider value={{ channel }}>
+        <WorkspaceNavigationProvider
+          value={{
+            ...defaultWorkspaceNavigation,
+            isThreadDismissable: () => dismissable,
+            ...navigation,
+          }}
         >
-          <ThreadHeader
-            closeThread={vi.fn()}
-            thread={thread as unknown as LocalMessage}
-            {...props}
-          />
-        </TranslationProvider>
-      </ChannelStateProvider>
+          <TranslationProvider
+            value={fromPartial<TranslationContextValue>({
+              t: mockT as TranslationContextValue['t'],
+            })}
+          >
+            <ThreadHeader {...props} />
+          </TranslationProvider>
+        </WorkspaceNavigationProvider>
+      </ChannelInstanceProvider>
     </ChatProvider>,
   );
 };
@@ -135,18 +154,7 @@ describe('ThreadHeader', () => {
       fromPartial({ displayTitle: undefined }),
     );
 
-    renderComponent({
-      channelOverrides: {
-        state: {
-          members: {
-            [alice.id]: { user: alice },
-          },
-        },
-      },
-      props: {
-        thread: createThread(alice),
-      },
-    });
+    renderComponent({ threadContext: createThreadInstance(alice) });
 
     expect(screen.getByText('Alice · 2 replies')).toBeInTheDocument();
   });
@@ -156,20 +164,59 @@ describe('ThreadHeader', () => {
       fromPartial({ displayTitle: undefined }),
     );
 
-    renderComponent({
-      channelOverrides: {
-        state: {
-          members: {
-            [alice.id]: { user: alice },
-          },
-        },
-      },
-      props: {
-        thread: createThread({ id: 'alice' }),
-      },
-    });
+    renderComponent({ threadContext: createThreadInstance({ id: 'alice' }) });
 
     expect(screen.getByText('2 replies')).toBeInTheDocument();
     expect(screen.queryByText(/^undefined ·/)).not.toBeInTheDocument();
+  });
+
+  it('closes the thread in context when the close button is pressed', () => {
+    // No prop carries the handler any more -- the header closes through the workspace navigation
+    // the app configures centrally.
+    renderComponent({ dismissable: true });
+
+    fireEvent.click(screen.getByTestId('close-thread-button'));
+
+    expect(closeThreadInContext).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders no back button for a thread with nothing beneath it', () => {
+    renderComponent();
+
+    expect(screen.queryByTestId('thread-header-back-button')).not.toBeInTheDocument();
+  });
+
+  it('steps back from a thread stacked over other content', () => {
+    const goBack = vi.fn();
+    const threadContext = createThreadInstance(alice);
+    renderComponent({ navigation: { canGoBack: () => true, goBack }, threadContext });
+
+    fireEvent.click(screen.getByTestId('thread-header-back-button'));
+
+    expect(goBack).toHaveBeenCalledWith(threadContext.id, expect.anything());
+  });
+
+  // The back and close buttons are only the defaults, in every view: start/end content passed to
+  // the header takes their place.
+  it('gives way to the StartContent and EndContent passed to it', () => {
+    renderComponent({
+      dismissable: true,
+      navigation: { canGoBack: () => true },
+      props: {
+        EndContent: () => <div data-testid='app-end' />,
+        StartContent: () => <div data-testid='app-start' />,
+      },
+    });
+
+    expect(screen.getByTestId('app-start')).toBeInTheDocument();
+    expect(screen.getByTestId('app-end')).toBeInTheDocument();
+    expect(screen.queryByTestId('thread-header-back-button')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('close-thread-button')).not.toBeInTheDocument();
+  });
+
+  it('renders no close button for a thread the workspace does not consider dismissable', () => {
+    renderComponent({ dismissable: false });
+
+    expect(screen.queryByTestId('close-thread-button')).not.toBeInTheDocument();
   });
 });

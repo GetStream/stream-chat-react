@@ -10,6 +10,7 @@ export const CloseButtonOnModalOverlay = ({
   ...props
 }: ComponentProps<'button'>) => {
   const { IconXmark } = useComponentContextIcons();
+
   return (
     <Button
       appearance='ghost'

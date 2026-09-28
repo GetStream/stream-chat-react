@@ -1,5 +1,6 @@
 import type { StreamChat, UserResponse } from 'stream-chat';
 import { type ChannelOrResponse, toChannelResponse } from './utils';
+import { convertDateToTimestamp } from '../generator/time';
 
 export default ({
   channel,
@@ -23,14 +24,14 @@ export default ({
       channel_member_count: 2,
       channel_type,
       cid: data.cid,
-      created_at: new Date().toISOString(),
+      created_at: convertDateToTimestamp(),
       hard_delete: !!hardDelete,
       type: 'user.messages.deleted',
       user: user as UserResponse,
     });
   } else {
     client.dispatchEvent({
-      created_at: new Date().toISOString(),
+      created_at: convertDateToTimestamp(),
       hard_delete: !!hardDelete,
       type: 'user.messages.deleted',
       user: user as UserResponse,

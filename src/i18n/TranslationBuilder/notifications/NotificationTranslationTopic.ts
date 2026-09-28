@@ -3,6 +3,7 @@ import type { Notification } from 'stream-chat';
 import type { NotificationTranslatorOptions } from './types';
 import { translatorsByNotificationType } from './translatorsByNotificationType';
 import type { TranslationTopicOptions, Translator } from '../../index';
+import type { StreamTFunction } from '../../types';
 
 const translateByNotificationType: Translator<NotificationTranslatorOptions> = ({
   options: { notification },
@@ -33,21 +34,26 @@ export class NotificationTranslationTopic extends TranslationTopic<NotificationT
 
   translate = (value: string, key: string, options: { notification?: Notification }) => {
     const { notification } = options;
+    // i18next hands over its own untyped `TFunction`; the translators take the SDK's narrowed
+    // `StreamTFunction`. Narrowed once here rather than at each of the four use sites below.
+    const t = this.i18next.t as unknown as StreamTFunction;
     if (!notification) return value;
     const byType = notification.type
       ? this.translators.get(notification.type)
       : undefined;
-    if (byType) return byType({ key, options, t: this.i18next.t, value }) || value;
+    if (byType) return byType({ key, options, t, value }) || value;
 
     const byFallback = this.translators.get('*');
-    const translated = byFallback?.({ key, options, t: this.i18next.t, value }) ?? null;
+    const translated = byFallback?.({ key, options, t, value }) ?? null;
     if (translated) return translated;
     if (!notification.message) return value;
 
-    // Final fallback: attempt to translate message as natural key.
-    return this.i18next.t(notification.message, {
-      ...(notification.metadata ?? {}),
-      value: notification.message,
-    });
+    // Final fallback for an identifier no translator claims -- a newer `stream-chat`, or one emitted
+    // by integrator code. Render the English message rather than a blank or a raw dotted key.
+    //
+    // This used to run the message through a hand-maintained table of English sentences mapped onto
+    // keys. That table is gone: identifiers are the seam now, so prose matching would only mask a
+    // missing translator entry.
+    return notification.message;
   };
 }

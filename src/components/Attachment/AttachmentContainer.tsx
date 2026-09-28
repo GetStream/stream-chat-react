@@ -9,13 +9,15 @@ import clsx from 'clsx';
 import type {
   Attachment,
   LocalAttachment,
-  SharedLocationResponse,
+  SharedLocationResponseData,
   VideoAttachment as VideoAttachmentType,
 } from 'stream-chat';
 import {
+  getAttachmentPreviewUrl,
   isAudioAttachment,
   isFileAttachment,
-  isSharedLocationResponse,
+  isPendingUpload,
+  isSharedLocationResponseData,
   isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
@@ -43,20 +45,32 @@ import {
   type RenderMediaProps,
   SUPPORTED_VIDEO_FORMATS,
 } from './utils';
-import { useChannelStateContext } from '../../context/ChannelStateContext';
-import { useComponentContext } from '../../context/ComponentContext';
-import type { ImageAttachmentConfiguration } from '../../types/types';
 import { VisibilityDisclaimer } from './VisibilityDisclaimer';
-import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './components';
-import {
-  getAttachmentPreviewUrl,
-  hasPendingUploadState,
-} from './hooks/useAttachmentUploadState';
 import { VideoAttachment } from './VideoAttachment';
 import type { AttachmentProps } from './Attachment';
+import { useComponentContext } from '../../context/ComponentContext';
+import { AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator } from './components';
+
+/**
+ * Whether there is anything to render the attachment from: a CDN url, or the local file while
+ * its upload is in flight — or after it failed, since a failed message can be retried and the
+ * user has to see what they are retrying.
+ *
+ * Deliberately non-reactive (payload only): `UploadManager` drops its record a microtask before
+ * the resolved URL is written back, and gating on the live record would blink the attachment out
+ * of the DOM in between.
+ */
+const hasRenderableSource = (attachment: Attachment | LocalAttachment) =>
+  isPendingUpload(attachment) ||
+  !!getAttachmentPreviewUrl(attachment, attachment.asset_url);
+
+import {
+  type ImageAttachmentConfiguration,
+  useAttachmentContext,
+} from '../../context/AttachmentContext';
 
 export type AttachmentContainerProps = {
-  attachment: Attachment | GalleryAttachment | SharedLocationResponse;
+  attachment: Attachment | GalleryAttachment | SharedLocationResponseData;
   componentType: AttachmentComponentType;
 };
 export const AttachmentWithinContainer = ({
@@ -64,16 +78,20 @@ export const AttachmentWithinContainer = ({
   children,
   componentType,
 }: PropsWithChildren<AttachmentContainerProps>) => {
-  const isGAT = isGalleryAttachmentType(attachment);
   let extra = '';
+  let isSvg = false;
 
-  if (!isGAT && !isSharedLocationResponse(attachment)) {
-    extra =
-      componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
-        ? 'no-image'
-        : attachment?.actions?.length
-          ? 'actions'
-          : '';
+  if (!isSharedLocationResponseData(attachment)) {
+    const isGAT = isGalleryAttachmentType(attachment);
+    if (!isGAT) {
+      extra =
+        componentType === 'card' && !attachment?.image_url && !attachment?.thumb_url
+          ? 'no-image'
+          : attachment?.actions?.length
+            ? 'actions'
+            : '';
+      isSvg = isSvgAttachment(attachment);
+    }
   }
 
   const classNames = clsx(
@@ -85,7 +103,7 @@ export const AttachmentWithinContainer = ({
       )?.type,
       [`str-chat__message-attachment--${componentType}--${extra}`]:
         componentType && extra,
-      'str-chat__message-attachment--svg-image': isSvgAttachment(attachment),
+      'str-chat__message-attachment--svg-image': isSvg,
       'str-chat__message-attachment-with-actions': extra === 'actions',
     },
   );
@@ -184,25 +202,12 @@ export const GiphyContainer = (props: RenderAttachmentProps) => {
   );
 };
 
-/**
- * Whether there is anything to render the attachment from: a CDN url, or the local file while
- * its upload is in flight — or after it failed, since a failed message can be retried and the
- * user has to see what they are retrying.
- *
- * Deliberately non-reactive (payload only): `UploadManager` drops its record a microtask before
- * the resolved URL is written back, and gating on the live record would blink the attachment out
- * of the DOM in between.
- */
-const hasRenderableSource = (attachment: Attachment | LocalAttachment) =>
-  hasPendingUploadState(attachment) ||
-  !!getAttachmentPreviewUrl(attachment, attachment.asset_url);
-
 export const FileContainer = (props: RenderAttachmentProps) => {
   const { attachment } = props;
 
-  // Audio and voice recordings render nothing without a source — `useAudioPlayer` needs one —
-  // but their containers would still occupy layout, so they are filtered here too.
   if (isVoiceRecordingAttachment(attachment)) {
+    // Audio and voice recordings render nothing without a source — `useAudioPlayer` needs one —
+    // but their containers would still occupy layout, so they are filtered here too.
     return hasRenderableSource(attachment) ? (
       <VoiceRecordingContainer {...props} />
     ) : null;
@@ -260,7 +265,7 @@ export const ImageContainer = (props: RenderAttachmentProps) => {
     useComponentContext();
   const componentType = 'image';
   const imageElement = useRef<HTMLImageElement>(null);
-  const { imageAttachmentSizeHandler } = useChannelStateContext();
+  const { imageAttachmentSizeHandler } = useAttachmentContext();
   const [attachmentConfiguration, setAttachmentConfiguration] = useState<
     ImageAttachmentConfiguration | undefined
   >(undefined);

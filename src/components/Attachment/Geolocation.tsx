@@ -2,19 +2,28 @@ import type { ComponentType } from 'react';
 import { useEffect } from 'react';
 import { useRef, useState } from 'react';
 import React from 'react';
-import type { Coords, SharedLocationResponse } from 'stream-chat';
+import type { Coords, SharedLocationResponseData } from 'stream-chat';
 import {
+  useChannel,
   useChatContext,
   useComponentContextIcons,
   useTranslationContext,
 } from '../../context';
 import { ExternalLinkIcon } from './icons';
 import { Button } from '../Button';
+import { convertTimestampToDate, nowNs, nsToMs } from 'stream-chat';
 
 export type GeolocationMapProps = Coords;
 
+/** `setTimeout` silently clamps a longer delay to 1 ms, so longer waits are armed in steps. */
+const MAX_TIMEOUT_MS = 2 ** 31 - 1;
+
+/** Whether a live location's expiry is a usable instant to schedule against. */
+const isSchedulableExpiry = (endAt?: number): endAt is number =>
+  endAt != null && Number.isFinite(endAt);
+
 export type GeolocationProps = {
-  location: SharedLocationResponse;
+  location: SharedLocationResponseData;
   GeolocationAttachmentMapPlaceholder?: ComponentType<GeolocationAttachmentMapPlaceholderProps>;
   GeolocationMap?: ComponentType<GeolocationMapProps>;
 };
@@ -24,25 +33,37 @@ export const Geolocation = ({
   GeolocationMap,
   location,
 }: GeolocationProps) => {
-  const { channel, client } = useChatContext();
+  const { client } = useChatContext();
+  const channel = useChannel();
   const { t } = useTranslationContext();
 
   const [stoppedSharing, setStoppedSharing] = useState(
-    !!location.end_at && new Date(location.end_at).getTime() < new Date().getTime(),
+    isSchedulableExpiry(location.end_at) && location.end_at < nowNs(),
   );
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const isMyLocation = location.user_id === client.userID;
-  const isLiveLocation = !!location.end_at;
+  const isLiveLocation = location.end_at != null;
+  const endAt = location.end_at;
 
   useEffect(() => {
-    if (!location.end_at) return;
-    clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(
-      () => setStoppedSharing(true),
-      new Date(location.end_at).getTime() - Date.now(),
-    );
-  }, [location.end_at]);
+    if (!isSchedulableExpiry(endAt)) return;
+
+    const arm = () => {
+      // Both operands are wire timestamps, so the difference is in nanoseconds. Passing it raw
+      // made `setTimeout` fire immediately and end sharing on mount.
+      const remaining = Math.max(0, nsToMs(endAt - nowNs()));
+      timeoutRef.current =
+        remaining > MAX_TIMEOUT_MS
+          ? // Wait the maximum, then re-arm. One call would be clamped to 1 ms, showing
+            // "sharing ended" on mount for any share longer than ~24.9 days.
+            setTimeout(arm, MAX_TIMEOUT_MS)
+          : setTimeout(() => setStoppedSharing(true), remaining);
+    };
+
+    arm();
+    return () => clearTimeout(timeoutRef.current);
+  }, [endAt]);
 
   return (
     <div
@@ -59,38 +80,58 @@ export const Geolocation = ({
       <div className='str-chat__message-attachment-geolocation__status'>
         {isLiveLocation ? (
           stoppedSharing ? (
-            t('Location sharing ended')
+            t(
+              'attachment.geolocation.locationSharingEnded.text',
+              'Location sharing ended',
+            )
           ) : isMyLocation ? (
             <div className='str-chat__message-attachment-geolocation__status--active'>
               <Button
                 appearance='outline'
                 className='str-chat__message-attachment-geolocation__stop-sharing-button'
-                onClick={() => channel?.stopLiveLocationSharing(location)}
+                onClick={() =>
+                  // The request shape, not the whole response: `stopLiveLocationSharing` stamps
+                  // `end_at` itself, and the response's timestamps are wire numbers a request
+                  // field cannot take.
+                  channel?.stopLiveLocationSharing({ message_id: location.message_id })
+                }
                 size='sm'
                 variant='secondary'
               >
-                {t('Stop sharing')}
+                {t('attachment.geolocation.stopSharing.text', 'Stop sharing')}
               </Button>
               <div className='str-chat__message-attachment-geolocation__status--active-until'>
-                {t('Live until {{ timestamp }}', {
-                  timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
-                })}
+                {t(
+                  'attachment.geolocation.liveUntil.text',
+                  'Live until {{ timestamp }}',
+                  {
+                    timestamp: t('timestamp.LiveLocation', {
+                      timestamp: convertTimestampToDate(location.end_at),
+                    }),
+                  },
+                )}
               </div>
             </div>
           ) : (
             <div className='str-chat__message-attachment-geolocation__status--active'>
               <div className='str-chat__message-attachment-geolocation__status--active-status'>
-                {t('Live location')}
+                {t('common.liveLocation.text', 'Live location')}
               </div>
               <div className='str-chat__message-attachment-geolocation__status--active-until'>
-                {t('Live until {{ timestamp }}', {
-                  timestamp: t('timestamp/LiveLocation', { timestamp: location.end_at }),
-                })}
+                {t(
+                  'attachment.geolocation.liveUntil.text',
+                  'Live until {{ timestamp }}',
+                  {
+                    timestamp: t('timestamp.LiveLocation', {
+                      timestamp: convertTimestampToDate(location.end_at),
+                    }),
+                  },
+                )}
               </div>
             </div>
           )
         ) : (
-          t('Current location')
+          t('common.currentLocation.text', 'Current location')
         )}
       </div>
     </div>
@@ -98,14 +139,14 @@ export const Geolocation = ({
 };
 
 export type GeolocationAttachmentMapPlaceholderProps = {
-  location: SharedLocationResponse;
+  location: SharedLocationResponseData;
 };
 
 const DefaultGeolocationAttachmentMapPlaceholder = ({
   location,
 }: GeolocationAttachmentMapPlaceholderProps) => {
-  const { t } = useTranslationContext();
   const { IconLocation } = useComponentContextIcons();
+  const { t } = useTranslationContext();
 
   return (
     <div
@@ -114,7 +155,10 @@ const DefaultGeolocationAttachmentMapPlaceholder = ({
     >
       <IconLocation />
       <a
-        aria-label={t('Open location in a map')}
+        aria-label={t(
+          'attachment.geolocation.openLocationMap.ariaLabel',
+          'Open location in a map',
+        )}
         className='str-chat__message-attachment-geolocation__placeholder-link'
         href={`https://maps.google.com?q=${[location.latitude, location.longitude].join()}`}
         rel='noreferrer'

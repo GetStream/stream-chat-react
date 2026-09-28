@@ -6,17 +6,10 @@ import { GalleryContext, useGalleryContext } from '../GalleryContext';
 import type { GalleryContextValue } from '../GalleryContext';
 
 describe('useGalleryContext', () => {
-  it('should warn and return empty object when used outside provider', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => null);
-
-    const { result } = renderHook(() => useGalleryContext());
-
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('useGalleryContext hook was called outside'),
+  it('should throw when used outside provider', () => {
+    expect(() => renderHook(() => useGalleryContext())).toThrow(
+      /useGalleryContext was called outside of Gallery/,
     );
-    expect(result.current).toEqual({});
-
-    warnSpy.mockRestore();
   });
 
   it('should return context value when used inside provider', () => {

@@ -10,7 +10,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
       class="str-chat__audio-recorder__recording-playback"
     >
       <button
-        aria-label="aria/Play"
+        aria-label="Play"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-playback-button"
         data-testid="audio-recording-preview-toggle-play-btn"
         type="button"
@@ -44,12 +44,12 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
         class="str-chat__wave-progress-bar__track-container"
       >
         <div
-          aria-label="aria/Seek audio position"
+          aria-label="Seek audio position"
           aria-orientation="horizontal"
           aria-valuemax="100"
           aria-valuemin="0"
           aria-valuenow="0"
-          aria-valuetext="aria/Audio position {{ elapsed }} of {{ duration }}"
+          aria-valuetext="Audio position 00:00 of 00:43"
           class="str-chat__wave-progress-bar__track"
           data-testid="wave-progress-bar-track"
           role="slider"
@@ -309,7 +309,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
-        aria-label="aria/Cancel recording"
+        aria-label="Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -336,7 +336,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
         </div>
       </button>
       <button
-        aria-label="aria/Resume recording"
+        aria-label="Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -362,7 +362,7 @@ exports[`AudioRecorder > does not render recording preview if paused 1`] = `
         </div>
       </button>
       <button
-        aria-label="aria/Complete recording"
+        aria-label="Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -428,7 +428,7 @@ exports[`AudioRecorder > does not render recording preview if recording 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
-        aria-label="aria/Pause recording"
+        aria-label="Pause recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -449,7 +449,7 @@ exports[`AudioRecorder > does not render recording preview if recording 1`] = `
         </div>
       </button>
       <button
-        aria-label="aria/Complete recording"
+        aria-label="Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -515,7 +515,7 @@ exports[`AudioRecorder > renders audio recording in progress UI 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
-        aria-label="aria/Pause recording"
+        aria-label="Pause recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -536,7 +536,7 @@ exports[`AudioRecorder > renders audio recording in progress UI 1`] = `
         </div>
       </button>
       <button
-        aria-label="aria/Complete recording"
+        aria-label="Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -570,7 +570,7 @@ exports[`AudioRecorder > renders audio recording paused UI when paused 1`] = `
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
-        aria-label="aria/Cancel recording"
+        aria-label="Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -597,7 +597,7 @@ exports[`AudioRecorder > renders audio recording paused UI when paused 1`] = `
         </div>
       </button>
       <button
-        aria-label="aria/Resume recording"
+        aria-label="Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -623,7 +623,7 @@ exports[`AudioRecorder > renders audio recording paused UI when paused 1`] = `
         </div>
       </button>
       <button
-        aria-label="aria/Complete recording"
+        aria-label="Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -657,7 +657,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
-        aria-label="aria/Cancel recording"
+        aria-label="Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -684,7 +684,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
         </div>
       </button>
       <button
-        aria-label="aria/Resume recording"
+        aria-label="Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -710,7 +710,7 @@ exports[`AudioRecorder > renders audio recording stopped UI when stopped without
         </div>
       </button>
       <button
-        aria-label="aria/Complete recording"
+        aria-label="Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"
@@ -744,7 +744,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
       class="str-chat__audio-recorder__recording-playback"
     >
       <button
-        aria-label="aria/Play"
+        aria-label="Play"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-playback-button"
         data-testid="audio-recording-preview-toggle-play-btn"
         type="button"
@@ -778,12 +778,12 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
         class="str-chat__wave-progress-bar__track-container"
       >
         <div
-          aria-label="aria/Seek audio position"
+          aria-label="Seek audio position"
           aria-orientation="horizontal"
           aria-valuemax="100"
           aria-valuemin="0"
           aria-valuenow="0"
-          aria-valuetext="aria/Audio position {{ elapsed }} of {{ duration }}"
+          aria-valuetext="Audio position 00:00 of 00:43"
           class="str-chat__wave-progress-bar__track"
           data-testid="wave-progress-bar-track"
           role="slider"
@@ -1043,7 +1043,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
       class="str-chat__audio_recorder__recording-controls"
     >
       <button
-        aria-label="aria/Cancel recording"
+        aria-label="Cancel recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--ghost str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__cancel-button"
         data-testid="cancel-recording-audio-button"
         type="button"
@@ -1070,7 +1070,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
         </div>
       </button>
       <button
-        aria-label="aria/Resume recording"
+        aria-label="Resume recording"
         class="str-chat__button str-chat__button--secondary str-chat__button--outline str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__toggle-recording-button"
         type="button"
       >
@@ -1096,7 +1096,7 @@ exports[`AudioRecorder > renders audio recording stopped UI with recording previ
         </div>
       </button>
       <button
-        aria-label="aria/Complete recording"
+        aria-label="Complete recording"
         class="str-chat__button str-chat__button--primary str-chat__button--solid str-chat__button--circular str-chat__button--size-sm str-chat__audio_recorder__stop-button"
         data-testid="audio-recorder-stop-button"
         type="button"

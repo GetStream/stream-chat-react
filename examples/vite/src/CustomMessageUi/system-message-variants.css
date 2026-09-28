@@ -9,13 +9,5 @@
   flex-direction: column;
   align-items: center;
   border-radius: var(--str-chat__border-radius-md);
-  background: linear-gradient(
-    to right,
-    orange,
-    yellow,
-    green,
-    cyan,
-    blue,
-    violet
-  );
+  background: linear-gradient(to right, orange, yellow, green, cyan, blue, violet);
 }

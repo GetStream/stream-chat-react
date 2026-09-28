@@ -16,9 +16,9 @@ export type PinIndicatorProps = {
  * Name is taken from message.pinned_by (who pinned).
  */
 export const PinIndicator = ({ message }: PinIndicatorProps) => {
+  const { IconPin } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { client } = useChatContext();
-  const { IconPin } = useComponentContextIcons();
 
   if (!message) return null;
 
@@ -26,10 +26,10 @@ export const PinIndicator = ({ message }: PinIndicatorProps) => {
   const name = message.pinned_by?.name ?? message.pinned_by?.id ?? '';
 
   const label = isOwnPin
-    ? t('Pinned by You')
+    ? t('message.pinIndicator.pinned.label', 'Pinned by You')
     : name
-      ? t('Pinned by {{ name }}', { name })
-      : t('Message pinned');
+      ? t('message.pinIndicator.pinned.withName.label', 'Pinned by {{ name }}', { name })
+      : t('common.messagePinned.label', 'Message pinned');
 
   return (
     <div className='str-chat__message-pin-indicator'>

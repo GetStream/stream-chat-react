@@ -1,21 +1,22 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
-import { ChatViewContext, useChatViewContext } from '../../../ChatView';
-import { useChannelListContext, useChannelStateContext } from '../../../../context';
+import { useChannelListContext, useWorkspaceNavigation } from '../../../../context';
+import { useChannelInstanceContext } from '../../../../context/ChannelInstanceContext';
 import { useNotificationTarget } from '../useNotificationTarget';
 import { useThreadContext } from '../../../Threads/ThreadContext';
 import { useLegacyThreadContext } from '../../../Thread';
 
-vi.mock('../../../ChatView', async (importOriginal) => ({
-  ...((await importOriginal()) as object),
-  useChatViewContext: vi.fn(),
-}));
-
+// MERGE-RECONCILE (test migration): the hook reads channel scope from
+// `useChannelInstanceContext().channel`, channel-list scope from `useChannelListContext().paginator`,
+// and the active view from the core workspace-navigation adapter (`useWorkspaceNavigation().isThreadsView`).
 vi.mock('../../../../context', () => ({
   useChannelListContext: vi.fn(),
-  useChannelStateContext: vi.fn(),
+  useWorkspaceNavigation: vi.fn(),
+}));
+
+vi.mock('../../../../context/ChannelInstanceContext', () => ({
+  useChannelInstanceContext: vi.fn(),
 }));
 
 vi.mock('../../../Threads/ThreadContext', () => ({
@@ -27,43 +28,26 @@ vi.mock('../../../Thread', () => ({
 }));
 
 const mockedUseChannelListContext = vi.mocked(useChannelListContext);
-const mockedUseChannelStateContext = vi.mocked(useChannelStateContext);
-const mockedUseChatViewContext = vi.mocked(useChatViewContext);
+const mockedUseChannelInstanceContext = vi.mocked(useChannelInstanceContext);
+const mockedUseWorkspaceNavigation = vi.mocked(useWorkspaceNavigation);
 const mockedUseLegacyThreadContext = vi.mocked(useLegacyThreadContext);
 const mockedUseThreadContext = vi.mocked(useThreadContext);
-
-const chatViewWrapper = (activeChatView) => {
-  const Wrapper = ({ children }) =>
-    React.createElement(
-      ChatViewContext.Provider,
-      { value: { activeChatView, setActiveChatView: vi.fn() } },
-      children,
-    );
-  Wrapper.displayName = 'ChatViewWrapper';
-  return Wrapper;
-};
 
 describe('useNotificationTarget', () => {
   beforeEach(() => {
     mockedUseChannelListContext.mockReturnValue(fromPartial({}));
-    mockedUseChannelStateContext.mockReturnValue(fromPartial({}));
-    mockedUseChatViewContext.mockReturnValue({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    });
+    mockedUseChannelInstanceContext.mockReturnValue(fromPartial({}));
+    mockedUseWorkspaceNavigation.mockReturnValue(fromPartial({ isThreadsView: false }));
     mockedUseLegacyThreadContext.mockReturnValue(fromPartial({}));
     mockedUseThreadContext.mockReturnValue(undefined);
   });
 
   afterEach(() => {
-    mockedUseChannelStateContext.mockReset();
-    mockedUseChatViewContext.mockReset();
-    mockedUseThreadContext.mockReset();
-    mockedUseLegacyThreadContext.mockReset();
+    vi.clearAllMocks();
   });
 
   it('returns channel when channel context exists', () => {
-    mockedUseChannelStateContext.mockReturnValue(fromPartial({ channel: {} }));
+    mockedUseChannelInstanceContext.mockReturnValue(fromPartial({ channel: {} }));
 
     const { result } = renderHook(() => useNotificationTarget());
 
@@ -79,23 +63,18 @@ describe('useNotificationTarget', () => {
   });
 
   it('returns channel-list for channels view without thread or channel context', () => {
-    mockedUseChatViewContext.mockReturnValue({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    });
-    mockedUseChannelListContext.mockReturnValue(fromPartial({ channels: [] }));
+    mockedUseWorkspaceNavigation.mockReturnValue(fromPartial({ isThreadsView: false }));
+    mockedUseChannelListContext.mockReturnValue(fromPartial({ paginator: {} }));
 
-    const { result } = renderHook(() => useNotificationTarget(), {
-      wrapper: chatViewWrapper('channels'),
-    });
+    const { result } = renderHook(() => useNotificationTarget());
 
     expect(result.current).toBe('channel-list');
   });
 
   it('returns thread-list for threads view without thread or channel context', () => {
-    const { result } = renderHook(() => useNotificationTarget(), {
-      wrapper: chatViewWrapper('threads'),
-    });
+    mockedUseWorkspaceNavigation.mockReturnValue(fromPartial({ isThreadsView: true }));
+
+    const { result } = renderHook(() => useNotificationTarget());
 
     expect(result.current).toBe('thread-list');
   });

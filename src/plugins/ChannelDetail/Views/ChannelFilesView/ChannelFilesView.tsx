@@ -48,7 +48,7 @@ const ChannelFilesGroup = forwardRef<HTMLDivElement, ComponentProps<'div'>>(
 );
 
 const ChannelFilesSectionHeader = ({ timestamp }: { timestamp?: string }) => {
-  const { t, tDateTimeParser } = useTranslationContext('ChannelFilesView');
+  const { t, tDateTimeParser } = useTranslationContext();
   const label = getDateString({
     format: 'MMMM YYYY',
     messageCreatedAt: timestamp,
@@ -70,6 +70,7 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
   const { attachment } = item;
   const fileName = getAttachmentFileName(attachment);
   const assetUrl = attachment.asset_url;
+  const { file_size: fileSize, mime_type: mimeType } = attachment.custom ?? {};
 
   const LeadingSlot = useMemo(
     () =>
@@ -78,23 +79,23 @@ const ChannelFileListItem = ({ item }: { item: ChannelFileItem }) => {
           <FileIcon
             className='str-chat__channel-detail__files-view__list-item__icon'
             fileName={fileName}
-            mimeType={attachment.mime_type}
+            mimeType={mimeType}
             size='md'
           />
         );
       },
-    [attachment.mime_type, fileName],
+    [mimeType, fileName],
   );
 
   const sharedProps = useMemo(
     () => ({
       LeadingSlot,
-      subtitle: <FileSizeIndicator fileSize={attachment.file_size} />,
+      subtitle: <FileSizeIndicator fileSize={fileSize} />,
       subtitleClassName: 'str-chat__channel-detail__files-view__list-item__size',
       title: fileName,
       titleClassName: 'str-chat__channel-detail__files-view__list-item__name',
     }),
-    [attachment.file_size, fileName, LeadingSlot],
+    [fileSize, fileName, LeadingSlot],
   );
 
   const linkRootProps = useMemo(
@@ -183,7 +184,10 @@ export const ChannelFilesView: React.ComponentType<ChannelFilesViewProps> = () =
 
   return (
     <div className='str-chat__channel-detail__files-view'>
-      <SectionNavigatorHeader close={close} title={t('Files')} />
+      <SectionNavigatorHeader
+        close={close}
+        title={t('channelDetail.channelFilesView.files.title', 'Files')}
+      />
       <Prompt.Body className='str-chat__channel-detail__files-view__body'>
         <GroupedVirtuoso
           atBottomStateChange={atBottomStateChange}

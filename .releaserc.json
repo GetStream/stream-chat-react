@@ -1,16 +1,22 @@
 {
   "branches": [
     {
-      "name": "master",
+      "name": "release-v14",
       "channel": "latest"
+    },
+    {
+      "name": "master",
+      "prerelease": "rc",
+      "channel": "rc"
     }
   ],
   "plugins": [
     [
       "@semantic-release/commit-analyzer",
       {
-        "preset": "angular",
+        "preset": "conventionalcommits",
         "releaseRules": [
+          { "breaking": true, "release": "major" },
           { "type": "chore", "scope": "deps", "release": "patch" },
           { "type": "refactor", "release": "patch" }
         ]

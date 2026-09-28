@@ -65,7 +65,7 @@ const isReservedMode = (mode: ChannelMembersViewMode) => RESERVED_MODES.includes
 
 const AddMembersModeTitle = () => {
   const { t } = useTranslationContext();
-  return <>{t('Add members')}</>;
+  return <>{t('channelDetail.channelMembersView.addMembers.label', 'Add members')}</>;
 };
 
 /** Built-in mode descriptors. Merged with (and overridable by) the `modeViews` prop. */
@@ -159,13 +159,24 @@ export const ChannelMembersView = ({
     <div className='str-chat__channel-detail__channel-members-view'>
       <SectionNavigatorHeader
         close={close}
-        description={activeModeDescriptor ? undefined : t('Browse channel members')}
+        description={
+          activeModeDescriptor
+            ? undefined
+            : t(
+                'channelDetail.channelMembersView.browseChannelMembers.description',
+                'Browse channel members',
+              )
+        }
         goBack={activeModeDescriptor ? goBack : undefined}
         title={
           ActiveModeTitle ? (
             <ActiveModeTitle />
           ) : (
-            t('{{ count }} members', { count: memberCount })
+            t('channelDetail.channelMembersView.members.title', {
+              count: memberCount,
+              defaultValue_one: '{{ count }} member',
+              defaultValue_other: '{{ count }} members',
+            })
           )
         }
         TrailingContent={HeaderTrailingActions}

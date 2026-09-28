@@ -46,10 +46,10 @@ const ChannelMediaGridItem = ({
   item,
   onClick,
 }: ChannelMediaGridItemProps) => {
-  const { t } = useTranslationContext('ChannelMediaView');
+  const { IconImage, IconVideoFill } = useComponentContextIcons();
+  const { t } = useTranslationContext();
   const { Avatar = DefaultAvatar, extractDisplayInfo = defaultExtractDisplayInfo } =
     useComponentContext();
-  const { IconImage, IconVideoFill } = useComponentContextIcons();
   const displayName = getUserDisplayName(item.user);
   const mediaSrc =
     item.type === 'video'
@@ -58,8 +58,16 @@ const ChannelMediaGridItem = ({
   const durationLabel = formatTime(item.durationSeconds, 'floor');
   const label =
     item.type === 'video'
-      ? t('aria/Open video shared by {{ name }}', { name: displayName })
-      : t('aria/Open image shared by {{ name }}', { name: displayName });
+      ? t(
+          'channelDetail.channelMediaView.openVideoShared.ariaLabel',
+          'Open video shared by {{ name }}',
+          { name: displayName },
+        )
+      : t(
+          'channelDetail.channelMediaView.openImageShared.ariaLabel',
+          'Open image shared by {{ name }}',
+          { name: displayName },
+        );
 
   return (
     <button
@@ -115,14 +123,17 @@ const ChannelMediaPagination = ({
   onPrevious,
   previousDisabled,
 }: ChannelMediaPaginationProps) => {
-  const { t } = useTranslationContext('ChannelMediaView');
   const { IconChevronLeft, IconChevronRight } = useComponentContextIcons();
+  const { t } = useTranslationContext();
 
   return (
     <div className='str-chat__channel-detail__media-view__pagination'>
       <Button
         appearance='outline'
-        aria-label={t('aria/Previous page')}
+        aria-label={t(
+          'channelDetail.channelMediaView.previousPage.ariaLabel',
+          'Previous page',
+        )}
         className='str-chat__channel-detail__media-view__pagination__button str-chat__channel-detail__media-view__pagination__button--previous'
         disabled={previousDisabled}
         onClick={onPrevious}
@@ -130,18 +141,18 @@ const ChannelMediaPagination = ({
         variant='secondary'
       >
         <IconChevronLeft />
-        {t('Previous')}
+        {t('channelDetail.channelMediaView.previous.text', 'Previous')}
       </Button>
       <Button
         appearance='outline'
-        aria-label={t('aria/Next page')}
+        aria-label={t('channelDetail.channelMediaView.nextPage.ariaLabel', 'Next page')}
         className='str-chat__channel-detail__media-view__pagination__button str-chat__channel-detail__media-view__pagination__button--next'
         disabled={nextDisabled}
         onClick={onNext}
         size='md'
         variant='secondary'
       >
-        {t('Next')}
+        {t('channelDetail.channelMediaView.next.text', 'Next')}
         <IconChevronRight />
       </Button>
     </div>
@@ -270,7 +281,10 @@ export const ChannelMediaView: React.ComponentType<ChannelMediaViewProps> = ({
 
   return (
     <div className='str-chat__channel-detail__media-view'>
-      <SectionNavigatorHeader close={close} title={t('Photos & videos')} />
+      <SectionNavigatorHeader
+        close={close}
+        title={t('channelDetail.channelMediaView.photosVideos.title', 'Photos & videos')}
+      />
       <Prompt.Body className='str-chat__channel-detail__media-view__body'>
         <div className='str-chat__channel-detail__media-view__grid' ref={gridRef}>
           <div className='str-chat__channel-detail__media-view__grid__content'>

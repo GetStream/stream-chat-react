@@ -6,7 +6,7 @@ import type { MessageComposerConfig } from 'stream-chat';
 
 import {
   useComponentContextIcons,
-  useMessageComposerContext,
+  useIsWithinMessageComposerContext,
   useTranslationContext,
 } from '../../context';
 import { useAttachmentManagerState, useMessageComposerController } from './hooks';
@@ -51,12 +51,9 @@ const attachmentManagerConfigStateSelector = (state: MessageComposerConfig) => (
  * ```tsx
  * <Channel>
  *  <WithDragAndDropUpload component="section" className="message-list-dnd-wrapper">
- *    <Window>
- *      <MessageList />
- *      <MessageComposer />
- *    </Window>
+ *    <MessageList />
+ *    <MessageComposer />
  *  </WithDragAndDropUpload>
- *  <Thread />
  * <Channel>
  * ```
  */
@@ -76,7 +73,6 @@ export const WithDragAndDropUpload = ({
   style?: CSSProperties;
 }>) => {
   const dropHandlersRef = useRef<Set<(f: File[]) => void>>(new Set());
-  const messageComposerContext = useMessageComposerContext();
   const dragAndDropUploadContext = useDragAndDropUploadContext();
   const messageComposer = useMessageComposerController();
   const { isUploadEnabled } = useAttachmentManagerState();
@@ -87,7 +83,7 @@ export const WithDragAndDropUpload = ({
 
   const isCooldownActive = useIsCooldownActive();
   // if message composer context is available, there's no need to use the queue
-  const isWithinMessageComposerContext = Object.keys(messageComposerContext).length > 0;
+  const isWithinMessageComposerContext = useIsWithinMessageComposerContext();
 
   const accept = useMemo(
     () =>
@@ -163,16 +159,23 @@ export type FileDragAndDropContentProps = {
 export const FileDragAndDropContent = ({
   isDragRejected,
 }: FileDragAndDropContentProps) => {
-  const { t } = useTranslationContext();
   const { IconUpload } = useComponentContextIcons();
+  const { t } = useTranslationContext();
   return (
     <div className='str-chat__dropzone-container__content'>
       {isDragRejected ? (
-        <p>{t('Some of the files will not be accepted')}</p>
+        <p>
+          {t(
+            'messageComposer.dragDropUpload.someFilesNotAccepted.text',
+            'Some of the files will not be accepted',
+          )}
+        </p>
       ) : (
         <>
           <IconUpload />
-          <p>{t('Drag your files here')}</p>
+          <p>
+            {t('messageComposer.dragDropUpload.dragFiles.text', 'Drag your files here')}
+          </p>
         </>
       )}
     </div>

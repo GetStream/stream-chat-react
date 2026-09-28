@@ -1,18 +1,14 @@
-import React from 'react';
-import type { Attachment } from 'stream-chat';
+import React, { useContext } from 'react';
+import type { Attachment, VoiceRecordingAttachment } from 'stream-chat';
 
 import {
   AttachmentUploadProgressIndicator as DefaultAttachmentUploadProgressIndicator,
   FileSizeIndicator as DefaultFileSizeIndicator,
 } from './components';
-import {
-  getAttachmentPreviewUrl,
-  useAttachmentUploadState,
-} from './hooks/useAttachmentUploadState';
 import { FileIcon } from '../FileIcon';
 import {
+  MessageContext,
   useComponentContext,
-  useMessageContext,
   useTranslationContext,
 } from '../../context';
 import {
@@ -25,6 +21,9 @@ import {
 import { useAudioPlayer } from '../AudioPlayback/WithAudioPlayback';
 import { useStateStore } from '../../store';
 import { PlayButton } from '../Button';
+import { useThreadContext } from '../Threads';
+import { getAttachmentPreviewUrl } from 'stream-chat';
+import { useAttachmentUploadState } from './hooks/useAttachmentUploadState';
 
 const rootClassName = 'str-chat__message-attachment__voice-recording-widget';
 
@@ -38,8 +37,8 @@ const audioPlayerStateSelector = (state: AudioPlayerState) => ({
 });
 
 type VoiceRecordingPlayerUIProps = {
-  audioPlayer: AudioPlayer;
   attachment?: Attachment;
+  audioPlayer: AudioPlayer;
 };
 
 // todo: finish creating a BaseAudioPlayer derived from VoiceRecordingPlayerUI and AudioAttachmentUI
@@ -103,7 +102,7 @@ const VoiceRecordingPlayerUI = ({
       </div>
       <div className='str-chat__message-attachment__voice-recording-widget__right-section'>
         <PlaybackRateButton
-          aria-label={t('Playback speed {{ rate }}x', {
+          aria-label={t('common.playbackSpeedX.label', 'Playback speed {{ rate }}x', {
             rate: playbackRate?.toString() ?? '1',
           })}
           disabled={!canPlayRecord}
@@ -126,14 +125,14 @@ export const VoiceRecordingPlayer = ({
   playbackRates,
 }: VoiceRecordingPlayerProps) => {
   const { t } = useTranslationContext();
+  const { asset_url, title = t('common.voiceMessage.label', 'Voice message') } =
+    attachment;
   const {
-    asset_url,
     duration = 0,
     file_size,
     mime_type,
-    title = t('Voice message'),
     waveform_data,
-  } = attachment;
+  } = (attachment as VoiceRecordingAttachment).custom ?? {};
 
   /**
    * Introducing message context. This could be breaking change, therefore the fallback to {} is provided.
@@ -144,7 +143,9 @@ export const VoiceRecordingPlayer = ({
    * with the default SDK components, but can be done with custom API calls.In this case all the Audio
    * widgets will share the state.
    */
-  const { message, threadList } = useMessageContext() ?? {};
+  // also rendered from composer previews, where there is no message
+  const { message } = useContext(MessageContext) ?? {};
+  const threadInstance = useThreadContext();
 
   const audioPlayer = useAudioPlayer({
     durationSeconds: duration ?? 0,
@@ -153,7 +154,7 @@ export const VoiceRecordingPlayer = ({
     playbackRates,
     requester:
       message?.id &&
-      `${threadList ? (message.parent_id ?? message.id) : ''}${message.id}`,
+      `${threadInstance ? (message.parent_id ?? message.id) : ''}${message.id}`,
     // Falls back to the local blob preview while the upload is still in flight.
     src: getAttachmentPreviewUrl(attachment, asset_url),
     title,
@@ -169,27 +170,26 @@ export type QuotedVoiceRecordingProps = Pick<VoiceRecordingProps, 'attachment'>;
 
 export const QuotedVoiceRecording = ({ attachment }: QuotedVoiceRecordingProps) => {
   const { FileSizeIndicator = DefaultFileSizeIndicator } = useComponentContext();
+  const { duration, file_size, mime_type } =
+    (attachment as VoiceRecordingAttachment).custom ?? {};
   return (
     <div className={rootClassName} data-testid='quoted-voice-recording-widget'>
       <div className='str-chat__message-attachment__voice-recording-widget__metadata'>
         <div className='str-chat__message-attachment__voice-recording-widget__audio-state'>
           <div className='str-chat__message-attachment__voice-recording-widget__timer'>
-            {attachment.duration ? (
+            {duration ? (
               <DurationDisplay
-                duration={attachment.duration}
+                duration={duration}
                 isPlaying={false}
                 secondsElapsed={undefined}
               />
             ) : (
-              <FileSizeIndicator
-                fileSize={attachment.file_size}
-                maximumFractionDigits={0}
-              />
+              <FileSizeIndicator fileSize={file_size} maximumFractionDigits={0} />
             )}
           </div>
         </div>
       </div>
-      <FileIcon mimeType={attachment.mime_type} />
+      <FileIcon mimeType={mime_type} />
     </div>
   );
 };

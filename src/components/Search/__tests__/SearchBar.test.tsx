@@ -7,9 +7,11 @@ import { useSearchContext } from '../SearchContext';
 import type { SearchContextValue } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import type { TranslationContextValue } from '../../../context';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
+import * as DEFAULT_ICONS from '../../Icons/icons';
 import { useStateStore } from '../../../store';
 import { axe } from '../../../../axe-helper';
+import { mockT } from '../../../mock-builders/translator';
 
 const { announceInteraction } = vi.hoisted(() => ({ announceInteraction: vi.fn() }));
 
@@ -25,7 +27,7 @@ vi.mock('../../Accessibility', () => ({
 }));
 
 const INPUT_TEST_ID = 'search-input';
-const CLEAR_SEARCH_BUTTON_ARIA_LABEL = 'aria/Clear search';
+const CLEAR_SEARCH_BUTTON_ARIA_LABEL = 'Clear search';
 const SEARCH_INPUT_ACCESSIBLE_NAME = 'Search';
 
 describe('SearchBar', () => {
@@ -52,12 +54,15 @@ describe('SearchBar', () => {
       fromPartial<SearchContextValue>(defaultProps),
     );
     vi.mocked(useTranslationContext).mockReturnValue(
-      fromPartial<TranslationContextValue>({ t: (key: any) => key }),
+      fromPartial<TranslationContextValue>({ t: mockT }),
     );
     vi.mocked(useStateStore).mockReturnValue({
       isActive: false,
       searchQuery: '',
     });
+    // The module is auto-mocked, so the icon hook would return undefined; hand back the real
+    // icons rather than stubs, so these tests keep asserting against what users actually see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
   it('renders with default state', () => {

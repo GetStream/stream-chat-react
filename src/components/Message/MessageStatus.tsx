@@ -6,9 +6,10 @@ import { PopperTooltip } from '../Tooltip';
 import { useEnterLeaveHandlers } from '../Tooltip/hooks';
 
 import { useChatContext } from '../../context/ChatContext';
-import { useComponentContextIcons } from '../../context';
 import { useMessageContext } from '../../context/MessageContext';
 import { useTranslationContext } from '../../context/TranslationContext';
+import { useThreadContext } from '../Threads';
+import { useComponentContextIcons } from '../../context';
 
 export type MessageStatusProps = {
   /* Custom component to render when message is considered delivered, not read. The default UI renders MessageDeliveredIcon and a tooltip with string 'Delivered'. */
@@ -26,6 +27,7 @@ export type MessageStatusProps = {
 };
 
 const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
+  const { IconCheckmark1Small, IconChecks, IconClock } = useComponentContextIcons();
   const {
     MessageDeliveredStatus,
     MessageReadStatus,
@@ -38,18 +40,11 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
 
-  const { client } = useChatContext('MessageStatus');
-  const {
-    deliveredTo,
-    isMyMessage,
-    lastOwnMessage,
-    message,
-    readBy,
-    returnAllReadData,
-    threadList,
-  } = useMessageContext('MessageStatus');
-  const { t } = useTranslationContext('MessageStatus');
-  const { IconCheckmark1Small, IconChecks, IconClock } = useComponentContextIcons();
+  const { client } = useChatContext();
+  const threadInstance = useThreadContext();
+  const { deliveredTo, isMyMessage, lastOwnMessage, message, readBy, returnAllReadData } =
+    useMessageContext();
+  const { t } = useTranslationContext();
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
 
   if (!isMyMessage() || message.type === 'error') return null;
@@ -64,15 +59,15 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
   // server still carries a locally stamped `created_at`, so without this guard it is reported as
   // delivered — a double tick on a message nobody received.
   const failed = message.status === 'failed';
-  const read = !failed && !!(readBy?.length && !justReadByMe && !threadList);
+  const read = !failed && !!(readBy?.length && !justReadByMe && !threadInstance);
   const delivered =
-    !failed && !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadList);
+    !failed && !!(deliveredTo?.length && !deliveredOnlyToMe && !read && !threadInstance);
   const sent =
     (returnAllReadData || lastOwnMessage?.id === message.id) &&
     message.status === 'received' &&
     !delivered &&
     !read &&
-    !threadList;
+    !threadInstance;
 
   const readersWithoutOwnUser = read
     ? readBy.filter((item) => item.id !== client.user?.id)
@@ -109,7 +104,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Sending...')}
+              {t('message.status.sending.text', 'Sending...')}
             </PopperTooltip>
             <IconClock className='str-chat__message-status-sending' />
           </>
@@ -125,7 +120,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Sent')}
+              {t('message.status.sent.text', 'Sent')}
             </PopperTooltip>
             <IconCheckmark1Small className='str-chat__message-status-sent' />
           </>
@@ -141,7 +136,7 @@ const UnMemoizedMessageStatus = (props: MessageStatusProps) => {
               referenceElement={referenceElement}
               visible={tooltipVisible}
             >
-              {t('Delivered')}
+              {t('message.status.delivered.text', 'Delivered')}
             </PopperTooltip>
             <IconChecks className='str-chat__message-status-delivered' />
           </>

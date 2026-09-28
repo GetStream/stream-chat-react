@@ -60,7 +60,17 @@ export const useLiveLocationSharingManager = ({
     manager.init();
 
     return () => {
+      // Two teardowns, because the manager has two lifetimes. `unregisterSubscriptions` is ref-counted
+      // and releases the WS subscriptions; `dispose` releases the configuration subscription, which the
+      // client's configuration registry holds a handle to — without it a manager per memo generation
+      // accumulates for the life of the client.
+      //
+      // Safe to call here even though StrictMode runs cleanup between two mounts of the same instance:
+      // `registerSubscriptions` (via `init`) re-subscribes configuration if it was disposed. That
+      // recovery is a microtask late, because `init` awaits its state fetch first — nothing is lost,
+      // since subscribing applies whatever is registered at that moment.
       manager.unregisterSubscriptions();
+      manager.dispose();
     };
   }, [manager]);
 

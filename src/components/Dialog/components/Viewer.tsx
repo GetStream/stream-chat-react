@@ -33,9 +33,9 @@ const ViewerHeader = ({
   title,
   titleId,
 }: ViewerHeaderProps) => {
+  const { IconArrowLeft, IconXmark } = useComponentContextIcons();
   const { t } = useTranslationContext();
   const { dialogId } = useModalContext();
-  const { IconArrowLeft, IconXmark } = useComponentContextIcons();
   const { descriptionId: derivedDescriptionId, titleId: derivedTitleId } =
     useAriaIdentifiers(dialogId);
   const resolvedTitleId = titleId ?? derivedTitleId;
@@ -49,7 +49,7 @@ const ViewerHeader = ({
           aria-describedby={
             description != null && description !== '' ? resolvedDescriptionId : undefined
           }
-          aria-label={t('Back')}
+          aria-label={t('common.back.label', 'Back')}
           circular
           className='str-chat__viewer__header__go-back-button'
           onClick={goBack}
@@ -75,7 +75,7 @@ const ViewerHeader = ({
           aria-describedby={
             description != null && description !== '' ? resolvedDescriptionId : undefined
           }
-          aria-label={t('Close dialog')}
+          aria-label={t('dialog.viewer.closeDialog.ariaLabel', 'Close dialog')}
           circular
           className='str-chat__viewer__header__close-button'
           onClick={close}

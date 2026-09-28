@@ -1,11 +1,15 @@
 import React, { useMemo } from 'react';
-import type { SharedLocationResponse, Attachment as StreamAttachment } from 'stream-chat';
+import type {
+  GiphyVersions,
+  SharedLocationResponseData,
+  Attachment as StreamAttachment,
+} from 'stream-chat';
 import {
   isAudioAttachment,
   isFileAttachment,
   isImageAttachment,
   isScrapedContent,
-  isSharedLocationResponse,
+  isSharedLocationResponseData,
   isVideoAttachment,
   isVoiceRecordingAttachment,
 } from 'stream-chat';
@@ -29,7 +33,6 @@ import type { AudioProps } from './Audio';
 import type { VoiceRecordingProps } from './VoiceRecording';
 import type { CardProps } from './LinkPreview/Card';
 import type { FileAttachmentProps } from './FileAttachment';
-import type { GalleryItem } from '../Gallery';
 import type { UnsupportedAttachmentProps } from './UnsupportedAttachment';
 import type { ActionHandlerReturnType } from '../Message/hooks/useActionHandler';
 import type { GeolocationProps } from './Geolocation';
@@ -37,6 +40,12 @@ import type { GiphyAttachmentProps } from './Giphy';
 import type { VideoPlayerProps } from '../VideoPlayer';
 import type { ModalGalleryProps } from './ModalGallery';
 import type { ImageProps } from './Image';
+import {
+  AttachmentContextProvider,
+  defaultAttachmentContextValue,
+  type ImageAttachmentConfiguration,
+  type VideoAttachmentConfiguration,
+} from '../../context/AttachmentContext';
 
 export const ATTACHMENT_GROUPS_ORDER = [
   'media',
@@ -47,9 +56,20 @@ export const ATTACHMENT_GROUPS_ORDER = [
   'unsupported',
 ] as const;
 
+export type ImageAttachmentSizeHandler = (
+  attachment: StreamAttachment,
+  element: HTMLElement,
+) => ImageAttachmentConfiguration;
+
+export type VideoAttachmentSizeHandler = (
+  attachment: StreamAttachment,
+  element: HTMLElement,
+  shouldGenerateVideoThumbnail: boolean,
+) => VideoAttachmentConfiguration;
+
 export type AttachmentProps = {
   /** The message attachments to render, see [attachment structure](https://getstream.io/chat/docs/javascript/message_format/?language=javascript) **/
-  attachments: (StreamAttachment | SharedLocationResponse)[];
+  attachments: (StreamAttachment | SharedLocationResponseData)[];
   /**	The handler function to call when an action is performed on an attachment, examples include canceling a \/giphy command or shuffling the results. */
   actionHandler?: ActionHandlerReturnType;
   /**
@@ -75,12 +95,20 @@ export type AttachmentProps = {
   Giphy?: React.ComponentType<GiphyAttachmentProps>;
   /** Custom UI component for displaying an image type attachment, defaults to and accepts same props as: [Image](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Gallery/Image.tsx) */
   Image?: React.ComponentType<ImageProps>;
+  /** Giphy rendition to use when rendering giphy attachments */
+  giphyVersion?: GiphyVersions;
+  /** Handler used to size image attachments responsively */
+  imageAttachmentSizeHandler?: ImageAttachmentSizeHandler;
   /** Optional flag to signal that an attachment is a displayed as a part of a quoted message */
   isQuoted?: boolean;
   /** Custom UI component for displaying a media type attachment, defaults to `ReactPlayer` from 'react-player' */
   Media?: React.ComponentType<VideoPlayerProps>;
+  /** Whether a video thumbnail should be rendered before playback starts */
+  shouldGenerateVideoThumbnail?: boolean;
   /** Custom UI component for displaying unsupported attachment types, defaults to NullComponent */
   UnsupportedAttachment?: React.ComponentType<UnsupportedAttachmentProps>;
+  /** Handler used to size video attachments responsively */
+  videoAttachmentSizeHandler?: VideoAttachmentSizeHandler;
   /** Custom UI component for displaying an audio recording attachment, defaults to and accepts same props as: [VoiceRecording](https://github.com/GetStream/stream-chat-react/blob/master/src/components/Attachment/VoiceRecording.tsx) */
   VoiceRecording?: React.ComponentType<VoiceRecordingProps>;
 };
@@ -92,8 +120,32 @@ export const Attachment = (props: AttachmentProps) => {
   const {
     attachmentActionsDefaultFocus = defaultAttachmentActionsDefaultFocus,
     attachments,
+    giphyVersion,
+    imageAttachmentSizeHandler,
+    shouldGenerateVideoThumbnail,
+    videoAttachmentSizeHandler,
     ...rest
   } = props;
+  const attachmentContextValue = useMemo(
+    () => ({
+      giphyVersion: giphyVersion ?? defaultAttachmentContextValue.giphyVersion,
+      imageAttachmentSizeHandler:
+        imageAttachmentSizeHandler ??
+        defaultAttachmentContextValue.imageAttachmentSizeHandler,
+      shouldGenerateVideoThumbnail:
+        shouldGenerateVideoThumbnail ??
+        defaultAttachmentContextValue.shouldGenerateVideoThumbnail,
+      videoAttachmentSizeHandler:
+        videoAttachmentSizeHandler ??
+        defaultAttachmentContextValue.videoAttachmentSizeHandler,
+    }),
+    [
+      giphyVersion,
+      imageAttachmentSizeHandler,
+      shouldGenerateVideoThumbnail,
+      videoAttachmentSizeHandler,
+    ],
+  );
 
   const groupedAttachments = useMemo(
     () =>
@@ -107,12 +159,14 @@ export const Attachment = (props: AttachmentProps) => {
   );
 
   return (
-    <div className='str-chat__attachment-list'>
-      {ATTACHMENT_GROUPS_ORDER.reduce(
-        (acc, groupName) => [...acc, ...groupedAttachments[groupName]],
-        [] as React.ReactNode[],
-      )}
-    </div>
+    <AttachmentContextProvider value={attachmentContextValue}>
+      <div className='str-chat__attachment-list'>
+        {ATTACHMENT_GROUPS_ORDER.reduce(
+          (acc, groupName) => [...acc, ...groupedAttachments[groupName]],
+          [] as React.ReactNode[],
+        )}
+      </div>
+    </AttachmentContextProvider>
   );
 };
 
@@ -120,10 +174,10 @@ const renderGroupedAttachments = ({
   attachments,
   ...rest
 }: AttachmentProps): GroupedRenderedAttachment => {
-  const mediaAttachments: GalleryItem[] = [];
+  const mediaAttachments: StreamAttachment[] = [];
   const containers = attachments.reduce<GroupedRenderedAttachment>(
     (typeMap, attachment) => {
-      if (isSharedLocationResponse(attachment)) {
+      if (isSharedLocationResponseData(attachment)) {
         typeMap.geolocation.push(
           <GeolocationContainer
             {...rest}
@@ -151,7 +205,7 @@ const renderGroupedAttachments = ({
         isImageAttachment(attachment) ||
         isVideoAttachment(attachment, SUPPORTED_VIDEO_FORMATS)
       ) {
-        mediaAttachments.push(attachment as GalleryItem);
+        mediaAttachments.push(attachment);
       } else if (
         isAudioAttachment(attachment) ||
         isVoiceRecordingAttachment(attachment) ||

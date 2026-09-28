@@ -16,7 +16,8 @@ vi.mock('../hooks', () => ({
 vi.mock('../../../context', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../context')>();
   return {
-    useComponentContext: () => ({}),
+    // The real hook: with no provider it returns the SDK icons, which is what these
+    // assertions are written against.
     useComponentContextIcons: actual.useComponentContextIcons,
     useMessageComposerContext: () => ({
       textareaRef: {
@@ -26,8 +27,25 @@ vi.mock('../../../context', async (importOriginal) => {
       },
     }),
     useTranslationContext: () => ({
-      t: (key: string, options?: { command?: string }) =>
-        key.replace('{{ command }}', options?.command ?? ''),
+      t: (key: string, second?: unknown, third?: unknown) => {
+        const defaultValue = typeof second === 'string' ? second : undefined;
+        const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+          string,
+          unknown
+        >;
+        let template = defaultValue;
+        if (template === undefined && typeof options.count === 'number') {
+          template = (
+            options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+          ) as string | undefined;
+        }
+        template ??= options.defaultValue as string | undefined;
+        template ??= key;
+        return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+          const value = options[name];
+          return value === undefined || value === null ? whole : String(value);
+        });
+      },
     }),
   };
 });

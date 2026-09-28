@@ -7,8 +7,10 @@ import { Search } from '../Search';
 import {
   useChatContext,
   useComponentContext,
+  useComponentContextIcons,
   useTranslationContext,
 } from '../../../context';
+import * as DEFAULT_ICONS from '../../Icons/icons';
 import type {
   ChatContextValue,
   ComponentContextValue,
@@ -16,6 +18,7 @@ import type {
 } from '../../../context';
 import { useStateStore } from '../../../store';
 import type { SearchContextValue } from '../SearchContext';
+import { mockT } from '../../../mock-builders/translator';
 
 // vi.mock('../SearchContext');
 vi.mock('../../../context');
@@ -23,7 +26,7 @@ vi.mock('../../../store');
 
 const SEARCH_TEST_ID = 'search';
 const SEARCH_BAR_TEST_ID = 'search-bar';
-const SEARCH_RESULTS_ARIA_LABEL = 'aria/Search results';
+const SEARCH_RESULTS_ARIA_LABEL = 'Search results';
 
 const CustomSearchBar = () => (
   <div data-testid='custom-search-bar'>Custom Search Bar</div>
@@ -55,7 +58,7 @@ describe('Search', () => {
 
     vi.mocked(useTranslationContext).mockReturnValue(
       fromPartial<TranslationContextValue>({
-        t: (key) => key,
+        t: mockT,
       }),
     );
 
@@ -71,6 +74,9 @@ describe('Search', () => {
       searchSourceTypes: [],
       sources: [],
     });
+    // The module is auto-mocked, so the icon hook would return undefined; hand back the real
+    // icons rather than stubs, so these tests keep asserting against what users actually see.
+    vi.mocked(useComponentContextIcons).mockReturnValue(DEFAULT_ICONS);
   });
 
   it('renders search container with default built-in components', () => {

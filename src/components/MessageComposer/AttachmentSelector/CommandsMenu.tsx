@@ -1,5 +1,5 @@
 import React, { type ComponentProps, type ComponentType, useMemo } from 'react';
-import type { CommandResponse } from 'stream-chat';
+import type { Command } from 'stream-chat';
 import {
   useComponentContextIcons,
   useMessageComposerContext,
@@ -14,22 +14,27 @@ import {
 } from '../../Dialog';
 import { useInteractionAnnouncements } from '../../Accessibility';
 import clsx from 'clsx';
+import { asDynamicKey } from '../../../i18n/utils';
 
 export const CommandsMenuClassName = 'str-chat__context-menu--commands';
 
 export const CommandsSubmenuHeader = () => {
-  const { IconChevronLeft } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const { returnToParentMenu } = useContextMenuContext();
+  const { IconChevronLeft } = useComponentContextIcons();
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands str-chat__context-menu__header--submenu-commands'>
       <ContextMenuBackButton
-        aria-label={t('aria/Back to attachments')}
+        aria-label={t(
+          'messageComposer.commandsMenu.backAttachments.ariaLabel',
+          'Back to attachments',
+        )}
         onClick={returnToParentMenu}
       >
         <IconChevronLeft />
-        <span>{t('Instant commands')}</span>
+        <span>
+          {t('messageComposer.commandsMenu.instantCommands.text', 'Instant commands')}
+        </span>
       </ContextMenuBackButton>
     </ContextMenuHeader>
   );
@@ -39,7 +44,9 @@ export const CommandsMenuHeader = () => {
   const { t } = useTranslationContext();
   return (
     <ContextMenuHeader className='str-chat__context-menu__header--commands'>
-      <span>{t('Instant commands')}</span>
+      <span>
+        {t('messageComposer.commandsMenu.instantCommands.text', 'Instant commands')}
+      </span>
     </ContextMenuHeader>
   );
 };
@@ -74,35 +81,37 @@ export const CommandsMenu = () => {
   );
 };
 
-export const useCommandTranslation = (command: CommandResponse) => {
+export const useCommandTranslation = (command: Command) => {
   const { t } = useTranslationContext();
 
   const knownArgsTranslations = useMemo<Record<string, string>>(
     () => ({
-      ban: t('ban-command-args'),
-      giphy: t('giphy-command-args'),
-      mute: t('mute-command-args'),
-      unban: t('unban-command-args'),
-      unmute: t('unmute-command-args'),
+      ban: t('command.ban.args', '[@username] [text]'),
+      giphy: t('command.giphy.args', '[text]'),
+      mute: t('command.mute.args', '[@username]'),
+      unban: t('command.unban.args', '[@username]'),
+      unmute: t('command.unmute.args', '[@username]'),
     }),
     [t],
   );
   const knownDescriptionTranslations = useMemo<Record<string, string>>(
     () => ({
-      ban: t('ban-command-description'),
-      giphy: t('giphy-command-description'),
-      mute: t('mute-command-description'),
-      unban: t('unban-command-description'),
-      unmute: t('unmute-command-description'),
+      ban: t('command.ban.description', 'Ban a user'),
+      giphy: t('command.giphy.description', 'Post a random gif to the channel'),
+      mute: t('command.mute.description', 'Mute a user'),
+      unban: t('command.unban.description', 'Unban a user'),
+      unmute: t('command.unmute.description', 'Unmute a user'),
     }),
     [t],
   );
 
   const args =
-    command.args && (knownArgsTranslations[command.name ?? ''] ?? t(command.args));
+    command.args &&
+    (knownArgsTranslations[command.name ?? ''] ?? t(asDynamicKey(command.args)));
   const description =
     command.description &&
-    (knownDescriptionTranslations[command.name ?? ''] ?? t(command.description));
+    (knownDescriptionTranslations[command.name ?? ''] ??
+      t(asDynamicKey(command.description)));
 
   return { args, description };
 };
@@ -113,24 +122,10 @@ export const CommandContextMenuItem = ({
   enabled = true,
   ...props
 }: ComponentProps<'button'> & {
-  command: CommandResponse & { name: string };
+  command: Command & { name: string };
   enabled?: boolean;
 }) => {
   const { args, description } = useCommandTranslation(command);
-  const { IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove } =
-    useComponentContextIcons();
-
-  const icons = useMemo<Record<string, ComponentType>>(
-    () => ({
-      ban: IconUserRemove,
-      flag: IconFlag,
-      giphy: IconGiphy,
-      mute: IconMute,
-      unban: IconUserAdd,
-      unmute: IconAudio,
-    }),
-    [IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove],
-  );
 
   // todo: retrieve the command trigger char from textComposer - needed adjustment in LLC
   const details = useMemo(
@@ -141,6 +136,18 @@ export const CommandContextMenuItem = ({
     () => (description ? `${description}, ${details}` : details),
     [description, details],
   );
+
+  const { IconAudio, IconFlag, IconGiphy, IconMute, IconUserAdd, IconUserRemove } =
+    useComponentContextIcons();
+
+  const icons: Record<string, ComponentType> = {
+    ban: IconUserRemove,
+    flag: IconFlag,
+    giphy: IconGiphy,
+    mute: IconMute,
+    unban: IconUserAdd,
+    unmute: IconAudio,
+  };
 
   return (
     <ContextMenuButton

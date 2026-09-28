@@ -13,6 +13,7 @@ import type {
 } from '../SuggestionList';
 import { MentionItem } from '../SuggestionList';
 import { mockTranslationContextValue } from '../../../mock-builders';
+import { mockT } from '../../../mock-builders/translator';
 
 afterEach(cleanup);
 
@@ -21,10 +22,7 @@ describe('MentionItem', () => {
     const { container, getByRole, getByText, queryByTestId } = render(
       <TranslationProvider
         value={mockTranslationContextValue({
-          t: (key: string) =>
-            key === 'mention/Channel Description'
-              ? 'Notify everyone in this channel'
-              : key,
+          t: mockT,
         })}
       >
         <div role='menu'>
@@ -54,10 +52,7 @@ describe('MentionItem', () => {
     const { getByText } = render(
       <TranslationProvider
         value={mockTranslationContextValue({
-          t: (key: string) =>
-            key === 'mention/Here Description'
-              ? 'Notify every online member in this channel'
-              : key,
+          t: mockT,
         })}
       >
         <div role='menu'>
@@ -81,10 +76,7 @@ describe('MentionItem', () => {
     const { container, getByRole, getByText, queryByTestId } = render(
       <TranslationProvider
         value={mockTranslationContextValue({
-          t: (key: string, options?: Record<string, string>) =>
-            key === 'Notify all {{ role }} members' && options?.role
-              ? `Notify all ${options.role} members`
-              : key,
+          t: mockT,
         })}
       >
         <div role='menu'>

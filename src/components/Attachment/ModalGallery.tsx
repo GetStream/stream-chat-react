@@ -1,4 +1,5 @@
-import React, { useCallback, useState } from 'react';
+import { convertTimestampToDate } from 'stream-chat';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 import type { BaseImageProps } from '../BaseImage';
@@ -8,6 +9,7 @@ import { Gallery as DefaultGallery, GalleryUI } from '../Gallery';
 import { LoadingIndicator } from '../Loading';
 import { GlobalModal, type ModalCloseSource } from '../Modal';
 import {
+  MessageContext,
   useComponentContext,
   useComponentContextIcons,
   useTranslationContext,
@@ -59,8 +61,20 @@ export const ModalGallery = ({
     Gallery = DefaultGallery,
     Modal = GlobalModal,
   } = useComponentContext();
+  // ModalGallery is also usable standalone, outside a message
+  const { message } = useContext(MessageContext) ?? {};
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  // the gallery header renders outside this provider, so sender and timestamp travel on the items
+  const itemsWithSender = useMemo(
+    () =>
+      items.map((item) => ({
+        ...item,
+        createdAt: item.createdAt ?? convertTimestampToDate(message?.created_at),
+        user: item.user ?? message?.user ?? undefined,
+      })),
+    [items, message?.created_at, message?.user],
+  );
   const usesDefaultBaseImage = BaseImage === DefaultBaseImage;
 
   const closeModal = useCallback(() => {
@@ -117,7 +131,7 @@ export const ModalGallery = ({
           closeOnBackgroundClick={closeOnBackgroundClick}
           GalleryUI={GalleryUI}
           initialIndex={selectedIndex}
-          items={items}
+          items={itemsWithSender}
           onRequestClose={closeModal}
         />
       </Modal>
@@ -146,8 +160,8 @@ const ThumbnailButton = ({
   overflowCount,
   showOverlay,
 }: ThumbnailButtonProps) => {
-  const { t } = useTranslationContext();
   const { IconRetry } = useComponentContextIcons();
+  const { t } = useTranslationContext();
   const imageUrl = item.imageUrl;
   const [isLoadFailed, setIsLoadFailed] = useState(false);
   const [isImageLoading, setIsImageLoading] = useState(Boolean(imageUrl));
@@ -176,7 +190,7 @@ const ThumbnailButton = ({
   };
 
   const buttonLabel = showRetryIndicator
-    ? t('aria/Retry upload')
+    ? t('common.retryUpload.ariaLabel', 'Retry upload')
     : itemCountAwareLabel({ imageIndex: index + 1, itemCount, t });
 
   return (
@@ -190,11 +204,14 @@ const ThumbnailButton = ({
       type='button'
     >
       {item.videoThumbnailUrl ? (
-        <VideoThumbnail alt={t('User uploaded content')} src={item.videoThumbnailUrl} />
+        <VideoThumbnail
+          alt={t('common.userUploadedContent.label', 'User uploaded content')}
+          src={item.videoThumbnailUrl}
+        />
       ) : (
         <BaseImage
           {...baseImageProps}
-          alt={item.alt ?? t('User uploaded content')}
+          alt={item.alt ?? t('common.userUploadedContent.label', 'User uploaded content')}
           onError={(event) => {
             setIsImageLoading(false);
             setIsLoadFailed(true);
@@ -246,10 +263,14 @@ const itemCountAwareLabel = ({
   t: ReturnType<typeof useTranslationContext>['t'];
 }) =>
   itemCount === 1
-    ? t('Open image in gallery')
-    : t('Open gallery at image {{ index }}', {
-        index: imageIndex,
-      });
+    ? t('attachment.modalGallery.openImageGallery.label', 'Open image in gallery')
+    : t(
+        'attachment.modalGallery.openGalleryImage.label',
+        'Open gallery at image {{ index }}',
+        {
+          index: imageIndex,
+        },
+      );
 
 const getBaseImageProps = (item: GalleryItem): BaseImagePropsWithoutSrc => {
   const baseImageProps: PartialBaseImagePropMap = {};

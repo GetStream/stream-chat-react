@@ -1,95 +1,110 @@
 import React from 'react';
 import { renderHook } from '@testing-library/react';
+import { act } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 import { handleActionWarning, useActionHandler } from '../useActionHandler';
 
-import { ChatProvider } from '../../../../context/ChatContext';
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import { ChannelStateProvider } from '../../../../context/ChannelStateContext';
-import {
-  generateChannel,
-  generateMessage,
-  generateUser,
-  getTestClientWithUser,
-  mockChannelActionContext,
-  mockChannelStateContext,
-  mockChatContext,
-} from '../../../../mock-builders';
-import type { GenerateChannelOptions } from '../../../../mock-builders';
+import { generateMessage, initClientWithChannels } from '../../../../mock-builders';
+import { Channel } from '../../../Channel';
+import { Chat } from '../../../Chat';
 
-const alice = generateUser({ name: 'alice' });
-const sendAction = vi.fn();
-const removeMessage = vi.fn();
-const updateMessage = vi.fn();
+// MERGE-RECONCILE (test migration): the master merge removed ChannelActionContext.
+// `useActionHandler` now reads the channel from ChannelInstanceContext (useChannel) and the
+// paginator from useMessagePaginator. It sends the action through `channel.sendAction` and then
+// either ingests the returned message into the paginator (`messagePaginator.ingestItem`) or
+// removes the local message (`messagePaginator.removeItem`) — replacing the removed context
+// `updateMessage`/`removeMessage` handlers. The wrapper uses the real <Chat>/<Channel>
+// providers and assertions spy on `channel.sendAction` and the paginator methods.
+
+let channel: ChannelType;
+let client: StreamChat;
+
 const mouseEventMock = fromPartial<React.BaseSyntheticEvent>({
   preventDefault: vi.fn(() => {}),
 });
 
-async function renderUseHandleActionHook(message: any = generateMessage()) {
-  const client = await getTestClientWithUser(alice);
-  const channel = generateChannel(
-    fromPartial<GenerateChannelOptions>({
-      sendAction,
-    }),
-  );
+function renderUseHandleActionHook(message: any = generateMessage()) {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ChatProvider value={mockChatContext({ client })}>
-      <ChannelStateProvider value={mockChannelStateContext({ channel })}>
-        <ChannelActionProvider
-          value={mockChannelActionContext({ removeMessage, updateMessage })}
-        >
-          {children}
-        </ChannelActionProvider>
-      </ChannelStateProvider>
-    </ChatProvider>
+    <Chat client={client}>
+      <Channel channel={channel}>{children}</Channel>
+    </Chat>
   );
   const { result } = renderHook(() => useActionHandler(message), { wrapper });
   return result.current;
 }
 
 describe('useHandleAction custom hook', () => {
-  afterEach(vi.clearAllMocks);
+  beforeEach(async () => {
+    const {
+      channels: [ch],
+      client: c,
+    } = await initClientWithChannels();
+    channel = ch;
+    client = c;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   it('should return function that handles actions', async () => {
     const handleAction = await renderUseHandleActionHook();
     expect(typeof handleAction).toBe('function');
   });
 
   it('should warn user if the hooks was not initialized with a defined message', async () => {
-    vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementationOnce(() => null);
     const handleAction = await renderUseHandleActionHook(null);
-    await handleAction('action', 'value', mouseEventMock);
-    expect(console.warn).toHaveBeenCalledWith(handleActionWarning);
+    await act(async () => {
+      await handleAction('action', 'value', mouseEventMock);
+    });
+    expect(warnSpy).toHaveBeenCalledWith(handleActionWarning);
   });
 
-  it('should update message after an action', async () => {
+  it('should ingest the updated message into the paginator after an action', async () => {
     const currentMessage = generateMessage();
     const updatedMessage = generateMessage();
     const action = {
       name: 'action',
       value: 'value',
     };
-    sendAction.mockImplementationOnce(() => Promise.resolve({ message: updatedMessage }));
+    const sendActionSpy = vi
+      .spyOn(channel, 'sendAction')
+      .mockResolvedValue(fromPartial({ message: updatedMessage }));
+    const ingestSpy = vi.spyOn(channel.messagePaginator, 'ingestItem');
     const handleAction = await renderUseHandleActionHook(currentMessage);
-    await handleAction(action.name, action.value, mouseEventMock);
-    expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
+    await act(async () => {
+      await handleAction(action.name, action.value, mouseEventMock);
+    });
+    expect(sendActionSpy).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
-    expect(updateMessage).toHaveBeenCalledWith(updatedMessage);
+    expect(ingestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ id: updatedMessage.id }),
+    );
   });
 
-  it('should fallback to original message after an action fails', async () => {
+  it('should remove the local message from the paginator after an action fails', async () => {
     const currentMessage = generateMessage();
     const action = {
       name: 'action',
       value: 'value',
     };
-    sendAction.mockImplementationOnce(() => Promise.resolve(undefined));
+    const sendActionSpy = vi
+      .spyOn(channel, 'sendAction')
+      .mockResolvedValue(fromPartial(undefined));
+    const removeSpy = vi.spyOn(channel.messagePaginator, 'removeItem');
     const handleAction = await renderUseHandleActionHook(currentMessage);
-    await handleAction(action.name, action.value, mouseEventMock);
-    expect(sendAction).toHaveBeenCalledWith(currentMessage.id, {
+    await act(async () => {
+      await handleAction(action.name, action.value, mouseEventMock);
+    });
+    expect(sendActionSpy).toHaveBeenCalledWith(currentMessage.id, {
       [action.name]: action.value,
     });
-    expect(removeMessage).toHaveBeenCalledWith(currentMessage);
+    expect(removeSpy).toHaveBeenCalledWith({
+      item: expect.objectContaining({ id: currentMessage.id }),
+    });
   });
 });

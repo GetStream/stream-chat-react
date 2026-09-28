@@ -1,15 +1,16 @@
-import React from 'react';
 import { renderHook } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useMentionsHandler } from '../useMentionsHandler';
 
-import { ChannelActionProvider } from '../../../../context/ChannelActionContext';
-import {
-  generateMessage,
-  generateUser,
-  mockChannelActionContext,
-} from '../../../../mock-builders';
+import { generateMessage, generateUser } from '../../../../mock-builders';
+import { convertDateToTimestamp } from '../../../../mock-builders';
+
+// MERGE-RECONCILE (test migration): the master merge removed ChannelActionContext.
+// `useMentionsHandler` no longer reads `onMentionsClick`/`onMentionsHover` from context —
+// both handlers are supplied through the hook's `customMentionHandler` argument. The wrapper
+// that used to provide them via <ChannelActionProvider> is gone; the default handlers are now
+// passed directly as the second argument instead.
 
 const onMentionsClickMock = vi.fn();
 const onMentionsHoverMock = vi.fn();
@@ -24,16 +25,9 @@ function generateHookHandler(hook: any) {
     onMentionsClick: any = onMentionsClickMock,
     onMentionsHover: any = onMentionsHoverMock,
   ) => {
-    const wrapper = ({ children }: { children: React.ReactNode }) => (
-      <ChannelActionProvider
-        value={mockChannelActionContext({ onMentionsClick, onMentionsHover })}
-      >
-        {children}
-      </ChannelActionProvider>
+    const { result } = renderHook(() =>
+      hook(message, { onMentionsClick, onMentionsHover, ...hookOptions }),
     );
-    const { result } = renderHook(() => hook(message, hookOptions), {
-      wrapper,
-    });
     return result.current;
   };
 }
@@ -90,10 +84,10 @@ describe('useMentionsHandler custom hooks', () => {
       {
         mentioned_groups: [
           fromPartial({
-            created_at: '2026-05-28T00:00:00.000Z',
+            created_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
             id: 'backend-team',
             name: 'Backend Team',
-            updated_at: '2026-05-28T00:00:00.000Z',
+            updated_at: convertDateToTimestamp('2026-05-28T00:00:00.000Z'),
           }),
         ],
       },

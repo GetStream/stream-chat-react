@@ -1,19 +1,30 @@
+// Import the package barrel first so it evaluates in its natural order (components
+// then context). MessageComposer's send/update hooks import `useChannel` from this
+// root barrel; importing a deep component path first would trigger a partial circular
+// re-entry that leaves `useChannel` undefined under Vitest.
+import '../../..';
 import React from 'react';
 import type {
   Channel as ChannelType,
-  CommandResponse,
+  Command,
   CooldownTimerState,
   LinkPreview,
   LinkPreviewsManagerState,
   LocalAttachment,
   LocalMessage,
   SearchSourceState,
-  SendFileAPIResponse,
   StreamChat,
+  StreamResponse,
   TextComposerSuggestion,
+  UploadChannelFileResponse,
+  UploadChannelResponse,
   UserResponse,
 } from 'stream-chat';
-import { LinkPreviewStatus, SearchController } from 'stream-chat';
+import {
+  LinkPreviewStatus,
+  MessageComposer as MessageComposerController,
+  SearchController,
+} from 'stream-chat';
 import {
   act,
   cleanup,
@@ -39,7 +50,12 @@ import type {
   ComponentContextValue,
   MessageContextValue,
 } from '../../../context';
-import { DialogManagerProvider, MessageProvider, WithComponents } from '../../../context';
+import {
+  DialogManagerProvider,
+  MessageComposerControllerProvider,
+  MessageProvider,
+  WithComponents,
+} from '../../../context';
 import { ChatProvider } from '../../../context/ChatContext';
 import {
   dispatchMessageDeletedEvent,
@@ -55,21 +71,7 @@ import {
 import { QuotedMessagePreview } from '../QuotedMessagePreview';
 import type { ChannelProps } from '../../Channel';
 import type { GenerateChannelOptions } from '../../../mock-builders/generator/channel';
-
-vi.mock('../../ChatView', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('../../ChatView')>();
-  return {
-    ...actual,
-    useChatViewContext: vi.fn(() => ({
-      activeChatView: 'channels',
-      setActiveChatView: vi.fn(),
-    })),
-    useThreadsViewContext: vi.fn(() => ({
-      activeThread: undefined,
-      setActiveThread: vi.fn(),
-    })),
-  };
-});
+import { convertDateToTimestamp } from '../../../mock-builders';
 
 const IMAGE_PREVIEW_TEST_ID = 'attachment-preview-media';
 const FILE_PREVIEW_TEST_ID = 'attachment-preview-file';
@@ -119,8 +121,6 @@ const mockedChannelData = generateChannel(
 const defaultChatContext = fromPartial<ChatContextValue>({
   channelsQueryState: { queryInProgress: 'uninitialized' },
   getAppSettings: vi.fn(),
-  latestMessageDatesByChannels: {},
-  mutes: [],
   searchController: new SearchController(),
 });
 
@@ -178,13 +178,31 @@ window.getComputedStyle = function (element: Element, pseudoElt?: string | null)
 };
 
 const sendMessageMock = vi.fn();
-const mockAddNotification = vi.fn();
 
-vi.mock('../../Channel/utils', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('../../Channel/utils')>()),
-  makeAddNotifications: () => mockAddNotification,
-}));
-
+/**
+ * Registers the interception the removed `doSendMessageRequest` prop used to provide.
+ *
+ * Declarative registration is the replacement for the per-component props: one place, no mount-order
+ * arbitration. The adapter below is what the deleted hook did internally — call the spy, and fall back
+ * to the real send when it returns nothing, so tests that only assert *that* a send was intercepted keep
+ * working without stubbing a whole response.
+ */
+const registerSendInterceptor = (client, channel) =>
+  client.config.set({
+    channel: {
+      requestHandlers: {
+        sendMessageRequest: async (params) => {
+          const response = await sendMessageMock(channel, params.message, params.options);
+          if (response?.message) return { message: response.message };
+          const fallback = await channel.sendMessage({
+            message: params.message,
+            ...params.options,
+          });
+          return { message: fallback.message };
+        },
+      },
+    },
+  });
 const defaultMessageContextValue = fromPartial<MessageContextValue>({
   getMessageActions: () => ['delete', 'edit', 'quote'],
   handleDelete: () => {},
@@ -244,8 +262,10 @@ const renderComponent = async ({
   customClient,
   customUser,
   messageActionsProps = {},
+  messageComposerController,
   messageContextOverrides = {},
   messageInputProps = {},
+  strictMode = false,
 }: {
   channelData?: GenerateChannelOptions | GenerateChannelOptions[];
   channelProps?: Partial<ChannelProps>;
@@ -255,8 +275,11 @@ const renderComponent = async ({
   customClient?: StreamChat;
   customUser?: UserResponse;
   messageActionsProps?: Partial<MessageActionsProps>;
+  messageComposerController?: MessageComposerController;
   messageContextOverrides?: Partial<MessageContextValue>;
   messageInputProps?: Partial<MessageComposerProps>;
+  /** Renders inside `React.StrictMode`, which in development mounts, unmounts and remounts. */
+  strictMode?: boolean;
   [key: string]: unknown;
 } = {}) => {
   let channel = customChannel;
@@ -269,41 +292,51 @@ const renderComponent = async ({
     channel = result.channels[0];
     client = result.client;
   }
+  registerSendInterceptor(client, channel);
+
   let renderResult: RenderResult;
+
+  const Root = strictMode ? React.StrictMode : React.Fragment;
 
   await act(() => {
     renderResult = render(
-      <WithComponents overrides={components}>
-        <ChatProvider
-          value={fromPartial<ChatContextValue>({
-            ...defaultChatContext,
-            channel,
-            client,
-            ...chatContextOverrides,
-          })}
-        >
-          <AriaLiveAnnouncerProvider>
-            {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
-            <AriaLiveOutlet />
-            <DialogManagerProvider id='message-input-test-dialog-manager'>
-              <Channel doSendMessageRequest={sendMessageMock} {...channelProps}>
-                <MessageProvider
-                  value={fromPartial<MessageContextValue>({
-                    ...defaultMessageContextValue,
-                    ...messageContextOverrides,
-                  })}
-                >
-                  <MessageActions
-                    disableBaseMessageActionSetFilter
-                    {...messageActionsProps}
-                  />
-                </MessageProvider>
-                <MessageComposer {...messageInputProps} />
-              </Channel>
-            </DialogManagerProvider>
-          </AriaLiveAnnouncerProvider>
-        </ChatProvider>
-      </WithComponents>,
+      <Root>
+        <WithComponents overrides={components}>
+          <ChatProvider
+            value={fromPartial<ChatContextValue>({
+              ...defaultChatContext,
+              channel,
+              client,
+              ...chatContextOverrides,
+            })}
+          >
+            <AriaLiveAnnouncerProvider>
+              {/* Mirrors what the <Chat> component provides; this harness uses raw ChatProvider. */}
+              <AriaLiveOutlet />
+              <DialogManagerProvider id='message-input-test-dialog-manager'>
+                <Channel channel={channel} {...channelProps}>
+                  <MessageProvider
+                    value={fromPartial<MessageContextValue>({
+                      ...defaultMessageContextValue,
+                      ...messageContextOverrides,
+                    })}
+                  >
+                    <MessageActions
+                      disableBaseMessageActionSetFilter
+                      {...messageActionsProps}
+                    />
+                  </MessageProvider>
+                  <MessageComposerControllerProvider
+                    messageComposerController={messageComposerController}
+                  >
+                    <MessageComposer {...messageInputProps} />
+                  </MessageComposerControllerProvider>
+                </Channel>
+              </DialogManagerProvider>
+            </AriaLiveAnnouncerProvider>
+          </ChatProvider>
+        </WithComponents>
+      </Root>,
     );
   });
 
@@ -335,19 +368,19 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     channelsData: [channelData ?? mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockResolvedValueOnce(
-    fromPartial<SendFileAPIResponse>({
+  const uploadImageSpy = vi.spyOn(customChannel, 'uploadImage').mockResolvedValueOnce(
+    fromPartial<StreamResponse<UploadChannelResponse>>({
       file: fileUploadUrl,
     }),
   );
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockResolvedValueOnce(
-    fromPartial<SendFileAPIResponse>({
+  const uploadFileSpy = vi.spyOn(customChannel, 'uploadFile').mockResolvedValueOnce(
+    fromPartial<StreamResponse<UploadChannelFileResponse>>({
       file: fileUploadUrl,
     }),
   );
   customChannel.initialized = true;
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+  return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
 const setupUploadRejected = async (error: unknown) => {
@@ -358,13 +391,16 @@ const setupUploadRejected = async (error: unknown) => {
     channelsData: [mockedChannelData],
     customUser: user,
   });
-  const sendImageSpy = vi.spyOn(customChannel, 'sendImage').mockRejectedValueOnce(error);
-  const sendFileSpy = vi.spyOn(customChannel, 'sendFile').mockRejectedValueOnce(error);
+  const uploadImageSpy = vi
+    .spyOn(customChannel, 'uploadImage')
+    .mockRejectedValueOnce(error);
+  const uploadFileSpy = vi
+    .spyOn(customChannel, 'uploadFile')
+    .mockRejectedValueOnce(error);
   customClient.activeChannels[customChannel.cid] = customChannel;
-  return { customChannel, customClient, sendFileSpy, sendImageSpy };
+  return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
-/** `channel.sendImage` / `channel.sendFile` pass upload options (e.g. `onUploadProgress`) after the file. */
 type UploadSpy = {
   mock: {
     calls: [unknown, ...unknown[]][];
@@ -374,7 +410,7 @@ type UploadSpy = {
 const expectChannelUploadCall = (spy: UploadSpy, expectedFile: File) => {
   expect(spy.mock.calls.length).toBeGreaterThan(0);
   const callArgs = spy.mock.calls[0];
-  expect(callArgs[0]).toBe(expectedFile);
+  expect(callArgs[0]).toEqual(expect.objectContaining({ file: expectedFile }));
   expect(callArgs[callArgs.length - 1]).toEqual(
     expect.objectContaining({ onUploadProgress: expect.any(Function) }),
   );
@@ -574,7 +610,8 @@ describe(`MessageInputFlat`, () => {
 
   describe('Attachments', () => {
     it('Pasting images and files should result in uploading the files and showing previews', async () => {
-      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadFileSpy, uploadImageSpy } =
+        await setup();
       const { container } = await renderComponent({ customChannel, customClient });
       const file = getFile();
       const image = getImage();
@@ -601,8 +638,8 @@ describe(`MessageInputFlat`, () => {
       });
       const filenameTexts = await screen.findAllByTitle(filename);
       await waitFor(() => {
-        expectChannelUploadCall(sendFileSpy, file);
-        expectChannelUploadCall(sendImageSpy, image);
+        expectChannelUploadCall(uploadFileSpy, file);
+        expectChannelUploadCall(uploadImageSpy, image);
         expect(screen.getByTestId(IMAGE_PREVIEW_TEST_ID)).toBeInTheDocument();
         expect(screen.getByTestId(FILE_PREVIEW_TEST_ID)).toBeInTheDocument();
         filenameTexts.forEach((filenameText) => expect(filenameText).toBeInTheDocument());
@@ -616,7 +653,8 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('gives preference to pasting text over files', async () => {
-      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadFileSpy, uploadImageSpy } =
+        await setup();
       const { container } = await renderComponent({ customChannel, customClient });
       const pastedString = 'pasted string';
 
@@ -650,8 +688,8 @@ describe(`MessageInputFlat`, () => {
       });
 
       await waitFor(() => {
-        expect(sendFileSpy).not.toHaveBeenCalled();
-        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(uploadFileSpy).not.toHaveBeenCalled();
+        expect(uploadImageSpy).not.toHaveBeenCalled();
         expect(screen.queryByTestId(IMAGE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
         expect(screen.queryByTestId(FILE_PREVIEW_TEST_ID)).not.toBeInTheDocument();
         expect(screen.queryByText(filename)).not.toBeInTheDocument();
@@ -668,7 +706,7 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('Should upload an image when it is dropped on the dropzone', async () => {
-      const { customChannel, customClient, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadImageSpy } = await setup();
       const { container } = await renderComponent({ customChannel, customClient });
       // drop on the form input. Technically could be dropped just outside of it as well, but the input should always work.
       const formElement = await screen.findByPlaceholderText(inputPlaceholder);
@@ -677,7 +715,7 @@ describe(`MessageInputFlat`, () => {
         dropFile(file, formElement);
       });
       await waitFor(() => {
-        expectChannelUploadCall(sendImageSpy, file);
+        expectChannelUploadCall(uploadImageSpy, file);
       });
       const results = await axe(container, {
         rules: { 'nested-interactive': { enabled: false } },
@@ -872,9 +910,9 @@ describe(`MessageInputFlat`, () => {
 
     it('should show attachment preview list if not only failed uploads are available', async () => {
       const cause = new Error('failed to upload');
-      const { customChannel, customClient, sendFileSpy } =
+      const { customChannel, customClient, uploadFileSpy } =
         await setupUploadRejected(cause);
-      sendFileSpy.mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
+      uploadFileSpy.mockResolvedValueOnce(fromPartial({ file: fileUploadUrl }));
       await renderComponent({
         customChannel,
         customClient,
@@ -905,7 +943,7 @@ describe(`MessageInputFlat`, () => {
     const channelData = { channel: { own_capabilities: [] } };
 
     it('pasting images and files should do nothing', async () => {
-      const { customChannel, customClient, sendFileSpy, sendImageSpy } = await setup({
+      const { customChannel, customClient, uploadFileSpy, uploadImageSpy } = await setup({
         channelData,
       });
       const { container } = await renderComponent({
@@ -932,15 +970,15 @@ describe(`MessageInputFlat`, () => {
 
       await waitFor(() => {
         expect(screen.queryByText(filename)).not.toBeInTheDocument();
-        expect(sendFileSpy).not.toHaveBeenCalled();
-        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(uploadFileSpy).not.toHaveBeenCalled();
+        expect(uploadImageSpy).not.toHaveBeenCalled();
       });
       const results = await axe(container);
       expect(results).toHaveNoViolations();
     });
 
     it('Should not upload an image when it is dropped on the dropzone', async () => {
-      const { customChannel, customClient, sendImageSpy } = await setup({
+      const { customChannel, customClient, uploadImageSpy } = await setup({
         channelData,
       });
       const { container } = await renderComponent({
@@ -957,7 +995,7 @@ describe(`MessageInputFlat`, () => {
       });
 
       await waitFor(() => {
-        expect(sendImageSpy).not.toHaveBeenCalled();
+        expect(uploadImageSpy).not.toHaveBeenCalled();
       });
       await waitFor(axeNoViolations(container));
     });
@@ -990,6 +1028,42 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
+    it('clears the composer before the send request resolves', async () => {
+      // Regression: the composer used to be cleared only after awaiting the send round-trip, which
+      // opened a window where a fast follow-up keystroke/submit raced with the late clear (dropped
+      // or un-cleared messages when typing and submitting in quick succession). The clear must
+      // happen optimistically, before the send is awaited.
+      const { customChannel, customClient } = await setup();
+      let resolveSend: () => void = () => undefined;
+      sendMessageMock.mockImplementationOnce(
+        () =>
+          new Promise<void>((resolve) => {
+            resolveSend = resolve;
+          }),
+      );
+      const { submit } = await renderComponent({ customChannel, customClient });
+
+      const textarea = (await screen.findByPlaceholderText(
+        inputPlaceholder,
+      )) as HTMLTextAreaElement;
+      const messageText = 'race-guard';
+      fireEvent.change(textarea, { target: { value: messageText } });
+      await waitFor(() => expect(textarea.value).toBe(messageText));
+
+      await act(() => submit());
+
+      // The send request is dispatched but still pending (never resolved yet). The composer must
+      // already be empty — with the pre-fix ordering it would stay 'race-guard' until the send
+      // resolved.
+      await waitFor(() => expect(sendMessageMock).toHaveBeenCalled());
+      await waitFor(() => expect(textarea.value).toBe(''));
+
+      await act(async () => {
+        resolveSend();
+        await Promise.resolve();
+      });
+    });
+
     it('should allow to send custom message data', async () => {
       const { customChannel, customClient } = await setup();
       const customMessageData = { customX: 'customX' };
@@ -1020,43 +1094,39 @@ describe(`MessageInputFlat`, () => {
       await axeNoViolations(container);
     });
 
-    it('should use overrideSubmitHandler prop if it is defined', async () => {
-      const overrideMock = vi.fn().mockImplementation(() => Promise.resolve());
+    it('sends through a custom request handler, replacing the default send (successor to the removed overrideSubmitHandler prop)', async () => {
+      // `overrideSubmitHandler` was removed; overriding the send is now done through `Channel`'s
+      // `doSendMessageRequest`, which registers a `send` handler on `channel.messageOperations`
+      // (`configState.requestHandlers.sendMessageRequest`). `sendMessageWithLocalUpdate` uses that
+      // handler instead of the default `channel.sendMessage`, and — because the handler resolves a
+      // response — the default request is never made.
       const { customChannel, customClient } = await setup();
+      const sendMessageSpy = vi.spyOn(customChannel, 'sendMessage');
+      const messageText = 'via-custom-handler';
       const customMessageData = { customX: 'customX' };
       customChannel.messageComposer.customDataManager.setMessageData(customMessageData);
-      const { container, submit } = await renderComponent({
-        customChannel,
-        customClient,
-        messageInputProps: {
-          overrideSubmitHandler: overrideMock,
-        },
+      sendMessageMock.mockResolvedValueOnce({
+        message: generateMessage({ text: messageText, user }),
       });
-      const messageText = 'Some text';
+
+      const { submit } = await renderComponent({ customChannel, customClient });
 
       fireEvent.change(await screen.findByPlaceholderText(inputPlaceholder), {
-        target: {
-          value: messageText,
-        },
+        target: { value: messageText },
       });
 
       await act(() => submit());
 
-      expect(overrideMock).toHaveBeenCalledWith(
-        expect.objectContaining({
-          cid: customChannel.cid,
-          localMessage: expect.objectContaining({
-            text: messageText,
-            ...customMessageData,
-          }),
-          message: expect.objectContaining({
-            text: messageText,
-            ...customMessageData,
-          }),
-          sendOptions: expect.objectContaining({}),
-        }),
+      // The custom handler receives the composed message (text + custom data) and the send options.
+      await waitFor(() =>
+        expect(sendMessageMock).toHaveBeenCalledWith(
+          customChannel,
+          expect.objectContaining({ text: messageText, ...customMessageData }),
+          {},
+        ),
       );
-      await axeNoViolations(container);
+      // Its resolved response replaces the default send — channel.sendMessage is never called.
+      expect(sendMessageSpy).not.toHaveBeenCalled();
     });
 
     it('should not do anything if the message is empty and has no files', async () => {
@@ -1067,8 +1137,8 @@ describe(`MessageInputFlat`, () => {
         messageContextOverrides: {
           message: fromPartial<LocalMessage>({
             cid: customChannel.cid,
-            created_at: new Date(),
-            updated_at: new Date(),
+            created_at: convertDateToTimestamp(new Date()),
+            updated_at: convertDateToTimestamp(new Date()),
           }),
         },
       });
@@ -1080,7 +1150,7 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('should add image as attachment if a message is submitted with an image', async () => {
-      const { customChannel, customClient, sendImageSpy } = await setup();
+      const { customChannel, customClient, uploadImageSpy } = await setup();
       const { container, submit } = await renderComponent({
         customChannel,
         customClient,
@@ -1094,7 +1164,7 @@ describe(`MessageInputFlat`, () => {
 
       // wait for image uploading to complete before trying to send the message
 
-      await waitFor(() => expect(sendImageSpy).toHaveBeenCalled());
+      await waitFor(() => expect(uploadImageSpy).toHaveBeenCalled());
 
       await act(async () => await submit());
 
@@ -1241,8 +1311,8 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
-    vi.spyOn(customClient, 'queryUserGroups').mockResolvedValue(
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
       fromPartial({ user_groups: [] }),
     );
     await renderComponent({
@@ -1286,8 +1356,8 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(
-      fromPartial({ roles: ['admin'] }),
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(
+      fromPartial({ roles: [{ name: 'admin' }] }),
     );
     vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
       fromPartial({
@@ -1317,7 +1387,7 @@ describe(`MessageInputFlat`, () => {
       // presentation element.
       expect(
         container.querySelector('.str-chat__suggestion-list-container'),
-      ).toHaveAttribute('aria-label', 'aria/Mention Suggestions');
+      ).toHaveAttribute('aria-label', 'Mention Suggestions');
       expect(
         container.querySelectorAll('.str-chat__suggestion-list-item').length,
       ).toBeGreaterThanOrEqual(3);
@@ -1340,7 +1410,7 @@ describe(`MessageInputFlat`, () => {
         members: [generateMember({ user })],
       }),
     });
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(fromPartial({ roles: [] }));
 
     await renderComponent({
       customChannel,
@@ -1407,8 +1477,8 @@ describe(`MessageInputFlat`, () => {
     // eslint-disable-next-line vitest/prefer-spy-on
     Element.prototype.scrollIntoView = vi.fn();
     const { customChannel, customClient } = await setup();
-    vi.spyOn(customClient, 'listRoles').mockResolvedValue(fromPartial({ roles: [] }));
-    vi.spyOn(customClient, 'queryUserGroups').mockResolvedValue(
+    vi.spyOn(customClient, 'searchRoles').mockResolvedValue(fromPartial({ roles: [] }));
+    vi.spyOn(customClient, 'searchUserGroups').mockResolvedValue(
       fromPartial({ user_groups: [] }),
     );
     const { container, submit } = await renderComponent({
@@ -1547,9 +1617,9 @@ describe(`MessageInputFlat`, () => {
   });
 
   describe('Command activation announcement', () => {
-    const giphyCommand = fromPartial<CommandResponse>({
-      args: 'giphy-command-args',
-      description: 'giphy-command-description',
+    const giphyCommand = fromPartial<Command>({
+      args: '[text]',
+      description: 'Post a random gif to the channel',
       name: 'giphy',
     });
 
@@ -1605,8 +1675,8 @@ describe(`MessageInputFlat`, () => {
 
     // The harness uses a raw ChatProvider (no TranslationProvider), so the
     // default translator returns i18n keys verbatim without interpolation.
-    const STABLE_LABEL = 'aria/Message input';
-    const USER_SELECTED = 'aria/User selected: {{ user }}';
+    const STABLE_LABEL = 'Message input';
+    const USER_SELECTED = 'User selected: mention-name';
 
     // RW13: the textarea must name itself explicitly so it never inherits an
     // ancestor name (e.g. the ChatView "Channels, tab panel").
@@ -1636,9 +1706,9 @@ describe(`MessageInputFlat`, () => {
     // RW10: the command-specific placeholder template must not become the
     // accessible name once real content is present.
     it('does not use the command placeholder template as the name when content exists', async () => {
-      const giphyCommand = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+      const giphyCommand = fromPartial<Command>({
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
       const { channel } = await renderComponent();
@@ -1656,9 +1726,9 @@ describe(`MessageInputFlat`, () => {
     });
 
     it('names the giphy GIF-search field by its own placeholder while empty', async () => {
-      const giphyCommand = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+      const giphyCommand = fromPartial<Command>({
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
       const { channel } = await renderComponent();
@@ -1722,9 +1792,9 @@ describe(`MessageInputFlat`, () => {
     it('clears the active command when Escape is pressed in the textarea', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
-      const command = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+      const command = fromPartial<Command>({
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -1746,9 +1816,9 @@ describe(`MessageInputFlat`, () => {
     it('clears the active command when Backspace is pressed in an empty textarea', async () => {
       const { channel } = await renderComponent();
       const input = await screen.findByPlaceholderText(inputPlaceholder);
-      const command = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+      const command = fromPartial<Command>({
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -1773,9 +1843,9 @@ describe(`MessageInputFlat`, () => {
       const input = (await screen.findByPlaceholderText(
         inputPlaceholder,
       )) as HTMLTextAreaElement;
-      const command = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+      const command = fromPartial<Command>({
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -1859,9 +1929,9 @@ describe(`MessageInputFlat`, () => {
 
     it('clears active command when quoting makes it unavailable', async () => {
       const { channel } = await renderComponent();
-      const command = fromPartial<CommandResponse>({
-        args: 'ban-command-args',
-        description: 'ban-command-description',
+      const command = fromPartial<Command>({
+        args: '[@username] [text]',
+        description: 'Ban a user',
         name: 'ban',
         set: 'moderation_set',
       });
@@ -2001,6 +2071,43 @@ describe(`MessageInputFlat`, () => {
       });
     };
 
+    // The send button and the Enter key are two ways to submit, and both have to save an edit -
+    // sending it would post a new message under the id of the one being edited.
+    it.each([
+      [
+        'the Enter key',
+        (input: HTMLElement) => fireEvent.keyDown(input, { key: 'Enter' }),
+      ],
+      ['the send button', () => fireEvent.click(screen.getByTestId('send-button'))],
+    ])('saves the edit when submitted with %s', async (_, submit) => {
+      const { channel } = await renderComponent();
+      const sendMessage = vi
+        .spyOn(channel, 'sendMessageWithLocalUpdate')
+        .mockResolvedValue(undefined);
+      const updateMessage = vi
+        .spyOn(channel, 'updateMessageWithLocalUpdate')
+        .mockResolvedValue(undefined);
+      const input = await screen.findByPlaceholderText(inputPlaceholder);
+      await enterEditMode();
+      await waitFor(() => expect(input).toHaveValue(mainListMessage.text));
+
+      await act(async () => {
+        await fireEvent.change(input, { target: { value: 'edited text' } });
+      });
+      await act(() => submit(input));
+
+      await waitFor(() => expect(updateMessage).toHaveBeenCalledTimes(1));
+      expect(updateMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          localMessage: expect.objectContaining({
+            id: mainListMessage.id,
+            text: 'edited text',
+          }),
+        }),
+      );
+      expect(sendMessage).not.toHaveBeenCalled();
+    });
+
     it('should restore composer text when cancelling edit mode', async () => {
       await renderComponent();
       const textarea = await screen.findByPlaceholderText(inputPlaceholder);
@@ -2058,9 +2165,9 @@ describe(`MessageInputFlat`, () => {
 
     it('should clear active command when entering edit mode', async () => {
       const { channel } = await renderComponent();
-      const command = fromPartial<CommandResponse>({
-        args: 'giphy-command-args',
-        description: 'giphy-command-description',
+      const command = fromPartial<Command>({
+        args: '[text]',
+        description: 'Post a random gif to the channel',
         name: 'giphy',
       });
 
@@ -2129,21 +2236,84 @@ describe(`MessageInputFlat`, () => {
       Element.prototype.scrollIntoView = scrollIntoView;
     });
   });
-});
 
-describe('MessageComposer draft creation on unmount', () => {
-  afterEach(tearDown);
+  describe('On unmount', () => {
+    // The cleanup chains `clear()` onto the draft save, so it lands a few microtasks later.
+    const flushMicrotasks = () =>
+      act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 
-  it('does not create a draft for a disconnected channel (#3254)', async () => {
-    const { channel, unmount } = await renderComponent();
-    const createDraftSpy = vi.spyOn(channel!.messageComposer, 'createDraft');
+    it('saves a draft and clears the composer', async () => {
+      const { customChannel, customClient } = await setup();
+      const createDraft = vi.spyOn(customChannel.messageComposer, 'createDraft');
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({ customChannel, customClient });
 
-    channel!.disconnected = true;
-
-    await act(() => {
       unmount();
+
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
     });
 
-    expect(createDraftSpy).not.toHaveBeenCalled();
+    it('clears the composer even when saving the draft fails', async () => {
+      const { customChannel, customClient } = await setup();
+      const error = new Error('draft request failed');
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+      vi.spyOn(customChannel.messageComposer, 'createDraft').mockRejectedValue(error);
+      const clear = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({ customChannel, customClient });
+
+      unmount();
+
+      await waitFor(() => expect(clear).toHaveBeenCalledTimes(1));
+      expect(consoleError).toHaveBeenCalledWith(error);
+    });
+
+    it('saves the draft of a supplied composer but leaves clearing it to its owner', async () => {
+      const { customChannel, customClient } = await setup();
+      const supplied = new MessageComposerController({
+        client: customClient,
+        compositionContext: customChannel,
+      });
+      const createDraft = vi.spyOn(supplied, 'createDraft');
+      const clearSupplied = vi.spyOn(supplied, 'clear');
+      const clearChannel = vi.spyOn(customChannel.messageComposer, 'clear');
+      const { unmount } = await renderComponent({
+        customChannel,
+        customClient,
+        messageComposerController: supplied,
+      });
+
+      unmount();
+      await flushMicrotasks();
+
+      expect(createDraft).toHaveBeenCalledTimes(1);
+      expect(clearSupplied).not.toHaveBeenCalled();
+      expect(clearChannel).not.toHaveBeenCalled();
+    });
+
+    // The case that made clearing a supplied composer a trap: an edit is loaded before the composer
+    // mounts, and StrictMode's development remount runs the unmount cleanup over it straight away.
+    it('keeps an edit loaded into a supplied composer through a StrictMode remount', async () => {
+      const { customChannel, customClient } = await setup();
+      const supplied = new MessageComposerController({
+        client: customClient,
+        compositionContext: customChannel,
+        config: { drafts: { enabled: false } },
+      });
+      supplied.initState({ composition: mainListMessage });
+
+      await renderComponent({
+        customChannel,
+        customClient,
+        messageComposerController: supplied,
+        strictMode: true,
+      });
+      await flushMicrotasks();
+
+      expect(supplied.editedMessage?.id).toBe(mainListMessage.id);
+      expect(await screen.findByPlaceholderText(inputPlaceholder)).toHaveValue(
+        mainListMessage.text,
+      );
+    });
   });
 });

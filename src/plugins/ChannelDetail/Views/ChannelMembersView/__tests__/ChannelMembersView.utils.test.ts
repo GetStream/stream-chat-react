@@ -1,5 +1,5 @@
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { Channel, ChannelMemberResponse } from 'stream-chat';
+import type { Channel, ChannelMemberResponse, UserResponse } from 'stream-chat';
 
 import {
   canUpdateChannelMembers,
@@ -20,7 +20,7 @@ describe('ChannelMembersView.utils', () => {
 
     it('returns false when update-channel-members capability is missing', () => {
       const channel = fromPartial<Channel>({
-        data: { own_capabilities: ['read-channel'] },
+        data: { own_capabilities: ['read-events'] },
       });
 
       expect(canUpdateChannelMembers(channel)).toBe(false);
@@ -38,15 +38,28 @@ describe('ChannelMembersView.utils', () => {
   describe('getUserDisplayName', () => {
     it('prefers name over username and id', () => {
       expect(
-        getUserDisplayName({ id: 'user-1', name: 'Alice', username: 'alice_user' }),
+        getUserDisplayName(
+          fromPartial<UserResponse>({
+            custom: { username: 'alice_user' },
+            id: 'user-1',
+            name: 'Alice',
+          }),
+        ),
       ).toBe('Alice');
     });
 
     it('falls back to username then id', () => {
-      expect(getUserDisplayName({ id: 'user-1', username: 'alice_user' })).toBe(
-        'alice_user',
+      expect(
+        getUserDisplayName(
+          fromPartial<UserResponse>({
+            custom: { username: 'alice_user' },
+            id: 'user-1',
+          }),
+        ),
+      ).toBe('alice_user');
+      expect(getUserDisplayName(fromPartial<UserResponse>({ id: 'user-1' }))).toBe(
+        'user-1',
       );
-      expect(getUserDisplayName({ id: 'user-1' })).toBe('user-1');
     });
   });
 

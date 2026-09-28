@@ -22,26 +22,31 @@ import { useComponentContextIcons } from '../../context';
 
 const ChannelManagementNavButtonIcon = () => {
   const { IconInfo } = useComponentContextIcons();
+
   return <IconInfo className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelMembersNavButtonIcon = () => {
   const { IconUser } = useComponentContextIcons();
+
   return <IconUser className='str-chat__channel-detail__action-icon' />;
 };
 
 const PinnedMessagesNavButtonIcon = () => {
   const { IconPin } = useComponentContextIcons();
+
   return <IconPin className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelMediaNavButtonIcon = () => {
   const { IconImage } = useComponentContextIcons();
+
   return <IconImage className='str-chat__channel-detail__action-icon' />;
 };
 
 const ChannelFilesNavButtonIcon = () => {
   const { IconFolder } = useComponentContextIcons();
+
   return <IconFolder className='str-chat__channel-detail__action-icon' />;
 };
 

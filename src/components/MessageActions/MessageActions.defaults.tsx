@@ -54,6 +54,7 @@ const getNotificationError = (error: unknown): Error | undefined => {
 const DefaultMessageActionComponents = {
   dropdown: {
     React() {
+      const { IconEmoji } = useComponentContextIcons();
       const { ReactionSelector = DefaultReactionSelector } = useComponentContext();
       const { anchorReferenceElement } = useContextMenuContext();
       const { isMyMessage, message, threadList } = useMessageContext();
@@ -68,7 +69,6 @@ const DefaultMessageActionComponents = {
       });
       const dialogIsOpen = useDialogIsOpen(dialogId, dialogManager?.id);
 
-      const { IconEmoji } = useComponentContextIcons();
       return (
         <>
           <DialogAnchor
@@ -84,7 +84,10 @@ const DefaultMessageActionComponents = {
           </DialogAnchor>
           <MessageActionsMenuItemButton
             aria-expanded={dialogIsOpen}
-            aria-label={t('aria/Open Reaction Selector')}
+            aria-label={t(
+              'common.openReactionSelector.ariaLabel',
+              'Open Reaction Selector',
+            )}
             className={clsx(
               msgActionsBoxButtonClassName,
               'str-chat__message-actions-list-item-button--react',
@@ -104,20 +107,20 @@ const DefaultMessageActionComponents = {
               dialog.open();
             }}
           >
-            {t('Add reaction')}
+            {t('common.addReaction.text', 'Add reaction')}
           </MessageActionsMenuItemButton>
         </>
       );
     },
     ThreadReply() {
+      const { IconThread } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { IconThread } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Open Thread')}
+          aria-label={t('messageActions.openThread.ariaLabel', 'Open Thread')}
           className={msgActionsBoxButtonClassName}
           data-testid='thread-action'
           Icon={IconThread}
@@ -126,11 +129,12 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Thread Reply')}
+          {t('messageActions.threadReply.text', 'Thread Reply')}
         </MessageActionsMenuItemButton>
       );
     },
     Quote() {
+      const { IconQuote } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
@@ -149,10 +153,9 @@ const DefaultMessageActionComponents = {
         }
       };
 
-      const { IconQuote } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Quote Message')}
+          aria-label={t('messageActions.quoteMessage.ariaLabel', 'Quote Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconQuote}
           onClick={() => {
@@ -160,15 +163,15 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Quote Reply')}
+          {t('messageActions.quoteReply.text', 'Quote Reply')}
         </MessageActionsMenuItemButton>
       );
     },
     Download() {
+      const { IconDownload } = useComponentContextIcons();
       const { closeMenu, openSubmenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
-      const { IconDownload } = useComponentContextIcons();
 
       const downloadableAttachments = (message.attachments ?? []).filter(
         isDownloadableAttachment,
@@ -178,7 +181,7 @@ const DefaultMessageActionComponents = {
 
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Download attachment')}
+          aria-label={t('common.downloadAttachment.ariaLabel', 'Download attachment')}
           className={msgActionsBoxButtonClassName}
           hasSubMenu={downloadableAttachments.length > 1}
           Icon={IconDownload}
@@ -196,20 +199,24 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Download Attachment')}
+          {t('common.downloadAttachment.title', 'Download Attachment')}
         </MessageActionsMenuItemButton>
       );
     },
     Pin() {
+      const { IconPin, IconUnpin } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handlePin, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
       const isPinned = !!message.pinned;
-      const { IconPin, IconUnpin } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={isPinned ? t('aria/Unpin Message') : t('aria/Pin Message')}
+          aria-label={
+            isPinned
+              ? t('messageActions.unpinMessage.ariaLabel', 'Unpin Message')
+              : t('messageActions.pinMessage.ariaLabel', 'Pin Message')
+          }
           className={msgActionsBoxButtonClassName}
           Icon={isPinned ? IconUnpin : IconPin}
           onClick={async (event) => {
@@ -220,7 +227,9 @@ const DefaultMessageActionComponents = {
                   message,
                 },
                 emitter: 'MessageActions',
-                message: isPinned ? t('Message unpinned') : t('Message pinned'),
+                message: isPinned
+                  ? t('messageActions.messageUnpinned.text', 'Message unpinned')
+                  : t('common.messagePinned.label', 'Message pinned'),
                 severity: 'success',
                 type: isPinned ? 'api:message:unpin:success' : 'api:message:pin:success',
               });
@@ -233,7 +242,12 @@ const DefaultMessageActionComponents = {
                 error: getNotificationError(error),
                 message: getErrorMessage(
                   error,
-                  isPinned ? t('Error removing message pin') : t('Error pinning message'),
+                  isPinned
+                    ? t(
+                        'common.errorRemovingMessagePin.label',
+                        'Error removing message pin',
+                      )
+                    : t('common.errorPinningMessage.label', 'Error pinning message'),
                 ),
                 severity: 'error',
                 type: isPinned ? 'api:message:unpin:failed' : 'api:message:pin:failed',
@@ -242,19 +256,19 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {isPinned ? t('Unpin') : t('Pin')}
+          {isPinned ? t('common.unpin.title', 'Unpin') : t('common.pin.title', 'Pin')}
         </MessageActionsMenuItemButton>
       );
     },
     CopyMessageText() {
+      const { IconCopy } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { IconCopy } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Copy Message Text')}
+          aria-label={t('messageActions.copyMessageText.ariaLabel', 'Copy Message Text')}
           className={msgActionsBoxButtonClassName}
           Icon={IconCopy}
           onClick={() => {
@@ -262,19 +276,19 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Copy Message')}
+          {t('messageActions.copyMessage.text', 'Copy Message')}
         </MessageActionsMenuItemButton>
       );
     },
     Resend() {
+      const { IconRetry } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleRetry, message } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { IconRetry } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Resend Message')}
+          aria-label={t('messageActions.resendMessage.ariaLabel', 'Resend Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconRetry}
           onClick={() => {
@@ -282,20 +296,20 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Resend')}
+          {t('messageActions.resend.text', 'Resend')}
         </MessageActionsMenuItemButton>
       );
     },
     Edit() {
+      const { IconEdit } = useComponentContextIcons();
       const messageComposer = useMessageComposerController();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const { closeMenu } = useContextMenuContext();
 
-      const { IconEdit } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Edit Message')}
+          aria-label={t('messageActions.editMessage.ariaLabel', 'Edit Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconEdit}
           onClick={() => {
@@ -304,20 +318,23 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Edit Message')}
+          {t('common.editMessage.text', 'Edit Message')}
         </MessageActionsMenuItemButton>
       );
     },
     MarkUnread() {
+      const { IconNotification } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleMarkUnread, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
 
-      const { IconNotification } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Mark Message Unread')}
+          aria-label={t(
+            'messageActions.markMessageUnread.ariaLabel',
+            'Mark Message Unread',
+          )}
           className={msgActionsBoxButtonClassName}
           Icon={IconNotification}
           onClick={async (event) => {
@@ -328,7 +345,10 @@ const DefaultMessageActionComponents = {
                   message,
                 },
                 emitter: 'MessageActions',
-                message: t('Message marked as unread'),
+                message: t(
+                  'messageActions.messageMarkedUnread.text',
+                  'Message marked as unread',
+                ),
                 severity: 'success',
                 type: 'api:message:markUnread:success',
               });
@@ -342,6 +362,7 @@ const DefaultMessageActionComponents = {
                 message: getErrorMessage(
                   error,
                   t(
+                    'messageActions.errorMarkingMessageUnread.text',
                     'Error marking message unread. Cannot mark unread messages older than the newest 100 channel messages.',
                   ),
                 ),
@@ -352,25 +373,29 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Mark as unread')}
+          {t('messageActions.markUnread.text', 'Mark as unread')}
         </MessageActionsMenuItemButton>
       );
     },
     RemindMe() {
+      const { IconBell, IconBellOff } = useComponentContextIcons();
       const { closeMenu, openSubmenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
       const { message } = useMessageContext();
       const reminder = useMessageReminder(message.id);
-      const { IconBell, IconBellOff } = useComponentContextIcons();
-      const messageAlreadyBookmarked = reminder && !reminder?.remindAt;
+      const messageAlreadyBookmarked = reminder != null && reminder.remindAt == null;
 
       if (messageAlreadyBookmarked) return null;
 
       return (
         <MessageActionsMenuItemButton
-          aria-label={reminder ? t('aria/Remind Me Message') : t('aria/Remove Reminder')}
+          aria-label={
+            reminder
+              ? t('messageActions.remindMeMessage.ariaLabel', 'Remind Me Message')
+              : t('messageActions.removeReminder.ariaLabel', 'Remove Reminder')
+          }
           className={msgActionsBoxButtonClassName}
           hasSubMenu={!reminder}
           Icon={reminder ? IconBellOff : IconBell}
@@ -383,7 +408,7 @@ const DefaultMessageActionComponents = {
                     message,
                   },
                   emitter: 'MessageActions',
-                  message: t('Remove reminder'),
+                  message: t('messageActions.removeReminder.text', 'Remove reminder'),
                   severity: 'success',
                   type: 'api:message:reminder:delete:success',
                 });
@@ -410,26 +435,30 @@ const DefaultMessageActionComponents = {
             }
           }}
         >
-          {reminder ? t('Remove reminder') : t('Remind me')}
+          {reminder
+            ? t('messageActions.removeReminder.text', 'Remove reminder')
+            : t('messageActions.remindMe.text', 'Remind me')}
         </MessageActionsMenuItemButton>
       );
     },
     SaveForLater() {
+      const { IconBookmark, IconBookmarkRemove } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { addNotification } = useNotificationApi();
       const { message } = useMessageContext();
       const { t } = useTranslationContext();
       const reminder = useMessageReminder(message.id);
-      const { IconBookmark, IconBookmarkRemove } = useComponentContextIcons();
-      const messageAlreadyHasReminderScheduled = Boolean(reminder && reminder?.remindAt);
+      const messageAlreadyHasReminderScheduled = reminder?.remindAt != null;
 
       if (messageAlreadyHasReminderScheduled) return null;
 
       return (
         <MessageActionsMenuItemButton
           aria-label={
-            reminder ? t('aria/Remove Save For Later') : t('aria/Bookmark Message')
+            reminder
+              ? t('messageActions.removeSaveLater.ariaLabel', 'Remove Save For Later')
+              : t('messageActions.bookmarkMessage.ariaLabel', 'Bookmark Message')
           }
           className={msgActionsBoxButtonClassName}
           Icon={reminder ? IconBookmarkRemove : IconBookmark}
@@ -442,18 +471,21 @@ const DefaultMessageActionComponents = {
                     message,
                   },
                   emitter: 'MessageActions',
-                  message: t('Remove save for later'),
+                  message: t(
+                    'messageActions.removeSaveLater.text',
+                    'Remove save for later',
+                  ),
                   severity: 'success',
                   type: 'api:message:saveForLater:delete:success',
                 });
               } else {
-                await client.reminders.createReminder({ messageId: message.id });
+                await client.reminders.createReminder({ message_id: message.id });
                 addNotification({
                   context: {
                     message,
                   },
                   emitter: 'MessageActions',
-                  message: t('Saved for later'),
+                  message: t('common.savedLater.text', 'Saved for later'),
                   severity: 'success',
                   type: 'api:message:saveForLater:create:success',
                 });
@@ -481,20 +513,22 @@ const DefaultMessageActionComponents = {
             }
           }}
         >
-          {reminder ? t('Remove save for later') : t('Save for later')}
+          {reminder
+            ? t('messageActions.removeSaveLater.text', 'Remove save for later')
+            : t('messageActions.saveLater.text', 'Save for later')}
         </MessageActionsMenuItemButton>
       );
     },
     Flag() {
+      const { IconFlag } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleFlag, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
       const { t } = useTranslationContext();
 
-      const { IconFlag } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={t('aria/Flag Message')}
+          aria-label={t('messageActions.flagMessage.ariaLabel', 'Flag Message')}
           className={msgActionsBoxButtonClassName}
           Icon={IconFlag}
           onClick={async (event) => {
@@ -505,7 +539,10 @@ const DefaultMessageActionComponents = {
                   message,
                 },
                 emitter: 'MessageActions',
-                message: t('Message has been successfully flagged'),
+                message: t(
+                  'messageActions.messageSuccessfullyFlagged.text',
+                  'Message has been successfully flagged',
+                ),
                 severity: 'success',
                 type: 'api:message:flag:success',
               });
@@ -516,7 +553,10 @@ const DefaultMessageActionComponents = {
                 },
                 emitter: 'MessageActions',
                 error: getNotificationError(error),
-                message: getErrorMessage(error, t('Error adding flag')),
+                message: getErrorMessage(
+                  error,
+                  t('messageActions.errorAddingFlag.text', 'Error adding flag'),
+                ),
                 severity: 'error',
                 type: 'api:message:flag:failed',
               });
@@ -524,11 +564,12 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {t('Flag')}
+          {t('messageActions.flag.text', 'Flag')}
         </MessageActionsMenuItemButton>
       );
     },
     Mute() {
+      const { IconAudio, IconMute } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { handleMute, message } = useMessageContext();
       const { addNotification } = useNotificationApi();
@@ -536,10 +577,13 @@ const DefaultMessageActionComponents = {
       const { t } = useTranslationContext();
 
       const isMuted = isUserMuted(message, mutes);
-      const { IconAudio, IconMute } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={isMuted ? t('aria/Unmute User') : t('aria/Mute User')}
+          aria-label={
+            isMuted
+              ? t('messageActions.unmuteUser.ariaLabel', 'Unmute User')
+              : t('messageActions.muteUser.ariaLabel', 'Mute User')
+          }
           className={msgActionsBoxButtonClassName}
           Icon={isMuted ? IconAudio : IconMute}
           onClick={async (event) => {
@@ -551,10 +595,10 @@ const DefaultMessageActionComponents = {
                 },
                 emitter: 'MessageActions',
                 message: isMuted
-                  ? t('{{ user }} has been unmuted', {
+                  ? t('common.unmuted.label', '{{ user }} has been unmuted', {
                       user: message.user?.name || message.user?.id,
                     })
-                  : t('{{ user }} has been muted', {
+                  : t('common.muted.label', '{{ user }} has been muted', {
                       user: message.user?.name || message.user?.id,
                     }),
                 severity: 'success',
@@ -569,7 +613,9 @@ const DefaultMessageActionComponents = {
                 error: getNotificationError(error),
                 message: getErrorMessage(
                   error,
-                  isMuted ? t('Error unmuting a user ...') : t('Error muting a user ...'),
+                  isMuted
+                    ? t('common.errorUnmutingUser.label', 'Error unmuting a user ...')
+                    : t('common.errorMutingUser.label', 'Error muting a user ...'),
                 ),
                 severity: 'error',
                 type: isMuted ? 'api:user:unmute:failed' : 'api:user:mute:failed',
@@ -578,15 +624,15 @@ const DefaultMessageActionComponents = {
             closeMenu();
           }}
         >
-          {isMuted ? t('Unmute') : t('Mute')}
+          {isMuted ? t('common.unmute.title', 'Unmute') : t('common.mute.title', 'Mute')}
         </MessageActionsMenuItemButton>
       );
     },
     Delete() {
+      const { IconDelete } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { addNotification } = useNotificationApi();
       const { Modal = GlobalModal } = useComponentContext();
-      const { IconDelete } = useComponentContextIcons();
       const { handleDelete, message } = useMessageContext();
       const { t } = useTranslationContext();
       const [openModal, setOpenModal] = useState(false);
@@ -596,7 +642,7 @@ const DefaultMessageActionComponents = {
       return (
         <>
           <MessageActionsMenuItemButton
-            aria-label={t('aria/Delete Message')}
+            aria-label={t('messageActions.deleteMessage.ariaLabel', 'Delete Message')}
             className={msgActionsBoxButtonClassName}
             Icon={IconDelete}
             onClick={() => {
@@ -604,7 +650,7 @@ const DefaultMessageActionComponents = {
             }}
             variant='destructive'
           >
-            {t('Delete message')}
+            {t('messageActions.deleteMessageAlert.deleteMessage.title', 'Delete message')}
           </MessageActionsMenuItemButton>
           <Modal open={openModal} role='alertdialog'>
             <DeleteMessageAlert
@@ -620,7 +666,7 @@ const DefaultMessageActionComponents = {
                       message,
                     },
                     emitter: 'MessageActions',
-                    message: t('Message deleted'),
+                    message: t('common.messageDeleted.text', 'Message deleted'),
                     severity: 'success',
                     type: 'api:message:delete:success',
                   });
@@ -631,7 +677,10 @@ const DefaultMessageActionComponents = {
                     },
                     emitter: 'MessageActions',
                     error: getNotificationError(error),
-                    message: getErrorMessage(error, t('Error deleting message')),
+                    message: getErrorMessage(
+                      error,
+                      t('common.errorDeletingMessage.label', 'Error deleting message'),
+                    ),
                     severity: 'error',
                     type: 'api:message:delete:failed',
                   });
@@ -646,6 +695,7 @@ const DefaultMessageActionComponents = {
       );
     },
     BlockUser() {
+      const { IconNoSign, IconUserCheck } = useComponentContextIcons();
       const { closeMenu } = useContextMenuContext();
       const { client } = useChatContext();
       const { message } = useMessageContext();
@@ -654,22 +704,27 @@ const DefaultMessageActionComponents = {
         !message.user?.id ||
         new Set(client.blockedUsers.getLatestValue().userIds).has(message.user?.id);
 
-      const { IconNoSign, IconUserCheck } = useComponentContextIcons();
       return (
         <MessageActionsMenuItemButton
-          aria-label={isBlocked ? t('Unblock') : t('aria/Block User')}
+          aria-label={
+            isBlocked
+              ? t('common.unblock.ariaLabel', 'Unblock')
+              : t('messageActions.blockUser.ariaLabel', 'Block User')
+          }
           className={clsx(msgActionsBoxButtonClassName)}
           Icon={isBlocked ? IconUserCheck : IconNoSign}
           onClick={() => {
             const targetId = message.user?.id;
             if (targetId) {
-              if (isBlocked) client.unBlockUser(targetId);
+              if (isBlocked) client.unblockUser(targetId);
               else client.blockUser(targetId);
             }
             closeMenu();
           }}
         >
-          {isBlocked ? t('Unblock') : t('Block User')}
+          {isBlocked
+            ? t('common.unblock.ariaLabel', 'Unblock')
+            : t('common.blockUser.title', 'Block User')}
         </MessageActionsMenuItemButton>
       );
     },
@@ -677,6 +732,7 @@ const DefaultMessageActionComponents = {
   quick: {
     // eslint-disable-next-line react/display-name
     DropdownToggle: forwardRef<HTMLButtonElement>((_, ref) => {
+      const { IconMore } = useComponentContextIcons();
       const { t } = useTranslationContext();
       const { message, threadList } = useMessageContext();
       const dropdownDialogIsOpen = useDialogIsOpen(
@@ -693,12 +749,14 @@ const DefaultMessageActionComponents = {
         id: `${reactionSelectorDialogId}-dropdown`,
       });
 
-      const { IconMore } = useComponentContextIcons();
       return (
         <QuickMessageActionsButton
           aria-expanded={dropdownDialogIsOpen}
           aria-haspopup='true'
-          aria-label={t('aria/Open Message Actions Menu')}
+          aria-label={t(
+            'messageActions.openMessageActionsMenu.ariaLabel',
+            'Open Message Actions Menu',
+          )}
           className='str-chat__message-actions-box-button'
           data-testid='message-actions-toggle-button'
           onClick={() => {
@@ -714,17 +772,18 @@ const DefaultMessageActionComponents = {
       );
     }),
     React() {
-      const { IconEmoji } = useComponentContextIcons();
-      return <ReactionSelectorWithButton ReactionIcon={IconEmoji} />;
+      // No `ReactionIcon`: the component resolves the `IconEmoji` slot itself. Passing it from
+      // here would read the same value and only add a hop that invites a direct import later.
+      return <ReactionSelectorWithButton />;
     },
     Reply() {
+      const { IconReply } = useComponentContextIcons();
       const { handleOpenThread } = useMessageContext();
       const { t } = useTranslationContext();
 
-      const { IconReply } = useComponentContextIcons();
       return (
         <QuickMessageActionsButton
-          aria-label={t('aria/Open Thread')}
+          aria-label={t('messageActions.openThread.ariaLabel', 'Open Thread')}
           className='str-chat__message-reply-in-thread-button'
           data-testid='thread-action'
           onClick={handleOpenThread}

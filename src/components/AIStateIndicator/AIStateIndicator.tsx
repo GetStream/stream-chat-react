@@ -1,9 +1,10 @@
 import React from 'react';
-import type { Channel } from 'stream-chat';
+import { AIStates } from 'stream-chat';
+import type { AIState, Channel } from 'stream-chat';
 
-import { AIStates, useAIState } from './hooks/useAIState';
+import { useAIState } from './hooks/useAIState';
 
-import { useChannelStateContext, useTranslationContext } from '../../context';
+import { useChannel, useTranslationContext } from '../../context';
 
 export type AIStateIndicatorProps = {
   channel?: Channel;
@@ -13,12 +14,12 @@ export const AIStateIndicator = ({
   channel: channelFromProps,
 }: AIStateIndicatorProps) => {
   const { t } = useTranslationContext();
-  const { channel: channelFromContext } = useChannelStateContext('AIStateIndicator');
+  const channelFromContext = useChannel();
   const channel = channelFromProps || channelFromContext;
   const { aiState } = useAIState(channel);
-  const allowedStates = {
-    [AIStates.Thinking]: t('Thinking...'),
-    [AIStates.Generating]: t('Generating...'),
+  const allowedStates: Partial<Record<AIState, string>> = {
+    [AIStates.Thinking]: t('aiState.indicator.thinking.label', 'Thinking...'),
+    [AIStates.Generating]: t('aiState.indicator.generating.label', 'Generating...'),
   };
 
   return aiState in allowedStates ? (

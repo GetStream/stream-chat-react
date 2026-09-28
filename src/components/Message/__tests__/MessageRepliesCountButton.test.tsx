@@ -1,9 +1,15 @@
 import React from 'react';
 import { cleanup, fireEvent, render } from '@testing-library/react';
+import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 import { MessageRepliesCountButton } from '../MessageRepliesCountButton';
-import { ChannelStateProvider, TranslationProvider } from '../../../context';
+import { Channel } from '../../Channel';
+import { Chat } from '../../Chat';
+import { TranslationProvider } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
-import { mockTranslationContextValue } from '../../../mock-builders';
+import {
+  initClientWithChannels,
+  mockTranslationContextValue,
+} from '../../../mock-builders';
 
 const onClickMock = vi.fn();
 const defaultSingularText = '1 reply';
@@ -12,18 +18,28 @@ const defaultPluralText = '2 replies';
 const i18nMock = ((key: string, { count }: { count: number }) =>
   count > 1 ? defaultPluralText : defaultSingularText) as TranslationContextValue['t'];
 
-const renderComponent = (props: any, channelStateCtx?: any) =>
+let channel: ChannelType;
+let client: StreamChat;
+
+const renderComponent = (props: any) =>
   render(
-    <TranslationProvider value={mockTranslationContextValue({ t: i18nMock })}>
-      <ChannelStateProvider
-        value={{ channelCapabilities: { 'send-reply': true }, ...channelStateCtx }}
-      >
-        <MessageRepliesCountButton {...props} onClick={onClickMock} />
-      </ChannelStateProvider>
-    </TranslationProvider>,
+    <Chat client={client}>
+      <Channel channel={channel}>
+        <TranslationProvider value={mockTranslationContextValue({ t: i18nMock })}>
+          <MessageRepliesCountButton {...props} onClick={onClickMock} />
+        </TranslationProvider>
+      </Channel>
+    </Chat>,
   );
 
 describe('MessageRepliesCountButton', () => {
+  beforeEach(async () => {
+    ({
+      channels: [channel],
+      client,
+    } = await initClientWithChannels());
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
     cleanup();
@@ -85,12 +101,12 @@ describe('MessageRepliesCountButton', () => {
     expect(queryByTestId('reply-icon')).not.toBeInTheDocument();
   });
 
-  it('should be disabled on missing "send-reply" permission', () => {
-    const { getByText } = renderComponent(
-      { reply_count: 1 },
-      { channelCapabilities: { 'send-reply': false } },
-    );
+  // MERGE-RECONCILE (test migration): the reply-count button no longer gates on the
+  // 'send-reply' channel capability (permission gating was removed from this component in
+  // the slot-layout refactor). The button now always renders enabled.
+  it('should not be disabled regardless of channel capabilities', () => {
+    const { getByText } = renderComponent({ reply_count: 1 });
 
-    expect(getByText(defaultSingularText)).toBeDisabled();
+    expect(getByText(defaultSingularText)).not.toBeDisabled();
   });
 });

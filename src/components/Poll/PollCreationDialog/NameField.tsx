@@ -3,7 +3,8 @@ import { TextInput } from '../../Form';
 import { useTranslationContext } from '../../../context';
 import { useMessageComposerController } from '../../MessageComposer/hooks/useMessageComposerController';
 import { useStateStore } from '../../../store';
-import type { PollComposerState } from 'stream-chat';
+import { POLL_COMPOSER_VALIDATION_CODE } from 'stream-chat';
+import type { PollComposerState, PollComposerValidationCode } from 'stream-chat';
 
 const pollComposerStateSelector = (state: PollComposerState) => ({
   error: state.errors.name,
@@ -14,9 +15,16 @@ export const NameField = () => {
   const { t } = useTranslationContext();
   const { pollComposer } = useMessageComposerController();
   const { error, name } = useStateStore(pollComposer.state, pollComposerStateSelector);
-  const knownValidationErrors = useMemo<Record<string, string>>(
+  // Keyed on the stable validation code rather than on the English sentence `stream-chat` produced.
+  // Matching on prose meant a copy edit in the LLC silently stopped the translation from applying.
+  const knownValidationErrors = useMemo<
+    Partial<Record<PollComposerValidationCode, string>>
+  >(
     () => ({
-      'Question is required': t('Question is required'),
+      [POLL_COMPOSER_VALIDATION_CODE.nameRequired]: t(
+        'poll.nameField.questionRequired.label',
+        'Question is required',
+      ),
     }),
     [t],
   );
@@ -32,19 +40,19 @@ export const NameField = () => {
       errorMessage={
         error ? (
           <span data-testid='poll-name-input-field-error'>
-            {knownValidationErrors[error] ?? t('Error')}
+            {knownValidationErrors[error.code] ?? error.message}
           </span>
         ) : undefined
       }
       id='name'
-      label={t('Question')}
+      label={t('poll.question.question.text', 'Question')}
       onBlur={() => {
         pollComposer.handleFieldBlur('name');
       }}
       onChange={(e) => {
         pollComposer.updateFields({ name: e.target.value });
       }}
-      placeholder={t('Ask a question')}
+      placeholder={t('poll.nameField.askQuestion.placeholder', 'Ask a Question')}
       type='text'
       value={name}
     />

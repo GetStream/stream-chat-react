@@ -1,4 +1,4 @@
-import type { Channel, MessageComposer, StreamChat } from 'stream-chat';
+import type { MessageComposer, StreamChat } from 'stream-chat';
 
 export type ComposerEntry = {
   composer: MessageComposer;
@@ -32,22 +32,26 @@ const describeComposer = (composer: MessageComposer, tag: string) => {
 };
 
 /**
- * Every composer instance currently reachable: the active channel's own composer, plus any
+ * Every composer instance currently reachable: each held channel's own composer, plus any
  * thread/edit composers the client is holding in its cache.
+ *
+ * v14 took the single active channel from `ChatContext`. v15 has no ambient active channel — a
+ * `Channel` is addressed by instance, not through the client — so this enumerates what the client
+ * is actually holding. For an inspector that is the better answer anyway: thread and edit
+ * composers already come from a client-wide cache, so scoping only the channel composer to one
+ * channel was the odd one out.
  */
-export const listComposers = (
-  client: StreamChat | undefined,
-  activeChannel: Channel | undefined,
-): ComposerEntry[] => {
+export const listComposers = (client: StreamChat | undefined): ComposerEntry[] => {
   if (!client) return [];
 
   const entries: ComposerEntry[] = [];
 
-  if (activeChannel?.messageComposer) {
+  for (const channel of Object.values(client.activeChannels)) {
+    if (!channel?.messageComposer) continue;
     entries.push({
-      composer: activeChannel.messageComposer,
-      label: `channel · ${activeChannel.cid}`,
-      tag: activeChannel.messageComposer.tag,
+      composer: channel.messageComposer,
+      label: `channel · ${channel.cid}`,
+      tag: channel.messageComposer.tag,
     });
   }
 

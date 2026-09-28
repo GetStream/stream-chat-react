@@ -4,9 +4,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSearchContext } from '../SearchContext';
 import { useSearchQueriesInProgress } from '../hooks';
 import { useInteractionAnnouncements } from '../../Accessibility';
-import { useTranslationContext } from '../../../context';
+import { useComponentContextIcons, useTranslationContext } from '../../../context';
 import { useStateStore } from '../../../store';
-import { Button, IconSearch, IconXCircle } from '../../../components';
+import { Button } from '../../../components';
 
 import type { SearchControllerState } from 'stream-chat';
 
@@ -17,6 +17,7 @@ const searchControllerStateSelector = (nextValue: SearchControllerState) => ({
 
 export const SearchBar = () => {
   const { t } = useTranslationContext();
+  const { IconSearch, IconXCircle } = useComponentContextIcons();
   const { announceInteraction } = useInteractionAnnouncements();
   const {
     containerRef,
@@ -79,7 +80,7 @@ export const SearchBar = () => {
         <IconSearch />
         <input
           {...inputProps}
-          aria-label={t('Search')}
+          aria-label={t('common.search.ariaLabel', 'Search')}
           className={clsx('str-chat__search-bar__input', inputProps?.className)}
           data-testid='search-input'
           disabled={disabled}
@@ -113,7 +114,7 @@ export const SearchBar = () => {
               searchController.clear();
             }
           }}
-          placeholder={placeholder ?? t('Search')}
+          placeholder={placeholder ?? t('common.search.ariaLabel', 'Search')}
           ref={setInput}
           type='text'
           value={searchQuery}
@@ -121,7 +122,7 @@ export const SearchBar = () => {
         {searchQuery && (
           <Button
             appearance='ghost'
-            aria-label={t('aria/Clear search')}
+            aria-label={t('search.bar.clearSearch.ariaLabel', 'Clear search')}
             circular
             className='str-chat__search-bar__clear-button'
             data-testid='clear-input-button'
@@ -141,7 +142,7 @@ export const SearchBar = () => {
       {isActive && (
         <Button
           appearance='ghost'
-          aria-label={t('aria/Exit search')}
+          aria-label={t('search.bar.exitSearch.ariaLabel', 'Exit search')}
           className='str-chat__search-bar__exit-search-button'
           data-testid='search-bar-button'
           onClick={() => {
@@ -153,7 +154,7 @@ export const SearchBar = () => {
           size='sm'
           variant='secondary'
         >
-          {t('Cancel')}
+          {t('common.cancel.label', 'Cancel')}
         </Button>
       )}
     </div>

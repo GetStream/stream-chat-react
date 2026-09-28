@@ -1,7 +1,6 @@
 import { type ComponentType, useCallback, useMemo, useState } from 'react';
 import {
   Button,
-  ChatViewSelectorButton,
   GlobalModal,
   IconBell,
   IconEmoji,
@@ -9,6 +8,7 @@ import {
   IconMessageBubbles,
   IconUpload,
 } from 'stream-chat-react';
+import { ChatViewSelectorButton } from 'stream-chat-react/slot-layout';
 import {
   SECTION_NAVIGATOR_LAYOUT,
   SectionNavigator,
@@ -20,6 +20,7 @@ import {
 import { ActionsMenu } from './ActionsMenu';
 import { ChannelDetailTab } from './tabs/ChannelDetail';
 import { ComposerTab } from './tabs/Composer';
+import { ConfigurationTab } from './tabs/Configuration';
 import { GeneralTab } from './tabs/General';
 import { MessageActionsTab } from './tabs/MessageActions';
 import { NotificationsTab } from './tabs/Notifications';
@@ -27,17 +28,21 @@ import { ReactionsTab } from './tabs/Reactions';
 import { SidebarTab } from './tabs/Sidebar';
 import { appSettingsStore, useAppSettingsState } from './state';
 import {
+  IconConnection,
   IconGear,
   IconMoon,
   IconSidebar,
+  IconSliders,
   IconSun,
   IconTextDirection,
 } from '../icons.tsx';
 import clsx from 'clsx';
+import { FullscreenProvider } from './fullscreen';
 
 type TabId =
   | 'channelDetail'
   | 'composer'
+  | 'configuration'
   | 'general'
   | 'messageActions'
   | 'notifications'
@@ -69,15 +74,21 @@ const settingsSectionConfig: SettingsSectionConfig[] = [
     id: 'messageActions',
     title: 'Message Actions',
   },
-  { Content: ComposerTab, Icon: IconUpload, id: 'composer', title: 'Composer' },
   {
     Content: NotificationsTab,
     Icon: IconBell,
     id: 'notifications',
     title: 'Notifications',
   },
+  { Content: ComposerTab, Icon: IconUpload, id: 'composer', title: 'Composer' },
   { Content: SidebarTab, Icon: IconSidebar, id: 'sidebar', title: 'Sidebar' },
   { Content: ReactionsTab, Icon: IconEmoji, id: 'reactions', title: 'Reactions' },
+  {
+    Content: ConfigurationTab,
+    Icon: IconSliders,
+    id: 'configuration',
+    title: 'Configuration',
+  },
 ];
 
 const createSettingsNavButton = ({
@@ -87,12 +98,15 @@ const createSettingsNavButton = ({
 }: Pick<SettingsSectionConfig, 'Icon' | 'id' | 'title'>) => {
   const SettingsNavButton = ({ select, selected }: SectionNavigatorNavButtonProps) => (
     <Button
+      appearance='ghost'
       aria-selected={selected}
-      className={`app__settings-modal__tab str-chat__button--ghost str-chat__button--secondary str-chat__button--size-lg ${
+      className={`app__settings-modal__tab ${
         selected ? 'app__settings-modal__tab--active' : ''
       }`}
       onClick={select}
       role='tab'
+      size='md'
+      variant='secondary'
     >
       <Icon />
       {title}
@@ -150,6 +164,30 @@ const SidebarThemeToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   );
 };
 
+const SidebarConnectionPanelToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
+  const { devTools } = useAppSettingsState();
+  const { connectionPanel } = devTools;
+
+  return (
+    <ChatViewSelectorButton
+      aria-checked={connectionPanel}
+      aria-label={`${connectionPanel ? 'Hide' : 'Show'} the connection dev panel`}
+      aria-selected={connectionPanel}
+      className='app__settings-group_button app__settings-group_button--toggle'
+      Icon={IconConnection}
+      iconOnly={iconOnly}
+      isActive={connectionPanel}
+      onClick={() =>
+        appSettingsStore.partialNext({
+          devTools: { ...devTools, connectionPanel: !connectionPanel },
+        })
+      }
+      role='switch'
+      text={connectionPanel ? 'Hide connection panel' : 'Connection panel'}
+    />
+  );
+};
+
 const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const {
     theme,
@@ -179,6 +217,12 @@ const SidebarRtlToggle = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
 export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
   const [open, setOpen] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const toggleFullscreen = useCallback(() => setFullscreen((on) => !on), []);
+  const fullscreenState = useMemo(
+    () => ({ fullscreen, toggleFullscreen }),
+    [fullscreen, toggleFullscreen],
+  );
   const closeSettingsModal = useCallback(() => setOpen(false), []);
   const settingsSections = useMemo(
     () => createSettingsSections(closeSettingsModal),
@@ -188,6 +232,7 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
 
   return (
     <div className='app__settings-group'>
+      <SidebarConnectionPanelToggle iconOnly={iconOnly} />
       <SidebarRtlToggle iconOnly={iconOnly} />
       <SidebarThemeToggle iconOnly={iconOnly} />
       <ActionsMenu iconOnly={iconOnly} />
@@ -199,17 +244,20 @@ export const AppSettings = ({ iconOnly = true }: { iconOnly?: boolean }) => {
         text='Settings'
       />
       <GlobalModal onClose={closeSettingsModal} open={open}>
-        <div
-          className={clsx('app__settings-modal', {
-            'app__settings-modal--inline': layout === SECTION_NAVIGATOR_LAYOUT.inline,
-          })}
-        >
-          <SectionNavigator
-            className='app__settings-modal__body'
-            sections={settingsSections}
-            onLayoutChange={setLayout}
-          />
-        </div>
+        <FullscreenProvider value={fullscreenState}>
+          <div
+            className={clsx('app__settings-modal', {
+              'app__settings-modal--fullscreen': fullscreen,
+              'app__settings-modal--inline': layout === SECTION_NAVIGATOR_LAYOUT.inline,
+            })}
+          >
+            <SectionNavigator
+              className='app__settings-modal__body'
+              sections={settingsSections}
+              onLayoutChange={setLayout}
+            />
+          </div>
+        </FullscreenProvider>
       </GlobalModal>
     </div>
   );

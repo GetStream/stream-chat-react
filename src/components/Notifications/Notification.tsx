@@ -18,9 +18,8 @@ export type NotificationIconProps = {
 const DefaultNotificationIcon = ({ notification }: NotificationIconProps) => {
   const { IconCheckmark, IconExclamationMark, IconExclamationTriangleFill, IconRefresh } =
     useComponentContextIcons();
-  if (!notification.severity) return null;
 
-  const iconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
+  const IconsBySeverity: Record<NotificationSeverity, ComponentType | null> = {
     error: IconExclamationMark,
     info: null,
     loading: IconRefresh,
@@ -28,7 +27,9 @@ const DefaultNotificationIcon = ({ notification }: NotificationIconProps) => {
     warning: IconExclamationTriangleFill,
   };
 
-  const Icon = iconsBySeverity[notification.severity] ?? null;
+  if (!notification.severity) return null;
+
+  const Icon = IconsBySeverity[notification.severity] ?? null;
   return (
     Icon && (
       <div className='str-chat__notification-icon'>
@@ -68,12 +69,11 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
     }: NotificationProps,
     ref,
   ) => {
-    const { IconXmark } = useComponentContextIcons();
-
     const { removeNotification } = useNotificationApi();
     const { t } = useTranslationContext();
+    const { IconXmark } = useComponentContextIcons();
 
-    const displayMessage = t('translationBuilderTopic/notification', {
+    const displayMessage = t('translationBuilderTopic.notification', {
       notification,
       value: notification.message,
     });
@@ -149,7 +149,10 @@ export const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         {(showClose || isPersistent) && (
           <Button
             appearance='ghost'
-            aria-label={t('aria/Dismiss notification')}
+            aria-label={t(
+              'notification.dismissNotification.ariaLabel',
+              'Dismiss notification',
+            )}
             circular
             className='str-chat__notification-close-button'
             inverseTheme

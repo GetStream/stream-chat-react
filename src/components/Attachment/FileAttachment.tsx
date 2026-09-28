@@ -20,8 +20,8 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
     AttachmentUploadProgressIndicator = DefaultAttachmentUploadProgressIndicator,
     FileSizeIndicator = DefaultFileSizeIndicator,
   } = useComponentContext();
-  const FileIconComponent = AttachmentFileIcon ?? FileIcon;
   const { isUploading } = useAttachmentUploadState(attachment);
+  const FileIconComponent = AttachmentFileIcon ?? FileIcon;
   return (
     <div
       className='str-chat__message-attachment-file--item'
@@ -30,7 +30,7 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
       <FileIconComponent
         className='str-chat__file-icon'
         fileName={attachment.title}
-        mimeType={attachment.mime_type}
+        mimeType={attachment.custom?.mime_type}
       />
       <div className='str-chat__message-attachment-file--item__info'>
         <div className='str-chat__message-attachment-file--item__first-row'>
@@ -46,11 +46,10 @@ export const FileAttachment = ({ attachment }: FileAttachmentProps) => {
           {isUploading ? (
             <AttachmentUploadProgressIndicator attachment={attachment} />
           ) : (
-            <FileSizeIndicator fileSize={attachment.file_size} />
+            <FileSizeIndicator fileSize={attachment.custom?.file_size} />
           )}
         </div>
       </div>
-      {/* DownloadButton renders nothing without an asset_url, which a pending upload lacks. */}
       <DownloadButton
         assetUrl={attachment.asset_url}
         suggestedFileName={attachment.title}

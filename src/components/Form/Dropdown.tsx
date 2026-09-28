@@ -52,6 +52,9 @@ export type DropdownTriggerProps = Pick<
 
 export type DropdownProps = PropsWithChildren<{
   className?: string;
+  /** Cap the menu to the space left in the viewport (after flip/shift) so it scrolls within
+   *  the viewport instead of overflowing it. Combine with `overflow: auto` on the menu. */
+  fitAvailableSpace?: boolean;
   matchReferenceWidth?: boolean;
   onClose?: () => void;
   onOpen?: () => void;
@@ -64,6 +67,7 @@ export type DropdownProps = PropsWithChildren<{
 export const Dropdown = ({
   children,
   className,
+  fitAvailableSpace = false,
   matchReferenceWidth = false,
   onClose,
   onOpen,
@@ -80,6 +84,7 @@ export const Dropdown = ({
   const [isOpen, setIsOpen] = useState(!TriggerComponent);
   const [floatingElement, setFloatingElement] = useState<HTMLDivElement | null>(null);
   const { refs, strategy, update, x, y } = usePopoverPosition({
+    fitAvailableSpace,
     placement,
   });
 

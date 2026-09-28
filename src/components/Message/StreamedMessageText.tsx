@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import type { MessageTextProps } from './MessageText';
 import { MessageText } from './MessageText';
 
-import { useChannelStateContext, useMessageContext } from '../../context';
+import { useChannel, useMessageContext } from '../../context';
 import { useMessageTextStreaming } from './hooks';
 
 export type StreamedMessageTextProps = Pick<
@@ -21,8 +21,8 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
     renderText,
     streamingLetterIntervalMs,
   } = props;
-  const { message: messageFromContext } = useMessageContext('StreamedMessageText');
-  const { channel } = useChannelStateContext();
+  const { message: messageFromContext } = useMessageContext();
+  const channel = useChannel();
   const message = messageFromProps || messageFromContext;
   const { text = '' } = message;
   const { skipAnimation, streamedMessageText } = useMessageTextStreaming({
@@ -32,9 +32,10 @@ export const StreamedMessageText = (props: StreamedMessageTextProps) => {
   });
 
   useEffect(() => {
-    channel?.on('ai_indicator.stop', () => {
+    const subscription = channel?.on('ai_indicator.stop', () => {
       skipAnimation();
     });
+    return () => subscription?.unsubscribe();
   }, [channel, skipAnimation]);
 
   return (

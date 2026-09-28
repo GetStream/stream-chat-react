@@ -1,3 +1,4 @@
+import { convertTimestampToDate } from 'stream-chat';
 import React, { useState } from 'react';
 import type { LocalMessage } from 'stream-chat';
 import type { TimestampFormatterOptions } from '../../i18n/types';
@@ -19,16 +20,16 @@ export type MessageEditedIndicatorProps = TimestampFormatterOptions & {
 
 const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) => {
   const { customClass, message: propMessage, ...timestampProps } = props;
-  const { message: contextMessage } = useMessageContext('MessageEditedIndicator');
-  const { t } = useTranslationContext('MessageEditedIndicator');
-  const { Timestamp = DefaultTimestamp } = useComponentContext('MessageEditedIndicator');
+  const { message: contextMessage } = useMessageContext();
+  const { t } = useTranslationContext();
+  const { Timestamp = DefaultTimestamp } = useComponentContext();
   const message = propMessage ?? contextMessage;
 
   const [referenceElement, setReferenceElement] = useState<HTMLSpanElement | null>(null);
   const { handleEnter, handleLeave, tooltipVisible } =
     useEnterLeaveHandlers<HTMLSpanElement>();
 
-  if (!message?.message_text_updated_at) {
+  if (message?.message_text_updated_at == null) {
     return null;
   }
 
@@ -40,14 +41,17 @@ const UnMemoizedMessageEditedIndicator = (props: MessageEditedIndicatorProps) =>
       onMouseLeave={handleLeave}
       ref={setReferenceElement}
     >
-      {t('Edited')}
+      {t('message.editedIndicator.edited.text', 'Edited')}
       <PopperTooltip
         offset={[0, 5]}
         placement='top'
         referenceElement={referenceElement}
         visible={tooltipVisible}
       >
-        <Timestamp timestamp={message.message_text_updated_at} {...timestampProps} />
+        <Timestamp
+          timestamp={convertTimestampToDate(message.message_text_updated_at)}
+          {...timestampProps}
+        />
       </PopperTooltip>
     </span>
   );

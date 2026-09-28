@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import type { Channel, Mute } from 'stream-chat';
+import type { Channel, UserMuteResponse } from 'stream-chat';
 
 import { ChannelDetailProvider } from '../ChannelDetailContext';
 import { ChannelManagementView } from '../Views/ChannelManagementView/ChannelManagementView';
@@ -9,11 +9,11 @@ const mocks = vi.hoisted(() => ({
   addNotification: vi.fn(),
   channel: {
     data: {
+      // v10: custom channel data (name, image, …) nests under `data.custom`.
+      custom: { name: 'Test channel' },
       member_count: 2,
-      name: 'Test channel',
       own_capabilities: ['update-channel'],
     },
-    sendImage: vi.fn(),
     state: {
       members: {
         'other-user': { user: { id: 'other-user' } },
@@ -22,10 +22,11 @@ const mocks = vi.hoisted(() => ({
       membership: {},
     },
     updatePartial: vi.fn(),
+    uploadImage: vi.fn(),
   },
   close: vi.fn(),
   displayImage: undefined as string | undefined,
-  mutes: [] as Mute[],
+  mutes: [] as UserMuteResponse[],
 }));
 
 vi.mock('../../../context', async (importOriginal) => {
@@ -40,9 +41,30 @@ vi.mock('../../../context', async (importOriginal) => {
     useComponentContext: () => ({
       Avatar: () => <div data-testid='channel-management-avatar' />,
     }),
+    // The real hook: with no provider it returns the SDK icons.
     useComponentContextIcons: actual.useComponentContextIcons,
     useModalContext: () => ({ close: mocks.close }),
-    useTranslationContext: () => ({ t: (key: string) => key }),
+    useTranslationContext: () => ({
+      t: (key: string, second?: unknown, third?: unknown) => {
+        const defaultValue = typeof second === 'string' ? second : undefined;
+        const options = ((typeof second === 'object' ? second : third) ?? {}) as Record<
+          string,
+          unknown
+        >;
+        let template = defaultValue;
+        if (template === undefined && typeof options.count === 'number') {
+          template = (
+            options.count === 1 ? options.defaultValue_one : options.defaultValue_other
+          ) as string | undefined;
+        }
+        template ??= options.defaultValue as string | undefined;
+        template ??= key;
+        return template.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (whole, name: string) => {
+          const value = options[name];
+          return value === undefined || value === null ? whole : String(value);
+        });
+      },
+    }),
   };
 });
 
@@ -136,6 +158,8 @@ vi.mock('../../../components/Dialog', () => ({
   },
 }));
 
+// Mocks the icon module, not the barrel: icons now reach components through
+// `useComponentContextIcons`, which reads `components/Icons/icons` directly.
 vi.mock('../../../components/Icons/icons', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../components/Icons/icons')>();
 
@@ -170,11 +194,13 @@ describe('ChannelManagementView', () => {
       value: vi.fn(),
     });
     mocks.addNotification.mockReset();
-    mocks.channel.sendImage.mockReset();
+    mocks.channel.uploadImage.mockReset();
     mocks.channel.updatePartial.mockReset();
-    mocks.channel.sendImage.mockResolvedValue({ file: 'https://stream-upload.example' });
+    mocks.channel.uploadImage.mockResolvedValue({
+      file: 'https://stream-upload.example',
+    });
     mocks.channel.updatePartial.mockResolvedValue({});
-    mocks.channel.data.name = 'Test channel';
+    mocks.channel.data.custom.name = 'Test channel';
     mocks.channel.data.member_count = 2;
     mocks.channel.data.own_capabilities = ['update-channel'];
     mocks.displayImage = undefined;
@@ -189,7 +215,7 @@ describe('ChannelManagementView', () => {
     mocks.mutes = [
       {
         target: { id: 'other-user' },
-      } as Mute,
+      } as UserMuteResponse,
     ];
 
     rerender(
@@ -289,9 +315,9 @@ describe('ChannelManagementView', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() => expect(uploadImage).toHaveBeenCalledTimes(1));
-    expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+    expect(mocks.channel.uploadImage).not.toHaveBeenCalled();
     expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-      set: { image: 'https://custom-upload.example' },
+      set: { 'custom.image': 'https://custom-upload.example' },
     });
   });
 
@@ -320,22 +346,24 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          set: { name: 'Renamed channel' },
+          set: { 'custom.name': 'Renamed channel' },
         }),
       );
-      expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+      expect(mocks.channel.uploadImage).not.toHaveBeenCalled();
     });
 
-    it('uploads via channel.sendImage when no custom upload is provided', async () => {
+    it('uploads via channel.uploadImage when no custom upload is provided', async () => {
       const { container } = renderChannelManagementView();
 
       enterEditMode();
       uploadFile(container);
       save();
 
-      await waitFor(() => expect(mocks.channel.sendImage).toHaveBeenCalledTimes(1));
+      await waitFor(() => expect(mocks.channel.uploadImage).toHaveBeenCalledTimes(1));
+      // v10 takes the file in a request object rather than as a positional argument.
+      expect(mocks.channel.uploadImage).toHaveBeenCalledWith({ file: expect.any(File) });
       expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-        set: { image: 'https://stream-upload.example' },
+        set: { 'custom.image': 'https://stream-upload.example' },
       });
     });
 
@@ -349,7 +377,10 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          set: { image: 'https://stream-upload.example', name: 'Renamed channel' },
+          set: {
+            'custom.image': 'https://stream-upload.example',
+            'custom.name': 'Renamed channel',
+          },
         }),
       );
     });
@@ -364,10 +395,10 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          unset: ['image'],
+          unset: ['custom.image'],
         }),
       );
-      expect(mocks.channel.sendImage).not.toHaveBeenCalled();
+      expect(mocks.channel.uploadImage).not.toHaveBeenCalled();
     });
 
     it('emits a success notification after saving', async () => {
@@ -407,7 +438,7 @@ describe('ChannelManagementView', () => {
     });
 
     it('does not persist when the upload returns no URL', async () => {
-      mocks.channel.sendImage.mockResolvedValueOnce({ file: undefined });
+      mocks.channel.uploadImage.mockResolvedValueOnce({ file: undefined });
       const { container } = renderChannelManagementView();
 
       enterEditMode();
@@ -461,7 +492,7 @@ describe('ChannelManagementView', () => {
 
       await waitFor(() =>
         expect(mocks.channel.updatePartial).toHaveBeenCalledWith({
-          set: { name: 'Renamed channel' },
+          set: { 'custom.name': 'Renamed channel' },
         }),
       );
 

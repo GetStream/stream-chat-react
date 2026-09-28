@@ -1,11 +1,11 @@
-import type { TFunction } from 'i18next';
 import { formatTime } from './formatTime';
+import type { StreamTFunction } from '../../../i18n/types';
 
 type GetAudioTrackSliderAriaValueTextParams = {
   durationSeconds?: number;
   progress: number;
   secondsElapsed?: number;
-  t: TFunction;
+  t: StreamTFunction;
 };
 
 export const getAudioTrackSliderAriaValueText = ({
@@ -26,14 +26,22 @@ export const getAudioTrackSliderAriaValueText = ({
     const formattedDuration = formatTime(normalizedDuration, 'floor');
 
     if (formattedElapsed && formattedDuration) {
-      return t('aria/Audio position {{ elapsed }} of {{ duration }}', {
-        duration: formattedDuration,
-        elapsed: formattedElapsed,
-      });
+      return t(
+        'audioPlayback.progressBarA11y.audioPosition.ariaLabel',
+        'Audio position {{ elapsed }} of {{ duration }}',
+        {
+          duration: formattedDuration,
+          elapsed: formattedElapsed,
+        },
+      );
     }
   }
 
-  return t('aria/Audio position {{ progress }} percent', {
-    progress: Math.round(normalizedProgress),
-  });
+  return t(
+    'audioPlayback.progressBarA11y.audioPositionPercent.ariaLabel',
+    'Audio position {{ progress }} percent',
+    {
+      progress: Math.round(normalizedProgress),
+    },
+  );
 };

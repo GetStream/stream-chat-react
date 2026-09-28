@@ -1,6 +1,7 @@
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { Event, StreamChat, UserResponse } from 'stream-chat';
 import { type ChannelOrResponse, toChannelResponse } from './utils';
+import { convertDateToTimestamp } from '../generator/time';
 
 export default (
   client: StreamChat,
@@ -12,7 +13,7 @@ export default (
   const event = fromPartial<Event>({
     channel: data,
     cid: data.cid,
-    created_at: new Date().toISOString(),
+    created_at: convertDateToTimestamp(),
     last_read_message_id: last_read_message_id || 'last_read_message_id',
     type: 'message.read' as const,
     user,

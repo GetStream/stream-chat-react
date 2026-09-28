@@ -11,13 +11,14 @@ import { PollAnswerList as DefaultPollAnswerList } from './PollAnswerList';
 import { PollResults as DefaultPollResults } from './PollResults';
 import { MAX_POLL_OPTIONS } from '../constants';
 import {
-  useChannelStateContext,
+  useChannel,
   useChatContext,
   useMessageContext,
   usePollContext,
   useTranslationContext,
 } from '../../../context';
 import { useStateStore } from '../../../store';
+import { useChannelCapabilities } from '../../Channel/hooks/useChannelCapabilities';
 
 import type { PollState } from 'stream-chat';
 
@@ -56,10 +57,11 @@ export const PollActions = ({
   PollResults = DefaultPollResults,
   SuggestPollOptionForm = DefaultSuggestPollOptionForm,
 }: PollActionsProps) => {
+  const channel = useChannel();
   const { client } = useChatContext();
-  const { t } = useTranslationContext('PollActions');
-  const { channelCapabilities = {} } = useChannelStateContext('PollActions');
-  const { message } = useMessageContext('PollActions');
+  const { t } = useTranslationContext();
+  const channelCapabilities = useChannelCapabilities({ cid: channel.cid });
+  const { message } = useMessageContext();
   const { poll } = usePollContext();
   const {
     allow_answers,
@@ -73,7 +75,7 @@ export const PollActions = ({
   } = useStateStore(poll.state, pollStateSelector);
   const [modalOpen, setModalOpen] = useState<ModalName | undefined>();
 
-  const canCastVote = channelCapabilities['cast-poll-vote'] && !is_closed;
+  const canCastVote = channelCapabilities.has('cast-poll-vote') && !is_closed;
   const closeModal = useCallback(() => setModalOpen(undefined), []);
   const onUpdateAnswerClick = useCallback(() => setModalOpen('add-comment'), []);
 
@@ -82,7 +84,7 @@ export const PollActions = ({
     !!voteCount ||
     (canCastVote && allow_user_suggested_options && options.length < MAX_POLL_OPTIONS) ||
     (!is_closed && allow_answers) ||
-    (answers_count > 0 && channelCapabilities['query-poll-votes']);
+    (answers_count > 0 && channelCapabilities.has('query-poll-votes'));
 
   if (!hasContents) return null;
 
@@ -90,7 +92,7 @@ export const PollActions = ({
     <div className='str-chat__poll-actions'>
       {!is_closed && created_by_id === client.user?.id && (
         <PollAction
-          buttonText={t('End poll')}
+          buttonText={t('poll.endPollAlert.endPoll.text', 'End Poll')}
           closeModal={closeModal}
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__end-poll-modal')}
           modalIsOpen={modalOpen === 'end-vote'}
@@ -102,7 +104,7 @@ export const PollActions = ({
 
       {!!voteCount && (
         <PollAction
-          buttonText={t('View results')}
+          buttonText={t('poll.actions.viewResults.label', 'View Results')}
           closeModal={closeModal}
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-results-modal')}
           modalIsOpen={modalOpen === 'view-results'}
@@ -116,7 +118,7 @@ export const PollActions = ({
         allow_user_suggested_options &&
         options.length < MAX_POLL_OPTIONS && (
           <PollAction
-            buttonText={t('Suggest an option')}
+            buttonText={t('poll.actions.suggestOption.label', 'Suggest an Option')}
             closeModal={closeModal}
             isAdditionalAction
             modalClassName={clsx(
@@ -132,7 +134,11 @@ export const PollActions = ({
 
       {!is_closed && allow_answers && (
         <PollAction
-          buttonText={ownAnswer ? t('Update your comment') : t('Add a comment')}
+          buttonText={
+            ownAnswer
+              ? t('poll.addCommentPrompt.updateComment.label', 'Update Your Comment')
+              : t('poll.addCommentPrompt.addComment.label', 'Add a Comment')
+          }
           closeModal={closeModal}
           isAdditionalAction
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__add-poll-answer-modal')}
@@ -143,9 +149,13 @@ export const PollActions = ({
         </PollAction>
       )}
 
-      {answers_count > 0 && channelCapabilities['query-poll-votes'] && (
+      {answers_count > 0 && channelCapabilities.has('query-poll-votes') && (
         <PollAction
-          buttonText={t('View {{count}} comments', { count: answers_count })}
+          buttonText={t('poll.actions.viewComments.label', {
+            count: answers_count,
+            defaultValue_one: 'View {{count}} Comment',
+            defaultValue_other: 'View {{count}} Comments',
+          })}
           closeModal={closeModal}
           isAdditionalAction
           modalClassName={clsx(COMMON_MODAL_CLASS, 'str-chat__poll-answer-list-modal')}

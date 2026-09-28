@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
-import type { CommandResponse, MessageComposerState } from 'stream-chat';
+import type { ChannelConfig, Command, MessageComposerState } from 'stream-chat';
 
 import { useStateStore } from '../../../store';
-import { getChannelConfig } from '../../../utils/getChannelConfig';
 import { useMessageComposerController } from './useMessageComposerController';
 
 const messageComposerStateSelector = ({
@@ -13,14 +12,21 @@ const messageComposerStateSelector = ({
   quotedMessage,
 });
 
+const channelConfigStateSelector = ({ availableCommands }: ChannelConfig) => ({
+  availableCommands,
+});
+
 export type MessageComposerCommand = {
-  command: CommandResponse & { name: string };
+  command: Command & { name: string };
   enabled: boolean;
 };
 
 export const useMessageComposerCommands = () => {
   const messageComposer = useMessageComposerController();
-  const channelConfig = getChannelConfig(messageComposer.channel);
+  const { availableCommands } = useStateStore(
+    messageComposer.channel.configState,
+    channelConfigStateSelector,
+  );
   const { editedMessage, quotedMessage } = useStateStore(
     messageComposer.state,
     messageComposerStateSelector,
@@ -28,16 +34,14 @@ export const useMessageComposerCommands = () => {
 
   return useMemo<MessageComposerCommand[]>(
     () =>
-      (channelConfig?.commands ?? [])
-        .filter(
-          (command): command is CommandResponse & { name: string } => !!command.name,
-        )
+      (availableCommands ?? [])
+        .filter((command): command is Command & { name: string } => !!command.name)
         .map((command) => ({
           command,
           enabled: !messageComposer.isCommandDisabled(command),
         })),
     // editedMessage and quotedMessage are necessary in deps for reactivity
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [channelConfig, editedMessage, messageComposer, quotedMessage],
+    [availableCommands, editedMessage, messageComposer, quotedMessage],
   );
 };

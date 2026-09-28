@@ -12,13 +12,17 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 /** Circular progress indicator with input from 0 to 100. */
 export const CircularProgressIndicator = ({ percent }: ProgressIndicatorProps) => {
-  const { t } = useTranslationContext('CircularProgressIndicator');
+  const { t } = useTranslationContext();
   const dashOffset = RING_CIRCUMFERENCE * (1 - percent / 100);
 
   return (
     <div className='str-chat__circular-progress-indicator str-chat__progress-indicator'>
       <svg
-        aria-label={t('aria/Percent complete', { percent })}
+        aria-label={t(
+          'loading.progressIndicators.percentComplete.ariaLabel',
+          '{{percent}} percent complete',
+          { percent },
+        )}
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={percent}

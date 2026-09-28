@@ -6,11 +6,9 @@ import { axe } from '../../../../axe-helper';
 import { AriaLiveAnnouncerContext } from '../../Accessibility';
 import { TranslationProvider } from '../../../context';
 import type { TranslationContextValue } from '../../../context';
+import { mockT } from '../../../mock-builders/translator';
 
-const interpolatingT = ((key: string, options?: Record<string, unknown>) =>
-  Object.entries(options ?? {})
-    .reduce((value, [name, arg]) => value.replace(`{{ ${name} }}`, String(arg)), key)
-    .replace(/^aria\//, '')) as TranslationContextValue['t'];
+const interpolatingT = mockT as unknown as TranslationContextValue['t'];
 
 const renderWithAnnouncer = (ui: React.ReactElement, announce = vi.fn()) => {
   render(

@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 import type {
-  AppSettingsAPIResponse,
-  Channel,
-  Mute,
+  ChannelManager,
   SearchController,
+  StreamChat,
+  UserMuteResponse,
 } from 'stream-chat';
 
 import type { ChatProps } from '../components/Chat/Chat';
-import type { ChannelsQueryState } from '../components/Chat/hooks/useChannelsQueryState';
+import { requireContext } from './requireContext';
 
 type CSSClasses =
   | 'chat'
@@ -24,34 +24,20 @@ type CSSClasses =
 
 export type CustomClasses = Partial<Record<CSSClasses, string>>;
 
-type ChannelConfId = string; // e.g.: "messaging:general"
-
 export type ChatContextValue = {
   /**
-   * Indicates, whether a channels query has been triggered within ChannelList by its channels pagination controller.
+   * The client's `ChannelManager` (`client.channelManager`) — used to query and manage channels
+   * across one or more channel lists (the channel-list data source + cross-list ownership). The
+   * lists themselves are registered on it by the application
+   * (`client.channelManager.insertPaginator({ paginator })`); the SDK creates none.
    */
-  channelsQueryState: ChannelsQueryState;
-  getAppSettings: () => Promise<AppSettingsAPIResponse> | null;
-  latestMessageDatesByChannels: Record<ChannelConfId, Date>;
-  mutes: Array<Mute>;
+  channelManager: ChannelManager;
+  getAppSettings: () => ReturnType<StreamChat['getAppSettings']> | null;
+  /** Users muted by the current user. */
+  mutes: Array<UserMuteResponse>;
   /** Instance of SearchController class that allows to control all the search operations. */
   searchController: SearchController;
-  /**
-   * Sets active channel to be rendered within Channel component.
-   * @param newChannel
-   * @param watchers
-   * @param event
-   */
-  setActiveChannel: (
-    newChannel?: Channel,
-    watchers?: { limit?: number; offset?: number },
-    event?: React.BaseSyntheticEvent,
-  ) => void;
   useImageFlagEmojisOnWindows: boolean;
-  /**
-   * Active channel used to render the contents of the Channel component.
-   */
-  channel?: Channel;
   /**
    * Object through which custom classes can be set for main container components of the SDK.
    */
@@ -72,16 +58,5 @@ export const ChatProvider = ({
   </ChatContext.Provider>
 );
 
-export const useChatContext = (componentName?: string) => {
-  const contextValue = useContext(ChatContext);
-
-  if (!contextValue) {
-    console.warn(
-      `The useChatContext hook was called outside of the ChatContext provider. Make sure this hook is called within a child of the Chat component. The errored call is located in the ${componentName} component.`,
-    );
-
-    return {} as ChatContextValue;
-  }
-
-  return contextValue as unknown as ChatContextValue;
-};
+export const useChatContext = () =>
+  requireContext(useContext(ChatContext), 'useChatContext', 'Chat');

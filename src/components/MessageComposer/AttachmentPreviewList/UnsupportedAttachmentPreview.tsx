@@ -18,7 +18,6 @@ export const UnsupportedAttachmentPreview = ({
   removeAttachments,
 }: UnsupportedAttachmentPreviewProps) => {
   const { IconUnsupportedAttachment } = useComponentContextIcons();
-
   const { t } = useTranslationContext();
   const { id } = attachment.localMetadata ?? {};
 
@@ -33,7 +32,7 @@ export const UnsupportedAttachmentPreview = ({
           className='str-chat__attachment-preview-unsupported__title'
           data-testid='unsupported-attachment-preview-title'
         >
-          {t('Unsupported attachment')}
+          {t('common.unsupportedAttachment.text', 'Unsupported attachment')}
         </div>
       </div>
       <RemoveAttachmentPreviewButton

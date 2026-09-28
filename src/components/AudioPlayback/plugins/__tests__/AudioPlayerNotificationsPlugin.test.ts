@@ -1,9 +1,11 @@
 import { fromPartial } from '@total-typescript/shoehorn';
-import type { TFunction } from 'i18next';
+import type { StreamTFunction } from '../../../../i18n/types';
+
 import { audioPlayerNotificationsPluginFactory } from '../AudioPlayerNotificationsPlugin';
+import { mockT } from '../../../../mock-builders/translator';
 
 describe('audioPlayerNotificationsPluginFactory', () => {
-  const t: TFunction = ((s: string) => s) as TFunction;
+  const t: StreamTFunction = mockT as StreamTFunction;
 
   const makeNotifier = () => {
     const addNotification = vi.fn();
