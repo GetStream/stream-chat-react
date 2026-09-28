@@ -26,6 +26,9 @@ import { mockT } from '../../../mock-builders/translator';
 const makeChannel = (cid: string) => ({ cid }) as unknown as StreamChannel;
 const makeThread = (id: string) => ({ id }) as unknown as StreamThread;
 
+// The channels view with two slots side by side.
+const twoSlotLayouts = [{ id: 'channels' as const, slots: ['slot1', 'slot2'] }];
+
 // D7 — active-view slot state lives under `layouts[activeView]`; project it (plus the
 // top-level `activeView`) into one object so assertions can read both.
 const viewState = (controller?: LayoutController | null) => {
@@ -60,6 +63,38 @@ const renderWithProviders = (ui: React.ReactNode) =>
       </TranslationProvider>
     </ChatProvider>,
   );
+
+describe('ChatView slot topology', () => {
+  const renderAndCaptureController = (ui: React.ReactElement) => {
+    let capturedController: LayoutController | undefined;
+    const Harness = () => {
+      capturedController = useChatViewContext().layoutController;
+      return null;
+    };
+    renderWithProviders(React.cloneElement(ui, undefined, <Harness />));
+    return capturedController;
+  };
+
+  it('makes every slot a layout declares available from the start', () => {
+    const controller = renderAndCaptureController(
+      <ChatView layouts={[{ id: 'channels', slots: ['list', 'main', 'thread'] }]} />,
+    );
+
+    expect(viewState(controller)).toMatchObject({
+      availableSlots: ['list', 'main', 'thread'],
+      slotNames: ['list', 'main', 'thread'],
+    });
+  });
+
+  it('gives the channels view a single slot without layouts', () => {
+    const controller = renderAndCaptureController(<ChatView />);
+
+    expect(viewState(controller)).toMatchObject({
+      availableSlots: ['slot1'],
+      slotNames: ['slot1'],
+    });
+  });
+});
 
 describe('useChatViewNavigation', () => {
   it('supports open/close thread flow where close clears thread slot state', () => {
@@ -106,7 +141,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={1}>
+      <ChatView>
         <Harness />
       </ChatView>,
     );
@@ -190,7 +225,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={1}>
+      <ChatView>
         <Harness />
       </ChatView>,
     );
@@ -274,7 +309,7 @@ describe('useChatViewNavigation', () => {
 
     const renderHarness = () =>
       renderWithProviders(
-        <ChatView maxSlots={2} minSlots={2}>
+        <ChatView layouts={twoSlotLayouts}>
           <Harness />
         </ChatView>,
       );
@@ -345,7 +380,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={1}>
+      <ChatView>
         <Harness />
       </ChatView>,
     );
@@ -380,7 +415,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -432,7 +467,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={3} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -499,7 +534,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -580,7 +615,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -678,7 +713,7 @@ describe('useChatViewNavigation', () => {
 
     const openThreadOverSecondary = () => {
       renderWithProviders(
-        <ChatView maxSlots={2} minSlots={2}>
+        <ChatView layouts={twoSlotLayouts}>
           <Harness />
         </ChatView>,
       );
@@ -779,7 +814,7 @@ describe('useChatViewNavigation', () => {
 
     const openBothBeside = () => {
       renderWithProviders(
-        <ChatView maxSlots={2} minSlots={2}>
+        <ChatView layouts={twoSlotLayouts}>
           <Harness />
         </ChatView>,
       );
@@ -925,7 +960,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -993,7 +1028,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -1053,7 +1088,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={1}>
+      <ChatView>
         <Harness />
       </ChatView>,
     );
@@ -1119,7 +1154,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={1}>
+      <ChatView>
         <Harness />
       </ChatView>,
     );
@@ -1201,7 +1236,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -1221,7 +1256,7 @@ describe('useChatViewNavigation', () => {
     expect(getChatViewEntityBinding(state?.slotBindings.slot1)?.source).toBe(channelA);
   });
 
-  it('opens channel and thread into configured slotNames in order', () => {
+  it("opens channel and thread into the layout's slots in order", () => {
     const channel = makeChannel('messaging:expand-named');
     const thread = makeThread('thread-expand-named');
     let capturedController: LayoutController | undefined;
@@ -1262,7 +1297,7 @@ describe('useChatViewNavigation', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={3} minSlots={2} slotNames={['list', 'main', 'thread']}>
+      <ChatView layouts={[{ id: 'channels', slots: ['list', 'main', 'thread'] }]}>
         <Harness />
       </ChatView>,
     );
@@ -1271,7 +1306,7 @@ describe('useChatViewNavigation', () => {
     fireEvent.click(screen.getByText('open-thread'));
 
     const openThreadState = viewState(capturedController);
-    expect(openThreadState?.availableSlots).toEqual(['list', 'main']);
+    expect(openThreadState?.availableSlots).toEqual(['list', 'main', 'thread']);
     expect(getChatViewEntityBinding(openThreadState?.slotBindings.list)?.kind).toBe(
       'channel',
     );
@@ -1304,7 +1339,6 @@ describe('ChatView deriveWorkspaceNavigation', () => {
           ...base,
           openChannel: customOpenChannel,
         })}
-        maxSlots={1}
       >
         <Harness />
       </ChatView>,
@@ -1384,7 +1418,6 @@ describe('ChatView deriveWorkspaceNavigation', () => {
             base.openChannel(ch, { ...options, additive: true });
           },
         })}
-        maxSlots={1}
       >
         <Harness />
       </ChatView>,
@@ -1510,7 +1543,7 @@ describe('stacked panels', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -1576,7 +1609,7 @@ describe('stacked panels', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -1644,7 +1677,7 @@ describe('stacked panels', () => {
     };
 
     renderWithProviders(
-      <ChatView maxSlots={2} minSlots={2}>
+      <ChatView layouts={twoSlotLayouts}>
         <Harness />
       </ChatView>,
     );
@@ -1686,8 +1719,7 @@ describe('stacked panels', () => {
 
     renderWithProviders(
       <ChatView
-        maxSlots={2}
-        minSlots={2}
+        layouts={twoSlotLayouts}
         slotRenderers={{ channel: () => <PanelProbe /> }}
       >
         <Harness />

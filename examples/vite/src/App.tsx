@@ -696,8 +696,6 @@ const App = () => {
                   deriveWorkspaceNavigation={deriveWorkspaceNavigation}
                   dialogManagerId={globalDialogManager}
                   layouts={chatViewLayouts}
-                  maxSlots={2}
-                  minSlots={2}
                   views={chatViews}
                 >
                   <WorkspaceUrlSync />

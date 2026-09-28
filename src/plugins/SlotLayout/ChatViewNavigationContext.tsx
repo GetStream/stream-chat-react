@@ -42,12 +42,6 @@ type ViewSlotRuntime = {
   slotLayers: Record<SlotName, LayoutSlotBinding[] | undefined>;
 };
 
-const resolveGeneratedSlots = (slotCount: number): SlotName[] =>
-  Array.from(
-    { length: Math.max(0, slotCount) },
-    (_, index) => `slot${index + 1}` as SlotName,
-  );
-
 // D6 — the resolver is kind-driven and persistent-aware (via the registry), not
 // keyed on a fixed set of actions or a hardcoded list-kind set. Precedence:
 // reuse a same-kind slot -> first free non-persistent -> first free -> first
@@ -273,17 +267,13 @@ export const ChatViewNavigationProvider = ({ children }: PropsWithChildren) => {
     const buildRuntimeForView = (view: ChatView): ViewSlotRuntime => {
       const state = layoutController.state.getLatestValue();
       const viewState = getLayoutViewState(state, view);
-      const inferredMaxSlots = Math.max(
-        state.maxSlots ?? viewState.availableSlots.length,
-        viewState.availableSlots.length,
-      );
 
       return {
         activeViewState: viewState,
         availableSlots: viewState.availableSlots,
         orderedSlots: viewState.slotNames?.length
           ? viewState.slotNames
-          : resolveGeneratedSlots(inferredMaxSlots),
+          : viewState.availableSlots,
         slotBindings: viewState.slotBindings,
         slotLayers: viewState.slotLayers ?? {},
       };

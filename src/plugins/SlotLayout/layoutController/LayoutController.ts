@@ -145,17 +145,12 @@ const buildInitialState = (
     !next.layouts?.[activeView]?.availableSlots?.length &&
     initialViewState.slotNames?.length
   ) {
-    const minSlots = Math.max(1, next.minSlots ?? 1);
-    const availableSlots = initialViewState.slotNames.slice(
-      0,
-      Math.min(minSlots, initialViewState.slotNames.length),
-    );
-
+    // Every declared slot can be opened into.
     return mergeViewState(
       next,
       {
         ...initialViewState,
-        availableSlots,
+        availableSlots: [...initialViewState.slotNames],
       },
       activeView,
     );

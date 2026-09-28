@@ -40,8 +40,6 @@ export type LayoutRuntimeState = ChatViewLayoutViewState;
 
 export type ChatViewLayoutState = {
   activeView: ChatView;
-  maxSlots?: number;
-  minSlots?: number;
   // One map keyed by layout id (was seven parallel `*ByView` maps).
   layouts?: Partial<Record<ChatView, LayoutRuntimeState>>;
 };
