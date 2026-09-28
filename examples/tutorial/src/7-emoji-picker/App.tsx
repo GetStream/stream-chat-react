@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { ClientUser } from 'stream-chat';
+import type { ClientUser, TextComposerMiddleware } from 'stream-chat';
 import {
   Channel,
   ChannelHeader,
@@ -13,13 +13,14 @@ import {
   WithComponents,
 } from 'stream-chat-react';
 import { ChatView, ThreadSlot, useSlotChannels } from 'stream-chat-react/slot-layout';
-import { EmojiPicker } from 'stream-chat-react/emojis';
+import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data';
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -64,6 +65,24 @@ const App = () => {
     tokenOrProvider: tokenProvider,
     userData: user,
   });
+
+  // Every composer the client creates - channel and thread alike - gets the command middlewares
+  // (see `setUpCommandMiddlewares`) and emoji autocomplete: typing a `:shortcode` suggests matching
+  // emojis. A setup function applies to composers created after it is set, so it is registered
+  // before the effects below create any.
+  useEffect(() => {
+    if (!client) return;
+    client.config.setSetupFunction('messageComposer', ({ composer }) => {
+      setUpCommandMiddlewares(composer);
+      composer.textComposer.middlewareExecutor.insert({
+        middleware: [
+          createTextComposerEmojiMiddleware(SearchIndex) as TextComposerMiddleware,
+        ],
+        position: { before: 'stream-io/text-composer/mentions-middleware' },
+        unique: true,
+      });
+    });
+  }, [client]);
 
   useEffect(() => {
     if (!client) return;

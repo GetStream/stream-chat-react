@@ -15,6 +15,7 @@ import { ChatView, ThreadSlot, useSlotChannels } from 'stream-chat-react/slot-la
 
 import './layout.css';
 import { apiKey, tokenProvider, userId, userName } from '../2-client-setup/credentials';
+import { setUpCommandMiddlewares } from '../2-client-setup/commandMiddlewares';
 
 const user: ClientUser = {
   id: userId,
@@ -66,6 +67,16 @@ const App = () => {
     tokenOrProvider: tokenProvider,
     userData: user,
   });
+
+  // Commands such as /giphy need their middlewares in every composer (see
+  // `setUpCommandMiddlewares`). A setup function applies to composers created after it is set, so
+  // it is registered before the effects below create any.
+  useEffect(() => {
+    if (!client) return;
+    client.config.setSetupFunction('messageComposer', ({ composer }) =>
+      setUpCommandMiddlewares(composer),
+    );
+  }, [client]);
 
   // Channel-list query config (filters/sort) lives on a `ChannelPaginator`. The list is registered
   // on `client.channelManager` — the orchestrator instantiated together with the client, which
