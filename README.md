@@ -20,6 +20,7 @@
 
 - [Register](https://getstream.io/chat/trial/) to get an API key for Stream Chat
 - [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/)
+- [AI Agent Skills](#build-with-ai-agents) for Claude Code, Cursor, and Codex
 - [Demo Apps](https://getstream.io/chat/demos/)
 - [Component Docs](https://getstream.io/chat/docs/sdk/react/)
 - [Chat UI Kit](https://getstream.io/chat/ui-kit/)
@@ -36,6 +37,24 @@ With our component library, you can build a variety of chat use cases, including
 ## React Chat Tutorial
 
 The best way to get started is to follow the [React Chat Tutorial](https://getstream.io/chat/react-chat/tutorial/). It shows you how to use this SDK to build a fully functional chat application and includes common customizations.
+
+## Build with AI Agents
+
+If you build with an AI coding agent, our [agent skills](https://getstream.io/agent-skills/docs/installation/) teach it how to use this SDK correctly. Install them once:
+
+```bash
+curl -fsSL https://getstream.io/cli.sh | bash
+getstream init
+```
+
+Then reach for the [`/stream-react`](https://getstream.io/agent-skills/docs/skills/stream-react/) skill:
+
+```
+/stream-react scaffold a Next.js chat app with a channel list and a message view
+/stream-react upgrade stream-chat-react to the latest major version
+```
+
+It can scaffold a new Next.js app with the SDK wired up, add Stream to an app you already have, audit an existing integration, or migrate between SDK major versions (including from Sendbird). Works with Claude Code, Cursor, Codex, and any other agent that reads the universal `.agents` location.
 
 ## Free for Makers
 
@@ -119,5 +138,5 @@ You can obtain the source code for `lamejs` from the [lamejs repository](https:/
 You can find the source code for LAME at https://lame.sourceforge.net and its license at: https://lame.sourceforge.net/license.txt
 
 Using AI assistants (Cursor/Codex/Copilot):
-See [AI.md](./AI.md) for integration guide, rules and common pitfalls.
 See [AGENTS.md](./AGENTS.md) about repository and project structure, contribution guides.
+To have an agent integrate this SDK into your own app, see [Build with AI Agents](#build-with-ai-agents).
