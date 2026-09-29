@@ -1,3 +1,378 @@
+## [15.0.0-rc.1](https://github.com/GetStream/stream-chat-react/compare/v14.12.0...v15.0.0-rc.1) (2026-09-29)
+
+### ⚠ BREAKING CHANGES
+
+* port the tutorial alignment (#3251) to v15, with panel-aware workspace navigation (#3301)
+* **MessageComposer:** the `preventClearingOnUnmount` prop is removed from
+`MessageComposer`. Drop it. If you relied on unmounting to clear a
+composer supplied through `MessageComposerControllerProvider`, call
+`clear()` on it yourself when your UI is done with it.
+* `ChannelListItemProps.channelUpdateCount` is removed.
+The unread badge now updates without it.
+* `ChannelListItemProps.key` is removed. React's own
+`key` prop is unaffected.
+* `ChannelListItemProps.watchers` is removed. It had no
+effect in v15.
+* adopt stream-chat's branded TimestampNS (#3297)
+* **Attachment:** `useSendMessageFn` and `useUpdateMessageFn` are removed. Call
+`messageComposer.send()` and `messageComposer.update()` instead. They resolve
+`'sent' | 'nothing-to-send' | 'failed'` rather than a boolean, so a truthiness
+check on the result now passes for every outcome — compare against `'sent'`.
+* **Attachment:** the two message submission failure notifications changed key.
+`messageComposer.sendMessageFn.sendMessageRequestFailed.text` is now
+`notification.messageSendFailed`, and
+`messageComposer.updateMessageFn.editMessageRequestFailed.text` is now
+`notification.messageUpdateFailed`. A typed custom translation dictionary fails
+to compile until both are renamed.
+* **Attachment:** `RetryHandler` takes `Omit<OperationParams<'retry'>, 'message'>`
+instead of `RetrySendMessageWithLocalUpdateParams`, which stream-chat removed in
+GetStream/stream-chat-js#1882. Code that names the old type must be updated.
+* the `stream-chat` peer range moves to `^10.0.0-rc.12`. That release removes
+`connection.changed`, changes `client.wsConnection` from the socket itself to a wrapper, and moves
+the socket's settings into configuration. See GetStream/stream-chat-js PR 1859 for the full list;
+an application on an earlier `stream-chat` will not typecheck against this version.
+* connectivity is read from state stores rather than events. Code that listened for
+`connection.changed` — to render its own banner, to refetch on reconnect — must subscribe to
+`client.wsConnection.state` or `client.networkConnection.state` instead, or use the new
+`useWSConnectionState` / `useNetworkConnectionState` hooks. Nothing in this package dispatches or
+forwards the old event. Note the two stores name their fields differently: the socket's `isHealthy`
+is always a boolean, while the network's `isOnline` is `boolean | undefined`, where `undefined`
+means no platform reporter has reported yet and must be tested with `=== false`.
+* `Channel` no longer reloads its channel on `connection.recovered`. The client
+reloads every active channel itself and dispatches the event afterwards, so handling it here
+reloaded each open channel twice per reconnect. Anything relying on the component to refresh a
+channel after a reconnect should rely on the client instead.
+* a socket drop on a working network now renders "Reconnecting…" rather than
+"Waiting for network…", from the new `chat.reportLostConnection.reconnecting.text` key. Tests and
+dictionaries keyed on the old copy for that case need updating; the `waitingNetwork` key is
+unchanged and still used when the device network is down. The delay before either banner appears
+now comes from `client.wsConnection.config.offlineNotificationDisplayDelayMs` (5s default) rather
+than from a fixed hold inside the client, so changing that config changes when the banner shows.
+The `system:network:connection:lost` notification type is unchanged.
+* `Thread` requires a `thread` prop and renders `children`.
+`additionalMessageComposerProps`, `additionalMessageListProps`,
+`additionalParentMessageProps`, `additionalVirtualizedMessageListProps`, `autoFocus` and
+`virtualized` are removed — pass those props to the children you render. `Thread`
+provides the thread itself, so it no longer needs to be wrapped in `ThreadProvider`. The
+`str-chat__thread--virtualized` class is gone; `Thread` cannot know which list you chose.
+* `Thread.enableDateSeparator` is removed with nothing in its place. A
+`MessageList` in a thread now follows its own default and shows date separators unless
+you pass `withDateSeparator={false}`.
+* `disableDateSeparator` is renamed to `withDateSeparator` on
+`MessageList` (default `true`, was `disableDateSeparator={false}`) and
+`VirtualizedMessageList` (default `false`, was `disableDateSeparator={true}`). The rename
+also reaches `processMessages`, `useEnrichedMessages`, `FloatingDateSeparator`,
+`useFloatingDateSeparator` and `useFloatingDateSeparatorMessageList`.
+* the `head` prop is removed from `MessageList` and
+`VirtualizedMessageList`. Both render the thread's parent message from context; override
+it with a `ThreadHead` component on `ComponentContext`.
+* `ThreadHeaderProps` is down to `overrideTitle`. `thread` comes from the
+thread in context, and `closeThread` goes through workspace navigation — customize it
+centrally via `ChatView`'s `deriveWorkspaceNavigation`, or call the new `useCloseThread()`
+hook from a header of your own. `ComponentContext.ThreadHeader` is removed; compose the
+header you want.
+* `ThreadSlot` wraps its children in `<Thread>` instead of letting them
+replace the whole panel, mirroring `ChannelSlot`. Markup that must sit outside the thread
+container moves outside `ThreadSlot`; anything needing thread context must sit inside.
+* `Thread` no longer rebuilds its subtree when the thread changes. A
+custom component rendered inside `Thread` that relied on being remounted per thread — to
+reset local state, or to re-run a mount effect — must depend on the thread instead. The
+SDK's own message list does this by keying on the thread; `WithAudioPlayback` by taking
+`playbackScope`.
+* `LegacyThreadContext` and its `legacyThread` value are removed. The
+thread composer resolves its composition context from the `Thread` instance in
+`ThreadContext`.
+* **MessageActions:** the `messageActions` prop is removed from `Channel`,
+`MessageList`, `VirtualizedMessageList`, `Thread` and `Message`. Filter
+`defaultMessageActionSet` and pass the result as `messageActionSet`
+instead.
+* **MessageActions:** `MESSAGE_ACTIONS`, `OPTIONAL_MESSAGE_ACTIONS`,
+`getMessageActions()`, and the `MessageActionsArray` and `Capabilities`
+types are no longer exported. Use the new `DefaultMessageActionType`
+union for the action types the SDK ships.
+* **MessageActions:** `MessageContext` no longer carries `getMessageActions`
+or `actionsEnabled`. The rendered action set is decided by
+`messageActionSet` and each item's own `isVisible` predicate.
+
+Co-authored-by: Claude Opus 5 <noreply@anthropic.com>
+* **AudioPlayback:** `ChannelProps.allowConcurrentAudioPlayback`,
+`ThreadProps.allowConcurrentAudioPlayback` and
+`WithAudioPlaybackProps.allowConcurrentPlayback`
+are removed, with no replacement. If you passed `true`, delete it:
+starting a player now pauses
+whichever was playing and takes the shared element over. If you passed
+`false` or nothing, the
+only change is that playback is exclusive across surfaces rather than
+within one.
+* **AudioPlayback:** `useActiveAudioPlayer()` now reports the app-wide
+active player rather than the
+calling surface's.
+* **Channel:** `ChannelProps.channel` is now required and
+`EmptyPlaceholder` is removed.
+Render the exported `ChannelPlaceholder` to fill the same
+`.str-chat__channel` layout slot
+while no channel is selected.
+* **Channel:** `Channel` no longer queries the channel;
+`initializeOnMount` and
+`channelQueryOptions` are removed. Whoever supplies the channel
+initializes it — use the
+exported `getChannel({ channel, client })`, which watches and
+de-duplicates concurrent calls.
+Channels from `ChannelList` or any `queryChannels` call arrive watched
+already. `Channel` no
+longer renders `LoadingIndicator` or `LoadingErrorIndicator` for a query
+it does not make, and
+an uninitialized channel renders as an empty channel with no error.
+* **Channel:** `Channel` no longer writes `document.title`, and
+`activeUnreadHandler` is
+removed. See `examples/vite/src/DocumentTitleManager` for a working
+replacement in application
+code.
+* **Channel:** the `channel.channelMissing.text` translation key is
+removed. This is a
+compile error (TS2353) for any dictionary typed with the exact
+`TranslationDictionary` —
+delete the entry from custom locale files.
+* **Channel:** `ChatContext.latestMessageDatesByChannels` is removed.
+Slow-mode cooldown now
+lives on `channel.cooldownTimer` (`useCooldownRemaining` /
+`useIsCooldownActive`), and the
+channel's latest message on
+`channel.messagePaginator.aggregateState.lastMessage`.
+* **Channel:** `Channel` no longer jumps to a message focused from
+search. Selecting a search
+result calls `channel.messagePaginator.jumpToMessage(id)` directly, and
+the highlight is read
+from `channel.messagePaginator.messageFocusSignal`. A custom message
+list that relied on
+`Channel` performing the jump must call `jumpToMessage` itself.
+* **i18n:** consume the shared runtime from @stream-io/i18n (#3284)
+* move to timestamps in response models (#3278)
+* request-handler props are removed from `Channel` and
+`Thread`.
+`doSendMessageRequest`, `doUpdateMessageRequest`,
+`doDeleteMessageRequest` and
+`doMarkReadRequest` are gone, along with `useChannelRequestHandlers`,
+`useThreadRequestHandlers` and `useEditMessageHandler`. Register once on
+the client:
+
+```
+  // v14
+  <Channel channel={channel} doSendMessageRequest={mySend}>
+
+  // v15
+  client.config.set({
+    channel: {
+      requestHandlers: {
+        sendMessageRequest: async ({ localMessage, message, options }) => ({
+          message: await mySend(message, options),
+        }),
+      },
+    },
+  });
+```
+
+Three differences: handlers take a single params object and return `{
+message }`; thread
+flows register under the `thread` key; and registration is per CLIENT,
+not per mounted
+subtree — the one thing the props could do that this cannot. Per-channel
+behaviour now
+needs a branch inside one handler on the `cid` it receives.
+* `useChannelConfig` returns the channel's RESOLVED
+configuration instead
+of the channel type's raw server config, so field names change:
+
+channelConfig?.typing_events → channelConfig?.typingEvents.enabled
+channelConfig?.read_events → channelConfig?.readEvents.enabled
+channelConfig?.replies → channelConfig?.replies.enabled
+channelConfig?.user_message_reminders →
+channelConfig?.userMessageReminders.enabled
+channelConfig?.commands → channelConfig?.availableCommands
+
+Every gate is now the server flag ANDed with what is registered through
+`client.config`,
+which is what the client actually enforces. The hook also subscribes:
+these were getters,
+so a `client.config.set()` previously never reached the screen. No
+component reads
+`channel.serverConfig` any more.
+* `useAttachmentManagerState` replaces
+`hasCustomDoUploadRequest` with
+`customCdn`, and gains `attachmentsEnabled`, `locationEnabled` and
+`pollsEnabled`.
+* the per-domain stores on `channel.state` are removed —
+`readStore`,
+`typingStore`, `membersStore`, `watcherStore`, `ownCapabilitiesStore`,
+`mutedUsersStore`.
+Subscribe to `channel.state` itself; the selector is unchanged, because
+`ChannelStateData`
+is flat and keeps the same top-level keys:
+
+useStateStore(channel.state.ownCapabilitiesStore, sel) →
+useStateStore(channel.state, sel)
+
+`WatcherState` is renamed `ChannelWatchState`, and
+`channel.disconnected` is renamed
+`channel.pendingDisposal` (removed outright — no deprecated alias).
+* `AIStates` is no longer exported from
+`stream-chat-react` — import it
+from `stream-chat`. The values are unchanged, but it is now
+literal-typed, so an inferred
+array of its members no longer accepts the wide `AIState`:
+
+const STOPPABLE: readonly AIState[] = [AIStates.Thinking,
+AIStates.Generating];
+* `<Channel>` marks its channel active while mounted and
+reloads it on
+`connection.recovered`. The client skips re-seeding an active channel's
+message list on
+hydration and reconnect, so the consumer owns that window. A custom
+channel surface that
+does not render `<Channel>` must call `channel.activate()` /
+`deactivate()` and
+`channel.reload()` itself, or its list goes stale after a reconnect.
+* **i18n:** adopt the shared i18n layer from stream-chat/i18n (#3271)
+* **context:** - **Context hooks no longer accept a `componentName` argument.**
+`useChatContext('X')` and friends stop type-checking; drop the argument.
+- **Required contexts throw when used outside their provider**, instead
+of logging a warning and returning `{}`. Affects the 14 hooks listed
+above. Components must be rendered within the provider they read from —
+e.g. anything calling `useChatContext` needs a `<Chat>` ancestor.
+- **`useChannelInstanceContext` returns
+`Partial<ChannelInstanceContextValue>`** — `channel` is now typed as
+possibly `undefined`.
+- **`ChatViewContext` has no default value** (typed `| undefined`), so
+`useContext(ChatViewContext)` may return `undefined`.
+- **`MessageComposerContext` is typed as `MessageComposerContextValue |
+undefined`**, correcting a narrower declaration that was papered over
+with casts.
+- **The gallery header no longer uses the
+`ComponentContext.MessageTimestamp` override**; it renders the item's
+own timestamp.
+
+### 🛠 Implementation details
+
+Parameter removed from all 7 hooks and their 138 call sites.
+
+Missing-provider behaviour also normalized, since `src/` had three
+competing conventions (warn + `{} as T`, throw, silent cast). The `{} as
+T` fallback deferred failures to a downstream `Cannot read properties of
+undefined` several frames away. Everything now goes through
+`requireContext` (`src/context/requireContext.ts`):
+
+- **Required → throw**, naming hook and provider: `useChatContext`,
+`useMessageContext`, `useMessageComposerContext`,
+`useMessageListContext`, `useVirtualizedMessageListContext`,
+`useMessageBounceContext`, `usePollContext`, `useDialogManager`,
+`useSearchContext`, `useSearchSourceResultsContext`,
+`useContextMenuContext`, `useChannelListItemContext`,
+`useGalleryContext`, `useChatViewContext`
+- **Optional by design → keep default, honest type**:
+`useTranslationContext`, `useComponentContext`,
+`useChannelInstanceContext` (now `Partial`), `useModalContext`,
+`useAriaLiveAnnouncer`, `useMessageTranslationViewContext`
+- **Renders both inside and outside a provider → read the raw context**:
+`Audio`, `VoiceRecording`, `CardAudio`, `Timestamp`,
+`MessageRepliesCountButton`, `MessageComposerUI`, `ModalGallery`
+
+Two changes were needed before their hooks could throw:
+
+- `WithDragAndDropUpload` detected the composer via
+`Object.keys(ctx).length > 0`; now uses a
+`useIsWithinMessageComposerContext()` predicate. Adds the test file this
+component lacked.
+- `GalleryHeader` read message context while rendering outside any
+`MessageProvider`. `GalleryItem` now carries `user` and `createdAt` —
+wrapping the call sites would be wrong, since `ChannelMediaView`
+flattens many messages into one list. Adds a
+`timestamp.GalleryTimestamp` key.
+
+`ChatViewContext` also loses its module-level `LayoutController`
+default, which let unrelated subtrees write to one shared instance.
+
+`src/context/__tests__/missingProviderContract.test.tsx` pins the
+required/optional split.
+
+### 🎨 UI Changes
+
+The channel-media gallery header now shows a per-item sender and
+timestamp, which it previously couldn't display at all.
+
+No screenshots: the demo users on the shared environment have no
+channels, and seeding one would write test data others would see.
+Covered by unit tests in `GalleryUI.test.tsx` — worth a manual look.
+* the <Chat> prop and the ChatContext field channelPaginatorsOrchestrator are renamed to channelManager, and the types ChannelPaginatorsOrchestrator / ChannelPaginatorsOrchestratorState are now ChannelManager / ChannelManagerState. Every useChatContext() consumer reading the old field, and any test that builds a partial ChatContext value, has to be updated. No deprecated prop or type aliases are exported.
+* requires stream-chat v10.
+* Removed `ChannelStateContext` and `ChannelActionContext` along with
+  `useChannelStateContext()`, `useChannelActionContext()`,
+  `useCreateChannelStateContext()` and `useCreateChannelActionContext()`.
+  Read the channel via `useChannel()` and message state via
+  `useMessagePaginator()`; both are backed by LLC `StateStore`s.
+* `ChatContext` no longer exposes the active channel or `setActiveChannel()`.
+  Channel/thread routing is slot-driven — use `useChatViewNavigation()` from
+  `stream-chat-react/slot-layout` (`openChannel`, `openThread`, `closeThread`).
+* The `TypingContext` provider path was removed from the `Channel` runtime.
+  `TypingIndicator` now derives its state from LLC stores and takes
+  `isMessageListScrolledToBottom` and `scrollToBottom` props.
+* Context mutation/pagination helpers were replaced by paginator methods:
+  `updateMessage`/`removeMessage` -> `ingestItem`/`removeItem`;
+  `loadMore`/`loadMoreNewer` -> `toTail()`/`toHead()`;
+  `jumpToMessage`/`jumpToFirstUnreadMessage` -> `messagePaginator.jumpToMessage()`/
+  `jumpToTheFirstUnreadMessage()`. Messages are no longer in `channel.state`.
+* Custom send/update/delete/markRead overrides move from ChannelActionContext
+  callbacks to `channel.configState.requestHandlers` /
+  `thread.configState.requestHandlers`.
+* `ChatView` is a navigation landmark, not a WAI-ARIA Tabs widget: the selector
+  is `role="navigation"` with `aria-current` on the active button. There is no
+  `role="tab"`/`"tablist"`/`"tabpanel"`. `activeChatView` renamed to `activeView`.
+* `ChannelList` renders a `role="listbox"` whose items are `role="option"`.
+* v10 data shapes: channel name/image read from `channel.data.custom.name`/
+  `.custom.image`; user custom fields from `user.custom` (e.g. `username`);
+  attachment `duration`/`file_size`/`mime_type`/`waveform_data` from
+  `attachment.custom`. Message moderation uses `message.moderation`
+  (`moderation_details` is gone).
+
+### Bug Fixes
+
+* adapt to removed stream-chat-js hand-written types ([#3274](https://github.com/GetStream/stream-chat-react/issues/3274)) ([ccccce5](https://github.com/GetStream/stream-chat-react/commit/ccccce5e4bbb55340118315b2244df0f37e260d3))
+* **EmojiPicker:** drop @emoji-mart/react peer dependency on v15 ([#3300](https://github.com/GetStream/stream-chat-react/issues/3300)) ([e7ce32f](https://github.com/GetStream/stream-chat-react/commit/e7ce32fa7840c54e91e8648929353f838628ef03))
+* **MessageList:** keep the viewport still when a jumped-to window reaches the live head ([#3290](https://github.com/GetStream/stream-chat-react/issues/3290)) ([351d69d](https://github.com/GetStream/stream-chat-react/commit/351d69dc71a59b6254b4c03f32d63127d67e721b)), closes [#3027](https://github.com/GetStream/stream-chat-react/issues/3027)
+* **MessageList:** show delivery and read state on every message that has it ([#3296](https://github.com/GetStream/stream-chat-react/issues/3296)) ([e74c57a](https://github.com/GetStream/stream-chat-react/commit/e74c57acf9215421cbcb860489a4685c2d9b0474))
+* prevent eager requests on Thread component mount ([#3282](https://github.com/GetStream/stream-chat-react/issues/3282)) ([6b7dd6c](https://github.com/GetStream/stream-chat-react/commit/6b7dd6cacde3cd3a5d450dc638ae4999070c863f))
+* render stable notification host for Channel and Thread ([#3291](https://github.com/GetStream/stream-chat-react/issues/3291)) ([ce59094](https://github.com/GetStream/stream-chat-react/commit/ce59094bcd2347357628107b8841851cc4af8ee0))
+
+### Features
+
+* add icons to ComponentContext adapted to stream-chat-react@15 ([#3294](https://github.com/GetStream/stream-chat-react/issues/3294)) ([baf4b62](https://github.com/GetStream/stream-chat-react/commit/baf4b62f6e43681af1a4712be0f8e0b02609a9d0))
+* adopt stream-chat's branded TimestampNS ([#3297](https://github.com/GetStream/stream-chat-react/issues/3297)) ([aaa7fa3](https://github.com/GetStream/stream-chat-react/commit/aaa7fa31e54fed4f7ac1b6d7ee6cf436a4c3234c)), closes [GetStream/stream-chat-js#1884](https://github.com/GetStream/stream-chat-js/issues/1884) [GetStream/stream-chat-js#1884](https://github.com/GetStream/stream-chat-js/issues/1884) [#3295](https://github.com/GetStream/stream-chat-react/issues/3295)
+* **Attachment:** render live upload progress on messages being sent ([#3295](https://github.com/GetStream/stream-chat-react/issues/3295)) ([4f1459e](https://github.com/GetStream/stream-chat-react/commit/4f1459e54ee37980c0c0418e69ae927eee60e16a))
+* **AudioPlayback:** play one voice message at a time, across the whole app ([#3287](https://github.com/GetStream/stream-chat-react/issues/3287)) ([68999a7](https://github.com/GetStream/stream-chat-react/commit/68999a7b387c05b77d25bcecd3af77c87f2cd02c))
+* **Channel:** depend on the Channel instance, not its cid, and narrow its responsibilities ([#3286](https://github.com/GetStream/stream-chat-react/issues/3286)) ([088c795](https://github.com/GetStream/stream-chat-react/commit/088c795c1628da6290f3a6ae5a57aaa058013095))
+* **context:** consolidate message UI overrides on the MessageUI slot ([#3268](https://github.com/GetStream/stream-chat-react/issues/3268)) ([0766489](https://github.com/GetStream/stream-chat-react/commit/07664893efe5da053a7430aa6f985ceb91ff2901)), closes [#3267](https://github.com/GetStream/stream-chat-react/issues/3267)
+* **context:** drop componentName param from context consumer hooks ([#3267](https://github.com/GetStream/stream-chat-react/issues/3267)) ([9194215](https://github.com/GetStream/stream-chat-react/commit/9194215f01029e79f3ed573991e99686449a84cb))
+* **i18n:** english-only bundle with namespaced, type-checked translation keys ([#3261](https://github.com/GetStream/stream-chat-react/issues/3261)) ([17c91bc](https://github.com/GetStream/stream-chat-react/commit/17c91bc70c4af2621870475bf62f15e0341d1ac9))
+* **MessageComposer:** let integrators supply the composer MessageComposer edits ([#3299](https://github.com/GetStream/stream-chat-react/issues/3299)) ([14e5860](https://github.com/GetStream/stream-chat-react/commit/14e58601fe7b4d0e9f424468e260e03247dc5f10))
+* migrate components from ChannelActionContext, ChannelStateContext to StateStore instances ([#3237](https://github.com/GetStream/stream-chat-react/issues/3237)) ([99cbe67](https://github.com/GetStream/stream-chat-react/commit/99cbe67049d45d5a0f5f3c4463989a6824f739b6))
+* move to new upload API ([#3272](https://github.com/GetStream/stream-chat-react/issues/3272)) ([04a31b1](https://github.com/GetStream/stream-chat-react/commit/04a31b18eff73492e6b305dd751f315bc9637a2b))
+* move to timestamps in response models ([#3278](https://github.com/GetStream/stream-chat-react/issues/3278)) ([cb472c3](https://github.com/GetStream/stream-chat-react/commit/cb472c35f0bfe940b360a8564c535b3e9c0e6b53))
+* port the tutorial alignment ([#3251](https://github.com/GetStream/stream-chat-react/issues/3251)) to v15, with panel-aware workspace navigation ([#3301](https://github.com/GetStream/stream-chat-react/issues/3301)) ([66557d6](https://github.com/GetStream/stream-chat-react/commit/66557d63b9a6eb08f6cfa8b0cb74418ec2451386))
+* rename ChannelPaginatorsOrchestrator to ChannelManager ([#3258](https://github.com/GetStream/stream-chat-react/issues/3258)) ([be2c8e1](https://github.com/GetStream/stream-chat-react/commit/be2c8e1e7bc486495ac5c9399728f58e78a23398))
+* support local unread count on v15 ([#3298](https://github.com/GetStream/stream-chat-react/issues/3298)) ([a42c3cf](https://github.com/GetStream/stream-chat-react/commit/a42c3cf9729c107f95516001942aca864eb7f7f9))
+* use configuration service API as a single source of truth ([#3273](https://github.com/GetStream/stream-chat-react/issues/3273)) ([f66597a](https://github.com/GetStream/stream-chat-react/commit/f66597a131c8ea2cd7758c78b95fa1479b3d4b3e))
+* use network and WS connection observer services from LLC ([#3281](https://github.com/GetStream/stream-chat-react/issues/3281)) ([3098a90](https://github.com/GetStream/stream-chat-react/commit/3098a90a658b6ba49f9831aba27ce6b6720c9c82))
+
+### Refactors
+
+* align Thread with Channel - instance prop, provider, children ([#3289](https://github.com/GetStream/stream-chat-react/issues/3289)) ([c2136f3](https://github.com/GetStream/stream-chat-react/commit/c2136f307021b6007f2015659eb801aed2adfc9e))
+* **i18n:** adopt the shared i18n layer from stream-chat/i18n ([#3271](https://github.com/GetStream/stream-chat-react/issues/3271)) ([f68cad3](https://github.com/GetStream/stream-chat-react/commit/f68cad3322e5c9fb3e9a20f415bc26cf28c9a701)), closes [GetStream/stream-chat-js#1830](https://github.com/GetStream/stream-chat-js/issues/1830)
+* **i18n:** consume the shared runtime from @stream-io/i18n ([#3284](https://github.com/GetStream/stream-chat-react/issues/3284)) ([eb3ae7a](https://github.com/GetStream/stream-chat-react/commit/eb3ae7a5d44d39f86a69476514884ae3e5d4f823))
+* **MessageActions:** remove the messageActions prop in from message lists ([#3288](https://github.com/GetStream/stream-chat-react/issues/3288)) ([b541c45](https://github.com/GetStream/stream-chat-react/commit/b541c45f92e448f8f29425beeb13f15bcd262252))
+
+### Performance Improvements
+
+* **build:** emit ESM per source module so consumers can tree-shake ([#3269](https://github.com/GetStream/stream-chat-react/issues/3269)) ([55e76dc](https://github.com/GetStream/stream-chat-react/commit/55e76dca1f9e8a11c3f2ccdc88cc0686d9cf3ccc))
+
 ## [14.12.0](https://github.com/GetStream/stream-chat-react/compare/v14.11.1...v14.12.0) (2026-08-28)
 
 ### Features
