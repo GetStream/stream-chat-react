@@ -1,3 +1,9 @@
+## [14.12.1](https://github.com/GetStream/stream-chat-react/compare/v14.12.0...v14.12.1) (2026-09-30)
+
+### Bug Fixes
+
+* put unread separator above system messages and stop scrolling the host page on scroll to a message ([#3305](https://github.com/GetStream/stream-chat-react/issues/3305)) ([b470bef](https://github.com/GetStream/stream-chat-react/commit/b470bef379a6a91f560376648ea91bfb6bad3684))
+
 ## [14.12.0](https://github.com/GetStream/stream-chat-react/compare/v14.11.1...v14.12.0) (2026-08-28)
 
 ### Features
