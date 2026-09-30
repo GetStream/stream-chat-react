@@ -361,7 +361,9 @@ const TextareaComposerWithLiveAnnouncements = ({
   useEffect(() => {
     const textareaIsFocused = textareaRef.current?.matches(':focus');
     if (!textareaRef.current || textareaIsFocused || !focus) return;
-    textareaRef.current.focus();
+    // This focus is not triggered by the user, so it must not scroll the host page to the
+    // composer when the chat is embedded in a page that scrolls.
+    textareaRef.current.focus({ preventScroll: true });
   }, [attachments, focus, quotedMessage, textareaRef]);
 
   // Announce textarea-mode changes (e.g. activating the `/giphy` command) over

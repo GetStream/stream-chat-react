@@ -4,10 +4,10 @@ import type { MessageComposerProps } from '../MessageComposer';
 export const useTextareaRef = (props: MessageComposerProps) => {
   const { focus } = props;
   const textareaRef = useRef<HTMLTextAreaElement>(undefined);
-  // Focus
+  // Focus on mount without scrolling the host page to the composer
   useEffect(() => {
     if (focus && textareaRef.current) {
-      textareaRef.current.focus();
+      textareaRef.current.focus({ preventScroll: true });
     }
   }, [focus]);
 

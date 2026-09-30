@@ -482,6 +482,23 @@ describe(`MessageInputFlat`, () => {
     expect(results).toHaveNoViolations();
   });
 
+  it('should not scroll ancestors when focusing the textarea because of the `focus` prop', async () => {
+    const focusSpy = vi.spyOn(HTMLTextAreaElement.prototype, 'focus');
+    await renderComponent({
+      messageInputProps: {
+        focus: true,
+      },
+    });
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(inputPlaceholder)).toHaveFocus();
+    });
+    expect(focusSpy).toHaveBeenCalled();
+    focusSpy.mock.calls.forEach(([options]) => {
+      expect(options).toEqual({ preventScroll: true });
+    });
+    focusSpy.mockRestore();
+  });
+
   it('should render default file upload icon', async () => {
     const { container } = await renderComponent();
     const fileUploadIcon = await screen.findByTestId('invoke-attachment-selector-button');
