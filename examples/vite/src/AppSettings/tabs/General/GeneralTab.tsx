@@ -12,6 +12,7 @@ type GeneralTabProps = {
 export const GeneralTab = ({ close }: GeneralTabProps) => {
   const {
     messageList,
+    pageLayout,
     theme,
     theme: { direction },
   } = useAppSettingsState();
@@ -77,6 +78,34 @@ export const GeneralTab = ({ close }: GeneralTabProps) => {
             >
               Virtualized
             </Button>
+          </div>
+        </div>
+        <div className='app__settings-modal__field'>
+          <div className='app__settings-modal__field-label'>Page layout</div>
+          <div className='app__settings-modal__options-row'>
+            <Button
+              aria-pressed={!pageLayout.embedded}
+              className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+              onClick={() =>
+                appSettingsStore.partialNext({ pageLayout: { embedded: false } })
+              }
+            >
+              Full viewport
+            </Button>
+            <Button
+              aria-pressed={pageLayout.embedded}
+              className='app__settings-modal__option-button str-chat__button--outline str-chat__button--secondary str-chat__button--size-sm'
+              onClick={() =>
+                appSettingsStore.partialNext({ pageLayout: { embedded: true } })
+              }
+            >
+              Embedded in page
+            </Button>
+          </div>
+          <div className='app__settings-modal__field-comment'>
+            Embedded places the chat between host-page content taller than the viewport,
+            so the window scrolls too. Use it to check that scrolling inside the chat
+            (e.g. jumping to unread or quoted messages) leaves the page in place.
           </div>
         </div>
       </SettingsTabBody>

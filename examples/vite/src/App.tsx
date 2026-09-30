@@ -44,6 +44,7 @@ import { appSettingsStore, useAppSettingsSelector } from './AppSettings';
 import { DESKTOP_LAYOUT_BREAKPOINT } from './ChatLayout/constants.ts';
 import { ChatSkipNavigation } from './AccessibilityNavigation/ChatSkipNavigation.tsx';
 import { ChannelsPanels, ThreadsPanels } from './ChatLayout/Panels.tsx';
+import { EmbeddedHostPage } from './ChatLayout/EmbeddedHostPage.tsx';
 import { SidebarProvider } from './ChatLayout/SidebarContext.tsx';
 import {
   ChatViewSelectorWidthSync,
@@ -508,39 +509,41 @@ const App = () => {
           <ChatSkipNavigation />
           {/* Publishes window.streamDebug — see src/Debug/StreamDebugHandles.tsx */}
           <StreamDebugHandles />
-          <div
-            className='app-chat-layout'
-            data-variant={messageUiVariant ?? undefined}
-            ref={appLayoutRef}
-            style={initialAppLayoutStyle}
-          >
-            <SystemNotification />
-            <div className='app-chat-layout__body'>
-              <PanelLayoutStyleSync layoutRef={appLayoutRef} />
-              <ChatViewSelectorWidthSync
-                iconOnly={chatView.iconOnly}
-                layoutRef={appLayoutRef}
-              />
-              <ChatView>
-                <DialogManagerProvider id={globalDialogManager}>
-                  <ChatStateSync initialChatView={initialChatView} />
-                  <SidebarLayoutSync />
-                  <ChannelsPanels
-                    filters={filters}
-                    iconOnly={chatView.iconOnly}
-                    initialChannelId={initialChannelId ?? undefined}
-                    itemSet={chatViewSelectorItemSet}
-                    options={options}
-                    sort={sort}
-                  />
-                  <ThreadsPanels
-                    iconOnly={chatView.iconOnly}
-                    itemSet={chatViewSelectorItemSet}
-                  />
-                </DialogManagerProvider>
-              </ChatView>
+          <EmbeddedHostPage>
+            <div
+              className='app-chat-layout'
+              data-variant={messageUiVariant ?? undefined}
+              ref={appLayoutRef}
+              style={initialAppLayoutStyle}
+            >
+              <SystemNotification />
+              <div className='app-chat-layout__body'>
+                <PanelLayoutStyleSync layoutRef={appLayoutRef} />
+                <ChatViewSelectorWidthSync
+                  iconOnly={chatView.iconOnly}
+                  layoutRef={appLayoutRef}
+                />
+                <ChatView>
+                  <DialogManagerProvider id={globalDialogManager}>
+                    <ChatStateSync initialChatView={initialChatView} />
+                    <SidebarLayoutSync />
+                    <ChannelsPanels
+                      filters={filters}
+                      iconOnly={chatView.iconOnly}
+                      initialChannelId={initialChannelId ?? undefined}
+                      itemSet={chatViewSelectorItemSet}
+                      options={options}
+                      sort={sort}
+                    />
+                    <ThreadsPanels
+                      iconOnly={chatView.iconOnly}
+                      itemSet={chatViewSelectorItemSet}
+                    />
+                  </DialogManagerProvider>
+                </ChatView>
+              </div>
             </div>
-          </div>
+          </EmbeddedHostPage>
         </Chat>
       </SidebarProvider>
     </WithComponents>

@@ -39,6 +39,41 @@ body {
   min-height: 0;
 }
 
+/* "Embedded in page" layout: #root flows with its content so the window scrolls. */
+html[data-embedded-layout] #root {
+  height: auto;
+}
+
+.app-embedded-host__content {
+  box-sizing: border-box;
+  min-height: 60vh;
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+  color: #333;
+  background: repeating-linear-gradient(-45deg, #fdecec 0 16px, #fbe0e0 16px 32px);
+
+  p {
+    max-width: 60ch;
+  }
+}
+
+/* Layout-neutral in the full viewport layout; stays mounted so toggling keeps the chat. */
+.app-embedded-host__chat {
+  display: contents;
+}
+
+html[data-embedded-layout] .app-embedded-host__chat {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  /* Shorter than the viewport, so the page around the chat stays visible when scrolled to. */
+  height: 85vh;
+  height: 85dvh;
+  min-height: 0;
+  margin: 0 24px;
+  outline: 2px solid #e58a8a;
+}
+
 @layer stream-overrides {
   .app-chat-layout {
     --app-left-panel-width: 360px;

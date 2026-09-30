@@ -72,6 +72,15 @@ export type MessageListSettingsState = {
   type: 'standard' | 'virtualized';
 };
 
+export type PageLayoutSettingsState = {
+  /**
+   * Dev harness: renders the chat as a fixed-height widget between host-page content that
+   * overflows the viewport, so the window itself scrolls. Reproduces integrations where
+   * scrolling inside the chat must not move the surrounding page.
+   */
+  embedded: boolean;
+};
+
 export type ComposerSettingsState = {
   /**
    * POC: allow sending a message while its attachments are still uploading.
@@ -102,6 +111,7 @@ export type AppSettingsState = {
   messageActions: MessageActionsSettingsState;
   messageList: MessageListSettingsState;
   notifications: NotificationsSettingsState;
+  pageLayout: PageLayoutSettingsState;
   panelLayout: PanelLayoutSettingsState;
   reactions: ReactionsSettingsState;
   theme: ThemeSettingsState;
@@ -164,6 +174,9 @@ const defaultAppSettingsState: AppSettingsState = {
   },
   notifications: {
     verticalAlignment: 'bottom',
+  },
+  pageLayout: {
+    embedded: false,
   },
   panelLayout: {
     leftPanel: {
@@ -300,6 +313,45 @@ const getSendMessagesWithPendingUploadsFromUrl = (): boolean | undefined => {
   return raw !== '0' && raw !== 'false';
 };
 
+const embeddedLayoutUrlParam = 'embedded_layout';
+
+/** Seeded from `?embedded_layout=1`; kept in the URL (not localStorage) so a reload keeps it. */
+const getEmbeddedLayoutFromUrl = (): boolean | undefined => {
+  if (typeof window === 'undefined') return;
+
+  const raw = new URLSearchParams(window.location.search).get(embeddedLayoutUrlParam);
+
+  if (raw === null) return;
+
+  return raw !== '0' && raw !== 'false';
+};
+
+const persistEmbeddedLayoutInUrl = (embedded: boolean) => {
+  if (typeof window === 'undefined') return;
+
+  const url = new URL(window.location.href);
+  const hasParam = url.searchParams.get(embeddedLayoutUrlParam) === '1';
+
+  if (hasParam === embedded) return;
+
+  if (embedded) url.searchParams.set(embeddedLayoutUrlParam, '1');
+  else url.searchParams.delete(embeddedLayoutUrlParam);
+
+  window.history.replaceState(
+    window.history.state,
+    '',
+    `${url.pathname}${url.search}${url.hash}`,
+  );
+};
+
+/** The root stylesheet switches #root from viewport height to page flow off this attribute. */
+const applyEmbeddedLayout = (embedded: boolean) => {
+  if (typeof document === 'undefined') return;
+
+  if (embedded) document.documentElement.setAttribute('data-embedded-layout', '');
+  else document.documentElement.removeAttribute('data-embedded-layout');
+};
+
 const getThemeModeFromUrl = (): ThemeSettingsState['mode'] | undefined => {
   if (typeof window === 'undefined') return;
 
@@ -373,6 +425,9 @@ const initialAppSettingsState: AppSettingsState = {
     // A delay in the URL means the harness is wanted, so it arms the switch too.
     slowUploads: (getSlowUploadMsFromUrl() ?? 0) > 0,
   },
+  pageLayout: {
+    embedded: getEmbeddedLayoutFromUrl() ?? defaultAppSettingsState.pageLayout.embedded,
+  },
   panelLayout: getStoredPanelLayoutSettings() ?? defaultAppSettingsState.panelLayout,
   theme: {
     ...defaultAppSettingsState.theme,
@@ -402,6 +457,14 @@ appSettingsStore.subscribeWithSelector(
 
 // Apply initial direction on load
 applyDirection(initialAppSettingsState.theme.direction);
+
+appSettingsStore.subscribeWithSelector(
+  ({ pageLayout }) => ({ embedded: pageLayout.embedded }),
+  ({ embedded }) => {
+    persistEmbeddedLayoutInUrl(embedded);
+    applyEmbeddedLayout(embedded);
+  },
+);
 
 appSettingsStore.subscribeWithSelector(
   ({ panelLayout }) => panelLayout,
