@@ -588,6 +588,55 @@ describe('MessageList', () => {
       markReadSpy.mockRestore();
     });
 
+    it('should display unread messages separator before a system message that follows the last read message', async () => {
+      const user = generateUser();
+      const messages = Array.from({ length: 5 }).map((_, i) =>
+        generateMessage({
+          created_at: new Date(i + 1000).toISOString(),
+          ...(i === 3 ? { text: 'member was added', type: 'system' } : {}),
+        }),
+      );
+      const {
+        channels: [channel],
+        client,
+      } = await initClientWithChannels({
+        channelsData: [
+          {
+            messages,
+            read: [
+              {
+                last_read: new Date(messages[2].created_at).toISOString(),
+                last_read_message_id: messages[2].id,
+                unread_messages: 2,
+                user,
+              },
+            ],
+          },
+        ],
+        customUser: user,
+      });
+
+      // @ts-expect-error - mock implementation has simplified signature
+      const markReadSpy = vi.spyOn(channel, 'markRead').mockResolvedValue(false);
+
+      await act(() => {
+        renderComponent({
+          channelProps: { channel },
+          chatClient: client,
+          msgListProps: { disableDateSeparator: true, messages },
+        });
+      });
+
+      const separators = screen.queryAllByTestId(UNREAD_MESSAGES_SEPARATOR_TEST_ID);
+      expect(separators).toHaveLength(1);
+      const separatorListItem = separators[0].closest('li');
+      expect(separatorListItem?.nextElementSibling).toHaveAttribute(
+        'data-message-id',
+        messages[3].id,
+      );
+      markReadSpy.mockRestore();
+    });
+
     it('should not display unread messages separator in read main msg list', async () => {
       const user = generateUser();
       const messages = Array.from({ length: 5 }).map((_, i) =>
@@ -1245,9 +1294,11 @@ describe('MessageList', () => {
           expect(screen.getByText('target-2')).toBeInTheDocument();
         });
 
-        expect(scrollIntoViewMock).toHaveBeenCalledWith({
+        // Only the list scrolls; scrollIntoView would also scroll the host page.
+        expect(scrollIntoViewMock).not.toHaveBeenCalled();
+        expect(scrollToMock).toHaveBeenCalledWith({
           behavior: 'smooth',
-          block: 'center',
+          top: expect.any(Number),
         });
 
         requestAnimationFrameSpy.mockRestore();

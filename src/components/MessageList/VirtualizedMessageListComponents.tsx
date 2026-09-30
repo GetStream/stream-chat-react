@@ -153,10 +153,8 @@ export const messageRenderer = (
     ) : null;
   }
 
-  if (message.type === 'system') {
-    return MessageSystem ? <MessageSystem message={message} /> : null;
-  }
-
+  // System messages count as unread (the server includes them in unread_messages), so the
+  // separator can precede one - the same message jumpToFirstUnreadMessage scrolls to.
   const isFirstUnreadMessage = getIsFirstUnreadMessage({
     firstUnreadMessageId,
     isFirstMessage: streamMessageIndex === 0,
@@ -167,13 +165,25 @@ export const messageRenderer = (
     unreadMessageCount,
   });
 
+  const unreadMessagesSeparator = isFirstUnreadMessage && (
+    <div className='str-chat__unread-messages-separator-wrapper'>
+      <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
+    </div>
+  );
+
+  if (message.type === 'system') {
+    if (!MessageSystem) return unreadMessagesSeparator || null;
+    return (
+      <>
+        {unreadMessagesSeparator}
+        <MessageSystem message={message} />
+      </>
+    );
+  }
+
   return (
     <>
-      {isFirstUnreadMessage && (
-        <div className='str-chat__unread-messages-separator-wrapper'>
-          <UnreadMessagesSeparator unreadCount={unreadMessageCount} />
-        </div>
-      )}
+      {unreadMessagesSeparator}
       <Message
         additionalMessageComposerProps={additionalMessageComposerProps}
         autoscrollToBottom={virtuosoRef.current?.autoscrollToBottom}

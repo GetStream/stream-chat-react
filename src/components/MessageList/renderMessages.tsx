@@ -92,24 +92,13 @@ export function defaultRenderMessages({
           </MessageListItem>,
         );
       }
-    } else if (message.type === 'system') {
-      renderedMessages.push(
-        <MessageListItem
-          data-index={index}
-          data-message-id={message.id}
-          key={message.id || message.created_at.toISOString()}
-        >
-          <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
-        </MessageListItem>,
-      );
     } else {
       if (!firstMessage) {
         firstMessage = message;
       }
-      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
-      const messageClass =
-        customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
+      // System messages count as unread (the server includes them in unread_messages), so the
+      // separator can precede one - the same message jumpToFirstUnreadMessage scrolls to.
       const isFirstUnreadMessage = getIsFirstUnreadMessage({
         firstUnreadMessageId: channelUnreadUiState?.first_unread_message_id,
         isFirstMessage: !!firstMessage?.id && firstMessage.id === message.id,
@@ -119,16 +108,33 @@ export function defaultRenderMessages({
         previousMessage,
         unreadMessageCount: channelUnreadUiState?.unread_messages,
       });
+      previousMessage = message;
+
+      const unreadMessagesSeparator = isFirstUnreadMessage && UnreadMessagesSeparator && (
+        <MessageListItem className='str-chat__li str-chat__unread-messages-separator-wrapper'>
+          <UnreadMessagesSeparator unreadCount={channelUnreadUiState?.unread_messages} />
+        </MessageListItem>
+      );
+
+      if (message.type === 'system') {
+        renderedMessages.push(
+          <Fragment key={message.id || message.created_at.toISOString()}>
+            {unreadMessagesSeparator}
+            <MessageListItem data-index={index} data-message-id={message.id}>
+              <MessageSystem message={message} unsafeHTML={messageProps.unsafeHTML} />
+            </MessageListItem>
+          </Fragment>,
+        );
+        continue;
+      }
+
+      const groupStyles: GroupStyle = messageGroupStyles[message.id] || '';
+      const messageClass =
+        customClasses?.message || `str-chat__li str-chat__li--${groupStyles}`;
 
       renderedMessages.push(
         <Fragment key={message.id || message.created_at.toISOString()}>
-          {isFirstUnreadMessage && UnreadMessagesSeparator && (
-            <MessageListItem className='str-chat__li str-chat__unread-messages-separator-wrapper'>
-              <UnreadMessagesSeparator
-                unreadCount={channelUnreadUiState?.unread_messages}
-              />
-            </MessageListItem>
-          )}
+          {unreadMessagesSeparator}
           <MessageListItem
             className={messageClass}
             data-index={index}
@@ -147,7 +153,6 @@ export function defaultRenderMessages({
           </MessageListItem>
         </Fragment>,
       );
-      previousMessage = message;
     }
   }
   return renderedMessages;
