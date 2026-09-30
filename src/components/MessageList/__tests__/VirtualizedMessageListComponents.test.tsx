@@ -509,6 +509,38 @@ describe('VirtualizedMessageComponents', () => {
           expect(container.querySelector('.message-component')).toBeInTheDocument();
         });
 
+        it('should be rendered above a system message that follows the last read message', async () => {
+          const systemMessage = generateMessage({
+            created_at: new Date(4).toISOString(),
+            id: '3',
+            type: 'system',
+          });
+          const MessageSystem = () => <div className='message-system-component' />;
+          const { container } = await renderMarkUnread({
+            virtuosoContext: {
+              lastReadDate: new Date(messages[1].created_at),
+              lastReadMessageId: messages[1].id,
+              lastReceivedMessageId: systemMessage.id,
+              Message,
+              messageGroupStyles: {},
+              MessageSystem,
+              numItemsPrepended: 1,
+              ownMessagesDeliveredToOthers: {},
+              ownMessagesReadByOthers: {},
+              processedMessages: [...messages, systemMessage],
+              unreadMessageCount: 1,
+              UnreadMessagesSeparator,
+              virtuosoRef: fromPartial<VirtuosoContext['virtuosoRef']>({ current: {} }),
+            },
+            virtuosoIndex: PREPEND_OFFSET + 1,
+          });
+          const separator = container.querySelector(
+            '.str-chat__unread-messages-separator-wrapper',
+          );
+          expect(separator).toBeInTheDocument();
+          expect(separator?.nextElementSibling).toHaveClass('message-system-component');
+        });
+
         it('should not be rendered below the last read message if the message is the newest in the channel', async () => {
           const { container } = await renderMarkUnread({
             virtuosoContext: {

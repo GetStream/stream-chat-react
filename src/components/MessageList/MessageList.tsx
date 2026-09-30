@@ -65,6 +65,21 @@ const getMessageSetSignature = (messages: LocalMessage[]) =>
 const getMessageTimestamp = (message?: LocalMessage) =>
   message?.created_at?.getTime?.() ?? null;
 
+/**
+ * The list scrollTop that centers the element inside the list. Scrolling the list directly,
+ * rather than via Element.scrollIntoView, keeps the host page and other ancestors in place.
+ */
+const getCenteredScrollTop = (listElement: HTMLElement, element: Element) => {
+  const elementRect = element.getBoundingClientRect();
+  const listRect = listElement.getBoundingClientRect();
+  return Math.max(
+    listElement.scrollTop +
+      (elementRect.top - listRect.top) -
+      (listElement.clientHeight - elementRect.height) / 2,
+    0,
+  );
+};
+
 const MessageListWithContext = (props: MessageListWithContextProps) => {
   const {
     channel,
@@ -339,7 +354,7 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     const element = listElement?.querySelector(
       `[data-message-id='${highlightedMessageId}']`,
     );
-    if (!element) {
+    if (!listElement || !element) {
       setHighlightedJumpPhase('waiting-for-render');
       return;
     }
@@ -350,25 +365,20 @@ const MessageListWithContext = (props: MessageListWithContextProps) => {
     let settleTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
     const animationFrameId = requestAnimationFrame(() => {
-      element.scrollIntoView({
+      listElement.scrollTo?.({
         behavior: scrollBehavior,
-        block: 'center',
+        top: getCenteredScrollTop(listElement, element),
       });
 
-      if (!messageSetChanged || !listElement?.scrollTo) {
+      if (!messageSetChanged || !listElement.scrollTo) {
         setHighlightedJumpPhase('idle');
         return;
       }
 
+      // Re-center once the smooth scroll settles, in case layout shifted while it ran
+      // (e.g. images of the freshly loaded page).
       settleTimeoutId = setTimeout(() => {
-        const elementRect = element.getBoundingClientRect();
-        const listRect = listElement.getBoundingClientRect();
-        const targetTop =
-          listElement.scrollTop +
-          (elementRect.top - listRect.top) -
-          (listElement.clientHeight - elementRect.height) / 2;
-
-        listElement.scrollTo({ top: Math.max(targetTop, 0) });
+        listElement.scrollTo({ top: getCenteredScrollTop(listElement, element) });
         setHighlightedJumpPhase('idle');
       }, 500);
     });
