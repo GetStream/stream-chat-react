@@ -100,12 +100,13 @@ export const ServerSideClientPromptDialog = ({
   );
 
   // Channels the client has loaded. Recomputed each time the dialog opens rather than subscribed
-  // to — `activeChannels` is a plain record with no change notification, and a debugging dialog
+  // to — the channel store sends no change notifications, and a debugging dialog
   // does not need it live. `allowCustomValue` covers anything not in the list.
   const channelOptions = useMemo<SearchableSelectOption<string>[]>(() => {
     if (!dialogIsOpen) return [];
 
-    return Object.values(appClient.activeChannels)
+    return appClient.channelManager
+      .values()
       .map((activeChannel) => activeChannel.cid)
       .filter((activeChannelCid): activeChannelCid is string => !!activeChannelCid)
       .sort((left, right) => left.localeCompare(right))
@@ -118,7 +119,7 @@ export const ServerSideClientPromptDialog = ({
   const localMembers = useMemo<ChannelMemberSummary[]>(() => {
     if (!dialogIsOpen || !cid) return [];
 
-    const members = appClient.activeChannels[cid]?.state?.members ?? {};
+    const members = appClient.channelManager.get(cid)?.state?.members ?? {};
 
     return Object.values(members)
       .map((member) => ({

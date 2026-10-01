@@ -17,6 +17,7 @@ import { Chat } from '../../Chat';
 import { MessageList } from '../../MessageList';
 import { initClientWithChannels } from '../../../mock-builders';
 
+import { Channel as StreamChannel } from 'stream-chat';
 import type { Channel as ChannelType, StreamChat } from 'stream-chat';
 
 const renderChannel = (client: StreamChat, channel: ChannelType) => (
@@ -92,8 +93,8 @@ describe('switching channels', () => {
       channels: [first],
       client,
     } = await setupTwo();
-    delete client.activeChannels[first.cid];
-    const second = client.channel('messaging', 'channel-a');
+    // a second object for the same cid, while the first stays usable
+    const second = new StreamChannel(client, 'messaging', 'channel-a', {});
 
     const { rerender } = render(renderChannel(client, first));
     const listBefore = messageListElement();

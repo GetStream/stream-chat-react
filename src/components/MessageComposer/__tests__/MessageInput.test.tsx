@@ -379,7 +379,6 @@ const setup = async ({ channelData }: { channelData?: GenerateChannelOptions } =
     }),
   );
   customChannel.initialized = true;
-  customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 
@@ -397,7 +396,6 @@ const setupUploadRejected = async (error: unknown) => {
   const uploadFileSpy = vi
     .spyOn(customChannel, 'uploadFile')
     .mockRejectedValueOnce(error);
-  customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, uploadFileSpy, uploadImageSpy };
 };
 

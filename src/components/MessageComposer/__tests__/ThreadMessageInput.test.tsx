@@ -103,7 +103,6 @@ const setup = async ({ channelData }: any = {}) => {
     .mockResolvedValue(fromPartial({ draft: { message: { id: 'x', text: '' } } }));
   vi.spyOn(customChannel, 'deleteDraft').mockResolvedValue(fromPartial({}));
   customChannel.initialized = true;
-  customClient.activeChannels[customChannel.cid] = customChannel;
   return { customChannel, customClient, getDraftSpy, uploadFileSpy, uploadImageSpy };
 };
 
