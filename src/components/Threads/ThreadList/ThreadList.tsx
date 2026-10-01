@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import type { ComputeItemKey, VirtuosoHandle, VirtuosoProps } from 'react-virtuoso';
 import { Virtuoso } from 'react-virtuoso';
-import type { Thread, ThreadManagerState } from 'stream-chat';
+import type { PaginatorState, Thread } from 'stream-chat';
 
 import { useVirtualizedListboxKeyboardNavigation } from '../../../a11y/hooks/useVirtualizedListboxKeyboardNavigation';
 import { ThreadListItem as DefaultThreadListItem } from './ThreadListItem';
@@ -19,9 +19,11 @@ import {
 import { useStateStore } from '../../../store';
 import { ThreadListHeader } from './ThreadListHeader';
 
-const selector = (nextValue: ThreadManagerState) => ({
-  isLoading: nextValue.pagination.isLoading,
-  threads: nextValue.threads,
+const noThreads: Thread[] = [];
+
+const selector = (nextValue: PaginatorState<Thread>) => ({
+  isLoading: nextValue.isLoading,
+  threads: nextValue.items ?? noThreads,
 });
 
 const computeItemKey: ComputeItemKey<Thread, unknown> = (_, item) => item.id;
@@ -34,19 +36,7 @@ export const useThreadList = () => {
   const { client } = useChatContext();
 
   useEffect(() => {
-    // Reset derived pagination inputs before initial reload so the first mount requests
-    // the default first page size, rather than a limit inferred from cached/unseen threads.
-    const { pagination } = client.threads.state.getLatestValue();
-    client.threads.state.partialNext({
-      isThreadOrderStale: false,
-      pagination: {
-        ...pagination,
-        nextCursor: null,
-      },
-      ready: false,
-      threads: [],
-      unseenThreadIds: [],
-    });
+    // Fresh list on every mount; the reload sizes its own page from the loaded and unseen threads.
     void client.threads.reload({ force: true });
 
     const handleVisibilityChange = () => {
@@ -78,7 +68,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
     ThreadListLoadingIndicator = DefaultThreadListLoadingIndicator,
     ThreadListUnseenThreadsBanner = DefaultThreadListUnseenThreadsBanner,
   } = useComponentContext();
-  const { isLoading, threads } = useStateStore(client.threads.state, selector);
+  const { isLoading, threads } = useStateStore(client.threads.paginator.state, selector);
 
   const resetByThreadId = useThreadHighlighting(client.threads);
 
@@ -103,6 +93,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
 
   useThreadList();
 
+  // Only the first load shows the placeholder; a reload keeps the loaded threads until the new ones land.
   if (isLoading && !threads.length) {
     return (
       <div className='str-chat__thread-list-container'>
@@ -121,7 +112,7 @@ export const ThreadList = ({ virtuosoProps }: ThreadListProps) => {
       <ThreadListUnseenThreadsBanner />
       <Virtuoso
         aria-label={t('threadList.threadList.ariaLabel', 'Thread list')}
-        atBottomStateChange={(atBottom) => atBottom && client.threads.loadNextPage()}
+        atBottomStateChange={(atBottom) => atBottom && client.threads.paginator.toTail()}
         className='str-chat__thread-list'
         components={{
           EmptyPlaceholder: ThreadListEmptyPlaceholder,

@@ -19,7 +19,6 @@ import type {
   StreamChat,
   Thread as StreamThread,
 } from 'stream-chat';
-import { Thread as StreamThreadClass } from 'stream-chat';
 import type {
   ChatView,
   ChatViewEntityBinding,
@@ -102,7 +101,7 @@ export type OpenThreadTarget =
 
 /**
  * Binding builder for the `thread` kind (D6). The `{ channel, message }` ->
- * `Thread` construction (with dedupe against `client.threads`) lives here so
+ * `Thread` resolution (through `client.threads.ensure()`) lives here so
  * callers can drive the generic `open` with a ready binding instead of a
  * thread-specific navigation method.
  */
@@ -110,14 +109,12 @@ export const createThreadEntityBinding = (
   client: StreamChat,
   target: { channel: StreamChannel; message: LocalMessage },
 ): ChatViewEntityBinding => {
-  const existingThread = client.threads.threadsById[target.message.id];
-  const thread =
-    existingThread ??
-    new StreamThreadClass({
-      channel: target.channel,
-      client,
-      parentMessage: target.message,
-    });
+  // `ensure()` registers a thread it builds, so a thread opened beside another one stays live
+  // even though only the active slot's thread is activated.
+  const thread = client.threads.ensure({
+    channel: target.channel,
+    parentMessage: target.message,
+  });
   return { key: thread.id ?? undefined, kind: 'thread', source: thread };
 };
 

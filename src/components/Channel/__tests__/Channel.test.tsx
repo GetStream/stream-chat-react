@@ -11,7 +11,6 @@ import type {
   StreamChat,
   UserResponse,
 } from 'stream-chat';
-import { localMessageToNewMessagePayload } from 'stream-chat';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import type { RenderResult } from '@testing-library/react';
 
@@ -557,13 +556,33 @@ describe('Channel', () => {
             .catch(() => {});
         });
         await waitFor(() =>
-          // v10: single request object - `client.updateMessage({ id, message })`, where `message` is
-          // the LocalMessage projected onto the API payload shape.
+          // A single request object, `client.updateMessage({ id, message })`, where `message` is the
+          // edited message projected onto the update payload: the edited content plus its pin state.
           expect(clientUpdateMessageSpy).toHaveBeenCalledWith({
             id: updatedMessage.id,
-            message: localMessageToNewMessagePayload(fromPartial(updatedMessage)),
+            message: expect.objectContaining({
+              attachments: updatedMessage.attachments,
+              cid: updatedMessage.cid,
+              id: updatedMessage.id,
+              mentioned_users: [],
+              pinned: false,
+              pinned_at: null,
+              text: newText,
+            }),
           }),
         );
+        // Server-owned fields are left out; sending them makes the update fail.
+        const [{ message: payload }] = clientUpdateMessageSpy.mock.calls[0];
+        for (const serverOwnedField of [
+          '__html',
+          'created_at',
+          'html',
+          'type',
+          'updated_at',
+          'user',
+        ]) {
+          expect(payload).not.toHaveProperty(serverOwnedField);
+        }
       });
 
       it('uses a registered updateMessageRequest for the edit path', async () => {

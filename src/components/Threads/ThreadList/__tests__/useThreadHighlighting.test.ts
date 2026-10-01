@@ -4,90 +4,95 @@ import { fromPartial } from '@total-typescript/shoehorn';
 
 import { useThreadHighlighting } from '../useThreadHighlighting';
 
-import type { Thread, ThreadManager, ThreadManagerState } from 'stream-chat';
+import type {
+  PaginatorState,
+  Thread,
+  ThreadManager,
+  ThreadManagerState,
+} from 'stream-chat';
 
 /**
- * The flash means "a thread arrived while you were looking at the list".
- *
- * It used to be derived by diffing the threads array by reference, which called anything that
- * merely appeared for the first time an arrival -- so the whole first page lit up on load, and
- * each page did while scrolling.
+ * The flash means "a thread arrived while you were looking at the list". Threads that merely
+ * appear for the first time (the first page on load, each page while scrolling) are not arrivals.
  */
 const thread = (id: string) => fromPartial<Thread>({ id });
 
-const setup = (initial: Partial<ThreadManagerState> = {}) => {
-  const state = new StateStore<ThreadManagerState>(
-    fromPartial({ threads: [], unseenThreadIds: [], ...initial }),
-  );
-  const threadManager = fromPartial<ThreadManager>({ state });
+const setup = ({ items }: { items?: Thread[] } = {}) => {
+  const state = new StateStore<ThreadManagerState>(fromPartial({ unseenThreadIds: [] }));
+  const listState = new StateStore<PaginatorState<Thread>>(fromPartial({ items }));
+  const threadManager = fromPartial<ThreadManager>({
+    paginator: { state: listState },
+    state,
+  });
   const { result } = renderHook(() => useThreadHighlighting(threadManager));
-  return { result, state };
+  return { listState, result, state };
 };
 
 describe('useThreadHighlighting', () => {
   it('does not flash the first page arriving on a cold load', () => {
-    const { result, state } = setup();
+    const { listState, result } = setup();
 
-    act(() => state.partialNext({ threads: [thread('a'), thread('b'), thread('c')] }));
+    act(() => listState.partialNext({ items: [thread('a'), thread('b'), thread('c')] }));
 
     expect(Object.keys(result.current)).toEqual([]);
   });
 
   it('does not flash a page loaded by pagination', () => {
-    const { result, state } = setup({ threads: [thread('a')] });
+    const { listState, result } = setup({ items: [thread('a')] });
 
-    act(() => state.partialNext({ threads: [thread('a'), thread('b'), thread('c')] }));
+    act(() => listState.partialNext({ items: [thread('a'), thread('b'), thread('c')] }));
 
     expect(Object.keys(result.current)).toEqual([]);
   });
 
   it('flashes a thread the manager reported unseen, once it lands in the list', () => {
-    const { result, state } = setup({ threads: [thread('a')] });
+    const { listState, result, state } = setup({ items: [thread('a')] });
 
     // A message arrives for a thread the list does not hold.
     act(() => state.partialNext({ unseenThreadIds: ['new-one'] }));
     expect(Object.keys(result.current)).toEqual([]);
 
-    // `reload()` brings it in and clears `unseenThreadIds` in the same update -- which is why the
-    // id has to have been remembered when it was reported.
-    act(() =>
-      state.partialNext({
-        threads: [thread('new-one'), thread('a')],
-        unseenThreadIds: [],
-      }),
-    );
+    // `reload()` brings it into the list, then clears `unseenThreadIds` -- which is why the id has
+    // to have been remembered when it was reported.
+    act(() => listState.partialNext({ items: [thread('new-one'), thread('a')] }));
+    act(() => state.partialNext({ unseenThreadIds: [] }));
+
+    expect(Object.keys(result.current)).toEqual(['new-one']);
+  });
+
+  it('flashes the arrival when `unseenThreadIds` is cleared before the list update lands', () => {
+    const { listState, result, state } = setup({ items: [thread('a')] });
+
+    act(() => state.partialNext({ unseenThreadIds: ['new-one'] }));
+    act(() => state.partialNext({ unseenThreadIds: [] }));
+    act(() => listState.partialNext({ items: [thread('new-one'), thread('a')] }));
 
     expect(Object.keys(result.current)).toEqual(['new-one']);
   });
 
   it('keeps an earlier flash alive when a second thread arrives', () => {
-    const { result, state } = setup({ threads: [thread('a')] });
+    const { listState, result, state } = setup({ items: [thread('a')] });
 
     act(() => state.partialNext({ unseenThreadIds: ['first'] }));
-    act(() =>
-      state.partialNext({ threads: [thread('first'), thread('a')], unseenThreadIds: [] }),
-    );
+    act(() => listState.partialNext({ items: [thread('first'), thread('a')] }));
+    act(() => state.partialNext({ unseenThreadIds: [] }));
     act(() => state.partialNext({ unseenThreadIds: ['second'] }));
     act(() =>
-      state.partialNext({
-        threads: [thread('second'), thread('first'), thread('a')],
-        unseenThreadIds: [],
+      listState.partialNext({
+        items: [thread('second'), thread('first'), thread('a')],
       }),
     );
+    act(() => state.partialNext({ unseenThreadIds: [] }));
 
     expect(Object.keys(result.current).sort()).toEqual(['first', 'second']);
   });
 
   it('stops flashing a thread once its reset is called', () => {
-    const { result, state } = setup({ threads: [thread('a')] });
+    const { listState, result, state } = setup({ items: [thread('a')] });
 
     act(() => state.partialNext({ unseenThreadIds: ['new-one'] }));
-    act(() =>
-      state.partialNext({
-        threads: [thread('new-one'), thread('a')],
-        unseenThreadIds: [],
-      }),
-    );
+    act(() => listState.partialNext({ items: [thread('new-one'), thread('a')] }));
+    act(() => state.partialNext({ unseenThreadIds: [] }));
 
     act(() => result.current['new-one']());
 
