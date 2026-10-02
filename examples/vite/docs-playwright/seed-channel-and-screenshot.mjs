@@ -627,7 +627,8 @@ async function run() {
             const key = Object.keys(el).find((k) => k.startsWith('__reactFiber'));
             let fiber = el[key];
             while (fiber) {
-              if (fiber.memoizedProps?.client?.channel) return fiber.memoizedProps.client;
+              if (fiber.memoizedProps?.client?.channelManager)
+                return fiber.memoizedProps.client;
               fiber = fiber.return;
             }
             return null;
@@ -635,9 +636,13 @@ async function run() {
           const client = findClient();
           if (!client) return { ok: false, reason: 'no client' };
           try {
-            const ch = client.channel('messaging', channelId, {
-              members: [userA, userB],
-              name: 'Design redesign — v14',
+            const ch = client.channelManager.ensure({
+              type: 'messaging',
+              id: channelId,
+              data: {
+                members: [userA, userB],
+                name: 'Design redesign — v14',
+              },
             });
             await ch.watch();
             const existingCount = (ch.state.messages || []).length;
@@ -713,7 +718,7 @@ async function run() {
             let fiber = el[key];
             let client = null;
             while (fiber) {
-              if (fiber.memoizedProps?.client?.channel) {
+              if (fiber.memoizedProps?.client?.channelManager) {
                 client = fiber.memoizedProps.client;
                 break;
               }
@@ -756,13 +761,19 @@ async function run() {
             const results = [];
             for (const [channelId, data] of Object.entries(channelImages)) {
               try {
-                const ch = client.channel('public', channelId);
+                const ch = client.channelManager.ensure({
+                  type: 'public',
+                  id: channelId,
+                });
                 await ch.updatePartial({ set: { image: data.image } });
                 results.push(channelId + ': ok');
               } catch (e) {
                 // Try messaging type too
                 try {
-                  const ch = client.channel('messaging', channelId);
+                  const ch = client.channelManager.ensure({
+                    type: 'messaging',
+                    id: channelId,
+                  });
                   await ch.updatePartial({ set: { image: data.image } });
                   results.push(channelId + ': ok (messaging)');
                 } catch (e2) {
