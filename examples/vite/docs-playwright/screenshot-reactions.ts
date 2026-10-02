@@ -75,18 +75,18 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
   // Send messages
   const r1: any = await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    var m = await ch.sendMessage({ text: 'What do you think about the new design?' });
+    var m = await ch.sendMessage({ message: { text: 'What do you think about the new design?' } });
     return { id: m.message.id };
   })()`);
 
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({ text: 'I love it! The color scheme is much better.' });
+    await ch.sendMessage({ message: { text: 'I love it! The color scheme is much better.' } });
   })()`);
 
   const r3: any = await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    var m = await ch.sendMessage({ text: 'Great to hear! Should we ship it this week?' });
+    var m = await ch.sendMessage({ message: { text: 'Great to hear! Should we ship it this week?' } });
     return { id: m.message.id };
   })()`);
 
@@ -94,27 +94,27 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
   // Marco reacts to his own first message with 'like'
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(r1.id)}, { type: 'like' });
+    await ch.sendReaction({ id: ${JSON.stringify(r1.id)} }, { reaction: { type: 'like' } });
   })()`);
   // John reacts to first message with 'love'
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(r1.id)}, { type: 'love' });
+    await ch.sendReaction({ id: ${JSON.stringify(r1.id)} }, { reaction: { type: 'love' } });
   })()`);
   // John reacts to third message with 'like'
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(r3.id)}, { type: 'like' });
+    await ch.sendReaction({ id: ${JSON.stringify(r3.id)} }, { reaction: { type: 'like' } });
   })()`);
 
   // Add upvote/downvote reactions (for custom options variant)
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(r3.id)}, { type: 'arrow_up' });
+    await ch.sendReaction({ id: ${JSON.stringify(r3.id)} }, { reaction: { type: 'arrow_up' } });
   })()`);
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(r1.id)}, { type: 'arrow_up' });
+    await ch.sendReaction({ id: ${JSON.stringify(r1.id)} }, { reaction: { type: 'arrow_up' } });
   })()`);
 
   console.log('  ✅ Channel seeded');

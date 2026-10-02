@@ -77,7 +77,7 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
     var client = window.client;
 
     // 1. Marco: opening message
-    var m1 = await ch.sendMessage({ text: 'Hey, John, how are you doing?' });
+    var m1 = await ch.sendMessage({ message: { text: 'Hey, John, how are you doing?' } });
 
     return { m1Id: m1.message.id };
   })()`);
@@ -88,7 +88,7 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
     var client = window.client;
 
     // 2. John: reply
-    var m2 = await ch.sendMessage({ text: 'Hey, hey! Doing well \\u2013 how about you?' });
+    var m2 = await ch.sendMessage({ message: { text: 'Hey, hey! Doing well \\u2013 how about you?' } });
 
     return { m2Id: m2.message.id };
   })()`,
@@ -98,9 +98,9 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
     var ch = window.channel;
 
     // 3. Marco: long reply
-    var m3 = await ch.sendMessage({
+    var m3 = await ch.sendMessage({ message: {
       text: "Ah, thanks for asking! I'm doing quite well, all things considered. Every day brings its own set of challenges and opportunities, but overall, I'm feeling positive and motivated. I've been keeping busy learning new things."
-    });
+    } });
 
     return { m3Id: m3.message.id };
   })()`);
@@ -111,16 +111,17 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
     var ch = window.channel;
     var client = window.client;
 
-    var m4 = await ch.sendMessage({
+    var m4 = await ch.sendMessage({ message: {
       text: '@Marco hey! How are you?',
       mentioned_users: [${JSON.stringify(USER_A)}]
-    });
+    } });
 
     // Edit to trigger "Edited" indicator
-    await client.updateMessage({
-      id: m4.message.id,
-      text: '@Marco hey! How are you?',
-      mentioned_users: [${JSON.stringify(USER_A)}]
+    await client.updateMessage({ id: m4.message.id }, {
+      message: {
+        text: '@Marco hey! How are you?',
+        mentioned_users: [${JSON.stringify(USER_A)}]
+      }
     });
 
     return { m4Id: m4.message.id };
@@ -130,52 +131,52 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
   // 5. John: link message
   const result5: any = await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    var m5 = await ch.sendMessage({ text: 'Check out this link:\\nhttps://getstream.io/' });
+    var m5 = await ch.sendMessage({ message: { text: 'Check out this link:\\nhttps://getstream.io/' } });
     return { m5Id: m5.message.id };
   })()`);
 
   // 6. Marco: markdown message
   const result6: any = await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    var m6 = await ch.sendMessage({
+    var m6 = await ch.sendMessage({ message: {
       text: "Here's some ~~styled text~~ **Markdown**, *too*!"
-    });
+    } });
     return { m6Id: m6.message.id };
   })()`);
 
   // 7. Marco: consecutive messages for grouping demo (V5)
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({ text: 'This message right here...' });
-    await ch.sendMessage({ text: '...will be grouped with this one.' });
-    await ch.sendMessage({ text: 'And this one as well!' });
+    await ch.sendMessage({ message: { text: 'This message right here...' } });
+    await ch.sendMessage({ message: { text: '...will be grouped with this one.' } });
+    await ch.sendMessage({ message: { text: 'And this one as well!' } });
   })()`);
 
   // 8. Add a thread reply on the markdown message (for reply_count in V7/V8)
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: 'Nice formatting!',
       parent_id: ${JSON.stringify(result6.m6Id)}
-    });
+    } });
   })()`);
 
   // 9. Add reactions on the mention message (for V8)
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(result4.m4Id)}, { type: '+1' });
+    await ch.sendReaction({ id: ${JSON.stringify(result4.m4Id)} }, { reaction: { type: '+1' } });
   })()`);
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendReaction(${JSON.stringify(result4.m4Id)}, { type: '-1' });
+    await ch.sendReaction({ id: ${JSON.stringify(result4.m4Id)} }, { reaction: { type: '-1' } });
   })()`);
 
   // 10. Marco sends one more message, then soft-deletes it (for V7/V8)
   const result10: any = await pageA.evaluate(`(async () => {
     var ch = window.channel;
     var client = window.client;
-    var m = await ch.sendMessage({ text: 'Actually, never mind about that last point.' });
-    await client.deleteMessage(m.message.id);
+    var m = await ch.sendMessage({ message: { text: 'Actually, never mind about that last point.' } });
+    await client.deleteMessage({ id: m.message.id });
     return { deletedId: m.message.id };
   })()`);
 

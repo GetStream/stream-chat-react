@@ -487,7 +487,7 @@ describe('Channel', () => {
         it('should call the default client.deleteMessage() function', async () => {
           const { channel, chatClient } = await setup();
           const message = generateMessage();
-          const deleteMessageOptions = { deleteForMe: true, hard: false };
+          const deleteMessageOptions = { delete_for_me: true, hard: false };
           const clientDeleteMessageSpy = vi
             .spyOn(chatClient, 'deleteMessage')
             .mockResolvedValue(fromPartial({ message: toMessageResponse(message) }));
@@ -501,18 +501,18 @@ describe('Channel', () => {
               .catch(() => {});
           });
           await waitFor(() =>
-            // v10: single request object - `client.deleteMessage({ id, ...options })`.
-            expect(clientDeleteMessageSpy).toHaveBeenCalledWith({
-              id: message.id,
-              ...deleteMessageOptions,
-            }),
+            // The message id is the path-params argument; the options are the request.
+            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
+              { id: message.id },
+              deleteMessageOptions,
+            ),
           );
         });
 
         it('calls a registered deleteMessageRequest instead of client.deleteMessage()', async () => {
           const { channel, chatClient } = await setup();
           const message = generateMessage();
-          const deleteMessageOptions = { deleteForMe: true, hard: false };
+          const deleteMessageOptions = { delete_for_me: true, hard: false };
           const deleteMessageRequest = vi.fn(() =>
             Promise.resolve({ message: toMessageResponse(message) }),
           );
@@ -557,12 +557,12 @@ describe('Channel', () => {
             .catch(() => {});
         });
         await waitFor(() =>
-          // v10: single request object - `client.updateMessage({ id, message })`, where `message` is
-          // the LocalMessage projected onto the API payload shape.
-          expect(clientUpdateMessageSpy).toHaveBeenCalledWith({
-            id: updatedMessage.id,
-            message: localMessageToNewMessagePayload(fromPartial(updatedMessage)),
-          }),
+          // `client.updateMessage({ id }, { message })`, where `message` is the LocalMessage
+          // projected onto the API payload shape.
+          expect(clientUpdateMessageSpy).toHaveBeenCalledWith(
+            { id: updatedMessage.id },
+            { message: localMessageToNewMessagePayload(fromPartial(updatedMessage)) },
+          ),
         );
       });
 
