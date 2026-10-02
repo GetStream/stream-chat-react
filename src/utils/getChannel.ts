@@ -48,8 +48,12 @@ export const getChannel = async ({
     if (!type) {
       throw new Error('Channel or channel type have to be provided to query a channel.');
     }
-    theChannel = client.channel(type, id, {
-      members: members?.map((user_id) => ({ user_id })),
+    theChannel = client.channelManager.ensure({
+      data: {
+        members: members?.map((user_id) => ({ user_id })),
+      },
+      id,
+      type,
     });
   }
 

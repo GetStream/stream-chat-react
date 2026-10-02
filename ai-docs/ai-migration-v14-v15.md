@@ -327,12 +327,16 @@ dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
   ```tsx
   import { getChannel } from 'stream-chat-react';
 
-  const channel = client.channel('messaging', id, { members, custom });
+  const channel = client.channelManager.ensure({
+    data: { custom, members },
+    id,
+    type: 'messaging',
+  });
   if (!channel.initialized) await getChannel({ channel, client });
   setChannel(channel);
   ```
 
-  Two separate guards, both worth keeping. `client.channel()` returns the cached instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `getChannel` over a bare `channel.watch()` when one _is_ needed: it de-duplicates concurrent calls for the same channel (keyed on the sorted member list while a channel has no id yet), so an effect that runs twice, or two components opening the same channel, still produce one query. That de-duplication used to live inside `Channel`.
+  Two separate guards, both worth keeping. `client.channelManager.ensure()` (stream-chat v10's replacement for `client.channel()`) returns the stored instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `getChannel` over a bare `channel.watch()` when one _is_ needed: it de-duplicates concurrent calls for the same channel (keyed on the sorted member list while a channel has no id yet), so an effect that runs twice, or two components opening the same channel, still produce one query. That de-duplication used to live inside `Channel`.
 
 - **A direct message identified by members** → `getChannel({ client, type: 'messaging', members })` builds, watches and returns the instance.
 - **`channelQueryOptions`** → pass them to the watch you now own: `getChannel({ channel, client, options })`.

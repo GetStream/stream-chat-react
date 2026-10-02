@@ -280,7 +280,7 @@ const {
 // Manual setup when you need control over the API responses
 const client = await getTestClientWithUser({ id: 'test-user' });
 useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-const channel = client.channel('messaging', channelId);
+const channel = client.channelManager.ensure({ id: channelId, type: 'messaging' });
 await channel.watch();
 ```
 

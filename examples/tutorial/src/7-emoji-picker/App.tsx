@@ -139,13 +139,17 @@ const App = () => {
     if (!client) return;
 
     const initChannel = async () => {
-      const channel = client.channel('messaging', 'react-tutorial', {
-        members: [userId],
-        // custom channel fields live under `custom` since v10
-        custom: {
-          image: 'https://getstream.io/random_png/?name=react-v14',
-          name: 'Talk about React',
+      const channel = client.channelManager.ensure({
+        data: {
+          members: [userId],
+          // custom channel fields live under `custom` since v10
+          custom: {
+            image: 'https://getstream.io/random_png/?name=react-v14',
+            name: 'Talk about React',
+          },
         },
+        id: 'react-tutorial',
+        type: 'messaging',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the

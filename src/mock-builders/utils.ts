@@ -48,7 +48,10 @@ export async function createClientWithChannel({
 
   const client = existingClient || (await getTestClientWithUser({ id: users[0].id }));
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]); // eslint-disable-line react-hooks/rules-of-hooks
-  const channel = client.channel('messaging', mockedChannel['id']);
+  const channel = client.channelManager.ensure({
+    id: mockedChannel['id'],
+    type: 'messaging',
+  });
   await channel.watch();
 
   return { channel, client, users };
@@ -70,10 +73,10 @@ export const initChannelFromData = async ({
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(client, [getOrCreateChannelApi(mockedChannelData)]);
-  const channel = client.channel(
-    mockedChannelData.channel.type,
-    mockedChannelData.channel.id,
-  );
+  const channel = client.channelManager.ensure({
+    id: mockedChannelData.channel.id,
+    type: mockedChannelData.channel.type,
+  });
   await channel.watch();
   // Written into the client's store rather than stubbed onto the channel: `getConfig()` is gone, and
   // its replacement `serverConfig` is a getter reading this store. Going through the store also drives

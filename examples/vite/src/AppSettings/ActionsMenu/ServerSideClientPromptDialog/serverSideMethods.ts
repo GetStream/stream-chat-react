@@ -7,7 +7,7 @@ import type { StreamChat } from 'stream-chat';
  * member's channel-specific data, which a browser client cannot do.
  *
  * Everything goes through `client.api.sendRequest` rather than the generated helpers, for two
- * reasons: `client.channel(...)` throws without a connected user, and the generated
+ * reasons: `client.channelManager.ensure()` throws without a connected user, and the generated
  * `updateMemberPartial` sends no `user_id`, so it can only ever write the caller's own
  * membership. `sendRequest` is the same primitive the generated APIs use internally and it
  * accepts query params, which is where `user_id` belongs.

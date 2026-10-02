@@ -19,7 +19,7 @@ describe('getMessageSourceKey', () => {
     });
     // A replacement instance for the same cid is a different object, and must key differently.
     client.channelManager.removeChannel(first.cid);
-    const second = client.channel('messaging', 'channel-a');
+    const second = client.channelManager.ensure({ id: 'channel-a', type: 'messaging' });
 
     expect(getMessageSourceKey({ channel: first })).toBe(
       getMessageSourceKey({ channel: first }),

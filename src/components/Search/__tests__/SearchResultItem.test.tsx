@@ -174,7 +174,10 @@ describe('SearchResultItem Components', () => {
       });
       const { id, type } = messageResponseData.channel;
       const jumpToMessage = vi
-        .spyOn(client.channel(type, id).messagePaginator, 'jumpToMessage')
+        .spyOn(
+          client.channelManager.ensure({ id, type }).messagePaginator,
+          'jumpToMessage',
+        )
         .mockResolvedValue(true);
 
       await act(() => {

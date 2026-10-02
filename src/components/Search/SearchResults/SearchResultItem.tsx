@@ -85,7 +85,7 @@ export const MessageSearchResultItem = ({
     const { channel: channelData } = item;
     const type = channelData?.type ?? 'unknown';
     const id = channelData?.id ?? 'unknown';
-    return client.channel(type, id);
+    return client.channelManager.ensure({ id, type });
   }, [client, item]);
 
   const channelOpenInSlot = isChannelActive(channel?.cid ?? undefined);
@@ -145,8 +145,11 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         onSelect(event);
         return;
       }
-      const newChannel = client.channel(directMessagingChannelType, {
-        members: [{ user_id: client.userId as string }, { user_id: item.id }],
+      const newChannel = client.channelManager.ensure({
+        data: {
+          members: [{ user_id: client.userId as string }, { user_id: item.id }],
+        },
+        type: directMessagingChannelType,
       });
       newChannel.watch();
       // Default: open the DM channel in the workspace, forwarding the event so a consumer overriding

@@ -53,7 +53,10 @@ describe('useDeleteHandler custom hook', () => {
     client = await getTestClientWithUser(generateUser());
     const channelData = generateChannel();
     useMockedApis(client, [getOrCreateChannelApi(channelData)]);
-    channel = client.channel('messaging', channelData.channel.id);
+    channel = client.channelManager.ensure({
+      id: channelData.channel.id,
+      type: 'messaging',
+    });
   });
 
   afterEach(() => {

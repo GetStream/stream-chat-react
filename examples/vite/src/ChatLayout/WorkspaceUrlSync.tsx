@@ -183,18 +183,16 @@ const writeWorkspaceToUrl = (encoded: string, mode: 'push' | 'replace') => {
 
 // ---- resolve: token → live binding (async) ------------------------------------------------------
 
-// `client.channelManager.get(cid)` returns the stored instance for that cid (the same one the
-// channel-list query watches); `client.channel(type, id)` builds one when none is stored. When the caller has already waited for the list to settle (see
-// `waitForChannelList`), that instance is `initialized`, so the bound `<Channel>` skips its own watch
-// — no duplicate `/query`. A channel absent from every loaded page is returned unwatched and
-// `<Channel>` watches it (the necessary, non-redundant fetch).
+// `client.channelManager.ensure()` returns the stored instance for that cid (the same one the
+// channel-list query watches), or builds one when none is stored. When the caller has already
+// waited for the list to settle (see `waitForChannelList`), that instance is `initialized`, so the
+// bound `<Channel>` skips its own watch — no duplicate `/query`. A channel absent from every loaded
+// page is returned unwatched and `<Channel>` watches it (the necessary, non-redundant fetch).
 const resolveChannel = (client: StreamChat, cid: string): Channel | undefined => {
-  const existing = client.channelManager.get(cid);
-  if (existing) return existing;
   const colon = cid.indexOf(':');
   const type = cid.slice(0, colon);
   const id = cid.slice(colon + 1);
-  return type && id ? client.channel(type, id) : undefined;
+  return type && id ? client.channelManager.ensure({ id, type }) : undefined;
 };
 
 /**
@@ -374,7 +372,7 @@ export const WorkspaceUrlSync = () => {
 
   // Resolve a parsed workspace by entity id and apply it to the controller in ONE atomic write.
   //
-  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channelManager.get()`
+  // Resolution is paginator-first (see `resolveBinding`): channels come from `client.channelManager.ensure()`
   // and threads from `client.threads.get()`, both populated by the list paginators. Entities
   // already paginated are reused with NO network round-trip — so navigating Back/Forward between
   // already-visited workspaces (which keeps those paginators warm, unlike a reload) fetches nothing.

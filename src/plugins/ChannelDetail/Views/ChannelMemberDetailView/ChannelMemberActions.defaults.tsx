@@ -232,8 +232,11 @@ const SendDirectMessageAction = () => {
 
     setIsSending(true);
     try {
-      const directMessageChannel = client.channel(channel.type, {
-        members: [client.userID, targetUserId].map((user_id) => ({ user_id })),
+      const directMessageChannel = client.channelManager.ensure({
+        data: {
+          members: [client.userID, targetUserId].map((user_id) => ({ user_id })),
+        },
+        type: channel.type,
       });
       await directMessageChannel.watch();
       // Selection is one navigation model: open the DM into a layout slot, then route it into

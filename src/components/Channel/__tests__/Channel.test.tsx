@@ -125,7 +125,10 @@ const initClient = async ({
   const chatClient = await getTestClientWithUser(user);
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(chatClient, [getOrCreateChannelApi(mockedChannel)]);
-  const channel = chatClient.channel('messaging', mockedChannel.channel.id);
+  const channel = chatClient.channelManager.ensure({
+    id: mockedChannel.channel.id,
+    type: 'messaging',
+  });
   // `Channel` does not query any more -- whoever supplies the channel initializes it.
   await channel.watch();
 
@@ -215,7 +218,10 @@ describe('Channel', () => {
     // to it, but it does not fetch. A channel that arrives unqueried stays that way, and its
     // children render whatever an empty channel renders.
     const { chatClient } = await setup();
-    const unqueried = chatClient.channel('messaging', 'never-queried');
+    const unqueried = chatClient.channelManager.ensure({
+      id: 'never-queried',
+      type: 'messaging',
+    });
     const watchSpy = vi.spyOn(unqueried, 'watch');
 
     await renderComponent({ channel: unqueried, chatClient });

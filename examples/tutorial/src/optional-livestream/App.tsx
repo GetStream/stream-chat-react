@@ -42,12 +42,16 @@ const App = () => {
     if (!chatClient) return;
 
     const initChannel = async () => {
-      const spaceChannel = chatClient.channel('livestream', 'spacex', {
-        // custom channel fields live under `custom` since v10
-        custom: {
-          image: 'https://goo.gl/Zefkbx',
-          name: 'SpaceX launch discussion',
+      const spaceChannel = chatClient.channelManager.ensure({
+        data: {
+          // custom channel fields live under `custom` since v10
+          custom: {
+            image: 'https://goo.gl/Zefkbx',
+            name: 'SpaceX launch discussion',
+          },
         },
+        id: 'spacex',
+        type: 'livestream',
       });
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the

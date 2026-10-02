@@ -40,28 +40,37 @@ describe('getChannel', () => {
   });
 
   it('throws an error if channel without with id and no channel members array are provided', async () => {
-    const channel = client.channel('type', undefined);
+    const channel = client.channelManager.ensure({ type: 'type' });
     await expect(getChannel({ channel, client })).rejects.toThrow(
       'Channel ID or channel members array have to be provided to query a channel.',
     );
   });
 
   it('throws an error if channel without with id but with channel members array are provided', async () => {
-    const channel = client.channel('messaging', { members: memberIds });
+    const channel = client.channelManager.ensure({
+      data: { members: memberIds },
+      type: 'messaging',
+    });
     await expect(getChannel({ channel, client })).rejects.toThrow(
       'Channel ID or channel members array have to be provided to query a channel.',
     );
   });
 
   it('calls channel.watch for a given channel type and id if channel query not already in progress', async () => {
-    const channel = client.channel('messaging', channelData.channel.id);
+    const channel = client.channelManager.ensure({
+      id: channelData.channel.id,
+      type: 'messaging',
+    });
     vi.spyOn(channel, 'watch').mockResolvedValueOnce(undefined!);
     await getChannel({ client, id: channel.id, type: channel.type });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel type and id if channel query already in progress', () => {
-    const channel = client.channel('messaging', channelData.channel.id);
+    const channel = client.channelManager.ensure({
+      id: channelData.channel.id,
+      type: 'messaging',
+    });
     vi.spyOn(channel, 'watch').mockResolvedValue(undefined!);
     getChannel({ client, id: channel.id, type: channel.type });
     getChannel({ client, id: channel.id, type: channel.type });
@@ -69,14 +78,20 @@ describe('getChannel', () => {
   });
 
   it('calls channel.watch for a given channel type and members array if channel query not already in progress', async () => {
-    const channel = client.channel('messaging', { members: memberIds });
+    const channel = client.channelManager.ensure({
+      data: { members: memberIds },
+      type: 'messaging',
+    });
     vi.spyOn(channel, 'watch').mockResolvedValueOnce(undefined!);
     await getChannel({ client, members: memberIds, type: channelData.channel.type });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel type and members array if channel query already in progress', () => {
-    const channel = client.channel('messaging', { members: memberIds });
+    const channel = client.channelManager.ensure({
+      data: { members: memberIds },
+      type: 'messaging',
+    });
     vi.spyOn(channel, 'watch').mockResolvedValue(undefined!);
     getChannel({ client, members: memberIds, type: channelData.channel.type });
     getChannel({ client, members: memberIds, type: channelData.channel.type });
@@ -84,14 +99,14 @@ describe('getChannel', () => {
   });
 
   it('calls channel.watch for a given channel object with id and type if channel query not already in progress', async () => {
-    const channel = client.channel('messaging', 'id');
+    const channel = client.channelManager.ensure({ id: 'id', type: 'messaging' });
     vi.spyOn(channel, 'watch').mockResolvedValueOnce(undefined!);
     await getChannel({ channel, client });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel object with id and type if channel query already in progress', () => {
-    const channel = client.channel('messaging', 'id');
+    const channel = client.channelManager.ensure({ id: 'id', type: 'messaging' });
     vi.spyOn(channel, 'watch').mockResolvedValue(undefined!);
     getChannel({ channel, client });
     getChannel({ channel, client });
@@ -99,14 +114,14 @@ describe('getChannel', () => {
   });
 
   it('calls channel.watch for a given channel object with type and members array if channel query not already in progress', async () => {
-    const channel = client.channel('messaging', undefined);
+    const channel = client.channelManager.ensure({ type: 'messaging' });
     vi.spyOn(channel, 'watch').mockResolvedValueOnce(undefined!);
     await getChannel({ channel, client, members: memberIds });
     expect(channel.watch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call channel.watch for a given channel object with type and members array if channel query already in progress', () => {
-    const channel = client.channel('messaging', undefined);
+    const channel = client.channelManager.ensure({ type: 'messaging' });
     vi.spyOn(channel, 'watch').mockResolvedValue(undefined!);
     getChannel({ channel, client, members: memberIds });
     getChannel({ channel, client, members: memberIds });

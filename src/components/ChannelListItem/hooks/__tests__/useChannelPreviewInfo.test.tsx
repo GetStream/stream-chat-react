@@ -32,7 +32,10 @@ const getClientAndChannel = async (channelOverrides = {}) => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useMockedApis(client, [getOrCreateChannelApi(mockedChannel)]);
 
-  const channel = client.channel('messaging', mockedChannel.channel.id);
+  const channel = client.channelManager.ensure({
+    id: mockedChannel.channel.id,
+    type: 'messaging',
+  });
   await channel.watch();
 
   return { channel, client };

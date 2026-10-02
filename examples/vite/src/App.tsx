@@ -395,10 +395,10 @@ const App = () => {
 
     targets.forEach(({ cid, messageId }) => {
       const separatorIndex = cid.indexOf(':');
-      const channel = chatClient.channel(
-        cid.slice(0, separatorIndex),
-        cid.slice(separatorIndex + 1),
-      );
+      const channel = chatClient.channelManager.ensure({
+        id: cid.slice(separatorIndex + 1),
+        type: cid.slice(0, separatorIndex),
+      });
 
       void (async () => {
         if (!channel.initialized) await getChannel({ channel, client: chatClient });
