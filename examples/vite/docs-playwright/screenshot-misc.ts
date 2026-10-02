@@ -91,7 +91,7 @@ async function captureBaseImageFallbacks(browser: any) {
   // Send message with a broken image URL
   await page.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: 'Some text',
       attachments: [{
         type: 'image',
@@ -99,13 +99,13 @@ async function captureBaseImageFallbacks(browser: any) {
         thumb_url: 'https://invalid-url-that-will-fail.example/broken-thumb.jpg',
         title: 'broken-image.jpg',
       }],
-    });
+    } });
   })()`);
 
   // Send message with two images (one broken) for gallery view
   await page.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [
         {
@@ -119,7 +119,7 @@ async function captureBaseImageFallbacks(browser: any) {
           thumb_url: 'https://invalid-url-that-will-fail.example/broken2-thumb.jpg',
         },
       ],
-    });
+    } });
   })()`);
 
   await page.close();
@@ -174,7 +174,7 @@ async function captureConnectionStatus(browser: any) {
   // Send a message for context
   await page.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({ text: 'Hey, how are you?' });
+    await ch.sendMessage({ message: { text: 'Hey, how are you?' } });
   })()`);
   await page.close();
 
@@ -215,7 +215,7 @@ async function captureCustomNotification(browser: any) {
   const page = await createChannel(ctx, channelId, USER_A, USER_A);
   await page.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({ text: "Hi! How's it going?!" });
+    await ch.sendMessage({ message: { text: "Hi! How's it going?!" } });
   })()`);
   await page.close();
 

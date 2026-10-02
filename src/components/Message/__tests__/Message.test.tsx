@@ -261,13 +261,15 @@ describe('<Message /> component', () => {
     });
 
     await context.handleReaction(reaction.type);
-    expect(sendReaction).toHaveBeenCalledWith({
-      id: message.id,
-      reaction: {
-        emoji_code: '❤️',
-        type: reaction.type,
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      {
+        reaction: {
+          emoji_code: '❤️',
+          type: reaction.type,
+        },
       },
-    });
+    );
   });
 
   // MERGE-RECONCILE (test migration): the reaction handler no longer gates on the

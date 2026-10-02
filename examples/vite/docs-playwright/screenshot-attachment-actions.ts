@@ -73,7 +73,7 @@ async function seedChannel(contextA: BrowserContext) {
   // Send a message with an image attachment that has custom actions
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'image',
@@ -85,7 +85,7 @@ async function seedChannel(contextA: BrowserContext) {
           { name: 'vote', value: 'Loathe' },
         ],
       }],
-    });
+    } });
   })()`);
 
   console.log('  ✅ Channel seeded');

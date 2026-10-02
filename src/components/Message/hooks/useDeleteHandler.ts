@@ -38,9 +38,8 @@ export const useDeleteHandler = (
           options,
         });
       } else {
-        const deletedMessage = (
-          await client.deleteMessage({ id: message.id, ...options })
-        ).message;
+        const deletedMessage = (await client.deleteMessage({ id: message.id }, options))
+          .message;
         messagePaginator.ingestItem(formatMessage(deletedMessage));
       }
     } catch (e) {

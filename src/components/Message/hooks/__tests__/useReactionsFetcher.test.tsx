@@ -52,12 +52,14 @@ describe('useReactionsFetcher', () => {
     });
 
     expect(queryReactions).toHaveBeenCalledTimes(2);
-    // v10: `client.queryReactions` takes a single request object.
-    expect(queryReactions.mock.calls[0]?.[0]).toEqual(
-      expect.objectContaining({ id: message.id, limit: 25, next: undefined }),
+    // `client.queryReactions` takes the message id as its own path-params argument.
+    expect(queryReactions.mock.calls[0]?.[0]).toEqual({ id: message.id });
+    expect(queryReactions.mock.calls[0]?.[1]).toEqual(
+      expect.objectContaining({ limit: 25, next: undefined }),
     );
-    expect(queryReactions.mock.calls[1]?.[0]).toEqual(
-      expect.objectContaining({ id: message.id, limit: 25, next: 'page-2' }),
+    expect(queryReactions.mock.calls[1]?.[0]).toEqual({ id: message.id });
+    expect(queryReactions.mock.calls[1]?.[1]).toEqual(
+      expect.objectContaining({ limit: 25, next: 'page-2' }),
     );
     expect(reactions!).toHaveLength(2);
   });

@@ -70,12 +70,12 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
   // Send a few normal messages for context
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({ text: 'Hey John, quick question about the project' });
+    await ch.sendMessage({ message: { text: 'Hey John, quick question about the project' } });
   })()`);
 
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({ text: 'Sure, what is it?' });
+    await ch.sendMessage({ message: { text: 'Sure, what is it?' } });
   })()`);
 
   // Inject a system message into channel state via truncate with a system message
