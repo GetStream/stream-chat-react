@@ -109,15 +109,7 @@ export const PollOptionSelector = ({
         'str-chat__poll-option--votable': canCastVote,
       })}
       key={`base-poll-option-${option.id}`}
-      onClick={
-        isInteractive
-          ? (event) => {
-              // a double click would otherwise cast and immediately remove the vote
-              if (event.detail > 1) return;
-              toggleVote();
-            }
-          : undefined
-      }
+      onClick={isInteractive ? toggleVote : undefined}
       onKeyDown={
         isInteractive
           ? (event) => {
