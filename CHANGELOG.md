@@ -1,3 +1,9 @@
+## [14.12.2](https://github.com/GetStream/stream-chat-react/compare/v14.12.1...v14.12.2) (2026-10-05)
+
+### Bug Fixes
+
+* **Poll:** vote without debounce, relying on stream-chat optimistic votes ([#3308](https://github.com/GetStream/stream-chat-react/issues/3308)) ([35d1152](https://github.com/GetStream/stream-chat-react/commit/35d115236b4abe9249fe1fa9e956409f2adf122a))
+
 ## [14.12.1](https://github.com/GetStream/stream-chat-react/compare/v14.12.0...v14.12.1) (2026-09-30)
 
 ### Bug Fixes
