@@ -1,6 +1,5 @@
 import clsx from 'clsx';
-import debounce from 'lodash.debounce';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { PollOption, PollState, PollVote, VotingVisibility } from 'stream-chat';
 import { isVoteAnswer } from 'stream-chat';
 import { AvatarStack as DefaultAvatarStack } from '../Avatar';
@@ -85,17 +84,13 @@ export const PollOptionSelector = ({
     ? vote_counts_by_option[maxVotedOptionIds[0]]
     : 0;
 
-  const toggleVote = useMemo(
-    () =>
-      debounce(() => {
-        if (!canCastVote) return;
-        const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
-        return haveVotedForTheOption
-          ? poll.removeVote(ownVotesByOptionId[option.id].id, message.id)
-          : poll.castVote(option.id, message.id);
-      }, 100),
-    [canCastVote, message.id, option.id, ownVotesByOptionId, poll],
-  );
+  const toggleVote = useCallback(() => {
+    if (!canCastVote) return;
+    const haveVotedForTheOption = !!ownVotesByOptionId[option.id];
+    return haveVotedForTheOption
+      ? poll.removeVote(ownVotesByOptionId[option.id].id, message.id)
+      : poll.castVote(option.id, message.id);
+  }, [canCastVote, message.id, option.id, ownVotesByOptionId, poll]);
 
   const avatarDisplayInfo = useMemo(
     () =>
@@ -120,6 +115,8 @@ export const PollOptionSelector = ({
           ? (event) => {
               if (event.key !== 'Enter' && event.key !== ' ') return;
               event.preventDefault();
+              // a held key would otherwise toggle the vote on every auto-repeat
+              if (event.repeat) return;
               toggleVote();
             }
           : undefined

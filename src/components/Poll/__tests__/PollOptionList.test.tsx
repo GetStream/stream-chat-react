@@ -307,6 +307,92 @@ describe('PollOptionList', () => {
     });
   });
 
+  it('ignores auto-repeated key presses on a held key', async () => {
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: pollWithNoVotes,
+    });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue(fromPartial({}));
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    act(() => {
+      fireEvent.keyDown(firstOption, { key: 'Enter' });
+      fireEvent.keyDown(firstOption, { key: 'Enter', repeat: true });
+      fireEvent.keyDown(firstOption, { key: ' ', repeat: true });
+    });
+
+    await waitFor(() => {
+      expect(castVoteSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(removeVoteSpy).not.toHaveBeenCalled();
+  });
+
+  // Renders a poll whose votes go through stream-chat's optimistic vote updates, with only the
+  // vote requests mocked. Each cast gets a new server vote id: server-vote-1, server-vote-2...
+  const renderWithOptimisticVotes = async () => {
+    const client = await getTestClientWithUser(generateUser());
+    const poll = new Poll({ client, poll: pollWithNoVotes });
+    const optionId = pollWithNoVotes.options[0].id;
+    const requests: string[] = [];
+    let castCount = 0;
+    vi.spyOn(client, 'castPollVote').mockImplementation(() => {
+      const id = `server-vote-${++castCount}`;
+      requests.push(`cast ${id}`);
+      return Promise.resolve(
+        fromPartial({
+          vote: {
+            created_at: new Date().toISOString(),
+            id,
+            option_id: optionId,
+            poll_id: pollWithNoVotes.id,
+            updated_at: new Date().toISOString(),
+            user: client.user,
+            user_id: client.userID,
+          },
+        }),
+      );
+    });
+    vi.spyOn(client, 'removePollVote').mockImplementation((_, __, voteId) => {
+      requests.push(`remove ${voteId}`);
+      return Promise.resolve(fromPartial({}));
+    });
+
+    const { container } = renderComponent({ poll });
+    const option = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+    return { client, option, optionId, requests };
+  };
+
+  it('toggles the vote on rapid clicks without waiting for the server', async () => {
+    const { client, option, optionId, requests } = await renderWithOptimisticVotes();
+    const messageId = defaultMessageContext.message.id;
+
+    // the second click lands before the server responded to the first one
+    act(() => {
+      fireEvent.click(option);
+    });
+    expect(option).toHaveAttribute('aria-pressed', 'true');
+    act(() => {
+      fireEvent.click(option);
+    });
+    expect(option).toHaveAttribute('aria-pressed', 'false');
+
+    // the removal waits for the cast and removes the vote the server created
+    await waitFor(() => {
+      expect(requests).toEqual(['cast server-vote-1', 'remove server-vote-1']);
+    });
+    expect(client.castPollVote).toHaveBeenCalledWith(messageId, pollWithNoVotes.id, {
+      option_id: optionId,
+    });
+    expect(client.removePollVote).toHaveBeenCalledWith(
+      messageId,
+      pollWithNoVotes.id,
+      'server-vote-1',
+    );
+  });
+
   it('passes axe on the default poll option list', async () => {
     const poll = new Poll({ client: fromPartial<StreamChat>({}), poll: generatePoll() });
     const { container } = renderComponent({ poll });
