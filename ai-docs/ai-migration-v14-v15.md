@@ -913,8 +913,9 @@ reads `muteStatus` instead of subscribing to `notification.channel_mutes_updated
 
 ### `<Channel>` declares the channel active, and owns its message window
 
-`<Channel>` now calls `channel.activate()` on mount and `channel.deactivate()` on unmount (refcounted,
-so several consumers can hold one instance), and calls `channel.reload()` on `connection.recovered`.
+`<Channel>` now calls `channel.activate()` on mount and the release function it returns on unmount
+(refcounted, so several consumers can hold one instance), and calls `channel.reload()` on
+`connection.recovered`.
 
 These two go together and **a custom channel surface must do both**. While a channel is active, the
 client deliberately skips re-seeding its message list on channel-list hydration and on reconnect — its
@@ -923,8 +924,8 @@ Nothing in the client calls `reload()` for you:
 
 ```ts
 useEffect(() => {
-  channel.activate();
-  return () => channel.deactivate();
+  const release = channel.activate();
+  return release;
 }, [channel]);
 
 client.on('connection.recovered', () => {

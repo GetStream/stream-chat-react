@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
+import { ChannelWatchStatus } from 'stream-chat';
 
 import {
   ChannelSearchResultItem,
@@ -129,6 +130,38 @@ describe('SearchResultItem Components', () => {
         expect.objectContaining({ event: expect.anything() }),
       );
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
+    });
+
+    it('watches the opened channel when the search did not', async () => {
+      const channelSearchData = generateChannel();
+      const { client } = await renderComponent({
+        channelSearchData,
+        SearchResultItemComponent,
+      });
+      const channel = client.channelManager.get(channelSearchData.channel.cid);
+      if (!channel) throw new Error('the result channel is not stored');
+      channel.watchStatus = ChannelWatchStatus.NotWatching;
+      const watch = vi.spyOn(channel, 'watch').mockResolvedValue(undefined as never);
+
+      fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+
+      expect(watch).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not watch an opened channel that is already watched', async () => {
+      const channelSearchData = generateChannel();
+      const { client } = await renderComponent({
+        channelSearchData,
+        SearchResultItemComponent,
+      });
+      const channel = client.channelManager.get(channelSearchData.channel.cid);
+      if (!channel) throw new Error('the result channel is not stored');
+      channel.watchStatus = ChannelWatchStatus.Watching;
+      const watch = vi.spyOn(channel, 'watch');
+
+      fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+
+      expect(watch).not.toHaveBeenCalled();
     });
 
     it('runs a custom onSelect instead of the default open', async () => {

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import type { OwnUserResponse, StreamChat } from 'stream-chat';
-import { ChannelPaginator } from 'stream-chat';
+import { ChannelPaginator, SearchController } from 'stream-chat';
 
 import { Chat } from '..';
 
@@ -220,6 +220,64 @@ describe('Chat', () => {
     await waitFor(() => {
       expect(context.client).toBe(newClient);
       expect(context.theme).toBe(newTheme);
+    });
+  });
+
+  describe('search controller', () => {
+    it('disposes the controller it created when it unmounts', async () => {
+      let controller: ChatContextValue['searchController'] | undefined;
+      const { unmount } = render(
+        <Chat client={chatClient}>
+          <ChatContextConsumer
+            fn={(ctx: ChatContextValue) => {
+              controller = ctx.searchController;
+            }}
+          />
+        </Chat>,
+      );
+      await waitFor(() => expect(controller).toBeDefined());
+      const dispose = vi.spyOn(controller as SearchController, 'dispose');
+
+      unmount();
+
+      expect(dispose).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves a controller passed in to the app', () => {
+      const controller = new SearchController({ client: chatClient });
+      const dispose = vi.spyOn(controller, 'dispose');
+      const registerSubscriptions = vi.spyOn(controller, 'registerSubscriptions');
+      const { unmount } = render(
+        <Chat client={chatClient} searchController={controller}>
+          <div />
+        </Chat>,
+      );
+
+      unmount();
+
+      expect(registerSubscriptions).not.toHaveBeenCalled();
+      expect(dispose).not.toHaveBeenCalled();
+    });
+
+    it('takes back what it released when StrictMode mounts it a second time', async () => {
+      let controller: ChatContextValue['searchController'] | undefined;
+      render(
+        <React.StrictMode>
+          <Chat client={chatClient}>
+            <ChatContextConsumer
+              fn={(ctx: ChatContextValue) => {
+                controller = ctx.searchController;
+              }}
+            />
+          </Chat>
+        </React.StrictMode>,
+      );
+      await waitFor(() => expect(controller).toBeDefined());
+
+      // a disposed controller would stop hearing client.config
+      chatClient.config.set({ searchController: { keepSingleActiveSource: false } });
+      expect(controller?.config.keepSingleActiveSource).toBe(false);
+      chatClient.config.reset('searchController');
     });
   });
 

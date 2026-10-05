@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ComponentType } from 'react';
-import { convertTimestampToDate, formatMessage } from 'stream-chat';
+import { ChannelWatchStatus, convertTimestampToDate, formatMessage } from 'stream-chat';
 import type {
   Channel,
   ChannelResponse,
@@ -21,6 +21,7 @@ import {
 } from '../../../context';
 import { Timestamp } from '../../../components/Message/Timestamp';
 import { useStateStore } from '../../../store';
+import { getChannel } from '../../../utils/getChannel';
 
 type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
 
@@ -40,7 +41,7 @@ export const ChannelSearchResultItem = ({
   onSelect,
 }: ChannelSearchResultItemProps) => {
   const { openChannel } = useWorkspaceNavigation();
-  const { channelManager } = useChatContext();
+  const { channelManager, client } = useChatContext();
 
   const handleSelect = useCallback(
     (event: React.MouseEvent) => {
@@ -51,11 +52,16 @@ export const ChannelSearchResultItem = ({
       // Default: open the channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` (e.g. via ChatView's `deriveWorkspaceNavigation`) can honor ⌘/ctrl-click.
       openChannel(item, { event });
+      // Channel search doesn't watch its results, and `Channel` doesn't watch either, so the opened
+      // channel is watched here to receive its events.
+      if (item.watchStatus !== ChannelWatchStatus.Watching) {
+        void getChannel({ channel: item, client }).catch(() => undefined);
+      }
       // Route the channel into the list(s) that should own it (the channel manager dedupes by cid,
       // inserts in sort order, and honors ownership/filters) so it appears without a re-query.
       channelManager.ingestChannel(item);
     },
-    [item, openChannel, channelManager, onSelect],
+    [item, openChannel, channelManager, client, onSelect],
   );
 
   return (
