@@ -307,6 +307,105 @@ describe('PollOptionList', () => {
     });
   });
 
+  it('ignores auto-repeated key presses on a held key', async () => {
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: pollWithNoVotes,
+    });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue(fromPartial({}));
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    act(() => {
+      fireEvent.keyDown(firstOption, { key: 'Enter' });
+      fireEvent.keyDown(firstOption, { key: 'Enter', repeat: true });
+      fireEvent.keyDown(firstOption, { key: ' ', repeat: true });
+    });
+
+    await waitFor(() => {
+      expect(castVoteSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(removeVoteSpy).not.toHaveBeenCalled();
+  });
+
+  it('treats a double click as a single vote toggle', async () => {
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: pollWithNoVotes,
+    });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue(fromPartial({}));
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    // the browser reports the click count of a multi-click in `detail`
+    act(() => {
+      fireEvent.click(firstOption, { detail: 1 });
+      fireEvent.click(firstOption, { detail: 2 });
+      fireEvent.click(firstOption, { detail: 3 });
+    });
+
+    await waitFor(() => {
+      expect(castVoteSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(removeVoteSpy).not.toHaveBeenCalled();
+  });
+
+  it('toggles the vote on rapid clicks without waiting for the server', async () => {
+    const client = await getTestClientWithUser(generateUser());
+    const poll = new Poll({ client, poll: pollWithNoVotes });
+    const optionId = pollWithNoVotes.options[0].id;
+    const messageId = defaultMessageContext.message.id;
+    const serverVote = {
+      created_at: new Date().toISOString(),
+      id: 'server-vote-id',
+      option_id: optionId,
+      poll_id: pollWithNoVotes.id,
+      updated_at: new Date().toISOString(),
+      user: client.user,
+      user_id: client.userID,
+    };
+    const castPollVoteSpy = vi
+      .spyOn(client, 'castPollVote')
+      .mockResolvedValue(fromPartial({ vote: serverVote }));
+    const removePollVoteSpy = vi
+      .spyOn(client, 'removePollVote')
+      .mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    // separate clicks (not a double click), the second one lands before the server
+    // responded to the first one
+    act(() => {
+      fireEvent.click(firstOption, { detail: 1 });
+    });
+    expect(firstOption).toHaveAttribute('aria-pressed', 'true');
+    act(() => {
+      fireEvent.click(firstOption, { detail: 1 });
+    });
+    expect(firstOption).toHaveAttribute('aria-pressed', 'false');
+
+    await waitFor(() => {
+      expect(removePollVoteSpy).toHaveBeenCalledWith(
+        messageId,
+        pollWithNoVotes.id,
+        serverVote.id,
+      );
+    });
+    expect(castPollVoteSpy).toHaveBeenCalledTimes(1);
+    expect(castPollVoteSpy).toHaveBeenCalledWith(messageId, pollWithNoVotes.id, {
+      option_id: optionId,
+    });
+    expect(removePollVoteSpy).toHaveBeenCalledTimes(1);
+    expect(castPollVoteSpy.mock.invocationCallOrder[0]).toBeLessThan(
+      removePollVoteSpy.mock.invocationCallOrder[0],
+    );
+  });
+
   it('passes axe on the default poll option list', async () => {
     const poll = new Poll({ client: fromPartial<StreamChat>({}), poll: generatePoll() });
     const { container } = renderComponent({ poll });
