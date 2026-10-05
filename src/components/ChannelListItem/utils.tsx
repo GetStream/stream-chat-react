@@ -13,7 +13,10 @@ import type { PluggableList } from 'unified';
 import { htmlToTextPlugin, imageToLink, plusPlusToEmphasis } from '../Message';
 import { isMessageDeleted } from '../Message/utils';
 import remarkGfm from 'remark-gfm';
-import { extractDisplayInfo } from '../Avatar/utils';
+import {
+  deriveChannelDisplayImage,
+  deriveGroupChannelDisplayInfo,
+} from './channelDisplayState';
 
 const remarkPlugins: PluggableList = [
   htmlToTextPlugin,
@@ -358,34 +361,13 @@ export type GroupChannelDisplayInfo = {
 export const getChannelDisplayImage = (
   channel: Channel,
   currentUserId?: string,
-): string | undefined => {
-  const image = channel.data?.custom?.image;
-  if (image && typeof image === 'string') return image;
-
-  const memberList = Object.values(channel.state.members);
-  if (memberList.length === 2) {
-    const other = memberList.find((m) => m.user?.id !== currentUserId);
-    const image = other?.user?.image;
-    if (image && typeof image === 'string') return image;
-  }
-  return undefined;
-};
+): string | undefined =>
+  deriveChannelDisplayImage(
+    { data: channel.data, members: channel.state.members },
+    currentUserId,
+  );
 
 export const getGroupChannelDisplayInfo = (
   channel: Channel,
-): GroupChannelDisplayInfo | undefined => {
-  const members = Object.values(channel.state.members);
-  if (members.length <= 2) return;
-
-  const memberList: GroupChannelDisplayInfoMember[] = [];
-  for (const member of members) {
-    const { user } = member;
-
-    if (!user?.name && !user?.image) continue;
-
-    memberList.push(extractDisplayInfo(member));
-  }
-  return {
-    members: memberList,
-  };
-};
+): GroupChannelDisplayInfo | undefined =>
+  deriveGroupChannelDisplayInfo({ data: channel.data, members: channel.state.members });
