@@ -3,8 +3,10 @@ import {
   defaultChatViewSelectorItemSet,
 } from 'stream-chat-react/slot-layout';
 import { AppSettings } from '../AppSettings';
+import { UserProfileButton } from '../UserProfile';
 
 export const chatViewSelectorItemSet: ChatViewSelectorEntry[] = [
   ...defaultChatViewSelectorItemSet,
   { Component: AppSettings, type: 'settings' },
+  { Component: UserProfileButton, type: 'profile' },
 ];
