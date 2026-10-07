@@ -114,13 +114,15 @@ describe('useReactionHandler custom hook', () => {
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('love');
-    expect(sendReaction).toHaveBeenCalledWith({
-      id: message.id,
-      reaction: {
-        emoji_code: '❤️',
-        type: 'love',
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      {
+        reaction: {
+          emoji_code: '❤️',
+          type: 'love',
+        },
       },
-    });
+    );
   });
 
   it('should send reaction without emoji_code when the type has no unicode', async () => {
@@ -130,12 +132,14 @@ describe('useReactionHandler custom hook', () => {
     const message = generateMessage({ own_reactions: [] });
     const handleReaction = await renderUseReactionHandlerHook({ message });
     await handleReaction('unsupported-reaction-type');
-    expect(sendReaction).toHaveBeenCalledWith({
-      id: message.id,
-      reaction: {
-        type: 'unsupported-reaction-type',
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      {
+        reaction: {
+          type: 'unsupported-reaction-type',
+        },
       },
-    });
+    );
   });
 
   it('should derive emoji_code from custom reaction options provided via context', async () => {
@@ -158,13 +162,15 @@ describe('useReactionHandler custom hook', () => {
       message,
     });
     await handleReaction('rocket');
-    expect(sendReaction).toHaveBeenCalledWith({
-      id: message.id,
-      reaction: {
-        emoji_code: '🚀',
-        type: 'rocket',
+    expect(sendReaction).toHaveBeenCalledWith(
+      { id: message.id },
+      {
+        reaction: {
+          emoji_code: '🚀',
+          type: 'rocket',
+        },
       },
-    });
+    );
   });
 
   it('should stamp emoji_code on the optimistic reaction preview ingested into the paginator', async () => {

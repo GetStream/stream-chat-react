@@ -84,7 +84,7 @@ describe('useDeleteHandler custom hook', () => {
       .spyOn(channel, 'deleteMessageWithLocalUpdate')
       .mockResolvedValue(undefined);
     const message = generateMessage();
-    const deleteMessageOptions = { deleteForMe: true, hard: false };
+    const deleteMessageOptions = { delete_for_me: true, hard: false };
     const handleDelete = await renderUseDeleteHandler(message);
     await act(async () => {
       await handleDelete(deleteMessageOptions);

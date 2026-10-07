@@ -77,7 +77,7 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
   // 1. Normal voice recording (full data) — for voice-recording-player.png
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -88,14 +88,14 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         duration: 5.2,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
   })()`);
 
   // 2. Voice recording for quoted reply — for voice-recording-quoted.png
   // First send a message with voice recording from user B
   const r2: any = await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    var m = await ch.sendMessage({
+    var m = await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -106,23 +106,23 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         duration: 44,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
     return { id: m.message.id };
   })()`);
 
   // Then quote-reply it
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: 'Nice voice message!',
       quoted_message_id: ${JSON.stringify(r2.id)},
-    });
+    } });
   })()`);
 
   // 3. Voice recording with full waveform + file icon (for navigation/stopped screenshots)
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -133,13 +133,13 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         duration: 7.5,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
   })()`);
 
   // 4. Voice recording WITHOUT duration (file size fallback)
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -149,13 +149,13 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         file_size: 21342,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
   })()`);
 
   // 5. Voice recording WITHOUT title (fallback title)
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -165,13 +165,13 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         duration: 7.2,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
   })()`);
 
   // 6. Voice recording for quoted reply WITHOUT title
   const r6: any = await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    var m = await ch.sendMessage({
+    var m = await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -181,23 +181,23 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         duration: 44,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
     return { id: m.message.id };
   })()`);
 
   // Quote the no-title message
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: 'Replying to voice message',
       quoted_message_id: ${JSON.stringify(r6.id)},
-    });
+    } });
   })()`);
 
   // 7. Voice recording for quoted reply WITHOUT duration (file size fallback)
   const r7: any = await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    var m = await ch.sendMessage({
+    var m = await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -207,22 +207,22 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         file_size: 68421,
         waveform_data: ${WAVEFORM_DATA},
       }],
-    });
+    } });
     return { id: m.message.id };
   })()`);
 
   await pageA.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: 'Got it!',
       quoted_message_id: ${JSON.stringify(r7.id)},
-    });
+    } });
   })()`);
 
   // 8. Voice recording WITHOUT waveform_data (empty waveform)
   await pageB.evaluate(`(async () => {
     var ch = window.channel;
-    await ch.sendMessage({
+    await ch.sendMessage({ message: {
       text: '',
       attachments: [{
         type: 'voiceRecording',
@@ -233,7 +233,7 @@ async function seedChannel(contextA: BrowserContext, contextB: BrowserContext) {
         duration: 7.0,
         waveform_data: [],
       }],
-    });
+    } });
   })()`);
 
   console.log('  ✅ Channel seeded');

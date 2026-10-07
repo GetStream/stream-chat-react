@@ -68,7 +68,7 @@ Cross-repo sequencing is required; React branch depends on upstream JS behavior 
 Extend `MessagePaginator` with optional `parentMessageId`:
 
 - when absent, query channel messages (`channel.query({ messages: ... })`) as before;
-- when present, query thread replies (`client.getReplies({ parent_id, ... })`);
+- when present, query thread replies (`client.getReplies({ parent_id }, { ...pagination })`);
 - include `parent_id` in client-side filters only for thread mode.
 
 `Thread` now constructs `MessagePaginator` with `parentMessageId: thread.id`.
@@ -775,7 +775,7 @@ This keeps initial-scroll ownership in the top-level list scroll logic and avoid
 
 - `jumpToReplyInChannelMessages` must use `channel.messagePaginator`.
 - For channel jumps while `activeView === 'threads'`, query the target channel before paginator jump.
-- `jumpToReplyInThread` must resolve thread instance from `client.threads.threadsById[parentId]`; if absent, fetch via `client.getThread(parentId, { watch: true })`, then call `thread.messagePaginator.jumpToMessage(replyId)`.
+- `jumpToReplyInThread` must resolve thread instance from `client.threads.get(parentId)`; if absent, fetch via `client.getThreadAndHydrate(parentId, { watch: true })`, then call `thread.messagePaginator.jumpToMessage(replyId)`.
 
 **Notes:**  
 Add TODO in component to replace unconditional pre-query with `ChannelListOrchestrator` loaded-instance check before querying channel.
