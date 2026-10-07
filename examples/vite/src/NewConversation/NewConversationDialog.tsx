@@ -6,11 +6,13 @@ import {
   IconLoading,
   IconXmark,
   Prompt,
+  SwitchField,
   TextInput,
   useChatContext,
   useWorkspaceNavigation,
 } from 'stream-chat-react';
 
+import { SearchableSelect } from '../AppSettings/SearchableSelect';
 import { createGroup, openOneToOne } from './createConversation';
 
 const SEARCH_DEBOUNCE_MS = 250;
@@ -56,6 +58,9 @@ const useUserSearch = (query: string) => {
 };
 
 const displayName = (user: UserResponse) => user.name || user.id;
+
+const optionLabel = (user: UserResponse) =>
+  user.name && user.name !== user.id ? `${user.name} (${user.id})` : user.id;
 
 const ImagePicker = ({
   image,
@@ -125,10 +130,9 @@ const ImagePicker = ({
 };
 
 /**
- * Starts a conversation: pick the members, optionally name it and give it an image. Nothing is
- * created on the server here. One other member opens the 1:1 conversation with them, the existing
- * one if there is one; more members start a new group. A new conversation is created on the
- * server when its first message is sent.
+ * Starts a conversation: pick the members, optionally name it and give it an image. One other member
+ * opens the 1:1 conversation with them, the existing one if there is one; a new 1:1 is created on the
+ * server when its first message is sent. More members create a new group on the server right away.
  */
 export const NewConversationDialog = ({ onClose }: { onClose: () => void }) => {
   const { client } = useChatContext();
@@ -138,18 +142,28 @@ export const NewConversationDialog = ({ onClose }: { onClose: () => void }) => {
   const [name, setName] = useState('');
   const [image, setImage] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
+  const [lookUpExisting, setLookUpExisting] = useState(true);
   const [error, setError] = useState<string>();
   const { searching, users } = useUserSearch(query);
 
   const isOneToOne = selected.length === 1;
+  // the connected user, who creates the conversation and is always one of its members
+  const me = client.user as UserResponse | undefined;
   const selectedIds = new Set(selected.map(({ id }) => id));
+  const candidates = users.filter(({ id }) => !selectedIds.has(id));
 
-  const toggle = (user: UserResponse) =>
-    setSelected((current) =>
-      current.some(({ id }) => id === user.id)
-        ? current.filter(({ id }) => id !== user.id)
-        : [...current, user],
-    );
+  const add = (userId: string) => {
+    const user = users.find(({ id }) => id === userId);
+    if (user) setSelected((current) => [...current, user]);
+  };
+  const remove = (userId: string) =>
+    setSelected((current) => current.filter(({ id }) => id !== userId));
+
+  const searchStatus = !query.trim()
+    ? 'Type a name or id'
+    : searching
+      ? 'Searching…'
+      : `No one else matches “${query.trim()}”`;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -159,12 +173,8 @@ export const NewConversationDialog = ({ onClose }: { onClose: () => void }) => {
     try {
       const details = { image, name };
       const { channel, existed } = isOneToOne
-        ? await openOneToOne(client, selected[0].id, details)
-        : createGroup(
-            client,
-            selected.map(({ id }) => id),
-            details,
-          );
+        ? await openOneToOne(client, selected[0], details, { lookUpExisting })
+        : await createGroup(client, selected, details);
       if (existed && (name.trim() || image)) {
         client.notifications.addInfo({
           message:
@@ -185,81 +195,79 @@ export const NewConversationDialog = ({ onClose }: { onClose: () => void }) => {
       <Prompt.Header close={onClose} title='New conversation' />
       <form className='app__new-conversation__form' onSubmit={submit}>
         <Prompt.Body className='app__new-conversation__body'>
-          <TextInput
-            aria-label='Search for people'
-            autoFocus
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder='Search people by name or id'
-            trailing={searching ? <IconLoading /> : undefined}
-            value={query}
-          />
+          <div className='app__new-conversation__details'>
+            <ImagePicker image={image} name={name} onChange={setImage} />
+            <TextInput
+              aria-label='Conversation name'
+              onChange={(event) => setName(event.target.value)}
+              placeholder={isOneToOne ? 'Name (optional)' : 'Group name (optional)'}
+              value={name}
+            />
+          </div>
 
-          {selected.length > 0 && (
+          <div className='app__new-conversation__members'>
+            <SearchableSelect<string>
+              emptyLabel='Add people'
+              emptyOptionsLabel={searchStatus}
+              filterOptions={false}
+              onChange={add}
+              onSearchChange={setQuery}
+              options={candidates.map((user) => ({
+                label: optionLabel(user),
+                value: user.id,
+              }))}
+              searchPlaceholder='Search people by name or id'
+              value=''
+            />
+
             <ul aria-label='Members' className='app__new-conversation__chips'>
-              {selected.map((user) => (
-                <li className='app__new-conversation__chip' key={user.id}>
-                  <Avatar imageUrl={user.image} size='xs' userName={displayName(user)} />
-                  <span>{displayName(user)}</span>
-                  <button
-                    aria-label={`Remove ${displayName(user)}`}
-                    className='app__new-conversation__chip-remove'
-                    onClick={() => toggle(user)}
-                    type='button'
-                  >
-                    <IconXmark />
-                  </button>
+              {me && (
+                <li className='app__new-conversation__chip'>
+                  <Avatar imageUrl={me.image} size='xs' userName={displayName(me)} />
+                  <span>{displayName(me)} (you)</span>
                 </li>
-              ))}
-            </ul>
-          )}
-
-          {query.trim() && (
-            <ul aria-label='Search results' className='app__new-conversation__results'>
-              {users.length === 0 && !searching ? (
-                <li className='app__new-conversation__empty'>
-                  No one matches “{query.trim()}”.
-                </li>
-              ) : (
-                users.map((user) => (
-                  <li key={user.id}>
+              )}
+              {selected.length ? (
+                selected.map((user) => (
+                  <li className='app__new-conversation__chip' key={user.id}>
+                    <Avatar
+                      imageUrl={user.image}
+                      size='xs'
+                      userName={displayName(user)}
+                    />
+                    <span>{displayName(user)}</span>
                     <button
-                      aria-pressed={selectedIds.has(user.id)}
-                      className='app__new-conversation__result'
-                      onClick={() => toggle(user)}
+                      aria-label={`Remove ${displayName(user)}`}
+                      className='app__new-conversation__chip-remove'
+                      onClick={() => remove(user.id)}
                       type='button'
                     >
-                      <Avatar
-                        imageUrl={user.image}
-                        size='sm'
-                        userName={displayName(user)}
-                      />
-                      <span className='app__new-conversation__result-name'>
-                        {displayName(user)}
-                      </span>
-                      <span className='app__new-conversation__result-id'>{user.id}</span>
+                      <IconXmark />
                     </button>
                   </li>
                 ))
+              ) : (
+                <li className='app__new-conversation__empty'>Add at least one person.</li>
               )}
             </ul>
-          )}
 
-          {selected.length > 0 && (
-            <div className='app__new-conversation__details'>
-              <ImagePicker image={image} name={name} onChange={setImage} />
-              <TextInput
-                aria-label='Conversation name'
-                onChange={(event) => setName(event.target.value)}
-                placeholder={isOneToOne ? 'Name (optional)' : 'Group name (optional)'}
-                value={name}
-              />
-              <p className='app__new-conversation__hint'>
-                {isOneToOne
+            <p className='app__new-conversation__hint'>
+              {!selected.length
+                ? 'Add one person for a 1:1 conversation, or more for a group.'
+                : isOneToOne
                   ? 'Opens your conversation with this person. If it is new, it is created when you send the first message, with this name and image.'
-                  : 'Starts a new group. It is created when you send the first message.'}
-              </p>
-            </div>
-          )}
+                  : 'Creates a new group with these members, name and image.'}
+            </p>
+
+            {isOneToOne && (
+              <SwitchField
+                checked={!lookUpExisting}
+                id='new-conversation-skip-lookup-switch'
+                onChange={(event) => setLookUpExisting(!event.target.checked)}
+                title='Dev: open as a new local conversation even if one exists (tests the cid swap)'
+              />
+            )}
+          </div>
 
           {error && <div className='app__new-conversation__error'>{error}</div>}
         </Prompt.Body>

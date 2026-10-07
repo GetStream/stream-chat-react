@@ -1,7 +1,8 @@
 @layer stream-app-overrides {
+  // a fixed height, so the dialog doesn't resize as people are added or results come and go
   .app__new-conversation {
     width: min(440px, 92vw);
-    max-height: min(80dvh, 720px);
+    height: min(80dvh, 560px);
     display: flex;
     flex-direction: column;
     background: var(--str-chat__background-core-elevation-2);
@@ -17,23 +18,21 @@
   }
 
   .app__new-conversation__body {
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     gap: var(--str-chat__spacing-sm);
     overflow-y: auto;
   }
 
-  .app__new-conversation__chips,
-  .app__new-conversation__results {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-
   .app__new-conversation__chips {
     display: flex;
     flex-wrap: wrap;
     gap: var(--str-chat__spacing-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
   .app__new-conversation__chip {
@@ -61,67 +60,20 @@
     }
   }
 
-  .app__new-conversation__results {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--str-chat__border-core-default);
-    padding-top: var(--str-chat__spacing-xs);
-  }
-
-  .app__new-conversation__result {
-    display: flex;
-    align-items: center;
-    gap: var(--str-chat__spacing-sm);
-    width: 100%;
-    padding: var(--str-chat__spacing-xs);
-    border: none;
-    border-radius: var(--str-chat__radius-md, 8px);
-    background: none;
-    color: inherit;
-    text-align: start;
-    cursor: pointer;
-
-    &:hover {
-      background: var(--str-chat__background-core-surface);
-    }
-
-    &[aria-pressed='true'] {
-      background: var(
-        --str-chat__background-core-surface-strong,
-        var(--str-chat__background-core-surface)
-      );
-    }
-
-    &:focus-visible {
-      outline: 2px solid var(--str-chat__border-utility-selected);
-      outline-offset: -2px;
-    }
-  }
-
-  .app__new-conversation__result-name {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .app__new-conversation__result-id {
+  .app__new-conversation__empty {
     font: var(--str-chat__font-caption-default);
     color: var(--str-chat__text-tertiary);
   }
 
-  .app__new-conversation__empty {
-    padding: var(--str-chat__spacing-xs);
-    color: var(--str-chat__text-tertiary);
-  }
-
-  .app__new-conversation__details {
+  .app__new-conversation__details,
+  .app__new-conversation__members {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: var(--str-chat__spacing-xs);
-    border-top: 1px solid var(--str-chat__border-core-default);
+  }
+
+  .app__new-conversation__members {
     padding-top: var(--str-chat__spacing-sm);
   }
 
