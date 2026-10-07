@@ -728,6 +728,8 @@ export const deTranslations = {
   'search.sourceResults.searching.text': 'Suche nach {{ searchSourceType }}...',
   'slotLayout.chatView.channels.text': 'Kanäle',
   'slotLayout.chatView.chatViewControls.ariaLabel': 'Chat-Ansichtssteuerung',
+  'slotLayout.chatView.empty.channels.text': 'Kein Chat ausgewählt',
+  'slotLayout.chatView.empty.threads.text': 'Kein Thread ausgewählt',
   'slotLayout.chatView.openChannelsView.ariaLabel': 'Kanalansicht öffnen',
   'slotLayout.chatView.openThreadsView.ariaLabel': 'Thread-Ansicht öffnen',
   'slotLayout.chatView.openThreadsViewUnread.ariaLabel_one':

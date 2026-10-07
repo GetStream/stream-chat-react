@@ -726,6 +726,8 @@ export const itTranslations = {
   'search.sourceResults.searching.text': 'Ricerca di {{ searchSourceType }}...',
   'slotLayout.chatView.channels.text': 'Canali',
   'slotLayout.chatView.chatViewControls.ariaLabel': 'Controlli della vista chat',
+  'slotLayout.chatView.empty.channels.text': 'Nessuna chat selezionata',
+  'slotLayout.chatView.empty.threads.text': 'Nessun thread selezionato',
   'slotLayout.chatView.openChannelsView.ariaLabel': 'Apri la vista dei canali',
   'slotLayout.chatView.openThreadsView.ariaLabel': 'Apri la vista dei thread',
   'slotLayout.chatView.openThreadsViewUnread.ariaLabel_one':

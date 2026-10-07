@@ -41,7 +41,7 @@ import {
   useCreateChatClient,
   WithComponents,
 } from 'stream-chat-react';
-import { ChatView } from 'stream-chat-react/slot-layout';
+import { ChatView, DisposedChannelRelease } from 'stream-chat-react/slot-layout';
 import { createTextComposerEmojiMiddleware, EmojiPicker } from 'stream-chat-react/emojis';
 import { init, SearchIndex } from 'emoji-mart';
 import data from '@emoji-mart/data/sets/14/native.json';
@@ -718,6 +718,7 @@ const App = () => {
                   views={chatViews}
                 >
                   <WorkspaceUrlSync />
+                  <DisposedChannelRelease />
                   <SidebarLayoutSync />
                 </ChatView>
               </SlotGeometryProvider>
