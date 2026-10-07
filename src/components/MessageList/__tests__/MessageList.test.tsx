@@ -1438,6 +1438,18 @@ describe('MessageList', () => {
           configurable: true,
           value: scrollByMock,
         });
+        // `offsetTop` is layout-based and does not depend on the current scroll position.
+        const originalOffsetTop = Object.getOwnPropertyDescriptor(
+          HTMLElement.prototype,
+          'offsetTop',
+        );
+        Object.defineProperty(HTMLElement.prototype, 'offsetTop', {
+          configurable: true,
+          get() {
+            const contentTopById = { 'current-1': 520, 'current-2': 680 };
+            return contentTopById[this.dataset?.messageId] ?? 0;
+          },
+        });
         Object.defineProperty(HTMLElement.prototype, 'getBoundingClientRect', {
           configurable: true,
           value: function getBoundingClientRect() {
@@ -1553,8 +1565,13 @@ describe('MessageList', () => {
           expect(screen.getByText('older-1')).toBeInTheDocument();
         });
 
-        expect(scrollByMock).toHaveBeenCalledWith({ top: 300 });
+        // The restore assigns an absolute scrollTop; a relative `scrollBy` oscillates on iOS WebKit.
+        expect(scrollByMock).not.toHaveBeenCalled();
         expect(listElement.scrollTop).toBe(520);
+
+        if (originalOffsetTop) {
+          Object.defineProperty(HTMLElement.prototype, 'offsetTop', originalOffsetTop);
+        }
 
         if (originalScrollBy) {
           Object.defineProperty(HTMLElement.prototype, 'scrollBy', {

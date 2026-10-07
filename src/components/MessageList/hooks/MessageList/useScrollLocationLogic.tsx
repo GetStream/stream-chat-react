@@ -4,6 +4,22 @@ import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { useMessageListScrollManager } from './useMessageListScrollManager';
 import type { LocalMessage } from 'stream-chat';
 
+const getOffsetFromDocument = (element: HTMLElement) => {
+  let top = 0;
+  let current: HTMLElement | null = element;
+  while (current) {
+    top += current.offsetTop;
+    current = current.offsetParent as HTMLElement | null;
+  }
+  return top;
+};
+
+// Distance of `element`'s top edge from the top of `container`'s scrollable content. Built from
+// `offsetTop`, which is layout-based and unaffected by the container's current scroll position,
+// so the result is the same whether or not the container has scrolled yet.
+const getOffsetWithin = (element: HTMLElement, container: HTMLElement) =>
+  getOffsetFromDocument(element) - getOffsetFromDocument(container) - container.clientTop;
+
 export type UseScrollLocationLogicParams = {
   /** Disables automatic scroll-to-bottom updates after message changes. */
   disableAutoScrollToBottom?: boolean;
@@ -153,12 +169,15 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
         );
         if (!anchorElement) return true;
 
-        const listTop = listElement.getBoundingClientRect().top;
-        const nextOffsetTop = anchorElement.getBoundingClientRect().top - listTop;
-        const offsetDelta = nextOffsetTop - anchor.offsetTop;
+        // The target is absolute and derived from layout (`offsetTop` ignores scroll), so
+        // re-applying it is idempotent. A relative `scrollBy` correction measured from
+        // `getBoundingClientRect` oscillates on iOS WebKit, where the geometry read in the
+        // frame after a scroll still reflects the pre-scroll position.
+        const targetScrollTop =
+          getOffsetWithin(anchorElement, listElement) - anchor.offsetTop;
 
-        if (Math.abs(offsetDelta) > 1) {
-          listElement.scrollBy({ top: offsetDelta });
+        if (Math.abs(listElement.scrollTop - targetScrollTop) > 1) {
+          listElement.scrollTop = targetScrollTop;
           return false;
         }
 
