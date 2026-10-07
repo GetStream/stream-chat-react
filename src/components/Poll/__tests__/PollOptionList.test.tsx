@@ -326,6 +326,51 @@ describe('PollOptionList', () => {
     });
   });
 
+  it('ignores auto-repeated key presses on a held key', async () => {
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: pollWithNoVotes,
+    });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue(fromPartial({}));
+    const removeVoteSpy = vi.spyOn(poll, 'removeVote').mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    act(() => {
+      fireEvent.keyDown(firstOption, { key: 'Enter' });
+      fireEvent.keyDown(firstOption, { key: 'Enter', repeat: true });
+      fireEvent.keyDown(firstOption, { key: ' ', repeat: true });
+    });
+
+    await waitFor(() => {
+      expect(castVoteSpy).toHaveBeenCalledTimes(1);
+    });
+    expect(removeVoteSpy).not.toHaveBeenCalled();
+  });
+
+  it('sends the vote right away on click', () => {
+    const poll = new Poll({
+      client: fromPartial<StreamChat>({}),
+      poll: pollWithNoVotes,
+    });
+    const castVoteSpy = vi.spyOn(poll, 'castVote').mockResolvedValue(fromPartial({}));
+
+    const { container } = renderComponent({ poll });
+    const firstOption = container.querySelector(VOTABLE_OPTION_SELECTOR) as HTMLElement;
+
+    act(() => {
+      fireEvent.click(firstOption);
+    });
+
+    // checked synchronously: a debounced or otherwise delayed vote would not be sent yet
+    expect(castVoteSpy).toHaveBeenCalledTimes(1);
+    expect(castVoteSpy).toHaveBeenCalledWith(
+      pollWithNoVotes.options[0].id,
+      defaultMessageContext.message.id,
+    );
+  });
+
   it('passes axe on the default poll option list', async () => {
     const poll = new Poll({ client: fromPartial<StreamChat>({}), poll: generatePoll() });
     const { container } = renderComponent({ poll });
