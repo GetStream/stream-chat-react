@@ -482,12 +482,14 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
   useEffect(() => {
     if (!activeThread) return;
 
+    // one activation at a time: a repeated focus event must not stack another one
+    let release: (() => void) | undefined;
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && document.hasFocus()) {
-        activeThread.activate();
-      }
-      if (document.visibilityState === 'hidden' || !document.hasFocus()) {
-        activeThread.deactivate();
+        release ??= activeThread.activate();
+      } else {
+        release?.();
+        release = undefined;
       }
     };
 
@@ -496,7 +498,7 @@ export const useActiveThread = ({ activeThread }: { activeThread?: Thread }) => 
     window.addEventListener('focus', handleVisibilityChange);
     window.addEventListener('blur', handleVisibilityChange);
     return () => {
-      activeThread.deactivate();
+      release?.();
       window.removeEventListener('blur', handleVisibilityChange);
       window.removeEventListener('focus', handleVisibilityChange);
     };
