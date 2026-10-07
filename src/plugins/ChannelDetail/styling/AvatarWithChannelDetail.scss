@@ -7,4 +7,9 @@
   cursor: pointer;
   display: flex;
   padding: 0;
+
+  // the channel doesn't exist on the server yet, so it has no details to show
+  &:disabled {
+    cursor: default;
+  }
 }
