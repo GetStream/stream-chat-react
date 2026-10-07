@@ -5,6 +5,7 @@ export * from './layoutController/layoutControllerTypes';
 export * from './layoutController/serialization';
 export * from './hooks';
 export * from './ChannelSlot';
+export * from './DisposedChannelRelease';
 export * from './ThreadSlot';
 export * from './ThreadListSlot';
 export * from './layout/Slot';
