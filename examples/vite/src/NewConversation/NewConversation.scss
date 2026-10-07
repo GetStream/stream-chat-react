@@ -1,0 +1,199 @@
+@layer stream-app-overrides {
+  .app__new-conversation {
+    width: min(440px, 92vw);
+    max-height: min(80dvh, 720px);
+    display: flex;
+    flex-direction: column;
+    background: var(--str-chat__background-core-elevation-2);
+    color: var(--str-chat__text-primary);
+  }
+
+  // the form wraps body and footer, so it takes over the prompt's column layout
+  .app__new-conversation__form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+  }
+
+  .app__new-conversation__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--str-chat__spacing-sm);
+    overflow-y: auto;
+  }
+
+  .app__new-conversation__chips,
+  .app__new-conversation__results {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .app__new-conversation__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--str-chat__spacing-xs);
+  }
+
+  .app__new-conversation__chip {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-xxs, 4px);
+    padding: 2px 4px 2px 2px;
+    border-radius: 999px;
+    background: var(--str-chat__background-core-surface);
+    font: var(--str-chat__font-caption-default);
+  }
+
+  .app__new-conversation__chip-remove {
+    display: flex;
+    padding: 2px;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    color: var(--str-chat__text-secondary);
+    cursor: pointer;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .app__new-conversation__results {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--str-chat__border-core-default);
+    padding-top: var(--str-chat__spacing-xs);
+  }
+
+  .app__new-conversation__result {
+    display: flex;
+    align-items: center;
+    gap: var(--str-chat__spacing-sm);
+    width: 100%;
+    padding: var(--str-chat__spacing-xs);
+    border: none;
+    border-radius: var(--str-chat__radius-md, 8px);
+    background: none;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--str-chat__background-core-surface);
+    }
+
+    &[aria-pressed='true'] {
+      background: var(
+        --str-chat__background-core-surface-strong,
+        var(--str-chat__background-core-surface)
+      );
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--str-chat__border-utility-selected);
+      outline-offset: -2px;
+    }
+  }
+
+  .app__new-conversation__result-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app__new-conversation__result-id {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-tertiary);
+  }
+
+  .app__new-conversation__empty {
+    padding: var(--str-chat__spacing-xs);
+    color: var(--str-chat__text-tertiary);
+  }
+
+  .app__new-conversation__details {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--str-chat__spacing-xs);
+    border-top: 1px solid var(--str-chat__border-core-default);
+    padding-top: var(--str-chat__spacing-sm);
+  }
+
+  .app__new-conversation__image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--str-chat__spacing-xxs, 4px);
+  }
+
+  .app__new-conversation__image-button {
+    position: relative;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: progress;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--str-chat__border-utility-selected);
+      outline-offset: 2px;
+    }
+  }
+
+  // the camera icon over the image: shown on hover and focus, and while an upload is running
+  .app__new-conversation__image-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.45);
+    color: #fff;
+    opacity: 0;
+    transition: opacity 120ms ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .app__new-conversation__image-button:hover .app__new-conversation__image-overlay,
+  .app__new-conversation__image-button:focus-visible
+    .app__new-conversation__image-overlay,
+  .app__new-conversation__image-button:disabled .app__new-conversation__image-overlay {
+    opacity: 1;
+  }
+
+  .app__new-conversation__link-button {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--str-chat__text-secondary);
+    font: var(--str-chat__font-caption-default);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .app__new-conversation__hint {
+    margin: 0;
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__text-secondary);
+  }
+
+  .app__new-conversation__error {
+    font: var(--str-chat__font-caption-default);
+    color: var(--str-chat__accent-error);
+  }
+}
