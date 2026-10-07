@@ -506,11 +506,11 @@ describe('Channel', () => {
               .catch(() => {});
           });
           await waitFor(() =>
-            // v10: single request object - `client.deleteMessage({ id, ...options })`.
-            expect(clientDeleteMessageSpy).toHaveBeenCalledWith({
-              id: message.id,
-              ...deleteMessageOptions,
-            }),
+            // v10: the message id is a path parameter - `client.deleteMessage({ id }, options)`.
+            expect(clientDeleteMessageSpy).toHaveBeenCalledWith(
+              { id: message.id },
+              deleteMessageOptions,
+            ),
           );
         });
 
@@ -562,23 +562,25 @@ describe('Channel', () => {
             .catch(() => {});
         });
         await waitFor(() =>
-          // A single request object, `client.updateMessage({ id, message })`, where `message` is the
-          // edited message projected onto the update payload: the edited content plus its pin state.
-          expect(clientUpdateMessageSpy).toHaveBeenCalledWith({
-            id: updatedMessage.id,
-            message: expect.objectContaining({
-              attachments: updatedMessage.attachments,
-              cid: updatedMessage.cid,
-              id: updatedMessage.id,
-              mentioned_users: [],
-              pinned: false,
-              pinned_at: null,
-              text: newText,
-            }),
-          }),
+          // `client.updateMessage({ id }, { message })`: the id is a path parameter, and `message` is
+          // the edited message projected onto the update payload: the edited content plus its pin state.
+          expect(clientUpdateMessageSpy).toHaveBeenCalledWith(
+            { id: updatedMessage.id },
+            {
+              message: expect.objectContaining({
+                attachments: updatedMessage.attachments,
+                cid: updatedMessage.cid,
+                id: updatedMessage.id,
+                mentioned_users: [],
+                pinned: false,
+                pinned_at: null,
+                text: newText,
+              }),
+            },
+          ),
         );
         // Server-owned fields are left out; sending them makes the update fail.
-        const [{ message: payload }] = clientUpdateMessageSpy.mock.calls[0];
+        const [, { message: payload }] = clientUpdateMessageSpy.mock.calls[0];
         for (const serverOwnedField of [
           '__html',
           'created_at',
