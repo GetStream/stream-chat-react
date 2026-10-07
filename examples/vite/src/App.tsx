@@ -685,9 +685,6 @@ const App = () => {
           searchController={searchController}
           theme={chatTheme}
         >
-          {/* Application code (examples/vite/src/DocumentTitleManager), not an SDK component: the
-              SDK never touches document.title, because what belongs in a tab title depends on what
-              the app is showing. */}
           <DocumentTitleManager formatTitle={formatDocumentTitle} />
           <ChatSkipNavigation />
           {/* Publishes window.streamDebug — see src/Debug/StreamDebugHandles.tsx */}
