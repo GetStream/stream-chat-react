@@ -42,6 +42,7 @@ import {
   LayoutController as LayoutControllerClass,
 } from './layoutController/LayoutController';
 import { createChatViewSlotBinding, getChatViewEntityBinding } from './slotBinding';
+import { SupersededChannelSwap } from './SupersededChannelSwap';
 import {
   renderSlotFromRegistry,
   resolveSlotKindRegistry,
@@ -438,6 +439,12 @@ export const ChatView = ({
     children
   );
 
+  // every slot showing a channel, so one that gets superseded moves to the instance replacing it
+  const channelSlots = viewState.availableSlots.flatMap((slot) => {
+    const entity = getChatViewEntityBinding(viewState.slotBindings[slot]);
+    return entity?.kind === 'channel' ? [{ channel: entity.source, slot }] : [];
+  });
+
   return (
     <ChatViewA11yContext.Provider value={a11yValue}>
       <ChatViewContext.Provider value={value}>
@@ -456,6 +463,14 @@ export const ChatView = ({
                 <DialogManagerProvider id={dialogManagerId}>
                   {content}
                 </DialogManagerProvider>
+                {channelSlots.map(({ channel, slot }) => (
+                  <SupersededChannelSwap
+                    channel={channel}
+                    key={slot}
+                    layoutController={effectiveLayoutController}
+                    slot={slot}
+                  />
+                ))}
               </div>
             </WorkspaceNavigationAdapter>
           </ChatViewNavigationProvider>
