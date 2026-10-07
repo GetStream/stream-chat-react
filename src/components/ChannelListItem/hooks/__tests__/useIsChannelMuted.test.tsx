@@ -79,7 +79,7 @@ describe('useIsChannelMuted', () => {
     // initialized but is flagged pending disposal, and channel.getClient() throws on it —
     // which the imperative channel.muteStatus() went through, crashing the ChannelListItem
     // render (#2393 failure class). The reactive slice is readable regardless.
-    channel.pendingDisposal = true;
+    channel.state.partialNext({ pendingDisposal: true });
 
     const { result } = renderHook(() => useIsChannelMuted(channel), {
       wrapper: createWrapper(client),

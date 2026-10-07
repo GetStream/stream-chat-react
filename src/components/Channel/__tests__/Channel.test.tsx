@@ -360,7 +360,7 @@ describe('Channel', () => {
 
       // the channel is initialized; the shared client then disconnects, leaving the channel
       // pending disposal
-      channel.pendingDisposal = true;
+      channel.state.partialNext({ pendingDisposal: true });
 
       // a re-render that reads channel state must not throw
       // (channel.lastRead() throws once the client is disconnected)
@@ -385,7 +385,7 @@ describe('Channel', () => {
 
       const querySpy = vi.spyOn(channel, 'query');
       const prevSpy = vi.spyOn(channel.messagePaginator, 'prev');
-      channel.pendingDisposal = true;
+      channel.state.partialNext({ pendingDisposal: true });
 
       await act(async () => {
         setWSConnectionStatus(chatClient, false);
