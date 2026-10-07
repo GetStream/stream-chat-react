@@ -1,3 +1,4 @@
+import React from 'react';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { fromPartial } from '@total-typescript/shoehorn';
@@ -8,6 +9,8 @@ import {
   mockTranslationContextValue,
 } from '../../../mock-builders';
 import { ChatView } from '../ChatView';
+import { LayoutController } from '../layoutController/LayoutController';
+import { createChatViewSlotBinding } from '../slotBinding';
 
 const renderSelector = async (selectorProps?: any) => {
   const client = await getTestClientWithUser();
@@ -157,5 +160,110 @@ describe('ChatView.Selector', () => {
     const results = await axe(container);
 
     expect(results).toHaveNoViolations();
+  });
+});
+
+describe('ChatView built-in workspace layout empty state', () => {
+  const renderWorkspace = async ({
+    activeView,
+    bindChannel = false,
+    ...chatViewProps
+  }: Partial<React.ComponentProps<typeof ChatView>> & {
+    activeView?: 'channels' | 'threads';
+    bindChannel?: boolean;
+  } = {}) => {
+    const client = await getTestClientWithUser();
+    const layoutController = new LayoutController({
+      initialState: { activeView, availableSlots: ['slot1', 'slot2'] },
+    });
+    if (bindChannel) {
+      const channel = client.channelManager.ensure({ id: 'general', type: 'messaging' });
+      layoutController.bind(
+        'slot1',
+        createChatViewSlotBinding({ key: channel.cid, kind: 'channel', source: channel }),
+      );
+    }
+
+    return render(
+      <ChatProvider
+        value={{
+          client,
+          getAppSettings: vi.fn(),
+          mutes: [],
+          searchController: fromPartial({}),
+          theme: 'messaging light',
+          useImageFlagEmojisOnWindows: false,
+        }}
+      >
+        <TranslationProvider value={mockTranslationContextValue()}>
+          <ChatView
+            layout='nav-rail-entity-list-workspace'
+            layoutController={layoutController}
+            slotRenderers={{
+              channel: ({ source }) => (
+                <div data-testid='bound-channel'>{source.cid}</div>
+              ),
+            }}
+            {...chatViewProps}
+          />
+        </TranslationProvider>
+      </ChatProvider>,
+    );
+  };
+
+  it('shows one placeholder instead of the slots while every slot is empty', async () => {
+    const { container } = await renderWorkspace();
+
+    const placeholders = container.querySelectorAll(
+      '.str-chat__chat-view__empty-placeholder',
+    );
+    expect(placeholders).toHaveLength(1);
+    expect(placeholders[0]).toHaveTextContent('No chat selected');
+    expect(placeholders[0].querySelector('svg')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__chat-view__workspace-layout-slot'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('words the placeholder for the threads view', async () => {
+    const { container } = await renderWorkspace({ activeView: 'threads' });
+
+    expect(
+      container.querySelector('.str-chat__chat-view__empty-placeholder'),
+    ).toHaveTextContent('No thread selected');
+  });
+
+  it('shows no placeholder while a slot is in use, leaving the empty slot blank', async () => {
+    const { container } = await renderWorkspace({ bindChannel: true });
+
+    expect(screen.getByTestId('bound-channel')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__chat-view__empty-placeholder'),
+    ).not.toBeInTheDocument();
+    expect(
+      container.querySelectorAll('.str-chat__chat-view__workspace-layout-slot'),
+    ).toHaveLength(2);
+  });
+
+  it('renders SlotFallback instead of the placeholder while every slot is empty', async () => {
+    const { container } = await renderWorkspace({
+      SlotFallback: ({ slot }) => <div data-testid={`fallback-${slot}`} />,
+    });
+
+    expect(screen.getByTestId('fallback-slot1')).toBeInTheDocument();
+    expect(screen.getByTestId('fallback-slot2')).toBeInTheDocument();
+    expect(
+      container.querySelector('.str-chat__chat-view__empty-placeholder'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders SlotFallback in an empty slot while another slot is in use', async () => {
+    await renderWorkspace({
+      bindChannel: true,
+      SlotFallback: ({ slot }) => <div data-testid={`fallback-${slot}`} />,
+    });
+
+    expect(screen.getByTestId('fallback-slot2')).toBeInTheDocument();
+    expect(screen.queryByTestId('fallback-slot1')).not.toBeInTheDocument();
   });
 });

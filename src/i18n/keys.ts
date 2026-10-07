@@ -545,6 +545,8 @@ export type TranslationCatalog = {
   'search.sourceResults.searching.text': 'Searching for {{ searchSourceType }}...';
   'slotLayout.chatView.channels.text': 'Channels';
   'slotLayout.chatView.chatViewControls.ariaLabel': 'Chat view controls';
+  'slotLayout.chatView.empty.channels.text': 'No chat selected';
+  'slotLayout.chatView.empty.threads.text': 'No thread selected';
   'slotLayout.chatView.openChannelsView.ariaLabel': 'Open channels view';
   'slotLayout.chatView.openThreadsView.ariaLabel': 'Open threads view';
   'slotLayout.chatView.openThreadsViewUnread.ariaLabel_one': 'Open threads view, {{ count }} unread thread';

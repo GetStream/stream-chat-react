@@ -1,4 +1,5 @@
 export * from './ChatView';
+export * from './ChatViewEmptyPlaceholder';
 export * from './ChatViewNavigationContext';
 export * from './workspaceNavigationAdapter';
 export * from './layoutController/layoutControllerTypes';

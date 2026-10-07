@@ -120,7 +120,12 @@ export type ChatViewProps = PropsWithChildren<{
   layoutController?: LayoutController;
   layouts?: LayoutDescriptor[];
   resolveDuplicateEntity?: ResolveDuplicateEntity;
+  /**
+   * Rendered by the built-in workspace layout in a slot with nothing bound. Without one, such a slot
+   * is blank, and a layout whose slots are all blank shows {@link ChatViewEmptyPlaceholder}.
+   */
   SlotFallback?: ComponentType<ChatViewSlotFallbackProps>;
+  /** Per-slot {@link ChatViewProps.SlotFallback}. */
   slotFallbackComponents?: Partial<
     Record<string, ComponentType<ChatViewSlotFallbackProps>>
   >;
@@ -186,12 +191,6 @@ const workspaceLayoutStateSelector = (state: ChatViewLayoutState) => ({
   viewState: getLayoutViewState(state),
 });
 
-const DefaultSlotFallback = () => (
-  <div className='str-chat__chat-view__workspace-layout-slot-fallback'>
-    Select a channel to start messaging
-  </div>
-);
-
 const resolveSlotFallbackComponent = ({
   slot,
   SlotFallback,
@@ -202,7 +201,7 @@ const resolveSlotFallbackComponent = ({
   slotFallbackComponents?: Partial<
     Record<string, ComponentType<ChatViewSlotFallbackProps>>
   >;
-}) => slotFallbackComponents?.[slot] ?? SlotFallback ?? DefaultSlotFallback;
+}) => slotFallbackComponents?.[slot] ?? SlotFallback;
 
 const BUILTIN_WORKSPACE_LAYOUT: ChatViewBuiltinLayout = 'nav-rail-entity-list-workspace';
 const DEFAULT_LIST_BINDING_KEY = 'list';
@@ -415,22 +414,20 @@ export const ChatView = ({
     </>
   ) : layout === BUILTIN_WORKSPACE_LAYOUT ? (
     (() => {
+      // an unbound slot with no fallback has no content; the layout decides what that shows
       const slots = viewState.availableSlots.map((slot) => {
         const content = renderSlotFromRegistry(
           getChatViewEntityBinding(viewState.slotBindings[slot]),
           slot,
           slotKindRegistry,
         );
+        if (content != null) return { content, slot };
         const Fallback = resolveSlotFallbackComponent({
           slot,
           SlotFallback,
           slotFallbackComponents,
         });
-
-        return {
-          content: content ?? <Fallback slot={slot} />,
-          slot,
-        };
+        return { content: Fallback ? <Fallback slot={slot} /> : null, slot };
       });
 
       return <WorkspaceLayout navRail={<ChatViewSelector />} slots={slots} />;
