@@ -103,7 +103,7 @@ const ChannelUsageRow = ({
 /**
  * Lists every channel in `client.channelManager`'s store with what keeps it (its own state and the
  * names of its holders), as reported by `channelManager.getChannelUsage()`. "Release now" calls
- * `releaseUnusedChannels()`, which otherwise runs when the lists reload or the connection recovers;
+ * `releaseUnusedChannels()`, which the SDK never runs on its own;
  * "Stop watching" makes a channel unwatched, which list channels never are on their own.
  */
 export const ChannelStoreDialog = ({
