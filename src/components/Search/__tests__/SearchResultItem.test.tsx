@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { ChannelWatchStatus } from 'stream-chat';
+import type { StreamChat } from 'stream-chat';
+import type { MockInstance } from 'vitest';
 
 import {
   ChannelSearchResultItem,
@@ -28,8 +30,8 @@ import { mockT } from '../../../mock-builders/translator';
 const CHANNEL_PREVIEW_BUTTON_TEST_ID = 'channel-list-item-button';
 
 const mockOpenChannel = vi.fn();
-const mockIngestChannel = vi.fn();
-const mockChannelManager = { ingestChannel: mockIngestChannel };
+// the real channel manager of the rendered client, with its ingestion observed
+let mockIngestChannel: MockInstance<StreamChat['channelManager']['ingestChannel']>;
 const directMessagingChannelType = 'X';
 
 // Selection opens the channel in the workspace (one navigation model); the item's
@@ -46,6 +48,7 @@ const mockTranslation = mockT;
 
 const renderComponent = async ({
   activeChannel,
+  beforeRender,
   channelSearchData,
   chatContext,
   customClient,
@@ -77,14 +80,17 @@ const renderComponent = async ({
   } else if (userData) {
     item = userData;
   }
+  beforeRender?.(client);
+  const renderedClient = customClient ?? client;
+  mockIngestChannel = vi.spyOn(renderedClient.channelManager, 'ingestChannel');
 
   render(
     <TranslationProvider value={mockTranslationContextValue({ t: mockTranslation })}>
       <ChatProvider
         value={{
           channel: activeChannel ?? channel,
-          channelManager: mockChannelManager,
-          client: customClient ?? client,
+          channelManager: renderedClient.channelManager,
+          client: renderedClient,
           ...chatContext,
         }}
       >
@@ -218,10 +224,87 @@ describe('SearchResultItem Components', () => {
       });
 
       // Selecting a result jumps its channel's own paginator — no separate focus state to keep in
-      // step with the highlight the jump leaves behind.
-      expect(jumpToMessage).toHaveBeenCalledWith(message.id);
+      // step with the highlight the jump leaves behind — and watches the channel if it isn't yet.
+      expect(jumpToMessage).toHaveBeenCalledWith(message.id, { watchChannel: true });
       expect(mockOpenChannel.mock.calls[0][0].id).toBe(messageResponseData.channel.id);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
+    });
+
+    it('renders its stored channel without a connected user', async () => {
+      const message = generateMessage();
+      const messageResponseData = {
+        id: message.id,
+        ...generateChannel({ messages: [message] }),
+      };
+      await renderComponent({
+        // creating a channel needs a connected user; looking a stored one up doesn't
+        beforeRender: (client: StreamChat) =>
+          vi.spyOn(client, 'userId', 'get').mockReturnValue(undefined),
+        messageResponseData,
+        SearchResultItemComponent,
+      });
+
+      expect(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID)).toBeInTheDocument();
+    });
+
+    it('renders nothing for a message whose channel is not stored', async () => {
+      const { client } = await renderComponent({
+        messageResponseData: { id: 'orphan', text: 'orphan' },
+        SearchResultItemComponent,
+      });
+      const ensure = vi.spyOn(client.channelManager, 'ensure');
+
+      expect(
+        screen.queryByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID),
+      ).not.toBeInTheDocument();
+      expect(ensure).not.toHaveBeenCalled();
+      expect(client.channelManager.get('unknown:unknown')).toBeUndefined();
+    });
+
+    it('stops showing a result whose channel ends', async () => {
+      const message = generateMessage();
+      const messageResponseData = {
+        id: message.id,
+        ...generateChannel({ messages: [message] }),
+      };
+      const { client } = await renderComponent({
+        messageResponseData,
+        SearchResultItemComponent,
+      });
+      const { cid } = messageResponseData.channel;
+      expect(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID)).toBeInTheDocument();
+
+      act(() => {
+        client.dispatchEvent({ cid, type: 'channel.deleted' } as never);
+      });
+
+      expect(client.channelManager.get(cid)).toBeUndefined();
+      expect(
+        screen.queryByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does nothing when its channel is gone by the time it is clicked', async () => {
+      const message = generateMessage();
+      const messageResponseData = {
+        id: message.id,
+        ...generateChannel({ messages: [message] }),
+      };
+      const { client } = await renderComponent({
+        messageResponseData,
+        SearchResultItemComponent,
+      });
+      const channel = client.channelManager.get(messageResponseData.channel.cid);
+      if (!channel) throw new Error('the result channel is not stored');
+      const jumpToMessage = vi.spyOn(channel.messagePaginator, 'jumpToMessage');
+      // removed from the store without a render of this row in between
+      vi.spyOn(client.channelManager, 'get').mockReturnValue(undefined);
+
+      fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+
+      expect(mockOpenChannel).not.toHaveBeenCalled();
+      expect(mockIngestChannel).not.toHaveBeenCalled();
+      expect(jumpToMessage).not.toHaveBeenCalled();
     });
 
     it('displays message text in preview', async () => {

@@ -3,6 +3,7 @@ import type { ComponentType } from 'react';
 import { ChannelWatchStatus, convertTimestampToDate, formatMessage } from 'stream-chat';
 import type {
   Channel,
+  ChannelLifecycleState,
   ChannelResponse,
   MessageFocusSignalState,
   MessageResponse,
@@ -24,6 +25,10 @@ import { useStateStore } from '../../../store';
 import { getChannel } from '../../../utils/getChannel';
 
 type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
+
+const pendingDisposalSelector = (state: ChannelLifecycleState) => ({
+  pendingDisposal: state.pendingDisposal,
+});
 
 const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
   focusedMessageId: state.signal?.messageId,
@@ -84,15 +89,21 @@ export const MessageSearchResultItem = ({
   item,
   onSelect,
 }: ChannelByMessageSearchResultItemProps) => {
-  const { channelManager, client } = useChatContext();
+  const { channelManager } = useChatContext();
   const { isChannelActive, openChannel } = useWorkspaceNavigation();
 
-  const channel = useMemo(() => {
-    const { channel: channelData } = item;
-    const type = channelData?.type ?? 'unknown';
-    const id = channelData?.id ?? 'unknown';
-    return client.channelManager.ensure({ id, type });
-  }, [client, item]);
+  // Looked up, not created: the message search stores every result's channel before returning it
+  // and keeps it stored while the search is active. A message without a channel shows no row.
+  const cid = item.cid ?? item.channel?.cid;
+  const storedChannel = cid ? channelManager.get(cid) : undefined;
+  // A channel that ends (deleted, the user removed, logout) is disposed and leaves the store without
+  // re-rendering this row, so the row follows the disposal: it then looks the channel up again and
+  // shows nothing while none is stored.
+  const { pendingDisposal } = useStateStore(
+    storedChannel?.state,
+    pendingDisposalSelector,
+  ) ?? { pendingDisposal: false };
+  const channel = storedChannel && !pendingDisposal ? storedChannel : undefined;
 
   const channelOpenInSlot = isChannelActive(channel?.cid ?? undefined);
   const { focusedMessageId } = useStateStore(
@@ -106,12 +117,16 @@ export const MessageSearchResultItem = ({
         onSelect(event);
         return;
       }
-      if (!channel) return;
-      openChannel(channel, { event });
-      channelManager.ingestChannel(channel);
-      void channel.messagePaginator.jumpToMessage(item.id);
+      // the stored instance at the time of the click: the one rendered may have ended since
+      const current = cid ? channelManager.get(cid) : undefined;
+      if (!current || current.pendingDisposal) return;
+      openChannel(current, { event });
+      channelManager.ingestChannel(current);
+      // A channel stored but not watched, such as one a thread created, is watched with the request
+      // that loads the message, so it receives its events.
+      void current.messagePaginator.jumpToMessage(item.id, { watchChannel: true });
     },
-    [channel, item, openChannel, channelManager, onSelect],
+    [cid, item, openChannel, channelManager, onSelect],
   );
 
   // Preview the matched message itself (not the channel's latest) by overriding `previewedMessage`.
@@ -151,7 +166,7 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         onSelect(event);
         return;
       }
-      const newChannel = client.channelManager.ensure({
+      const newChannel = channelManager.ensure({
         data: {
           members: [{ user_id: client.userId as string }, { user_id: item.id }],
         },
