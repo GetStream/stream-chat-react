@@ -1586,6 +1586,146 @@ describe('MessageList', () => {
           value: originalGetBoundingClientRect,
         });
       });
+
+      describe('older page prepended', () => {
+        const OFFSET_TOP_BY_ID = { 'current-1': 520, 'current-2': 680 };
+        let restores: Array<() => void> = [];
+        const patch = (target: object, key: string, descriptor: PropertyDescriptor) => {
+          const original = Object.getOwnPropertyDescriptor(target, key);
+          Object.defineProperty(target, key, { configurable: true, ...descriptor });
+          restores.push(() => {
+            if (original) Object.defineProperty(target, key, original);
+            else delete (target as Record<string, unknown>)[key];
+          });
+        };
+
+        afterEach(() => {
+          restores.forEach((restore) => restore());
+          restores = [];
+        });
+
+        const renderPrependHarness = async ({
+          startScrollTop,
+        }: {
+          startScrollTop: number;
+        }) => {
+          const currentMessages = ['current-1', 'current-2'].map((id) =>
+            generateMessage({ id, text: id, user: user1 }),
+          );
+          const prependedMessages = [
+            ...['older-1', 'older-2'].map((id) =>
+              generateMessage({ id, text: id, user: user2 }),
+            ),
+            ...currentMessages,
+          ];
+          const scrollByMock = vi.fn();
+          const scrollToMock = vi.fn(function scrollTo(this: HTMLElement, options) {
+            if (typeof options?.top === 'number') this.scrollTop = options.top;
+          });
+          patch(HTMLElement.prototype, 'scrollBy', { value: scrollByMock });
+          patch(HTMLElement.prototype, 'scrollTo', { value: scrollToMock });
+          patch(HTMLElement.prototype, 'offsetTop', {
+            get() {
+              return OFFSET_TOP_BY_ID[this.dataset?.messageId] ?? 0;
+            },
+          });
+          let rectCalls = 1;
+          // Reads before the older page lands are exact. Reads after it are unstable: every call
+          // differs, like iOS WebKit's stale reads in the frame after a scroll.
+          patch(HTMLElement.prototype, 'getBoundingClientRect', {
+            value() {
+              const top = screen.queryByText('older-1')
+                ? (rectCalls++ % 2 ? 1 : -1) * 100 * rectCalls
+                : 100;
+              return {
+                bottom: top + 120,
+                height: 120,
+                left: 0,
+                right: 0,
+                top,
+                width: 0,
+                x: 0,
+                y: top,
+              };
+            },
+          });
+
+          const MessageListHarness = () => {
+            const [renderedMessages, setRenderedMessages] =
+              React.useState(currentMessages);
+            const [loadingMore, setLoadingMore] = React.useState(false);
+            return (
+              <>
+                <button onClick={() => setLoadingMore(true)} type='button'>
+                  start load older
+                </button>
+                <button
+                  onClick={() => {
+                    setRenderedMessages(prependedMessages);
+                    setLoadingMore(false);
+                  }}
+                  type='button'
+                >
+                  finish load older
+                </button>
+                <Chat client={chatClient}>
+                  <Channel channel={channel}>
+                    <MessageList
+                      loadingMore={loadingMore}
+                      messages={renderedMessages}
+                      scrolledUpThreshold={200}
+                    />
+                  </Channel>
+                </Chat>
+              </>
+            );
+          };
+
+          render(<MessageListHarness />);
+          await waitFor(() => expect(screen.getByText('current-1')).toBeInTheDocument());
+
+          const listElement = document.querySelector(
+            '.str-chat__message-list',
+          ) as HTMLElement;
+          Object.defineProperties(listElement, {
+            offsetHeight: { configurable: true, value: 250 },
+            scrollHeight: { configurable: true, value: 600, writable: true },
+            scrollTop: { configurable: true, value: startScrollTop, writable: true },
+          });
+          fireEvent.scroll(listElement, { target: { scrollTop: startScrollTop } });
+          fireEvent.click(screen.getByText('start load older'));
+          Object.defineProperty(listElement, 'scrollHeight', {
+            configurable: true,
+            value: 900,
+            writable: true,
+          });
+          fireEvent.click(screen.getByText('finish load older'));
+          await waitFor(() => expect(screen.getByText('older-1')).toBeInTheDocument());
+          return { listElement, scrollByMock, scrollToMock };
+        };
+
+        it('restores the anchor from layout offsets and stays put when geometry reads are unstable', async () => {
+          const { listElement, scrollByMock } = await renderPrependHarness({
+            startScrollTop: 50,
+          });
+          // let several animation frames run; a relative correction would keep moving the list
+          await new Promise((resolve) => setTimeout(resolve, 200));
+
+          expect(scrollByMock).not.toHaveBeenCalled();
+          expect(listElement.scrollTop).toBe(520);
+        });
+
+        it('keeps the new page pinned to the top when pagination started from the absolute top', async () => {
+          const { listElement, scrollByMock, scrollToMock } = await renderPrependHarness({
+            startScrollTop: 0,
+          });
+          await new Promise((resolve) => setTimeout(resolve, 200));
+
+          expect(scrollByMock).not.toHaveBeenCalled();
+          expect(scrollToMock).toHaveBeenCalledWith({ top: 0 });
+          expect(listElement.scrollTop).toBe(0);
+        });
+      });
     });
   });
 
