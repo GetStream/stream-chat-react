@@ -860,13 +860,15 @@ separate.
 
 Two type renames come with it:
 
-| v14                    | v15                                                                    |
-| ---------------------- | ---------------------------------------------------------------------- |
-| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)    |
-| `channel.disconnected` | `channel.pendingDisposal` (**removed outright — no deprecated alias**) |
+| v14                    | v15                                                                               |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)               |
+| `channel.disconnected` | `channel.pendingDisposal`, read-only (**removed outright — no deprecated alias**) |
 
 `pendingDisposal` is one-way and terminal: the paginators are disposed, subscriptions unregistered, and
-the client drops the channel from `activeChannels`, so the instance is never revived. `getClient()`
+the channel store drops the channel, so the instance is never revived. It is read-only: stream-chat sets
+it when it finishes a channel (deleted, the user removed from it, `disconnectUser()`, or
+`client.channelManager.removeChannel(cid)`). `getClient()`
 throws on such a channel — a reference held across a `disconnectUser()` now fails loudly rather than
 quietly requesting on a client with no user.
 
@@ -942,7 +944,7 @@ re-query surfaces them. Guard on `pendingDisposal` because `reload()` goes throu
 `getLatestValue is not a function`. Build a real store (the SDK ships
 `mock-builders/generator/channelState.ts` for its own suite). Also:
 
-| v14 mock                          | v15                                              |
-| --------------------------------- | ------------------------------------------------ |
-| `vi.spyOn(channel, 'muteStatus')` | seed `channel.state.partialNext({ muteStatus })` |
-| `channel.disconnected = true`     | `channel.pendingDisposal = true`                 |
+| v14 mock                          | v15                                                                       |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `vi.spyOn(channel, 'muteStatus')` | seed `channel.state.partialNext({ muteStatus })`                          |
+| `channel.disconnected = true`     | `channel.state.partialNext({ pendingDisposal: true })` (it has no setter) |
