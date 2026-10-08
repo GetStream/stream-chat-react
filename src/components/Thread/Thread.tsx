@@ -18,16 +18,16 @@ export type ThreadProps = PropsWithChildren<{
   /**
    * The thread to render. Get it from `client.threads.ensure()` (or `client.threads.get()`) rather
    * than constructing it, so it is registered with the `ThreadManager` and receives events. `Thread`
-   * loads it while its state is stale, which is how a thread built by `ensure()` for a parent with
-   * replies starts.
+   * loads it while its state is stale, which is how a thread built from its parent message starts
+   * when it may have replies to load.
    */
   thread: StreamThread;
 }>;
 
 const selector = ({ isStateStale, parentMessage, replyCount }: ThreadState) => ({
-  // A thread exists server-side only once its parent has a reply. Selected as a boolean so the
-  // panel does not re-render on every incoming reply -- only on the transition that matters.
-  hasServerSideThread: replyCount > 0,
+  // Whether the parent reports a reply. Selected as a boolean so the panel does not re-render on
+  // every incoming reply -- only on the transition that matters.
+  hasReplies: replyCount > 0,
   isStateStale,
   parentMessage,
 });
@@ -63,27 +63,21 @@ export const Thread = ({ children, thread }: ThreadProps) => {
     thread.channel.configState,
     repliesStateSelector,
   );
-  // `hasServerSideThread`: reloading a thread whose parent has no reply yet can only 404 --
-  // `Thread.reload()` swallows that and returns without state.
-  //
-  // Deferred, not cancelled: only a successful reload clears `isStateStale`, so a thread that
-  // stays stale reloads via the effect below as soon as the parent reports its first reply -- the
-  // same moment the rest of the UI learns about replies missed while unwatched.
-  const { hasServerSideThread, isStateStale, parentMessage } = useStateStore(
+  const { hasReplies, isStateStale, parentMessage } = useStateStore(
     thread.state,
     selector,
   );
 
-  // The only load trigger. A thread `client.threads.ensure()` builds for a parent with replies starts
-  // stale, so it loads here once when first opened; one for a parent without replies has nothing on
-  // the server yet and starts up to date. Listed threads and `getThreadAndHydrate()` instances arrive
-  // with their replies and are not stale. It fires once per staleness episode, and `thread.reload()` ignores a
-  // call while one is in flight.
+  // The only load trigger: a stale thread loads, once per staleness episode, as `thread.reload()`
+  // ignores a call while one is in flight. A thread built from its parent message starts stale when
+  // it may have replies to load; listed threads and `getThreadAndHydrate()` instances arrive loaded.
+  // A thread without replies on the server answers not-found, which `reload()` takes as an empty
+  // thread and leaves stale, so it loads again once its parent reports a reply.
   useEffect(() => {
-    if (isStateStale && hasServerSideThread) {
+    if (isStateStale) {
       void thread.reload();
     }
-  }, [hasServerSideThread, isStateStale, thread]);
+  }, [hasReplies, isStateStale, thread]);
 
   if (!parentMessage || repliesEnabled === false) return null;
 

@@ -2,6 +2,7 @@ import { act, cleanup, render } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
 import { StateStore } from '@stream-io/state-store';
+import { ChannelWatchStatus } from 'stream-chat';
 import type {
   ChannelConfig,
   LocalMessage,
@@ -242,9 +243,10 @@ describe('Thread', () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
-  it('should not load a thread built by `ensure()` for a parent without replies', () => {
+  it('should not load a thread built by `ensure()` for a parent without replies in a watched channel', () => {
     // There is no server-side thread to load yet (`getThread` would answer 404), so `ensure()` builds
     // it up to date. It is registered, so its first reply reaches it as an event, not through a load.
+    channel.watchStatus = ChannelWatchStatus.Watching;
     const { reload, thread } = ensureThread(
       generateMessage({
         cid: channel.cid,
@@ -264,11 +266,29 @@ describe('Thread', () => {
     expect(reload).not.toHaveBeenCalled();
   });
 
-  it('should defer a stale reload until the thread reports a reply', () => {
-    // Reopening a closed thread reuses the cached instance, which `unregisterSubscriptions` left
-    // stale — for a thread that was never created that reload can only 404. The guard defers it:
-    // `isStateStale` stays true until a reload succeeds, so the catch-up runs as soon as the
-    // parent message reports a reply.
+  it('should load a thread built by `ensure()` in a channel that is not watched, whatever its reply count', () => {
+    // The parent's reply count misses the replies sent since an unwatched channel was loaded.
+    channel.watchStatus = ChannelWatchStatus.NotWatching;
+    try {
+      const { reload, thread } = ensureThread(
+        generateMessage({
+          cid: channel.cid,
+          id: 'unwatched-parent',
+          reply_count: 0,
+          user: alice,
+        }),
+      );
+      renderComponent({ threadInstance: thread });
+
+      expect(reload).toHaveBeenCalledTimes(1);
+    } finally {
+      channel.watchStatus = ChannelWatchStatus.Watching;
+    }
+  });
+
+  it('should load a stale thread whose parent reports no replies, and again once it reports one', () => {
+    // A thread never created server-side answers not-found, which leaves it stale (the stub resolves
+    // without clearing it), so it loads again once its parent reports a reply.
     const { reload, thread } = makeThread({
       isStateStale: true,
       // `[]`: a reopened thread has replies loaded, so only its staleness can trigger the load.
@@ -280,13 +300,13 @@ describe('Thread', () => {
       }),
     });
     renderComponent({ threadInstance: thread });
-    expect(reload).not.toHaveBeenCalled();
+    expect(reload).toHaveBeenCalledTimes(1);
 
     act(() => {
       thread.state.partialNext({ replyCount: 3 });
     });
 
-    expect(reload).toHaveBeenCalledTimes(1);
+    expect(reload).toHaveBeenCalledTimes(2);
   });
 
   it('should reload a stale thread that has replies', () => {
