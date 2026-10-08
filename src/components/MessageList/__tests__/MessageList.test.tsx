@@ -1605,8 +1605,10 @@ describe('MessageList', () => {
         });
 
         const renderPrependHarness = async ({
+          inlineOverflowY,
           startScrollTop,
         }: {
+          inlineOverflowY?: string;
           startScrollTop: number;
         }) => {
           const currentMessages = ['current-1', 'current-2'].map((id) =>
@@ -1681,7 +1683,7 @@ describe('MessageList', () => {
             );
           };
 
-          render(<MessageListHarness />);
+          const { unmount } = render(<MessageListHarness />);
           await waitFor(() => expect(screen.getByText('current-1')).toBeInTheDocument());
 
           const listElement = document.querySelector(
@@ -1692,6 +1694,7 @@ describe('MessageList', () => {
             scrollHeight: { configurable: true, value: 600, writable: true },
             scrollTop: { configurable: true, value: startScrollTop, writable: true },
           });
+          if (inlineOverflowY) listElement.style.overflowY = inlineOverflowY;
           fireEvent.scroll(listElement, { target: { scrollTop: startScrollTop } });
           fireEvent.click(screen.getByText('start load older'));
           Object.defineProperty(listElement, 'scrollHeight', {
@@ -1701,7 +1704,7 @@ describe('MessageList', () => {
           });
           fireEvent.click(screen.getByText('finish load older'));
           await waitFor(() => expect(screen.getByText('older-1')).toBeInTheDocument());
-          return { listElement, scrollByMock, scrollToMock };
+          return { listElement, scrollByMock, scrollToMock, unmount };
         };
 
         it('restores the anchor from layout offsets and stays put when geometry reads are unstable', async () => {
@@ -1741,6 +1744,30 @@ describe('MessageList', () => {
             expect(seen[0]).toBe('hidden');
             expect(listElement.style.overflowY).toBe('');
             expect(listElement.scrollTop).toBe(520);
+          });
+
+          it('hands scrolling back when the list unmounts mid-restore', async () => {
+            setIosWebKit(true);
+            const { listElement, unmount } = await renderPrependHarness({
+              startScrollTop: 50,
+            });
+            expect(listElement.style.overflowY).toBe('hidden');
+
+            unmount();
+
+            expect(listElement.style.overflowY).toBe('');
+          });
+
+          it('restores an inline overflow-y set by the app instead of clearing it', async () => {
+            setIosWebKit(true);
+            const { listElement } = await renderPrependHarness({
+              inlineOverflowY: 'scroll',
+              startScrollTop: 50,
+            });
+            expect(listElement.style.overflowY).toBe('hidden');
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            expect(listElement.style.overflowY).toBe('scroll');
           });
 
           it('leaves the overflow alone outside iOS WebKit', async () => {
