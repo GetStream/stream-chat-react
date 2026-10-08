@@ -86,7 +86,7 @@ export const openOneToOne = async (
     lookUpExisting = true,
   }: { lookUpExisting?: boolean } = {},
 ): Promise<OpenedConversation> => {
-  const memberIds = [client.userID as string, other.id];
+  const memberIds = [client.userId as string, other.id];
   const candidates = !lookUpExisting
     ? []
     : await client.queryChannelsAndHydrate(
@@ -131,7 +131,7 @@ export const createGroup = async (
   const channel = client.channelManager.ensure({
     data: {
       custom: withoutEmpty(details),
-      members: [client.userID as string, ...others.map(({ id }) => id)].map(
+      members: [client.userId as string, ...others.map(({ id }) => id)].map(
         (user_id) => ({
           user_id,
         }),

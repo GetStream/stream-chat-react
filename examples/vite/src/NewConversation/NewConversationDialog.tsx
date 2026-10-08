@@ -37,7 +37,7 @@ const useUserSearch = (query: string) => {
           payload: {
             filter_conditions: {
               $or: [{ id: { $autocomplete: text } }, { name: { $autocomplete: text } }],
-              id: { $ne: client.userID as string },
+              id: { $ne: client.userId as string },
             },
             limit: 10,
             sort: [{ direction: 1, field: 'id' }],
