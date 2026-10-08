@@ -50,6 +50,7 @@ import {
 } from 'stream-chat-react/channel-detail';
 
 import { useAppSettingsSelector } from '../AppSettings/state';
+import { ChannelListItemUIWithPresence } from './ChannelListItemPresence';
 import { ConfiguredAvatarWithChannelDetail } from './ConfiguredChannelDetail.tsx';
 import {
   resolveRevealAction,
@@ -559,6 +560,7 @@ export const ChannelsPanels = ({
         <WithComponents
           overrides={{
             Avatar: ChannelAvatar,
+            ChannelListItemUI: ChannelListItemUIWithPresence,
             ListItem: CustomChannelListItem,
           }}
         >
