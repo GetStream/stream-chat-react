@@ -322,24 +322,23 @@ dictionary: [`i18n-v15-migration.md`](./i18n-v15-migration.md).
 `Channel` used to call `channel.watch()` when it mounted an uninitialized channel. `initializeOnMount` turned that off and `channelQueryOptions` configured the query. The call and **both props are removed** — whoever supplies the channel initializes it.
 
 - **Channels from `ChannelList`, or any `queryChannels` call, arrive watched.** If that is where yours come from, nothing changes.
-- **Creating a channel and handing it straight to `Channel`** → watch it first, with the exported `getChannel`:
+- **Creating a channel and handing it straight to `Channel`** → watch it first, with `channel.ensureWatched()`:
 
   ```tsx
-  import { getChannel } from 'stream-chat-react';
-
   const channel = client.channelManager.ensure({
     data: { custom, members },
     id,
     type: 'messaging',
   });
-  if (!channel.initialized) await getChannel({ channel, client });
+  if (!channel.initialized) await channel.ensureWatched();
   setChannel(channel);
   ```
 
-  Two separate guards, both worth keeping. `client.channelManager.ensure()` (which `client.channel()` calls in stream-chat v10) returns the stored instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `getChannel` over a bare `channel.watch()` when one _is_ needed: it de-duplicates concurrent calls for the same channel (keyed on the sorted member list while a channel has no id yet), so an effect that runs twice, or two components opening the same channel, still produce one query. That de-duplication used to live inside `Channel`.
+  Two separate guards, both worth keeping. `client.channelManager.ensure()` (which `client.channel()` calls in stream-chat v10) returns the stored instance, which may already be loaded, so `initialized` skips a query that is not needed. And prefer `ensureWatched()` over a bare `channel.watch()` when one _is_ needed: it sends nothing for a channel already watched, and a call made while an earlier `ensureWatched()` with the same options is in flight waits for that one, so an effect that runs twice, or two components opening the same channel, still produce one query. `channel.watch()` always sends its request. That de-duplication used to live inside `Channel`.
 
-- **A direct message identified by members** → `getChannel({ client, type: 'messaging', members })` builds, watches and returns the instance.
-- **`channelQueryOptions`** → pass them to the watch you now own: `getChannel({ channel, client, options })`.
+- **A direct message identified by members** → `const channel = await client.channelManager.ensure({ data: { members }, type: 'messaging' }).ensureWatched();` (`ensureWatched()` resolves with the channel).
+- **`channelQueryOptions`** → pass them to the watch you now own: `channel.ensureWatched(options)`.
+- **`getChannel` → removed.** Get the instance from `client.channelManager.ensure()` and call `channel.ensureWatched(options)` on it. It de-duplicates per instance instead of per cid, which the channel store makes equivalent, as `ensure()` returns one instance per cid (and per member list for a channel without an id).
 - **An uninitialized channel renders as an empty channel, with no error**, because nothing failed. If a channel renders blank, check `channel.initialized` before looking anywhere else.
 - **Loading and error UI is yours.** `Channel` no longer renders the `LoadingIndicator` or `LoadingErrorIndicator` component slots, because it has no query to report on. Render them around `Channel`, where they sit in your layout instead of replacing the whole channel column.
 - **Why it changed:** `Channel` cannot make that call well. It does not know which query options a screen needs, whether a list or a search result already loaded the channel, whether a failed query should retry or navigate away, or what belongs on screen while the query is in flight. All of that belongs to the code that decides which channel to open. Full recipes: [providing a channel](/chat/docs/sdk/react/v15/guides/providing-a-channel/).
@@ -434,8 +433,8 @@ already gives one focus per list.
 
 - **To scroll a list to a message**, call `channel.messagePaginator.jumpToMessage(messageId)` (or
   `thread.messagePaginator.jumpToMessage(...)` for a thread reply). `jumpToMessage` does not watch the
-  channel, so query it first if it has never been opened — `getChannel({ channel, client })`
-  de-duplicates concurrent calls.
+  channel unless asked: pass `{ watchChannel: true }` to watch a channel that isn't watched yet with
+  the request that loads the window around the message.
 - **To read what a list is currently highlighting**, subscribe to
   `channel.messagePaginator.messageFocusSignal` and take `signal?.messageId`. This is what the built-in
   search results now use for their "you jumped here" marker, so the marker and the highlight share one

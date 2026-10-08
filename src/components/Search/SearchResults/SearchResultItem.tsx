@@ -1,12 +1,13 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ComponentType } from 'react';
-import { ChannelWatchStatus, convertTimestampToDate, formatMessage } from 'stream-chat';
+import { convertTimestampToDate, formatMessage } from 'stream-chat';
 import type {
   Channel,
   ChannelLifecycleState,
   ChannelResponse,
   MessageFocusSignalState,
   MessageResponse,
+  StreamChat,
   UserResponse,
 } from 'stream-chat';
 
@@ -20,15 +21,43 @@ import {
   useTranslationContext,
   useWorkspaceNavigation,
 } from '../../../context';
+import type { TranslationContextValue } from '../../../context';
 import { Timestamp } from '../../../components/Message/Timestamp';
 import { useStateStore } from '../../../store';
-import { getChannel } from '../../../utils/getChannel';
 
 type SearchResultMessage = MessageResponse & { channel?: ChannelResponse };
 
 const pendingDisposalSelector = (state: ChannelLifecycleState) => ({
   pendingDisposal: state.pendingDisposal,
 });
+
+/**
+ * Reports that a channel opened from a search result failed to load: its watch request failed, so it
+ * shows only what the search loaded and receives no new messages, which nothing on screen would show
+ * otherwise. For a direct message opened from a user result, the channel was not created.
+ */
+const reportLoadFailed = ({
+  channel,
+  client,
+  emitter,
+  error,
+  t,
+}: {
+  channel: Channel;
+  client: StreamChat;
+  emitter: string;
+  error: unknown;
+  t: TranslationContextValue['t'];
+}) => {
+  client.notifications.addError({
+    message: t('search.results.loadChannelFailed.text', 'Failed to load the channel'),
+    options: {
+      originalError: error instanceof Error ? error : new Error(String(error)),
+      type: 'api:channel:watch:failed',
+    },
+    origin: { context: { channel }, emitter },
+  });
+};
 
 const messageFocusSignalSelector = (state: MessageFocusSignalState) => ({
   focusedMessageId: state.signal?.messageId,
@@ -47,6 +76,7 @@ export const ChannelSearchResultItem = ({
 }: ChannelSearchResultItemProps) => {
   const { openChannel } = useWorkspaceNavigation();
   const { channelManager, client } = useChatContext();
+  const { t } = useTranslationContext();
 
   const handleSelect = useCallback(
     (event: React.MouseEvent) => {
@@ -59,14 +89,20 @@ export const ChannelSearchResultItem = ({
       openChannel(item, { event });
       // Channel search doesn't watch its results, and `Channel` doesn't watch either, so the opened
       // channel is watched here to receive its events.
-      if (item.watchStatus !== ChannelWatchStatus.Watching) {
-        void getChannel({ channel: item, client }).catch(() => undefined);
-      }
+      item.ensureWatched().catch((error) =>
+        reportLoadFailed({
+          channel: item,
+          client,
+          emitter: 'ChannelSearchResultItem',
+          error,
+          t,
+        }),
+      );
       // Route the channel into the list(s) that should own it (the channel manager dedupes by cid,
       // inserts in sort order, and honors ownership/filters) so it appears without a re-query.
       channelManager.ingestChannel(item);
     },
-    [item, openChannel, channelManager, client, onSelect],
+    [item, openChannel, channelManager, client, onSelect, t],
   );
 
   return (
@@ -172,13 +208,21 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         },
         type: directMessagingChannelType,
       });
-      newChannel.watch();
+      newChannel.ensureWatched().catch((error) =>
+        reportLoadFailed({
+          channel: newChannel,
+          client,
+          emitter: 'UserSearchResultItem',
+          error,
+          t,
+        }),
+      );
       // Default: open the DM channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });
       channelManager.ingestChannel(newChannel);
     },
-    [client, item, openChannel, channelManager, directMessagingChannelType, onSelect],
+    [client, item, openChannel, channelManager, directMessagingChannelType, onSelect, t],
   );
 
   return (

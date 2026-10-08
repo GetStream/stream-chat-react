@@ -535,6 +535,7 @@ export type TranslationCatalog = {
   'search.bar.clearSearch.ariaLabel': 'Clear search';
   'search.bar.exitSearch.ariaLabel': 'Exit search';
   'search.resultItem.selectUserChannel.ariaLabel': 'Select User Channel: {{ name }}';
+  'search.results.loadChannelFailed.text': 'Failed to load the channel';
   'search.results.searchResults.ariaLabel': 'Search results';
   'search.resultsHeader.ariaLabel': 'Search results header filter button for: {{ source }}';
   'search.resultsHeader.filterSource.channels': 'channels';

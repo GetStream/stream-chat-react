@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { fromPartial } from '@total-typescript/shoehorn';
-import { ChannelWatchStatus } from 'stream-chat';
+import { Channel, ChannelWatchStatus } from 'stream-chat';
 import type { StreamChat } from 'stream-chat';
 import type { MockInstance } from 'vitest';
 
@@ -152,6 +152,34 @@ describe('SearchResultItem Components', () => {
       fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
 
       expect(watch).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports that the opened channel failed to load when its watch fails', async () => {
+      const channelSearchData = generateChannel();
+      const { client } = await renderComponent({
+        channelSearchData,
+        SearchResultItemComponent,
+      });
+      const channel = client.channelManager.get(channelSearchData.channel.cid);
+      if (!channel) throw new Error('the result channel is not stored');
+      channel.watchStatus = ChannelWatchStatus.NotWatching;
+      const error = new Error('watch failed');
+      vi.spyOn(channel, 'watch').mockRejectedValue(error);
+      const addError = vi.spyOn(client.notifications, 'addError');
+
+      fireEvent.click(screen.getByTestId(CHANNEL_PREVIEW_BUTTON_TEST_ID));
+
+      await vi.waitFor(() =>
+        expect(addError).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: 'Failed to load the channel',
+            options: expect.objectContaining({
+              originalError: error,
+              type: 'api:channel:watch:failed',
+            }),
+          }),
+        ),
+      );
     });
 
     it('does not watch an opened channel that is already watched', async () => {
@@ -344,6 +372,33 @@ describe('SearchResultItem Components', () => {
       });
       expect(mockOpenChannel).toHaveBeenCalledTimes(1);
       expect(mockIngestChannel).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports that the direct-message channel failed to load when its watch fails', async () => {
+      const { client } = await renderComponent({
+        SearchResultItemComponent,
+        userData: user,
+      });
+      const error = new Error('watch failed');
+      const watch = vi.spyOn(Channel.prototype, 'watch').mockRejectedValue(error);
+      const addError = vi.spyOn(client.notifications, 'addError');
+
+      await act(() => {
+        fireEvent.click(screen.getByRole('option'));
+      });
+
+      await vi.waitFor(() =>
+        expect(addError).toHaveBeenCalledWith(
+          expect.objectContaining({
+            message: 'Failed to load the channel',
+            options: expect.objectContaining({
+              originalError: error,
+              type: 'api:channel:watch:failed',
+            }),
+          }),
+        ),
+      );
+      watch.mockRestore();
     });
 
     it('runs a custom onSelect instead of the default DM open', async () => {
