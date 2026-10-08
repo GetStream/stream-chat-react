@@ -5,7 +5,6 @@ import {
   Channel,
   ChannelHeader,
   Chat,
-  getChannel,
   MessageComposer,
   MessageList,
   ThreadHeader,
@@ -87,10 +86,10 @@ const App = () => {
       //
       // `client.channelManager.ensure()` returns the stored instance for this cid, so a re-run of this effect
       // can hand back a channel that is already loaded -- query only when it is not. When a query
-      // is needed, `getChannel` de-duplicates concurrent calls for the same channel, so two
+      // is needed, `channel.ensureWatched()` de-duplicates concurrent calls for the same channel, so two
       // overlapping runs still produce a single request.
       if (!channel.initialized) {
-        await getChannel({ channel, client });
+        await channel.ensureWatched();
       }
 
       setChannel(channel);

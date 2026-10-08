@@ -4,7 +4,6 @@ import {
   Channel,
   ChannelHeader,
   Chat,
-  getChannel,
   MessageComposer,
   useCreateChatClient,
   VirtualizedMessageList,
@@ -56,9 +55,9 @@ const App = () => {
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
       // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
       if (!spaceChannel.initialized) {
-        await getChannel({ channel: spaceChannel, client: chatClient });
+        await spaceChannel.ensureWatched();
       }
       setChannel(spaceChannel);
     };

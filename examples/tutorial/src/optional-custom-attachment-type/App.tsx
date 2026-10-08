@@ -12,7 +12,6 @@ import {
   Channel,
   ChannelHeader,
   Chat,
-  getChannel,
   MessageComposer,
   MessageList,
   RemoveAttachmentPreviewButton,
@@ -196,9 +195,9 @@ const App = () => {
 
       // `Channel` binds a channel to its subtree; it does not query one, so initializing is the
       // caller's job. The cached instance may already be loaded, so query only when it is not --
-      // and when a query is needed, `getChannel` de-duplicates calls that overlap in time.
+      // and when a query is needed, `channel.ensureWatched()` de-duplicates calls that overlap in time.
       if (!channel.initialized) {
-        await getChannel({ channel, client });
+        await channel.ensureWatched();
       }
 
       // messages are no longer kept on channel.state — the paginator owns the list

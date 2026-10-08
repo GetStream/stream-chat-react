@@ -31,7 +31,6 @@ import {
   type AttachmentProps,
   Chat,
   defaultReactionOptions,
-  getChannel,
   mapEmojiMartData,
   MessageReactions,
   NotificationList,
@@ -406,7 +405,7 @@ const App = () => {
       });
 
       void (async () => {
-        if (!channel.initialized) await getChannel({ channel, client: chatClient });
+        if (!channel.initialized) await channel.ensureWatched();
         await channel.messagePaginator.jumpToMessage(messageId);
       })();
     });
