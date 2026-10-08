@@ -20,6 +20,25 @@ const getOffsetFromDocument = (element: HTMLElement) => {
 const getOffsetWithin = (element: HTMLElement, container: HTMLElement) =>
   getOffsetFromDocument(element) - getOffsetFromDocument(container) - container.clientTop;
 
+// iOS WebKit keeps a touch fling ("momentum scroll") animating after the finger lifts, and that
+// animation overrides programmatic scroll positions every frame, pulling the list away from the
+// position we just restored. Hiding the overflow ends the fling. The scrollbar is an overlay on
+// iOS, so toggling it does not shift the layout. `-webkit-touch-callout` is only supported by iOS
+// WebKit, which keeps this off desktop browsers, where the toggle could change the layout width.
+const supportsMomentumScrolling = () =>
+  typeof CSS !== 'undefined' && !!CSS.supports?.('-webkit-touch-callout', 'none');
+
+const stopMomentumScrolling = (element: HTMLElement) => {
+  if (!supportsMomentumScrolling()) return undefined;
+
+  const previousOverflowY = element.style.overflowY;
+  element.style.overflowY = 'hidden';
+
+  return () => {
+    element.style.overflowY = previousOverflowY;
+  };
+};
+
 export type UseScrollLocationLogicParams = {
   /** Disables automatic scroll-to-bottom updates after message changes. */
   disableAutoScrollToBottom?: boolean;
@@ -161,6 +180,10 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
 
       isRestoringOlderAnchorRef.current = true;
 
+      // Held until the restore settles, because the fling would otherwise reclaim the position on
+      // every frame we do not write it.
+      let resumeScrolling: (() => void) | undefined;
+
       const applyAnchor = () => {
         if (cancelled) return true;
 
@@ -177,6 +200,7 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
           getOffsetWithin(anchorElement, listElement) - anchor.offsetTop;
 
         if (Math.abs(listElement.scrollTop - targetScrollTop) > 1) {
+          resumeScrolling ??= stopMomentumScrolling(listElement);
           listElement.scrollTop = targetScrollTop;
           return false;
         }
@@ -195,6 +219,8 @@ export const useScrollLocationLogic = (params: UseScrollLocationLogicParams) => 
           clearTimeout(settleTimeoutId);
         }
         resizeObserver?.disconnect();
+        resumeScrolling?.();
+        resumeScrolling = undefined;
       };
 
       // Keep correcting against the same anchor until the DOM stops shifting.

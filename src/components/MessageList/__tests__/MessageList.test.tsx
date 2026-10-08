@@ -1715,6 +1715,45 @@ describe('MessageList', () => {
           expect(listElement.scrollTop).toBe(520);
         });
 
+        describe('momentum scrolling', () => {
+          const originalCSS = Object.getOwnPropertyDescriptor(globalThis, 'CSS');
+          afterEach(() => {
+            if (originalCSS) Object.defineProperty(globalThis, 'CSS', originalCSS);
+            else delete (globalThis as Record<string, unknown>).CSS;
+          });
+          const setIosWebKit = (isIos: boolean) =>
+            Object.defineProperty(globalThis, 'CSS', {
+              configurable: true,
+              value: {
+                supports: (property: string) =>
+                  isIos && property === '-webkit-touch-callout',
+              },
+            });
+
+          it('ends the fling on iOS WebKit while restoring, then hands scrolling back', async () => {
+            setIosWebKit(true);
+            const seen: string[] = [];
+            const { listElement } = await renderPrependHarness({ startScrollTop: 50 });
+            seen.push(listElement.style.overflowY);
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            // iOS keeps animating a fling over programmatic positions until its overflow is hidden.
+            expect(seen[0]).toBe('hidden');
+            expect(listElement.style.overflowY).toBe('');
+            expect(listElement.scrollTop).toBe(520);
+          });
+
+          it('leaves the overflow alone outside iOS WebKit', async () => {
+            setIosWebKit(false);
+            const { listElement } = await renderPrependHarness({ startScrollTop: 50 });
+
+            expect(listElement.style.overflowY).toBe('');
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            expect(listElement.style.overflowY).toBe('');
+            expect(listElement.scrollTop).toBe(520);
+          });
+        });
+
         it('keeps the new page pinned to the top when pagination started from the absolute top', async () => {
           const { listElement, scrollByMock, scrollToMock } = await renderPrependHarness({
             startScrollTop: 0,
