@@ -860,15 +860,16 @@ separate.
 
 Two type renames come with it:
 
-| v14                    | v15                                                                               |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)               |
-| `channel.disconnected` | `channel.pendingDisposal`, read-only (**removed outright — no deprecated alias**) |
+| v14                    | v15                                                                                                              |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `WatcherState`         | `ChannelWatchState` (it now also answers whether _we_ are watching)                                              |
+| `channel.disconnected` | `channel.pendingDisposal`, read-only; set by `channel.disconnect()` (**removed outright — no deprecated alias**) |
 
 `pendingDisposal` is one-way and terminal: the paginators are disposed, subscriptions unregistered, and
-the channel store drops the channel, so the instance is never revived. It is read-only: stream-chat sets
-it when it finishes a channel (deleted, the user removed from it, `disconnectUser()`, or
-`client.channelManager.removeChannel(cid)`). `getClient()`
+the channel store drops the channel, so the instance is never revived. It is read-only: `channel.disconnect()` sets
+it, which stream-chat calls when a channel ends (deleted, the user removed from it, `disconnectUser()`, or
+released as unused). Call `channel.disconnect()` yourself to finish an instance you are done with; it
+doesn't remove the channel from the channel store. `getClient()`
 throws on such a channel — a reference held across a `disconnectUser()` now fails loudly rather than
 quietly requesting on a client with no user.
 
