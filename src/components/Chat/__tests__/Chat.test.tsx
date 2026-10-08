@@ -342,6 +342,42 @@ describe('Chat', () => {
       expect(client.channelManager.paginators).toStrictEqual([paginator]);
     });
 
+    it('routes events to the channel lists while mounted, with no ChannelList on screen', async () => {
+      // The search results and the threads view replace the channel list, and the lists must keep
+      // up with events meanwhile.
+      const client = await getTestClientWithUser({ id: 'user_x' });
+      const channel = client.channelManager.ensure({ id: 'routed', type: 'messaging' });
+      const ingestChannel = vi.spyOn(client.channelManager, 'ingestChannel');
+      const channelUpdated = () =>
+        client.dispatchEvent({
+          channel: { ...channel.data, cid: channel.cid, id: 'routed', type: 'messaging' },
+          channel_id: 'routed',
+          channel_type: 'messaging',
+          cid: channel.cid,
+          type: 'channel.updated',
+        } as never);
+
+      let unmount: () => void;
+      await act(() => {
+        ({ unmount } = render(
+          <Chat client={client}>
+            <div />
+          </Chat>,
+        ));
+      });
+      channelUpdated();
+      await waitFor(() => expect(ingestChannel).toHaveBeenCalledWith(channel));
+
+      await act(() => {
+        unmount();
+      });
+      ingestChannel.mockClear();
+      channelUpdated();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      expect(ingestChannel).not.toHaveBeenCalled();
+    });
+
     it('keeps exposing the same manager when the client changes', async () => {
       const client = getTestClient();
       const nextClient = getTestClient();
