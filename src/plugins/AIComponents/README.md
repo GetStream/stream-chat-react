@@ -157,7 +157,9 @@ import { WithComponents } from 'stream-chat-react';
 
 ### 7. Internationalization
 
-All strings are translated through `t()` and `Streami18n` (12 locales shipped). Inside `<Chat>` the active language is used; override or add translations through your `Streami18n` instance. Without `<Chat>` the English default keys are used.
+All strings are translated through `t()` and `Streami18n` (12 locales shipped). Inside `<Chat>` the active language is used; override or add translations through your `Streami18n` instance.
+
+Outside `<Chat>` (or a `TranslationProvider`), as everywhere in `stream-chat-react`, `t()` is the default translator, which returns the key unchanged. Keys that are English sentences, such as `Ask a question...`, still read correctly, but accessible names use `aria/`-prefixed keys and are then exposed raw: the submit button is announced as `aria/Send` instead of `Send`. Render the components inside `<Chat>`, or wrap them in a `TranslationProvider` (both exported from `stream-chat-react`) whose value holds `userLanguage` plus the `t` and `tDateTimeParser` returned by `await new Streami18n({ language: 'en' }).getTranslators()`, to get real labels.
 
 ## Theming
 
@@ -205,7 +207,7 @@ Focus rings use the SDK focus token `--str-chat__border-utility-focused` (fallin
 ## Notes
 
 - Server-side rendering: the components render under SSR (for example Next.js). This relies on a fix in the SDK's `useStateStore`, which now provides `getServerSnapshot`.
-- The Chart.js renderer is lazy-loaded; a fallback ("Loading chart...") is shown while it loads.
+- The Chart.js renderer is lazy-loaded; a fallback ("Loading chart...") is shown while it loads. If the chunk fails to load or Chart.js throws, the block falls back to the raw code instead of breaking the message.
 - `AIMessageComposer` attachment `meta` remains `Record<string, any>`.
 
 ## Example app
@@ -249,7 +251,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
 #### Sub-components
 
-- **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection.
+- **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled `aria/File upload`, and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
 - **`AIMessageComposer.TextInput`** - Text input field for typing messages. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.

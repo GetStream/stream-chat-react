@@ -4,6 +4,8 @@ import { dirname, resolve } from 'node:path';
 const FORBIDDEN_BARE = ['chart.js', 'react-chartjs-2', 'react-syntax-highlighter', 'zod'];
 const FORBIDDEN_PATH = '/plugins/AIComponents/';
 const IMPORT_RE = /(?:import|export)\s*(?:[^'"]*?from\s*)?['"]([^'"]+)['"]/g;
+// lazy chunks: `import('./x.mjs')` must be walked too
+const DYNAMIC_IMPORT_RE = /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g;
 
 const entry = resolve(import.meta.dirname, '../dist/es/index.mjs');
 const seen = new Set<string>();
@@ -15,7 +17,9 @@ while (queue.length) {
   if (seen.has(file)) continue;
   seen.add(file);
   if (file.includes(FORBIDDEN_PATH)) violations.push(`reaches ${file}`);
-  for (const [, spec] of readFileSync(file, 'utf8').matchAll(IMPORT_RE)) {
+  const source = readFileSync(file, 'utf8');
+  const specs = [...source.matchAll(IMPORT_RE), ...source.matchAll(DYNAMIC_IMPORT_RE)];
+  for (const [, spec] of specs) {
     if (spec.startsWith('.')) queue.push(resolve(dirname(file), spec));
     else if (FORBIDDEN_BARE.some((b) => spec === b || spec.startsWith(`${b}/`)))
       violations.push(`${file} imports ${spec}`);

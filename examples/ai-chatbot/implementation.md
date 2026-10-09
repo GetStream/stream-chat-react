@@ -540,15 +540,17 @@ import './ComponentName.scss';
 
 ### Commands
 
+Run from the repository root (Yarn workspaces; build the SDK first with `yarn build`):
+
 ```bash
 # Development server with hot reload
-pnpm dev
+yarn start:ai-chatbot
 
 # Production build
-pnpm build
+yarn workspace @stream-io/stream-chat-react-ai-chatbot build
 
 # Start production server
-pnpm start
+yarn workspace @stream-io/stream-chat-react-ai-chatbot start
 ```
 
 ### Key Differences from Vite
