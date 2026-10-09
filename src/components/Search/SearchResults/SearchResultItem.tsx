@@ -208,19 +208,22 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
         },
         type: directMessagingChannelType,
       });
-      newChannel.ensureWatched().catch((error) =>
-        reportLoadFailed({
-          channel: newChannel,
-          client,
-          emitter: 'UserSearchResultItem',
-          error,
-          t,
-        }),
-      );
       // Default: open the DM channel in the workspace, forwarding the event so a consumer overriding
       // `openChannel` can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });
-      channelManager.ingestChannel(newChannel);
+      newChannel.ensureWatched().then(
+        // Listed only once the watch gives a new DM its id (lists refuse a channel without one), and
+        // as the stored instance if another one was stored under that id meanwhile.
+        (channel) => channelManager.ingestChannel(channel.supersededBy ?? channel),
+        (error) =>
+          reportLoadFailed({
+            channel: newChannel,
+            client,
+            emitter: 'UserSearchResultItem',
+            error,
+            t,
+          }),
+      );
     },
     [client, item, openChannel, channelManager, directMessagingChannelType, onSelect, t],
   );

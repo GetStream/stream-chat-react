@@ -401,6 +401,51 @@ describe('SearchResultItem Components', () => {
       watch.mockRestore();
     });
 
+    it('adds the direct-message channel to the lists only once its watch resolves', async () => {
+      await renderComponent({ SearchResultItemComponent, userData: user });
+      let resolveWatch: () => void = () => undefined;
+      const ensureWatched = vi
+        .spyOn(Channel.prototype, 'ensureWatched')
+        .mockImplementation(function (this: Channel) {
+          return new Promise<Channel>((resolve) => (resolveWatch = () => resolve(this)));
+        });
+
+      await act(() => {
+        fireEvent.click(screen.getByRole('option'));
+      });
+      expect(mockOpenChannel).toHaveBeenCalledTimes(1);
+      expect(mockIngestChannel).not.toHaveBeenCalled();
+
+      await act(async () => {
+        resolveWatch();
+        await Promise.resolve();
+      });
+
+      expect(mockIngestChannel).toHaveBeenCalledWith(ensureWatched.mock.contexts[0]);
+      ensureWatched.mockRestore();
+    });
+
+    it('adds the stored instance when the direct message was superseded during its watch', async () => {
+      const { client } = await renderComponent({
+        SearchResultItemComponent,
+        userData: user,
+      });
+      const stored = client.channelManager.ensure({ id: 'stored-dm', type: 'messaging' });
+      const ensureWatched = vi
+        .spyOn(Channel.prototype, 'ensureWatched')
+        .mockImplementation(function (this: Channel) {
+          this.state.partialNext({ supersededBy: stored });
+          return Promise.resolve(this);
+        });
+
+      await act(() => {
+        fireEvent.click(screen.getByRole('option'));
+      });
+
+      await vi.waitFor(() => expect(mockIngestChannel).toHaveBeenCalledWith(stored));
+      ensureWatched.mockRestore();
+    });
+
     it('runs a custom onSelect instead of the default DM open', async () => {
       const onSelect = vi.fn();
       await renderComponent({
