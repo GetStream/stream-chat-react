@@ -28,7 +28,7 @@ export const Item = ({
 }) => {
   const { t } = useTranslationContext();
   const { IconFile, IconRetry, IconXmark } = useComponentContextIcons();
-  const fileName = title || file.name || 'Unknown file name';
+  const fileName = title || file.name || t('Unknown file name');
   const readableFileSize = byteValueNumberFormatter.format(file.size);
   const isImage = file.type.startsWith('image/');
 

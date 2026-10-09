@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import { AIMessageComposer, AIStateIndicator } from '..';
 import { TranslationProvider } from '../../../context';
+import en from '../../../i18n/en.json';
 
 const t = ((key: string) => `T:${key}`) as never;
 
@@ -29,5 +30,19 @@ describe('AI components i18n', () => {
       </TranslationProvider>,
     );
     expect(container.textContent).toMatch(/^T:/);
+  });
+
+  it('renders real English values for aria keys (no aria/ prefix)', () => {
+    const enT = ((key: string) => (en as Record<string, string>)[key] ?? key) as never;
+    render(
+      <TranslationProvider
+        value={{ t: enT, tDateTimeParser: (() => null) as never, userLanguage: 'en' }}
+      >
+        <AIMessageComposer>
+          <AIMessageComposer.SpeechToTextButton />
+        </AIMessageComposer>
+      </TranslationProvider>,
+    );
+    expect(screen.getByLabelText('Start voice input')).toBeInTheDocument();
   });
 });

@@ -22,6 +22,7 @@ import {
   Scatter,
 } from 'react-chartjs-2';
 import type { ToolComponentProps } from '../../AIMarkdown';
+import { useTranslationContext } from '../../../../../context/TranslationContext';
 import { chartJsSchema } from './chartJsSchema';
 
 ChartJS.register(
@@ -36,6 +37,11 @@ ChartJS.register(
   TitlePlugin,
 );
 
+const UnknownChart = () => {
+  const { t } = useTranslationContext();
+  return <div>{t('Unknown chart type')}</div>;
+};
+
 const components = {
   bar: Bar,
   bubble: Bubble,
@@ -45,7 +51,7 @@ const components = {
   polarArea: PolarArea,
   radar: Radar,
   scatter: Scatter,
-  unknown: () => <div>Unknown chart type</div>,
+  unknown: UnknownChart,
 } as const;
 
 const Chart = ({ data, fallback }: ToolComponentProps) => {
