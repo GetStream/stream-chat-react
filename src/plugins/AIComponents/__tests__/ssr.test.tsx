@@ -18,4 +18,7 @@ it('server-renders without touching browser globals', () => {
     </>,
   );
   expect(html).toContain('<strong>bold</strong>');
+  expect(html).toContain('hi');
+  expect(html).toContain('Thinking');
+  expect(html).toContain('<input');
 });
