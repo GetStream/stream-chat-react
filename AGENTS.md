@@ -79,12 +79,12 @@ yarn i18n:export          # write an en.json on demand (for a translator or TMS)
 # Bundle smoke tests (run in CI after build)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
-yarn validate-entry-isolation   # fails if the main entry's ESM graph reaches ai-components or its deps
+yarn validate-entry-isolation # fails if the main entry's ESM graph reaches ai-components or its deps
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
 yarn start:vite           # @stream-io/stream-chat-react-vite dev server
-yarn start:ai-chatbot       # @stream-io/stream-chat-react-ai-chatbot dev server (run yarn build first)
+yarn start:ai-chatbot     # @stream-io/stream-chat-react-ai-chatbot dev server (run yarn build first)
 yarn examples:build       # build all example workspaces
 ```
 

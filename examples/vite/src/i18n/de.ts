@@ -55,8 +55,6 @@ export const deTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Sprachnachricht gesendet',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Sprachaufnahme angehängt',
-  'aiState.indicator.generating.label': 'Wird erstellt...',
-  'aiState.indicator.thinking.label': 'Denkt nach...',
   'attachment.actions.giphyActions.ariaLabel': 'Giphy-Aktionen',
   'attachment.actions.giphyPreviewOnlyVisible.ariaLabel':
     'Giphy-Vorschau, nur für dich sichtbar. Nutze die Aktionen Senden, Mischen oder Abbrechen.',
@@ -71,6 +69,31 @@ export const deTranslations = {
   'attachment.modalGallery.openImageGallery.label': 'Bild in der Galerie öffnen',
   'attachment.unableRenderCard.text': 'dieser Inhalt konnte nicht angezeigt werden',
   'attachment.visibilityDisclaimer.onlyVisible.text': 'Nur für dich sichtbar',
+  'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Anhang löschen',
+  'aiComponents.attachmentPreview.unknownFileName.text': 'Unbekannter Dateiname',
+  'aiComponents.chart.loading.text': 'Diagramm wird geladen...',
+  'aiComponents.chart.unknownType.text': 'Unbekannter Diagrammtyp',
+  'aiComponents.messageComposer.speechToText.ariaLabel': 'Spracheingabe starten',
+  'aiComponents.messageComposer.textInput.placeholder': 'Stelle eine Frage...',
+  'aiComponents.stateIndicator.brewingUpAnAnswer.text': 'Ich braue eine Antwort zusammen',
+  'aiComponents.stateIndicator.channelingMyInnerEinstein.text':
+    'Ich channele meinen inneren Einstein',
+  'aiComponents.stateIndicator.connectingTheDots.text': 'Ich verbinde die Punkte',
+  'aiComponents.stateIndicator.consultingTheAiGods.text': 'Ich befrage die KI-Götter',
+  'aiComponents.stateIndicator.cookingUpSomethingGood.text':
+    'Ich koche etwas Feines zusammen',
+  'aiComponents.stateIndicator.crunchingTheNumbers.text': 'Ich zerkaue die Zahlen',
+  'aiComponents.stateIndicator.firingUpTheNeurons.text': 'Ich werfe die Neuronen an',
+  'aiComponents.stateIndicator.puttingOnMyThinkingCap.text':
+    'Ich setze meine Denkerkappe auf',
+  'aiComponents.stateIndicator.readingTheDigitalTeaLeaves.text':
+    'Ich lese die digitalen Teeblätter',
+  'aiComponents.stateIndicator.summoningMyInnerGenius.text':
+    'Ich beschwöre mein inneres Genie',
+  'aiComponents.stateIndicator.thinkingReallyHard.text': 'Ich denke angestrengt nach',
+  'aiComponents.stateIndicator.workingMyMagic.text': 'Ich lasse meine Magie wirken',
+  'aiState.indicator.generating.label': 'Wird erstellt...',
+  'aiState.indicator.thinking.label': 'Denkt nach...',
   'audioPlayback.audioPlayerNotifications.cannotSeekRecording.label':
     'In der Aufnahme kann nicht gesucht werden',
   'audioPlayback.audioPlayerNotifications.failedPlayRecording.label':

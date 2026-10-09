@@ -46,8 +46,6 @@ export const itTranslations = {
   'a11y.interactionAnnouncements.voiceMessageSent.ariaLabel': 'Messaggio vocale inviato',
   'a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel':
     'Registrazione vocale allegata',
-  'aiState.indicator.generating.label': 'Generazione in corso...',
-  'aiState.indicator.thinking.label': 'Sto pensando...',
   'attachment.actions.giphyActions.ariaLabel': 'Azioni Giphy',
   'attachment.actions.giphyPreviewOnlyVisible.ariaLabel':
     'Anteprima Giphy, visibile solo a te. Usa le azioni Invia, Mescola o Annulla.',
@@ -64,6 +62,31 @@ export const itTranslations = {
   'attachment.modalGallery.openImageGallery.label': 'Apri l’immagine nella galleria',
   'attachment.unableRenderCard.text': 'questo contenuto non può essere visualizzato',
   'attachment.visibilityDisclaimer.onlyVisible.text': 'Visibile solo a te',
+  'aiComponents.attachmentPreview.deleteAttachment.ariaLabel': 'Elimina allegato',
+  'aiComponents.attachmentPreview.unknownFileName.text': 'Nome file sconosciuto',
+  'aiComponents.chart.loading.text': 'Caricamento del grafico...',
+  'aiComponents.chart.unknownType.text': 'Tipo di grafico sconosciuto',
+  'aiComponents.messageComposer.speechToText.ariaLabel': 'Avvia input vocale',
+  'aiComponents.messageComposer.textInput.placeholder': 'Fai una domanda...',
+  'aiComponents.stateIndicator.brewingUpAnAnswer.text': 'Sto preparando una risposta',
+  'aiComponents.stateIndicator.channelingMyInnerEinstein.text':
+    'Evoco il mio Einstein interiore',
+  'aiComponents.stateIndicator.connectingTheDots.text': 'Collego i puntini',
+  'aiComponents.stateIndicator.consultingTheAiGods.text': "Consulto gli dei dell'IA",
+  'aiComponents.stateIndicator.cookingUpSomethingGood.text':
+    'Sto cucinando qualcosa di buono',
+  'aiComponents.stateIndicator.crunchingTheNumbers.text': 'Sto elaborando i numeri',
+  'aiComponents.stateIndicator.firingUpTheNeurons.text': 'Accendo i neuroni',
+  'aiComponents.stateIndicator.puttingOnMyThinkingCap.text':
+    'Mi metto il cappello del pensatore',
+  'aiComponents.stateIndicator.readingTheDigitalTeaLeaves.text':
+    'Leggo i fondi di tè digitali',
+  'aiComponents.stateIndicator.summoningMyInnerGenius.text':
+    'Evoco il mio genio interiore',
+  'aiComponents.stateIndicator.thinkingReallyHard.text': 'Sto pensando intensamente',
+  'aiComponents.stateIndicator.workingMyMagic.text': 'Faccio la mia magia',
+  'aiState.indicator.generating.label': 'Generazione in corso...',
+  'aiState.indicator.thinking.label': 'Sto pensando...',
   'audioPlayback.audioPlayerNotifications.cannotSeekRecording.label':
     'Impossibile spostarsi nella registrazione',
   'audioPlayback.audioPlayerNotifications.failedPlayRecording.label':
