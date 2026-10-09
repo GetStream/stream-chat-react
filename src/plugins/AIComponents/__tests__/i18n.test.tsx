@@ -4,10 +4,21 @@ import { render, screen } from '@testing-library/react';
 import { AIMessageComposer, AIStateIndicator } from '..';
 import { TranslationProvider } from '../../../context';
 import en from '../../../i18n/en.json';
+import {
+  installFakeSpeechRecognition,
+  uninstallFakeSpeechRecognition,
+} from './fakeSpeechRecognition';
 
 const t = ((key: string) => `T:${key}`) as never;
 
 describe('AI components i18n', () => {
+  beforeEach(() => {
+    installFakeSpeechRecognition();
+  });
+  afterEach(() => {
+    uninstallFakeSpeechRecognition();
+  });
+
   it('translates the composer placeholder', () => {
     render(
       <TranslationProvider

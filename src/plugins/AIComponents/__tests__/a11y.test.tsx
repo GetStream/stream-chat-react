@@ -6,6 +6,10 @@ import { Item } from '../AIMessageComposer/AttachmentPreview';
 import { TranslationProvider } from '../../../context';
 import en from '../../../i18n/en.json';
 import { axe } from '../../../../axe-helper';
+import {
+  installFakeSpeechRecognition,
+  uninstallFakeSpeechRecognition,
+} from './fakeSpeechRecognition';
 
 const enT = ((key: string) => (en as Record<string, string>)[key] ?? key) as never;
 
@@ -29,6 +33,13 @@ const FullComposer = () => (
 );
 
 describe('AI components accessibility', () => {
+  beforeEach(() => {
+    installFakeSpeechRecognition();
+  });
+  afterEach(() => {
+    uninstallFakeSpeechRecognition();
+  });
+
   it('a full composer has no axe violations', async () => {
     const { container } = render(<FullComposer />);
     expect(await axe(container)).toHaveNoViolations();
@@ -41,6 +52,7 @@ describe('AI components accessibility', () => {
       'submit',
     );
     expect(screen.getByLabelText('File upload')).toHaveAttribute('type', 'file');
+    expect(screen.getByRole('button', { name: 'Start voice input' })).toBeInTheDocument();
   });
 
   it('makes the native file input the single keyboard stop for file upload', () => {

@@ -353,6 +353,12 @@ export const AIMessageComposer: AIMessageComposer = ({
 
 const noop = () => undefined;
 
+const useHasMounted = () => {
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => setHasMounted(true), []);
+  return hasMounted;
+};
+
 const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   const { text } = useText();
   const { disabled } = useIsDisabled();
@@ -376,20 +382,40 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   );
 };
 
-const SpeechToTextButton = (
-  props: ComponentPropsWithoutRef<'button'> & {
-    options?: UseSpeechToTextOptions;
-  },
-) => {
+const SpeechToTextButton = ({
+  options,
+  ...restProps
+}: ComponentPropsWithoutRef<'button'> & {
+  options?: UseSpeechToTextOptions;
+}) => {
   const { setText } = useText();
   const { disabled } = useIsDisabled();
   const { t } = useTranslationContext();
   const { IconMicrophoneSolid } = useComponentContextIcons();
+  const hasMounted = useHasMounted();
 
-  const { isListening, startListening, stopListening } = useSpeechToText({
-    onError: console.error,
-    onTranscript: setText,
+  // stable identities: the recognizer is only re-created when a primitive option changes
+  const onTranscript = useStableCallback((text: string) => {
+    setText(text);
+    options?.onTranscript?.(text);
   });
+  const onError = useStableCallback((error: string) => {
+    if (options?.onError) {
+      options.onError(error);
+    } else {
+      console.error(error);
+    }
+  });
+
+  const { isListening, isSupported, startListening, stopListening } = useSpeechToText({
+    ...options,
+    onError,
+    onTranscript,
+  });
+
+  // Render nothing without the Web Speech API. Support is only known in the
+  // browser, so wait for mount to keep the server and hydration markup equal.
+  if (!hasMounted || !isSupported) return null;
 
   return (
     <button
@@ -404,7 +430,7 @@ const SpeechToTextButton = (
         }
       }}
       type='button'
-      {...props}
+      {...restProps}
       disabled={disabled}
     >
       <IconMicrophoneSolid />

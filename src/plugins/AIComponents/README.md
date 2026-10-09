@@ -299,14 +299,16 @@ function AIResponse({ text }) {
 
 ### `AIMessageComposer.SpeechToTextButton`
 
-A button for voice input using the Web Speech API, with a built-in microphone icon. It is a static sub-component of `AIMessageComposer` (not a named export) and must be rendered inside an `AIMessageComposer`: it writes the recognized transcript to the composer's text input through the composer context (the `onTranscript` callback is already wired to `setText`).
+A button for voice input using the Web Speech API, with a built-in microphone icon. It is a static sub-component of `AIMessageComposer` (not a named export) and must be rendered inside an `AIMessageComposer`: it writes the recognized transcript to the composer's text input through the composer context.
+
+The button renders nothing in browsers without the Web Speech API (for example Firefox). Because support can only be detected in the browser, it also renders nothing during server rendering and appears after hydration.
 
 #### Props
 
-| Name      | Type                         | Required | Description                                                                                                                                                       |
-| --------- | ---------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `options` | `UseSpeechToTextOptions`     | no       | Typed for speech recognition options, but the current implementation does not forward it to `useSpeechToText`. Use the `useSpeechToText` hook for custom options. |
-|           | `...HTMLButtonElement props` | no       | Supports all standard HTML button element props.                                                                                                                  |
+| Name      | Type                         | Required | Description                                                                                                                                                                                                                                                                                                                              |
+| --------- | ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `options` | `UseSpeechToTextOptions`     | no       | Passed to `useSpeechToText` (`lang`, `continuous`, `interimResults`, `maxAlternatives`). `onTranscript` is called in addition to updating the composer text. `onError` replaces the default error handling, which logs to `console.error`. Changing `lang` or another setting re-creates the recognizer; new callback identities do not. |
+|           | `...HTMLButtonElement props` | no       | Supports all standard HTML button element props.                                                                                                                                                                                                                                                                                         |
 
 #### Example
 

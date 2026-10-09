@@ -52,12 +52,20 @@ interface SpeechRecognitionAlternative {
   confidence: number;
 }
 
-declare global {
-  interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
-  }
-}
+type SpeechRecognitionConstructor = new () => SpeechRecognition;
+
+// Kept module-local on purpose: augmenting the global `Window` interface would
+// leak into every consumer's type environment through the shipped .d.ts files.
+type WindowWithSpeechRecognition = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+};
+
+const getSpeechRecognition = (): SpeechRecognitionConstructor | undefined => {
+  if (typeof window === 'undefined') return undefined;
+  const speechWindow = window as WindowWithSpeechRecognition;
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+};
 
 export type UseSpeechToTextOptions = {
   /**
@@ -101,20 +109,20 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
   } = options;
 
   const [isListening, setIsListening] = useState(false);
+  // stable wrappers so inline callbacks do not re-create the recognizer on every render
+  const emitTranscript = useStableCallback((text: string) => onTranscript?.(text));
+  const emitError = useStableCallback((error: string) => onError?.(error));
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   // Check if Web Speech API is supported
-  const isSupported =
-    typeof window !== 'undefined' &&
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  const isSupported = !!getSpeechRecognition();
 
   // Initialize speech recognition
   useEffect(() => {
-    if (!isSupported) {
+    const SpeechRecognition = getSpeechRecognition();
+    if (!SpeechRecognition) {
       return;
     }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
@@ -138,7 +146,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
         return accumulatedText;
       }, '');
 
-      onTranscript?.(text);
+      emitTranscript(text);
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -165,7 +173,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
           errorMessage = `Speech recognition error: ${event.error}`;
       }
 
-      onError?.(errorMessage);
+      emitError(errorMessage);
     };
 
     recognition.onend = () => {
@@ -183,15 +191,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
       recognition.onend = null;
       recognition.onstart = null;
     };
-  }, [
-    isSupported,
-    lang,
-    interimResults,
-    maxAlternatives,
-    continuous,
-    onTranscript,
-    onError,
-  ]);
+  }, [lang, interimResults, maxAlternatives, continuous, emitTranscript, emitError]);
 
   const startListening = useStableCallback(() => {
     if (!isSupported) {
@@ -202,7 +202,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
       try {
         recognitionRef.current.start();
       } catch {
-        onError?.('Failed to start speech recognition');
+        emitError('Failed to start speech recognition');
       }
     }
   });
