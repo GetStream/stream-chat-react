@@ -17,6 +17,7 @@ export default tseslint.config(
       '.yarn',
       'examples/*/dist',
       'examples/*/node_modules',
+      'examples/*/.next',
       'examples/*/docs-playwright',
     ],
   },

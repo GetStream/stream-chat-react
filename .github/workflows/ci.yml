@@ -47,6 +47,9 @@ jobs:
       - name: Validate ESM bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-esm
 
+      - name: Validate main entry does not pull in ai-components
+        run: yarn validate-entry-isolation
+
       - name: Validate translations
         run: yarn validate-translations
 

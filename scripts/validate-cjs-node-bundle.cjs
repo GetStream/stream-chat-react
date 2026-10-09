@@ -2,3 +2,4 @@
 // This smoke test can help to detect this early.
 
 require('../dist/cjs/index.js');
+require('../dist/cjs/ai-components.js');

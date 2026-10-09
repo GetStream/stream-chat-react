@@ -22,6 +22,7 @@ export default defineConfig({
         'channel-detail': resolve(__dirname, './src/plugins/ChannelDetail/index.ts'),
         emojis: resolve(__dirname, './src/plugins/Emojis/index.ts'),
         'mp3-encoder': resolve(__dirname, './src/plugins/encoders/mp3.ts'),
+        'ai-components': resolve(__dirname, './src/plugins/AIComponents/index.ts'),
       },
     },
     // `yarn build` already wipes dist up front via `yarn clean`
