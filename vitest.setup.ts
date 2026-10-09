@@ -77,4 +77,6 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
 }
 
 // Mock HTMLCanvasElement.getContext for vitest-axe/axe-core
-HTMLCanvasElement.prototype.getContext = (() => null) as any;
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = (() => null) as any;
+}
