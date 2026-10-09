@@ -1,33 +1,30 @@
 'use client';
 
-import { AIMessageComposer } from '@stream-io/chat-react-ai';
-import { useState, useEffect } from 'react';
+import { AIMessageComposer } from 'stream-chat-react/ai-components';
+import { useEffect, useState } from 'react';
 import {
-  isImageFile,
   type Channel,
+  isImageFile,
   type LocalUploadAttachment,
   type UploadRequestFn,
 } from 'stream-chat';
 import {
+  getChannel,
   useAttachmentsForPreview,
-  useChannelActionContext,
-  useChannelStateContext,
+  useChannel,
   useChatContext,
   useMessageComposerController,
 } from 'stream-chat-react';
 import { startAiAgent, summarizeConversation } from '@/components/api';
 import {
   checkRateLimit,
-  recordMessage,
   formatTimeRemaining,
+  recordMessage,
 } from '@/components/rateLimitUtils';
 import './MessageInputBar.scss';
 
-const isWatchedByAI = (channel: Channel) => {
-  return Object.keys(channel.state.watchers).some((watcher) =>
-    watcher.startsWith('ai-bot'),
-  );
-};
+const isWatchedByAI = (channel: Channel) =>
+  Object.keys(channel.state.watchers).some((watcher) => watcher.startsWith('ai-bot'));
 
 const availableModels = [
   { platform: 'openai', value: 'gpt-5.4-mini', label: 'GPT-5.4 mini' },
@@ -41,8 +38,7 @@ const availableModels = [
 
 export const MessageInputBar = () => {
   const { client } = useChatContext();
-  const { updateMessage, sendMessage } = useChannelActionContext();
-  const { channel } = useChannelStateContext();
+  const channel = useChannel();
   const composer = useMessageComposerController();
 
   const { attachments } = useAttachmentsForPreview();
@@ -75,10 +71,15 @@ export const MessageInputBar = () => {
   useEffect(() => {
     if (!composer) return;
 
-    const upload: UploadRequestFn = (file) => {
-      const f = isImageFile(file) ? client.uploadImage : client.uploadFile;
+    const upload: UploadRequestFn = async (fileLike) => {
+      const request = { file: fileLike as File };
+      const { file, thumb_url } = isImageFile(fileLike)
+        ? await client.uploadImage(request)
+        : await client.uploadFile(request);
 
-      return f.call(client, file as File);
+      if (!file) throw new Error('The upload succeeded but returned no file URL');
+
+      return { file, thumb_url };
     };
 
     const previousDefault = composer.attachmentManager.doDefaultUploadRequest;
@@ -89,10 +90,10 @@ export const MessageInputBar = () => {
   }, [client, composer]);
 
   return (
-    <div className="ai-demo-message-input-bar">
+    <div className='ai-demo-message-input-bar'>
       {rateLimitState.isLimited && rateLimitState.resetTime && (
-        <div className="ai-demo-rate-limit-message">
-          <span className="material-symbols-rounded">info</span>
+        <div className='ai-demo-rate-limit-message'>
+          <span className='material-symbols-rounded'>info</span>
           <span>
             Limit reached, 10 messages per conversation. Resets in{' '}
             <strong>{formatTimeRemaining(rateLimitState.resetTime)}</strong>.
@@ -136,10 +137,15 @@ export const MessageInputBar = () => {
           target.reset();
           composer.clear();
 
-          updateMessage(composedData?.localMessage);
+          const { localMessage, message: messageRequest, sendOptions } = composedData;
 
+          // Show the message right away: creating the conversation and starting the agent
+          // below take a round trip each before the send itself.
+          channel.messagePaginator.ingestItem(localMessage);
+
+          // A new conversation exists only locally until now; `Channel` no longer creates it.
           if (!channel.initialized) {
-            await channel.watch();
+            await getChannel({ channel, client });
           }
 
           const [platform, model] = (platformModel as string).split('|');
@@ -148,7 +154,11 @@ export const MessageInputBar = () => {
             await startAiAgent(channel, model, platform);
           }
 
-          await sendMessage(composedData);
+          await channel.sendMessageWithLocalUpdate({
+            localMessage,
+            message: messageRequest,
+            options: sendOptions,
+          });
 
           // Record message after successful send
           recordMessage(channel.id!);
@@ -157,19 +167,14 @@ export const MessageInputBar = () => {
           const newState = checkRateLimit(channel.id!);
           setRateLimitState(newState);
 
-          if (
-            typeof channel.data?.summary !== 'string' ||
-            !channel.data.summary.length
-          ) {
-            const summary = await summarizeConversation(
-              message as string,
-            ).catch(() => {
+          if (!channel.data?.custom?.summary) {
+            const summary = await summarizeConversation(message as string).catch(() => {
               console.warn('Failed to summarize conversation');
               return null;
             });
 
             if (typeof summary === 'string' && summary.length > 0) {
-              await channel.update({ summary });
+              await channel.update({ data: { custom: { summary } } });
             }
           }
         }}
@@ -181,8 +186,7 @@ export const MessageInputBar = () => {
               file={attachment.localMetadata.file as File}
               state={attachment.localMetadata.uploadState}
               imagePreviewSource={
-                attachment.thumb_url ||
-                (attachment.localMetadata.previewUri as string)
+                attachment.thumb_url || (attachment.localMetadata.previewUri as string)
               }
               onDelete={() => {
                 composer.attachmentManager.removeAttachments([
@@ -197,7 +201,7 @@ export const MessageInputBar = () => {
             />
           ))}
         </AIMessageComposer.AttachmentPreview>
-        <AIMessageComposer.TextInput name="message" />
+        <AIMessageComposer.TextInput name='message' />
         <div
           style={{
             display: 'flex',
@@ -207,18 +211,15 @@ export const MessageInputBar = () => {
           }}
         >
           <div style={{ display: 'flex', gap: '.25rem', alignItems: 'center' }}>
-            <AIMessageComposer.FileInput name="attachments" />
+            <AIMessageComposer.FileInput name='attachments' />
             <AIMessageComposer.SpeechToTextButton />
             <AIMessageComposer.ModelSelect
-              name="platform-model"
+              name='platform-model'
               value={selectedPlatformModel}
               options={
                 <>
                   {availableModels.map((model) => (
-                    <option
-                      key={model.value}
-                      value={`${model.platform}|${model.value}`}
-                    >
+                    <option key={model.value} value={`${model.platform}|${model.value}`}>
                       {model.label}
                     </option>
                   ))}

@@ -18,28 +18,11 @@
     overflow: hidden;
   }
 
-  .str-chat__main-panel {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    flex: 1;
-  }
-
-  .str-chat__container {
-    background-color: var(--ai-demo-bg-primary);
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-height: 0;
-  }
-
   .str-chat__li {
     margin: 8px 0;
   }
 
-  /* Window component that contains MessageList, AIStateIndicator, and MessageInput */
+  /* Message list panel, laid out in the channel column above the AI state indicator and composer */
   .str-chat__thread,
   .str-chat__main-panel-inner {
     display: flex;

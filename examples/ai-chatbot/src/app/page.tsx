@@ -1,8 +1,12 @@
-import type { ChannelFilters, ChannelOptions, ChannelSort } from 'stream-chat';
-import { StreamChat } from 'stream-chat';
+import type {
+  ChannelFilters,
+  ChannelPaginatorRequestOptions,
+  SortParamRequest,
+} from 'stream-chat';
 import { AIChatApp } from '@/components/AIChatApp';
 import { ThemeProvider } from '@/components/ThemeContext';
 import { UserProvider } from '@/components/UserProvider';
+import { createUserToken } from './createUserToken';
 
 import '../components/index.scss';
 
@@ -13,8 +17,7 @@ const generateUserToken = (userId: string) => {
     throw new Error('Stream API key and secret are required');
   }
 
-  const client = new StreamChat(apiKey, secret);
-  const token = client.createToken(userId);
+  const token = createUserToken(userId, secret);
   return { apiKey, token };
 };
 
@@ -33,12 +36,13 @@ export default async function Home(props: {
     type: 'messaging',
     archived: false,
   };
-  const options: ChannelOptions = { limit: 15, presence: true, state: true };
-  const sort: ChannelSort = {
-    pinned_at: 1,
-    last_message_at: -1,
-    updated_at: -1,
-  };
+  const pageSize = 15;
+  const requestOptions: ChannelPaginatorRequestOptions = { presence: true, state: true };
+  const sort: SortParamRequest[] = [
+    { field: 'pinned_at', direction: 1 },
+    { field: 'last_message_at', direction: -1 },
+    { field: 'updated_at', direction: -1 },
+  ];
 
   return (
     <ThemeProvider>
@@ -48,7 +52,8 @@ export default async function Home(props: {
           userToken={token}
           userId={userId}
           filters={filters}
-          options={options}
+          pageSize={pageSize}
+          requestOptions={requestOptions}
           sort={sort}
           initialChannelId={conversation_id}
         />

@@ -14,7 +14,11 @@
     "jsx": "react-jsx",
     "incremental": true,
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./*"] }
+    "paths": {
+      "@/*": ["./src/*"],
+      "@stream-io/state-store": ["./node_modules/@stream-io/state-store"],
+      "stream-chat": ["./node_modules/stream-chat"]
+    }
   },
   "include": [
     "next-env.d.ts",

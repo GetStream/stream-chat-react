@@ -1,43 +1,18 @@
-import type {
-  DefaultAttachmentData,
-  DefaultChannelData,
-  DefaultCommandData,
-  DefaultEventData,
-  DefaultMemberData,
-  DefaultMessageData,
-  DefaultPollData,
-  DefaultPollOptionData,
-  DefaultReactionData,
-  DefaultThreadData,
-  DefaultUserData,
-} from 'stream-chat-react';
+import 'stream-chat';
 
+/**
+ * stream-chat v10 nests app-specific fields under `custom` (`channel.data.custom`,
+ * `message.custom`, …) and types them through these interfaces. This example declares the fields
+ * it reads via module augmentation.
+ */
 declare module 'stream-chat' {
-  interface CustomAttachmentData extends DefaultAttachmentData {
-    id?: string;
-  }
-
-  interface CustomChannelData extends DefaultChannelData {
+  interface CustomChannelData {
+    /** Conversation title, generated from the first message and shown in the sidebar and header. */
     summary?: string;
   }
 
-  interface CustomCommandData extends DefaultCommandData {}
-
-  interface CustomEventData extends DefaultEventData {}
-
-  interface CustomMemberData extends DefaultMemberData {}
-
-  interface CustomUserData extends DefaultUserData {}
-
-  interface CustomMessageData extends DefaultMessageData {
+  interface CustomMessageData {
+    /** Set by the AI agent server on the messages it writes. */
     ai_generated?: boolean;
   }
-
-  interface CustomPollOptionData extends DefaultPollOptionData {}
-
-  interface CustomPollData extends DefaultPollData {}
-
-  interface CustomReactionData extends DefaultReactionData {}
-
-  interface CustomThreadData extends DefaultThreadData {}
 }

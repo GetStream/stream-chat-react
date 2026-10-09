@@ -2,12 +2,14 @@
 
 import { useChatContext } from 'stream-chat-react';
 import { customAlphabet } from 'nanoid';
+import { useActiveChannel } from '@/components/ActiveChannelContext';
 import './SidebarHeader.scss';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
 
 export const SidebarHeader = () => {
-  const { setActiveChannel, client } = useChatContext();
+  const { client } = useChatContext();
+  const { setActiveChannel } = useActiveChannel();
 
   const handleNewChat = () => {
     // Check if there's unsent text in the composer
@@ -26,20 +28,20 @@ export const SidebarHeader = () => {
 
     // Create a new channel
     const newChannel = client.channel('messaging', `ai-${nanoId()}`, {
-      members: [client.userID as string],
+      members: [{ user_id: client.userID as string }],
     });
 
     setActiveChannel(newChannel);
   };
 
   return (
-    <div className="ai-demo-sidebar-header">
+    <div className='ai-demo-sidebar-header'>
       <button
-        className="ai-demo-sidebar-header__new-chat-btn"
+        className='ai-demo-sidebar-header__new-chat-btn'
         onClick={handleNewChat}
-        type="button"
+        type='button'
       >
-        <span className="material-symbols-rounded">add</span>
+        <span className='material-symbols-rounded'>add</span>
         <span>New chat</span>
       </button>
     </div>

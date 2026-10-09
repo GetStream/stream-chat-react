@@ -12,7 +12,7 @@
 - ✅ Bookmarkable conversations with URL parameters
 - ✅ Browser back/forward button support
 - ✅ Override Stream Chat React styles via CSS variables
-- ✅ Automatic conversation summarization (first 5 messages)
+- ✅ Automatic conversation titles (summarized from the first message)
 - ✅ Server-side token generation for secure authentication
 - ✅ Rate limiting: 10 messages per conversation per 4 hours
 - ✅ UUID-based random user generation with localStorage persistence
@@ -23,11 +23,12 @@
 ## Project Structure
 
 ```
-examples/react-chatbot/
-├── app/
+examples/ai-chatbot/
+├── src/app/
 │   ├── layout.tsx                 # ✅ Root layout with metadata
-│   └── page.tsx                   # ✅ Server Component - generates user token, renders AIChatApp
-├── components/
+│   ├── page.tsx                   # ✅ Server Component - generates user token, renders AIChatApp
+│   └── createUserToken.ts         # ✅ Server-only HS256 user-token signing (node:crypto)
+├── src/components/
 │   ├── AIChatApp/
 │   │   ├── AIChatApp.tsx          # ✅ Client Component - Chat wrapper with URL state management
 │   │   └── AIChatApp.scss         # ✅ App layout styles with responsive grid
@@ -62,13 +63,15 @@ examples/react-chatbot/
 │   ├── EmptyState/
 │   │   ├── EmptyState.tsx         # ✅ Empty placeholder
 │   │   └── EmptyState.scss        # ✅ Theme-aware styling
+│   ├── ActiveChannelContext.tsx   # ✅ The conversation shown in the chat area (app-owned)
 │   ├── ThemeContext.tsx           # ✅ Client-side theme state with localStorage
 │   ├── UserProvider.tsx           # ✅ Client-side user initialization and URL sync
 │   ├── rateLimitUtils.ts          # ✅ Rate limiting utilities for message tracking
 │   ├── api.ts                     # ✅ API functions (startAiAgent, summarizeConversation)
+│   ├── stream-chat.d.ts           # ✅ Custom data typing (channel `summary`, message `ai_generated`)
 │   └── index.scss                 # ✅ Global styles + CSS variables for both themes
 ├── public/                        # ✅ Static assets
-├── next.config.ts                 # ✅ Next.js configuration
+├── next.config.ts                 # ✅ Next.js configuration (single copy of stream-chat / state-store)
 ├── package.json                   # ✅ Dependencies (Next.js 16, React 19)
 └── tsconfig.json                  # ✅ TypeScript configuration
 ```
@@ -103,8 +106,8 @@ examples/react-chatbot/
 
   /* Font */
   --ai-demo-font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica',
-    'Arial', sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial',
+    sans-serif;
 }
 
 :root[data-theme='light'] {
@@ -134,10 +137,10 @@ examples/react-chatbot/
 
 ✅ Implemented features:
 
-- **Server-side token generation**: Generates Stream user token using `STREAM_API_KEY` and `STREAM_API_SECRET` environment variables
+- **Server-side token generation**: Signs a Stream user token (HS256 JWT, `{ user_id }`) with `STREAM_API_SECRET` in `createUserToken.ts`; `stream-chat` v10 is client-only and has no `createToken()`
 - **UUID-based user generation**: Generates random UUID for each user (replaces hardcoded 'jane')
 - **User ID override**: Supports `?user_id=` URL parameter for testing/debugging
-- Defines channel filters, options, and sorting configuration
+- Defines the conversation list's filters, sort (`SortParamRequest[]`), page size and request options
 - Extracts `conversation_id` from URL params
 - Renders `AIChatApp` wrapped in `ThemeProvider` and `UserProvider`
 - Passes authentication and configuration props to client component
@@ -157,6 +160,7 @@ examples/react-chatbot/
 - **Controlled unmount**: Three-stage state management (minTime → fadeOut → unmount)
 
 **Animations:**
+
 - `float`: Icon moves up and down smoothly (3s loop)
 - `pulse`: Background circle expands and fades (2s loop)
 - `bounce`: Three dots bounce with 0.2s stagger delays
@@ -166,20 +170,17 @@ examples/react-chatbot/
 ✅ Implemented features:
 
 - Marked as `'use client'` directive for client-side interactivity
-- Sets up `Chat` provider with `isMessageAIGenerated`
+- Sets up `Chat` provider with `isMessageAIGenerated` (reads `message.custom.ai_generated`)
 - Split into wrapper component and `ChatContent` (uses `useChatContext`)
+- Wraps the app in `ActiveChannelProvider`: v15 has no `ChatContext.setActiveChannel`, so the app owns which channel `<Channel channel={…}>` renders
+- Registers the conversation list as a `ChannelPaginator` on `client.channelManager`
 - **Loading Screen Management**:
   - Shows `LoadingScreen` until chat client is ready AND 750ms minimum time has elapsed
   - Three-stage fade-out: ready state → fade animation (400ms) → unmount
   - Prevents jarring flashes when client initializes quickly
 - **URL State Management**: Updates URL with `?conversation_id=` when switching channels
 - **Browser Navigation**: Handles popstate events for back/forward button support
-- **Initial Channel Loading**: Loads channel from URL on mount if provided
-- **Automatic Conversation Summarization**:
-  - Listens to `message.new` events
-  - When a new message arrives and conversation has ≤5 messages, automatically generates a summary
-  - Calls `/summarize` endpoint with combined message text
-  - Updates channel with summary via `channel.update({ summary })`
+- **Initial Channel Loading**: Watches the channel from the URL with `getChannel` on mount (`Channel` no longer queries)
 - Layout: CSS Grid with collapsible sidebar
 - Renders `Sidebar` + `ChatContainer`
 
@@ -188,7 +189,7 @@ examples/react-chatbot/
 ✅ Implemented features:
 
 - Theme-aware sidebar with `--ai-demo-bg-secondary`
-- Contains `SidebarHeader`, `ChannelList`, and `SidebarFooter`
+- Contains `SidebarHeader`, `ChannelLists` (renders the paginator registered on the channel manager), and `SidebarFooter`
 - Mobile: Overlay with backdrop, toggle via TopNavBar hamburger
 - Desktop: Fixed sidebar with theme toggle in footer
 - Width: 260px (desktop), full-width overlay (mobile)
@@ -225,7 +226,7 @@ examples/react-chatbot/
 
 ✅ Implemented features:
 
-- Shows `channel.data?.summary ?? channel.id`
+- Shows `channel.data.custom.summary`, falling back to "New Chat" (read reactively from `channel.state`)
 - Hover background: `--ai-demo-bg-tertiary`
 - Active state: background color change
 - Truncate long text with ellipsis
@@ -235,8 +236,8 @@ examples/react-chatbot/
 
 ✅ Implemented features:
 
-- Wraps `Channel` component
-- Contains `Window` with `MessageList`, `AIStateIndicator`, `MessageInputBar`
+- Wraps `Channel` component (rendered once a channel is active)
+- Contains `TopNavBar`, `MessageList`, `AIStateIndicator` and `MessageComposer` (with the `MessageInputBar` UI) in the channel column
 - Max-width: 900px, centered
 - **Flexbox layout with overflow management** to ensure message list scrolls while keeping indicator and input visible
 - Mobile-responsive with top padding for TopNavBar
@@ -267,8 +268,10 @@ examples/react-chatbot/
 ✅ Implemented features:
 
 - Wraps `AIMessageComposer`
+- Creates the conversation on first send (`getChannel`), starts the AI agent, sends via `channel.sendMessageWithLocalUpdate`
+- Titles a new conversation from its first message (`/summarize`), stored with `channel.update({ data: { custom: { summary } } })`
 - Rounded input box (1.5rem border-radius)
-- **Theme-aware model selector**: overrides `.aicr__ai-message-composer__select`
+- **Theme-aware model selector**: overrides `.str-chat__ai-message-composer__select`
 - Theme-aware input field and submit button
 - Focus states with accent color
 - Responsive padding
@@ -348,15 +351,18 @@ examples/react-chatbot/
 The application uses Next.js App Router with a hybrid Server/Client Component architecture:
 
 **Server Components:**
+
 - `app/layout.tsx` - Root layout with metadata
-- `app/page.tsx` - Main page component that handles server-side token generation
+- `src/app/page.tsx` - Main page component that handles server-side token generation
 
 **Client Components:**
-- `components/AIChatApp/AIChatApp.tsx` - Marked with `'use client'` directive
-- `components/ThemeContext.tsx` - Uses React Context and browser APIs
+
+- `src/components/AIChatApp/AIChatApp.tsx` - Marked with `'use client'` directive
+- `src/components/ThemeContext.tsx` - Uses React Context and browser APIs
 - All interactive UI components (Sidebar, ChatContainer, etc.)
 
 **Benefits:**
+
 - **Security**: Stream API credentials never exposed to client
 - **Performance**: Token generation happens on server
 - **SEO**: Better metadata handling with Next.js metadata API
@@ -364,12 +370,13 @@ The application uses Next.js App Router with a hybrid Server/Client Component ar
 ### Environment Variables
 
 Required in `.env.local`:
+
 ```
 STREAM_API_KEY=your_api_key_here
 STREAM_API_SECRET=your_api_secret_here
 ```
 
-These are accessed server-side only in `app/page.tsx` using `process.env`.
+These are accessed server-side only in `src/app/page.tsx` using `process.env`.
 
 ### localStorage Keys
 
@@ -383,7 +390,7 @@ The app uses the following localStorage keys for client-side persistence:
 
 ## Stream Chat React CSS Variable Overrides
 
-Implemented globally in `components/index.scss`:
+Implemented globally in `src/components/index.scss`:
 
 ```scss
 :root {
@@ -449,6 +456,7 @@ The app implements a sophisticated loading screen with smooth transitions:
 - **Theme-aware**: Inherits all color variables for seamless light/dark mode
 
 **Implementation details:**
+
 - Timer cleanup on unmount prevents memory leaks
 - Fade-out only triggers once via `isFadingOut` guard
 - Chat content loads in parallel, hidden behind loading screen until ready
@@ -470,6 +478,7 @@ The app implements client-side rate limiting to control message sending:
 - **Override support**: `?user_id=` URL parameter allows testing with specific user IDs
 
 **Implementation details:**
+
 - Rate limit state checked on mount and when channel changes
 - Message recorded after successful send
 - Form submission blocked when limit reached
@@ -477,16 +486,13 @@ The app implements client-side rate limiting to control message sending:
 
 ### Automatic Conversation Summarization
 
-The app automatically generates summaries for the first 5 messages of a conversation:
+The app titles a conversation from its first message:
 
-- **Event-driven**: Uses Stream Chat's `message.new` event listener
-- **Smart triggering**: Only runs when total message count ≤ 5
-- **Message aggregation**: Combines last 5 messages into single text string with newlines
+- **Triggering**: `MessageInputBar` checks after sending whether the channel has a summary yet
 - **API integration**: Calls `/summarize` endpoint with OpenAI platform
-- **Channel update**: Stores returned summary in `channel.data.summary`
-- **Proper cleanup**: Unsubscribes from event listener on unmount/channel change
+- **Channel update**: Stores returned summary in `channel.data.custom.summary`
 
-This summary is displayed in the sidebar's `ChannelPreviewItem` component, falling back to channel ID if no summary exists.
+This summary is displayed in the sidebar's `ChannelPreviewItem` and the `TopNavBar`, falling back to "New Chat" if no summary exists.
 
 ### Flexbox Overflow Management
 
@@ -498,7 +504,7 @@ Message bubbles grow dynamically based on content, with different constraints fo
 
 ### SDK Style Overrides
 
-To properly override the AI Message Composer styles, we target the correct class (`.aicr__ai-message-composer__select`) which has `all: unset` and `background-color: transparent` set by default:
+To properly override the AI Message Composer styles, we target the correct class (`.str-chat__ai-message-composer__select`) which has `all: unset` and `background-color: transparent` set by default:
 
 ---
 
@@ -510,19 +516,20 @@ Each component has its own isolated SCSS file:
 import './ComponentName.scss';
 ```
 
-**Global styles** in `components/index.scss`:
+**Global styles** in `src/components/index.scss`:
 
 - CSS variables for both themes
 - CSS layers
 - Reset styles
 - Font imports (Material Symbols Rounded)
 - Stream Chat React CSS variable overrides
-- Imported once in `app/page.tsx`
+- Imported once in `src/app/page.tsx`
 
 **Component styles** follow BEM-like naming: `ai-demo-component__element--modifier`
 
 **Next.js Integration:**
-- Global styles imported in server component (`app/page.tsx`)
+
+- Global styles imported in server component (`src/app/page.tsx`)
 - Component-level SCSS imported directly in each component file
 - Next.js automatically handles SCSS compilation via built-in support
 
@@ -532,15 +539,17 @@ import './ComponentName.scss';
 
 ### Commands
 
+Run from the repository root (Yarn workspaces; build the SDK first with `yarn build`):
+
 ```bash
 # Development server with hot reload
-pnpm dev
+yarn start:ai-chatbot
 
 # Production build
-pnpm build
+yarn workspace @stream-io/stream-chat-react-ai-chatbot build
 
 # Start production server
-pnpm start
+yarn workspace @stream-io/stream-chat-react-ai-chatbot start
 ```
 
 ### Key Differences from Vite

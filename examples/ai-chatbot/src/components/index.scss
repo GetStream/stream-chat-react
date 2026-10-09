@@ -2,17 +2,12 @@
 
 @import 'stream-chat-react/css/index.css' layer(stream);
 @import 'material-symbols/rounded.css' layer(material-rounded);
-@import '@stream-io/chat-react-ai/styles/index.css' layer(ai-chat);
+@import 'stream-chat-react/css/ai-components.css' layer(ai-chat);
 @import './ai-demo.scss' layer(ai-demo);
 
 @layer stream-overrides {
   .str-chat__channel {
     flex-grow: 1;
-  }
-
-  .str-chat__channel-list {
-    flex-shrink: 0;
-    max-width: 300px;
   }
 
   .str-chat__message--other {
@@ -48,8 +43,8 @@
 
   /* Font */
   --ai-demo-font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica',
-    'Arial', sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial',
+    sans-serif;
 
   font-family: var(--ai-demo-font-family);
   line-height: 1.5;
@@ -83,18 +78,18 @@
   --ai-demo-accent: #005fff;
   --ai-demo-accent-hover: #0d8968;
 
-  --aicr__syntax-text: #e5e7eb;
-  --aicr__syntax-selection-bg: #4a4a4a;
-  --aicr__syntax-comment: #9ca3af;
-  --aicr__syntax-punctuation: #d1d5db;
-  --aicr__syntax-number: #fbbf24;
-  --aicr__syntax-keyword: #a78bfa;
-  --aicr__syntax-tag: #f87171;
-  --aicr__syntax-string: #34d399;
-  --aicr__syntax-function: #60a5fa;
-  --aicr__syntax-cyan: #22d3ee;
-  --aicr__syntax-error: #f87171;
-  --aicr__syntax-whitespace: hsla(0, 0%, 100%, 0.1);
+  --str-chat__ai-syntax-text: #e5e7eb;
+  --str-chat__ai-syntax-selection-bg: #4a4a4a;
+  --str-chat__ai-syntax-comment: #9ca3af;
+  --str-chat__ai-syntax-punctuation: #d1d5db;
+  --str-chat__ai-syntax-number: #fbbf24;
+  --str-chat__ai-syntax-keyword: #a78bfa;
+  --str-chat__ai-syntax-tag: #f87171;
+  --str-chat__ai-syntax-string: #34d399;
+  --str-chat__ai-syntax-function: #60a5fa;
+  --str-chat__ai-syntax-cyan: #22d3ee;
+  --str-chat__ai-syntax-error: #f87171;
+  --str-chat__ai-syntax-whitespace: hsla(0, 0%, 100%, 0.1);
 
   color-scheme: dark;
   color: var(--ai-demo-text-primary);
@@ -122,18 +117,18 @@
   --ai-demo-accent: #005fff;
   --ai-demo-accent-hover: #0d8968;
 
-  --aicr__syntax-text: #2e3440;
-  --aicr__syntax-selection-bg: #d8dee9;
-  --aicr__syntax-comment: #6b7280;
-  --aicr__syntax-punctuation: #4b5563;
-  --aicr__syntax-number: #d97706;
-  --aicr__syntax-keyword: #8b5cf6;
-  --aicr__syntax-tag: #dc2626;
-  --aicr__syntax-string: #059669;
-  --aicr__syntax-function: #2563eb;
-  --aicr__syntax-cyan: #0891b2;
-  --aicr__syntax-error: #ef4444;
-  --aicr__syntax-whitespace: hsla(220, 14%, 30%, 0.15);
+  --str-chat__ai-syntax-text: #2e3440;
+  --str-chat__ai-syntax-selection-bg: #d8dee9;
+  --str-chat__ai-syntax-comment: #6b7280;
+  --str-chat__ai-syntax-punctuation: #4b5563;
+  --str-chat__ai-syntax-number: #d97706;
+  --str-chat__ai-syntax-keyword: #8b5cf6;
+  --str-chat__ai-syntax-tag: #dc2626;
+  --str-chat__ai-syntax-string: #059669;
+  --str-chat__ai-syntax-function: #2563eb;
+  --str-chat__ai-syntax-cyan: #0891b2;
+  --str-chat__ai-syntax-error: #ef4444;
+  --str-chat__ai-syntax-whitespace: hsla(220, 14%, 30%, 0.15);
 
   color-scheme: light;
   color: var(--ai-demo-text-primary);

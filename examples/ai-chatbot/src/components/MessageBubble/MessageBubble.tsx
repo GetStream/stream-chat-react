@@ -2,17 +2,12 @@
 
 import { useMemo } from 'react';
 import clsx from 'clsx';
-import { StreamingMessage } from '@stream-io/chat-react-ai';
-import {
-  Attachment,
-  messageHasAttachments,
-  useMessageContext,
-} from 'stream-chat-react';
+import { StreamingMessage } from 'stream-chat-react/ai-components';
+import { Attachment, messageHasAttachments, useMessageContext } from 'stream-chat-react';
 import './MessageBubble.scss';
 
 export const MessageBubble = () => {
-  const { message, isMyMessage, highlighted, handleAction } =
-    useMessageContext();
+  const { message, isMyMessage, highlighted, handleAction } = useMessageContext();
 
   const hasAttachment = messageHasAttachments(message);
   const finalAttachments = useMemo(
@@ -42,13 +37,10 @@ export const MessageBubble = () => {
 
   return (
     <div className={rootClassName}>
-      <div className="ai-demo-message__inner">
-        <div className="ai-demo-message__bubble">
+      <div className='ai-demo-message__inner'>
+        <div className='ai-demo-message__bubble'>
           {finalAttachments?.length ? (
-            <Attachment
-              actionHandler={handleAction}
-              attachments={finalAttachments}
-            />
+            <Attachment actionHandler={handleAction} attachments={finalAttachments} />
           ) : null}
 
           <StreamingMessage text={message?.text || ''} />
