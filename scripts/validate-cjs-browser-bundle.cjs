@@ -15,3 +15,4 @@ for (const key of Object.keys(window)) {
 }
 
 require('../dist/cjs/index.js');
+require('../dist/cjs/ai-components.js');

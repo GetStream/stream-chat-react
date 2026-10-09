@@ -1,0 +1,328 @@
+@use './tokens' as *;
+
+.str-chat__ai-streaming-message {
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  > table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    overflow-x: auto;
+    border-radius: 0.5rem;
+
+    thead {
+      background-color: ai-token(table-header-bg);
+      border-bottom: 2px solid ai-token(table-border);
+
+      th {
+        padding: 0.75rem;
+        text-align: left;
+        font-weight: 600;
+        color: ai-token(table-header-text);
+        border-bottom: 2px solid ai-token(table-border);
+      }
+    }
+
+    tbody {
+      tr {
+        border-bottom: 1px solid ai-token(border-subtle);
+
+        &:hover {
+          background-color: ai-token(table-header-bg);
+        }
+
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+
+      td {
+        padding: 0.75rem;
+        color: ai-token(table-text);
+      }
+    }
+  }
+
+  .str-chat__ai-syntax-highlighter-code {
+    // hide last line number if it's not followed by any other elements
+    .linenumber:last-child {
+      display: none !important;
+    }
+  }
+
+  .str-chat__ai-syntax-highlighter-pre {
+    overflow-x: auto;
+    background-color: ai-token(bg-primary);
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    margin: 0;
+
+    code[class*='language-'] {
+      // background: #272b33;
+      color: ai-token(syntax-text);
+      // text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+      font-family:
+        'Fira Code', 'Fira Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+      direction: ltr;
+      text-align: left;
+      white-space: pre;
+      word-spacing: normal;
+      word-break: normal;
+      line-height: 1.5;
+      -moz-tab-size: 2;
+      -o-tab-size: 2;
+      tab-size: 2;
+      -webkit-hyphens: none;
+      -moz-hyphens: none;
+      -ms-hyphens: none;
+      hyphens: none;
+    }
+
+    // `::selection` and `::-moz-selection` must not share a selector list: a browser that
+    // does not recognise one pseudo-element drops the whole rule (Chromium/WebKit drop
+    // `::-moz-selection`). Current Firefox supports `::selection`, so only that is needed.
+    code[class*='language-']::selection {
+      background: ai-token(syntax-selection-bg);
+      color: inherit;
+      text-shadow: none;
+    }
+
+    .token {
+      &.cdata,
+      &.comment {
+        color: ai-token(syntax-comment);
+      }
+
+      &.comment {
+        font-style: italic;
+      }
+
+      &.prolog {
+        color: ai-token(syntax-comment);
+      }
+
+      &.doctype,
+      &.entity,
+      &.punctuation {
+        color: ai-token(syntax-punctuation);
+      }
+
+      &.entity {
+        cursor: help;
+      }
+
+      &.atrule,
+      &.attr-name,
+      &.boolean,
+      &.class-name,
+      &.constant,
+      &.number {
+        color: ai-token(syntax-number);
+      }
+
+      &.keyword {
+        color: ai-token(syntax-keyword);
+      }
+
+      &.deleted,
+      &.important,
+      &.property,
+      &.symbol,
+      &.tag {
+        color: ai-token(syntax-tag);
+      }
+
+      &.attr-value,
+      &.builtin,
+      &.char,
+      &.inserted,
+      &.regex,
+      &.selector,
+      &.string {
+        color: ai-token(syntax-string);
+      }
+
+      &.attr-value > .token.punctuation {
+        color: ai-token(syntax-string);
+      }
+
+      &.function,
+      &.operator,
+      &.variable {
+        color: ai-token(syntax-function);
+      }
+
+      &.url {
+        color: ai-token(syntax-cyan);
+      }
+
+      &.attr-value > .token.punctuation.attr-equals {
+        color: ai-token(syntax-punctuation);
+      }
+
+      &.special-attr > .token.attr-value > .token.value.css {
+        color: ai-token(syntax-punctuation);
+      }
+
+      &.bold {
+        font-weight: 700;
+      }
+
+      &.italic {
+        font-style: italic;
+      }
+
+      &.namespace {
+        opacity: 0.8;
+      }
+
+      &.cr:before,
+      &.lf:before,
+      &.space:before,
+      &.tab:not(:empty):before {
+        color: ai-token(syntax-whitespace);
+        text-shadow: none;
+      }
+    }
+
+    // Language-specific CSS
+    .language-css {
+      .token {
+        &.selector {
+          color: ai-token(syntax-tag);
+        }
+
+        &.property {
+          color: ai-token(syntax-punctuation);
+        }
+
+        &.function {
+          color: ai-token(syntax-cyan);
+        }
+
+        &.url > .token.function {
+          color: ai-token(syntax-cyan);
+        }
+
+        &.url > .token.string.url {
+          color: ai-token(syntax-string);
+        }
+
+        &.atrule .token.rule {
+          color: ai-token(syntax-keyword);
+        }
+
+        &.important {
+          color: ai-token(syntax-keyword);
+        }
+      }
+    }
+
+    // Language-specific JavaScript
+    .language-javascript {
+      .token {
+        &.operator {
+          color: ai-token(syntax-keyword);
+        }
+
+        &.template-string
+          > .token.interpolation
+          > .token.interpolation-punctuation.punctuation {
+          color: ai-token(syntax-error);
+        }
+      }
+    }
+
+    // Language-specific JSON
+    .language-json {
+      .token {
+        &.operator {
+          color: ai-token(syntax-punctuation);
+        }
+
+        &.null.keyword {
+          color: ai-token(syntax-number);
+        }
+      }
+    }
+
+    // Language-specific Markdown
+    .language-markdown {
+      .token {
+        &.url {
+          color: ai-token(syntax-punctuation);
+        }
+
+        &.url-reference.url > .token.string {
+          color: ai-token(syntax-punctuation);
+        }
+
+        &.url > .token.operator {
+          color: ai-token(syntax-punctuation);
+        }
+
+        &.url > .token.content {
+          color: ai-token(syntax-function);
+        }
+
+        &.url-reference.url {
+          color: ai-token(syntax-cyan);
+        }
+
+        &.url > .token.url {
+          color: ai-token(syntax-cyan);
+        }
+
+        &.blockquote.punctuation,
+        &.hr.punctuation {
+          color: ai-token(syntax-comment);
+          font-style: italic;
+        }
+
+        &.code-snippet {
+          color: ai-token(syntax-string);
+        }
+
+        &.bold .token.content {
+          color: ai-token(syntax-number);
+        }
+
+        &.italic .token.content {
+          color: ai-token(syntax-keyword);
+        }
+
+        &.list.punctuation {
+          color: ai-token(syntax-tag);
+        }
+
+        &.strike .token.content,
+        &.strike .token.punctuation {
+          color: ai-token(syntax-tag);
+        }
+
+        &.title.important > .token.punctuation {
+          color: ai-token(syntax-tag);
+        }
+      }
+    }
+  }
+
+  .str-chat__ai-chart {
+    max-height: 20rem;
+  }
+
+  > p {
+    margin: 0;
+
+    .str-chat__ai-code {
+      font-size: 0.85rem;
+      background-color: ai-token(inline-code-bg);
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.5rem;
+      font-family: monospace;
+    }
+  }
+}

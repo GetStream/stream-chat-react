@@ -77,4 +77,7 @@ if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
 }
 
 // Mock HTMLCanvasElement.getContext for vitest-axe/axe-core
-HTMLCanvasElement.prototype.getContext = (() => null) as any;
+// (guarded so `@vitest-environment node` test files can load this setup file)
+if (typeof HTMLCanvasElement !== 'undefined') {
+  HTMLCanvasElement.prototype.getContext = (() => null) as any;
+}

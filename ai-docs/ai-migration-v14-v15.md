@@ -300,7 +300,7 @@ An unrenamed key does **not** throw — it simply never matches, and the English
 instead. Do not assume the absence of an error means the app is migrated.
 
 **Renaming:** every old key maps to exactly one new key. The complete table is
-[`i18n-v15-key-map.json`](./i18n-v15-key-map.json) (603 rows, `{ "<old key>": { "key": "<new key>",
+[`i18n-v15-key-map.json`](./i18n-v15-key-map.json) (621 rows, `{ "<old key>": { "key": "<new key>",
 "prose": bool, "plural"?: bool } }`). Entries with `"prose": false` hold formatter expressions
 rather than copy. Four of them nonetheless carry English words inside their `calendarFormats`
 argument — `timestamp.DateSeparator`, `timestamp.ReminderNotification`,

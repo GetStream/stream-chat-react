@@ -1,6 +1,6 @@
 {
   "$comment": "Migration table: natural-language translation key (v14) -> namespaced key (v15). Hand-reviewed; nothing regenerates it. Integrators who passed translationsForLanguage/registerTranslation dictionaries keyed on the old strings should use this to rename their keys. See ai-docs/i18n-v15-migration.md.",
-  "count": 603,
+  "count": 621,
   "keys": {
     "aria/Active": {
       "key": "a11y.accessibleLabel.active.ariaLabel",
@@ -112,6 +112,78 @@
     },
     "aria/Voice recording attached": {
       "key": "a11y.interactionAnnouncements.voiceRecordingAttached.ariaLabel",
+      "prose": true
+    },
+    "Delete attachment": {
+      "key": "aiComponents.attachmentPreview.deleteAttachment.ariaLabel",
+      "prose": true
+    },
+    "Unknown file name": {
+      "key": "aiComponents.attachmentPreview.unknownFileName.text",
+      "prose": true
+    },
+    "Loading chart...": {
+      "key": "aiComponents.chart.loading.text",
+      "prose": true
+    },
+    "Unknown chart type": {
+      "key": "aiComponents.chart.unknownType.text",
+      "prose": true
+    },
+    "aria/Start voice input": {
+      "key": "aiComponents.messageComposer.speechToText.ariaLabel",
+      "prose": true
+    },
+    "Ask a question...": {
+      "key": "aiComponents.messageComposer.textInput.placeholder",
+      "prose": true
+    },
+    "Brewing up an answer": {
+      "key": "aiComponents.stateIndicator.brewingUpAnAnswer.text",
+      "prose": true
+    },
+    "Channeling my inner Einstein": {
+      "key": "aiComponents.stateIndicator.channelingMyInnerEinstein.text",
+      "prose": true
+    },
+    "Connecting the dots": {
+      "key": "aiComponents.stateIndicator.connectingTheDots.text",
+      "prose": true
+    },
+    "Consulting the AI gods": {
+      "key": "aiComponents.stateIndicator.consultingTheAiGods.text",
+      "prose": true
+    },
+    "Cooking up something good": {
+      "key": "aiComponents.stateIndicator.cookingUpSomethingGood.text",
+      "prose": true
+    },
+    "Crunching the numbers": {
+      "key": "aiComponents.stateIndicator.crunchingTheNumbers.text",
+      "prose": true
+    },
+    "Firing up the neurons": {
+      "key": "aiComponents.stateIndicator.firingUpTheNeurons.text",
+      "prose": true
+    },
+    "Putting on my thinking cap": {
+      "key": "aiComponents.stateIndicator.puttingOnMyThinkingCap.text",
+      "prose": true
+    },
+    "Reading the digital tea leaves": {
+      "key": "aiComponents.stateIndicator.readingTheDigitalTeaLeaves.text",
+      "prose": true
+    },
+    "Summoning my inner genius": {
+      "key": "aiComponents.stateIndicator.summoningMyInnerGenius.text",
+      "prose": true
+    },
+    "Thinking really hard": {
+      "key": "aiComponents.stateIndicator.thinkingReallyHard.text",
+      "prose": true
+    },
+    "Working my magic": {
+      "key": "aiComponents.stateIndicator.workingMyMagic.text",
       "prose": true
     },
     "Generating...": {
