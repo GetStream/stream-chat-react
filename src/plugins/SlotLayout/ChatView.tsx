@@ -44,6 +44,7 @@ import {
 import { createChatViewSlotBinding, getChatViewEntityBinding } from './slotBinding';
 import { SupersededChannelSwap } from './SupersededChannelSwap';
 import {
+  hasSlotContent,
   renderSlotFromRegistry,
   resolveSlotKindRegistry,
   SlotRegistryContext,
@@ -421,7 +422,7 @@ export const ChatView = ({
           slot,
           slotKindRegistry,
         );
-        if (content != null) return { content, slot };
+        if (hasSlotContent(content)) return { content, slot };
         const Fallback = resolveSlotFallbackComponent({
           slot,
           SlotFallback,

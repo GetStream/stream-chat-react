@@ -257,6 +257,27 @@ describe('ChatView built-in workspace layout empty state', () => {
     ).not.toBeInTheDocument();
   });
 
+  it('treats a slot whose renderer returns false as empty', async () => {
+    const { container } = await renderWorkspace({
+      bindChannel: true,
+      slotRenderers: { channel: () => false },
+    });
+
+    expect(
+      container.querySelector('.str-chat__chat-view__empty-placeholder'),
+    ).toHaveTextContent('No chat selected');
+  });
+
+  it('renders SlotFallback for a slot whose renderer returns false', async () => {
+    await renderWorkspace({
+      bindChannel: true,
+      SlotFallback: ({ slot }) => <div data-testid={`fallback-${slot}`} />,
+      slotRenderers: { channel: () => false },
+    });
+
+    expect(screen.getByTestId('fallback-slot1')).toBeInTheDocument();
+  });
+
   it('renders SlotFallback in an empty slot while another slot is in use', async () => {
     await renderWorkspace({
       bindChannel: true,
