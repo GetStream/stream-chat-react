@@ -1,3 +1,5 @@
+@use './tokens' as *;
+
 .str-chat__ai-state-indicator {
   display: flex;
   align-items: center;
@@ -22,7 +24,7 @@
   &__dot {
     width: 6px;
     height: 6px;
-    background-color: var(--str-chat__ai-text-secondary);
+    background-color: ai-token(text-secondary);
     border-radius: 50%;
     animation: str-chat__ai-thinking 1.4s ease-in-out infinite;
 
@@ -40,7 +42,7 @@
   }
 
   &__text {
-    color: var(--str-chat__ai-text-secondary);
+    color: ai-token(text-secondary);
     font-size: 0.875rem;
     font-weight: 500;
     animation: str-chat__ai-text-fade 2s ease-in-out infinite;

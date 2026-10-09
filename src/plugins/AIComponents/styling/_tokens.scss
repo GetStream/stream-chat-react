@@ -1,0 +1,90 @@
+@use 'sass:list';
+@use 'sass:map';
+@use 'sass:string';
+
+// Themable AI tokens are never declared by the library, so consumer overrides
+// (at any scope) always win. Precedence: consumer `--str-chat__ai-*` override >
+// SCR theme token (inside `.str-chat`, follows SCR dark mode) > literal default.
+$ai-tokens: (
+  'bg-primary': (
+    '--str-chat__background-core-elevation-0',
+    #ffffff,
+  ),
+  'bg-secondary': (
+    '--str-chat__background-core-surface-default',
+    #f7f7f8,
+  ),
+  'bg-tertiary': (
+    '--str-chat__background-core-surface-strong',
+    #ececf1,
+  ),
+  'text-primary': (
+    '--str-chat__text-primary',
+    #353740,
+  ),
+  'text-secondary': (
+    '--str-chat__text-secondary',
+    #565869,
+  ),
+  'syntax-text': (
+    null,
+    #2e3440,
+  ),
+  'syntax-selection-bg': (
+    null,
+    #d8dee9,
+  ),
+  'syntax-comment': (
+    null,
+    #6b7280,
+  ),
+  'syntax-punctuation': (
+    null,
+    #4b5563,
+  ),
+  'syntax-number': (
+    null,
+    #d97706,
+  ),
+  'syntax-keyword': (
+    null,
+    #8b5cf6,
+  ),
+  'syntax-tag': (
+    null,
+    #dc2626,
+  ),
+  'syntax-string': (
+    null,
+    #059669,
+  ),
+  'syntax-function': (
+    null,
+    #2563eb,
+  ),
+  'syntax-cyan': (
+    null,
+    #0891b2,
+  ),
+  'syntax-error': (
+    null,
+    #ef4444,
+  ),
+  'syntax-whitespace': (
+    null,
+    hsla(220, 14%, 30%, 0.15),
+  ),
+);
+
+@function ai-token($name) {
+  $entry: map.get($ai-tokens, $name);
+  @if $entry == null {
+    @error 'Unknown AI token: #{$name}';
+  }
+  $scr: list.nth($entry, 1);
+  $fallback: list.nth($entry, 2);
+  @if $scr {
+    @return string.unquote('var(--str-chat__ai-#{$name}, var(#{$scr}, #{$fallback}))');
+  }
+  @return string.unquote('var(--str-chat__ai-#{$name}, #{$fallback})');
+}

@@ -3,18 +3,4 @@
 @use './ai-message-composer.scss';
 @use './ai-state-indicator.scss';
 
-:root {
-  --str-chat__ai-bg-primary: #ffffff;
-  --str-chat__ai-bg-secondary: #f7f7f8;
-  --str-chat__ai-bg-tertiary: #ececf1;
-  --str-chat__ai-text-primary: #353740;
-  --str-chat__ai-text-secondary: #565869;
-}
-
-.str-chat {
-  --str-chat__ai-bg-primary: var(--str-chat__background-core-elevation-0);
-  --str-chat__ai-bg-secondary: var(--str-chat__background-core-surface-default);
-  --str-chat__ai-bg-tertiary: var(--str-chat__background-core-surface-strong);
-  --str-chat__ai-text-primary: var(--str-chat__text-primary);
-  --str-chat__ai-text-secondary: var(--str-chat__text-secondary);
-}
+// Intentionally declares no `--str-chat__ai-*` custom properties; see _tokens.scss.
