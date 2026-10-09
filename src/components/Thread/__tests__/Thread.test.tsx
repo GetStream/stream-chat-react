@@ -309,6 +309,73 @@ describe('Thread', () => {
     expect(reload).toHaveBeenCalledTimes(2);
   });
 
+  it('should load again once a load settles if the parent reported a reply during it', async () => {
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      items: [],
+      parentMessage: generateMessage({
+        id: 'reply-during-load-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    // the first load stays in flight until settled below, then answers not-found (stays stale)
+    let settle = () => {};
+    reload.mockImplementationOnce(() => {
+      thread.state.partialNext({ isLoading: true });
+      return new Promise<void>((resolve) => {
+        settle = () => {
+          thread.state.partialNext({ isLoading: false });
+          resolve();
+        };
+      });
+    });
+    renderComponent({ threadInstance: thread });
+    expect(reload).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      thread.state.partialNext({ replyCount: 1 });
+    });
+    expect(reload).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      settle();
+      await Promise.resolve();
+    });
+
+    expect(reload).toHaveBeenCalledTimes(2);
+  });
+
+  it('should not load again when a load settles and nothing changed during it', async () => {
+    const { reload, thread } = makeThread({
+      isStateStale: true,
+      items: [],
+      parentMessage: generateMessage({
+        id: 'unchanged-during-load-parent',
+        reply_count: 0,
+        user: alice,
+      }),
+    });
+    let settle = () => {};
+    reload.mockImplementationOnce(() => {
+      thread.state.partialNext({ isLoading: true });
+      return new Promise<void>((resolve) => {
+        settle = () => {
+          thread.state.partialNext({ isLoading: false });
+          resolve();
+        };
+      });
+    });
+    renderComponent({ threadInstance: thread });
+
+    await act(async () => {
+      settle();
+      await Promise.resolve();
+    });
+
+    expect(reload).toHaveBeenCalledTimes(1);
+  });
+
   it('should reload a stale thread that has replies', () => {
     const { reload, thread } = makeThread({
       isStateStale: true,

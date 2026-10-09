@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { WithAudioPlayback } from '../AudioPlayback';
@@ -24,10 +24,16 @@ export type ThreadProps = PropsWithChildren<{
   thread: StreamThread;
 }>;
 
-const selector = ({ isStateStale, parentMessage, replyCount }: ThreadState) => ({
+const selector = ({
+  isLoading,
+  isStateStale,
+  parentMessage,
+  replyCount,
+}: ThreadState) => ({
   // Whether the parent reports a reply. Selected as a boolean so the panel does not re-render on
   // every incoming reply -- only on the transition that matters.
   hasReplies: replyCount > 0,
+  isLoading,
   isStateStale,
   parentMessage,
 });
@@ -63,21 +69,32 @@ export const Thread = ({ children, thread }: ThreadProps) => {
     thread.channel.configState,
     repliesStateSelector,
   );
-  const { hasReplies, isStateStale, parentMessage } = useStateStore(
+  const { hasReplies, isLoading, isStateStale, parentMessage } = useStateStore(
     thread.state,
     selector,
   );
+  // The thread and reply state the current staleness episode last loaded for.
+  const loadedFor = useRef<{ hasReplies: boolean; thread: StreamThread } | undefined>(
+    undefined,
+  );
 
-  // The only load trigger: a stale thread loads, once per staleness episode, as `thread.reload()`
-  // ignores a call while one is in flight. A thread built from its parent message starts stale when
-  // it may have replies to load; listed threads and `getThreadAndHydrate()` instances arrive loaded.
-  // A thread without replies on the server answers not-found, which `reload()` takes as an empty
-  // thread and leaves stale, so it loads again once its parent reports a reply.
+  // The only load trigger: a stale thread loads, once per staleness episode and reply state. A
+  // thread built from its parent message starts stale when it may have replies to load; listed
+  // threads and `getThreadAndHydrate()` instances arrive loaded. A thread without replies on the
+  // server answers not-found, which `reload()` takes as an empty thread and leaves stale, so it
+  // loads again once its parent reports a reply. `thread.reload()` ignores a call while a load is
+  // in flight, so a reply reported during a load is loaded once that load settles.
   useEffect(() => {
-    if (isStateStale) {
-      void thread.reload();
+    if (!isStateStale) {
+      loadedFor.current = undefined;
+      return;
     }
-  }, [hasReplies, isStateStale, thread]);
+    if (isLoading) return;
+    const last = loadedFor.current;
+    if (last?.thread === thread && last.hasReplies === hasReplies) return;
+    loadedFor.current = { hasReplies, thread };
+    void thread.reload();
+  }, [hasReplies, isLoading, isStateStale, thread]);
 
   if (!parentMessage || repliesEnabled === false) return null;
 
