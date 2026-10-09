@@ -1,19 +1,6 @@
-:root {
-  --aicr__syntax-text: #2e3440;
-  --aicr__syntax-selection-bg: #d8dee9;
-  --aicr__syntax-comment: #6b7280;
-  --aicr__syntax-punctuation: #4b5563;
-  --aicr__syntax-number: #d97706;
-  --aicr__syntax-keyword: #8b5cf6;
-  --aicr__syntax-tag: #dc2626;
-  --aicr__syntax-string: #059669;
-  --aicr__syntax-function: #2563eb;
-  --aicr__syntax-cyan: #0891b2;
-  --aicr__syntax-error: #ef4444;
-  --aicr__syntax-whitespace: hsla(220, 14%, 30%, 0.15);
-}
+@use './tokens' as *;
 
-.aicr__streaming-message {
+.str-chat__ai-streaming-message {
   padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
@@ -27,24 +14,24 @@
     border-radius: 0.5rem;
 
     thead {
-      background-color: #f8f9fa;
-      border-bottom: 2px solid #dee2e6;
+      background-color: ai-token(table-header-bg);
+      border-bottom: 2px solid ai-token(table-border);
 
       th {
         padding: 0.75rem;
         text-align: left;
         font-weight: 600;
-        color: #212529;
-        border-bottom: 2px solid #dee2e6;
+        color: ai-token(table-header-text);
+        border-bottom: 2px solid ai-token(table-border);
       }
     }
 
     tbody {
       tr {
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid ai-token(border-subtle);
 
         &:hover {
-          background-color: #f8f9fa;
+          background-color: ai-token(table-header-bg);
         }
 
         &:last-child {
@@ -54,28 +41,28 @@
 
       td {
         padding: 0.75rem;
-        color: #495057;
+        color: ai-token(table-text);
       }
     }
   }
 
-  .aicr__syntax-highlighter-code {
+  .str-chat__ai-syntax-highlighter-code {
     // hide last line number if it's not followed by any other elements
     .linenumber:last-child {
       display: none !important;
     }
   }
 
-  .aicr__syntax-highlighter-pre {
+  .str-chat__ai-syntax-highlighter-pre {
     overflow-x: auto;
-    background-color: var(--aicr__bg-primary);
+    background-color: ai-token(bg-primary);
     border-radius: 0.5rem;
-    padding: .5rem;
+    padding: 0.5rem;
     margin: 0;
 
     code[class*='language-'] {
       // background: #272b33;
-      color: var(--aicr__syntax-text);
+      color: ai-token(syntax-text);
       // text-shadow: 0 1px rgba(0, 0, 0, 0.3);
       font-family:
         'Fira Code', 'Fira Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
@@ -97,7 +84,7 @@
     code[class*='language-'] {
       &::selection,
       &::-moz-selection {
-        background: var(--aicr__syntax-selection-bg);
+        background: ai-token(syntax-selection-bg);
         color: inherit;
         text-shadow: none;
       }
@@ -106,7 +93,7 @@
     .token {
       &.cdata,
       &.comment {
-        color: var(--aicr__syntax-comment);
+        color: ai-token(syntax-comment);
       }
 
       &.comment {
@@ -114,13 +101,13 @@
       }
 
       &.prolog {
-        color: var(--aicr__syntax-comment);
+        color: ai-token(syntax-comment);
       }
 
       &.doctype,
       &.entity,
       &.punctuation {
-        color: var(--aicr__syntax-punctuation);
+        color: ai-token(syntax-punctuation);
       }
 
       &.entity {
@@ -133,11 +120,11 @@
       &.class-name,
       &.constant,
       &.number {
-        color: var(--aicr__syntax-number);
+        color: ai-token(syntax-number);
       }
 
       &.keyword {
-        color: var(--aicr__syntax-keyword);
+        color: ai-token(syntax-keyword);
       }
 
       &.deleted,
@@ -145,7 +132,7 @@
       &.property,
       &.symbol,
       &.tag {
-        color: var(--aicr__syntax-tag);
+        color: ai-token(syntax-tag);
       }
 
       &.attr-value,
@@ -155,29 +142,29 @@
       &.regex,
       &.selector,
       &.string {
-        color: var(--aicr__syntax-string);
+        color: ai-token(syntax-string);
       }
 
       &.attr-value > .token.punctuation {
-        color: var(--aicr__syntax-string);
+        color: ai-token(syntax-string);
       }
 
       &.function,
       &.operator,
       &.variable {
-        color: var(--aicr__syntax-function);
+        color: ai-token(syntax-function);
       }
 
       &.url {
-        color: var(--aicr__syntax-cyan);
+        color: ai-token(syntax-cyan);
       }
 
       &.attr-value > .token.punctuation.attr-equals {
-        color: var(--aicr__syntax-punctuation);
+        color: ai-token(syntax-punctuation);
       }
 
       &.special-attr > .token.attr-value > .token.value.css {
-        color: var(--aicr__syntax-punctuation);
+        color: ai-token(syntax-punctuation);
       }
 
       &.bold {
@@ -196,7 +183,7 @@
       &.lf:before,
       &.space:before,
       &.tab:not(:empty):before {
-        color: var(--aicr__syntax-whitespace);
+        color: ai-token(syntax-whitespace);
         text-shadow: none;
       }
     }
@@ -205,31 +192,31 @@
     .language-css {
       .token {
         &.selector {
-          color: var(--aicr__syntax-tag);
+          color: ai-token(syntax-tag);
         }
 
         &.property {
-          color: var(--aicr__syntax-punctuation);
+          color: ai-token(syntax-punctuation);
         }
 
         &.function {
-          color: var(--aicr__syntax-cyan);
+          color: ai-token(syntax-cyan);
         }
 
         &.url > .token.function {
-          color: var(--aicr__syntax-cyan);
+          color: ai-token(syntax-cyan);
         }
 
         &.url > .token.string.url {
-          color: var(--aicr__syntax-string);
+          color: ai-token(syntax-string);
         }
 
         &.atrule .token.rule {
-          color: var(--aicr__syntax-keyword);
+          color: ai-token(syntax-keyword);
         }
 
         &.important {
-          color: var(--aicr__syntax-keyword);
+          color: ai-token(syntax-keyword);
         }
       }
     }
@@ -238,13 +225,13 @@
     .language-javascript {
       .token {
         &.operator {
-          color: var(--aicr__syntax-keyword);
+          color: ai-token(syntax-keyword);
         }
 
         &.template-string
           > .token.interpolation
           > .token.interpolation-punctuation.punctuation {
-          color: var(--aicr__syntax-error);
+          color: ai-token(syntax-error);
         }
       }
     }
@@ -253,11 +240,11 @@
     .language-json {
       .token {
         &.operator {
-          color: var(--aicr__syntax-punctuation);
+          color: ai-token(syntax-punctuation);
         }
 
         &.null.keyword {
-          color: var(--aicr__syntax-number);
+          color: ai-token(syntax-number);
         }
       }
     }
@@ -266,73 +253,73 @@
     .language-markdown {
       .token {
         &.url {
-          color: var(--aicr__syntax-punctuation);
+          color: ai-token(syntax-punctuation);
         }
 
         &.url-reference.url > .token.string {
-          color: var(--aicr__syntax-punctuation);
+          color: ai-token(syntax-punctuation);
         }
 
         &.url > .token.operator {
-          color: var(--aicr__syntax-punctuation);
+          color: ai-token(syntax-punctuation);
         }
 
         &.url > .token.content {
-          color: var(--aicr__syntax-function);
+          color: ai-token(syntax-function);
         }
 
         &.url-reference.url {
-          color: var(--aicr__syntax-cyan);
+          color: ai-token(syntax-cyan);
         }
 
         &.url > .token.url {
-          color: var(--aicr__syntax-cyan);
+          color: ai-token(syntax-cyan);
         }
 
         &.blockquote.punctuation,
         &.hr.punctuation {
-          color: var(--aicr__syntax-comment);
+          color: ai-token(syntax-comment);
           font-style: italic;
         }
 
         &.code-snippet {
-          color: var(--aicr__syntax-string);
+          color: ai-token(syntax-string);
         }
 
         &.bold .token.content {
-          color: var(--aicr__syntax-number);
+          color: ai-token(syntax-number);
         }
 
         &.italic .token.content {
-          color: var(--aicr__syntax-keyword);
+          color: ai-token(syntax-keyword);
         }
 
         &.list.punctuation {
-          color: var(--aicr__syntax-tag);
+          color: ai-token(syntax-tag);
         }
 
         &.strike .token.content,
         &.strike .token.punctuation {
-          color: var(--aicr__syntax-tag);
+          color: ai-token(syntax-tag);
         }
 
         &.title.important > .token.punctuation {
-          color: var(--aicr__syntax-tag);
+          color: ai-token(syntax-tag);
         }
       }
     }
   }
 
-  .aicr__chart {
+  .str-chat__ai-chart {
     max-height: 20rem;
   }
 
   > p {
     margin: 0;
 
-    .aicr__code {
+    .str-chat__ai-code {
       font-size: 0.85rem;
-      background-color: #f5f5f5;
+      background-color: ai-token(inline-code-bg);
       padding: 0.1rem 0.25rem;
       border-radius: 0.5rem;
       font-family: monospace;

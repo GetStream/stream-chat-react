@@ -7,23 +7,23 @@ import React, {
   useContext,
   useMemo,
 } from 'react';
-import ReactMarkdown, {
-  type Components,
-  type ExtraProps,
-} from 'react-markdown';
+import ReactMarkdown, { type Components, type ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism, type SyntaxHighlighterProps } from 'react-syntax-highlighter';
-import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import clsx from 'clsx';
 
-import { SuspendedChart } from './tools/charts/suspended';
+import { SuspendedChart } from './tools/charts/SuspendedChart';
 
-const SyntaxHighlighter =
-  Prism as unknown as ComponentType<SyntaxHighlighterProps>;
-
-const getToolOrLanguage = (className: string = '') => {
-  return className.match(/language-(?<tool>[\w-]+)/)?.groups?.['tool'];
+type CodeElementProps = {
+  children?: React.ReactNode;
+  className?: string;
+  node?: { tagName?: string };
 };
+
+const SyntaxHighlighter = Prism as unknown as ComponentType<SyntaxHighlighterProps>;
+
+const getToolOrLanguage = (className: string = '') =>
+  className.match(/language-(?<tool>[\w-]+)/)?.groups?.['tool'];
 
 type ToolComponents = {
   [key in string]?: ComponentType<{
@@ -34,8 +34,7 @@ type ToolComponents = {
 
 type ToolComponent = NonNullable<ToolComponents[string]>;
 
-export type ToolComponentProps =
-  ToolComponent extends ComponentType<infer P> ? P : never;
+export type ToolComponentProps = ToolComponent extends ComponentType<infer P> ? P : never;
 
 type MarkdownComponents = Components;
 
@@ -49,16 +48,20 @@ type DefaultPreProps = BaseDefaultPreProps & {
   Pre?: ComponentType<BaseDefaultPreProps> | ElementType;
 };
 
+// true inside a plain (language-less) <pre>: lets DefaultCode tell a fenced
+// block without a language from inline code (react-markdown v9 has no `inline`)
+const InsidePreContext = React.createContext(false);
+
 const DefaultPre = (props: DefaultPreProps) => {
-  const { children, className, Pre = 'pre', ...restProps } = props;
+  const { children, className, node, Pre = 'pre', ...restProps } = props;
 
   const { toolComponents } = useContext(AIMarkdownContext);
 
   const [codeElement] = Children.toArray(children);
 
   if (
-    isValidElement(codeElement) &&
-    codeElement.props.node.tagName === 'code'
+    isValidElement<CodeElementProps>(codeElement) &&
+    codeElement.props.node?.tagName === 'code'
   ) {
     const toolOrLanguage = getToolOrLanguage(codeElement.props.className);
 
@@ -66,18 +69,13 @@ const DefaultPre = (props: DefaultPreProps) => {
 
     // grab from pre-registered component set and render
     const Component =
-      typeof toolOrLanguage === 'string'
-        ? toolComponents[toolOrLanguage]
-        : null;
+      typeof toolOrLanguage === 'string' ? toolComponents[toolOrLanguage] : null;
 
     if (Component) {
       // TODO: forward metadata
 
       return (
-        <Component
-          fallback={fallback}
-          data={codeElement.props.children as string}
-        />
+        <Component data={codeElement.props.children as string} fallback={fallback} />
       );
     }
 
@@ -90,8 +88,13 @@ const DefaultPre = (props: DefaultPreProps) => {
 
   // treat as regular pre/code block if there's no tool/language
   return (
-    <Pre className={clsx(className, 'aicr__pre')} {...restProps}>
-      {children}
+    <Pre
+      className={clsx(className, 'str-chat__ai-pre')}
+      // `node` is react-markdown metadata: forward it to components, never to DOM elements
+      {...(typeof Pre === 'string' ? {} : { node })}
+      {...restProps}
+    >
+      <InsidePreContext.Provider value={true}>{children}</InsidePreContext.Provider>
     </Pre>
   );
 };
@@ -99,47 +102,35 @@ const DefaultPre = (props: DefaultPreProps) => {
 const Code = ({
   children,
   className,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- strip `style` so it is not forwarded to <code>
   style: _style,
   ...restProps
-}: ComponentProps<'code'>) => {
-  return (
-    <code
-      className={clsx('aicr__syntax-highlighter-code', className)}
-      {...restProps}
-    >
-      {children}
-    </code>
-  );
-};
+}: ComponentProps<'code'>) => (
+  <code
+    className={clsx('str-chat__ai-syntax-highlighter-code', className)}
+    {...restProps}
+  >
+    {children}
+  </code>
+);
 
-const Pre = ({ children, className, ...restProps }: ComponentProps<'pre'>) => {
-  return (
-    <pre
-      className={clsx('aicr__syntax-highlighter-pre', className)}
-      {...restProps}
-    >
-      {children}
-    </pre>
-  );
-};
+const Pre = ({ children, className, ...restProps }: ComponentProps<'pre'>) => (
+  <pre className={clsx('str-chat__ai-syntax-highlighter-pre', className)} {...restProps}>
+    {children}
+  </pre>
+);
 
-const DefaultSyntaxHighlighter = ({
-  children,
-  language,
-}: BaseDefaultCodeProps) => {
-  return (
-    <SyntaxHighlighter
-      CodeTag={Code as ComponentType<any>}
-      PreTag={Pre as ComponentType<any>}
-      useInlineStyles={false}
-      style={oneLight}
-      showLineNumbers
-      language={language}
-    >
-      {children as string}
-    </SyntaxHighlighter>
-  );
-};
+const DefaultSyntaxHighlighter = ({ children, language }: BaseDefaultCodeProps) => (
+  <SyntaxHighlighter
+    CodeTag={Code as SyntaxHighlighterProps['CodeTag']}
+    language={language}
+    PreTag={Pre as SyntaxHighlighterProps['PreTag']}
+    showLineNumbers
+    useInlineStyles={false}
+  >
+    {children as string}
+  </SyntaxHighlighter>
+);
 
 type BaseDefaultCodeProps = ComponentProps<'code'> &
   ExtraProps & { language?: string; inline?: boolean };
@@ -151,29 +142,29 @@ type DefaultCodeProps = BaseDefaultCodeProps & {
 
 const DefaultCode = (props: DefaultCodeProps) => {
   const {
-    node,
-    className,
     children,
-    SyntaxHighlighter = DefaultSyntaxHighlighter,
+    className,
     Code = 'code',
+    node,
+    SyntaxHighlighter = DefaultSyntaxHighlighter,
     ...restProps
   } = props;
 
+  const insidePre = useContext(InsidePreContext);
   const language = getToolOrLanguage(className);
-  const inline = !language;
+  const inline = !language && !insidePre;
 
-  const Component = inline ? Code : SyntaxHighlighter;
+  const Component = language ? SyntaxHighlighter : Code;
 
   return (
     <Component
-      className={clsx(className, 'aicr__code')}
-      node={node}
+      className={clsx(className, 'str-chat__ai-code')}
       {...(typeof Component === 'string'
         ? {
             'data-inline': inline ? 'true' : 'false',
             'data-language': language,
           }
-        : { inline, language })}
+        : { inline, language, node })}
       {...restProps}
     >
       {children}
@@ -182,8 +173,8 @@ const DefaultCode = (props: DefaultCodeProps) => {
 };
 
 const DefaultComponents = {
-  pre: DefaultPre,
   code: DefaultCode,
+  pre: DefaultPre,
 } as const;
 
 interface AIMarkdown {
@@ -191,7 +182,7 @@ interface AIMarkdown {
     children: string;
     toolComponents?: ToolComponents;
     markdownComponents?: MarkdownComponents;
-  }): JSX.Element;
+  }): React.JSX.Element;
   default: typeof DefaultComponents;
 }
 
@@ -214,13 +205,8 @@ export const AIMarkdown: AIMarkdown = (props) => {
   );
 
   return (
-    <AIMarkdownContext.Provider
-      value={{ toolComponents: mergedToolComponents }}
-    >
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={mergedMarkdownComponents}
-      >
+    <AIMarkdownContext.Provider value={{ toolComponents: mergedToolComponents }}>
+      <ReactMarkdown components={mergedMarkdownComponents} remarkPlugins={[remarkGfm]}>
         {props.children}
       </ReactMarkdown>
     </AIMarkdownContext.Provider>

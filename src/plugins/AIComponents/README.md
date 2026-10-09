@@ -1,41 +1,220 @@
-# [React](https://getstream.io/chat/sdk/react/) AI components for Stream Chat
+# AI components (`stream-chat-react/ai-components`)
 
-This official repository for Stream Chat's UI components is designed specifically for AI-first applications written in React. When paired with our real-time [Chat API](https://getstream.io/chat/), it makes integrating with and rendering responses from LLM providers such as ChatGPT, Gemini, Anthropic or any custom backend easier by providing rich with out-of-the-box components able to render Markdown, Code blocks, tables, streaming messages, file attachments, speech-to-text, etc.
+AI-first building blocks for Stream Chat: a message composer with attachments and speech-to-text, a Markdown renderer with syntax highlighting and Chart.js support, a typewriter-style streaming message and an "AI is thinking" indicator.
 
-To start, this library includes the following components which assist with this task:
+These components used to ship as the separate package `@stream-io/chat-react-ai`. They now live in `stream-chat-react` behind the optional entry point `stream-chat-react/ai-components`, with a stylesheet at `stream-chat-react/css/ai-components.css`. The main entry point (`stream-chat-react`) never imports from this plugin, so apps that do not use it pay nothing for it.
 
-- `AIMessageComposer` - a fully featured message composer with file attachments, speech-to-text, and model selection
-- `AIMarkdown` - a markdown renderer optimized for AI-generated content with syntax highlighting and custom tool component support
-- `StreamingMessage` - a component that displays text with a typewriter animation effect, ideal for streaming AI responses
-- `SpeechToTextButton` - a button component for voice input using the Web Speech API
+## Installation
 
-Our team plans to keep iterating and adding more components over time. If there's a component you use every day in your apps and would like to see added, please open an issue and we will take it into consideration.
-
-## 🛠️ Installation
-
-The `@stream-io/chat-react-ai` SDK is available on NPM.
-
-To install it, you may run the following command:
+Requires the first `stream-chat-react` release that includes `ai-components` (expected 14.13.0; the exact number is set by semantic-release).
 
 ```bash
-npm install @stream-io/chat-react-ai
-# or
-pnpm add @stream-io/chat-react-ai
-# or
-yarn add @stream-io/chat-react-ai
+yarn add stream-chat-react stream-chat
 ```
 
-## Styles
+The runtime dependencies of the components (`chart.js`, `react-chartjs-2`, `react-syntax-highlighter`, `zod`) come with `stream-chat-react`; you do not need to install them.
 
-Import the base styles in your application:
-
-```javascript
-import '@stream-io/chat-react-ai/styles/index.css';
+```tsx
+import {
+  AIMarkdown,
+  AIMessageComposer,
+  StreamingMessage,
+} from 'stream-chat-react/ai-components';
+import 'stream-chat-react/css/ai-components.css';
 ```
 
-## ⚙️ Usage
+Load `ai-components.css` in addition to `stream-chat-react/css/index.css`.
 
-All of the components listed below are designed to work seamlessly with our existing React [Chat SDK](https://getstream.io/chat/sdk/react/). Our [developer guide](https://getstream.io/chat/solutions/ai-integration/) explains how to get started building AI integrations with Stream.
+## What is exported
+
+From `stream-chat-react/ai-components`:
+
+- Components: `AIMarkdown`, `AIMessageComposer` (with the static sub-components `FileInput`, `TextInput`, `SpeechToTextButton`, `SubmitButton`, `ModelSelect`, `AttachmentPreview`, `AttachmentPreview.Item`), `StreamingMessage`, `AIStateIndicator`
+- Hooks: `useAttachments`, `useText`, `useIsDisabled`, `useAIMessageComposerContext`, `useSpeechToText`
+- Types: `AIMessageComposerStore`, `StreamingMessageRef`, `UseMessageTextStreamingProps`, `ToolComponentProps`, `UseSpeechToTextOptions`
+
+`useMessageTextStreaming` is not exported from here; import it from the main entry point (`stream-chat-react`).
+
+## Migrating from `@stream-io/chat-react-ai`
+
+### 1. Dependencies
+
+Remove `@stream-io/chat-react-ai`. Remove `material-symbols` too if it was only installed for these components (they use `stream-chat-react` icons now). Upgrade `stream-chat-react` to the first release that includes `ai-components`.
+
+### 2. Imports
+
+| Before                                      | After                                     |
+| ------------------------------------------- | ----------------------------------------- |
+| `@stream-io/chat-react-ai`                  | `stream-chat-react/ai-components`         |
+| `@stream-io/chat-react-ai/styles/index.css` | `stream-chat-react/css/ai-components.css` |
+
+```diff
+-import { AIMarkdown, AIMessageComposer } from '@stream-io/chat-react-ai';
+-import '@stream-io/chat-react-ai/styles/index.css';
++import { AIMarkdown, AIMessageComposer } from 'stream-chat-react/ai-components';
++import 'stream-chat-react/css/ai-components.css';
+```
+
+### 3. Class names and CSS custom properties
+
+All `aicr__` prefixes were renamed to the `str-chat__ai-` namespace. The rule: `aicr__ai-…` becomes `str-chat__ai-…`; every other `aicr__…` becomes `str-chat__ai-…`; custom properties `--aicr__…` become `--str-chat__ai-…`. If you target these classes in your own CSS, update them with the table below.
+
+Classes (and the two keyframes, `thinking` and `text-fade`):
+
+| Old (`@stream-io/chat-react-ai`)                  | New (`stream-chat-react/ai-components`)                 |
+| ------------------------------------------------- | ------------------------------------------------------- |
+| `aicr__ai-message-composer__form`                 | `str-chat__ai-message-composer__form`                   |
+| `aicr__ai-message-composer__round-button`         | `str-chat__ai-message-composer__round-button`           |
+| `aicr__ai-message-composer__round-button--active` | `str-chat__ai-message-composer__round-button--active`   |
+| `aicr__ai-message-composer__select`               | `str-chat__ai-message-composer__select`                 |
+| `aicr__ai-message-composer__text-input`           | `str-chat__ai-message-composer__text-input`             |
+| `aicr__attachment-preview`                        | `str-chat__ai-attachment-preview`                       |
+| `aicr__attachment-preview__delete-button`         | `str-chat__ai-attachment-preview__delete-button`        |
+| `aicr__attachment-preview__failed-state-overlay`  | `str-chat__ai-attachment-preview__failed-state-overlay` |
+| `aicr__attachment-preview__file-metadata`         | `str-chat__ai-attachment-preview__file-metadata`        |
+| `aicr__attachment-preview__file-name`             | `str-chat__ai-attachment-preview__file-name`            |
+| `aicr__attachment-preview__file-size`             | `str-chat__ai-attachment-preview__file-size`            |
+| `aicr__attachment-preview__image`                 | `str-chat__ai-attachment-preview__image`                |
+| `aicr__attachment-preview__item`                  | `str-chat__ai-attachment-preview__item`                 |
+| `aicr__attachment-preview__item--failed`          | `str-chat__ai-attachment-preview__item--failed`         |
+| `aicr__attachment-preview__item--pending`         | `str-chat__ai-attachment-preview__item--pending`        |
+| `aicr__attachment-preview__item--uploaded`        | `str-chat__ai-attachment-preview__item--uploaded`       |
+| `aicr__attachment-preview__item--uploading`       | `str-chat__ai-attachment-preview__item--uploading`      |
+| `aicr__attachment-preview__item-content`          | `str-chat__ai-attachment-preview__item-content`         |
+| `aicr__attachment-preview__retry-button`          | `str-chat__ai-attachment-preview__retry-button`         |
+| `aicr__chart`                                     | `str-chat__ai-chart`                                    |
+| `aicr__chart--loading`                            | `str-chat__ai-chart--loading`                           |
+| `aicr__code`                                      | `str-chat__ai-code`                                     |
+| `aicr__pre`                                       | `str-chat__ai-pre`                                      |
+| `aicr__state-indicator`                           | `str-chat__ai-state-indicator`                          |
+| `aicr__state-indicator__content`                  | `str-chat__ai-state-indicator__content`                 |
+| `aicr__state-indicator__dot`                      | `str-chat__ai-state-indicator__dot`                     |
+| `aicr__state-indicator__dots`                     | `str-chat__ai-state-indicator__dots`                    |
+| `aicr__state-indicator__text`                     | `str-chat__ai-state-indicator__text`                    |
+| `aicr__streaming-message`                         | `str-chat__ai-streaming-message`                        |
+| `aicr__syntax-highlighter-code`                   | `str-chat__ai-syntax-highlighter-code`                  |
+| `aicr__syntax-highlighter-pre`                    | `str-chat__ai-syntax-highlighter-pre`                   |
+| `aicr__text-fade`                                 | `str-chat__ai-text-fade`                                |
+| `aicr__thinking`                                  | `str-chat__ai-thinking`                                 |
+
+Custom properties:
+
+| Old                           | New                                  |
+| ----------------------------- | ------------------------------------ |
+| `--aicr__bg-primary`          | `--str-chat__ai-bg-primary`          |
+| `--aicr__bg-secondary`        | `--str-chat__ai-bg-secondary`        |
+| `--aicr__bg-tertiary`         | `--str-chat__ai-bg-tertiary`         |
+| `--aicr__syntax-comment`      | `--str-chat__ai-syntax-comment`      |
+| `--aicr__syntax-cyan`         | `--str-chat__ai-syntax-cyan`         |
+| `--aicr__syntax-error`        | `--str-chat__ai-syntax-error`        |
+| `--aicr__syntax-function`     | `--str-chat__ai-syntax-function`     |
+| `--aicr__syntax-keyword`      | `--str-chat__ai-syntax-keyword`      |
+| `--aicr__syntax-number`       | `--str-chat__ai-syntax-number`       |
+| `--aicr__syntax-punctuation`  | `--str-chat__ai-syntax-punctuation`  |
+| `--aicr__syntax-selection-bg` | `--str-chat__ai-syntax-selection-bg` |
+| `--aicr__syntax-string`       | `--str-chat__ai-syntax-string`       |
+| `--aicr__syntax-tag`          | `--str-chat__ai-syntax-tag`          |
+| `--aicr__syntax-text`         | `--str-chat__ai-syntax-text`         |
+| `--aicr__syntax-whitespace`   | `--str-chat__ai-syntax-whitespace`   |
+| `--aicr__text-primary`        | `--str-chat__ai-text-primary`        |
+| `--aicr__text-secondary`      | `--str-chat__ai-text-secondary`      |
+
+### 4. `useMessageTextStreaming`
+
+The hook is no longer exported from the AI package. Import it from `stream-chat-react` and rename the `letterIntervalMs` option to `streamingLetterIntervalMs`:
+
+```diff
+-import { useMessageTextStreaming } from '@stream-io/chat-react-ai';
++import { useMessageTextStreaming } from 'stream-chat-react';
+
+ const { streamedMessageText } = useMessageTextStreaming({
+   text,
+-  letterIntervalMs: 30,
++  streamingLetterIntervalMs: 30,
+ });
+```
+
+`UseMessageTextStreamingProps` is the `StreamingMessage` props type (the name is kept for compatibility). The component props are unchanged (`text`, `letterIntervalMs`, `renderingLetterCount`, and a ref exposing `skipAnimation`).
+
+### 5. Two `AIStateIndicator` components
+
+- `AIStateIndicator` from `stream-chat-react` is channel-bound: it reads the AI state events of the current channel and renders accordingly.
+- `AIStateIndicator` from `stream-chat-react/ai-components` is presentational: it takes an optional `text` prop and renders the animated indicator. Without `text` it shows a random "thinking" phrase.
+
+Use the first one to react to channel AI state, the second when you drive the text yourself.
+
+### 6. Icons
+
+The components now render `stream-chat-react` icons (`IconPlus`, `IconXmark`, `IconRetry`, `IconMicrophoneSolid`, `IconSend`, `IconFile`) instead of Material Symbols. Override them like any other SDK icon:
+
+```tsx
+import { WithComponents } from 'stream-chat-react';
+
+<WithComponents overrides={{ icons: { IconSend: MySendIcon } }}>
+  <AIMessageComposer>{/* … */}</AIMessageComposer>
+</WithComponents>;
+```
+
+### 7. Internationalization
+
+All strings are translated through `t()` and `Streami18n` (12 locales shipped). Inside `<Chat>` the active language is used; override or add translations through your `Streami18n` instance.
+
+Outside `<Chat>` (or a `TranslationProvider`), as everywhere in `stream-chat-react`, `t()` is the default translator, which returns the key unchanged. Keys that are English sentences, such as `Ask a question...`, still read correctly, but accessible names use `aria/`-prefixed keys and are then exposed raw: the submit button is announced as `aria/Send` instead of `Send`. Render the components inside `<Chat>`, or wrap them in a `TranslationProvider` (both exported from `stream-chat-react`) whose value holds `userLanguage` plus the `t` and `tDateTimeParser` returned by `await new Streami18n({ language: 'en' }).getTranslators()`, to get real labels.
+
+## Theming
+
+The library never declares the `--str-chat__ai-*` custom properties. Each rule reads them with fallbacks:
+
+```css
+var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #ffffff))
+```
+
+Precedence for every token except the code palette is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
+
+| Token (`--str-chat__ai-…`) | Used for                                                | SDK theme token (`--str-chat__…`) | Literal fallback |
+| -------------------------- | ------------------------------------------------------- | --------------------------------- | ---------------- |
+| `bg-primary`               | code block background                                   | `background-core-elevation-0`     | `#ffffff`        |
+| `bg-secondary`             | not read by the built-in rules (kept for compatibility) | `background-core-surface-default` | `#f7f7f8`        |
+| `bg-tertiary`              | not read by the built-in rules (kept for compatibility) | `background-core-surface-strong`  | `#ececf1`        |
+| `text-primary`             | not read by the built-in rules (kept for compatibility) | `text-primary`                    | `#353740`        |
+| `text-secondary`           | AI state indicator text and dots                        | `text-secondary`                  | `#565869`        |
+| `border`                   | composer, model select and attachment borders           | `border-core-default`             | `#ccc`           |
+| `border-subtle`            | table row separators                                    | `border-core-subtle`              | `#e9ecef`        |
+| `surface-hover`            | composer round-button hover                             | `background-utility-hover`        | `#e8e8e8`        |
+| `surface-pressed`          | pressed (listening) speech-to-text button               | `background-utility-selected`     | `#d1eaff`        |
+| `button-bg`                | attachment delete/retry buttons                         | `background-core-surface-strong`  | `#e8e8e8`        |
+| `inline-code-bg`           | inline code in `StreamingMessage`                       | `background-core-surface-default` | `#f5f5f5`        |
+| `table-border`             | table header borders                                    | `border-core-default`             | `#dee2e6`        |
+| `table-header-bg`          | table header and row hover background                   | `background-core-surface-subtle`  | `#f8f9fa`        |
+| `table-header-text`        | table header text                                       | `text-primary`                    | `#212529`        |
+| `table-text`               | table cell text                                         | `text-secondary`                  | `#495057`        |
+| `scrollbar-track`          | attachment list scrollbar track                         | `background-core-surface-subtle`  | `#f1f1f1`        |
+| `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
+| `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
+
+The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
+
+Focus rings use the SDK focus token `--str-chat__border-utility-focused` (falling back to `#005fff` outside `.str-chat`). Icons inside the composer and attachment previews are sized and coloured (`currentColor`) by `ai-components.css` itself.
+
+```css
+:root {
+  --str-chat__ai-bg-secondary: #101828;
+  --str-chat__ai-text-primary: #f2f4f7;
+  --str-chat__ai-syntax-keyword: #c084fc;
+}
+```
+
+## Notes
+
+- Server-side rendering: the components render under SSR (for example Next.js). This relies on a fix in the SDK's `useStateStore`, which now provides `getServerSnapshot`.
+- The Chart.js renderer is lazy-loaded; a fallback ("Loading chart...") is shown while it loads. If the chunk fails to load or Chart.js throws, the block falls back to the raw code instead of breaking the message.
+- `AIMessageComposer` attachment `meta` remains `Record<string, any>`.
+
+## Example app
+
+`examples/ai-chatbot` in the `stream-chat-react` repository is a Next.js app built on these components. Copy `examples/ai-chatbot/.env.example` to `examples/ai-chatbot/.env.local`, fill in the Stream credentials, then run `yarn build` followed by `yarn start:ai-chatbot` from the repository root.
+
+# Component reference
 
 ## Components
 
@@ -44,7 +223,7 @@ All of the components listed below are designed to work seamlessly with our exis
 The `AIMessageComposer` gives users a complete message composer component with support for text input, file attachments, speech-to-text, and model selection.
 
 ```tsx
-import { AIMessageComposer } from '@stream-io/chat-react-ai';
+import { AIMessageComposer } from 'stream-chat-react/ai-components';
 
 function ChatComposer({ attachments }: ChatComposerProps) {
   const handleSubmit = (e) => {
@@ -55,14 +234,14 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
   return (
     <AIMessageComposer onSubmit={handleSubmit}>
-      <AIMessageComposer.FileInput name="attachments" />
-      <AIMessageComposer.TextInput name="message" />
+      <AIMessageComposer.FileInput name='attachments' />
+      <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name="model" />
+      <AIMessageComposer.ModelSelect name='model' />
       <AIMessageComposer.SubmitButton />
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
-          <AIMessageComposer.AttachmentPreview.Item {...attachment} />
+          <AIMessageComposer.AttachmentPreview.Item key={attachment.id} {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
     </AIMessageComposer>
@@ -72,7 +251,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
 #### Sub-components
 
-- **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection.
+- **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled `aria/File upload`, and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
 - **`AIMessageComposer.TextInput`** - Text input field for typing messages. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.
@@ -112,7 +291,7 @@ The `AIMarkdown` is a markdown renderer optimized for AI-generated content with 
 #### Example
 
 ```tsx
-import { AIMarkdown } from '@stream-io/chat-react-ai';
+import { AIMarkdown } from 'stream-chat-react/ai-components';
 
 function MessageContent({ content }) {
   return <AIMarkdown>{content}</AIMarkdown>;
@@ -121,61 +300,61 @@ function MessageContent({ content }) {
 
 ### `StreamingMessage`
 
-The `StreamingMessage` is a component that displays text with a typewriter animation effect, similar to ChatGPT. It's ideal for streaming AI responses. It's a simplified wrapper with typewriter animation effect around `AIMarkdown` component.
+The `StreamingMessage` is a component that displays text with a typewriter animation effect, similar to ChatGPT. It's ideal for streaming AI responses. It's a simplified wrapper with typewriter animation effect around the `AIMarkdown` component.
 
 #### Props
 
-| Name   | Type     | Required | Description                                        |
-| ------ | -------- | -------- | -------------------------------------------------- |
-| `text` | `string` | yes      | The text content to display with streaming effect. |
+| Name                   | Type     | Required | Description                                                 |
+| ---------------------- | -------- | -------- | ----------------------------------------------------------- |
+| `text`                 | `string` | yes      | The text content to display with streaming effect.          |
+| `letterIntervalMs`     | `number` | no       | Interval between character updates. Defaults to `30`.       |
+| `renderingLetterCount` | `number` | no       | Number of characters to render per update. Defaults to `2`. |
+
+The component accepts a `ref` (`StreamingMessageRef`) exposing `skipAnimation()`, which immediately shows the full text.
 
 #### Example
 
 ```tsx
-import { StreamingMessage } from '@stream-io/chat-react-ai';
+import { StreamingMessage } from 'stream-chat-react/ai-components';
 
 function AIResponse({ text }) {
   return <StreamingMessage text={text} />;
 }
 ```
 
-### `SpeechToTextButton`
+### `AIMessageComposer.SpeechToTextButton`
 
-The `SpeechToTextButton` is a button component for voice input using the Web Speech API. It provides a simple interface for converting speech to text with built-in microphone icon and listening state visualization.
+A button for voice input using the Web Speech API, with a built-in microphone icon. It is a static sub-component of `AIMessageComposer` (not a named export) and must be rendered inside an `AIMessageComposer`: it writes the recognized transcript to the composer's text input through the composer context.
+
+The button renders nothing in browsers without the Web Speech API (for example Firefox). Because support can only be detected in the browser, it also renders nothing during server rendering and appears after hydration.
 
 #### Props
 
-| Name      | Type                         | Required | Description                                                                                                                      |
-| --------- | ---------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `options` | `UseSpeechToTextOptions`     | no       | Options for speech recognition (see `useSpeechToText` hook documentation for available options like `lang`, `continuous`, etc.). |
-|           | `...HTMLButtonElement props` | no       | Supports all standard HTML button element props.                                                                                 |
+| Name      | Type                         | Required | Description                                                                                                                                                                                                                                                                                                                              |
+| --------- | ---------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `options` | `UseSpeechToTextOptions`     | no       | Passed to `useSpeechToText` (`lang`, `continuous`, `interimResults`, `maxAlternatives`). `onTranscript` is called in addition to updating the composer text. `onError` replaces the default error handling, which logs to `console.error`. Changing `lang` or another setting re-creates the recognizer; new callback identities do not. |
+|           | `...HTMLButtonElement props` | no       | Supports all standard HTML button element props.                                                                                                                                                                                                                                                                                         |
 
 #### Example
 
 ```tsx
-import { SpeechToTextButton } from '@stream-io/chat-react-ai';
+import { AIMessageComposer } from 'stream-chat-react/ai-components';
 
 function VoiceInputButton() {
   return (
-    <SpeechToTextButton
-      options={{
-        lang: 'en-US',
-        continuous: false,
-        interimResults: true,
-      }}
-    />
+    <AIMessageComposer>
+      <AIMessageComposer.TextInput />
+      <AIMessageComposer.SpeechToTextButton />
+    </AIMessageComposer>
   );
 }
 ```
 
-> [!NOTE]
-> When used within an `AIMessageComposer`, the button automatically updates the composer's text input. When used standalone, you can control the behavior through the `speechToTextOptions.onTranscript` callback.
+### `AIMessageComposer.AttachmentPreview`
 
-### `AttachmentPreview`
+A static sub-component of `AIMessageComposer` (not a named export) for displaying file attachment previews with support for images and documents.
 
-A container component for displaying file attachment previews with support for images and documents.
-
-#### AttachmentPreview.Item Props
+#### `AIMessageComposer.AttachmentPreview.Item` props
 
 | Name                 | Type                                                 | Required | Description                                   |
 | -------------------- | ---------------------------------------------------- | -------- | --------------------------------------------- |
@@ -189,11 +368,9 @@ A container component for displaying file attachment previews with support for i
 #### Example
 
 ```tsx
-import { AIMessageComposer } from '@stream-io/chat-react-ai';
+import { AIMessageComposer } from 'stream-chat-react/ai-components';
 
-function CustomAttachmentPreview({
-  attachments,
-}: CustomAttachmentPreviewProps) {
+function CustomAttachmentPreview({ attachments }: CustomAttachmentPreviewProps) {
   return (
     <AIMessageComposer.AttachmentPreview>
       {attachments.map((attachment) => (
@@ -225,7 +402,7 @@ Manage attachments within the composer context. **Must be used within an `AIMess
 #### Example
 
 ```tsx
-import { useAttachments } from '@stream-io/chat-react-ai';
+import { useAttachments } from 'stream-chat-react/ai-components';
 
 function AttachmentManager() {
   const { attachments, removeAttachment, updateAttachments } = useAttachments();
@@ -245,7 +422,7 @@ function AttachmentManager() {
 }
 ```
 
-> ![NOTE]
+> [!NOTE]
 > While this attachment API works it's highly recommended to use own attachment API or the one provided by the `stream-chat-react`/`stream-chat`.
 
 ### `useText`
@@ -262,7 +439,7 @@ Access and update the text input value. **Must be used within an `AIMessageCompo
 #### Example
 
 ```tsx
-import { useText } from '@stream-io/chat-react-ai';
+import { useText } from 'stream-chat-react/ai-components';
 
 function CustomTextDisplay() {
   const { text, setText } = useText();
@@ -273,40 +450,6 @@ function CustomTextDisplay() {
       <button onClick={() => setText('New text')}>Update</button>
     </div>
   );
-}
-```
-
-### `useMessageTextStreaming`
-
-Create a typewriter streaming effect for text content. Useful when you require a custom implementation of a `StreamingMessage` component.
-
-#### Props
-
-| Name                        | Type     | Required | Description                                                 |
-| --------------------------- | -------- | -------- | ----------------------------------------------------------- |
-| `text`                      | `string` | yes      | The full text to stream.                                    |
-| `streamingLetterIntervalMs` | `number` | no       | Interval between character updates. Defaults to `30`.       |
-| `renderingLetterCount`      | `number` | no       | Number of characters to render per update. Defaults to `2`. |
-
-#### Returns
-
-| Name                  | Type     | Description                          |
-| --------------------- | -------- | ------------------------------------ |
-| `streamedMessageText` | `string` | Currently displayed portion of text. |
-
-#### Example
-
-```tsx
-import { useMessageTextStreaming } from '@stream-io/chat-react-ai';
-
-function StreamedText({ fullText }) {
-  const { streamedMessageText } = useMessageTextStreaming({
-    text: fullText,
-    streamingLetterIntervalMs: 30,
-    renderingLetterCount: 2,
-  });
-
-  return <div>{streamedMessageText}</div>;
 }
 ```
 
@@ -337,18 +480,17 @@ Enable voice input using the Web Speech API. Provides speech recognition capabil
 #### Example
 
 ```tsx
-import { useSpeechToText } from '@stream-io/chat-react-ai';
+import { useSpeechToText } from 'stream-chat-react/ai-components';
 
 function VoiceInput() {
   const [transcript, setTranscript] = useState('');
 
-  const { isListening, isSupported, startListening, stopListening } =
-    useSpeechToText({
-      lang: 'en-US',
-      interimResults: true,
-      onTranscript: (text) => setTranscript(text),
-      onError: (error) => console.error('Speech recognition error:', error),
-    });
+  const { isListening, isSupported, startListening, stopListening } = useSpeechToText({
+    lang: 'en-US',
+    interimResults: true,
+    onTranscript: (text) => setTranscript(text),
+    onError: (error) => console.error('Speech recognition error:', error),
+  });
 
   if (!isSupported) {
     return <div>Speech recognition is not supported in your browser</div>;
@@ -370,8 +512,8 @@ function VoiceInput() {
 ### Basic Chat Interface
 
 ```tsx
-import { AIMessageComposer } from '@stream-io/chat-react-ai';
-import '@stream-io/chat-react-ai/styles/index.css';
+import { AIMessageComposer } from 'stream-chat-react/ai-components';
+import 'stream-chat-react/css/ai-components.css';
 
 function ChatInterface() {
   const [attachments, setAttachments] = useState([]);
@@ -412,13 +554,13 @@ function ChatInterface() {
     <AIMessageComposer onChange={handleChange} onSubmit={handleSubmit}>
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
-          <AIMessageComposer.AttachmentPreview.Item {...attachment} />
+          <AIMessageComposer.AttachmentPreview.Item key={attachment.id} {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
-      <AIMessageComposer.FileInput name="attachments" />
-      <AIMessageComposer.TextInput name="message" />
+      <AIMessageComposer.FileInput name='attachments' />
+      <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name="model" />
+      <AIMessageComposer.ModelSelect name='model' />
       <AIMessageComposer.SubmitButton />
     </AIMessageComposer>
   );
@@ -428,14 +570,12 @@ function ChatInterface() {
 ### Custom Markdown Rendering
 
 ```tsx
-import { AIMarkdown } from '@stream-io/chat-react-ai';
+import { AIMarkdown } from 'stream-chat-react/ai-components';
 
 const customComponents = {
-  h1: ({ children }) => <h1 className="custom-heading">{children}</h1>,
+  h1: ({ children }) => <h1 className='custom-heading'>{children}</h1>,
   code: ({ children }) => (
-    <AIMarkdown.default.code className="custom-class">
-      {children}
-    </AIMarkdown.default.code>
+    <AIMarkdown.default.code className='custom-class'>{children}</AIMarkdown.default.code>
   ),
 };
 
@@ -443,7 +583,7 @@ const customToolComponents = {
   weather: ({ data, fallback }) => {
     try {
       const parsedData = JSON.parse(data);
-      return <div className="weather-tool">{parsedData.result}</div>;
+      return <div className='weather-tool'>{parsedData.result}</div>;
     } catch {
       return fallback;
     }
@@ -465,11 +605,11 @@ function CustomMarkdown({ content }) {
 ### Streaming AI Response
 
 ```tsx
-import { StreamingMessage } from '@stream-io/chat-react-ai';
+import { StreamingMessage } from 'stream-chat-react/ai-components';
 
 function AIResponseStream({ response }) {
   return (
-    <div className="ai-response">
+    <div className='ai-response'>
       <StreamingMessage text={response} />
     </div>
   );
@@ -481,50 +621,3 @@ function AIResponseStream({ response }) {
 <a href="https://getstream.io?utm_source=Github&utm_medium=Github_Repo_Content&utm_content=Developer&utm_campaign=Github_React_AI_SDK&utm_term=DevRelOss">
 <img src="https://user-images.githubusercontent.com/24237865/138428440-b92e5fb7-89f8-41aa-96b1-71a5486c5849.png" align="right" width="12%"/>
 </a>
-
-## 🛥 What is Stream?
-
-Stream allows developers to rapidly deploy scalable feeds, chat messaging and video with an industry leading 99.999% uptime SLA guarantee.
-
-Stream provides UI components and state handling that make it easy to build real-time chat and video calling for your app. Stream runs and maintains a global network of edge servers around the world, ensuring optimal latency and reliability regardless of where your users are located.
-
-## 📕 Tutorials
-
-To learn more about integrating AI and chatbots into your application, we recommend checking out the full list of tutorials across all of our supported frontend SDKs and providers. Stream's Chat SDK is natively supported across:
-
-- [React](https://getstream.io/chat/react-chat/tutorial/)
-- [React Native](https://getstream.io/chat/react-native-chat/tutorial/)
-- [Angular](https://getstream.io/chat/angular/tutorial/)
-- [Jetpack Compose](https://getstream.io/tutorials/android-chat/)
-- [SwiftUI](https://getstream.io/tutorials/ios-chat/)
-- [Flutter](https://getstream.io/chat/flutter/tutorial/)
-- [Javascript/Bring your own](https://getstream.io/chat/docs/javascript/)
-
-## 👩‍💻 Free for Makers 👨‍💻
-
-Stream is free for most side and hobby projects. To qualify, your project/company needs to have < 5 team members and < $10k in monthly revenue. Makers get $100 in monthly credit for video for free.
-For more details, check out the [Maker Account](https://getstream.io/maker-account?utm_source=Github&utm_medium=Github_Repo_Content&utm_content=Developer&utm_campaign=Github_React_AI_SDK&utm_term=DevRelOss).
-
-## 💼 We are hiring!
-
-We've closed a [\$38 million Series B funding round](https://techcrunch.com/2021/03/04/stream-raises-38m-as-its-chat-and-activity-feed-apis-power-communications-for-1b-users/) in 2021 and we keep actively growing.
-Our APIs are used by more than a billion end-users, and you'll have a chance to make a huge impact on the product within a team of the strongest engineers all over the world.
-Check out our current openings and apply via [Stream's website](https://getstream.io/team/#jobs).
-
-## License
-
-```
-Copyright (c) 2014-2024 Stream.io Inc. All rights reserved.
-
-Licensed under the Stream License;
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   https://github.com/GetStream/ai-js/blob/main/LICENSE
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```

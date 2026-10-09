@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useStableCallback } from '../../hooks/use-stable-callback';
+import { useStableCallback } from '../../../../utils/useStableCallback';
 
 // TypeScript declarations for Web Speech API
 interface SpeechRecognition extends EventTarget {
@@ -10,14 +10,10 @@ interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
-  onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
-    | null;
-  onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
-    | null;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => unknown) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -56,12 +52,20 @@ interface SpeechRecognitionAlternative {
   confidence: number;
 }
 
-declare global {
-  interface Window {
-    SpeechRecognition: new () => SpeechRecognition;
-    webkitSpeechRecognition: new () => SpeechRecognition;
-  }
-}
+type SpeechRecognitionConstructor = new () => SpeechRecognition;
+
+// Kept module-local on purpose: augmenting the global `Window` interface would
+// leak into every consumer's type environment through the shipped .d.ts files.
+type WindowWithSpeechRecognition = Window & {
+  SpeechRecognition?: SpeechRecognitionConstructor;
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+};
+
+const getSpeechRecognition = (): SpeechRecognitionConstructor | undefined => {
+  if (typeof window === 'undefined') return undefined;
+  const speechWindow = window as WindowWithSpeechRecognition;
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition;
+};
 
 export type UseSpeechToTextOptions = {
   /**
@@ -96,30 +100,29 @@ export type UseSpeechToTextOptions = {
 
 export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
   const {
-    lang = 'en-US',
-    interimResults = true,
-    maxAlternatives = 1,
     continuous = false,
-    onTranscript,
+    interimResults = true,
+    lang = 'en-US',
+    maxAlternatives = 1,
     onError,
+    onTranscript,
   } = options;
 
   const [isListening, setIsListening] = useState(false);
+  // stable wrappers so inline callbacks do not re-create the recognizer on every render
+  const emitTranscript = useStableCallback((text: string) => onTranscript?.(text));
+  const emitError = useStableCallback((error: string) => onError?.(error));
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   // Check if Web Speech API is supported
-  const isSupported =
-    typeof window !== 'undefined' &&
-    ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window);
+  const isSupported = !!getSpeechRecognition();
 
   // Initialize speech recognition
   useEffect(() => {
-    if (!isSupported) {
+    const SpeechRecognition = getSpeechRecognition();
+    if (!SpeechRecognition) {
       return;
     }
-
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
@@ -143,7 +146,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
         return accumulatedText;
       }, '');
 
-      onTranscript?.(text);
+      emitTranscript(text);
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -154,8 +157,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
           errorMessage = 'No speech detected. Please try again.';
           break;
         case 'audio-capture':
-          errorMessage =
-            'No microphone found. Please ensure a microphone is connected.';
+          errorMessage = 'No microphone found. Please ensure a microphone is connected.';
           break;
         case 'not-allowed':
           errorMessage =
@@ -171,7 +173,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
           errorMessage = `Speech recognition error: ${event.error}`;
       }
 
-      onError?.(errorMessage);
+      emitError(errorMessage);
     };
 
     recognition.onend = () => {
@@ -189,15 +191,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
       recognition.onend = null;
       recognition.onstart = null;
     };
-  }, [
-    isSupported,
-    lang,
-    interimResults,
-    maxAlternatives,
-    continuous,
-    onTranscript,
-    onError,
-  ]);
+  }, [lang, interimResults, maxAlternatives, continuous, emitTranscript, emitError]);
 
   const startListening = useStableCallback(() => {
     if (!isSupported) {
@@ -208,7 +202,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
       try {
         recognitionRef.current.start();
       } catch {
-        onError?.('Failed to start speech recognition');
+        emitError('Failed to start speech recognition');
       }
     }
   });

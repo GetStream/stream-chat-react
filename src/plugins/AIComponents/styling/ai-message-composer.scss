@@ -1,13 +1,21 @@
-.aicr__ai-message-composer__form {
+@use './tokens' as *;
+
+.str-chat__ai-message-composer__form {
   display: flex;
   padding: 0.75rem;
   flex-direction: column;
   gap: 1rem;
-  border: 1px solid #ccc;
+  border: 1px solid ai-token(border);
   border-radius: 1.5rem;
   flex-grow: 1;
 
-  .aicr__ai-message-composer__round-button {
+  // the text input is `all: unset`, so show its focus on the form container
+  &:focus-within {
+    border-color: $ai-focus-ring-color;
+    box-shadow: 0 0 0 1px $ai-focus-ring-color;
+  }
+
+  .str-chat__ai-message-composer__round-button {
     all: unset;
     display: flex;
     align-items: center;
@@ -18,12 +26,15 @@
 
     transition: background-color 0.1s ease-in-out;
 
-    > span {
-      font-size: 1.5rem;
+    svg {
+      flex-shrink: 0;
+      width: 1.5rem;
+      height: 1.5rem;
+      fill: currentColor;
     }
 
     &:hover:not(:disabled) {
-      background-color: #e8e8e8;
+      background-color: ai-token(surface-hover);
     }
 
     &:disabled {
@@ -32,31 +43,51 @@
     }
 
     &[aria-pressed='true'] {
-      background-color: #d1eaff;
+      background-color: ai-token(surface-pressed);
+    }
+
+    &:focus-visible {
+      @include ai-focus-ring;
     }
   }
 
-  .aicr__ai-message-composer__text-input {
+  // the visually hidden native file input is the keyboard target; show its
+  // focus on the visible label that follows it
+  .str-chat__ai-message-composer__file-input:focus-visible
+    + .str-chat__ai-message-composer__round-button {
+    @include ai-focus-ring;
+  }
+
+  .str-chat__ai-message-composer__text-input {
     all: unset;
     flex-grow: 1;
     font-size: 16px;
     padding-inline: 0.25rem;
   }
 
-  .aicr__ai-message-composer__select {
+  .str-chat__ai-message-composer__select {
     all: unset;
     display: flex;
     font-size: 14px;
-    border: 1px solid #ccc;
+    border: 1px solid ai-token(border);
     border-radius: 0.5rem;
     padding: 0.5rem 1.25rem 0.5rem 1rem;
 
     background-color: transparent;
-    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' height='10px' width='15px'%3E%3Ctext x='0' y='10' fill='black'%3E%E2%96%BE%3C/text%3E%3C/svg%3E");
+    // chevron drawn with currentColor so it follows the text colour (dark mode)
+    background-image:
+      linear-gradient(45deg, transparent 50%, currentColor 50%),
+      linear-gradient(135deg, currentColor 50%, transparent 50%);
     background-repeat: no-repeat;
-    background-size: 0.75rem 0.75rem;
-    background-position-x: calc(100% - 5px);
-    background-position-y: center;
-    background-clip: border-box;
+    background-size:
+      0.3125rem 0.3125rem,
+      0.3125rem 0.3125rem;
+    background-position:
+      calc(100% - 0.75rem) 50%,
+      calc(100% - 0.4375rem) 50%;
+
+    &:focus-visible {
+      @include ai-focus-ring;
+    }
   }
 }

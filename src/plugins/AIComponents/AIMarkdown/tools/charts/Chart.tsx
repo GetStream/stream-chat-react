@@ -21,7 +21,8 @@ import {
   Radar,
   Scatter,
 } from 'react-chartjs-2';
-import type { ToolComponentProps } from '../../ai-markdown';
+import type { ToolComponentProps } from '../../AIMarkdown';
+import { useTranslationContext } from '../../../../../context/TranslationContext';
 import { chartJsSchema } from './chartJsSchema';
 
 ChartJS.register(
@@ -36,16 +37,21 @@ ChartJS.register(
   TitlePlugin,
 );
 
+const UnknownChart = () => {
+  const { t } = useTranslationContext();
+  return <div>{t('aiComponents.chart.unknownType.text', 'Unknown chart type')}</div>;
+};
+
 const components = {
-  pie: Pie,
   bar: Bar,
-  line: Line,
   bubble: Bubble,
   doughnut: Doughnut,
+  line: Line,
+  pie: Pie,
   polarArea: PolarArea,
   radar: Radar,
   scatter: Scatter,
-  unknown: () => <div>Unknown chart type</div>,
+  unknown: UnknownChart,
 } as const;
 
 const Chart = ({ data, fallback }: ToolComponentProps) => {
@@ -66,11 +72,10 @@ const Chart = ({ data, fallback }: ToolComponentProps) => {
   }
 
   const Component =
-    components[parsedDataOrError.type as keyof typeof components] ??
-    components.unknown;
+    components[parsedDataOrError.type as keyof typeof components] ?? components.unknown;
 
   return (
-    <div className="aicr__chart">
+    <div className='str-chat__ai-chart'>
       <Component data={parsedDataOrError.data} options={{ responsive: true }} />
     </div>
   );
