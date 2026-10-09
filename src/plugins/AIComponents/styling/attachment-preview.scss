@@ -16,24 +16,24 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: #f1f1f1;
+    background: ai-token(scrollbar-track);
     border-radius: 0.25rem;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #ddd;
+    background: ai-token(scrollbar-thumb);
     border-radius: 0.25rem;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: #ccc;
+    background: ai-token(border);
   }
 }
 
 .str-chat__ai-attachment-preview__item {
   display: flex;
   height: 4rem;
-  border: 1px solid #ccc;
+  border: 1px solid ai-token(border);
   border-radius: 0.5rem;
   position: relative;
   padding: 0.25rem;
@@ -41,9 +41,6 @@
 
   flex-grow: 0;
   flex-shrink: 0;
-
-  &--uploading {
-  }
 
   &:has(> .str-chat__ai-attachment-preview__image) {
     flex-basis: 4rem;
@@ -70,7 +67,7 @@
 
     .str-chat__ai-attachment-preview__retry-button {
       all: unset;
-      background-color: #e8e8e8;
+      background-color: ai-token(button-bg);
       border-radius: 9999px;
       display: flex;
       padding: 0.25rem;
@@ -78,8 +75,15 @@
       transition: background 0.1s ease-in;
 
       &:hover:not(:disabled) {
-        background: #ccc;
+        background: ai-token(border);
         cursor: pointer;
+      }
+
+      svg {
+        flex-shrink: 0;
+        width: 1.25rem;
+        height: 1.25rem;
+        fill: currentColor;
       }
 
       &:focus-visible {
@@ -99,12 +103,12 @@
     width: 1rem;
     height: 1rem;
     border-radius: 9999px;
-    background: #e8e8e8;
+    background: ai-token(button-bg);
 
     transition: background 0.1s ease-in;
 
     &:hover:not(:disabled) {
-      background: #ccc;
+      background: ai-token(border);
       cursor: pointer;
     }
 
@@ -113,8 +117,10 @@
     }
 
     svg {
+      flex-shrink: 0;
       width: 1rem;
       height: 1rem;
+      fill: currentColor;
     }
   }
 
@@ -129,6 +135,7 @@
       flex-shrink: 0;
       width: 2rem;
       height: 2rem;
+      fill: currentColor;
     }
 
     .str-chat__ai-attachment-preview__file-metadata {

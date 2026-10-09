@@ -167,9 +167,32 @@ The library never declares the `--str-chat__ai-*` custom properties. Each rule r
 var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #ffffff))
 ```
 
-Precedence for the five `bg-*` / `text-*` tokens is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
+Precedence for every token except the code palette is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
 
-Themable properties: `--str-chat__ai-bg-primary`, `--str-chat__ai-bg-secondary`, `--str-chat__ai-bg-tertiary`, `--str-chat__ai-text-primary`, `--str-chat__ai-text-secondary`, plus the code palette `--str-chat__ai-syntax-*` (`text`, `selection-bg`, `comment`, `punctuation`, `number`, `keyword`, `tag`, `string`, `function`, `cyan`, `error`, `whitespace`).
+| Token (`--str-chat__ai-…`) | Used for                                                | SDK theme token (`--str-chat__…`) | Literal fallback |
+| -------------------------- | ------------------------------------------------------- | --------------------------------- | ---------------- |
+| `bg-primary`               | code block background                                   | `background-core-elevation-0`     | `#ffffff`        |
+| `bg-secondary`             | not read by the built-in rules (kept for compatibility) | `background-core-surface-default` | `#f7f7f8`        |
+| `bg-tertiary`              | not read by the built-in rules (kept for compatibility) | `background-core-surface-strong`  | `#ececf1`        |
+| `text-primary`             | not read by the built-in rules (kept for compatibility) | `text-primary`                    | `#353740`        |
+| `text-secondary`           | AI state indicator text and dots                        | `text-secondary`                  | `#565869`        |
+| `border`                   | composer, model select and attachment borders           | `border-core-default`             | `#ccc`           |
+| `border-subtle`            | table row separators                                    | `border-core-subtle`              | `#e9ecef`        |
+| `surface-hover`            | composer round-button hover                             | `background-utility-hover`        | `#e8e8e8`        |
+| `surface-pressed`          | pressed (listening) speech-to-text button               | `background-utility-selected`     | `#d1eaff`        |
+| `button-bg`                | attachment delete/retry buttons                         | `background-core-surface-strong`  | `#e8e8e8`        |
+| `inline-code-bg`           | inline code in `StreamingMessage`                       | `background-core-surface-default` | `#f5f5f5`        |
+| `table-border`             | table header borders                                    | `border-core-default`             | `#dee2e6`        |
+| `table-header-bg`          | table header and row hover background                   | `background-core-surface-subtle`  | `#f8f9fa`        |
+| `table-header-text`        | table header text                                       | `text-primary`                    | `#212529`        |
+| `table-text`               | table cell text                                         | `text-secondary`                  | `#495057`        |
+| `scrollbar-track`          | attachment list scrollbar track                         | `background-core-surface-subtle`  | `#f1f1f1`        |
+| `scrollbar-thumb`          | attachment list scrollbar thumb                         | `border-core-default`             | `#ddd`           |
+| `syntax-*`                 | code palette (see below)                                | none                              | built-in palette |
+
+The code palette tokens are `--str-chat__ai-syntax-text`, `-selection-bg`, `-comment`, `-punctuation`, `-number`, `-keyword`, `-tag`, `-string`, `-function`, `-cyan`, `-error` and `-whitespace`.
+
+Focus rings use the SDK focus token `--str-chat__border-utility-focused` (falling back to `#005fff` outside `.str-chat`). Icons inside the composer and attachment previews are sized and coloured (`currentColor`) by `ai-components.css` itself.
 
 ```css
 :root {

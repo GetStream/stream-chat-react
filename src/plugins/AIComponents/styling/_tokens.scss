@@ -26,6 +26,54 @@ $ai-tokens: (
     '--str-chat__text-secondary',
     #565869,
   ),
+  'border': (
+    '--str-chat__border-core-default',
+    #ccc,
+  ),
+  'border-subtle': (
+    '--str-chat__border-core-subtle',
+    #e9ecef,
+  ),
+  'surface-hover': (
+    '--str-chat__background-utility-hover',
+    #e8e8e8,
+  ),
+  'surface-pressed': (
+    '--str-chat__background-utility-selected',
+    #d1eaff,
+  ),
+  'button-bg': (
+    '--str-chat__background-core-surface-strong',
+    #e8e8e8,
+  ),
+  'inline-code-bg': (
+    '--str-chat__background-core-surface-default',
+    #f5f5f5,
+  ),
+  'table-border': (
+    '--str-chat__border-core-default',
+    #dee2e6,
+  ),
+  'table-header-bg': (
+    '--str-chat__background-core-surface-subtle',
+    #f8f9fa,
+  ),
+  'table-header-text': (
+    '--str-chat__text-primary',
+    #212529,
+  ),
+  'table-text': (
+    '--str-chat__text-secondary',
+    #495057,
+  ),
+  'scrollbar-track': (
+    '--str-chat__background-core-surface-subtle',
+    #f1f1f1,
+  ),
+  'scrollbar-thumb': (
+    '--str-chat__border-core-default',
+    #ddd,
+  ),
   'syntax-text': (
     null,
     #2e3440,

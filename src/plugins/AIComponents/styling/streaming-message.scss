@@ -14,24 +14,24 @@
     border-radius: 0.5rem;
 
     thead {
-      background-color: #f8f9fa;
-      border-bottom: 2px solid #dee2e6;
+      background-color: ai-token(table-header-bg);
+      border-bottom: 2px solid ai-token(table-border);
 
       th {
         padding: 0.75rem;
         text-align: left;
         font-weight: 600;
-        color: #212529;
-        border-bottom: 2px solid #dee2e6;
+        color: ai-token(table-header-text);
+        border-bottom: 2px solid ai-token(table-border);
       }
     }
 
     tbody {
       tr {
-        border-bottom: 1px solid #e9ecef;
+        border-bottom: 1px solid ai-token(border-subtle);
 
         &:hover {
-          background-color: #f8f9fa;
+          background-color: ai-token(table-header-bg);
         }
 
         &:last-child {
@@ -41,7 +41,7 @@
 
       td {
         padding: 0.75rem;
-        color: #495057;
+        color: ai-token(table-text);
       }
     }
   }
@@ -319,7 +319,7 @@
 
     .str-chat__ai-code {
       font-size: 0.85rem;
-      background-color: #f5f5f5;
+      background-color: ai-token(inline-code-bg);
       padding: 0.1rem 0.25rem;
       border-radius: 0.5rem;
       font-family: monospace;
