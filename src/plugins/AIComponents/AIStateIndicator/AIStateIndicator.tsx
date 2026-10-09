@@ -16,20 +16,17 @@ const MESSAGES = [
 ];
 
 export const AIStateIndicator = ({ text }: { text?: string }) => {
-  const messageIndex = useMemo(
-    () => Math.floor(Math.random() * MESSAGES.length),
-    [],
-  );
+  const messageIndex = useMemo(() => Math.floor(Math.random() * MESSAGES.length), []);
 
   return (
-    <div className="aicr__state-indicator">
-      <div className="aicr__state-indicator__content">
-        <div className="aicr__state-indicator__dots">
-          <span className="aicr__state-indicator__dot" />
-          <span className="aicr__state-indicator__dot" />
-          <span className="aicr__state-indicator__dot" />
+    <div className='aicr__state-indicator'>
+      <div className='aicr__state-indicator__content'>
+        <div className='aicr__state-indicator__dots'>
+          <span className='aicr__state-indicator__dot' />
+          <span className='aicr__state-indicator__dot' />
+          <span className='aicr__state-indicator__dot' />
         </div>
-        <span className="aicr__state-indicator__text">
+        <span className='aicr__state-indicator__text'>
           {typeof text === 'string' ? text : MESSAGES[messageIndex]}
         </span>
       </div>

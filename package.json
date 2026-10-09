@@ -78,6 +78,7 @@
     "@braintree/sanitize-url": "^7.1.2",
     "@floating-ui/react": "^0.27.19",
     "@react-aria/focus": "^3.22.0",
+    "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.20",
     "emoji-regex": "^9.2.2",
@@ -91,10 +92,12 @@
     "lodash.uniqby": "^4.7.0",
     "mdast-util-to-string": "^4.0.0",
     "nanoid": "^3.3.12",
+    "react-chartjs-2": "^5.3.1",
     "react-dropzone": "^14.4.1",
     "react-fast-compare": "^3.2.2",
     "react-markdown": "^9.1.0",
     "react-player": "2.10.1",
+    "react-syntax-highlighter": "^16.1.0",
     "react-textarea-autosize": "^8.5.9",
     "react-virtuoso": "^2.19.1",
     "remark-gfm": "^4.0.1",
@@ -102,7 +105,8 @@
     "unified": "^11.0.5",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.1.0",
-    "use-sync-external-store": "^1.6.0"
+    "use-sync-external-store": "^1.6.0",
+    "zod": "^4.1.12"
   },
   "optionalDependencies": {
     "@stream-io/transliterate": "^1.5.5"
@@ -157,6 +161,7 @@
     "@types/lodash.uniqby": "^4.7.9",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@types/use-sync-external-store": "^1.5.0",
     "@vitest/coverage-v8": "^4.1.9",
     "@vitest/eslint-plugin": "^1.6.20",

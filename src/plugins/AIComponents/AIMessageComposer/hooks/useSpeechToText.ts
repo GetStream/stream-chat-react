@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useStableCallback } from '../../hooks/use-stable-callback';
+import { useStableCallback } from '../../../../utils/useStableCallback';
 
 // TypeScript declarations for Web Speech API
 interface SpeechRecognition extends EventTarget {
@@ -10,14 +10,10 @@ interface SpeechRecognition extends EventTarget {
   start(): void;
   stop(): void;
   abort(): void;
-  onerror:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => any)
-    | null;
-  onresult:
-    | ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => any)
-    | null;
-  onstart: ((this: SpeechRecognition, ev: Event) => any) | null;
-  onend: ((this: SpeechRecognition, ev: Event) => any) | null;
+  onerror: ((this: SpeechRecognition, ev: SpeechRecognitionErrorEvent) => unknown) | null;
+  onresult: ((this: SpeechRecognition, ev: SpeechRecognitionEvent) => unknown) | null;
+  onstart: ((this: SpeechRecognition, ev: Event) => unknown) | null;
+  onend: ((this: SpeechRecognition, ev: Event) => unknown) | null;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -96,12 +92,12 @@ export type UseSpeechToTextOptions = {
 
 export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
   const {
-    lang = 'en-US',
-    interimResults = true,
-    maxAlternatives = 1,
     continuous = false,
-    onTranscript,
+    interimResults = true,
+    lang = 'en-US',
+    maxAlternatives = 1,
     onError,
+    onTranscript,
   } = options;
 
   const [isListening, setIsListening] = useState(false);
@@ -118,8 +114,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
       return;
     }
 
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     const recognition = new SpeechRecognition();
     recognitionRef.current = recognition;
@@ -154,8 +149,7 @@ export const useSpeechToText = (options: UseSpeechToTextOptions = {}) => {
           errorMessage = 'No speech detected. Please try again.';
           break;
         case 'audio-capture':
-          errorMessage =
-            'No microphone found. Please ensure a microphone is connected.';
+          errorMessage = 'No microphone found. Please ensure a microphone is connected.';
           break;
         case 'not-allowed':
           errorMessage =

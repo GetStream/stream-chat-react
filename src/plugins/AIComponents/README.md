@@ -55,10 +55,10 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
   return (
     <AIMessageComposer onSubmit={handleSubmit}>
-      <AIMessageComposer.FileInput name="attachments" />
-      <AIMessageComposer.TextInput name="message" />
+      <AIMessageComposer.FileInput name='attachments' />
+      <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name="model" />
+      <AIMessageComposer.ModelSelect name='model' />
       <AIMessageComposer.SubmitButton />
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
@@ -191,9 +191,7 @@ A container component for displaying file attachment previews with support for i
 ```tsx
 import { AIMessageComposer } from '@stream-io/chat-react-ai';
 
-function CustomAttachmentPreview({
-  attachments,
-}: CustomAttachmentPreviewProps) {
+function CustomAttachmentPreview({ attachments }: CustomAttachmentPreviewProps) {
   return (
     <AIMessageComposer.AttachmentPreview>
       {attachments.map((attachment) => (
@@ -342,13 +340,12 @@ import { useSpeechToText } from '@stream-io/chat-react-ai';
 function VoiceInput() {
   const [transcript, setTranscript] = useState('');
 
-  const { isListening, isSupported, startListening, stopListening } =
-    useSpeechToText({
-      lang: 'en-US',
-      interimResults: true,
-      onTranscript: (text) => setTranscript(text),
-      onError: (error) => console.error('Speech recognition error:', error),
-    });
+  const { isListening, isSupported, startListening, stopListening } = useSpeechToText({
+    lang: 'en-US',
+    interimResults: true,
+    onTranscript: (text) => setTranscript(text),
+    onError: (error) => console.error('Speech recognition error:', error),
+  });
 
   if (!isSupported) {
     return <div>Speech recognition is not supported in your browser</div>;
@@ -415,10 +412,10 @@ function ChatInterface() {
           <AIMessageComposer.AttachmentPreview.Item {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
-      <AIMessageComposer.FileInput name="attachments" />
-      <AIMessageComposer.TextInput name="message" />
+      <AIMessageComposer.FileInput name='attachments' />
+      <AIMessageComposer.TextInput name='message' />
       <AIMessageComposer.SpeechToTextButton />
-      <AIMessageComposer.ModelSelect name="model" />
+      <AIMessageComposer.ModelSelect name='model' />
       <AIMessageComposer.SubmitButton />
     </AIMessageComposer>
   );
@@ -431,11 +428,9 @@ function ChatInterface() {
 import { AIMarkdown } from '@stream-io/chat-react-ai';
 
 const customComponents = {
-  h1: ({ children }) => <h1 className="custom-heading">{children}</h1>,
+  h1: ({ children }) => <h1 className='custom-heading'>{children}</h1>,
   code: ({ children }) => (
-    <AIMarkdown.default.code className="custom-class">
-      {children}
-    </AIMarkdown.default.code>
+    <AIMarkdown.default.code className='custom-class'>{children}</AIMarkdown.default.code>
   ),
 };
 
@@ -443,7 +438,7 @@ const customToolComponents = {
   weather: ({ data, fallback }) => {
     try {
       const parsedData = JSON.parse(data);
-      return <div className="weather-tool">{parsedData.result}</div>;
+      return <div className='weather-tool'>{parsedData.result}</div>;
     } catch {
       return fallback;
     }
@@ -469,7 +464,7 @@ import { StreamingMessage } from '@stream-io/chat-react-ai';
 
 function AIResponseStream({ response }) {
   return (
-    <div className="ai-response">
+    <div className='ai-response'>
       <StreamingMessage text={response} />
     </div>
   );

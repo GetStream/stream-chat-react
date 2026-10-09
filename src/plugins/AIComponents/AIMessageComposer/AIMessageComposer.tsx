@@ -8,17 +8,15 @@ import {
   useMemo,
   useState,
 } from 'react';
+import type React from 'react';
 import { customAlphabet } from 'nanoid';
 import clsx from 'clsx';
-import { StateStore } from '@stream-io/state-store';
-import { useStateStore } from '@stream-io/state-store/react-bindings';
+import { StateStore } from 'stream-chat';
 
-import { AttachmentPreview } from './attachment-preview';
-import {
-  useSpeechToText,
-  type UseSpeechToTextOptions,
-} from './use-speech-to-text';
-import { useStableCallback } from '../../hooks/use-stable-callback';
+import { useStateStore } from '../../../store';
+import { useStableCallback } from '../../../utils/useStableCallback';
+import { AttachmentPreview } from './AttachmentPreview';
+import { useSpeechToText, type UseSpeechToTextOptions } from './hooks/useSpeechToText';
 
 const nanoId = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 15);
 
@@ -34,20 +32,20 @@ const FileInput = ({
       {({ id }) => (
         <>
           <input
-            style={{ display: 'none' }}
-            multiple
-            type="file"
             id={id}
+            multiple
+            style={{ display: 'none' }}
+            type='file'
             {...restProps}
             disabled={disabled}
           />
           <label
-            className="aicr__ai-message-composer__round-button"
+            className='aicr__ai-message-composer__round-button'
             htmlFor={id}
             tabIndex={0}
             {...labelProps}
           >
-            <span className="material-symbols-rounded">add</span>
+            <span className='material-symbols-rounded'>add</span>
           </label>
         </>
       )}
@@ -69,9 +67,9 @@ FileInput.WithStableId = WithStableId;
 
 export type AIMessageComposerStore = {
   attachments: {
-    id: string;
     file: File;
-    meta?: Record<string, any>;
+    id: string;
+    meta?: Record<string, unknown>;
   }[];
   text: string;
   disabled?: boolean;
@@ -79,16 +77,15 @@ export type AIMessageComposerStore = {
 
 const initialStoreState: AIMessageComposerStore = {
   attachments: [],
-  text: '',
   disabled: false,
+  text: '',
 };
 
-const AIMessageComposerContext = createContext<
-  StateStore<AIMessageComposerStore>
->(new StateStore<AIMessageComposerStore>(initialStoreState));
+const AIMessageComposerContext = createContext<StateStore<AIMessageComposerStore>>(
+  new StateStore<AIMessageComposerStore>(initialStoreState),
+);
 
-export const useAIMessageComposerContext = () =>
-  useContext(AIMessageComposerContext);
+export const useAIMessageComposerContext = () => useContext(AIMessageComposerContext);
 
 export const useAttachments = () => {
   const store = useAIMessageComposerContext();
@@ -111,10 +108,7 @@ export const useAttachments = () => {
 
   const updateAttachments = useCallback(
     (
-      idsOrAttachments: (
-        | string
-        | AIMessageComposerStore['attachments'][number]
-      )[],
+      idsOrAttachments: (string | AIMessageComposerStore['attachments'][number])[],
       update: (
         attachment: AIMessageComposerStore['attachments'][number],
       ) => AIMessageComposerStore['attachments'][number],
@@ -126,22 +120,19 @@ export const useAttachments = () => {
         for (const idOrAttachment of idsOrAttachments) {
           const attachmentIndex =
             typeof idOrAttachment === 'string'
-              ? currentState.attachments.findIndex(
-                  (a) => a.id === idOrAttachment,
-                )
+              ? currentState.attachments.findIndex((a) => a.id === idOrAttachment)
               : currentState.attachments.indexOf(idOrAttachment);
 
           if (attachmentIndex === -1) {
             continue;
           }
 
-          const updatedAttachment = update(
-            currentState.attachments[attachmentIndex]!,
-          );
+          const currentAttachment = currentState.attachments[attachmentIndex];
+          if (!currentAttachment) continue;
 
-          if (
-            updatedAttachment !== currentState.attachments[attachmentIndex]!
-          ) {
+          const updatedAttachment = update(currentAttachment);
+
+          if (updatedAttachment !== currentAttachment) {
             newAttachments[attachmentIndex] = updatedAttachment;
             hasChanges = true;
           }
@@ -203,7 +194,7 @@ export const useText = () => {
 
   const { text } = useStateStore(store, selector);
 
-  return { text, setText };
+  return { setText, text };
 };
 
 export const useIsDisabled = () => {
@@ -244,7 +235,7 @@ type AIMessageComposerProps = ComponentPropsWithoutRef<'form'> & {
 };
 
 interface AIMessageComposer {
-  (props: AIMessageComposerProps): JSX.Element;
+  (props: AIMessageComposerProps): React.JSX.Element;
   FileInput: typeof FileInput;
   TextInput: typeof TextInput;
   SpeechToTextButton: typeof SpeechToTextButton;
@@ -255,11 +246,11 @@ interface AIMessageComposer {
 
 export const AIMessageComposer: AIMessageComposer = ({
   children,
+  disabled,
+  nameMapping,
   onChange,
   onReset,
   resetAttachmentsOnSelect = true,
-  nameMapping,
-  disabled,
   ...restProps
 }) => {
   const [stateStore] = useState(
@@ -270,63 +261,59 @@ export const AIMessageComposer: AIMessageComposer = ({
     stateStore.partialNext({ disabled });
   }, [disabled, stateStore]);
 
-  const handleChange = useStableCallback(
-    (e: React.ChangeEvent<HTMLFormElement>) => {
-      onChange?.(e);
+  const handleChange = useStableCallback((e: React.ChangeEvent<HTMLFormElement>) => {
+    onChange?.(e);
 
-      const inputElement = e.target as unknown as HTMLInputElement;
+    const inputElement = e.target as unknown as HTMLInputElement;
 
-      const messageName = nameMapping?.message ?? 'message';
-      const attachmentsName = nameMapping?.attachments ?? 'attachments';
+    const messageName = nameMapping?.message ?? 'message';
+    const attachmentsName = nameMapping?.attachments ?? 'attachments';
 
-      const files =
-        inputElement.name === attachmentsName ? inputElement.files : null;
-      const text =
-        inputElement.name === messageName ? inputElement.value : null;
+    const files = inputElement.name === attachmentsName ? inputElement.files : null;
+    const text = inputElement.name === messageName ? inputElement.value : null;
 
-      stateStore.next((currentState) => {
-        const newState = { ...currentState };
+    stateStore.next((currentState) => {
+      const newState = { ...currentState };
 
-        if (files && files.length > 0) {
-          const newFiles = Array.from(files).map(
-            (file) =>
-              ({
-                id: nanoId(),
-                file,
-              }) satisfies AIMessageComposerStore['attachments'][number],
-          );
+      if (files && files.length > 0) {
+        const newFiles = Array.from(files).map(
+          (file) =>
+            ({
+              file,
+              id: nanoId(),
+            }) satisfies AIMessageComposerStore['attachments'][number],
+        );
 
-          newState.attachments = newState.attachments.concat(newFiles);
-        }
+        newState.attachments = newState.attachments.concat(newFiles);
+      }
 
-        if (text !== null) {
-          newState.text = text;
-        }
-
-        if (
-          newState.attachments !== currentState.attachments ||
-          newState.text !== currentState.text
-        ) {
-          return newState;
-        }
-
-        return currentState;
-      });
+      if (text !== null) {
+        newState.text = text;
+      }
 
       if (
-        resetAttachmentsOnSelect &&
-        inputElement.type === 'file' &&
-        inputElement.name === attachmentsName
+        newState.attachments !== currentState.attachments ||
+        newState.text !== currentState.text
       ) {
-        inputElement.value = '';
+        return newState;
       }
-    },
-  );
+
+      return currentState;
+    });
+
+    if (
+      resetAttachmentsOnSelect &&
+      inputElement.type === 'file' &&
+      inputElement.name === attachmentsName
+    ) {
+      inputElement.value = '';
+    }
+  });
 
   return (
     <AIMessageComposerContext.Provider value={stateStore}>
       <form
-        className="aicr__ai-message-composer__form"
+        className='aicr__ai-message-composer__form'
         onChange={handleChange}
         onReset={(e) => {
           onReset?.(e);
@@ -340,7 +327,7 @@ export const AIMessageComposer: AIMessageComposer = ({
   );
 };
 
-const noop = () => {};
+const noop = () => undefined;
 
 const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   const { text } = useText();
@@ -348,16 +335,16 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
 
   return (
     <input
-      value={text}
+      autoComplete='off'
+      className='aicr__ai-message-composer__text-input'
+      name='message'
       // React requires onChange when value is set, defaultValue stops working
       // when input gets "dirty"
       // actual on-change is handled at the form level
       onChange={noop}
-      className="aicr__ai-message-composer__text-input"
-      autoComplete="off"
-      type="text"
-      name="message"
-      placeholder="Ask a question..."
+      placeholder='Ask a question...'
+      type='text'
+      value={text}
       {...props}
       disabled={disabled}
     />
@@ -372,15 +359,16 @@ const SpeechToTextButton = (
   const { setText } = useText();
   const { disabled } = useIsDisabled();
 
-  const { startListening, stopListening, isListening } = useSpeechToText({
-    onTranscript: setText,
+  const { isListening, startListening, stopListening } = useSpeechToText({
     onError: console.error,
+    onTranscript: setText,
   });
 
   return (
     <button
-      className="aicr__ai-message-composer__round-button"
+      aria-label='speech-to-text'
       aria-pressed={isListening}
+      className='aicr__ai-message-composer__round-button'
       onClick={() => {
         if (isListening) {
           stopListening();
@@ -388,12 +376,11 @@ const SpeechToTextButton = (
           startListening();
         }
       }}
-      aria-label="speech-to-text"
-      type="button"
+      type='button'
       {...props}
       disabled={disabled}
     >
-      <span className="material-symbols-rounded">mic</span>
+      <span className='material-symbols-rounded'>mic</span>
     </button>
   );
 };
@@ -409,18 +396,18 @@ const SubmitButton = ({
         'aicr__ai-message-composer__round-button',
         active && 'aicr__ai-message-composer__round-button--active',
       )}
-      type="submit"
+      type='submit'
       {...restProps}
       disabled={disabled}
     >
-      <span className="material-symbols-rounded">send</span>
+      <span className='material-symbols-rounded'>send</span>
     </button>
   );
 };
 
 const availableModels = [
-  { platform: 'openai', value: 'gpt-4o-mini', label: 'GPT-4o mini' },
-  { platform: 'openai', value: 'gpt-4o', label: 'GPT-4o' },
+  { label: 'GPT-4o mini', platform: 'openai', value: 'gpt-4o-mini' },
+  { label: 'GPT-4o', platform: 'openai', value: 'gpt-4o' },
 ] as const;
 
 const [defaultModel] = availableModels;
@@ -446,7 +433,7 @@ const ModelSelect = (
   const { disabled } = useIsDisabled();
   return (
     <select
-      className="aicr__ai-message-composer__select"
+      className='aicr__ai-message-composer__select'
       defaultValue={defaultPlatformModel}
       {...restProps}
       disabled={disabled}

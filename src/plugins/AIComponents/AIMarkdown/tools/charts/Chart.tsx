@@ -21,7 +21,7 @@ import {
   Radar,
   Scatter,
 } from 'react-chartjs-2';
-import type { ToolComponentProps } from '../../ai-markdown';
+import type { ToolComponentProps } from '../../AIMarkdown';
 import { chartJsSchema } from './chartJsSchema';
 
 ChartJS.register(
@@ -37,11 +37,11 @@ ChartJS.register(
 );
 
 const components = {
-  pie: Pie,
   bar: Bar,
-  line: Line,
   bubble: Bubble,
   doughnut: Doughnut,
+  line: Line,
+  pie: Pie,
   polarArea: PolarArea,
   radar: Radar,
   scatter: Scatter,
@@ -66,11 +66,10 @@ const Chart = ({ data, fallback }: ToolComponentProps) => {
   }
 
   const Component =
-    components[parsedDataOrError.type as keyof typeof components] ??
-    components.unknown;
+    components[parsedDataOrError.type as keyof typeof components] ?? components.unknown;
 
   return (
-    <div className="aicr__chart">
+    <div className='aicr__chart'>
       <Component data={parsedDataOrError.data} options={{ responsive: true }} />
     </div>
   );

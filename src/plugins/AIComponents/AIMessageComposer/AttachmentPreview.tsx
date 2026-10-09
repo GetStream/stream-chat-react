@@ -1,5 +1,5 @@
 import { type ComponentPropsWithoutRef, type MouseEvent } from 'react';
-import { useAttachments } from './ai-message-composer';
+import { useAttachments } from './AIMessageComposer';
 import clsx from 'clsx';
 
 const byteValueNumberFormatter = Intl.NumberFormat('en', {
@@ -11,11 +11,11 @@ const byteValueNumberFormatter = Intl.NumberFormat('en', {
 
 export const Item = ({
   file,
+  imagePreviewSource,
   onDelete,
   onRetry,
   state,
   title,
-  imagePreviewSource,
 }: {
   file: File;
   state?: 'uploading' | 'finished' | 'failed' | 'pending' | (string & {});
@@ -31,60 +31,52 @@ export const Item = ({
   return (
     <div
       className={clsx('aicr__attachment-preview__item', {
-        'aicr__attachment-preview__item--uploading': state === 'uploading',
-        'aicr__attachment-preview__item--uploaded': state === 'uploaded',
         'aicr__attachment-preview__item--failed': state === 'failed',
         'aicr__attachment-preview__item--pending': state === 'pending',
+        'aicr__attachment-preview__item--uploaded': state === 'uploaded',
+        'aicr__attachment-preview__item--uploading': state === 'uploading',
       })}
     >
       <button
-        className="aicr__attachment-preview__delete-button"
-        type="button"
-        aria-label="Delete attachment"
+        aria-label='Delete attachment'
+        className='aicr__attachment-preview__delete-button'
         onClick={onDelete}
+        type='button'
       >
-        <span className="material-symbols-rounded">close</span>
+        <span className='material-symbols-rounded'>close</span>
       </button>
 
       {state === 'failed' && (
-        <div className="aicr__attachment-preview__failed-state-overlay">
+        <div className='aicr__attachment-preview__failed-state-overlay'>
           <button
+            aria-label='Upload failed'
+            className='aicr__attachment-preview__retry-button'
             onClick={onRetry}
-            className="aicr__attachment-preview__retry-button"
-            type="button"
-            aria-label="Upload failed"
+            type='button'
           >
-            <span className="material-symbols-rounded">refresh</span>
+            <span className='material-symbols-rounded'>refresh</span>
           </button>
         </div>
       )}
 
       {!isImage && (
-        <div className="aicr__attachment-preview__item-content">
-          <span
-            style={{ fontSize: '2rem' }}
-            className="material-symbols-rounded"
-          >
+        <div className='aicr__attachment-preview__item-content'>
+          <span className='material-symbols-rounded' style={{ fontSize: '2rem' }}>
             description
           </span>
-          <div className="aicr__attachment-preview__file-metadata">
-            <div
-              title={fileName}
-              className="aicr__attachment-preview__file-name"
-            >
+          <div className='aicr__attachment-preview__file-metadata'>
+            <div className='aicr__attachment-preview__file-name' title={fileName}>
               {fileName}
             </div>
-            <div className="aicr__attachment-preview__file-size">
-              {readableFileSize}
-            </div>
+            <div className='aicr__attachment-preview__file-size'>{readableFileSize}</div>
           </div>
         </div>
       )}
       {isImage && (
         <img
-          className="aicr__attachment-preview__image"
-          src={imagePreviewSource}
           alt={fileName}
+          className='aicr__attachment-preview__image'
+          src={imagePreviewSource}
         />
       )}
     </div>
@@ -106,7 +98,7 @@ export const AttachmentPreview = ({
   }
 
   return (
-    <div className="aicr__attachment-preview" {...restProps}>
+    <div className='aicr__attachment-preview' {...restProps}>
       {typeof children === 'function' ? children(_) : children}
     </div>
   );
