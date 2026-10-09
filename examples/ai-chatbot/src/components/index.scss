@@ -1,0 +1,180 @@
+@layer material-rounded, stream, stream-overrides, ai-chat, ai-demo;
+
+@import 'stream-chat-react/css/index.css' layer(stream);
+@import 'material-symbols/rounded.css' layer(material-rounded);
+@import '@stream-io/chat-react-ai/styles/index.css' layer(ai-chat);
+@import './ai-demo.scss' layer(ai-demo);
+
+@layer stream-overrides {
+  .str-chat__channel {
+    flex-grow: 1;
+  }
+
+  .str-chat__channel-list {
+    flex-shrink: 0;
+    max-width: 300px;
+  }
+
+  .str-chat__message--other {
+    .str-chat__message-inner {
+      margin-inline-end: 0;
+    }
+  }
+  .str-chat__message--other {
+    .str-chat__message-bubble {
+      max-width: unset;
+      background-color: transparent;
+    }
+  }
+
+  .str-chat__message--me {
+    .str-chat__message-inner {
+      margin-inline-start: 0;
+    }
+  }
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 300,
+    'GRAD' 0,
+    'opsz' 40;
+}
+
+:root {
+  margin: 0;
+  padding: 0;
+
+  /* Font */
+  --ai-demo-font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica',
+    'Arial', sans-serif;
+
+  font-family: var(--ai-demo-font-family);
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Dark Theme (default) */
+:root,
+:root[data-theme='dark'] {
+  /* ChatGPT 4/Plus Dark Theme Colors */
+  --ai-demo-bg-primary: #212121;
+  --ai-demo-bg-secondary: #171717;
+  --ai-demo-bg-tertiary: #2f2f2f;
+  --ai-demo-border: #4a4a4a;
+
+  /* Text colors */
+  --ai-demo-text-primary: #ececec;
+  --ai-demo-text-secondary: #b4b4b4;
+  --ai-demo-text-tertiary: #8e8e8e;
+
+  /* Message colors */
+  --ai-demo-user-bg: #343541;
+  --ai-demo-ai-bg: transparent;
+
+  /* Accent colors */
+  --ai-demo-accent: #005fff;
+  --ai-demo-accent-hover: #0d8968;
+
+  --aicr__syntax-text: #e5e7eb;
+  --aicr__syntax-selection-bg: #4a4a4a;
+  --aicr__syntax-comment: #9ca3af;
+  --aicr__syntax-punctuation: #d1d5db;
+  --aicr__syntax-number: #fbbf24;
+  --aicr__syntax-keyword: #a78bfa;
+  --aicr__syntax-tag: #f87171;
+  --aicr__syntax-string: #34d399;
+  --aicr__syntax-function: #60a5fa;
+  --aicr__syntax-cyan: #22d3ee;
+  --aicr__syntax-error: #f87171;
+  --aicr__syntax-whitespace: hsla(0, 0%, 100%, 0.1);
+
+  color-scheme: dark;
+  color: var(--ai-demo-text-primary);
+  background-color: var(--ai-demo-bg-primary);
+}
+
+/* Light Theme */
+:root[data-theme='light'] {
+  /* ChatGPT Light Theme Colors */
+  --ai-demo-bg-primary: #ffffff;
+  --ai-demo-bg-secondary: #f7f7f8;
+  --ai-demo-bg-tertiary: #ececf1;
+  --ai-demo-border: #d9d9e3;
+
+  /* Text colors */
+  --ai-demo-text-primary: #353740;
+  --ai-demo-text-secondary: #565869;
+  --ai-demo-text-tertiary: #8e8ea0;
+
+  /* Message colors */
+  --ai-demo-user-bg: #f4f4f4;
+  --ai-demo-ai-bg: transparent;
+
+  /* Accent colors */
+  --ai-demo-accent: #005fff;
+  --ai-demo-accent-hover: #0d8968;
+
+  --aicr__syntax-text: #2e3440;
+  --aicr__syntax-selection-bg: #d8dee9;
+  --aicr__syntax-comment: #6b7280;
+  --aicr__syntax-punctuation: #4b5563;
+  --aicr__syntax-number: #d97706;
+  --aicr__syntax-keyword: #8b5cf6;
+  --aicr__syntax-tag: #dc2626;
+  --aicr__syntax-string: #059669;
+  --aicr__syntax-function: #2563eb;
+  --aicr__syntax-cyan: #0891b2;
+  --aicr__syntax-error: #ef4444;
+  --aicr__syntax-whitespace: hsla(220, 14%, 30%, 0.15);
+
+  color-scheme: light;
+  color: var(--ai-demo-text-primary);
+  background-color: var(--ai-demo-bg-primary);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* Custom ChatGPT-style scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ai-demo-border) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--ai-demo-border);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--ai-demo-bg-tertiary);
+}
