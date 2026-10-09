@@ -9,7 +9,7 @@ it('server-renders without touching browser globals', () => {
   const html = renderToString(
     <>
       <AIMarkdown>{'**bold** and ```ts\nx\n```'}</AIMarkdown>
-      <StreamingMessage text='hi' />
+      <StreamingMessage text='streamed-ssr-marker' />
       <AIStateIndicator text='Thinking' />
       <AIMessageComposer>
         <AIMessageComposer.TextInput />
@@ -18,7 +18,7 @@ it('server-renders without touching browser globals', () => {
     </>,
   );
   expect(html).toContain('<strong>bold</strong>');
-  expect(html).toContain('hi');
+  expect(html).toContain('streamed-ssr-marker');
   expect(html).toContain('Thinking');
   expect(html).toContain('<input');
 });
