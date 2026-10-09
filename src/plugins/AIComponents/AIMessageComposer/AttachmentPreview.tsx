@@ -34,16 +34,16 @@ export const Item = ({
 
   return (
     <div
-      className={clsx('aicr__attachment-preview__item', {
-        'aicr__attachment-preview__item--failed': state === 'failed',
-        'aicr__attachment-preview__item--pending': state === 'pending',
-        'aicr__attachment-preview__item--uploaded': state === 'uploaded',
-        'aicr__attachment-preview__item--uploading': state === 'uploading',
+      className={clsx('str-chat__ai-attachment-preview__item', {
+        'str-chat__ai-attachment-preview__item--failed': state === 'failed',
+        'str-chat__ai-attachment-preview__item--pending': state === 'pending',
+        'str-chat__ai-attachment-preview__item--uploaded': state === 'uploaded',
+        'str-chat__ai-attachment-preview__item--uploading': state === 'uploading',
       })}
     >
       <button
         aria-label={t('Delete attachment')}
-        className='aicr__attachment-preview__delete-button'
+        className='str-chat__ai-attachment-preview__delete-button'
         onClick={onDelete}
         type='button'
       >
@@ -51,10 +51,10 @@ export const Item = ({
       </button>
 
       {state === 'failed' && (
-        <div className='aicr__attachment-preview__failed-state-overlay'>
+        <div className='str-chat__ai-attachment-preview__failed-state-overlay'>
           <button
             aria-label={t('Upload failed')}
-            className='aicr__attachment-preview__retry-button'
+            className='str-chat__ai-attachment-preview__retry-button'
             onClick={onRetry}
             type='button'
           >
@@ -64,20 +64,22 @@ export const Item = ({
       )}
 
       {!isImage && (
-        <div className='aicr__attachment-preview__item-content'>
+        <div className='str-chat__ai-attachment-preview__item-content'>
           <IconFile />
-          <div className='aicr__attachment-preview__file-metadata'>
-            <div className='aicr__attachment-preview__file-name' title={fileName}>
+          <div className='str-chat__ai-attachment-preview__file-metadata'>
+            <div className='str-chat__ai-attachment-preview__file-name' title={fileName}>
               {fileName}
             </div>
-            <div className='aicr__attachment-preview__file-size'>{readableFileSize}</div>
+            <div className='str-chat__ai-attachment-preview__file-size'>
+              {readableFileSize}
+            </div>
           </div>
         </div>
       )}
       {isImage && (
         <img
           alt={fileName}
-          className='aicr__attachment-preview__image'
+          className='str-chat__ai-attachment-preview__image'
           src={imagePreviewSource}
         />
       )}
@@ -100,7 +102,7 @@ export const AttachmentPreview = ({
   }
 
   return (
-    <div className='aicr__attachment-preview' {...restProps}>
+    <div className='str-chat__ai-attachment-preview' {...restProps}>
       {typeof children === 'function' ? children(_) : children}
     </div>
   );

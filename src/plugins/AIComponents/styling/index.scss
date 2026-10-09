@@ -4,9 +4,17 @@
 @use './ai-state-indicator.scss';
 
 :root {
-  --aicr__bg-primary: #ffffff;
-  --aicr__bg-secondary: #f7f7f8;
-  --aicr__bg-tertiary: #ececf1;
-  --aicr__text-primary: #353740;
-  --aicr__text-secondary: #565869;
+  --str-chat__ai-bg-primary: #ffffff;
+  --str-chat__ai-bg-secondary: #f7f7f8;
+  --str-chat__ai-bg-tertiary: #ececf1;
+  --str-chat__ai-text-primary: #353740;
+  --str-chat__ai-text-secondary: #565869;
+}
+
+.str-chat {
+  --str-chat__ai-bg-primary: var(--str-chat__background-core-elevation-0);
+  --str-chat__ai-bg-secondary: var(--str-chat__background-core-surface-default);
+  --str-chat__ai-bg-tertiary: var(--str-chat__background-core-surface-strong);
+  --str-chat__ai-text-primary: var(--str-chat__text-primary);
+  --str-chat__ai-text-secondary: var(--str-chat__text-secondary);
 }

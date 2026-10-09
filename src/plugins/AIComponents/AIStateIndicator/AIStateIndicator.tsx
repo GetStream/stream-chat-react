@@ -26,14 +26,14 @@ export const AIStateIndicator = ({ text }: { text?: string }) => {
   );
 
   return (
-    <div className='aicr__state-indicator'>
-      <div className='aicr__state-indicator__content'>
-        <div className='aicr__state-indicator__dots'>
-          <span className='aicr__state-indicator__dot' />
-          <span className='aicr__state-indicator__dot' />
-          <span className='aicr__state-indicator__dot' />
+    <div className='str-chat__ai-state-indicator'>
+      <div className='str-chat__ai-state-indicator__content'>
+        <div className='str-chat__ai-state-indicator__dots'>
+          <span className='str-chat__ai-state-indicator__dot' />
+          <span className='str-chat__ai-state-indicator__dot' />
+          <span className='str-chat__ai-state-indicator__dot' />
         </div>
-        <span className='aicr__state-indicator__text'>
+        <span className='str-chat__ai-state-indicator__text'>
           {typeof text === 'string' ? text : messages[messageIndex]}
         </span>
       </div>

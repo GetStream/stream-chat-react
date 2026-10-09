@@ -75,7 +75,7 @@ const Chart = ({ data, fallback }: ToolComponentProps) => {
     components[parsedDataOrError.type as keyof typeof components] ?? components.unknown;
 
   return (
-    <div className='aicr__chart'>
+    <div className='str-chat__ai-chart'>
       <Component data={parsedDataOrError.data} options={{ responsive: true }} />
     </div>
   );

@@ -43,7 +43,7 @@ const FileInput = ({
             disabled={disabled}
           />
           <label
-            className='aicr__ai-message-composer__round-button'
+            className='str-chat__ai-message-composer__round-button'
             htmlFor={id}
             tabIndex={0}
             {...labelProps}
@@ -317,7 +317,7 @@ export const AIMessageComposer: AIMessageComposer = ({
   return (
     <AIMessageComposerContext.Provider value={stateStore}>
       <form
-        className='aicr__ai-message-composer__form'
+        className='str-chat__ai-message-composer__form'
         onChange={handleChange}
         onReset={(e) => {
           onReset?.(e);
@@ -341,7 +341,7 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   return (
     <input
       autoComplete='off'
-      className='aicr__ai-message-composer__text-input'
+      className='str-chat__ai-message-composer__text-input'
       name='message'
       // React requires onChange when value is set, defaultValue stops working
       // when input gets "dirty"
@@ -375,7 +375,7 @@ const SpeechToTextButton = (
     <button
       aria-label={t('aria/Start voice input')}
       aria-pressed={isListening}
-      className='aicr__ai-message-composer__round-button'
+      className='str-chat__ai-message-composer__round-button'
       onClick={() => {
         if (isListening) {
           stopListening();
@@ -401,8 +401,8 @@ const SubmitButton = ({
   return (
     <button
       className={clsx(
-        'aicr__ai-message-composer__round-button',
-        active && 'aicr__ai-message-composer__round-button--active',
+        'str-chat__ai-message-composer__round-button',
+        active && 'str-chat__ai-message-composer__round-button--active',
       )}
       type='submit'
       {...restProps}
@@ -441,7 +441,7 @@ const ModelSelect = (
   const { disabled } = useIsDisabled();
   return (
     <select
-      className='aicr__ai-message-composer__select'
+      className='str-chat__ai-message-composer__select'
       defaultValue={defaultPlatformModel}
       {...restProps}
       disabled={disabled}

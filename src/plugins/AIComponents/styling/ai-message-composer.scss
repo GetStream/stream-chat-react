@@ -1,4 +1,4 @@
-.aicr__ai-message-composer__form {
+.str-chat__ai-message-composer__form {
   display: flex;
   padding: 0.75rem;
   flex-direction: column;
@@ -7,7 +7,7 @@
   border-radius: 1.5rem;
   flex-grow: 1;
 
-  .aicr__ai-message-composer__round-button {
+  .str-chat__ai-message-composer__round-button {
     all: unset;
     display: flex;
     align-items: center;
@@ -36,14 +36,14 @@
     }
   }
 
-  .aicr__ai-message-composer__text-input {
+  .str-chat__ai-message-composer__text-input {
     all: unset;
     flex-grow: 1;
     font-size: 16px;
     padding-inline: 0.25rem;
   }
 
-  .aicr__ai-message-composer__select {
+  .str-chat__ai-message-composer__select {
     all: unset;
     display: flex;
     font-size: 14px;

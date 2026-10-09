@@ -9,7 +9,9 @@ export const SuspendedChart = (props: ToolComponentProps) => {
 
   return (
     <Suspense
-      fallback={<div className='aicr__chart--loading'>{t('Loading chart...')}</div>}
+      fallback={
+        <div className='str-chat__ai-chart--loading'>{t('Loading chart...')}</div>
+      }
     >
       <Chart {...props} />
     </Suspense>

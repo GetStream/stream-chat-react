@@ -1,19 +1,19 @@
 :root {
-  --aicr__syntax-text: #2e3440;
-  --aicr__syntax-selection-bg: #d8dee9;
-  --aicr__syntax-comment: #6b7280;
-  --aicr__syntax-punctuation: #4b5563;
-  --aicr__syntax-number: #d97706;
-  --aicr__syntax-keyword: #8b5cf6;
-  --aicr__syntax-tag: #dc2626;
-  --aicr__syntax-string: #059669;
-  --aicr__syntax-function: #2563eb;
-  --aicr__syntax-cyan: #0891b2;
-  --aicr__syntax-error: #ef4444;
-  --aicr__syntax-whitespace: hsla(220, 14%, 30%, 0.15);
+  --str-chat__ai-syntax-text: #2e3440;
+  --str-chat__ai-syntax-selection-bg: #d8dee9;
+  --str-chat__ai-syntax-comment: #6b7280;
+  --str-chat__ai-syntax-punctuation: #4b5563;
+  --str-chat__ai-syntax-number: #d97706;
+  --str-chat__ai-syntax-keyword: #8b5cf6;
+  --str-chat__ai-syntax-tag: #dc2626;
+  --str-chat__ai-syntax-string: #059669;
+  --str-chat__ai-syntax-function: #2563eb;
+  --str-chat__ai-syntax-cyan: #0891b2;
+  --str-chat__ai-syntax-error: #ef4444;
+  --str-chat__ai-syntax-whitespace: hsla(220, 14%, 30%, 0.15);
 }
 
-.aicr__streaming-message {
+.str-chat__ai-streaming-message {
   padding: 0.5rem 0.75rem;
   display: flex;
   flex-direction: column;
@@ -59,23 +59,23 @@
     }
   }
 
-  .aicr__syntax-highlighter-code {
+  .str-chat__ai-syntax-highlighter-code {
     // hide last line number if it's not followed by any other elements
     .linenumber:last-child {
       display: none !important;
     }
   }
 
-  .aicr__syntax-highlighter-pre {
+  .str-chat__ai-syntax-highlighter-pre {
     overflow-x: auto;
-    background-color: var(--aicr__bg-primary);
+    background-color: var(--str-chat__ai-bg-primary);
     border-radius: 0.5rem;
     padding: 0.5rem;
     margin: 0;
 
     code[class*='language-'] {
       // background: #272b33;
-      color: var(--aicr__syntax-text);
+      color: var(--str-chat__ai-syntax-text);
       // text-shadow: 0 1px rgba(0, 0, 0, 0.3);
       font-family:
         'Fira Code', 'Fira Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
@@ -97,7 +97,7 @@
     code[class*='language-'] {
       &::selection,
       &::-moz-selection {
-        background: var(--aicr__syntax-selection-bg);
+        background: var(--str-chat__ai-syntax-selection-bg);
         color: inherit;
         text-shadow: none;
       }
@@ -106,7 +106,7 @@
     .token {
       &.cdata,
       &.comment {
-        color: var(--aicr__syntax-comment);
+        color: var(--str-chat__ai-syntax-comment);
       }
 
       &.comment {
@@ -114,13 +114,13 @@
       }
 
       &.prolog {
-        color: var(--aicr__syntax-comment);
+        color: var(--str-chat__ai-syntax-comment);
       }
 
       &.doctype,
       &.entity,
       &.punctuation {
-        color: var(--aicr__syntax-punctuation);
+        color: var(--str-chat__ai-syntax-punctuation);
       }
 
       &.entity {
@@ -133,11 +133,11 @@
       &.class-name,
       &.constant,
       &.number {
-        color: var(--aicr__syntax-number);
+        color: var(--str-chat__ai-syntax-number);
       }
 
       &.keyword {
-        color: var(--aicr__syntax-keyword);
+        color: var(--str-chat__ai-syntax-keyword);
       }
 
       &.deleted,
@@ -145,7 +145,7 @@
       &.property,
       &.symbol,
       &.tag {
-        color: var(--aicr__syntax-tag);
+        color: var(--str-chat__ai-syntax-tag);
       }
 
       &.attr-value,
@@ -155,29 +155,29 @@
       &.regex,
       &.selector,
       &.string {
-        color: var(--aicr__syntax-string);
+        color: var(--str-chat__ai-syntax-string);
       }
 
       &.attr-value > .token.punctuation {
-        color: var(--aicr__syntax-string);
+        color: var(--str-chat__ai-syntax-string);
       }
 
       &.function,
       &.operator,
       &.variable {
-        color: var(--aicr__syntax-function);
+        color: var(--str-chat__ai-syntax-function);
       }
 
       &.url {
-        color: var(--aicr__syntax-cyan);
+        color: var(--str-chat__ai-syntax-cyan);
       }
 
       &.attr-value > .token.punctuation.attr-equals {
-        color: var(--aicr__syntax-punctuation);
+        color: var(--str-chat__ai-syntax-punctuation);
       }
 
       &.special-attr > .token.attr-value > .token.value.css {
-        color: var(--aicr__syntax-punctuation);
+        color: var(--str-chat__ai-syntax-punctuation);
       }
 
       &.bold {
@@ -196,7 +196,7 @@
       &.lf:before,
       &.space:before,
       &.tab:not(:empty):before {
-        color: var(--aicr__syntax-whitespace);
+        color: var(--str-chat__ai-syntax-whitespace);
         text-shadow: none;
       }
     }
@@ -205,31 +205,31 @@
     .language-css {
       .token {
         &.selector {
-          color: var(--aicr__syntax-tag);
+          color: var(--str-chat__ai-syntax-tag);
         }
 
         &.property {
-          color: var(--aicr__syntax-punctuation);
+          color: var(--str-chat__ai-syntax-punctuation);
         }
 
         &.function {
-          color: var(--aicr__syntax-cyan);
+          color: var(--str-chat__ai-syntax-cyan);
         }
 
         &.url > .token.function {
-          color: var(--aicr__syntax-cyan);
+          color: var(--str-chat__ai-syntax-cyan);
         }
 
         &.url > .token.string.url {
-          color: var(--aicr__syntax-string);
+          color: var(--str-chat__ai-syntax-string);
         }
 
         &.atrule .token.rule {
-          color: var(--aicr__syntax-keyword);
+          color: var(--str-chat__ai-syntax-keyword);
         }
 
         &.important {
-          color: var(--aicr__syntax-keyword);
+          color: var(--str-chat__ai-syntax-keyword);
         }
       }
     }
@@ -238,13 +238,13 @@
     .language-javascript {
       .token {
         &.operator {
-          color: var(--aicr__syntax-keyword);
+          color: var(--str-chat__ai-syntax-keyword);
         }
 
         &.template-string
           > .token.interpolation
           > .token.interpolation-punctuation.punctuation {
-          color: var(--aicr__syntax-error);
+          color: var(--str-chat__ai-syntax-error);
         }
       }
     }
@@ -253,11 +253,11 @@
     .language-json {
       .token {
         &.operator {
-          color: var(--aicr__syntax-punctuation);
+          color: var(--str-chat__ai-syntax-punctuation);
         }
 
         &.null.keyword {
-          color: var(--aicr__syntax-number);
+          color: var(--str-chat__ai-syntax-number);
         }
       }
     }
@@ -266,71 +266,71 @@
     .language-markdown {
       .token {
         &.url {
-          color: var(--aicr__syntax-punctuation);
+          color: var(--str-chat__ai-syntax-punctuation);
         }
 
         &.url-reference.url > .token.string {
-          color: var(--aicr__syntax-punctuation);
+          color: var(--str-chat__ai-syntax-punctuation);
         }
 
         &.url > .token.operator {
-          color: var(--aicr__syntax-punctuation);
+          color: var(--str-chat__ai-syntax-punctuation);
         }
 
         &.url > .token.content {
-          color: var(--aicr__syntax-function);
+          color: var(--str-chat__ai-syntax-function);
         }
 
         &.url-reference.url {
-          color: var(--aicr__syntax-cyan);
+          color: var(--str-chat__ai-syntax-cyan);
         }
 
         &.url > .token.url {
-          color: var(--aicr__syntax-cyan);
+          color: var(--str-chat__ai-syntax-cyan);
         }
 
         &.blockquote.punctuation,
         &.hr.punctuation {
-          color: var(--aicr__syntax-comment);
+          color: var(--str-chat__ai-syntax-comment);
           font-style: italic;
         }
 
         &.code-snippet {
-          color: var(--aicr__syntax-string);
+          color: var(--str-chat__ai-syntax-string);
         }
 
         &.bold .token.content {
-          color: var(--aicr__syntax-number);
+          color: var(--str-chat__ai-syntax-number);
         }
 
         &.italic .token.content {
-          color: var(--aicr__syntax-keyword);
+          color: var(--str-chat__ai-syntax-keyword);
         }
 
         &.list.punctuation {
-          color: var(--aicr__syntax-tag);
+          color: var(--str-chat__ai-syntax-tag);
         }
 
         &.strike .token.content,
         &.strike .token.punctuation {
-          color: var(--aicr__syntax-tag);
+          color: var(--str-chat__ai-syntax-tag);
         }
 
         &.title.important > .token.punctuation {
-          color: var(--aicr__syntax-tag);
+          color: var(--str-chat__ai-syntax-tag);
         }
       }
     }
   }
 
-  .aicr__chart {
+  .str-chat__ai-chart {
     max-height: 20rem;
   }
 
   > p {
     margin: 0;
 
-    .aicr__code {
+    .str-chat__ai-code {
       font-size: 0.85rem;
       background-color: #f5f5f5;
       padding: 0.1rem 0.25rem;

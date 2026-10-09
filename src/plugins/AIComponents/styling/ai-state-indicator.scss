@@ -1,4 +1,4 @@
-.aicr__state-indicator {
+.str-chat__ai-state-indicator {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,9 +22,9 @@
   &__dot {
     width: 6px;
     height: 6px;
-    background-color: var(--aicr__text-secondary);
+    background-color: var(--str-chat__ai-text-secondary);
     border-radius: 50%;
-    animation: aicr__thinking 1.4s ease-in-out infinite;
+    animation: str-chat__ai-thinking 1.4s ease-in-out infinite;
 
     &:nth-child(1) {
       animation-delay: 0s;
@@ -40,14 +40,14 @@
   }
 
   &__text {
-    color: var(--aicr__text-secondary);
+    color: var(--str-chat__ai-text-secondary);
     font-size: 0.875rem;
     font-weight: 500;
-    animation: aicr__text-fade 2s ease-in-out infinite;
+    animation: str-chat__ai-text-fade 2s ease-in-out infinite;
   }
 }
 
-@keyframes aicr__thinking {
+@keyframes str-chat__ai-thinking {
   0%,
   60%,
   100% {
@@ -60,7 +60,7 @@
   }
 }
 
-@keyframes aicr__text-fade {
+@keyframes str-chat__ai-text-fade {
   0%,
   100% {
     opacity: 1;
@@ -73,7 +73,7 @@
 
 /* Mobile responsiveness */
 @media (max-width: 768px) {
-  .aicr__state-indicator {
+  .str-chat__ai-state-indicator {
     padding: 0.75rem 0;
 
     &__content {

@@ -1,4 +1,4 @@
-.aicr__attachment-preview {
+.str-chat__ai-attachment-preview {
   &:empty {
     display: none;
   }
@@ -28,7 +28,7 @@
   }
 }
 
-.aicr__attachment-preview__item {
+.str-chat__ai-attachment-preview__item {
   display: flex;
   height: 4rem;
   border: 1px solid #ccc;
@@ -43,18 +43,18 @@
   &--uploading {
   }
 
-  &:has(> .aicr__attachment-preview__image) {
+  &:has(> .str-chat__ai-attachment-preview__image) {
     flex-basis: 4rem;
     padding: 0;
   }
-  .aicr__attachment-preview__image {
+  .str-chat__ai-attachment-preview__image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: inherit;
   }
 
-  .aicr__attachment-preview__failed-state-overlay {
+  .str-chat__ai-attachment-preview__failed-state-overlay {
     position: absolute;
     display: flex;
     width: calc(100% - 2rem);
@@ -66,7 +66,7 @@
     left: 0;
     margin-inline: 1rem;
 
-    .aicr__attachment-preview__retry-button {
+    .str-chat__ai-attachment-preview__retry-button {
       all: unset;
       background-color: #e8e8e8;
       border-radius: 9999px;
@@ -82,7 +82,7 @@
     }
   }
 
-  .aicr__attachment-preview__delete-button {
+  .str-chat__ai-attachment-preview__delete-button {
     all: unset;
     position: absolute;
     top: -0.25rem;
@@ -102,26 +102,32 @@
       cursor: pointer;
     }
 
-    .material-symbols-rounded {
-      font-size: 1rem;
-      font-weight: bold;
+    svg {
+      width: 1rem;
+      height: 1rem;
     }
   }
 
-  .aicr__attachment-preview__item-content {
+  .str-chat__ai-attachment-preview__item-content {
     display: flex;
     gap: 0.25rem;
     justify-content: flex-start;
     align-items: center;
     width: 100%;
 
-    .aicr__attachment-preview__file-metadata {
+    > svg {
+      flex-shrink: 0;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .str-chat__ai-attachment-preview__file-metadata {
       display: flex;
       flex-direction: column;
       flex-grow: 1;
       width: 0;
 
-      .aicr__attachment-preview__file-name {
+      .str-chat__ai-attachment-preview__file-name {
         font-size: 0.75rem;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -129,7 +135,7 @@
         width: 100%;
       }
 
-      .aicr__attachment-preview__file-size {
+      .str-chat__ai-attachment-preview__file-size {
         font-size: 0.5rem;
       }
     }

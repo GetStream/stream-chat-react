@@ -84,7 +84,7 @@ const DefaultPre = (props: DefaultPreProps) => {
 
   // treat as regular pre/code block if there's no tool/language
   return (
-    <Pre className={clsx(className, 'aicr__pre')} {...restProps}>
+    <Pre className={clsx(className, 'str-chat__ai-pre')} {...restProps}>
       {children}
     </Pre>
   );
@@ -97,13 +97,16 @@ const Code = ({
   style: _style,
   ...restProps
 }: ComponentProps<'code'>) => (
-  <code className={clsx('aicr__syntax-highlighter-code', className)} {...restProps}>
+  <code
+    className={clsx('str-chat__ai-syntax-highlighter-code', className)}
+    {...restProps}
+  >
     {children}
   </code>
 );
 
 const Pre = ({ children, className, ...restProps }: ComponentProps<'pre'>) => (
-  <pre className={clsx('aicr__syntax-highlighter-pre', className)} {...restProps}>
+  <pre className={clsx('str-chat__ai-syntax-highlighter-pre', className)} {...restProps}>
     {children}
   </pre>
 );
@@ -145,7 +148,7 @@ const DefaultCode = (props: DefaultCodeProps) => {
 
   return (
     <Component
-      className={clsx(className, 'aicr__code')}
+      className={clsx(className, 'str-chat__ai-code')}
       node={node}
       {...(typeof Component === 'string'
         ? {
