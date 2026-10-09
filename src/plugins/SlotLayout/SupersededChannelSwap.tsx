@@ -6,7 +6,7 @@ import type {
 } from 'stream-chat';
 
 import { useStateStore } from '../../store';
-import { createChatViewSlotBinding } from './slotBinding';
+import { createChatViewSlotBinding, getChatViewEntityBinding } from './slotBinding';
 import type {
   LayoutController,
   SlotName,
@@ -17,6 +17,18 @@ const supersededBySelector = ({ supersededBy }: ChannelStateData) => ({ supersed
 const initializedSelector = ({ initialized }: ChannelStateData) => ({ initialized });
 const activeSelector = ({ active }: ChannelStateData) => ({ active });
 const editingAuditStateSelector = (state: EditingAuditState) => state;
+
+// Whether the slot still shows this channel. Read when an effect runs, not at render: the slot may
+// have been bound to something else in between, and that newer binding must not be replaced.
+const slotShowsChannel = (
+  layoutController: LayoutController,
+  slot: SlotName,
+  channel: StreamChannel,
+) => {
+  const { activeView, layouts } = layoutController.state.getLatestValue();
+  const bound = getChatViewEntityBinding(layouts?.[activeView]?.slotBindings[slot]);
+  return bound?.kind === 'channel' && bound.source === channel;
+};
 
 /**
  * Keeps a slot's binding on its channel's current instance and cid.
@@ -58,6 +70,7 @@ export const SupersededChannelSwap = ({
 
   useEffect(() => {
     if (supersededBy || !cid || bindingKey === undefined || bindingKey === cid) return;
+    if (!slotShowsChannel(layoutController, slot, channel)) return;
     layoutController.bind(
       slot,
       createChatViewSlotBinding({ key: cid, kind: 'channel', source: channel }),
@@ -67,6 +80,7 @@ export const SupersededChannelSwap = ({
   useEffect(() => {
     if (!supersededBy) return;
     if (successorActive && !composerIsEmpty) return;
+    if (!slotShowsChannel(layoutController, slot, channel)) return;
     layoutController.bind(
       slot,
       createChatViewSlotBinding({
@@ -75,7 +89,7 @@ export const SupersededChannelSwap = ({
         source: supersededBy,
       }),
     );
-  }, [composerIsEmpty, layoutController, slot, successorActive, supersededBy]);
+  }, [channel, composerIsEmpty, layoutController, slot, successorActive, supersededBy]);
 
   return null;
 };

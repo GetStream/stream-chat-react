@@ -108,6 +108,54 @@ describe('SupersededChannelSwap', () => {
     expect(boundChannel()).toBe(successor);
   });
 
+  it('keeps a binding the slot got after its channel was superseded', () => {
+    const other = client.channelManager.ensure({ id: 'other', type: 'messaging' });
+    renderSwap();
+
+    // the slot is bound to another channel before the swap's effect runs
+    act(() => {
+      previous.state.partialNext({ supersededBy: successor });
+      layoutController.bind(
+        'slot1',
+        createChatViewSlotBinding({ key: other.cid, kind: 'channel', source: other }),
+      );
+    });
+
+    expect(boundChannel()).toBe(other);
+  });
+
+  it('keeps a binding the slot got before its channel took its real cid', () => {
+    const created = client.channelManager.ensure({
+      data: { members: [{ user_id: 'ann' }, { user_id: 'bob' }] },
+      type: 'messaging',
+    });
+    const other = client.channelManager.ensure({ id: 'other', type: 'messaging' });
+    layoutController.bind(
+      'slot1',
+      createChatViewSlotBinding({ key: created.cid, kind: 'channel', source: created }),
+    );
+    render(
+      <SupersededChannelSwap
+        bindingKey={created.cid}
+        channel={created}
+        layoutController={layoutController}
+        slot='slot1'
+      />,
+    );
+
+    act(() => {
+      created.id = '!members-real';
+      created.cid = 'messaging:!members-real';
+      created.state.partialNext({ initialized: true });
+      layoutController.bind(
+        'slot1',
+        createChatViewSlotBinding({ key: other.cid, kind: 'channel', source: other }),
+      );
+    });
+
+    expect(boundChannel()).toBe(other);
+  });
+
   it('waits while the successor is open elsewhere and this composer still holds something', () => {
     successor.activate();
     previous.messageComposer.textComposer.setText('unsent');
