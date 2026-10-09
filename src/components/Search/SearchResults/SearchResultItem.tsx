@@ -212,9 +212,9 @@ export const UserSearchResultItem = ({ item, onSelect }: UserSearchResultItemPro
       // `openChannel` can honor ⌘/ctrl-click.
       openChannel(newChannel, { event });
       newChannel.ensureWatched().then(
-        // Listed only once the watch gives a new DM its id (lists refuse a channel without one), and
-        // as the stored instance if another one was stored under that id meanwhile.
-        (channel) => channelManager.ingestChannel(channel.supersededBy ?? channel),
+        // Listed only once the watch gives a new DM its id (lists refuse a channel without one).
+        // `ensureWatched()` resolves with the stored instance if another one took that id meanwhile.
+        (channel) => channelManager.ingestChannel(channel),
         (error) =>
           reportLoadFailed({
             channel: newChannel,

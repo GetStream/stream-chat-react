@@ -238,15 +238,16 @@ const SendDirectMessageAction = () => {
         },
         type: channel.type,
       });
-      await directMessageChannel.watch();
+      // the stored instance, if another one took the DM's cid while the watch was in flight
+      const dm = await directMessageChannel.ensureWatched();
       // Selection is one navigation model: open the DM into a layout slot, then route it into
       // the channel list(s) that should own it so it appears without a full re-query.
       open({
-        key: directMessageChannel.cid ?? undefined,
+        key: dm.cid ?? undefined,
         kind: 'channel',
-        source: directMessageChannel,
+        source: dm,
       });
-      channelManager.ingestChannel(directMessageChannel);
+      channelManager.ingestChannel(dm);
       close();
     } catch (error) {
       addNotification({

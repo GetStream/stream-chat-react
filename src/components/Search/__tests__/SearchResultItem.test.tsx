@@ -433,10 +433,7 @@ describe('SearchResultItem Components', () => {
       const stored = client.channelManager.ensure({ id: 'stored-dm', type: 'messaging' });
       const ensureWatched = vi
         .spyOn(Channel.prototype, 'ensureWatched')
-        .mockImplementation(function (this: Channel) {
-          this.state.partialNext({ supersededBy: stored });
-          return Promise.resolve(this);
-        });
+        .mockResolvedValue(stored);
 
       await act(() => {
         fireEvent.click(screen.getByRole('option'));
