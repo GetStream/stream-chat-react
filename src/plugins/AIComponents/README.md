@@ -134,7 +134,7 @@ The hook is no longer exported from the AI package. Import it from `stream-chat-
  });
 ```
 
-The `StreamingMessage` component props are unchanged (`text`, `letterIntervalMs`, `renderingLetterCount`, and a ref exposing `skipAnimation`).
+`UseMessageTextStreamingProps` is the `StreamingMessage` props type (the name is kept for compatibility). The component props are unchanged (`text`, `letterIntervalMs`, `renderingLetterCount`, and a ref exposing `skipAnimation`).
 
 ### 5. Two `AIStateIndicator` components
 
@@ -167,7 +167,7 @@ The library never declares the `--str-chat__ai-*` custom properties. Each rule r
 var(--str-chat__ai-bg-primary, var(--str-chat__background-core-elevation-0, #ffffff))
 ```
 
-Precedence is therefore: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). Because nothing is declared by the library, overrides work at any scope, including `:root`.
+Precedence for the five `bg-*` / `text-*` tokens is: your `--str-chat__ai-*` override, then the `stream-chat-react` theme token (inside `.str-chat`, so the SDK light/dark themes apply automatically), then a built-in light literal (outside `.str-chat`). The `--str-chat__ai-syntax-*` palette has no SDK theme token: it falls back directly from your override to a built-in literal. Because nothing is declared by the library, overrides work at any scope, including `:root`.
 
 Themable properties: `--str-chat__ai-bg-primary`, `--str-chat__ai-bg-secondary`, `--str-chat__ai-bg-tertiary`, `--str-chat__ai-text-primary`, `--str-chat__ai-text-secondary`, plus the code palette `--str-chat__ai-syntax-*` (`text`, `selection-bg`, `comment`, `punctuation`, `number`, `keyword`, `tag`, `string`, `function`, `cyan`, `error`, `whitespace`).
 
@@ -216,7 +216,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
       <AIMessageComposer.SubmitButton />
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
-          <AIMessageComposer.AttachmentPreview.Item {...attachment} />
+          <AIMessageComposer.AttachmentPreview.Item key={attachment.id} {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
     </AIMessageComposer>
@@ -297,43 +297,37 @@ function AIResponse({ text }) {
 }
 ```
 
-### `SpeechToTextButton`
+### `AIMessageComposer.SpeechToTextButton`
 
-The `SpeechToTextButton` is a button component for voice input using the Web Speech API. It provides a simple interface for converting speech to text with built-in microphone icon and listening state visualization.
+A button for voice input using the Web Speech API, with a built-in microphone icon. It is a static sub-component of `AIMessageComposer` (not a named export) and must be rendered inside an `AIMessageComposer`: it writes the recognized transcript to the composer's text input through the composer context (the `onTranscript` callback is already wired to `setText`).
 
 #### Props
 
-| Name      | Type                         | Required | Description                                                                                                                      |
-| --------- | ---------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `options` | `UseSpeechToTextOptions`     | no       | Options for speech recognition (see `useSpeechToText` hook documentation for available options like `lang`, `continuous`, etc.). |
-|           | `...HTMLButtonElement props` | no       | Supports all standard HTML button element props.                                                                                 |
+| Name      | Type                         | Required | Description                                                                                                                                                       |
+| --------- | ---------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `options` | `UseSpeechToTextOptions`     | no       | Typed for speech recognition options, but the current implementation does not forward it to `useSpeechToText`. Use the `useSpeechToText` hook for custom options. |
+|           | `...HTMLButtonElement props` | no       | Supports all standard HTML button element props.                                                                                                                  |
 
 #### Example
 
 ```tsx
-import { SpeechToTextButton } from 'stream-chat-react/ai-components';
+import { AIMessageComposer } from 'stream-chat-react/ai-components';
 
 function VoiceInputButton() {
   return (
-    <SpeechToTextButton
-      options={{
-        lang: 'en-US',
-        continuous: false,
-        interimResults: true,
-      }}
-    />
+    <AIMessageComposer>
+      <AIMessageComposer.TextInput />
+      <AIMessageComposer.SpeechToTextButton />
+    </AIMessageComposer>
   );
 }
 ```
 
-> [!NOTE]
-> When used within an `AIMessageComposer`, the button automatically updates the composer's text input. When used standalone, you can control the behavior through the `speechToTextOptions.onTranscript` callback.
+### `AIMessageComposer.AttachmentPreview`
 
-### `AttachmentPreview`
+A static sub-component of `AIMessageComposer` (not a named export) for displaying file attachment previews with support for images and documents.
 
-A container component for displaying file attachment previews with support for images and documents.
-
-#### AttachmentPreview.Item Props
+#### `AIMessageComposer.AttachmentPreview.Item` props
 
 | Name                 | Type                                                 | Required | Description                                   |
 | -------------------- | ---------------------------------------------------- | -------- | --------------------------------------------- |
@@ -533,7 +527,7 @@ function ChatInterface() {
     <AIMessageComposer onChange={handleChange} onSubmit={handleSubmit}>
       <AIMessageComposer.AttachmentPreview>
         {attachments.map((attachment) => (
-          <AIMessageComposer.AttachmentPreview.Item {...attachment} />
+          <AIMessageComposer.AttachmentPreview.Item key={attachment.id} {...attachment} />
         ))}
       </AIMessageComposer.AttachmentPreview>
       <AIMessageComposer.FileInput name='attachments' />
