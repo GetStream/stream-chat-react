@@ -6,7 +6,7 @@ These components used to ship as the separate package `@stream-io/chat-react-ai`
 
 ## Installation
 
-Requires the first `stream-chat-react` release that includes `ai-components` (expected 14.13.0; the exact number is set by semantic-release).
+Requires the first `stream-chat-react` **v15** release that includes `ai-components` (expected `15.0.0-rc.N`; the exact number is set by semantic-release). On v14 the entry ships from 14.13.0.
 
 ```bash
 yarn add stream-chat-react stream-chat
@@ -157,9 +157,41 @@ import { WithComponents } from 'stream-chat-react';
 
 ### 7. Internationalization
 
-All strings are translated through `t()` and `Streami18n` (12 locales shipped). Inside `<Chat>` the active language is used; override or add translations through your `Streami18n` instance.
+All strings go through `t()` with namespaced keys and inline English defaults, like the rest of `stream-chat-react` v15. English is the only bundled language. To translate the components, register a dictionary on your `Streami18n` instance (`i18n.registerTranslation(lang, dict)`), exactly as for the core SDK keys (see `ai-docs/i18n-v15-migration.md`). Inside `<Chat>` the active language is used.
 
-Outside `<Chat>` (or a `TranslationProvider`), as everywhere in `stream-chat-react`, `t()` is the default translator, which returns the key unchanged. Keys that are English sentences, such as `Ask a question...`, still read correctly, but accessible names use `aria/`-prefixed keys and are then exposed raw: the submit button is announced as `aria/Send` instead of `Send`. Render the components inside `<Chat>`, or wrap them in a `TranslationProvider` (both exported from `stream-chat-react`) whose value holds `userLanguage` plus the `t` and `tDateTimeParser` returned by `await new Streami18n({ language: 'en' }).getTranslators()`, to get real labels.
+Outside `<Chat>` (or a `TranslationProvider`), `t()` is the default translator, which renders each call site's inline English copy. There are no raw keys and nothing to wrap: the labels read `Send`, `File upload` and so on.
+
+Every key the components use:
+
+| Key                                                           | English                        | v14 key                          |
+| ------------------------------------------------------------- | ------------------------------ | -------------------------------- |
+| `aiComponents.attachmentPreview.deleteAttachment.ariaLabel`   | Delete attachment              | `Delete attachment`              |
+| `aiComponents.attachmentPreview.unknownFileName.text`         | Unknown file name              | `Unknown file name`              |
+| `aiComponents.chart.loading.text`                             | Loading chart...               | `Loading chart...`               |
+| `aiComponents.chart.unknownType.text`                         | Unknown chart type             | `Unknown chart type`             |
+| `aiComponents.messageComposer.speechToText.ariaLabel`         | Start voice input              | `aria/Start voice input`         |
+| `aiComponents.messageComposer.textInput.placeholder`          | Ask a question...              | `Ask a question...`              |
+| `aiComponents.stateIndicator.brewingUpAnAnswer.text`          | Brewing up an answer           | `Brewing up an answer`           |
+| `aiComponents.stateIndicator.channelingMyInnerEinstein.text`  | Channeling my inner Einstein   | `Channeling my inner Einstein`   |
+| `aiComponents.stateIndicator.connectingTheDots.text`          | Connecting the dots            | `Connecting the dots`            |
+| `aiComponents.stateIndicator.consultingTheAiGods.text`        | Consulting the AI gods         | `Consulting the AI gods`         |
+| `aiComponents.stateIndicator.cookingUpSomethingGood.text`     | Cooking up something good      | `Cooking up something good`      |
+| `aiComponents.stateIndicator.crunchingTheNumbers.text`        | Crunching the numbers          | `Crunching the numbers`          |
+| `aiComponents.stateIndicator.firingUpTheNeurons.text`         | Firing up the neurons          | `Firing up the neurons`          |
+| `aiComponents.stateIndicator.puttingOnMyThinkingCap.text`     | Putting on my thinking cap     | `Putting on my thinking cap`     |
+| `aiComponents.stateIndicator.readingTheDigitalTeaLeaves.text` | Reading the digital tea leaves | `Reading the digital tea leaves` |
+| `aiComponents.stateIndicator.summoningMyInnerGenius.text`     | Summoning my inner genius      | `Summoning my inner genius`      |
+| `aiComponents.stateIndicator.thinkingReallyHard.text`         | Thinking really hard           | `Thinking really hard`           |
+| `aiComponents.stateIndicator.workingMyMagic.text`             | Working my magic               | `Working my magic`               |
+| `messageComposer.sendButton.send.ariaLabel` (core)            | Send                           | `aria/Send`                      |
+| `fileUpload.uploadButton.fileUpload.ariaLabel` (core)         | File upload                    | `aria/File upload`               |
+| `common.retryUpload.ariaLabel` (core)                         | Retry upload                   | `aria/Retry upload`              |
+
+The last three are core `stream-chat-react` keys that the components reuse, so a translation you already registered for them applies here too. `ai-docs/i18n-v15-key-map.json` maps each v14 key to its v15 key.
+
+## Migrating from `stream-chat-react` v14
+
+If you already use `stream-chat-react/ai-components` on v14 (shipped from 14.13.0), the component API is identical on v15: same exports, props, class names and theming contract. Only the i18n keys changed. v14 used the English sentence (or an `aria/…` string) as the key; v15 uses namespaced keys. If you registered translations for these components, rename them with the table above or with `ai-docs/i18n-v15-key-map.json`. If you never translated them, there is nothing to do.
 
 ## Theming
 
@@ -251,7 +283,7 @@ function ChatComposer({ attachments }: ChatComposerProps) {
 
 #### Sub-components
 
-- **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled `aria/File upload`, and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
+- **`AIMessageComposer.FileInput`** - File input button for attaching files. Supports multiple file selection. The native `<input type="file">` is visually hidden but stays focusable (it is the keyboard stop, labelled with the `fileUpload.uploadButton.fileUpload.ariaLabel` string, "File upload", and opens the picker on Enter/Space); the round `<label>` that follows it is the pointer target and shows its focus ring. `labelProps` are spread onto that label.
 - **`AIMessageComposer.TextInput`** - Text input field for typing messages. Automatically syncs with composer state.
 - **`AIMessageComposer.SpeechToTextButton`** - Button to toggle speech-to-text input using the Web Speech API.
 - **`AIMessageComposer.SubmitButton`** - Submit button for sending the message.
