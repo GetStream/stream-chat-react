@@ -23,11 +23,11 @@
 ## Project Structure
 
 ```
-examples/react-chatbot/
-├── app/
+examples/ai-chatbot/
+├── src/app/
 │   ├── layout.tsx                 # ✅ Root layout with metadata
 │   └── page.tsx                   # ✅ Server Component - generates user token, renders AIChatApp
-├── components/
+├── src/components/
 │   ├── AIChatApp/
 │   │   ├── AIChatApp.tsx          # ✅ Client Component - Chat wrapper with URL state management
 │   │   └── AIChatApp.scss         # ✅ App layout styles with responsive grid
@@ -103,8 +103,8 @@ examples/react-chatbot/
 
   /* Font */
   --ai-demo-font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica',
-    'Arial', sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial',
+    sans-serif;
 }
 
 :root[data-theme='light'] {
@@ -157,6 +157,7 @@ examples/react-chatbot/
 - **Controlled unmount**: Three-stage state management (minTime → fadeOut → unmount)
 
 **Animations:**
+
 - `float`: Icon moves up and down smoothly (3s loop)
 - `pulse`: Background circle expands and fades (2s loop)
 - `bounce`: Three dots bounce with 0.2s stagger delays
@@ -268,7 +269,7 @@ examples/react-chatbot/
 
 - Wraps `AIMessageComposer`
 - Rounded input box (1.5rem border-radius)
-- **Theme-aware model selector**: overrides `.aicr__ai-message-composer__select`
+- **Theme-aware model selector**: overrides `.str-chat__ai-message-composer__select`
 - Theme-aware input field and submit button
 - Focus states with accent color
 - Responsive padding
@@ -348,15 +349,18 @@ examples/react-chatbot/
 The application uses Next.js App Router with a hybrid Server/Client Component architecture:
 
 **Server Components:**
+
 - `app/layout.tsx` - Root layout with metadata
-- `app/page.tsx` - Main page component that handles server-side token generation
+- `src/app/page.tsx` - Main page component that handles server-side token generation
 
 **Client Components:**
-- `components/AIChatApp/AIChatApp.tsx` - Marked with `'use client'` directive
-- `components/ThemeContext.tsx` - Uses React Context and browser APIs
+
+- `src/components/AIChatApp/AIChatApp.tsx` - Marked with `'use client'` directive
+- `src/components/ThemeContext.tsx` - Uses React Context and browser APIs
 - All interactive UI components (Sidebar, ChatContainer, etc.)
 
 **Benefits:**
+
 - **Security**: Stream API credentials never exposed to client
 - **Performance**: Token generation happens on server
 - **SEO**: Better metadata handling with Next.js metadata API
@@ -364,12 +368,13 @@ The application uses Next.js App Router with a hybrid Server/Client Component ar
 ### Environment Variables
 
 Required in `.env.local`:
+
 ```
 STREAM_API_KEY=your_api_key_here
 STREAM_API_SECRET=your_api_secret_here
 ```
 
-These are accessed server-side only in `app/page.tsx` using `process.env`.
+These are accessed server-side only in `src/app/page.tsx` using `process.env`.
 
 ### localStorage Keys
 
@@ -383,7 +388,7 @@ The app uses the following localStorage keys for client-side persistence:
 
 ## Stream Chat React CSS Variable Overrides
 
-Implemented globally in `components/index.scss`:
+Implemented globally in `src/components/index.scss`:
 
 ```scss
 :root {
@@ -449,6 +454,7 @@ The app implements a sophisticated loading screen with smooth transitions:
 - **Theme-aware**: Inherits all color variables for seamless light/dark mode
 
 **Implementation details:**
+
 - Timer cleanup on unmount prevents memory leaks
 - Fade-out only triggers once via `isFadingOut` guard
 - Chat content loads in parallel, hidden behind loading screen until ready
@@ -470,6 +476,7 @@ The app implements client-side rate limiting to control message sending:
 - **Override support**: `?user_id=` URL parameter allows testing with specific user IDs
 
 **Implementation details:**
+
 - Rate limit state checked on mount and when channel changes
 - Message recorded after successful send
 - Form submission blocked when limit reached
@@ -498,7 +505,7 @@ Message bubbles grow dynamically based on content, with different constraints fo
 
 ### SDK Style Overrides
 
-To properly override the AI Message Composer styles, we target the correct class (`.aicr__ai-message-composer__select`) which has `all: unset` and `background-color: transparent` set by default:
+To properly override the AI Message Composer styles, we target the correct class (`.str-chat__ai-message-composer__select`) which has `all: unset` and `background-color: transparent` set by default:
 
 ---
 
@@ -510,19 +517,20 @@ Each component has its own isolated SCSS file:
 import './ComponentName.scss';
 ```
 
-**Global styles** in `components/index.scss`:
+**Global styles** in `src/components/index.scss`:
 
 - CSS variables for both themes
 - CSS layers
 - Reset styles
 - Font imports (Material Symbols Rounded)
 - Stream Chat React CSS variable overrides
-- Imported once in `app/page.tsx`
+- Imported once in `src/app/page.tsx`
 
 **Component styles** follow BEM-like naming: `ai-demo-component__element--modifier`
 
 **Next.js Integration:**
-- Global styles imported in server component (`app/page.tsx`)
+
+- Global styles imported in server component (`src/app/page.tsx`)
 - Component-level SCSS imported directly in each component file
 - Next.js automatically handles SCSS compilation via built-in support
 

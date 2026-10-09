@@ -1,11 +1,7 @@
 'use client';
 
-import {
-  AIStates,
-  useAIState,
-  useChannelStateContext,
-} from 'stream-chat-react';
-import { AIStateIndicator as StateIndicator } from '@stream-io/chat-react-ai';
+import { AIStates, useAIState, useChannelStateContext } from 'stream-chat-react';
+import { AIStateIndicator as StateIndicator } from 'stream-chat-react/ai-components';
 import './AIStateIndicator.scss';
 
 export const AIStateIndicator = () => {

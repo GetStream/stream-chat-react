@@ -39,12 +39,12 @@
   }
 
   /* Override AIMessageComposer styles */
-  .aicr__ai-message-composer__form {
+  .str-chat__ai-message-composer__form {
     width: 100%;
     max-width: 900px;
   }
 
-  .aicr__ai-message-composer__form {
+  .str-chat__ai-message-composer__form {
     background-color: var(--ai-demo-bg-secondary);
     border: 1px solid var(--ai-demo-border);
     border-radius: 24px;
@@ -58,7 +58,7 @@
     }
   }
 
-  .aicr__ai-message-composer__form__textarea {
+  .str-chat__ai-message-composer__form__textarea {
     background-color: transparent !important;
     color: var(--ai-demo-text-primary);
     font-family: var(--ai-demo-font-family);
@@ -77,12 +77,12 @@
   }
 
   /* Additional specificity for textarea */
-  textarea.aicr__ai-message-composer__form__textarea,
-  input.aicr__ai-message-composer__form__textarea {
+  textarea.str-chat__ai-message-composer__form__textarea,
+  input.str-chat__ai-message-composer__form__textarea {
     color: var(--ai-demo-text-primary) !important;
   }
 
-  .aicr__ai-message-composer__select {
+  .str-chat__ai-message-composer__select {
     color: var(--ai-demo-text-primary);
     border-color: var(--ai-demo-border);
     border-radius: 8px;
@@ -109,7 +109,7 @@
   }
 
   /* Button hover states */
-  .aicr__ai-message-composer__round-button {
+  .str-chat__ai-message-composer__round-button {
     &:hover:not(:disabled) {
       background-color: var(--ai-demo-bg-tertiary) !important;
     }
@@ -134,6 +134,6 @@
   }
 }
 
-[data-theme='dark'] .aicr__ai-message-composer__select {
+[data-theme='dark'] .str-chat__ai-message-composer__select {
   background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' version='1.1' height='10px' width='15px'%3E%3Ctext x='0' y='10' fill='white'%3E%E2%96%BE%3C/text%3E%3C/svg%3E");
 }

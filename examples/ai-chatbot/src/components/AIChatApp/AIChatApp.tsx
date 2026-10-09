@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import type {
   ChannelFilters,
@@ -8,7 +8,7 @@ import type {
   ChannelSort,
   LocalMessage,
 } from 'stream-chat';
-import { Chat, useCreateChatClient, useChatContext } from 'stream-chat-react';
+import { Chat, useChatContext, useCreateChatClient } from 'stream-chat-react';
 import { Sidebar } from '../Sidebar';
 import { ChatContainer } from '../ChatContainer';
 import { LoadingScreen } from '../LoadingScreen';
@@ -128,7 +128,7 @@ export const AIChatApp = ({
   }, [minTimeElapsed]);
 
   return (
-    <div className="ai-demo-app">
+    <div className='ai-demo-app'>
       {chatClient && (
         <Chat client={chatClient} isMessageAIGenerated={isMessageAIGenerated}>
           <ChatContent

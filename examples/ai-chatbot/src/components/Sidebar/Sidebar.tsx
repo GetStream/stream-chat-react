@@ -16,37 +16,25 @@ interface SidebarProps {
 
 const NoOp = () => null;
 
-export const Sidebar = ({
-  filters,
-  options,
-  sort,
-  isOpen,
-  onClose,
-}: SidebarProps) => {
-  return (
-    <>
-      {/* Backdrop for mobile */}
-      {isOpen && <div className="ai-demo-sidebar-backdrop" onClick={onClose} />}
+export const Sidebar = ({ filters, options, sort, isOpen, onClose }: SidebarProps) => (
+  <>
+    {/* Backdrop for mobile */}
+    {isOpen && <div className='ai-demo-sidebar-backdrop' onClick={onClose} />}
 
-      <div
-        className={`ai-demo-sidebar ${isOpen ? 'ai-demo-sidebar--open' : ''}`}
-      >
-        <SidebarHeader />
-        <div className="ai-demo-sidebar__list">
-          <WithComponents
-            overrides={{ ChannelListItemUI: ChannelPreviewItem }}
-          >
-            <ChannelList
-              setActiveChannelOnMount={false}
-              EmptyStateIndicator={NoOp}
-              filters={filters}
-              options={options}
-              sort={sort}
-            />
-          </WithComponents>
-        </div>
-        <SidebarFooter />
+    <div className={`ai-demo-sidebar ${isOpen ? 'ai-demo-sidebar--open' : ''}`}>
+      <SidebarHeader />
+      <div className='ai-demo-sidebar__list'>
+        <WithComponents overrides={{ ChannelListItemUI: ChannelPreviewItem }}>
+          <ChannelList
+            setActiveChannelOnMount={false}
+            EmptyStateIndicator={NoOp}
+            filters={filters}
+            options={options}
+            sort={sort}
+          />
+        </WithComponents>
       </div>
-    </>
-  );
-};
+      <SidebarFooter />
+    </div>
+  </>
+);

@@ -49,9 +49,7 @@ export const getUserId = (): string => {
 /**
  * Get rate limit data for a conversation
  */
-export const getRateLimitData = (
-  conversationId: string,
-): RateLimitData | null => {
+export const getRateLimitData = (conversationId: string): RateLimitData | null => {
   if (typeof window === 'undefined') return null;
 
   const key = `${RATE_LIMIT_KEY_PREFIX}${conversationId}`;
@@ -111,9 +109,7 @@ export const checkRateLimit = (
 
   // Check if limit exceeded
   const isLimited = data.messageCount >= MESSAGE_LIMIT;
-  const resetTime = isLimited
-    ? data.firstMessageTimestamp + TIME_WINDOW_MS
-    : null;
+  const resetTime = isLimited ? data.firstMessageTimestamp + TIME_WINDOW_MS : null;
   const remainingMessages = Math.max(0, MESSAGE_LIMIT - data.messageCount);
 
   return {

@@ -33,13 +33,13 @@ export const SidebarHeader = () => {
   };
 
   return (
-    <div className="ai-demo-sidebar-header">
+    <div className='ai-demo-sidebar-header'>
       <button
-        className="ai-demo-sidebar-header__new-chat-btn"
+        className='ai-demo-sidebar-header__new-chat-btn'
         onClick={handleNewChat}
-        type="button"
+        type='button'
       >
-        <span className="material-symbols-rounded">add</span>
+        <span className='material-symbols-rounded'>add</span>
         <span>New chat</span>
       </button>
     </div>

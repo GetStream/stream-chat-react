@@ -1,27 +1,30 @@
 {
-  "name": "react-chatbot",
-  "version": "0.1.2",
+  "name": "@stream-io/stream-chat-react-ai-chatbot",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
   "dependencies": {
-    "@stream-io/chat-react-ai": "workspace:^",
     "clsx": "^2.1.1",
     "material-symbols": "^0.43.0",
     "nanoid": "^5.1.7",
     "next": "^16.2.4",
-    "react": "^19.2.5",
-    "react-dom": "^19.2.5",
-    "stream-chat": "^9.41.0",
-    "stream-chat-react": "^14.0.1"
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "stream-chat": "^9.54.0",
+    "stream-chat-react": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "^24.12.2",
-    "@types/react": "^19.2.14",
+    "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
-    "typescript": "^5.9.3"
+    "sass": "^1.100.0",
+    "typescript": "^6.0.3"
   }
 }

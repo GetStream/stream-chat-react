@@ -4,9 +4,9 @@ import { useEffect } from 'react';
 import { useChatContext } from 'stream-chat-react';
 import {
   Channel,
+  MessageComposer,
   MessageList,
   Window,
-  MessageComposer,
   WithComponents,
 } from 'stream-chat-react';
 import { customAlphabet } from 'nanoid';
@@ -40,7 +40,7 @@ export const ChatContainer = ({ onToggleSidebar }: ChatContainerProps) => {
   }, [channel, client, setActiveChannel]);
 
   return (
-    <div className="ai-demo-chat-container">
+    <div className='ai-demo-chat-container'>
       <WithComponents
         overrides={{
           EmptyStateIndicator: EmptyState,

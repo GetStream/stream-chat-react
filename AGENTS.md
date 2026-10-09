@@ -33,7 +33,7 @@ Respect repo-specific rules. Do not suppress lint rules broadly; justify and sco
 
 - `src/` — library source: `components/`, `context/`, `store/`, `i18n/`, `styling/`, `a11y/`, `plugins/`, `utils/`, `mock-builders/`
 - `scripts/` — build/validation scripts
-- `examples/` — private example workspaces: `examples/tutorial`, `examples/vite`
+- `examples/` — private example workspaces: `examples/tutorial`, `examples/vite`, `examples/ai-chatbot`
 - `developers/` — dev notes (`BRANCHES.md`, `COMMIT.md`, `DEPRECATIONS.md`, `PR.md`, `RELEASE.md`)
 
 Use the closest folder's patterns and conventions when editing.

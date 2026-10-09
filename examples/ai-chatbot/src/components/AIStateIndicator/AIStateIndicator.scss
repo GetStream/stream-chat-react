@@ -1,11 +1,11 @@
 :root {
-  --aicr__bg-primary: var(--ai-demo-bg-primary);
-  --aicr__bg-secondary: var(--ai-demo-bg-secondary);
-  --aicr__bg-tertiary: var(--ai-demo-bg-tertiary);
-  --aicr__text-primary: var(--ai-demo-text-primary);
-  --aicr__text-secondary: var(--ai-demo-text-secondary);
+  --str-chat__ai-bg-primary: var(--ai-demo-bg-primary);
+  --str-chat__ai-bg-secondary: var(--ai-demo-bg-secondary);
+  --str-chat__ai-bg-tertiary: var(--ai-demo-bg-tertiary);
+  --str-chat__ai-text-primary: var(--ai-demo-text-primary);
+  --str-chat__ai-text-secondary: var(--ai-demo-text-secondary);
 }
 
-.aicr__state-indicator__content {
+.str-chat__ai-state-indicator__content {
   background-color: var(--ai-demo-bg-tertiary);
 }

@@ -14,9 +14,7 @@ export const ChannelPreviewItem = (props: ChannelListItemUIProps) => {
       className={`ai-demo-channel-preview ${isActive ? 'ai-demo-channel-preview--active' : ''}`}
       onClick={() => setActiveChannel(props.channel)}
     >
-      <div className="ai-demo-channel-preview__text">
-        {data?.summary ?? 'New Chat'}
-      </div>
+      <div className='ai-demo-channel-preview__text'>{data?.summary ?? 'New Chat'}</div>
     </div>
   );
 };
