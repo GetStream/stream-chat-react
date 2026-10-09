@@ -195,7 +195,7 @@ The last three are core `stream-chat-react` keys that the components reuse, so a
 
 If you already use `stream-chat-react/ai-components` on v14 (shipped from 14.13.0), the component API is identical on v15: same exports, props, class names and theming contract. Only the i18n keys changed. v14 used the English sentence (or an `aria/…` string) as the key; v15 uses namespaced keys. If you registered translations for these components, rename them with the table above or with `ai-docs/i18n-v15-key-map.json`. If you never translated them, there is nothing to do.
 
-v15 bundles English only. If your app runs in another language and relied on the translations 14.13 shipped for these components, those strings now fall back to English on v15 until you register translations yourself with `i18n.registerTranslation(lang, dict)`. The v14 values live in the 14.x `src/i18n/*.json` files on the `release-v14` branch (for example `git show release-v14:src/i18n/de.json`); map the keys with the table above or `ai-docs/i18n-v15-key-map.json`.
+v15 bundles English only. If your app runs in another language and relied on the translations 14.13 shipped for these components, those strings now fall back to English on v15 until you register translations yourself with `i18n.registerTranslation(lang, dict)`. The v14 values live in the 14.x `src/i18n/*.json` files of the 14.13.0 release (for example `git show v14.13.0:src/i18n/de.json`); map the keys with the table above or `ai-docs/i18n-v15-key-map.json`.
 
 ## Theming
 
@@ -655,5 +655,5 @@ function AIResponseStream({ response }) {
 <br />
 
 <a href="https://getstream.io?utm_source=Github&utm_medium=Github_Repo_Content&utm_content=Developer&utm_campaign=Github_React_AI_SDK&utm_term=DevRelOss">
-<img src="https://user-images.githubusercontent.com/24237865/138428440-b92e5fb7-89f8-41aa-96b1-71a5486c5849.png" align="right" width="12%"/>
+<img src="https://user-images.githubusercontent.com/24237865/138428440-b92e5fb7-89f8-41aa-96b1-71a5486c5849.png" alt="Stream" align="right" width="12%"/>
 </a>
