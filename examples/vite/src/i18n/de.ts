@@ -717,6 +717,7 @@ export const deTranslations = {
   'search.bar.clearSearch.ariaLabel': 'Suche leeren',
   'search.bar.exitSearch.ariaLabel': 'Suche beenden',
   'search.resultItem.selectUserChannel.ariaLabel': 'Benutzerkanal auswählen: {{ name }}',
+  'search.results.loadChannelFailed.text': 'Der Kanal konnte nicht geladen werden',
   'search.results.searchResults.ariaLabel': 'Suchergebnisse',
   'search.resultsHeader.ariaLabel':
     'Filterschaltfläche der Suchergebnisse für: {{ source }}',
