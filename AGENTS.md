@@ -67,10 +67,13 @@ yarn types:tests          # tests + mock-builders; NOT run in CI, currently red 
 # Bundle smoke tests (run in CI after build)
 yarn validate-cjs         # loads dist/cjs in Node + a browser-like context
 yarn validate-esm         # imports dist/es in Node
+yarn validate-entry-isolation  # main entry must not import from plugin entries
+yarn types:scripts        # type-check scripts/*.mts
 
 # Examples
 yarn start:tutorial       # @stream-io/stream-chat-react-tutorial dev server
 yarn start:vite           # @stream-io/stream-chat-react-vite dev server
+yarn start:ai-chatbot     # Next.js AI chatbot example (copy .env.example to .env.local first)
 yarn examples:build       # build all example workspaces
 ```
 
@@ -311,9 +314,9 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 `yarn build` = `yarn clean` + 4 steps in parallel via `concurrently`, each writing to a separate `dist/` subdirectory:
 
 1. **`build-translations`** — `i18next-cli extract` pulls `t()` calls from source into `src/i18n/*.json`
-2. **`vite build`** — bundles 4 entry points as ESM (`dist/es/*.mjs`) + CJS (`dist/cjs/*.js`)
+2. **`vite build`** — bundles 5 entry points as ESM (`dist/es/*.mjs`) + CJS (`dist/cjs/*.js`)
 3. **`tsc -p tsconfig.lib.json`** — `.d.ts` only → `dist/types/`
-4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, plus `cp -r src/styling/assets dist/css/assets`
+4. **`build-styling`** — Sass → `dist/css/index.css`, `emoji-replacement.css`, `emoji-picker.css`, `channel-detail.css`, `ai-components.css`, plus `cp -r src/styling/assets dist/css/assets`
 
 **Entry points** (`package.json` exports ↔ `vite.config.ts` `lib.entry`):
 
@@ -322,6 +325,7 @@ Mock modules with `vi.mock('../../EmptyStateIndicator', () => ({ … }))`; use `
 | `stream-chat-react`                | `src/index.ts`                |
 | `stream-chat-react/channel-detail` | `src/plugins/ChannelDetail/`  |
 | `stream-chat-react/emojis`         | `src/plugins/Emojis/`         |
+| `stream-chat-react/ai-components`  | `src/plugins/AIComponents/`   |
 | `stream-chat-react/mp3-encoder`    | `src/plugins/encoders/mp3.ts` |
 | `stream-chat-react/css/*`          | `dist/css/*`                  |
 
