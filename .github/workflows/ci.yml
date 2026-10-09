@@ -55,6 +55,9 @@ jobs:
       - name: Validate ESM bundle with Node ${{ env.NODE_VERSION }}
         run: yarn validate-esm
 
+      - name: Validate main entry does not pull in ai-components
+        run: yarn validate-entry-isolation
+
       - name: Validate translations are in sync with source
         # `yarn build` above already ran build-translations, which regenerates keys.ts from the
         # t() call sites and runtimeDefaults.ts. A diff here means the author changed a call site

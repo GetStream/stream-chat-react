@@ -52,6 +52,12 @@
       "require": "./dist/cjs/slot-layout.js",
       "default": "./dist/cjs/slot-layout.js"
     },
+    "./ai-components": {
+      "types": "./dist/types/plugins/AIComponents/index.d.ts",
+      "import": "./dist/es/ai-components.mjs",
+      "require": "./dist/cjs/ai-components.js",
+      "default": "./dist/cjs/ai-components.js"
+    },
     "./dist/css/*": {
       "default": "./dist/css/*"
     },
@@ -75,11 +81,15 @@
       ],
       "slot-layout": [
         "./dist/types/plugins/SlotLayout/index.d.ts"
+      ],
+      "ai-components": [
+        "./dist/types/plugins/AIComponents/index.d.ts"
       ]
     }
   },
   "sideEffects": [
-    "*.css"
+    "*.css",
+    "./dist/es/plugins/AIComponents/AIMarkdown/tools/charts/Chart.mjs"
   ],
   "keywords": [
     "chat",
@@ -210,7 +220,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "yarn clean && concurrently 'yarn build-translations' 'vite build' 'tsc --project tsconfig.lib.json' 'yarn build-styling'",
-    "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css; cp -r src/styling/assets dist/css/assets",
+    "build-styling": "sass src/styling/index.scss:dist/css/index.css src/styling/_emoji-replacement.scss:dist/css/emoji-replacement.css src/plugins/Emojis/styling/index.scss:dist/css/emoji-picker.css src/plugins/ChannelDetail/styling/index.scss:dist/css/channel-detail.css src/plugins/AIComponents/styling/index.scss:dist/css/ai-components.css; cp -r src/styling/assets dist/css/assets",
     "build-translations": "node scripts/generate-i18n-keys.mts && prettier --write --log-level warn src/i18n/keys.ts",
     "coverage": "vitest run --coverage",
     "i18n:export": "node scripts/generate-i18n-keys.mts --json en.json",
@@ -223,6 +233,7 @@
     "fix-staged": "lint-staged --config .lintstagedrc.fix.json --concurrent 1",
     "start": "tsc -p tsconfig.lib.json -w",
     "start:css": "node scripts/watch-styling.mjs",
+    "start:ai-chatbot": "yarn workspace @stream-io/stream-chat-react-ai-chatbot dev",
     "start:tutorial": "yarn workspace @stream-io/stream-chat-react-tutorial dev",
     "start:vite": "yarn workspace @stream-io/stream-chat-react-vite dev",
     "postinstall": "node -e \"require('fs').existsSync('scripts/install-husky.mjs') && import('./scripts/install-husky.mjs')\"",
@@ -233,6 +244,7 @@
     "validate-translations": "yarn build-translations && git diff --exit-code -- src/i18n/keys.ts",
     "validate-cjs": "concurrently 'node scripts/validate-cjs-node-bundle.cjs' 'node scripts/validate-cjs-browser-bundle.cjs'",
     "validate-esm": "node scripts/validate-esm-node-bundle.mjs",
+    "validate-entry-isolation": "node scripts/validate-entry-isolation.mts",
     "semantic-release": "semantic-release",
     "prepack": "yarn build",
     "examples:build": "yarn workspaces foreach -A --include '@stream-io/stream-chat-react-*' run build",
