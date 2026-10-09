@@ -1,22 +1,29 @@
 import { useMemo } from 'react';
-
-const MESSAGES = [
-  'Thinking really hard',
-  'Putting on my thinking cap',
-  'Consulting the AI gods',
-  'Brewing up an answer',
-  'Crunching the numbers',
-  'Reading the digital tea leaves',
-  'Firing up the neurons',
-  'Summoning my inner genius',
-  'Connecting the dots',
-  'Working my magic',
-  'Channeling my inner Einstein',
-  'Cooking up something good',
-];
+import { useTranslationContext } from '../../../context/TranslationContext';
 
 export const AIStateIndicator = ({ text }: { text?: string }) => {
-  const messageIndex = useMemo(() => Math.floor(Math.random() * MESSAGES.length), []);
+  const { t } = useTranslationContext();
+  const messages = useMemo(
+    () => [
+      t('Thinking really hard'),
+      t('Putting on my thinking cap'),
+      t('Consulting the AI gods'),
+      t('Brewing up an answer'),
+      t('Crunching the numbers'),
+      t('Reading the digital tea leaves'),
+      t('Firing up the neurons'),
+      t('Summoning my inner genius'),
+      t('Connecting the dots'),
+      t('Working my magic'),
+      t('Channeling my inner Einstein'),
+      t('Cooking up something good'),
+    ],
+    [t],
+  );
+  const messageIndex = useMemo(
+    () => Math.floor(Math.random() * messages.length),
+    [messages.length],
+  );
 
   return (
     <div className='aicr__state-indicator'>
@@ -27,7 +34,7 @@ export const AIStateIndicator = ({ text }: { text?: string }) => {
           <span className='aicr__state-indicator__dot' />
         </div>
         <span className='aicr__state-indicator__text'>
-          {typeof text === 'string' ? text : MESSAGES[messageIndex]}
+          {typeof text === 'string' ? text : messages[messageIndex]}
         </span>
       </div>
     </div>

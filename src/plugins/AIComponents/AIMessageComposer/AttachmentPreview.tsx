@@ -1,6 +1,8 @@
 import { type ComponentPropsWithoutRef, type MouseEvent } from 'react';
 import { useAttachments } from './AIMessageComposer';
 import clsx from 'clsx';
+import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
+import { useTranslationContext } from '../../../context/TranslationContext';
 
 const byteValueNumberFormatter = Intl.NumberFormat('en', {
   notation: 'compact',
@@ -24,6 +26,8 @@ export const Item = ({
   onDelete?: (_: MouseEvent<HTMLButtonElement>) => void;
   onRetry?: (_: MouseEvent<HTMLButtonElement>) => void;
 }) => {
+  const { t } = useTranslationContext();
+  const { IconFile, IconRetry, IconXmark } = useComponentContextIcons();
   const fileName = title || file.name || 'Unknown file name';
   const readableFileSize = byteValueNumberFormatter.format(file.size);
   const isImage = file.type.startsWith('image/');
@@ -38,32 +42,30 @@ export const Item = ({
       })}
     >
       <button
-        aria-label='Delete attachment'
+        aria-label={t('Delete attachment')}
         className='aicr__attachment-preview__delete-button'
         onClick={onDelete}
         type='button'
       >
-        <span className='material-symbols-rounded'>close</span>
+        <IconXmark />
       </button>
 
       {state === 'failed' && (
         <div className='aicr__attachment-preview__failed-state-overlay'>
           <button
-            aria-label='Upload failed'
+            aria-label={t('Upload failed')}
             className='aicr__attachment-preview__retry-button'
             onClick={onRetry}
             type='button'
           >
-            <span className='material-symbols-rounded'>refresh</span>
+            <IconRetry />
           </button>
         </div>
       )}
 
       {!isImage && (
         <div className='aicr__attachment-preview__item-content'>
-          <span className='material-symbols-rounded' style={{ fontSize: '2rem' }}>
-            description
-          </span>
+          <IconFile />
           <div className='aicr__attachment-preview__file-metadata'>
             <div className='aicr__attachment-preview__file-name' title={fileName}>
               {fileName}

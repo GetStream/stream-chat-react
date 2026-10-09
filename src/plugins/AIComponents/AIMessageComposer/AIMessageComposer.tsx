@@ -13,6 +13,8 @@ import { customAlphabet } from 'nanoid';
 import clsx from 'clsx';
 import { StateStore } from 'stream-chat';
 
+import { useComponentContextIcons } from '../../../context/useComponentContextIcons';
+import { useTranslationContext } from '../../../context/TranslationContext';
 import { useStateStore } from '../../../store';
 import { useStableCallback } from '../../../utils/useStableCallback';
 import { AttachmentPreview } from './AttachmentPreview';
@@ -27,6 +29,7 @@ const FileInput = ({
   labelProps?: ComponentPropsWithoutRef<'label'>;
 }) => {
   const { disabled } = useIsDisabled();
+  const { IconPlus } = useComponentContextIcons();
   return (
     <WithStableId>
       {({ id }) => (
@@ -45,7 +48,7 @@ const FileInput = ({
             tabIndex={0}
             {...labelProps}
           >
-            <span className='material-symbols-rounded'>add</span>
+            <IconPlus />
           </label>
         </>
       )}
@@ -69,7 +72,8 @@ export type AIMessageComposerStore = {
   attachments: {
     file: File;
     id: string;
-    meta?: Record<string, unknown>;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- public type kept identical to @stream-io/chat-react-ai@0.2.0 for drop-in migration
+    meta?: Record<string, any>;
   }[];
   text: string;
   disabled?: boolean;
@@ -332,6 +336,7 @@ const noop = () => undefined;
 const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
   const { text } = useText();
   const { disabled } = useIsDisabled();
+  const { t } = useTranslationContext();
 
   return (
     <input
@@ -342,7 +347,7 @@ const TextInput = (props: ComponentPropsWithoutRef<'input'>) => {
       // when input gets "dirty"
       // actual on-change is handled at the form level
       onChange={noop}
-      placeholder='Ask a question...'
+      placeholder={t('Ask a question...')}
       type='text'
       value={text}
       {...props}
@@ -358,6 +363,8 @@ const SpeechToTextButton = (
 ) => {
   const { setText } = useText();
   const { disabled } = useIsDisabled();
+  const { t } = useTranslationContext();
+  const { IconMicrophoneSolid } = useComponentContextIcons();
 
   const { isListening, startListening, stopListening } = useSpeechToText({
     onError: console.error,
@@ -366,7 +373,7 @@ const SpeechToTextButton = (
 
   return (
     <button
-      aria-label='speech-to-text'
+      aria-label={t('aria/Start voice input')}
       aria-pressed={isListening}
       className='aicr__ai-message-composer__round-button'
       onClick={() => {
@@ -380,7 +387,7 @@ const SpeechToTextButton = (
       {...props}
       disabled={disabled}
     >
-      <span className='material-symbols-rounded'>mic</span>
+      <IconMicrophoneSolid />
     </button>
   );
 };
@@ -390,6 +397,7 @@ const SubmitButton = ({
   ...restProps
 }: ComponentPropsWithoutRef<'button'> & { active?: boolean }) => {
   const { disabled } = useIsDisabled();
+  const { IconSend } = useComponentContextIcons();
   return (
     <button
       className={clsx(
@@ -400,7 +408,7 @@ const SubmitButton = ({
       {...restProps}
       disabled={disabled}
     >
-      <span className='material-symbols-rounded'>send</span>
+      <IconSend />
     </button>
   );
 };
